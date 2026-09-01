@@ -788,7 +788,13 @@ html[data-theme="light"] .nht-ico--go:hover:not(:disabled) { color: #fffdf8; }
 .nag-title { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--ink-faint); }
 .nag-tag { font-size: 12px; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--red); color: var(--red); }
 .nag-tag.is-fixed { border-color: var(--green); color: var(--green); }
-.nag-stage { position: relative; aspect-ratio: 16 / 9; min-height: 0; background: var(--bg-deep); border-bottom: 1px solid var(--border); overflow: hidden; }
+/* Portrait 3:4 world in a bounded frame; the guard forbids max-width tokens, so min(). */
+.nag-stage { position: relative; aspect-ratio: 3 / 4; width: min(100%, 330px); margin-inline: auto; min-height: 0; background: var(--bg-deep); border-bottom: 1px solid var(--border); overflow: hidden; }
+.nag-start { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: center; background: color-mix(in srgb, var(--bg-deep) 72%, transparent); }
+.nag-start[hidden] { display: none; }
+.nag-start-btn { padding: 10px 22px; border: 1px solid var(--accent); border-radius: 999px; background: var(--surface); color: var(--ink); font-size: 15px; font-weight: 700; cursor: pointer; }
+.nag-start-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.nag-start-hint { color: var(--ink-faint); font-size: 12px; }
 .nag-canvas { width: 100%; height: 100%; display: block; touch-action: none; outline: 0; }
 .nag-overlay {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -1704,7 +1710,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <div class="hero">
         <span class="eyebrow">Training</span>
         <h1>Find the edge case by playing it</h1>
-        <p class="lead">This playable Asteroids build starts with one deliberate wrap-boundary collision bug. Run the eight-command loop, watch its evidence accumulate, fix the missed hit at <code>/implement</code>, and add asteroid splitting after <code>/compare</code>. Everything happens here in the browser.</p>
+        <p class="lead">This playable arcade shooter starts with one deliberate damage bug: the first enemy shot destroys the ship outright instead of costing one of three lives. Run the eight-command loop, watch its evidence accumulate, fix the damage at <code>/implement</code>, and add vertical movement after <code>/compare</code>. Everything happens here in the browser.</p>
         <div class="btn-row">
           <button type="button" class="btn btn--primary" id="nhtPresent">Present <span aria-hidden="true">&#9974;</span></button>
         </div>
@@ -1732,37 +1738,38 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
           <div class="nht-grid">
             <div class="nht-col">
-              <div class="nht-game" data-asteroids-game data-seeded-bug="wrap-boundary-collision" data-added-feature="asteroid-splitting" data-nhg-keys="self" tabindex="0" aria-label="Playable Asteroids bug demonstration" aria-describedby="nagInstructions">
+              <div class="nht-game" data-arcade-game data-seeded-bug="first-hit-destroys" data-added-feature="vertical-movement" data-nhg-keys="self" tabindex="0" aria-label="Playable arcade shooter bug demonstration" aria-describedby="nagInstructions">
                 <div class="nag-bar">
-                  <span class="nag-title">WRAP//BREAKERS</span>
-                  <span class="nag-tag" data-asteroids="mode">seeded bug</span>
+                  <span class="nag-title">SKY//SENTINEL</span>
+                  <span class="nag-tag" data-arcade="mode">seeded bug</span>
                 </div>
-                <div class="nag-stage" data-asteroids="stage">
-                  <canvas class="nag-canvas" data-asteroids-canvas width="640" height="360" aria-label="Playable Asteroids. Use Left and Right arrows or A and D to rotate, Up Arrow or W to thrust, and Space to fire.">Your browser cannot display the Asteroids canvas. The seeded state places a ship and an asteroid on opposite sides of the same wrapped edge.</canvas>
-                  <div class="nag-fallback" id="nagFallback" data-asteroids-fallback hidden role="img" aria-label="Static Asteroids wrap-boundary demonstration">
-                    <p><strong>Static game state:</strong> a shot at the right edge visually overlaps an asteroid wrapped from the left edge, but the buggy collision check reports no hit.</p>
+                <div class="nag-stage" data-arcade="stage">
+                  <canvas class="nag-canvas" data-arcade-canvas width="360" height="480" aria-label="Playable arcade shooter. Use Left and Right arrows or A and D to move, and Space to fire. Up and Down work after the vertical-movement feature is added.">Your browser cannot display the game canvas.</canvas>
+                  <div class="nag-fallback" id="nagFallback" data-arcade-fallback hidden role="status"></div>
+                  <div class="nag-start" data-arcade="start-overlay">
+                    <button type="button" class="nag-start-btn" data-arcade-start>Click to start</button>
+                    <span class="nag-start-hint">Left / Right or A / D move &middot; Space fires</span>
                   </div>
-                  <div class="nag-cue" data-asteroids-bug-cue hidden aria-hidden="true"></div>
                 </div>
-                <div class="visually-hidden" data-asteroids-live-status aria-live="polite" aria-atomic="true"></div>
-                <div class="nag-overlay" data-asteroids="overlay"><span>Focus the game, then fire once.</span><span>Left / Right / Up or A / D / W + Space</span></div>
+                <div class="visually-hidden" data-arcade-live-status aria-live="polite" aria-atomic="true"></div>
                 <div class="nag-hud" aria-label="Game status">
-                  <div class="nag-stat">Score<b data-asteroids-score>0</b></div>
-                  <div class="nag-stat">Lives<b data-asteroids-lives>3</b></div>
-                  <div class="nag-stat">State<b data-asteroids="state">ready</b></div>
+                  <div class="nag-stat">Score<b data-arcade-score>0</b></div>
+                  <div class="nag-stat">Lives<b data-arcade-lives>3</b></div>
+                  <div class="nag-stat">State<b data-arcade="state">idle</b></div>
                 </div>
                 <div class="nag-controls" role="group" aria-label="Touch game controls">
-                  <button type="button" class="nag-control" data-asteroids-control="left" aria-label="Rotate left">&#8634; Left</button>
-                  <button type="button" class="nag-control" data-asteroids-control="thrust" aria-label="Thrust forward">&#9650; Thrust</button>
-                  <button type="button" class="nag-control" data-asteroids-control="right" aria-label="Rotate right">Right &#8635;</button>
-                  <button type="button" class="nag-control" data-asteroids-control="fire" aria-label="Fire">&#9679; Fire</button>
+                  <button type="button" class="nag-control" data-arcade-control="left" aria-label="Move left">&#9664; Left</button>
+                  <button type="button" class="nag-control" data-arcade-control="right" aria-label="Move right">Right &#9654;</button>
+                  <button type="button" class="nag-control" data-arcade-control="up" aria-label="Move up, once the vertical-movement feature is enabled">&#9650; Up</button>
+                  <button type="button" class="nag-control" data-arcade-control="down" aria-label="Move down, once the vertical-movement feature is enabled">&#9660; Down</button>
+                  <button type="button" class="nag-control" data-arcade-control="fire" aria-label="Fire">&#9679; Fire</button>
                 </div>
                 <div class="nag-actions">
-                  <button type="button" class="nag-action nag-action--primary" data-asteroids-action="toggle">Pause game</button>
-                  <button type="button" class="nag-action" data-asteroids-action="reset">Reset bug demo</button>
-                  <button type="button" class="nag-action nag-step" data-asteroids-action="step" data-asteroids-step>Advance one step</button>
+                  <button type="button" class="nag-action nag-action--primary" data-arcade-action="toggle">Pause game</button>
+                  <button type="button" class="nag-action" data-arcade-action="reset">Reset demo</button>
+                  <button type="button" class="nag-action nag-step" data-arcade-action="step" data-arcade-step>Advance one step</button>
                 </div>
-                <p class="nag-note" id="nagInstructions"><strong>Controls:</strong> focus the game, use Left and Right arrows or A and D to rotate, Up Arrow or W to thrust, and Space to fire; equivalent touch controls follow the game. <strong>Seeded defect:</strong> collision uses flat-screen distance while drawing wraps at the edge. The red cue compares that result with the correct wrapped-distance check, so the miss cannot be mistaken for bad aim.</p>
+                <p class="nag-note" id="nagInstructions"><strong>Controls:</strong> click the start button or press Enter on it, then use Left and Right arrows or A and D to move and Space to fire; Up and Down (or W and S) work after the vertical-movement feature is added, and Escape pauses and releases the keys. Equivalent touch controls follow the game. <strong>Seeded defect:</strong> the very first enemy shot destroys the ship outright instead of costing one of three lives. Fixed damage counts lives 3, 2, 1, 0; touching an asteroid is always fatal.</p>
               </div>
             </div>
 
@@ -2786,33 +2793,51 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 </script>
 
 <script type="application/json" id="nh-training-scenes">
-{"initial":{"game":{"collisionMode":"buggy","splittingEnabled":false,"situation":"wrap-boundary"},"files":[{"path":"src/collision.js","language":"javascript","content":"export function collides(a, b) {\n  const dx = a.x - b.x;\n  const dy = a.y - b.y;\n  return Math.hypot(dx, dy) \u003c= a.radius + b.radius;\n}\n"},{"path":"src/game.js","language":"javascript","content":"import { collides } from \u0027./collision.js\u0027;\n\nexport function hitOutcome(shot, asteroid) {\n  if (!collides(shot, asteroid)) return { score: 0, asteroids: [asteroid] };\n  return { score: 100, asteroids: [] };\n}\n"}]},"scenes":[{"id":"describe","stage":"Understand","title":"Map the game before changing it","intent":"You ask the assistant to trace the real collision path and explain what the browser is doing.","command":"/describe full","tools":[{"name":"Search","purpose":"find collision and wrap logic"},{"name":"Read","purpose":"inspect the two source files"}],"output":["Read src/collision.js and src/game.js.","Drawing wraps at the viewport edge, but collision distance does not.","A shot at x=636 and asteroid at x=8 look 12 px apart, yet the code measures 628 px.","Hostile fixture stays text: \u003cimg onerror\u003e and \u003c/script\u003e.","Wrote docs/analysis.md."],"game":{"collisionMode":"buggy","splittingEnabled":false,"situation":"wrap-boundary"},"files":[{"path":"docs/analysis.md","action":"create","language":"markdown","content":"# Asteroids code map\n\n`src/game.js` calls `collides` when a shot reaches an asteroid. Rendering wraps coordinates at 640 x 360, but `src/collision.js` compares unwrapped x and y deltas. In the seeded case, the shot at x=636 and asteroid at x=8 overlap across the edge while the function measures 628 px.\n\nRisk: collision and rendering disagree at every wrapped boundary.\n"}],"focus_file":"docs/analysis.md","artifact":{"path":"docs/analysis.md","summary":"A code map anchored to the actual collision call path."},"gate":{"name":"Understanding","status":"pass","prompt":"The defect is localized before any edit."},"takeaway":"You now have an evidence-backed map of the code, not a guess about the symptom."},{"id":"review","stage":"Evaluate","title":"Turn the symptom into a finding","intent":"You ask for a severity-ranked review that proves why the edge miss is a defect.","command":"/review","tools":[{"name":"Read","purpose":"verify the collision contract"},{"name":"Test","purpose":"exercise the seeded boundary values"}],"output":["Reproduced the miss with shot x=636 and asteroid x=8.","P1 correctness: collision space disagrees with wrapped render space.","Root cause is direct distance without minimum-image distance.","Wrote docs/review.md."],"game":{"collisionMode":"buggy","splittingEnabled":false,"situation":"wrap-boundary"},"files":[{"path":"docs/review.md","action":"create","language":"markdown","content":"# Collision review\n\n## P1 - Wrapped hits are dropped\n\n`collides` uses flat-screen distance while the game draws objects modulo the viewport. A shot and asteroid separated by the seam can overlap on screen and still report no hit. The seeded 636-to-8 x positions reproduce it deterministically.\n\nFix: measure the shortest wrapped delta on each axis, then cover seam and ordinary collisions.\n"}],"focus_file":"docs/review.md","artifact":{"path":"docs/review.md","summary":"One prioritized finding with reproduction and root cause."},"gate":{"name":"Review","status":"pass","prompt":"The finding is reproducible and actionable."},"takeaway":"You can distinguish a real boundary defect from a missed shot and see why it matters."},{"id":"plan","stage":"Decide","title":"Make the repair testable","intent":"You turn the finding into one small phase with an observable game-state gate.","command":"/plan feature","tools":[{"name":"Read","purpose":"ground the plan in analysis and review"},{"name":"Write","purpose":"record ordered work and exit gates"}],"output":["Planned one phase: prove the miss, implement wrapped distance, replay the scenario.","Exit gate: the seeded shot scores 100 and removes the asteroid.","Splitting remains out of scope until comparison evidence exists.","Wrote docs/releases/v0.1/plans/fix-wrap-collision.md."],"game":{"collisionMode":"buggy","splittingEnabled":false,"situation":"wrap-boundary"},"files":[{"path":"docs/releases/v0.1/plans/fix-wrap-collision.md","action":"create","language":"markdown","content":"# Fix wrapped collision\n\n## Phase 1\n\n1. Add a failing test for shot x=636 and asteroid x=8 in a 640 px world.\n2. Replace direct deltas with the shortest wrapped delta on both axes.\n3. Verify ordinary center-screen collisions remain unchanged.\n4. Play the seeded state: one shot must score 100 and remove the asteroid.\n\nExit: focused tests pass and the in-browser seam hit registers. Splitting is excluded.\n"}],"focus_file":"docs/releases/v0.1/plans/fix-wrap-collision.md","artifact":{"path":"docs/releases/v0.1/plans/fix-wrap-collision.md","summary":"A one-phase repair plan with a playable exit gate."},"gate":{"name":"Plan","status":"pass","prompt":"Scope is bounded to collision correctness."},"takeaway":"You know exactly what will change, what will not, and how the browser will prove it."},{"id":"implement","stage":"Build","title":"Fix the wrapped-distance seam","intent":"You run the planned phase and immediately replay the same seeded shot against the repaired logic.","command":"/implement fix-wrap-collision phase-1","tools":[{"name":"Edit","purpose":"replace flat deltas with wrapped deltas"},{"name":"Test","purpose":"run seam and center collision cases"}],"output":["RED: the wrapped-edge collision test failed against flat distance.","GREEN: minimum-image distance now handles both axes.","Focused tests: 3 passed.","Playable check: the seeded edge shot now scores 100.","Wrote the source change, regression test, diff, and phase history."],"game":{"collisionMode":"fixed","splittingEnabled":false,"situation":"wrap-boundary"},"files":[{"path":"src/collision.js","action":"modify","language":"javascript","content":"function minimumImage(delta, span) {\n  return Math.min(Math.abs(delta), span - Math.abs(delta));\n}\n\nexport function collides(a, b, world = { width: 640, height: 360 }) {\n  const dx = minimumImage(a.x - b.x, world.width);\n  const dy = minimumImage(a.y - b.y, world.height);\n  return Math.hypot(dx, dy) \u003c= a.radius + b.radius;\n}\n","diff":"-  const dx = a.x - b.x;\n-  const dy = a.y - b.y;\n+  const dx = minimumImage(a.x - b.x, world.width);\n+  const dy = minimumImage(a.y - b.y, world.height);\n"},{"path":"tests/collision.test.js","action":"create","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { collides } from \u0027../src/collision.js\u0027;\n\nconst world = { width: 640, height: 360 };\n\ntest(\u0027registers a hit across the wrapped x edge\u0027, () =\u003e {\n  assert.equal(collides({ x: 636, y: 180, radius: 3 }, { x: 8, y: 180, radius: 10 }, world), true);\n});\n\ntest(\u0027keeps separated center objects apart\u0027, () =\u003e {\n  assert.equal(collides({ x: 100, y: 100, radius: 3 }, { x: 200, y: 100, radius: 10 }, world), false);\n});\n"},{"path":"docs/releases/v0.1/evidence/collision.diff","action":"create","language":"diff","content":"-  const dx = a.x - b.x;\n-  const dy = a.y - b.y;\n+  const dx = minimumImage(a.x - b.x, world.width);\n+  const dy = minimumImage(a.y - b.y, world.height);\n   return Math.hypot(dx, dy) \u003c= a.radius + b.radius;\n"},{"path":"docs/releases/v0.1/history/phase-1.md","action":"create","language":"markdown","content":"# Phase 1 history\n\nCompleted: wrapped collision distance and seam regression.\n\nVerified: 3 focused tests passed; seeded browser shot scored 100.\n\nOpen: asteroid splitting is not implemented. No push or remote CI was run.\n"}],"focus_file":"docs/releases/v0.1/evidence/collision.diff","artifact":{"path":"docs/releases/v0.1/history/phase-1.md","summary":"Code, tests, diff, and evidence for the completed repair."},"gate":{"name":"Implementation","status":"pass","prompt":"Fire now: the edge hit must score."},"takeaway":"You can play the same situation before and after the change and observe the fix yourself."},{"id":"compare","stage":"Extend","title":"Adopt splitting without importing a project","intent":"You compare a reference behavior, record the useful pattern, and run its follow-on plan and implementation.","command":"/compare asteroid-splitting-reference","tools":[{"name":"Compare","purpose":"isolate the reference behavior"},{"name":"Edit","purpose":"implement the adopted pattern locally"},{"name":"Test","purpose":"prove two smaller fragments appear"}],"output":["Adopt: split one large asteroid into two smaller children on hit.","Reject: the reference renderer, controls, and dependency layout.","Follow-on /plan and /implement completed inside this comparison step.","Splitting tests: 2 passed.","The playable game now shows two fragments after the seam hit."],"game":{"collisionMode":"fixed","splittingEnabled":true,"situation":"wrap-boundary"},"files":[{"path":"docs/comparison.md","action":"create","language":"markdown","content":"# Asteroid splitting comparison\n\nAdopt the behavior contract: a destroyed asteroid above the minimum size produces exactly two children with smaller radii, stable ids, and diverging velocities.\n\nReject the reference renderer, controls, and package structure. Implement through the existing `hitOutcome` seam.\n"},{"path":"docs/releases/v0.1/plans/add-splitting.md","action":"create","language":"markdown","content":"# Add asteroid splitting\n\nOne follow-on phase: implement `fragmentsFor`, cover large and minimum-size asteroids, then replay the seeded hit. Exit when one large hit produces exactly two smaller moving asteroids.\n"},{"path":"src/game.js","action":"modify","language":"javascript","content":"import { collides } from \u0027./collision.js\u0027;\n\nfunction fragmentsFor(asteroid) {\n  if (asteroid.radius \u003c= 12) return [];\n  const radius = Number((asteroid.radius * 0.58).toFixed(2));\n  return [-1, 1].map((direction, index) =\u003e ({ ...asteroid, id: `fragment-${10 + index}`, radius, vx: direction * 70, vy: 45 }));\n}\n\nexport function hitOutcome(shot, asteroid, world) {\n  if (!collides(shot, asteroid, world)) return { score: 0, asteroids: [asteroid] };\n  return { score: 100, asteroids: fragmentsFor(asteroid) };\n}\n","diff":"-  return { score: 100, asteroids: [] };\n+  return { score: 100, asteroids: fragmentsFor(asteroid) };\n"},{"path":"tests/splitting.test.js","action":"create","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { hitOutcome } from \u0027../src/game.js\u0027;\n\ntest(\u0027splits one radius-32 asteroid deterministically\u0027, () =\u003e {\n  const result = hitOutcome({ x: 636, y: 180, radius: 3 }, { id: \u0027rock\u0027, x: 8, y: 180, radius: 32 }, { width: 640, height: 360 });\n  assert.equal(result.score, 100);\n  assert.deepEqual(result.asteroids.map(a =\u003e [a.id, a.radius]), [[\u0027fragment-10\u0027, 18.56], [\u0027fragment-11\u0027, 18.56]]);\n});\n"}],"focus_file":"docs/comparison.md","artifact":{"path":"docs/comparison.md","summary":"An adoption decision plus its completed follow-on change."},"gate":{"name":"Comparison","status":"pass","prompt":"Only the behavior pattern was adopted."},"takeaway":"You can borrow a useful idea without importing another project\u0027s architecture."},{"id":"test","stage":"Prove","title":"Exercise both behavior boundaries","intent":"You run the focused suite and add the missing minimum-size no-split case.","command":"/test unit","tools":[{"name":"Test","purpose":"run collision and splitting cases"},{"name":"Coverage","purpose":"confirm both branches execute"}],"output":["Ran collision and splitting unit tests.","Added the minimum-size asteroid case.","5 passed; collision and split branches covered.","Wrote reports/unit-summary.txt."],"game":{"collisionMode":"fixed","splittingEnabled":true,"situation":"wrap-boundary"},"files":[{"path":"tests/splitting.test.js","action":"modify","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { hitOutcome } from \u0027../src/game.js\u0027;\n\nconst world = { width: 640, height: 360 };\n\ntest(\u0027splits one radius-32 asteroid deterministically\u0027, () =\u003e {\n  const result = hitOutcome({ x: 636, y: 180, radius: 3 }, { id: \u0027rock\u0027, x: 8, y: 180, radius: 32 }, world);\n  assert.deepEqual(result.asteroids.map(a =\u003e [a.id, a.radius]), [[\u0027fragment-10\u0027, 18.56], [\u0027fragment-11\u0027, 18.56]]);\n});\n\ntest(\u0027removes a size-1 asteroid without fragments\u0027, () =\u003e {\n  const result = hitOutcome({ x: 636, y: 180, radius: 3 }, { id: \u0027tiny\u0027, x: 8, y: 180, radius: 1 }, world);\n  assert.deepEqual(result.asteroids, []);\n});\n"},{"path":"reports/unit-summary.txt","action":"create","language":"text","content":"collision.test.js  3 passed\nsplitting.test.js  2 passed\nTOTAL              5 passed\nBranches: hit, miss, large split, size-1 removal\n"}],"focus_file":"reports/unit-summary.txt","artifact":{"path":"reports/unit-summary.txt","summary":"A focused test result tied to both behaviors."},"gate":{"name":"Tests","status":"pass","prompt":"All five behavior checks pass."},"takeaway":"You have executable proof for the fix and feature, including their boundary cases."},{"id":"update","stage":"Record","title":"Leave the project history current","intent":"You record what changed and the exact proof a future maintainer can rerun.","command":"/update changelog","tools":[{"name":"Diff","purpose":"derive notes from actual changes"},{"name":"Write","purpose":"update release history"}],"output":["Derived notes from the collision, game, and test diffs.","Recorded the wrapped-hit fix and asteroid-splitting feature.","Included the 5-test verification result.","Updated CHANGELOG.md."],"game":{"collisionMode":"fixed","splittingEnabled":true,"situation":"play"},"files":[{"path":"CHANGELOG.md","action":"create","language":"markdown","content":"# Changelog\n\n## 0.1.0\n\n### Fixed\n\n- Register shot and asteroid collisions across wrapped viewport edges.\n\n### Added\n\n- Split a large destroyed asteroid into two smaller moving fragments.\n\n### Verified\n\n- Five focused collision and splitting tests pass.\n"}],"focus_file":"CHANGELOG.md","artifact":{"path":"CHANGELOG.md","summary":"Release notes derived from the implemented diff and tests."},"gate":{"name":"History","status":"pass","prompt":"The durable record matches the code."},"takeaway":"You leave enough evidence for the next person to understand and verify the work."},{"id":"presentify","stage":"Communicate","title":"Turn the evidence into a briefing","intent":"You assemble the analysis, finding, implementation, and proof into an offline walkthrough.","command":"/presentify docs/analysis.md docs/review.md CHANGELOG.md","tools":[{"name":"Read","purpose":"collect the completed evidence trail"},{"name":"Render","purpose":"build one self-contained briefing"}],"output":["Built a four-part briefing: symptom, cause, repair, proof.","Included the seam-hit result and two-fragment behavior.","Wrote asteroids-briefing.html; offline: yes."],"game":{"collisionMode":"fixed","splittingEnabled":true,"situation":"play"},"files":[{"path":"asteroids-briefing.html","action":"create","language":"html","content":"\u003c!doctype html\u003e\n\u003chtml lang=\"en\"\u003e\n\u003cmeta charset=\"utf-8\"\u003e\n\u003ctitle\u003eAsteroids repair briefing\u003c/title\u003e\n\u003cbody\u003e\n  \u003cmain\u003e\n    \u003ch1\u003eOne seam bug, one playable proof\u003c/h1\u003e\n    \u003cp\u003eBefore: the wrapped-edge shot missed. After: it scores 100, and large asteroids split into two children.\u003c/p\u003e\n    \u003cp\u003eEvidence: five focused tests pass.\u003c/p\u003e\n  \u003c/main\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n"}],"focus_file":"asteroids-briefing.html","artifact":{"path":"asteroids-briefing.html","summary":"A self-contained briefing built from the accumulated evidence."},"gate":{"name":"Communication","status":"pass","prompt":"The result is understandable without the implementation session."},"takeaway":"You finish the loop with a concise story backed by the files and behavior you produced."}]}
+{"initial":{"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"src/collision.js","language":"javascript","content":"export function collides(a, b) {\n  const dx = a.x - b.x;\n  const dy = a.y - b.y;\n  return Math.hypot(dx, dy) \u003c= a.radius + b.radius;\n}\n"},{"path":"src/game.js","language":"javascript","content":"import { collides } from \u0027./collision.js\u0027;\n\nexport function hitOutcome(shot, asteroid) {\n  if (!collides(shot, asteroid)) return { score: 0, asteroids: [asteroid] };\n  return { score: 100, asteroids: [] };\n}\n"}]},"scenes":[{"id":"describe","stage":"Understand","title":"Map the game before changing it","intent":"You ask the assistant to trace the real collision path and explain what the browser is doing.","command":"/describe full","tools":[{"name":"Search","purpose":"find collision and wrap logic"},{"name":"Read","purpose":"inspect the two source files"}],"output":["Read src/collision.js and src/game.js.","Drawing wraps at the viewport edge, but collision distance does not.","A shot at x=636 and asteroid at x=8 look 12 px apart, yet the code measures 628 px.","Hostile fixture stays text: \u003cimg onerror\u003e and \u003c/script\u003e.","Wrote docs/analysis.md."],"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"docs/analysis.md","action":"create","language":"markdown","content":"# Asteroids code map\n\n`src/game.js` calls `collides` when a shot reaches an asteroid. Rendering wraps coordinates at 640 x 360, but `src/collision.js` compares unwrapped x and y deltas. In the seeded case, the shot at x=636 and asteroid at x=8 overlap across the edge while the function measures 628 px.\n\nRisk: collision and rendering disagree at every wrapped boundary.\n"}],"focus_file":"docs/analysis.md","artifact":{"path":"docs/analysis.md","summary":"A code map anchored to the actual collision call path."},"gate":{"name":"Understanding","status":"pass","prompt":"The defect is localized before any edit."},"takeaway":"You now have an evidence-backed map of the code, not a guess about the symptom."},{"id":"review","stage":"Evaluate","title":"Turn the symptom into a finding","intent":"You ask for a severity-ranked review that proves why the edge miss is a defect.","command":"/review","tools":[{"name":"Read","purpose":"verify the collision contract"},{"name":"Test","purpose":"exercise the seeded boundary values"}],"output":["Reproduced the miss with shot x=636 and asteroid x=8.","P1 correctness: collision space disagrees with wrapped render space.","Root cause is direct distance without minimum-image distance.","Wrote docs/review.md."],"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"docs/review.md","action":"create","language":"markdown","content":"# Collision review\n\n## P1 - Wrapped hits are dropped\n\n`collides` uses flat-screen distance while the game draws objects modulo the viewport. A shot and asteroid separated by the seam can overlap on screen and still report no hit. The seeded 636-to-8 x positions reproduce it deterministically.\n\nFix: measure the shortest wrapped delta on each axis, then cover seam and ordinary collisions.\n"}],"focus_file":"docs/review.md","artifact":{"path":"docs/review.md","summary":"One prioritized finding with reproduction and root cause."},"gate":{"name":"Review","status":"pass","prompt":"The finding is reproducible and actionable."},"takeaway":"You can distinguish a real boundary defect from a missed shot and see why it matters."},{"id":"plan","stage":"Decide","title":"Make the repair testable","intent":"You turn the finding into one small phase with an observable game-state gate.","command":"/plan feature","tools":[{"name":"Read","purpose":"ground the plan in analysis and review"},{"name":"Write","purpose":"record ordered work and exit gates"}],"output":["Planned one phase: prove the miss, implement wrapped distance, replay the scenario.","Exit gate: the seeded shot scores 100 and removes the asteroid.","Splitting remains out of scope until comparison evidence exists.","Wrote docs/releases/v0.1/plans/fix-wrap-collision.md."],"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"docs/releases/v0.1/plans/fix-wrap-collision.md","action":"create","language":"markdown","content":"# Fix wrapped collision\n\n## Phase 1\n\n1. Add a failing test for shot x=636 and asteroid x=8 in a 640 px world.\n2. Replace direct deltas with the shortest wrapped delta on both axes.\n3. Verify ordinary center-screen collisions remain unchanged.\n4. Play the seeded state: one shot must score 100 and remove the asteroid.\n\nExit: focused tests pass and the in-browser seam hit registers. Splitting is excluded.\n"}],"focus_file":"docs/releases/v0.1/plans/fix-wrap-collision.md","artifact":{"path":"docs/releases/v0.1/plans/fix-wrap-collision.md","summary":"A one-phase repair plan with a playable exit gate."},"gate":{"name":"Plan","status":"pass","prompt":"Scope is bounded to collision correctness."},"takeaway":"You know exactly what will change, what will not, and how the browser will prove it."},{"id":"implement","stage":"Build","title":"Fix the wrapped-distance seam","intent":"You run the planned phase and immediately replay the same seeded shot against the repaired logic.","command":"/implement fix-wrap-collision phase-1","tools":[{"name":"Edit","purpose":"replace flat deltas with wrapped deltas"},{"name":"Test","purpose":"run seam and center collision cases"}],"output":["RED: the wrapped-edge collision test failed against flat distance.","GREEN: minimum-image distance now handles both axes.","Focused tests: 3 passed.","Playable check: the seeded edge shot now scores 100.","Wrote the source change, regression test, diff, and phase history."],"game":{"damageMode":"fixed","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"src/collision.js","action":"modify","language":"javascript","content":"function minimumImage(delta, span) {\n  return Math.min(Math.abs(delta), span - Math.abs(delta));\n}\n\nexport function collides(a, b, world = { width: 640, height: 360 }) {\n  const dx = minimumImage(a.x - b.x, world.width);\n  const dy = minimumImage(a.y - b.y, world.height);\n  return Math.hypot(dx, dy) \u003c= a.radius + b.radius;\n}\n","diff":"-  const dx = a.x - b.x;\n-  const dy = a.y - b.y;\n+  const dx = minimumImage(a.x - b.x, world.width);\n+  const dy = minimumImage(a.y - b.y, world.height);\n"},{"path":"tests/collision.test.js","action":"create","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { collides } from \u0027../src/collision.js\u0027;\n\nconst world = { width: 640, height: 360 };\n\ntest(\u0027registers a hit across the wrapped x edge\u0027, () =\u003e {\n  assert.equal(collides({ x: 636, y: 180, radius: 3 }, { x: 8, y: 180, radius: 10 }, world), true);\n});\n\ntest(\u0027keeps separated center objects apart\u0027, () =\u003e {\n  assert.equal(collides({ x: 100, y: 100, radius: 3 }, { x: 200, y: 100, radius: 10 }, world), false);\n});\n"},{"path":"docs/releases/v0.1/evidence/collision.diff","action":"create","language":"diff","content":"-  const dx = a.x - b.x;\n-  const dy = a.y - b.y;\n+  const dx = minimumImage(a.x - b.x, world.width);\n+  const dy = minimumImage(a.y - b.y, world.height);\n   return Math.hypot(dx, dy) \u003c= a.radius + b.radius;\n"},{"path":"docs/releases/v0.1/history/phase-1.md","action":"create","language":"markdown","content":"# Phase 1 history\n\nCompleted: wrapped collision distance and seam regression.\n\nVerified: 3 focused tests passed; seeded browser shot scored 100.\n\nOpen: asteroid splitting is not implemented. No push or remote CI was run.\n"}],"focus_file":"docs/releases/v0.1/evidence/collision.diff","artifact":{"path":"docs/releases/v0.1/history/phase-1.md","summary":"Code, tests, diff, and evidence for the completed repair."},"gate":{"name":"Implementation","status":"pass","prompt":"Fire now: the edge hit must score."},"takeaway":"You can play the same situation before and after the change and observe the fix yourself."},{"id":"compare","stage":"Extend","title":"Adopt splitting without importing a project","intent":"You compare a reference behavior, record the useful pattern, and run its follow-on plan and implementation.","command":"/compare asteroid-splitting-reference","tools":[{"name":"Compare","purpose":"isolate the reference behavior"},{"name":"Edit","purpose":"implement the adopted pattern locally"},{"name":"Test","purpose":"prove two smaller fragments appear"}],"output":["Adopt: split one large asteroid into two smaller children on hit.","Reject: the reference renderer, controls, and dependency layout.","Follow-on /plan and /implement completed inside this comparison step.","Splitting tests: 2 passed.","The playable game now shows two fragments after the seam hit."],"game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"},"files":[{"path":"docs/comparison.md","action":"create","language":"markdown","content":"# Asteroid splitting comparison\n\nAdopt the behavior contract: a destroyed asteroid above the minimum size produces exactly two children with smaller radii, stable ids, and diverging velocities.\n\nReject the reference renderer, controls, and package structure. Implement through the existing `hitOutcome` seam.\n"},{"path":"docs/releases/v0.1/plans/add-splitting.md","action":"create","language":"markdown","content":"# Add asteroid splitting\n\nOne follow-on phase: implement `fragmentsFor`, cover large and minimum-size asteroids, then replay the seeded hit. Exit when one large hit produces exactly two smaller moving asteroids.\n"},{"path":"src/game.js","action":"modify","language":"javascript","content":"import { collides } from \u0027./collision.js\u0027;\n\nfunction fragmentsFor(asteroid) {\n  if (asteroid.radius \u003c= 12) return [];\n  const radius = Number((asteroid.radius * 0.58).toFixed(2));\n  return [-1, 1].map((direction, index) =\u003e ({ ...asteroid, id: `fragment-${10 + index}`, radius, vx: direction * 70, vy: 45 }));\n}\n\nexport function hitOutcome(shot, asteroid, world) {\n  if (!collides(shot, asteroid, world)) return { score: 0, asteroids: [asteroid] };\n  return { score: 100, asteroids: fragmentsFor(asteroid) };\n}\n","diff":"-  return { score: 100, asteroids: [] };\n+  return { score: 100, asteroids: fragmentsFor(asteroid) };\n"},{"path":"tests/splitting.test.js","action":"create","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { hitOutcome } from \u0027../src/game.js\u0027;\n\ntest(\u0027splits one radius-32 asteroid deterministically\u0027, () =\u003e {\n  const result = hitOutcome({ x: 636, y: 180, radius: 3 }, { id: \u0027rock\u0027, x: 8, y: 180, radius: 32 }, { width: 640, height: 360 });\n  assert.equal(result.score, 100);\n  assert.deepEqual(result.asteroids.map(a =\u003e [a.id, a.radius]), [[\u0027fragment-10\u0027, 18.56], [\u0027fragment-11\u0027, 18.56]]);\n});\n"}],"focus_file":"docs/comparison.md","artifact":{"path":"docs/comparison.md","summary":"An adoption decision plus its completed follow-on change."},"gate":{"name":"Comparison","status":"pass","prompt":"Only the behavior pattern was adopted."},"takeaway":"You can borrow a useful idea without importing another project\u0027s architecture."},{"id":"test","stage":"Prove","title":"Exercise both behavior boundaries","intent":"You run the focused suite and add the missing minimum-size no-split case.","command":"/test unit","tools":[{"name":"Test","purpose":"run collision and splitting cases"},{"name":"Coverage","purpose":"confirm both branches execute"}],"output":["Ran collision and splitting unit tests.","Added the minimum-size asteroid case.","5 passed; collision and split branches covered.","Wrote reports/unit-summary.txt."],"game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"},"files":[{"path":"tests/splitting.test.js","action":"modify","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { hitOutcome } from \u0027../src/game.js\u0027;\n\nconst world = { width: 640, height: 360 };\n\ntest(\u0027splits one radius-32 asteroid deterministically\u0027, () =\u003e {\n  const result = hitOutcome({ x: 636, y: 180, radius: 3 }, { id: \u0027rock\u0027, x: 8, y: 180, radius: 32 }, world);\n  assert.deepEqual(result.asteroids.map(a =\u003e [a.id, a.radius]), [[\u0027fragment-10\u0027, 18.56], [\u0027fragment-11\u0027, 18.56]]);\n});\n\ntest(\u0027removes a size-1 asteroid without fragments\u0027, () =\u003e {\n  const result = hitOutcome({ x: 636, y: 180, radius: 3 }, { id: \u0027tiny\u0027, x: 8, y: 180, radius: 1 }, world);\n  assert.deepEqual(result.asteroids, []);\n});\n"},{"path":"reports/unit-summary.txt","action":"create","language":"text","content":"collision.test.js  3 passed\nsplitting.test.js  2 passed\nTOTAL              5 passed\nBranches: hit, miss, large split, size-1 removal\n"}],"focus_file":"reports/unit-summary.txt","artifact":{"path":"reports/unit-summary.txt","summary":"A focused test result tied to both behaviors."},"gate":{"name":"Tests","status":"pass","prompt":"All five behavior checks pass."},"takeaway":"You have executable proof for the fix and feature, including their boundary cases."},{"id":"update","stage":"Record","title":"Leave the project history current","intent":"You record what changed and the exact proof a future maintainer can rerun.","command":"/update changelog","tools":[{"name":"Diff","purpose":"derive notes from actual changes"},{"name":"Write","purpose":"update release history"}],"output":["Derived notes from the collision, game, and test diffs.","Recorded the wrapped-hit fix and asteroid-splitting feature.","Included the 5-test verification result.","Updated CHANGELOG.md."],"game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"},"files":[{"path":"CHANGELOG.md","action":"create","language":"markdown","content":"# Changelog\n\n## 0.1.0\n\n### Fixed\n\n- Register shot and asteroid collisions across wrapped viewport edges.\n\n### Added\n\n- Split a large destroyed asteroid into two smaller moving fragments.\n\n### Verified\n\n- Five focused collision and splitting tests pass.\n"}],"focus_file":"CHANGELOG.md","artifact":{"path":"CHANGELOG.md","summary":"Release notes derived from the implemented diff and tests."},"gate":{"name":"History","status":"pass","prompt":"The durable record matches the code."},"takeaway":"You leave enough evidence for the next person to understand and verify the work."},{"id":"presentify","stage":"Communicate","title":"Turn the evidence into a briefing","intent":"You assemble the analysis, finding, implementation, and proof into an offline walkthrough.","command":"/presentify docs/analysis.md docs/review.md CHANGELOG.md","tools":[{"name":"Read","purpose":"collect the completed evidence trail"},{"name":"Render","purpose":"build one self-contained briefing"}],"output":["Built a four-part briefing: symptom, cause, repair, proof.","Included the seam-hit result and two-fragment behavior.","Wrote asteroids-briefing.html; offline: yes."],"game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"},"files":[{"path":"asteroids-briefing.html","action":"create","language":"html","content":"\u003c!doctype html\u003e\n\u003chtml lang=\"en\"\u003e\n\u003cmeta charset=\"utf-8\"\u003e\n\u003ctitle\u003eAsteroids repair briefing\u003c/title\u003e\n\u003cbody\u003e\n  \u003cmain\u003e\n    \u003ch1\u003eOne seam bug, one playable proof\u003c/h1\u003e\n    \u003cp\u003eBefore: the wrapped-edge shot missed. After: it scores 100, and large asteroids split into two children.\u003c/p\u003e\n    \u003cp\u003eEvidence: five focused tests pass.\u003c/p\u003e\n  \u003c/main\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n"}],"focus_file":"asteroids-briefing.html","artifact":{"path":"asteroids-briefing.html","summary":"A self-contained briefing built from the accumulated evidence."},"gate":{"name":"Communication","status":"pass","prompt":"The result is understandable without the implementation session."},"takeaway":"You finish the loop with a concise story backed by the files and behavior you produced."}]}
 </script>
 
 <script>
 (function () {
   "use strict";
 
-  var game = document.querySelector("[data-asteroids-game]");
+  var game = document.querySelector("[data-arcade-game]");
   if (!game) return;
 
-  var canvas = game.querySelector("[data-asteroids-canvas]");
-  var fallback = game.querySelector("[data-asteroids-fallback]");
-  var cue = game.querySelector("[data-asteroids-bug-cue]");
-  var liveStatus = game.querySelector("[data-asteroids-live-status]");
-  var overlay = game.querySelector('[data-asteroids="overlay"]');
-  var scoreEl = game.querySelector("[data-asteroids-score]");
-  var livesEl = game.querySelector("[data-asteroids-lives]");
-  var stateEl = game.querySelector('[data-asteroids="state"]');
-  var modeEl = game.querySelector('[data-asteroids="mode"]');
-  var toggleEl = game.querySelector('[data-asteroids-action="toggle"]');
-  var WIDTH = 640;
-  var HEIGHT = 360;
-  var MAX_DELTA_SECONDS = 0.05;
+  var canvas = game.querySelector("[data-arcade-canvas]");
+  var fallback = game.querySelector("[data-arcade-fallback]");
+  var liveStatus = game.querySelector("[data-arcade-live-status]");
+  var startOverlay = game.querySelector('[data-arcade="start-overlay"]');
+  var startButton = game.querySelector("[data-arcade-start]");
+  var scoreEl = game.querySelector("[data-arcade-score]");
+  var livesEl = game.querySelector("[data-arcade-lives]");
+  var stateEl = game.querySelector('[data-arcade="state"]');
+  var modeEl = game.querySelector('[data-arcade="mode"]');
+  var toggleEl = game.querySelector('[data-arcade-action="toggle"]');
+
+  /* The contract in docs/releases/v4/v4.4/development/arcade-shooter-scenario.md is the
+     source of truth for every constant and rule below. */
+  var WIDTH = 360;
+  var HEIGHT = 480;
+  var TICK = 1 / 60;
+  var DEFAULT_SEED = 20260901;
+  var START_LIVES = 3;
+  var INVULN_TICKS = 90;
+  var PLAYER_SPEED_X = 160;
+  var PLAYER_SPEED_Y = 120;
+  var BAND_TOP = 360;
+  var BAND_BOTTOM = 460;
+  var PLAYER_SHOT_VY = -240;
+  var PLAYER_SHOT_LIFE = 2.5;
+  var ENEMY_SHOT_VY = 150;
+  var ASTEROID_SPEEDS = [60, 105];
+  var FIRE_COOLDOWN_TICKS = 14;
+  var MAX_FRAME_SECONDS = 0.25;
+  var PAUSE_REASONS = ["manual", "blur", "hidden", "offscreen", "reduced-motion"];
+  var FIXTURES = ["enemy-hit", "asteroid-hit", "play"];
+
   var reduceQuery = window.matchMedia
     ? window.matchMedia("(prefers-reduced-motion: reduce)")
     : null;
-  var reduceMotion = !!(reduceQuery && reduceQuery.matches);
   var context = null;
   try {
     context = canvas && canvas.getContext ? canvas.getContext("2d") : null;
@@ -2820,674 +2845,743 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     context = null;
   }
 
-  var held = { left: false, right: false, thrust: false };
-  var paused = Object.create(null);
-  var desiredRunning = true;
-  var frameRequest = 0;
-  var lastFrameTime = 0;
-  var nextEntityId = 10;
+  function mulberry32(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a |= 0;
+      a = (a + 0x6d2b79f5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function collides(a, b) {
+    var dx = Number(a.x) - Number(b.x);
+    var dy = Number(a.y) - Number(b.y);
+    var r = (Number(a.r) || 0) + (Number(b.r) || 0);
+    return dx * dx + dy * dy <= r * r;
+  }
+
+  /* Pure damage seam: what one enemy-projectile hit does to the player. */
+  function damageOutcome(mode, lives) {
+    if (mode === "buggy") {
+      return { lives: lives, destroyed: true, reason: "buggy-first-hit" };
+    }
+    var next = Math.max(0, lives - 1);
+    return { lives: next, destroyed: next === 0, reason: next === 0 ? "no-lives" : "hit" };
+  }
+
   var state = null;
+  var held = { left: false, right: false, up: false, down: false, fire: false };
+  var pauseSet = Object.create(null);
+  var generation = 0;
+  var accumulator = 0;
+  var lastFrameTime = 0;
+  var frameRequest = 0;
+  /* Boot-silent: the region announces CHANGES, and page load is not a change. An empty
+     region also keeps the clipped 1px live element out of the overflow detector's view. */
+  var announcedLives = 3;
+  var announcedLifecycle = "idle";
 
-  if (reduceMotion) paused["reduced-motion"] = true;
-  if (document.hidden) paused["document-hidden"] = true;
-  paused.offscreen = true;
-
-  function wrap(value, size) {
-    return ((value % size) + size) % size;
+  function activeReasons() {
+    return Object.keys(pauseSet).sort();
   }
 
-  function collides(first, second, bounds, wrapAware) {
-    var width = Number(bounds && bounds.width) || WIDTH;
-    var height = Number(bounds && bounds.height) || HEIGHT;
-    var dx = Math.abs(Number(first.x) - Number(second.x)) % width;
-    var dy = Math.abs(Number(first.y) - Number(second.y)) % height;
-    if (wrapAware) {
-      dx = Math.min(dx, width - dx);
-      dy = Math.min(dy, height - dy);
-    }
-    var radius = (Number(first.radius) || 0) + (Number(second.radius) || 0);
-    return dx * dx + dy * dy <= radius * radius;
-  }
-
-  function asteroid(id, x, y, radius, size, vx, vy) {
-    return { id: id, x: x, y: y, radius: radius, size: size, vx: vx, vy: vy };
-  }
-
-  function bullet(id, x, y, vx, vy) {
-    return {
-      id: id, x: x, y: y, vx: vx, vy: vy, radius: 3, life: 1.8,
-      missedAsteroids: Object.create(null)
-    };
-  }
-
-  function seededState(situation) {
-    var ship = {
-      x: 590, y: 180, vx: 0, vy: 0, angle: 0, radius: 10,
-      invulnerable: 0
-    };
-    var asteroids = [asteroid("edge-rock", 8, 180, 32, 2, 0, 0)];
-    var bullets = [bullet("seed-shot", 624, 180, 80, 0)];
-
-    if (situation === "ship-impact") {
-      ship = {
-        x: 320, y: 180, vx: 0, vy: 0, angle: 0, radius: 10,
-        invulnerable: 0
-      };
-      asteroids = [asteroid("impact-rock", 320, 180, 20, 1, 0, 0)];
-      bullets = [];
-    } else if (situation === "play") {
-      ship = {
-        x: 320, y: 180, vx: 0, vy: 0, angle: -Math.PI / 2, radius: 10,
-        invulnerable: 1
-      };
-      asteroids = [
-        asteroid("play-a", 94, 82, 30, 2, 18, 12),
-        asteroid("play-b", 532, 92, 25, 2, -14, 16),
-        asteroid("play-c", 474, 290, 20, 1, -20, -11)
-      ];
-      bullets = [];
-    }
-
-    return {
-      situation: situation,
-      ship: ship,
-      bullets: bullets,
-      asteroids: asteroids,
+  function fixtureState(name, seed) {
+    var rng = mulberry32(seed);
+    var base = {
+      seed: seed,
+      fixture: name,
+      tick: 0,
+      lifecycle: "idle",
+      lives: START_LIVES,
       score: 0,
-      lives: 3,
-      collisionMode: "buggy",
-      splittingEnabled: false,
-      frame: 0,
-      lastDeltaSeconds: 0,
-      missedWrapHits: 0,
-      bugCue: false,
-      cueText: "",
-      cueKind: "",
-      cueSeconds: 0,
-      interacted: false
+      damageMode: "buggy",
+      verticalMovementEnabled: false,
+      player: { x: 180, y: 440, r: 10, invulnerableTicks: 0, fireCooldown: 0 },
+      enemies: [],
+      enemyShots: [],
+      asteroids: [],
+      playerShots: [],
+      explosions: [],
+      stars: [],
+      nextId: 1,
+      spawn: { enemyIn: 0, asteroidIn: 0 },
+      rng: rng
     };
+    var i;
+    for (i = 0; i < 26; i++) {
+      base.stars.push({ x: rng() * WIDTH, y: rng() * HEIGHT, speed: 14 + rng() * 30, size: rng() < 0.25 ? 1.6 : 1 });
+    }
+    if (name === "enemy-hit") {
+      /* Fires on a deterministic cadence so FIXED mode can demonstrate 3 -> 2 -> 1 -> 0:
+         the pre-placed shot lands first (~tick 75), then each re-fire lands after the
+         90-tick invulnerability window has expired. */
+      base.enemies.push({ id: "seed-enemy", x: 180, y: 80, r: 12, vx: 0, vy: 8, fireIn: 130, resolved: false });
+      base.enemyShots.push({ id: "seed-shot", x: 180, y: 240, r: 3.5, vy: ENEMY_SHOT_VY, resolved: false });
+      base.spawn.enemyIn = Infinity;
+      base.spawn.asteroidIn = Infinity;
+    } else if (name === "asteroid-hit") {
+      base.asteroids.push({ id: "seed-rock", x: 180, y: 200, r: 16, vy: ASTEROID_SPEEDS[1], spin: 0.8, face: rng() * 6.28, resolved: false });
+      base.spawn.enemyIn = Infinity;
+      base.spawn.asteroidIn = Infinity;
+    } else {
+      base.spawn.enemyIn = 70 + Math.floor(rng() * 40);
+      base.spawn.asteroidIn = 40 + Math.floor(rng() * 30);
+    }
+    return base;
   }
 
-  function pausedReasons() {
-    return Object.keys(paused).filter(function (reason) { return paused[reason]; }).sort();
+  function spawnStep(s) {
+    if (s.fixture !== "play") return;
+    if (s.spawn.enemyIn <= 0) {
+      s.enemies.push({
+        id: "enemy-" + s.nextId++,
+        x: 30 + s.rng() * (WIDTH - 60),
+        y: -14,
+        r: 12,
+        vx: (s.rng() - 0.5) * 40,
+        vy: 55 + s.rng() * 25,
+        fireIn: 40 + Math.floor(s.rng() * 50),
+        resolved: false
+      });
+      s.spawn.enemyIn = 150 + Math.floor(s.rng() * 90);
+    } else {
+      s.spawn.enemyIn -= 1;
+    }
+    if (s.spawn.asteroidIn <= 0) {
+      var tier = s.rng() < 0.5 ? 0 : 1;
+      s.asteroids.push({
+        id: "rock-" + s.nextId++,
+        x: 20 + s.rng() * (WIDTH - 40),
+        y: -20,
+        r: 12 + s.rng() * 10,
+        vy: ASTEROID_SPEEDS[tier],
+        spin: (s.rng() - 0.5) * 2,
+        face: s.rng() * 6.28,
+        resolved: false
+      });
+      s.spawn.asteroidIn = 110 + Math.floor(s.rng() * 80);
+    } else {
+      s.spawn.asteroidIn -= 1;
+    }
   }
 
-  function canAnimate() {
-    return !!context && desiredRunning && pausedReasons().length === 0;
+  function inputStep(s) {
+    var p = s.player;
+    if (held.left) p.x -= PLAYER_SPEED_X * TICK;
+    if (held.right) p.x += PLAYER_SPEED_X * TICK;
+    p.x = Math.min(WIDTH - 14, Math.max(14, p.x));
+    /* Vertical input is READ but ignored until the feature lands, then clamped to the band. */
+    if (s.verticalMovementEnabled) {
+      if (held.up) p.y -= PLAYER_SPEED_Y * TICK;
+      if (held.down) p.y += PLAYER_SPEED_Y * TICK;
+      p.y = Math.min(BAND_BOTTOM, Math.max(BAND_TOP, p.y));
+    }
+    if (p.fireCooldown > 0) p.fireCooldown -= 1;
+    if (held.fire && p.fireCooldown <= 0) {
+      s.playerShots.push({ id: "shot-" + s.nextId++, x: p.x, y: p.y - 12, r: 3, vy: PLAYER_SHOT_VY, life: PLAYER_SHOT_LIFE, resolved: false });
+      p.fireCooldown = FIRE_COOLDOWN_TICKS;
+    }
+    if (p.invulnerableTicks > 0) p.invulnerableTicks -= 1;
+  }
+
+  function movementStep(s) {
+    var i, e;
+    for (i = 0; i < s.enemies.length; i++) {
+      e = s.enemies[i];
+      e.x += e.vx * TICK;
+      e.y += e.vy * TICK;
+      if (e.x < 18 || e.x > WIDTH - 18) e.vx = -e.vx;
+      if (isFinite(e.fireIn)) {
+        e.fireIn -= 1;
+        if (e.fireIn <= 0) {
+          s.enemyShots.push({ id: "eshot-" + s.nextId++, x: e.x, y: e.y + 12, r: 3.5, vy: ENEMY_SHOT_VY, resolved: false });
+          e.fireIn = 90 + Math.floor(s.rng() * 60);
+        }
+      }
+    }
+    for (i = 0; i < s.enemyShots.length; i++) { s.enemyShots[i].y += s.enemyShots[i].vy * TICK; }
+    for (i = 0; i < s.asteroids.length; i++) {
+      s.asteroids[i].y += s.asteroids[i].vy * TICK;
+      s.asteroids[i].face += s.asteroids[i].spin * TICK;
+    }
+    for (i = 0; i < s.playerShots.length; i++) {
+      s.playerShots[i].y += s.playerShots[i].vy * TICK;
+      s.playerShots[i].life -= TICK;
+    }
+    for (i = 0; i < s.stars.length; i++) {
+      s.stars[i].y += s.stars[i].speed * TICK;
+      if (s.stars[i].y > HEIGHT) s.stars[i].y -= HEIGHT;
+    }
+    for (i = 0; i < s.explosions.length; i++) { s.explosions[i].age += 1; }
+  }
+
+  function explodeAt(s, x, y, big) {
+    s.explosions.push({ id: "boom-" + s.nextId++, x: x, y: y, r: big ? 26 : 14, age: 0, big: !!big });
+  }
+
+  function destroyPlayer(s) {
+    s.lifecycle = "destroyed";
+    explodeAt(s, s.player.x, s.player.y, true);
+  }
+
+  function collisionStep(s) {
+    var i, j, hit;
+    /* Precedence 1: asteroid contact is fatal regardless of lives or invulnerability. */
+    for (i = 0; i < s.asteroids.length; i++) {
+      var rock = s.asteroids[i];
+      if (!rock.resolved && collides(rock, s.player)) {
+        rock.resolved = true;
+        destroyPlayer(s);
+        return;
+      }
+    }
+    /* Precedence 2: enemy projectile vs player, one resolution per projectile. */
+    for (i = 0; i < s.enemyShots.length; i++) {
+      var shot = s.enemyShots[i];
+      if (shot.resolved || !collides(shot, s.player)) continue;
+      shot.resolved = true;
+      if (s.damageMode === "fixed" && s.player.invulnerableTicks > 0) continue;
+      var outcome = damageOutcome(s.damageMode, s.lives);
+      if (s.damageMode === "fixed") {
+        s.lives = outcome.lives;
+        explodeAt(s, s.player.x, s.player.y, outcome.destroyed);
+        if (outcome.destroyed) { s.lifecycle = "destroyed"; return; }
+        s.player.invulnerableTicks = INVULN_TICKS;
+      } else {
+        destroyPlayer(s);
+        return;
+      }
+    }
+    /* Precedence 3: player projectiles, each consuming at most one target. */
+    for (i = 0; i < s.playerShots.length; i++) {
+      var ps = s.playerShots[i];
+      if (ps.resolved) continue;
+      hit = null;
+      for (j = 0; j < s.enemies.length && !hit; j++) {
+        if (!s.enemies[j].resolved && collides(ps, s.enemies[j])) hit = s.enemies[j];
+      }
+      for (j = 0; j < s.asteroids.length && !hit; j++) {
+        if (!s.asteroids[j].resolved && collides(ps, s.asteroids[j])) hit = s.asteroids[j];
+      }
+      if (hit) {
+        ps.resolved = true;
+        hit.resolved = true;
+        s.score += 100;
+        explodeAt(s, hit.x, hit.y, false);
+      }
+    }
+  }
+
+  function cleanupStep(s) {
+    s.enemies = s.enemies.filter(function (e) { return !e.resolved && e.y < HEIGHT + 30; });
+    s.enemyShots = s.enemyShots.filter(function (p) { return !p.resolved && p.y < HEIGHT + 20; });
+    s.asteroids = s.asteroids.filter(function (a) { return !a.resolved && a.y < HEIGHT + 40; });
+    s.playerShots = s.playerShots.filter(function (p) { return !p.resolved && p.life > 0 && p.y > -20; });
+    s.explosions = s.explosions.filter(function (b) { return b.age < 36; });
+  }
+
+  function runTick() {
+    var s = state;
+    if (!s || s.lifecycle !== "running") return;
+    inputStep(s);
+    spawnStep(s);
+    movementStep(s);
+    if (s.lifecycle !== "destroyed") collisionStep(s);
+    cleanupStep(s);
+    s.tick += 1;
+  }
+
+  function round3(n) { return Math.round(n * 1000) / 1000; }
+
+  function project(list, extra) {
+    return list.map(function (e) {
+      var out = { id: e.id, x: round3(e.x), y: round3(e.y), r: round3(e.r), vy: round3(e.vy || 0) };
+      if (extra) extra(e, out);
+      return out;
+    });
+  }
+
+  function deepFreeze(obj) {
+    Object.getOwnPropertyNames(obj).forEach(function (key) {
+      var value = obj[key];
+      if (value && typeof value === "object") deepFreeze(value);
+    });
+    return Object.freeze(obj);
   }
 
   function snapshot() {
-    return {
-      available: !!context,
-      situation: state.situation,
-      bounds: { width: WIDTH, height: HEIGHT },
-      ship: {
-        x: state.ship.x, y: state.ship.y, vx: state.ship.vx, vy: state.ship.vy,
-        angle: state.ship.angle, radius: state.ship.radius
+    var s = state;
+    return deepFreeze({
+      seed: s.seed,
+      fixture: s.fixture,
+      tick: s.tick,
+      generation: generation,
+      lifecycle: s.lifecycle,
+      lives: s.lives,
+      score: s.score,
+      damageMode: s.damageMode,
+      verticalMovementEnabled: s.verticalMovementEnabled,
+      pauseReasons: activeReasons(),
+      player: {
+        x: round3(s.player.x),
+        y: round3(s.player.y),
+        invulnerableTicks: s.player.invulnerableTicks
       },
-      bullets: state.bullets.map(function (item) {
-        return {
-          id: item.id, x: item.x, y: item.y, vx: item.vx, vy: item.vy,
-          radius: item.radius, life: item.life
-        };
-      }),
-      asteroids: state.asteroids.map(function (item) {
-        return {
-          id: item.id, x: item.x, y: item.y, radius: item.radius,
-          size: item.size, vx: item.vx, vy: item.vy
-        };
-      }),
-      score: state.score,
-      lives: state.lives,
-      collisionMode: state.collisionMode,
-      splittingEnabled: state.splittingEnabled,
-      missedWrapHits: state.missedWrapHits,
-      bugCue: state.bugCue,
-      cueText: state.cueText,
-      frame: state.frame,
-      lastDeltaSeconds: state.lastDeltaSeconds,
-      running: canAnimate() && !!frameRequest,
-      pausedReasons: pausedReasons()
-    };
+      enemies: project(s.enemies),
+      enemyShots: project(s.enemyShots),
+      asteroids: project(s.asteroids),
+      playerShots: project(s.playerShots),
+      explosions: project(s.explosions)
+    });
   }
 
-  function setCue(kind, message) {
-    state.bugCue = kind === "miss";
-    state.cueKind = kind;
-    state.cueText = message;
-    state.cueSeconds = 2.6;
-  }
-
-  function fragmentsFor(hit, enabled, firstId) {
-    if (enabled !== true || hit.size <= 1) return [];
-    var radius = Math.max(10, hit.radius * 0.58);
-    var speed = 48 + hit.size * 8;
-    return [
-      asteroid("fragment-" + firstId, hit.x, hit.y, radius, hit.size - 1, speed, -speed * 0.62),
-      asteroid("fragment-" + (firstId + 1), hit.x, hit.y, radius, hit.size - 1, -speed, speed * 0.62)
-    ];
-  }
-
-  function hitOutcome(hit, splittingEnabled, firstId, wrappedOnly) {
-    var fragments = fragmentsFor(hit, splittingEnabled, firstId);
-    return {
-      scoreDelta: 100,
-      fragments: fragments,
-      cueText: (wrappedOnly ? "WRAP HIT" : "HIT") + " COUNTED +100"
-        + (fragments.length ? " - asteroid split" : "")
-    };
-  }
-
-  function resolveBulletHits() {
-    for (var bi = state.bullets.length - 1; bi >= 0; bi--) {
-      var shot = state.bullets[bi];
-      var resolved = false;
-      for (var ai = state.asteroids.length - 1; ai >= 0; ai--) {
-        var rock = state.asteroids[ai];
-        var directHit = collides(shot, rock, { width: WIDTH, height: HEIGHT }, false);
-        var wrapHit = collides(shot, rock, { width: WIDTH, height: HEIGHT }, true);
-        var activeHit = state.collisionMode === "fixed" ? wrapHit : directHit;
-
-        if (!activeHit && wrapHit) {
-          if (!shot.missedAsteroids[rock.id]) {
-            shot.missedAsteroids[rock.id] = true;
-            state.missedWrapHits += 1;
-            setCue("miss", "WRAP HIT MISSED - visual contact, score unchanged");
-          }
-          continue;
-        }
-        if (!activeHit) continue;
-
-        var outcome = hitOutcome(
-          rock, state.splittingEnabled, nextEntityId, !directHit && wrapHit
-        );
-        var fragments = outcome.fragments;
-        nextEntityId += fragments.length;
-        state.asteroids.splice(ai, 1);
-        Array.prototype.push.apply(state.asteroids, fragments);
-        state.bullets.splice(bi, 1);
-        state.score += outcome.scoreDelta;
-        setCue("hit", outcome.cueText);
-        resolved = true;
-        break;
-      }
-      if (resolved) continue;
-    }
-  }
-
-  function fire() {
-    var nose = 34;
-    var speed = 300;
-    var angle = state.ship.angle;
-    state.interacted = true;
-    state.bullets.push(bullet(
-      "shot-" + nextEntityId++,
-      state.ship.x + Math.cos(angle) * nose,
-      state.ship.y + Math.sin(angle) * nose,
-      state.ship.vx + Math.cos(angle) * speed,
-      state.ship.vy + Math.sin(angle) * speed
-    ));
-    resolveBulletHits();
+  function reset(fixtureName) {
+    var name = typeof fixtureName === "string" && FIXTURES.indexOf(fixtureName) !== -1
+      ? fixtureName
+      : (state ? state.fixture : "enemy-hit");
+    var carriedMode = state ? state.damageMode : "buggy";
+    var carriedFeature = state ? state.verticalMovementEnabled : false;
+    generation += 1;
+    accumulator = 0;
+    state = fixtureState(name, DEFAULT_SEED);
+    state.damageMode = carriedMode;
+    state.verticalMovementEnabled = carriedFeature;
+    held.left = held.right = held.up = held.down = held.fire = false;
+    /* Idle without a visible start control is a dead end: every reset re-arms the overlay,
+       and restart() hides it again on its immediate start. */
+    if (startOverlay) startOverlay.hidden = false;
+    syncHud();
     paint();
     return snapshot();
   }
 
-  function updateShip(deltaSeconds) {
-    var rotation = (held.right ? 1 : 0) - (held.left ? 1 : 0);
-    state.ship.angle += rotation * 3.2 * deltaSeconds;
-    var acceleration = held.thrust ? 140 : 0;
-    var ax = Math.cos(state.ship.angle) * acceleration;
-    var ay = Math.sin(state.ship.angle) * acceleration;
-    state.ship.x = wrap(
-      state.ship.x + state.ship.vx * deltaSeconds + 0.5 * ax * deltaSeconds * deltaSeconds,
-      WIDTH
-    );
-    state.ship.y = wrap(
-      state.ship.y + state.ship.vy * deltaSeconds + 0.5 * ay * deltaSeconds * deltaSeconds,
-      HEIGHT
-    );
-    state.ship.vx += ax * deltaSeconds;
-    state.ship.vy += ay * deltaSeconds;
-    var speed = Math.hypot(state.ship.vx, state.ship.vy);
-    if (speed > 240) {
-      state.ship.vx = state.ship.vx / speed * 240;
-      state.ship.vy = state.ship.vy / speed * 240;
+  function start() {
+    if (state.lifecycle === "idle") {
+      state.lifecycle = activeReasons().length ? "paused" : "running";
+      if (startOverlay) startOverlay.hidden = true;
+      syncHud();
+      paint();
     }
+    return snapshot();
   }
 
-  function resolveShipHit() {
-    if (state.ship.invulnerable > 0 || state.lives <= 0) return;
-    for (var i = 0; i < state.asteroids.length; i++) {
-      if (!collides(state.ship, state.asteroids[i], { width: WIDTH, height: HEIGHT }, true)) continue;
-      state.lives -= 1;
-      state.ship.x = WIDTH / 2;
-      state.ship.y = HEIGHT * 0.75;
-      state.ship.vx = 0;
-      state.ship.vy = 0;
-      state.ship.invulnerable = 1.4;
-      setCue("warning", "SHIP HIT - life lost");
-      break;
-    }
-  }
-
-  function step(deltaSeconds) {
-    var delta = Number(deltaSeconds);
-    if (!isFinite(delta) || delta < 0) delta = 0;
-    delta = Math.min(delta, MAX_DELTA_SECONDS);
-    state.lastDeltaSeconds = delta;
-    state.frame += 1;
-    updateShip(delta);
-
-    for (var ai = 0; ai < state.asteroids.length; ai++) {
-      state.asteroids[ai].x = wrap(state.asteroids[ai].x + state.asteroids[ai].vx * delta, WIDTH);
-      state.asteroids[ai].y = wrap(state.asteroids[ai].y + state.asteroids[ai].vy * delta, HEIGHT);
-    }
-    for (var bi = state.bullets.length - 1; bi >= 0; bi--) {
-      var shot = state.bullets[bi];
-      shot.x += shot.vx * delta;
-      shot.y += shot.vy * delta;
-      shot.life -= delta;
-      if (shot.life <= 0 || shot.x < 0 || shot.x > WIDTH || shot.y < 0 || shot.y > HEIGHT) {
-        state.bullets.splice(bi, 1);
-      }
-    }
-
-    resolveBulletHits();
-    if (state.ship.invulnerable > 0) state.ship.invulnerable -= delta;
-    resolveShipHit();
-    if (state.cueSeconds > 0) {
-      state.cueSeconds -= delta;
-      if (state.cueSeconds <= 0) {
-        state.bugCue = false;
-        state.cueText = "";
-        state.cueKind = "";
-      }
-    }
+  function restart() {
+    reset();
+    if (startOverlay) startOverlay.hidden = true;
+    state.lifecycle = activeReasons().length ? "paused" : "running";
+    syncHud();
     paint();
     return snapshot();
   }
 
-  function themeColor(token, fallbackColor) {
-    var value = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
-    return value || fallbackColor;
-  }
-
-  function drawWrapped(item, drawAt) {
-    var offsets = [-1, 0, 1];
-    for (var xi = 0; xi < offsets.length; xi++) {
-      for (var yi = 0; yi < offsets.length; yi++) {
-        drawAt(item.x + offsets[xi] * WIDTH, item.y + offsets[yi] * HEIGHT);
-      }
+  function step() {
+    if (!state || state.lifecycle === "idle" || state.lifecycle === "destroyed") return snapshot();
+    state.lifecycle = "running";
+    runTick();
+    if (state.lifecycle !== "destroyed") {
+      state.lifecycle = activeReasons().length ? "paused" : "running";
     }
-  }
-
-  function drawAsteroid(item) {
-    drawWrapped(item, function (x, y) {
-      context.save();
-      context.translate(x, y);
-      context.beginPath();
-      for (var i = 0; i < 9; i++) {
-        var angle = Math.PI * 2 * i / 9;
-        var wobble = 0.82 + ((i * 7 + item.id.length) % 4) * 0.06;
-        var px = Math.cos(angle) * item.radius * wobble;
-        var py = Math.sin(angle) * item.radius * wobble;
-        if (i === 0) context.moveTo(px, py); else context.lineTo(px, py);
-      }
-      context.closePath();
-      context.stroke();
-      context.restore();
-    });
-  }
-
-  function drawShip() {
-    drawWrapped(state.ship, function (x, y) {
-      context.save();
-      context.translate(x, y);
-      context.rotate(state.ship.angle);
-      context.beginPath();
-      context.moveTo(16, 0);
-      context.lineTo(-11, -9);
-      context.lineTo(-6, 0);
-      context.lineTo(-11, 9);
-      context.closePath();
-      context.stroke();
-      if (held.thrust) {
-        context.beginPath();
-        context.moveTo(-8, -5);
-        context.lineTo(-19, 0);
-        context.lineTo(-8, 5);
-        context.strokeStyle = themeColor("--amber", "#ffbd69");
-        context.stroke();
-      }
-      context.restore();
-    });
-  }
-
-  function paintCanvas() {
-    if (!context) return;
-    var rect = canvas.getBoundingClientRect();
-    var pixelRatio = Math.min(Number(window.devicePixelRatio) || 1, 2);
-    var renderWidth = Math.max(1, Math.round(rect.width * pixelRatio));
-    var renderHeight = Math.max(1, Math.round(rect.height * pixelRatio));
-    if (canvas.width !== renderWidth || canvas.height !== renderHeight) {
-      canvas.width = renderWidth;
-      canvas.height = renderHeight;
-    }
-    context.setTransform(canvas.width / WIDTH, 0, 0, canvas.height / HEIGHT, 0, 0);
-    context.clearRect(0, 0, WIDTH, HEIGHT);
-    context.fillStyle = themeColor("--bg-deep", "#071015");
-    context.fillRect(0, 0, WIDTH, HEIGHT);
-    context.fillStyle = themeColor("--ink-faint", "#71818a");
-    for (var i = 0; i < 44; i++) {
-      var sx = (i * 97 + 31) % WIDTH;
-      var sy = (i * 53 + 19) % HEIGHT;
-      context.globalAlpha = 0.25 + (i % 4) * 0.12;
-      context.fillRect(sx, sy, 1.5, 1.5);
-    }
-    context.globalAlpha = 1;
-    context.save();
-    context.setLineDash([4, 7]);
-    context.strokeStyle = themeColor("--border-bright", "#47606b");
-    context.beginPath();
-    context.moveTo(1, 0);
-    context.lineTo(1, HEIGHT);
-    context.moveTo(WIDTH - 1, 0);
-    context.lineTo(WIDTH - 1, HEIGHT);
-    context.stroke();
-    context.restore();
-
-    context.strokeStyle = themeColor("--ink", "#e7f0f3");
-    context.lineWidth = 1.6;
-    for (var ai = 0; ai < state.asteroids.length; ai++) drawAsteroid(state.asteroids[ai]);
-    drawShip();
-    context.fillStyle = themeColor("--accent", "#58d6c7");
-    for (var bi = 0; bi < state.bullets.length; bi++) {
-      context.beginPath();
-      context.arc(state.bullets[bi].x, state.bullets[bi].y, 3, 0, Math.PI * 2);
-      context.fill();
-    }
-    if (state.bugCue) {
-      context.save();
-      context.strokeStyle = themeColor("--red", "#ff6f61");
-      context.lineWidth = 2;
-      context.beginPath();
-      context.arc(WIDTH - 12, 180, 22, 0, Math.PI * 2);
-      context.stroke();
-      context.restore();
-    }
-  }
-
-  function paint() {
-    paintCanvas();
-    if (scoreEl) scoreEl.textContent = String(state.score);
-    if (livesEl) livesEl.textContent = String(state.lives);
-    if (modeEl) {
-      modeEl.textContent = state.collisionMode === "fixed" ? "wrap-aware" : "seeded bug";
-      modeEl.className = "nag-tag" + (state.collisionMode === "fixed" ? " is-fixed" : "");
-    }
-    if (stateEl) {
-      var reasons = pausedReasons();
-      stateEl.textContent = canAnimate() ? "playing" : (reasons[0] || "paused");
-    }
-    if (cue) {
-      cue.hidden = !state.cueText;
-      cue.textContent = state.cueText;
-      cue.className = "nag-cue" + (state.cueKind === "hit" ? " is-hit" : "");
-    }
-    if (liveStatus && liveStatus.textContent !== state.cueText) {
-      liveStatus.textContent = state.cueText;
-    }
-    if (overlay) {
-      overlay.hidden = state.interacted && !reduceMotion;
-      overlay.firstElementChild.textContent = reduceMotion
-        ? "Reduced motion: use Advance one step."
-        : "Focus the game, then fire once.";
-    }
-    if (toggleEl) toggleEl.textContent = desiredRunning ? "Pause game" : "Resume game";
-    if (fallback) {
-      var fallbackText = "Static game state: ";
-      if (state.situation === "ship-impact") {
-        fallbackText += "the ship and an asteroid overlap, demonstrating the lives contract.";
-      } else if (state.situation === "play") {
-        fallbackText += "the ship and three moving asteroids are ready for free play.";
-      } else if (state.collisionMode === "buggy") {
-        fallbackText += "a shot overlaps the wrapped asteroid silhouette, but the buggy collision path reports no hit.";
-      } else if (state.splittingEnabled) {
-        fallbackText += "the wrap-aware shot registers and replaces the large asteroid with two smaller fragments.";
-      } else {
-        fallbackText += "the wrap-aware shot registers, adds 100 points, and removes the asteroid.";
-      }
-      fallback.textContent = fallbackText;
-      fallback.setAttribute("aria-label", fallbackText);
-    }
-  }
-
-  function animationFrame(time) {
-    frameRequest = 0;
-    if (!canAnimate()) return;
-    var deltaSeconds = lastFrameTime ? (time - lastFrameTime) / 1000 : 1 / 60;
-    lastFrameTime = time;
-    step(deltaSeconds);
-    if (canAnimate()) frameRequest = window.requestAnimationFrame(animationFrame);
-  }
-
-  function syncAnimation() {
-    if (canAnimate() && !frameRequest) {
-      lastFrameTime = 0;
-      frameRequest = window.requestAnimationFrame(animationFrame);
-    } else if (!canAnimate() && frameRequest) {
-      window.cancelAnimationFrame(frameRequest);
-      frameRequest = 0;
-      lastFrameTime = 0;
-    }
+    syncHud();
     paint();
+    return snapshot();
   }
 
-  function releaseControls() {
-    held.left = false;
-    held.right = false;
-    held.thrust = false;
-    var activeControls = game.querySelectorAll("[data-asteroids-control].is-held");
-    for (var i = 0; i < activeControls.length; i++) {
-      activeControls[i].classList.remove("is-held");
-    }
+  function applyPauseState() {
+    if (!state || state.lifecycle === "idle" || state.lifecycle === "destroyed") return;
+    state.lifecycle = activeReasons().length ? "paused" : "running";
+    syncHud();
   }
 
   function pause(reason) {
-    releaseControls();
-    paused[String(reason || "manual")] = true;
-    syncAnimation();
+    if (PAUSE_REASONS.indexOf(reason) === -1) return snapshot();
+    pauseSet[reason] = true;
+    applyPauseState();
     return snapshot();
   }
 
   function resume(reason) {
-    delete paused[String(reason || "manual")];
-    syncAnimation();
+    if (PAUSE_REASONS.indexOf(reason) === -1) return snapshot();
+    delete pauseSet[reason];
+    applyPauseState();
+    paint();
     return snapshot();
   }
 
-  function reset(situation) {
-    situation = situation || "wrap-boundary";
-    if (situation !== "wrap-boundary" && situation !== "ship-impact" && situation !== "play") {
-      throw new Error("Unknown game situation: " + situation);
+  function setDamageMode(mode) {
+    if (mode === "buggy" || mode === "fixed") {
+      state.damageMode = mode;
+      syncHud();
     }
-    nextEntityId = 10;
-    state = seededState(situation);
-    held.left = false;
-    held.right = false;
-    held.thrust = false;
-    paint();
     return snapshot();
   }
 
-  function setCollisionMode(mode) {
-    if (mode !== "buggy" && mode !== "fixed") throw new Error("Unknown collision mode: " + mode);
-    state.collisionMode = mode;
-    paint();
+  function setVerticalMovementEnabled(enabled) {
+    if (enabled === true || enabled === false) {
+      state.verticalMovementEnabled = enabled;
+      syncHud();
+    }
     return snapshot();
   }
 
-  function setSplittingEnabled(enabled) {
-    if (typeof enabled !== "boolean") throw new Error("Splitting flag must be boolean");
-    state.splittingEnabled = enabled;
-    paint();
+  function input(name, pressed) {
+    if (Object.prototype.hasOwnProperty.call(held, name)) {
+      held[name] = pressed === true;
+    }
     return snapshot();
   }
 
-  function controlForKey(key) {
-    var value = String(key || "").toLowerCase();
-    if (value === "arrowleft" || value === "a") return "left";
-    if (value === "arrowright" || value === "d") return "right";
-    if (value === "arrowup" || value === "w") return "thrust";
-    if (value === " " || value === "spacebar") return "fire";
-    return "";
+  /* ------------------------------------------------ painting (never world state) */
+
+  function paintShip(ctx, p, s) {
+    var flicker = s.damageMode === "fixed" && p.invulnerableTicks > 0 && (s.tick % 10 < 5);
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    if (flicker) ctx.globalAlpha = 0.35;
+    /* engine trail */
+    if (s.lifecycle === "running") {
+      var flame = ctx.createLinearGradient(0, 10, 0, 26);
+      flame.addColorStop(0, "rgba(94, 234, 212, .9)");
+      flame.addColorStop(1, "rgba(94, 234, 212, 0)");
+      ctx.fillStyle = flame;
+      ctx.beginPath();
+      ctx.moveTo(-4, 10);
+      ctx.quadraticCurveTo(0, 24 + (s.tick % 6), 4, 10);
+      ctx.closePath();
+      ctx.fill();
+    }
+    /* hull */
+    var hull = ctx.createLinearGradient(0, -14, 0, 12);
+    hull.addColorStop(0, "#d7fbff");
+    hull.addColorStop(0.45, "#39c9dd");
+    hull.addColorStop(1, "#0d7286");
+    ctx.fillStyle = hull;
+    ctx.beginPath();
+    ctx.moveTo(0, -14);
+    ctx.bezierCurveTo(6, -8, 8, 0, 9, 8);
+    ctx.lineTo(4, 6);
+    ctx.lineTo(0, 10);
+    ctx.lineTo(-4, 6);
+    ctx.lineTo(-9, 8);
+    ctx.bezierCurveTo(-8, 0, -6, -8, 0, -14);
+    ctx.fill();
+    /* wings */
+    ctx.fillStyle = "#0b5566";
+    ctx.beginPath(); ctx.moveTo(-9, 8); ctx.lineTo(-15, 12); ctx.lineTo(-7, 11); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(9, 8); ctx.lineTo(15, 12); ctx.lineTo(7, 11); ctx.closePath(); ctx.fill();
+    /* cockpit */
+    ctx.fillStyle = "#eafcff";
+    ctx.beginPath(); ctx.ellipse(0, -4, 2.6, 4.2, 0, 0, 6.29); ctx.fill();
+    ctx.restore();
+  }
+
+  function paintEnemy(ctx, e) {
+    ctx.save();
+    ctx.translate(e.x, e.y);
+    var body = ctx.createLinearGradient(0, -10, 0, 12);
+    body.addColorStop(0, "#f3b8c8");
+    body.addColorStop(0.5, "#d15577");
+    body.addColorStop(1, "#7c2144");
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.moveTo(0, 12);
+    ctx.bezierCurveTo(9, 6, 12, -2, 7, -9);
+    ctx.quadraticCurveTo(0, -13, -7, -9);
+    ctx.bezierCurveTo(-12, -2, -9, 6, 0, 12);
+    ctx.fill();
+    ctx.fillStyle = "#3c0f24";
+    ctx.beginPath(); ctx.ellipse(0, -2, 4.4, 3, 0, 0, 6.29); ctx.fill();
+    ctx.fillStyle = "rgba(255, 214, 120, .95)";
+    ctx.beginPath(); ctx.ellipse(0, -2, 2, 1.4, 0, 0, 6.29); ctx.fill();
+    ctx.restore();
+  }
+
+  function paintAsteroid(ctx, a) {
+    ctx.save();
+    ctx.translate(a.x, a.y);
+    ctx.rotate(a.face);
+    var rock = ctx.createRadialGradient(-a.r * 0.3, -a.r * 0.3, a.r * 0.2, 0, 0, a.r);
+    rock.addColorStop(0, "#b9a58c");
+    rock.addColorStop(0.7, "#7d6a52");
+    rock.addColorStop(1, "#4a3d2e");
+    ctx.fillStyle = rock;
+    ctx.beginPath();
+    var k;
+    for (k = 0; k < 9; k++) {
+      var ang = (k / 9) * Math.PI * 2;
+      var wobble = a.r * (0.82 + 0.18 * Math.sin(k * 2.7 + a.r));
+      ctx.lineTo(Math.cos(ang) * wobble, Math.sin(ang) * wobble);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "rgba(30, 24, 16, .45)";
+    ctx.beginPath(); ctx.ellipse(a.r * 0.25, a.r * 0.1, a.r * 0.22, a.r * 0.16, 0.5, 0, 6.29); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(-a.r * 0.3, a.r * 0.35, a.r * 0.14, a.r * 0.1, 0.2, 0, 6.29); ctx.fill();
+    ctx.restore();
+  }
+
+  function paintExplosion(ctx, b) {
+    var t = b.age / 36;
+    var radius = b.r * (0.4 + t * 1.6);
+    ctx.save();
+    ctx.globalAlpha = 1 - t;
+    var burst = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, radius);
+    burst.addColorStop(0, "#fff6d8");
+    burst.addColorStop(0.4, "#ffb066");
+    burst.addColorStop(1, "rgba(232, 96, 60, 0)");
+    ctx.fillStyle = burst;
+    ctx.beginPath(); ctx.arc(b.x, b.y, radius, 0, 6.29); ctx.fill();
+    var p;
+    ctx.fillStyle = "rgba(255, 214, 120, " + (1 - t) + ")";
+    for (p = 0; p < 8; p++) {
+      var ang2 = (p / 8) * Math.PI * 2 + b.r;
+      var dist = radius * (0.7 + (p % 3) * 0.18);
+      ctx.fillRect(b.x + Math.cos(ang2) * dist - 1.4, b.y + Math.sin(ang2) * dist - 1.4, 2.8, 2.8);
+    }
+    ctx.restore();
+  }
+
+  function paint() {
+    if (!context || !state) return;
+    var dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+    var box = canvas.getBoundingClientRect();
+    var pw = Math.max(1, Math.round(box.width * dpr));
+    var ph = Math.max(1, Math.round(box.height * dpr));
+    if (canvas.width !== pw || canvas.height !== ph) {
+      canvas.width = pw;
+      canvas.height = ph;
+    }
+    var ctx = context;
+    ctx.setTransform(pw / WIDTH, 0, 0, ph / HEIGHT, 0, 0);
+    var sky = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+    sky.addColorStop(0, "#04101d");
+    sky.addColorStop(1, "#0a1f2e");
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    var i;
+    ctx.fillStyle = "rgba(215, 251, 255, .8)";
+    for (i = 0; i < state.stars.length; i++) {
+      var st = state.stars[i];
+      ctx.globalAlpha = 0.25 + (st.size - 1) * 0.6;
+      ctx.fillRect(st.x, st.y, st.size, st.size * 2.4);
+    }
+    ctx.globalAlpha = 1;
+    for (i = 0; i < state.asteroids.length; i++) paintAsteroid(ctx, state.asteroids[i]);
+    for (i = 0; i < state.enemies.length; i++) paintEnemy(ctx, state.enemies[i]);
+    ctx.fillStyle = "#ffd678";
+    for (i = 0; i < state.enemyShots.length; i++) {
+      var es = state.enemyShots[i];
+      ctx.beginPath(); ctx.arc(es.x, es.y, es.r, 0, 6.29); ctx.fill();
+      ctx.fillStyle = "rgba(255, 214, 120, .35)";
+      ctx.beginPath(); ctx.arc(es.x, es.y - 5, es.r + 2, 0, 6.29); ctx.fill();
+      ctx.fillStyle = "#ffd678";
+    }
+    for (i = 0; i < state.playerShots.length; i++) {
+      var psh = state.playerShots[i];
+      var glow = ctx.createRadialGradient(psh.x, psh.y, 0, psh.x, psh.y, 7);
+      glow.addColorStop(0, "#d7fbff");
+      glow.addColorStop(0.5, "#2dd4bf");
+      glow.addColorStop(1, "rgba(45, 212, 191, 0)");
+      ctx.fillStyle = glow;
+      ctx.beginPath(); ctx.arc(psh.x, psh.y, 7, 0, 6.29); ctx.fill();
+    }
+    if (state.lifecycle !== "destroyed") paintShip(ctx, state.player, state);
+    for (i = 0; i < state.explosions.length; i++) paintExplosion(ctx, state.explosions[i]);
+  }
+
+  /* ------------------------------------------------------------- HUD and status */
+
+  function syncHud() {
+    if (scoreEl) scoreEl.textContent = String(state.score);
+    if (livesEl) livesEl.textContent = String(state.lives);
+    if (stateEl) stateEl.textContent = state.lifecycle;
+    if (modeEl) {
+      modeEl.textContent = state.damageMode === "buggy" ? "seeded bug" : "damage fixed";
+      modeEl.classList.toggle("is-fixed", state.damageMode === "fixed");
+    }
+    if (toggleEl) {
+      toggleEl.textContent = pauseSet.manual ? "Resume game" : "Pause game";
+    }
+    game.setAttribute("data-lifecycle", state.lifecycle);
+    /* Announce lives and lifecycle CHANGES only, never per-frame chatter. */
+    if (liveStatus && (state.lives !== announcedLives || state.lifecycle !== announcedLifecycle)) {
+      announcedLives = state.lives;
+      announcedLifecycle = state.lifecycle;
+      liveStatus.textContent = state.lifecycle === "destroyed"
+        ? "Ship destroyed. Press Reset to try again."
+        : "Lives " + state.lives + ". Game " + state.lifecycle + ".";
+    }
+  }
+
+  /* ------------------------------------------------------------------ main loop */
+
+  function frame(now) {
+    frameRequest = window.requestAnimationFrame(frame);
+    var gen = generation;
+    if (!lastFrameTime) lastFrameTime = now;
+    var elapsed = Math.min(MAX_FRAME_SECONDS, (now - lastFrameTime) / 1000);
+    lastFrameTime = now;
+    if (state.lifecycle === "running") {
+      accumulator += elapsed;
+      while (accumulator >= TICK) {
+        runTick();
+        accumulator -= TICK;
+        if (gen !== generation || state.lifecycle !== "running") break;
+      }
+      syncHud();
+    }
+    paint();
+  }
+
+  /* State exists before ANY wiring below runs: the reduced-motion probe and the
+     intersection observer both pause(), and pause() snapshots. */
+  reset("enemy-hit");
+
+  /* -------------------------------------------------------------- DOM wiring */
+
+  var KEYMAP = {
+    ArrowLeft: "left", a: "left", A: "left",
+    ArrowRight: "right", d: "right", D: "right",
+    ArrowUp: "up", w: "up", W: "up",
+    ArrowDown: "down", s: "down", S: "down",
+    " ": "fire"
+  };
+
+  function ownsKeys() {
+    return document.activeElement === game && state.lifecycle !== "idle";
+  }
+
+  function releaseKeys() {
+    held.left = held.right = held.up = held.down = held.fire = false;
   }
 
   game.addEventListener("keydown", function (event) {
-    if (event.target.closest && event.target.closest("button, input, select, textarea")) return;
-    if (event.altKey || event.ctrlKey || event.metaKey) return;
-    var control = controlForKey(event.key);
-    if (!control) return;
-    event.preventDefault();
-    event.stopPropagation();
-    state.interacted = true;
-    if (control === "fire") {
-      if (!event.repeat) fire();
-    } else {
-      held[control] = true;
-    }
-    paint();
-  });
-  game.addEventListener("keyup", function (event) {
-    if (event.target.closest && event.target.closest("button, input, select, textarea")) return;
-    var control = controlForKey(event.key);
-    if (!control) return;
-    if (event.altKey || event.ctrlKey || event.metaKey) {
-      if (control !== "fire") held[control] = false;
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
+    if (event.key === "Escape") {
+      pause("manual");
+      releaseKeys();
+      if (toggleEl) toggleEl.focus();
+      event.preventDefault();
       return;
     }
+    if (!ownsKeys()) return;
+    var name = KEYMAP[event.key];
+    if (!name) return;
+    held[name] = true;
     event.preventDefault();
-    event.stopPropagation();
-    if (control !== "fire") held[control] = false;
   });
-  game.addEventListener("blur", function () {
-    releaseControls();
-  }, true);
-  window.addEventListener("blur", releaseControls);
 
-  var controlButtons = game.querySelectorAll("[data-asteroids-control]");
-  for (var ci = 0; ci < controlButtons.length; ci++) {
-    (function (buttonElement) {
-      var control = buttonElement.getAttribute("data-asteroids-control");
-      buttonElement.addEventListener("pointerdown", function (event) {
-        event.preventDefault();
-        state.interacted = true;
-        buttonElement.classList.add("is-held");
-        if (control !== "fire") held[control] = true;
-      });
-      function release() {
-        buttonElement.classList.remove("is-held");
-        if (control !== "fire") held[control] = false;
-      }
-      buttonElement.addEventListener("pointerup", release);
-      buttonElement.addEventListener("pointercancel", release);
-      buttonElement.addEventListener("pointerleave", release);
-      buttonElement.addEventListener("click", function (event) {
-        if (control === "fire") fire();
-        else if (reduceMotion || event.detail === 0) {
-          held[control] = true;
-          step(1 / 30);
-          held[control] = false;
-        }
-      });
-    })(controlButtons[ci]);
+  game.addEventListener("keyup", function (event) {
+    var name = KEYMAP[event.key];
+    if (name) held[name] = false;
+  });
+
+  game.addEventListener("blur", function () {
+    releaseKeys();
+    if (state.lifecycle === "running") pause("blur");
+  }, true);
+
+  game.addEventListener("focus", function () { resume("blur"); }, true);
+
+  if (startButton) {
+    startButton.addEventListener("click", function () {
+      start();
+      game.focus();
+    });
   }
 
-  game.addEventListener("click", function (event) {
-    var actionButton = event.target.closest
-      ? event.target.closest("[data-asteroids-action]")
-      : null;
-    if (!actionButton) return;
-    var action = actionButton.getAttribute("data-asteroids-action");
-    if (action === "reset") reset("wrap-boundary");
-    else if (action === "step") step(1 / 30);
-    else if (action === "toggle") {
-      desiredRunning = !desiredRunning;
-      syncAnimation();
-    }
+  var controls = game.querySelectorAll("[data-arcade-control]");
+  Array.prototype.forEach.call(controls, function (button) {
+    var name = button.getAttribute("data-arcade-control");
+    function press(event) { event.preventDefault(); if (state.lifecycle === "idle") start(); held[name] = true; }
+    function lift() { held[name] = false; }
+    button.addEventListener("pointerdown", press);
+    button.addEventListener("pointerup", lift);
+    button.addEventListener("pointercancel", lift);
+    button.addEventListener("pointerleave", lift);
+  });
+
+  var actions = game.querySelectorAll("[data-arcade-action]");
+  Array.prototype.forEach.call(actions, function (button) {
+    var kind = button.getAttribute("data-arcade-action");
+    button.addEventListener("click", function () {
+      if (kind === "toggle") {
+        if (pauseSet.manual) resume("manual"); else pause("manual");
+      } else if (kind === "reset") {
+        restart();
+        game.focus();
+      } else if (kind === "step") {
+        step();
+      }
+    });
   });
 
   document.addEventListener("visibilitychange", function () {
-    if (document.hidden) pause("document-hidden"); else resume("document-hidden");
+    if (document.hidden) pause("hidden"); else resume("hidden");
   });
-  function syncReducedMotion(event) {
-    reduceMotion = !!event.matches;
-    if (reduceMotion) pause("reduced-motion"); else resume("reduced-motion");
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      var visible = entries[0] && entries[0].isIntersecting;
+      if (visible) resume("offscreen"); else pause("offscreen");
+    }, { threshold: 0.1 }).observe(game);
+  }
+
+  function applyReducedMotion(reduced) {
+    if (reduced) pause("reduced-motion"); else resume("reduced-motion");
+    game.classList.toggle("is-reduced", !!reduced);
   }
   if (reduceQuery) {
-    if (reduceQuery.addEventListener) reduceQuery.addEventListener("change", syncReducedMotion);
-    else if (reduceQuery.addListener) reduceQuery.addListener(syncReducedMotion);
+    applyReducedMotion(reduceQuery.matches);
+    if (reduceQuery.addEventListener) {
+      reduceQuery.addEventListener("change", function (event) { applyReducedMotion(event.matches); });
+    }
   }
-  if ("IntersectionObserver" in window) {
-    var gameObserver = new IntersectionObserver(function (entries) {
-      for (var i = 0; i < entries.length; i++) {
-        if (entries[i].target !== game) continue;
-        if (entries[i].isIntersecting) resume("offscreen"); else pause("offscreen");
-      }
-    }, { threshold: 0.05 });
-    gameObserver.observe(game);
-  } else {
-    var syncFallbackVisibility = function () {
-      var rect = game.getBoundingClientRect();
-      var visible = document.body.getAttribute("data-page") === "training"
-        && rect.bottom > 0 && rect.top < window.innerHeight;
-      if (visible) resume("offscreen"); else pause("offscreen");
-    };
-    window.addEventListener("hashchange", syncFallbackVisibility);
-    window.addEventListener("resize", syncFallbackVisibility);
-    window.addEventListener("scroll", syncFallbackVisibility, { passive: true });
-    syncFallbackVisibility();
-  }
-  if ("ResizeObserver" in window) {
-    new ResizeObserver(function () { paint(); }).observe(canvas);
-  } else {
-    window.addEventListener("resize", paint);
-  }
-  new MutationObserver(function () { paint(); }).observe(document.documentElement, {
-    attributes: true, attributeFilter: ["data-theme"]
-  });
+
+  window.addEventListener("resize", function () { paint(); });
+
+  /* --------------------------------------------------------- canvas fallback */
 
   if (!context) {
-    game.classList.add("no-canvas");
-    game.removeAttribute("tabindex");
-    game.setAttribute("aria-label", "Static Asteroids wrap-boundary demonstration");
-    game.setAttribute("aria-describedby", "nagFallback");
+    if (fallback) {
+      fallback.hidden = false;
+      fallback.textContent = "This browser cannot draw the game canvas. Current state: "
+        + START_LIVES + " lives, seeded damage bug active, vertical movement disabled. "
+        + "The Training walkthrough below still runs every command against this same state.";
+    }
     if (canvas) canvas.hidden = true;
-    if (fallback) fallback.hidden = false;
-    desiredRunning = false;
-    paused["canvas-unavailable"] = true;
-  } else if (fallback) {
-    fallback.hidden = true;
+    Array.prototype.forEach.call(
+      game.querySelectorAll("[data-arcade-control], [data-arcade-start]"),
+      function (button) { button.disabled = true; button.setAttribute("tabindex", "-1"); }
+    );
   }
 
-  reset("wrap-boundary");
-  window.NexusAsteroids = Object.freeze({
+  /* ------------------------------------------------------------------- expose */
+
+  syncHud();
+  paint();
+  frameRequest = window.requestAnimationFrame(frame);
+  void frameRequest;
+
+  window.NexusShooter = Object.freeze({
     snapshot: snapshot,
     reset: reset,
+    restart: restart,
+    start: start,
     step: step,
-    fire: fire,
-    setCollisionMode: setCollisionMode,
-    setSplittingEnabled: setSplittingEnabled,
     pause: pause,
     resume: resume,
+    setDamageMode: setDamageMode,
+    setVerticalMovementEnabled: setVerticalMovementEnabled,
+    input: input,
+    world: Object.freeze({ width: WIDTH, height: HEIGHT, tick: TICK, seed: DEFAULT_SEED }),
     logic: Object.freeze({
-      wrap: wrap,
       collides: collides,
-      fragmentsFor: fragmentsFor,
-      hitOutcome: hitOutcome
+      damageOutcome: damageOutcome
     })
   });
-  syncAnimation();
 })();
 </script>
 
@@ -3500,7 +3594,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   if (!root || !dataEl) return;
 
   var SCENES = [];
-  var INITIAL = { game: { collisionMode: "buggy", splittingEnabled: false, situation: "wrap-boundary" }, files: [] };
+  var INITIAL = { game: { damageMode: "buggy", verticalMovementEnabled: false, fixture: "enemy-hit" }, files: [] };
   try {
     var parsed = JSON.parse(dataEl.textContent || "{}");
     SCENES = parsed && parsed.scenes ? parsed.scenes : [];
@@ -3531,10 +3625,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
   /* ---------------------------------------------- cumulative project state */
   function configureGame(config) {
-    if (!window.NexusAsteroids) return;
-    window.NexusAsteroids.reset(config.situation);
-    window.NexusAsteroids.setCollisionMode(config.collisionMode);
-    window.NexusAsteroids.setSplittingEnabled(config.splittingEnabled);
+    if (!window.NexusShooter) return;
+    window.NexusShooter.reset(config.fixture);
+    window.NexusShooter.setDamageMode(config.damageMode);
+    window.NexusShooter.setVerticalMovementEnabled(config.verticalMovementEnabled);
   }
 
   function gameStateThrough(index) {
@@ -3985,7 +4079,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         e.preventDefault(); first.focus(); return;
       }
     }
-    if (e.target.closest && e.target.closest("[data-asteroids-game]")) return;
+    if (e.target.closest && e.target.closest("[data-arcade-game]")) return;
     if (e.target.closest && e.target.closest('[data-nht="explorer"]')) return;
     var tag = (e.target.tagName || "").toLowerCase();
     if (tag === "input" || tag === "textarea" || tag === "select") return;
@@ -4022,9 +4116,9 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       selectedPath: selectedFile,
       filePaths: projectStateThrough(appliedThrough).map(function (file) { return file.path; }),
       game: {
-        collisionMode: game.collisionMode,
-        splittingEnabled: game.splittingEnabled,
-        situation: game.situation
+        damageMode: game.damageMode,
+        verticalMovementEnabled: game.verticalMovementEnabled,
+        fixture: game.fixture
       },
       ran: appliedThrough === step
     };

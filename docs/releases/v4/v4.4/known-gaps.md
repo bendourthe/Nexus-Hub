@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 in progress on the same minor
-**Last updated**: 2026-09-01 (v4.4.1 Phase 4)
+**Last updated**: 2026-09-01 (v4.4.1 Phase 5)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -51,7 +51,7 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 1 |
-| Bugs / regressions (BG) | 0 | 7 |
+| Bugs / regressions (BG) | 0 | 10 |
 | Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -81,6 +81,9 @@
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | BG-1 | The plan document leaked personal filesystem paths | Phase 1 | Sub-task 1.3 named the local Cursor candidates as absolute `C:/Users/<user>/Downloads/...` paths. `validate_no_personal_paths.py` reported 4 findings against the plan file, and that validator runs in `make validate` and CI, so the plan as authored would have failed the pipeline on commit. Redacted to a username-free `~/Downloads/...` form; the scanner is clean. |
+| BG-10 | reset() created an unstartable idle game | Phase 5 | The engine's reset returned the world to `idle` without re-arming the Click-to-start overlay, so any reset after the first start (including every Training route change through `configureGame`) left an idle game with no visible way to begin. Every reset now re-arms the overlay and `restart()` hides it again immediately. Caught by the Phase 6 keyboard sweep timing out on a game that could never reach `paused`. |
+| BG-9 | The fixed-damage fixture could not demonstrate its own rule | Phase 5 | The seeded enemy never re-fired, so after the single pre-placed shot the `enemy-hit` fixture could never walk lives 3 -> 2 -> 1 -> 0 in fixed mode. The enemy now re-fires on a deterministic cadence timed to land after each 90-tick invulnerability window; the buggy-mode tick-75 first hit is unchanged, and the scenario contract records the cadence. |
+| BG-8 | The shooter engine crashed on page load | Phase 5 | The reduced-motion probe and the intersection observer both call `pause()`, which snapshots, and both were wired before the first `reset()` created state, so boot died on `Cannot read properties of null`. State creation moved above all DOM wiring with a load-bearing-position comment. |
 | DF-1 | The four Phase 4 output-media assets were not yet staged | Phase 4 | All four generated as ORIGINAL local media (procedural balloon SVG, ten-frame Pillow sunrise GIF, a poster drawn from the same geometry constants, and a stdlib-synthesized two-note chime WAV), hashed into ledger section 3 as SETTLED, then embedded. `test_v441_phase4_foundations.py` decodes every embedded payload and hash-matches it against the staged file, so the approved-bytes-only rule is enforced, not assumed. |
 | BG-7 | A dead animation primitive kept a reduced-motion check alive | Phase 3 | `fx-grow` lost its only consumer when the SVG context-budget diagram became an HTML node tree, leaving three orphan CSS rules and a reduced-motion assertion that failed on an empty element set. The CSS was deleted and the check made vacuously safe while staying strict for any element that exists, plus a guard asserting `fx-grow` is absent so a reintroduced consumer must restore its static state. |
 | BG-6 | Tokens diagram caption text was clipped at the SVG viewBox edge | Phase 3 | Two caption lines ran past the 360-unit viewBox width and were cut mid-word. SVG text does not wrap, so the captions moved to an HTML paragraph below the diagram and the viewBox height was trimmed to match. |

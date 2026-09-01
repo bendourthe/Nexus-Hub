@@ -1,9 +1,9 @@
 {
   "initial": {
     "game": {
-      "collisionMode": "buggy",
-      "splittingEnabled": false,
-      "situation": "wrap-boundary"
+      "damageMode": "buggy",
+      "verticalMovementEnabled": false,
+      "fixture": "enemy-hit"
     },
     "files": [
       {
@@ -26,8 +26,14 @@
       "intent": "You ask the assistant to trace the real collision path and explain what the browser is doing.",
       "command": "/describe full",
       "tools": [
-        { "name": "Search", "purpose": "find collision and wrap logic" },
-        { "name": "Read", "purpose": "inspect the two source files" }
+        {
+          "name": "Search",
+          "purpose": "find collision and wrap logic"
+        },
+        {
+          "name": "Read",
+          "purpose": "inspect the two source files"
+        }
       ],
       "output": [
         "Read src/collision.js and src/game.js.",
@@ -36,7 +42,11 @@
         "Hostile fixture stays text: <img onerror> and </script>.",
         "Wrote docs/analysis.md."
       ],
-      "game": { "collisionMode": "buggy", "splittingEnabled": false, "situation": "wrap-boundary" },
+      "game": {
+        "damageMode": "buggy",
+        "verticalMovementEnabled": false,
+        "fixture": "enemy-hit"
+      },
       "files": [
         {
           "path": "docs/analysis.md",
@@ -46,8 +56,15 @@
         }
       ],
       "focus_file": "docs/analysis.md",
-      "artifact": { "path": "docs/analysis.md", "summary": "A code map anchored to the actual collision call path." },
-      "gate": { "name": "Understanding", "status": "pass", "prompt": "The defect is localized before any edit." },
+      "artifact": {
+        "path": "docs/analysis.md",
+        "summary": "A code map anchored to the actual collision call path."
+      },
+      "gate": {
+        "name": "Understanding",
+        "status": "pass",
+        "prompt": "The defect is localized before any edit."
+      },
       "takeaway": "You now have an evidence-backed map of the code, not a guess about the symptom."
     },
     {
@@ -57,8 +74,14 @@
       "intent": "You ask for a severity-ranked review that proves why the edge miss is a defect.",
       "command": "/review",
       "tools": [
-        { "name": "Read", "purpose": "verify the collision contract" },
-        { "name": "Test", "purpose": "exercise the seeded boundary values" }
+        {
+          "name": "Read",
+          "purpose": "verify the collision contract"
+        },
+        {
+          "name": "Test",
+          "purpose": "exercise the seeded boundary values"
+        }
       ],
       "output": [
         "Reproduced the miss with shot x=636 and asteroid x=8.",
@@ -66,7 +89,11 @@
         "Root cause is direct distance without minimum-image distance.",
         "Wrote docs/review.md."
       ],
-      "game": { "collisionMode": "buggy", "splittingEnabled": false, "situation": "wrap-boundary" },
+      "game": {
+        "damageMode": "buggy",
+        "verticalMovementEnabled": false,
+        "fixture": "enemy-hit"
+      },
       "files": [
         {
           "path": "docs/review.md",
@@ -76,8 +103,15 @@
         }
       ],
       "focus_file": "docs/review.md",
-      "artifact": { "path": "docs/review.md", "summary": "One prioritized finding with reproduction and root cause." },
-      "gate": { "name": "Review", "status": "pass", "prompt": "The finding is reproducible and actionable." },
+      "artifact": {
+        "path": "docs/review.md",
+        "summary": "One prioritized finding with reproduction and root cause."
+      },
+      "gate": {
+        "name": "Review",
+        "status": "pass",
+        "prompt": "The finding is reproducible and actionable."
+      },
       "takeaway": "You can distinguish a real boundary defect from a missed shot and see why it matters."
     },
     {
@@ -87,8 +121,14 @@
       "intent": "You turn the finding into one small phase with an observable game-state gate.",
       "command": "/plan feature",
       "tools": [
-        { "name": "Read", "purpose": "ground the plan in analysis and review" },
-        { "name": "Write", "purpose": "record ordered work and exit gates" }
+        {
+          "name": "Read",
+          "purpose": "ground the plan in analysis and review"
+        },
+        {
+          "name": "Write",
+          "purpose": "record ordered work and exit gates"
+        }
       ],
       "output": [
         "Planned one phase: prove the miss, implement wrapped distance, replay the scenario.",
@@ -96,7 +136,11 @@
         "Splitting remains out of scope until comparison evidence exists.",
         "Wrote docs/releases/v0.1/plans/fix-wrap-collision.md."
       ],
-      "game": { "collisionMode": "buggy", "splittingEnabled": false, "situation": "wrap-boundary" },
+      "game": {
+        "damageMode": "buggy",
+        "verticalMovementEnabled": false,
+        "fixture": "enemy-hit"
+      },
       "files": [
         {
           "path": "docs/releases/v0.1/plans/fix-wrap-collision.md",
@@ -106,8 +150,15 @@
         }
       ],
       "focus_file": "docs/releases/v0.1/plans/fix-wrap-collision.md",
-      "artifact": { "path": "docs/releases/v0.1/plans/fix-wrap-collision.md", "summary": "A one-phase repair plan with a playable exit gate." },
-      "gate": { "name": "Plan", "status": "pass", "prompt": "Scope is bounded to collision correctness." },
+      "artifact": {
+        "path": "docs/releases/v0.1/plans/fix-wrap-collision.md",
+        "summary": "A one-phase repair plan with a playable exit gate."
+      },
+      "gate": {
+        "name": "Plan",
+        "status": "pass",
+        "prompt": "Scope is bounded to collision correctness."
+      },
       "takeaway": "You know exactly what will change, what will not, and how the browser will prove it."
     },
     {
@@ -117,8 +168,14 @@
       "intent": "You run the planned phase and immediately replay the same seeded shot against the repaired logic.",
       "command": "/implement fix-wrap-collision phase-1",
       "tools": [
-        { "name": "Edit", "purpose": "replace flat deltas with wrapped deltas" },
-        { "name": "Test", "purpose": "run seam and center collision cases" }
+        {
+          "name": "Edit",
+          "purpose": "replace flat deltas with wrapped deltas"
+        },
+        {
+          "name": "Test",
+          "purpose": "run seam and center collision cases"
+        }
       ],
       "output": [
         "RED: the wrapped-edge collision test failed against flat distance.",
@@ -127,7 +184,11 @@
         "Playable check: the seeded edge shot now scores 100.",
         "Wrote the source change, regression test, diff, and phase history."
       ],
-      "game": { "collisionMode": "fixed", "splittingEnabled": false, "situation": "wrap-boundary" },
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": false,
+        "fixture": "enemy-hit"
+      },
       "files": [
         {
           "path": "src/collision.js",
@@ -156,8 +217,15 @@
         }
       ],
       "focus_file": "docs/releases/v0.1/evidence/collision.diff",
-      "artifact": { "path": "docs/releases/v0.1/history/phase-1.md", "summary": "Code, tests, diff, and evidence for the completed repair." },
-      "gate": { "name": "Implementation", "status": "pass", "prompt": "Fire now: the edge hit must score." },
+      "artifact": {
+        "path": "docs/releases/v0.1/history/phase-1.md",
+        "summary": "Code, tests, diff, and evidence for the completed repair."
+      },
+      "gate": {
+        "name": "Implementation",
+        "status": "pass",
+        "prompt": "Fire now: the edge hit must score."
+      },
       "takeaway": "You can play the same situation before and after the change and observe the fix yourself."
     },
     {
@@ -167,9 +235,18 @@
       "intent": "You compare a reference behavior, record the useful pattern, and run its follow-on plan and implementation.",
       "command": "/compare asteroid-splitting-reference",
       "tools": [
-        { "name": "Compare", "purpose": "isolate the reference behavior" },
-        { "name": "Edit", "purpose": "implement the adopted pattern locally" },
-        { "name": "Test", "purpose": "prove two smaller fragments appear" }
+        {
+          "name": "Compare",
+          "purpose": "isolate the reference behavior"
+        },
+        {
+          "name": "Edit",
+          "purpose": "implement the adopted pattern locally"
+        },
+        {
+          "name": "Test",
+          "purpose": "prove two smaller fragments appear"
+        }
       ],
       "output": [
         "Adopt: split one large asteroid into two smaller children on hit.",
@@ -178,7 +255,11 @@
         "Splitting tests: 2 passed.",
         "The playable game now shows two fragments after the seam hit."
       ],
-      "game": { "collisionMode": "fixed", "splittingEnabled": true, "situation": "wrap-boundary" },
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": true,
+        "fixture": "play"
+      },
       "files": [
         {
           "path": "docs/comparison.md",
@@ -207,8 +288,15 @@
         }
       ],
       "focus_file": "docs/comparison.md",
-      "artifact": { "path": "docs/comparison.md", "summary": "An adoption decision plus its completed follow-on change." },
-      "gate": { "name": "Comparison", "status": "pass", "prompt": "Only the behavior pattern was adopted." },
+      "artifact": {
+        "path": "docs/comparison.md",
+        "summary": "An adoption decision plus its completed follow-on change."
+      },
+      "gate": {
+        "name": "Comparison",
+        "status": "pass",
+        "prompt": "Only the behavior pattern was adopted."
+      },
       "takeaway": "You can borrow a useful idea without importing another project's architecture."
     },
     {
@@ -218,8 +306,14 @@
       "intent": "You run the focused suite and add the missing minimum-size no-split case.",
       "command": "/test unit",
       "tools": [
-        { "name": "Test", "purpose": "run collision and splitting cases" },
-        { "name": "Coverage", "purpose": "confirm both branches execute" }
+        {
+          "name": "Test",
+          "purpose": "run collision and splitting cases"
+        },
+        {
+          "name": "Coverage",
+          "purpose": "confirm both branches execute"
+        }
       ],
       "output": [
         "Ran collision and splitting unit tests.",
@@ -227,7 +321,11 @@
         "5 passed; collision and split branches covered.",
         "Wrote reports/unit-summary.txt."
       ],
-      "game": { "collisionMode": "fixed", "splittingEnabled": true, "situation": "wrap-boundary" },
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": true,
+        "fixture": "play"
+      },
       "files": [
         {
           "path": "tests/splitting.test.js",
@@ -243,8 +341,15 @@
         }
       ],
       "focus_file": "reports/unit-summary.txt",
-      "artifact": { "path": "reports/unit-summary.txt", "summary": "A focused test result tied to both behaviors." },
-      "gate": { "name": "Tests", "status": "pass", "prompt": "All five behavior checks pass." },
+      "artifact": {
+        "path": "reports/unit-summary.txt",
+        "summary": "A focused test result tied to both behaviors."
+      },
+      "gate": {
+        "name": "Tests",
+        "status": "pass",
+        "prompt": "All five behavior checks pass."
+      },
       "takeaway": "You have executable proof for the fix and feature, including their boundary cases."
     },
     {
@@ -254,8 +359,14 @@
       "intent": "You record what changed and the exact proof a future maintainer can rerun.",
       "command": "/update changelog",
       "tools": [
-        { "name": "Diff", "purpose": "derive notes from actual changes" },
-        { "name": "Write", "purpose": "update release history" }
+        {
+          "name": "Diff",
+          "purpose": "derive notes from actual changes"
+        },
+        {
+          "name": "Write",
+          "purpose": "update release history"
+        }
       ],
       "output": [
         "Derived notes from the collision, game, and test diffs.",
@@ -263,7 +374,11 @@
         "Included the 5-test verification result.",
         "Updated CHANGELOG.md."
       ],
-      "game": { "collisionMode": "fixed", "splittingEnabled": true, "situation": "play" },
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": true,
+        "fixture": "play"
+      },
       "files": [
         {
           "path": "CHANGELOG.md",
@@ -273,8 +388,15 @@
         }
       ],
       "focus_file": "CHANGELOG.md",
-      "artifact": { "path": "CHANGELOG.md", "summary": "Release notes derived from the implemented diff and tests." },
-      "gate": { "name": "History", "status": "pass", "prompt": "The durable record matches the code." },
+      "artifact": {
+        "path": "CHANGELOG.md",
+        "summary": "Release notes derived from the implemented diff and tests."
+      },
+      "gate": {
+        "name": "History",
+        "status": "pass",
+        "prompt": "The durable record matches the code."
+      },
       "takeaway": "You leave enough evidence for the next person to understand and verify the work."
     },
     {
@@ -284,15 +406,25 @@
       "intent": "You assemble the analysis, finding, implementation, and proof into an offline walkthrough.",
       "command": "/presentify docs/analysis.md docs/review.md CHANGELOG.md",
       "tools": [
-        { "name": "Read", "purpose": "collect the completed evidence trail" },
-        { "name": "Render", "purpose": "build one self-contained briefing" }
+        {
+          "name": "Read",
+          "purpose": "collect the completed evidence trail"
+        },
+        {
+          "name": "Render",
+          "purpose": "build one self-contained briefing"
+        }
       ],
       "output": [
         "Built a four-part briefing: symptom, cause, repair, proof.",
         "Included the seam-hit result and two-fragment behavior.",
         "Wrote asteroids-briefing.html; offline: yes."
       ],
-      "game": { "collisionMode": "fixed", "splittingEnabled": true, "situation": "play" },
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": true,
+        "fixture": "play"
+      },
       "files": [
         {
           "path": "asteroids-briefing.html",
@@ -302,8 +434,15 @@
         }
       ],
       "focus_file": "asteroids-briefing.html",
-      "artifact": { "path": "asteroids-briefing.html", "summary": "A self-contained briefing built from the accumulated evidence." },
-      "gate": { "name": "Communication", "status": "pass", "prompt": "The result is understandable without the implementation session." },
+      "artifact": {
+        "path": "asteroids-briefing.html",
+        "summary": "A self-contained briefing built from the accumulated evidence."
+      },
+      "gate": {
+        "name": "Communication",
+        "status": "pass",
+        "prompt": "The result is understandable without the implementation session."
+      },
       "takeaway": "You finish the loop with a concise story backed by the files and behavior you produced."
     }
   ]

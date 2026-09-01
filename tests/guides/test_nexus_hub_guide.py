@@ -1228,9 +1228,9 @@ def test_training_scene_schema_is_strict_and_cumulative(parsed: GuideParser) -> 
     assert set(data) == {"initial", "scenes"}
     assert set(data["initial"]) == {"game", "files"}
     assert data["initial"]["game"] == {
-        "collisionMode": "buggy",
-        "splittingEnabled": False,
-        "situation": "wrap-boundary",
+        "damageMode": "buggy",
+        "verticalMovementEnabled": False,
+        "fixture": "enemy-hit",
     }
     initial_files = data["initial"]["files"]
     assert initial_files, "the explorer needs the files that exist before /describe"
@@ -1271,13 +1271,13 @@ def test_training_scene_schema_is_strict_and_cumulative(parsed: GuideParser) -> 
             isinstance(line, str) and line.strip() for line in scene["output"]
         )
         assert set(scene["game"]) == {
-            "collisionMode",
-            "splittingEnabled",
-            "situation",
+            "damageMode",
+            "verticalMovementEnabled",
+            "fixture",
         }
-        assert scene["game"]["collisionMode"] in {"buggy", "fixed"}
-        assert isinstance(scene["game"]["splittingEnabled"], bool)
-        assert scene["game"]["situation"] in {"wrap-boundary", "play"}
+        assert scene["game"]["damageMode"] in {"buggy", "fixed"}
+        assert isinstance(scene["game"]["verticalMovementEnabled"], bool)
+        assert scene["game"]["fixture"] in {"enemy-hit", "asteroid-hit", "play"}
         assert scene["files"]
         for file_change in scene["files"]:
             assert set(file_change) >= {"path", "action", "language", "content"}
@@ -1306,16 +1306,16 @@ def test_training_game_state_changes_at_implement_and_compare(parsed: GuideParse
     scenes = json.loads(parsed.json_script_contents[0])["scenes"]
     states = {scene["id"]: scene["game"] for scene in scenes}
     for scene_id in ("describe", "review", "plan"):
-        assert states[scene_id]["collisionMode"] == "buggy"
-        assert states[scene_id]["splittingEnabled"] is False
+        assert states[scene_id]["damageMode"] == "buggy"
+        assert states[scene_id]["verticalMovementEnabled"] is False
     assert states["implement"] == {
-        "collisionMode": "fixed",
-        "splittingEnabled": False,
-        "situation": "wrap-boundary",
+        "damageMode": "fixed",
+        "verticalMovementEnabled": False,
+        "fixture": "enemy-hit",
     }
     for scene_id in ("compare", "test", "update", "presentify"):
-        assert states[scene_id]["collisionMode"] == "fixed"
-        assert states[scene_id]["splittingEnabled"] is True
+        assert states[scene_id]["damageMode"] == "fixed"
+        assert states[scene_id]["verticalMovementEnabled"] is True
     compare = next(scene for scene in scenes if scene["id"] == "compare")
     assert any("Follow-on /plan and /implement" in line for line in compare["output"])
 
@@ -1379,18 +1379,20 @@ def test_training_runtime_exposes_deterministic_state_contract(guide_text: str) 
     assert "config.preset" not in engine
 
 
-def test_training_engine_uses_asteroids_collision_contract(guide_text: str) -> None:
-    """Phase 4 replaces the booth runtime with the seeded Asteroids defect."""
+def test_training_engine_uses_shooter_damage_contract(guide_text: str) -> None:
+    """v4.4.1 Phase 5 replaces the wrap-collision Asteroids with the seeded damage bug."""
     engine = _training_engine(guide_text)
     assert "function collides" in engine
-    assert 'state.collisionMode === "fixed"' in engine
-    assert "missedWrapHits" in engine and "WRAP HIT MISSED" in engine
-    assert "function computeStamps" not in engine and "function paintBooth" not in engine
+    assert "function damageOutcome" in engine
+    assert "setDamageMode" in engine and "setVerticalMovementEnabled" in engine
+    assert 'mode === "buggy"' in engine, "the seeded bug lives in the pure damage seam"
+    for retired in ("missedWrapHits", "WRAP HIT MISSED", "setSplittingEnabled", "NexusAsteroids"):
+        assert retired not in engine, retired + " belongs to the retired Asteroids engine"
 
 
 def test_training_has_game_terminal_and_present_mode(guide_text: str) -> None:
     training = guide_text.split('id="page-training"', 1)[-1].split('id="page-cheatsheets"', 1)[0]
-    assert "data-asteroids-game" in training
+    assert "data-arcade-game" in training
     assert 'data-nht="terminal"' in training
     assert 'data-nht="run"' in training
     assert 'id="nhtPresent"' in training

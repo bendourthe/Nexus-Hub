@@ -14,11 +14,11 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.4.1 guide-visual-and-arcade-rebuild phases complete | 4 | 7 | -3 |
-| Local phase commits | 4 | 7 | -3 |
+| v4.4.1 guide-visual-and-arcade-rebuild phases complete | 5 | 7 | -2 |
+| Local phase commits | 5 | 7 | -2 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 280,351 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 284,278 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -29,7 +29,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 2 - Home identity, platform rail, and workflow loop
 - [x] Phase 3 - Foundations structure, Tokens, Prompt, and Context
 - [x] Phase 4 - Foundations Models, Agentic Platform, comparison, and harnesses
-- [ ] Phase 5 - Deterministic arcade-shooter engine
+- [x] Phase 5 - Deterministic arcade-shooter engine
 - [ ] Phase 6 - Training workspace, fullscreen, and integrated loop
 - [ ] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration
 
@@ -43,7 +43,7 @@ Met. v4.4.0 is released: integration PR #150 merged at `46518d01`, release PR #1
 
 ### Current checkpoint
 
-Phase 4 complete; Foundations is finished end to end. Scenes 4 through 8 became semantic HTML on the shared grammar: Models separates provider training from the live request and shows four output kinds whose embedded bytes hash-match the settled media ledger (DF-1 closed); Agentic Platform reuses the byte-identical entry motif and work-cycle glyph before three mission lanes, one permission-and-tool boundary, observations, and a report; the chatbot comparison keeps its honest-copy contracts; and the harness hierarchy is split into the built-in platform loop and the Nexus-Hub layer with its five repository-anchored claims. The rebuild orphaned and removed the traveling-pulse, fade, flip, dual-variant, and phase3-diagram CSS machinery, each retirement guarded in the suite. 165 passed, 1 skipped with rendering required; detector clean both themes at six viewports; guide at 280,351 bytes. Next: Phase 5 builds the deterministic arcade-shooter engine.
+Phase 5 complete. `window.NexusShooter` replaces the Asteroids engine: a mulberry32-seeded fixed-step portrait shooter (360x480, 1/60s tick) whose deep-frozen snapshots deep-equal across runs with one seed, with terminal `destroyed` semantics, composable pause reasons, a Click-to-start idle gate, procedural layered art, an authoritative HUD with a change-only live region, and full keyboard, touch, reduced-motion, and no-canvas paths. The seeded bug is now first-enemy-hit-destroys; `/implement` fixes damage to walk lives 3 -> 2 -> 1 -> 0 and `/compare` enables band-clamped vertical movement. Both scene-data copies migrated to the three-field game schema (prose stays v4.4.0 until Phase 6). New 29-test engine suite replaces the 1,094-line Asteroids suite; full guide suite 190 passed, 1 skipped; detector clean on Training both themes. Guide at 284,278 bytes. Three engine defects found and fixed during stabilization (boot-order crash, a fixture that could not demonstrate fixed damage, and reset creating an unstartable game). Next: Phase 6 writes the shooter teaching narrative and the integrated Training workspace.
 
 ---
 

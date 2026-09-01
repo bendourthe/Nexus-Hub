@@ -169,7 +169,8 @@ under them because each rebuilt scene DELETED more bespoke SVG than its replacem
 | 1 | 269,441 | 269,441 |
 | 2 | 299,441 | 281,301 |
 | 3 | 324,441 | 275,316 |
-| 4 (media embedded) | 384,441 | **280,351** |
+| 4 (media embedded) | 384,441 | 280,351 |
+| 5 (engine replaced) | 439,441 | **284,278** |
 
 
 ## 4. Verification performed in this phase
