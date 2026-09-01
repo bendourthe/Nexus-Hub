@@ -122,6 +122,8 @@ Three rules govern every write, and each exists because the alternative is hosti
 2. **Never destroy what we did not write.** TOML is edited through `tomlkit`, which round-trips comments and layout. YAML existing files are only ever **appended** to, because a plain PyYAML round-trip silently strips every comment; a declared key whose top-level parent already exists is skipped rather than merged, since appending a duplicate mapping would silently win or error depending on the reader.
 3. **Degrade, never fail.** A missing source, a missing optional dependency, or an unreadable target config results in a skipped seed and a one-line note on stderr. An install must not break because a default could not be written.
 
+Claude's `already-delivered` path has one precedence-specific refinement: the global installers treat `effortLevel` and `env.CLAUDE_CODE_EFFORT_LEVEL` as one upgrade pair. If either lever already exists, the pair's exact shape is user-owned and the missing partner is not added; only a config with neither lever and an absent or object-shaped `env` receives both declared defaults. A malformed user-owned `env` is preserved and cannot receive the nested default, with a warning when that shape blocks fresh effort-pair seeding. Without that rule, adding the higher-precedence env key beside an existing scalar would pin future sessions past the VS Code effort toggle even though no existing byte was overwritten.
+
 Two further gates apply, both learned the hard way during Phase 3:
 
 - **Undetected platforms receive nothing.** Seeding is gated on `result.detected is not False`. Creating a config file for software the user does not have installed is worse than shipping no default. The `is not False` form matters: `WriteResult.detected` is `Optional[bool]` where `None` means "not detection-gated at all".
@@ -133,7 +135,7 @@ Two further gates apply, both learned the hard way during Phase 3:
 
 Seed conservatively, and record why in the entry's `rationale`:
 
-- **Effort scalars** are seeded to `medium`, matching the deliberate v3.15.5 cost choice.
+- **Effort scalars** are seeded to `medium`, with Claude Code the deliberate exception at `high` (v4.4.0). Any departure from `medium` states its reason in that platform's `rationale`.
 - **Approval-policy keys** are seeded toward the approval-required direction, or to the vendor's own documented default where one exists.
 - **Model pins** are seeded ONLY where the vendor documents a safe self-selecting value (currently just Copilot's `model: "auto"`). A provider-scoped model id the user's account cannot reach would break their tool, so where no safe value is documented the key goes under `omitted` with the reason instead. Inventing one is the exact failure this file exists to prevent.
 

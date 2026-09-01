@@ -8,8 +8,9 @@ Usage:
     python tests/guides/tools/render_guide.py --label phase-1
     python tests/guides/tools/render_guide.py --label phase-4 --pages training
     python tests/guides/tools/render_guide.py --label phase-3 --reduced-motion
+    python tests/guides/tools/render_guide.py --label phase-1 --output-dir docs/releases/v4/v4.4/development/guide-rebuild/renders
 
-Requires Playwright (optional dev dependency, never needed by CI or pytest):
+Requires Playwright for rendering (the focused pytest smoke skips unless the browser is required):
     pip install playwright && playwright install chromium
 
 The script is deliberately outside pytest collection (no ``test_`` prefix)
@@ -49,6 +50,12 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--label", required=True, help="output subfolder, e.g. phase-1")
     parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=OUT_BASE,
+        help="output root (default: the v4.2 guide-rebuild renders directory)",
+    )
+    parser.add_argument(
         "--pages",
         nargs="*",
         default=list(PAGES),
@@ -83,6 +90,15 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def _display_path(path: Path) -> str:
+    """Return a repository-relative path when possible, otherwise an absolute path."""
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(_ROOT))
+    except ValueError:
+        return str(resolved)
+
+
 def _atomic_screenshot(page: object, dest: Path) -> None:
     """Write to a temp file in the same directory, then rename over dest."""
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -105,7 +121,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"ERROR: {INSTALL_HINT}", file=sys.stderr)
         return 3
 
-    out_dir = OUT_BASE / args.label
+    out_dir = args.output_dir / args.label
     url = GUIDE.resolve().as_uri()
     suffix = "-rm" if args.reduced_motion else ""
     written: list[Path] = []
@@ -147,8 +163,8 @@ def main(argv: list[str] | None = None) -> int:
             browser.close()
 
     for path in written:
-        print(path.relative_to(_ROOT))
-    print(f"render_guide: wrote {len(written)} screenshot(s) to {out_dir.relative_to(_ROOT)}")
+        print(_display_path(path))
+    print(f"render_guide: wrote {len(written)} screenshot(s) to {_display_path(out_dir)}")
     return 0
 
 

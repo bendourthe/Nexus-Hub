@@ -1,8 +1,8 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `feat/v4.2.2-guide-cinematic-rebuild` (v4.2.2, v4.2.3, and v4.3.0 fold into the same branch and PR #146)
-**Active plan:** [v4.3.0 agentic-verification-discipline](releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md)
-**Last refreshed:** 2026-08-30
+**Branch:** `feat/v4.4.0-guide-depth-and-training-rebuild`
+**Active plan:** [v4.4.0 guide-depth-and-training-rebuild](releases/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md)
+**Last refreshed:** 2026-09-01
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -14,29 +14,35 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.3.0 agentic-verification-discipline phases complete | 4 | 5 | -1 |
+| v4.4.0 guide-depth-and-training-rebuild phases complete | 6 | 7 | -1 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| New paired hooks | 1 | 1 | 0 |
-| New rules language directories | 1 | 1 | 0 |
+| Guide pages with clean v4.4.0 verification evidence | 4 | 4 | 0 |
+| Local phase commits | 7 | 7 | 0 |
 
 ---
 
-## Plan - v4.3.0 Agentic Verification Discipline [IN PROGRESS]
+## Plan - v4.4.0 Guide Depth and Training Rebuild [IN PROGRESS]
 
-- [x] Phase 1 - Design the verification ladder
-- [x] Phase 2 - Build the instruments
-- [x] Phase 3 - The functional-verification skill
-- [x] Phase 4 - Wire the discipline into the harness
-- [ ] Phase 5 - Architecture refactor, known-gaps, CI/CD, publication, and integration
+- [x] Phase 1 - Home identity, platforms, installation, and comparison
+- [x] Phase 2 - Foundations structure, model, tokens, and prompts
+- [x] Phase 3 - Chatbot vs agent, context, harness, and loop
+- [x] Phase 4 - Playable Asteroids with a seeded bug
+- [x] Phase 5 - Training terminal, file explorer, and command loop
+- [x] Phase 6 - Cross-page polish, accessibility, budget, hallmark audit, and harness defaults
+- [ ] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration
 
 ### What this plan changes, in one paragraph
 
-Adds a four-tier verification ladder to the harness: cheap compile/import checks per subtask, a deterministic functional smoke and plan-delta record at every phase boundary, and one fail-closed deep pass before release. The release also adds a renderer-backed visual-defect detector, an HTML responsive-layout rule with a paired enforcement hook, and the `functional-verification` skill, then wires those capabilities into planning, implementation, distribution, and final evidence.
+Rebuilds the guide so Home sells the product clearly, Foundations teaches core AI concepts to non-technical readers with legible diagrams, and Training becomes a playable Asteroids walkthrough driven by the eight-command loop. Every phase dogfoods the v4.3.0 visual detector, functional smoke, plan-delta record, and fail-closed deep pass.
 
-### Prior local release status
+### Prerequisite status
 
-v4.2.2 is complete and committed. v4.2.3 has completed its local final-phase evidence at `8ace852a`; its publication step is intentionally folded into v4.3.0 Phase 5 so PR #146 receives one combined update after the new verification discipline is dogfooded.
+v4.3.0 is tagged and released, so its verification discipline is available to gate this plan. Back-merge PR #149 is green and remains outside this plan; the v4.4.0 feature branch starts from `origin/develop`, whose tree matched the back-merge branch at pre-flight.
+
+### Current checkpoint
+
+Phase 7 local closeout and the approved first publication are complete, and integration PR #150 is open against `develop`. CodeQL is terminal green after commit `7e54a6eb` removed the dormant DOM-to-HTML sink. The first Linux `guide-render` job then retained a 13-failure receipt for cross-platform navigation and SVG font metrics; the corrective tree now passes 158 tests with one expected optional portfolio-copy skip on both Windows and Ubuntu. The corrected platform profile passed overall with 4 commands across 3 groups, and the isolated exact-candidate full profile passed all 43 commands across 11 groups. The three owner-authorized v4.4.0 decision records pass isolated candidate validation, and DF-1 is the only open v4.4 product gap. Phase 7 remains open until the portability correction is published, every replacement check is terminal green, and merge receives separate explicit approval; tag, release, and back-merge remain later gates.
 
 ---
 

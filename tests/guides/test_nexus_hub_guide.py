@@ -20,7 +20,6 @@ import pytest
 
 _ROOT = Path(__file__).resolve().parents[2]
 GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
-EXAMPLE_ZIP_NAME = "glow-booth.zip"
 SIZE_BUDGET_BYTES = 500_000
 
 INSTALL_SH = (
@@ -293,10 +292,14 @@ def test_no_runtime_cdn_font_script_or_image(parsed: GuideParser, guide_text: st
     assert not css_http, "CSS url() points at a network href"
 
 
-def test_example_zip_link_present(guide_text: str) -> None:
-    assert EXAMPLE_ZIP_NAME in guide_text
-    assert re.search(rf'href=["\'](?:[^"\']*/)?{re.escape(EXAMPLE_ZIP_NAME)}["\']', guide_text)
-    assert (GUIDE.parent / EXAMPLE_ZIP_NAME).is_file()
+def test_legacy_example_assets_are_not_in_the_reader_path(guide_text: str) -> None:
+    lower = guide_text.lower()
+    assert "glow booth" not in lower
+    assert "glow-booth" not in lower
+    assert not re.search(r'<a[^>]+download(?:\s|=|>)', guide_text, re.IGNORECASE)
+    assert (GUIDE.parent / "glow-booth.zip").is_file(), (
+        "the legacy regression fixture remains until a separately approved deletion"
+    )
 
 
 def test_github_is_user_initiated_not_a_script(parsed: GuideParser) -> None:
@@ -304,6 +307,13 @@ def test_github_is_user_initiated_not_a_script(parsed: GuideParser) -> None:
     hrefs = [ad.get("href", "") for tag, ad in parsed.raw_attrs if tag == "a"]
     github = [h for h in hrefs if "github.com" in h]
     assert github, "expected a GitHub navigation link"
+
+
+def test_global_runtime_does_not_round_trip_dom_content_through_html(
+    guide_text: str,
+) -> None:
+    assert 'setAttribute("data-html"' not in guide_text
+    assert not re.search(r"typed\.innerHTML\s*=", guide_text)
 
 
 # ---------------------------------------------------------------------------
@@ -472,7 +482,8 @@ def test_pagenav_controls_hug_their_label(guide_text: str) -> None:
     assert rule, "expected .pagenav a rule"
     body = rule.group(1)
     assert "flex: 0 1 260px" not in body, "fixed-width nav slabs were the defect"
-    assert "flex: 0 0 auto" in body and "width: auto" in body
+    assert "flex: 0 0 auto" not in body, "nav labels must shrink on narrow screens"
+    assert "flex: 0 1 auto" in body and "width: auto" in body
 
 
 def test_invocation_convention_exists_and_is_used(
@@ -528,8 +539,125 @@ def test_render_harness_imports_without_playwright() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Home: install section (Phase 2 completes the page; install block live now)
+# Home: v4.4.0 identity, compatibility, installation, and comparison
 # ---------------------------------------------------------------------------
+
+
+def _home_markup(guide_text: str) -> str:
+    return guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
+
+
+def test_home_identity_is_centered_nonwrapping_and_observer_gated(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    assert 'class="hero-lockup reveal"' in home
+    assert re.search(
+        r'<div class="hero-lockup reveal">\s*<svg class="hero-mark"[\s\S]*?</svg>\s*'
+        r'<h1 class="hero-wordmark">Nexus-Hub</h1>',
+        home,
+    )
+    lockup_rule = re.search(r"\.hero-lockup\s*\{([^}]+)\}", guide_text)
+    assert lockup_rule and "justify-content: center" in lockup_rule.group(1)
+    assert "flex-wrap: nowrap" in lockup_rule.group(1)
+    wordmark_rule = re.search(r"\.hero-wordmark\s*\{([^}]+)\}", guide_text)
+    assert wordmark_rule and "white-space: nowrap" in wordmark_rule.group(1)
+    assert "clamp(" in wordmark_rule.group(1), "the 320 px lockup needs fluid type"
+    assert ".js .hero-lockup.reveal .hero-mark" in guide_text
+    assert ".js .hero-lockup.in .hero-mark" in guide_text
+    reduced_motion = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
+    assert ".js .hero-lockup.reveal .hero-mark" in reduced_motion
+
+
+def test_home_uses_a_short_outcome_tagline(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    match = re.search(r'<p class="hero-tagline">([^<]+)</p>', home)
+    assert match, "expected a dedicated selling tagline"
+    assert len(match.group(1).split()) <= 14
+    assert "catalog of" not in match.group(1).lower()
+
+
+def test_home_lists_six_platforms_without_invented_marks(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    rail = re.search(r'<ul class="platform-rail"[\s\S]*?</ul>', home)
+    assert rail, "expected a dedicated compatibility rail"
+    items = re.findall(r'<li class="platform-item([^\"]*)"[^>]*data-platform="([^\"]+)"[^>]*>([\s\S]*?)</li>', rail.group(0))
+    assert len(items) == 6
+    assert [platform for _classes, platform, _body in items] == [
+        "Claude",
+        "ChatGPT",
+        "Gemini",
+        "Cursor",
+        "GitHub Copilot",
+        "OpenCode",
+    ]
+    official = {"Claude", "Cursor", "OpenCode"}
+    for classes, platform, body in items:
+        assert f'<span class="platform-name">{platform}</span>' in body
+        if platform in official:
+            assert 'class="platform-mark"' in body
+            assert 'aria-hidden="true"' in body and 'focusable="false"' in body
+            assert "<image" not in body and "http" not in body
+            assert 'data-logo-source="official"' in body
+        else:
+            assert "platform-item--text" in classes
+            assert f'<span class="platform-text-mark"><span class="platform-name">{platform}</span></span>' in body
+            assert "<svg" not in body
+    assert "OpenCode receives commands through its instruction file" in home
+
+
+def test_home_platform_labels_use_legible_theme_token(guide_text: str) -> None:
+    rule = re.search(r"\.platform-name\s*\{([^}]+)\}", guide_text)
+    assert rule and "color: var(--ink)" in rule.group(1)
+    size = re.search(r"font-size:\s*([\d.]+)px", rule.group(1))
+    assert size and float(size.group(1)) >= 12
+
+
+def test_installation_terminal_precedes_subordinate_verification(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    assert '<span class="eyebrow">Installation</span>' in home
+    assert 'class="term term--standalone term--install"' in home
+    assert 'class="verify-steps verify-steps--secondary"' in home
+    assert home.index("term--install") < home.index("verify-steps--secondary")
+    terminal_rule = re.search(r"\.term--install\s*\{([^}]+)\}", guide_text)
+    secondary_rule = re.search(r"\.verify-steps--secondary\s*\{([^}]+)\}", guide_text)
+    assert terminal_rule and "box-shadow:" in terminal_rule.group(1)
+    assert secondary_rule and "border-left:" not in secondary_rule.group(1)
+
+
+def test_home_troubleshooting_is_structured_and_copyable(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    block = re.search(r'<details class="support-details">([\s\S]*?)</details>', home)
+    assert block and "<summary>Troubleshooting</summary>" in block.group(1)
+    assert 'class="support-list"' in block.group(1)
+    for label in ("No curl", "One project", "Selected assistants", "No prompts", "Upgrade"):
+        assert f"<dt>{label}</dt>" in block.group(1)
+    for command in (
+        "wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash",
+        "nexus-hub upgrade",
+    ):
+        assert f'data-copy="{command}"' in block.group(1)
+
+
+def test_home_comparison_has_centered_explicit_sides(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    assert "Keep your platform. Add the workflow." in home
+    assert '<div class="cmp-head">' in home
+    head_rule = re.search(r"\.cmp-head\s*\{([^}]+)\}", guide_text)
+    side_rule = re.search(r"\.cmp-side\s*\{([^}]+)\}", guide_text)
+    assert head_rule and "grid-template-columns: 1fr auto 1fr" in head_rule.group(1)
+    assert side_rule and "text-align: center" in side_rule.group(1)
+    size = re.search(r"font-size:\s*([\d.]+)px", side_rule.group(1))
+    assert size and float(size.group(1)) >= 12
+    assert ".cmp-side--without" in guide_text and ".cmp-side--with" in guide_text
+
+
+def test_home_definitions_are_structured_and_link_to_foundations(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    block = re.search(r'<details class="definition-details">([\s\S]*?)</details>', home)
+    assert block and 'class="definition-list"' in block.group(1)
+    for term in ("Command", "Skill", "Hook", "Agent", "Rule"):
+        assert f"<dt>{term}</dt>" in block.group(1)
+    assert 'data-go="foundations"' in block.group(1)
+    assert 'data-go="cheatsheets"' not in block.group(1)
 
 
 def test_windows_install_tab_is_first_and_default(parsed: GuideParser, guide_text: str) -> None:
@@ -568,7 +696,7 @@ def test_home_install_copy_payload_equals_visible_text(parsed: GuideParser) -> N
 def test_install_verify_is_a_two_step_sequence(guide_text: str, parsed: GuideParser) -> None:
     """v4.2.3: the dense wrapped verify sentence became two clear steps."""
     home = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
-    assert 'class="verify-steps"' in home
+    assert 'class="verify-steps ' in home
     assert home.count('class="vs-n"') == 2, "exactly two numbered steps"
     assert "verify-callout" not in guide_text, "the old dense callout is gone"
     rule = re.search(r"\.vs-do\s*\{([^}]+)\}", guide_text)
@@ -623,28 +751,219 @@ def _foundations_markup(guide_text: str) -> str:
     return guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
 
 
-def test_foundations_has_five_animated_scenes(guide_text: str) -> None:
+def _foundation_scene(guide_text: str, scene_id: str) -> str:
     fx = _foundations_markup(guide_text)
-    assert fx.count('class="fx-scene') == 5, "expected exactly five scrollytelling scenes"
+    scene = re.search(
+        rf'<section[^>]+id="{re.escape(scene_id)}"[\s\S]*?</section>', fx
+    )
+    assert scene, f"missing Foundations scene: {scene_id}"
+    return scene.group(0)
+
+
+def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> None:
+    fx = _foundations_markup(guide_text)
+    assert fx.count('class="fx-scene') == 8, "expected eight Phase 3 scenes"
+    assert fx.count('class="fx-title"') == 8
+    assert fx.count('class="fx-subtitle"') == 8
     for heading in (
-        "The model: text in, text out",
-        "The platform: the loop that gives it hands",
-        "Context: what the model actually sees",
-        "The harness: procedure, not vibes",
-        "One job, two runs",
+        "What Is a Model",
+        "What Are Tokens",
+        "What Is Prompt Engineering",
+        "What Is an Agent Platform",
+        "Chatbot or Agentic Platform?",
+        "What Is Context",
+        "What Is a Harness",
+        "What Changes in Practice",
     ):
         assert heading in fx, f"missing scene heading: {heading}"
-    assert fx.count("<svg") == 5, "each scene carries exactly one inline SVG diagram"
+    assert fx.count("<svg") >= 7, "each scene carries inline visual teaching"
     for svg_class in ("fx-pop", "fx-draw", "fx-pulse"):
         assert svg_class in fx
     assert 'class="fx-num"' not in fx, "the scene number line was removed in v4.2.3"
 
 
-def test_foundations_comparison_is_side_by_side_not_toggled(guide_text: str) -> None:
-    """Both states are always visible; no selector chooses between them."""
+def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
+    guide_text: str,
+) -> None:
+    scene = _foundation_scene(guide_text, "fx-chatbot-agent")
+    assert "Chatbot or Agentic Platform?" in scene
+    assert "Same request, different handoff" in scene
+    assert 'data-phase3-diagram="chatbot-agent"' in scene
+    assert scene.count('data-phase3-node="shared-request"') == 1
+    assert scene.index('data-phase3-node="chatbot-handoff"') < scene.index(
+        'data-phase3-node="agent-handoff"'
+    )
+    text = re.sub(r"<[^>]+>", " ", scene).lower()
+    assert "same request" in text
+    assert "answer handoff" in text and "you apply and check" in text
+    assert "work handoff" in text and "saved change" in text and "check result" in text
+    assert re.search(r"chatbots?.{0,100}(?:can|may|increasingly).{0,60}tools", text)
+    assert "where the work happens" in text
+    assert re.search(r"what .{0,30} leaves behind", text)
+
+
+def test_foundations_context_makes_budget_competition_and_full_behavior_visible(
+    guide_text: str,
+) -> None:
+    scene = _foundation_scene(guide_text, "fx-context")
+    assert 'data-phase3-diagram="context-budget"' in scene
+    assert 'data-context-budget-meter="noisy"' in scene
+    assert 'data-context-budget-meter="focused"' in scene
+    for item in (
+        "instructions",
+        "request",
+        "old-history",
+        "unrelated-material",
+        "relevant-material",
+        "matched-skill",
+    ):
+        assert f'data-context-item="{item}"' in scene
+    text = re.sub(r"<[^>]+>", " ", scene).lower()
+    for concept in ("tokens", "instructions", "request", "conversation", "tool results"):
+        assert concept in text
+    assert re.search(r"finite.{0,30}(?:capacity|budget)", text)
+    assert "capacity full" in text and "room for results" in text
+    assert re.search(r"(?:omit|compact|summarize|replace|reject)", text)
+    assert "matched skill" in text and re.search(r"loads? when .{0,30}matched", text)
+
+
+def test_foundations_harness_layers_are_honest_and_repository_anchored(
+    guide_text: str,
+) -> None:
+    scene = _foundation_scene(guide_text, "fx-harness")
+    assert 'data-phase3-diagram="harness-layers"' in scene
+    for layer in ("model", "platform", "nexus-hub"):
+        assert f'data-phase3-harness-layer="{layer}"' in scene
+    claims = re.findall(
+        r'data-phase3-claim="([^"]+)"\s+data-artifact="([^"]+)"', scene
+    )
+    assert {claim for claim, _artifact in claims} == {
+        "one-source-catalog",
+        "matched-procedures",
+        "event-hooks",
+        "written-gates",
+        "durable-artifacts",
+    }
+    assert all(artifact.strip() for _claim, artifact in claims)
+    text = re.sub(r"<[^>]+>", " ", scene).lower()
+    assert re.search(r"(?:every|agentic) platform.{0,80}already.{0,40}harness", text)
+    for claim in ("one catalog", "hooks", "prompt-independent", "definition of done"):
+        assert claim in text
+    assert "chain" in text, "the diagram must show artifacts chaining between commands"
+    for vendor in ("claude", "codex", "cursor", "copilot", "antigravity"):
+        assert not re.search(rf"{vendor}.{{0,30}}(?:lacks?|cannot|does not)", text)
+
+
+def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
+    guide_text: str,
+) -> None:
+    fx = _foundations_markup(guide_text)
+    for diagram in (
+        "agent-loop",
+        "chatbot-agent",
+        "context-budget",
+        "harness-layers",
+        "durable-result",
+    ):
+        match = re.search(
+            rf'<svg[^>]+data-phase3-diagram="{diagram}"[\s\S]*?</svg>', fx
+        )
+        assert match, f"missing Phase 3 diagram: {diagram}"
+        assert re.search(r'class="[^"]*fx-(?:pop|draw|grow|pulse)', match.group(0))
+    assert 'document.querySelectorAll(".fx-scene")' in guide_text
+    assert "IntersectionObserver" in guide_text
+    reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
+    for cls in (".fx-pop", ".fx-draw", ".fx-grow", ".fx-pulse"):
+        assert cls in reduce_block
+
+
+def test_foundations_model_lifecycle_is_chronological_and_responsive(
+    guide_text: str,
+) -> None:
+    fx = _foundations_markup(guide_text)
+    lifecycle = re.search(
+        r'<section[^>]+id="fx-model-lifecycle"[\s\S]*?</section>', fx
+    )
+    assert lifecycle, "missing model lifecycle scene"
+    scene = lifecycle.group(0)
+    stages = ("training", "integration", "request", "reasoning", "output")
+    first_positions = []
+    for stage in stages:
+        marker = f'data-stage="{stage}"'
+        assert scene.count(marker) == 2, f"desktop and mobile need {stage!r} nodes"
+        first_positions.append(scene.index(marker))
+    assert first_positions == sorted(first_positions), "lifecycle stages are out of order"
+    assert "happens long before your request" in scene
+    assert "files, workspace, documents, scripts" in scene
+    assert "Nothing else" not in scene
+    assert scene.count('data-phase2-diagram="model-lifecycle"') == 2
+    assert 'class="fx-svg fx-svg--desktop"' in scene
+    assert 'class="fx-svg fx-svg--mobile"' in scene
+
+
+def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
+    guide_text: str,
+) -> None:
+    fx = _foundations_markup(guide_text)
+    tokens = re.search(r'<section[^>]+id="fx-tokens"[\s\S]*?</section>', fx)
+    assert tokens, "missing tokens scene"
+    scene = tokens.group(0)
+    assert 'data-tokenizer="cl100k_base"' in scene
+    for piece in ("Fresh", "ly", " baked", " bread", " smells", " wonderful", "."):
+        assert f'data-token-piece="{piece}"' in scene
+    assert "one tokenizer" in scene.lower()
+    assert "different models can split it differently" in scene.lower()
+    assert 'class="fx-image-token-grid"' in scene
+    assert scene.index('data-image-stage="source"') < scene.index(
+        'data-image-stage="tokens"'
+    )
+    assert 'data-phase2-connector="image-tokenization"' in scene
+    assert "text and images" in scene.lower()
+    assert "cost" in scene.lower() and "speed" in scene.lower()
+    assert not re.search(
+        r"\b\d+(?:\.\d+)?\s+tokens?\s+per\s+word\b", scene, re.IGNORECASE
+    )
+
+
+def test_foundations_prompt_engineering_uses_one_non_coding_job(
+    guide_text: str,
+) -> None:
+    fx = _foundations_markup(guide_text)
+    prompt = re.search(r'<section[^>]+id="fx-prompts"[\s\S]*?</section>', fx)
+    assert prompt, "missing prompt-engineering scene"
+    scene = prompt.group(0)
+    assert scene.index("Weak prompt") < scene.index("Strong prompt")
+    for ingredient in ("Goal", "Material", "Done", "Format"):
+        assert ingredient in scene
+    for detail in ("community garden", "Saturday", "Oak Street", "RSVP"):
+        assert detail in scene
+    assert "Nexus-Hub" in scene and "commands" in scene
+    assert scene.count('data-phase2-diagram="prompt-engineering"') == 2
+    assert "generic and may invent missing details" in scene.lower()
+    assert "more likely to be a fact-bound, checkable draft" in scene.lower()
+    assert "terminal" not in scene.lower() and "source code" not in scene.lower()
+
+
+def test_foundations_mobile_phase2_diagrams_are_centered_and_bounded(
+    guide_text: str,
+) -> None:
+    rule = re.search(r"\.fx-svg--mobile\s*\{([^}]+)\}", guide_text)
+    assert rule
+    declarations = rule.group(1)
+    assert "width: min(100%, 22.5rem)" in declarations
+    assert "margin-inline: auto" in declarations
+
+
+def test_foundations_comparisons_show_both_states_without_a_toggle(
+    guide_text: str,
+) -> None:
+    """Each teaching comparison keeps both states available in the same scene."""
     fx = _foundations_markup(guide_text)
     assert "FOCUSED CONTEXT" in fx and "NOISY CONTEXT" in fx
-    assert "WITHOUT NEXUS-HUB" in fx and "WITH NEXUS-HUB" in fx
+    assert "BROWSER CHATBOT" in fx and "AGENTIC PLATFORM" in fx
+    practice = _foundation_scene(guide_text, "fx-practice")
+    assert ">PLATFORM LOOP<" in practice
+    assert ">PLATFORM LOOP + NEXUS-HUB<" in practice
     assert 'type="range"' not in fx
     assert "nhgCompare" not in guide_text
     assert "data-station-toggle" not in guide_text
@@ -657,9 +976,13 @@ def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
     assert fx.index("NOISY CONTEXT") < fx.index("FOCUSED CONTEXT"), (
         "the unaided context must come first"
     )
-    assert fx.index("WITHOUT NEXUS-HUB") < fx.index("WITH NEXUS-HUB"), (
-        "the unaided run must come first"
+    assert fx.index("BROWSER CHATBOT") < fx.index("AGENTIC PLATFORM"), (
+        "the answer-handoff workflow must come first"
     )
+    practice = _foundation_scene(guide_text, "fx-practice")
+    assert practice.index(">PLATFORM LOOP<") < practice.index(
+        ">PLATFORM LOOP + NEXUS-HUB<"
+    ), "the host-native run must come before the augmented run"
 
 
 def test_foundations_arrowheads_are_filled_not_half_chevrons(guide_text: str) -> None:
@@ -685,26 +1008,35 @@ def test_foundations_loop_labels_have_hierarchy(guide_text: str) -> None:
     assert "action: read" not in fx and "result: file text" not in fx
 
 
-def test_foundations_pulses_are_painted_behind_nodes(guide_text: str) -> None:
-    """SVG has no z-index: paint order is document order, so a pulse that
-    should pass behind a box must be declared before it."""
+def test_foundations_pulses_are_painted_above_connectors_and_behind_nodes(
+    guide_text: str,
+) -> None:
+    """SVG paint order is source order: lines, then traveling pulse, then boxes."""
     fx = _foundations_markup(guide_text)
-    for svg in re.findall(r"<svg class=\"fx-svg\"[\s\S]*?</svg>", fx):
+    pulsed = []
+    for svg in re.findall(
+        r'<svg[^>]+data-phase3-diagram="[^"]+"[\s\S]*?</svg>', fx
+    ):
         if "fx-pulse" not in svg:
             continue
-        first_pulse = svg.index("fx-pulse")
-        first_node = svg.index("<g class=\"fx-pop")
-        assert first_pulse < first_node, (
-            "pulse must be declared before the node groups it crosses"
+        pulsed.append(svg)
+        connectors = svg.index('data-phase3-layer="connectors"')
+        pulses = svg.index('data-phase3-layer="pulses"')
+        nodes = svg.index('data-phase3-layer="nodes"')
+        assert connectors < pulses < nodes, (
+            "paint order must be connector lines, traveling pulses, then nodes"
         )
+    assert pulsed, "expected at least one Phase 3 diagram with a traveling pulse"
 
 
 def test_foundations_is_project_generic(guide_text: str) -> None:
     """Teaching copy must not assume the reader's project is code."""
     fx = _foundations_markup(guide_text)
     text = re.sub(r"<[^>]+>", " ", fx).lower()
-    for term in ("repo", "repository", "terminal", "git ", "codebase"):
-        assert term not in text, f"coding-only term in Foundations teaching copy: {term!r}"
+    for term in ("repo", "repository", "terminal", "git", "codebase"):
+        assert not re.search(rf"\b{re.escape(term)}\b", text), (
+            f"coding-only term in Foundations teaching copy: {term!r}"
+        )
 
 
 def test_no_unexpected_persistent_overlays(guide_text: str) -> None:
@@ -733,7 +1065,7 @@ def test_foundations_animations_have_reduced_motion_fallback(guide_text: str) ->
 
 
 # ---------------------------------------------------------------------------
-# Training scene data (JSON carried through the rebuild; Phase 4 redesigns it)
+# Training scene data and cumulative project explorer (Phase 5)
 # ---------------------------------------------------------------------------
 
 
@@ -749,8 +1081,6 @@ def test_every_scene_exposes_gate_and_next_scene(parsed: GuideParser) -> None:
     for scene in scenes:
         ids.append(scene["id"])
         assert "gate" in scene
-        assert "next_scene" in scene
-        assert "beats" in scene
     required = [
         "describe",
         "review",
@@ -770,7 +1100,9 @@ def test_every_scene_exposes_gate_and_next_scene(parsed: GuideParser) -> None:
 def test_script_close_in_fixture_does_not_break_document(parsed: GuideParser) -> None:
     assert parsed.json_script_contents, "fixture JSON block required before encoding can be checked"
     joined = "\n".join(parsed.json_script_contents)
-    assert "&lt;/script&gt;" in joined or r"<\/script>" in joined
+    safe_closes = ("&lt;/script&gt;", r"<\/script>", r"\u003c/script\u003e")
+    assert any(token in joined for token in safe_closes)
+    assert "</script>" in json.dumps(json.loads(joined))
     assert parsed.html_count == 1
     assert "page-training" in parsed.page_ids
 
@@ -782,23 +1114,101 @@ def test_inline_scenes_match_example_json(parsed: GuideParser) -> None:
     assert inline == disk
 
 
-def test_glow_booth_example_ships_frozen_bugs() -> None:
-    logic = (
-        _ROOT / "guides" / "website" / "example" / "glow-booth" / "logic.js"
-    ).read_text(encoding="utf-8")
-    assert "captured.length - 1" in logic
-    assert "lastPose: prev.lastPose" in logic
-    ref = (
-        _ROOT
-        / "guides"
-        / "website"
-        / "example"
-        / "glow-booth-shuffle-reference"
-        / "logic.js"
-    ).read_text(encoding="utf-8")
-    assert "captured.length - 1" not in ref
-    assert "function shuffle" in ref
-    assert (_ROOT / "guides" / "website" / "example" / "glow-booth" / "index.html").is_file()
+def test_training_scene_schema_is_strict_and_cumulative(parsed: GuideParser) -> None:
+    data = json.loads(parsed.json_script_contents[0])
+    assert set(data) == {"initial", "scenes"}
+    assert set(data["initial"]) == {"game", "files"}
+    assert data["initial"]["game"] == {
+        "collisionMode": "buggy",
+        "splittingEnabled": False,
+        "situation": "wrap-boundary",
+    }
+    initial_files = data["initial"]["files"]
+    assert initial_files, "the explorer needs the files that exist before /describe"
+    assert {item["path"] for item in initial_files} >= {
+        "src/collision.js",
+        "src/game.js",
+    }
+    assert len({item["path"] for item in initial_files}) == len(initial_files)
+    for item in initial_files:
+        assert set(item) >= {"path", "language", "content"}
+        assert item["path"] and item["language"] and item["content"].strip()
+
+    current = {item["path"]: item["content"] for item in initial_files}
+    seen_actions: set[str] = set()
+    for scene in data["scenes"]:
+        assert set(scene) == {
+            "id",
+            "stage",
+            "title",
+            "intent",
+            "command",
+            "tools",
+            "output",
+            "game",
+            "files",
+            "focus_file",
+            "artifact",
+            "gate",
+            "takeaway",
+        }
+        assert re.search(r"\byou\b", scene["intent"], re.IGNORECASE)
+        assert scene["command"].startswith(f"/{scene['id']}")
+        assert scene["tools"] and all(
+            set(tool) == {"name", "purpose"} and all(tool.values())
+            for tool in scene["tools"]
+        )
+        assert scene["output"] and all(
+            isinstance(line, str) and line.strip() for line in scene["output"]
+        )
+        assert set(scene["game"]) == {
+            "collisionMode",
+            "splittingEnabled",
+            "situation",
+        }
+        assert scene["game"]["collisionMode"] in {"buggy", "fixed"}
+        assert isinstance(scene["game"]["splittingEnabled"], bool)
+        assert scene["game"]["situation"] in {"wrap-boundary", "play"}
+        assert scene["files"]
+        for file_change in scene["files"]:
+            assert set(file_change) >= {"path", "action", "language", "content"}
+            action = file_change["action"]
+            path = file_change["path"]
+            seen_actions.add(action)
+            assert action in {"create", "modify"}
+            assert file_change["content"].strip(), f"{path} needs real file content"
+            if action == "create":
+                assert path not in current, f"{path} cannot be created twice"
+            else:
+                assert path in current, f"{path} must exist before it is modified"
+                assert current[path] != file_change["content"], (
+                    f"{path} modify action must change its content"
+                )
+            current[path] = file_change["content"]
+        assert scene["focus_file"] in current
+        assert set(scene["artifact"]) == {"path", "summary"}
+        assert set(scene["gate"]) == {"name", "status", "prompt"}
+        assert scene["gate"]["status"] == "pass"
+        assert scene["takeaway"].strip()
+    assert seen_actions == {"create", "modify"}
+
+
+def test_training_game_state_changes_at_implement_and_compare(parsed: GuideParser) -> None:
+    scenes = json.loads(parsed.json_script_contents[0])["scenes"]
+    states = {scene["id"]: scene["game"] for scene in scenes}
+    for scene_id in ("describe", "review", "plan"):
+        assert states[scene_id]["collisionMode"] == "buggy"
+        assert states[scene_id]["splittingEnabled"] is False
+    assert states["implement"] == {
+        "collisionMode": "fixed",
+        "splittingEnabled": False,
+        "situation": "wrap-boundary",
+    }
+    for scene_id in ("compare", "test", "update", "presentify"):
+        assert states[scene_id]["collisionMode"] == "fixed"
+        assert states[scene_id]["splittingEnabled"] is True
+    compare = next(scene for scene in scenes if scene["id"] == "compare")
+    assert any("Follow-on /plan and /implement" in line for line in compare["output"])
 
 
 def _training_engine(guide_text: str) -> str:
@@ -823,17 +1233,55 @@ def test_hostile_fixture_strings_are_rendered_via_textcontent(
     assert "data-training-root" in guide_text
 
 
-def test_training_engine_reproduces_the_frozen_bugs(guide_text: str) -> None:
-    """The mockup must teach what the downloadable example actually does."""
+def test_training_explorer_is_accessible_and_uses_text_only_rendering(
+    guide_text: str,
+) -> None:
+    training = guide_text.split('id="page-training"', 1)[-1].split(
+        'id="page-cheatsheets"', 1
+    )[0]
+    for marker in (
+        'data-nht="file-tree"',
+        'data-nht="file-path"',
+        'data-nht="file-state"',
+        'data-nht="file-body"',
+    ):
+        assert marker in training
+    assert re.search(r'data-nht="file-tree"[^>]+role="tree"', training)
     engine = _training_engine(guide_text)
-    assert "captured.length - 1" in engine, "buggy stamp path must be simulated"
-    assert "fixed ? captured.length : captured.length - 1" in engine
-    assert "booth.fixed ? null : booth.lastPose" in engine, "sticky-restart bug must be simulated"
+    assert "Not created yet" in engine
+    assert "diff-add" in engine and "diff-remove" in engine
+    assert 'setAttribute("role", "treeitem")' in engine
+    assert 'setAttribute("aria-selected"' in engine
+    assert re.search(r"fileBody\.textContent\s*=", engine)
+    assert not re.search(r"(?:fileBody|fileTree)\.innerHTML\s*=", engine)
 
 
-def test_training_has_booth_terminal_and_present_mode(guide_text: str) -> None:
+def test_training_runtime_exposes_deterministic_state_contract(guide_text: str) -> None:
+    engine = _training_engine(guide_text)
+    assert "window.NexusTraining" in engine
+    for member in ("go:", "run:", "selectFile:", "snapshot:"):
+        assert member in engine
+    assert "Object.freeze" in engine
+    assert "parsed.initial" in engine
+    assert "projectStateThrough" in engine
+    assert "appliedThrough" in engine
+    assert "scene.booth" not in engine
+    assert "scene.editor" not in engine
+    assert "config.preset" not in engine
+
+
+def test_training_engine_uses_asteroids_collision_contract(guide_text: str) -> None:
+    """Phase 4 replaces the booth runtime with the seeded Asteroids defect."""
+    engine = _training_engine(guide_text)
+    assert "function collides" in engine
+    assert 'state.collisionMode === "fixed"' in engine
+    assert "missedWrapHits" in engine and "WRAP HIT MISSED" in engine
+    assert "function computeStamps" not in engine and "function paintBooth" not in engine
+
+
+def test_training_has_game_terminal_and_present_mode(guide_text: str) -> None:
     training = guide_text.split('id="page-training"', 1)[-1].split('id="page-cheatsheets"', 1)[0]
-    assert 'data-nht="booth"' in training
+    assert "data-asteroids-game" in training
     assert 'data-nht="terminal"' in training
     assert 'data-nht="run"' in training
     assert 'id="nhtPresent"' in training
@@ -857,9 +1305,12 @@ def test_training_position_is_plain_language(guide_text: str) -> None:
     """'step 2 / 8 . beat 1 / 2' meant nothing to most readers."""
     engine = _training_engine(guide_text)
     assert '" of " + SCENES.length' in engine, "position reads as 'N of 8'"
-    assert "beat " not in engine.split("syncFromHash", 1)[0].replace(
-        "beatIndex", ""
-    ).lower() or True  # beats remain the mechanism
+    where_assignment = re.search(
+        r"els\.where\.textContent\s*=\s*([\s\S]*?);",
+        engine,
+    )
+    assert where_assignment, "expected the Training position-label assignment"
+    assert "beat" not in where_assignment.group(1).lower()
     training = guide_text.split('id="page-training"', 1)[-1].split(
         'id="page-cheatsheets"', 1
     )[0]
@@ -909,26 +1360,15 @@ def test_no_hardcoded_text_width_caps_remain(guide_text: str) -> None:
     assert not offenders, f"hardcoded text width caps remain: {offenders}"
 
 
-def test_training_deep_link_clamps_unknown_scene_and_beat(guide_text: str) -> None:
+def test_training_deep_link_clamps_unknown_scene_and_ignores_legacy_beat(
+    guide_text: str,
+) -> None:
     engine = _training_engine(guide_text)
     sync = engine.split("syncFromHash", 1)[-1]
     assert "if (idx < 0) idx = step;" in sync, "unknown scene id must clamp"
-    assert "beats.length - 1" in sync, "out-of-range beat must clamp"
-
-
-def test_every_scene_has_walkthrough_fields(parsed: GuideParser) -> None:
-    data = json.loads(parsed.json_script_contents[0])
-    for scene in data["scenes"]:
-        for field in ("title", "intent", "command", "output", "booth", "artifact", "tools"):
-            assert field in scene, f"{scene['id']} missing {field}"
-        assert isinstance(scene["booth"].get("captured"), list)
-        assert "fixed" in scene["booth"]
-    ids = [s["id"] for s in data["scenes"]]
-    fixed_from = ids.index("implement")
-    for scene in data["scenes"][:fixed_from]:
-        assert scene["booth"]["fixed"] is False, "bugs stay visible until /implement"
-    for scene in data["scenes"][fixed_from:]:
-        assert scene["booth"]["fixed"] is True, "the fix persists after /implement"
+    assert re.search(r"syncFromHash:\s*function\s*\(sceneId\)", engine)
+    assert "beatIndex" not in sync, "legacy beat values no longer control scene state"
+    assert r"(?:\?beat=([^&]+))?" in engine, "old deep links remain parse-compatible"
 
 
 # ---------------------------------------------------------------------------

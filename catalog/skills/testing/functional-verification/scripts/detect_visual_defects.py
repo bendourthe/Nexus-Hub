@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -32,6 +33,8 @@ DEFAULT_FONT_FLOOR_PX = 12.0
 DEFAULT_TIMEOUT_MS = 10_000
 DEFAULT_SETTLE_MS = 100
 MAX_LOCAL_STYLESHEET_BYTES = 5 * 1024 * 1024
+THEME_STORAGE_KEY = "portfolio-theme"
+SUPPORTED_THEMES = ("dark", "light")
 
 PLAYWRIGHT_INSTALL_HINT = (
     "Install the renderer with: python -m pip install playwright && "
@@ -339,10 +342,56 @@ _DETECTOR_JS = r"""
     }
   }
 
-  // Rule 3: text-bearing siblings must not occupy the same rendered area.
+  // Rule 3: painted direct-text fragments must not occupy the same rendered area.
+  const clippingOverflow = new Set(["auto", "clip", "hidden", "scroll"]);
+  const clipToPaintedAncestors = (rect, element) => {
+    const clipped = {
+      left: rect.left,
+      top: rect.top,
+      right: rect.right,
+      bottom: rect.bottom
+    };
+    let current = element;
+    while (current && current !== document.documentElement) {
+      const style = getComputedStyle(current);
+      const overflowApplies = !["contents", "inline"].includes(style.display);
+      const clipX = overflowApplies && clippingOverflow.has(style.overflowX);
+      const clipY = overflowApplies && clippingOverflow.has(style.overflowY);
+      if (clipX || clipY) {
+        const currentRect = current.getBoundingClientRect();
+        const clientBox = {
+          left: currentRect.left + current.clientLeft,
+          top: currentRect.top + current.clientTop,
+          right: currentRect.left + current.clientLeft + current.clientWidth,
+          bottom: currentRect.top + current.clientTop + current.clientHeight
+        };
+        if (clipX) {
+          clipped.left = Math.max(clipped.left, clientBox.left);
+          clipped.right = Math.min(clipped.right, clientBox.right);
+        }
+        if (clipY) {
+          clipped.top = Math.max(clipped.top, clientBox.top);
+          clipped.bottom = Math.min(clipped.bottom, clientBox.bottom);
+        }
+        if (clipped.right <= clipped.left || clipped.bottom <= clipped.top) return null;
+      }
+      current = current.parentElement;
+    }
+    return clipped;
+  };
+  const directTextFragments = (element) => Array.from(element.childNodes)
+    .filter((node) => node.nodeType === Node.TEXT_NODE && Boolean(node.textContent.trim()))
+    .flatMap((node) => {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      return Array.from(range.getClientRects())
+        .filter((rect) => rect.width > 0 && rect.height > 0)
+        .map((rect) => clipToPaintedAncestors(rect, element))
+        .filter(Boolean);
+    });
   const textNodes = htmlElements
     .filter(ownText)
-    .map((element) => ({ element, rect: element.getBoundingClientRect() }))
+    .flatMap((element) => directTextFragments(element).map((rect) => ({ element, rect })))
     .sort((left, right) => left.rect.top - right.rect.top || left.rect.left - right.rect.left);
   for (let leftIndex = 0; leftIndex < textNodes.length; leftIndex += 1) {
     const left = textNodes[leftIndex];
@@ -597,6 +646,14 @@ def _positive_float(value: str) -> float:
     return parsed
 
 
+def _fragment(value: str) -> str:
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]*", value):
+        raise argparse.ArgumentTypeError(
+            "fragment must be a non-empty local element id without '#', '/', or '?'"
+        )
+    return value
+
+
 def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Render local HTML and detect deterministic visual defects."
@@ -653,6 +710,16 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         default=DEFAULT_SETTLE_MS,
         help="delay after load before measurement",
     )
+    parser.add_argument(
+        "--theme",
+        choices=SUPPORTED_THEMES,
+        help="seed the Nexus-Hub guide theme before page scripts run",
+    )
+    parser.add_argument(
+        "--fragment",
+        type=_fragment,
+        help="activate a hash-routed local page by element id, e.g. foundations",
+    )
     return parser.parse_args(argv)
 
 
@@ -669,6 +736,8 @@ def _base_report(path: Path, args: argparse.Namespace) -> dict[str, Any]:
             "height": args.minimum_text_height,
         },
         "font_floor_px": args.font_floor,
+        "theme": args.theme,
+        "fragment": args.fragment,
         "allowlist": str(args.allowlist.resolve()) if args.allowlist else None,
         "findings": [],
         "gate_findings": 0,
@@ -772,9 +841,37 @@ def _scan_viewport(
     allowlist: list[dict[str, Any]],
     timeout_ms: int,
     settle_ms: float,
+    theme: str | None = None,
 ) -> dict[str, Any]:
     """Load and measure one viewport, returning findings instead of raising."""
     viewport = {"width": width, "height": height}
+    if theme is not None:
+        try:
+            page.add_init_script(
+                "try {"
+                f"localStorage.setItem({json.dumps(THEME_STORAGE_KEY)}, {json.dumps(theme)});"
+                "window.__nexusVisualDetectorThemeSeeded = true;"
+                "} catch (error) {"
+                "window.__nexusVisualDetectorThemeSeeded = String("
+                "error && error.message ? error.message : error);"
+                "}"
+            )
+        except Exception as error:  # noqa: BLE001 - requested theme is a gate contract
+            return {
+                "findings": [
+                    _finding(
+                        "theme-setup",
+                        "Could not seed the requested guide theme",
+                        selector="<document>",
+                        viewport=viewport,
+                        measurements={
+                            "requested_theme": theme,
+                            "error": _error_text(error),
+                        },
+                    )
+                ],
+                "suppressed": 0,
+            }
     try:
         page.goto(file_uri, wait_until="load", timeout=timeout_ms)
     except Exception as error:  # noqa: BLE001 - a failed load is a gate finding
@@ -791,8 +888,88 @@ def _scan_viewport(
             "suppressed": 0,
         }
 
+    if theme is not None:
+        try:
+            theme_state = page.evaluate(
+                "() => [window.__nexusVisualDetectorThemeSeeded || false, "
+                "document.documentElement.getAttribute('data-theme')]"
+            )
+        except Exception as error:  # noqa: BLE001 - requested theme is a gate contract
+            theme_state = [_error_text(error), None]
+        if theme_state != [True, theme]:
+            return {
+                "findings": [
+                    _finding(
+                        "theme-setup",
+                        "Loaded document did not honor the requested guide theme",
+                        selector="<document>",
+                        viewport=viewport,
+                        measurements={
+                            "requested_theme": theme,
+                            "actual_theme": theme_state[1]
+                            if isinstance(theme_state, list) and len(theme_state) > 1
+                            else None,
+                            "storage_state": theme_state[0]
+                            if isinstance(theme_state, list) and theme_state
+                            else "theme state was not an array",
+                        },
+                    )
+                ],
+                "suppressed": 0,
+            }
+
     if settle_ms:
         page.wait_for_timeout(settle_ms)
+    fragment = urlsplit(file_uri).fragment
+    if fragment:
+        try:
+            fragment_state = page.evaluate(
+                """
+                (fragment) => {
+                  const candidates = [
+                    document.getElementById(fragment),
+                    document.getElementById(`page-${fragment}`),
+                    ...Array.from(document.querySelectorAll('[data-page]')).filter(
+                      (element) => element.getAttribute('data-page') === fragment,
+                    ),
+                  ].filter((element, index, values) =>
+                    element && values.indexOf(element) === index
+                  );
+                  const visible = candidates.find((element) => {
+                    const style = getComputedStyle(element);
+                    const rect = element.getBoundingClientRect();
+                    return style.display !== 'none'
+                      && style.visibility !== 'hidden'
+                      && rect.width > 0
+                      && rect.height > 0;
+                  });
+                  return {
+                    exists: candidates.length > 0,
+                    visible: Boolean(visible),
+                    matched: candidates.map((element) => ({
+                      id: element.id || null,
+                      page: element.getAttribute('data-page'),
+                    })),
+                  };
+                }
+                """,
+                fragment,
+            )
+        except Exception as error:  # noqa: BLE001 - fragment proof is a gate contract
+            fragment_state = {"exists": False, "visible": False, "error": _error_text(error)}
+        if not fragment_state.get("exists") or not fragment_state.get("visible"):
+            return {
+                "findings": [
+                    _finding(
+                        "fragment-target",
+                        "Requested hash-routed target did not exist or become visible",
+                        selector=f"#{fragment}",
+                        viewport=viewport,
+                        measurements={"fragment": fragment, **fragment_state},
+                    )
+                ],
+                "suppressed": 0,
+            }
     linked_stylesheets = _read_linked_local_stylesheets(page)
     try:
         return page.evaluate(
@@ -901,6 +1078,9 @@ def _run_detector(
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=True)
             try:
+                file_uri = path.resolve().as_uri()
+                if args.fragment:
+                    file_uri = f"{file_uri}#{args.fragment}"
                 for width in args.viewports:
                     context = browser.new_context(
                         viewport={"width": width, "height": args.height},
@@ -911,7 +1091,7 @@ def _run_detector(
                         page = context.new_page()
                         result = _scan_viewport(
                             page,
-                            path.resolve().as_uri(),
+                            file_uri,
                             width=width,
                             height=args.height,
                             tolerance=args.tolerance,
@@ -921,6 +1101,7 @@ def _run_detector(
                             allowlist=allowlist,
                             timeout_ms=args.timeout_ms,
                             settle_ms=args.settle_ms,
+                            theme=args.theme,
                         )
                         report["findings"].extend(result["findings"])
                         report["suppressed_findings"] += int(result["suppressed"])
