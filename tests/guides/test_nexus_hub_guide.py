@@ -550,14 +550,19 @@ def _home_markup(guide_text: str) -> str:
 def test_home_identity_is_centered_nonwrapping_and_observer_gated(guide_text: str) -> None:
     home = _home_markup(guide_text)
     assert 'class="hero-lockup reveal"' in home
+    # v4.4.1 Phase 2: the mark and wordmark share an inner float wrapper, and the title is
+    # two nav-matched spans rather than the hyphenated single string.
     assert re.search(
-        r'<div class="hero-lockup reveal">\s*<svg class="hero-mark"[\s\S]*?</svg>\s*'
-        r'<h1 class="hero-wordmark">Nexus-Hub</h1>',
+        r'<div class="hero-lockup reveal">\s*<div class="hero-lockup-float">\s*'
+        r'<svg class="hero-mark"[\s\S]*?</svg>\s*'
+        r'<h1 class="hero-wordmark"><b>Nexus</b> <span>Hub</span></h1>',
         home,
     )
+    assert "Nexus-Hub" not in home.split("</h1>", 1)[0]
     lockup_rule = re.search(r"\.hero-lockup\s*\{([^}]+)\}", guide_text)
     assert lockup_rule and "justify-content: center" in lockup_rule.group(1)
-    assert "flex-wrap: nowrap" in lockup_rule.group(1)
+    float_rule = re.search(r"\.hero-lockup-float\s*\{([^}]+)\}", guide_text)
+    assert float_rule and "flex-wrap: nowrap" in float_rule.group(1)
     wordmark_rule = re.search(r"\.hero-wordmark\s*\{([^}]+)\}", guide_text)
     assert wordmark_rule and "white-space: nowrap" in wordmark_rule.group(1)
     assert "clamp(" in wordmark_rule.group(1), "the 320 px lockup needs fluid type"
@@ -575,33 +580,99 @@ def test_home_uses_a_short_outcome_tagline(guide_text: str) -> None:
     assert "catalog of" not in match.group(1).lower()
 
 
-def test_home_lists_six_platforms_without_invented_marks(guide_text: str) -> None:
+def test_home_lists_the_five_approved_platforms_from_ledger_bytes(guide_text: str) -> None:
+    """v4.4.1 Phase 2 replaces the six-item rail, and every mark must be an APPROVED byte sequence.
+
+    The hash comparison runs against the raw embedded substring before any normalization, so a
+    re-fetched, re-minified, or hand-edited mark fails here instead of shipping an unreviewed
+    third-party asset into a published page.
+    """
+    import hashlib
+
     home = _home_markup(guide_text)
     rail = re.search(r'<ul class="platform-rail"[\s\S]*?</ul>', home)
     assert rail, "expected a dedicated compatibility rail"
-    items = re.findall(r'<li class="platform-item([^\"]*)"[^>]*data-platform="([^\"]+)"[^>]*>([\s\S]*?)</li>', rail.group(0))
-    assert len(items) == 6
-    assert [platform for _classes, platform, _body in items] == [
+    items = re.findall(
+        r'<li class="platform-item"[^>]*data-platform="([^"]+)"[^>]*>([\s\S]*?)</li>', rail.group(0)
+    )
+    assert [platform for platform, _body in items] == [
         "Claude",
         "ChatGPT",
         "Gemini",
         "Cursor",
         "GitHub Copilot",
-        "OpenCode",
     ]
-    official = {"Claude", "Cursor", "OpenCode"}
-    for classes, platform, body in items:
+
+    staged_dir = (
+        _ROOT
+        / "docs"
+        / "releases"
+        / "v4"
+        / "v4.4"
+        / "development"
+        / "guide-visual-and-arcade-rebuild"
+        / "assets"
+    )
+    stems = {
+        "Claude": "claude",
+        "ChatGPT": "chatgpt",
+        "Gemini": "gemini",
+        "Cursor": "cursor",
+        "GitHub Copilot": "github-copilot",
+    }
+    for platform, body in items:
+        stem = stems[platform]
         assert f'<span class="platform-name">{platform}</span>' in body
-        if platform in official:
-            assert 'class="platform-mark"' in body
-            assert 'aria-hidden="true"' in body and 'focusable="false"' in body
-            assert "<image" not in body and "http" not in body
-            assert 'data-logo-source="official"' in body
-        else:
-            assert "platform-item--text" in classes
-            assert f'<span class="platform-text-mark"><span class="platform-name">{platform}</span></span>' in body
-            assert "<svg" not in body
-    assert "OpenCode receives commands through its instruction file" in home
+        assert f'data-mark="{stem}"' in body, f"{platform} mark is not tagged with its ledger stem"
+        assert 'aria-hidden="true"' in body, f"{platform} decorative mark must be hidden from AT"
+        embedded = re.search(r"(<svg[\s\S]*?</svg>)", body)
+        assert embedded, f"{platform} has no inline geometry"
+        blob = embedded.group(1)
+        assert "<image" not in blob and "base64," not in blob, f"{platform} embeds a raster"
+        assert "http" not in blob.replace('xmlns="http://www.w3.org/2000/svg"', ""), (
+            f"{platform} references an external URL"
+        )
+        staged = (staged_dir / f"{stem}.svg").read_text(encoding="utf-8").strip()
+        assert hashlib.sha256(blob.encode("utf-8")).hexdigest() == hashlib.sha256(
+            staged.encode("utf-8")
+        ).hexdigest(), (
+            f"{platform} embedded bytes do not match the approved staged asset {stem}.svg; "
+            "re-approval is required rather than a ledger update"
+        )
+
+    # The opaque shell and the text-treatment fallback both retired with the six-item rail.
+    assert "platform-mark-shell" not in home
+    assert "platform-item--text" not in home
+    assert "OpenCode" not in home, "OpenCode and its instruction-file note were removed in v4.4.1"
+
+
+def test_home_platform_rail_carries_the_required_attribution(guide_text: str) -> None:
+    """The GitHub Copilot codicon is CC BY 4.0, so attribution is a licence term, not a nicety."""
+    home = _home_markup(guide_text)
+    credits = re.search(r'<details class="platform-credits"[\s\S]*?</details>', home)
+    assert credits, "the platform rail must ship an accessible credits disclosure"
+    body = credits.group(0)
+    assert "<summary>" in body, "the disclosure must be a real details/summary, not a static block"
+    assert "CC BY 4.0" in body
+    assert "Microsoft Corporation" in body
+    assert "Codicons" in body
+    assert "no affiliation or endorsement" in body, "nominative-use statement is missing"
+
+
+def test_home_hero_is_the_unhyphenated_nexus_hub_lockup(guide_text: str) -> None:
+    """v4.4.1 Phase 2: the hero title matches the nav wordmark and is no longer hyphenated."""
+    home = _home_markup(guide_text)
+    heading = re.search(r'<h1 class="hero-wordmark">([\s\S]*?)</h1>', home)
+    assert heading, "expected the hero wordmark heading"
+    inner = heading.group(1)
+    assert inner == "<b>Nexus</b> <span>Hub</span>", (
+        f"hero wordmark must mirror the nav structure exactly; got {inner!r}"
+    )
+    text = re.sub(r"<[^>]+>", "", inner).strip()
+    assert text == "Nexus Hub", f"hero title must read 'Nexus Hub'; got {text!r}"
+    assert "Nexus-Hub" not in heading.group(0)
+    # The float lives on an inner wrapper so it never competes with the .reveal entry transform.
+    assert '<div class="hero-lockup-float">' in home
 
 
 def test_home_platform_labels_use_legible_theme_token(guide_text: str) -> None:
@@ -765,19 +836,27 @@ def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> 
     assert fx.count('class="fx-scene') == 8, "expected eight Phase 3 scenes"
     assert fx.count('class="fx-title"') == 8
     assert fx.count('class="fx-subtitle"') == 8
-    for heading in (
-        "What Is a Model",
-        "What Are Tokens",
-        "What Is Prompt Engineering",
-        "What Is an Agent Platform",
-        "Chatbot or Agentic Platform?",
-        "What Is Context",
-        "What Is a Harness",
-        "What Changes in Practice",
-    ):
-        assert heading in fx, f"missing scene heading: {heading}"
+    expected = [
+        "Tokens Definition",
+        "Prompt Engineering",
+        "Context Engineering",
+        "Models",
+        "Agentic Platform",
+        "Chatbot vs. Agentic Platform",
+        "Harnesses",
+        "Nexus-Hub Harness",
+    ]
+    found = re.findall(r'<h2 id="[^"]+">([^<]*)</h2>', fx)
+    assert found == expected, (
+        f"Foundations scene order is wrong; got {found} expected {expected}"
+    )
+    assert not re.search(r"What (?:Is|Are)", fx), (
+        "the old 'What Is / What Are' heading construction must not survive"
+    )
     assert fx.count("<svg") >= 7, "each scene carries inline visual teaching"
-    for svg_class in ("fx-pop", "fx-draw", "fx-pulse"):
+    # v4.4.1 Phase 4 retired fx-pulse with the last SVG story diagram; pop and draw remain
+    # live on the tokens connector, and the chip/cycle primitives carry the rest.
+    for svg_class in ("fx-pop", "fx-draw"):
         assert svg_class in fx
     assert 'class="fx-num"' not in fx, "the scene number line was removed in v4.2.3"
 
@@ -786,13 +865,17 @@ def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
     guide_text: str,
 ) -> None:
     scene = _foundation_scene(guide_text, "fx-chatbot-agent")
-    assert "Chatbot or Agentic Platform?" in scene
+    assert "Chatbot vs. Agentic Platform" in scene
     assert "Same request, different handoff" in scene
-    assert 'data-phase3-diagram="chatbot-agent"' in scene
+    # v4.4.1 Phase 4: the comparison is an HTML two-lane group, chatbot lane first.
     assert scene.count('data-phase3-node="shared-request"') == 1
     assert scene.index('data-phase3-node="chatbot-handoff"') < scene.index(
         'data-phase3-node="agent-handoff"'
     )
+    for part in ("Boundary", "Action", "Outcome", "Leaves behind"):
+        assert scene.count("<dt>" + part + "</dt>") == 2, (
+            "both lanes must carry an explicit " + part + " label"
+        )
     text = re.sub(r"<[^>]+>", " ", scene).lower()
     assert "same request" in text
     assert "answer handoff" in text and "you apply and check" in text
@@ -800,42 +883,49 @@ def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
     assert re.search(r"chatbots?.{0,100}(?:can|may|increasingly).{0,60}tools", text)
     assert "where the work happens" in text
     assert re.search(r"what .{0,30} leaves behind", text)
+    # Honest capability language, never a promise.
+    assert "when permitted" in text and "supported" in text
+    assert "promises success" in text or "promise" in text
 
 
 def test_foundations_context_makes_budget_competition_and_full_behavior_visible(
     guide_text: str,
 ) -> None:
+    """v4.4.1 Phase 3: context is separable from the request, finite, and selectable."""
     scene = _foundation_scene(guide_text, "fx-context")
-    assert 'data-phase3-diagram="context-budget"' in scene
-    assert 'data-context-budget-meter="noisy"' in scene
-    assert 'data-context-budget-meter="focused"' in scene
-    for item in (
-        "instructions",
-        "request",
-        "old-history",
-        "unrelated-material",
-        "relevant-material",
-        "matched-skill",
-    ):
-        assert f'data-context-item="{item}"' in scene
+    assert 'class="fx-ctx-query"' in scene and 'class="fx-ctx-kinds"' in scene
+    for kind in ("Image", "File or document", "Project folder or workspace", "Codebase"):
+        assert '<span class="fx-ctx-kind">' + kind + "</span>" in scene, (
+            "missing context kind: " + kind
+        )
+    assert scene.index("fx-budget--noisy") < scene.index("fx-budget--focused"), (
+        "the unfocused selection must read before the task-matched one"
+    )
     text = re.sub(r"<[^>]+>", " ", scene).lower()
-    for concept in ("tokens", "instructions", "request", "conversation", "tool results"):
-        assert concept in text
-    assert re.search(r"finite.{0,30}(?:capacity|budget)", text)
-    assert "capacity full" in text and "room for results" in text
-    assert re.search(r"(?:omit|compact|summarize|replace|reject)", text)
-    assert "matched skill" in text and re.search(r"loads? when .{0,30}matched", text)
+    for concept in ("token", "finite", "optional", "stale", "duplicated", "too large"):
+        assert concept in text, "missing context concept: " + concept
+    assert "conversation" in text and "tool results" in text
+    assert 'type="range"' not in scene and "aria-pressed" not in scene
+    assert not re.search(r"\b\d+(?:\.\d+)?\s+tokens?\s+per\s+word\b", scene, re.IGNORECASE)
 
 
 def test_foundations_harness_layers_are_honest_and_repository_anchored(
     guide_text: str,
 ) -> None:
-    scene = _foundation_scene(guide_text, "fx-harness")
-    assert 'data-phase3-diagram="harness-layers"' in scene
-    for layer in ("model", "platform", "nexus-hub"):
-        assert f'data-phase3-harness-layer="{layer}"' in scene
+    """v4.4.1 Phase 4 split the hierarchy: fx-harness holds the built-in platform loop,
+    fx-practice holds the Nexus-Hub layer with the five repository-anchored claims."""
+    harness = _foundation_scene(guide_text, "fx-harness")
+    for layer in ("model", "platform"):
+        assert f'data-phase3-harness-layer="{layer}"' in harness
+    htext = re.sub(r"<[^>]+>", " ", harness).lower()
+    assert re.search(r"(?:every|agentic) platform.{0,80}(?:already|ships).{0,40}harness", htext)
+    for part in ("context", "tools", "permissions", "execution", "observations"):
+        assert part in htext, f"the built-in loop must name {part}"
+
+    practice = _foundation_scene(guide_text, "fx-practice")
+    assert 'data-phase3-harness-layer="nexus-hub"' in practice
     claims = re.findall(
-        r'data-phase3-claim="([^"]+)"\s+data-artifact="([^"]+)"', scene
+        r'data-phase3-claim="([^"]+)" data-artifact="([^"]+)"', practice
     )
     assert {claim for claim, _artifact in claims} == {
         "one-source-catalog",
@@ -845,113 +935,124 @@ def test_foundations_harness_layers_are_honest_and_repository_anchored(
         "durable-artifacts",
     }
     assert all(artifact.strip() for _claim, artifact in claims)
-    text = re.sub(r"<[^>]+>", " ", scene).lower()
-    assert re.search(r"(?:every|agentic) platform.{0,80}already.{0,40}harness", text)
-    for claim in ("one catalog", "hooks", "prompt-independent", "definition of done"):
-        assert claim in text
-    assert "chain" in text, "the diagram must show artifacts chaining between commands"
+    ptext = re.sub(r"<[^>]+>", " ", practice).lower()
+    for claim in ("one source", "hooks", "prompt-independent", "definition of done"):
+        assert claim in ptext
+    assert "chain" in ptext, "the trail must show artifacts chaining between commands"
+    assert "does not replace the model" in ptext, "the honest scope qualifier is required"
+    assert re.search(r"only where the host exposes the registered event", ptext)
     for vendor in ("claude", "codex", "cursor", "copilot", "antigravity"):
-        assert not re.search(rf"{vendor}.{{0,30}}(?:lacks?|cannot|does not)", text)
+        assert not re.search(rf"{vendor}.{{0,30}}(?:lacks?|cannot|does not)", ptext)
 
 
 def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
     guide_text: str,
 ) -> None:
+    """v4.4.1 Phase 4: the story diagrams are HTML node trees; the remaining continuous
+    motion (the shared work-cycle glyph) is observer-gated and statically complete."""
     fx = _foundations_markup(guide_text)
-    for diagram in (
-        "agent-loop",
-        "chatbot-agent",
-        "context-budget",
-        "harness-layers",
-        "durable-result",
-    ):
-        match = re.search(
-            rf'<svg[^>]+data-phase3-diagram="{diagram}"[\s\S]*?</svg>', fx
-        )
-        assert match, f"missing Phase 3 diagram: {diagram}"
-        assert re.search(r'class="[^"]*fx-(?:pop|draw|grow|pulse)', match.group(0))
-    assert 'document.querySelectorAll(".fx-scene")' in guide_text
+    assert fx.count('data-grammar="work-cycle"') == 2, (
+        "Models and Agentic Platform must share the same work-cycle glyph"
+    )
+    assert ".js .fx-scene.live .fx-cycle svg" in guide_text, (
+        "the cycle spin must be gated on scene liveness, not free-running"
+    )
+    assert 'document.querySelectorAll(".fx-scene, .hero-lockup")' in guide_text
     assert "IntersectionObserver" in guide_text
     reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
-    for cls in (".fx-pop", ".fx-draw", ".fx-grow", ".fx-pulse"):
-        assert cls in reduce_block
+    assert ".fx-tokchip" in reduce_block, "token chips need a static reduced-motion state"
+    assert ".fx-cycle svg" in reduce_block, "the cycle needs a static reduced-motion state"
+    for retired in ("fx-pulse", "fx-grow", "fx-fade", "offset-path"):
+        assert retired not in guide_text, (
+            retired + " was retired; a reintroduced consumer must restore its states"
+        )
 
 
 def test_foundations_model_lifecycle_is_chronological_and_responsive(
     guide_text: str,
 ) -> None:
-    fx = _foundations_markup(guide_text)
-    lifecycle = re.search(
-        r'<section[^>]+id="fx-model-lifecycle"[\s\S]*?</section>', fx
-    )
-    assert lifecycle, "missing model lifecycle scene"
-    scene = lifecycle.group(0)
-    stages = ("training", "integration", "request", "reasoning", "output")
-    first_positions = []
+    """v4.4.1 Phase 4: one HTML flow, provider region strictly before the user region."""
+    scene = _foundation_scene(guide_text, "fx-model-lifecycle")
+    stages = ("training", "delivery", "request", "work-cycle", "output")
+    positions = []
     for stage in stages:
         marker = f'data-stage="{stage}"'
-        assert scene.count(marker) == 2, f"desktop and mobile need {stage!r} nodes"
-        first_positions.append(scene.index(marker))
-    assert first_positions == sorted(first_positions), "lifecycle stages are out of order"
+        assert scene.count(marker) == 1, f"expected exactly one {stage!r} stage node"
+        positions.append(scene.index(marker))
+    assert positions == sorted(positions), "lifecycle stages are out of order"
+    assert scene.index('data-region="provider"') < scene.index('data-region="user"')
     assert "happens long before your request" in scene
-    assert "files, workspace, documents, scripts" in scene
-    assert "Nothing else" not in scene
-    assert scene.count('data-phase2-diagram="model-lifecycle"') == 2
-    assert 'class="fx-svg fx-svg--desktop"' in scene
-    assert 'class="fx-svg fx-svg--mobile"' in scene
+    assert "never retrains" in scene
+    text = re.sub(r"<[^>]+>", " ", scene).lower()
+    assert re.search(r"effort level.{0,200}when supported", text, re.DOTALL)
+    assert "does not promise a fixed number of iterations" in text
+    assert "not a transcript of hidden reasoning" in text or "not hidden chain-of-thought" in text
+    # The four output kinds, each an approved inline asset or accessible equivalent.
+    for kind in ("text", "image", "video", "audio"):
+        assert f'data-output-kind="{kind}"' in scene, f"missing output kind {kind}"
+    assert 'preload="none"' in scene and "autoplay" not in scene
+    assert "transcript equivalent" in text
 
 
 def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
     guide_text: str,
 ) -> None:
-    fx = _foundations_markup(guide_text)
-    tokens = re.search(r'<section[^>]+id="fx-tokens"[\s\S]*?</section>', fx)
-    assert tokens, "missing tokens scene"
-    scene = tokens.group(0)
+    """v4.4.1 Phase 3: a real prompt, a verified split, and equivalent chips.
+
+    The split asserted below is the actual cl100k_base encoding of the displayed prompt,
+    so the example is reproducible rather than illustrative. "Summarise" costing three
+    tokens is the whole teaching point: a token is not a word.
+    """
+    scene = _foundation_scene(guide_text, "fx-tokens")
     assert 'data-tokenizer="cl100k_base"' in scene
-    for piece in ("Fresh", "ly", " baked", " bread", " smells", " wonderful", "."):
-        assert f'data-token-piece="{piece}"' in scene
-    assert "one tokenizer" in scene.lower()
-    assert "different models can split it differently" in scene.lower()
-    assert 'class="fx-image-token-grid"' in scene
-    assert scene.index('data-image-stage="source"') < scene.index(
-        'data-image-stage="tokens"'
+    assert "Summarise this contract and list every deadline." in scene
+    space = "\u2423"
+    expected = [
+        "Sum", "mar", "ise", space + "this", space + "contract", space + "and",
+        space + "list", space + "every", space + "deadline", ".",
+    ]
+    chips = re.findall(r'<span class="fx-tokchip-txt">([^<]*)</span>', scene)
+    assert chips == expected, "token chips do not match the verified split: " + repr(chips)
+    assert "fxchip--good" not in scene, (
+        "a second chip style implies a category the tokenizer does not have"
+    )
+    lowered = scene.lower()
+    assert "becomes 10 tokens" in lowered
+    assert "a token is not a word" in lowered
+    assert "other models cut the same sentence differently" in lowered
+    assert scene.count('clip-path="url(#nxp-tokcell-') == 9, "expected nine cropped image cells"
+    assert scene.count('href="#nxp-tokimg"') >= 10, (
+        "the source plus every cell must draw the same artwork, so no cell can be empty"
     )
     assert 'data-phase2-connector="image-tokenization"' in scene
-    assert "text and images" in scene.lower()
-    assert "cost" in scene.lower() and "speed" in scene.lower()
-    assert not re.search(
-        r"\b\d+(?:\.\d+)?\s+tokens?\s+per\s+word\b", scene, re.IGNORECASE
-    )
+    assert "holds real pixels" in lowered
+    assert "not a literal token count" in lowered
+    assert not re.search(r"\b\d+(?:\.\d+)?\s+tokens?\s+per\s+word\b", scene, re.IGNORECASE)
 
 
 def test_foundations_prompt_engineering_uses_one_non_coding_job(
     guide_text: str,
 ) -> None:
-    fx = _foundations_markup(guide_text)
-    prompt = re.search(r'<section[^>]+id="fx-prompts"[\s\S]*?</section>', fx)
-    assert prompt, "missing prompt-engineering scene"
-    scene = prompt.group(0)
-    assert scene.index("Weak prompt") < scene.index("Strong prompt")
-    for ingredient in ("Goal", "Material", "Done", "Format"):
-        assert ingredient in scene
-    for detail in ("community garden", "Saturday", "Oak Street", "RSVP"):
-        assert detail in scene
-    assert "Nexus-Hub" in scene and "commands" in scene
-    assert scene.count('data-phase2-diagram="prompt-engineering"') == 2
-    assert "generic and may invent missing details" in scene.lower()
-    assert "more likely to be a fact-bound, checkable draft" in scene.lower()
+    """v4.4.1 Phase 3: one non-coding request, shown vague and then precise."""
+    scene = _foundation_scene(guide_text, "fx-prompts")
+    assert scene.index("Vague") < scene.index("Precise"), "the weaker state must read first"
+    for part in ("Goal", "Material", "Done", "Format"):
+        assert "<dt>" + part + "</dt>" in scene, "missing prompt part: " + part
+    assert "Summarise this contract and list every deadline." in scene
+    assert "Look at this contract." in scene
+    assert 'class="fx-state fx-state--weak"' in scene
+    assert 'class="fx-state fx-state--strong"' in scene
     assert "terminal" not in scene.lower() and "source code" not in scene.lower()
 
 
 def test_foundations_mobile_phase2_diagrams_are_centered_and_bounded(
     guide_text: str,
 ) -> None:
-    rule = re.search(r"\.fx-svg--mobile\s*\{([^}]+)\}", guide_text)
-    assert rule
-    declarations = rule.group(1)
-    assert "width: min(100%, 22.5rem)" in declarations
-    assert "margin-inline: auto" in declarations
+    """v4.4.1 Phase 4 retired the dual desktop/mobile SVG variant system: the HTML scenes
+    stack through one media query instead of shipping two drawings. This guard keeps the
+    retirement honest; reintroducing a variant system must restore its bounding rules."""
+    assert "fx-svg--mobile" not in guide_text
+    assert "fx-svg--desktop" not in guide_text
 
 
 def test_foundations_comparisons_show_both_states_without_a_toggle(
@@ -959,26 +1060,34 @@ def test_foundations_comparisons_show_both_states_without_a_toggle(
 ) -> None:
     """Each teaching comparison keeps both states available in the same scene."""
     fx = _foundations_markup(guide_text)
-    assert "FOCUSED CONTEXT" in fx and "NOISY CONTEXT" in fx
-    assert "BROWSER CHATBOT" in fx and "AGENTIC PLATFORM" in fx
+    assert "fx-budget--noisy" in fx and "fx-budget--focused" in fx
+    assert 'data-phase3-node="chatbot-handoff"' in fx
+    assert 'data-phase3-node="agent-handoff"' in fx
     practice = _foundation_scene(guide_text, "fx-practice")
     assert ">PLATFORM LOOP<" in practice
     assert ">PLATFORM LOOP + NEXUS-HUB<" in practice
     assert 'type="range"' not in fx
     assert "nhgCompare" not in guide_text
     assert "data-station-toggle" not in guide_text
-    assert "aria-pressed" not in fx
+    # aria-pressed may appear ONLY on the media play toggle, never on a comparison.
+    pressed = re.findall(r"<[^>]*aria-pressed[^>]*>", fx)
+    assert all("data-media-toggle" in tag for tag in pressed), (
+        "aria-pressed outside the media toggle suggests a comparison hidden behind a control"
+    )
 
 
 def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
     """v4.2.3: every comparison reads without-then-with, the same direction."""
     fx = _foundations_markup(guide_text)
-    assert fx.index("NOISY CONTEXT") < fx.index("FOCUSED CONTEXT"), (
+    assert fx.index("fx-budget--noisy") < fx.index("fx-budget--focused"), (
         "the unaided context must come first"
     )
-    assert fx.index("BROWSER CHATBOT") < fx.index("AGENTIC PLATFORM"), (
-        "the answer-handoff workflow must come first"
+    assert fx.index("fx-state--weak") < fx.index("fx-state--strong"), (
+        "the weaker lane must come before the stronger one"
     )
+    assert fx.index('data-phase3-node="chatbot-handoff"') < fx.index(
+        'data-phase3-node="agent-handoff"'
+    ), "the answer-handoff lane must come first"
     practice = _foundation_scene(guide_text, "fx-practice")
     assert practice.index(">PLATFORM LOOP<") < practice.index(
         ">PLATFORM LOOP + NEXUS-HUB<"
@@ -999,43 +1108,47 @@ def test_foundations_arrowheads_are_filled_not_half_chevrons(guide_text: str) ->
 def test_foundations_loop_labels_have_hierarchy(guide_text: str) -> None:
     """The old labels were all one bold accent font, which read as noise."""
     fx = _foundations_markup(guide_text)
-    assert "fxt--role" in fx and "fxt--detail" in fx
+    # The surviving SVG labels keep the role class; the HTML scenes express the same
+    # hierarchy through tag/body class pairs with distinct computed weight and colour.
+    assert "fxt--role" in fx
     role = re.search(r"\.fxt--role\s*\{([^}]+)\}", guide_text)
-    detail = re.search(r"\.fxt--detail\s*\{([^}]+)\}", guide_text)
-    assert role and detail
-    assert "var(--ink-faint)" in role.group(1) and "700" in role.group(1)
-    assert "var(--ink-dim)" in detail.group(1) and "400" in detail.group(1)
+    assert role and "var(--ink-faint)" in role.group(1) and "700" in role.group(1)
+    for tag_cls in (".fx-region-tag", ".fx-out-tag", ".fx-mini-tag", ".fx-layer-tag"):
+        rule = re.search(re.escape(tag_cls) + r"[^{]*\{([^}]+)\}", guide_text)
+        assert rule, f"missing hierarchy tag rule {tag_cls}"
+        assert "700" in rule.group(1) and "uppercase" in rule.group(1), (
+            f"{tag_cls} must read as a small-caps role label"
+        )
     assert "action: read" not in fx and "result: file text" not in fx
 
 
 def test_foundations_pulses_are_painted_above_connectors_and_behind_nodes(
     guide_text: str,
 ) -> None:
-    """SVG paint order is source order: lines, then traveling pulse, then boxes."""
-    fx = _foundations_markup(guide_text)
-    pulsed = []
-    for svg in re.findall(
-        r'<svg[^>]+data-phase3-diagram="[^"]+"[\s\S]*?</svg>', fx
-    ):
-        if "fx-pulse" not in svg:
-            continue
-        pulsed.append(svg)
-        connectors = svg.index('data-phase3-layer="connectors"')
-        pulses = svg.index('data-phase3-layer="pulses"')
-        nodes = svg.index('data-phase3-layer="nodes"')
-        assert connectors < pulses < nodes, (
-            "paint order must be connector lines, traveling pulses, then nodes"
-        )
-    assert pulsed, "expected at least one Phase 3 diagram with a traveling pulse"
+    """v4.4.1 Phase 4 retired the traveling-pulse primitive with the last SVG story
+    diagram. This guard stays so a reintroduced pulse must also restore its paint-order
+    and reduced-motion contracts rather than riding back in silently."""
+    assert "fx-pulse" not in guide_text
+    assert "offset-path" not in guide_text
 
 
 def test_foundations_is_project_generic(guide_text: str) -> None:
-    """Teaching copy must not assume the reader's project is code."""
+    """Teaching copy must not assume the reader's project is code.
+
+    v4.4.1 Phase 3 narrows this guard: "codebase" is now PERMITTED, because Context
+    Engineering lists it as one of several kinds of material a request can carry. The
+    positive requirement below is what stops that concession from quietly making the
+    scene code-only, so the broad non-coding kinds must still appear alongside it.
+    """
     fx = _foundations_markup(guide_text)
     text = re.sub(r"<[^>]+>", " ", fx).lower()
-    for term in ("repo", "repository", "terminal", "git", "codebase"):
-        assert not re.search(rf"\b{re.escape(term)}\b", text), (
-            f"coding-only term in Foundations teaching copy: {term!r}"
+    for term in ("repo", "repository", "terminal", "git"):
+        assert not re.search(r"\b" + re.escape(term) + r"\b", text), (
+            "coding-only term in Foundations teaching copy: " + repr(term)
+        )
+    for broad in ("image", "file or document", "project folder or workspace"):
+        assert broad in text, (
+            "Foundations must keep broad non-coding context examples; missing " + repr(broad)
         )
 
 
@@ -1059,14 +1172,10 @@ def test_no_unexpected_persistent_overlays(guide_text: str) -> None:
 def test_foundations_animations_have_reduced_motion_fallback(guide_text: str) -> None:
     reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
     reduce_block = reduce_block.split("}\n</style>", 1)[0] if "}\n</style>" in reduce_block else reduce_block
-    for cls in (".fx-pop", ".fx-draw", ".fx-grow", ".fx-fade", ".fx-pulse"):
+    # The live motion primitives after the Phase 4 rebuild: reveal pops, drawn connectors,
+    # token-chip reveals, and the shared work-cycle spin.
+    for cls in (".fx-pop", ".fx-draw", ".fx-tokchip", ".fx-cycle svg"):
         assert cls in reduce_block, f"{cls} missing a reduced-motion static state"
-    assert "offset-path" in guide_text, "pulse dots ride CSS motion paths"
-
-
-# ---------------------------------------------------------------------------
-# Training scene data and cumulative project explorer (Phase 5)
-# ---------------------------------------------------------------------------
 
 
 def test_training_scenes_are_data_driven_json(parsed: GuideParser) -> None:
@@ -1119,14 +1228,14 @@ def test_training_scene_schema_is_strict_and_cumulative(parsed: GuideParser) -> 
     assert set(data) == {"initial", "scenes"}
     assert set(data["initial"]) == {"game", "files"}
     assert data["initial"]["game"] == {
-        "collisionMode": "buggy",
-        "splittingEnabled": False,
-        "situation": "wrap-boundary",
+        "damageMode": "buggy",
+        "verticalMovementEnabled": False,
+        "fixture": "enemy-hit",
     }
     initial_files = data["initial"]["files"]
     assert initial_files, "the explorer needs the files that exist before /describe"
     assert {item["path"] for item in initial_files} >= {
-        "src/collision.js",
+        "src/damage.js",
         "src/game.js",
     }
     assert len({item["path"] for item in initial_files}) == len(initial_files)
@@ -1162,13 +1271,13 @@ def test_training_scene_schema_is_strict_and_cumulative(parsed: GuideParser) -> 
             isinstance(line, str) and line.strip() for line in scene["output"]
         )
         assert set(scene["game"]) == {
-            "collisionMode",
-            "splittingEnabled",
-            "situation",
+            "damageMode",
+            "verticalMovementEnabled",
+            "fixture",
         }
-        assert scene["game"]["collisionMode"] in {"buggy", "fixed"}
-        assert isinstance(scene["game"]["splittingEnabled"], bool)
-        assert scene["game"]["situation"] in {"wrap-boundary", "play"}
+        assert scene["game"]["damageMode"] in {"buggy", "fixed"}
+        assert isinstance(scene["game"]["verticalMovementEnabled"], bool)
+        assert scene["game"]["fixture"] in {"enemy-hit", "asteroid-hit", "play"}
         assert scene["files"]
         for file_change in scene["files"]:
             assert set(file_change) >= {"path", "action", "language", "content"}
@@ -1197,16 +1306,16 @@ def test_training_game_state_changes_at_implement_and_compare(parsed: GuideParse
     scenes = json.loads(parsed.json_script_contents[0])["scenes"]
     states = {scene["id"]: scene["game"] for scene in scenes}
     for scene_id in ("describe", "review", "plan"):
-        assert states[scene_id]["collisionMode"] == "buggy"
-        assert states[scene_id]["splittingEnabled"] is False
+        assert states[scene_id]["damageMode"] == "buggy"
+        assert states[scene_id]["verticalMovementEnabled"] is False
     assert states["implement"] == {
-        "collisionMode": "fixed",
-        "splittingEnabled": False,
-        "situation": "wrap-boundary",
+        "damageMode": "fixed",
+        "verticalMovementEnabled": False,
+        "fixture": "enemy-hit",
     }
     for scene_id in ("compare", "test", "update", "presentify"):
-        assert states[scene_id]["collisionMode"] == "fixed"
-        assert states[scene_id]["splittingEnabled"] is True
+        assert states[scene_id]["damageMode"] == "fixed"
+        assert states[scene_id]["verticalMovementEnabled"] is True
     compare = next(scene for scene in scenes if scene["id"] == "compare")
     assert any("Follow-on /plan and /implement" in line for line in compare["output"])
 
@@ -1270,18 +1379,20 @@ def test_training_runtime_exposes_deterministic_state_contract(guide_text: str) 
     assert "config.preset" not in engine
 
 
-def test_training_engine_uses_asteroids_collision_contract(guide_text: str) -> None:
-    """Phase 4 replaces the booth runtime with the seeded Asteroids defect."""
+def test_training_engine_uses_shooter_damage_contract(guide_text: str) -> None:
+    """v4.4.1 Phase 5 replaces the wrap-collision Asteroids with the seeded damage bug."""
     engine = _training_engine(guide_text)
     assert "function collides" in engine
-    assert 'state.collisionMode === "fixed"' in engine
-    assert "missedWrapHits" in engine and "WRAP HIT MISSED" in engine
-    assert "function computeStamps" not in engine and "function paintBooth" not in engine
+    assert "function damageOutcome" in engine
+    assert "setDamageMode" in engine and "setVerticalMovementEnabled" in engine
+    assert 'mode === "buggy"' in engine, "the seeded bug lives in the pure damage seam"
+    for retired in ("missedWrapHits", "WRAP HIT MISSED", "setSplittingEnabled", "NexusAsteroids"):
+        assert retired not in engine, retired + " belongs to the retired Asteroids engine"
 
 
 def test_training_has_game_terminal_and_present_mode(guide_text: str) -> None:
     training = guide_text.split('id="page-training"', 1)[-1].split('id="page-cheatsheets"', 1)[0]
-    assert "data-asteroids-game" in training
+    assert "data-arcade-game" in training
     assert 'data-nht="terminal"' in training
     assert 'data-nht="run"' in training
     assert 'id="nhtPresent"' in training
@@ -1342,10 +1453,11 @@ def test_training_controls_are_bottom_right_icons(guide_text: str) -> None:
 
 
 def test_present_mode_fills_the_viewport(guide_text: str) -> None:
-    block = guide_text.split("/* present / slide mode", 1)[-1].split("@media", 1)[0]
+    block = guide_text.split("/* Full-screen slide mode (v4.4.1 Phase 6)", 1)[-1].split("@media", 1)[0]
     assert ".nht.is-present .nht-slide" in block
     assert "flex: 1 1 auto" in block, "the slide grows to consume the height"
     assert ".nht.is-present .nht-grid" in block
+    assert "overflow-y: auto" in block, "the terminal keeps the one bounded secondary scroll"
 
 
 def test_no_hardcoded_text_width_caps_remain(guide_text: str) -> None:

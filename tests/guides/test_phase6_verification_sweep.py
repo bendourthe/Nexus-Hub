@@ -11,7 +11,9 @@ GUIDE = Path(__file__).resolve().parents[2] / "guides" / "website" / "nexus-hub-
 GUIDE_README = GUIDE.with_name("README.md")
 PAGES = ("home", "foundations", "training", "cheatsheets")
 THEMES = ("dark", "light")
-WIDTHS = (320, 420, 900, 1440)
+# v4.4.1 Phase 2 widened this set. 720 and 721 straddle the narrow-layout breakpoint so an
+# off-by-one error is caught on the pixel where it happens, not averaged away between 420 and 900.
+WIDTHS = (320, 420, 720, 721, 900, 1440)
 TRAINING_SCENES = (
     "describe",
     "review",
@@ -450,7 +452,7 @@ def test_all_pages_meet_contrast_and_overflow_matrix(render_gate: object) -> Non
                             )
                             if route == "training":
                                 page.wait_for_function(
-                                    "window.NexusTraining && window.NexusAsteroids"
+                                    "window.NexusTraining && window.NexusShooter"
                                 )
                             audit = page.evaluate(PAGE_AUDIT)
 
@@ -766,7 +768,8 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                 page.goto(f"{guide_url}#home", wait_until="load")
                 page.wait_for_function("document.body.dataset.page === 'home'")
                 platforms = page.locator(".platform-rail > .platform-item")
-                assert platforms.count() == 6
+                # v4.4.1 Phase 2: five approved marks; OpenCode and the text treatments retired.
+                assert platforms.count() == 5
                 assert page.locator(".platform-rail").get_attribute("aria-label") == (
                     "Compatible AI platforms"
                 )
@@ -779,7 +782,6 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                     "Gemini",
                     "Cursor",
                     "GitHub Copilot",
-                    "OpenCode",
                 ]
 
                 untabbable_actions = page.evaluate(
@@ -874,15 +876,32 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                 page.wait_for_function("document.body.dataset.page === 'foundations'")
 
                 page.goto(f"{guide_url}#training/describe", wait_until="load")
-                page.wait_for_function("window.NexusTraining && window.NexusAsteroids")
-                _focus_by_tab_from_previous(page, "[data-asteroids-game]")
-                before_bullets = page.evaluate(
-                    "window.NexusAsteroids.snapshot().bullets.length"
-                )
-                page.keyboard.press("Space")
+                page.wait_for_function("window.NexusTraining && window.NexusShooter")
+                # The idle gate means Space fires only in a STARTED, focused game, and
+                # this sweep runs under reduced motion, so the tick that spawns the shot
+                # is driven manually through the public step seam. Keyboard start is
+                # proven with a direct focus plus Enter; the full tab-ownership walk
+                # lives in test_arcade_shooter_game.py.
+                page.locator("[data-arcade-start]").focus()
                 assert page.evaluate(
-                    "window.NexusAsteroids.snapshot().bullets.length"
-                ) > before_bullets
+                    "document.activeElement.hasAttribute('data-arcade-start')"
+                ), "the start control must be keyboard-focusable"
+                page.keyboard.press("Enter")
+                page.wait_for_function(
+                    "window.NexusShooter.snapshot().lifecycle !== 'idle'"
+                )
+                assert page.evaluate(
+                    "document.activeElement.hasAttribute('data-arcade-game')"
+                ), "starting must hand key ownership to the game"
+                before_shots = page.evaluate(
+                    "window.NexusShooter.snapshot().playerShots.length"
+                )
+                page.keyboard.down("Space")
+                page.evaluate("window.NexusShooter.step()")
+                page.keyboard.up("Space")
+                assert page.evaluate(
+                    "window.NexusShooter.snapshot().playerShots.length"
+                ) > before_shots
 
                 first_file = '[data-nht="file"]'
                 _focus_by_tab_from_previous(page, first_file)
@@ -930,21 +949,28 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                 page.wait_for_function("document.body.dataset.page === 'cheatsheets'")
 
                 page.goto(f"{guide_url}#training/describe", wait_until="load")
-                page.wait_for_function("window.NexusAsteroids")
-                before = page.evaluate("window.NexusAsteroids.snapshot()")
-                assert "reduced-motion" in before["pausedReasons"]
+                page.wait_for_function("window.NexusShooter")
+                # Hash navigation is same-document, so the earlier keyboard block may
+                # already have consumed the start overlay; only click it if it is showing.
+                if page.locator("[data-arcade-start]").is_visible():
+                    page.locator("[data-arcade-start]").click()
+                page.wait_for_function(
+                    "window.NexusShooter.snapshot().lifecycle === 'paused'"
+                )
+                before = page.evaluate("window.NexusShooter.snapshot()")
+                assert "reduced-motion" in before["pauseReasons"]
                 page.wait_for_timeout(160)
-                assert page.evaluate("window.NexusAsteroids.snapshot().frame") == before[
-                    "frame"
+                assert page.evaluate("window.NexusShooter.snapshot().tick") == before[
+                    "tick"
                 ]
-                step_button = page.locator("[data-asteroids-step]")
+                step_button = page.locator("[data-arcade-step]")
                 assert step_button.is_visible() and step_button.is_enabled()
                 step_button.click()
-                stepped = page.evaluate("window.NexusAsteroids.snapshot()")
-                assert stepped["frame"] == before["frame"] + 1
+                stepped = page.evaluate("window.NexusShooter.snapshot()")
+                assert stepped["tick"] == before["tick"] + 1
                 page.wait_for_timeout(160)
-                assert page.evaluate("window.NexusAsteroids.snapshot().frame") == stepped[
-                    "frame"
+                assert page.evaluate("window.NexusShooter.snapshot().tick") == stepped[
+                    "tick"
                 ]
 
                 print(
