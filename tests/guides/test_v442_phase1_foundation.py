@@ -22,11 +22,19 @@ PAGES = ("home", "foundations", "training", "cheatsheets")
 RENAME_EXEMPT_SELECTOR = "code, pre, kbd, [data-copy], a[href*='github.com/bendourthe/Nexus-Hub']"
 
 
-@pytest.fixture(scope="module")
-def playwright_mod():
+def _load_sync_playwright():
+    """Return playwright's sync entry point, or None when the package is absent."""
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:  # pragma: no cover - environment dependent
+        return None
+    return sync_playwright
+
+
+@pytest.fixture(scope="module")
+def playwright_mod():
+    sync_playwright = _load_sync_playwright()
+    if sync_playwright is None:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
         pytest.skip("playwright is not installed")
