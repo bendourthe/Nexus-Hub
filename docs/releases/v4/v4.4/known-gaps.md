@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 merged to `develop` 2026-09-02 (PR #154), release pending; v4.4.2 in progress on the same minor
-**Last updated**: 2026-09-02 (v4.4.2 Phase 2)
+**Last updated**: 2026-09-02 (v4.4.2 Phase 3)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -127,6 +127,11 @@
 
 - No new defect. The new two-thirds word-budget test failed twice on the first integrated run (`Why it matters` 62 vs 56, merged comparison 196 vs 170); both were trimmed in copy, never by loosening the test.
 - Platform-mark attribution moved from the Home disclosure to a site footer per `docs/decisions/implemented/policy/2026-09-02-platform-mark-attribution-in-footer.md`; the plan's `product/` decision class does not exist, so `policy/` was used.
+
+### Phase 3 notes
+
+- No new defect. Two first-run failures were specificity and source-order losses (`.fx-stack` to `.fx-scene`, `.fx-subtitle` to `.fx-copy p`), the `BG-4` lesson recurring; fixed with compound selectors and a CSS comment.
+- Models and Harnesses are stacked as an interim balance; Phase 4 rebuilds both diagrams and re-measures against the 1.35 bound.
 
 ### Deviations recorded
 

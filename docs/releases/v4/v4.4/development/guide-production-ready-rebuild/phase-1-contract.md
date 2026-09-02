@@ -52,7 +52,8 @@ Rule (the v4.4.1 `WN-2` lesson): the register lists assertions pinning LITERAL I
 | `test_nexus_hub_guide.py` | `test_home_platform_rail_carries_the_required_attribution` | `<details class="platform-credits">` on Home as the attribution carrier | H2 (attribution moves to the site footer; decision 2026-09-02) | 2 | DONE: now asserts the footer carries CC BY 4.0, Microsoft, Codicons, and the nominative-use sentence |
 | `test_nexus_hub_guide.py` | `"Nexus-Hub" not in home.split("</h1>")` and heading checks (~561, ~673) | absence assertions | none (still true after rename) | - | KEEP |
 | `test_v441_phase2_home.py` | hero tagline / rail / loop assertions | `.hero-tagline` text | H1 | 2 | DONE: no tagline assertion existed there; eight Phase 2 tests appended |
-| `test_v441_phase4_foundations.py` | two-column `fx-scene` grid; matched-emission of Models and Agentic | `.fx-scene` grid-template-columns; `Moving Image` label | F2, F4 | 3, 4 | OPEN |
+| `test_v441_phase4_foundations.py` | two-column `fx-scene` grid; matched-emission of Models and Agentic | `.fx-scene` grid-template-columns; `Moving Image` label | F2, F4 | 3, 4 | Phase 3: no assertion needed changing (`.fx-scene.fx-stack` stacks three scenes without touching the base rule); `Moving Image` stays OPEN for Phase 4 |
+| `test_nexus_hub_guide.py` | `test_foundations_prompts_...`: `<dt>Goal</dt>` etc. | prompt parts as `dl.fx-parts` rows | F3 (annotated text) | 3 | KEPT TRUE: the annotation legend is a `dl` whose `dt`s carry the same four labels, so no edit was required |
 | `test_nexus_hub_guide.py` | `test_home_comparison_has_centered_explicit_sides`: title `Keep your platform. Add the workflow.` | comparison section title | H4 (merged section retitled `Raw prompting vs Nexus Hub`) | 2 | DONE |
 | `test_nexus_hub_guide.py` | `test_foundations_phase3_has_eight_title_subtitle_scenes`: `fx.count("<svg") >= 7`; `Harnesses` / `Nexus Hub Harness` structure | per-scene SVG presence, separate harness diagrams | F6 (one shared layered diagram) | 4 | OPEN |
 | `test_arcade_shooter_game.py` | `nag-controls` / `nag-actions` buttons; `enemy-hit` never spawns; two asteroid speeds | touch buttons, spawn gating, `ASTEROID_SPEEDS` length | A1, A2, A3 | 5 | OPEN |
@@ -68,14 +69,19 @@ Ceiling: strict 500,000 bytes. Every phase records its measured actual against i
 | Start (v4.4.1 merge) | - | - | 292,339 | |
 | 1 | +8,000 | +7,708 | 300,047 | sequencer JS + primitives, title-scale token, rename |
 | 2 | +36,000 | +14,524 | 314,571 | hero subtitle and lead, four restored sections, guardrails illustration, merged comparison, footer |
-| 3 | +22,000 | | | |
+| 3 | +22,000 | +4,851 | 319,422 | page title and lead, eyebrow subtitles, three stacked scenes, annotated prompt and context |
 | 4 | +38,000 | | | |
 | 5 | +14,000 | | | |
 | 6 | +12,000 | | | |
 | 7 | +4,000 | | | |
 | Reserve | 73,661 | | | ceiling minus start minus allocations |
 
-## 4. Phase 1 deviations recorded
+## 4. Deviations recorded
+
+- Phase 3: `.fx-scene.fx-stack` and `.fx-copy .fx-subtitle` are compound selectors on purpose. A lone `.fx-stack` lost to the later `.fx-scene` rule on source order and a lone `.fx-subtitle` lost to `.fx-copy p` on specificity; both are the v4.4.1 `BG-4` lesson recurring, now recorded in the CSS comment.
+- Phase 3: Models and Harnesses are stacked (`fx-stack`) as an interim balance; Phase 4 rebuilds both diagrams and re-measures.
+
+### Phase 1
 
 - `.section-title` minimum bound is `0.6 x` the scaled floor (2.16 rem at scale 3) rather than the plan's `1.2rem x scale`. At the plan's literal formula the 320 px minimum would be 57.6 px and a single long word overflows the viewport; the 1440 px anchor (81.6 px, exactly 3x v4.4.1's 27.2 px) is unchanged, which is the value the Definition of Done names.
 - `BG-13`: the first sequencer demo dimmed the loop pills to opacity .45 and the contrast sweep measured 1.9:1 mid-sequence. Text carriers now use `seq-glow` (accent ring on the active step, no foreground change); `seq-fade` is reserved for shapes and connectors with a .7 floor and a comment saying so.

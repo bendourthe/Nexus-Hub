@@ -384,6 +384,45 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
   .tbl-migrate td::before { content: attr(data-th); display: block; font: 700 10.5px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px; }
 }
 
+
+/* ---------- Foundations page head and scene balance (v4.4.2 Phase 3) ----------
+   The page title reuses the hero-subtitle style so Home and Foundations share one heading
+   system; the scene subtitle becomes the shared eyebrow and moves ABOVE its h2. */
+.page-title { margin: 0 auto; }
+.page-lead { margin: var(--sp-3) auto 0; text-align: center; font-size: 1.15rem; line-height: 1.55; color: var(--ink-dim); }
+/* A scene whose diagram and copy cannot balance stacks: copy above, diagram full width. */
+/* Compound selectors on purpose: .fx-scene (defined later, same specificity) would otherwise win
+   on source order, and .fx-copy p (two components) beats a lone .fx-subtitle. */
+.fx-scene.fx-stack { grid-template-columns: 1fr; align-items: start; }
+.fx-scene.fx-stack .fx-diagram--narrow { width: 100%; }
+.fx-duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
+.fx-duo > * { margin-top: 0; }
+.fx-duo .fx-tokfig { margin: 0; }
+.fx-duo .fx-tokimg { width: min(100%, 26.25rem); margin: 0 auto; }
+
+/* ---------- Annotated prompt primitive ----------
+   One continuous text whose labelled spans light in sequence. Text never changes contrast
+   during the sequence (BG-13 rule): the active part gains a stronger tint and a ring. */
+.ann-text { margin: 0; color: var(--ink); font-size: 15px; line-height: 1.75; }
+.ann { --ann: var(--ink-faint); color: inherit; border-radius: 5px; padding: 1px 4px; text-decoration: underline dotted; text-decoration-color: var(--ann); text-underline-offset: 3px;
+  background: color-mix(in srgb, var(--ann) 12%, transparent); transition: background-color .35s var(--ease), box-shadow .35s var(--ease); }
+.ann[data-part="goal"], .ann[data-part="request"] { --ann: var(--teal); }
+.ann[data-part="material"], .ann[data-part="context"] { --ann: var(--blue); }
+.ann[data-part="done"] { --ann: var(--amber); }
+.ann[data-part="format"] { --ann: var(--cyan); }
+.js .ann.is-on { background: color-mix(in srgb, var(--ann) 26%, transparent); box-shadow: 0 0 0 1.5px var(--ann); }
+.ann-legend { margin: 12px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; }
+.ann-legend-row { --ann: var(--ink-faint); display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: baseline; padding: 3px 6px; border-radius: 6px; transition: background-color .35s var(--ease); }
+.ann-legend-row[data-part="goal"], .ann-legend-row[data-part="request"] { --ann: var(--teal); }
+.ann-legend-row[data-part="material"], .ann-legend-row[data-part="context"] { --ann: var(--blue); }
+.ann-legend-row[data-part="done"] { --ann: var(--amber); }
+.ann-legend-row[data-part="format"] { --ann: var(--cyan); }
+.ann-legend-row dt { font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ink); }
+.ann-legend-row dt::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 2px; background: var(--ann); margin-right: 6px; vertical-align: 1px; }
+.ann-legend-row dd { margin: 0; font-size: 13px; color: var(--ink-dim); }
+.js .ann-legend-row.is-on { background: color-mix(in srgb, var(--ann) 14%, transparent); }
+@media (max-width: 560px) { .ann-legend { grid-template-columns: 1fr; } .fx-duo { grid-template-columns: 1fr; } }
+
 /* ---------- Buttons ---------- */
 .btn-row { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-4); }
 .btn {
@@ -616,8 +655,9 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
    keeps it. Making it the default is what made Foundations 7,235px tall at 1440. */
 .fx-wide { grid-template-columns: 1fr; }
 .fx-title { margin-bottom: var(--sp-3); }
-.fx-title h2 { margin-bottom: 6px; }
-.fx-subtitle { margin: 0; color: var(--teal-soft); font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.fx-copy .fx-subtitle, .fx-subtitle { display: inline-block; margin: 0 0 var(--sp-2); color: var(--teal-soft); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; line-height: 1.4; }
+.fx-subtitle::before { content: ""; display: inline-block; width: 18px; height: 2px; background: var(--accent); vertical-align: middle; margin-right: 8px; border-radius: 2px; }
+.fx-title h2 { margin-bottom: var(--sp-3); }
 .fx-copy h2 { text-wrap: balance; }
 .fx-copy p { font-size: 15.5px; color: var(--ink-dim); }
 .fx-copy strong, .fx-copy em { color: var(--ink); }
@@ -691,10 +731,6 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-state-why { margin: 10px 0 0; color: var(--ink-dim); font-size: 13px; line-height: 1.5; }
 .fx-state-link { display: flex; align-items: center; }
 .fx-inline-arrow { width: 34px; height: 12px; overflow: visible; }
-.fx-parts { margin: 0; display: grid; gap: 7px; }
-.fx-part { display: grid; grid-template-columns: 4.6rem 1fr; gap: 10px; align-items: baseline; }
-.fx-part dt { color: var(--teal-soft); font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
-.fx-part dd { margin: 0; color: var(--ink); font-size: 14px; line-height: 1.4; }
 .fx-ctx { display: grid; gap: 16px; }
 .fx-ctx-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 12px; align-items: center; }
 .fx-ctx-query { padding: 12px 14px; border: 1px solid var(--border-bright); border-radius: var(--radius-sm); background: var(--surface); }
@@ -1205,7 +1241,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   #constellation { transition: none; }
   .js .page.active { animation: none; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
-  .js .seq-fade, .js .seq-rise, .js .seq-draw, .js .seq-glow { transition-duration: 0s; }
+  .js .seq-fade, .js .seq-rise, .js .seq-draw, .js .seq-glow, .js .ann, .js .ann-legend-row { transition-duration: 0s; }
   .js .hero-lockup.reveal .hero-mark { opacity: 1; transform: none; transition: none; }
   .js .fx-scene .fx-tokchip { opacity: 1; transform: none; transition: none; }
   .js .fx-scene.live .fx-cycle svg { animation: none; }
@@ -1583,18 +1619,21 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   <section class="page" id="page-foundations" data-page="foundations">
     <div class="container">
       <div class="hero">
-        <span class="eyebrow">Foundations</span>
-        <h1>What actually happens when an AI works on your project</h1>
-        <p class="lead">Build the mental model behind useful AI work: how a model is trained, what a platform adds, how tokens and prompts shape one request, and how a harness makes the result repeatable.</p>
+        <h1 class="hero-subtitle page-title">The concepts behind every <span class="gtext">AI-assisted project</span></h1>
+        <p class="page-lead">This page explains the terms and the mechanics at a high level: what a model reads, how a prompt and its context shape one request, what an agentic platform adds, and where a harness fits. Read it once and the rest of the guide makes sense.</p>
       </div>
 
-      <section class="fx-scene reveal" id="fx-tokens" aria-labelledby="fx-tokens-title">
+      <section class="fx-scene fx-stack reveal" id="fx-tokens" aria-labelledby="fx-tokens-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-tokens-title" class="section-title">Tokens Definition</h2>
             <p class="fx-subtitle">The units a model actually reads</p>
+            <h2 id="fx-tokens-title" class="section-title">Tokens Definition</h2>
           </div>
           <p>A model never sees your words. It sees <strong>tokens</strong>: the small pieces your text is cut into first. A token can be a whole word, part of one, a punctuation mark, or a space attached to the word after it.</p>
+          <p>This is the real <code>cl100k_base</code> split. Other models cut the same sentence differently, so there is no fixed words-to-tokens ratio. The count matters because it is what fills the working budget, and it is one factor in speed and in metered cost.</p>
+        </div>
+        <div class="fx-diagram">
+          <div class="fx-duo">
           <figure class="fx-tokfig">
             <figcaption class="fx-tokfig-cap">A prompt you might actually send</figcaption>
             <p class="fx-tokprompt">Summarise this contract and list every deadline.</p>
@@ -1613,9 +1652,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             </ol>
             <p class="fx-tokfig-note">Every chip is one token and they all count the same, which is why they all look the same. &#9251; marks a leading space. Notice that <strong>Summarise</strong> alone costs three tokens: a token is not a word.</p>
           </figure>
-          <p>This is the real <code>cl100k_base</code> split. Other models cut the same sentence differently, so there is no fixed words-to-tokens ratio. The count matters because it is what fills the working budget, and it is one factor in speed and in metered cost.</p>
-        </div>
-        <div class="fx-diagram fx-diagram--narrow">
+          <div class="fx-tokimg">
           <svg class="fx-svg" data-phase2-diagram="tokens" data-tokenizer="cl100k_base" viewBox="0 0 360 174" role="img" aria-labelledby="fx-tokimg-title fx-tokimg-desc">
             <title id="fx-tokimg-title">An image is divided into tokens</title>
             <desc id="fx-tokimg-desc">A picture of a tree on a hill under a sun is divided into a three-by-three grid. Each grid square holds the part of the picture that sits underneath it, showing that the image is split into pieces the same way the sentence was.</desc>
@@ -1667,12 +1704,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </svg>
           <p class="fx-diagram-note">Images are split too. Every square above holds real pixels from the picture beside it. The nine-square grid illustrates the idea; it is not a literal token count.</p>
         </div>
+        </div>
+        </div>
       </section>
       <section class="fx-scene reveal" id="fx-prompts" aria-labelledby="fx-prompts-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-prompts-title" class="section-title">Prompt Engineering</h2>
             <p class="fx-subtitle">Stating the job so the result is checkable</p>
+            <h2 id="fx-prompts-title" class="section-title">Prompt Engineering</h2>
           </div>
           <p>The prompt is where you state <strong>the job</strong>. The same request can be asked in a way nobody could grade, or in a way anyone could check. That difference is the whole skill.</p>
           <p>A useful prompt names the <strong>Goal</strong>, points at the <strong>Material</strong>, defines what <strong>Done</strong> means, and asks for a <strong>Format</strong> you can use. Miss one and the model has to guess, and it will guess confidently.</p>
@@ -1685,13 +1724,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <p class="fx-state-why">No goal, no finish line, no shape. Any answer is arguably correct, so none can be wrong.</p>
             </article>
             <div class="fx-state-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
-            <article class="fx-state fx-state--strong">
+            <article class="fx-state fx-state--strong" id="fx-ann-prompt" data-seq-root data-seq-loop data-seq-hold="2400">
               <h3 class="fx-state-tag">Precise</h3>
-              <dl class="fx-parts">
-                <div class="fx-part"><dt>Goal</dt><dd>Summarise this contract and list every deadline.</dd></div>
-                <div class="fx-part"><dt>Material</dt><dd>The signed PDF I attached, sections 4 to 9 only.</dd></div>
-                <div class="fx-part"><dt>Done</dt><dd>Every dated obligation appears once, with its clause number.</dd></div>
-                <div class="fx-part"><dt>Format</dt><dd>A table: date, obligation, clause, who owes it.</dd></div>
+              <p class="ann-text"><mark class="ann" data-part="goal" data-seq="1" data-seq-dur="1000">Summarise this contract and list every deadline.</mark> <mark class="ann" data-part="material" data-seq="2" data-seq-dur="1000">Use the signed PDF I attached, sections 4 to 9 only.</mark> <mark class="ann" data-part="done" data-seq="3" data-seq-dur="1000">Every dated obligation appears once, with its clause number.</mark> <mark class="ann" data-part="format" data-seq="4" data-seq-dur="1600">Return a table: date, obligation, clause, who owes it.</mark></p>
+              <dl class="ann-legend" aria-label="What each highlighted part of the prompt is for">
+              <div class="ann-legend-row" data-part="goal" data-seq="1"><dt>Goal</dt><dd>the job, stated so it can be graded</dd></div>
+              <div class="ann-legend-row" data-part="material" data-seq="2"><dt>Material</dt><dd>what the job runs on</dd></div>
+              <div class="ann-legend-row" data-part="done" data-seq="3"><dt>Done</dt><dd>the finish line</dd></div>
+              <div class="ann-legend-row" data-part="format" data-seq="4"><dt>Format</dt><dd>a shape you can use</dd></div>
               </dl>
               <p class="fx-state-why">Now the answer can be checked against the contract, line by line.</p>
             </article>
@@ -1701,8 +1741,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene reveal" id="fx-context" aria-labelledby="fx-context-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-context-title" class="section-title">Context Engineering</h2>
             <p class="fx-subtitle">Choosing the material the job needs</p>
+            <h2 id="fx-context-title" class="section-title">Context Engineering</h2>
           </div>
           <p>The prompt states the job. <strong>Context</strong> is the material the job runs on, and it is separate from the words of your request. It can be an image, a file or document, a project folder or workspace, or a codebase.</p>
           <p>Context is optional, and it is not free. Everything you attach shares one finite working budget measured in tokens, alongside the instructions, the conversation so far, and any tool results. Material can also be stale, duplicated, or simply too large to be worth its space.</p>
@@ -1711,7 +1751,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         <div class="fx-diagram">
           <div class="fx-ctx" role="group" aria-label="The request plus the optional material it can carry, then two ways of filling the same budget">
             <div class="fx-ctx-row">
-              <div class="fx-ctx-query"><span class="fx-ctx-tag">The request</span><p>Summarise this contract and list every deadline.</p></div>
+              <div class="fx-ctx-query" id="fx-ann-context" data-seq-root data-seq-loop data-seq-hold="2400"><span class="fx-ctx-tag">The request and its material</span><p class="ann-text"><mark class="ann" data-part="request" data-seq="1" data-seq-dur="1100">Summarise this contract and list every deadline.</mark> <mark class="ann" data-part="context" data-seq="2" data-seq-dur="1100">Use the attached PDF, sections 4 to 9.</mark> <mark class="ann" data-part="context" data-seq="3" data-seq-dur="1600">Ignore the old chat history.</mark></p><dl class="ann-legend" aria-label="What each highlighted part is"><div class="ann-legend-row" data-part="request" data-seq="1"><dt>Request</dt><dd>the words of the job</dd></div><div class="ann-legend-row" data-part="context" data-seq="2"><dt>Context</dt><dd>material the job runs on, chosen, not dumped</dd></div></dl></div>
               <div class="fx-ctx-plus" aria-hidden="true">+</div>
               <ul class="fx-ctx-kinds" aria-label="Optional context you can attach">
                 <li><span class="fx-ctx-kind">Image</span></li>
@@ -1754,11 +1794,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </div>
         </div>
       </section>
-      <section class="fx-scene reveal" id="fx-model-lifecycle" aria-labelledby="fx-model-title">
+      <section class="fx-scene fx-stack reveal" id="fx-model-lifecycle" aria-labelledby="fx-model-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-model-title" class="section-title">Models</h2>
             <p class="fx-subtitle">Trained patterns, used one request at a time</p>
+            <h2 id="fx-model-title" class="section-title">Models</h2>
           </div>
           <p>A model is a trained system that turns a request into an output. Training <strong>happens long before your request</strong>: a provider trains on broad material, then releases the finished model into products and services. Your prompt never retrains it; each request simply runs through the patterns it already has.</p>
           <p>Some model and platform combinations expose an <strong>effort level</strong> that, when supported, can allocate more computation or more work cycles to a request. More effort does not promise a fixed number of iterations; it buys the model room to work.</p>
@@ -1811,8 +1851,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene reveal" id="fx-agent-platform" aria-labelledby="fx-platform-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-platform-title" class="section-title">Agentic Platform</h2>
             <p class="fx-subtitle">A loop that gives the model tools</p>
+            <h2 id="fx-platform-title" class="section-title">Agentic Platform</h2>
           </div>
           <p>An agentic platform wraps the same model in a loop that can <strong>do</strong> things, not just say things. It starts exactly like the last scene: the same prompt, the same optional context.</p>
           <p>The difference is what happens next. The platform's model plans the job and, when useful, coordinates <strong>specialized agents</strong> that work in parallel where the work is genuinely independent. Every action they take is routed through one <strong>permission and tool boundary</strong>: an agent can read or modify files and documents, and can generate and run commands or processes, only when the platform supports it and you permit it.</p>
@@ -1846,8 +1886,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene fx-wide reveal" id="fx-chatbot-agent" aria-labelledby="fx-chatbot-agent-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-chatbot-agent-title" class="section-title">Chatbot vs. Agentic Platform</h2>
             <p class="fx-subtitle">Same request, different handoff</p>
+            <h2 id="fx-chatbot-agent-title" class="section-title">Chatbot vs. Agentic Platform</h2>
           </div>
           <p>Send the <strong>same request</strong> with the same context to both, and the difference is not intelligence. It is <strong>where the work happens</strong> and <strong>what each lane leaves behind</strong>. Chatbots can increasingly use tools too; the lane below shows their most common shape.</p>
         </div>
@@ -1878,11 +1918,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           <p class="fx-diagram-note">Neither lane promises success. The chatbot lane hands you an answer to act on; the agentic lane, with your permission, acts and shows its checks.</p>
         </div>
       </section>
-      <section class="fx-scene reveal" id="fx-harness" aria-labelledby="fx-harness-title">
+      <section class="fx-scene fx-stack reveal" id="fx-harness" aria-labelledby="fx-harness-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-harness-title" class="section-title">Harnesses</h2>
             <p class="fx-subtitle">The runtime loop every platform already ships</p>
+            <h2 id="fx-harness-title" class="section-title">Harnesses</h2>
           </div>
           <p>Every agentic platform already ships a <strong>harness</strong>: the built-in runtime loop wrapped around its model. It assembles the context, offers the tools, enforces the permissions, executes the actions, and feeds the observations back in.</p>
           <p>That loop is what made the last two scenes possible, and it belongs to the platform. Each one builds its own, with its own defaults and its own reach.</p>
@@ -1903,8 +1943,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene fx-wide reveal" id="fx-practice" aria-labelledby="fx-practice-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-practice-title" class="section-title">Nexus Hub Harness</h2>
             <p class="fx-subtitle">One governed loop that leaves a durable trail</p>
+            <h2 id="fx-practice-title" class="section-title">Nexus Hub Harness</h2>
           </div>
           <p>Nexus Hub is a <strong>portable workflow layer above</strong> that built-in capability. It does not replace the model, and it does not replace the platform runtime; it standardizes how the work is asked for, gated, and recorded, whichever platform you prefer.</p>
         </div>
