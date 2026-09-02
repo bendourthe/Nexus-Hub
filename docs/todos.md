@@ -15,11 +15,11 @@ Refreshing this file to the active plan (rather than appending another version's
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
-| v4.4.2 guide-production-ready-rebuild phases complete | 3 | 8 | -5 |
-| v4.4.2 local phase commits | 3 | 8 | -5 |
+| v4.4.2 guide-production-ready-rebuild phases complete | 4 | 8 | -4 |
+| v4.4.2 local phase commits | 4 | 8 | -4 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 319,422 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 336,063 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -41,7 +41,7 @@ Plan: [v4.4.2-guide-production-ready-rebuild.md](releases/v4/v4.4/plans/v4.4.2-g
 - [x] Phase 1 - Contracts, motion system, scale tokens, and rename
 - [x] Phase 2 - Home hero and restored sections
 - [x] Phase 3 - Foundations title system, layout balance, and annotated prompts
-- [ ] Phase 4 - Foundations Models, Agentic Platform, and the layered harness animation
+- [x] Phase 4 - Foundations Models, Agentic Platform, and the layered harness animation
 - [ ] Phase 5 - Arena engine v2
 - [ ] Phase 6 - Training fullscreen three-pane presentation
 - [ ] Phase 7 - Integrated verification and documentation

@@ -1088,7 +1088,7 @@ def test_foundations_comparisons_show_both_states_without_a_toggle(
     assert 'data-phase3-node="agent-handoff"' in fx
     practice = _foundation_scene(guide_text, "fx-practice")
     assert ">PLATFORM LOOP<" in practice
-    assert ">PLATFORM LOOP + NEXUS-HUB<" in practice
+    assert ">PLATFORM LOOP + NEXUS HUB<" in practice
     assert 'type="range"' not in fx
     assert "nhgCompare" not in guide_text
     assert "data-station-toggle" not in guide_text
@@ -1113,7 +1113,7 @@ def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
     ), "the answer-handoff lane must come first"
     practice = _foundation_scene(guide_text, "fx-practice")
     assert practice.index(">PLATFORM LOOP<") < practice.index(
-        ">PLATFORM LOOP + NEXUS-HUB<"
+        ">PLATFORM LOOP + NEXUS HUB<"
     ), "the host-native run must come before the augmented run"
 
 

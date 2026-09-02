@@ -52,10 +52,11 @@ Rule (the v4.4.1 `WN-2` lesson): the register lists assertions pinning LITERAL I
 | `test_nexus_hub_guide.py` | `test_home_platform_rail_carries_the_required_attribution` | `<details class="platform-credits">` on Home as the attribution carrier | H2 (attribution moves to the site footer; decision 2026-09-02) | 2 | DONE: now asserts the footer carries CC BY 4.0, Microsoft, Codicons, and the nominative-use sentence |
 | `test_nexus_hub_guide.py` | `"Nexus-Hub" not in home.split("</h1>")` and heading checks (~561, ~673) | absence assertions | none (still true after rename) | - | KEEP |
 | `test_v441_phase2_home.py` | hero tagline / rail / loop assertions | `.hero-tagline` text | H1 | 2 | DONE: no tagline assertion existed there; eight Phase 2 tests appended |
-| `test_v441_phase4_foundations.py` | two-column `fx-scene` grid; matched-emission of Models and Agentic | `.fx-scene` grid-template-columns; `Moving Image` label | F2, F4 | 3, 4 | Phase 3: no assertion needed changing (`.fx-scene.fx-stack` stacks three scenes without touching the base rule); `Moving Image` stays OPEN for Phase 4 |
+| `test_v441_phase4_foundations.py` | two-column `fx-scene` grid; matched-emission of Models and Agentic | `.fx-scene` grid-template-columns; `Moving Image` label | F2, F4 | 3, 4 | DONE: no assertion in that file pinned the caption or the grid; the matched-emission test stayed true because the Agentic entry is wrapped in a node div rather than flagged |
 | `test_nexus_hub_guide.py` | `test_foundations_prompts_...`: `<dt>Goal</dt>` etc. | prompt parts as `dl.fx-parts` rows | F3 (annotated text) | 3 | KEPT TRUE: the annotation legend is a `dl` whose `dt`s carry the same four labels, so no edit was required |
 | `test_nexus_hub_guide.py` | `test_home_comparison_has_centered_explicit_sides`: title `Keep your platform. Add the workflow.` | comparison section title | H4 (merged section retitled `Raw prompting vs Nexus Hub`) | 2 | DONE |
-| `test_nexus_hub_guide.py` | `test_foundations_phase3_has_eight_title_subtitle_scenes`: `fx.count("<svg") >= 7`; `Harnesses` / `Nexus Hub Harness` structure | per-scene SVG presence, separate harness diagrams | F6 (one shared layered diagram) | 4 | OPEN |
+| `test_nexus_hub_guide.py` | `test_foundations_phase3_has_eight_title_subtitle_scenes`: `fx.count("<svg") >= 7`; `Harnesses` / `Nexus Hub Harness` structure | per-scene SVG presence, separate harness diagrams | F6 (one shared layered diagram) | 4 | DONE without edit: the `data-phase3-harness-layer` markers and the five claims survive on the new SVG groups and the retained claims list; SVG count rose to 38 |
+| `test_nexus_hub_guide.py` | `>PLATFORM LOOP + NEXUS-HUB<` (two assertions) | uppercase hyphenated label the case-sensitive Phase 1 rename missed | M2 | 4 | DONE: label and both assertions now read `NEXUS HUB`; the rename test is case-insensitive |
 | `test_arcade_shooter_game.py` | `nag-controls` / `nag-actions` buttons; `enemy-hit` never spawns; two asteroid speeds | touch buttons, spawn gating, `ASTEROID_SPEEDS` length | A1, A2, A3 | 5 | OPEN |
 | `test_v441_phase6_workspace.py` | `.nht-col:first-child` `height: 58%`; REGIONS / PAIRS lists | column sizing, region set | P1, P2 | 6 | OPEN |
 | `test_phase6_verification_sweep.py` | contrast matrix (unchanged expectation) | WCAG AA on every visible element | none; it caught `BG-13` in Phase 1 | - | KEEP |
@@ -70,7 +71,7 @@ Ceiling: strict 500,000 bytes. Every phase records its measured actual against i
 | 1 | +8,000 | +7,708 | 300,047 | sequencer JS + primitives, title-scale token, rename |
 | 2 | +36,000 | +14,524 | 314,571 | hero subtitle and lead, four restored sections, guardrails illustration, merged comparison, footer |
 | 3 | +22,000 | +4,851 | 319,422 | page title and lead, eyebrow subtitles, three stacked scenes, annotated prompt and context |
-| 4 | +38,000 | | | |
+| 4 | +38,000 | +16,641 | 336,063 | NexusFlow overlay connectors, Video label, waveform audio, layered harness diagram (two instances) |
 | 5 | +14,000 | | | |
 | 6 | +12,000 | | | |
 | 7 | +4,000 | | | |
@@ -79,7 +80,11 @@ Ceiling: strict 500,000 bytes. Every phase records its measured actual against i
 ## 4. Deviations recorded
 
 - Phase 3: `.fx-scene.fx-stack` and `.fx-copy .fx-subtitle` are compound selectors on purpose. A lone `.fx-stack` lost to the later `.fx-scene` rule on source order and a lone `.fx-subtitle` lost to `.fx-copy p` on specificity; both are the v4.4.1 `BG-4` lesson recurring, now recorded in the CSS comment.
-- Phase 3: Models and Harnesses are stacked (`fx-stack`) as an interim balance; Phase 4 rebuilds both diagrams and re-measures.
+- Phase 3: Models and Harnesses are stacked (`fx-stack`) as an interim balance; Phase 4 rebuilt both diagrams and kept them stacked, since the layered harness SVG and the Models flow are both wider than the copy column allows.
+- Phase 4: the Models flow nests its later stages inside the request region, so that region is a second flow root with its own overlay; the connector test counts three roots by design.
+- Phase 4 (`BG-14`): the ghost `raw answer` group was dimmed with `opacity: .55` and the contrast sweep caught its text at 2.4:1 (light) and 3.3:1 (dark). Same rule as `BG-13`: text carriers never lose contrast; the ghost is now marked by a dashed chip and `--ink-dim` text at full opacity.
+- Phase 4: a helper rule whose selector contained `.fx-region-tag` shadowed the original rule in the hierarchy test's first-match regex; the helper was dropped rather than the test loosened.
+- Phase 4: headless Chromium advances a media element slowly with no output device, so the waveform test proves frames keep drawing from the analyser and that the live trace differs from the static one, rather than asserting consecutive live frames differ.
 
 ### Phase 1
 

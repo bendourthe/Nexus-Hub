@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 merged to `develop` 2026-09-02 (PR #154), release pending; v4.4.2 in progress on the same minor
-**Last updated**: 2026-09-02 (v4.4.2 Phase 3)
+**Last updated**: 2026-09-02 (v4.4.2 Phase 4)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -121,6 +121,7 @@
 
 | ID | Finding | Phase | Disposition |
 |---|---|---|---|
+| BG-14 | The harness ghost chip dimmed text below WCAG AA | Phase 4 | The `raw answer` ghost group used `opacity: .55`; the contrast sweep measured its text at 2.4:1 (light) and 3.3:1 (dark). Same rule as BG-13: text carriers never lose contrast. The ghost is now a dashed chip with `--ink-dim` text at full opacity. |
 | BG-13 | The sequencer demo dimmed text below WCAG AA | Phase 1 | The first `NexusSeq` demo faded inactive loop pills to opacity .45 and the contrast sweep measured 1.9:1 (light) and 3.4:1 (dark) mid-sequence. Rule adopted: text carriers never change foreground contrast during a sequence. Added `seq-glow` (accent ring on the active step), switched the loop to it, and reserved `seq-fade` (floor .7) for shapes and connectors with a comment recording why. Sweep green. |
 
 ### Phase 2 notes
@@ -132,6 +133,12 @@
 
 - No new defect. Two first-run failures were specificity and source-order losses (`.fx-stack` to `.fx-scene`, `.fx-subtitle` to `.fx-copy p`), the `BG-4` lesson recurring; fixed with compound selectors and a CSS comment.
 - Models and Harnesses are stacked as an interim balance; Phase 4 rebuilds both diagrams and re-measures against the 1.35 bound.
+
+### Phase 4 notes
+
+- Two SVG captions overran the viewBox; repositioned, with a six-width containment test added. A helper CSS rule whose selector contained `.fx-region-tag` shadowed the original in a first-match regex test and was dropped rather than the test loosened.
+- Headless Chromium advances a media element slowly with no output device, so the waveform test proves continuous analyser-driven drawing and a live-versus-static difference rather than frame-to-frame change.
+- The uppercase `NEXUS-HUB` trail label survived the case-sensitive Phase 1 rename; fixed, and the rename test is now case-insensitive.
 
 ### Deviations recorded
 

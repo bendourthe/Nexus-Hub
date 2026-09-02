@@ -223,10 +223,10 @@ def test_visible_text_says_nexus_hub_without_the_hyphen(playwright_mod) -> None:
                     clone.querySelectorAll("{RENAME_EXEMPT_SELECTOR}").forEach(e => e.remove());
                     clone.querySelectorAll('script, style').forEach(e => e.remove());
                     const text = clone.textContent;
-                    const labels = [...document.querySelectorAll('[aria-label*="Nexus-Hub"]')].length;
+                    const labels = [...document.querySelectorAll('[aria-label*="Nexus-Hub" i]')].length;
                     const pseudo = [...document.querySelectorAll('.cmp-a, .cmp-b')]
-                        .map(e => getComputedStyle(e, '::before').content).filter(c => c.includes('Nexus-Hub')).length;
-                    return {{ text: (text.match(/Nexus-Hub/g) || []).length, labels, pseudo,
+                        .map(e => getComputedStyle(e, '::before').content).filter(c => /nexus-hub/i.test(c)).length;
+                    return {{ text: (text.match(/Nexus-Hub/gi) || []).length, labels, pseudo,
                               title: document.title }};
                 }}"""
             )
