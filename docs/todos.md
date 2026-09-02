@@ -15,8 +15,8 @@ Refreshing this file to the active plan (rather than appending another version's
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
-| v4.4.2 guide-production-ready-rebuild phases complete | 7 | 8 | -1 |
-| v4.4.2 local phase commits | 7 | 8 | -1 |
+| v4.4.2 guide-production-ready-rebuild phases complete | 8 | 8 | 0 |
+| v4.4.2 local phase commits | 8 | 8 | 0 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
 | Canonical guide bytes (strict ceiling 500,000) | 345,623 | < 500,000 | met |
@@ -34,7 +34,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 6 - Training workspace, fullscreen, and integrated loop
 - [x] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration (local duties; publication in progress)
 
-## Plan - v4.4.2 Guide Production-Ready Rebuild [IN PROGRESS]
+## Plan - v4.4.2 Guide Production-Ready Rebuild [PUBLISHED FOR INTEGRATION 2026-09-02]
 
 Plan: [v4.4.2-guide-production-ready-rebuild.md](releases/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md). Branch cut from `develop` at `46f18986` on 2026-09-02.
 
@@ -45,7 +45,7 @@ Plan: [v4.4.2-guide-production-ready-rebuild.md](releases/v4/v4.4/plans/v4.4.2-g
 - [x] Phase 5 - Arena engine v2
 - [x] Phase 6 - Training fullscreen three-pane presentation
 - [x] Phase 7 - Integrated verification and documentation
-- [ ] Phase 8 - Architecture refactor, known-gaps, CI/CD, and publication
+- [x] Phase 8 - Architecture refactor, known-gaps, CI/CD, and publication (local duties and GO; integration PR open, merge on green)
 
 ### What this plan changes, in one paragraph
 

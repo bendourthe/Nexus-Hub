@@ -612,3 +612,218 @@ Reproduced locally with `python -m pre_commit run end-of-file-fixer --files <ass
 The operator explicitly approved amending the sole Phase 7 commit and updating the remote with `--force-with-lease`, per Task 7.10; no second Phase 7 commit exists.
 
 <!-- END v4.4.1-guide-visual-and-arcade-rebuild -->
+
+<!-- BEGIN v4.4.2-guide-production-ready-rebuild -->
+
+# Last-Phase Evidence - v4.4.2 Guide Production-Ready Rebuild
+
+**Version**: v4.4.2
+**Slug**: `guide-production-ready-rebuild`
+**Branch**: `feat/v4.4.2-guide-production-ready-rebuild`
+**Phase 8 verification base SHA**: `e1f676f1585071dea1486d1203dcc02d77772dc3`
+**Date**: 2026-09-02
+**Publication state**: GO recorded below. Push, pull request, required-check results, and merge are PR/CI artifacts appended by the release-owned handoff, not claimed by this block.
+
+## Architecture refactor
+
+Read-only scan; no move or deletion was proposed, so `project-refactor` and `docs-layout-refactor` ran in audit-only mode. Mutation authority for this plan is limited to v4.4.2-traceable work.
+
+```text
+tracked files: 3,994
+empty tracked directories: 0
+v4.4 release tree: 355 tracked files (124 of them the Phase 7 render PNGs, 12.7 MiB)
+personal-path scan (validate_no_personal_paths.py): exit 0
+docs retention: nothing due for archival (current v4.4, threshold 2 minors)
+```
+
+Unrelated candidates recorded without mutation: 17 merged remote branches (see `## Git-tree hygiene`), and three user-owned untracked release trees (`docs/releases/v4/v4.5/`, `v4.6/`, `v4.7/`) plus a root `image.png`, which are not this plan's files and were never staged.
+
+**Disposition**: PASS.
+
+## Known-gaps reconciliation
+
+```text
+known-gaps ledgers found (canonical + legacy layouts, from git ls-files): 34
+genuinely open (in-progress status OR non-empty Open Items): 19
+edited by this plan: docs/releases/v4/v4.4/known-gaps.md only
+```
+
+The v4.4.2 section records two closed defects (`BG-13` sequencer contrast, `BG-14` ghost contrast), the closed carried P3 (Outline reflow, now an overlay proven by test), per-phase notes for every phase, and the deviations (title-scale minimum bound, stage-height floor 0.45, `fx-stack` on four scenes, the token tuned to 2.4). `HT-1` (no human cohort) is re-issued below. `HT-2` (real current-host installer duty) stays owned by the v4.4.1 release; see `## CI/CD coverage`. The other 18 open ledgers belong to earlier cycles and are recorded, not touched.
+
+**Disposition**: PASS for this version; 18 foreign ledgers recorded, not touched.
+
+## Living docs architecture
+
+```text
+docs/handbooks/          README.md, html/.gitkeep, markdown/.gitkeep (deliberate: this repo is the catalog, not an app)
+docs/decisions/          README.md, implemented/, proposed/, rejected/ -- validate_decision_records.py: 30 record(s) OK
+docs/README.md, docs/DEVLOG.md, docs/todos.md   present
+docs/testing/, docs/validation/                absent (correct - never invented)
+```
+
+One decision record was added by this plan: `docs/decisions/implemented/policy/2026-09-02-platform-mark-attribution-in-footer.md` (the plan named a `product/` class that does not exist; `policy/` was used and the trace is in the Phase 2 history). Markdown remains the source of truth; no HTML disagreed with it.
+
+**Disposition**: PASS.
+
+## Git-tree hygiene
+
+```text
+python scripts/check_release_preconditions.py --branches --repo-settings
+  17 merged branch(es) are cleanup candidates (11 with an open PR excluded)
+  1 branch(es) survive a CLOSED, unmerged PR: origin/backmerge/v3.20.0
+  Reporting only -- nothing was deleted.
+Repository settings
+  OK: delete_branch_on_merge is enabled
+  OK: repository description agrees with README.md
+```
+
+Report only; the external-settings contract forbids automatic mutation. The count rose from 16 to 17 because `feat/v4.4.1-guide-visual-and-arcade-rebuild` merged during this cycle.
+
+**Disposition**: PASS.
+
+## CI/CD coverage
+
+DETECT: GitHub Actions, 11 workflow files. COMPARE against `docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md`, field by field, with the same detector script as v4.4.1:
+
+| Canonical field | Verdict | Observable evidence |
+|---|---|---|
+| Repository-native profiles | PASS | `scripts/ci/run.py` invoked 5x in `ci.yml` |
+| Event separation | PASS | `ci.yml` pull_request + dispatch; `post-merge.yml` push; `release.yml` push (tag) |
+| Single always-resolving aggregate | PASS | `ci-required` guarded by `if: always()` (the contract's permitted form; the detector's literal `!cancelled()` probe is the same artifact as in v4.4.1) |
+| Allowlist verdict | PASS | `success` / `skipped` allowlist |
+| Job-level cost scoping | PASS | 7 job-level `if:` guards; the 6 path-filtered workflows produce none of the 5 required contexts |
+| Required contexts, no matrix leg | PASS | `ci-required`, `colocation`, `shellcheck`, `validate`, `verify`; `check_required_check_coverage.py`: 10 contexts across 2 branches, all unconditional |
+| Immutable action refs | PASS | 52/52 pinned to a 40-character SHA |
+| Explicit permissions | PASS | all 11 workflows |
+| Caches keyed to manifests | PASS | `extensions/*/pyproject.toml`, `.pre-commit-config.yaml`, `ci.yml` |
+| Concurrency | PASS | all 11; `release.yml` `cancel-in-progress: false` |
+| Artifact retention + unconditional upload | PASS | `retention-days: 7`; 6 `if: always()` steps |
+| Structured reports | PASS | `--reports-dir`, `GITHUB_STEP_SUMMARY` |
+| Deployment boundaries | PASS | none in `ci.yml`; `release.yml` behind a tag |
+| `MT-1` fail-closed guide browser coverage | PASS | `guide-render` sets `NEXUS_REQUIRE_RENDER=1`, runs `tests/guides/` (which now holds every v4.4.2 suite), aggregated into `ci-required` |
+
+PROPOSE / APPROVE / APPLY: zero workflow differences; no `.github/workflows/` file was edited by this plan. One repository-native profile edit WAS required and is a finding (`BG-15`): `make validate` gained `stamp_guide_counts.py --check` in Phase 1 with the note that the `validate` job already covered it, but that job executes `scripts/ci/profiles.py` groups rather than `make validate`, so the new guard was unreachable from CI until this phase registered it in the DOCS group. `test_every_validator_make_validate_runs_is_reachable_from_ci` is the gate that caught it.
+
+Cross-installer parity (declarative): `check_installer_parity.py` PASS; `tests/installer/` see the full-suite section. Real current-host installer run: NOT performed, by design. v4.4.1 proved a `HOME`-redirected run is not a sandbox on Windows (`USERPROFILE` resolution) and mutated live configuration; this plan never attempts one. The duty is recorded as owned gap `HT-2` (v4.4.1's), which the operator accepted on 2026-09-02, and Ubuntu / macOS installer legs run in the integration pull request's `install-smoke` and `installer-smoke` jobs.
+
+**Disposition**: PASS on every field with zero pipeline edits; the real-install duty is an accepted owned gap.
+
+## Tier 3 deep pass
+
+Every artifact this plan produced was exercised through its real boundary.
+
+| Artifact | Exercised how | Observed |
+|---|---|---|
+| `guides/website/nexus-hub-guide.html` | Declared 150-case matrix (`browser_matrix.py --label phase-7`), 13 groups, both themes | 150/150 cases, 124/124 screenshots, 0 failures, 165 s, 12.7 MiB; fullscreen min coverage 0.93, min stage 0.468; 0 external requests, 0 console errors |
+| Same file, visual detector | 4 pages x 2 themes x 6 viewports in the gate | 0 findings beyond the documented Gemini allowlist |
+| Same file, byte and offline contracts | filesystem + static scan + request capture | 345,623 bytes (ceiling 500,000); 0 external scripts or stylesheets; the only absolute URLs are an SVG namespace, the CC BY link, the repository link, and two install commands as copyable text; 0 runtime requests |
+| `NexusSeq` | 5 Phase 1 browser tests + every scene that uses it | order, offscreen pause, hidden-tab pause, reduced-motion end state, malformed step skipped |
+| `NexusFlow` | 6-width connector geometry test | 3 roots, 7 connectors, 0 card crossings |
+| Annotated prompt | Phase 3 tests | 4 parts in order, 0 nesting, in-order reveal, all-at-once under reduced motion |
+| Waveform | Phase 4 tests | static without gesture, live frames while playing, frozen on pause, static under reduced motion |
+| Layered harness | Phase 4 tests | model / platform / nexus-hub layers, 9 ports, 7 steps, text inside viewBox at 6 widths |
+| Arena engine v2 | 34 shooter tests + pure `spawnSample` seam | beats unchanged (buggy hit tick 75, fixed walk 3-2-1-0), 3 bands, 3 size and 3 speed tiers, pointer contract, key guide vs touch |
+| Three-pane presentation | 21 workspace tests | coverage 0.93-0.95, stage 0.47-0.61, 0 below the fold, Outline invariance, short-window reflow |
+| `scripts/stamp_guide_counts.py` | 6 unit tests + `--check` in `make validate` | 5 markers equal the catalog |
+| `tests/guides/tools/browser_matrix.py` | ran twice (before and after the Phase 7 fixes) | identical 150/150 result on the committed bytes |
+| `guides/website/README.md` | v4.4.0 CI-contract test + `check_docs_conventions.py` | required phrases present; conventions clean |
+| Decision record, contract, geometry doc, histories | `validate_decision_records.py`, unicode and personal-path scans | 30 records OK; clean |
+
+Iteration budget: 14 defects found and fixed across the plan (`BG-13`, `BG-14`, and twelve first-run test failures each traced to its cause and fixed in code or copy, never by loosening a test to fit). No P0 and no P1 survived. No residual finding remains open in the shipped artifact.
+
+**Disposition**: PASS.
+
+## Goal-vs-codebase review
+
+**Plan Goal restated**: ship a production-ready single-file Nexus Hub guide whose Home restores the v4.1.2 hero and its five explanatory sections at a readable scale, whose Foundations page teaches each concept through one coherent title system, balanced layouts, annotated prompt and context examples, and choreographed animations that show a model nested inside a platform harness wrapped by the Nexus Hub harness, and whose Training arena supports pointer play with dense varied threats inside a fullscreen presentation that uses the entire window at every desktop size.
+
+Measured directly in a browser on the committed file, not read from the plan's checkboxes:
+
+| Definition-of-Done clause | Observed |
+|---|---|
+| Hero: exact `Nexus Hub`, v4.1.2 subtitle and lead, credits out of Home, attribution in footer | `Nexus Hub`; `Upgrade your agentic AI platforms with an autonomous team of world experts`; lead begins `Nexus Hub is an advanced harness for agentic AI platforms.`; 0 credits elements in Home; footer carries the CC BY 4.0 link |
+| Section titles share one style at one token, with eyebrows | 24 `.section-title` at 65 px (token 2.4); no title wraps past two lines at 1440 |
+| Home order | 9 headings in exactly the agreed order |
+| Counts stamped, `--check` gated | `skills=329` x2, `hooks=30` x2, `pretooluse=15`; `make validate` step green |
+| Zero visible `Nexus-Hub` | 0 (case-insensitive) |
+| Foundations centred title, no kicker, eight scenes in order | `The concepts behind every AI-assisted project`; kicker absent; 8 titles in the accepted order; subtitles above titles |
+| No empty column | balance `stacked, stacked, 1.07, stacked, 1.06, stacked, stacked, stacked` |
+| Annotated prompt | `goal, material, done, format`; 0 nesting |
+| Outputs `Text`, `Image`, `Video`, `Audio`; waveform | labels exact; waveform static at rest, live while playing (tested) |
+| Layered harness with choreography and static end state | 2 instances; layers `model`, `nexus-hub`, `platform`; 7 steps |
+| Arena: Space or click fires; leaving pauses; key guide vs touch | `pointer` pause reason supported; guide hints present; touch controls hidden under a fine pointer |
+| Continuous varied spawning; beats unchanged | 3 bands, 3 tiers, speeds `45, 75, 110`; buggy hit at tick 75 with lives 3; fixed walk `3, 2, 1, 0` |
+| Fullscreen coverage >= 0.88, stage floor, nothing below the fold, no overflow, `Full screen` before `Outline` | 0.93 / 0.93 / 0.93 / 0.95; stage 0.47 / 0.50 / 0.53 / 0.61; 0 below; 0 overflow; bar order `Full screen`, `Outline` |
+| One self-contained offline file <= 500,000 bytes | 345,623 bytes; 0 external script or style; 0 runtime requests |
+| Automated evidence for dark, light, keyboard, zoom, reduced motion, canvas-unavailable, offscreen, hidden tab, hostile fixture, deterministic replay | all in the gate and the matrix; no completion claim rests on structural scoring alone |
+
+**Gaps**: two, neither a Goal or Definition-of-Done miss in the code. (1) The stage-height floor is 0.45, not 0.70: the plan's own acceptance text named 0.70, and the arithmetic in `presentation-geometry.md` shows that number cannot coexist with the toolbar, progress strip, head, takeaway, and controls the same Definition of Done requires visible; the deviation is recorded in the contract and the achieved 0.47 to 0.61 is measured. (2) Human comprehension testing has no cohort (`HT-1`), which the Definition of Done anticipates and directs to be recorded, not fabricated.
+
+**Disposition**: the Goal landed. PASS.
+
+## Human/manual testing suggestions
+
+Automated evidence covers rendering, geometry, determinism, accessibility wiring, motion contracts, and offline delivery. It cannot cover whether a newcomer understands the page or whether the arena feels right under a hand, which is what a cohort is for.
+
+Ask each participant, with no maintainer coaching, to:
+
+1. Point at each highlighted part of the Prompt Engineering example and say what it is for (goal, material, done, format), then do the same for the request and its attached material in Context Engineering.
+2. Describe in their own words what the harness animation shows, and say where Nexus Hub sits relative to the platform and the model.
+3. Distinguish a prompt from context; provider training from a live request; qualified effort from a guaranteed hidden iteration count; chatbot output from permitted agentic action.
+4. Read the Guardrails section and say what a hook does that the platform's permission prompt does not.
+5. Play the arena with the mouse only: start, fire by clicking, pause by moving the pointer out, resume, then use `Full screen` and `Outline`.
+6. Say which of the restored Home sections they would remove, and why.
+
+Environment-specific checks only a human can make: native fullscreen on a projector or second monitor; touch play on a tablet (the five touch controls appear under a coarse pointer); a real screen reader reading the HUD lives changes and the sequence captions; audio through real speakers with the waveform in view.
+
+**Participants**: 0. No representative newcomer cohort was available in this session. **Disposition**: OPEN, owned gap `HT-1`, recorded honestly rather than fabricated.
+
+## Full-suite testing and stabilization
+
+```text
+NEXUS_REQUIRE_RENDER=1 python -m pytest -q tests/guides/ tests/verification/test_visual_defect_detector.py
+302 passed, 1 skipped in 264.09s   (at e1f676f1, the Phase 8 base)
+
+python tests/guides/tools/browser_matrix.py --label phase-7
+cases: 150/150  screenshots: 124/124   runtime: 165s / 1200s   evidence: 12.7 MiB / 30 MiB   failures: 0
+
+make validate equivalents: 27 guards, every exit 0 (stamp_guide_counts --check: 5 markers match the catalog)
+python -m pytest -q catalog/hooks/tests/test_installer_smoke.py      33 passed
+
+Canonical CI profile (no installer running concurrently this time):
+python scripts/ci/run.py --profile full --only tests,extension-tests
+  hook-tests ok (614s) | repo-tests: 7 failed, 3896 passed, 56 skipped in 3184s | six extension suites ok | compression gate ok
+  The seven were investigated, not accepted:
+  - 1 x tests/validators/test_ci_workflow_contract.py::test_every_validator_make_validate_runs_is_reachable_from_ci
+    REAL, caused by this plan (BG-15): Phase 1 wired stamp_guide_counts.py --check into make validate and recorded it as
+    "covered by the existing validate job", but that job runs scripts/ci/profiles.py groups, not make validate, so the guard
+    was unreachable from CI. Fixed in this phase by registering it in the DOCS group; the reachability test and
+    tests/workflows/ pass.
+  - 6 x tests/installer/test_core_settings_seeding.py [powershell] variants
+    PRE-EXISTING and environment-only (QG-1): they pass standalone and fail only under the profile runner, which sets
+    PYTHONUTF8=1; with that variable alone the six fail identically on the develop worktree at 68f3d082, before any
+    v4.4.2 commit. The v4.4.1 evidence attributed the same six failures to concurrent installer processes; that attribution
+    was incomplete and is corrected here. They cannot reach CI's Ubuntu legs (PowerShell variant skipped there).
+
+Byte guard: 345,623 bytes | strict ceiling 500,000 | headroom 154,377
+```
+
+**Disposition**: GREEN for everything this plan owns. One real finding (`BG-15`) was fixed in this phase and re-verified; six pre-existing, environment-only failures reproduced on `develop` are recorded as owned gap `QG-1`, not accepted silently and not fixed here because the defect is outside this plan's mutation authority.
+
+## Publication and integration preflight
+
+| Item | Value |
+|---|---|
+| Branching model | `develop` + `main`; feature branches integrate through `develop` |
+| Remote | `origin` (`git@github-bendourthe:bendourthe/Nexus-Hub.git`) |
+| Branch | `feat/v4.4.2-guide-production-ready-rebuild`, cut from `develop` at `46f18986` (the v4.4.1 merge) |
+| Local commits on the branch | 8 after the Phase 8 commit (one per phase) |
+| Phase 8 verification base SHA | `e1f676f1585071dea1486d1203dcc02d77772dc3` (the Phase 7 commit) |
+| Pull-request target | `develop` |
+| Required checks | `validate`, `shellcheck`, `ci-required`, `colocation`, `verify` |
+| Target-OS installer matrix | Ubuntu, macOS, Windows via the `install-smoke` and `installer-smoke` jobs in the integration run; no local live-profile run (see CI/CD coverage) |
+| Approval status | GRANTED 2026-09-02 by the operator before the plan started: push once, open the pull request to `develop`, and merge once every required check is green |
+
+**GO / NO-GO: GO.** No P0 or P1 finding; no Goal or Definition-of-Done miss in the shipped artifact. Residuals: `HT-1` (no cohort), the 0.45 stage-height floor deviation, and `QG-1`, a pre-existing P3 test-harness defect (six PowerShell seeding tests fail only under the profile runner's `PYTHONUTF8=1`, proven on `develop` before this plan) recorded with owner and next step; the operator's standing approval covers publication, and `QG-1` is surfaced explicitly in the handoff for acknowledgement. The local gate is green as quoted. Remote results are recorded by the release-owned handoff, never by re-pushing this branch to quote them.
+
+<!-- END v4.4.2-guide-production-ready-rebuild -->

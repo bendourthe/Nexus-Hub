@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 merged to `develop` 2026-09-02 (PR #154), release pending; v4.4.2 in progress on the same minor
-**Last updated**: 2026-09-02 (v4.4.2 Phase 7)
+**Last updated**: 2026-09-02 (v4.4.2 Phase 8)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -98,7 +98,8 @@
 
 - **`HT-1` Last-phase human comprehension testing has no cohort.** Owner: maintainer. The plan's Definition of Done requires representative newcomers, without maintainer coaching, to distinguish prompt from context, provider training from a live request, qualified effort from a guaranteed hidden iteration count, chatbot output from permitted agentic action, and a platform's built-in harness from the Nexus-Hub portable layer, and to identify the lives and asteroid rules while using `Click to start`, Escape, and `Full screen`. No cohort was available. Recorded as an owned gap rather than a fabricated pass, exactly as the plan directs. Next step: run the six prompts in `last-phase-evidence.md` with two or more newcomers and append their answers and any comprehension gap.
 - **`HT-2` Task 7.5's real current-host installer postcondition is unmet, and a sandbox attempt mutated live platform config.** Owner: maintainer decision required. Redirecting `HOME` did NOT isolate the run: the Nexus-Hub home honored the override, but per-platform integration paths resolve through Python `expanduser`, which reads `USERPROFILE` on Windows, so writes reached the real user profile and were then interrupted mid-run, leaving uneven skill counts across `~/.claude`, `~/.codex`, `~/.gemini`, `~/.cursor`, and `~/.qwen`. `~/.nexus-hub` was never written and still verifies PASS at 1835/1835 files, and the repository tree is unmodified. Two orphaned installer processes were terminated. Next step: repair with `cd ~/.nexus-hub/src && bash scripts/installer.sh --yes` (an idempotent reinstall from the pristine hash-verified v4.4.0 source), then either perform an approved real current-host install or explicitly accept this duty as an owned gap. DISPOSITION 2026-09-02: the operator chose to run the repair themselves and explicitly accepted the unmet real-install duty as an owned gap for v4.4.1 publication; GO recorded. The repair command above remains the owner's next step.
-- **`HT-3` Sixteen merged remote branches remain as cleanup candidates.** Owner: maintainer. `check_release_preconditions.py --branches` reports them, `delete_branch_on_merge` does not cover them, and the external-settings contract forbids automatic mutation. Recorded rather than applied because this plan's mutation authority is limited to v4.4.1-traceable work. Next step: review and delete by hand, or accept as standing state.
+- **`QG-1` Six PowerShell core-settings seeding tests fail only under the CI profile runner.** Owner: maintainer. `tests/installer/test_core_settings_seeding.py` `[powershell]` variants pass standalone and fail with `proc.stdout is None` when `PYTHONUTF8=1` is set, which `scripts/ci/run.py` sets for deterministic reports; reproduced on `develop` at `68f3d082` with that variable alone, so it predates v4.4.2. The v4.4.1 evidence attributed the same failures to concurrent installer processes; that attribution was incomplete. CI is unaffected (the Ubuntu legs skip the PowerShell variant). Next step: run `PYTHONUTF8=1 python -m pytest tests/installer/test_core_settings_seeding.py -k powershell` and trace why `_run_powershell` (capture_output, text) yields a `None` stdout under that flag.
+- **`HT-3` Seventeen merged remote branches remain as cleanup candidates (16 at v4.4.1's Phase 7, plus its own branch after merge).** Owner: maintainer. `check_release_preconditions.py --branches` reports them, `delete_branch_on_merge` does not cover them, and the external-settings contract forbids automatic mutation. Recorded rather than applied because this plan's mutation authority is limited to v4.4.1-traceable work. Next step: review and delete by hand, or accept as standing state.
 
 ### Deferred from v4.4.1 Phase 6
 
@@ -121,6 +122,7 @@
 
 | ID | Finding | Phase | Disposition |
 |---|---|---|---|
+| BG-15 | The count stamper's `--check` was not reachable from CI | Phase 8 | Phase 1 wired `stamp_guide_counts.py --check` into `make validate` and recorded it as covered by the `validate` job, but that job runs `scripts/ci/profiles.py` groups, not `make validate`. Caught by `test_every_validator_make_validate_runs_is_reachable_from_ci` in the Phase 8 profile run; registered in the DOCS group. |
 | BG-14 | The harness ghost chip dimmed text below WCAG AA | Phase 4 | The `raw answer` ghost group used `opacity: .55`; the contrast sweep measured its text at 2.4:1 (light) and 3.3:1 (dark). Same rule as BG-13: text carriers never lose contrast. The ghost is now a dashed chip with `--ink-dim` text at full opacity. |
 | BG-13 | The sequencer demo dimmed text below WCAG AA | Phase 1 | The first `NexusSeq` demo faded inactive loop pills to opacity .45 and the contrast sweep measured 1.9:1 (light) and 3.4:1 (dark) mid-sequence. Rule adopted: text carriers never change foreground contrast during a sequence. Added `seq-glow` (accent ring on the active step), switched the loop to it, and reserved `seq-fade` (floor .7) for shapes and connectors with a comment recording why. Sweep green. |
 
@@ -156,6 +158,11 @@
 - Title-scale token tuned from 3 to 2.4 by the plan's rule (a title wrapping to three lines at 1440 reduces the token, floor 2.4); every title is now two lines or fewer at 1440. Prompt Engineering was stacked as a consequence (its copy column shrank past the 1.35 bound).
 - No new defect. The README sync briefly dropped the exact phrases a v4.4.0 test requires for the CI browser contract; restored with the reason they matter.
 - Declared browser matrix: 150/150 cases, 124/124 screenshots, 0 failures, 165 s, 12.7 MiB; fullscreen minimum coverage 0.93 and stage fraction 0.468.
+
+### Phase 8 notes
+
+- Nine local duties recorded in the v4.4.2 evidence block; GO with two accepted owned residuals (`HT-1` no cohort; the 0.45 stage floor deviation). No sandboxed installer run was attempted; the real-install duty stays v4.4.1's owned `HT-2`.
+- Fourteen defects were found and fixed across the plan (`BG-13`, `BG-14`, and twelve first-run test failures), each fixed in code or copy, never by loosening a test to fit.
 
 ### Deviations recorded
 
