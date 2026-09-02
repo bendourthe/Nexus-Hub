@@ -232,3 +232,228 @@ def test_workflow_pills_are_readable_two_line_pills(playwright_mod, width: int) 
         assert step["codeSize"] > step["descSize"], (
             f"{step['text']} command must stay visually dominant"
         )
+
+
+# ============================================================================ v4.4.2 Phase 2
+# The hero statement, the restored sections, the merged comparison, the guardrails illustration,
+# the footer attribution, and the catalog-derived counts. Structural facts are checked in the
+# browser too, because the claims are about order, computed size, visibility, and word budgets.
+
+import json as _json
+import re as _re
+
+_FIXTURE = _ROOT / "tests" / "guides" / "fixtures" / "v412-home-copy.json"
+_HOOKS_DIR = _ROOT / "catalog" / "hooks"
+
+EXPECTED_HOME_ORDER = [
+    "Upgrade your agentic AI platforms with an autonomous team of world experts",
+    "What you get that raw prompting can't give you",
+    "One command, then restart your assistant",
+    "Three things make this more than a prompt library",
+    "Guardrails and safety",
+    "Raw prompting vs Nexus Hub",
+    "Your favorite commands, leveled up",
+    "One governed loop, from first look to shipped",
+    "Learn it, then run it on your project",
+]
+
+
+def _section_words(page, section_id: str) -> int:
+    return page.evaluate(
+        "id => document.getElementById(id).innerText.replace(/\\s+/g, ' ').trim().split(' ').length",
+        section_id,
+    )
+
+
+def test_home_hero_statement_is_centred_and_exact(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser, page = _launch(pw)
+        try:
+            data = page.evaluate(
+                """() => {
+                    const sub = document.querySelector('.hero-subtitle');
+                    const lead = document.querySelector('.hero-lead');
+                    const rail = document.querySelector('.platform-rail');
+                    const c = el => { const r = el.getBoundingClientRect(); return r.left + r.width / 2; };
+                    return {
+                        subText: sub.textContent.replace(/\\s+/g, ' ').trim(),
+                        leadStart: lead.textContent.trim().slice(0, 58),
+                        subCentre: c(sub), leadCentre: c(lead), railCentre: c(rail),
+                        subAlign: getComputedStyle(sub).textAlign,
+                        gradFill: getComputedStyle(document.querySelector('.gtext')).webkitTextFillColor,
+                        gradColor: getComputedStyle(document.querySelector('.gtext')).color,
+                        subSize: parseFloat(getComputedStyle(sub).fontSize),
+                        tagline: !!document.querySelector('.hero-tagline'),
+                        credits: !!document.querySelector('#page-home .platform-credits'),
+                    };
+                }"""
+            )
+        finally:
+            browser.close()
+    assert data["subText"] == EXPECTED_HOME_ORDER[0]
+    assert data["leadStart"] == "Nexus Hub is an advanced harness for agentic AI platforms."
+    assert data["subAlign"] == "center"
+    assert abs(data["subCentre"] - data["railCentre"]) < 2 and abs(data["leadCentre"] - data["railCentre"]) < 2
+    # The gradient paints through text-fill-color while `color` stays a real, measurable colour.
+    assert data["gradFill"] in ("rgba(0, 0, 0, 0)", "transparent")
+    assert data["gradColor"] not in ("rgba(0, 0, 0, 0)", "transparent")
+    assert 38 <= data["subSize"] <= 46, data["subSize"]
+    assert not data["tagline"] and not data["credits"]
+
+
+def test_home_sections_render_in_the_agreed_order(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser, page = _launch(pw)
+        try:
+            titles = page.evaluate(
+                "() => [...document.querySelectorAll('#page-home .hero-subtitle, #page-home .section-title')]"
+                ".map(e => e.textContent.replace(/\\s+/g, ' ').trim())"
+            )
+        finally:
+            browser.close()
+    assert titles == EXPECTED_HOME_ORDER, titles
+
+
+def test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count(playwright_mod) -> None:
+    fixture = _json.loads(_FIXTURE.read_text(encoding="utf-8"))["sections"]
+    ids = {"why-it-matters": "nhg-why", "how-it-works": "nhg-how", "favorite-commands": "nhg-commands"}
+    with playwright_mod() as pw:
+        browser, page = _launch(pw)
+        try:
+            counts = {key: _section_words(page, sid) for key, sid in ids.items()}
+            merged = page.evaluate(
+                "() => { const h = [...document.querySelectorAll('#page-home .section-title')]"
+                ".find(e => e.textContent.trim() === 'Raw prompting vs Nexus Hub');"
+                " return h.closest('section').innerText.replace(/\\s+/g, ' ').trim().split(' ').length; }"
+            )
+        finally:
+            browser.close()
+    for key, words in counts.items():
+        ceiling = fixture[key]["v412_words"] * 2 // 3
+        assert words <= ceiling, f"{key}: {words} words exceeds the two-thirds ceiling of {ceiling}"
+    # The merged comparison replaces v4.1.2's "The difference" and must not exceed ITS ceiling.
+    assert merged <= fixture["the-difference"]["v412_words"] * 2 // 3, merged
+
+
+def test_merged_comparison_labels_render_at_twice_the_v441_size(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser, page = _launch(pw)
+        try:
+            sizes = page.evaluate(
+                "() => [...document.querySelectorAll('.cmp-side')].map(e => parseFloat(getComputedStyle(e).fontSize))"
+            )
+            rows = page.evaluate("() => document.querySelectorAll('#page-home .cmp-row').length")
+        finally:
+            browser.close()
+    assert sizes and all(abs(s - 26) < 0.5 for s in sizes), sizes   # v4.4.1 rendered 13px
+    assert rows == 5
+
+
+def test_footer_attribution_is_visible_on_every_page_and_absent_from_home_flow(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser, page = _launch(pw)
+        try:
+            results = {}
+            for route in ("home", "foundations", "training", "cheatsheets"):
+                page.goto(GUIDE.as_uri() + f"#{route}")
+                page.wait_for_timeout(200)
+                results[route] = page.evaluate(
+                    """() => {
+                        const f = document.querySelector('footer.site-footer .footer-attrib');
+                        const r = f.getBoundingClientRect();
+                        return { visible: r.width > 0 && r.height > 0, text: f.textContent,
+                                 licence: !!f.querySelector('a[href*="creativecommons.org/licenses/by/4.0"]') };
+                    }"""
+                )
+            home_credits = page.evaluate("() => document.querySelectorAll('#page-home .platform-credits').length")
+        finally:
+            browser.close()
+    for route, r in results.items():
+        assert r["visible"], f"footer attribution not visible on {route}"
+        assert "Codicons icon set by Microsoft Corporation" in r["text"] and r["licence"], route
+        assert "trademarks of their respective owners" in r["text"]
+    assert home_credits == 0
+
+
+def test_migration_table_stacks_into_labelled_cards_below_720px(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser, page = _launch(pw, width=420)
+        try:
+            data = page.evaluate(
+                """() => {
+                    const rows = [...document.querySelectorAll('.tbl-migrate tbody tr')];
+                    const thead = getComputedStyle(document.querySelector('.tbl-migrate thead')).display;
+                    const cells = [...rows[0].querySelectorAll('td')];
+                    const tops = cells.map(td => Math.round(td.getBoundingClientRect().top));
+                    const labels = cells.map(td => getComputedStyle(td, '::before').content);
+                    return { rows: rows.length, thead, stacked: new Set(tops).size === cells.length, labels,
+                             overflow: document.documentElement.scrollWidth - window.innerWidth };
+                }"""
+            )
+        finally:
+            browser.close()
+    assert data["rows"] == 7 and data["thead"] == "none"
+    assert data["stacked"], "cells must stack vertically at 420px"
+    assert all('"' in l and l != "none" for l in data["labels"]), data["labels"]
+    assert data["overflow"] <= 1
+
+
+def test_guardrails_section_names_only_shipped_registered_hooks(playwright_mod) -> None:
+    settings = _json.loads((_HOOKS_DIR / "settings.json").read_text(encoding="utf-8"))
+    registered = set()
+    for entries in settings["hooks"].values():
+        for entry in entries:
+            for hook in entry.get("hooks", []):
+                m = _re.search(r"([a-z0-9_-]+)\.(sh|py)\b", hook.get("command", ""))
+                if m:
+                    registered.add(m.group(1))
+    pretooluse = set()
+    for entry in settings["hooks"]["PreToolUse"]:
+        for hook in entry["hooks"]:
+            m = _re.search(r"([a-z0-9_-]+)\.(sh|py)\b", hook["command"])
+            if m:
+                pretooluse.add(m.group(1))
+    with playwright_mod() as pw:
+        browser, page = _launch(pw)
+        try:
+            data = page.evaluate(
+                """() => ({
+                    ports: [...document.querySelectorAll('#nhg-guard-fig .g-port')].map(e => e.textContent.trim()),
+                    blocked: [...document.querySelectorAll('#nhg-guard-fig .g-blocked')].map(e => e.textContent.trim()),
+                    pretooluse: +document.querySelector('#nhg-guardrails [data-count="pretooluse"]').textContent,
+                    hooks: +document.querySelector('#nhg-guardrails [data-count="hooks"]').textContent,
+                    text: document.getElementById('nhg-guardrails').innerText.toLowerCase(),
+                })"""
+            )
+        finally:
+            browser.close()
+    assert len(data["ports"]) == 4
+    for name in data["ports"]:
+        assert (_HOOKS_DIR / f"{name}.sh").is_file(), f"{name}.sh does not ship"
+        assert (_HOOKS_DIR / f"{name}.ps1").is_file(), f"{name}.ps1 sibling missing"
+        assert name in registered, f"{name} is not registered in settings.json"
+    for label in data["blocked"]:
+        hook = label.replace("blocked by ", "")
+        assert hook in data["ports"], label
+    assert data["pretooluse"] == len(pretooluse) and data["hooks"] == len(registered)
+    assert "makes ai safe" not in data["text"], "claims must be enforcement statements, not a safety guarantee"
+
+
+def test_guardrails_choreography_reaches_a_fully_blocked_end_state(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser, page = _launch(pw, reduced_motion="reduce")
+        try:
+            page.locator("#nhg-guard-fig").scroll_into_view_if_needed()
+            page.wait_for_function(
+                "() => { const s = window.NexusSeq.state(document.getElementById('nhg-guard-fig')); return s && s.step === s.total; }"
+            )
+            data = page.evaluate(
+                """() => ({
+                    total: window.NexusSeq.state(document.getElementById('nhg-guard-fig')).total,
+                    lit: document.querySelectorAll('#nhg-guard-fig .is-on').length,
+                    blocks: document.querySelectorAll('#nhg-guard-fig .g-block').length,
+                })"""
+            )
+        finally:
+            browser.close()
+    assert data["total"] == 5 and data["lit"] == 5 and data["blocks"] == 2

@@ -1,6 +1,6 @@
-# Nexus-Hub Interactive Guide
+# Nexus Hub Interactive Guide
 
-This directory holds the public-facing Nexus-Hub guide, its arcade-shooter Training data, and retained legacy fixtures. Everything reader-facing is self-contained, opens in a browser, and needs no build step. This `README.md` is for maintainers.
+This directory holds the public-facing Nexus Hub guide, its arcade-shooter Training data, and retained legacy fixtures. Everything reader-facing is self-contained, opens in a browser, and needs no build step. This `README.md` is for maintainers.
 
 ## Contents
 
@@ -25,9 +25,9 @@ The guide is the single home for orientation, installation, Foundations, Trainin
 
 URL grammar: `#<page-id>` for pages; `#training/<scene-id>` for Training; `#cheatsheets/<stop>` for Cheatsheets sections. A legacy `?beat=n` suffix is accepted and ignored. Compatibility: `#reference` and `#workflows` rewrite to `#cheatsheets`; `#explore`, `#plan`, `#build`, `#harden`, `#ship`, `#communicate` rewrite to `#cheatsheets/<id>`. `#home/install` scrolls to the Home install block. Unknown page ids rewrite to Home.
 
-## Design system (v4.4.0, evolved from v4.2.2 and v4.2.3)
+## Design system (v4.4.2, evolved from v4.2.2, v4.2.3, v4.4.0, and v4.4.1)
 
-The original design language remains recorded in `docs/releases/v4/v4.2/development/guide-rebuild/design-brief.md`. v4.4.1 keeps that visual system while rebuilding Home around a five-platform rail, reordering Foundations into eight professionally titled scenes, and replacing the Asteroids walkthrough with a deterministic arcade shooter. The load-bearing decisions:
+The original design language remains recorded in `docs/releases/v4/v4.2/development/guide-rebuild/design-brief.md`. v4.4.1 kept that visual system while rebuilding Home around a five-platform rail, reordering Foundations into eight professionally titled scenes, and replacing the Asteroids walkthrough with a deterministic arcade shooter. v4.4.2 makes it production-ready: one heading system across pages driven by a single `--title-scale` token (2.4, tuned from renders), a shared declarative motion sequencer (`NexusSeq`), connectors computed from live geometry (`NexusFlow`), an annotated-prompt primitive, a live audio waveform, a layered harness diagram, pointer play in the arena, and a fullscreen presentation that fills the window with three panes. The load-bearing decisions:
 
 - **Fluid width (v4.2.3).** There is no per-text width cap. `.container`'s `--maxw` is the ONLY width constraint in the file: body copy fills the content column at every viewport. A test fails on any `max-width` in `px` or `ch` other than the present-mode stage bound, so a measure cannot creep back in. Headings use `text-wrap: balance` to shape wrapping without imposing one.
 - **Copy affordance (v4.2.3).** A labelled button only where the control stands alone in a wide terminal row. Inside an inline `.cmd-cell` the button is bare - no background, no border, no label - because the host chip already draws the container and a chip inside a chip reads as a mistake. The bare variant keeps a 24px hit area, its `aria-label`, the live-region announcement, and an explicit focus ring.
@@ -38,9 +38,9 @@ The original design language remains recorded in `docs/releases/v4/v4.2/developm
 - **Light-mode brand chip.** In light theme the glow logo mark sits on a rounded dark chip so it reads against the light ground.
 - **The Nexus mark is true vector geometry, and must stay that way (v4.4.1).** `#nexus-mark` was a single 220 KB base64 PNG inside an `<image>` element until v4.4.1 replaced it with about 2.1 KB of reviewed paths, circles, gradients, and one `feGaussianBlur` glow layer, measured from the original raster so the geometry is preserved. That one change bought roughly 218 KB of the 500,000-byte budget, and every later phase's byte allocation is drawn against that headroom. Do NOT re-embed a raster here, and do not reuse `assets/nexus-hub-primary_no-background.svg`: it is a 1 MB SVG-wrapped raster with zero `<path>` elements, not a vector source. `tests/guides/test_v441_phase1_contract.py` asserts the symbol has no base64 payload, carries real geometry rather than an empty shell, and stays compact.
 
-## Foundations (v4.4.1)
+## Foundations (v4.4.1 order, v4.4.2 presentation)
 
-Eight scenes in this exact order, each `.fx-scene` with one `.fx-title` and one `.fx-subtitle`:
+The page opens with a centred `h1.page-title` in the Home hero-subtitle style and a centred `p.page-lead`; there is no page-level kicker. Eight scenes follow in this exact order, each `.fx-scene` with one `.fx-title` whose `.fx-subtitle` is the shared eyebrow ABOVE the `h2.section-title`. A scene whose diagram and copy cannot balance within a 1.35 height ratio at 1440 px stacks with `.fx-scene.fx-stack` (Tokens, Prompt Engineering, Models, Harnesses); the compound selector is deliberate, because a lone class loses to the later base rule on source order.
 
 1. **Tokens Definition** - a real prompt at a 19 px floor, its VERIFIED `cl100k_base` split into ten identically styled chips (`Summarise` costs three, which is the teaching point), and nine image cells that each hold a real 1:1 crop of one original inline picture through namespaced clip paths.
 2. **Prompt Engineering** - the same contract request shown vague, then precise as Goal / Material / Done / Format.
@@ -49,32 +49,38 @@ Eight scenes in this exact order, each `.fx-scene` with one `.fx-title` and one 
 5. **Agentic Platform** - the SAME entry motif and work-cycle glyph as Models, emitted by the same code so they are byte-identical, then three mission lanes, one permission-and-tool boundary, observations, and a report.
 6. **Chatbot vs. Agentic Platform** - two lanes, chatbot first, with explicit Boundary / Action / Outcome / Leaves-behind labels.
 7. **Harnesses** - the built-in platform runtime loop with the model nested inside.
-8. **Nexus-Hub Harness** - the portable workflow layer with its five repository-anchored claims, the does-not-replace qualifier, and the durable-trail comparison.
+8. **Nexus Hub Harness** - the portable workflow layer with its five repository-anchored claims, the does-not-replace qualifier, and the durable-trail comparison.
 
 Terminology is load-bearing: any reasoning visual is labelled an ABSTRACT work cycle, never a transcript of hidden chain-of-thought, and platform capability is always stated as "can", "when supported", "when permitted".
 
 The story diagrams are semantic HTML node trees with small connector SVGs, not bespoke per-scene drawings. That change is what cut the 1440 px Foundations height from 7,235 px to about 5,150 px; `data-phase3-diagram` no longer exists and a guard test fails if an SVG story diagram returns without restoring its containment coverage.
 
-## Browser evidence matrix (v4.4.1 Phase 6)
+## Browser evidence matrix (v4.4.2 Phase 7)
 
-The retained browser gate is Cartesian only across dimensions that own a distinct layout, theme, state, or interaction contract:
+The retained browser gate is DECLARED before it runs, in `tests/guides/tools/browser_matrix.py`, and is Cartesian only across dimensions that own a distinct layout, theme, state, or interaction contract. The summary records the declared count beside the executed count so a silently dropped case is visible.
 
 | Case group | Dimensions | Cases |
 |---|---|---:|
 | Base pages | 4 pages x 2 themes x 320/420/900/1440 | 32 |
 | Foundations seam | 2 themes x 720/721 | 4 |
 | Training states | 8 scene IDs x 2 themes at 1440x900 | 16 |
-| Desktop fullscreen | 2 routes x native/fallback x 2 themes x 1280x720, 1366x768, 1440x900, 1920x1080 | 32 |
+| Desktop fullscreen | 2 routes x native/fallback x 2 themes x 1280x720, 1366x768, 1440x900, 1920x1080 (coverage and stage fraction recorded) | 32 |
 | Narrow fallback | 2 routes x 2 themes x 320/420/900 | 12 |
+| Short window | presentify x 2 themes at 1280x600 | 2 |
 | Reduced motion | 3 surfaces x 2 themes at 1440x900 | 6 |
 | 200 percent zoom | 2 routes x 2 themes x 1280x720, 1366x768 | 8 |
-| **Total** | | **110** |
+| Home sections | 4 restored sections x 2 themes x 420/1440 | 16 |
+| Annotated prompts | 2 scenes x mid-sequence/end x 2 themes | 8 |
+| Audio waveform | playing/paused x 2 themes | 4 |
+| Harness choreography | steps 1, 4, 7, end x 2 themes | 8 |
+| Arena pointer pause | 2 themes at 1440x900 | 2 |
+| **Total** | | **150** |
 
-Retained screenshots live under `docs/releases/v4/v4.4/development/guide-visual-and-arcade-rebuild/renders/`, alongside one JSON geometry and console summary. Evidence stays under 30 MiB, and the focused run targets 20 minutes; if one invocation times out, split the same declared cases into labelled batches rather than dropping or structurally scoring any case.
+Run it with `python tests/guides/tools/browser_matrix.py --label phase-7`; retained screenshots and the JSON geometry, coverage, console, and request summary land under `docs/releases/v4/v4.4/development/guide-production-ready-rebuild/renders/<label>/`. Evidence stays under 30 MiB per label and a focused run targets 20 minutes; if one invocation would exceed that, split the declared groups with `--groups` into labelled batches rather than dropping or structurally scoring any case. The v4.4.1 110-case evidence remains under `guide-visual-and-arcade-rebuild/renders/phase-6/`.
 
 ## Home
 
-Home is a short orientation, not a catalog dump. It states the outcome, shows six supported platforms in a compatibility rail, embeds the two canonical install commands behind OS tabs (**Windows first and default**), compares an unaided assistant to one using Nexus-Hub, shows the six-step loop, and closes with next steps.
+Home opens with the floating `Nexus Hub` lockup, the v4.1.2 statement `Upgrade your agentic AI platforms with an autonomous team of world experts` (gradient span painted through `text-fill-color` so `color` stays measurable), and its lead paragraph, then a five-platform compatibility rail. Nine headings follow in a fixed order that a browser test asserts: `Why it matters` (four cards), `Installation` (the two canonical install commands behind OS tabs, **Windows first and default**), `How it works` (skills, hooks, governance), `Guardrails and safety` (an enforcement story whose layered illustration names only hooks that ship and are registered), `Raw prompting vs Nexus Hub` (the v4.1.2 comparison merged with the v4.4.1 five-row table, labels at 26 px), `Your favorite commands, leveled up` (a seven-row migration table that stacks into labelled cards below 720 px), the workflow loop (also the first `NexusSeq` timeline), and `Learn it, then run it`. Every restored section is at most two-thirds of its v4.1.2 word count against `tests/guides/fixtures/v412-home-copy.json`. Platform-mark attribution lives in the site footer on every page, never in the Home flow (decision `2026-09-02-platform-mark-attribution-in-footer`).
 
 Canonical install constants (must match `tests/guides/test_nexus_hub_guide.py`):
 
@@ -87,6 +93,8 @@ There is no untrusted-origin warning box. It was removed in v4.2.2 along with `i
 
 ## Foundations
 
+**v4.4.2 primitives.** `NexusSeq` is the one declarative motion engine: a `[data-seq-root]` reveals `[data-seq=N]` steps in order (`is-on`), starts at 40 percent visibility, pauses offscreen and on a hidden tab, resumes from the same step, and under reduced motion applies the end state synchronously; text carriers never lose contrast during a sequence (use `seq-glow`, never `seq-fade`, on text: BG-13 and BG-14). `NexusFlow` draws every flow connector as an overlay SVG from live card rectangles (three roots: the Models flow, the request region nested inside it, and the Agentic flow) so an arrow cannot overlap a card. The annotated prompt (`.ann-text` with `mark.ann[data-part]` and a `dl.ann-legend`) shows one continuous text whose labelled parts light in sequence; nesting is forbidden by test. The Models outputs are `Text`, `Image`, `Video`, `Audio`; the audio draws a static waveform decoded from the embedded PCM and a live analyser trace while playing (`canvas.fx-wave`, `data-wave-state`). Harnesses and Nexus Hub Harness share one layered SVG (`.fx-hstack`): static and platform-focused in scene 7, a seven-step choreography in scene 8 with a dashed `raw answer` ghost at full contrast.
+
 Foundations is eight scrollytelling scenes, each teaching one concept through a title-plus-subtitle lesson and a hand-authored inline SVG diagram:
 
 1. **What Is a Model** - training precedes platform integration; a later request carries context into processing and a result comes out.
@@ -95,7 +103,7 @@ Foundations is eight scrollytelling scenes, each teaching one concept through a 
 4. **What Is an Agent Platform** - a model operating inside a host loop that can propose actions, observe results, and continue.
 5. **Chatbot or Agentic Platform?** - the same request ending as guidance to apply or as checked work completed in the active work surface.
 6. **What Is Context** - a finite token budget shown noisy and focused, including what can happen when it fills and why task-matched loading matters.
-7. **What Is a Harness** - the model, platform loop and built-in harness, and Nexus-Hub's portable workflow layer shown as distinct nested layers.
+7. **What Is a Harness** - the model, platform loop and built-in harness, and Nexus Hub's portable workflow layer shown as distinct nested layers.
 8. **What Changes in Practice** - an honest comparison between a saved platform result and the same job with matched procedure, written gate, and durable evidence.
 
 Hard rules: no element pins itself over the content, and there is **no toggle** between the two states - both are always visible, because a selector for something already on screen is noise. Diagram colors come from theme tokens so one markup serves both themes. Do not restore a `type="range"` hero, the station cards, the carousel, or the per-scene number badges (removed in v4.2.3 as a full line carrying no information).
@@ -117,7 +125,7 @@ Training is an eight-step interactive arcade-shooter walkthrough (`#nhTraining`,
 4. **The cumulative file explorer** - the tree shows everything created so far, marks the current step's new and changed files, and paints the selected file or diff with text nodes only. A requested path that does not exist yet says so explicitly.
 5. The artifact, gate verdict, and takeaway that explain what the command produced and why it matters.
 
-Training navigation uses Previous, Next, and Restart icon buttons in a right-aligned cluster below the takeaway, each with an `aria-label`, a `title`, and a visible focus ring. Outline keeps a text label because a glyph does not carry its meaning. ArrowRight, Space, and PageDown advance; ArrowLeft and PageUp go back; `f` toggles full screen when focus is not in the game or a form field. The file explorer is a labelled tree: ArrowUp, ArrowDown, Home, and End move focus, while Enter or Space activates the focused file. The focused game owns Left / Right or A / D for horizontal movement and Space for fire; Up / Down or W / S move vertically only after `/compare` enables the feature. The game starts idle behind a real `Click to start` button, so page-level arrow and Space behavior is untouched until the reader opts in. Escape pauses the game, clears held keys, releases key ownership, and focuses Resume. Equivalent touch controls and labelled pause, reset, and step buttons remain available.
+Training navigation uses Previous, Next, and Restart icon buttons in a right-aligned cluster below the takeaway, each with an `aria-label`, a `title`, and a visible focus ring. Outline keeps a text label because a glyph does not carry its meaning. ArrowRight, Space, and PageDown advance; ArrowLeft and PageUp go back; `f` toggles full screen when focus is not in the game or a form field. The focused game owns Left / Right or A / D for horizontal movement and Space for fire; Up / Down or W / S move vertically only after `/compare` enables the feature. The game starts idle behind a real `Click to start` button. **Pointer contract (v4.4.2):** a primary click inside the arena fires with the same cooldown as Space, starts nothing while idle and resumes nothing while paused; the pointer leaving the arena pauses with reason `pointer` and releases held keys; re-entering does not resume, the visible Resume control does; secondary buttons are ignored and the context menu is suppressed. Under `(pointer: fine)` a `kbd` key guide replaces the touch buttons; under `(pointer: coarse)` the five labelled touch controls remain. Pause / Resume, Reset demo, and the reduced-motion Advance one step sit beside the HUD. **Spawning (v4.4.2):** every fixture spawns continuously from a second seeded stream (`seed ^ 0x9E3779B9`) so the teaching beats never move; three enemy velocity bands and three asteroid size and speed tiers; teaching fixtures spawn from tick 120 and keep the centre band clear so a stationary player receives only the seeded beats. The full contract is `docs/releases/v4/v4.4/development/arcade-shooter-scenario.md`.
 
 **Full screen mode** requests fullscreen on the training root and applies a viewport overlay class either way, so a denied or unavailable Fullscreen API still presents as slides. The control lives INSIDE the fullscreen root, in `.nht-bar` immediately before Outline, labelled `Full screen` / `Exit full screen` with a four-corner icon and an `aria-pressed` state synchronized from `fullscreenchange` (the user agent may consume Escape and exit natively, so the handler reconciles rather than assuming script initiated the change).
 
@@ -125,7 +133,7 @@ Training navigation uses Previous, Next, and Restart icon buttons in a right-ali
 
 **Escape precedence** in the overlay is exactly: close Outline first; otherwise, if focus is inside the active game, the game pauses and releases its keys; otherwise the overlay exits and focus returns to the fullscreen trigger.
 
-**Presentation layout (v4.4.1).** The slide is a two-column grid because the explorer is a sibling of `.nht-grid`, not a child: head, takeaway, and controls span both columns, the game column takes a bounded share, and the evidence column owns the one permitted secondary scroll. Every earlier attempt let one panel's content decide another panel's position, which produced overlaps that moved between viewport sizes as free height changed. Below 1024 px (which 200 percent zoom also reaches) the whole slide reflows into ONE vertical scroll surface. `tests/guides/test_v441_phase6_workspace.py` measures real pairwise intersection AREA at 1920x1080, 1440x900, 1366x768, 1280x720, 900x900, 420x900, and 320x900, clipping each region to its clipping ancestors so it scores what a reader can actually see.
+**Presentation layout (v4.4.2).** At viewports at least 1024 px wide and 640 px tall the slide is a three-pane grid that fills the window: `.nht-grid` is `display: contents` in present mode, so the arena column, the evidence column (terminal, tools, artifacts), and the sibling explorer are direct grid items in tracks `minmax(300px, 34fr) 33fr 33fr`, with head, takeaway, and controls spanning all three. Every pane height is the body row's definite track (the BG-11 lesson); the stage derives its width from the available height, the terminal output is the one secondary scroll, and the explorer stacks tree over file. Acceptance floors, measured by `test_v441_phase6_workspace.py`: viewport coverage at least 0.88 and stage height at least 0.45 of the viewport at 1280x720, 1366x768, 1440x900, and 1920x1080 (achieved 0.93 to 0.95 and 0.47 to 0.61); no pairwise intersection; no horizontal overflow; no region below the fold. Outline is `position: absolute` in present mode and moves nothing; a `matchMedia` listener closes it if the window crosses a breakpoint. Below 1024 px wide OR 640 px tall the slide reflows into ONE scroll surface; a short-but-wide window between 640 and 768 px tall sheds a line of chrome to keep the stage floor. Baseline, target, and arithmetic: `docs/releases/v4/v4.4/development/guide-production-ready-rebuild/presentation-geometry.md`.
 
 **Position and progress** read in plain language: `Understand | 1 of 8 | /describe full`. The progress strip is eight labelled loop stages - each names its command, the current one carries `aria-current="step"`, completed ones dim, and clicking one jumps to it.
 
@@ -193,7 +201,7 @@ The same table is frozen in `docs/releases/v4/v4.2/development/guide-redesign-co
 
 Canonical source: `guides/website/nexus-hub-guide.html` in this repository.
 
-Published copy (sibling portfolio, outside this tree): `<portfolio-root>/nexus-hub/index.html`. Common local layout is `../online-portfolio/` next to Nexus-Hub. Absence of that clone does not block Nexus-Hub CI or a release.
+Published copy (sibling portfolio, outside this tree): `<portfolio-root>/nexus-hub/index.html`. Common local layout is `../online-portfolio/` next to Nexus Hub. Absence of that clone does not block Nexus Hub CI or a release.
 
 Publication is a copy:
 
@@ -209,10 +217,10 @@ Local publication check: `python -m pytest -q tests/guides/test_nexus_hub_guide.
 The pytest suite parses HTML and JSON; it does not execute JavaScript. Rendered verification is a first-class step, run per phase with the local harness:
 
 ```bash
-python tests/guides/tools/render_guide.py --label phase-6 --output-dir docs/releases/v4/v4.4/development/guide-rebuild/renders --widths 320 420 900 1440
+python tests/guides/tools/browser_matrix.py --label phase-7
 ```
 
-That renders every page in both themes at 320 / 420 / 900 / 1440 px and writes 32 PNGs under `docs/releases/v4/v4.4/development/guide-rebuild/renders/phase-6/`. Local use needs Playwright (`pip install playwright && playwright install chromium`); when it is absent, the harness fails with an install hint rather than a traceback. On guide-relevant pull requests, the required `guide-render` job installs Playwright and Chromium, sets `NEXUS_REQUIRE_RENDER=1`, runs the fail-closed guide aggregate, and reports its terminal result through `ci-required`. Useful flags: `--pages`, `--themes`, `--widths`, `--reduced-motion`, `--hash`.
+That runs the declared 150-case matrix described above (`render_guide.py` remains for ad-hoc page renders). Local use needs Playwright (`pip install playwright && playwright install chromium`); the required `guide-render` job runs the browser suites fail-closed with `NEXUS_REQUIRE_RENDER=1` and is aggregated into `ci-required`, so a skipped browser is a red check, never a silent pass.
 
 Before a workshop or a portfolio publish, also open the file by hand and check:
 
@@ -226,6 +234,12 @@ Before a workshop or a portfolio publish, also open the file by hand and check:
 
 Lighthouse Accessibility is a last-phase human bar, not a mid-plan merge gate.
 
+## Naming and counts (v4.4.2)
+
+- The product is written `Nexus Hub` in every visible string, `aria-label`, and pseudo-element label. `Nexus-Hub` survives only inside `code`, `pre`, `kbd`, `[data-copy]`, and repository links, which is the enumerated allowlist in `tests/guides/test_v442_phase1_foundation.py`; the check is case-insensitive.
+- No catalog count is typed by hand. Every count is a `<span data-count="skills|hooks|pretooluse|commands">` marker that `python scripts/stamp_guide_counts.py` rewrites from `data/skills.json`, `catalog/hooks/settings.json`, and `catalog/commands/`; `--check` runs in `make validate` and fails on any stale marker, and `tests/guides/test_guide_counts.py` fails on any bare count phrase.
+- Section titles share `.section-title`, driven by `--title-scale` (2.4). Tune the token, never a selector.
+
 ## Editing
 
-The guide is a single HTML file: CSS in the `<style>` block, content in `<section class="page">` blocks, behavior in the two `<script>` blocks at the bottom (the app shell, then the Training engine after the scene JSON). Class prefixes: `fx-` for Foundations scenes, `nht-` for Training, `nag-` for the arcade game, and `cs-` for Cheatsheets. Scene data is `example/training-scenes.json` plus the matching inline JSON block. Do not edit or regenerate the retained Glow Booth fixtures as part of reader-facing Training work.
+The guide is a single HTML file: CSS in the `<style>` block, content in `<section class="page">` blocks, behavior in the two `<script>` blocks at the bottom (the app shell, then the Training engine after the scene JSON). Class prefixes: `fx-` for Foundations scenes (`fx-hstack` and its `h-` children for the layered harness), `ann-` for the annotated prompt, `seq-` for NexusSeq step primitives, `nht-` for Training, `nag-` for the arcade game, `g-` for the Home guardrails figure, and `cs-` for Cheatsheets. Scene data is `example/training-scenes.json` plus the matching inline JSON block. Do not edit or regenerate the retained Glow Booth fixtures as part of reader-facing Training work.

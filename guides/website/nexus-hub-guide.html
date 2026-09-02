@@ -245,6 +245,19 @@ html[data-theme="light"] .nhg-theme .icon-sun { display: none; }
 /* ---------- Type ---------- */
 h1 { font-size: clamp(2rem, 4.5vw, 2.9rem); line-height: 1.12; letter-spacing: -.015em; margin: 0 0 var(--sp-4); text-wrap: balance; }
 h2 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); line-height: 1.2; letter-spacing: -.01em; margin: 0 0 var(--sp-3); }
+/* Section titles share ONE scale, driven by a single token. The operator asked for roughly
+   three times the v4.4.1 size as a starting point; the token is tuned from renders in
+   Phase 7, never by editing selectors. The minimum bound is 0.6x of the scaled floor so a
+   320px viewport cannot be forced into horizontal overflow by one long word. */
+/* Tuned in v4.4.2 Phase 7 from renders: at 3 the word "Engineering" could not fit a Foundations copy
+   column at 1440px and wrapped titles to three lines; 2.4 (about 65px, 2.4x v4.4.1) keeps every title
+   at two lines or fewer at 1440 and under 40 percent of the viewport height at 420. */
+:root { --title-scale: 2.4; }
+.section-title {
+  font-size: clamp(calc(1.2rem * var(--title-scale) * .6), calc(2.4vw * var(--title-scale)), calc(1.7rem * var(--title-scale)));
+  line-height: 1.05; letter-spacing: -.02em; text-wrap: balance; overflow-wrap: break-word;
+  margin: 0 0 var(--sp-4);
+}
 h3 { font-size: 1.1rem; margin: 0 0 var(--sp-2); }
 p { margin: 0 0 var(--sp-3); }
 .lead { font-size: 17.5px; color: var(--ink-dim); }
@@ -253,6 +266,21 @@ p { margin: 0 0 var(--sp-3); }
   text-transform: uppercase; color: var(--teal-soft); margin-bottom: var(--sp-2);
 }
 .eyebrow::before { content: ""; display: inline-block; width: 18px; height: 2px; background: var(--accent); vertical-align: middle; margin-right: 8px; border-radius: 2px; }
+
+/* ---------- NexusSeq step primitives ----------
+   A [data-seq-root] container reveals its [data-seq=N] children in order. Scoped to .js so
+   a no-script reader sees every step at once; the reduced-motion block zeroes durations. */
+/* seq-fade is for shapes and connectors only. Dimming TEXT carriers fails WCAG AA mid-sequence
+   (BG-13: the loop pills measured 1.9:1 at opacity .45), so text steps use seq-glow, which
+   never changes foreground contrast and marks the active step with an accent ring instead. */
+.js .seq-fade { opacity: .7; transition: opacity .45s var(--ease); }
+.js .seq-fade.is-on { opacity: 1; }
+.js .seq-glow { transition: box-shadow .35s var(--ease), border-color .35s var(--ease); }
+.js .seq-glow.is-on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent), 0 0 18px 0 var(--accent-glow, rgba(45, 212, 191, .35)); }
+.js .seq-rise { opacity: 0; transform: translateY(10px); transition: opacity .45s var(--ease), transform .45s var(--ease); }
+.js .seq-rise.is-on { opacity: 1; transform: none; }
+.js .seq-draw { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .6s var(--ease); }
+.js .seq-draw.is-on { stroke-dashoffset: 0; }
 
 /* ---------- Sections ---------- */
 .section { padding: var(--sec-pad) 0 0; }
@@ -268,7 +296,6 @@ p { margin: 0 0 var(--sp-3); }
 /* Hero wordmark mirrors the nav wordmark exactly: same roles, same weights, same theme tokens. */
 .hero-wordmark b { color: var(--ink); font-weight: 700; }
 .hero-wordmark span { color: var(--teal-soft); font-weight: 600; }
-.hero-tagline { margin: var(--sp-4) 0 0; text-align: center; color: var(--ink-dim); font-size: clamp(18px, 2.3vw, 22px); }
 .hero .btn-row { justify-content: center; }
 html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-shadow: 0 0 0 1px #c9c3b2; }
 .js .hero-lockup.reveal .hero-mark { opacity: 0; transform: translateY(8px) scale(.88); transition: opacity .45s var(--ease), transform .55s var(--ease); }
@@ -283,10 +310,163 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
 .platform-mark[data-mark="gemini"] svg { transform: scale(1.04); }
 .platform-name { color: var(--ink); font-size: 13px; font-weight: 650; line-height: 1.2; }
 /* Overrides the global panel-style details: attribution is a quiet legal note, not a card. */
-.platform-credits { margin: var(--sp-2) 0 0; padding: 0; border: 0; background: none; color: var(--ink-faint); font-size: 12.5px; text-align: center; }
-.platform-credits summary { cursor: pointer; display: inline-block; padding: 2px 6px; border-radius: 6px; font-weight: 500; font-size: 12.5px; color: var(--ink-faint); }
-.platform-credits summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.platform-credits p { margin: 8px auto 0; line-height: 1.5; }
+
+
+/* ---------- Hero statement (v4.1.2 template, restored in v4.4.2) ----------
+   The gradient is painted through text-fill-color while `color` stays var(--ink), so the
+   contrast sweep measures the real fallback colour instead of `transparent`. */
+:root { --grad-text: linear-gradient(90deg, var(--cyan), var(--teal)); }
+.hero-subtitle {
+  margin: var(--sp-5) auto 0; text-align: center; text-wrap: balance;
+  font-size: clamp(calc(1.2rem * 1.6 * .6), calc(2.4vw * 1.6), calc(1.7rem * 1.6));
+  line-height: 1.12; letter-spacing: -.015em; color: var(--ink);
+}
+.gtext { color: var(--ink); background: var(--grad-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-lead { margin: var(--sp-3) auto 0; text-align: center; font-size: 1.15rem; line-height: 1.55; color: var(--ink-dim); }
+
+/* ---------- Card grids (restored Home sections) ---------- */
+.grid { display: grid; gap: var(--sp-3); margin-top: var(--sp-4); }
+.grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+.card p { margin: 0; color: var(--ink-dim); font-size: 15px; }
+.ico { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; margin-bottom: 12px;
+  color: var(--teal); background: color-mix(in srgb, var(--teal) 12%, transparent); border: 1px solid color-mix(in srgb, var(--teal) 35%, transparent); }
+.ico svg { width: 20px; height: 20px; }
+.card--rail { border-left: 3px solid var(--teal); }
+.card--rail-cyan { border-left-color: var(--cyan); }
+.card--rail-blue { border-left-color: var(--blue); }
+.step-no { font: 700 11px/1 var(--mono); letter-spacing: 1px; margin-bottom: 8px; color: var(--teal-soft); }
+.callout--star .ci { color: var(--amber); font-size: 18px; line-height: 1.2; }
+
+/* ---------- Guardrails and safety ---------- */
+.guard-grid { display: grid; grid-template-columns: minmax(280px, 5fr) minmax(320px, 6fr); gap: var(--sp-5); align-items: center; margin-top: var(--sp-4); }
+.guard-grid p { color: var(--ink-dim); }
+.guard-fig { margin: 0; }
+.guard-fig svg { width: 100%; height: auto; display: block; overflow: visible; }
+.guard-fig .g-ring { fill: none; stroke: var(--border-bright); stroke-width: 1.5; }
+.guard-fig .g-ring--nexus { stroke: var(--accent); }
+.guard-fig .g-model { fill: var(--surface); stroke: var(--border-bright); }
+.guard-fig .g-label { font: 600 11px var(--sans); fill: var(--ink-dim); text-transform: uppercase; letter-spacing: .08em; }
+.guard-fig .g-label--nexus { fill: var(--accent); }
+.guard-fig .g-port { font: 500 10.5px var(--mono); fill: var(--ink-faint); }
+.guard-fig .g-chip { fill: var(--surface-2); stroke: var(--border-bright); }
+.guard-fig .g-chip-text { font: 600 10.5px var(--mono); fill: var(--ink); }
+.guard-fig .g-asked { fill: var(--amber); font: 600 10px var(--sans); }
+.guard-fig .g-block { stroke: var(--red); stroke-width: 2.5; fill: none; }
+.guard-fig .g-blocked { fill: var(--red); font: 700 10px var(--sans); }
+.js .guard-fig .seq-rise.is-on ~ .g-ring--nexus.is-hot { stroke: var(--red); }
+.guard-fig figcaption { margin-top: 8px; font-size: 12.5px; color: var(--ink-faint); text-align: center; }
+
+/* ---------- Command migration table ---------- */
+.tbl-migrate { width: 100%; border-collapse: collapse; margin-top: var(--sp-4); font-size: 14.5px; }
+.tbl-migrate th { text-align: left; font: 700 11px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); padding: 0 10px 10px; border-bottom: 1px solid var(--border); }
+.tbl-migrate td { padding: 12px 10px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--ink-dim); }
+.tbl-migrate td:first-child code, .tbl-migrate td:nth-child(2) code { white-space: nowrap; }
+.tbl-migrate .muted { display: block; font-size: 12px; color: var(--ink-faint); margin-top: 3px; }
+.tbl-migrate td:nth-child(3) { color: var(--ink); }
+.tbl-migrate .muted-cell { color: var(--ink-faint); }
+
+/* ---------- Site footer (attribution lives here; decision 2026-09-02) ---------- */
+.site-footer { border-top: 1px solid var(--border); margin-top: var(--sp-8); padding: var(--sp-5) 0 var(--sp-6); color: var(--ink-faint); font-size: 12.5px; line-height: 1.6; text-align: center; }
+.site-footer p { margin: 0 auto; }
+.site-footer a { color: var(--ink-dim); text-decoration: underline; }
+
+@media (max-width: 900px) {
+  .grid-4, .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .guard-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .grid-4, .grid-3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  /* The migration table reflows to stacked cards: each row a card, each cell labelled by its header. */
+  .tbl-migrate thead { display: none; }
+  .tbl-migrate tr { display: block; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 12px 10px; margin-top: var(--sp-3); background: var(--surface); }
+  .tbl-migrate td { display: block; border: 0; padding: 8px 0; }
+  .tbl-migrate td::before { content: attr(data-th); display: block; font: 700 10.5px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px; }
+}
+
+
+/* ---------- Foundations page head and scene balance (v4.4.2 Phase 3) ----------
+   The page title reuses the hero-subtitle style so Home and Foundations share one heading
+   system; the scene subtitle becomes the shared eyebrow and moves ABOVE its h2. */
+.page-title { margin: 0 auto; }
+.page-lead { margin: var(--sp-3) auto 0; text-align: center; font-size: 1.15rem; line-height: 1.55; color: var(--ink-dim); }
+/* A scene whose diagram and copy cannot balance stacks: copy above, diagram full width. */
+/* Compound selectors on purpose: .fx-scene (defined later, same specificity) would otherwise win
+   on source order, and .fx-copy p (two components) beats a lone .fx-subtitle. */
+.fx-scene.fx-stack { grid-template-columns: 1fr; align-items: start; }
+.fx-scene.fx-stack .fx-diagram--narrow { width: 100%; }
+.fx-duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
+.fx-duo > * { margin-top: 0; }
+.fx-duo .fx-tokfig { margin: 0; }
+.fx-duo .fx-tokimg { width: min(100%, 26.25rem); margin: 0 auto; }
+
+/* ---------- Annotated prompt primitive ----------
+   One continuous text whose labelled spans light in sequence. Text never changes contrast
+   during the sequence (BG-13 rule): the active part gains a stronger tint and a ring. */
+.ann-text { margin: 0; color: var(--ink); font-size: 15px; line-height: 1.75; }
+.ann { --ann: var(--ink-faint); color: inherit; border-radius: 5px; padding: 1px 4px; text-decoration: underline dotted; text-decoration-color: var(--ann); text-underline-offset: 3px;
+  background: color-mix(in srgb, var(--ann) 12%, transparent); transition: background-color .35s var(--ease), box-shadow .35s var(--ease); }
+.ann[data-part="goal"], .ann[data-part="request"] { --ann: var(--teal); }
+.ann[data-part="material"], .ann[data-part="context"] { --ann: var(--blue); }
+.ann[data-part="done"] { --ann: var(--amber); }
+.ann[data-part="format"] { --ann: var(--cyan); }
+.js .ann.is-on { background: color-mix(in srgb, var(--ann) 26%, transparent); box-shadow: 0 0 0 1.5px var(--ann); }
+.ann-legend { margin: 12px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; }
+.ann-legend-row { --ann: var(--ink-faint); display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: baseline; padding: 3px 6px; border-radius: 6px; transition: background-color .35s var(--ease); }
+.ann-legend-row[data-part="goal"], .ann-legend-row[data-part="request"] { --ann: var(--teal); }
+.ann-legend-row[data-part="material"], .ann-legend-row[data-part="context"] { --ann: var(--blue); }
+.ann-legend-row[data-part="done"] { --ann: var(--amber); }
+.ann-legend-row[data-part="format"] { --ann: var(--cyan); }
+.ann-legend-row dt { font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ink); }
+.ann-legend-row dt::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 2px; background: var(--ann); margin-right: 6px; vertical-align: 1px; }
+.ann-legend-row dd { margin: 0; font-size: 13px; color: var(--ink-dim); }
+.js .ann-legend-row.is-on { background: color-mix(in srgb, var(--ann) 14%, transparent); }
+@media (max-width: 560px) { .ann-legend { grid-template-columns: 1fr; } .fx-duo { grid-template-columns: 1fr; } }
+
+
+/* ---------- Flow connectors drawn by NexusFlow (v4.4.2 Phase 4) ----------
+   One overlay SVG per flow, sized to the flow, with every connector computed from the live
+   card rectangles, so an arrow can never overlap a card as the inline arrows did. */
+.fx-model-flow, .fx-region[data-flow-root] { position: relative; }
+/* A region that hosts a nested flow lays its stages out with the same gap the outer flow uses,
+   so NexusFlow has room to draw between them (flush stages are skipped on purpose). */
+.fx-region[data-flow-root] { display: grid; gap: 10px; }
+.fx-flow-overlay { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.fx-flow-overlay .fxp { stroke: var(--border-bright); }
+
+/* ---------- Audio waveform ---------- */
+.fx-wave { display: block; width: min(100%, 220px); height: 44px; margin-top: 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-0); }
+
+/* ---------- Layered harness diagram ---------- */
+.fx-hstack { margin: 0; }
+.fx-hstack svg { width: 100%; height: auto; display: block; overflow: visible; }
+.fx-hstack .h-ring { fill: none; stroke: var(--border-bright); stroke-width: 1.5; }
+.fx-hstack .h-ring--nexus { stroke: var(--accent); stroke-dasharray: 5 4; }
+.fx-hstack.is-nexus-focus .h-ring--nexus { stroke-dasharray: none; stroke-width: 2.2; }
+.fx-hstack .h-model { fill: var(--surface); stroke: var(--border-bright); }
+.fx-hstack .h-label { font: 700 11px var(--sans); fill: var(--ink-dim); text-transform: uppercase; letter-spacing: .08em; }
+.fx-hstack .h-label--nexus { fill: var(--accent); }
+.fx-hstack .h-port { font: 500 10.5px var(--mono); fill: var(--ink-faint); transition: fill .35s var(--ease); }
+.fx-hstack .h-port-pill { fill: var(--bg-0); stroke: var(--border); transition: stroke .35s var(--ease), fill .35s var(--ease); }
+.js .fx-hstack .is-on .h-port-pill { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 16%, var(--bg-0)); }
+.js .fx-hstack .is-on .h-port { fill: var(--ink); }
+.fx-hstack .h-chip { fill: var(--surface-2); stroke: var(--border-bright); }
+.fx-hstack .h-chip-text { font: 600 10.5px var(--mono); fill: var(--ink); }
+.fx-hstack .h-cap { font: 500 10.5px var(--sans); fill: var(--ink-dim); }
+.fx-hstack .h-out { fill: color-mix(in srgb, var(--green) 14%, var(--surface)); stroke: var(--green); }
+.fx-hstack .h-out-text { font: 700 10.5px var(--sans); fill: var(--ink); }
+/* The ghost is marked by a dashed chip and a caption, never by dimming: text carriers keep full
+   contrast during a sequence (BG-13 rule). */
+.fx-hstack .h-ghost .h-chip { stroke-dasharray: 3 3; fill: var(--bg-0); }
+.fx-hstack .h-ghost .h-chip-text { fill: var(--ink-dim); }
+.fx-hstack .h-pulse { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0; transition: opacity .35s var(--ease); }
+.js .fx-hstack .is-on .h-pulse { opacity: 1; }
+.fx-hstack figcaption { margin-top: 8px; font-size: 12.5px; color: var(--ink-faint); }
+.fx-hstack .fx-cycle-ring { stroke-width: 2.2; }
+@media (max-width: 560px) { .fx-hstack .h-port, .fx-hstack .h-cap, .fx-hstack .h-chip-text { font-size: 12px; } }
 
 /* ---------- Buttons ---------- */
 .btn-row { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-4); }
@@ -374,7 +554,8 @@ html[data-theme="light"] .verify-steps--secondary .vs-n { color: var(--ink-dim);
    two-card grid and not a stat-pill row (hallmark gates 2 and 20). */
 .cmp { margin: var(--sp-4) 0 0; }
 .cmp-head { display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--sp-3); align-items: center; margin-bottom: var(--sp-2); padding: 0 2px var(--sp-2); border-bottom: 1px solid var(--border); }
-.cmp-side { font-size: 13px; font-weight: 750; letter-spacing: .09em; text-transform: uppercase; text-align: center; }
+.cmp-side { font-size: 26px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; text-align: center; line-height: 1.1; }
+@media (max-width: 560px) { .cmp-side { font-size: 18px; } }
 .cmp-side--without { color: var(--amber); }
 .cmp-head-arrow { color: var(--ink-faint); font-size: 16px; }
 .cmp-side--with { color: var(--accent); }
@@ -412,8 +593,8 @@ html[data-theme="light"] .verify-steps--secondary .vs-n { color: var(--ink-dim);
   .cmp-head { display: none; }
   .cmp-pair { grid-template-columns: 1fr; gap: var(--sp-2); }
   .cmp-go svg { transform: rotate(90deg); margin: 2px auto; }
-  .cmp-a::before { content: "Without Nexus-Hub"; display: block; font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--amber); margin-bottom: 4px; }
-  .cmp-b::before { content: "With Nexus-Hub"; display: block; font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .cmp-a::before { content: "Without Nexus Hub"; display: block; font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--amber); margin-bottom: 4px; }
+  .cmp-b::before { content: "With Nexus Hub"; display: block; font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
 }
 
 /* ---------- Terminal ---------- */
@@ -519,8 +700,9 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
    keeps it. Making it the default is what made Foundations 7,235px tall at 1440. */
 .fx-wide { grid-template-columns: 1fr; }
 .fx-title { margin-bottom: var(--sp-3); }
-.fx-title h2 { margin-bottom: 6px; }
-.fx-subtitle { margin: 0; color: var(--teal-soft); font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.fx-copy .fx-subtitle, .fx-subtitle { display: inline-block; margin: 0 0 var(--sp-2); color: var(--teal-soft); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; line-height: 1.4; }
+.fx-subtitle::before { content: ""; display: inline-block; width: 18px; height: 2px; background: var(--accent); vertical-align: middle; margin-right: 8px; border-radius: 2px; }
+.fx-title h2 { margin-bottom: var(--sp-3); }
 .fx-copy h2 { text-wrap: balance; }
 .fx-copy p { font-size: 15.5px; color: var(--ink-dim); }
 .fx-copy strong, .fx-copy em { color: var(--ink); }
@@ -594,10 +776,6 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-state-why { margin: 10px 0 0; color: var(--ink-dim); font-size: 13px; line-height: 1.5; }
 .fx-state-link { display: flex; align-items: center; }
 .fx-inline-arrow { width: 34px; height: 12px; overflow: visible; }
-.fx-parts { margin: 0; display: grid; gap: 7px; }
-.fx-part { display: grid; grid-template-columns: 4.6rem 1fr; gap: 10px; align-items: baseline; }
-.fx-part dt { color: var(--teal-soft); font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
-.fx-part dd { margin: 0; color: var(--ink); font-size: 14px; line-height: 1.4; }
 .fx-ctx { display: grid; gap: 16px; }
 .fx-ctx-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 12px; align-items: center; }
 .fx-ctx-query { padding: 12px 14px; border: 1px solid var(--border-bright); border-radius: var(--radius-sm); background: var(--surface); }
@@ -822,10 +1000,18 @@ html[data-theme="light"] .nht-ico--go:hover:not(:disabled) { color: #fffdf8; }
 }
 .nag-control:hover, .nag-action:hover { border-color: var(--accent); color: var(--ink); }
 .nag-control:active, .nag-control.is-held { background: color-mix(in srgb, var(--accent) 18%, var(--surface)); color: var(--accent); }
-.nag-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 10px 10px; }
+.nag-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px 4px; }
 .nag-action { flex: 1 1 90px; }
 .nag-action--primary { background: var(--accent); border-color: transparent; color: var(--bg-deep); }
 .nag-step { display: none; }
+/* v4.4.2: fine pointers read a key guide; coarse pointers keep the touch buttons. The actions
+   (Pause / Resume, Reset, Advance one step) sit beside the HUD on every pointer type. */
+.nag-guide { list-style: none; margin: 0; padding: 8px 12px 10px; display: none; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--ink-dim); border-top: 1px solid var(--border); }
+.nag-guide li { display: inline-flex; align-items: center; gap: 4px; }
+.nag-guide kbd { font: 600 11px var(--mono); color: var(--ink); background: var(--bg-0); border: 1px solid var(--border-bright); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; }
+@media (pointer: fine) { .nag-guide { display: flex; } .nag-controls { display: none; } }
+@media (pointer: coarse) { .nag-guide { display: none; } .nag-controls { display: grid; } }
+.nht-game.no-canvas .nag-guide { display: none; }
 .nag-note { margin: 0; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--surface); font-size: 12px; color: var(--ink-dim); }
 .nag-note strong { color: var(--ink); }
 .nht-game.no-canvas .nag-stage { aspect-ratio: auto; }
@@ -928,17 +1114,28 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 /* In present mode the SLIDE is the two-column grid, because the explorer is its sibling
    rather than a child of .nht-grid. Head/takeaway/controls span both columns; the game
    column and the evidence column each own their side with no cross-column intersection. */
+/* v4.4.2: THREE panes that fill the window. .nht-grid is display:contents in present mode, so its
+   two columns and the sibling explorer are all direct grid items: game | evidence | explorer.
+   Every pane height is the body row's DEFINITE track (the BG-11 lesson: no fill-sized child
+   inside a content-sized parent). No max-width: a fullscreen 1920 is used, not centred. */
 .nht.is-present .nht-slide {
   flex: 1 1 auto; min-height: 0;
-  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  grid-template-rows: auto 1fr auto auto; column-gap: 16px; row-gap: 8px;
-  align-content: start;
-  width: 100%; max-width: 1600px; margin: 0 auto; padding: 8px 22px;
+  display: grid; grid-template-columns: minmax(300px, 34fr) minmax(0, 33fr) minmax(0, 33fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto; column-gap: 14px; row-gap: 6px;
+  align-content: stretch;
+  width: 100%; max-width: none; margin: 0; padding: 6px 16px 8px;
   overflow: hidden;
 }
+.nht.is-present .nht-grid { display: contents; }
+.nht.is-present .nht-col:first-child { grid-column: 1; grid-row: 2; }
+.nht.is-present .nht-col:last-child { grid-column: 2; grid-row: 2; }
 .nht.is-present .nht-head { grid-column: 1 / -1; }
-.nht.is-present .nht-grid { grid-column: 1; grid-row: 2; }
-.nht.is-present .nht-explorer { grid-column: 2; grid-row: 2; min-width: 0; min-height: 0; overflow: hidden; }
+.nht.is-present .nht-explorer { grid-column: 3; grid-row: 2; min-width: 0; min-height: 0; overflow: hidden; margin-top: 0;
+  display: grid; grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+.nht.is-present .nht-tree { border-right: 0; border-bottom: 1px solid var(--border); min-height: 0; overflow: hidden; }
+.nht.is-present .nht-filetree { max-height: 30vh; overflow: auto; }
+.nht.is-present .nht-file { min-height: 0; display: flex; flex-direction: column; }
+.nht.is-present .nht-filebody { flex: 1 1 auto; min-height: 0; max-height: none; overflow: auto; }
 .nht.is-present .nht-takeaway { grid-column: 1 / -1; grid-row: 3; }
 .nht.is-present .nht-controls { grid-column: 1 / -1; grid-row: 4; }
 /* Content budgets: title and intent hold two rendered lines each. */
@@ -949,23 +1146,17 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
    between viewport sizes as the free height changed. Here the game takes a fixed share of
    the column and the evidence stack owns the rest with its own scroll, so neither can
    push into the other regardless of how the height resolves. */
-.nht.is-present .nht-grid {
-  display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden;
-}
-.nht.is-present .nht-col { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
-/* DEFINITE height, not max-height. The stage inside this column is flex: 1 1 auto, so it
-   needs a resolved height to flex against; a content-sized column plus a fill-sized child
-   is circular, and Chromium then answers from layout history. Opening Outline reflowed the
-   column, the stage latched to min-content (42px), and CLOSING Outline never restored it. */
-.nht.is-present .nht-col:first-child { flex: 0 0 auto; height: 58%; overflow: hidden; }
-.nht.is-present .nht-col:last-child { flex: 1 1 auto; overflow-y: auto; }
+.nht.is-present .nht-col { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+.nht.is-present .nht-col:last-child { overflow: hidden; }
 /* The evidence column scrolls, so its children must keep their intrinsic height. Letting
    them shrink makes the terminal paint past its own box and into the explorer, which is
    what produced overlaps that appeared only at the shorter 1366 and 1280 heights. */
 .nht.is-present .nht-col:last-child > * { flex: none; }
+/* The terminal fills what tools and artifacts leave; its output is the one secondary scroll. */
+.nht.is-present .nht-col:last-child > .term--nht { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.nht.is-present .term--nht .term-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
 /* The file tree is the explorer's own scroller in normal mode; in presentation the
    column owns scrolling, so the tree must not become a second scroll surface. */
-.nht.is-present .nht-filetree { max-height: none; overflow: visible; }
 /* The panel may shrink its STAGE, never its chrome: min-content is the floor below which
    the bar, HUD, and actions would paint outside the panel box and collide with the
    terminal beneath. Squeezing past that floor is what produced a 13px overlap at 1440. */
@@ -979,10 +1170,17 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 /* Touch controls and the long note are redundant in a presentation: the keyboard is in
    the operator's hands and the controls stay reachable in normal mode. */
 .nht.is-present .nag-controls,
+.nht.is-present .nag-guide,
 .nht.is-present .nag-note { display: none; }
-.nht.is-present .term--nht { flex: none; }
+.nht.is-present .nag-actions { padding: 6px 8px 2px; }
+.nht.is-present .nht-head { margin-bottom: 0; }
+.nht.is-present .nht-takeaway { margin-top: 0; padding-top: 6px; }
+.nht.is-present .nht-controls { margin-top: 0; }
+/* Outline OVERLAYS the slide in present mode instead of reflowing it (closes the v4.4.1 P3). */
+.nht.is-present .nht-outline { position: absolute; top: 52px; left: 16px; right: 16px; z-index: 5; max-height: 60vh; overflow: auto;
+  background: var(--surface-2); border: 1px solid var(--border-bright); border-radius: var(--radius-sm); box-shadow: var(--shadow); }
 /* The single permitted secondary scroll owner: six visible terminal lines, then scroll. */
-.nht.is-present .nht-out { max-height: calc(6 * 1.5em + 14px); overflow-y: auto; }
+.nht.is-present .nht-out { flex: 1 1 auto; min-height: 0; max-height: none; overflow-y: auto; }
 .nht.is-present .nht-after { flex: none; }
 .nht.is-present .nht-artifact p,
 .nht.is-present .nht-gate p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -991,15 +1189,35 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 /* Narrow widths and 200% zoom (which shrinks the CSS viewport below this breakpoint)
    reflow into ONE intentional vertical scroll surface instead of overlapping. Placed after
    the rules it overrides: @media adds no specificity, so position is load-bearing. */
-@media (max-width: 1023px) {
+/* Short but wide windows keep the three panes and shed a line of chrome each from the head,
+   the arena title bar, and the takeaway so the stage keeps its 0.45 viewport-height floor. */
+@media (min-width: 1024px) and (min-height: 640px) and (max-height: 768px) {
+  .nht.is-present .nht-head h2 { -webkit-line-clamp: 1; font-size: clamp(1.05rem, 1.6vw, 1.3rem); }
+  .nht.is-present .nht-intent { -webkit-line-clamp: 1; margin-bottom: 2px; }
+  .nht.is-present .nht-takeaway { -webkit-line-clamp: 1; }
+  .nht.is-present .nag-bar { padding: 3px 10px; }
+  .nht.is-present .nag-hud .nag-stat { padding: 4px 8px; }
+  .nht.is-present .nag-actions { padding: 3px 8px 0; }
+  .nht.is-present .nht-slide { row-gap: 4px; padding-top: 4px; }
+}
+@media (max-width: 1023px), (max-height: 639px) {
+  /* Also keyed on height (v4.4.2): a short window cannot hold three panes, so it reflows too. */
+  .nht.is-present .nht-grid { display: flex; }
+  .nht.is-present .nht-outline { position: static; max-height: none; box-shadow: none; }
   /* Reverting to a flex column must also drop the grid PLACEMENT, or the explorer keeps
      a grid-row it no longer has and lands back on top of the terminal. */
   .nht.is-present .nht-slide { display: flex; flex-direction: column; overflow-y: auto; }
   .nht.is-present .nht-head,
   .nht.is-present .nht-grid,
+  .nht.is-present .nht-col:first-child,
+  .nht.is-present .nht-col:last-child,
   .nht.is-present .nht-explorer,
   .nht.is-present .nht-takeaway,
   .nht.is-present .nht-controls { grid-column: auto; grid-row: auto; }
+  .nht.is-present .nht-explorer { display: grid; grid-template-columns: 1fr; grid-template-rows: auto; }
+  .nht.is-present .nht-filetree { max-height: none; }
+  .nht.is-present .nht-filebody { max-height: 260px; }
+  .nht.is-present .nht-col:last-child > .term--nht, .nht.is-present .term--nht .term-body { display: block; }
   /* overflow:visible alone is not enough: a flex child that still cannot shrink paints
      past its parent and lands on the next region. The reflow must also release the
      height constraints, so each panel takes its intrinsic size in one scrolling column. */
@@ -1007,9 +1225,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   .nht.is-present .nht-col { display: flex; flex-direction: column; gap: 10px; }
   .nht.is-present .nht-grid,
   .nht.is-present .nht-col,
-  /* :first-child must be repeated here. The desktop rule that gives the game column its
-     definite 58% height is a 4-class selector, and a media query adds NO specificity, so
-     a 3-class reset loses to it and the column keeps a percentage height while stacked. */
+  /* :first-child is repeated on purpose: desktop rules place the columns with 4-class selectors
+     and a media query adds NO specificity, so a 3-class reset would lose to them. */
   .nht.is-present .nht-col:first-child,
   .nht.is-present .nht-explorer,
   .nht.is-present .term--nht { overflow: visible; min-height: auto; flex: none; height: auto; }
@@ -1108,6 +1325,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   #constellation { transition: none; }
   .js .page.active { animation: none; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
+  .js .seq-fade, .js .seq-rise, .js .seq-draw, .js .seq-glow, .js .ann, .js .ann-legend-row, .js .fx-hstack .h-port, .js .fx-hstack .h-port-pill, .js .fx-hstack .h-pulse { transition-duration: 0s; }
   .js .hero-lockup.reveal .hero-mark { opacity: 1; transform: none; transition: none; }
   .js .fx-scene .fx-tokchip { opacity: 1; transform: none; transition: none; }
   .js .fx-scene.live .fx-cycle svg { animation: none; }
@@ -1185,7 +1403,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         <a href="#foundations" data-go="foundations">Foundations</a>
         <a href="#training" data-go="training">Training</a>
         <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>
-        <a class="nav-gh" href="https://github.com/bendourthe/Nexus-Hub" target="_blank" rel="noopener" aria-label="Nexus-Hub on GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.53-.49-.36-.92-.88-1.16-.88-1.16-.72-.49.05-.48.05-.48.8.06 1.22.82 1.22.82.71 1.21 1.87.86 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <a class="nav-gh" href="https://github.com/bendourthe/Nexus-Hub" target="_blank" rel="noopener" aria-label="Nexus Hub on GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.53-.49-.36-.92-.88-1.16-.88-1.16-.72-.49.05-.48.05-.48.8.06 1.22.82 1.22.82.71 1.21 1.87.86 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
         <button type="button" class="nhg-theme" id="themeToggle" aria-pressed="true" aria-label="Switch to light theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z"/></svg></button>
       </div>
     </nav>
@@ -1206,7 +1424,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <h1 class="hero-wordmark"><b>Nexus</b> <span>Hub</span></h1>
           </div>
         </div>
-        <p class="hero-tagline">Take your AI assistant from prompt to finished, verified work.</p>
+        <h2 class="hero-subtitle">Upgrade your agentic AI platforms with an <span class="gtext">autonomous team of world experts</span></h2>
+          <p class="hero-lead">Nexus Hub is an advanced harness for agentic AI platforms. It gives Claude, ChatGPT, Gemini, Cursor, and most other commonly used systems access to multidisciplinary field experts, robust workflows, and quality gates that cover the full project lifecycle.</p>
         <ul class="platform-rail" aria-label="Compatible AI platforms">
           <li class="platform-item" data-platform="Claude">
             <span class="platform-mark" data-mark="claude" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="hsl(14.8, 63.1%, 59.6%)"><path d="m19.6 66.5 19.7-11 .3-1-.3-.5h-1l-3.3-.2-11.2-.3L14 53l-9.5-.5-2.4-.5L0 49l.2-1.5 2-1.3 2.9.2 6.3.5 9.5.6 6.9.4L38 49.1h1.6l.2-.7-.5-.4-.4-.4L29 41l-10.6-7-5.6-4.1-3-2-1.5-2-.6-4.2 2.7-3 3.7.3.9.2 3.7 2.9 8 6.1L37 36l1.5 1.2.6-.4.1-.3-.7-1.1L33 25l-6-10.4-2.7-4.3-.7-2.6c-.3-1-.4-2-.4-3l3-4.2L28 0l4.2.6L33.8 2l2.6 6 4.1 9.3L47 29.9l2 3.8 1 3.4.3 1h.7v-.5l.5-7.2 1-8.7 1-11.2.3-3.2 1.6-3.8 3-2L61 2.6l2 2.9-.3 1.8-1.1 7.7L59 27.1l-1.5 8.2h.9l1-1.1 4.1-5.4 6.9-8.6 3-3.5L77 13l2.3-1.8h4.3l3.1 4.7-1.4 4.9-4.4 5.6-3.7 4.7-5.3 7.1-3.2 5.7.3.4h.7l12-2.6 6.4-1.1 7.6-1.3 3.5 1.6.4 1.6-1.4 3.4-8.2 2-9.6 2-14.3 3.3-.2.1.2.3 6.4.6 2.8.2h6.8l12.6 1 3.3 2 1.9 2.7-.3 2-5.1 2.6-6.8-1.6-16-3.8-5.4-1.3h-.8v.4l4.6 4.5 8.3 7.5L89 80.1l.5 2.4-1.3 2-1.4-.2-9.2-7-3.6-3-8-6.8h-.5v.7l1.8 2.7 9.8 14.7.5 4.5-.7 1.4-2.6 1-2.7-.6-5.8-8-6-9-4.7-8.2-.5.4-2.9 30.2-1.3 1.5-3 1.2-2.5-2-1.4-3 1.4-6.2 1.6-8 1.3-6.4 1.2-7.9.7-2.6v-.2H49L43 72l-9 12.3-7.2 7.6-1.7.7-3-1.5.3-2.8L24 86l10-12.8 6-7.9 4-4.6-.1-.5h-.3L17.2 77.4l-4.7.6-2-2 .2-3 1-1 8-5.5Z"></path></svg></span>
@@ -1229,10 +1448,6 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <span class="platform-name">GitHub Copilot</span>
           </li>
         </ul>
-        <details class="platform-credits">
-          <summary>Trademarks and credits</summary>
-          <p>Claude, ChatGPT, Gemini, Cursor, and GitHub Copilot are trademarks of their respective owners. They appear here only to identify the assistants Nexus-Hub installs into, and imply no affiliation or endorsement. The GitHub Copilot mark is from the Codicons icon set by Microsoft Corporation, used under <a href="https://creativecommons.org/licenses/by/4.0/" rel="noreferrer noopener" target="_blank">CC BY 4.0</a>.</p>
-        </details>
         <div class="btn-row">
           <a class="btn btn--primary" href="#home/install">Install <span aria-hidden="true">&rarr;</span></a>
           <a class="btn" href="#training" data-go="training">Get trained</a>
@@ -1240,9 +1455,20 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         </div>
       </div>
 
+<section class="section reveal" id="nhg-why">
+<span class="eyebrow">Why it matters</span>
+<h2 class="section-title">What you get that raw prompting can't give you</h2>
+<div class="grid grid-4">
+<div class="card"><div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div><h3>Consistency</h3><p>One governed workflow for everyone, whoever wrote the prompt.</p></div>
+<div class="card"><div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 8-4.5-.5-8-3-8-8V7z"/></svg></div><h3>Depth</h3><p><span data-count="skills">329</span> skills encode expert procedures, loaded only when needed.</p></div>
+<div class="card"><div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l7 4v6c0 5-3 8-7 10-4-2-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div><h3>Safety</h3><p>Hooks block secrets and destructive git before they run.</p></div>
+<div class="card"><div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/></svg></div><h3>Governance</h3><p>A definition of done and GO / NO-GO gates make output reviewable.</p></div>
+</div>
+</section>
+
       <section class="section reveal" id="nhg-install">
         <span class="eyebrow">Installation</span>
-        <h2>One command, then restart your assistant</h2>
+        <h2 class="section-title">One command, then restart your assistant</h2>
         <p>Paste the line for your system. The installer copies the catalog into <code>~/.nexus-hub/</code>, wires every assistant it detects, and preserves files you customized. There is no download to unzip first.</p>
         <div class="nhg-install-wrap" data-tabs data-nhg-keys="self">
           <div class="tab-btns" role="tablist" aria-label="Install command by operating system">
@@ -1305,15 +1531,59 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         </details>
       </section>
 
+<section class="section reveal" id="nhg-how">
+<span class="eyebrow">How it works</span>
+<h2 class="section-title">Three things make this more than a prompt library</h2>
+<p class="lead">Skills that load themselves, hooks the model cannot talk past, and governance that holds output to your written rules.</p>
+<div class="grid grid-3">
+<div class="card card--rail"><div class="step-no">SKILLS</div><h3>Procedures that auto-load</h3><p><span data-count="skills">329</span> senior-level procedures. The agent triggers the right one from your task; three-tier loading keeps only a summary in context until one is needed.</p></div>
+<div class="card card--rail card--rail-cyan"><div class="step-no">HOOKS</div><h3>Guardrails it cannot bypass</h3><p>Where skills advise, hooks enforce. <span data-count="hooks">30</span> scripts fire on tool events and block the action outright, whether or not the model remembered to be careful.</p></div>
+<div class="card card--rail card--rail-blue"><div class="step-no">GOVERNANCE</div><h3>Aligned to your rules</h3><p>Write MUST and SHOULD norms with <code>/constitution</code>; every <code>/plan</code> checks against them and <code>/spec</code> clarifies a vague request before code is written.</p></div>
+</div>
+</section>
+
+<section class="section reveal" id="nhg-guardrails">
+<span class="eyebrow">Safe by construction</span>
+<h2 class="section-title">Guardrails and safety</h2>
+<div class="guard-grid">
+<div>
+<p>Every agentic platform already asks permission before a risky action. That prompt is advisory to the model, and a model can be talked past it.</p>
+<p>Nexus Hub registers <span data-count="hooks">30</span> hooks on the platform's own tool events, <span data-count="pretooluse">15</span> of them before an action runs, and they block the action whatever the prompt said: secret scanning on every write, confirmation on destructive git operations, a large-file guard, and a memory-store guard.</p>
+<p>It is local-first. The reverse-engineer-first MCP policy keeps search, embeddings, scraping, and generation off third-party services, and this guide itself makes zero network calls.</p>
+</div>
+<figure class="guard-fig" id="nhg-guard-fig" data-seq-root data-seq-loop data-seq-hold="2600">
+<svg viewBox="0 0 420 260" role="img" aria-labelledby="nhg-guard-title">
+<title id="nhg-guard-title">A model inside a platform permission ring, inside a Nexus Hub hook ring; a risky commit passes the platform prompt and is blocked by a hook.</title>
+<rect class="g-ring g-ring--nexus" x="112" y="14" width="296" height="232" rx="26"/>
+<text class="g-label g-label--nexus" x="260" y="34" text-anchor="middle">Nexus Hub hooks &#183; blocks regardless</text>
+<rect class="g-ring" x="152" y="52" width="216" height="156" rx="20"/>
+<text class="g-label" x="260" y="70" text-anchor="middle">Platform permissions &#183; asks first</text>
+<rect class="g-model" x="205" y="98" width="110" height="64" rx="12"/>
+<text class="g-label" x="260" y="135" text-anchor="middle">Model</text>
+<text class="g-port" x="126" y="232">secret-scan</text>
+<text class="g-port" x="230" y="232" text-anchor="middle">git-guardrails</text>
+<text class="g-port" x="394" y="232" text-anchor="end">large-file-guard</text>
+<text class="g-port" x="394" y="50" text-anchor="end">memory-store-guard</text>
+<g class="seq-rise" data-seq="1" data-seq-dur="900"><rect class="g-chip" x="6" y="88" width="86" height="26" rx="7"/><text class="g-chip-text" x="49" y="105" text-anchor="middle">commit + key</text></g>
+<g class="seq-rise" data-seq="2" data-seq-dur="1100"><rect class="g-chip" x="160" y="180" width="86" height="26" rx="7"/><text class="g-chip-text" x="203" y="197" text-anchor="middle">commit + key</text><text class="g-asked" x="203" y="176" text-anchor="middle">asked, allowed</text></g>
+<g class="seq-rise" data-seq="3" data-seq-dur="1400"><rect class="g-chip" x="118" y="216" width="86" height="26" rx="7" transform="translate(0 -6)"/><path class="g-block" d="M112 214 l-14 -14 M98 214 l14 -14"/><text class="g-blocked" x="161" y="255" text-anchor="middle">blocked by secret-scan</text></g>
+<g class="seq-rise" data-seq="4" data-seq-dur="900"><rect class="g-chip" x="6" y="150" width="86" height="26" rx="7"/><text class="g-chip-text" x="49" y="167" text-anchor="middle">rewrite history</text></g>
+<g class="seq-rise" data-seq="5" data-seq-dur="1600"><path class="g-block" d="M112 158 l-14 -14 M98 158 l14 -14"/><text class="g-blocked" x="49" y="190" text-anchor="middle">blocked by git-guardrails</text></g>
+</svg>
+<figcaption>The inner ring asks. The outer ring blocks, whatever the prompt said.</figcaption>
+</figure>
+</div>
+</section>
+
       <section class="section reveal">
-        <span class="eyebrow">What it adds</span>
-        <h2>Keep your platform. Add the workflow.</h2>
-        <p>Use the assistant you prefer; Nexus-Hub adds reusable procedures, guardrails, and quality gates around it. The differences below map to the installer, catalog files, and GO / NO-GO gates, not to a claim that one model is smarter.</p>
+        <span class="eyebrow">The difference</span>
+        <h2 class="section-title">Raw prompting vs Nexus Hub</h2>
+        <p class="lead">Nexus Hub does not replace the model. It wraps it in the structure, depth, and guardrails a senior engineer brings.</p>
                 <div class="cmp reveal" data-cmp>
           <div class="cmp-head">
-            <span class="cmp-side cmp-side--without">Without Nexus-Hub</span>
+            <span class="cmp-side cmp-side--without">Without Nexus Hub</span>
             <span class="cmp-head-arrow" aria-hidden="true">&rarr;</span>
-            <span class="cmp-side cmp-side--with">With Nexus-Hub</span>
+            <span class="cmp-side cmp-side--with">With Nexus Hub</span>
           </div>
           <ol class="cmp-rows">
             <li class="cmp-row" style="--i:0">
@@ -1369,31 +1639,51 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </dl>
           <p>See <a href="#foundations" data-go="foundations">Foundations</a> for how these parts work together.</p>
         </details>
+<div class="callout callout--star"><span class="ci" aria-hidden="true">&#9733;</span><p><strong>It does not change the model; it changes what the model knows and does at each step.</strong> The right procedure at the right moment, held to a definition of done.</p></div>
       </section>
+
+<section class="section reveal" id="nhg-commands">
+<span class="eyebrow">Coming from Claude Code or Codex?</span>
+<h2 class="section-title">Your favorite commands, leveled up</h2>
+<p class="lead">Built-ins like <code>/goal</code>, <code>/loop</code>, and <code>/batch</code> are engines: they keep the agent working. Nexus Hub adds the goal worth pursuing and the standard to hit.</p>
+<table class="tbl-migrate">
+<thead><tr><th>You're used to</th><th>In Nexus Hub</th><th>What you gain</th></tr></thead>
+<tbody>
+<tr><td data-th="You're used to"><code>/goal &lt;condition&gt;</code><span class="muted">work until a validator passes</span></td><td data-th="In Nexus Hub"><code>/plan</code> &rarr; <code>/implement</code></td><td data-th="What you gain">A written definition of done and phased GO / NO-GO gates. Point <code>/goal</code> at the plan instead of a one-line guess.</td></tr>
+<tr><td data-th="You're used to"><code>/grill</code><span class="muted">a tough code grilling</span></td><td data-th="In Nexus Hub"><code>/review</code> + <code>/spec clarify</code></td><td data-th="What you gain">A scoped, severity-ranked audit with a written verdict; <code>/spec clarify</code> interrogates the requirements first.</td></tr>
+<tr><td data-th="You're used to"><code>/loop &lt;prompt&gt;</code><span class="muted">re-run on a clock</span></td><td data-th="In Nexus Hub"><code>/implement</code> + <code>/test</code></td><td data-th="What you gain">The loop gains a quality gate and an 80 percent coverage threshold. Drive those with <code>/loop</code>, not raw prompts.</td></tr>
+<tr><td data-th="You're used to"><code>/batch &lt;instruction&gt;</code><span class="muted">parallel worktrees</span></td><td data-th="In Nexus Hub"><code>/plan</code> &rarr; <code>/implement</code></td><td data-th="What you gain">Decomposition by a reviewed plan with <code>T###</code> tasks, so parallel work converges on a definition of done.</td></tr>
+<tr><td data-th="You're used to"><code>/init</code><span class="muted">a starter CLAUDE.md</span></td><td data-th="In Nexus Hub"><code>/setup</code> + <code>/describe</code></td><td data-th="What you gain">Structure, gitignore, and the review hook too; <code>/describe</code> maps an inherited repo first.</td></tr>
+<tr><td data-th="You're used to"><code>/review</code>, <code>/security-review</code><span class="muted">a built-in review pass</span></td><td data-th="In Nexus Hub"><code>/review full</code></td><td data-th="What you gain">Every lens in one entry point, synthesized into a single GO / NO-GO verdict.</td></tr>
+<tr><td data-th="You're used to"><code>/compact</code>, <code>/rewind</code><span class="muted">session mechanics</span></td><td data-th="In Nexus Hub"><span class="muted-cell">keep using them</span></td><td data-th="What you gain">Harness plumbing with no Nexus Hub equivalent. The workflow layers on top and never touches them.</td></tr>
+</tbody>
+</table>
+<div class="callout callout--star"><span class="ci" aria-hidden="true">&#9733;</span><p><strong>The mental shift:</strong> generic commands optimize how the agent runs. Nexus Hub optimizes what it produces and to what standard. The command is the engine; Nexus Hub is the steering wheel and the finish line.</p></div>
+</section>
 
       <section class="section reveal">
         <span class="eyebrow">The loop</span>
-        <h2>One governed loop, from first look to shipped</h2>
+        <h2 class="section-title">One governed loop, from first look to shipped</h2>
         <p>Every project runs the same sequence. Each command reads what the previous one wrote, so nothing lives only in chat scrollback.</p>
-        <div class="loop-strip" role="list" aria-label="The core command loop">
-          <a role="listitem" class="loop-step" href="#cheatsheets/explore" data-go="cheatsheets/explore"><code>/describe</code><span>map it</span></a>
+        <div class="loop-strip" role="list" aria-label="The core command loop" id="nhg-loop" data-seq-root data-seq-loop data-seq-hold="2400">
+          <a role="listitem" class="loop-step seq-glow" data-seq="1" data-seq-dur="550" href="#cheatsheets/explore" data-go="cheatsheets/explore"><code>/describe</code><span>map it</span></a>
           <span class="loop-arrow" aria-hidden="true">&rarr;</span>
-          <a role="listitem" class="loop-step" href="#cheatsheets/explore" data-go="cheatsheets/explore"><code>/review</code><span>judge it</span></a>
+          <a role="listitem" class="loop-step seq-glow" data-seq="2" data-seq-dur="550" href="#cheatsheets/explore" data-go="cheatsheets/explore"><code>/review</code><span>judge it</span></a>
           <span class="loop-arrow" aria-hidden="true">&rarr;</span>
-          <a role="listitem" class="loop-step" href="#cheatsheets/plan" data-go="cheatsheets/plan"><code>/plan</code><span>decompose it</span></a>
+          <a role="listitem" class="loop-step seq-glow" data-seq="3" data-seq-dur="550" href="#cheatsheets/plan" data-go="cheatsheets/plan"><code>/plan</code><span>decompose it</span></a>
           <span class="loop-arrow" aria-hidden="true">&rarr;</span>
-          <a role="listitem" class="loop-step" href="#cheatsheets/build" data-go="cheatsheets/build"><code>/implement</code><span>build it</span></a>
+          <a role="listitem" class="loop-step seq-glow" data-seq="4" data-seq-dur="550" href="#cheatsheets/build" data-go="cheatsheets/build"><code>/implement</code><span>build it</span></a>
           <span class="loop-arrow" aria-hidden="true">&rarr;</span>
-          <a role="listitem" class="loop-step" href="#cheatsheets/harden" data-go="cheatsheets/harden"><code>/test</code><span>harden it</span></a>
+          <a role="listitem" class="loop-step seq-glow" data-seq="5" data-seq-dur="550" href="#cheatsheets/harden" data-go="cheatsheets/harden"><code>/test</code><span>harden it</span></a>
           <span class="loop-arrow" aria-hidden="true">&rarr;</span>
-          <a role="listitem" class="loop-step" href="#cheatsheets/ship" data-go="cheatsheets/ship"><code>/update</code><span>ship it</span></a>
+          <a role="listitem" class="loop-step seq-glow" data-seq="6" data-seq-dur="550" href="#cheatsheets/ship" data-go="cheatsheets/ship"><code>/update</code><span>ship it</span></a>
         </div>
         <p class="lead">Training walks this exact loop on a real, deliberately buggy app &mdash; with a simulated terminal you can run yourself.</p>
       </section>
 
       <section class="section reveal">
         <span class="eyebrow">Next</span>
-        <h2>Learn it, then run it on your project</h2>
+        <h2 class="section-title">Learn it, then run it on your project</h2>
         <p>Training teaches the full loop on a playable Asteroids project. Run every command, inspect each file it produces, and verify the behavior in this page; there is nothing to download.</p>
         <div class="btn-row">
           <a class="btn btn--primary" href="#training" data-go="training">Open Training</a>
@@ -1413,18 +1703,21 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   <section class="page" id="page-foundations" data-page="foundations">
     <div class="container">
       <div class="hero">
-        <span class="eyebrow">Foundations</span>
-        <h1>What actually happens when an AI works on your project</h1>
-        <p class="lead">Build the mental model behind useful AI work: how a model is trained, what a platform adds, how tokens and prompts shape one request, and how a harness makes the result repeatable.</p>
+        <h1 class="hero-subtitle page-title">The concepts behind every <span class="gtext">AI-assisted project</span></h1>
+        <p class="page-lead">This page explains the terms and the mechanics at a high level: what a model reads, how a prompt and its context shape one request, what an agentic platform adds, and where a harness fits. Read it once and the rest of the guide makes sense.</p>
       </div>
 
-      <section class="fx-scene reveal" id="fx-tokens" aria-labelledby="fx-tokens-title">
+      <section class="fx-scene fx-stack reveal" id="fx-tokens" aria-labelledby="fx-tokens-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-tokens-title">Tokens Definition</h2>
             <p class="fx-subtitle">The units a model actually reads</p>
+            <h2 id="fx-tokens-title" class="section-title">Tokens Definition</h2>
           </div>
           <p>A model never sees your words. It sees <strong>tokens</strong>: the small pieces your text is cut into first. A token can be a whole word, part of one, a punctuation mark, or a space attached to the word after it.</p>
+          <p>This is the real <code>cl100k_base</code> split. Other models cut the same sentence differently, so there is no fixed words-to-tokens ratio. The count matters because it is what fills the working budget, and it is one factor in speed and in metered cost.</p>
+        </div>
+        <div class="fx-diagram">
+          <div class="fx-duo">
           <figure class="fx-tokfig">
             <figcaption class="fx-tokfig-cap">A prompt you might actually send</figcaption>
             <p class="fx-tokprompt">Summarise this contract and list every deadline.</p>
@@ -1443,9 +1736,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             </ol>
             <p class="fx-tokfig-note">Every chip is one token and they all count the same, which is why they all look the same. &#9251; marks a leading space. Notice that <strong>Summarise</strong> alone costs three tokens: a token is not a word.</p>
           </figure>
-          <p>This is the real <code>cl100k_base</code> split. Other models cut the same sentence differently, so there is no fixed words-to-tokens ratio. The count matters because it is what fills the working budget, and it is one factor in speed and in metered cost.</p>
-        </div>
-        <div class="fx-diagram fx-diagram--narrow">
+          <div class="fx-tokimg">
           <svg class="fx-svg" data-phase2-diagram="tokens" data-tokenizer="cl100k_base" viewBox="0 0 360 174" role="img" aria-labelledby="fx-tokimg-title fx-tokimg-desc">
             <title id="fx-tokimg-title">An image is divided into tokens</title>
             <desc id="fx-tokimg-desc">A picture of a tree on a hill under a sun is divided into a three-by-three grid. Each grid square holds the part of the picture that sits underneath it, showing that the image is split into pieces the same way the sentence was.</desc>
@@ -1497,12 +1788,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </svg>
           <p class="fx-diagram-note">Images are split too. Every square above holds real pixels from the picture beside it. The nine-square grid illustrates the idea; it is not a literal token count.</p>
         </div>
+        </div>
+        </div>
       </section>
-      <section class="fx-scene reveal" id="fx-prompts" aria-labelledby="fx-prompts-title">
+      <section class="fx-scene fx-stack reveal" id="fx-prompts" aria-labelledby="fx-prompts-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-prompts-title">Prompt Engineering</h2>
             <p class="fx-subtitle">Stating the job so the result is checkable</p>
+            <h2 id="fx-prompts-title" class="section-title">Prompt Engineering</h2>
           </div>
           <p>The prompt is where you state <strong>the job</strong>. The same request can be asked in a way nobody could grade, or in a way anyone could check. That difference is the whole skill.</p>
           <p>A useful prompt names the <strong>Goal</strong>, points at the <strong>Material</strong>, defines what <strong>Done</strong> means, and asks for a <strong>Format</strong> you can use. Miss one and the model has to guess, and it will guess confidently.</p>
@@ -1515,13 +1808,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <p class="fx-state-why">No goal, no finish line, no shape. Any answer is arguably correct, so none can be wrong.</p>
             </article>
             <div class="fx-state-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
-            <article class="fx-state fx-state--strong">
+            <article class="fx-state fx-state--strong" id="fx-ann-prompt" data-seq-root data-seq-loop data-seq-hold="2400">
               <h3 class="fx-state-tag">Precise</h3>
-              <dl class="fx-parts">
-                <div class="fx-part"><dt>Goal</dt><dd>Summarise this contract and list every deadline.</dd></div>
-                <div class="fx-part"><dt>Material</dt><dd>The signed PDF I attached, sections 4 to 9 only.</dd></div>
-                <div class="fx-part"><dt>Done</dt><dd>Every dated obligation appears once, with its clause number.</dd></div>
-                <div class="fx-part"><dt>Format</dt><dd>A table: date, obligation, clause, who owes it.</dd></div>
+              <p class="ann-text"><mark class="ann" data-part="goal" data-seq="1" data-seq-dur="1000">Summarise this contract and list every deadline.</mark> <mark class="ann" data-part="material" data-seq="2" data-seq-dur="1000">Use the signed PDF I attached, sections 4 to 9 only.</mark> <mark class="ann" data-part="done" data-seq="3" data-seq-dur="1000">Every dated obligation appears once, with its clause number.</mark> <mark class="ann" data-part="format" data-seq="4" data-seq-dur="1600">Return a table: date, obligation, clause, who owes it.</mark></p>
+              <dl class="ann-legend" aria-label="What each highlighted part of the prompt is for">
+              <div class="ann-legend-row" data-part="goal" data-seq="1"><dt>Goal</dt><dd>the job, stated so it can be graded</dd></div>
+              <div class="ann-legend-row" data-part="material" data-seq="2"><dt>Material</dt><dd>what the job runs on</dd></div>
+              <div class="ann-legend-row" data-part="done" data-seq="3"><dt>Done</dt><dd>the finish line</dd></div>
+              <div class="ann-legend-row" data-part="format" data-seq="4"><dt>Format</dt><dd>a shape you can use</dd></div>
               </dl>
               <p class="fx-state-why">Now the answer can be checked against the contract, line by line.</p>
             </article>
@@ -1531,8 +1825,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene reveal" id="fx-context" aria-labelledby="fx-context-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-context-title">Context Engineering</h2>
             <p class="fx-subtitle">Choosing the material the job needs</p>
+            <h2 id="fx-context-title" class="section-title">Context Engineering</h2>
           </div>
           <p>The prompt states the job. <strong>Context</strong> is the material the job runs on, and it is separate from the words of your request. It can be an image, a file or document, a project folder or workspace, or a codebase.</p>
           <p>Context is optional, and it is not free. Everything you attach shares one finite working budget measured in tokens, alongside the instructions, the conversation so far, and any tool results. Material can also be stale, duplicated, or simply too large to be worth its space.</p>
@@ -1541,7 +1835,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         <div class="fx-diagram">
           <div class="fx-ctx" role="group" aria-label="The request plus the optional material it can carry, then two ways of filling the same budget">
             <div class="fx-ctx-row">
-              <div class="fx-ctx-query"><span class="fx-ctx-tag">The request</span><p>Summarise this contract and list every deadline.</p></div>
+              <div class="fx-ctx-query" id="fx-ann-context" data-seq-root data-seq-loop data-seq-hold="2400"><span class="fx-ctx-tag">The request and its material</span><p class="ann-text"><mark class="ann" data-part="request" data-seq="1" data-seq-dur="1100">Summarise this contract and list every deadline.</mark> <mark class="ann" data-part="context" data-seq="2" data-seq-dur="1100">Use the attached PDF, sections 4 to 9.</mark> <mark class="ann" data-part="context" data-seq="3" data-seq-dur="1600">Ignore the old chat history.</mark></p><dl class="ann-legend" aria-label="What each highlighted part is"><div class="ann-legend-row" data-part="request" data-seq="1"><dt>Request</dt><dd>the words of the job</dd></div><div class="ann-legend-row" data-part="context" data-seq="2"><dt>Context</dt><dd>material the job runs on, chosen, not dumped</dd></div></dl></div>
               <div class="fx-ctx-plus" aria-hidden="true">+</div>
               <ul class="fx-ctx-kinds" aria-label="Optional context you can attach">
                 <li><span class="fx-ctx-kind">Image</span></li>
@@ -1584,19 +1878,19 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </div>
         </div>
       </section>
-      <section class="fx-scene reveal" id="fx-model-lifecycle" aria-labelledby="fx-model-title">
+      <section class="fx-scene fx-stack reveal" id="fx-model-lifecycle" aria-labelledby="fx-model-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-model-title">Models</h2>
             <p class="fx-subtitle">Trained patterns, used one request at a time</p>
+            <h2 id="fx-model-title" class="section-title">Models</h2>
           </div>
           <p>A model is a trained system that turns a request into an output. Training <strong>happens long before your request</strong>: a provider trains on broad material, then releases the finished model into products and services. Your prompt never retrains it; each request simply runs through the patterns it already has.</p>
           <p>Some model and platform combinations expose an <strong>effort level</strong> that, when supported, can allocate more computation or more work cycles to a request. More effort does not promise a fixed number of iterations; it buys the model room to work.</p>
           <p>The cycle shown here is an <strong>abstraction of work in progress, not a transcript of hidden reasoning</strong>. What comes back out can take more than one shape.</p>
         </div>
         <div class="fx-diagram">
-          <div class="fx-model-flow">
-            <div class="fx-region" data-stage="training" data-region="provider">
+          <div class="fx-model-flow" data-flow-root>
+            <div data-flow-node class="fx-region" data-stage="training" data-region="provider">
               <h3 class="fx-region-tag">The provider, long before you</h3>
               <div class="fx-provider-row">
                 <div class="fx-mini-card"><span class="fx-mini-tag">Training</span><p>Learns patterns from broad material, once, at enormous scale</p></div>
@@ -1604,14 +1898,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                 <div class="fx-mini-card" data-stage="delivery"><span class="fx-mini-tag">Release</span><p>The finished model is delivered into platforms and products</p></div>
               </div>
             </div>
-            <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
-            <div class="fx-region" data-stage="request" data-region="user">
+            <div data-flow-node data-flow-root class="fx-region" data-stage="request" data-region="user">
               <h3 class="fx-region-tag">Your request, much later</h3>
-              <div class="fx-entry" data-grammar="entry"><div class="fx-ctx-query"><span class="fx-ctx-tag">Prompt</span><p>Summarise this contract and list every deadline.</p></div><div class="fx-ctx-plus" aria-hidden="true">+</div><ul class="fx-ctx-kinds fx-ctx-kinds--row" aria-label="Optional context attached to the request"><li><span class="fx-ctx-kind">Image</span></li><li><span class="fx-ctx-kind">File or document</span></li><li><span class="fx-ctx-kind">Project folder or workspace</span></li><li><span class="fx-ctx-kind">Codebase</span></li></ul></div>
-              <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
-              <div data-stage="work-cycle"><figure class="fx-cycle" data-grammar="work-cycle"><svg viewBox="0 0 76 76" role="img" aria-labelledby="fx-model-cycle-title"><title id="fx-model-cycle-title">An abstract work cycle: assess, act, check, repeated as needed</title><circle class="fx-cycle-ring" cx="38" cy="38" r="27" pathLength="1"/><path class="fx-head" d="M62 30 L69 38 L60 41 Z"/><circle class="fx-cycle-dot" cx="38" cy="11" r="4.5"/><text class="fxt fxt--accent" x="38" y="42" text-anchor="middle">work</text></svg><figcaption>An abstract work cycle inside the model. With a higher effort level, when supported, it can run longer. This is an illustration, not hidden chain-of-thought.</figcaption></figure></div>
-              <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
-              <div class="fx-outs" data-stage="output" aria-label="Four kinds of output one request can produce">
+              <div data-flow-node><div class="fx-entry" data-grammar="entry"><div class="fx-ctx-query"><span class="fx-ctx-tag">Prompt</span><p>Summarise this contract and list every deadline.</p></div><div class="fx-ctx-plus" aria-hidden="true">+</div><ul class="fx-ctx-kinds fx-ctx-kinds--row" aria-label="Optional context attached to the request"><li><span class="fx-ctx-kind">Image</span></li><li><span class="fx-ctx-kind">File or document</span></li><li><span class="fx-ctx-kind">Project folder or workspace</span></li><li><span class="fx-ctx-kind">Codebase</span></li></ul></div></div>
+              <div data-stage="work-cycle" data-flow-node><figure class="fx-cycle" data-grammar="work-cycle"><svg viewBox="0 0 76 76" role="img" aria-labelledby="fx-model-cycle-title"><title id="fx-model-cycle-title">An abstract work cycle: assess, act, check, repeated as needed</title><circle class="fx-cycle-ring" cx="38" cy="38" r="27" pathLength="1"/><path class="fx-head" d="M62 30 L69 38 L60 41 Z"/><circle class="fx-cycle-dot" cx="38" cy="11" r="4.5"/><text class="fxt fxt--accent" x="38" y="42" text-anchor="middle">work</text></svg><figcaption>An abstract work cycle inside the model. With a higher effort level, when supported, it can run longer. This is an illustration, not hidden chain-of-thought.</figcaption></figure></div>
+              <div data-flow-node class="fx-outs" data-stage="output" aria-label="Four kinds of output one request can produce">
                 <figure class="fx-out" data-output-kind="text">
                   <figcaption class="fx-out-tag">Text</figcaption>
                   <blockquote class="fx-out-text"><p>Three deadlines found: payment by 15 March (clause 4.2), notice by 30 June (clause 6.1), renewal by 1 September (clause 9.4).</p></blockquote>
@@ -1621,15 +1912,16 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                   <span class="fx-out-media" data-media="image"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" role="img" aria-label="A striped hot-air balloon drifting above a green valley with a winding river"><rect width="160" height="120" fill="#aee0f2"/><circle cx="128" cy="22" r="10" fill="#fff3c4"/><polygon points="0,86 34,66 66,82 104,62 132,76 160,66 160,120 0,120" fill="#7cc08a"/><polygon points="0,100 40,86 84,98 126,84 160,92 160,120 0,120" fill="#5aa86f"/><path d="M18 120 C 44 104 60 112 78 100 C 96 88 118 96 140 86" fill="none" stroke="#7fd4e8" stroke-width="6" stroke-linecap="round"/><g><path d="M56 18 a24 26 0 0 1 24 26 c0 12 -10 18 -24 18 c-14 0 -24 -6 -24 -18 a24 26 0 0 1 24 -26 z" fill="#e8604c"/><path d="M56 18 a24 26 0 0 1 8 51 c-3 1 -5 1 -8 1 c-3 0 -5 0 -8 -1 a24 26 0 0 1 8 -51 z" fill="#f2a03d"/><path d="M56 18 a24 26 0 0 1 2 51.8 l-2 .2 l-2 -.2 a24 26 0 0 1 2 -51.8 z" fill="#f7d154"/><path d="M48 60 L52 72 L60 72 L64 60" fill="none" stroke="#7a5334" stroke-width="1.6"/><rect x="50" y="72" width="12" height="9" rx="2" fill="#8a6240"/></g></svg></span>
                 </figure>
                 <figure class="fx-out" data-output-kind="video">
-                  <figcaption class="fx-out-tag">Moving image</figcaption>
+                  <figcaption class="fx-out-tag">Video</figcaption>
                   <span class="fx-out-media">
                     <img class="fx-out-motion" data-media="video" alt="A ten-frame sunrise: the sun climbs from behind two dark hills while the sky warms from night blue to dawn orange." src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgOTAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRGF3biBza3kgYWJvdmUgdHdvIGRhcmsgaGlsbHMgd2l0aCB0aGUgc3VuIGp1c3QgY2xlYXJpbmcgdGhlIHJpZGdlOiB0aGUgZmlyc3QgZnJhbWUgb2YgYSBzdW5yaXNlIGFuaW1hdGlvbiI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSI5MCIgZmlsbD0iIzE2MjY0NiIvPjxjaXJjbGUgY3g9Ijg0IiBjeT0iNTYuMCIgcj0iMTMiIGZpbGw9IiNmZmQ2NzgiLz48Y2lyY2xlIGN4PSI4NCIgY3k9IjU2LjAiIHI9IjkiIGZpbGw9IiNmZmVjYWEiLz48cG9seWdvbiBwb2ludHM9IjAsNjYgMjYsNTIgNTgsNjIgODgsNDggMTIwLDU4IDEyMCw5MCAwLDkwIiBmaWxsPSIjMTgyYzQyIi8+PHBvbHlnb24gcG9pbnRzPSIwLDc0IDE4LDYyIDQ0LDcyIDc0LDU4IDk4LDY4IDEyMCw2MCAxMjAsOTAgMCw5MCIgZmlsbD0iIzEwMjAyZSIvPjwvc3ZnPg==" data-poster-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgOTAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRGF3biBza3kgYWJvdmUgdHdvIGRhcmsgaGlsbHMgd2l0aCB0aGUgc3VuIGp1c3QgY2xlYXJpbmcgdGhlIHJpZGdlOiB0aGUgZmlyc3QgZnJhbWUgb2YgYSBzdW5yaXNlIGFuaW1hdGlvbiI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSI5MCIgZmlsbD0iIzE2MjY0NiIvPjxjaXJjbGUgY3g9Ijg0IiBjeT0iNTYuMCIgcj0iMTMiIGZpbGw9IiNmZmQ2NzgiLz48Y2lyY2xlIGN4PSI4NCIgY3k9IjU2LjAiIHI9IjkiIGZpbGw9IiNmZmVjYWEiLz48cG9seWdvbiBwb2ludHM9IjAsNjYgMjYsNTIgNTgsNjIgODgsNDggMTIwLDU4IDEyMCw5MCAwLDkwIiBmaWxsPSIjMTgyYzQyIi8+PHBvbHlnb24gcG9pbnRzPSIwLDc0IDE4LDYyIDQ0LDcyIDc0LDU4IDk4LDY4IDEyMCw2MCAxMjAsOTAgMCw5MCIgZmlsbD0iIzEwMjAyZSIvPjwvc3ZnPg==" data-motion-src="data:image/gif;base64,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" width="120" height="90">
                     <button type="button" class="fx-media-toggle" data-media-toggle aria-pressed="false">Play</button>
                   </span>
-                  <p class="fx-out-note">Plays only when you ask; the still poster is the resting state.</p>
+                  <p class="fx-out-note">Plays only when you ask; the still frame is the resting state.</p>
                 </figure>
                 <figure class="fx-out" data-output-kind="audio">
                   <figcaption class="fx-out-tag">Audio</figcaption>
+                  <canvas class="fx-wave" data-wave-for="audio" width="220" height="44" role="img" aria-label="Waveform of the audio example; it moves while the sound plays"></canvas>
                   <audio class="fx-out-audio" data-media="audio" controls preload="none" src="data:audio/wav;base64,UklGRhQkAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YfAjAACAmq21rpuBZ1NLUGJ8lqu0r56FalVLT194k6izsKGJblhMTl11j6aysaOMcltOTltxjKOxsqWPdV5PTVluiKCvsqeTeWFRTVdrhJ2tsqmWfGRTTVVogZqrsquYgGdVTlRlfZapsaybg2pXTlNjepOnsK2eh25ZT1Jgd5Ckr66ginFcUFFedIyirq6ijXRfUlFccImfra+kkHhhU1BabYacq6+mk3tkVVBYa4KZqa6nln5nV1FXaH+Wp66pmIJqWVFWZXyTpa2qm4VtW1JVY3mQo62rnYhxXVNUYXaNoayrn4t0YFRUX3OKnqqsoY53YlVTXXCGm6mso5F6ZVdTW22DmaespJN9aFhUWmqAlqarppaAa1pUWWh9k6Srp5iDbVxUWGZ6kKKqp5qGcF5VV2R3jZ+pqJyJc2FWV2J1ip2oqZ6MdmNXVmByh5unqaCOeWZZVl5vhJimqaGRfGhaVl1tgZakqaOTf2tcVlxqf5OiqKSWgm1eV1tofJCgqKWYhXBgWFpmeY2ep6Wah3NiWFlkdoucpqacinZkWVljdIiapaadjXhmW1lhcYWYpKafj3tpXFlgb4KVoqagkX5rXllebYCToaahk4FuX1lda32Qn6WilYNwYVpdaXqOnaWjl4ZzY1tcZ3iLm6SjmYh1ZVtcZXWImaOkm4t4Z11bZHOGl6KknI16aV5bYnGDlaGknY99a19bYW+Bkp+kn5F/bmFcYG1+kJ6jn5OCcGJcX2t8jpyjoJWEcmRdXml5i5qioZeHdWZdXmd3iZihoZiJd2heXmZ1h5agoZqLempfXmVzhJSfoZuNfGxhXmNxgpKeoZyPf25iXmJvf5CcoZ2RgXBjXmJtfY6boZ6Tg3JlX2Fre4yZoJ6VhXVnX2BqeImXn5+WiHdoYGBodoeWn5+YinlqYWBndIWUnZ+ZjHtsYmBmcoKSnJ+ajn5uY2BlcICQm5+bj4BwZWBkb36Omp+ckYJyZmBjbXyMmJ6ck4R0aGFibHqKl56dlIZ3aWJianiHlZ2dloh5a2NiaXaFk5ydl4p7bWNiaHSDkZudmIx9bmViZ3KBkJqdmY5/cGZiZnB/jpmdmo+BcmdiZW99jJedmpGDdGhjZG17ipacm5KFdmpjZGx5iJSbm5SHeGxkZGt3hpObm5WJem1lZGp1hJGam5aKfG9mZGl0go+Zm5eMfnFnZGhygI6Ym5iOgHJoZGdxfoyWm5iPgnRpZGZvfIqVmpmRhHZrZWZueoiUmpmShnhsZWZteIaSmZqTh3puZmVrd4SRmJqUiXxvZ2VqdYKPl5qVi35xaGVqdIGNlpqWjH9zaWZpcn+MlZmWjoF0amZocX2KlJmXj4N2a2Zob3uIk5iXkIV4bWdnbnqGkpiYkYZ5bmhnbXiFkJeYkoh7cGhnbHaDj5aYk4l9cWlna3WBjZWYlIt/c2pna3OAjJSYlYyAdGtnanJ+ipOXlY2CdmxoaXF8iJKXlo+Ed21oaXB7h5GXlpCFeW9paW95hZCWlpGHe3BpaW54g46VlpKIfHFqaW12go2UlpKKfnNraWx1gIuTlpOLgHRsaWxzf4qSlpSMgXZtaWtyfYiRlpSNg3duaWtxfIeQlZWOhHlvampweoWPlZWPhnpxa2pveYSOlJWQh3xya2pud4KNk5WRiH1zbGpudoGLk5WSin90bWptdX+KkpWSi4B2bmpsdH6IkZSTjIJ3b2tsc3yHkJSTjYN5cGtscnuGj5STjoV6cWxscXqEjZOUj4Z8cmxrcHiDjJKUkId9c21rb3eBi5KUkIl+dW5rbnaAipGTkYqAdm9sbnV+iJCTkYuBd29sbXR9h4+TkoyDeXBsbXN8ho6Tko2EenFtbXJ7hI2Sko6Fe3NtbXF5g4yRko6GfXRubXB4gouRko+HfnVvbXB3gIqQkpCJf3ZvbW92f4iPkpCKgXdwbW91foeOkpCLgnhxbW50fYaOkpGLg3pybm5ze4WNkZGMhHtzbm5yeoOMkZGNhXx0b25yeYKKkJGOh351b25xeIGJj5GOiH92cG5wd4CIj5GPiYB3cW5wdn6HjpGPioF4cm5wdX2GjZGQioJ6cm9vdHyFjJCQi4R7c29vc3uEi5CQjIV8dHBvc3qCio+QjYZ9dXBvcnmBiY+QjYd+dnFvcniAiI6Qjoh/d3FvcXd/h42QjomBeHJvcXZ+hoyQjomCenNwcHV9hYyPj4qDe3RwcHV8hIuPj4uEfHVwcHR7g4qOj4uFfXZxcHN6gomOj4yGfnZxcHN5gYiNj42Hf3dycHJ4f4eNj42IgHhzcHJ3foaMj42IgXlzcHJ2fYWLjo6Jgnt0cXF1fISKjo6Kg3x1cXF1e4OKjo6KhH12cnF0eoKJjY6LhX53cnF0eoGIjY6Mhn94c3FzeYCHjI6Mh4B5c3FzeH+Gi46MiIF5dHFzd36Fi46NiIJ6dXJydn2Eio2NiYN7dXJydnyDiY2NioN8dnJydXuCiY2NioR9d3NydXqBiIyNi4V+eHNydHmAh4yNi4Z/eXRydHl/houNi4eAeXRyc3h+hYqNjIeBenVyc3d9hIqNjIiCe3Zzc3d9g4mMjImDfHZzc3Z8goiMjImEfXdzc3Z7gYeLjIqFfnh0c3V6gYeLjIqFf3l0c3V5gIaKjIqGgHp1c3R5f4WKjIuHgXp1c3R4foSJjIuHgXt2c3R3fYOJjIuIgnx3dHR3fIOIi4uIg313dHR2fIKHi4uJhH54dHR2e4GHiouJhX95dXR2eoCGiouKhX96dXR1eX+FiYuKhoB6dnR1eX6EiYuKh4F7dnR1eH6DiIuKh4J8d3R1eH2DiIuLiIN9eHV0d3yCh4qLiIN+eHV0d3uBhoqLiYR+eXV0dnuAhomLiYV/enZ0dnqAhYmLiYWAenZ0dnl/hImKiYaBe3d1dXl+hIiKioaBfHd1dXh9g4eKioeCfXh1dXh9goeKioeDfXh1dXd8gYaJioiDfnl2dXd7gYaJioiEf3p2dXd7gIWJioiFgHp3dXZ6f4SIiomFgHt3dXZ5foSIiomGgXx4dXZ5foOHiYmGgnx4dnZ5fYKHiYmHgn15dnZ4fIGGiYmHg355dnZ4fIGFiYmHhH96d3Z3e4CFiImIhH96d3Z3e3+EiImIhYB7d3Z3en+Eh4mIhYF8eHZ3en6Dh4mIhoF8eHZ2eX2ChomJhoJ9eXZ2eX2ChoiJhoJ+eXd2eHyBhYiJh4N+end2eHyAhYiJh4R/e3d2eHuAhIeJh4SAe3h2d3t/hIeJiIWAfHh3d3p+g4eIiIWBfHl3d3p+goaIiIWBfXl3d3l9goaIiIaCfnp3d3l9gYWIiIaDfnp3d3l8gYWHiIeDf3t4d3h8gISHiIeEf3t4d3h7f4SHiIeEgHx4d3h7f4OGiIeFgXx5d3h6foKGiIeFgX15d3h6fqS6tpt1VUlVdJetrZh4XFNffJqsqZFvVExcfaG3tZt0UkNPb5azuaaDX0tPaIumr6GEZVVZcZCnrJt8XU1UcJSwt6aDXkdJYoiqua+QbFFMXn6draePcFlWZ4WgrKOIZ1FQZYent66Qa05GV3qetbSceVpMVnKTqauYe2BVX3mXqqiTc1hOW3qcs7OdeVdHT2yRrramhmRQUWeHoqyghmlXWm+NpKqcf2FQVW6QrLWmhmNLSmGEpbWuk3BWT158maqmkHNcV2aCnaqjimtUUWODo7Otk3BTSVd2mbGynX1eUFdwj6WpmX1jWGB3lKenlHZcUFt3mK+xnn1cS1BqjamzpolpVFNnhJ6poIdsWltuiqGpnIJkU1VsjKiyp4poUE1ggKCxrJR0WlJeeZanpZF1X1lmgJqoooxvWFNigJ6wrZV0V0xXdJWsr56AY1NZb4yip5l/ZlpgdpGkppV5X1NbdJOrsJ+AYU9SaImlsKaLbVhVZoKbpp+Jb11cbYeep52EaFZWaoijr6eMbFRPX32brauWd15VX3eTpKOSeGJbZn2XpaKOcltUYXyarauXeFxPWHGRqK2eg2dXWm6Jn6WZgWlcYXSOoaWWfGNVW3KPp62ghGVSU2eFoK2ljXBbWGZ/mKSeinFgXWyFm6WdhmtZV2iEn62mj3BYUV96l6mplntiWGB2kKGiknplXWZ8lKOhj3VfVmF6lqmqmHtgUlhvjaSqnoVqWlxth5yjmYNsXmFzi5+jl39mWFxwjKOroIZqVlVmgpyppI90X1pmfZWhnot0Yl9sgpmjnYhvXFlngZuqppF0XFRfd5Omp5d9ZlpgdI2eoJN8aF9mepGhoZF4Ylhhd5KmqZl/ZFZZbomgqJ6Hbl1dbYSZoZmFbmFicomcopiBaVpcboigqaCJbVpXZX+YpqOQdmJcZnuSn52MdmRga4CWoZ2Kcl9aZn+Yp6WSd2BXX3WQoqWYgGldYXOKm5+TfmpgZniOnqCSe2VaYXWPoqeagWhZW2yGnKWdiXFgX2yClp+YhnFjY3GHmaGYhGxdXW2FnKagi3FdWWV9laOhkXllXmZ6j52cjXhnYWt+k5+cjHViXGZ8lKSkk3pkWV9zjJ+jmIJsYGJyiJmdk4BsYmZ3jJyfk31oXWFzjJ+lmoRsXFxrg5mjnYpzY2BsgJOdmIdzZWRwhJefmIVvYF5sg5mkn410YVtlepKgoJJ8aGBneY2am456aWNrfZGdnI13ZF1mepGhopR9Z1xgcomcoZiEb2JjcoaWnJOBb2RndoqanpN/a19hcomco5qGb19da4GWoJyLdmZibH+Rm5eIdWdlb4KVnZiHcmJfa4CWop+Od2RdZXiPnZ+SfmtiZ3eLmJqOfGtka3uOm5uOemdfZniOnqGVgGpeYXGHmZ+XhXFkZXGElJqTg3FmZ3WIl5yUgW1hYnGGmaGaiHJiX2p/k56bjHhoZGx9j5mXiXdpZm+BkpyYiXVlYWp+k5+ej3pnX2V3jJudkn9tZGh3iZaYj31tZmt6jJmaj3xqYWZ2i5uflYJtYWJwhJadl4d0Z2ZxgpKZk4RzZ2h0hpWblINwY2NvhJafmol1ZWFqfZCbmo16a2VsfI2Xlop5a2dvf5CamIp3Z2JqfJCdnZB8amFmdomYnJKBcGZpdoeUl49/b2dreYqXmpB+bGNmdYmZnpaEcGNjb4KTm5aIdmlncYGQl5OFdWlpc4STmpSFcmVkb4GTnZqLd2dianuNmZmOfG1nbHuLlZWKem1obn2OmJeLeWljanqNmpyRfm1jZnSHlpqSg3JoanWFkpaPgHFpa3iIlZmQgG9lZ3SGlpyWhXNmZG+AkZmWiXhraHB/jpaShnZraXKCkZiUhnVoZW5/kZuZjHlqZGp6i5eYjn5vaG16iZSUi3xuaW58jJeXjHtsZWp5i5ibkYBvZWd0hZOYkoR0amp1hJGVj4Fzamt3hpOYkYFxZ2dzhJSalYd1aGZvf4+XlYl5bWlwfoyUkod4bGpygY+XlId3amZufo6ZmI18bGZreImVl45/cWpteYiSlIt9cGpue4qVlo19bmdqd4iWmZKCcmdoc4ORl5KFdmxrdIKPlI+DdGtsdoWSlpGDc2hocoKRmZWId2pnbn2MlZSKe29rcH2Lk5KHeW5rcn+NlZSIeWxnbnyMl5eNfW9oa3eHk5aOgHNrbniGkZOMf3JrbnqIk5WNf3BoanaGk5iSg3RpaXOBj5WRhndtbHSBjZOPg3ZtbHWDkJWRhHVqaXGAj5eViXltaG58ipSUinxxbHF8iZGRiHtwbHF+jJSTiXtuaW57ipWWjn9xaWx3hZGUjoJ0bW54hY+SjIBzbG95h5KUjoByamt1hJGWkoV2a2pygI2UkYZ5b210gIySj4R4bm11go6UkYV3bGpxf42VlIp7b2pve4mSk4t+cm1xe4iQkIl8cW1xfYqTk4t+cmxveYeRk4x/c2xueIaQk42BdGxud4SPk46CdW1tdoOPk4+Ddm1tdYKOk4+Ed25tdIGNk5CFeG9sc4CMkpCHem9scn6LkpGIe3Bscn2KkpGJfHFscXyJkZKKfXJtcHuIkZKLfnNtcHqGkJKMf3Ntb3mFj5KMgXRtb3iEj5KNgnVubneDjpKOg3dubnaCjZKOhHhvbnWBjJKPhXlvbXSAi5KQhnpwbXN+ipGQh3txbXJ9iZGQiHxybXJ8iJCRiX1ybnF7h5CRin5zbnB6ho+Ri390bnB5hY+RjIF1bm94hI6RjIJ2b293g42RjYN3b292goyRjoR4cG91gYuRjoV5cG50gIuRj4Z6cW50foqQj4d7cm5zfYmQkIh8cm5yfIiPkIl9c25ye4ePkIp+dG9xeoaOkIp/dW9xeYWOkIuBdm9weISNkIyCd3Bwd4OMkIyDd3Bwd4KMkI2EeHBvdoGLkI2FeXFvdYCKkI6GenJvdH6Jj46Ge3JvdH2Ij4+HfHNvc3yHj4+IfXRvcnuGjo+JfnRwcnuFjo+Kf3VwcXqEjY+KgXZwcXmDjI+LgXdwcXiCjI+MgnhxcHeBi4+Mg3lxcHaAio+NhHpycHaAiY+NhXtycHV/iY+OhnxzcHR+iI6Oh310cHR9h46OiH50cHN8ho2OiX91cHN7hY2OiYB2cXJ6hIyPioB3cXJ5g4yPi4F3cXF4gouPi4J4cnF3gYqOjIN5cnF3gIqOjIR6cnF2f4mOjIV7c3F1f4iOjYZ8dHF1foeNjYd9dHF0fYeNjYd+dXF0fIaNjoh/dnFze4WMjomAdnFzeoSMjomAd3JzeYOLjoqBeHJyeYKKjoqCeXJyeIGKjouDeXNyd4CJjouEenNyd4CIjYyFe3Rydn+IjYyFfHRydX6HjYyGfXVydX2GjI2HfnVydHyFjI2If3ZydHuFjI2IgHdydHqEi42JgHdyc3qDio2JgXhzc3mCio2Kgnlzc3iBiY2Kg3pzc3iAiY2LhHt0cnd/iI2LhHt0cnZ/h4yLhXx1cnZ+h4yMhn11cnV9hoyMh352cnV8hYuMh393c3V7hIuMiIB3c3R7hIqMiIB4c3R6g4qMiYF5c3R5gomMiYJ5dHN5gYmMioN6dHN4gIiMioN7dHN3f4iMi4R8dXN3f4eMi4V8dXN2foaLi4Z9dnN2fYWLi4Z+dnN1fIWLi4d/d3N1fISKjId/eHN1e4OKjIiAeHR0eoOJjIiBeXR0eoKJjImCenR0eYGIjImDenV0eICIi4qDe3V0eICHi4qEfHV0d3+Hi4qFfXZ0d36Gi4uFfXZ0dn2FiouGfnd0dn2FiouGf3d0dnyEiouHgHh0dXuDiYuHgHl0dXuCiYuIgXl1dXqCiIuIgnp1dXmBiIuJgnt1dHmAh4uJg3t2dHh/h4uJhHx2dHh/hoqKhH12dHd+hoqKhX13dHd9hYqKhX53dHZ9hIqKhn94dHZ8hImKh394dXZ7g4mKh4B5dXZ7goiKh4F6dXV6goiKiIJ6dXV6gYeKiIJ7dnV5gIeKiYN8dnV5gIaKiYN8dnV4f4aKiYR9d3V4foWKiYV+d3V3foWJioV+eHV3fYSJioZ/eHV3fIOJioaAeXV2fIOIioeAeXV2e4KIioeBenZ2e4GHioeBe3Z2eoGHioiCe3Z2eYCHioiDfHd1eYCGioiDfHd1eX+FiYmEfXd1eH6FiYmEfnh1eH6EiYmFfnh1d32EiYmFf3l2d3yDiImGf3l2d3yDiImGgHp2d3uCh4mHgXp2dnuBh4mHgXt2dnqBh4mHgnt3dnqAhomIgnx3dnmAhomIg313dnl/hYmIhH14dnl+hYmIhH54dnh+hIiJhX55dnh9hIiJhX95dnh9g4iJhn95dnd8goeJhoB6dnd8goeJhoF7d3d7gYeJh4F7d3d7gYaJh4J8d3d6gIaJh4J8d3Z6gIWJiIN9eHZ5f4WIiIN9eHZ5foSIiIR+eXZ5foSIiIR+eXd4fYOIiIV/eXd4fYOHiIV/end4fIKHiIaAend3fIKHiIaBe3d3e4GGiIaBe3d3e4GGiIeCfHh3eoCFiIeCfHh3eoCFiIeDfXh3en+FiIeDfXl3eX6EiIeEfnl3eX6Eh4iEfnl3eX2Dh4iFf3p3eH2Dh4iFf3p3eHyCh4iFgHt3eHyChoiGgXt4eHuBhoiGgXt4eHuBhoiGgnx4d3uAhYiGgnx4d3p/hYiHg315d3p/hIeHg315d3p+hIeHg355d3l+g4eHhH56d3l9g4eHhH96eHl9goeHhX96eHh9goaHhYB7eHh8gYaHhYB7eHh8gYaHhoF8eHh7gIWHhoF8eHh7gIWHhoJ9eXh7gISHhoJ9eXh6f4SHh4N+eXh6f4SHh4N+enh6foOHh4R/enh5foOGh4R/enh5fYKGh4R/e3h5fYKGh4WAe3h5fIGGh4WAe3h4fIGFh4WBfHl4e4CFh4aBfHl4e4CFh4aCfXl4e4CEh4aCfXl4en+Eh4aDfnp4en+DhoaDfnp4en6DhoaDf3p4en6DhoeEf3t4eX2ChoeEf3t4eX2ChoeEgHt5eXyBhYeFgHx5eXyBhYeFgXx5eXyAhYeFgXx5eXuAhIaFgn15eXuAhIaGgn16eXt/hIaGgn56eXp/g4aGg356eXp+g4aGg396eXp+goaGhH97eXp9goaGhH97eXp9goWGhIB7eXl9gYWGhIB8eXl8gYWGhYF8eXl8gISGhYF9eXl8gISGhYJ9enl7gISGhYJ9enl7f4OGhYJ+enl7f4OGhoN+enl6foOGhoN/e3l6foKFhoN/e3l6fYKFhoR/e3l6fYGFhoSAfHl6fYGFhoSAfHl6fIGEhoSBfHp5fICEhoWBfXp5fICEhoWBfXp5e4CEhoWCfnp5e3+DhoWCfnp5e3+DhYWDfnt5e36ChYWDf3t5en6ChYWDf3t5en6ChYaDf3x5en2BhYaEgHx6en2BhIaEgHx6en2BhIaEgX16enyAhIaEgX16enyAhIWFgX16enyAg4WFgn56ent/g4WFgn57ent/g4WFgn57ent+goWFg397ent+goWFg397ent+goWFg398enp9gYSFg4B8enp9gYSFhIB8enp9gYSFhIF9enp8gISFhIF9enp8gIOFhIF9e3p8gIOFhIJ+e3p8f4OFhYJ+e3p7f4OFhYJ+e3p7foKFhYJ/e3p7foKFhYN/fHp7foKEhYN/fHp7fYGEhYOAfHp7fYGEhYOAfXp6fYGEhYSBfXp6fYCDhYSBfXt6fICDhYSBfnt6fICDhYSBfnt6fH+DhYSCfnt6fH+ChYSCf3t6e3+ChIWCf3x6e36ChIWDf3x6e36BhIWDf3x6e36BhIWDgHx6e32BhIWDgH17e32Ag4WDgH17e32Ag4WEgX17e3yAg4WEgX57enyAg4WEgX57enx/goSEgn57enx/goSEgn98enx/goSEgn98ent+goSEgn98e3t+gYSEg398e3t+gYSEg4B9e3t9gYOEg4B9e3t9gIOEg4B9e3t9gIOEg4F9e3t9gIOEhIF+e3t8gIOEhIF+e3t8f4KEhIJ+fHt8f4KEhIJ/fHt8f4KEhIJ/fHt8foKEhIJ/fHt8foGEhIN/fHt7foGDhIOAfXt7foGDhIOAfXt7fYCDhIOAfXt7fYCDhIOBfnt7fYCDhIOBfnt7fYCChISBfnx7fH+ChISBfnx7fH+ChISCf3x7fH+ChISCf3x7fH6BhISCf3x7fH6Bg4SCgH17fH6Bg4SDgH17e36Bg4SDgH17e32Ag4SDgH17e32Ag4SDgX58e32AgoSDgX58e31/goSDgX58e31/goSDgX58e3x/goSDgn98e3x/goOEgn98e3x+gYOEgn99e3x+gYOEgoB9e3x+gYOEgoB9e3x+gYOEg4B9fHx9gIOEg4B9fHx9gIOEg4F+fHt9gIKEg4F+fHt9f4KEg4F+fHt9f4KDg4F+fHt9f4KDg4F/fHt8f4GDg4J/fXt8foGDg4J/fXx8foGDg4KAfXx8foGDg4KAfXx8foCDg4KAfXx8foCDg4OAfnx8fYCCg4OAfnx8fYCCg4OBfnx8fX+Cg4OBfnx8fX+Cg4OBf3x8fX+Cg4OBf318fX+Bg4OCf318fH+Bg4OCf318fH6Bg4OCgH18fH6Bg4OCgH18fH6Ag4OCgH18fH6AgoOCgH58fH2AgoODgH58fH2AgoODgX58fH2AgoODgX58fH1/goODgX99fH1/gYODgX99fH1/gYODgX99fH1/gYODgn99fHx+gYODgn99fHx+gYODgoB9fHx+gIKDgoB+fHx+gIKDgoB+fHx+gIKDgoB+fHx9gIKDgoF+fHx9f4KDg4F+fXx9f4KDg4F/fXx9f4GDg4F/fXx9f4GDg4F/fXx9f4GDg4J/fXx9foGDg4KAfXx9foGCg4KAfXx8foCCg4KAfnx8foCCg4KAfnx8foCCg4KAfnx8foCCg4KBfn18fX+Cg4KBfn18fX+Bg4KBf318fX+Bg4OBf318fX+Bg4OBf318fX+BgoOBf318fX6BgoOCgH18fX6AgoOCgH58fX6AgoOCgH58fX6AgoOCgH59fH6AgoOCgH59fH6AgoOCgH59fH1/goOCgX99fH1/gYOCgX99fH1/gYKCgX99fH1/gYKCgX99fH1/gYKCgX99fH1/gYKDgYB+fH1+gIKDgoB+fX1+gIKDgoB+fX1+gIKDgoB+fX1+gIKDgoB+fX1+gIKCgoB+fX1+f4GCgoF/fX19f4GCgoF/fX19f4GCgoF/fX19f4GCgoF/fX19f4GCgoF/fX19f4GCgoF/fn19foCCgoGAfn19foCCgoKAfn19foCCgoKAfn19foCCgoKAfn19foCBgoKAfn19foCBgoKBf319fn+BgoKBf319fX+BgoKBf319fX+BgoKBf319fX+BgoKBf359fX+BgoKBf359fX6AgoKBgH59fX6AgoKBgH59fX6AgoKCgH59fX6AgYKCgH59fX6AgYKCgH99fX6AgYKCgH99fX5/gYKCgX99fX5/gYKCgX99fX1/gYKCgX9+fX1/gYKCgX9+fX1/gIKCgYB+fX1/gIKCgYB+fX1+gIKCgYB+fX1+gIGCgYB+fX1+gIGCgoB+fX1+gIGCgoB/fX1+f4GCgoB/fX1+f4GCgoF/fX1+f4GCgoF/fn1+f4GCgoF/fn19f4GCgoF/fn19f4CCgoGAfn19f4CCgoGAfn19foCBgoGAfn19foCBgoGAfn19foCBgoGAfn19foCBgoKAf319fn+BgoKAf319fn+BgoKBf359fn+BgoKBf359fn+BgoKBf359fn+BgoKBf359fn+AgoKBgH59fX+AgYKBgH59fX+AgYKBgH59fX6AgYKBgH59fX6AgYKBgH99fX6AgYKBgH99fX6AgYKCgH9+fX5/gYKCgH9+fX5/gYKCgX9+fX5/gYKCgX9+fX5/gIKCgX9+fX5/gIGCgX9+fX5/gIGCgYB+fX1/gIGCgYB+fX1+gIGCgYB+fX1+gIGCgYB/fn1+gIGCgYB/fn1+gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA=="></audio>
                   <p class="fx-out-note">A soft two-note chime, low then high, fading out. That description is the transcript equivalent.</p>
                 </figure>
@@ -1641,22 +1933,19 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene reveal" id="fx-agent-platform" aria-labelledby="fx-platform-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-platform-title">Agentic Platform</h2>
             <p class="fx-subtitle">A loop that gives the model tools</p>
+            <h2 id="fx-platform-title" class="section-title">Agentic Platform</h2>
           </div>
           <p>An agentic platform wraps the same model in a loop that can <strong>do</strong> things, not just say things. It starts exactly like the last scene: the same prompt, the same optional context.</p>
           <p>The difference is what happens next. The platform's model plans the job and, when useful, coordinates <strong>specialized agents</strong> that work in parallel where the work is genuinely independent. Every action they take is routed through one <strong>permission and tool boundary</strong>: an agent can read or modify files and documents, and can generate and run commands or processes, only when the platform supports it and you permit it.</p>
           <p>Results come back as <strong>observations</strong>: errors, status, output. The loop checks them, works again if needed, and ends with a report. No platform changes your machine unbidden; capability is always "can", "when supported", "when permitted".</p>
         </div>
         <div class="fx-diagram">
-          <div class="fx-model-flow">
-            <div class="fx-entry" data-grammar="entry"><div class="fx-ctx-query"><span class="fx-ctx-tag">Prompt</span><p>Summarise this contract and list every deadline.</p></div><div class="fx-ctx-plus" aria-hidden="true">+</div><ul class="fx-ctx-kinds fx-ctx-kinds--row" aria-label="Optional context attached to the request"><li><span class="fx-ctx-kind">Image</span></li><li><span class="fx-ctx-kind">File or document</span></li><li><span class="fx-ctx-kind">Project folder or workspace</span></li><li><span class="fx-ctx-kind">Codebase</span></li></ul></div>
-            <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
-            <div data-stage="work-cycle"><figure class="fx-cycle" data-grammar="work-cycle"><svg viewBox="0 0 76 76" role="img" aria-labelledby="fx-platform-cycle-title"><title id="fx-platform-cycle-title">An abstract work cycle: assess, act, check, repeated as needed</title><circle class="fx-cycle-ring" cx="38" cy="38" r="27" pathLength="1"/><path class="fx-head" d="M62 30 L69 38 L60 41 Z"/><circle class="fx-cycle-dot" cx="38" cy="11" r="4.5"/><text class="fxt fxt--accent" x="38" y="42" text-anchor="middle">work</text></svg><figcaption>The platform's model plans with the same abstract work cycle, then hands out missions.</figcaption></figure></div>
-            <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
-            <ul class="fx-lanes" data-grammar="missions" aria-label="Three specialized agent missions running in parallel where independent"><li class="fx-lane" data-agent-mission><span class="fx-lane-tag">Investigate the project</span><p>Reads the relevant files or documents and maps what is already there</p></li><li class="fx-lane" data-agent-mission><span class="fx-lane-tag">Research the material</span><p>Pulls the sections, records, or references the request actually needs</p></li><li class="fx-lane" data-agent-mission><span class="fx-lane-tag">Verify the result</span><p>Runs checks against the finished work and reports what it observed</p></li></ul>
-            <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
-            <div class="fx-boundary" data-grammar="boundary" role="group" aria-label="The platform permission and tool boundary every action passes through">
+          <div class="fx-model-flow" data-flow-root>
+            <div data-flow-node><div class="fx-entry" data-grammar="entry"><div class="fx-ctx-query"><span class="fx-ctx-tag">Prompt</span><p>Summarise this contract and list every deadline.</p></div><div class="fx-ctx-plus" aria-hidden="true">+</div><ul class="fx-ctx-kinds fx-ctx-kinds--row" aria-label="Optional context attached to the request"><li><span class="fx-ctx-kind">Image</span></li><li><span class="fx-ctx-kind">File or document</span></li><li><span class="fx-ctx-kind">Project folder or workspace</span></li><li><span class="fx-ctx-kind">Codebase</span></li></ul></div></div>
+            <div data-stage="work-cycle" data-flow-node><figure class="fx-cycle" data-grammar="work-cycle"><svg viewBox="0 0 76 76" role="img" aria-labelledby="fx-platform-cycle-title"><title id="fx-platform-cycle-title">An abstract work cycle: assess, act, check, repeated as needed</title><circle class="fx-cycle-ring" cx="38" cy="38" r="27" pathLength="1"/><path class="fx-head" d="M62 30 L69 38 L60 41 Z"/><circle class="fx-cycle-dot" cx="38" cy="11" r="4.5"/><text class="fxt fxt--accent" x="38" y="42" text-anchor="middle">work</text></svg><figcaption>The platform's model plans with the same abstract work cycle, then hands out missions.</figcaption></figure></div>
+            <ul class="fx-lanes" data-grammar="missions" data-flow-node aria-label="Three specialized agent missions running in parallel where independent"><li class="fx-lane" data-agent-mission><span class="fx-lane-tag">Investigate the project</span><p>Reads the relevant files or documents and maps what is already there</p></li><li class="fx-lane" data-agent-mission><span class="fx-lane-tag">Research the material</span><p>Pulls the sections, records, or references the request actually needs</p></li><li class="fx-lane" data-agent-mission><span class="fx-lane-tag">Verify the result</span><p>Runs checks against the finished work and reports what it observed</p></li></ul>
+            <div class="fx-boundary" data-grammar="boundary" data-flow-node role="group" aria-label="The platform permission and tool boundary every action passes through">
               <span class="fx-boundary-tag">Permission and tool boundary</span>
               <ul class="fx-boundary-list">
                 <li>read or modify files and documents <em>when permitted</em></li>
@@ -1664,8 +1953,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                 <li>check the observed result of each action</li>
               </ul>
             </div>
-            <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
-            <div class="fx-obs-row">
+            <div class="fx-obs-row" data-flow-node>
               <div class="fx-mini-card" data-stage="observations"><span class="fx-mini-tag">Observations</span><p>Errors, status, and output return to the loop, which works again if the check fails</p></div>
               <svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg>
               <div class="fx-mini-card fx-mini-card--report" data-stage="report"><span class="fx-mini-tag">Report</span><p>A final report of what was done, what was checked, and what changed</p></div>
@@ -1676,8 +1964,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene fx-wide reveal" id="fx-chatbot-agent" aria-labelledby="fx-chatbot-agent-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-chatbot-agent-title">Chatbot vs. Agentic Platform</h2>
             <p class="fx-subtitle">Same request, different handoff</p>
+            <h2 id="fx-chatbot-agent-title" class="section-title">Chatbot vs. Agentic Platform</h2>
           </div>
           <p>Send the <strong>same request</strong> with the same context to both, and the difference is not intelligence. It is <strong>where the work happens</strong> and <strong>what each lane leaves behind</strong>. Chatbots can increasingly use tools too; the lane below shows their most common shape.</p>
         </div>
@@ -1708,39 +1996,95 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           <p class="fx-diagram-note">Neither lane promises success. The chatbot lane hands you an answer to act on; the agentic lane, with your permission, acts and shows its checks.</p>
         </div>
       </section>
-      <section class="fx-scene reveal" id="fx-harness" aria-labelledby="fx-harness-title">
+      <section class="fx-scene fx-stack reveal" id="fx-harness" aria-labelledby="fx-harness-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-harness-title">Harnesses</h2>
             <p class="fx-subtitle">The runtime loop every platform already ships</p>
+            <h2 id="fx-harness-title" class="section-title">Harnesses</h2>
           </div>
           <p>Every agentic platform already ships a <strong>harness</strong>: the built-in runtime loop wrapped around its model. It assembles the context, offers the tools, enforces the permissions, executes the actions, and feeds the observations back in.</p>
           <p>That loop is what made the last two scenes possible, and it belongs to the platform. Each one builds its own, with its own defaults and its own reach.</p>
         </div>
         <div class="fx-diagram">
-          <div class="fx-layer fx-layer--platform" data-phase3-harness-layer="platform" role="group" aria-label="The platform's built-in harness wrapping the model">
-            <span class="fx-layer-tag">Platform harness &mdash; the built-in runtime loop</span>
-            <ul class="fx-layer-list">
-              <li>context</li><li>tools</li><li>permissions</li><li>execution</li><li>observations</li>
-            </ul>
-            <div class="fx-layer fx-layer--model" data-phase3-harness-layer="model">
-              <span class="fx-layer-tag">Model</span>
-              <p class="fx-layer-note">the trained system doing the work cycles</p>
-            </div>
-          </div>
+          <figure class="fx-hstack is-platform-focus" id="fx-hstack-platform">
+<svg viewBox="0 0 540 300" role="img" aria-labelledby="fx-hstack-platform-title">
+<title id="fx-hstack-platform-title">The model inside the platform harness, with the Nexus Hub harness around both</title>
+<rect class="h-ring h-ring--nexus" x="72" y="12" width="456" height="272" rx="28"/>
+<text class="h-label h-label--nexus" x="300" y="32" text-anchor="middle">Nexus Hub harness &#183; the portable workflow layer</text>
+<rect class="h-ring" x="132" y="56" width="336" height="186" rx="22"/>
+<text class="h-label" x="300" y="75" text-anchor="middle">Platform harness &#183; the built-in runtime loop</text>
+<g data-phase3-harness-layer="model"><rect class="h-model" x="236" y="108" width="128" height="86" rx="14"/>
+<g transform="translate(262 116)"><circle class="fx-cycle-ring" cx="38" cy="38" r="24"/><path class="fx-head" d="M59 30 L66 38 L57 41 Z"/><circle class="fx-cycle-dot" cx="38" cy="14" r="4"/></g>
+<text class="h-label" x="300" y="190" text-anchor="middle">Model</text><circle class="h-pulse" cx="300" cy="151" r="52" data-seq="4" data-seq-dur="1200"/></g>
+<g data-phase3-harness-layer="platform">
+<g class="h-portg is-on" data-seq="3" data-seq-dur="1200"><rect class="h-port-pill" x="140" y="90" width="58" height="18" rx="9"/><text class="h-port" x="169" y="103" text-anchor="middle">context</text></g>
+<g class="h-portg is-on" data-seq="3" data-seq-dur="1200"><rect class="h-port-pill" x="140" y="118" width="58" height="18" rx="9"/><text class="h-port" x="169" y="131" text-anchor="middle">tools</text></g>
+<g class="h-portg is-on" data-seq="3" data-seq-dur="1200"><rect class="h-port-pill" x="140" y="146" width="76" height="18" rx="9"/><text class="h-port" x="178" y="159" text-anchor="middle">permissions</text></g>
+<g class="h-portg is-on" data-seq="5" data-seq-dur="1200"><rect class="h-port-pill" x="392" y="90" width="66" height="18" rx="9"/><text class="h-port" x="425" y="103" text-anchor="middle">execution</text></g>
+<g class="h-portg is-on" data-seq="5" data-seq-dur="1200"><rect class="h-port-pill" x="380" y="118" width="80" height="18" rx="9"/><text class="h-port" x="420" y="131" text-anchor="middle">observations</text></g>
+</g>
+<g data-phase3-harness-layer="nexus-hub">
+<g class="h-portg is-on" data-seq="2" data-seq-dur="1100"><rect class="h-port-pill" x="82" y="44" width="46" height="18" rx="9"/><text class="h-port" x="105" y="57" text-anchor="middle">skills</text></g>
+<g class="h-portg is-on" data-seq="5" data-seq-dur="1200"><rect class="h-port-pill" x="82" y="254" width="46" height="18" rx="9"/><text class="h-port" x="105" y="267" text-anchor="middle">hooks</text></g>
+<g class="h-portg is-on" data-seq="6" data-seq-dur="1200"><rect class="h-port-pill" x="474" y="44" width="46" height="18" rx="9"/><text class="h-port" x="497" y="57" text-anchor="middle">gates</text></g>
+<g class="h-portg is-on" data-seq="6" data-seq-dur="1200"><rect class="h-port-pill" x="462" y="254" width="60" height="18" rx="9"/><text class="h-port" x="492" y="267" text-anchor="middle">artifacts</text></g>
+</g>
+<g class="seq-rise is-on" data-seq="1" data-seq-dur="1000"><rect class="h-chip" x="4" y="120" width="62" height="20" rx="6"/><text class="h-chip-text" x="35" y="134" text-anchor="middle">prompt</text><rect class="h-chip" x="4" y="146" width="62" height="20" rx="6"/><text class="h-chip-text" x="35" y="160" text-anchor="middle">context</text></g>
+<g class="seq-rise is-on" data-seq="2"><text class="h-cap" x="142" y="38" text-anchor="start">matched procedures load</text></g>
+<g class="seq-rise is-on" data-seq="3"><rect class="h-chip" x="150" y="206" width="62" height="20" rx="6"/><text class="h-chip-text" x="181" y="220" text-anchor="middle">prompt</text><rect class="h-chip" x="216" y="206" width="62" height="20" rx="6"/><text class="h-chip-text" x="247" y="220" text-anchor="middle">context</text></g>
+<g class="seq-rise is-on" data-seq="5"><text class="h-cap" x="300" y="266" text-anchor="middle">every action checked</text></g>
+<g class="seq-rise is-on" data-seq="6"><text class="h-cap" x="458" y="38" text-anchor="end">definition of done met</text></g>
+<g class="seq-rise is-on" data-seq="7" data-seq-dur="2200"><rect class="h-out" x="452" y="200" width="82" height="34" rx="8"/><text class="h-out-text" x="493" y="214" text-anchor="middle">reviewed,</text><text class="h-out-text" x="493" y="227" text-anchor="middle">verified work</text></g>
+<g class="seq-rise h-ghost" data-seq="7" data-seq-dur="2200"><rect class="h-chip" x="452" y="240" width="82" height="20" rx="6"/><text class="h-chip-text" x="493" y="254" text-anchor="middle">raw answer</text><text class="h-cap" x="493" y="276" text-anchor="middle">platform alone</text></g>
+</svg>
+<figcaption>The built-in platform loop wraps the model; the dashed outer ring is where Nexus Hub sits, shown lit in the next scene.</figcaption>
+</figure>
         </div>
       </section>
       <section class="fx-scene fx-wide reveal" id="fx-practice" aria-labelledby="fx-practice-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-practice-title">Nexus-Hub Harness</h2>
             <p class="fx-subtitle">One governed loop that leaves a durable trail</p>
+            <h2 id="fx-practice-title" class="section-title">Nexus Hub Harness</h2>
           </div>
-          <p>Nexus-Hub is a <strong>portable workflow layer above</strong> that built-in capability. It does not replace the model, and it does not replace the platform runtime; it standardizes how the work is asked for, gated, and recorded, whichever platform you prefer.</p>
+          <p>Nexus Hub is a <strong>portable workflow layer above</strong> that built-in capability. It does not replace the model, and it does not replace the platform runtime; it standardizes how the work is asked for, gated, and recorded, whichever platform you prefer.</p>
         </div>
         <div class="fx-diagram">
-          <div class="fx-layer fx-layer--nexus" data-phase3-harness-layer="nexus-hub" role="group" aria-label="The Nexus-Hub portable workflow layer above any platform harness">
-            <span class="fx-layer-tag">Nexus-Hub &mdash; the portable workflow layer</span>
+          <figure class="fx-hstack is-nexus-focus" id="fx-hstack-nexus" data-seq-root data-seq-loop data-seq-hold="3000">
+<svg viewBox="0 0 540 300" role="img" aria-labelledby="fx-hstack-nexus-title">
+<title id="fx-hstack-nexus-title">A request travels through the Nexus Hub harness and the platform harness to the model and back out as reviewed, verified work</title>
+<rect class="h-ring h-ring--nexus" x="72" y="12" width="456" height="272" rx="28"/>
+<text class="h-label h-label--nexus" x="300" y="32" text-anchor="middle">Nexus Hub harness &#183; the portable workflow layer</text>
+<rect class="h-ring" x="132" y="56" width="336" height="186" rx="22"/>
+<text class="h-label" x="300" y="75" text-anchor="middle">Platform harness &#183; the built-in runtime loop</text>
+<g data-phase3-harness-layer="model"><rect class="h-model" x="236" y="108" width="128" height="86" rx="14"/>
+<g transform="translate(262 116)"><circle class="fx-cycle-ring" cx="38" cy="38" r="24"/><path class="fx-head" d="M59 30 L66 38 L57 41 Z"/><circle class="fx-cycle-dot" cx="38" cy="14" r="4"/></g>
+<text class="h-label" x="300" y="190" text-anchor="middle">Model</text><circle class="h-pulse" cx="300" cy="151" r="52" data-seq="4" data-seq-dur="1200"/></g>
+<g data-phase3-harness-layer="platform">
+<g class="h-portg" data-seq="3" data-seq-dur="1200"><rect class="h-port-pill" x="140" y="90" width="58" height="18" rx="9"/><text class="h-port" x="169" y="103" text-anchor="middle">context</text></g>
+<g class="h-portg" data-seq="3" data-seq-dur="1200"><rect class="h-port-pill" x="140" y="118" width="58" height="18" rx="9"/><text class="h-port" x="169" y="131" text-anchor="middle">tools</text></g>
+<g class="h-portg" data-seq="3" data-seq-dur="1200"><rect class="h-port-pill" x="140" y="146" width="76" height="18" rx="9"/><text class="h-port" x="178" y="159" text-anchor="middle">permissions</text></g>
+<g class="h-portg" data-seq="5" data-seq-dur="1200"><rect class="h-port-pill" x="392" y="90" width="66" height="18" rx="9"/><text class="h-port" x="425" y="103" text-anchor="middle">execution</text></g>
+<g class="h-portg" data-seq="5" data-seq-dur="1200"><rect class="h-port-pill" x="380" y="118" width="80" height="18" rx="9"/><text class="h-port" x="420" y="131" text-anchor="middle">observations</text></g>
+</g>
+<g data-phase3-harness-layer="nexus-hub">
+<g class="h-portg" data-seq="2" data-seq-dur="1100"><rect class="h-port-pill" x="82" y="44" width="46" height="18" rx="9"/><text class="h-port" x="105" y="57" text-anchor="middle">skills</text></g>
+<g class="h-portg" data-seq="5" data-seq-dur="1200"><rect class="h-port-pill" x="82" y="254" width="46" height="18" rx="9"/><text class="h-port" x="105" y="267" text-anchor="middle">hooks</text></g>
+<g class="h-portg" data-seq="6" data-seq-dur="1200"><rect class="h-port-pill" x="474" y="44" width="46" height="18" rx="9"/><text class="h-port" x="497" y="57" text-anchor="middle">gates</text></g>
+<g class="h-portg" data-seq="6" data-seq-dur="1200"><rect class="h-port-pill" x="462" y="254" width="60" height="18" rx="9"/><text class="h-port" x="492" y="267" text-anchor="middle">artifacts</text></g>
+</g>
+<g class="seq-rise" data-seq="1" data-seq-dur="1000"><rect class="h-chip" x="4" y="120" width="62" height="20" rx="6"/><text class="h-chip-text" x="35" y="134" text-anchor="middle">prompt</text><rect class="h-chip" x="4" y="146" width="62" height="20" rx="6"/><text class="h-chip-text" x="35" y="160" text-anchor="middle">context</text></g>
+<g class="seq-rise" data-seq="2"><text class="h-cap" x="142" y="38" text-anchor="start">matched procedures load</text></g>
+<g class="seq-rise" data-seq="3"><rect class="h-chip" x="150" y="206" width="62" height="20" rx="6"/><text class="h-chip-text" x="181" y="220" text-anchor="middle">prompt</text><rect class="h-chip" x="216" y="206" width="62" height="20" rx="6"/><text class="h-chip-text" x="247" y="220" text-anchor="middle">context</text></g>
+<g class="seq-rise" data-seq="5"><text class="h-cap" x="300" y="266" text-anchor="middle">every action checked</text></g>
+<g class="seq-rise" data-seq="6"><text class="h-cap" x="458" y="38" text-anchor="end">definition of done met</text></g>
+<g class="seq-rise" data-seq="7" data-seq-dur="2200"><rect class="h-out" x="452" y="200" width="82" height="34" rx="8"/><text class="h-out-text" x="493" y="214" text-anchor="middle">reviewed,</text><text class="h-out-text" x="493" y="227" text-anchor="middle">verified work</text></g>
+<g class="seq-rise h-ghost" data-seq="7" data-seq-dur="2200"><rect class="h-chip" x="452" y="240" width="82" height="20" rx="6"/><text class="h-chip-text" x="493" y="254" text-anchor="middle">raw answer</text><text class="h-cap" x="493" y="276" text-anchor="middle">platform alone</text></g>
+</svg>
+<figcaption>The same picture in motion: the request enters, the Nexus Hub ring supplies skills, the platform ring supplies tools and permissions, the model works its abstract cycle (an illustration, not hidden chain-of-thought), hooks check every action, the gate holds it to a definition of done, and reviewed work leaves; the ghost shows the raw answer a platform alone returns.</figcaption>
+</figure>
+            <div class="fx-layer fx-layer--nexus" data-phase3-harness-layer="nexus-hub" role="group" aria-label="The five repository-anchored claims of the Nexus Hub layer">
+            <span class="fx-layer-tag">What the outer ring adds</span>
             <ul class="fx-claims">
               <li data-phase3-claim="one-source-catalog" data-artifact="catalog/ + installer adapters">One catalog with host adapters: <strong>one source</strong> installs into every supported platform</li>
               <li data-phase3-claim="matched-procedures" data-artifact="catalog/skills/**/SKILL.md">Matched procedures load on demand, so the workflow is <strong>prompt-independent</strong> instead of retyped</li>
@@ -1748,18 +2092,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <li data-phase3-claim="written-gates" data-artifact="GO/NO-GO gates in plans and skills">Written gates carry a <strong>definition of done</strong> the work must meet before it advances</li>
               <li data-phase3-claim="durable-artifacts" data-artifact="plans, histories, known-gaps, reports">Durable artifacts chain forward: each command reads what the previous one wrote</li>
             </ul>
-            <div class="fx-layer fx-layer--inner">
-              <span class="fx-layer-tag">Any platform harness</span>
-              <p class="fx-layer-note">the built-in loop from the previous scene, unchanged underneath</p>
             </div>
-          </div>
           <div class="fx-ctx-budgets fx-trail" data-grammar="trail">
             <div class="fx-budget" role="group" aria-label="The platform loop alone: useful output that lives in the conversation">
               <h3 class="fx-state-tag">PLATFORM LOOP</h3>
               <p class="fx-state-why">The request succeeds, and the useful output lives in the conversation. The next session starts from zero.</p>
             </div>
-            <div class="fx-budget fx-budget--focused" role="group" aria-label="The platform loop plus Nexus-Hub: every step leaves a file the next step reads">
-              <h3 class="fx-state-tag">PLATFORM LOOP + NEXUS-HUB</h3>
+            <div class="fx-budget fx-budget--focused" role="group" aria-label="The platform loop plus Nexus Hub: every step leaves a file the next step reads">
+              <h3 class="fx-state-tag">PLATFORM LOOP + NEXUS HUB</h3>
               <p class="fx-state-why">Each step leaves a file the next step reads &mdash; the artifacts <strong>chain</strong>, so the work survives the session that produced it.</p>
             </div>
           </div>
@@ -1769,7 +2109,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="section reveal fx-bridge">
         <span class="eyebrow">Next</span>
-        <h2>That is the whole mental model</h2>
+        <h2 class="section-title">That is the whole mental model</h2>
         <p>Training runs this loop on a small project with real problems in it &mdash; you press the keys and watch each step happen.</p>
         <div class="btn-row">
           <a class="btn btn--primary" href="#training" data-go="training">Open Training</a>
@@ -1826,11 +2166,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                   <span class="nag-tag" data-arcade="mode">seeded bug</span>
                 </div>
                 <div class="nag-stage" data-arcade="stage">
-                  <canvas class="nag-canvas" data-arcade-canvas width="360" height="480" aria-label="Playable arcade shooter. Use Left and Right arrows or A and D to move, and Space to fire. Up and Down work after the vertical-movement feature is added.">Your browser cannot display the game canvas.</canvas>
+                  <canvas class="nag-canvas" data-arcade-canvas width="360" height="480" aria-label="Playable arcade shooter. Use Left and Right arrows or A and D to move, and Space or a click to fire. Up and Down work after the vertical-movement feature is added.">Your browser cannot display the game canvas.</canvas>
                   <div class="nag-fallback" id="nagFallback" data-arcade-fallback hidden role="status"></div>
                   <div class="nag-start" data-arcade="start-overlay">
                     <button type="button" class="nag-start-btn" data-arcade-start>Click to start</button>
-                    <span class="nag-start-hint">Left / Right or A / D move &middot; Space fires</span>
+                    <span class="nag-start-hint">Left / Right or A / D move &middot; Space or click fires &middot; leaving the arena pauses</span>
                   </div>
                 </div>
                 <div class="visually-hidden" data-arcade-live-status aria-live="polite" aria-atomic="true"></div>
@@ -1839,6 +2179,17 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                   <div class="nag-stat">Lives<b data-arcade-lives>3</b></div>
                   <div class="nag-stat">State<b data-arcade="state">idle</b></div>
                 </div>
+                <div class="nag-actions">
+                  <button type="button" class="nag-action nag-action--primary" data-arcade-action="toggle">Pause game</button>
+                  <button type="button" class="nag-action" data-arcade-action="reset">Reset demo</button>
+                  <button type="button" class="nag-action nag-step" data-arcade-action="step" data-arcade-step>Advance one step</button>
+                </div>
+                <ul class="nag-guide" role="list" aria-label="Keyboard and mouse controls">
+                  <li><kbd>Left</kbd> / <kbd>Right</kbd> or <kbd>A</kbd> / <kbd>D</kbd> move</li>
+                  <li><kbd>Space</kbd> or <kbd>click</kbd> fire</li>
+                  <li><kbd>Up</kbd> / <kbd>Down</kbd> or <kbd>W</kbd> / <kbd>S</kbd> move vertically after the feature</li>
+                  <li><kbd>Esc</kbd> or leave the arena pauses</li>
+                </ul>
                 <div class="nag-controls" role="group" aria-label="Touch game controls">
                   <button type="button" class="nag-control" data-arcade-control="left" aria-label="Move left">&#9664; Left</button>
                   <button type="button" class="nag-control" data-arcade-control="right" aria-label="Move right">Right &#9654;</button>
@@ -1846,12 +2197,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                   <button type="button" class="nag-control" data-arcade-control="down" aria-label="Move down, once the vertical-movement feature is enabled">&#9660; Down</button>
                   <button type="button" class="nag-control" data-arcade-control="fire" aria-label="Fire">&#9679; Fire</button>
                 </div>
-                <div class="nag-actions">
-                  <button type="button" class="nag-action nag-action--primary" data-arcade-action="toggle">Pause game</button>
-                  <button type="button" class="nag-action" data-arcade-action="reset">Reset demo</button>
-                  <button type="button" class="nag-action nag-step" data-arcade-action="step" data-arcade-step>Advance one step</button>
-                </div>
-                <p class="nag-note" id="nagInstructions"><strong>Controls:</strong> click the start button or press Enter on it, then use Left and Right arrows or A and D to move and Space to fire; Up and Down (or W and S) work after the vertical-movement feature is added, and Escape pauses and releases the keys. Equivalent touch controls follow the game. <strong>Seeded defect:</strong> the very first enemy shot destroys the ship outright instead of costing one of three lives. Fixed damage counts lives 3, 2, 1, 0; touching an asteroid is always fatal.</p>
+                <p class="nag-note" id="nagInstructions"><strong>Controls:</strong> click the start button or press Enter on it, then use Left and Right arrows or A and D to move and Space or a click inside the arena to fire; Up and Down (or W and S) work after the vertical-movement feature is added, and Escape or moving the pointer out of the arena pauses and releases the keys. On touch devices, labelled buttons mirror every key. <strong>Seeded defect:</strong> the very first enemy shot destroys the ship outright instead of costing one of three lives. Fixed damage counts lives 3, 2, 1, 0; touching an asteroid is always fatal.</p>
               </div>
             </div>
 
@@ -1944,7 +2290,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="cs-group" id="cs-explore">
         <span class="eyebrow">Understand and evaluate</span>
-        <h2>Find out what you are dealing with</h2>
+        <h2 class="section-title">Find out what you are dealing with</h2>
         <p>Read-only commands. They write reports; they never edit your code.</p>
 
         <article class="cs-cmd">
@@ -2020,7 +2366,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="cs-group" id="cs-plan">
         <span class="eyebrow">Plan the work</span>
-        <h2>Decide what to build before building it</h2>
+        <h2 class="section-title">Decide what to build before building it</h2>
         <p>These write plans, specs, and governing principles &mdash; the artifacts the build commands read.</p>
 
         <article class="cs-cmd">
@@ -2089,7 +2435,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="cs-group" id="cs-build">
         <span class="eyebrow">Build it</span>
-        <h2>Turn the plan into committed code</h2>
+        <h2 class="section-title">Turn the plan into committed code</h2>
         <p>The only commands here that write source. Non-final phases commit locally and never push.</p>
 
         <article class="cs-cmd">
@@ -2137,7 +2483,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="cs-group" id="cs-harden">
         <span class="eyebrow">Prove it</span>
-        <h2>Make the quality claim testable</h2>
+        <h2 class="section-title">Make the quality claim testable</h2>
 
         <article class="cs-cmd">
           <div class="cs-head"><span class="cs-name">/test</span><span class="cs-desc">Drive coverage to a threshold across test tiers until it and a 100% pass rate are met.</span></div>
@@ -2166,7 +2512,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="cs-group" id="cs-ship">
         <span class="eyebrow">Ship and govern</span>
-        <h2>Record it, release it, keep the org in step</h2>
+        <h2 class="section-title">Record it, release it, keep the org in step</h2>
 
         <article class="cs-cmd">
           <div class="cs-head"><span class="cs-name">/update</span><span class="cs-desc">Sync the repo to its current state and, at release scope, ship it.</span></div>
@@ -2232,7 +2578,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="cs-group" id="cs-communicate">
         <span class="eyebrow">Communicate</span>
-        <h2>Turn the work into something you can send</h2>
+        <h2 class="section-title">Turn the work into something you can send</h2>
 
         <article class="cs-cmd">
           <div class="cs-head"><span class="cs-name">/presentify</span><span class="cs-desc">Turn documents, code, or a whole folder into one self-contained offline interactive website.</span></div>
@@ -2278,7 +2624,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="cs-group" id="cs-catalog">
         <span class="eyebrow">Catalog and session</span>
-        <h2>Manage the harness itself</h2>
+        <h2 class="section-title">Manage the harness itself</h2>
 
         <article class="cs-cmd">
           <div class="cs-head"><span class="cs-name">/skills</span><span class="cs-desc">Browse, search, create, import, and scan the skill and command catalog.</span></div>
@@ -2408,6 +2754,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   </section>
 
   </main>
+  <footer class="site-footer" id="site-footer">
+    <div class="container">
+      <p class="footer-attrib">Claude, ChatGPT, Gemini, Cursor, and GitHub Copilot are trademarks of their respective owners, shown only to identify the assistants Nexus Hub installs into; no affiliation or endorsement is implied. The GitHub Copilot mark is from the Codicons icon set by Microsoft Corporation, used under <a href="https://creativecommons.org/licenses/by/4.0/" rel="noreferrer noopener" target="_blank">CC BY 4.0</a>.</p>
+    </div>
+  </footer>
 </div>
 
 <script>
@@ -2667,6 +3018,229 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     for (var s = 0; s < scenes.length; s++) { io.observe(scenes[s]); }
   })();
 
+
+
+  /* -------------------------------------------------- NexusFlow: connectors from live geometry
+     Each [data-flow-root] gets one overlay SVG; consecutive [data-flow-node] children are joined
+     bottom-centre to top-centre. Positions come from getBoundingClientRect on load, resize, and
+     font load, so a connector can never sit on top of a card. */
+  (function initNexusFlow() {
+    var roots = document.querySelectorAll("[data-flow-root]");
+    if (!roots.length) return;
+    var NS = "http://www.w3.org/2000/svg";
+    function draw(root) {
+      var svg = root.querySelector(":scope > svg.fx-flow-overlay");
+      if (!svg) {
+        svg = document.createElementNS(NS, "svg");
+        svg.setAttribute("class", "fx-flow-overlay");
+        svg.setAttribute("aria-hidden", "true");
+        root.insertBefore(svg, root.firstChild);
+      }
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      var nodes = root.querySelectorAll(":scope > [data-flow-node]");
+      var rb = root.getBoundingClientRect();
+      svg.setAttribute("viewBox", "0 0 " + Math.max(1, rb.width) + " " + Math.max(1, rb.height));
+      for (var i = 0; i + 1 < nodes.length; i++) {
+        var a = nodes[i].getBoundingClientRect(), b = nodes[i + 1].getBoundingClientRect();
+        var x1 = a.left + a.width / 2 - rb.left, y1 = a.bottom - rb.top;
+        var x2 = b.left + b.width / 2 - rb.left, y2 = b.top - rb.top;
+        if (y2 - y1 < 4) continue;                       /* stacked flush: nothing to draw */
+        var path = document.createElementNS(NS, "path");
+        var my = (y1 + y2) / 2;
+        path.setAttribute("class", "fxp");
+        path.setAttribute("d", "M" + x1 + " " + (y1 + 1) + " C" + x1 + " " + my + " " + x2 + " " + my + " " + x2 + " " + (y2 - 7));
+        svg.appendChild(path);
+        var head = document.createElementNS(NS, "path");
+        head.setAttribute("class", "fx-head");
+        head.setAttribute("d", "M" + (x2 - 5) + " " + (y2 - 8) + " L" + x2 + " " + (y2 - 1) + " L" + (x2 + 5) + " " + (y2 - 8) + " Z");
+        svg.appendChild(head);
+      }
+    }
+    function drawAll() { for (var r = 0; r < roots.length; r++) draw(roots[r]); }
+    drawAll();
+    window.addEventListener("resize", drawAll);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawAll);
+    if ("ResizeObserver" in window) {
+      var ro = new ResizeObserver(drawAll);
+      for (var r = 0; r < roots.length; r++) ro.observe(roots[r]);
+    }
+    window.NexusFlow = { redraw: drawAll };
+  })();
+
+  /* -------------------------------------------------- Audio waveform
+     The static waveform is decoded straight from the embedded 8-bit PCM WAV, so it renders with
+     no user gesture and no AudioContext. While the clip plays, an AnalyserNode drives a live
+     time-domain trace; if Web Audio is unavailable or refuses the data: source, the static trace
+     stays and the native element still plays. */
+  (function initWaveform() {
+    var canvas = document.querySelector("canvas.fx-wave");
+    var audio = canvas && canvas.parentElement.querySelector("audio.fx-out-audio");
+    if (!canvas || !audio || !canvas.getContext) return;
+    var ctx2d = canvas.getContext("2d");
+    var W = canvas.width, H = canvas.height, gen = 0, live = null;
+    function color(name, fallback) {
+      var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      return v || fallback;
+    }
+    function trace(samples, hot) {
+      ctx2d.clearRect(0, 0, W, H);
+      ctx2d.lineWidth = 1.5; ctx2d.strokeStyle = hot ? color("--accent", "#2dd4bf") : color("--ink-faint", "#8a94a0");
+      ctx2d.beginPath();
+      for (var x = 0; x < W; x++) {
+        var v = samples[Math.floor(x * samples.length / W)];
+        var y = H / 2 - (v * (H / 2 - 3));
+        if (x === 0) ctx2d.moveTo(x, y); else ctx2d.lineTo(x, y);
+      }
+      ctx2d.stroke();
+    }
+    function staticSamples() {
+      var src = audio.getAttribute("src") || "";
+      var b64 = src.split("base64,")[1];
+      if (!b64) return null;
+      var bin = atob(b64), n = bin.length, out = [];
+      for (var i = 44; i < n; i += Math.max(1, Math.floor((n - 44) / 440))) out.push((bin.charCodeAt(i) - 128) / 128);
+      return out;
+    }
+    var still = staticSamples() || [0];
+    trace(still, false);
+    canvas.setAttribute("data-wave-state", "static");
+    audio.addEventListener("play", function () {
+      var g = ++gen;
+      if (REDUCE || !("AudioContext" in window || "webkitAudioContext" in window)) return;
+      try {
+        if (!live) {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          var ac = new AC(), an = ac.createAnalyser(); an.fftSize = 1024;
+          ac.createMediaElementSource(audio).connect(an); an.connect(ac.destination);
+          live = { ac: ac, an: an, buf: new Uint8Array(an.fftSize) };
+        }
+        if (live.ac.state === "suspended") live.ac.resume();
+      } catch (e) { return; }                             /* static trace stays */
+      canvas.setAttribute("data-wave-state", "live");
+      (function frame() {
+        if (g !== gen || audio.paused || audio.ended) return;
+        live.an.getByteTimeDomainData(live.buf);
+        var out = [];
+        for (var i = 0; i < live.buf.length; i += 2) out.push((live.buf[i] - 128) / 128);
+        trace(out, true);
+        canvas.setAttribute("data-wave-frames", String((+canvas.getAttribute("data-wave-frames") || 0) + 1));
+        requestAnimationFrame(frame);
+      })();
+    });
+    function settle() { gen += 1; trace(still, false); canvas.setAttribute("data-wave-state", "static"); }
+    audio.addEventListener("pause", settle);
+    audio.addEventListener("ended", settle);
+  })();
+
+  /* -------------------------------------------------- NexusSeq: declarative step timelines
+     One shared engine for every choreographed scene, so motion is consistent, testable, and
+     cheap. Contract: a [data-seq-root] holds [data-seq=N] steps (optional data-seq-dur ms);
+     steps gain .is-on in order; data-seq-loop repeats after data-seq-hold ms. Starts at 40%
+     visibility, pauses offscreen and on a hidden tab, and under reduced motion play() applies
+     the terminal state synchronously and schedules nothing. */
+  window.NexusSeq = (function () {
+    var roots = [];
+    function warn(msg) { if (window.console && console.warn) { console.warn("NexusSeq: " + msg); } }
+    function parseSteps(root) {
+      var nodes = root.querySelectorAll("[data-seq]"), byStep = {}, order = [], steps = [];
+      for (var i = 0; i < nodes.length; i++) {
+        var n = parseInt(nodes[i].getAttribute("data-seq"), 10);
+        var raw = nodes[i].getAttribute("data-seq-dur");
+        var dur = raw === null ? 700 : parseInt(raw, 10);
+        if (isNaN(n) || n < 0 || isNaN(dur) || dur < 0) {
+          warn("skipping malformed step on #" + (nodes[i].id || "(no id)") + " in #" + (root.id || "(no id)"));
+          continue;
+        }
+        if (!byStep[n]) { byStep[n] = { n: n, els: [], dur: dur }; order.push(n); }
+        byStep[n].els.push(nodes[i]);
+        if (dur > byStep[n].dur) { byStep[n].dur = dur; }
+      }
+      order.sort(function (a, b) { return a - b; });
+      for (var k = 0; k < order.length; k++) { steps.push(byStep[order[k]]); }
+      return steps;
+    }
+    function entry(root) {
+      for (var i = 0; i < roots.length; i++) { if (roots[i].root === root) { return roots[i]; } }
+      return null;
+    }
+    function setAll(e, on) {
+      for (var i = 0; i < e.steps.length; i++) {
+        for (var j = 0; j < e.steps[i].els.length; j++) { e.steps[i].els[j].classList.toggle("is-on", on); }
+      }
+    }
+    function finish(e) { setAll(e, true); e.idx = e.steps.length; e.running = false; e.root.classList.add("seq-done"); }
+    function schedule(e) {
+      if (!e.running) { return; }
+      var gen = e.gen;
+      if (e.idx >= e.steps.length) {
+        e.root.classList.add("seq-done");
+        if (!e.loop) { e.running = false; return; }
+        e.timer = setTimeout(function () {
+          if (e.gen !== gen || !e.running) { return; }
+          setAll(e, false); e.idx = 0; e.root.classList.remove("seq-done"); schedule(e);
+        }, e.hold);
+        return;
+      }
+      var step = e.steps[e.idx];
+      for (var j = 0; j < step.els.length; j++) { step.els[j].classList.add("is-on"); }
+      e.idx += 1;
+      e.timer = setTimeout(function () { if (e.gen === gen) { schedule(e); } }, step.dur);
+    }
+    function play(root) {
+      var e = entry(root);
+      if (!e) { return; }
+      if (REDUCE) { finish(e); return; }
+      if (e.running) { return; }           /* a second start while running is ignored */
+      e.running = true; e.gen += 1; schedule(e);
+    }
+    function pause(root) {
+      var e = entry(root);
+      if (!e) { return; }
+      e.running = false; e.gen += 1; clearTimeout(e.timer);   /* resumes from the same step */
+    }
+    function reset(root) {
+      var e = entry(root);
+      if (!e) { return; }
+      pause(root); setAll(e, false); e.idx = 0; e.root.classList.remove("seq-done");
+    }
+    function state(root) {
+      var e = entry(root);
+      return e ? { step: e.idx, total: e.steps.length, running: e.running, reduced: !!REDUCE, loop: e.loop } : null;
+    }
+    function register(root) {
+      if (!root || entry(root)) { return; }
+      roots.push({
+        root: root, steps: parseSteps(root), idx: 0, timer: null, running: false, visible: false, gen: 0,
+        loop: root.hasAttribute("data-seq-loop"),
+        hold: parseInt(root.getAttribute("data-seq-hold") || "1500", 10) || 1500
+      });
+    }
+    function init() {
+      var all = document.querySelectorAll("[data-seq-root]");
+      for (var i = 0; i < all.length; i++) { register(all[i]); }
+      if (!("IntersectionObserver" in window)) {
+        for (var k = 0; k < roots.length; k++) { play(roots[k].root); }   /* never "never": start now */
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        for (var i = 0; i < entries.length; i++) {
+          var e = entry(entries[i].target);
+          if (!e) { continue; }
+          e.visible = entries[i].isIntersecting;
+          if (e.visible && !document.hidden) { play(e.root); } else { pause(e.root); }
+        }
+      }, { threshold: 0.4 });
+      for (var r = 0; r < roots.length; r++) { io.observe(roots[r].root); }
+      document.addEventListener("visibilitychange", function () {
+        for (var r = 0; r < roots.length; r++) {
+          if (document.hidden) { pause(roots[r].root); } else if (roots[r].visible) { play(roots[r].root); }
+        }
+      });
+    }
+    return { init: init, register: register, play: play, pause: pause, reset: reset, state: state };
+  })();
+  window.NexusSeq.init();
+
   /* -------------------------------------------------- tabs */
   var tabGroups = document.querySelectorAll("[data-tabs]");
   for (var g = 0; g < tabGroups.length; g++) {
@@ -2911,10 +3485,18 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   var PLAYER_SHOT_VY = -240;
   var PLAYER_SHOT_LIFE = 2.5;
   var ENEMY_SHOT_VY = 150;
-  var ASTEROID_SPEEDS = [60, 105];
+  /* v4.4.2: three size tiers and three speed tiers, chosen independently on the SPAWN stream. */
+  var ASTEROID_SPEEDS = [45, 75, 110];
+  var ASTEROID_SIZES = [[8, 11], [12, 17], [18, 26]];
+  var ENEMY_BANDS = [[40, 55], [60, 80], [90, 115]];
+  var SPAWN_ENEMY_TICKS = [90, 150];
+  var SPAWN_ASTEROID_TICKS = [70, 120];
+  var TEACHING_SPAWN_FROM_TICK = 120;
+  var CENTRE_BAND = [135, 225];
+  var SPAWN_STREAM_SALT = 0x9E3779B9;
   var FIRE_COOLDOWN_TICKS = 14;
   var MAX_FRAME_SECONDS = 0.25;
-  var PAUSE_REASONS = ["manual", "blur", "hidden", "offscreen", "reduced-motion"];
+  var PAUSE_REASONS = ["manual", "blur", "hidden", "offscreen", "reduced-motion", "pointer"];
   var FIXTURES = ["enemy-hit", "asteroid-hit", "play"];
 
   var reduceQuery = window.matchMedia
@@ -2971,7 +3553,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   }
 
   function fixtureState(name, seed) {
+    /* Two streams from one seed. rng (the BEAT stream) is consumed exactly as v4.4.1 did:
+       stars, the pre-placed enemy cadence, the play fixture timers. rngSpawn drives every
+       v4.4.2 spawn decision, so adding spawns cannot shift a draw the teaching beats use. */
     var rng = mulberry32(seed);
+    var rngSpawn = mulberry32((seed ^ SPAWN_STREAM_SALT) >>> 0);
     var base = {
       seed: seed,
       fixture: name,
@@ -2989,8 +3575,9 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       explosions: [],
       stars: [],
       nextId: 1,
-      spawn: { enemyIn: 0, asteroidIn: 0 },
-      rng: rng
+      spawn: { enemyIn: 0, asteroidIn: 0, fromTick: 0, teaching: false },
+      rng: rng,
+      rngSpawn: rngSpawn
     };
     var i;
     for (i = 0; i < 26; i++) {
@@ -3000,14 +3587,18 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       /* Fires on a deterministic cadence so FIXED mode can demonstrate 3 -> 2 -> 1 -> 0:
          the pre-placed shot lands first (~tick 75), then each re-fire lands after the
          90-tick invulnerability window has expired. */
-      base.enemies.push({ id: "seed-enemy", x: 180, y: 80, r: 12, vx: 0, vy: 8, fireIn: 130, resolved: false });
+      base.enemies.push({ id: "seed-enemy", x: 180, y: 80, r: 12, vx: 0, vy: 8, band: 0, fireIn: 130, resolved: false });
       base.enemyShots.push({ id: "seed-shot", x: 180, y: 240, r: 3.5, vy: ENEMY_SHOT_VY, resolved: false });
-      base.spawn.enemyIn = Infinity;
-      base.spawn.asteroidIn = Infinity;
+      base.spawn.teaching = true;
+      base.spawn.fromTick = TEACHING_SPAWN_FROM_TICK;
+      base.spawn.enemyIn = SPAWN_ENEMY_TICKS[0];
+      base.spawn.asteroidIn = SPAWN_ASTEROID_TICKS[0];
     } else if (name === "asteroid-hit") {
-      base.asteroids.push({ id: "seed-rock", x: 180, y: 200, r: 16, vy: ASTEROID_SPEEDS[1], spin: 0.8, face: rng() * 6.28, resolved: false });
-      base.spawn.enemyIn = Infinity;
-      base.spawn.asteroidIn = Infinity;
+      base.asteroids.push({ id: "seed-rock", x: 180, y: 200, r: 16, vy: 105, spin: 0.8, face: rng() * 6.28, resolved: false });
+      base.spawn.teaching = true;
+      base.spawn.fromTick = TEACHING_SPAWN_FROM_TICK;
+      base.spawn.enemyIn = SPAWN_ENEMY_TICKS[0];
+      base.spawn.asteroidIn = SPAWN_ASTEROID_TICKS[0];
     } else {
       base.spawn.enemyIn = 70 + Math.floor(rng() * 40);
       base.spawn.asteroidIn = 40 + Math.floor(rng() * 30);
@@ -3015,39 +3606,68 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     return base;
   }
 
+  function pick(rng, range) { return range[0] + rng() * (range[1] - range[0]); }
+  function pickTicks(rng, range) { return range[0] + Math.floor(rng() * (range[1] - range[0] + 1)); }
+  /* Teaching fixtures keep a stationary player untouched: x lands outside the centre band. */
+  function spawnX(s, margin) {
+    var r = s.rngSpawn;
+    if (!s.spawn.teaching) return margin + r() * (WIDTH - 2 * margin);
+    var left = CENTRE_BAND[0] - margin, right = CENTRE_BAND[1] + margin;
+    return r() < 0.5 ? margin + r() * (left - margin) : right + r() * (WIDTH - margin - right);
+  }
   function spawnStep(s) {
-    if (s.fixture !== "play") return;
+    if (s.tick < s.spawn.fromTick) return;
+    var r = s.rngSpawn;
     if (s.spawn.enemyIn <= 0) {
+      var band = Math.floor(r() * ENEMY_BANDS.length);
       s.enemies.push({
         id: "enemy-" + s.nextId++,
-        x: 30 + s.rng() * (WIDTH - 60),
+        x: spawnX(s, 30),
         y: -14,
         r: 12,
-        vx: (s.rng() - 0.5) * 40,
-        vy: 55 + s.rng() * 25,
-        fireIn: 40 + Math.floor(s.rng() * 50),
+        vx: s.spawn.teaching ? 0 : (r() - 0.5) * 40,
+        vy: pick(r, ENEMY_BANDS[band]),
+        band: band,
+        fireIn: 40 + Math.floor(r() * 50),
         resolved: false
       });
-      s.spawn.enemyIn = 150 + Math.floor(s.rng() * 90);
+      s.spawn.enemyIn = pickTicks(r, SPAWN_ENEMY_TICKS);
     } else {
       s.spawn.enemyIn -= 1;
     }
     if (s.spawn.asteroidIn <= 0) {
-      var tier = s.rng() < 0.5 ? 0 : 1;
+      var size = Math.floor(r() * ASTEROID_SIZES.length);
+      var speed = Math.floor(r() * ASTEROID_SPEEDS.length);
+      var radius = pick(r, ASTEROID_SIZES[size]);
       s.asteroids.push({
         id: "rock-" + s.nextId++,
-        x: 20 + s.rng() * (WIDTH - 40),
+        x: spawnX(s, Math.ceil(radius) + 6),
         y: -20,
-        r: 12 + s.rng() * 10,
-        vy: ASTEROID_SPEEDS[tier],
-        spin: (s.rng() - 0.5) * 2,
-        face: s.rng() * 6.28,
+        r: radius,
+        vy: ASTEROID_SPEEDS[speed],
+        tier: size,
+        spin: (r() - 0.5) * 2,
+        face: r() * 6.28,
         resolved: false
       });
-      s.spawn.asteroidIn = 110 + Math.floor(s.rng() * 80);
+      s.spawn.asteroidIn = pickTicks(r, SPAWN_ASTEROID_TICKS);
     } else {
       s.spawn.asteroidIn -= 1;
     }
+  }
+
+  /* Pure seam for tests: the spawn sequence a fixture and seed would produce over N ticks,
+     computed on a scratch state with spawnStep alone, so variety can be asserted without the
+     player having to survive it. */
+  function spawnSample(fixtureName, seed, ticks) {
+    var name = FIXTURES.indexOf(fixtureName) !== -1 ? fixtureName : "play";
+    var scratch = fixtureState(name, typeof seed === "number" && isFinite(seed) ? Math.floor(seed) : DEFAULT_SEED);
+    var n = Math.max(0, Math.min(20000, Math.floor(ticks) || 0));
+    for (var i = 0; i < n; i++) { scratch.tick = i; spawnStep(scratch); }
+    return deepFreeze({
+      enemies: scratch.enemies.filter(function (e) { return e.id !== "seed-enemy"; }).map(function (e) { return { vy: round3(e.vy), band: e.band, x: round3(e.x) }; }),
+      asteroids: scratch.asteroids.filter(function (a) { return a.id !== "seed-rock"; }).map(function (a) { return { r: round3(a.r), vy: a.vy, tier: a.tier, x: round3(a.x) }; })
+    });
   }
 
   function inputStep(s) {
@@ -3377,6 +3997,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     ctx.beginPath(); ctx.ellipse(0, -2, 4.4, 3, 0, 0, 6.29); ctx.fill();
     ctx.fillStyle = "rgba(255, 214, 120, .95)";
     ctx.beginPath(); ctx.ellipse(0, -2, 2, 1.4, 0, 0, 6.29); ctx.fill();
+    /* Engine glow tinted by velocity band so speed variety reads at a glance. */
+    var glow = ["rgba(120, 200, 255, .55)", "rgba(255, 190, 90, .6)", "rgba(255, 90, 90, .7)"][e.band || 0];
+    ctx.fillStyle = glow;
+    ctx.beginPath(); ctx.ellipse(0, 12, 5 + (e.band || 0) * 1.5, 3 + (e.band || 0), 0, 0, 6.29); ctx.fill();
     ctx.restore();
   }
 
@@ -3401,6 +4025,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     ctx.fillStyle = "rgba(30, 24, 16, .45)";
     ctx.beginPath(); ctx.ellipse(a.r * 0.25, a.r * 0.1, a.r * 0.22, a.r * 0.16, 0.5, 0, 6.29); ctx.fill();
     ctx.beginPath(); ctx.ellipse(-a.r * 0.3, a.r * 0.35, a.r * 0.14, a.r * 0.1, 0.2, 0, 6.29); ctx.fill();
+    if (a.r >= 18) { ctx.beginPath(); ctx.ellipse(-a.r * 0.35, -a.r * 0.4, a.r * 0.12, a.r * 0.09, 1.1, 0, 6.29); ctx.fill(); }
     ctx.restore();
   }
 
@@ -3484,7 +4109,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       modeEl.classList.toggle("is-fixed", state.damageMode === "fixed");
     }
     if (toggleEl) {
-      toggleEl.textContent = pauseSet.manual ? "Resume game" : "Pause game";
+      toggleEl.textContent = (pauseSet.manual || pauseSet.pointer) ? "Resume game" : "Pause game";
     }
     game.setAttribute("data-lifecycle", state.lifecycle);
     /* Announce lives and lifecycle CHANGES only, never per-frame chatter. */
@@ -3568,6 +4193,30 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
   game.addEventListener("focus", function () { resume("blur"); }, true);
 
+  /* v4.4.2 pointer contract: a primary click inside the stage FIRES while running (same
+     cooldown as Space); it starts nothing while idle and resumes nothing while paused, so a
+     stray click can never change lifecycle. Leaving the stage pauses; re-entering does not
+     resume, the visible Resume control does. Secondary buttons and the context menu are
+     swallowed inside the stage. */
+  var stageEl = game.querySelector('[data-arcade="stage"]');
+  if (stageEl) {
+    stageEl.addEventListener("pointerdown", function (event) {
+      if (event.target && event.target.closest && event.target.closest("[data-arcade-start]")) return;
+      if (event.button !== 0) { event.preventDefault(); return; }
+      if (state.lifecycle !== "running") return;
+      var p = state.player;
+      if (p.fireCooldown <= 0) {
+        state.playerShots.push({ id: "shot-" + state.nextId++, x: p.x, y: p.y - 12, r: 3, vy: PLAYER_SHOT_VY, life: PLAYER_SHOT_LIFE, resolved: false });
+        p.fireCooldown = FIRE_COOLDOWN_TICKS;
+      }
+      event.preventDefault();
+    });
+    stageEl.addEventListener("contextmenu", function (event) { event.preventDefault(); });
+    stageEl.addEventListener("pointerleave", function () {
+      if (state.lifecycle === "running") { pause("pointer"); releaseKeys(); }
+    });
+  }
+
   if (startButton) {
     startButton.addEventListener("click", function () {
       start();
@@ -3591,7 +4240,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     var kind = button.getAttribute("data-arcade-action");
     button.addEventListener("click", function () {
       if (kind === "toggle") {
-        if (pauseSet.manual) resume("manual"); else pause("manual");
+        if (pauseSet.manual || pauseSet.pointer) { resume("pointer"); resume("manual"); } else { pause("manual"); }
       } else if (kind === "reset") {
         restart();
         game.focus();
@@ -3662,7 +4311,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     world: Object.freeze({ width: WIDTH, height: HEIGHT, tick: TICK, seed: DEFAULT_SEED }),
     logic: Object.freeze({
       collides: collides,
-      damageOutcome: damageOutcome
+      damageOutcome: damageOutcome,
+      spawnSample: spawnSample
     })
   });
 })();
@@ -4093,7 +4743,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     root.classList.add("is-present");
     root.setAttribute("role", "dialog");
     root.setAttribute("aria-modal", "true");
-    root.setAttribute("aria-label", "Nexus-Hub training presentation");
+    root.setAttribute("aria-label", "Nexus Hub training presentation");
     setPresentIsolation(true);
     syncPresentControl();
     if (root.requestFullscreen) {
@@ -4111,6 +4761,12 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     finishPresent();
   }
   function togglePresent() { if (inPresent()) { exitPresent(); } else { enterPresent(); } }
+  /* v4.4.2: the Outline overlay must never be stranded across the desktop/narrow layout switch,
+     so a resize that crosses either breakpoint while present closes it and refocuses the trigger. */
+  var layoutModeQuery = window.matchMedia ? window.matchMedia("(max-width: 1023px), (max-height: 639px)") : null;
+  if (layoutModeQuery && layoutModeQuery.addEventListener) {
+    layoutModeQuery.addEventListener("change", function () { if (inPresent()) closeOutline(true); });
+  }
   document.addEventListener("fullscreenchange", function () {
     /* The user agent may consume Escape and exit natively; reconcile from the event,
        exactly once, rather than assuming script initiated the change. */
