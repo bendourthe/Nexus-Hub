@@ -359,3 +359,117 @@ def test_presentation_survives_a_route_change_without_stranding_the_page(playwri
     assert not state["present"], "leaving Training must exit presentation"
     assert not state["headerInert"], "the header must not stay inert after leaving"
     assert not state["outlineOpen"], "Outline must not survive the route change"
+
+
+# ============================================================================ v4.4.2 Phase 6
+# Full-window three-pane presentation: coverage and stage-height floors from
+# presentation-geometry.md, Outline as an overlay that moves nothing, and a short-window
+# fallback that reflows into one scroll surface exactly like a narrow one.
+
+COVERAGE_FLOOR = 0.88
+STAGE_FLOOR = 0.45   # of viewport height; the arithmetic behind this number is in presentation-geometry.md
+PRESENT_REGIONS = {
+    **REGIONS,
+    "toolbar": ".nht-bar", "progress": ".nht-loop", "head": ".nht-head",
+    "tools": ".nht-tools", "after": ".nht-after",
+}
+
+
+def _coverage(page):
+    return page.evaluate(
+        """(regs) => {
+            const vw = innerWidth, vh = innerHeight, cell = 8, cols = Math.ceil(vw / cell);
+            const grid = new Uint8Array(cols * Math.ceil(vh / cell));
+            const rects = {};
+            for (const k in regs) {
+                const el = document.querySelector(regs[k]);
+                if (!el) return { missing: k };
+                const r = el.getBoundingClientRect();
+                rects[k] = [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)];
+                for (let y = Math.max(0, r.top); y < Math.min(vh, r.bottom); y += cell)
+                    for (let x = Math.max(0, r.left); x < Math.min(vw, r.right); x += cell)
+                        grid[Math.floor(y / cell) * cols + Math.floor(x / cell)] = 1;
+            }
+            const stage = document.querySelector('.nag-stage').getBoundingClientRect();
+            let n = 0; for (const v of grid) n += v;
+            return { coverage: n / grid.length, stageH: stage.height / vh, rects,
+                     belowFold: Object.entries(rects).filter(([k, r]) => r[1] + r[3] > vh + 1).map(([k]) => k) };
+        }""",
+        PRESENT_REGIONS,
+    )
+
+
+@pytest.mark.parametrize("size", DESKTOP)
+def test_desktop_presentation_fills_the_window(playwright_mod, size) -> None:
+    width, height = size
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        page = browser.new_page(viewport={"width": width, "height": height})
+        try:
+            _present(page, "presentify")
+            data = _coverage(page)
+            columns = page.evaluate(
+                "() => getComputedStyle(document.querySelector('.nht.is-present .nht-slide')).gridTemplateColumns.trim().split(/\\s+/).length"
+            )
+        finally:
+            browser.close()
+    assert "missing" not in data, data
+    assert data["coverage"] >= COVERAGE_FLOOR, f"{width}x{height}: regions cover {data['coverage']:.2f} of the viewport, floor {COVERAGE_FLOOR}"
+    assert data["stageH"] >= STAGE_FLOOR, f"{width}x{height}: stage is {data['stageH']:.2f} of the viewport height, floor {STAGE_FLOOR}"
+    assert not data["belowFold"], f"{width}x{height}: regions extend below the viewport: {data['belowFold']}"
+    assert columns == 3, f"three panes expected, got {columns} columns"
+
+
+@pytest.mark.parametrize("size", DESKTOP)
+def test_opening_outline_moves_no_region(playwright_mod, size) -> None:
+    width, height = size
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        page = browser.new_page(viewport={"width": width, "height": height})
+        try:
+            _present(page, "describe")
+            before = _coverage(page)["rects"]
+            page.locator('[data-nht="outline"]').click()
+            page.wait_for_function("() => !document.getElementById('nhtOutline').hidden")
+            page.wait_for_timeout(120)
+            during = _coverage(page)["rects"]
+            overlay = page.evaluate(
+                "() => { const o = document.getElementById('nhtOutline'); const cs = getComputedStyle(o);"
+                " const r = o.getBoundingClientRect(); return { pos: cs.position, top: r.top, visible: r.height > 0 }; }"
+            )
+            page.keyboard.press("Escape")
+            page.wait_for_function("() => document.getElementById('nhtOutline').hidden")
+            after = _coverage(page)["rects"]
+        finally:
+            browser.close()
+    assert overlay["pos"] == "absolute" and overlay["visible"] and overlay["top"] >= 40, overlay
+    assert during == before, f"opening Outline moved regions at {width}x{height}: {[k for k in before if before[k] != during[k]]}"
+    assert after == before
+
+
+def test_short_window_reflows_like_a_narrow_one(playwright_mod) -> None:
+    """A 1280x600 window is wide but too short for three panes; it takes the single-scroll reflow."""
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        page = browser.new_page(viewport={"width": 1280, "height": 600})
+        try:
+            _present(page, "presentify")
+            result = _intersections(page)
+            layout = page.evaluate(
+                """() => {
+                    const slide = document.querySelector('.nht.is-present .nht-slide');
+                    const root = document.getElementById('nhTraining');
+                    const scrollers = [...root.querySelectorAll('*')].filter(el => {
+                        const cs = getComputedStyle(el);
+                        return (cs.overflowY === 'auto' || cs.overflowY === 'scroll') && el.scrollHeight > el.clientHeight + 1;
+                    }).map(el => el.className.split(' ')[0]);
+                    return { display: getComputedStyle(slide).display, scrollers,
+                             outlinePos: getComputedStyle(document.getElementById('nhtOutline')).position };
+                }"""
+            )
+        finally:
+            browser.close()
+    assert layout["display"] == "flex", layout
+    assert not result["bad"] and not result["overflow"], result
+    assert len(layout["scrollers"]) <= 1, layout
+    assert layout["outlinePos"] == "static", "the overlay Outline reverts to in-flow in the single-scroll reflow"

@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 merged to `develop` 2026-09-02 (PR #154), release pending; v4.4.2 in progress on the same minor
-**Last updated**: 2026-09-02 (v4.4.2 Phase 5)
+**Last updated**: 2026-09-02 (v4.4.2 Phase 6)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -113,7 +113,7 @@
 
 ### Carried in from v4.4.1
 
-- Outline reflows the presentation slide while open (P3) - owned by Phase 6, which makes the panel an overlay.
+- Outline reflows the presentation slide while open (P3) - CLOSED in Phase 6: the panel is `position: absolute` in present mode and `test_opening_outline_moves_no_region` asserts every region rectangle is identical before and after opening at the four desktop sizes.
 - `HT-1` no human comprehension cohort - re-issued in Phase 8 with the annotated-prompt and harness-animation prompts added.
 - `HT-2` real current-host installer duty - stays with v4.4.1's release; this plan never runs a sandboxed installer.
 
@@ -145,6 +145,11 @@
 - No new defect. Both seeded teaching beats passed unedited after spawning was added, because the spawn decisions draw from a second stream (`seed ^ 0x9E3779B9`) and never touch the beat stream.
 - Tier variety is proven through the pure `logic.spawnSample` seam because a stationary test player does not survive full-width `play` spawning for long, which is correct behaviour and not the property under test.
 - The wall-parking bounds test was shortened from 45 simulated seconds to 150 ticks per side: under the amended contract a wall-parked player is a legitimate target, and the clamp is proven in about 62 ticks.
+
+### Phase 6 notes
+
+- Stage-height floor recorded as 0.45 of the viewport instead of the plan's 0.70, with the arithmetic in `presentation-geometry.md`; achieved 0.47 to 0.61 against a baseline of 0.10 to 0.26. Coverage rose from 0.68 to 0.81 up to 0.93 to 0.95, and no region falls below the fold any more.
+- No new defect. The first build reached 0.42 at 1280x720 and was lifted by a `(max-height: 768px)` compact-chrome rule rather than by lowering the floor.
 
 ### Deviations recorded
 
