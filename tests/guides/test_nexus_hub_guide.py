@@ -572,12 +572,16 @@ def test_home_identity_is_centered_nonwrapping_and_observer_gated(guide_text: st
     assert ".js .hero-lockup.reveal .hero-mark" in reduced_motion
 
 
-def test_home_uses_a_short_outcome_tagline(guide_text: str) -> None:
+def test_home_hero_restores_the_v412_subtitle_and_lead(guide_text: str) -> None:
     home = _home_markup(guide_text)
-    match = re.search(r'<p class="hero-tagline">([^<]+)</p>', home)
-    assert match, "expected a dedicated selling tagline"
-    assert len(match.group(1).split()) <= 14
-    assert "catalog of" not in match.group(1).lower()
+    assert "hero-tagline" not in home, "the v4.4.1 tagline is replaced by the v4.1.2 statement"
+    sub = re.search(r'<h2 class="hero-subtitle">([\s\S]*?)</h2>', home)
+    assert sub and re.sub(r"<[^>]+>", "", sub.group(1)) == (
+        "Upgrade your agentic AI platforms with an autonomous team of world experts"
+    )
+    assert '<span class="gtext">autonomous team of world experts</span>' in sub.group(1)
+    lead = re.search(r'<p class="hero-lead">([^<]+)</p>', home)
+    assert lead and lead.group(1).startswith("Nexus Hub is an advanced harness for agentic AI platforms.")
 
 
 def test_home_lists_the_five_approved_platforms_from_ledger_bytes(guide_text: str) -> None:
@@ -646,17 +650,23 @@ def test_home_lists_the_five_approved_platforms_from_ledger_bytes(guide_text: st
     assert "OpenCode" not in home, "OpenCode and its instruction-file note were removed in v4.4.1"
 
 
-def test_home_platform_rail_carries_the_required_attribution(guide_text: str) -> None:
-    """The GitHub Copilot codicon is CC BY 4.0, so attribution is a licence term, not a nicety."""
+def test_platform_mark_attribution_lives_in_the_site_footer(guide_text: str) -> None:
+    """The GitHub Copilot codicon is CC BY 4.0, so attribution is a licence term, not a nicety.
+
+    v4.4.2 (decision 2026-09-02-platform-mark-attribution-in-footer): the Home disclosure is
+    gone and the attribution sits in the shared site footer, outside the Home reading flow but
+    visible on every page that shows the marks.
+    """
     home = _home_markup(guide_text)
-    credits = re.search(r'<details class="platform-credits"[\s\S]*?</details>', home)
-    assert credits, "the platform rail must ship an accessible credits disclosure"
-    body = credits.group(0)
-    assert "<summary>" in body, "the disclosure must be a real details/summary, not a static block"
+    assert "platform-credits" not in home, "the Home credits disclosure was removed in v4.4.2"
+    footer = re.search(r'<footer class="site-footer"[\s\S]*?</footer>', guide_text)
+    assert footer, "a shared site footer must carry the attribution"
+    body = footer.group(0)
     assert "CC BY 4.0" in body
     assert "Microsoft Corporation" in body
     assert "Codicons" in body
     assert "no affiliation or endorsement" in body, "nominative-use statement is missing"
+    assert 'href="https://creativecommons.org/licenses/by/4.0/"' in body
 
 
 def test_home_hero_is_the_unhyphenated_nexus_hub_lockup(guide_text: str) -> None:
@@ -710,7 +720,7 @@ def test_home_troubleshooting_is_structured_and_copyable(guide_text: str) -> Non
 
 def test_home_comparison_has_centered_explicit_sides(guide_text: str) -> None:
     home = _home_markup(guide_text)
-    assert "Keep your platform. Add the workflow." in home
+    assert "Raw prompting vs Nexus Hub" in home, "v4.4.2 merges the two comparisons under one title"
     assert '<div class="cmp-head">' in home
     head_rule = re.search(r"\.cmp-head\s*\{([^}]+)\}", guide_text)
     side_rule = re.search(r"\.cmp-side\s*\{([^}]+)\}", guide_text)
@@ -800,8 +810,21 @@ def test_home_comparison_is_animated_not_a_table(guide_text: str) -> None:
 
 
 def test_onboarding_has_no_hardcoded_catalog_counts(parsed: GuideParser) -> None:
-    home = " ".join(parsed.home_text_parts)
-    assert not ONBOARDING_STALE.search(home), home[:400]
+    """v4.4.2: a count may appear only through a stamped data-count marker, so every count-bearing
+    phrase in Home text must equal the CURRENT catalog value; a stale literal fails here."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("stamp_guide_counts", _ROOT / "scripts" / "stamp_guide_counts.py")
+    mod = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(mod)
+    counts = mod.compute_counts(_ROOT)
+    home = re.sub(r"\s+", " ", " ".join(parsed.home_text_parts))
+    for match in ONBOARDING_STALE.finditer(home):
+        phrase = match.group(0)
+        num = re.search(r"\d+", phrase)
+        noun = re.search(r"skills|hooks|commands", phrase, re.IGNORECASE)
+        assert num and noun, f"non-count stale marker in Home: {phrase!r}"
+        assert int(num.group(0)) == counts[noun.group(0).lower()], f"stale count in Home: {phrase!r}"
 
 
 def test_home_verify_commands_are_copy_cells(parsed: GuideParser) -> None:

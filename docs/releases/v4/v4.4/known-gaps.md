@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 merged to `develop` 2026-09-02 (PR #154), release pending; v4.4.2 in progress on the same minor
-**Last updated**: 2026-09-02 (v4.4.2 Phase 1)
+**Last updated**: 2026-09-02 (v4.4.2 Phase 2)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -122,6 +122,11 @@
 | ID | Finding | Phase | Disposition |
 |---|---|---|---|
 | BG-13 | The sequencer demo dimmed text below WCAG AA | Phase 1 | The first `NexusSeq` demo faded inactive loop pills to opacity .45 and the contrast sweep measured 1.9:1 (light) and 3.4:1 (dark) mid-sequence. Rule adopted: text carriers never change foreground contrast during a sequence. Added `seq-glow` (accent ring on the active step), switched the loop to it, and reserved `seq-fade` (floor .7) for shapes and connectors with a comment recording why. Sweep green. |
+
+### Phase 2 notes
+
+- No new defect. The new two-thirds word-budget test failed twice on the first integrated run (`Why it matters` 62 vs 56, merged comparison 196 vs 170); both were trimmed in copy, never by loosening the test.
+- Platform-mark attribution moved from the Home disclosure to a site footer per `docs/decisions/implemented/policy/2026-09-02-platform-mark-attribution-in-footer.md`; the plan's `product/` decision class does not exist, so `policy/` was used.
 
 ### Deviations recorded
 

@@ -200,7 +200,7 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
                     ctx.close()
         finally:
             browser.close()
-    assert len(sizes) == 20, f"expected 20 section titles across the four pages, found {len(sizes)}"
+    assert len(sizes) == 24, f"expected 24 section titles across the four pages, found {len(sizes)}"
     assert len(set(sizes)) == 1, f"one shared scale expected, got {sorted(set(sizes))}"
     # v4.4.1 rendered h2 at 1.7rem (27.2px) at 1440; three times that is 81.6px.
     assert 80 <= sizes[0] <= 83, sizes[0]

@@ -47,11 +47,13 @@ Rule (the v4.4.1 `WN-2` lesson): the register lists assertions pinning LITERAL I
 | `test_nexus_hub_guide.py` | line ~345 `aria-label="Nexus-Hub on GitHub"` | hyphenated aria-label | M2 | 1 | DONE |
 | `test_nexus_hub_guide.py` | `test_foundations_phase3_has_eight_title_subtitle_scenes`, expected list `"Nexus-Hub Harness"` | hyphenated scene title | M2 | 1 | DONE |
 | `test_nexus_hub_guide.py` | same test, `re.findall(r'<h2 id="[^"]+">...')` | h2 with no attributes beyond id | H3 (`class="section-title"`) | 1 | DONE: `[^>]*` tolerated |
-| `test_nexus_hub_guide.py` | `test_onboarding_has_no_hardcoded_catalog_counts` (`ONBOARDING_STALE` on Home text) | any `\d{2,4} skills/hooks/commands/agents` in Home prose | M1: stamped `data-count` markers are the sanctioned form; the test must exempt marker-carried numbers (or assert them equal to the catalog) | 2 | OPEN |
-| `test_nexus_hub_guide.py` | `<p class="hero-tagline">` regex (~line 577) | tagline element and text | H1 | 2 | OPEN |
+| `test_nexus_hub_guide.py` | `test_onboarding_has_no_hardcoded_catalog_counts` (`ONBOARDING_STALE` on Home text) | any `\d{2,4} skills/hooks/commands/agents` in Home prose | M1: stamped `data-count` markers are the sanctioned form | 2 | DONE: every count phrase in Home must now EQUAL the current catalog value |
+| `test_nexus_hub_guide.py` | `<p class="hero-tagline">` regex (~line 577) | tagline element and text | H1 | 2 | DONE: replaced by the subtitle-and-lead test |
+| `test_nexus_hub_guide.py` | `test_home_platform_rail_carries_the_required_attribution` | `<details class="platform-credits">` on Home as the attribution carrier | H2 (attribution moves to the site footer; decision 2026-09-02) | 2 | DONE: now asserts the footer carries CC BY 4.0, Microsoft, Codicons, and the nominative-use sentence |
 | `test_nexus_hub_guide.py` | `"Nexus-Hub" not in home.split("</h1>")` and heading checks (~561, ~673) | absence assertions | none (still true after rename) | - | KEEP |
-| `test_v441_phase2_home.py` | hero tagline / rail / loop assertions | `.hero-tagline` text | H1 | 2 | OPEN |
+| `test_v441_phase2_home.py` | hero tagline / rail / loop assertions | `.hero-tagline` text | H1 | 2 | DONE: no tagline assertion existed there; eight Phase 2 tests appended |
 | `test_v441_phase4_foundations.py` | two-column `fx-scene` grid; matched-emission of Models and Agentic | `.fx-scene` grid-template-columns; `Moving Image` label | F2, F4 | 3, 4 | OPEN |
+| `test_nexus_hub_guide.py` | `test_home_comparison_has_centered_explicit_sides`: title `Keep your platform. Add the workflow.` | comparison section title | H4 (merged section retitled `Raw prompting vs Nexus Hub`) | 2 | DONE |
 | `test_nexus_hub_guide.py` | `test_foundations_phase3_has_eight_title_subtitle_scenes`: `fx.count("<svg") >= 7`; `Harnesses` / `Nexus Hub Harness` structure | per-scene SVG presence, separate harness diagrams | F6 (one shared layered diagram) | 4 | OPEN |
 | `test_arcade_shooter_game.py` | `nag-controls` / `nag-actions` buttons; `enemy-hit` never spawns; two asteroid speeds | touch buttons, spawn gating, `ASTEROID_SPEEDS` length | A1, A2, A3 | 5 | OPEN |
 | `test_v441_phase6_workspace.py` | `.nht-col:first-child` `height: 58%`; REGIONS / PAIRS lists | column sizing, region set | P1, P2 | 6 | OPEN |
@@ -65,7 +67,7 @@ Ceiling: strict 500,000 bytes. Every phase records its measured actual against i
 |---|---:|---:|---:|---|
 | Start (v4.4.1 merge) | - | - | 292,339 | |
 | 1 | +8,000 | +7,708 | 300,047 | sequencer JS + primitives, title-scale token, rename |
-| 2 | +36,000 | | | |
+| 2 | +36,000 | +14,524 | 314,571 | hero subtitle and lead, four restored sections, guardrails illustration, merged comparison, footer |
 | 3 | +22,000 | | | |
 | 4 | +38,000 | | | |
 | 5 | +14,000 | | | |
