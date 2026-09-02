@@ -997,10 +997,18 @@ html[data-theme="light"] .nht-ico--go:hover:not(:disabled) { color: #fffdf8; }
 }
 .nag-control:hover, .nag-action:hover { border-color: var(--accent); color: var(--ink); }
 .nag-control:active, .nag-control.is-held { background: color-mix(in srgb, var(--accent) 18%, var(--surface)); color: var(--accent); }
-.nag-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 10px 10px; }
+.nag-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px 4px; }
 .nag-action { flex: 1 1 90px; }
 .nag-action--primary { background: var(--accent); border-color: transparent; color: var(--bg-deep); }
 .nag-step { display: none; }
+/* v4.4.2: fine pointers read a key guide; coarse pointers keep the touch buttons. The actions
+   (Pause / Resume, Reset, Advance one step) sit beside the HUD on every pointer type. */
+.nag-guide { list-style: none; margin: 0; padding: 8px 12px 10px; display: none; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--ink-dim); border-top: 1px solid var(--border); }
+.nag-guide li { display: inline-flex; align-items: center; gap: 4px; }
+.nag-guide kbd { font: 600 11px var(--mono); color: var(--ink); background: var(--bg-0); border: 1px solid var(--border-bright); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; }
+@media (pointer: fine) { .nag-guide { display: flex; } .nag-controls { display: none; } }
+@media (pointer: coarse) { .nag-guide { display: none; } .nag-controls { display: grid; } }
+.nht-game.no-canvas .nag-guide { display: none; }
 .nag-note { margin: 0; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--surface); font-size: 12px; color: var(--ink-dim); }
 .nag-note strong { color: var(--ink); }
 .nht-game.no-canvas .nag-stage { aspect-ratio: auto; }
@@ -1154,6 +1162,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 /* Touch controls and the long note are redundant in a presentation: the keyboard is in
    the operator's hands and the controls stay reachable in normal mode. */
 .nht.is-present .nag-controls,
+.nht.is-present .nag-guide,
 .nht.is-present .nag-note { display: none; }
 .nht.is-present .term--nht { flex: none; }
 /* The single permitted secondary scroll owner: six visible terminal lines, then scroll. */
@@ -2124,11 +2133,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                   <span class="nag-tag" data-arcade="mode">seeded bug</span>
                 </div>
                 <div class="nag-stage" data-arcade="stage">
-                  <canvas class="nag-canvas" data-arcade-canvas width="360" height="480" aria-label="Playable arcade shooter. Use Left and Right arrows or A and D to move, and Space to fire. Up and Down work after the vertical-movement feature is added.">Your browser cannot display the game canvas.</canvas>
+                  <canvas class="nag-canvas" data-arcade-canvas width="360" height="480" aria-label="Playable arcade shooter. Use Left and Right arrows or A and D to move, and Space or a click to fire. Up and Down work after the vertical-movement feature is added.">Your browser cannot display the game canvas.</canvas>
                   <div class="nag-fallback" id="nagFallback" data-arcade-fallback hidden role="status"></div>
                   <div class="nag-start" data-arcade="start-overlay">
                     <button type="button" class="nag-start-btn" data-arcade-start>Click to start</button>
-                    <span class="nag-start-hint">Left / Right or A / D move &middot; Space fires</span>
+                    <span class="nag-start-hint">Left / Right or A / D move &middot; Space or click fires &middot; leaving the arena pauses</span>
                   </div>
                 </div>
                 <div class="visually-hidden" data-arcade-live-status aria-live="polite" aria-atomic="true"></div>
@@ -2137,6 +2146,17 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                   <div class="nag-stat">Lives<b data-arcade-lives>3</b></div>
                   <div class="nag-stat">State<b data-arcade="state">idle</b></div>
                 </div>
+                <div class="nag-actions">
+                  <button type="button" class="nag-action nag-action--primary" data-arcade-action="toggle">Pause game</button>
+                  <button type="button" class="nag-action" data-arcade-action="reset">Reset demo</button>
+                  <button type="button" class="nag-action nag-step" data-arcade-action="step" data-arcade-step>Advance one step</button>
+                </div>
+                <ul class="nag-guide" role="list" aria-label="Keyboard and mouse controls">
+                  <li><kbd>Left</kbd> / <kbd>Right</kbd> or <kbd>A</kbd> / <kbd>D</kbd> move</li>
+                  <li><kbd>Space</kbd> or <kbd>click</kbd> fire</li>
+                  <li><kbd>Up</kbd> / <kbd>Down</kbd> or <kbd>W</kbd> / <kbd>S</kbd> move vertically after the feature</li>
+                  <li><kbd>Esc</kbd> or leave the arena pauses</li>
+                </ul>
                 <div class="nag-controls" role="group" aria-label="Touch game controls">
                   <button type="button" class="nag-control" data-arcade-control="left" aria-label="Move left">&#9664; Left</button>
                   <button type="button" class="nag-control" data-arcade-control="right" aria-label="Move right">Right &#9654;</button>
@@ -2144,12 +2164,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                   <button type="button" class="nag-control" data-arcade-control="down" aria-label="Move down, once the vertical-movement feature is enabled">&#9660; Down</button>
                   <button type="button" class="nag-control" data-arcade-control="fire" aria-label="Fire">&#9679; Fire</button>
                 </div>
-                <div class="nag-actions">
-                  <button type="button" class="nag-action nag-action--primary" data-arcade-action="toggle">Pause game</button>
-                  <button type="button" class="nag-action" data-arcade-action="reset">Reset demo</button>
-                  <button type="button" class="nag-action nag-step" data-arcade-action="step" data-arcade-step>Advance one step</button>
-                </div>
-                <p class="nag-note" id="nagInstructions"><strong>Controls:</strong> click the start button or press Enter on it, then use Left and Right arrows or A and D to move and Space to fire; Up and Down (or W and S) work after the vertical-movement feature is added, and Escape pauses and releases the keys. Equivalent touch controls follow the game. <strong>Seeded defect:</strong> the very first enemy shot destroys the ship outright instead of costing one of three lives. Fixed damage counts lives 3, 2, 1, 0; touching an asteroid is always fatal.</p>
+                <p class="nag-note" id="nagInstructions"><strong>Controls:</strong> click the start button or press Enter on it, then use Left and Right arrows or A and D to move and Space or a click inside the arena to fire; Up and Down (or W and S) work after the vertical-movement feature is added, and Escape or moving the pointer out of the arena pauses and releases the keys. On touch devices, labelled buttons mirror every key. <strong>Seeded defect:</strong> the very first enemy shot destroys the ship outright instead of costing one of three lives. Fixed damage counts lives 3, 2, 1, 0; touching an asteroid is always fatal.</p>
               </div>
             </div>
 
@@ -3437,10 +3452,18 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   var PLAYER_SHOT_VY = -240;
   var PLAYER_SHOT_LIFE = 2.5;
   var ENEMY_SHOT_VY = 150;
-  var ASTEROID_SPEEDS = [60, 105];
+  /* v4.4.2: three size tiers and three speed tiers, chosen independently on the SPAWN stream. */
+  var ASTEROID_SPEEDS = [45, 75, 110];
+  var ASTEROID_SIZES = [[8, 11], [12, 17], [18, 26]];
+  var ENEMY_BANDS = [[40, 55], [60, 80], [90, 115]];
+  var SPAWN_ENEMY_TICKS = [90, 150];
+  var SPAWN_ASTEROID_TICKS = [70, 120];
+  var TEACHING_SPAWN_FROM_TICK = 120;
+  var CENTRE_BAND = [135, 225];
+  var SPAWN_STREAM_SALT = 0x9E3779B9;
   var FIRE_COOLDOWN_TICKS = 14;
   var MAX_FRAME_SECONDS = 0.25;
-  var PAUSE_REASONS = ["manual", "blur", "hidden", "offscreen", "reduced-motion"];
+  var PAUSE_REASONS = ["manual", "blur", "hidden", "offscreen", "reduced-motion", "pointer"];
   var FIXTURES = ["enemy-hit", "asteroid-hit", "play"];
 
   var reduceQuery = window.matchMedia
@@ -3497,7 +3520,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   }
 
   function fixtureState(name, seed) {
+    /* Two streams from one seed. rng (the BEAT stream) is consumed exactly as v4.4.1 did:
+       stars, the pre-placed enemy cadence, the play fixture timers. rngSpawn drives every
+       v4.4.2 spawn decision, so adding spawns cannot shift a draw the teaching beats use. */
     var rng = mulberry32(seed);
+    var rngSpawn = mulberry32((seed ^ SPAWN_STREAM_SALT) >>> 0);
     var base = {
       seed: seed,
       fixture: name,
@@ -3515,8 +3542,9 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       explosions: [],
       stars: [],
       nextId: 1,
-      spawn: { enemyIn: 0, asteroidIn: 0 },
-      rng: rng
+      spawn: { enemyIn: 0, asteroidIn: 0, fromTick: 0, teaching: false },
+      rng: rng,
+      rngSpawn: rngSpawn
     };
     var i;
     for (i = 0; i < 26; i++) {
@@ -3526,14 +3554,18 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       /* Fires on a deterministic cadence so FIXED mode can demonstrate 3 -> 2 -> 1 -> 0:
          the pre-placed shot lands first (~tick 75), then each re-fire lands after the
          90-tick invulnerability window has expired. */
-      base.enemies.push({ id: "seed-enemy", x: 180, y: 80, r: 12, vx: 0, vy: 8, fireIn: 130, resolved: false });
+      base.enemies.push({ id: "seed-enemy", x: 180, y: 80, r: 12, vx: 0, vy: 8, band: 0, fireIn: 130, resolved: false });
       base.enemyShots.push({ id: "seed-shot", x: 180, y: 240, r: 3.5, vy: ENEMY_SHOT_VY, resolved: false });
-      base.spawn.enemyIn = Infinity;
-      base.spawn.asteroidIn = Infinity;
+      base.spawn.teaching = true;
+      base.spawn.fromTick = TEACHING_SPAWN_FROM_TICK;
+      base.spawn.enemyIn = SPAWN_ENEMY_TICKS[0];
+      base.spawn.asteroidIn = SPAWN_ASTEROID_TICKS[0];
     } else if (name === "asteroid-hit") {
-      base.asteroids.push({ id: "seed-rock", x: 180, y: 200, r: 16, vy: ASTEROID_SPEEDS[1], spin: 0.8, face: rng() * 6.28, resolved: false });
-      base.spawn.enemyIn = Infinity;
-      base.spawn.asteroidIn = Infinity;
+      base.asteroids.push({ id: "seed-rock", x: 180, y: 200, r: 16, vy: 105, spin: 0.8, face: rng() * 6.28, resolved: false });
+      base.spawn.teaching = true;
+      base.spawn.fromTick = TEACHING_SPAWN_FROM_TICK;
+      base.spawn.enemyIn = SPAWN_ENEMY_TICKS[0];
+      base.spawn.asteroidIn = SPAWN_ASTEROID_TICKS[0];
     } else {
       base.spawn.enemyIn = 70 + Math.floor(rng() * 40);
       base.spawn.asteroidIn = 40 + Math.floor(rng() * 30);
@@ -3541,39 +3573,68 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     return base;
   }
 
+  function pick(rng, range) { return range[0] + rng() * (range[1] - range[0]); }
+  function pickTicks(rng, range) { return range[0] + Math.floor(rng() * (range[1] - range[0] + 1)); }
+  /* Teaching fixtures keep a stationary player untouched: x lands outside the centre band. */
+  function spawnX(s, margin) {
+    var r = s.rngSpawn;
+    if (!s.spawn.teaching) return margin + r() * (WIDTH - 2 * margin);
+    var left = CENTRE_BAND[0] - margin, right = CENTRE_BAND[1] + margin;
+    return r() < 0.5 ? margin + r() * (left - margin) : right + r() * (WIDTH - margin - right);
+  }
   function spawnStep(s) {
-    if (s.fixture !== "play") return;
+    if (s.tick < s.spawn.fromTick) return;
+    var r = s.rngSpawn;
     if (s.spawn.enemyIn <= 0) {
+      var band = Math.floor(r() * ENEMY_BANDS.length);
       s.enemies.push({
         id: "enemy-" + s.nextId++,
-        x: 30 + s.rng() * (WIDTH - 60),
+        x: spawnX(s, 30),
         y: -14,
         r: 12,
-        vx: (s.rng() - 0.5) * 40,
-        vy: 55 + s.rng() * 25,
-        fireIn: 40 + Math.floor(s.rng() * 50),
+        vx: s.spawn.teaching ? 0 : (r() - 0.5) * 40,
+        vy: pick(r, ENEMY_BANDS[band]),
+        band: band,
+        fireIn: 40 + Math.floor(r() * 50),
         resolved: false
       });
-      s.spawn.enemyIn = 150 + Math.floor(s.rng() * 90);
+      s.spawn.enemyIn = pickTicks(r, SPAWN_ENEMY_TICKS);
     } else {
       s.spawn.enemyIn -= 1;
     }
     if (s.spawn.asteroidIn <= 0) {
-      var tier = s.rng() < 0.5 ? 0 : 1;
+      var size = Math.floor(r() * ASTEROID_SIZES.length);
+      var speed = Math.floor(r() * ASTEROID_SPEEDS.length);
+      var radius = pick(r, ASTEROID_SIZES[size]);
       s.asteroids.push({
         id: "rock-" + s.nextId++,
-        x: 20 + s.rng() * (WIDTH - 40),
+        x: spawnX(s, Math.ceil(radius) + 6),
         y: -20,
-        r: 12 + s.rng() * 10,
-        vy: ASTEROID_SPEEDS[tier],
-        spin: (s.rng() - 0.5) * 2,
-        face: s.rng() * 6.28,
+        r: radius,
+        vy: ASTEROID_SPEEDS[speed],
+        tier: size,
+        spin: (r() - 0.5) * 2,
+        face: r() * 6.28,
         resolved: false
       });
-      s.spawn.asteroidIn = 110 + Math.floor(s.rng() * 80);
+      s.spawn.asteroidIn = pickTicks(r, SPAWN_ASTEROID_TICKS);
     } else {
       s.spawn.asteroidIn -= 1;
     }
+  }
+
+  /* Pure seam for tests: the spawn sequence a fixture and seed would produce over N ticks,
+     computed on a scratch state with spawnStep alone, so variety can be asserted without the
+     player having to survive it. */
+  function spawnSample(fixtureName, seed, ticks) {
+    var name = FIXTURES.indexOf(fixtureName) !== -1 ? fixtureName : "play";
+    var scratch = fixtureState(name, typeof seed === "number" && isFinite(seed) ? Math.floor(seed) : DEFAULT_SEED);
+    var n = Math.max(0, Math.min(20000, Math.floor(ticks) || 0));
+    for (var i = 0; i < n; i++) { scratch.tick = i; spawnStep(scratch); }
+    return deepFreeze({
+      enemies: scratch.enemies.filter(function (e) { return e.id !== "seed-enemy"; }).map(function (e) { return { vy: round3(e.vy), band: e.band, x: round3(e.x) }; }),
+      asteroids: scratch.asteroids.filter(function (a) { return a.id !== "seed-rock"; }).map(function (a) { return { r: round3(a.r), vy: a.vy, tier: a.tier, x: round3(a.x) }; })
+    });
   }
 
   function inputStep(s) {
@@ -3903,6 +3964,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     ctx.beginPath(); ctx.ellipse(0, -2, 4.4, 3, 0, 0, 6.29); ctx.fill();
     ctx.fillStyle = "rgba(255, 214, 120, .95)";
     ctx.beginPath(); ctx.ellipse(0, -2, 2, 1.4, 0, 0, 6.29); ctx.fill();
+    /* Engine glow tinted by velocity band so speed variety reads at a glance. */
+    var glow = ["rgba(120, 200, 255, .55)", "rgba(255, 190, 90, .6)", "rgba(255, 90, 90, .7)"][e.band || 0];
+    ctx.fillStyle = glow;
+    ctx.beginPath(); ctx.ellipse(0, 12, 5 + (e.band || 0) * 1.5, 3 + (e.band || 0), 0, 0, 6.29); ctx.fill();
     ctx.restore();
   }
 
@@ -3927,6 +3992,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     ctx.fillStyle = "rgba(30, 24, 16, .45)";
     ctx.beginPath(); ctx.ellipse(a.r * 0.25, a.r * 0.1, a.r * 0.22, a.r * 0.16, 0.5, 0, 6.29); ctx.fill();
     ctx.beginPath(); ctx.ellipse(-a.r * 0.3, a.r * 0.35, a.r * 0.14, a.r * 0.1, 0.2, 0, 6.29); ctx.fill();
+    if (a.r >= 18) { ctx.beginPath(); ctx.ellipse(-a.r * 0.35, -a.r * 0.4, a.r * 0.12, a.r * 0.09, 1.1, 0, 6.29); ctx.fill(); }
     ctx.restore();
   }
 
@@ -4010,7 +4076,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       modeEl.classList.toggle("is-fixed", state.damageMode === "fixed");
     }
     if (toggleEl) {
-      toggleEl.textContent = pauseSet.manual ? "Resume game" : "Pause game";
+      toggleEl.textContent = (pauseSet.manual || pauseSet.pointer) ? "Resume game" : "Pause game";
     }
     game.setAttribute("data-lifecycle", state.lifecycle);
     /* Announce lives and lifecycle CHANGES only, never per-frame chatter. */
@@ -4094,6 +4160,30 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
   game.addEventListener("focus", function () { resume("blur"); }, true);
 
+  /* v4.4.2 pointer contract: a primary click inside the stage FIRES while running (same
+     cooldown as Space); it starts nothing while idle and resumes nothing while paused, so a
+     stray click can never change lifecycle. Leaving the stage pauses; re-entering does not
+     resume, the visible Resume control does. Secondary buttons and the context menu are
+     swallowed inside the stage. */
+  var stageEl = game.querySelector('[data-arcade="stage"]');
+  if (stageEl) {
+    stageEl.addEventListener("pointerdown", function (event) {
+      if (event.target && event.target.closest && event.target.closest("[data-arcade-start]")) return;
+      if (event.button !== 0) { event.preventDefault(); return; }
+      if (state.lifecycle !== "running") return;
+      var p = state.player;
+      if (p.fireCooldown <= 0) {
+        state.playerShots.push({ id: "shot-" + state.nextId++, x: p.x, y: p.y - 12, r: 3, vy: PLAYER_SHOT_VY, life: PLAYER_SHOT_LIFE, resolved: false });
+        p.fireCooldown = FIRE_COOLDOWN_TICKS;
+      }
+      event.preventDefault();
+    });
+    stageEl.addEventListener("contextmenu", function (event) { event.preventDefault(); });
+    stageEl.addEventListener("pointerleave", function () {
+      if (state.lifecycle === "running") { pause("pointer"); releaseKeys(); }
+    });
+  }
+
   if (startButton) {
     startButton.addEventListener("click", function () {
       start();
@@ -4117,7 +4207,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     var kind = button.getAttribute("data-arcade-action");
     button.addEventListener("click", function () {
       if (kind === "toggle") {
-        if (pauseSet.manual) resume("manual"); else pause("manual");
+        if (pauseSet.manual || pauseSet.pointer) { resume("pointer"); resume("manual"); } else { pause("manual"); }
       } else if (kind === "reset") {
         restart();
         game.focus();
@@ -4188,7 +4278,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     world: Object.freeze({ width: WIDTH, height: HEIGHT, tick: TICK, seed: DEFAULT_SEED }),
     logic: Object.freeze({
       collides: collides,
-      damageOutcome: damageOutcome
+      damageOutcome: damageOutcome,
+      spawnSample: spawnSample
     })
   });
 })();

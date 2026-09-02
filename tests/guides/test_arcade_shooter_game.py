@@ -140,8 +140,10 @@ def test_threats_originate_at_the_top_and_travel_downward(page_ctx) -> None:
     assert all(y < 60 for y in result["enemyBirthYs"]), "enemies must originate near the top"
     assert all(vy > 0 for vy in result["enemyVys"]), "enemies must descend"
     assert all(y < 40 for y in result["rockBirthYs"]), "asteroids must originate at the top"
-    assert result["rockVys"] == [60, 105], (
-        f"asteroids must fall at exactly the two seeded speeds; saw {result['rockVys']}"
+    # v4.4.2: three seeded speed tiers replace the two; over 900 ticks the play fixture must show
+    # at least two of them and never a speed outside the tier set.
+    assert set(result["rockVys"]) <= {45, 75, 110} and len(result["rockVys"]) >= 2, (
+        f"asteroids must fall at seeded tier speeds; saw {result['rockVys']}"
     )
     assert all(vy > 0 for vy in result["shotVys"]), "enemy shots must travel downward"
 
@@ -149,22 +151,26 @@ def test_threats_originate_at_the_top_and_travel_downward(page_ctx) -> None:
 def test_player_is_bounded_and_fires_upward(page_ctx) -> None:
     page, _ = page_ctx
     result = run_js(page, """
-        // enemy-hit, not play: thirty simulated seconds parked at a wall inside the live
-        // fixture gets the player killed by seeded spawns, which is correct behavior but
-        // not this test's subject. The quiet fixture's only threats stay in the x=180 column.
+        // v4.4.2: every fixture spawns from tick 120, and a player parked at a WALL is a
+        // legitimate target (only the centre band is kept clear). The clamp is reached in
+        // about 62 ticks per side, so 150 each way proves it well before any spawned threat
+        // can land (earliest possible hit is past tick 300).
         api.reset('enemy-hit'); api.setDamageMode('fixed'); api.start();
         api.input('left', true);
-        for (let i = 0; i < 900; i++) api.step();
+        for (let i = 0; i < 150; i++) api.step();
         const leftX = api.snapshot().player.x;
         api.input('left', false); api.input('right', true);
-        for (let i = 0; i < 1800; i++) api.step();
+        for (let i = 0; i < 150; i++) api.step();
         const rightX = api.snapshot().player.x;
         api.input('right', false); api.input('fire', true);
         api.step();
-        const shot = api.snapshot().playerShots[0];
+        const snap = api.snapshot();
+        const shot = snap.playerShots[0];
         api.input('fire', false);
-        return {leftX, rightX, shotVy: shot.vy, shotY: shot.y, playerY: api.snapshot().player.y};
+        if (!shot) return {leftX, rightX, lifecycle: snap.lifecycle, shotVy: null, shotY: null, playerY: snap.player.y};
+        return {leftX, rightX, lifecycle: snap.lifecycle, shotVy: shot.vy, shotY: shot.y, playerY: snap.player.y};
     """)
+    assert result["lifecycle"] == "running", f"the ship must survive the clamp walk: {result}"
     assert result["leftX"] == 14 and result["rightX"] == 346, "horizontal clamp failed"
     assert result["shotVy"] < 0, "player shots must travel upward"
     assert result["shotY"] < result["playerY"], "shots leave from the nose"
@@ -491,3 +497,133 @@ def test_every_training_route_initializes_the_migrated_game(playwright_mod, rout
     assert engine["damageMode"] == snap["game"]["damageMode"]
     assert engine["verticalMovementEnabled"] == snap["game"]["verticalMovementEnabled"]
     assert engine["fixture"] == snap["game"]["fixture"]
+
+
+# ============================================================================ v4.4.2 Phase 5
+# Continuous varied spawning behind a dual-stream seed, the pointer contract, and the key
+# guide. The two teaching-beat tests above are the proof that the beats did not move.
+
+
+def test_play_fixture_shows_three_enemy_bands_and_three_asteroid_tiers(page_ctx) -> None:
+    """The stationary test player does not survive full-width spawning for long (which is
+    correct), so tier variety is proven through the pure spawn seam over 1,800 ticks, and the
+    live run proves spawning is continuous and stays inside the tier set until the ship dies."""
+    page, _ = page_ctx
+    result = run_js(page, """
+        const plan = api.logic.spawnSample('play', 20260901, 1800);
+        const band = vy => vy < 58 ? 'slow' : vy < 85 ? 'mid' : 'fast';
+        const tier = r => r < 11.5 ? 'small' : r < 17.5 ? 'medium' : 'large';
+        api.reset('play'); api.start();
+        const live = new Map(); let ticks = 0;
+        for (let i = 0; i < 1800; i++) {
+            const s = api.step(); ticks = s.tick;
+            for (const a of s.asteroids) live.set(a.id, a.vy);
+            if (s.lifecycle === 'destroyed') break;
+        }
+        return {
+            bands: [...new Set(plan.enemies.map(e => band(e.vy)))].sort(),
+            tiers: [...new Set(plan.asteroids.map(a => tier(a.r)))].sort(),
+            speeds: [...new Set(plan.asteroids.map(a => a.vy))].sort((a, b) => a - b),
+            planned: [plan.enemies.length, plan.asteroids.length],
+            liveSpeeds: [...new Set(live.values())].sort((a, b) => a - b),
+            liveRocks: live.size, ticks,
+        };
+    """)
+    assert result["bands"] == ["fast", "mid", "slow"], result
+    assert result["tiers"] == ["large", "medium", "small"], result
+    assert result["speeds"] == [45, 75, 110], result
+    assert result["planned"][0] >= 12 and result["planned"][1] >= 15, f"spawning must be continuous: {result['planned']}"
+    assert result["liveRocks"] >= 2 and set(result["liveSpeeds"]) <= {45, 75, 110}, result
+
+
+def test_teaching_fixtures_spawn_after_the_beat_and_never_touch_a_stationary_player(page_ctx) -> None:
+    page, _ = page_ctx
+    result = run_js(page, """
+        api.reset('enemy-hit'); api.setDamageMode('fixed'); api.start();
+        let firstSpawnTick = null; const xs = []; let nearest = Infinity;
+        for (let i = 0; i < 1500; i++) {
+            const s = api.step();
+            const spawned = [...s.enemies, ...s.asteroids].filter(e => e.id !== 'seed-enemy' && e.id !== 'seed-rock');
+            if (spawned.length && firstSpawnTick === null) firstSpawnTick = s.tick;
+            for (const e of spawned) { xs.push(e.x); nearest = Math.min(nearest, Math.abs(e.x - 180) - e.r); }
+            if (s.lifecycle === 'destroyed') break;
+        }
+        return { firstSpawnTick, spawned: xs.length, nearest, lifecycle: api.snapshot().lifecycle };
+    """)
+    assert result["firstSpawnTick"] is not None and result["firstSpawnTick"] >= 120, result
+    assert result["spawned"] > 0
+    assert result["nearest"] > 10, f"a spawned threat came within {result['nearest']:.1f}px of the stationary player's column"
+
+
+def test_click_inside_the_arena_fires_and_leaving_it_pauses(page_ctx) -> None:
+    page, _ = page_ctx
+    page.locator("[data-arcade-start]").click()
+    page.wait_for_function("window.NexusShooter.snapshot().lifecycle === 'running'")
+    stage = page.locator('[data-arcade="stage"]')
+    box = stage.bounding_box()
+    cx, cy = box["x"] + box["width"] / 2, box["y"] + box["height"] * 0.3
+    before = page.evaluate("() => window.NexusShooter.snapshot().playerShots.length")
+    page.mouse.move(cx, cy)
+    page.mouse.down(); page.mouse.up()
+    page.mouse.down(); page.mouse.up()          # inside the cooldown: only one shot
+    after = page.evaluate("() => window.NexusShooter.snapshot().playerShots.length")
+    assert after == before + 1, f"one primary click fires exactly one shot per cooldown ({before} -> {after})"
+    page.mouse.click(cx, cy, button="right")
+    right = page.evaluate("() => window.NexusShooter.snapshot().playerShots.length")
+    assert right == after, "a secondary button never fires"
+    # Leave the arena: pause with reason `pointer`, keys released, no auto-resume on re-entry.
+    page.mouse.move(box["x"] + box["width"] + 80, cy)
+    page.wait_for_function("window.NexusShooter.snapshot().pauseReasons.includes('pointer')")
+    page.mouse.move(cx, cy)
+    page.wait_for_timeout(150)
+    still = page.evaluate("() => window.NexusShooter.snapshot().pauseReasons")
+    assert "pointer" in still, "re-entering the arena must not resume by itself"
+    label = page.locator('[data-arcade-action="toggle"]').text_content().strip()
+    assert label == "Resume game"
+    page.locator('[data-arcade-action="toggle"]').click()
+    page.wait_for_function("window.NexusShooter.snapshot().lifecycle === 'running'")
+    assert page.evaluate("() => window.NexusShooter.snapshot().pauseReasons") == []
+
+
+def test_context_menu_is_suppressed_inside_the_arena(page_ctx) -> None:
+    page, _ = page_ctx
+    prevented = page.evaluate("""() => {
+        const stage = document.querySelector('[data-arcade="stage"]');
+        const ev = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+        stage.dispatchEvent(ev);
+        return ev.defaultPrevented;
+    }""")
+    assert prevented is True
+
+
+def test_fine_pointer_sees_the_key_guide_and_coarse_pointer_sees_touch_controls(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            fine = browser.new_context(viewport={"width": 1440, "height": 900})
+            page = fine.new_page()
+            page.goto(GUIDE.as_uri() + "#training/describe")
+            page.wait_for_function("window.NexusShooter")
+            fine_state = page.evaluate("""() => ({
+                guide: getComputedStyle(document.querySelector('.nag-guide')).display,
+                touch: getComputedStyle(document.querySelector('.nag-controls')).display,
+                actionsAfterHud: document.querySelector('.nag-hud').nextElementSibling.classList.contains('nag-actions'),
+                hints: [...document.querySelectorAll('.nag-guide li')].map(li => li.textContent.replace(/\s+/g, ' ').trim()),
+            })""")
+            fine.close()
+            coarse = browser.new_context(**pw.devices["Pixel 5"])
+            page = coarse.new_page()
+            page.goto(GUIDE.as_uri() + "#training/describe")
+            page.wait_for_function("window.NexusShooter")
+            coarse_state = page.evaluate("""() => ({
+                guide: getComputedStyle(document.querySelector('.nag-guide')).display,
+                touch: getComputedStyle(document.querySelector('.nag-controls')).display,
+                buttons: document.querySelectorAll('.nag-controls [data-arcade-control]').length,
+            })""")
+            coarse.close()
+        finally:
+            browser.close()
+    assert fine_state["guide"] != "none" and fine_state["touch"] == "none", fine_state
+    assert fine_state["actionsAfterHud"], "Pause / Reset / Step sit beside the HUD"
+    assert any("click" in h for h in fine_state["hints"]) and any("Esc" in h for h in fine_state["hints"]), fine_state["hints"]
+    assert coarse_state["guide"] == "none" and coarse_state["touch"] != "none" and coarse_state["buttons"] == 5, coarse_state

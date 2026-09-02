@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 merged to `develop` 2026-09-02 (PR #154), release pending; v4.4.2 in progress on the same minor
-**Last updated**: 2026-09-02 (v4.4.2 Phase 4)
+**Last updated**: 2026-09-02 (v4.4.2 Phase 5)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -139,6 +139,12 @@
 - Two SVG captions overran the viewBox; repositioned, with a six-width containment test added. A helper CSS rule whose selector contained `.fx-region-tag` shadowed the original in a first-match regex test and was dropped rather than the test loosened.
 - Headless Chromium advances a media element slowly with no output device, so the waveform test proves continuous analyser-driven drawing and a live-versus-static difference rather than frame-to-frame change.
 - The uppercase `NEXUS-HUB` trail label survived the case-sensitive Phase 1 rename; fixed, and the rename test is now case-insensitive.
+
+### Phase 5 notes
+
+- No new defect. Both seeded teaching beats passed unedited after spawning was added, because the spawn decisions draw from a second stream (`seed ^ 0x9E3779B9`) and never touch the beat stream.
+- Tier variety is proven through the pure `logic.spawnSample` seam because a stationary test player does not survive full-width `play` spawning for long, which is correct behaviour and not the property under test.
+- The wall-parking bounds test was shortened from 45 simulated seconds to 150 ticks per side: under the amended contract a wall-parked player is a legitimate target, and the clamp is proven in about 62 ticks.
 
 ### Deviations recorded
 
