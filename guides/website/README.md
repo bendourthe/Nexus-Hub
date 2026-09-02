@@ -1,6 +1,6 @@
-# Nexus-Hub Interactive Guide
+# Nexus Hub Interactive Guide
 
-This directory holds the public-facing Nexus-Hub guide, its arcade-shooter Training data, and retained legacy fixtures. Everything reader-facing is self-contained, opens in a browser, and needs no build step. This `README.md` is for maintainers.
+This directory holds the public-facing Nexus Hub guide, its arcade-shooter Training data, and retained legacy fixtures. Everything reader-facing is self-contained, opens in a browser, and needs no build step. This `README.md` is for maintainers.
 
 ## Contents
 
@@ -49,7 +49,7 @@ Eight scenes in this exact order, each `.fx-scene` with one `.fx-title` and one 
 5. **Agentic Platform** - the SAME entry motif and work-cycle glyph as Models, emitted by the same code so they are byte-identical, then three mission lanes, one permission-and-tool boundary, observations, and a report.
 6. **Chatbot vs. Agentic Platform** - two lanes, chatbot first, with explicit Boundary / Action / Outcome / Leaves-behind labels.
 7. **Harnesses** - the built-in platform runtime loop with the model nested inside.
-8. **Nexus-Hub Harness** - the portable workflow layer with its five repository-anchored claims, the does-not-replace qualifier, and the durable-trail comparison.
+8. **Nexus Hub Harness** - the portable workflow layer with its five repository-anchored claims, the does-not-replace qualifier, and the durable-trail comparison.
 
 Terminology is load-bearing: any reasoning visual is labelled an ABSTRACT work cycle, never a transcript of hidden chain-of-thought, and platform capability is always stated as "can", "when supported", "when permitted".
 
@@ -74,7 +74,7 @@ Retained screenshots live under `docs/releases/v4/v4.4/development/guide-visual-
 
 ## Home
 
-Home is a short orientation, not a catalog dump. It states the outcome, shows six supported platforms in a compatibility rail, embeds the two canonical install commands behind OS tabs (**Windows first and default**), compares an unaided assistant to one using Nexus-Hub, shows the six-step loop, and closes with next steps.
+Home is a short orientation, not a catalog dump. It states the outcome, shows six supported platforms in a compatibility rail, embeds the two canonical install commands behind OS tabs (**Windows first and default**), compares an unaided assistant to one using Nexus Hub, shows the six-step loop, and closes with next steps.
 
 Canonical install constants (must match `tests/guides/test_nexus_hub_guide.py`):
 
@@ -95,7 +95,7 @@ Foundations is eight scrollytelling scenes, each teaching one concept through a 
 4. **What Is an Agent Platform** - a model operating inside a host loop that can propose actions, observe results, and continue.
 5. **Chatbot or Agentic Platform?** - the same request ending as guidance to apply or as checked work completed in the active work surface.
 6. **What Is Context** - a finite token budget shown noisy and focused, including what can happen when it fills and why task-matched loading matters.
-7. **What Is a Harness** - the model, platform loop and built-in harness, and Nexus-Hub's portable workflow layer shown as distinct nested layers.
+7. **What Is a Harness** - the model, platform loop and built-in harness, and Nexus Hub's portable workflow layer shown as distinct nested layers.
 8. **What Changes in Practice** - an honest comparison between a saved platform result and the same job with matched procedure, written gate, and durable evidence.
 
 Hard rules: no element pins itself over the content, and there is **no toggle** between the two states - both are always visible, because a selector for something already on screen is noise. Diagram colors come from theme tokens so one markup serves both themes. Do not restore a `type="range"` hero, the station cards, the carousel, or the per-scene number badges (removed in v4.2.3 as a full line carrying no information).
@@ -193,7 +193,7 @@ The same table is frozen in `docs/releases/v4/v4.2/development/guide-redesign-co
 
 Canonical source: `guides/website/nexus-hub-guide.html` in this repository.
 
-Published copy (sibling portfolio, outside this tree): `<portfolio-root>/nexus-hub/index.html`. Common local layout is `../online-portfolio/` next to Nexus-Hub. Absence of that clone does not block Nexus-Hub CI or a release.
+Published copy (sibling portfolio, outside this tree): `<portfolio-root>/nexus-hub/index.html`. Common local layout is `../online-portfolio/` next to Nexus Hub. Absence of that clone does not block Nexus Hub CI or a release.
 
 Publication is a copy:
 

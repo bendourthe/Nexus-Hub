@@ -70,6 +70,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/sync_platform_defaults.py --check
 	@echo "Running compression accuracy-regression gate (v3.2.0 Phase 5)..."
 	@cd extensions/nexus-context-compressor && python -m evals --check
+	@echo "Checking guide data-count markers against the catalog (v4.4.2 Phase 1)..."
+	@python scripts/stamp_guide_counts.py --check
 	@echo "All catalogs valid."
 
 lint: ## Lint shell scripts with ShellCheck

@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `feat/v4.4.1-guide-visual-and-arcade-rebuild`
-**Active plan:** [v4.4.1 guide-visual-and-arcade-rebuild](releases/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md)
+**Branch:** `feat/v4.4.2-guide-production-ready-rebuild`
+**Active plan:** [v4.4.2 guide-production-ready-rebuild](releases/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md)
 **Last refreshed:** 2026-09-01
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -15,15 +15,16 @@ Refreshing this file to the active plan (rather than appending another version's
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
-| Local phase commits | 7 | 7 | 0 |
+| v4.4.2 guide-production-ready-rebuild phases complete | 1 | 8 | -7 |
+| v4.4.2 local phase commits | 1 | 8 | -7 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 292,339 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 300,047 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
 
-## Plan - v4.4.1 Guide Visual and Arcade Rebuild [IN PROGRESS]
+## Plan - v4.4.1 Guide Visual and Arcade Rebuild [MERGED TO DEVELOP 2026-09-02, PR #154; release pending]
 
 - [x] Phase 1 - Contracts, asset provenance, and byte budget
 - [x] Phase 2 - Home identity, platform rail, and workflow loop
@@ -33,11 +34,11 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 6 - Training workspace, fullscreen, and integrated loop
 - [x] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration (local duties; publication in progress)
 
-## Plan - v4.4.2 Guide Production-Ready Rebuild [QUEUED]
+## Plan - v4.4.2 Guide Production-Ready Rebuild [IN PROGRESS]
 
-Plan: [v4.4.2-guide-production-ready-rebuild.md](releases/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md). Starts from `develop` after v4.4.1 merges.
+Plan: [v4.4.2-guide-production-ready-rebuild.md](releases/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md). Branch cut from `develop` at `46f18986` on 2026-09-02.
 
-- [ ] Phase 1 - Contracts, motion system, scale tokens, and rename
+- [x] Phase 1 - Contracts, motion system, scale tokens, and rename
 - [ ] Phase 2 - Home hero and restored sections
 - [ ] Phase 3 - Foundations title system, layout balance, and annotated prompts
 - [ ] Phase 4 - Foundations Models, Agentic Platform, and the layered harness animation

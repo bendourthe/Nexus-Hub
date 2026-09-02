@@ -1,8 +1,8 @@
 # Known Gaps - v4.4
 
 **Project**: Nexus-Hub
-**Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 in progress on the same minor
-**Last updated**: 2026-09-01 (v4.4.1 Phase 7)
+**Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 merged to `develop` 2026-09-02 (PR #154), release pending; v4.4.2 in progress on the same minor
+**Last updated**: 2026-09-02 (v4.4.2 Phase 1)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -104,4 +104,28 @@
 
 - **Outline reflows the presentation slide while open.** The Outline panel is an in-flow block, so in present mode it squeezes the game panel for as long as it is open. State restores exactly on close (proved by BG-11's fix), and no acceptance criterion covers the open state, so overlaying the panel was left out of a late, unvalidated layout diff. Revisit alongside any future presentation-layout work.
 
-> Not finalized. v4.4.1 is in progress; this section is appended per phase and reconciled at the plan's final phase.
+> v4.4.1 section closed at its Phase 7 GO (2026-09-02); its open items `HT-1`, `HT-2`, `HT-3`, and the Outline-reflow P3 stay owned as recorded above.
+
+## v4.4.2 - guide-production-ready-rebuild
+
+**Plan**: [v4.4.2-guide-production-ready-rebuild.md](plans/v4.4.2-guide-production-ready-rebuild.md)
+**Contract**: [phase-1-contract.md](development/guide-production-ready-rebuild/phase-1-contract.md) (requirement matrix, superseded-assertion register, byte ledger)
+
+### Carried in from v4.4.1
+
+- Outline reflows the presentation slide while open (P3) - owned by Phase 6, which makes the panel an overlay.
+- `HT-1` no human comprehension cohort - re-issued in Phase 8 with the annotated-prompt and harness-animation prompts added.
+- `HT-2` real current-host installer duty - stays with v4.4.1's release; this plan never runs a sandboxed installer.
+
+### Closed during v4.4.2
+
+| ID | Finding | Phase | Disposition |
+|---|---|---|---|
+| BG-13 | The sequencer demo dimmed text below WCAG AA | Phase 1 | The first `NexusSeq` demo faded inactive loop pills to opacity .45 and the contrast sweep measured 1.9:1 (light) and 3.4:1 (dark) mid-sequence. Rule adopted: text carriers never change foreground contrast during a sequence. Added `seq-glow` (accent ring on the active step), switched the loop to it, and reserved `seq-fade` (floor .7) for shapes and connectors with a comment recording why. Sweep green. |
+
+### Deviations recorded
+
+- `.section-title` minimum bound is 0.6x the scaled floor (34.5 px at scale 3) instead of the plan formula's 57.6 px, so a long word cannot overflow a 320 px viewport; the 1440 px anchor (81.6 px, exactly 3x v4.4.1) is unchanged. Recorded in the Phase 1 contract.
+
+> Not finalized. v4.4.2 is in progress; this section is appended per phase and reconciled at the plan's final phase.
+

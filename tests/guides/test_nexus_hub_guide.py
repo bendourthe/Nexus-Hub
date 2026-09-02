@@ -38,7 +38,7 @@ ONBOARDING_STALE = re.compile(
         | \b\d+\s+agents\b
         | installer\s+v?\d+\.\d+\.\d+
         | \bv3\.\d+\.\d+\b
-        | Nexus-Hub\s+v\d+\.\d+\.\d+
+        | Nexus[- ]Hub\s+v\d+\.\d+\.\d+
     )""",
     re.IGNORECASE | re.VERBOSE,
 )
@@ -342,7 +342,7 @@ def test_github_control_is_icon_only(guide_text: str) -> None:
     )
     assert match, "expected .nav-gh GitHub control"
     tag = match.group(0)
-    assert 'aria-label="Nexus-Hub on GitHub"' in tag
+    assert 'aria-label="Nexus Hub on GitHub"' in tag
     visible = re.sub(r"<svg[\s\S]*?</svg>", "", tag)
     visible = re.sub(r"<[^>]+>", "", visible)
     assert "GitHub" not in visible
@@ -844,9 +844,9 @@ def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> 
         "Agentic Platform",
         "Chatbot vs. Agentic Platform",
         "Harnesses",
-        "Nexus-Hub Harness",
+        "Nexus Hub Harness",
     ]
-    found = re.findall(r'<h2 id="[^"]+">([^<]*)</h2>', fx)
+    found = re.findall(r'<h2 id="[^"]+"[^>]*>([^<]*)</h2>', fx)
     assert found == expected, (
         f"Foundations scene order is wrong; got {found} expected {expected}"
     )
