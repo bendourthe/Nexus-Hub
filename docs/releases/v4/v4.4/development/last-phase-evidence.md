@@ -320,3 +320,295 @@ provenance   success  16:12:51-16:13:00
 Two jobs totalling 25 seconds of runner time, versus the 12-minute `tests` job on the pull request, confirms the post-merge event is scoped to smoke and provenance only.
 
 **Disposition**: PASS. Publication and integration are COMPLETE. The single authorized push, the green integration pull request, the approved merge, and the scoped post-merge result are all recorded. Phase 7 is closed and the release flow may proceed to `/update release`, which owns the version bump, changelog, tag, push, and GitHub Release behind its own confirmation gates.
+
+<!-- BEGIN v4.4.1-guide-visual-and-arcade-rebuild -->
+
+# Last-Phase Evidence - v4.4.1 Guide Visual and Arcade Rebuild
+
+**Version**: v4.4.1
+**Slug**: `guide-visual-and-arcade-rebuild`
+**Branch**: `feat/v4.4.1-guide-visual-and-arcade-rebuild`
+**Phase 7 verification base SHA**: `12c40a987619407d818e4252c5c09731e8f4a940`
+**Date**: 2026-09-01
+**Publication state**: GO recorded 2026-09-02 after the operator's explicit decision (see `## Publication and integration preflight`). Push, pull request, required-check results, and merge are PR/CI artifacts appended by the release-owned handoff, not claimed by this block.
+
+## Architecture refactor
+
+Read-only scan; no move or deletion was proposed, so `project-refactor` and `docs-layout-refactor` ran in audit-only mode and no reference repair was required.
+
+```text
+tracked files: 3,850
+empty tracked directories: 0
+v4.4 release tree: 219 tracked files
+personal-path scan (validate_no_personal_paths.py): exit 0, 0 findings
+docs retention: nothing due for archival (current v4.4, threshold 2 minors)
+```
+
+Unrelated candidates recorded WITHOUT mutation, per this plan's narrowed mutation authority: 16 merged remote branches remain as cleanup candidates (see `## Git-tree hygiene`), and a stale `tests/guides/__pycache__/test_asteroids_game.cpython-312-pytest-7.4.4.pyc` artifact remains from the deleted v4.4.0 suite. The `.pyc` is untracked build output, not a repository file.
+
+**Disposition**: PASS.
+
+## Known-gaps reconciliation
+
+Both canonical (`docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md`) and legacy (`docs/archives/...`) layouts were globbed from `git ls-files`.
+
+```text
+known-gaps ledgers found: 34
+genuinely open (in-progress status OR non-empty Open Items): 19
+this plan's ledger: docs/releases/v4/v4.4/known-gaps.md
+```
+
+Only `docs/releases/v4/v4.4/known-gaps.md` was edited, because this plan's mutation authority is limited to v4.4.1-traceable work. The other 18 open ledgers are recorded here without modification; they belong to earlier, separately owned release cycles.
+
+v4.4.1 dispositions written this cycle: `BG-1` through `BG-11` are closed with their fixes described, and one item is deferred with an owner and next step (the Outline panel reflowing the presentation slide while open, which restores exactly on close and is covered by no acceptance criterion).
+
+**Disposition**: PASS for this version; 18 foreign ledgers recorded, not touched.
+
+## Living docs architecture
+
+```text
+docs/handbooks/          README.md, html/.gitkeep, markdown/.gitkeep
+docs/decisions/          README.md, implemented/, proposed/, rejected/
+docs/README.md           present
+docs/DEVLOG.md           present
+docs/todos.md            present
+docs/testing/            absent (correct - never invented)
+docs/validation/         absent (correct - never invented)
+```
+
+The empty `handbooks/markdown/` and `handbooks/html/` trees are a DELIBERATE documented state, not drift. `docs/handbooks/README.md` records that this repository is the Nexus-Hub catalog rather than an application with a product walkthrough, so a non-technical atlas and per-component companion HTML are deliberately not invented here, and the regenerate-and-fail-on-stale check is a no-op while `markdown/` has no authored pages. The backing decision is `docs/decisions/implemented/architecture/2026-08-24-living-docs-handbooks-and-decisions.md`. Markdown remains the source of truth; no HTML disagreed with it, because none exists to disagree.
+
+**Disposition**: PASS.
+
+## Git-tree hygiene
+
+```text
+python scripts/check_release_preconditions.py --branches --repo-settings
+
+Branch hygiene (merged into origin/develop)
+  16 merged branch(es) are cleanup candidates
+  (11 branch(es) with an open PR were excluded)
+  1 branch(es) survive a CLOSED, unmerged PR:
+    - origin/backmerge/v3.20.0
+  delete_branch_on_merge does NOT cover these. Review and delete by hand.
+  Reporting only -- nothing was deleted.
+Repository settings
+  OK: delete_branch_on_merge is enabled
+  OK: repository description agrees with README.md
+exit=0
+```
+
+Report only. No branch was deleted, and no repository setting was mutated; the external-settings contract forbids automatic mutation.
+
+**Disposition**: PASS.
+
+## CI/CD coverage
+
+DETECT: GitHub Actions, 11 workflow files under `.github/workflows/`. Recorded as detected rather than assumed.
+
+COMPARE, field by field against `docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md`:
+
+| Canonical field | Verdict | Observable evidence |
+|---|---|---|
+| Repository-native profiles | PASS | `scripts/ci/run.py` is invoked 5x in `ci.yml`; no test logic is reimplemented in YAML |
+| Event separation | PASS | `ci.yml` = pull_request + workflow_dispatch; `post-merge.yml` = push; `release.yml` = push (tag). The merge result is not revalidated on the merge commit |
+| Single always-resolving aggregate | PASS | `ci-required` is guarded by `if: always()`, the contract's named permitted form |
+| Allowlist verdict, fails closed | PASS | Verdict is an allowlist over `success`/`skipped`; an unfamiliar result value fails closed |
+| Cost scoping is job-level | PASS | 7 job-level `if: ${{ !cancelled() && ... }}` guards in `ci.yml`; no required check sits behind a workflow-level filter |
+| No required check from a path-filtered workflow | PASS | 6 workflows carry top-level `paths:`; none produces any of the 5 required contexts (their jobs are `build-and-test`, `analyze`, `test`, `test-network-blocked`, `e2e-cursor-profile`, `test-locking-matrix`). `verify` comes from `presentify-extractor.yml` and `colocation` from `doc-colocation.yml`, neither path-filtered |
+| No per-leg matrix context | PASS | Declared contexts are `ci-required`, `colocation`, `shellcheck`, `validate`, `verify`; none carries a matrix-leg suffix |
+| Required-check coverage guard | PASS | `check_required_check_coverage.py`: 10 declared contexts across 2 branches, every one produced unconditionally |
+| Immutable action references | PASS | 52/52 third-party `uses:` pinned to a 40-character commit SHA |
+| Explicit least-privilege permissions | PASS | Every one of the 11 workflows declares a top-level `permissions:` block; none inherits silently |
+| Caches keyed to manifests | PASS | `extensions/*/pyproject.toml`, `.pre-commit-config.yaml`, `.github/workflows/ci.yml` |
+| Concurrency | PASS | Declared in all 11 workflows; `release.yml` sets `cancel-in-progress: false` so an in-flight release is never cancelled |
+| Artifact retention + unconditional upload | PASS | `retention-days: 7`; 6 `if: always()` steps in `ci.yml` |
+| Structured reports | PASS | `--reports-dir` used; summary published to `GITHUB_STEP_SUMMARY` |
+| Deployment boundaries | PASS | No deploy or environment step in `ci.yml`; publication lives in `release.yml` behind a tag |
+| `MT-1` fail-closed guide browser coverage | PASS | The `guide-render` job sets `NEXUS_REQUIRE_RENDER=1`, runs `tests/guides/` plus the visual detector, and is listed in `ci-required`'s `needs` |
+
+PROPOSE / APPROVE / APPLY: no difference was found, so nothing was proposed and NO pipeline file was edited in this phase. `MT-1` needs no new approval for v4.4.1: the `guide-render` job approved and proven in v4.4.0 runs the whole `tests/guides/` tree, so this plan's new `test_v441_phase6_workspace.py` is covered fail-closed in the integration gate without a pipeline change.
+
+Cross-installer parity (declarative):
+
+```text
+python scripts/check_installer_parity.py   ->  installer parity: PASS
+python -m pytest -q tests/installer/       ->  458 passed, 36 skipped in 337.55s
+```
+
+RECORD: one difference is recorded as a known gap rather than applied - the 16 merged remote branches are an external-settings cleanup item, not a pipeline field, and the contract forbids automatic mutation.
+
+**Disposition**: PASS on every required field, with zero pipeline edits. The real current-host installer duty is INCOMPLETE and is recorded honestly under `## Publication and integration preflight`.
+
+## Tier 3 deep pass
+
+Every artifact this plan produced was exercised through its real boundary, in a real browser where the artifact's contract is a rendered or interactive one.
+
+| Artifact | How it was exercised | Observed result |
+|---|---|---|
+| `guides/website/nexus-hub-guide.html` | 110-case browser matrix across 4 pages, 2 themes, 7 viewport groups, native and fallback fullscreen, reduced motion, and 200 percent zoom | 110/110 cases, 84/84 screenshots, 0 failures, 0 external requests |
+| Same file, defect scan | `detect_visual_defects.py`, 4 pages x 2 themes x 6 viewports | 0 findings, except 60 documented allowlisted Gemini blur-filter entries on Home |
+| Same file, byte contract | Measured against the strict 500,000-byte ceiling | 292,339 bytes; 207,661 headroom |
+| Same file, offline contract | Static scan for external script/stylesheet/URL plus per-case request capture | 0 external scripts, 0 external stylesheets, 0 runtime requests. All 9 absolute URLs are inert: 6 SVG `xmlns` namespaces, 1 CC BY 4.0 license link, 3 install commands as copyable text |
+| `guides/website/example/training-scenes.json` + inline `#nh-training-scenes` | Parsed and compared for equality; hostile fixture strings asserted to survive as text | Equal after parse; escaping preserved so a closing script tag in fixture content cannot terminate the carrier |
+| `window.NexusShooter` engine | 29 browser tests driving the real engine: seed equality, frozen snapshots, damage modes, terminal lifecycle, key ownership | All pass |
+| Phase 6 workspace contracts | 12 browser tests measuring real pairwise intersection area with each region clipped to its clipping ancestors | All pass |
+| Staged platform and media assets | SHA-256 of every staged file matched against the approved provenance ledger | 9/9 staged files present in the ledger; 0 unapproved bytes |
+| `tests/guides/tools/render_guide.py` | Executed through its own test suite | Passes |
+| v4.4.0 sweep suite (regression) | `test_phase6_verification_sweep.py` re-run untouched | 3 passed |
+| Repository catalog and policy surface | All 12 `make validate` guards; `tests/workflows/` + `tests/validators/` | Every guard exit 0; 1236 passed, 15 skipped |
+
+Global iteration budget: 11 defects were found and fixed across the plan (`BG-1` through `BG-11`), each recorded in `known-gaps.md` with its root cause.
+
+One P3 residual is carried, with an owner and next step in `known-gaps.md`: the Outline disclosure panel is in-flow, so in presentation mode it squeezes the game panel while open. State restores exactly on close (proven by the `BG-11` fix), no acceptance criterion covers the open state, and overlaying the panel was deliberately left out of a late unvalidated layout diff.
+
+No P0 and no P1 finding survived.
+
+**Disposition**: PASS with one owned P3.
+
+## Goal-vs-codebase review
+
+**Plan Goal restated**: deliver a self-contained Nexus-Hub guide whose Home identity and five-platform compatibility rail are polished and accurate, whose Foundations page teaches the requested AI concepts in a compact and professionally ordered visual narrative, and whose Training page remains readable in and out of fullscreen while the eight-command walkthrough operates a deterministic arcade shooter with the requested lives bug, asteroid hazard, and vertical-movement feature.
+
+This review inspected the shipped file directly rather than reading the plan's checkboxes, because completing sub-tasks is not evidence the Goal landed.
+
+| Definition-of-Done clause | Artifact that satisfies it | Observed |
+|---|---|---|
+| Home renders the exact title `Nexus Hub` | `#page-home h1` | `Nexus Hub` |
+| Rail is exactly Claude, ChatGPT, Gemini, Cursor, GitHub Copilot in that order; OpenCode removed | `.platform-mark[data-mark]` | `claude`, `chatgpt`, `gemini`, `cursor`, `github-copilot`; the string `OpenCode` is absent from the file |
+| Loop keeps its command sequence, command on line one and description on line two | `.loop-step` | 6 pills, each 59 px (two lines): `/describe map it`, `/review judge it`, `/plan decompose it`, `/implement build it`, `/test harden it`, `/update ship it` |
+| Foundations has exactly the eight accepted sections in order, with professional titles rather than `What Is` / `What Are` | `#page-foundations .fx-scene .fx-title` | 8 scenes in the accepted order; zero titles match `What Is` or `What Are` |
+| `Full screen` with a four-corner icon sits immediately left of Outline and survives fullscreen | `.nht-bar` button order | `Full screen` then `Outline`, adjacent, `svg path` icon present, inside the fullscreen root |
+| Training begins idle behind `Click to start` | `[data-arcade-start]` | Present; ticks hold at zero until clicked |
+| The shooter replaces Asteroids | `window.NexusShooter` / `window.NexusAsteroids` | Shooter is an object; `NexusAsteroids` is `undefined` |
+| Fullscreen shows every region simultaneously with no pairwise intersection or horizontal overflow at the four desktop sizes | 110-case matrix + 12 geometry tests | 0 overlaps, 0 horizontal overflow at 1920x1080, 1440x900, 1366x768, 1280x720, plus the narrow reflow sizes |
+| One self-contained offline file at or below 500,000 bytes | Filesystem + request capture | 292,339 bytes, 0 runtime requests |
+| Dark, light, keyboard-only, 200 percent zoom, reduced-motion, canvas-unavailable, hostile-fixture, deterministic-replay cases have observable evidence | Browser matrix + 29 engine tests + detector | All covered by automated evidence; no completion claim rests on structural scoring alone |
+
+**Gaps found**: two, neither a Goal miss.
+
+1. Last-phase human comprehension testing has no participant cohort. This is a Definition-of-Done clause the plan itself anticipates could be unavailable, and it explicitly directs recording an owned known gap rather than a fabricated pass. See `## Human/manual testing suggestions`.
+2. The real current-host installer execution is incomplete and produced an unintended side effect. See `## Publication and integration preflight`.
+
+No Definition-of-Done clause is unmet by the code or docs.
+
+**Disposition**: the Goal landed. PASS.
+
+## Human/manual testing suggestions
+
+Automated evidence covers rendering, geometry, determinism, accessibility wiring, and offline delivery. It cannot cover whether a newcomer actually UNDERSTANDS the material, which is this plan's primary persona goal, so that is what a human cohort is for.
+
+Ask each participant, with no maintainer coaching, to:
+
+1. Distinguish a prompt from context, using the Prompt Engineering and Context Engineering scenes.
+2. Distinguish provider training and release from a later live request, using the Models scene.
+3. State the relationship between higher effort and the work cycle, and say whether the guide promises a specific hidden iteration count. (Correct answer: it does not; the visual is an abstract work cycle, never a transcript of hidden reasoning.)
+4. Distinguish chatbot output from permitted agentic action, using the Chatbot vs. Agentic Platform scene.
+5. Place a platform's built-in harness relative to the Nexus-Hub portable workflow layer, using the Harnesses and Nexus-Hub Harness scenes.
+6. In Training: identify the lives rule and the asteroid rule, then use `Click to start`, Escape, and `Full screen` unaided.
+
+Environment-specific cases automated tests cannot reach: real native fullscreen on a physical multi-monitor setup, a real projector or presentation display, actual touch input on a tablet, and a real screen reader announcing the HUD lives changes.
+
+**Participants**: 0. No representative newcomer cohort was available in this session.
+**Disposition**: OPEN, recorded as an owned known gap. NOT a pass. This is recorded honestly rather than fabricated, exactly as the plan's Definition of Done requires.
+
+## Full-suite testing and stabilization
+
+```text
+python -m pytest -q tests/workflows/ tests/validators/
+1236 passed, 15 skipped in 294.99s
+
+NEXUS_REQUIRE_RENDER=1 python -m pytest -q tests/guides/ tests/verification/test_visual_defect_detector.py
+238 passed, 1 skipped in 143.83s
+
+python -m pytest -q tests/installer/
+458 passed, 36 skipped in 337.55s
+
+make validate equivalents (12 guards, each run individually)
+validate_skills.py --bundles-only            PASS (0 errors, 64 warnings)
+check_agentskills_conformance.py             PASS (0 errors, 329 skills scanned)
+build_framework_coverage.py --check          OK: framework coverage in sync
+validate_permission_baseline.py              read-only at the side-effect level
+check_installer_parity.py                    installer parity: PASS
+validate_no_personal_paths.py                exit 0
+validate_unicode_safety.py --strict          exit 0
+scan_supply_chain_iocs.py                    exit 0
+validate_workflow_security.py                exit 0
+check_required_check_coverage.py             OK -- 10 contexts, all unconditional
+check_doc_colocation.py                      no docs/v<N> tree; nothing to check
+validate_solution_frontmatter.py             exit 0
+
+Browser evidence matrix (110 declared cases)
+cases: 110/110  screenshots: 84/84
+runtime: 106s / 1200s   evidence: 7.1 MiB / 30 MiB
+failures: 0
+
+Byte guard
+page bytes: 292,339 | strict ceiling 500,000 | headroom 207,661
+
+Asset ledger
+ledger SHA-256 entries: 14 | staged asset files: 9
+staged files whose hash is absent from the ledger: none
+```
+
+One reconciled discrepancy, recorded because a green summary that hides an investigated failure is worse than a red one. The canonical CI profile run (`python scripts/ci/run.py --profile full --only tests,extension-tests`) reported `6 failed, 3833 passed, 56 skipped`, with all six failures in `tests/installer/test_core_settings_seeding.py` PowerShell variants. Those six were NOT a code defect: that run's `repo-tests` group spanned 16:33 to 17:30, and the interrupted installer executions described in the preflight section were concurrently writing the same platform settings files between 17:04 and 17:15. Re-running the identical tree with nothing else mutating config returned `458 passed, 36 skipped`. The affected tests seed and compare settings files, so a concurrent installer writing those files is a direct and sufficient explanation, and the isolated re-run is the proof.
+
+**Disposition**: the local gate is GREEN.
+
+## Publication and integration preflight
+
+| Item | Value |
+|---|---|
+| Branching model | `develop` + `main`; feature branches integrate through `develop` |
+| Remote | `origin` |
+| Branch | `feat/v4.4.1-guide-visual-and-arcade-rebuild` |
+| Local commits on the branch | 6 (one per phase, Phases 1 through 6) |
+| Phase 7 commit | created after this preflight (the sole Phase 7 commit; also carries the v4.4.2 plan file at the operator's request) |
+| Pull-request target | `develop` |
+| Required checks | `validate`, `shellcheck`, `ci-required`, `colocation`, `verify` |
+| Target-OS installer matrix | Windows (current host, INCOMPLETE), Ubuntu and macOS deferred to integration evidence |
+| Approval status | GRANTED 2026-09-02: push, pull request to `develop`, and merge once every required check is green, all explicitly approved by the operator |
+
+### Blocking finding: an unintended host side effect during the installer duty
+
+Task 7.5 requires a real installer execution on the current host. To avoid mutating the operator's live configuration, the installer was run with `HOME` redirected to a scratch directory. That isolation was INEFFECTIVE, and the failure mode is worth recording precisely because it is not obvious: the Nexus-Hub home itself honored the override and landed in the sandbox, but the per-platform integration paths resolve through Python's `expanduser`, which reads `USERPROFILE` on Windows rather than `HOME`. Those writes therefore reached the real user profile.
+
+The runs were also interrupted mid-execution, so the result is a PARTIAL install rather than a valid one. Uneven skill counts are the direct evidence:
+
+```text
+~/.claude   352 skills   modified 16:49
+~/.codex    370 skills   modified 17:15
+~/.gemini   373 skills   modified 17:05
+~/.cursor   351 skills   modified 17:06
+~/.qwen     350 skills   modified 17:06
+~/.copilot  untouched    modified 2026-08-30
+```
+
+A complete install produces consistent counts across these surfaces, so the current state is internally inconsistent.
+
+NOT affected: `~/.nexus-hub` was never written by these runs. It still reports `VERSION` 4.4.0 and `nexus-hub verify` returns `PASS` with 1835/1835 files matching `MANIFEST.sha256`. The repository working tree is unmodified, and no push, pull request, or remote CI run occurred.
+
+Two installer processes were still running when this was discovered and were terminated.
+
+The repair is one idempotent command that reinstalls from the pristine hash-verified v4.4.0 source tree:
+
+```text
+cd ~/.nexus-hub/src && bash scripts/installer.sh --yes
+```
+
+Attempting that repair automatically was refused by the host permission layer, so it was not worked around. On 2026-09-02 the operator chose to run the repair themselves and to accept the unmet real-install duty as owned known gap `HT-2`; no sandboxed installer run will be attempted again by this plan.
+
+**GO / NO-GO: GO** (recorded 2026-09-02). Basis: no P0 or P1 finding in the shipped artifact; no Goal or Definition-of-Done miss; the only residuals are explicitly accepted P3 items with an owner and next step (`HT-1` no human cohort, `HT-2` real-install duty accepted as an owned gap by the operator on 2026-09-02, `HT-3` merged-branch cleanup, and the Outline-reflow P3). The local gate is green as quoted above.
+
+The operator further approved, in the same decision: adding the v4.4.2 plan file to this phase's sole commit so it reaches `develop` through this pull request, and merging once every required check is green. Remote results are recorded by the release-owned handoff, never by re-pushing this branch to quote them.
+
+
+### Red-check stabilization (2026-09-02)
+
+PR #154's first run: `shellcheck`, `colocation`, `verify`, `guide-render`, every bootstrap and installer-smoke leg PASS; `validate` FAIL. Cause, from the job log: the `end-of-file-fixer` pre-commit hook rewrote the seven staged SVG assets under `docs/releases/v4/v4.4/development/guide-visual-and-arcade-rebuild/assets/` to append a trailing newline. Those files are approved-bytes-only evidence whose SHA-256 is pinned in `asset-provenance.md` and matched against the bytes embedded in the guide; appending a newline would change every hash and break that discipline, so the fixer, not the assets, was wrong.
+
+Reproduced locally with `python -m pre_commit run end-of-file-fixer --files <assets>` (same two-file rewrite), then the approved asset bytes were restored from HEAD. Fix: a five-line `exclude: '^docs/releases/.*/assets/'` on that one hook in `.pre-commit-config.yaml`, with a comment recording why. `pre-commit run --all-files` then passes `end-of-file-fixer`. The local `mixed-line-ending --fix=lf` hook rewrote 1,983 CRLF working-copy files on this Windows checkout; `git diff --ignore-cr-at-eol` proved the only real change was the config edit, and the operator approved restoring the tree. This is a pipeline-adjacent configuration edit, not a workflow edit, and it traces to v4.4.1's own evidence assets.
+
+The operator explicitly approved amending the sole Phase 7 commit and updating the remote with `--force-with-lease`, per Task 7.10; no second Phase 7 commit exists.
+
+<!-- END v4.4.1-guide-visual-and-arcade-rebuild -->
