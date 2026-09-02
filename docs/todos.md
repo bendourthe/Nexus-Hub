@@ -15,11 +15,11 @@ Refreshing this file to the active plan (rather than appending another version's
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
-| v4.4.2 guide-production-ready-rebuild phases complete | 6 | 8 | -2 |
-| v4.4.2 local phase commits | 6 | 8 | -2 |
+| v4.4.2 guide-production-ready-rebuild phases complete | 7 | 8 | -1 |
+| v4.4.2 local phase commits | 7 | 8 | -1 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 345,319 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 345,623 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -44,7 +44,7 @@ Plan: [v4.4.2-guide-production-ready-rebuild.md](releases/v4/v4.4/plans/v4.4.2-g
 - [x] Phase 4 - Foundations Models, Agentic Platform, and the layered harness animation
 - [x] Phase 5 - Arena engine v2
 - [x] Phase 6 - Training fullscreen three-pane presentation
-- [ ] Phase 7 - Integrated verification and documentation
+- [x] Phase 7 - Integrated verification and documentation
 - [ ] Phase 8 - Architecture refactor, known-gaps, CI/CD, and publication
 
 ### What this plan changes, in one paragraph

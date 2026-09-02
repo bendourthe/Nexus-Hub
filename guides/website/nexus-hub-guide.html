@@ -249,7 +249,10 @@ h2 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); line-height: 1.2; letter-spacing:
    three times the v4.4.1 size as a starting point; the token is tuned from renders in
    Phase 7, never by editing selectors. The minimum bound is 0.6x of the scaled floor so a
    320px viewport cannot be forced into horizontal overflow by one long word. */
-:root { --title-scale: 3; }
+/* Tuned in v4.4.2 Phase 7 from renders: at 3 the word "Engineering" could not fit a Foundations copy
+   column at 1440px and wrapped titles to three lines; 2.4 (about 65px, 2.4x v4.4.1) keeps every title
+   at two lines or fewer at 1440 and under 40 percent of the viewport height at 420. */
+:root { --title-scale: 2.4; }
 .section-title {
   font-size: clamp(calc(1.2rem * var(--title-scale) * .6), calc(2.4vw * var(--title-scale)), calc(1.7rem * var(--title-scale)));
   line-height: 1.05; letter-spacing: -.02em; text-wrap: balance; overflow-wrap: break-word;
@@ -1788,7 +1791,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         </div>
         </div>
       </section>
-      <section class="fx-scene reveal" id="fx-prompts" aria-labelledby="fx-prompts-title">
+      <section class="fx-scene fx-stack reveal" id="fx-prompts" aria-labelledby="fx-prompts-title">
         <div class="fx-copy">
           <div class="fx-title">
             <p class="fx-subtitle">Stating the job so the result is checkable</p>

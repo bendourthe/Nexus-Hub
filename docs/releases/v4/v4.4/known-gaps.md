@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 merged to `develop` 2026-09-02 (PR #154), release pending; v4.4.2 in progress on the same minor
-**Last updated**: 2026-09-02 (v4.4.2 Phase 6)
+**Last updated**: 2026-09-02 (v4.4.2 Phase 7)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -150,6 +150,12 @@
 
 - Stage-height floor recorded as 0.45 of the viewport instead of the plan's 0.70, with the arithmetic in `presentation-geometry.md`; achieved 0.47 to 0.61 against a baseline of 0.10 to 0.26. Coverage rose from 0.68 to 0.81 up to 0.93 to 0.95, and no region falls below the fold any more.
 - No new defect. The first build reached 0.42 at 1280x720 and was lifted by a `(max-height: 768px)` compact-chrome rule rather than by lowering the floor.
+
+### Phase 7 notes
+
+- Title-scale token tuned from 3 to 2.4 by the plan's rule (a title wrapping to three lines at 1440 reduces the token, floor 2.4); every title is now two lines or fewer at 1440. Prompt Engineering was stacked as a consequence (its copy column shrank past the 1.35 bound).
+- No new defect. The README sync briefly dropped the exact phrases a v4.4.0 test requires for the CI browser contract; restored with the reason they matter.
+- Declared browser matrix: 150/150 cases, 124/124 screenshots, 0 failures, 165 s, 12.7 MiB; fullscreen minimum coverage 0.93 and stage fraction 0.468.
 
 ### Deviations recorded
 

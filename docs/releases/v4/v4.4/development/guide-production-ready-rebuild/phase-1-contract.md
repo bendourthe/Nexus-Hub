@@ -61,6 +61,7 @@ Rule (the v4.4.1 `WN-2` lesson): the register lists assertions pinning LITERAL I
 | `test_arcade_shooter_game.py` | `test_player_is_bounded_and_fires_upward`: 900 + 1,800 ticks parked at a wall in `enemy-hit` | "the quiet fixture's only threats stay in the x=180 column" | A3 (teaching fixtures spawn from tick 120; a wall-parked player is a legitimate target) | 5 | DONE: 150 ticks per side (the clamp takes ~62) proves the bound before any spawn can land; the ship must still be `running` |
 | `test_arcade_shooter_game.py` | touch-control buttons always present | `nag-controls` visibility | A2 (guide under fine pointer, touch under coarse) | 5 | DONE: no existing assertion pinned their display; new test covers both pointer types |
 | `test_v441_phase6_workspace.py` | `.nht-col:first-child` `height: 58%`; REGIONS / PAIRS lists | column sizing, region set | P1, P2 | 6 | DONE: the 58% rule is deleted (pane height is now the grid track); REGIONS / PAIRS were kept unchanged and the new coverage test measures a ten-region set on top |
+| `test_v442_phase1_foundation.py` | `80 <= sizes[0] <= 83` (3x v4.4.1 at 1440) | the Phase 1 starting scale | Phase 7 tuning rule (a title wrapping to three lines at 1440 reduces the token, floor 2.4) | 7 | DONE: `Engineering` could not fit a Foundations copy column at scale 3; token is 2.4 (65.3px) and the bound is `64..67` |
 | `test_phase6_verification_sweep.py` | contrast matrix (unchanged expectation) | WCAG AA on every visible element | none; it caught `BG-13` in Phase 1 | - | KEEP |
 
 ## 3. Byte ledger
@@ -76,8 +77,8 @@ Ceiling: strict 500,000 bytes. Every phase records its measured actual against i
 | 4 | +38,000 | +16,641 | 336,063 | NexusFlow overlay connectors, Video label, waveform audio, layered harness diagram (two instances) |
 | 5 | +14,000 | +6,217 | 342,280 | dual-stream seed, tiered continuous spawning, pointer input, key guide, actions beside the HUD, spawnSample seam |
 | 6 | +12,000 | +3,039 | 345,319 | three-pane present grid, Outline overlay, short-window reflow, compact chrome under 768px tall |
-| 7 | +4,000 | | | |
-| Reserve | 73,661 | | | ceiling minus start minus allocations |
+| 7 | +4,000 | +304 | 345,623 | title-scale token tuned 3 -> 2.4, Prompt Engineering stacked, README sync (README is outside the byte ledger) |
+| Reserve | 73,661 | unused | 345,623 final | ceiling minus start minus allocations; final headroom 154,377 bytes; total growth 53,284 of the 134,000 allocated |
 
 ## 4. Deviations recorded
 
@@ -86,6 +87,7 @@ Ceiling: strict 500,000 bytes. Every phase records its measured actual against i
 - Phase 4: the Models flow nests its later stages inside the request region, so that region is a second flow root with its own overlay; the connector test counts three roots by design.
 - Phase 4 (`BG-14`): the ghost `raw answer` group was dimmed with `opacity: .55` and the contrast sweep caught its text at 2.4:1 (light) and 3.3:1 (dark). Same rule as `BG-13`: text carriers never lose contrast; the ghost is now marked by a dashed chip and `--ink-dim` text at full opacity.
 - Phase 4: a helper rule whose selector contained `.fx-region-tag` shadowed the original rule in the hierarchy test's first-match regex; the helper was dropped rather than the test loosened.
+- Phase 7: tuning the title token from 3 to 2.4 shrank the Prompt Engineering copy column to 377 px against a 526 px annotated diagram (1.39), so that scene is stacked too; four scenes now use `fx-stack` (Tokens, Prompts, Models, Harnesses) and every two-column scene is within 1.35.
 - Phase 6: the stage-height floor is 0.45 of the viewport, not the plan's 0.70. With the toolbar, progress strip, head, takeaway, and controls all visible (which the Definition of Done requires) the arithmetic in `presentation-geometry.md` shows 0.70 is unreachable even at 1080; the achieved values are 0.47 to 0.61 against the v4.4.1 baseline of 0.10 to 0.26.
 - Phase 5: a stationary test player does not survive full-width `play` spawning for long, which is correct behaviour; tier variety is therefore proven through the pure `logic.spawnSample` seam (spawnStep alone on a scratch state) while the live run proves continuity and tier membership until the ship dies.
 - Phase 4: headless Chromium advances a media element slowly with no output device, so the waveform test proves frames keep drawing from the analyser and that the live trace differs from the static one, rather than asserting consecutive live frames differ.
