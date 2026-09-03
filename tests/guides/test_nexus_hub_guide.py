@@ -1069,13 +1069,18 @@ def test_foundations_prompt_engineering_uses_one_non_coding_job(
 ) -> None:
     """v4.4.1 Phase 3: one non-coding request, shown vague and then precise."""
     scene = _foundation_scene(guide_text, "fx-prompts")
-    assert scene.index("Vague") < scene.index("Precise"), "the weaker state must read first"
+    # v4.4.4 rebuilt this scene: the vague prompt sits beside the reasons it fails and the
+    # engineered prompt spans the diagram below. The `fx-state` lane classes went with the old
+    # three-column grid, so the weaker-state-first rule is asserted on the new carriers.
+    assert scene.index("Vague") < scene.index("Engineered"), "the weaker state must read first"
+    assert scene.index('class="pe-box"') < scene.index('class="pe-precise"')
     for part in ("Goal", "Material", "Done", "Format"):
         assert "<dt>" + part + "</dt>" in scene, "missing prompt part: " + part
     assert "Summarise this contract and list every deadline." in scene
     assert "Look at this contract." in scene
-    assert 'class="fx-state fx-state--weak"' in scene
-    assert 'class="fx-state fx-state--strong"' in scene
+    # the flaws are named rather than summarised in one sentence
+    for flaw in ("No goal", "No material", "No finish line", "No shape"):
+        assert flaw in scene, "missing named flaw: " + flaw
     assert "terminal" not in scene.lower() and "source code" not in scene.lower()
 
 
