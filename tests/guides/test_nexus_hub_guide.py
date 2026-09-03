@@ -917,9 +917,11 @@ def test_foundations_context_makes_budget_competition_and_full_behavior_visible(
 ) -> None:
     """v4.4.1 Phase 3: context is separable from the request, finite, and selectable."""
     scene = _foundation_scene(guide_text, "fx-context")
-    assert 'class="fx-ctx-query"' in scene and 'class="fx-mat"' in scene
+    assert 'class="fx-ctx-query"' in scene and 'class="cx-mat' in scene
+    # v4.4.4 replaced each drawing with a concrete example, on the review's instruction. The four
+    # kinds are still required; what changed is what sits under each name.
     for kind in ("Image", "File or document", "Project folder or workspace", "Codebase"):
-        assert '<span class="fx-mat-name">' + kind + "</span>" in scene, (
+        assert '<span class="cx-kind">' + kind + "</span>" in scene, (
             "missing context kind: " + kind
         )
     assert scene.index("fx-spend-tag--bad") < scene.index("fx-spend-tag--good"), (

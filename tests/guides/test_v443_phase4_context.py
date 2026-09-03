@@ -85,23 +85,29 @@ def test_every_legend_row_is_swatch_and_label_over_description(playwright_mod) -
         assert row["descLines"] <= 2, row
 
 
-def test_attachable_material_is_a_two_by_two_illustrated_grid(playwright_mod) -> None:
+def test_attachable_material_is_a_two_by_two_grid_of_examples(playwright_mod) -> None:
+    """v4.4.4 replaced the drawings with concrete examples, on the review's instruction.
+
+    v4.4.3 put a drawing under each kind name, which was better than the dashed noun box it
+    replaced. The review then asked for made-up examples instead, because an example of a file is
+    more use than a picture of one. The grid and the four kinds are unchanged; the cell content is
+    not. The scenes that still show drawings assert them in their own modules.
+    """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
             ctx, page = _scene(browser)
             data = page.evaluate(
                 """() => {
-                    const grid = document.querySelector('#fx-context .fx-mat');
-                    const cells = [...grid.querySelectorAll('.fx-mat-cell')].map(c => {
-                        const svg = c.querySelector('svg.fx-mat-art');
-                        return { name: c.querySelector('.fx-mat-name').textContent.trim(),
-                                 shapes: svg ? svg.children.length : 0,
-                                 svgText: svg ? svg.querySelectorAll('text, tspan').length : -1,
-                                 drawn: svg ? svg.getBoundingClientRect().height > 20 : false };
-                    });
-                    return { columns: getComputedStyle(grid).gridTemplateColumns.trim().split(/\\s+/).length,
-                             cells, dashed: document.querySelectorAll('#fx-context .fx-ctx-kind').length };
+                    const grid = document.querySelector('#fx-context .cx-mat');
+                    const cells = [...grid.querySelectorAll('li')].map(c => ({
+                      name: c.querySelector('.cx-kind').textContent.trim(),
+                      example: c.querySelector('.cx-ex').textContent.trim(),
+                      mono: getComputedStyle(c.querySelector('.cx-ex')).fontFamily.toLowerCase(),
+                    }));
+                    return { columns: getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,
+                             cells, drawings: grid.querySelectorAll('svg').length,
+                             dashed: document.querySelectorAll('#fx-context .fx-ctx-kind').length };
                 }"""
             )
             ctx.close()
@@ -109,12 +115,44 @@ def test_attachable_material_is_a_two_by_two_illustrated_grid(playwright_mod) ->
             browser.close()
     assert data["columns"] == 2, data
     assert len(data["cells"]) == 4, data["cells"]
-    assert data["dashed"] == 0, "the dashed noun boxes are still in this scene"
+    assert data["dashed"] == 0, "the dashed noun boxes must not return"
+    assert data["drawings"] == 0, "this scene shows examples now, not drawings"
+    names = [c["name"] for c in data["cells"]]
+    assert names == ["Image", "File or document", "Project folder or workspace", "Codebase"], names
     for cell in data["cells"]:
-        assert cell["name"], cell
-        assert cell["shapes"] >= 2, f"{cell['name']} has no drawing"
-        assert cell["svgText"] == 0, f"{cell['name']} carries SVG text, which cannot be contained"
-        assert cell["drawn"], cell
+        assert cell["example"], f"{cell['name']} has no example"
+        assert cell["example"] != cell["name"], "an example must not restate the kind"
+        assert "mono" in cell["mono"] or "courier" in cell["mono"] or "consol" in cell["mono"], cell
+
+
+def test_dumping_everything_names_its_cost(playwright_mod) -> None:
+    """The review asked for the cost to be named: tokens, speed, money, and the miss risk."""
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            ctx, page = _scene(browser)
+            data = page.evaluate(
+                """() => {
+                    const spend = document.querySelector('#fx-context .fx-spend');
+                    const read = sel => [...spend.querySelectorAll(sel + ' li')].map(l => l.textContent.trim());
+                    const lanes = [...spend.querySelectorAll('.fx-spend-row')].map(r => Math.round(r.getBoundingClientRect().left));
+                    return { costs: read('.cx-outcomes--cost'), gains: read('.cx-outcomes--gain'),
+                             columns: getComputedStyle(spend).gridTemplateColumns.trim().split(/\s+/).length,
+                             lanes };
+                }"""
+            )
+            ctx.close()
+        finally:
+            browser.close()
+    assert data["columns"] == 2, "the bad and good approaches must read side by side"
+    assert len(data["lanes"]) == 2 and data["lanes"][0] < data["lanes"][1], data["lanes"]
+    assert len(data["costs"]) == 4 and len(data["gains"]) == 4, data
+    joined = " ".join(data["costs"]).lower()
+    for named in ("tokens", "slower", "costs more", "needle in a haystack"):
+        assert named in joined, f"the cost of dumping everything does not name {named!r}"
+    gained = " ".join(data["gains"]).lower()
+    for named in ("fewer tokens", "faster", "costs less"):
+        assert named in gained, f"the gain does not name {named!r}"
 
 
 def test_the_budget_comparison_reads_without_a_legend(playwright_mod) -> None:

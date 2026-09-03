@@ -15,7 +15,7 @@ start, because retiring the audio output and merging two Foundations scenes both
 | E2b | Both benefits present: one install across four platforms with a mid-task switch, and commands built on the generic ones | `test_the_segment_carries_both_benefits` | 2 |
 | E3 | Foundations reads scene name as title, descriptive phrase as subtitle | `test_v442_phase3_foundations.py::test_scene_titles_come_before_their_subtitles` | 3 |
 | E4 | Prompt Engineering: vague prompt beside its flaws, full-width engineered prompt below | `test_v444_phase4_prompts.py` (4 tests) | 4 |
-| E5 | Context Engineering: copy full width, prompt left and material right, bad versus good with cost named | NEW, Phase 5 | 5 |
+| E5 | Context Engineering: copy full width, prompt left and material right, bad versus good with cost named | `test_v443_phase4_context.py` (`..._grid_of_examples`, `test_dumping_everything_names_its_cost`) | 5 |
 | E6 | Models: one model per provider without numbers, next-token, base versus reasoning, three modality tiers | NEW, Phase 6 | 6 |
 | E7 | ONE Agentic Platforms scene, chatbot merged in | NEW, Phase 7 | 7 |
 | E8 | Harnesses: animated journey carrying the brain, degree, and experience analogy | NEW, Phase 8 | 8 |
@@ -30,6 +30,8 @@ start, because retiring the audio output and merging two Foundations scenes both
 | `test_v442_phase3_foundations.py` | `test_scene_subtitles_are_eyebrows_above_their_titles` | the phrase is an uppercase eyebrow ABOVE the scene name, sharing the Home label's base size and tracking ratio | E3: the review calls that pair inverted | DONE: rewritten as `test_scene_titles_come_before_their_subtitles`, which asserts the h2 first in DOM and on screen, a smaller subtitle, and `text-transform: none`. Home is unchanged and still reads label-above-title. |
 | `test_v443_phase1_headings.py` | the measured selector included `.page.active .fx-subtitle` | E3: a subtitle sentence should wrap like prose, not shrink to one line | DONE: the selector measures titles and Home labels only; the docstring records why |
 | `test_nexus_hub_guide.py` | `test_foundations_prompt_engineering_uses_one_non_coding_job` | `Precise`, `class="fx-state fx-state--weak"`, `class="fx-state fx-state--strong"` | E4: the three-column lane grid is gone | DONE: reads `Engineered` and the new carriers, and now also requires each flaw to be NAMED rather than summarised in one sentence |
+| `test_v443_phase4_context.py` | `test_attachable_material_is_a_two_by_two_illustrated_grid` | every material cell carries a DRAWING | E5: the review asked for made-up examples instead | DONE: rewritten as `..._grid_of_examples`; the grid and the four kinds are unchanged, each cell now carries a monospaced example, and drawings in that grid are asserted ABSENT so the two cannot both creep in |
+| `test_nexus_hub_guide.py` | `test_foundations_context_makes_budget_competition_and_full_behavior_visible` | `class="fx-mat"` and `<span class="fx-mat-name">` | E5 | DONE: reads `.cx-mat` and `.cx-kind`; the four kind names and the without-then-with order are unchanged requirements |
 
 ## 3. One rule narrowed, with its reasoning
 

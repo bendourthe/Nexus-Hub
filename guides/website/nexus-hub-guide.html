@@ -523,6 +523,31 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
 /* ---------- Audio waveform ---------- */
 .fx-wave { display: block; width: min(100%, 220px); height: 44px; margin-top: 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-0); }
 
+/* ---------- Context Engineering (v4.4.4) ----------
+   The review asked for the copy at full width, the prompt beside the material rather than above it,
+   concrete examples in place of drawings, and the cost of dumping everything named rather than
+   implied. The two meters stay: they are what makes "one finite budget" visible. What is new under
+   each meter is the consequence, in four items, marked as a cost or a gain. */
+/* Compound, because .fx-ctx-row is declared later and a lone class loses on source order:
+   the third time this plan family has hit that, so it is written as a rule in the README. */
+.fx-ctx-row.cx-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.cx-mat { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin: 8px 0 0; padding: 0; }
+.cx-mat li { min-width: 0; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-0); }
+.cx-kind { display: block; font: 700 10.5px var(--sans); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint); }
+.cx-ex { display: block; margin-top: 2px; font: 500 12.5px var(--mono); color: var(--blue); overflow-wrap: anywhere; }
+.cx-outcomes { list-style: none; display: grid; gap: 5px; margin: 8px 0 0; padding: 0; }
+.cx-outcomes li { position: relative; padding: 5px 8px 5px 28px; border-radius: 7px; font-size: 12.5px; line-height: 1.35; color: var(--ink-dim); }
+.cx-outcomes li b { color: var(--ink); font-weight: 650; }
+.cx-outcomes--cost li { background: color-mix(in srgb, var(--red) 6%, transparent); }
+.cx-outcomes--gain li { background: color-mix(in srgb, var(--green) 7%, transparent); }
+/* ASCII-only marks: a cross is two rotated bars, a tick is a short bar and a long one. */
+.cx-outcomes--cost li::before, .cx-outcomes--cost li::after { content: ""; position: absolute; left: 9px; top: 12px; width: 11px; height: 2px; border-radius: 2px; background: var(--red); }
+.cx-outcomes--cost li::before { transform: rotate(45deg); }
+.cx-outcomes--cost li::after { transform: rotate(-45deg); }
+.cx-outcomes--gain li::before { content: ""; position: absolute; left: 9px; top: 14px; width: 6px; height: 2px; border-radius: 2px; background: var(--green); transform: rotate(45deg); }
+.cx-outcomes--gain li::after { content: ""; position: absolute; left: 12px; top: 12px; width: 11px; height: 2px; border-radius: 2px; background: var(--green); transform: rotate(-52deg); }
+@media (max-width: 760px) { .fx-ctx-row.cx-row, .cx-mat { grid-template-columns: minmax(0, 1fr); } }
+
 /* ---------- Prompt Engineering (v4.4.4) ----------
    The previous layout put the two prompts in a three-column grid with a sideways arrow between
    them, which at a full-width scene left the arrow pointing into empty space. The vague prompt now
@@ -980,7 +1005,9 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
    not read. The percentages were the problem: they asked the reader to map three numbers onto three
    unlabelled stripes. The comparison is now two meters of identical width with the material named
    inside the segment that holds it, and one plain sentence under each. No legend, no percentages. */
-.fx-spend { display: grid; gap: 9px; }
+.fx-spend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.fx-spend-head { grid-column: 1 / -1; }
+@media (max-width: 760px) { .fx-spend { grid-template-columns: minmax(0, 1fr); } }
 .fx-spend-head { margin: 0; font: 700 13px var(--sans); color: var(--ink); }
 .fx-spend-row { display: grid; gap: 4px; min-width: 0; }
 .fx-spend-tag { font: 700 11.5px var(--sans); letter-spacing: .07em; text-transform: uppercase; }
@@ -2027,7 +2054,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </div>
         </div>
       </section>
-      <section class="fx-scene reveal" id="fx-context" aria-labelledby="fx-context-title">
+      <section class="fx-scene fx-stack reveal" id="fx-context" aria-labelledby="fx-context-title">
         <div class="fx-copy">
           <div class="fx-title">
             <h2 id="fx-context-title" class="section-title">Context Engineering</h2>
@@ -2039,12 +2066,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         </div>
         <div class="fx-diagram">
           <div class="fx-ctx" role="group" aria-label="The request plus the optional material it can carry, then the same budget filled two ways">
-            <div class="fx-ctx-row">
-              <div class="fx-ctx-query" id="fx-ann-context" data-seq-root data-seq-loop data-seq-hold="2400"><span class="fx-ctx-tag">The request and its material</span><p class="ann-text"><mark class="ann" data-part="request" data-seq="1" data-seq-dur="1100">Add rate limiting to the public API and prove it with tests.</mark> <mark class="ann" data-part="context" data-seq="2" data-seq-dur="1100">Use <code>src/api/</code> and Friday's load-test report.</mark> <mark class="ann" data-part="context" data-seq="3" data-seq-dur="1600">Ignore the archived v1 handlers.</mark></p><dl class="ann-legend" aria-label="What each highlighted part is"><div class="ann-legend-row" data-part="request" data-seq="1"><dt>Request</dt><dd>the words of the job</dd></div><div class="ann-legend-row" data-part="context" data-seq="2"><dt>Context</dt><dd>material the job runs on, chosen, not dumped</dd></div></dl></div>
-              <div class="fx-ctx-plus" aria-hidden="true">+</div>
-              <ul class="fx-mat" aria-label="Optional context that can be attached"><li class="fx-mat-cell"><span class="fx-mat-name">Image</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><rect class="ma-fill" x="14" y="5" width="68" height="36" rx="4"/><circle class="ma-dot" cx="31" cy="16" r="4"/><path class="ma-line" d="M18 37 L36 21 L48 32 L57 24 L78 37"/></svg></li><li class="fx-mat-cell"><span class="fx-mat-name">File or document</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><path class="ma-fill" d="M26 4 h26 l14 14 v24 a2 2 0 0 1 -2 2 H28 a2 2 0 0 1 -2 -2 V6 a2 2 0 0 1 2 -2 z"/><path class="ma-line" d="M52 4 v14 h14"/><path class="ma-line" d="M34 25 h22 M34 32 h22 M34 39 h13"/></svg></li><li class="fx-mat-cell"><span class="fx-mat-name">Project folder or workspace</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><path class="ma-fill" d="M16 10 h20 l6 6 h40 a2 2 0 0 1 2 2 v22 a2 2 0 0 1 -2 2 H16 a2 2 0 0 1 -2 -2 V12 a2 2 0 0 1 2 -2 z"/><path class="ma-line" d="M28 28 h22 M28 35 h32"/></svg></li><li class="fx-mat-cell"><span class="fx-mat-name">Codebase</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><path class="ma-line" d="M22 8 v34 M22 17 h16 M22 28 h16 M22 39 h16"/><circle class="ma-dot" cx="22" cy="8" r="3.5"/><rect class="ma-fill" x="42" y="11" width="34" height="12" rx="3"/><rect class="ma-fill" x="42" y="22" width="34" height="12" rx="3"/><rect class="ma-fill" x="42" y="33" width="34" height="12" rx="3"/></svg></li></ul>
-            </div>
-            <div class="fx-spend" role="group" aria-label="The same working budget, filled two ways"><p class="fx-spend-head">One working budget. What fills it is the only variable.</p><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--bad">Attach everything in the project</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--waste" style="--w:70%">files the job never touches</span><span class="fx-seg fx-seg--use" style="--w:14%"></span><span class="fx-seg fx-seg--free" style="--w:16%"></span></div><p class="fx-spend-note">The <span class="fx-ink-use">two files the job names</span> get a sliver, and there is almost no <span class="fx-ink-free">room left to answer</span>.</p></div><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--good">Attach what the job names</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--use" style="--w:58%">the API code and the load-test report</span><span class="fx-seg fx-seg--free" style="--w:42%">room to answer</span></div><p class="fx-spend-note">Same budget, spent on the material the job runs on.</p></div></div>
+            <div class="fx-ctx-row cx-row"><div class="fx-ctx-query" id="fx-ann-context" data-seq-root data-seq-loop data-seq-hold="2400"><span class="fx-ctx-tag">The request and its material</span><p class="ann-text"><mark class="ann" data-part="request" data-seq="1" data-seq-dur="1100">Add rate limiting to the public API and prove it with tests.</mark> <mark class="ann" data-part="context" data-seq="2" data-seq-dur="1100">Use <code>src/api/</code> and Friday's load-test report.</mark> <mark class="ann" data-part="context" data-seq="3" data-seq-dur="1600">Ignore the archived v1 handlers.</mark></p><dl class="ann-legend" aria-label="What each highlighted part is"><div class="ann-legend-row" data-part="request" data-seq="1"><dt>Request</dt><dd>the words of the job</dd></div><div class="ann-legend-row" data-part="context" data-seq="2"><dt>Context</dt><dd>material the job runs on, chosen, not dumped</dd></div></dl></div><div class="fx-ctx-query" role="group" aria-label="Material the request can name"><span class="fx-ctx-tag">The material it can name</span><ul class="cx-mat fx-mat" aria-label="Optional context that can be attached"><li><span class="cx-kind">Image</span><span class="cx-ex">checkout-error.png</span></li><li><span class="cx-kind">File or document</span><span class="cx-ex">contract-2026-03.pdf</span></li><li><span class="cx-kind">Project folder or workspace</span><span class="cx-ex">src/api/</span></li><li><span class="cx-kind">Codebase</span><span class="cx-ex">every file in the project</span></li></ul></div></div>
+            <div class="fx-spend" role="group" aria-label="The same working budget, filled two ways"><p class="fx-spend-head">One working budget. What fills it is the only variable.</p><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--bad">Attach everything in the project</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--waste" style="--w:70%">files the job never touches</span><span class="fx-seg fx-seg--use" style="--w:14%"></span><span class="fx-seg fx-seg--free" style="--w:16%"></span></div><p class="fx-spend-note">The <span class="fx-ink-use">two files the job names</span> get a sliver, and there is almost no <span class="fx-ink-free">room left to answer</span>.</p><ul class="cx-outcomes cx-outcomes--cost"><li><b>More tokens</b>: the budget fills with material nobody asked about</li><li><b>Slower</b>: every attached file has to be read before anything is answered</li><li><b>Costs more</b>: metered work is charged on what was read, not on what was needed</li><li><b>Likelier to miss</b>: the one line that mattered is a needle in a haystack</li></ul></div><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--good">Attach what the job names</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--use" style="--w:58%">the API code and the load-test report</span><span class="fx-seg fx-seg--free" style="--w:42%">room to answer</span></div><p class="fx-spend-note">Same budget, spent on the material the job runs on.</p><ul class="cx-outcomes cx-outcomes--gain"><li><b>Fewer tokens</b>: only the material the job runs on is read</li><li><b>Faster</b>: less to read before the first useful sentence</li><li><b>Costs less</b>: the same answer for a fraction of the metered work</li><li><b>Likelier to land</b>: the material that decides the answer is not buried</li></ul></div></div>
           </div>
         </div>
       </section>
