@@ -66,10 +66,13 @@ def test_embedded_gif_and_poster_match_the_approved_assets(models_scene: str) ->
     assert img, "missing the moving-image element"
     tag = img.group(0)
     poster = re.search(r'data-poster-src="data:image/svg\+xml;base64,([A-Za-z0-9+/=]+)"', tag)
-    motion = re.search(r'data-motion-src="data:image/gif;base64,([A-Za-z0-9+/=]+)"', tag)
-    src = re.search(r' src="data:image/svg\+xml;base64,([A-Za-z0-9+/=]+)"', tag)
-    assert poster and motion and src
-    assert src.group(1) == poster.group(1), "the resting src must be the poster, not the GIF"
+    src = re.search(r' src="data:image/gif;base64,([A-Za-z0-9+/=]+)"', tag)
+    motion = src
+    assert poster and src, tag[:200]
+    # v4.4.3: the animation is the element's own src, so there is no second copy of the GIF and no
+    # data-motion-src. The approved-bytes rule is unchanged: both assets still hash to the ledger.
+    assert "data-motion-src" not in tag, "the GIF must appear once, as the src"
+    assert src.group(1) != poster.group(1), "the src must be the animation, not the still"
     assert hashlib.sha256(base64.b64decode(poster.group(1))).hexdigest() == _staged_hash(
         "model-output-video-poster.svg"
     )
@@ -110,7 +113,7 @@ def test_models_and_agentic_platform_share_visual_grammar(guide_text: str) -> No
     """The comparison only teaches if the two scenes are the same picture up to the fork."""
     fx = guide_text[guide_text.index('id="page-foundations"'): guide_text.index('id="page-training"')]
     assert fx.count('data-grammar="entry"') == 2, "both scenes must open with the entry motif"
-    assert fx.count('data-grammar="work-cycle"') == 2, "both scenes must share the cycle glyph"
+    assert fx.count('data-grammar="one-pass"') == 2, "both scenes must share the inside-the-model motif"
     # The entry motif must be byte-identical between the scenes: same prompt, same kinds.
     entries = re.findall(r'<div class="fx-entry" data-grammar="entry">[\s\S]*?</div>\s*<div class="fx-ctx-plus"', fx)
     assert len(entries) == 2 and entries[0] == entries[1], (
@@ -121,7 +124,7 @@ def test_models_and_agentic_platform_share_visual_grammar(guide_text: str) -> No
     # DOM order inside Agentic Platform: entry -> cycle -> missions -> boundary -> report.
     agent = re.search(r'<section class="fx-scene[^"]*" id="fx-agent-platform"[\s\S]*?</section>', fx).group(0)
     order = [agent.index(m) for m in (
-        'data-grammar="entry"', 'data-grammar="work-cycle"', "data-agent-mission",
+        'data-grammar="entry"', 'data-grammar="one-pass"', "data-agent-mission",
         'data-grammar="boundary"', 'data-stage="observations"', 'data-stage="report"',
     )]
     assert order == sorted(order), "the agentic flow must read in execution order"
@@ -148,34 +151,42 @@ def playwright_mod():
     return sync_playwright
 
 
-def test_moving_image_plays_only_on_request(playwright_mod) -> None:
+def test_moving_image_plays_unaided_and_stills_under_reduced_motion(playwright_mod) -> None:
+    """v4.4.3 inverts the v4.4.1 rule, and keeps its accessibility half.
+
+    The old rule was that motion never starts without a press. The review asked for the opposite,
+    so the animation is the element's own src and no control exists. A reader who asks for reduced
+    motion still gets the still frame, which is the half of the old rule that was about access
+    rather than about asking.
+    """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
-        page = browser.new_page(viewport={"width": 1440, "height": 900})
         try:
+            page = browser.new_page(viewport={"width": 1440, "height": 900})
             page.goto(GUIDE.as_uri() + "#foundations")
             page.wait_for_timeout(400)
+            assert page.locator("[data-media-toggle]").count() == 0, "there is nothing to press"
             img = page.locator(".fx-out-motion")
-            btn = page.locator("[data-media-toggle]")
-            assert img.get_attribute("src").startswith("data:image/svg+xml"), (
-                "the moving image must rest on its poster"
-            )
-            btn.scroll_into_view_if_needed()
-            btn.click()
             assert img.get_attribute("src").startswith("data:image/gif"), (
-                "clicking Play must swap in the approved GIF"
+                "the moving image must play without being asked"
             )
-            assert btn.get_attribute("aria-pressed") == "true"
-            btn.click()
-            assert img.get_attribute("src").startswith("data:image/svg+xml"), (
-                "clicking again must restore the still poster"
+            assert img.get_attribute("data-motion-state") == "playing"
+            page.close()
+
+            reduced = browser.new_page(viewport={"width": 1440, "height": 900}, reduced_motion="reduce")
+            reduced.goto(GUIDE.as_uri() + "#foundations")
+            reduced.wait_for_timeout(400)
+            still = reduced.locator(".fx-out-motion")
+            assert still.get_attribute("src").startswith("data:image/svg+xml"), (
+                "reduced motion must show the still frame"
             )
-            assert btn.get_attribute("aria-pressed") == "false"
+            assert still.get_attribute("data-motion-state") == "still"
         finally:
             browser.close()
 
 
-def test_work_cycle_is_static_and_complete_under_reduced_motion(playwright_mod) -> None:
+def test_inside_the_model_is_complete_under_reduced_motion(playwright_mod) -> None:
+    """The ring is gone; what replaced it must still be fully readable without motion."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page(viewport={"width": 1440, "height": 900}, reduced_motion="reduce")
@@ -184,17 +195,21 @@ def test_work_cycle_is_static_and_complete_under_reduced_motion(playwright_mod) 
             page.wait_for_timeout(400)
             state = page.evaluate(
                 """() => {
-                    const svg = document.querySelector('#fx-model-lifecycle .fx-cycle svg');
-                    svg.closest('.fx-scene').classList.add('live');
-                    const cs = getComputedStyle(svg);
-                    const label = svg.querySelector('text');
+                    const pass = document.querySelector('#fx-model-lifecycle .fx-pass');
+                    const steps = [...pass.querySelectorAll('.fx-pass-step')];
                     return {
-                        animation: cs.animationName,
-                        labelShown: getComputedStyle(label).display !== 'none',
+                        steps: steps.length,
+                        allVisible: steps.every(s => getComputedStyle(s).opacity === '1'
+                                                     && s.getBoundingClientRect().height > 0),
+                        rings: document.querySelectorAll('#fx-model-lifecycle .fx-cycle').length,
+                        note: pass.querySelector('.fx-pass-note').textContent.toLowerCase(),
                     };
                 }"""
             )
         finally:
             browser.close()
-    assert state["animation"] == "none", "the cycle must not spin under reduced motion"
-    assert state["labelShown"], "the static cycle must still show its label"
+    assert state["rings"] == 0, "the work-cycle ring must not come back"
+    assert state["steps"] == 3 and state["allVisible"], state
+    assert "not a transcript of hidden reasoning" in state["note"], (
+        "the honesty caveat must survive the rebuild"
+    )

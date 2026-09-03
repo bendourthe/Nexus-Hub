@@ -482,7 +482,7 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
    so NexusFlow has room to draw between them (flush stages are skipped on purpose). */
 .fx-region[data-flow-root] { display: grid; gap: 10px; }
 .fx-flow-overlay { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-.fx-flow-overlay .fxp { stroke: var(--border-bright); }
+.fx-flow-overlay .fxp { stroke: var(--border-bright); stroke-width: 2.4; }
 
 /* ---------- Audio waveform ---------- */
 .fx-wave { display: block; width: min(100%, 220px); height: 44px; margin-top: 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-0); }
@@ -784,16 +784,37 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-mini-card--report { border-color: var(--accent); }
 .fx-mini-tag { display: block; color: var(--teal-soft); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .fx-mini-card p { margin: 4px 0 0; color: var(--ink-dim); font-size: 13px; line-height: 1.45; }
-.fx-entry { display: grid; grid-template-columns: minmax(0, 1.4fr) auto minmax(0, 1fr); gap: 10px; align-items: center; }
-.fx-ctx-kinds--row { display: flex; flex-wrap: wrap; gap: 6px; }
-.fx-cycle { margin: 0; display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 12px; border: 1px dashed var(--border-bright); border-radius: var(--radius-sm); }
-.fx-cycle svg { width: 76px; height: 76px; overflow: visible; }
+.fx-entry { display: grid; grid-template-columns: minmax(0, 1fr); gap: 7px; align-items: stretch; }
+/* Compound, because .fx-mat is declared later in the sheet and a single class would lose on
+   source order: the same trap this plan recorded for .fx-stack and .fx-subtitle. */
+.fx-mat.fx-mat--row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 720px) { .fx-mat.fx-mat--row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* v4.4.3: the spinning ring with a dot and an arrowhead on it was removed from both scenes. It
+   depicted nothing a reader could name: not a step count, not a duration, not reasoning, and the
+   caption had to say so. What replaced it states the three things that are true of one request and
+   shows effort as what it actually is, room on the middle step. The ring and dot classes stay for
+   now because the two harness figures still draw them; Phase 8 owns those. */
+.fx-pass { display: grid; gap: 8px; padding: 11px 13px; border: 1px solid var(--border-bright); border-radius: var(--radius-sm); background: var(--bg-0); }
+.fx-pass-tag { color: var(--teal-soft); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.fx-pass-track { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin: 0; padding: 0; }
+.fx-pass-track--duo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fx-pass-step {
+  min-width: 0; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--ink-dim); font-size: 12.5px; line-height: 1.35;
+}
+.fx-pass-note { margin: 0; color: var(--ink-faint); font-size: 12px; line-height: 1.45; }
+.fx-effort { display: grid; gap: 5px; }
+.fx-effort-row { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 9px; align-items: center; }
+.fx-effort-name { color: var(--ink-dim); font-size: 12px; }
+.fx-effort-bar { height: 9px; border-radius: 999px; background: var(--surface-2); position: relative; overflow: hidden; }
+.fx-effort-bar::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--w); border-radius: 999px; background: var(--border-bright); }
+.fx-effort-bar--hot::after { background: var(--accent); }
+.fx-models { display: flex; flex-wrap: wrap; gap: 6px; margin: 9px 0 0; padding: 0; list-style: none; }
+.fx-models li { font: 500 11.5px var(--mono); color: var(--ink-dim); background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 3px 7px; }
+.fx-models li b { color: var(--ink); font-weight: 650; }
 .fx-cycle-ring { fill: none; stroke: var(--border-bright); stroke-width: 3; }
 .fx-cycle-dot { fill: var(--accent); }
-.fx-cycle figcaption { color: var(--ink-dim); font-size: 12.5px; line-height: 1.5; }
 @keyframes nhg-cycle-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.js .fx-scene.live .fx-cycle svg { animation: nhg-cycle-spin 6s linear infinite; }
-.js .fx-scene.live .fx-cycle svg text { display: none; }
 .fx-outs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .fx-out { margin: 0; min-width: 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-0); }
 .fx-out-tag { color: var(--teal-soft); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
@@ -801,8 +822,6 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-out-text p { margin: 0; color: var(--ink-dim); font-size: 13px; line-height: 1.5; }
 .fx-out-media { display: block; margin-top: 8px; }
 .fx-out-media svg, .fx-out-motion { display: block; width: min(100%, 180px); height: auto; border-radius: 6px; }
-.fx-media-toggle { margin-top: 8px; padding: 5px 14px; border: 1px solid var(--border-bright); border-radius: 999px; background: var(--surface); color: var(--ink); font-size: 12.5px; font-weight: 600; cursor: pointer; }
-.fx-media-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .fx-out-note { margin: 8px 0 0; color: var(--ink-faint); font-size: 12px; line-height: 1.45; }
 .fx-out-audio { display: block; margin-top: 8px; width: min(100%, 220px); }
 .fx-lanes { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; }
@@ -849,8 +868,6 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-ctx-query p { margin: 5px 0 0; color: var(--ink); font-size: 14.5px; line-height: 1.4; }
 .fx-ctx-tag { color: var(--teal-soft); font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .fx-ctx-plus { color: var(--ink-faint); font-size: 20px; font-weight: 700; text-align: center; line-height: 1; }
-.fx-ctx-kinds { list-style: none; display: grid; gap: 6px; margin: 0; padding: 0; }
-.fx-ctx-kind { display: block; padding: 7px 11px; border: 1px dashed var(--border); border-radius: 7px; background: var(--bg-0); color: var(--ink-dim); font-size: 13.5px; }
 /* v4.4.3: a dashed box with a bare noun in it told the reader nothing they did not already know
    from the noun. Each kind of material now gets a cell with its name and a drawing of the thing,
    in a two-by-two grid. The drawings are pure geometry, so there is no text to escape a box. */
@@ -927,9 +944,9 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fxchip { fill: var(--surface-2); stroke: var(--border); stroke-width: 1; }
 .fxchip--big { fill: var(--surface); stroke: var(--border-bright); }
 .fxbubble { fill: transparent; stroke: var(--ink-faint); stroke-width: 1.3; stroke-dasharray: 5 4; }
-.fxp { fill: none; stroke: var(--border-bright); stroke-width: 1.6; stroke-linecap: round; }
+.fxp { fill: none; stroke: var(--border-bright); stroke-width: 2.2; stroke-linecap: round; }
 .fxp--ghost { stroke-dasharray: 4 4; stroke-opacity: .6; }
-.fxp--arc { stroke: var(--accent); stroke-width: 2.4; }
+.fxp--arc { stroke: var(--accent); stroke-width: 3; }
 /* Filled arrowheads. The old open chevron drew only one side, which
    read as half an arrow. */
 .fx-head { fill: var(--border-bright); stroke: none; }
@@ -1408,9 +1425,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .js .seq-fade, .js .seq-rise, .js .seq-draw, .js .seq-glow, .js .ann, .js .ann-legend-row, .js .fx-hstack .h-port, .js .fx-hstack .h-port-pill, .js .fx-hstack .h-pulse { transition-duration: 0s; }
   .js .hero-lockup.reveal .hero-mark { opacity: 1; transform: none; transition: none; }
+  .js .hero-lockup.live .hero-lockup-float { animation: none; }
   .js .fx-scene .fx-tokchip { opacity: 1; transform: none; transition: none; }
-  .js .fx-scene.live .fx-cycle svg { animation: none; }
-  .js .fx-scene.live .fx-cycle svg text { display: block; }
   .btn:hover { transform: none; }
   .js .cmp .cmp-row { opacity: 1; transform: none; transition: none; }
   .js .cmp .cmp-line { stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
@@ -1903,7 +1919,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <p class="fx-state-line">&ldquo;Look at this contract.&rdquo;</p>
               <p class="fx-state-why">No goal, no finish line, no shape. Any answer is arguably correct, so none can be wrong.</p>
             </article>
-            <div class="fx-state-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
+            <div class="fx-state-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M21 0.8 L33 6 L21 11.2 Z"/></svg></div>
             <article class="fx-state fx-state--strong" id="fx-ann-prompt" data-seq-root data-seq-loop data-seq-hold="2400">
               <h3 class="fx-state-tag">Precise</h3>
               <p class="ann-text"><mark class="ann" data-part="goal" data-seq="1" data-seq-dur="1000">Summarise this contract and list every deadline.</mark> <mark class="ann" data-part="material" data-seq="2" data-seq-dur="1000">Use the signed PDF I attached, sections 4 to 9 only.</mark> <mark class="ann" data-part="done" data-seq="3" data-seq-dur="1000">Every dated obligation appears once, with its clause number.</mark> <mark class="ann" data-part="format" data-seq="4" data-seq-dur="1600">Return a table: date, obligation, clause, who owes it.</mark></p>
@@ -1947,7 +1963,6 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </div>
           <p>A model is a trained system that turns a request into an output. Training <strong>happens long before any request</strong>: a provider trains on broad material, then releases the finished model into products and services. A prompt never retrains it; each request simply runs through the patterns it already has.</p>
           <p>Some model and platform combinations expose an <strong>effort level</strong> that, when supported, can allocate more computation or more work cycles to a request. More effort does not promise a fixed number of iterations; it buys the model room to work.</p>
-          <p>The cycle shown here is an <strong>abstraction of work in progress, not a transcript of hidden reasoning</strong>. What comes back out can take more than one shape.</p>
         </div>
         <div class="fx-diagram">
           <div class="fx-model-flow" data-flow-root>
@@ -1955,18 +1970,24 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <h3 class="fx-region-tag">The provider, long before any request</h3>
               <div class="fx-provider-row">
                 <div class="fx-mini-card"><span class="fx-mini-tag">Training</span><p>Learns patterns from broad material, once, at enormous scale</p></div>
-                <svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg>
+                <svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M21 0.8 L33 6 L21 11.2 Z"/></svg>
                 <div class="fx-mini-card" data-stage="delivery"><span class="fx-mini-tag">Release</span><p>The finished model is delivered into platforms and products</p></div>
               </div>
+              <ul class="fx-models" aria-label="Examples of released models, from three providers">
+<li><b>Anthropic</b> Claude Opus 5</li>
+<li><b>Anthropic</b> Claude Haiku 4.5</li>
+<li><b>OpenAI</b> GPT-5.6 Sol</li>
+<li><b>Google</b> Gemini 3.8 Flash</li>
+</ul>
             </div>
             <div data-flow-node data-flow-root class="fx-region" data-stage="request" data-region="user">
               <h3 class="fx-region-tag">A request, much later</h3>
-              <div data-flow-node><div class="fx-entry" data-grammar="entry"><div class="fx-ctx-query"><span class="fx-ctx-tag">Prompt</span><p>Summarise this contract and list every deadline.</p></div><div class="fx-ctx-plus" aria-hidden="true">+</div><ul class="fx-ctx-kinds fx-ctx-kinds--row" aria-label="Optional context attached to the request"><li><span class="fx-ctx-kind">Image</span></li><li><span class="fx-ctx-kind">File or document</span></li><li><span class="fx-ctx-kind">Project folder or workspace</span></li><li><span class="fx-ctx-kind">Codebase</span></li></ul></div></div>
-              <div data-stage="work-cycle" data-flow-node><figure class="fx-cycle" data-grammar="work-cycle"><svg viewBox="0 0 76 76" role="img" aria-labelledby="fx-model-cycle-title"><title id="fx-model-cycle-title">An abstract work cycle: assess, act, check, repeated as needed</title><circle class="fx-cycle-ring" cx="38" cy="38" r="27" pathLength="1"/><path class="fx-head" d="M62 30 L69 38 L60 41 Z"/><circle class="fx-cycle-dot" cx="38" cy="11" r="4.5"/><text class="fxt fxt--accent" x="38" y="42" text-anchor="middle">work</text></svg><figcaption>An abstract work cycle inside the model. With a higher effort level, when supported, it can run longer. This is an illustration, not hidden chain-of-thought.</figcaption></figure></div>
+              <div data-flow-node><div class="fx-entry" data-grammar="entry"><div class="fx-ctx-query"><span class="fx-ctx-tag">Prompt</span><p>Add rate limiting to the public API and prove it with tests.</p></div><div class="fx-ctx-plus" aria-hidden="true">+</div><ul class="fx-mat fx-mat--row" aria-label="Optional material attached to the request"><li class="fx-mat-cell"><span class="fx-mat-name">Image</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><rect class="ma-fill" x="14" y="5" width="68" height="36" rx="4"/><circle class="ma-dot" cx="31" cy="16" r="4"/><path class="ma-line" d="M18 37 L36 21 L48 32 L57 24 L78 37"/></svg></li><li class="fx-mat-cell"><span class="fx-mat-name">File or document</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><path class="ma-fill" d="M26 4 h26 l14 14 v24 a2 2 0 0 1 -2 2 H28 a2 2 0 0 1 -2 -2 V6 a2 2 0 0 1 2 -2 z"/><path class="ma-line" d="M52 4 v14 h14"/><path class="ma-line" d="M34 25 h22 M34 32 h22 M34 39 h13"/></svg></li><li class="fx-mat-cell"><span class="fx-mat-name">Project folder or workspace</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><path class="ma-fill" d="M16 10 h20 l6 6 h40 a2 2 0 0 1 2 2 v22 a2 2 0 0 1 -2 2 H16 a2 2 0 0 1 -2 -2 V12 a2 2 0 0 1 2 -2 z"/><path class="ma-line" d="M28 28 h22 M28 35 h32"/></svg></li><li class="fx-mat-cell"><span class="fx-mat-name">Codebase</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><path class="ma-line" d="M22 8 v34 M22 17 h16 M22 28 h16 M22 39 h16"/><circle class="ma-dot" cx="22" cy="8" r="3.5"/><rect class="ma-fill" x="42" y="11" width="34" height="12" rx="3"/><rect class="ma-fill" x="42" y="22" width="34" height="12" rx="3"/><rect class="ma-fill" x="42" y="33" width="34" height="12" rx="3"/></svg></li></ul></div></div>
+              <div data-stage="work-cycle" data-flow-node><div class="fx-pass" data-grammar="one-pass" data-seq-root data-seq-loop data-seq-hold="2200"><span class="fx-pass-tag">Inside the model, one request at a time</span><ol class="fx-pass-track" aria-label="What one request does inside the model"><li class="fx-pass-step seq-glow" data-seq="1" data-seq-dur="520">Reads the request and the material with it</li><li class="fx-pass-step seq-glow" data-seq="2" data-seq-dur="520">Runs both through the patterns it already has</li><li class="fx-pass-step seq-glow" data-seq="3" data-seq-dur="520">Produces one output, in one of several shapes</li></ol><div class="fx-effort" role="group" aria-label="What an effort level changes"><div class="fx-effort-row"><span class="fx-effort-name">Standard</span><span class="fx-effort-bar" style="--w:38%"></span></div><div class="fx-effort-row"><span class="fx-effort-name">Higher effort</span><span class="fx-effort-bar fx-effort-bar--hot" style="--w:82%"></span></div></div><p class="fx-pass-note">Effort, where a model and platform support it, buys room on the middle step. It promises no number of steps, and the picture is not a transcript of hidden reasoning.</p></div></div>
               <div data-flow-node class="fx-outs" data-stage="output" aria-label="Four kinds of output one request can produce">
                 <figure class="fx-out" data-output-kind="text">
                   <figcaption class="fx-out-tag">Text</figcaption>
-                  <blockquote class="fx-out-text"><p>Three deadlines found: payment by 15 March (clause 4.2), notice by 30 June (clause 6.1), renewal by 1 September (clause 9.4).</p></blockquote>
+                  <blockquote class="fx-out-text"><p>Added a token-bucket limiter in front of the public routes, 120 requests a minute for each key, with tests for the limit, the reset window, and the refusal body.</p></blockquote>
                 </figure>
                 <figure class="fx-out" data-output-kind="image">
                   <figcaption class="fx-out-tag">Image</figcaption>
@@ -1975,10 +1996,9 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                 <figure class="fx-out" data-output-kind="video">
                   <figcaption class="fx-out-tag">Video</figcaption>
                   <span class="fx-out-media">
-                    <img class="fx-out-motion" data-media="video" alt="A ten-frame sunrise: the sun climbs from behind two dark hills while the sky warms from night blue to dawn orange." src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgOTAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRGF3biBza3kgYWJvdmUgdHdvIGRhcmsgaGlsbHMgd2l0aCB0aGUgc3VuIGp1c3QgY2xlYXJpbmcgdGhlIHJpZGdlOiB0aGUgZmlyc3QgZnJhbWUgb2YgYSBzdW5yaXNlIGFuaW1hdGlvbiI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSI5MCIgZmlsbD0iIzE2MjY0NiIvPjxjaXJjbGUgY3g9Ijg0IiBjeT0iNTYuMCIgcj0iMTMiIGZpbGw9IiNmZmQ2NzgiLz48Y2lyY2xlIGN4PSI4NCIgY3k9IjU2LjAiIHI9IjkiIGZpbGw9IiNmZmVjYWEiLz48cG9seWdvbiBwb2ludHM9IjAsNjYgMjYsNTIgNTgsNjIgODgsNDggMTIwLDU4IDEyMCw5MCAwLDkwIiBmaWxsPSIjMTgyYzQyIi8+PHBvbHlnb24gcG9pbnRzPSIwLDc0IDE4LDYyIDQ0LDcyIDc0LDU4IDk4LDY4IDEyMCw2MCAxMjAsOTAgMCw5MCIgZmlsbD0iIzEwMjAyZSIvPjwvc3ZnPg==" data-poster-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgOTAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRGF3biBza3kgYWJvdmUgdHdvIGRhcmsgaGlsbHMgd2l0aCB0aGUgc3VuIGp1c3QgY2xlYXJpbmcgdGhlIHJpZGdlOiB0aGUgZmlyc3QgZnJhbWUgb2YgYSBzdW5yaXNlIGFuaW1hdGlvbiI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSI5MCIgZmlsbD0iIzE2MjY0NiIvPjxjaXJjbGUgY3g9Ijg0IiBjeT0iNTYuMCIgcj0iMTMiIGZpbGw9IiNmZmQ2NzgiLz48Y2lyY2xlIGN4PSI4NCIgY3k9IjU2LjAiIHI9IjkiIGZpbGw9IiNmZmVjYWEiLz48cG9seWdvbiBwb2ludHM9IjAsNjYgMjYsNTIgNTgsNjIgODgsNDggMTIwLDU4IDEyMCw5MCAwLDkwIiBmaWxsPSIjMTgyYzQyIi8+PHBvbHlnb24gcG9pbnRzPSIwLDc0IDE4LDYyIDQ0LDcyIDc0LDU4IDk4LDY4IDEyMCw2MCAxMjAsOTAgMCw5MCIgZmlsbD0iIzEwMjAyZSIvPjwvc3ZnPg==" data-motion-src="data:image/gif;base64,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" width="120" height="90">
-                    <button type="button" class="fx-media-toggle" data-media-toggle aria-pressed="false">Play</button>
+                    <img class="fx-out-motion" data-media="video" alt="A ten-frame sunrise: the sun climbs from behind two dark hills while the sky warms from night blue to dawn orange." src="data:image/gif;base64,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" data-poster-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgOTAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRGF3biBza3kgYWJvdmUgdHdvIGRhcmsgaGlsbHMgd2l0aCB0aGUgc3VuIGp1c3QgY2xlYXJpbmcgdGhlIHJpZGdlOiB0aGUgZmlyc3QgZnJhbWUgb2YgYSBzdW5yaXNlIGFuaW1hdGlvbiI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSI5MCIgZmlsbD0iIzE2MjY0NiIvPjxjaXJjbGUgY3g9Ijg0IiBjeT0iNTYuMCIgcj0iMTMiIGZpbGw9IiNmZmQ2NzgiLz48Y2lyY2xlIGN4PSI4NCIgY3k9IjU2LjAiIHI9IjkiIGZpbGw9IiNmZmVjYWEiLz48cG9seWdvbiBwb2ludHM9IjAsNjYgMjYsNTIgNTgsNjIgODgsNDggMTIwLDU4IDEyMCw5MCAwLDkwIiBmaWxsPSIjMTgyYzQyIi8+PHBvbHlnb24gcG9pbnRzPSIwLDc0IDE4LDYyIDQ0LDcyIDc0LDU4IDk4LDY4IDEyMCw2MCAxMjAsOTAgMCw5MCIgZmlsbD0iIzEwMjAyZSIvPjwvc3ZnPg==" width="120" height="90">
                   </span>
-                  <p class="fx-out-note">Plays only on request; the still frame is the resting state.</p>
+                  <p class="fx-out-note">Plays on its own. Under a reduced-motion setting the still frame is shown instead.</p>
                 </figure>
                 <figure class="fx-out" data-output-kind="audio">
                   <figcaption class="fx-out-tag">Audio</figcaption>
@@ -1991,7 +2011,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </div>
         </div>
       </section>
-      <section class="fx-scene reveal" id="fx-agent-platform" aria-labelledby="fx-platform-title">
+      <section class="fx-scene fx-stack reveal" id="fx-agent-platform" aria-labelledby="fx-platform-title">
         <div class="fx-copy">
           <div class="fx-title">
             <p class="fx-subtitle">A loop that gives the model tools</p>
@@ -2003,8 +2023,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         </div>
         <div class="fx-diagram">
           <div class="fx-model-flow" data-flow-root>
-            <div data-flow-node><div class="fx-entry" data-grammar="entry"><div class="fx-ctx-query"><span class="fx-ctx-tag">Prompt</span><p>Summarise this contract and list every deadline.</p></div><div class="fx-ctx-plus" aria-hidden="true">+</div><ul class="fx-ctx-kinds fx-ctx-kinds--row" aria-label="Optional context attached to the request"><li><span class="fx-ctx-kind">Image</span></li><li><span class="fx-ctx-kind">File or document</span></li><li><span class="fx-ctx-kind">Project folder or workspace</span></li><li><span class="fx-ctx-kind">Codebase</span></li></ul></div></div>
-            <div data-stage="work-cycle" data-flow-node><figure class="fx-cycle" data-grammar="work-cycle"><svg viewBox="0 0 76 76" role="img" aria-labelledby="fx-platform-cycle-title"><title id="fx-platform-cycle-title">An abstract work cycle: assess, act, check, repeated as needed</title><circle class="fx-cycle-ring" cx="38" cy="38" r="27" pathLength="1"/><path class="fx-head" d="M62 30 L69 38 L60 41 Z"/><circle class="fx-cycle-dot" cx="38" cy="11" r="4.5"/><text class="fxt fxt--accent" x="38" y="42" text-anchor="middle">work</text></svg><figcaption>The platform's model plans with the same abstract work cycle, then hands out missions.</figcaption></figure></div>
+            <div data-flow-node><div class="fx-entry" data-grammar="entry"><div class="fx-ctx-query"><span class="fx-ctx-tag">Prompt</span><p>Add rate limiting to the public API and prove it with tests.</p></div><div class="fx-ctx-plus" aria-hidden="true">+</div><ul class="fx-mat fx-mat--row" aria-label="Optional material attached to the request"><li class="fx-mat-cell"><span class="fx-mat-name">Image</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><rect class="ma-fill" x="14" y="5" width="68" height="36" rx="4"/><circle class="ma-dot" cx="31" cy="16" r="4"/><path class="ma-line" d="M18 37 L36 21 L48 32 L57 24 L78 37"/></svg></li><li class="fx-mat-cell"><span class="fx-mat-name">File or document</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><path class="ma-fill" d="M26 4 h26 l14 14 v24 a2 2 0 0 1 -2 2 H28 a2 2 0 0 1 -2 -2 V6 a2 2 0 0 1 2 -2 z"/><path class="ma-line" d="M52 4 v14 h14"/><path class="ma-line" d="M34 25 h22 M34 32 h22 M34 39 h13"/></svg></li><li class="fx-mat-cell"><span class="fx-mat-name">Project folder or workspace</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><path class="ma-fill" d="M16 10 h20 l6 6 h40 a2 2 0 0 1 2 2 v22 a2 2 0 0 1 -2 2 H16 a2 2 0 0 1 -2 -2 V12 a2 2 0 0 1 2 -2 z"/><path class="ma-line" d="M28 28 h22 M28 35 h32"/></svg></li><li class="fx-mat-cell"><span class="fx-mat-name">Codebase</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><path class="ma-line" d="M22 8 v34 M22 17 h16 M22 28 h16 M22 39 h16"/><circle class="ma-dot" cx="22" cy="8" r="3.5"/><rect class="ma-fill" x="42" y="11" width="34" height="12" rx="3"/><rect class="ma-fill" x="42" y="22" width="34" height="12" rx="3"/><rect class="ma-fill" x="42" y="33" width="34" height="12" rx="3"/></svg></li></ul></div></div>
+            <div data-stage="work-cycle" data-flow-node><div class="fx-pass" data-grammar="one-pass"><span class="fx-pass-tag">Inside the platform, before any action</span><ol class="fx-pass-track fx-pass-track--duo" aria-label="What the platform model does first"><li class="fx-pass-step">Plans the job from the request and the material</li><li class="fx-pass-step">Hands out missions, in parallel where the work is independent</li></ol></div></div>
             <ul class="fx-lanes" data-grammar="missions" data-flow-node aria-label="Three specialized agent missions running in parallel where independent"><li class="fx-lane" data-agent-mission><span class="fx-lane-tag">Investigate the project</span><p>Reads the relevant files or documents and maps what is already there</p></li><li class="fx-lane" data-agent-mission><span class="fx-lane-tag">Research the material</span><p>Pulls the sections, records, or references the request actually needs</p></li><li class="fx-lane" data-agent-mission><span class="fx-lane-tag">Verify the result</span><p>Runs checks against the finished work and reports what it observed</p></li></ul>
             <div class="fx-boundary" data-grammar="boundary" data-flow-node role="group" aria-label="The platform permission and tool boundary every action passes through">
               <span class="fx-boundary-tag">Permission and tool boundary</span>
@@ -2016,7 +2036,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             </div>
             <div class="fx-obs-row" data-flow-node>
               <div class="fx-mini-card" data-stage="observations"><span class="fx-mini-tag">Observations</span><p>Errors, status, and output return to the loop, which works again if the check fails</p></div>
-              <svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg>
+              <svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M21 0.8 L33 6 L21 11.2 Z"/></svg>
               <div class="fx-mini-card fx-mini-card--report" data-stage="report"><span class="fx-mini-tag">Report</span><p>A final report of what was done, what was checked, and what changed</p></div>
             </div>
           </div>
@@ -2042,7 +2062,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                 <div class="fx-part"><dt>Leaves behind</dt><dd>A transcript to copy from.</dd></div>
               </dl>
             </article>
-            <div class="fx-state-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
+            <div class="fx-state-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M21 0.8 L33 6 L21 11.2 Z"/></svg></div>
             <article class="fx-state fx-state--strong" data-phase3-node="agent-handoff">
               <h3 class="fx-state-tag">Agentic platform</h3>
               <p class="fx-state-line">The same request, the same context.</p>
@@ -3051,20 +3071,17 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   }
 
   /* Phase 4: the moving-image example plays only on request and rests on its poster. */
-  (function initMediaToggles() {
-    var toggles = document.querySelectorAll("[data-media-toggle]");
-    for (var i = 0; i < toggles.length; i++) {
-      (function (btn) {
-        var img = btn.parentElement.querySelector(".fx-out-motion");
-        if (!img) return;
-        btn.addEventListener("click", function () {
-          var playing = btn.getAttribute("aria-pressed") === "true";
-          img.src = playing ? img.getAttribute("data-poster-src") : img.getAttribute("data-motion-src");
-          btn.setAttribute("aria-pressed", playing ? "false" : "true");
-          btn.textContent = playing ? "Play" : "Show still";
-        });
-      })(toggles[i]);
-    }
+  /* -------------------------------------------------- motion output: plays unaided
+     v4.4.1 required a press before any motion started. The v4.4.3 review asked for the opposite,
+     so the animation is the element's own src and no control exists. The accessibility half of the
+     old rule is kept where it belongs: a reader who asks for reduced motion gets the still frame,
+     and the swap is one attribute rather than a second animation path. */
+  (function initMotionOutput() {
+    var img = document.querySelector(".fx-out-motion");
+    if (!img) return;
+    var still = img.getAttribute("data-poster-src");
+    if (REDUCE && still) { img.src = still; img.setAttribute("data-motion-state", "still"); return; }
+    img.setAttribute("data-motion-state", "playing");
   })();
 
   /* continuous scene motion runs only while the scene is on screen.
@@ -3178,11 +3195,13 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         var path = document.createElementNS(NS, "path");
         var my = (y1 + y2) / 2;
         path.setAttribute("class", "fxp");
-        path.setAttribute("d", "M" + x1 + " " + (y1 + 1) + " C" + x1 + " " + my + " " + x2 + " " + my + " " + x2 + " " + (y2 - 7));
+        path.setAttribute("d", "M" + x1 + " " + (y1 + 1) + " C" + x1 + " " + my + " " + x2 + " " + my + " " + x2 + " " + (y2 - 10));
         svg.appendChild(path);
         var head = document.createElementNS(NS, "path");
         head.setAttribute("class", "fx-head");
-        head.setAttribute("d", "M" + (x2 - 5) + " " + (y2 - 8) + " L" + x2 + " " + (y2 - 1) + " L" + (x2 + 5) + " " + (y2 - 8) + " Z");
+        /* v4.4.3: the review called these barely visible. A 10px head on a 1.6px line reads as a
+           smudge at a glance, so the head is 16px wide and the line is thicker in CSS. */
+        head.setAttribute("d", "M" + (x2 - 8) + " " + (y2 - 11) + " L" + x2 + " " + (y2 - 1) + " L" + (x2 + 8) + " " + (y2 - 11) + " Z");
         svg.appendChild(head);
       }
     }

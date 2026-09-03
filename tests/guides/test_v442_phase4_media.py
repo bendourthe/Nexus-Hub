@@ -97,14 +97,14 @@ def test_flow_connectors_never_cross_a_card(playwright_mod, width: int) -> None:
     assert not data["crossings"], f"connectors overlap cards at {width}px: {data['crossings']}"
 
 
-def test_models_and_agentic_still_share_the_entry_and_cycle_bytes(playwright_mod) -> None:
+def test_models_and_agentic_still_share_the_entry_and_inside_bytes(playwright_mod) -> None:
+    """v4.4.3 replaced the ring with the one-pass block; the sharing rule is unchanged."""
     html = GUIDE.read_text(encoding="utf-8")
     import re
     entries = re.findall(r'<div class="fx-entry" data-grammar="entry">[\s\S]*?<div class="fx-ctx-plus"', html)
-    cycles = re.findall(r'<figure class="fx-cycle" data-grammar="work-cycle">[\s\S]*?</figure>', html)
     assert len(entries) == 2 and entries[0] == entries[1]
-    assert len(cycles) == 2
-    assert html.count('data-grammar="work-cycle"') == 2
+    assert html.count('data-grammar="one-pass"') == 2
+    assert html.count('data-grammar="work-cycle"') == 0, "the ring grammar is retired"
 
 
 # ------------------------------------------------------------------ media

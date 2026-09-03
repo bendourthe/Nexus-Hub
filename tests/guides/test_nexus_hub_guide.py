@@ -971,20 +971,28 @@ def test_foundations_harness_layers_are_honest_and_repository_anchored(
 def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
     guide_text: str,
 ) -> None:
-    """v4.4.1 Phase 4: the story diagrams are HTML node trees; the remaining continuous
-    motion (the shared work-cycle glyph) is observer-gated and statically complete."""
+    """v4.4.1 Phase 4: the story diagrams are HTML node trees.
+
+    v4.4.3 removed the spinning work-cycle ring from both scenes: it depicted nothing a reader
+    could name, and its own caption had to say so. The shared grammar it provided is still
+    required, now as the one-pass block, and the remaining continuous motion is the hero lockup,
+    which keeps the liveness gate the ring used to carry.
+    """
     fx = _foundations_markup(guide_text)
-    assert fx.count('data-grammar="work-cycle"') == 2, (
-        "Models and Agentic Platform must share the same work-cycle glyph"
+    assert fx.count('data-grammar="one-pass"') == 2, (
+        "Models and Agentic Platforms must share the same inside-the-model motif"
     )
-    assert ".js .fx-scene.live .fx-cycle svg" in guide_text, (
-        "the cycle spin must be gated on scene liveness, not free-running"
+    assert 'class="fx-cycle"' not in fx, "the work-cycle ring must not come back into a scene"
+    assert ".js .hero-lockup.live .hero-lockup-float" in guide_text, (
+        "continuous motion must be gated on liveness, not free-running"
     )
     assert 'document.querySelectorAll(".fx-scene, .hero-lockup")' in guide_text
     assert "IntersectionObserver" in guide_text
     reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
     assert ".fx-tokchip" in reduce_block, "token chips need a static reduced-motion state"
-    assert ".fx-cycle svg" in reduce_block, "the cycle needs a static reduced-motion state"
+    assert "nhg-lockup-float" in guide_text and ".hero-lockup-float" in reduce_block, (
+        "the lockup float needs a static reduced-motion state"
+    )
     for retired in ("fx-pulse", "fx-grow", "fx-fade", "offset-path"):
         assert retired not in guide_text, (
             retired + " was retired; a reintroduced consumer must restore its states"
@@ -1197,7 +1205,7 @@ def test_foundations_animations_have_reduced_motion_fallback(guide_text: str) ->
     reduce_block = reduce_block.split("}\n</style>", 1)[0] if "}\n</style>" in reduce_block else reduce_block
     # The live motion primitives after the Phase 4 rebuild: reveal pops, drawn connectors,
     # token-chip reveals, and the shared work-cycle spin.
-    for cls in (".fx-pop", ".fx-draw", ".fx-tokchip", ".fx-cycle svg"):
+    for cls in (".fx-pop", ".fx-draw", ".fx-tokchip", ".hero-lockup-float"):
         assert cls in reduce_block, f"{cls} missing a reduced-motion static state"
 
 
