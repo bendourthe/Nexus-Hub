@@ -864,7 +864,7 @@ def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> 
         "Prompt Engineering",
         "Context Engineering",
         "Models",
-        "Agentic Platform",
+        "Agentic Platforms",
         "Chatbot vs. Agentic Platform",
         "Harnesses",
         "Nexus Hub Harness",

@@ -158,3 +158,39 @@ Phase 2 may inline ONLY these five hashes. Re-sanitizing, re-minifying, or re-fe
 The CC BY 4.0 obligation on the GitHub Copilot codicon is satisfied by a **collapsed credits disclosure placed beside the platform rail**: a keyboard-accessible `<details>`/`<summary>` element titled "Trademarks and credits" that names the Codicons set and Microsoft Corporation under CC BY 4.0, and carries one nominative-use statement covering all five marks. It is visible on demand, costs no persistent layout in the Home hero, and keeps the attribution adjacent to the mark it covers.
 
 Phase 2 must implement this disclosure in the same commit that inlines the marks, and must assert it exists. A rail without it is a licence violation rather than a cosmetic omission.
+
+## 5. v4.4.3 reuse in the Foundations Agentic Platforms scene
+
+**Date**: 2026-09-03. **Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](../../plans/v4.4.3-guide-illustration-clarity-rebuild.md), Phase 6.
+
+The v4.4.3 review asked for the Agentic Platforms scene to name four platforms and show each one's
+logo, linking to an icon aggregator for the marks. Four already-approved marks are reused instead,
+for three reasons recorded here so the decision is reviewable rather than implicit:
+
+1. The linked aggregator serves a client-rendered page; a fetch returns application markup, not the
+   vector, and the page states no licence for the marks it hosts.
+2. The four vendors are the same four whose marks this ledger already approves at a pinned hash, so
+   reuse adds no new provenance surface and no new outbound dependency.
+3. The chips are labelled with the PRODUCT name while the mark is the VENDOR's mark. That is a
+   substitution, not an equivalence, and it is stated plainly here: Claude Code carries the Claude
+   mark, Codex the ChatGPT mark, Antigravity the Gemini mark. Cursor is exact. If product-specific
+   marks are wanted, they need their own acquisition, sanitization, and approval pass.
+
+Nominative use and the CC BY 4.0 obligation are unchanged and are carried by the site footer, per
+the v4.4.2 decision record `2026-09-02-platform-mark-attribution-in-footer.md`.
+
+### 5.1 One documented second sanitization
+
+| Mark | Instance | Bytes | SHA-256 |
+|---|---|---:|---|
+| Gemini | Foundations chip, ids re-namespaced `nxp-gm-` to `nxp-gm2-` | 8,871 | derived; see below |
+
+The Gemini asset carries 13 internal ids and `url(#...)` references. Section 1.3 namespaced them
+because the upstream ids were generic enough to collide with another inlined asset; a SECOND copy of
+the same asset in the same document collides with itself, and the second instance would resolve its
+mask and five blur filters against the first instance's defs. The Foundations chip therefore ships
+the identical geometry with the id prefix changed, and `tests/guides/test_v443_phase6_platforms.py`
+DERIVES the expected bytes by applying that one prefix substitution to the approved staged asset.
+No hash is stored for the variant, so the test proves the prefix is the only difference; a real edit
+to the geometry fails it. The other three marks carry no internal ids and are byte-identical to the
+staged assets.

@@ -20,7 +20,7 @@
 | C2 | Attachable material is one 2x2 illustrated grid; the Context scene adopts it in Phase 4 and the Models and Platforms scenes reuse it in their own rebuilds | `test_v443_phase4_context.py::test_attachable_material_is_a_two_by_two_illustrated_grid` | 4 |
 | M1 | No work-cycle ring anywhere; no scene has an empty column | `test_v443_phase5_models.py::test_no_work_cycle_ring_survives_anywhere_in_a_scene` | 5 |
 | M2 | The video output plays with no gesture; models from three or more providers are named | `test_v443_phase5_models.py` (`test_the_video_output_plays_without_being_asked`, `test_released_models_are_named_from_three_providers`) | 5 |
-| P1 | Agentic Platforms is plural and names four platforms with ledger-approved marks | NEW, Phase 6 | 6 |
+| P1 | Agentic Platforms is plural and names four platforms with ledger-approved marks | `test_v443_phase6_platforms.py` (5 tests) | 6 |
 | X1 | Chatbot versus agentic platforms is one illustration of can-do against does | NEW, Phase 7 | 7 |
 | H1 | ONE harness scene, animated as one journey | NEW, Phase 8 | 8 |
 | V1 | Declared matrix green, byte ledger closed | Phase 9 | 9 |
@@ -51,6 +51,7 @@ it, with what replaced it. A test updated without a row here is how a silent loo
 | `test_v441_phase4_foundations.py` | `test_work_cycle_is_static_and_complete_under_reduced_motion` | the ring's spin and its text label | M1 | DONE: rewritten as `test_inside_the_model_is_complete_under_reduced_motion`, which asserts all three steps are readable without motion and the honesty caveat survives |
 | `test_v441_phase4_foundations.py` | `test_models_and_agentic_platform_share_visual_grammar` | `data-grammar="work-cycle"` count and its position in the flow order | M1 | DONE: `one-pass` in both places; the byte-identical entry rule is unchanged and the Platform entry moved with the Models entry to keep it true |
 | `test_v442_phase4_media.py` | `test_models_and_agentic_still_share_the_entry_and_cycle_bytes` | the `<figure class="fx-cycle">` regex and the count of 2 | M1 | DONE: renamed to `..._entry_and_inside_bytes`, counts `one-pass`, and asserts the ring grammar is retired |
+| `test_nexus_hub_guide.py` | `test_foundations_phase3_has_eight_title_subtitle_scenes` | the scene title `Agentic Platform` | P1: the scene is plural | DONE: `Agentic Platforms`. Phases 7 and 8 change two more entries in the same list, each with its own row. |
 | `test_v441_phase2_home.py` | `test_guardrails_section_names_only_shipped_registered_hooks` | `.g-port`, `.g-blocked`, and the `blocked by ` prefix | G1: the figure has no SVG | DONE: reads `.gf-hooks li` and the `<b>` hook name in each stop cell; the rule (only shipped, registered hooks named) is unchanged |
 | `test_v441_phase2_home.py` | `test_guardrails_choreography_reaches_a_fully_blocked_end_state` | `total == 5`, `.g-block` count | G1: three attempts, not five chips | DONE: `total == 3`, stop count read from `.gf-out--stop`; the rule (ends fully blocked) is unchanged |
 
@@ -98,4 +99,4 @@ still there.
 | 3 | loop fills the column, larger box type, CSS triangles | +966 | 353,455 |
 | 4 | two-line legend rows, illustrated material grid, legend-free budget meters | +1985 | 355,440 |
 
-Headroom at Phase 5 close: 140,640 under the ceiling.
+Headroom at Phase 6 close: 126,651 under the ceiling.
