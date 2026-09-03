@@ -14,8 +14,8 @@
 | T3 | No heading's glyph run spills past its container at any declared width, and none renders below the 15px floor | `test_no_heading_spills_past_its_container` (5 widths) | 1 |
 | T4 | Migration table headers carry the comparison-label grade, with per-column colour | `test_migration_table_headers_carry_the_comparison_grade` | 1 |
 | T5 | The static document never addresses the reader | `test_static_document_never_addresses_the_reader` | 1 |
-| G1 | Every guardrails label sits inside its own box; the blocking hook is named per attempt | NEW, Phase 2 | 2 |
-| L1 | The command loop fills the content column with triangular heads | NEW, Phase 3 | 3 |
+| G1 | Every guardrails label sits inside its own box; the blocking hook is named per attempt | `test_v443_phase2_guardrails.py` (6 tests) | 2 |
+| L1 | The command loop fills the content column with triangular heads | `test_v443_phase3_loop.py` (5 tests) | 3 |
 | C1 | Request and context render as swatch-plus-label over description | NEW, Phase 4 | 4 |
 | C2 | Attachable material is one 2x2 illustrated grid, shared by all three scenes that show it | NEW, Phase 4 | 4 |
 | M1 | No work-cycle ring anywhere; no scene has an empty column | NEW, Phase 5 | 5 |
@@ -69,5 +69,6 @@ shipped is therefore:
 | start | v4.4.2 final | | 345,623 |
 | 1 | two size tokens, NexusFit, table-header grade, second-person sweep | +4,282 | 349,905 |
 | 2 | guardrails figure rebuilt in HTML, SVG removed, table column shares | +2,584 | 352,489 |
+| 3 | loop fills the column, larger box type, CSS triangles | +966 | 353,455 |
 
-Headroom at Phase 2 close: 147,511 under the ceiling.
+Headroom at Phase 3 close: 146,545 under the ceiling.
