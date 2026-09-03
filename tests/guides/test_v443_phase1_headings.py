@@ -9,6 +9,11 @@ viewport can carry a 33px heading on one line.
 
 The second-person sweep is asserted over the static document, which is what the reader loads. Text
 the Training simulation injects at runtime is out of this version's scope and is not claimed here.
+
+v4.4.4 removed the Foundations scene subtitle from this measurement. It is no longer a heading: the
+review inverted the pair so the scene NAME is the title and the descriptive phrase is a sentence
+beneath it, which should wrap like prose rather than shrink to one line. Titles and Home labels are
+still measured here; the new pair order is asserted in `test_v442_phase3_foundations.py`.
 """
 
 from __future__ import annotations
@@ -72,7 +77,7 @@ def _page(browser, width: int, route: str):
 
 MEASURE = """() => {
   const rows = [];
-  document.querySelectorAll('.page.active .section-title, .page.active .eyebrow, .page.active .fx-subtitle')
+  document.querySelectorAll('.page.active .section-title, .page.active .eyebrow')
     .forEach(el => {
       const cs = getComputedStyle(el);
       const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;

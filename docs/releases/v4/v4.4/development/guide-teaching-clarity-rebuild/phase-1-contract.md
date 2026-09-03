@@ -13,7 +13,7 @@ start, because retiring the audio output and merging two Foundations scenes both
 | E1 | Guardrails segment renamed, both ring headers and the chips centred, both subtexts rewritten | `test_v444_phase12_home.py::test_the_guardrails_segment_is_renamed_and_centred` | 1 |
 | E2a | Command segment and both column headers renamed, stacked labels following | `test_the_command_segment_is_renamed` | 2 |
 | E2b | Both benefits present: one install across four platforms with a mid-task switch, and commands built on the generic ones | `test_the_segment_carries_both_benefits` | 2 |
-| E3 | Foundations reads scene name as title, descriptive phrase as subtitle | NEW, Phase 3 | 3 |
+| E3 | Foundations reads scene name as title, descriptive phrase as subtitle | `test_v442_phase3_foundations.py::test_scene_titles_come_before_their_subtitles` | 3 |
 | E4 | Prompt Engineering: vague prompt beside its flaws, full-width engineered prompt below | NEW, Phase 4 | 4 |
 | E5 | Context Engineering: copy full width, prompt left and material right, bad versus good with cost named | NEW, Phase 5 | 5 |
 | E6 | Models: one model per provider without numbers, next-token, base versus reasoning, three modality tiers | NEW, Phase 6 | 6 |
@@ -27,6 +27,8 @@ start, because retiring the audio output and merging two Foundations scenes both
 |---|---|---|---|---|
 | `test_v441_phase2_home.py` | `test_home_sections_render_in_the_agreed_order` | `Guardrails and safety` | E1 | DONE: `Adds an extra layer of security` |
 | `test_v441_phase2_home.py` | same test | `Familiar commands, leveled up` | E2a | DONE: `Install once, work anywhere` |
+| `test_v442_phase3_foundations.py` | `test_scene_subtitles_are_eyebrows_above_their_titles` | the phrase is an uppercase eyebrow ABOVE the scene name, sharing the Home label's base size and tracking ratio | E3: the review calls that pair inverted | DONE: rewritten as `test_scene_titles_come_before_their_subtitles`, which asserts the h2 first in DOM and on screen, a smaller subtitle, and `text-transform: none`. Home is unchanged and still reads label-above-title. |
+| `test_v443_phase1_headings.py` | the measured selector included `.page.active .fx-subtitle` | E3: a subtitle sentence should wrap like prose, not shrink to one line | DONE: the selector measures titles and Home labels only; the docstring records why |
 
 ## 3. One rule narrowed, with its reasoning
 

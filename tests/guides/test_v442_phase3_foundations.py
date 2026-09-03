@@ -91,7 +91,17 @@ def test_page_opens_with_a_centred_title_in_the_hero_subtitle_style(playwright_m
     assert data["grad"]
 
 
-def test_scene_subtitles_are_eyebrows_above_their_titles(playwright_mod) -> None:
+def test_scene_titles_come_before_their_subtitles(playwright_mod) -> None:
+    """v4.4.4 inverted the pair on the operator's instruction.
+
+    v4.4.2 made the descriptive phrase an uppercase eyebrow ABOVE the scene name, matching Home.
+    The review called that inverted: on Foundations the scene NAME is the title and the phrase is
+    its subtitle. So the assertion flips with it -- the h2 comes first in document order and on
+    screen, the subtitle is smaller than the title, and it is no longer an uppercase label.
+
+    Home is unchanged and still reads eyebrow-above-title; that pattern is asserted in
+    `test_v444_phase12_home.py` and in the heading module.
+    """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         _ctx, page = _open(browser)
@@ -99,27 +109,27 @@ def test_scene_subtitles_are_eyebrows_above_their_titles(playwright_mod) -> None
             rows = page.evaluate(
                 """() => [...document.querySelectorAll('#page-foundations .fx-title')].map(t => {
                     const sub = t.querySelector('.fx-subtitle'), h2 = t.querySelector('h2.section-title');
-                    const eyebrow = getComputedStyle(document.querySelector('#page-home .eyebrow'));
-                    const cs = getComputedStyle(sub);
-                    const home = document.querySelector('#page-home .eyebrow');
-                    /* v4.4.3 fits each label to its own container, so the RENDERED px legitimately
-                       differ between a full-width Home section and a narrow scene column. The
-                       primitive is the same when the stylesheet size matches and the tracking is
-                       the same proportion of the type size. */
-                    const ratio = el => parseFloat(getComputedStyle(el).letterSpacing) / parseFloat(getComputedStyle(el).fontSize);
-                    return { above: sub.getBoundingClientRect().bottom <= h2.getBoundingClientRect().top + 1,
-                             docOrder: sub.compareDocumentPosition(h2) & Node.DOCUMENT_POSITION_FOLLOWING ? true : false,
-                             size: sub.getAttribute('data-fit-base') === home.getAttribute('data-fit-base'),
-                             transform: cs.textTransform === eyebrow.textTransform,
-                             spacing: Math.abs(ratio(sub) - ratio(home)) < 0.005 };
+                    const cs = getComputedStyle(sub), hs = getComputedStyle(h2);
+                    return {
+                      title: h2.textContent.trim(),
+                      subtitle: sub.textContent.trim(),
+                      titleFirstOnScreen: h2.getBoundingClientRect().bottom <= sub.getBoundingClientRect().top + 1,
+                      titleFirstInDom: (h2.compareDocumentPosition(sub) & Node.DOCUMENT_POSITION_FOLLOWING) ? true : false,
+                      smaller: parseFloat(cs.fontSize) < parseFloat(hs.fontSize),
+                      notALabel: cs.textTransform === 'none',
+                      sameLeft: Math.abs(h2.getBoundingClientRect().left - sub.getBoundingClientRect().left) < 2,
+                    };
                 })"""
             )
         finally:
             browser.close()
     assert len(rows) == 7, "v4.4.3 merged the two harness scenes"
-    for r in rows:
-        assert r["above"] and r["docOrder"], r
-        assert r["size"] and r["transform"] and r["spacing"], r
+    for row in rows:
+        assert row["title"] and row["subtitle"], row
+        assert row["titleFirstOnScreen"] and row["titleFirstInDom"], row
+        assert row["smaller"], f"the subtitle must be smaller than its title: {row}"
+        assert row["notALabel"], f"the subtitle must not render as an uppercase label: {row}"
+        assert row["sameLeft"], row
 
 
 # ------------------------------------------------------------------ balance and containment

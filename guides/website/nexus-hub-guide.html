@@ -806,8 +806,8 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
    keeps it. Making it the default is what made Foundations 7,235px tall at 1440. */
 .fx-wide { grid-template-columns: minmax(0, 1fr); }
 .fx-title { margin-bottom: var(--sp-3); }
-.fx-copy .fx-subtitle, .fx-subtitle { display: block; max-width: 100%; min-width: 0; margin: 0 0 var(--sp-2); color: var(--teal-soft); font-size: calc(11px * var(--eyebrow-scale)); line-height: 1.15; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; line-height: 1.4; }
-.fx-subtitle::before { content: ""; display: inline-block; width: calc(9px * var(--eyebrow-scale)); height: 3px; background: var(--accent); vertical-align: middle; margin-right: 10px; border-radius: 2px; }
+.fx-copy .fx-subtitle, .fx-subtitle { display: block; max-width: 100%; min-width: 0; margin: 0 0 var(--sp-3); color: var(--ink-dim); font-size: 17px; font-weight: 500; line-height: 1.45; letter-spacing: 0; text-transform: none; }
+.fx-title h2.section-title { margin-bottom: 6px; }
 .fx-title h2 { margin-bottom: var(--sp-3); }
 .fx-copy h2 { text-wrap: balance; }
 .fx-copy p { font-size: 15.5px; color: var(--ink-dim); }
@@ -1888,8 +1888,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene fx-stack reveal" id="fx-tokens" aria-labelledby="fx-tokens-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <p class="fx-subtitle">The units a model actually reads</p>
             <h2 id="fx-tokens-title" class="section-title">Tokens Definition</h2>
+            <p class="fx-subtitle">The units a model actually reads</p>
           </div>
           <p>A model never sees words. It sees <strong>tokens</strong>: the small pieces text is cut into first. A token can be a whole word, part of one, a punctuation mark, or a space attached to the word after it.</p>
           <p>This is the real <code>cl100k_base</code> split. Other models cut the same sentence differently, so there is no fixed words-to-tokens ratio. The count matters because it is what fills the working budget, and it is one factor in speed and in metered cost.</p>
@@ -1972,8 +1972,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene fx-stack reveal" id="fx-prompts" aria-labelledby="fx-prompts-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <p class="fx-subtitle">Stating the job so the result is checkable</p>
             <h2 id="fx-prompts-title" class="section-title">Prompt Engineering</h2>
+            <p class="fx-subtitle">Stating the job so the result is checkable</p>
           </div>
           <p>The prompt is where <strong>the job</strong> is stated. The same request can be asked in a way nobody could grade, or in a way anyone could check. That difference is the whole skill.</p>
           <p>A useful prompt names the <strong>Goal</strong>, points at the <strong>Material</strong>, defines what <strong>Done</strong> means, and asks for a usable <strong>Format</strong>. Miss one and the model has to guess, and it will guess confidently.</p>
@@ -2003,8 +2003,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene reveal" id="fx-context" aria-labelledby="fx-context-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <p class="fx-subtitle">Choosing the material the job needs</p>
             <h2 id="fx-context-title" class="section-title">Context Engineering</h2>
+            <p class="fx-subtitle">Choosing the material the job needs</p>
           </div>
           <p>The prompt states the job. <strong>Context</strong> is the material the job runs on, and it is separate from the words of the request. It can be an image, a file or document, a project folder or workspace, or a codebase.</p>
           <p>Context is optional, and it is not free. Everything attached shares one finite working budget measured in tokens, alongside the instructions, the conversation so far, and any tool results. Material can also be stale, duplicated, or simply too large to be worth its space.</p>
@@ -2024,8 +2024,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene fx-stack reveal" id="fx-model-lifecycle" aria-labelledby="fx-model-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <p class="fx-subtitle">Trained patterns, used one request at a time</p>
             <h2 id="fx-model-title" class="section-title">Models</h2>
+            <p class="fx-subtitle">Trained patterns, used one request at a time</p>
           </div>
           <p>A model is a trained system that turns a request into an output. Training <strong>happens long before any request</strong>: a provider trains on broad material, then releases the finished model into products and services. A prompt never retrains it; each request simply runs through the patterns it already has.</p>
           <p>Some model and platform combinations expose an <strong>effort level</strong> that, when supported, can allocate more computation or more work cycles to a request. More effort does not promise a fixed number of iterations; it buys the model room to work.</p>
@@ -2080,8 +2080,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene fx-stack reveal" id="fx-agent-platform" aria-labelledby="fx-platform-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <p class="fx-subtitle">A loop that gives the model tools</p>
             <h2 id="fx-platform-title" class="section-title">Agentic Platforms</h2>
+            <p class="fx-subtitle">A loop that gives the model tools</p>
           </div>
           <p>An agentic platform wraps the same model in a loop that can <strong>do</strong> things, not just say them. It opens exactly like the last scene: the same prompt, the same optional material.</p>
           <p>What changes is everything after that, and the diagram is the explanation: the model plans, hands work to <strong>specialized agents</strong> where it is genuinely independent, routes every action through one <strong>permission and tool boundary</strong>, and checks the <strong>observations</strong> that come back before it reports.</p>
@@ -2112,8 +2112,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene fx-wide fx-stack reveal" id="fx-chatbot-agent" aria-labelledby="fx-chatbot-agent-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <p class="fx-subtitle">Same request, different handoff</p>
             <h2 id="fx-chatbot-agent-title" class="section-title">Chatbot vs. Agentic Platforms</h2>
+            <p class="fx-subtitle">Same request, different handoff</p>
           </div>
           <p>Send the <strong>same request</strong> to both and the difference is not intelligence. It is <strong>where the work happens</strong> and <strong>what each lane leaves behind</strong>. Both lanes below show the same two zones; what differs is which of them the lane can reach.</p>
         </div>
@@ -2132,8 +2132,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="fx-scene fx-wide fx-stack reveal" id="fx-harness" aria-labelledby="fx-harness-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <p class="fx-subtitle">The built-in loop, and the one Nexus Hub adds</p>
             <h2 id="fx-harness-title" class="section-title">Harnesses</h2>
+            <p class="fx-subtitle">The built-in loop, and the one Nexus Hub adds</p>
           </div>
           <p>Every agentic platform already ships a <strong>harness</strong>: the built-in runtime loop wrapped around its model. It assembles the context, offers the tools, enforces the permissions, executes the actions, and feeds the observations back in. That loop belongs to the platform, and each one builds its own.</p>
           <p>Nexus Hub is a <strong>portable workflow layer above</strong> that built-in capability. It does not replace the model, and it does not replace the platform runtime; it standardizes how the work is asked for, gated, and recorded, whichever platform is in use.</p>
@@ -3091,7 +3091,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
      wrapping is the lesser evil, and the test asserts the floor rather than a single line at 320px. */
   (function initNexusFit() {
     var FLOOR = 15;
-    var SEL = ".section-title, .eyebrow, .fx-subtitle";
+    var SEL = ".section-title, .eyebrow";
     function base(el) {
       var b = el.getAttribute("data-fit-base");
       if (b === null) {
