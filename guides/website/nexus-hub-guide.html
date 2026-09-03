@@ -365,15 +365,15 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
 .guard-fig .gf-ring { border: 1.5px solid var(--border-bright); border-radius: 18px; padding: 10px 14px 14px; }
 .guard-fig .gf-ring--nexus { border-color: var(--accent); border-style: dashed; width: 100%; }
 .guard-fig .gf-ring--platform { margin-top: 8px; background: color-mix(in srgb, var(--surface) 70%, transparent); }
-.guard-fig .gf-ring-tag { display: block; font: 700 12px var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-dim); }
+.guard-fig .gf-ring-tag { display: block; text-align: center; font: 700 12px var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-dim); }
 .guard-fig .gf-ring--nexus > .gf-ring-tag { color: var(--accent); }
-.guard-fig .gf-ring-note { display: block; font-size: 12px; color: var(--ink-faint); margin-top: 1px; }
+.guard-fig .gf-ring-note { display: block; text-align: center; font-size: 12px; color: var(--ink-faint); margin-top: 1px; }
 .guard-fig .gf-core {
   margin: 10px auto 2px; width: max-content; padding: 12px 26px; border-radius: 12px;
   background: var(--surface-2); border: 1px solid var(--border-bright);
   font: 700 13px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink); text-align: center;
 }
-.guard-fig .gf-hooks { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.guard-fig .gf-hooks { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
 .guard-fig .gf-hooks li { font: 500 11.5px var(--mono); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 6px; padding: 3px 7px; }
 .guard-fig .gf-lanes { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .guard-fig .gf-lane {
@@ -402,6 +402,30 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
 .guard-fig figcaption { margin-top: 10px; font-size: 12.5px; color: var(--ink-faint); text-align: center; }
 
 /* ---------- Command migration table ---------- */
+/* v4.4.4: the segment used to teach one benefit, the command mapping, and the review asked for
+   the other one too: a single install that every supported platform reads, so a task can move
+   between them mid-flight. The portability figure carries that, the table carries the mapping. */
+.ph { display: grid; gap: 10px; margin-top: var(--sp-4); }
+.ph-src { padding: 10px 14px; border: 1px solid var(--accent); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); text-align: center; }
+.ph-src b { color: var(--ink); font-weight: 700; }
+.ph-src span { display: block; margin-top: 2px; color: var(--ink-dim); font-size: 13px; }
+.ph-fan { display: flex; justify-content: center; gap: 0; }
+.ph-fan span { width: 0; height: 0; border-top: 10px solid var(--accent); border-left: 8px solid transparent; border-right: 8px solid transparent; margin: 0 6%; }
+.ph-targets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.ph-target { min-width: 0; padding: 9px 11px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); text-align: center; }
+.ph-target b { display: block; color: var(--ink); font-size: 13.5px; font-weight: 650; }
+.ph-target span { display: block; margin-top: 1px; color: var(--ink-faint); font-size: 11.5px; }
+.ph-switch { padding: 11px 13px; border: 1px solid var(--border-bright); border-radius: var(--radius-sm); background: var(--bg-0); }
+.ph-switch-tag { display: block; color: var(--teal-soft); font: 700 11px var(--sans); letter-spacing: .08em; text-transform: uppercase; }
+.ph-run { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 8px; }
+.ph-step { display: inline-flex; flex-direction: column; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); }
+.ph-step code { background: transparent; border: 0; padding: 0; color: var(--teal-soft); font-weight: 700; font-size: 13px; }
+.ph-step span { color: var(--ink-faint); font-size: 11px; }
+.ph-step--next { border-color: var(--accent); }
+.ph-cut { display: inline-flex; flex-direction: column; align-items: center; padding: 0 4px; color: var(--amber); font: 700 10.5px var(--sans); letter-spacing: .08em; text-transform: uppercase; }
+.ph-cut::before { content: ""; display: block; width: 0; height: 22px; border-left: 2px dashed var(--amber); margin-bottom: 3px; }
+.ph-note { margin: 8px 0 0; color: var(--ink-dim); font-size: 13px; line-height: 1.45; }
+@media (max-width: 760px) { .ph-targets { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .tbl-migrate { width: 100%; border-collapse: collapse; margin-top: var(--sp-4); font-size: 14.5px; }
 .tbl-migrate th {
   text-align: left; font: 750 26px var(--sans); letter-spacing: .06em; line-height: 1.1;
@@ -412,8 +436,8 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
 .tbl-migrate th:nth-child(1) { color: var(--amber); }
 .tbl-migrate th:nth-child(2) { color: var(--accent); }
 .tbl-migrate th:nth-child(3) { color: var(--ink); }
-.tbl-migrate th:nth-child(1) { width: 27%; }
-.tbl-migrate th:nth-child(2) { width: 21%; }
+.tbl-migrate th:nth-child(1) { width: 30%; }
+.tbl-migrate th:nth-child(2) { width: 19%; }
 @media (max-width: 900px) { .tbl-migrate th { font-size: 20px; } }
 .tbl-migrate td { padding: 12px 10px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--ink-dim); }
 .tbl-migrate td:first-child code, .tbl-migrate td:nth-child(2) code { white-space: nowrap; }
@@ -1681,8 +1705,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 </section>
 
 <section class="section reveal" id="nhg-guardrails">
-<span class="eyebrow">Safe by construction</span>
-<h2 class="section-title">Guardrails and safety</h2>
+<span class="eyebrow">Guardrails &amp; Safety</span>
+<h2 class="section-title">Adds an extra layer of security</h2>
 <div class="guard-grid">
 <div>
 <p>Every agentic platform already asks permission before a risky action. That prompt is advisory to the model, and a model can be talked past it.</p>
@@ -1693,10 +1717,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 <div class="gf-rings">
 <div class="gf-ring gf-ring--nexus" role="group" aria-label="Nexus Hub hook ring, which blocks regardless of the prompt">
 <span class="gf-ring-tag gf-ring-tag--nexus">Nexus Hub hooks</span>
-<span class="gf-ring-note">Block the action outright, whatever the prompt said</span>
+<span class="gf-ring-note">Block flagged unsafe actions, even once approved, and explain the refusal</span>
 <div class="gf-ring gf-ring--platform" role="group" aria-label="Platform permission ring, which asks first">
 <span class="gf-ring-tag">Platform permissions</span>
-<span class="gf-ring-note">Ask first, and a model can be talked past the answer</span>
+<span class="gf-ring-note">Ask for permission first; once approved, an unsafe action can still run</span>
 <div class="gf-core">Model</div>
 </div>
 <ul class="gf-hooks" aria-label="Hooks that fire before an action runs"><li>secret-scan</li><li>git-guardrails</li><li>large-file-guard</li><li>memory-store-guard</li></ul>
@@ -1796,19 +1820,20 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       </section>
 
 <section class="section reveal" id="nhg-commands">
-<span class="eyebrow">Coming from Claude Code or Codex?</span>
-<h2 class="section-title">Familiar commands, leveled up</h2>
-<p class="lead">Built-ins like <code>/goal</code>, <code>/loop</code>, and <code>/batch</code> are engines: they keep the agent working. Nexus Hub adds the goal worth pursuing and the standard to hit.</p>
+<span class="eyebrow">One Harness, Multiple Platforms</span>
+<h2 class="section-title">Install once, work anywhere</h2>
+<p class="lead">One install, two benefits. Every supported platform reads the same catalog, and the commands sit on top of the built-ins each already has: <code>/goal</code>, <code>/loop</code>, and <code>/batch</code> keep an agent working, while Nexus Hub supplies the goal and the standard.</p>
+<div class="ph" data-v444-new data-seq-root data-seq-loop data-seq-hold="3200"><div class="ph-src seq-rise" data-seq="1" data-seq-dur="700"><b>One install</b><span>The same commands, skills, rules, and hooks, written once</span></div><div class="ph-fan seq-fade" data-seq="2" data-seq-dur="500" aria-hidden="true"><span></span><span></span><span></span><span></span></div><ul class="ph-targets seq-rise" data-seq="2" data-seq-dur="800" aria-label="Platforms one install reaches"><li class="ph-target"><b>Claude Code</b><span>reads <code>~/.claude/</code></span></li><li class="ph-target"><b>Codex</b><span>reads <code>~/.codex/</code></span></li><li class="ph-target"><b>Cursor</b><span>reads <code>~/.cursor/</code></span></li><li class="ph-target"><b>Antigravity</b><span>reads <code>~/.gemini/</code></span></li></ul><div class="ph-switch seq-rise" data-seq="3" data-seq-dur="900"><span class="ph-switch-tag">And the work can change platform mid-task</span><div class="ph-run"><span class="ph-step"><code>/plan</code><span>Claude Code</span></span><span class="ph-step"><code>/implement</code><span>Claude Code</span></span><span class="ph-cut">usage runs out</span><span class="ph-step ph-step--next"><code>/implement</code><span>Codex</span></span><span class="ph-step ph-step--next"><code>/test</code><span>Codex</span></span></div><p class="ph-note">The same command names exist on both, and the plan and its evidence are files rather than chat history, so the next command resumes where the last one stopped.</p></div></div>
 <table class="tbl-migrate">
-<thead><tr><th>Already familiar</th><th>In Nexus Hub</th><th>What it adds</th></tr></thead>
+<thead><tr><th>Generic Platforms</th><th>Nexus Hub</th><th>What it adds</th></tr></thead>
 <tbody>
-<tr><td data-th="Already familiar"><code>/goal &lt;condition&gt;</code><span class="muted">work until a validator passes</span></td><td data-th="In Nexus Hub"><code>/plan</code> &rarr; <code>/implement</code></td><td data-th="What it adds">A written definition of done and phased GO / NO-GO gates. Point <code>/goal</code> at the plan instead of a one-line guess.</td></tr>
-<tr><td data-th="Already familiar"><code>/grill</code><span class="muted">a tough code grilling</span></td><td data-th="In Nexus Hub"><code>/review</code> + <code>/spec clarify</code></td><td data-th="What it adds">A scoped, severity-ranked audit with a written verdict; <code>/spec clarify</code> interrogates the requirements first.</td></tr>
-<tr><td data-th="Already familiar"><code>/loop &lt;prompt&gt;</code><span class="muted">re-run on a clock</span></td><td data-th="In Nexus Hub"><code>/implement</code> + <code>/test</code></td><td data-th="What it adds">The loop gains a quality gate and an 80 percent coverage threshold. Drive those with <code>/loop</code>, not raw prompts.</td></tr>
-<tr><td data-th="Already familiar"><code>/batch &lt;instruction&gt;</code><span class="muted">parallel worktrees</span></td><td data-th="In Nexus Hub"><code>/plan</code> &rarr; <code>/implement</code></td><td data-th="What it adds">Decomposition by a reviewed plan with <code>T###</code> tasks, so parallel work converges on a definition of done.</td></tr>
-<tr><td data-th="Already familiar"><code>/init</code><span class="muted">a starter CLAUDE.md</span></td><td data-th="In Nexus Hub"><code>/setup</code> + <code>/describe</code></td><td data-th="What it adds">Structure, gitignore, and the review hook too; <code>/describe</code> maps an inherited repo first.</td></tr>
-<tr><td data-th="Already familiar"><code>/review</code>, <code>/security-review</code><span class="muted">a built-in review pass</span></td><td data-th="In Nexus Hub"><code>/review full</code></td><td data-th="What it adds">Every lens in one entry point, synthesized into a single GO / NO-GO verdict.</td></tr>
-<tr><td data-th="Already familiar"><code>/compact</code>, <code>/rewind</code><span class="muted">session mechanics</span></td><td data-th="In Nexus Hub"><span class="muted-cell">keep using them</span></td><td data-th="What it adds">Harness plumbing with no Nexus Hub equivalent. The workflow layers on top and never touches them.</td></tr>
+<tr><td data-th="Generic Platforms"><code>/goal &lt;condition&gt;</code><span class="muted">work until a validator passes</span></td><td data-th="Nexus Hub"><code>/plan</code> &rarr; <code>/implement</code></td><td data-th="What it adds">A written definition of done and phased GO / NO-GO gates. Point <code>/goal</code> at the plan instead of a one-line guess.</td></tr>
+<tr><td data-th="Generic Platforms"><code>/grill</code><span class="muted">a tough code grilling</span></td><td data-th="Nexus Hub"><code>/review</code> + <code>/spec clarify</code></td><td data-th="What it adds">A scoped, severity-ranked audit with a written verdict; <code>/spec clarify</code> interrogates the requirements first.</td></tr>
+<tr><td data-th="Generic Platforms"><code>/loop &lt;prompt&gt;</code><span class="muted">re-run on a clock</span></td><td data-th="Nexus Hub"><code>/implement</code> + <code>/test</code></td><td data-th="What it adds">The loop gains a quality gate and an 80 percent coverage threshold. Drive those with <code>/loop</code>, not raw prompts.</td></tr>
+<tr><td data-th="Generic Platforms"><code>/batch &lt;instruction&gt;</code><span class="muted">parallel worktrees</span></td><td data-th="Nexus Hub"><code>/plan</code> &rarr; <code>/implement</code></td><td data-th="What it adds">Decomposition by a reviewed plan with <code>T###</code> tasks, so parallel work converges on a definition of done.</td></tr>
+<tr><td data-th="Generic Platforms"><code>/init</code><span class="muted">a starter CLAUDE.md</span></td><td data-th="Nexus Hub"><code>/setup</code> + <code>/describe</code></td><td data-th="What it adds">Structure, gitignore, and the review hook too; <code>/describe</code> maps an inherited repo first.</td></tr>
+<tr><td data-th="Generic Platforms"><code>/review</code>, <code>/security-review</code><span class="muted">a built-in review pass</span></td><td data-th="Nexus Hub"><code>/review full</code></td><td data-th="What it adds">Every lens in one entry point, synthesized into a single GO / NO-GO verdict.</td></tr>
+<tr><td data-th="Generic Platforms"><code>/compact</code>, <code>/rewind</code><span class="muted">session mechanics</span></td><td data-th="Nexus Hub"><span class="muted-cell">keep using them</span></td><td data-th="What it adds">Harness plumbing with no Nexus Hub equivalent. The workflow layers on top and never touches them.</td></tr>
 </tbody>
 </table>
 <div class="callout callout--star"><span class="ci" aria-hidden="true">&#9733;</span><p><strong>The mental shift:</strong> generic commands optimize how the agent runs. Nexus Hub optimizes what it produces and to what standard. The command is the engine; Nexus Hub is the steering wheel and the finish line.</p></div>
