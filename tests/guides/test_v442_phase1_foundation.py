@@ -214,7 +214,8 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
                     ctx.close()
         finally:
             browser.close()
-    assert len(sizes) == 24, f"expected 24 section titles across the four pages, found {len(sizes)}"
+    # v4.4.3 merged the two harness scenes, so Foundations contributes one title fewer.
+    assert len(sizes) == 23, f"expected 23 section titles across the four pages, found {len(sizes)}"
     assert len(set(sizes)) == 1, f"one shared stylesheet size expected, got {sorted(set(sizes))}"
     # v4.4.1 rendered h2 at 1.7rem (27.2px); v4.4.2 tuned the token to 2.4 (65.3px); the v4.4.3
     # review halved it to 1.2 (32.6px) and tripled the label instead. The RENDERED size is now

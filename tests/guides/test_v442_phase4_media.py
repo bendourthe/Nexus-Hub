@@ -171,7 +171,14 @@ def test_waveform_is_static_under_reduced_motion(playwright_mod) -> None:
 
 
 def test_harness_diagram_is_layered_and_choreographed(playwright_mod) -> None:
-    root = "document.getElementById('fx-hstack-nexus')"
+    """v4.4.3 merged the two harness scenes and rebuilt the figure in HTML.
+
+    The two-instance rule went with the merge: there is one figure now, so there is no static
+    second copy to compare it against. Everything else is unchanged and still asserted here --
+    three nested layers, all nine ports, a timeline that advances monotonically to its end, and an
+    end state where every stop including the output is lit.
+    """
+    root = "document.querySelector('#fx-harness .hx')"
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         _ctx, page, _req = _open(browser)
@@ -180,14 +187,11 @@ def test_harness_diagram_is_layered_and_choreographed(playwright_mod) -> None:
                 f"""() => {{
                     const r = {root};
                     const layers = [...r.querySelectorAll('[data-phase3-harness-layer]')].map(g => g.dataset.phase3HarnessLayer);
-                    const ports = [...r.querySelectorAll('.h-port')].map(t => t.textContent.trim());
-                    const stat = document.getElementById('fx-hstack-platform');
-                    return {{ layers, ports, staticLit: stat.querySelectorAll('.is-on').length,
-                              staticHasTimeline: stat.hasAttribute('data-seq-root'),
-                              total: window.NexusSeq.state(r).total }};
+                    const ports = [...r.querySelectorAll('.hx-ports li')].map(t => t.textContent.trim());
+                    return {{ layers, ports, total: window.NexusSeq.state(r).total }};
                 }}"""
             )
-            page.locator("#fx-hstack-nexus").scroll_into_view_if_needed()
+            page.locator("#fx-harness").scroll_into_view_if_needed()
             page.wait_for_function(f"() => window.NexusSeq.state({root}).running === true")
             seen = []
             for _ in range(120):
@@ -198,19 +202,18 @@ def test_harness_diagram_is_layered_and_choreographed(playwright_mod) -> None:
                 page.wait_for_timeout(150)
             end = page.evaluate(
                 f"""() => {{ const r = {root}; return {{
-                    ports: r.querySelectorAll('.h-portg.is-on').length,
-                    out: !!r.querySelector('.h-out').closest('.is-on'),
-                    ghost: !!r.querySelector('.h-ghost.is-on') }}; }}"""
+                    stops: r.querySelectorAll('.hx-stop.is-on').length,
+                    out: r.querySelector('.hx-stop--out').classList.contains('is-on') }}; }}"""
             )
         finally:
             browser.close()
     assert set(structure["layers"]) == {"model", "platform", "nexus-hub"}
     for port in ("context", "tools", "permissions", "execution", "observations", "skills", "hooks", "gates", "artifacts"):
         assert port in structure["ports"], port
-    assert structure["staticLit"] > 0 and not structure["staticHasTimeline"], "the scene-7 instance is static and fully lit"
-    assert structure["total"] == 7
-    assert seen == sorted(seen) and seen[-1] == 7, seen
-    assert end["ports"] == 9 and end["out"] and end["ghost"], end
+    assert len(structure["ports"]) == 9, structure["ports"]
+    assert structure["total"] == 6, "six journey stops, from the prompt to the verified work"
+    assert seen == sorted(seen) and seen[-1] == 6, seen
+    assert end["stops"] == 6 and end["out"], end
 
 
 def test_harness_choreography_end_state_under_reduced_motion(playwright_mod) -> None:
@@ -218,35 +221,45 @@ def test_harness_choreography_end_state_under_reduced_motion(playwright_mod) -> 
         browser = pw.chromium.launch()
         _ctx, page, _req = _open(browser, reduced_motion="reduce")
         try:
-            page.locator("#fx-hstack-nexus").scroll_into_view_if_needed()
+            page.locator("#fx-harness").scroll_into_view_if_needed()
             page.wait_for_function(
-                "() => { const s = window.NexusSeq.state(document.getElementById('fx-hstack-nexus')); return s.step === s.total; }"
+                "() => { const s = window.NexusSeq.state(document.querySelector('#fx-harness .hx')); return s.step === s.total; }"
             )
-            lit = page.evaluate("() => document.querySelectorAll('#fx-hstack-nexus .h-portg.is-on, #fx-hstack-nexus .seq-rise.is-on').length")
+            lit = page.evaluate("() => document.querySelectorAll('#fx-harness .hx .seq-rise.is-on').length")
         finally:
             browser.close()
-    assert lit >= 15, lit
+    assert lit == 6, lit
 
 
 @pytest.mark.parametrize("width", WIDTHS)
-def test_harness_svg_text_stays_inside_its_viewbox(playwright_mod, width: int) -> None:
+def test_harness_text_stays_inside_its_own_box(playwright_mod, width: int) -> None:
+    """The figure is HTML now, so the property is stronger and simpler: no label may spill out of
+    the element that owns it. The old form inspected SVG text, which this figure no longer has, so
+    it would have passed vacuously rather than failing honestly."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         _ctx, page, _req = _open(browser, width=width)
         try:
+            page.locator("#fx-harness").scroll_into_view_if_needed()
+            page.wait_for_timeout(220)
             bad = page.evaluate(
                 """() => {
                     const out = [];
-                    for (const svg of document.querySelectorAll('.fx-hstack svg')) {
-                        const sb = svg.getBoundingClientRect();
-                        for (const t of svg.querySelectorAll('text')) {
-                            const r = t.getBoundingClientRect();
-                            if (r.left < sb.left - 1 || r.right > sb.right + 1 || r.top < sb.top - 1 || r.bottom > sb.bottom + 1) out.push(t.textContent.trim());
-                        }
-                    }
+                    const fig = document.querySelector('#fx-harness .hx');
+                    if (!fig) return ['the merged harness figure is missing'];
+                    fig.querySelectorAll('*').forEach(el => {
+                        if (el.children.length) return;
+                        const box = el.getBoundingClientRect();
+                        const range = document.createRange();
+                        range.selectNodeContents(el);
+                        const ink = range.getBoundingClientRect();
+                        range.detach();
+                        if (ink.width && (ink.right > box.right + 1.5 || ink.left < box.left - 1.5))
+                            out.push((el.className.toString().split(' ')[0] || el.tagName) + ': ' + el.textContent.trim().slice(0, 40));
+                    });
                     return out;
                 }"""
             )
         finally:
             browser.close()
-    assert not bad, f"SVG text escapes the viewBox at {width}px: {bad}"
+    assert not bad, f"harness text escapes its own box at {width}px: {bad}"

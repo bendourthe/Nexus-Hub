@@ -856,9 +856,11 @@ def _foundation_scene(guide_text: str, scene_id: str) -> str:
 
 def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> None:
     fx = _foundations_markup(guide_text)
-    assert fx.count('class="fx-scene') == 8, "expected eight Phase 3 scenes"
-    assert fx.count('class="fx-title"') == 8
-    assert fx.count('class="fx-subtitle"') == 8
+    # v4.4.3 merged the two harness scenes into one, on the review's instruction that a reader
+    # needs one picture of where the two loops sit rather than two to superimpose.
+    assert fx.count('class="fx-scene') == 7, "expected seven Foundations scenes"
+    assert fx.count('class="fx-title"') == 7
+    assert fx.count('class="fx-subtitle"') == 7
     expected = [
         "Tokens Definition",
         "Prompt Engineering",
@@ -867,7 +869,6 @@ def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> 
         "Agentic Platforms",
         "Chatbot vs. Agentic Platforms",
         "Harnesses",
-        "Nexus Hub Harness",
     ]
     found = re.findall(r'<h2 id="[^"]+"[^>]*>([^<]*)</h2>', fx)
     assert found == expected, (
@@ -935,18 +936,20 @@ def test_foundations_context_makes_budget_competition_and_full_behavior_visible(
 def test_foundations_harness_layers_are_honest_and_repository_anchored(
     guide_text: str,
 ) -> None:
-    """v4.4.1 Phase 4 split the hierarchy: fx-harness holds the built-in platform loop,
-    fx-practice holds the Nexus-Hub layer with the five repository-anchored claims."""
+    """v4.4.3 merged the two harness scenes: one scene now defines a harness AND shows what the
+    Nexus Hub layer adds, so all three layers and the five repository-anchored claims live here.
+    The rules are unchanged; only the scene they live in is."""
     harness = _foundation_scene(guide_text, "fx-harness")
-    for layer in ("model", "platform"):
+    for layer in ("model", "platform", "nexus-hub"):
         assert f'data-phase3-harness-layer="{layer}"' in harness
     htext = re.sub(r"<[^>]+>", " ", harness).lower()
     assert re.search(r"(?:every|agentic) platform.{0,80}(?:already|ships).{0,40}harness", htext)
     for part in ("context", "tools", "permissions", "execution", "observations"):
         assert part in htext, f"the built-in loop must name {part}"
+    for part in ("skills", "hooks", "gates", "artifacts"):
+        assert part in htext, f"the outer loop must name {part}"
 
-    practice = _foundation_scene(guide_text, "fx-practice")
-    assert 'data-phase3-harness-layer="nexus-hub"' in practice
+    practice = harness
     claims = re.findall(
         r'data-phase3-claim="([^"]+)" data-artifact="([^"]+)"', practice
     )
@@ -1094,7 +1097,8 @@ def test_foundations_comparisons_show_both_states_without_a_toggle(
     assert "fx-spend-tag--bad" in fx and "fx-spend-tag--good" in fx
     assert 'data-phase3-node="chatbot-handoff"' in fx
     assert 'data-phase3-node="agent-handoff"' in fx
-    practice = _foundation_scene(guide_text, "fx-practice")
+    # v4.4.3: the merged harness scene carries the without-then-with trail.
+    practice = _foundation_scene(guide_text, "fx-harness")
     assert ">PLATFORM LOOP<" in practice
     assert ">PLATFORM LOOP + NEXUS HUB<" in practice
     assert 'type="range"' not in fx
@@ -1119,7 +1123,8 @@ def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
     assert fx.index('data-phase3-node="chatbot-handoff"') < fx.index(
         'data-phase3-node="agent-handoff"'
     ), "the answer-handoff lane must come first"
-    practice = _foundation_scene(guide_text, "fx-practice")
+    # v4.4.3: the merged harness scene carries the without-then-with trail.
+    practice = _foundation_scene(guide_text, "fx-harness")
     assert practice.index(">PLATFORM LOOP<") < practice.index(
         ">PLATFORM LOOP + NEXUS HUB<"
     ), "the host-native run must come before the augmented run"

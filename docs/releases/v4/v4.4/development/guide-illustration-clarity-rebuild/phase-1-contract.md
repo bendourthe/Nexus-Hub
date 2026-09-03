@@ -22,7 +22,7 @@
 | M2 | The video output plays with no gesture; models from three or more providers are named | `test_v443_phase5_models.py` (`test_the_video_output_plays_without_being_asked`, `test_released_models_are_named_from_three_providers`) | 5 |
 | P1 | Agentic Platforms is plural and names four platforms with ledger-approved marks | `test_v443_phase6_platforms.py` (5 tests) | 6 |
 | X1 | Chatbot versus agentic platforms is one illustration of can-do against does | `test_v443_phase7_comparison.py` (4 tests) | 7 |
-| H1 | ONE harness scene, animated as one journey | NEW, Phase 8 | 8 |
+| H1 | ONE harness scene, animated as one journey | `test_v443_phase8_harness.py` (4 tests) | 8 |
 | V1 | Declared matrix green, byte ledger closed | Phase 9 | 9 |
 
 ## 2. Superseded-assertion register
@@ -53,6 +53,15 @@ it, with what replaced it. A test updated without a row here is how a silent loo
 | `test_v442_phase4_media.py` | `test_models_and_agentic_still_share_the_entry_and_cycle_bytes` | the `<figure class="fx-cycle">` regex and the count of 2 | M1 | DONE: renamed to `..._entry_and_inside_bytes`, counts `one-pass`, and asserts the ring grammar is retired |
 | `test_nexus_hub_guide.py` | `test_foundations_phase3_has_eight_title_subtitle_scenes` | the scene title `Agentic Platform` | P1: the scene is plural | DONE: `Agentic Platforms`. Phases 7 and 8 change two more entries in the same list, each with its own row. |
 | `test_nexus_hub_guide.py` | same test | the scene title `Chatbot vs. Agentic Platform` | X1: the comparison follows the plural | DONE: `Chatbot vs. Agentic Platforms`. The substring assertion in the chatbot handoff test still holds unchanged, and every copy assertion in it was kept satisfied by the rebuild rather than edited. |
+| `test_nexus_hub_guide.py` | same test | eight scenes, and the title `Nexus Hub Harness` | H1: the two harness scenes are one | DONE: seven scenes, the entry removed |
+| `test_nexus_hub_guide.py` | `test_foundations_harness_layers_are_honest_and_repository_anchored` | the split between `fx-harness` (platform) and `fx-practice` (Nexus Hub) | H1 | DONE: one scene holds all three layers; both port sets are now asserted, and every honesty phrase is still required |
+| `test_nexus_hub_guide.py` | `test_foundations_comparisons_show_both_states_without_a_toggle`, `test_foundations_orders_unaided_state_first` | `_foundation_scene(..., "fx-practice")` | H1 | DONE: both read the merged scene; the without-then-with order is unchanged |
+| `test_v442_phase4_media.py` | `test_harness_diagram_is_layered_and_choreographed` | `#fx-hstack-nexus`, `.h-port`, `.h-portg`, `.h-out`, `.h-ghost`, the static second instance, `total == 7` | H1: one HTML figure | DONE: reads the merged figure, all nine ports, `total == 6`, and an end state with every stop and the output lit. The two-instance rule went with the merge and is recorded here rather than silently dropped. |
+| `test_v442_phase4_media.py` | `test_harness_choreography_end_state_under_reduced_motion` | `lit >= 15` over SVG port groups | H1 | DONE: `lit == 6` over the journey stops |
+| `test_v442_phase4_media.py` | `test_harness_svg_text_stays_inside_its_viewbox` | `.fx-hstack svg text` | H1 | DONE: renamed to `test_harness_text_stays_inside_its_own_box` and rewritten over the HTML figure. The old form would have passed VACUOUSLY, since the selector no longer matches anything. |
+| `test_v442_phase1_foundation.py` | `test_section_titles_share_one_scale_and_never_overflow` | `len(sizes) == 24` | H1: one scene fewer | DONE: 23 |
+| `test_v442_phase3_foundations.py` | `test_scene_subtitles_are_eyebrows_above_their_titles` | `len(rows) == 8` | H1 | DONE: 7 |
+| `test_v442_phase3_foundations.py` | `test_no_scene_has_an_empty_column_at_1440` | `len(scenes) == 8` | H1 | DONE: 7 |
 | `test_v441_phase2_home.py` | `test_guardrails_section_names_only_shipped_registered_hooks` | `.g-port`, `.g-blocked`, and the `blocked by ` prefix | G1: the figure has no SVG | DONE: reads `.gf-hooks li` and the `<b>` hook name in each stop cell; the rule (only shipped, registered hooks named) is unchanged |
 | `test_v441_phase2_home.py` | `test_guardrails_choreography_reaches_a_fully_blocked_end_state` | `total == 5`, `.g-block` count | G1: three attempts, not five chips | DONE: `total == 3`, stop count read from `.gf-out--stop`; the rule (ends fully blocked) is unchanged |
 
@@ -90,14 +99,37 @@ asked for less motion. The old reduced-motion assertion covered the ring and not
 nothing caught it. One rule added, and the assertion now points at the animation that is actually
 still there.
 
+## 3d. One regression this plan shipped and Phase 8 caught
+
+Phase 4 removed the `fx-budget`, `fx-bar`, `fx-legend`, and `fx-key` rules after counting four
+usages of `fx-budget` and reading that as "the two boxes I am replacing". Two of the four were in
+the harness trail comparison, which then rendered with no border, no background, and no two-column
+layout for four commits. No test noticed, because no test tied markup to style.
+
+The cause is precise and worth keeping: **a usage count cannot tell you where a class is used.**
+Phase 8 rebuilt that block with its own rules and added
+`test_v443_phase8_harness.py::test_every_class_used_in_foundations_has_a_style_rule`, which ties
+every class in the Foundations markup to a declaration in the stylesheet. It found one further gap
+immediately, a Phase 7 wrapper with no rule, which now has one.
+
+A second, smaller instance of the same oversight: the narrow-width media query still named
+`.fx-ctx-budgets` after its rule was deleted. Removed in Phase 8 with the markup that used it.
+
 ## 4. Byte ledger
 
 | Phase | Change | Bytes | Running total |
 |---|---|---:|---:|
-| start | v4.4.2 final | | 345,623 |
+| start | v4.4.2 final |  | 345,623 |
 | 1 | two size tokens, NexusFit, table-header grade, second-person sweep | +4,282 | 349,905 |
-| 2 | guardrails figure rebuilt in HTML, SVG removed, table column shares | +2,584 | 352,489 |
+| 2 | guardrails figure rebuilt in HTML, its SVG retired, table column shares | +2,584 | 352,489 |
 | 3 | loop fills the column, larger box type, CSS triangles | +966 | 353,455 |
-| 4 | two-line legend rows, illustrated material grid, legend-free budget meters | +1985 | 355,440 |
+| 4 | two-line legend rows, illustrated material grid, legend-free budget meters | +1,985 | 355,440 |
+| 5 | ring retired from both scenes, one-pass block, model names, autoplaying video, thicker connectors | +3,920 | 359,360 |
+| 6 | plural title, four platform chips with reused approved marks, shorter copy, five-stage choreography | +13,989 | 373,349 |
+| 7 | chatbot comparison rebuilt as a two-zone reach illustration | +4,365 | 377,714 |
+| 8 | two harness scenes merged into one HTML figure, two SVG figures retired | -7,508 | 370,224 |
 
-Headroom at Phase 7 close: 122,286 under the ceiling.
+The file is SMALLER than at Phase 7 close: replacing two SVG figures with nested elements
+returned more bytes than the four inlined platform marks cost.
+
+Headroom at Phase 8 close: 129,776 under the ceiling, and 35,399 under the plan's own 405,623 target.

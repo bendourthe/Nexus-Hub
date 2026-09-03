@@ -116,7 +116,7 @@ def test_scene_subtitles_are_eyebrows_above_their_titles(playwright_mod) -> None
             )
         finally:
             browser.close()
-    assert len(rows) == 8
+    assert len(rows) == 7, "v4.4.3 merged the two harness scenes"
     for r in rows:
         assert r["above"] and r["docOrder"], r
         assert r["size"] and r["transform"] and r["spacing"], r
@@ -140,7 +140,7 @@ def test_no_scene_has_an_empty_column_at_1440(playwright_mod) -> None:
             )
         finally:
             browser.close()
-    assert len(scenes) == 8
+    assert len(scenes) == 7, "v4.4.3 merged the two harness scenes"
     for sc in scenes:
         if sc["cols"] == 1:
             continue
