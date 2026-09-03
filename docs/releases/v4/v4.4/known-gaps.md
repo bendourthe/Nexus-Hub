@@ -225,3 +225,52 @@
 - **Product names against vendor marks.** The four platform chips label the product while the mark belongs to the vendor: Claude Code carries the Claude mark, Codex the ChatGPT mark, Antigravity the Gemini mark. Cursor is exact. Recorded in the asset provenance ledger with the reason the linked aggregator was not used.
 - **One second sanitization of an approved asset.** The Gemini mark's 13 internal ids are re-namespaced in its second instance, because a duplicate id would make the second copy resolve its mask and filters against the first. The test derives the variant from the approved bytes so the prefix is provably the only change.
 - **Two commits in Phase 2 and Phase 8 carry work belonging to an adjacent task.** Phase 2 carries the table column widths (a Phase 1 refinement found after that commit), and Phase 8 carries three count updates caused by its own scene merge. Both are stated in their histories.
+
+## v4.4.4 - guide-teaching-clarity-rebuild
+
+**Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](plans/v4.4.4-guide-teaching-clarity-rebuild.md)
+**Base**: the v4.4.3 closeout at `bcfa3413`, on the same branch (v4.4.3 was never published)
+**Status**: nine phases complete locally. Still deliberately UNPUBLISHED: the operator reviews Home and Foundations before Training work begins.
+
+### Closed during v4.4.4
+
+| ID | What it was | Closed in |
+|---|---|---|
+| TC-1 | The guardrails segment was named for a property rather than for what it does, and its ring headers were left-aligned | Phase 1 |
+| TC-2 | The command segment taught one benefit of two: it never showed that one install reaches every platform | Phase 2 |
+| TC-3 | Foundations put the scene DESCRIPTION above the scene NAME | Phase 3 |
+| TC-4 | Prompt Engineering pointed a sideways arrow into empty space and compared two paragraphs | Phase 4 |
+| TC-5 | Context Engineering stacked the request above the material and left the cost of dumping everything implied | Phase 5 |
+| TC-6 | Models catalogued four outputs instead of teaching next-token prediction, base against reasoning, and modality | Phase 6 |
+| TC-7 | Two scenes taught one idea, and the platform scene's six-stage flow was unreadable | Phase 7 |
+| TC-8 | The harness showed WHERE the layers sit rather than following a request through them | Phase 8 |
+
+### Defects this plan introduced and fixed inside it
+
+| ID | Defect | Found by | Fixed in |
+|---|---|---|---|
+| BG-26 | Two non-greedy replacements left stray closing tags in the Models scene; one closed the request region early, dropping a flow root and cutting the connectors from seven to two while rendering without visible error | `test_flow_connectors_never_cross_a_card` | Phase 6 |
+| BG-27 | The stale-offset splice from v4.4.3 Phase 8, repeated: the CSS insertion shifted every index and the merged scene landed inside a base64 payload | rendering the scene and looking at it | Phase 7 |
+| BG-28 | `.cx-ex` used `--blue`, which had no light-theme override at all, measuring 1.90:1 | the contrast sweep, once the reduced-motion fix made the text visible | Phase 6 |
+| BG-29 | Three modifier classes lost to their base class on source order (`.fx-mat--row`, `.cx-row`, `.mx-tiers`) | direct measurement | Phases 5 and 6 |
+
+### Pre-existing defects found and closed
+
+| ID | Defect | Note |
+|---|---|---|
+| BG-30 | A sequence step stayed HIDDEN under reduced motion until the observer played it | Zeroing the transition was not enough. A reader who asked for less motion saw an empty strip until they scrolled. |
+| BG-31 | `.gf-out--ok` / `--stop` (v4.4.3 Phase 2) and `.cv-changes li` (v4.4.3 Phase 7) failed WCAG AA in light theme, at 3.92 and 4.08 | Both shipped INVISIBLE, because the contrast sweep samples only visible text. Closing `BG-30` is what exposed them. **A contrast sweep that skips hidden text will pass a palette it never measured.** |
+
+### Open
+
+- **`HT-4` (carried)** No human comprehension cohort. Two rounds of operator review have now driven the illustrations, which is better than none, but no reader outside this loop has been asked whether the pictures land.
+- **`RV-1` One correction to the brief, for the operator to accept or reject.** The Models scene names `xAI Grok`, not `Cursor Grok` as the brief listed. Grok is xAI's model; Cursor is a platform that offers models. Applied with the correction flagged rather than silently.
+- **`RV-2` The label still renders slightly larger than the title on Home.** That is what tripling one and halving the other produces, and it was asked for explicitly in the first review round. Flagged again because it is the kind of thing a reader notices before a maintainer does.
+- **`CQ-1` (carried)** CodeQL `js/xss-through-dom` on the media toggle. The toggle was removed in v4.4.3 and the audio output in v4.4.4, so the flagged construct is gone; re-evaluate on the next scan rather than assuming closed.
+- **`HT-2`, `QG-1` (carried from v4.4.1 and v4.4.2)** Unchanged by this plan.
+
+### Deviations recorded
+
+- **Phases 1 and 2 share one commit.** Both are Home wording and illustration work, and the Phase 1 edits were already in the working tree when Phase 2 began; splitting afterwards would have meant reconstructing a boundary rather than observing one.
+- **One word-count rule narrowed rather than raised.** The v4.4.1 ceiling on restored Home prose now excludes blocks marked `data-v444-new`, which carry their own explicit cap. Restored prose still cannot creep back toward its v4.1.2 length, and the new figure cannot grow unmeasured.
+- **The audio asset is retired but not deleted.** The staged WAV stays in `assets/` and its ledger row stays in the provenance document, so a future reinstatement needs the approval gate rather than a new acquisition pass.

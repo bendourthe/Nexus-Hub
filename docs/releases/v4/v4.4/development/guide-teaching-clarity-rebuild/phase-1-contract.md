@@ -133,3 +133,14 @@ describe each separately.
 |---|---|---:|---:|
 | start | v4.4.3 final | | 370,253 |
 | 1 + 2 | guardrails wording and centring, portability figure, column renames | +4375 | 374,628 |
+| 3 | Foundations title pair inverted (name first, description under) | -226 | 374,402 |
+| 4 | Prompt Engineering rebuilt: vague prompt beside its flaws, engineered prompt full width | +3080 | 377,482 |
+| 5 | Context Engineering rebuilt: copy full width, request beside material, both outcomes named | +2374 | 379,856 |
+| 6 | Models rebuilt to teach next-token, base against reasoning, three tiers; audio and waveform retired | -11,379 | 368,477 |
+| 7 | Chatbot comparison merged into Agentic Platforms; one scene retired | -2753 | 365,724 |
+| 8 | Harness rings and six-stop journey replaced by one five-step flow | +805 | 366,529 |
+| 9 | Verification and closeout; no artifact change | 0 | 366,529 |
+
+Final: **366,529 bytes**, 73,471 under the 500,000 ceiling and 3724 BELOW where v4.4.3 finished.
+A review round that rebuilt six scenes made the file smaller, because Phase 6 retired an audio
+asset whose teaching had left the page and Phase 7 deleted a whole scene by merging it.

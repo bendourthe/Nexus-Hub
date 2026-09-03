@@ -133,12 +133,12 @@ def declare_groups() -> dict[str, list[dict]]:
     # v4.4.3: the two harness scenes are one, its figure carries six stops, and two more scenes
     # became choreographed. Each group names the id its sequence root now has.
     g["harness"] = [dict(label=f"harness-step{step}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
-                         scroll="#fx-harness", seq=("hx-harness", step)) for step in (1, 3, 6, "end") for th in THEMES]
+                         scroll="#fx-harness", seq=("hx-harness", step)) for step in (1, 3, 5, "end") for th in THEMES]
     g["comparison"] = [dict(label=f"compare-{state}-{th}-{w}", url=f"{base}#foundations", width=w, height=900, theme=th, retain=True,
                             scroll="#fx-agent-platform", seq=("cv-compare", state))
                        for state in ("mid", "end") for th in THEMES for w in (420, 1440)]
     # v4.4.4 merged the comparison into the Agentic Platforms scene and retired its six-stage
-    # flow, so the comparison group below photographs that scene and this one is not needed.
+    # flow, so the comparison group below photographs that scene and a platforms group is not needed.
     g["pointer"] = [dict(label=f"arena-pointer-paused-{th}-1440", url=f"{base}#training/describe", width=1440, height=900, theme=th, retain=True, pointer=True)
                     for th in THEMES]
     return g

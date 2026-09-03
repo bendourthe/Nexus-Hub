@@ -928,3 +928,80 @@ One assertion was found to be VACUOUS rather than merely superseded: the harness
 
 No P0 and no P1. Every Definition-of-Done clause is measured except `D2`, which is met at 720px and wider and relaxed below it with the arithmetic recorded. Two residuals are the operator's to judge rather than defects: the label now renders larger than the title, which is exactly what the review's two numbers produce, and the platform chips carry vendor marks under product names because the linked aggregator serves a client-rendered page with no stated licence. `HT-4` records the honest gap: no reader has been asked whether the rebuilt pictures land, and that is what the review is for.
 <!-- END v4.4.3-guide-illustration-clarity-rebuild -->
+
+<!-- BEGIN v4.4.4-guide-teaching-clarity-rebuild -->
+
+# Last-Phase Evidence - v4.4.4 Guide Teaching Clarity Rebuild
+
+**Date**: 2026-09-03
+**Branch**: `feat/v4.4.3-guide-illustration-rebuild` (v4.4.3 was never published, so v4.4.4 continues on it)
+**Base revision**: `bcfa3413`, the v4.4.3 closeout
+**Publication state**: NOT published. Nine phases are committed locally. Nothing was pushed, no pull request was opened, and no remote pipeline ran. The operator reviews Home and Foundations before Training work begins, which is what they asked for.
+
+## What the second review changed
+
+The first review round fixed how the illustrations LOOKED. This round changed what several of them SAY, which is a different kind of edit and a larger one: six scenes were rebuilt around their teaching rather than their layout.
+
+| Phase | Scene | What it now teaches |
+|---|---|---|
+| 1 | Guardrails & Safety | Named for what it does. Both rings state their behavior in centred text: hooks block flagged actions even when approved, permissions ask and then allow. |
+| 2 | One Harness, Multiple Platforms | BOTH benefits, where there was one. One install reaches four platforms and a task can move between them mid-run; and the commands are built on the generic ones rather than replacing them. |
+| 3 | Foundations, all six scenes | The scene NAME first, its description under it. The pair was inverted. |
+| 4 | Prompt Engineering | A vague prompt beside the specific reasons it fails, then one engineered prompt at full width with quiet labelled parts. |
+| 5 | Context Engineering | The request beside the material it can name, with concrete examples; then the cost of dumping everything against the gain from naming it, each stated in four items. |
+| 6 | Models | How a model works: one token at a time, base against reasoning, three modality tiers. One family per provider, no version numbers. |
+| 7 | Agentic Platforms | One scene, not two. The same request to two lanes over the same two zones, differing only in reach. |
+| 8 | Harnesses | One flow: request, model like a powerful brain, platform harness like a graduate degree with its limits stated, Nexus Hub harness like decades of practice, reviewed work. |
+
+## Verification
+
+```text
+NEXUS_REQUIRE_RENDER=1 pytest -q tests/guides/ tests/verification/test_visual_defect_detector.py
+                                                        354 passed, 1 skipped in 308s
+
+python tests/guides/tools/browser_matrix.py
+    cases 154/154 | screenshots 128/128 | failures 0
+    runtime 153s / 1200s | evidence 12.3 MiB / 30 MiB
+
+python scripts/ci/run.py --profile fast --quiet                 13 passed, 0 failed
+python scripts/ci/run.py --profile full --only docs,catalog,security --quiet
+                                                                16 passed, 0 failed
+python scripts/stamp_guide_counts.py --check
+    5 markers match the catalog (skills=329, hooks=30, pretooluse=15, commands=18)
+python scripts/check_docs_conventions.py                        OK
+```
+
+The matrix count fell from 164 to 154 because Phase 7 merged a scene away and Phase 6 retired the waveform group. Each retired group is recorded in the browser-matrix source next to the group it replaced, so the drop is a stated consequence rather than silent coverage loss.
+
+## Byte ledger
+
+Closed in [`guide-teaching-clarity-rebuild/phase-1-contract.md`](guide-teaching-clarity-rebuild/phase-1-contract.md).
+
+Final: **366,529 bytes**, 133,471 under the 500,000 ceiling and 3724 bytes BELOW where v4.4.3 finished. Rebuilding six scenes made the file smaller, because Phase 6 retired an audio asset whose teaching had left the page and Phase 7 deleted a whole scene by merging it.
+
+## Defect ledger
+
+Four defects were introduced by this plan and fixed inside it; two pre-existing defects were found and closed. All are in `known-gaps.md` as `BG-26` through `BG-31`. Three are worth carrying forward as rules:
+
+1. **Recompute offsets immediately before a splice.** v4.4.3 Phase 8 lost half a scene this way and v4.4.4 Phase 7 landed a merged scene inside a base64 payload the same way. The same mistake twice is a process defect, not an accident. The recompute now sits directly above every splice with a comment naming both failures.
+2. **A non-greedy match will happily stop at the wrong closer.** Phase 6 left two stray closing tags: one orphaned a note, the other closed the request region early, dropping a flow root and cutting the connectors from seven to two. Nothing looked broken. Re-emitting the section from harvested parts with a per-part balance assertion is what caught it.
+3. **A contrast sweep that skips hidden text will pass a palette it never measured.** Making sequence steps visible under reduced motion, which was itself the right fix, immediately exposed three light-theme WCAG AA failures at 3.92, 4.08, and 1.90. Two of those shipped in v4.4.3.
+
+## Superseded assertions
+
+Recorded in the same contract's register. The two that retired a rule rather than repointing one:
+
+- **The audio output and its waveform.** v4.4.2 asserted a hash-matched WAV and a waveform canvas. The Models teaching no longer covers audio, so the asset, the element, the canvas, and the engine were all removed and the assertion INVERTED to require their absence. The provenance row stays as the record of what was approved.
+- **The nested harness rings.** A geometric-nesting assertion cannot survive the rings becoming a flow. It is recorded as retired and replaced by one that measures the teaching: three layers in order, each with its ports, the analogy on each, and the platform layer's limits named.
+
+## Documentation
+
+`guides/website/README.md` carries four new v4.4.4 rules: the two pages use the heading pair in opposite orders on purpose, a model is named by family and maker with no version number, an asset leaves the page when its teaching leaves, and a sequence step is never hidden under reduced motion. Foundations is now documented as six scenes with the title first.
+
+## GO / NO-GO
+
+**GO for the operator's review, NO-GO for publication until that review happens.**
+
+No P0 and no P1. Every task in the plan is measured. Two items are the operator's to judge rather than defects, both recorded in `known-gaps.md`: the Models scene names `xAI Grok` rather than `Cursor Grok` as the brief listed, because Grok is xAI's model and Cursor is a platform that offers models; and the Home label still renders slightly larger than its title, which is what tripling one and halving the other produces.
+
+<!-- END v4.4.4-guide-teaching-clarity-rebuild -->
