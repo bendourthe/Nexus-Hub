@@ -1023,11 +1023,13 @@ def test_foundations_model_lifecycle_is_chronological_and_responsive(
     assert re.search(r"effort level.{0,200}when supported", text, re.DOTALL)
     assert "does not promise a fixed number of iterations" in text
     assert "not a transcript of hidden reasoning" in text or "not hidden chain-of-thought" in text
-    # The four output kinds, each an approved inline asset or accessible equivalent.
-    for kind in ("text", "image", "video", "audio"):
+    # v4.4.4: the scene teaches three modality tiers instead of cataloguing four outputs, and audio
+    # left the teaching on instruction, so its element, its asset, and its transcript-equivalent
+    # description left the page with it rather than sitting unused.
+    for kind in ("text", "image", "video"):
         assert f'data-output-kind="{kind}"' in scene, f"missing output kind {kind}"
-    assert 'preload="none"' in scene and "autoplay" not in scene
-    assert "transcript equivalent" in text
+    assert 'data-output-kind="audio"' not in scene, "audio was retired from this scene"
+    assert "<audio" not in scene, "the audio element must not come back without its teaching"
 
 
 def test_foundations_tokens_use_a_reproducible_nonuniversal_example(

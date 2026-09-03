@@ -129,8 +129,7 @@ def declare_groups() -> dict[str, list[dict]]:
     g["annotated"] = [dict(label=f"ann-{scene}-{state}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
                            scroll=f"#{scene}", seq=(scene, state))
                       for scene in ("fx-ann-prompt", "fx-ann-context") for state in ("mid", "end") for th in THEMES]
-    g["waveform"] = [dict(label=f"wave-{state}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
-                          scroll="#fx-model-lifecycle .fx-outs", wave=state) for state in ("playing", "paused") for th in THEMES]
+    # v4.4.4 retired the audio output and its waveform, so the group that photographed it goes too.
     # v4.4.3: the two harness scenes are one, its figure carries six stops, and two more scenes
     # became choreographed. Each group names the id its sequence root now has.
     g["harness"] = [dict(label=f"harness-step{step}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,

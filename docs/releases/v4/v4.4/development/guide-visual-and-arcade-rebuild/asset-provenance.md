@@ -194,3 +194,22 @@ DERIVES the expected bytes by applying that one prefix substitution to the appro
 No hash is stored for the variant, so the test proves the prefix is the only difference; a real edit
 to the geometry fails it. The other three marks carry no internal ids and are byte-identical to the
 staged assets.
+
+## 6. v4.4.4 retirement of the audio asset
+
+**Date**: 2026-09-03. **Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](../../plans/v4.4.4-guide-teaching-clarity-rebuild.md), Phase 6.
+
+`assets/model-output-audio.wav` is no longer embedded in the guide. The v4.4.4 review rebuilt the
+Models scene around how a model works and instructed that audio be left out of the teaching, so the
+asset, its `<audio>` element, its waveform canvas, and the ~90 lines of waveform engine that drove
+it were all removed rather than left shipping without an explanation. That returned about 12 KB of
+base64 payload.
+
+The row in section 1 stays as the record of what was approved and when. The staged file stays in
+`assets/` so a future reinstatement needs no new acquisition pass, only the same approval gate.
+`tests/guides/test_v441_phase4_foundations.py::test_the_audio_asset_left_the_page_with_its_teaching`
+now asserts the ABSENCE: the WAV, the element, the canvas, and the engine must all stay out unless
+the teaching that explains them comes back with them.
+
+The image and the moving image are unaffected and still hash-matched to this ledger; they now sit in
+the multimodal and omni tiers.

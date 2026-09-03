@@ -53,7 +53,8 @@ def _staged_hash(name: str) -> str:
 
 
 def test_embedded_image_matches_the_approved_asset(models_scene: str) -> None:
-    m = re.search(r'<span class="fx-out-media" data-media="image">(<svg[\s\S]*?</svg>)</span>', models_scene)
+    # v4.4.4 moved the image into the multimodal tier, so the wrapper carries a second class.
+    m = re.search(r'<span class="[^"]*fx-out-media" data-media="image">(<svg[\s\S]*?</svg>)</span>', models_scene)
     assert m, "the image output must inline the approved SVG verbatim"
     embedded = hashlib.sha256(m.group(1).encode("utf-8")).hexdigest()
     assert embedded == _staged_hash("model-output-image.svg"), (
@@ -82,14 +83,19 @@ def test_embedded_gif_and_poster_match_the_approved_assets(models_scene: str) ->
     assert re.search(r'alt="[^"]{20,}"', tag), "the moving image needs a substantive alt text"
 
 
-def test_embedded_audio_matches_the_approved_asset(models_scene: str) -> None:
-    m = re.search(r'<audio class="fx-out-audio"[^>]*src="data:audio/wav;base64,([A-Za-z0-9+/=]+)"', models_scene)
-    assert m, "missing the audio output"
-    assert hashlib.sha256(base64.b64decode(m.group(1))).hexdigest() == _staged_hash(
-        "model-output-audio.wav"
-    )
-    tag = models_scene[m.start(): models_scene.index(">", m.start()) + 1]
-    assert "controls" in tag and 'preload="none"' in tag and "autoplay" not in tag
+def test_the_audio_asset_left_the_page_with_its_teaching(models_scene: str, guide_text: str) -> None:
+    """v4.4.4 retired audio from the Models teaching, on the operator's instruction.
+
+    The old test asserted the embedded WAV matched the approved ledger bytes. With audio out of the
+    teaching, the honest assertion is the opposite: the asset must NOT be shipped, because a 12 KB
+    embedded payload nothing explains is worse than no payload. The ledger row stays in the
+    provenance document as a record of what was once approved.
+    """
+    assert "data:audio/wav" not in guide_text, "the approved WAV is still embedded"
+    assert "<audio" not in guide_text, "the audio element is still shipped"
+    assert "fx-out-audio" not in guide_text and "fx-wave" not in guide_text
+    assert "initWaveform" not in guide_text, "the waveform engine is still shipped"
+    assert 'data-output-kind="audio"' not in models_scene
 
 
 def test_media_ledger_records_every_embedded_payload() -> None:
@@ -186,7 +192,11 @@ def test_moving_image_plays_unaided_and_stills_under_reduced_motion(playwright_m
 
 
 def test_inside_the_model_is_complete_under_reduced_motion(playwright_mod) -> None:
-    """The ring is gone; what replaced it must still be fully readable without motion."""
+    """v4.4.4 replaced the three-step block with the token strip; the rule is unchanged.
+
+    Whatever the scene uses to show what happens inside a model must be fully readable without
+    motion, and the honesty caveat must survive the rebuild.
+    """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page(viewport={"width": 1440, "height": 900}, reduced_motion="reduce")
@@ -196,11 +206,13 @@ def test_inside_the_model_is_complete_under_reduced_motion(playwright_mod) -> No
             state = page.evaluate(
                 """() => {
                     const pass = document.querySelector('#fx-model-lifecycle .fx-pass');
-                    const steps = [...pass.querySelectorAll('.fx-pass-step')];
+                    const chips = [...pass.querySelectorAll('.mx-tok-chip')];
+                    const nodes = [...pass.querySelectorAll('.mx-node')];
                     return {
-                        steps: steps.length,
-                        allVisible: steps.every(s => getComputedStyle(s).opacity === '1'
-                                                     && s.getBoundingClientRect().height > 0),
+                        chips: chips.length,
+                        nodes: nodes.length,
+                        allVisible: [...chips, ...nodes].every(e => getComputedStyle(e).opacity === '1'
+                                                                    && e.getBoundingClientRect().height > 0),
                         rings: document.querySelectorAll('#fx-model-lifecycle .fx-cycle').length,
                         note: pass.querySelector('.fx-pass-note').textContent.toLowerCase(),
                     };
@@ -209,7 +221,8 @@ def test_inside_the_model_is_complete_under_reduced_motion(playwright_mod) -> No
         finally:
             browser.close()
     assert state["rings"] == 0, "the work-cycle ring must not come back"
-    assert state["steps"] == 3 and state["allVisible"], state
+    assert state["chips"] >= 6 and state["nodes"] >= 5, state
+    assert state["allVisible"], state
     assert "not a transcript of hidden reasoning" in state["note"], (
         "the honesty caveat must survive the rebuild"
     )

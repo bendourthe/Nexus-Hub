@@ -1,13 +1,18 @@
-"""v4.4.3 Phase 5 gates: Models -- no ring, motion that plays itself, named models, live connectors.
+"""v4.4.3 Phase 5 gates: Models -- no ring, motion that plays itself, live connectors.
+
+v4.4.4 rebuilt this scene around how a model works, so two tests here were superseded rather than
+repointed: the three-step block became a token strip plus base-and-reasoning lanes, and the provider
+list became one family per provider without version numbers. Both are asserted in
+`test_v444_phase6_models.py`; keeping thin duplicates here would have meant two places to update and
+one of them going stale.
+
+The tests that remain still hold their own rules: the ring cannot return, the video plays unaided,
+the worked example runs the length of the scene, and the connectors are thick enough to read.
 
 The review named four things in this scene. The spinning ring depicted nothing and its own caption
 had to admit it, so it is gone and the test asserts the absence rather than a tuned version of it.
 The video needed no press. The connectors were too faint to read. And the worked example was a
 document summary, which is not where agentic AI earns its keep.
-
-Model names are asserted against a declared list read from each vendor's own documentation on
-2026-09-03. The point of the assertion is that the guide names real released models from more than
-one provider, not that these particular names are eternal; a future refresh updates both together.
 """
 
 from __future__ import annotations
@@ -22,12 +27,8 @@ _ROOT = Path(__file__).resolve().parents[2]
 GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 
-# Read from the vendors' own model documentation on 2026-09-03.
-DECLARED_MODELS = {
-    "Anthropic": ("Claude Opus 5", "Claude Haiku 4.5"),
-    "OpenAI": ("GPT-5.6 Sol",),
-    "Google": ("Gemini 3.8 Flash",),
-}
+# v4.4.4 moved the provider list to one family per provider with no version numbers, and its
+# declared table now lives in `test_v444_phase6_models.py`. Nothing in this module reads it.
 
 
 def _load_sync_playwright():
@@ -81,34 +82,6 @@ def test_no_work_cycle_ring_survives_anywhere_in_a_scene(guide_text: str) -> Non
     assert "nhg-cycle-spin 6s" not in guide_text
 
 
-def test_inside_the_model_states_three_true_things_with_the_caveat(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        try:
-            ctx, page = _scene(browser)
-            data = page.evaluate(
-                """() => {
-                    const p = document.querySelector('#fx-model-lifecycle .fx-pass');
-                    return { steps: [...p.querySelectorAll('.fx-pass-step')].map(s => s.textContent.trim()),
-                             effort: [...p.querySelectorAll('.fx-effort-row')].map(r => ({
-                               name: r.querySelector('.fx-effort-name').textContent.trim(),
-                               w: r.querySelector('.fx-effort-bar').style.getPropertyValue('--w').trim() })),
-                             note: p.querySelector('.fx-pass-note').textContent.trim(),
-                             seq: window.NexusSeq.state(p).total };
-                }"""
-            )
-            ctx.close()
-        finally:
-            browser.close()
-    assert len(data["steps"]) == 3 and all(data["steps"]), data["steps"]
-    assert data["seq"] == 3, data
-    assert len(data["effort"]) == 2, data["effort"]
-    lo, hi = (int(row["w"].rstrip("%")) for row in data["effort"])
-    assert hi > lo, f"higher effort must read as more room: {data['effort']}"
-    assert "not a transcript of hidden reasoning" in data["note"], data["note"]
-    assert "promises no number of steps" in data["note"], data["note"]
-
-
 def test_the_video_output_plays_without_being_asked(playwright_mod) -> None:
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
@@ -120,7 +93,8 @@ def test_the_video_output_plays_without_being_asked(playwright_mod) -> None:
                     return { src: img.src.slice(0, 20), state: img.getAttribute('data-motion-state'),
                              hasPoster: !!img.getAttribute('data-poster-src'),
                              controls: document.querySelectorAll('[data-media-toggle]').length,
-                             label: img.closest('.fx-out').querySelector('.fx-out-tag').textContent.trim() };
+                             /* v4.4.4: the video sits in the omni modality tier now. */
+                             label: img.closest('.mx-tier').querySelector('.mx-tier-tag').textContent.trim() };
                 }"""
             )
             ctx.close()
@@ -130,29 +104,7 @@ def test_the_video_output_plays_without_being_asked(playwright_mod) -> None:
     assert data["state"] == "playing", data
     assert data["controls"] == 0, "a control is back on the motion output"
     assert data["hasPoster"], "the still frame must stay available for reduced motion"
-    assert data["label"] == "Video", data
-
-
-def test_released_models_are_named_from_three_providers(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        try:
-            ctx, page = _scene(browser)
-            chips = page.evaluate(
-                "() => [...document.querySelectorAll('#fx-model-lifecycle .fx-models li')].map(li => ({"
-                "  provider: li.querySelector('b').textContent.trim(),"
-                "  model: li.textContent.replace(li.querySelector('b').textContent, '').trim() }))"
-            )
-            ctx.close()
-        finally:
-            browser.close()
-    assert chips, "no released models are named"
-    providers = {c["provider"] for c in chips}
-    assert len(providers) >= 3, f"at least three providers expected, got {sorted(providers)}"
-    for chip in chips:
-        declared = DECLARED_MODELS.get(chip["provider"])
-        assert declared, f"undeclared provider: {chip['provider']}"
-        assert chip["model"] in declared, f"{chip['model']!r} is not in the declared list for {chip['provider']}"
+    assert data["label"] == "Omni", data
 
 
 def test_the_worked_example_runs_the_length_of_the_scene(playwright_mod) -> None:

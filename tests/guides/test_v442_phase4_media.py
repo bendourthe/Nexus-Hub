@@ -110,64 +110,28 @@ def test_models_and_agentic_still_share_the_entry_and_inside_bytes(playwright_mo
 # ------------------------------------------------------------------ media
 
 
-def test_output_labels_and_waveform_states(playwright_mod) -> None:
-    hash_js = """() => { const c = document.querySelector('canvas.fx-wave'); const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
-                  let h = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) h = (h * 31 + (i >> 2)) >>> 0; return h; }"""
+def test_modality_tier_labels(playwright_mod) -> None:
+    """v4.4.4 replaced the four output labels with three modality tiers.
+
+    Audio left the teaching on the operator's instruction, so the waveform tests that followed it
+    are gone rather than rewritten: there is no waveform to be static or live. What remains worth
+    asserting is that the three tiers are labelled and that nothing reintroduces an audio element
+    without the teaching that would explain it. The tier structure itself is asserted in
+    `test_v444_phase6_models.py`.
+    """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         _ctx, page, requests = _open(browser)
         try:
             labels = page.evaluate(
-                "() => [...document.querySelectorAll('#fx-model-lifecycle .fx-out-tag')].map(e => e.textContent.trim())"
+                "() => [...document.querySelectorAll('#fx-model-lifecycle .mx-tier-tag')].map(t => t.textContent.trim())"
             )
-            page.locator("#fx-model-lifecycle .fx-outs").scroll_into_view_if_needed()
-            static_state = page.evaluate("() => document.querySelector('canvas.fx-wave').dataset.waveState")
-            static_px = page.evaluate(
-                """() => { const c = document.querySelector('canvas.fx-wave'); const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
-                          let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; }"""
-            )
-            static_hash = page.evaluate(hash_js)
-            page.evaluate("() => { const a = document.querySelector('audio.fx-out-audio'); a.volume = 0.05; return a.play(); }")
-            page.wait_for_function("() => document.querySelector('canvas.fx-wave').dataset.waveState === 'live'", timeout=3000)
-            # Headless Chromium advances a media element slowly with no output device, so the live
-            # trace is near-flat here; what is provable is that frames keep being drawn from the
-            # analyser and that the live trace is not the static one.
-            page.wait_for_function("() => (+document.querySelector('canvas.fx-wave').dataset.waveFrames || 0) >= 3", timeout=3000)
-            f1 = page.evaluate("() => +document.querySelector('canvas.fx-wave').dataset.waveFrames")
-            live_hash = page.evaluate(hash_js)
-            page.wait_for_timeout(300)
-            f2 = page.evaluate("() => +document.querySelector('canvas.fx-wave').dataset.waveFrames")
-            page.evaluate("() => document.querySelector('audio.fx-out-audio').pause()")
-            page.wait_for_function("() => document.querySelector('canvas.fx-wave').dataset.waveState === 'static'")
-            f3 = page.evaluate("() => +document.querySelector('canvas.fx-wave').dataset.waveFrames")
-            after_hash = page.evaluate(hash_js)
-            page.wait_for_timeout(300)
-            f4 = page.evaluate("() => +document.querySelector('canvas.fx-wave').dataset.waveFrames")
+            audio = page.evaluate("() => document.querySelectorAll('audio, canvas.fx-wave').length")
         finally:
             browser.close()
-    assert labels == ["Text", "Image", "Video", "Audio"], labels
-    assert static_state == "static" and static_px > 100, "a static waveform paints without any gesture"
-    assert f2 > f1 >= 3, f"live frames must keep drawing while playing: {f1} -> {f2}"
-    assert live_hash != static_hash, "the live trace must differ from the static waveform"
-    assert f4 == f3, "drawing must stop once the clip pauses"
-    assert after_hash == static_hash, "pause restores the static waveform"
-    assert not requests, f"media must never fetch: {requests}"
-
-
-def test_waveform_is_static_under_reduced_motion(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        _ctx, page, _req = _open(browser, reduced_motion="reduce")
-        try:
-            page.evaluate("() => { const a = document.querySelector('audio.fx-out-audio'); a.volume = 0.05; return a.play(); }")
-            page.wait_for_timeout(400)
-            state = page.evaluate("() => document.querySelector('canvas.fx-wave').dataset.waveState")
-        finally:
-            browser.close()
-    assert state == "static"
-
-
-# ------------------------------------------------------------------ layered harness
+    assert labels == ["Text", "Multimodal", "Omni"], labels
+    assert audio == 0, "an audio element came back without its teaching"
+    assert not requests, f"the scene made external requests: {requests}"
 
 
 def test_harness_diagram_is_layered_and_choreographed(playwright_mod) -> None:
