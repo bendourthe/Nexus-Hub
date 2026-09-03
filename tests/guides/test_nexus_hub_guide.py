@@ -902,7 +902,7 @@ def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
     text = re.sub(r"<[^>]+>", " ", scene).lower()
     assert "same request" in text
     assert "answer handoff" in text and "every step is applied and checked" in text
-    assert "work handoff" in text and "saved change" in text and "check result" in text
+    assert "work handoff" in text and "saved change" in text and "checked result" in text
     assert re.search(r"chatbots?.{0,100}(?:can|may|increasingly).{0,60}tools", text)
     assert "where the work happens" in text
     assert re.search(r"what .{0,30} leaves behind", text)
@@ -916,12 +916,12 @@ def test_foundations_context_makes_budget_competition_and_full_behavior_visible(
 ) -> None:
     """v4.4.1 Phase 3: context is separable from the request, finite, and selectable."""
     scene = _foundation_scene(guide_text, "fx-context")
-    assert 'class="fx-ctx-query"' in scene and 'class="fx-ctx-kinds"' in scene
+    assert 'class="fx-ctx-query"' in scene and 'class="fx-mat"' in scene
     for kind in ("Image", "File or document", "Project folder or workspace", "Codebase"):
-        assert '<span class="fx-ctx-kind">' + kind + "</span>" in scene, (
+        assert '<span class="fx-mat-name">' + kind + "</span>" in scene, (
             "missing context kind: " + kind
         )
-    assert scene.index("fx-budget--noisy") < scene.index("fx-budget--focused"), (
+    assert scene.index("fx-spend-tag--bad") < scene.index("fx-spend-tag--good"), (
         "the unfocused selection must read before the task-matched one"
     )
     text = re.sub(r"<[^>]+>", " ", scene).lower()
@@ -1083,7 +1083,7 @@ def test_foundations_comparisons_show_both_states_without_a_toggle(
 ) -> None:
     """Each teaching comparison keeps both states available in the same scene."""
     fx = _foundations_markup(guide_text)
-    assert "fx-budget--noisy" in fx and "fx-budget--focused" in fx
+    assert "fx-spend-tag--bad" in fx and "fx-spend-tag--good" in fx
     assert 'data-phase3-node="chatbot-handoff"' in fx
     assert 'data-phase3-node="agent-handoff"' in fx
     practice = _foundation_scene(guide_text, "fx-practice")
@@ -1102,7 +1102,7 @@ def test_foundations_comparisons_show_both_states_without_a_toggle(
 def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
     """v4.2.3: every comparison reads without-then-with, the same direction."""
     fx = _foundations_markup(guide_text)
-    assert fx.index("fx-budget--noisy") < fx.index("fx-budget--focused"), (
+    assert fx.index("fx-spend-tag--bad") < fx.index("fx-spend-tag--good"), (
         "the unaided context must come first"
     )
     assert fx.index("fx-state--weak") < fx.index("fx-state--strong"), (

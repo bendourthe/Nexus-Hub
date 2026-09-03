@@ -353,7 +353,7 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
    (the inner one asks, the outer one blocks); the lanes carry the evidence. */
 .guard-fig .gf-rings { display: flex; justify-content: center; margin-bottom: var(--sp-4); }
 .guard-fig .gf-ring { border: 1.5px solid var(--border-bright); border-radius: 18px; padding: 10px 14px 14px; }
-.guard-fig .gf-ring--nexus { border-color: var(--accent); border-style: dashed; width: 100%; max-width: 460px; }
+.guard-fig .gf-ring--nexus { border-color: var(--accent); border-style: dashed; width: 100%; }
 .guard-fig .gf-ring--platform { margin-top: 8px; background: color-mix(in srgb, var(--surface) 70%, transparent); }
 .guard-fig .gf-ring-tag { display: block; font: 700 12px var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-dim); }
 .guard-fig .gf-ring--nexus > .gf-ring-tag { color: var(--accent); }
@@ -450,7 +450,7 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
 /* ---------- Annotated prompt primitive ----------
    One continuous text whose labelled spans light in sequence. Text never changes contrast
    during the sequence (BG-13 rule): the active part gains a stronger tint and a ring. */
-.ann-text { margin: 0; color: var(--ink); font-size: 15px; line-height: 1.75; }
+.ann-text { margin: 0; color: var(--ink); font-size: 15px; line-height: 1.65; }
 .ann { --ann: var(--ink-faint); color: inherit; border-radius: 5px; padding: 1px 4px; text-decoration: underline dotted; text-decoration-color: var(--ann); text-underline-offset: 3px;
   background: color-mix(in srgb, var(--ann) 12%, transparent); transition: background-color .35s var(--ease), box-shadow .35s var(--ease); }
 .ann[data-part="goal"], .ann[data-part="request"] { --ann: var(--teal); }
@@ -458,15 +458,18 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
 .ann[data-part="done"] { --ann: var(--amber); }
 .ann[data-part="format"] { --ann: var(--cyan); }
 .js .ann.is-on { background: color-mix(in srgb, var(--ann) 26%, transparent); box-shadow: 0 0 0 1.5px var(--ann); }
-.ann-legend { margin: 12px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; }
-.ann-legend-row { --ann: var(--ink-faint); display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: baseline; padding: 3px 6px; border-radius: 6px; transition: background-color .35s var(--ease); }
+.ann-legend { margin: 10px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 6px 14px; }
+/* v4.4.3: the label and its description shared a row, so a three-word description wrapped to
+   three lines beside a one-word label. The operator asked for the swatch and the label on the
+   first line and the description under it, which is also what stops the wrapping. */
+.ann-legend-row { --ann: var(--ink-faint); display: block; padding: 4px 7px; border-radius: 6px; transition: background-color .35s var(--ease); }
 .ann-legend-row[data-part="goal"], .ann-legend-row[data-part="request"] { --ann: var(--teal); }
 .ann-legend-row[data-part="material"], .ann-legend-row[data-part="context"] { --ann: var(--blue); }
 .ann-legend-row[data-part="done"] { --ann: var(--amber); }
 .ann-legend-row[data-part="format"] { --ann: var(--cyan); }
-.ann-legend-row dt { font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ink); }
+.ann-legend-row dt { display: block; font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ink); }
 .ann-legend-row dt::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 2px; background: var(--ann); margin-right: 6px; vertical-align: 1px; }
-.ann-legend-row dd { margin: 0; font-size: 13px; color: var(--ink-dim); }
+.ann-legend-row dd { display: block; margin: 2px 0 0; font-size: 13.5px; line-height: 1.4; color: var(--ink-dim); }
 .js .ann-legend-row.is-on { background: color-mix(in srgb, var(--ann) 14%, transparent); }
 @media (max-width: 560px) { .ann-legend { grid-template-columns: 1fr; } .fx-duo { grid-template-columns: 1fr; } }
 
@@ -840,29 +843,43 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-state-why { margin: 10px 0 0; color: var(--ink-dim); font-size: 13px; line-height: 1.5; }
 .fx-state-link { display: flex; align-items: center; }
 .fx-inline-arrow { width: 34px; height: 12px; overflow: visible; }
-.fx-ctx { display: grid; gap: 16px; }
-.fx-ctx-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 12px; align-items: center; }
+.fx-ctx { display: grid; gap: 11px; }
+.fx-ctx-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: stretch; }
 .fx-ctx-query { padding: 12px 14px; border: 1px solid var(--border-bright); border-radius: var(--radius-sm); background: var(--surface); }
 .fx-ctx-query p { margin: 5px 0 0; color: var(--ink); font-size: 14.5px; line-height: 1.4; }
 .fx-ctx-tag { color: var(--teal-soft); font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.fx-ctx-plus { color: var(--ink-faint); font-size: 20px; font-weight: 700; text-align: center; }
+.fx-ctx-plus { color: var(--ink-faint); font-size: 20px; font-weight: 700; text-align: center; line-height: 1; }
 .fx-ctx-kinds { list-style: none; display: grid; gap: 6px; margin: 0; padding: 0; }
 .fx-ctx-kind { display: block; padding: 7px 11px; border: 1px dashed var(--border); border-radius: 7px; background: var(--bg-0); color: var(--ink-dim); font-size: 13.5px; }
-.fx-ctx-budgets { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.fx-budget { min-width: 0; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
-/* One budget, two ways of spending it: both bars are the same width on purpose. */
-.fx-bar { display: flex; height: 16px; margin: 4px 0 0; border-radius: 5px; overflow: hidden; background: var(--bg-0); border: 1px solid var(--border); }
-.fx-bar-seg { display: block; width: var(--w); }
-.fx-bar-seg--on { background: var(--accent); }
-.fx-bar-seg--off { background: var(--border-bright); }
-.fx-bar-seg--rest { background: transparent; }
-.fx-bar-seg--split { border-left: 1px solid var(--surface); }
-.fx-legend { list-style: none; display: grid; gap: 3px; margin: 8px 0 0; padding: 0; color: var(--ink-dim); font-size: 12.5px; line-height: 1.4; }
-.fx-legend li { display: flex; align-items: center; gap: 7px; min-width: 0; }
-.fx-key { flex: none; width: 11px; height: 11px; border-radius: 3px; border: 1px solid var(--border); }
-.fx-key--on { background: var(--accent); }
-.fx-key--off { background: var(--border-bright); }
-.fx-key--rest { background: transparent; }
+/* v4.4.3: a dashed box with a bare noun in it told the reader nothing they did not already know
+   from the noun. Each kind of material now gets a cell with its name and a drawing of the thing,
+   in a two-by-two grid. The drawings are pure geometry, so there is no text to escape a box. */
+.fx-mat { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; }
+.fx-mat-cell { min-width: 0; display: grid; gap: 4px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 9px; background: var(--bg-0); }
+.fx-mat-name { font: 700 11.5px var(--sans); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-dim); }
+.fx-mat-art { display: block; width: 100%; height: 40px; overflow: visible; }
+.fx-mat-art .ma-fill { fill: color-mix(in srgb, var(--blue) 16%, transparent); stroke: var(--blue); stroke-width: 1.5; }
+.fx-mat-art .ma-line { fill: none; stroke: var(--ink-faint); stroke-width: 1.6; stroke-linecap: round; }
+.fx-mat-art .ma-dot { fill: var(--blue); }
+@media (max-width: 380px) { .fx-mat { grid-template-columns: minmax(0, 1fr); } }
+/* v4.4.3: the two budget boxes were a bar plus a percentage legend, and the review said they did
+   not read. The percentages were the problem: they asked the reader to map three numbers onto three
+   unlabelled stripes. The comparison is now two meters of identical width with the material named
+   inside the segment that holds it, and one plain sentence under each. No legend, no percentages. */
+.fx-spend { display: grid; gap: 9px; }
+.fx-spend-head { margin: 0; font: 700 13px var(--sans); color: var(--ink); }
+.fx-spend-row { display: grid; gap: 4px; min-width: 0; }
+.fx-spend-tag { font: 700 11.5px var(--sans); letter-spacing: .07em; text-transform: uppercase; }
+.fx-spend-tag--bad { color: var(--amber); }
+.fx-spend-tag--good { color: var(--accent); }
+.fx-meter { display: flex; height: 27px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-bright); background: var(--bg-0); }
+.fx-seg { width: var(--w); min-width: 0; display: flex; align-items: center; padding: 0 8px; font-size: 11.5px; line-height: 1.15; overflow: hidden; }
+.fx-seg--waste { background: color-mix(in srgb, var(--amber) 20%, transparent); color: var(--amber); }
+.fx-seg--use { background: color-mix(in srgb, var(--accent) 24%, transparent); color: var(--accent); }
+.fx-seg--free { background: var(--surface-2); color: var(--ink-faint); }
+.fx-spend-note { margin: 0; font-size: 13px; line-height: 1.45; color: var(--ink-dim); }
+.fx-ink-use { color: var(--accent); font-weight: 650; }
+.fx-ink-free { color: var(--ink-faint); font-weight: 650; }
 /* ---------- Tokens scene (v4.4.1 Phase 3) ---------- */
 .fx-tokfig { margin: var(--sp-3) 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
 .fx-copy .fx-tokfig-cap { margin: 0; color: var(--ink-faint); font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
@@ -1912,48 +1929,13 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           <p>So the skill is selection, not volume. Attaching the whole drive is not more helpful than attaching the two sections the question is about.</p>
         </div>
         <div class="fx-diagram">
-          <div class="fx-ctx" role="group" aria-label="The request plus the optional material it can carry, then two ways of filling the same budget">
+          <div class="fx-ctx" role="group" aria-label="The request plus the optional material it can carry, then the same budget filled two ways">
             <div class="fx-ctx-row">
-              <div class="fx-ctx-query" id="fx-ann-context" data-seq-root data-seq-loop data-seq-hold="2400"><span class="fx-ctx-tag">The request and its material</span><p class="ann-text"><mark class="ann" data-part="request" data-seq="1" data-seq-dur="1100">Summarise this contract and list every deadline.</mark> <mark class="ann" data-part="context" data-seq="2" data-seq-dur="1100">Use the attached PDF, sections 4 to 9.</mark> <mark class="ann" data-part="context" data-seq="3" data-seq-dur="1600">Ignore the old chat history.</mark></p><dl class="ann-legend" aria-label="What each highlighted part is"><div class="ann-legend-row" data-part="request" data-seq="1"><dt>Request</dt><dd>the words of the job</dd></div><div class="ann-legend-row" data-part="context" data-seq="2"><dt>Context</dt><dd>material the job runs on, chosen, not dumped</dd></div></dl></div>
+              <div class="fx-ctx-query" id="fx-ann-context" data-seq-root data-seq-loop data-seq-hold="2400"><span class="fx-ctx-tag">The request and its material</span><p class="ann-text"><mark class="ann" data-part="request" data-seq="1" data-seq-dur="1100">Add rate limiting to the public API and prove it with tests.</mark> <mark class="ann" data-part="context" data-seq="2" data-seq-dur="1100">Use <code>src/api/</code> and Friday's load-test report.</mark> <mark class="ann" data-part="context" data-seq="3" data-seq-dur="1600">Ignore the archived v1 handlers.</mark></p><dl class="ann-legend" aria-label="What each highlighted part is"><div class="ann-legend-row" data-part="request" data-seq="1"><dt>Request</dt><dd>the words of the job</dd></div><div class="ann-legend-row" data-part="context" data-seq="2"><dt>Context</dt><dd>material the job runs on, chosen, not dumped</dd></div></dl></div>
               <div class="fx-ctx-plus" aria-hidden="true">+</div>
-              <ul class="fx-ctx-kinds" aria-label="Optional context that can be attached">
-                <li><span class="fx-ctx-kind">Image</span></li>
-                <li><span class="fx-ctx-kind">File or document</span></li>
-                <li><span class="fx-ctx-kind">Project folder or workspace</span></li>
-                <li><span class="fx-ctx-kind">Codebase</span></li>
-              </ul>
+              <ul class="fx-mat" aria-label="Optional context that can be attached"><li class="fx-mat-cell"><span class="fx-mat-name">Image</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><rect class="ma-fill" x="14" y="5" width="68" height="36" rx="4"/><circle class="ma-dot" cx="31" cy="16" r="4"/><path class="ma-line" d="M18 37 L36 21 L48 32 L57 24 L78 37"/></svg></li><li class="fx-mat-cell"><span class="fx-mat-name">File or document</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><path class="ma-fill" d="M26 4 h26 l14 14 v24 a2 2 0 0 1 -2 2 H28 a2 2 0 0 1 -2 -2 V6 a2 2 0 0 1 2 -2 z"/><path class="ma-line" d="M52 4 v14 h14"/><path class="ma-line" d="M34 25 h22 M34 32 h22 M34 39 h13"/></svg></li><li class="fx-mat-cell"><span class="fx-mat-name">Project folder or workspace</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><path class="ma-fill" d="M16 10 h20 l6 6 h40 a2 2 0 0 1 2 2 v22 a2 2 0 0 1 -2 2 H16 a2 2 0 0 1 -2 -2 V12 a2 2 0 0 1 2 -2 z"/><path class="ma-line" d="M28 28 h22 M28 35 h32"/></svg></li><li class="fx-mat-cell"><span class="fx-mat-name">Codebase</span><svg class="fx-mat-art" viewBox="0 0 96 48" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><path class="ma-line" d="M22 8 v34 M22 17 h16 M22 28 h16 M22 39 h16"/><circle class="ma-dot" cx="22" cy="8" r="3.5"/><rect class="ma-fill" x="42" y="11" width="34" height="12" rx="3"/><rect class="ma-fill" x="42" y="22" width="34" height="12" rx="3"/><rect class="ma-fill" x="42" y="33" width="34" height="12" rx="3"/></svg></li></ul>
             </div>
-            <div class="fx-ctx-budgets">
-              <div class="fx-budget fx-budget--noisy" role="group" aria-label="Unfocused selection: the budget is full of material the question never needed">
-                <h3 class="fx-state-tag">Unfocused</h3>
-                <div class="fx-bar" aria-hidden="true">
-                  <span class="fx-bar-seg fx-bar-seg--off" style="--w:44%"></span>
-                  <span class="fx-bar-seg fx-bar-seg--off" style="--w:26%"></span>
-                  <span class="fx-bar-seg fx-bar-seg--on" style="--w:14%"></span>
-                  <span class="fx-bar-seg fx-bar-seg--rest" style="--w:16%"></span>
-                </div>
-                <ul class="fx-legend">
-                  <li><span class="fx-key fx-key--off"></span>Unrelated folders 44%</li>
-                  <li><span class="fx-key fx-key--off"></span>Old chat history 26%</li>
-                  <li><span class="fx-key fx-key--on"></span>The contract 14%</li>
-                </ul>
-                <p class="fx-state-why">The contract itself gets a sliver. The budget went to material nobody asked about.</p>
-              </div>
-              <div class="fx-budget fx-budget--focused" role="group" aria-label="Task-matched selection: the budget holds the material the question needs">
-                <h3 class="fx-state-tag">Task-matched</h3>
-                <div class="fx-bar" aria-hidden="true">
-                  <span class="fx-bar-seg fx-bar-seg--on" style="--w:58%"></span>
-                  <span class="fx-bar-seg fx-bar-seg--on fx-bar-seg--split" style="--w:12%"></span>
-                  <span class="fx-bar-seg fx-bar-seg--rest" style="--w:30%"></span>
-                </div>
-                <ul class="fx-legend">
-                  <li><span class="fx-key fx-key--on"></span>Contract sections 4 to 9, 58%</li>
-                  <li><span class="fx-key fx-key--on"></span>The request 12%</li>
-                  <li><span class="fx-key fx-key--rest"></span>Room left to answer 30%</li>
-                </ul>
-                <p class="fx-state-why">Same budget, spent on the sections the question is about, with room left to answer.</p>
-              </div>
-            </div>
+            <div class="fx-spend" role="group" aria-label="The same working budget, filled two ways"><p class="fx-spend-head">One working budget. What fills it is the only variable.</p><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--bad">Attach everything in the project</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--waste" style="--w:70%">files the job never touches</span><span class="fx-seg fx-seg--use" style="--w:14%"></span><span class="fx-seg fx-seg--free" style="--w:16%"></span></div><p class="fx-spend-note">The <span class="fx-ink-use">two files the job names</span> get a sliver, and there is almost no <span class="fx-ink-free">room left to answer</span>.</p></div><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--good">Attach what the job names</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--use" style="--w:58%">the API code and the load-test report</span><span class="fx-seg fx-seg--free" style="--w:42%">room to answer</span></div><p class="fx-spend-note">Same budget, spent on the material the job runs on.</p></div></div>
           </div>
         </div>
       </section>

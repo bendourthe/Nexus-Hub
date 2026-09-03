@@ -16,8 +16,8 @@
 | T5 | The static document never addresses the reader | `test_static_document_never_addresses_the_reader` | 1 |
 | G1 | Every guardrails label sits inside its own box; the blocking hook is named per attempt | `test_v443_phase2_guardrails.py` (6 tests) | 2 |
 | L1 | The command loop fills the content column with triangular heads | `test_v443_phase3_loop.py` (5 tests) | 3 |
-| C1 | Request and context render as swatch-plus-label over description | NEW, Phase 4 | 4 |
-| C2 | Attachable material is one 2x2 illustrated grid, shared by all three scenes that show it | NEW, Phase 4 | 4 |
+| C1 | Request and context render as swatch-plus-label over description | `test_v443_phase4_context.py::test_every_legend_row_is_swatch_and_label_over_description` | 4 |
+| C2 | Attachable material is one 2x2 illustrated grid; the Context scene adopts it in Phase 4 and the Models and Platforms scenes reuse it in their own rebuilds | `test_v443_phase4_context.py::test_attachable_material_is_a_two_by_two_illustrated_grid` | 4 |
 | M1 | No work-cycle ring anywhere; no scene has an empty column | NEW, Phase 5 | 5 |
 | M2 | The video output plays with no gesture; models from three or more providers are named | NEW, Phase 5 | 5 |
 | P1 | Agentic Platforms is plural and names four platforms with ledger-approved marks | NEW, Phase 6 | 6 |
@@ -40,7 +40,10 @@ it, with what replaced it. A test updated without a row here is how a silent loo
 | `test_v441_phase2_home.py` | `test_home_hero_statement_is_centred_and_exact` | same hero sentence | T5 | DONE |
 | `test_v441_phase2_home.py` | `test_home_sections_render_in_the_agreed_order` | four heading strings carrying `you` or `your` | T5 | DONE |
 | `test_nexus_hub_guide.py` | `test_foundations_model_lifecycle_is_chronological_and_responsive` | `happens long before your request` | T5 | DONE: `happens long before any request` |
-| `test_nexus_hub_guide.py` | `test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff` | `you apply and check` | T5 | DONE: `every step is applied and checked` |
+| `test_nexus_hub_guide.py` | `test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff` | `you apply and check`, `check result` | T5 | DONE: `every step is applied and checked`, `checked result` |
+| `test_nexus_hub_guide.py` | `test_foundations_context_makes_budget_competition_and_full_behavior_visible` | `class="fx-ctx-kinds"`, `<span class="fx-ctx-kind">`, `fx-budget--noisy/--focused` | C2 and the budget rebuild | DONE: reads `.fx-mat`, `.fx-mat-name`, and `fx-spend-tag--bad/--good`; the four kind names and the without-then-with order are unchanged requirements |
+| `test_nexus_hub_guide.py` | `test_foundations_comparisons_show_both_states_without_a_toggle` | `fx-budget--noisy/--focused` | same | DONE |
+| `test_nexus_hub_guide.py` | `test_foundations_orders_unaided_state_first` | `fx-budget--noisy/--focused` | same | DONE |
 | `test_v441_phase2_home.py` | `test_guardrails_section_names_only_shipped_registered_hooks` | `.g-port`, `.g-blocked`, and the `blocked by ` prefix | G1: the figure has no SVG | DONE: reads `.gf-hooks li` and the `<b>` hook name in each stop cell; the rule (only shipped, registered hooks named) is unchanged |
 | `test_v441_phase2_home.py` | `test_guardrails_choreography_reaches_a_fully_blocked_end_state` | `total == 5`, `.g-block` count | G1: three attempts, not five chips | DONE: `total == 3`, stop count read from `.gf-out--stop`; the rule (ends fully blocked) is unchanged |
 
@@ -62,6 +65,14 @@ shipped is therefore:
   heading wraps rather than shrinking into illegibility or spilling out of the column (`T3`).
 - **Every width**: nothing spills past its container, which was the actual defect in the review.
 
+## 3b. One rule violation committed and repaired
+
+Phase 2 shipped `max-width: 460px` on the guardrails outer ring, which the v4.2.3 responsive rule
+forbids on a text-bearing element, and `test_no_hardcoded_text_width_caps_remain` caught it during
+Phase 4. The cause was procedural: Phase 2 ran its own module plus the two it touched, not the broad
+`test_nexus_hub_guide.py`. Repaired in Phase 4 by removing the cap; the figure column is the only
+width constraint. From Phase 4 onward every phase runs the broad module before committing.
+
 ## 4. Byte ledger
 
 | Phase | Change | Bytes | Running total |
@@ -70,5 +81,6 @@ shipped is therefore:
 | 1 | two size tokens, NexusFit, table-header grade, second-person sweep | +4,282 | 349,905 |
 | 2 | guardrails figure rebuilt in HTML, SVG removed, table column shares | +2,584 | 352,489 |
 | 3 | loop fills the column, larger box type, CSS triangles | +966 | 353,455 |
+| 4 | two-line legend rows, illustrated material grid, legend-free budget meters | +1985 | 355,440 |
 
-Headroom at Phase 3 close: 146,545 under the ceiling.
+Headroom at Phase 4 close: 144,560 under the ceiling.
