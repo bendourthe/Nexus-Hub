@@ -129,8 +129,15 @@ def declare_groups() -> dict[str, list[dict]]:
                       for scene in ("fx-ann-prompt", "fx-ann-context") for state in ("mid", "end") for th in THEMES]
     g["waveform"] = [dict(label=f"wave-{state}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
                           scroll="#fx-model-lifecycle .fx-outs", wave=state) for state in ("playing", "paused") for th in THEMES]
+    # v4.4.3: the two harness scenes are one, its figure carries six stops, and two more scenes
+    # became choreographed. Each group names the id its sequence root now has.
     g["harness"] = [dict(label=f"harness-step{step}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
-                         scroll="#fx-hstack-nexus", seq=("fx-hstack-nexus", step)) for step in (1, 4, 7, "end") for th in THEMES]
+                         scroll="#fx-harness", seq=("hx-harness", step)) for step in (1, 3, 6, "end") for th in THEMES]
+    g["comparison"] = [dict(label=f"compare-{state}-{th}-{w}", url=f"{base}#foundations", width=w, height=900, theme=th, retain=True,
+                            scroll="#fx-chatbot-agent", seq=("cv-compare", state))
+                       for state in ("mid", "end") for th in THEMES for w in (420, 1440)]
+    g["platforms"] = [dict(label=f"platforms-step{step}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
+                           scroll="#fx-agent-platform", seq=("plat-flow", step)) for step in (1, 5, "end") for th in THEMES]
     g["pointer"] = [dict(label=f"arena-pointer-paused-{th}-1440", url=f"{base}#training/describe", width=1440, height=900, theme=th, retain=True, pointer=True)
                     for th in THEMES]
     return g

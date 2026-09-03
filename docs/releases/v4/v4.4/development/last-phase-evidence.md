@@ -827,3 +827,104 @@ Byte guard: 345,623 bytes | strict ceiling 500,000 | headroom 154,377
 **GO / NO-GO: GO.** No P0 or P1 finding; no Goal or Definition-of-Done miss in the shipped artifact. Residuals: `HT-1` (no cohort), the 0.45 stage-height floor deviation, and `QG-1`, a pre-existing P3 test-harness defect (six PowerShell seeding tests fail only under the profile runner's `PYTHONUTF8=1`, proven on `develop` before this plan) recorded with owner and next step; the operator's standing approval covers publication, and `QG-1` is surfaced explicitly in the handoff for acknowledgement. The local gate is green as quoted. Remote results are recorded by the release-owned handoff, never by re-pushing this branch to quote them.
 
 <!-- END v4.4.2-guide-production-ready-rebuild -->
+<!-- BEGIN v4.4.3-guide-illustration-clarity-rebuild -->
+
+# Last-Phase Evidence - v4.4.3 Guide Illustration Clarity Rebuild
+
+**Version**: v4.4.3
+**Slug**: `guide-illustration-clarity-rebuild`
+**Branch**: `feat/v4.4.3-guide-illustration-clarity-rebuild`
+**Base**: `develop` at `a376c1ae` (the v4.4.2 merge)
+**Phase 9 verification base SHA**: `1fe0322952e83b09509b5ac5b8b20b45d46de571`
+**Date**: 2026-09-03
+**Publication state**: DELIBERATELY UNPUBLISHED. The operator asked to review Home and Foundations before Training work begins, so this version stops at a green local gate. Nothing was pushed, no pull request was opened, and no remote CI ran.
+
+## What this version was for
+
+A direct visual review of the shipped v4.4.2 build, across ten screenshots. Ten complaints, each traced to a phase and each measured rather than eyeballed:
+
+| Review item | Where it went |
+|---|---|
+| Segment label too small, segment title too big, titles wrapping | Phase 1 |
+| Table column headers too quiet | Phase 1 |
+| Never address the reader | Phase 1 |
+| The guardrails figure is messy: text outside its bubbles, misplaced content | Phase 2 |
+| The command loop wastes its width; the arrows are invisible | Phase 3 |
+| Request and context boxes cramped; dotted noun boxes; the two budget boxes make no sense | Phase 4 |
+| The nonsensical circle; empty space; the video needs a click; a weak example; name real models | Phase 5 |
+| Agentic Platform should be plural and should name platforms with logos | Phase 6 |
+| Chatbot versus agentic platform needs a real illustration | Phase 7 |
+| One harness segment, no overlapping text, animate the journey | Phase 8 |
+
+## The one idea behind most of the fixes
+
+Six of the ten complaints had the same root cause: a figure that positions text in a scaled coordinate space cannot keep that text inside the shape behind it. SVG `<text>` does not wrap, does not shrink, and does not know how wide the `<rect>` it sits on is, so at some column width it collides with something. Every rebuilt figure in this version is nested HTML elements with geometry-only SVG, because a box that sizes to its own text cannot overflow it. The guardrails figure, the material kinds, the chatbot comparison, and the harness all changed for this one reason, and the tests assert the property rather than the appearance.
+
+## Verification
+
+```text
+NEXUS_REQUIRE_RENDER=1 pytest -q tests/guides/ tests/verification/test_visual_defect_detector.py
+    347 passed, 1 skipped in 351.20s (5m51s)
+
+python tests/guides/tools/browser_matrix.py --label phase-9
+    cases: 164/164   screenshots: 138/138
+    runtime: 183s / 1200s    evidence: 13.7 MiB / 30 MiB
+    failures: 0
+
+python scripts/ci/run.py --profile fast --quiet          PASS: 13 passed, 0 failed
+python scripts/ci/run.py --profile full --only docs,catalog,security --quiet
+                                                         PASS: 16 passed, 0 failed
+pytest -q tests/validators/                              1139 passed, 2 skipped
+pytest -q tests/workflows/                               97 passed, 13 skipped
+pytest -q catalog/hooks/tests/test_installer_smoke.py    33 passed
+python scripts/stamp_guide_counts.py --check             OK -- 5 markers match the catalog
+validate_unicode_safety.py --strict / validate_no_personal_paths.py       clean
+check_docs_conventions.py                                OK
+```
+
+The matrix grew from 150 declared cases to 164: the harness group now drives six stops instead of seven, and two groups were added for the scenes this version made choreographed (the chatbot comparison at 420 and 1440, and the platforms flow). Three figures gained ids, because the matrix addresses a sequence root by id and the new ones were built with class selectors only.
+
+## Byte ledger, closed
+
+| Phase | Change | Bytes | Running total |
+|---|---|---:|---:|
+| start | v4.4.2 final | | 345,623 |
+| 1 | two size tokens, NexusFit, table-header grade, second-person sweep | +4,282 | 349,905 |
+| 2 | guardrails figure rebuilt in HTML, its SVG retired, table column shares | +2,584 | 352,489 |
+| 3 | loop fills the column, larger box type, CSS triangles | +966 | 353,455 |
+| 4 | two-line legend rows, illustrated material grid, legend-free budget meters | +1,985 | 355,440 |
+| 5 | ring retired from both scenes, one-pass block, model names, autoplaying video, thicker connectors | +3,920 | 359,360 |
+| 6 | plural title, four platform chips with reused approved marks, shorter copy, five-stage choreography | +13,989 | 373,349 |
+| 7 | chatbot comparison rebuilt as a two-zone reach illustration | +4,365 | 377,714 |
+| 8 | two harness scenes merged into one HTML figure, two SVG figures retired | -7,490 | 370,224 |
+| 9 | three sequence-root ids | +47 | 370,271 |
+
+Final: **370,271 bytes**, 129,729 under the 500,000 ceiling and 35,352 under this plan's own 405,623 target. The file is smaller than at Phase 7 close: replacing two SVG figures with nested elements returned more bytes than the four inlined platform marks cost.
+
+## Defect ledger
+
+Seven defects were introduced by this plan and fixed inside it; two pre-existing defects were found and closed; one regression shipped for four commits before Phase 8 caught it. All are in `known-gaps.md` with IDs `BG-17` through `BG-25`. The three worth carrying forward as rules:
+
+1. **Never measure available space against a track the measured element can widen.** Three separate instances: a `nowrap` label inflating a `1fr` scene track, `width: max-content` on a label doing the same, and `width: max-content` on the harness model box pushing both rings 88px outside the scene at 320px. Bound the track with `minmax(0, 1fr)` AND set `min-width: 0` on the intrinsically sized item.
+2. **A usage count cannot tell you where a class is used.** Phase 4 deleted CSS after counting four usages of `fx-budget` and reading that as the two boxes it was replacing. The other two were in the harness trail, which rendered with no border, no background, and no columns for four commits. Phase 8 added a guard tying every class in the Foundations markup to a style rule; it found one more gap immediately.
+3. **A replace without an assertion is a wish, not an edit.** Four byte-ledger rows never reached the phase contract because the scripts that wrote them used a plain string replace with no assertion, so a mismatched anchor did nothing and said nothing. The ledger above was rebuilt from measured file sizes.
+
+## Superseded assertions
+
+Thirty-one register rows in [`guide-illustration-clarity-rebuild/phase-1-contract.md`](guide-illustration-clarity-rebuild/phase-1-contract.md), each naming the literal it pinned and what replaced it. Two are worth surfacing because they retired a rule rather than repointing one:
+
+- **Press-to-play.** v4.4.1 required a press before any motion. The review asked for the opposite. The rule was inverted and the half of it that was about access rather than about asking was kept and asserted: reduced motion shows the still frame.
+- **The two harness instances.** A rule that the two harness scenes share a byte-identical glyph cannot survive their merge into one scene. It is recorded as retired, not quietly deleted.
+
+One assertion was found to be VACUOUS rather than merely superseded: the harness containment test selected `.fx-hstack svg text`, which after the rebuild matches nothing, so it would have passed by inspecting an empty set. It is rewritten over the HTML figure and measures every leaf's glyph run against its own box at six widths.
+
+## Documentation
+
+`guides/website/README.md` records what shipped: the two heading tokens and the measured no-wrap rule with its floor and its stated deviation, the no-second-person rule and its honest scope, the read-not-recalled rule for model names, the reuse-from-the-ledger rule for vendor marks with the id-namespacing caveat, the inverted motion rule, the class-coverage guard, and the intrinsic-width rule. Foundations is documented as seven scenes with each rebuild described. The asset provenance ledger carries a new section for the mark reuse, the product-versus-vendor substitution, and the one documented second sanitization.
+
+## GO / NO-GO
+
+**GO for the operator's review, NO-GO for publication until that review happens.**
+
+No P0 and no P1. Every Definition-of-Done clause is measured except `D2`, which is met at 720px and wider and relaxed below it with the arithmetic recorded. Two residuals are the operator's to judge rather than defects: the label now renders larger than the title, which is exactly what the review's two numbers produce, and the platform chips carry vendor marks under product names because the linked aggregator serves a client-rendered page with no stated licence. `HT-4` records the honest gap: no reader has been asked whether the rebuilt pictures land, and that is what the review is for.
+<!-- END v4.4.3-guide-illustration-clarity-rebuild -->

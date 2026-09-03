@@ -171,3 +171,57 @@
 - `.section-title` minimum bound is 0.6x the scaled floor (34.5 px at scale 3) instead of the plan formula's 57.6 px, so a long word cannot overflow a 320 px viewport; the 1440 px anchor (81.6 px, exactly 3x v4.4.1) is unchanged. Recorded in the Phase 1 contract.
 
 > Not finalized. v4.4.2 is in progress; this section is appended per phase and reconciled at the plan's final phase.
+## v4.4.3 - guide-illustration-clarity-rebuild
+
+**Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](plans/v4.4.3-guide-illustration-clarity-rebuild.md)
+**Base**: `develop` at `a376c1ae`
+**Status**: nine phases complete locally; the operator reviews Home and Foundations before Training work begins, so this version is deliberately NOT published yet.
+
+### Closed during v4.4.3
+
+| ID | What it was | Closed in |
+|---|---|---|
+| CV-1 | The guardrails figure escaped its own chips and collided its hook names with the rings | Phase 2 |
+| CV-2 | The command loop occupied about two thirds of its column with unreadable arrow glyphs | Phase 3 |
+| CV-3 | The budget comparison could not be read: three legend numbers mapped onto three unlabelled stripes | Phase 4 |
+| CV-4 | Four dashed boxes each containing the noun they were already labelled with | Phase 4 |
+| CV-5 | A spinning ring whose own caption denied what it appeared to show | Phase 5 |
+| CV-6 | The motion output required a press before anything moved | Phase 5 |
+| CV-7 | The scene taught a singular abstraction and named no platform | Phase 6 |
+| CV-8 | The chatbot comparison was two columns of prose the reader had to compare unaided | Phase 7 |
+| CV-9 | Two harness scenes whose SVG labels overlapped each other and the rings | Phase 8 |
+| CV-10 | The product addressed the reader in 55 places | Phase 1 |
+
+### Defects this plan introduced and fixed inside it
+
+| ID | Defect | Found by | Fixed in |
+|---|---|---|---|
+| BG-17 | The fit pass measured a `max-width`-capped box, so no label ever shrank and whole scenes overflowed | `test_every_scene_child_stays_inside_its_scene_box` | Phase 1 |
+| BG-18 | A `nowrap` heading inflated a `1fr` scene track to 753px inside a 672px scene, and the fit pass then read the inflated track as available room | same | Phase 1 |
+| BG-19 | A fixed pixel `max-width` on the guardrails ring, which the v4.2.3 responsive rule forbids on a text-bearing element | `test_no_hardcoded_text_width_caps_remain` | Phase 4, shipped in Phase 2 |
+| BG-20 | Removing the budget CSS also unstyled the harness trail, which had borrowed those rules; it rendered with no border, no background, and no columns for four commits | Phase 8 rebuild, then a new class-coverage guard | Phase 8, shipped in Phase 4 |
+| BG-21 | `width: max-content` on the harness model box pushed both rings 88px outside the scene at 320px | `test_every_scene_child_stays_inside_its_scene_box[320]` | Phase 8 |
+| BG-22 | The `.fx-mat--row` modifier lost to `.fx-mat` on source order, so the wide material row stayed two columns | direct measurement | Phase 5 |
+| BG-23 | The merged harness label was 66 characters, which cannot hold one line at 720px above the 15px floor | `test_no_heading_wraps_from_720_upward` | Phase 8 |
+
+### Pre-existing defects found and closed
+
+| ID | Defect | Note |
+|---|---|---|
+| BG-24 | The hero lockup's seven-second infinite float had NO reduced-motion state | Exposed by Phase 5: removing the ring left the lockup as the only continuous animation, and the old assertion covered the ring instead of it. One rule added. |
+| BG-25 | `test_harness_svg_text_stays_inside_its_viewbox` would have passed vacuously once its selector matched nothing | Rewritten over the HTML figure, where it measures every leaf's glyph run against its own box at six widths. |
+
+### Open
+
+- **`CQ-1` (carried from v4.4.2)** CodeQL `js/xss-through-dom` on the guide's media toggle. The toggle itself was REMOVED in Phase 5, so the flagged assignment no longer exists in the shipped file. The alert should be re-evaluated on the next scan rather than assumed closed; if it clears, close `CQ-1` then.
+- **`HT-4` No human comprehension cohort for the rebuilt illustrations.** Owner: operator. The whole point of this version is that the pictures read on first look, and that claim is measured only by geometry and contrast, never by a reader. The operator's own review is the intended next step and is why this version is unpublished.
+- **`HT-2` (carried from v4.4.1)** Real current-host installer run and the operator's config repair. Untouched by this plan.
+- **`QG-1` (carried from v4.4.2)** Six PowerShell core-settings seeding tests fail only under the CI profile runner's `PYTHONUTF8=1`.
+
+### Deviations recorded
+
+- **`D2` relaxed with arithmetic.** No heading wraps at 720px and wider. Below 720px the fit pass holds a 15px floor and hands wrapping back, because one line at 320px costs about 8px of type; nothing spills past its container at any width. Recorded in the phase contract.
+- **The label is now larger than the title.** The review named both numbers (triple the label, halve the title), which converges them at about 33px and inverts the usual hierarchy. Shipped exactly as asked, and flagged for the review.
+- **Product names against vendor marks.** The four platform chips label the product while the mark belongs to the vendor: Claude Code carries the Claude mark, Codex the ChatGPT mark, Antigravity the Gemini mark. Cursor is exact. Recorded in the asset provenance ledger with the reason the linked aggregator was not used.
+- **One second sanitization of an approved asset.** The Gemini mark's 13 internal ids are re-namespaced in its second instance, because a duplicate id would make the second copy resolve its mask and filters against the first. The test derives the variant from the approved bytes so the prefix is provably the only change.
+- **Two commits in Phase 2 and Phase 8 carry work belonging to an adjacent task.** Phase 2 carries the table column widths (a Phase 1 refinement found after that commit), and Phase 8 carries three count updates caused by its own scene merge. Both are stated in their histories.
