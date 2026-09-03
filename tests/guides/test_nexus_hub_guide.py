@@ -577,7 +577,7 @@ def test_home_hero_restores_the_v412_subtitle_and_lead(guide_text: str) -> None:
     assert "hero-tagline" not in home, "the v4.4.1 tagline is replaced by the v4.1.2 statement"
     sub = re.search(r'<h2 class="hero-subtitle">([\s\S]*?)</h2>', home)
     assert sub and re.sub(r"<[^>]+>", "", sub.group(1)) == (
-        "Upgrade your agentic AI platforms with an autonomous team of world experts"
+        "Upgrade any agentic AI platform with an autonomous team of world experts"
     )
     assert '<span class="gtext">autonomous team of world experts</span>' in sub.group(1)
     lead = re.search(r'<p class="hero-lead">([^<]+)</p>', home)
@@ -901,7 +901,7 @@ def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
         )
     text = re.sub(r"<[^>]+>", " ", scene).lower()
     assert "same request" in text
-    assert "answer handoff" in text and "you apply and check" in text
+    assert "answer handoff" in text and "every step is applied and checked" in text
     assert "work handoff" in text and "saved change" in text and "check result" in text
     assert re.search(r"chatbots?.{0,100}(?:can|may|increasingly).{0,60}tools", text)
     assert "where the work happens" in text
@@ -1004,7 +1004,7 @@ def test_foundations_model_lifecycle_is_chronological_and_responsive(
         positions.append(scene.index(marker))
     assert positions == sorted(positions), "lifecycle stages are out of order"
     assert scene.index('data-region="provider"') < scene.index('data-region="user"')
-    assert "happens long before your request" in scene
+    assert "happens long before any request" in scene
     assert "never retrains" in scene
     text = re.sub(r"<[^>]+>", " ", scene).lower()
     assert re.search(r"effort level.{0,200}when supported", text, re.DOTALL)

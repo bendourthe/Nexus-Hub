@@ -188,7 +188,13 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
             context, page = _open(browser)
             sizes = page.evaluate(
                 "() => [...document.querySelectorAll('.section-title')]"
-                ".map(e => Math.round(parseFloat(getComputedStyle(e).fontSize)))"
+                ".map(e => Math.round(parseFloat(e.getAttribute('data-fit-base'))))"
+            )
+            fitted = page.evaluate(
+                "() => [...document.querySelectorAll('.page.active .section-title')].map(e => ({"
+                "  base: parseFloat(e.getAttribute('data-fit-base')),"
+                "  now: parseFloat(getComputedStyle(e).fontSize),"
+                "  wrap: e.getAttribute('data-fit-wrap') }))"
             )
             training_title = page.evaluate(
                 "() => Math.round(parseFloat(getComputedStyle(document.querySelector('[data-nht=\"title\"]')).fontSize))"
@@ -209,9 +215,16 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
         finally:
             browser.close()
     assert len(sizes) == 24, f"expected 24 section titles across the four pages, found {len(sizes)}"
-    assert len(set(sizes)) == 1, f"one shared scale expected, got {sorted(set(sizes))}"
-    # v4.4.1 rendered h2 at 1.7rem (27.2px) at 1440; the token was tuned to 2.4 in Phase 7 (65.3px).
-    assert 64 <= sizes[0] <= 67, sizes[0]
+    assert len(set(sizes)) == 1, f"one shared stylesheet size expected, got {sorted(set(sizes))}"
+    # v4.4.1 rendered h2 at 1.7rem (27.2px); v4.4.2 tuned the token to 2.4 (65.3px); the v4.4.3
+    # review halved it to 1.2 (32.6px) and tripled the label instead. The RENDERED size is now
+    # per-container, because NexusFit shrinks anything that would wrap, so only the base is shared.
+    assert 32 <= sizes[0] <= 34, sizes[0]
+    assert fitted, "no active-page titles measured"
+    for row in fitted:
+        assert row["now"] <= row["base"] + 0.5, row
+        assert row["now"] >= 15, row
+        assert row["wrap"] in ("nowrap", "normal"), row
     assert training_title < 40, "the Training slide title is not a section title and must not scale"
     bad = {k: v for k, v in overflow.items() if v > 1}
     assert not bad, f"horizontal overflow at (width, page): {bad}"

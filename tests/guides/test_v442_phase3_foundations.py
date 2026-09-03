@@ -101,10 +101,17 @@ def test_scene_subtitles_are_eyebrows_above_their_titles(playwright_mod) -> None
                     const sub = t.querySelector('.fx-subtitle'), h2 = t.querySelector('h2.section-title');
                     const eyebrow = getComputedStyle(document.querySelector('#page-home .eyebrow'));
                     const cs = getComputedStyle(sub);
+                    const home = document.querySelector('#page-home .eyebrow');
+                    /* v4.4.3 fits each label to its own container, so the RENDERED px legitimately
+                       differ between a full-width Home section and a narrow scene column. The
+                       primitive is the same when the stylesheet size matches and the tracking is
+                       the same proportion of the type size. */
+                    const ratio = el => parseFloat(getComputedStyle(el).letterSpacing) / parseFloat(getComputedStyle(el).fontSize);
                     return { above: sub.getBoundingClientRect().bottom <= h2.getBoundingClientRect().top + 1,
                              docOrder: sub.compareDocumentPosition(h2) & Node.DOCUMENT_POSITION_FOLLOWING ? true : false,
-                             size: cs.fontSize === eyebrow.fontSize, transform: cs.textTransform === eyebrow.textTransform,
-                             spacing: cs.letterSpacing === eyebrow.letterSpacing };
+                             size: sub.getAttribute('data-fit-base') === home.getAttribute('data-fit-base'),
+                             transform: cs.textTransform === eyebrow.textTransform,
+                             spacing: Math.abs(ratio(sub) - ratio(home)) < 0.005 };
                 })"""
             )
         finally:

@@ -249,23 +249,26 @@ h2 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); line-height: 1.2; letter-spacing:
    three times the v4.4.1 size as a starting point; the token is tuned from renders in
    Phase 7, never by editing selectors. The minimum bound is 0.6x of the scaled floor so a
    320px viewport cannot be forced into horizontal overflow by one long word. */
-/* Tuned in v4.4.2 Phase 7 from renders: at 3 the word "Engineering" could not fit a Foundations copy
-   column at 1440px and wrapped titles to three lines; 2.4 (about 65px, 2.4x v4.4.1) keeps every title
-   at two lines or fewer at 1440 and under 40 percent of the viewport height at 420. */
-:root { --title-scale: 2.4; }
+/* v4.4.3: the operator's direct review of the v4.4.2 build asked for the pair to swap weight -- the
+   segment label three times larger, the segment title half its size -- so the label carries the section
+   and the title stops dominating the viewport. Two tokens, never edited per selector. Nothing here can
+   guarantee a single line on its own, because a fixed size cannot know the container: NexusFit shrinks
+   any label or title that would wrap, down to a 15px floor. */
+:root { --title-scale: 1.2; --eyebrow-scale: 3; }
 .section-title {
-  font-size: clamp(calc(1.2rem * var(--title-scale) * .6), calc(2.4vw * var(--title-scale)), calc(1.7rem * var(--title-scale)));
+  font-size: clamp(calc(1.2rem * var(--title-scale)), calc(2.4vw * var(--title-scale)), calc(1.7rem * var(--title-scale)));
   line-height: 1.05; letter-spacing: -.02em; text-wrap: balance; overflow-wrap: break-word;
-  margin: 0 0 var(--sp-4);
+  min-width: 0; margin: 0 0 var(--sp-4);
 }
 h3 { font-size: 1.1rem; margin: 0 0 var(--sp-2); }
 p { margin: 0 0 var(--sp-3); }
 .lead { font-size: 17.5px; color: var(--ink-dim); }
 .eyebrow {
-  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .14em;
+  display: block; max-width: 100%; min-width: 0; font-size: calc(11px * var(--eyebrow-scale));
+  font-weight: 700; letter-spacing: .1em; line-height: 1.15;
   text-transform: uppercase; color: var(--teal-soft); margin-bottom: var(--sp-2);
 }
-.eyebrow::before { content: ""; display: inline-block; width: 18px; height: 2px; background: var(--accent); vertical-align: middle; margin-right: 8px; border-radius: 2px; }
+.eyebrow::before { content: ""; display: inline-block; width: calc(9px * var(--eyebrow-scale)); height: 3px; background: var(--accent); vertical-align: middle; margin-right: 10px; border-radius: 2px; }
 
 /* ---------- NexusSeq step primitives ----------
    A [data-seq-root] container reveals its [data-seq=N] children in order. Scoped to .js so
@@ -360,7 +363,16 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
 
 /* ---------- Command migration table ---------- */
 .tbl-migrate { width: 100%; border-collapse: collapse; margin-top: var(--sp-4); font-size: 14.5px; }
-.tbl-migrate th { text-align: left; font: 700 11px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); padding: 0 10px 10px; border-bottom: 1px solid var(--border); }
+.tbl-migrate th {
+  text-align: left; font: 750 26px var(--sans); letter-spacing: .06em; line-height: 1.1;
+  text-transform: uppercase; padding: 0 10px 12px; border-bottom: 1px solid var(--border-bright);
+}
+/* Column grades match the comparison labels exactly: the before-state in amber, the Nexus Hub
+   column in the accent, the gain in full-contrast ink. */
+.tbl-migrate th:nth-child(1) { color: var(--amber); }
+.tbl-migrate th:nth-child(2) { color: var(--accent); }
+.tbl-migrate th:nth-child(3) { color: var(--ink); }
+@media (max-width: 900px) { .tbl-migrate th { font-size: 20px; } }
 .tbl-migrate td { padding: 12px 10px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--ink-dim); }
 .tbl-migrate td:first-child code, .tbl-migrate td:nth-child(2) code { white-space: nowrap; }
 .tbl-migrate .muted { display: block; font-size: 12px; color: var(--ink-faint); margin-top: 3px; }
@@ -396,7 +408,7 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
 /* A scene whose diagram and copy cannot balance stacks: copy above, diagram full width. */
 /* Compound selectors on purpose: .fx-scene (defined later, same specificity) would otherwise win
    on source order, and .fx-copy p (two components) beats a lone .fx-subtitle. */
-.fx-scene.fx-stack { grid-template-columns: 1fr; align-items: start; }
+.fx-scene.fx-stack { grid-template-columns: minmax(0, 1fr); align-items: start; }
 .fx-scene.fx-stack .fx-diagram--narrow { width: 100%; }
 .fx-duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
 .fx-duo > * { margin-top: 0; }
@@ -698,10 +710,10 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-scene:first-of-type { border-top: 0; }
 /* Full width is the exception now: only a scene whose content is intrinsically two-across
    keeps it. Making it the default is what made Foundations 7,235px tall at 1440. */
-.fx-wide { grid-template-columns: 1fr; }
+.fx-wide { grid-template-columns: minmax(0, 1fr); }
 .fx-title { margin-bottom: var(--sp-3); }
-.fx-copy .fx-subtitle, .fx-subtitle { display: inline-block; margin: 0 0 var(--sp-2); color: var(--teal-soft); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; line-height: 1.4; }
-.fx-subtitle::before { content: ""; display: inline-block; width: 18px; height: 2px; background: var(--accent); vertical-align: middle; margin-right: 8px; border-radius: 2px; }
+.fx-copy .fx-subtitle, .fx-subtitle { display: block; max-width: 100%; min-width: 0; margin: 0 0 var(--sp-2); color: var(--teal-soft); font-size: calc(11px * var(--eyebrow-scale)); line-height: 1.15; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; line-height: 1.4; }
+.fx-subtitle::before { content: ""; display: inline-block; width: calc(9px * var(--eyebrow-scale)); height: 3px; background: var(--accent); vertical-align: middle; margin-right: 10px; border-radius: 2px; }
 .fx-title h2 { margin-bottom: var(--sp-3); }
 .fx-copy h2 { text-wrap: balance; }
 .fx-copy p { font-size: 15.5px; color: var(--ink-dim); }
@@ -893,7 +905,7 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 }
 .fx-bridge { border-top: 1px solid var(--border); }
 @media (max-width: 980px) {
-  .fx-scene { grid-template-columns: 1fr; gap: var(--sp-4); }
+  .fx-scene { grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); }
 }
 
 /* ---------- Training walkthrough ---------- */
@@ -1424,7 +1436,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <h1 class="hero-wordmark"><b>Nexus</b> <span>Hub</span></h1>
           </div>
         </div>
-        <h2 class="hero-subtitle">Upgrade your agentic AI platforms with an <span class="gtext">autonomous team of world experts</span></h2>
+        <h2 class="hero-subtitle">Upgrade any agentic AI platform with an <span class="gtext">autonomous team of world experts</span></h2>
           <p class="hero-lead">Nexus Hub is an advanced harness for agentic AI platforms. It gives Claude, ChatGPT, Gemini, Cursor, and most other commonly used systems access to multidisciplinary field experts, robust workflows, and quality gates that cover the full project lifecycle.</p>
         <ul class="platform-rail" aria-label="Compatible AI platforms">
           <li class="platform-item" data-platform="Claude">
@@ -1457,7 +1469,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
 <section class="section reveal" id="nhg-why">
 <span class="eyebrow">Why it matters</span>
-<h2 class="section-title">What you get that raw prompting can't give you</h2>
+<h2 class="section-title">What raw prompting cannot deliver</h2>
 <div class="grid grid-4">
 <div class="card"><div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div><h3>Consistency</h3><p>One governed workflow for everyone, whoever wrote the prompt.</p></div>
 <div class="card"><div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 8-4.5-.5-8-3-8-8V7z"/></svg></div><h3>Depth</h3><p><span data-count="skills">329</span> skills encode expert procedures, loaded only when needed.</p></div>
@@ -1468,8 +1480,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="section reveal" id="nhg-install">
         <span class="eyebrow">Installation</span>
-        <h2 class="section-title">One command, then restart your assistant</h2>
-        <p>Paste the line for your system. The installer copies the catalog into <code>~/.nexus-hub/</code>, wires every assistant it detects, and preserves files you customized. There is no download to unzip first.</p>
+        <h2 class="section-title">One command, then an assistant restart</h2>
+        <p>Paste the line for the target system. The installer copies the catalog into <code>~/.nexus-hub/</code>, wires every assistant it detects, and preserves customized files. There is no download to unzip first.</p>
         <div class="nhg-install-wrap" data-tabs data-nhg-keys="self">
           <div class="tab-btns" role="tablist" aria-label="Install command by operating system">
             <button type="button" class="tab-btn active" id="install-tab-win" data-tab="win" role="tab" aria-selected="true" aria-controls="install-panel-win">Windows</button>
@@ -1497,18 +1509,18 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           <li>
             <span class="vs-n" aria-hidden="true">1</span>
             <div class="vs-body">
-              <p class="vs-do">Check that it installed. Run either command in your assistant:</p>
+              <p class="vs-do">Check that it installed. Run either command in the assistant:</p>
               <div class="vs-cmds">
                 <span class="cmd-cell"><code class="inv" data-copy="/skills list"><span class="inv-cmd">/skills</span> <span class="inv-arg">list</span></code></span>
                 <span class="cmd-cell"><code class="inv" data-copy="/commands"><span class="inv-cmd">/commands</span></code></span>
               </div>
-              <p class="vs-note">You should see the command cheatsheet.</p>
+              <p class="vs-note">The command cheatsheet appears.</p>
             </div>
           </li>
           <li>
             <span class="vs-n" aria-hidden="true">2</span>
             <div class="vs-body">
-              <p class="vs-do">Restart your assistant.</p>
+              <p class="vs-do">Restart the assistant.</p>
               <p class="vs-note">Hooks and rules load at startup, so they only take effect after a restart.</p>
             </div>
           </li>
@@ -1534,11 +1546,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 <section class="section reveal" id="nhg-how">
 <span class="eyebrow">How it works</span>
 <h2 class="section-title">Three things make this more than a prompt library</h2>
-<p class="lead">Skills that load themselves, hooks the model cannot talk past, and governance that holds output to your written rules.</p>
+<p class="lead">Skills that load themselves, hooks the model cannot talk past, and governance that holds output to written rules.</p>
 <div class="grid grid-3">
-<div class="card card--rail"><div class="step-no">SKILLS</div><h3>Procedures that auto-load</h3><p><span data-count="skills">329</span> senior-level procedures. The agent triggers the right one from your task; three-tier loading keeps only a summary in context until one is needed.</p></div>
+<div class="card card--rail"><div class="step-no">SKILLS</div><h3>Procedures that auto-load</h3><p><span data-count="skills">329</span> senior-level procedures. The agent triggers the right one from the task; three-tier loading keeps only a summary in context until one is needed.</p></div>
 <div class="card card--rail card--rail-cyan"><div class="step-no">HOOKS</div><h3>Guardrails it cannot bypass</h3><p>Where skills advise, hooks enforce. <span data-count="hooks">30</span> scripts fire on tool events and block the action outright, whether or not the model remembered to be careful.</p></div>
-<div class="card card--rail card--rail-blue"><div class="step-no">GOVERNANCE</div><h3>Aligned to your rules</h3><p>Write MUST and SHOULD norms with <code>/constitution</code>; every <code>/plan</code> checks against them and <code>/spec</code> clarifies a vague request before code is written.</p></div>
+<div class="card card--rail card--rail-blue"><div class="step-no">GOVERNANCE</div><h3>Aligned to the project's rules</h3><p>Write MUST and SHOULD norms with <code>/constitution</code>; every <code>/plan</code> checks against them and <code>/spec</code> clarifies a vague request before code is written.</p></div>
 </div>
 </section>
 
@@ -1589,7 +1601,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <li class="cmp-row" style="--i:0">
               <h3 class="cmp-k">Portability</h3>
               <div class="cmp-pair">
-                <p class="cmp-a">Built-in commands stay on the assistant you set them up in.</p>
+                <p class="cmp-a">Built-in commands stay on the assistant they were set up in.</p>
                 <span class="cmp-go" aria-hidden="true"><svg viewBox="0 0 40 12"><path class="cmp-line" pathLength="1" d="M2 6 H30"/><path class="cmp-tip" d="M28 2 L34 6 L28 10 Z"/></svg></span>
                 <p class="cmp-b">One catalog installs into every assistant it detects.</p>
               </div>
@@ -1597,7 +1609,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <li class="cmp-row" style="--i:1">
               <h3 class="cmp-k">Reusable procedures</h3>
               <div class="cmp-pair">
-                <p class="cmp-a">You re-explain the job every session.</p>
+                <p class="cmp-a">The job gets re-explained every session.</p>
                 <span class="cmp-go" aria-hidden="true"><svg viewBox="0 0 40 12"><path class="cmp-line" pathLength="1" d="M2 6 H30"/><path class="cmp-tip" d="M28 2 L34 6 L28 10 Z"/></svg></span>
                 <p class="cmp-b">Skills load on demand; a command starts the same workflow each time.</p>
               </div>
@@ -1644,18 +1656,18 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
 <section class="section reveal" id="nhg-commands">
 <span class="eyebrow">Coming from Claude Code or Codex?</span>
-<h2 class="section-title">Your favorite commands, leveled up</h2>
+<h2 class="section-title">Familiar commands, leveled up</h2>
 <p class="lead">Built-ins like <code>/goal</code>, <code>/loop</code>, and <code>/batch</code> are engines: they keep the agent working. Nexus Hub adds the goal worth pursuing and the standard to hit.</p>
 <table class="tbl-migrate">
-<thead><tr><th>You're used to</th><th>In Nexus Hub</th><th>What you gain</th></tr></thead>
+<thead><tr><th>Already familiar</th><th>In Nexus Hub</th><th>What it adds</th></tr></thead>
 <tbody>
-<tr><td data-th="You're used to"><code>/goal &lt;condition&gt;</code><span class="muted">work until a validator passes</span></td><td data-th="In Nexus Hub"><code>/plan</code> &rarr; <code>/implement</code></td><td data-th="What you gain">A written definition of done and phased GO / NO-GO gates. Point <code>/goal</code> at the plan instead of a one-line guess.</td></tr>
-<tr><td data-th="You're used to"><code>/grill</code><span class="muted">a tough code grilling</span></td><td data-th="In Nexus Hub"><code>/review</code> + <code>/spec clarify</code></td><td data-th="What you gain">A scoped, severity-ranked audit with a written verdict; <code>/spec clarify</code> interrogates the requirements first.</td></tr>
-<tr><td data-th="You're used to"><code>/loop &lt;prompt&gt;</code><span class="muted">re-run on a clock</span></td><td data-th="In Nexus Hub"><code>/implement</code> + <code>/test</code></td><td data-th="What you gain">The loop gains a quality gate and an 80 percent coverage threshold. Drive those with <code>/loop</code>, not raw prompts.</td></tr>
-<tr><td data-th="You're used to"><code>/batch &lt;instruction&gt;</code><span class="muted">parallel worktrees</span></td><td data-th="In Nexus Hub"><code>/plan</code> &rarr; <code>/implement</code></td><td data-th="What you gain">Decomposition by a reviewed plan with <code>T###</code> tasks, so parallel work converges on a definition of done.</td></tr>
-<tr><td data-th="You're used to"><code>/init</code><span class="muted">a starter CLAUDE.md</span></td><td data-th="In Nexus Hub"><code>/setup</code> + <code>/describe</code></td><td data-th="What you gain">Structure, gitignore, and the review hook too; <code>/describe</code> maps an inherited repo first.</td></tr>
-<tr><td data-th="You're used to"><code>/review</code>, <code>/security-review</code><span class="muted">a built-in review pass</span></td><td data-th="In Nexus Hub"><code>/review full</code></td><td data-th="What you gain">Every lens in one entry point, synthesized into a single GO / NO-GO verdict.</td></tr>
-<tr><td data-th="You're used to"><code>/compact</code>, <code>/rewind</code><span class="muted">session mechanics</span></td><td data-th="In Nexus Hub"><span class="muted-cell">keep using them</span></td><td data-th="What you gain">Harness plumbing with no Nexus Hub equivalent. The workflow layers on top and never touches them.</td></tr>
+<tr><td data-th="Already familiar"><code>/goal &lt;condition&gt;</code><span class="muted">work until a validator passes</span></td><td data-th="In Nexus Hub"><code>/plan</code> &rarr; <code>/implement</code></td><td data-th="What it adds">A written definition of done and phased GO / NO-GO gates. Point <code>/goal</code> at the plan instead of a one-line guess.</td></tr>
+<tr><td data-th="Already familiar"><code>/grill</code><span class="muted">a tough code grilling</span></td><td data-th="In Nexus Hub"><code>/review</code> + <code>/spec clarify</code></td><td data-th="What it adds">A scoped, severity-ranked audit with a written verdict; <code>/spec clarify</code> interrogates the requirements first.</td></tr>
+<tr><td data-th="Already familiar"><code>/loop &lt;prompt&gt;</code><span class="muted">re-run on a clock</span></td><td data-th="In Nexus Hub"><code>/implement</code> + <code>/test</code></td><td data-th="What it adds">The loop gains a quality gate and an 80 percent coverage threshold. Drive those with <code>/loop</code>, not raw prompts.</td></tr>
+<tr><td data-th="Already familiar"><code>/batch &lt;instruction&gt;</code><span class="muted">parallel worktrees</span></td><td data-th="In Nexus Hub"><code>/plan</code> &rarr; <code>/implement</code></td><td data-th="What it adds">Decomposition by a reviewed plan with <code>T###</code> tasks, so parallel work converges on a definition of done.</td></tr>
+<tr><td data-th="Already familiar"><code>/init</code><span class="muted">a starter CLAUDE.md</span></td><td data-th="In Nexus Hub"><code>/setup</code> + <code>/describe</code></td><td data-th="What it adds">Structure, gitignore, and the review hook too; <code>/describe</code> maps an inherited repo first.</td></tr>
+<tr><td data-th="Already familiar"><code>/review</code>, <code>/security-review</code><span class="muted">a built-in review pass</span></td><td data-th="In Nexus Hub"><code>/review full</code></td><td data-th="What it adds">Every lens in one entry point, synthesized into a single GO / NO-GO verdict.</td></tr>
+<tr><td data-th="Already familiar"><code>/compact</code>, <code>/rewind</code><span class="muted">session mechanics</span></td><td data-th="In Nexus Hub"><span class="muted-cell">keep using them</span></td><td data-th="What it adds">Harness plumbing with no Nexus Hub equivalent. The workflow layers on top and never touches them.</td></tr>
 </tbody>
 </table>
 <div class="callout callout--star"><span class="ci" aria-hidden="true">&#9733;</span><p><strong>The mental shift:</strong> generic commands optimize how the agent runs. Nexus Hub optimizes what it produces and to what standard. The command is the engine; Nexus Hub is the steering wheel and the finish line.</p></div>
@@ -1678,12 +1690,12 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           <span class="loop-arrow" aria-hidden="true">&rarr;</span>
           <a role="listitem" class="loop-step seq-glow" data-seq="6" data-seq-dur="550" href="#cheatsheets/ship" data-go="cheatsheets/ship"><code>/update</code><span>ship it</span></a>
         </div>
-        <p class="lead">Training walks this exact loop on a real, deliberately buggy app &mdash; with a simulated terminal you can run yourself.</p>
+        <p class="lead">Training walks this exact loop on a real, deliberately buggy app &mdash; with a simulated terminal to drive hands-on.</p>
       </section>
 
       <section class="section reveal">
         <span class="eyebrow">Next</span>
-        <h2 class="section-title">Learn it, then run it on your project</h2>
+        <h2 class="section-title">Learn it, then run it on a real project</h2>
         <p>Training teaches the full loop on a playable Asteroids project. Run every command, inspect each file it produces, and verify the behavior in this page; there is nothing to download.</p>
         <div class="btn-row">
           <a class="btn btn--primary" href="#training" data-go="training">Open Training</a>
@@ -1713,13 +1725,13 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <p class="fx-subtitle">The units a model actually reads</p>
             <h2 id="fx-tokens-title" class="section-title">Tokens Definition</h2>
           </div>
-          <p>A model never sees your words. It sees <strong>tokens</strong>: the small pieces your text is cut into first. A token can be a whole word, part of one, a punctuation mark, or a space attached to the word after it.</p>
+          <p>A model never sees words. It sees <strong>tokens</strong>: the small pieces text is cut into first. A token can be a whole word, part of one, a punctuation mark, or a space attached to the word after it.</p>
           <p>This is the real <code>cl100k_base</code> split. Other models cut the same sentence differently, so there is no fixed words-to-tokens ratio. The count matters because it is what fills the working budget, and it is one factor in speed and in metered cost.</p>
         </div>
         <div class="fx-diagram">
           <div class="fx-duo">
           <figure class="fx-tokfig">
-            <figcaption class="fx-tokfig-cap">A prompt you might actually send</figcaption>
+            <figcaption class="fx-tokfig-cap">A prompt of the kind actually sent</figcaption>
             <p class="fx-tokprompt">Summarise this contract and list every deadline.</p>
             <p class="fx-tokfig-cap fx-tokfig-cap--mid">becomes 10 tokens</p>
             <ol class="fx-tokchips" aria-label="The ten tokens this prompt becomes, in order">
@@ -1797,8 +1809,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <p class="fx-subtitle">Stating the job so the result is checkable</p>
             <h2 id="fx-prompts-title" class="section-title">Prompt Engineering</h2>
           </div>
-          <p>The prompt is where you state <strong>the job</strong>. The same request can be asked in a way nobody could grade, or in a way anyone could check. That difference is the whole skill.</p>
-          <p>A useful prompt names the <strong>Goal</strong>, points at the <strong>Material</strong>, defines what <strong>Done</strong> means, and asks for a <strong>Format</strong> you can use. Miss one and the model has to guess, and it will guess confidently.</p>
+          <p>The prompt is where <strong>the job</strong> is stated. The same request can be asked in a way nobody could grade, or in a way anyone could check. That difference is the whole skill.</p>
+          <p>A useful prompt names the <strong>Goal</strong>, points at the <strong>Material</strong>, defines what <strong>Done</strong> means, and asks for a usable <strong>Format</strong>. Miss one and the model has to guess, and it will guess confidently.</p>
         </div>
         <div class="fx-diagram">
           <div class="fx-states" role="group" aria-label="The same request asked vaguely and then asked precisely">
@@ -1815,7 +1827,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="ann-legend-row" data-part="goal" data-seq="1"><dt>Goal</dt><dd>the job, stated so it can be graded</dd></div>
               <div class="ann-legend-row" data-part="material" data-seq="2"><dt>Material</dt><dd>what the job runs on</dd></div>
               <div class="ann-legend-row" data-part="done" data-seq="3"><dt>Done</dt><dd>the finish line</dd></div>
-              <div class="ann-legend-row" data-part="format" data-seq="4"><dt>Format</dt><dd>a shape you can use</dd></div>
+              <div class="ann-legend-row" data-part="format" data-seq="4"><dt>Format</dt><dd>a shape the work can use</dd></div>
               </dl>
               <p class="fx-state-why">Now the answer can be checked against the contract, line by line.</p>
             </article>
@@ -1828,8 +1840,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <p class="fx-subtitle">Choosing the material the job needs</p>
             <h2 id="fx-context-title" class="section-title">Context Engineering</h2>
           </div>
-          <p>The prompt states the job. <strong>Context</strong> is the material the job runs on, and it is separate from the words of your request. It can be an image, a file or document, a project folder or workspace, or a codebase.</p>
-          <p>Context is optional, and it is not free. Everything you attach shares one finite working budget measured in tokens, alongside the instructions, the conversation so far, and any tool results. Material can also be stale, duplicated, or simply too large to be worth its space.</p>
+          <p>The prompt states the job. <strong>Context</strong> is the material the job runs on, and it is separate from the words of the request. It can be an image, a file or document, a project folder or workspace, or a codebase.</p>
+          <p>Context is optional, and it is not free. Everything attached shares one finite working budget measured in tokens, alongside the instructions, the conversation so far, and any tool results. Material can also be stale, duplicated, or simply too large to be worth its space.</p>
           <p>So the skill is selection, not volume. Attaching the whole drive is not more helpful than attaching the two sections the question is about.</p>
         </div>
         <div class="fx-diagram">
@@ -1837,7 +1849,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <div class="fx-ctx-row">
               <div class="fx-ctx-query" id="fx-ann-context" data-seq-root data-seq-loop data-seq-hold="2400"><span class="fx-ctx-tag">The request and its material</span><p class="ann-text"><mark class="ann" data-part="request" data-seq="1" data-seq-dur="1100">Summarise this contract and list every deadline.</mark> <mark class="ann" data-part="context" data-seq="2" data-seq-dur="1100">Use the attached PDF, sections 4 to 9.</mark> <mark class="ann" data-part="context" data-seq="3" data-seq-dur="1600">Ignore the old chat history.</mark></p><dl class="ann-legend" aria-label="What each highlighted part is"><div class="ann-legend-row" data-part="request" data-seq="1"><dt>Request</dt><dd>the words of the job</dd></div><div class="ann-legend-row" data-part="context" data-seq="2"><dt>Context</dt><dd>material the job runs on, chosen, not dumped</dd></div></dl></div>
               <div class="fx-ctx-plus" aria-hidden="true">+</div>
-              <ul class="fx-ctx-kinds" aria-label="Optional context you can attach">
+              <ul class="fx-ctx-kinds" aria-label="Optional context that can be attached">
                 <li><span class="fx-ctx-kind">Image</span></li>
                 <li><span class="fx-ctx-kind">File or document</span></li>
                 <li><span class="fx-ctx-kind">Project folder or workspace</span></li>
@@ -1884,14 +1896,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <p class="fx-subtitle">Trained patterns, used one request at a time</p>
             <h2 id="fx-model-title" class="section-title">Models</h2>
           </div>
-          <p>A model is a trained system that turns a request into an output. Training <strong>happens long before your request</strong>: a provider trains on broad material, then releases the finished model into products and services. Your prompt never retrains it; each request simply runs through the patterns it already has.</p>
+          <p>A model is a trained system that turns a request into an output. Training <strong>happens long before any request</strong>: a provider trains on broad material, then releases the finished model into products and services. A prompt never retrains it; each request simply runs through the patterns it already has.</p>
           <p>Some model and platform combinations expose an <strong>effort level</strong> that, when supported, can allocate more computation or more work cycles to a request. More effort does not promise a fixed number of iterations; it buys the model room to work.</p>
           <p>The cycle shown here is an <strong>abstraction of work in progress, not a transcript of hidden reasoning</strong>. What comes back out can take more than one shape.</p>
         </div>
         <div class="fx-diagram">
           <div class="fx-model-flow" data-flow-root>
             <div data-flow-node class="fx-region" data-stage="training" data-region="provider">
-              <h3 class="fx-region-tag">The provider, long before you</h3>
+              <h3 class="fx-region-tag">The provider, long before any request</h3>
               <div class="fx-provider-row">
                 <div class="fx-mini-card"><span class="fx-mini-tag">Training</span><p>Learns patterns from broad material, once, at enormous scale</p></div>
                 <svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg>
@@ -1899,7 +1911,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               </div>
             </div>
             <div data-flow-node data-flow-root class="fx-region" data-stage="request" data-region="user">
-              <h3 class="fx-region-tag">Your request, much later</h3>
+              <h3 class="fx-region-tag">A request, much later</h3>
               <div data-flow-node><div class="fx-entry" data-grammar="entry"><div class="fx-ctx-query"><span class="fx-ctx-tag">Prompt</span><p>Summarise this contract and list every deadline.</p></div><div class="fx-ctx-plus" aria-hidden="true">+</div><ul class="fx-ctx-kinds fx-ctx-kinds--row" aria-label="Optional context attached to the request"><li><span class="fx-ctx-kind">Image</span></li><li><span class="fx-ctx-kind">File or document</span></li><li><span class="fx-ctx-kind">Project folder or workspace</span></li><li><span class="fx-ctx-kind">Codebase</span></li></ul></div></div>
               <div data-stage="work-cycle" data-flow-node><figure class="fx-cycle" data-grammar="work-cycle"><svg viewBox="0 0 76 76" role="img" aria-labelledby="fx-model-cycle-title"><title id="fx-model-cycle-title">An abstract work cycle: assess, act, check, repeated as needed</title><circle class="fx-cycle-ring" cx="38" cy="38" r="27" pathLength="1"/><path class="fx-head" d="M62 30 L69 38 L60 41 Z"/><circle class="fx-cycle-dot" cx="38" cy="11" r="4.5"/><text class="fxt fxt--accent" x="38" y="42" text-anchor="middle">work</text></svg><figcaption>An abstract work cycle inside the model. With a higher effort level, when supported, it can run longer. This is an illustration, not hidden chain-of-thought.</figcaption></figure></div>
               <div data-flow-node class="fx-outs" data-stage="output" aria-label="Four kinds of output one request can produce">
@@ -1917,7 +1929,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                     <img class="fx-out-motion" data-media="video" alt="A ten-frame sunrise: the sun climbs from behind two dark hills while the sky warms from night blue to dawn orange." src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgOTAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRGF3biBza3kgYWJvdmUgdHdvIGRhcmsgaGlsbHMgd2l0aCB0aGUgc3VuIGp1c3QgY2xlYXJpbmcgdGhlIHJpZGdlOiB0aGUgZmlyc3QgZnJhbWUgb2YgYSBzdW5yaXNlIGFuaW1hdGlvbiI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSI5MCIgZmlsbD0iIzE2MjY0NiIvPjxjaXJjbGUgY3g9Ijg0IiBjeT0iNTYuMCIgcj0iMTMiIGZpbGw9IiNmZmQ2NzgiLz48Y2lyY2xlIGN4PSI4NCIgY3k9IjU2LjAiIHI9IjkiIGZpbGw9IiNmZmVjYWEiLz48cG9seWdvbiBwb2ludHM9IjAsNjYgMjYsNTIgNTgsNjIgODgsNDggMTIwLDU4IDEyMCw5MCAwLDkwIiBmaWxsPSIjMTgyYzQyIi8+PHBvbHlnb24gcG9pbnRzPSIwLDc0IDE4LDYyIDQ0LDcyIDc0LDU4IDk4LDY4IDEyMCw2MCAxMjAsOTAgMCw5MCIgZmlsbD0iIzEwMjAyZSIvPjwvc3ZnPg==" data-poster-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgOTAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRGF3biBza3kgYWJvdmUgdHdvIGRhcmsgaGlsbHMgd2l0aCB0aGUgc3VuIGp1c3QgY2xlYXJpbmcgdGhlIHJpZGdlOiB0aGUgZmlyc3QgZnJhbWUgb2YgYSBzdW5yaXNlIGFuaW1hdGlvbiI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSI5MCIgZmlsbD0iIzE2MjY0NiIvPjxjaXJjbGUgY3g9Ijg0IiBjeT0iNTYuMCIgcj0iMTMiIGZpbGw9IiNmZmQ2NzgiLz48Y2lyY2xlIGN4PSI4NCIgY3k9IjU2LjAiIHI9IjkiIGZpbGw9IiNmZmVjYWEiLz48cG9seWdvbiBwb2ludHM9IjAsNjYgMjYsNTIgNTgsNjIgODgsNDggMTIwLDU4IDEyMCw5MCAwLDkwIiBmaWxsPSIjMTgyYzQyIi8+PHBvbHlnb24gcG9pbnRzPSIwLDc0IDE4LDYyIDQ0LDcyIDc0LDU4IDk4LDY4IDEyMCw2MCAxMjAsOTAgMCw5MCIgZmlsbD0iIzEwMjAyZSIvPjwvc3ZnPg==" data-motion-src="data:image/gif;base64,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" width="120" height="90">
                     <button type="button" class="fx-media-toggle" data-media-toggle aria-pressed="false">Play</button>
                   </span>
-                  <p class="fx-out-note">Plays only when you ask; the still frame is the resting state.</p>
+                  <p class="fx-out-note">Plays only on request; the still frame is the resting state.</p>
                 </figure>
                 <figure class="fx-out" data-output-kind="audio">
                   <figcaption class="fx-out-tag">Audio</figcaption>
@@ -1937,8 +1949,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <h2 id="fx-platform-title" class="section-title">Agentic Platform</h2>
           </div>
           <p>An agentic platform wraps the same model in a loop that can <strong>do</strong> things, not just say things. It starts exactly like the last scene: the same prompt, the same optional context.</p>
-          <p>The difference is what happens next. The platform's model plans the job and, when useful, coordinates <strong>specialized agents</strong> that work in parallel where the work is genuinely independent. Every action they take is routed through one <strong>permission and tool boundary</strong>: an agent can read or modify files and documents, and can generate and run commands or processes, only when the platform supports it and you permit it.</p>
-          <p>Results come back as <strong>observations</strong>: errors, status, output. The loop checks them, works again if needed, and ends with a report. No platform changes your machine unbidden; capability is always "can", "when supported", "when permitted".</p>
+          <p>The difference is what happens next. The platform's model plans the job and, when useful, coordinates <strong>specialized agents</strong> that work in parallel where the work is genuinely independent. Every action they take is routed through one <strong>permission and tool boundary</strong>: an agent can read or modify files and documents, and can generate and run commands or processes, only when the platform supports it and the operator permits it.</p>
+          <p>Results come back as <strong>observations</strong>: errors, status, output. The loop checks them, works again if needed, and ends with a report. No platform changes the machine unbidden; capability is always "can", "when supported", "when permitted".</p>
         </div>
         <div class="fx-diagram">
           <div class="fx-model-flow" data-flow-root>
@@ -1977,7 +1989,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <dl class="fx-parts">
                 <div class="fx-part"><dt>Boundary</dt><dd>The conversation window. The work surface stays untouched.</dd></div>
                 <div class="fx-part"><dt>Action</dt><dd>Generates guidance and a draft summary in the chat.</dd></div>
-                <div class="fx-part"><dt>Outcome</dt><dd>An <strong>answer handoff</strong>: you apply and check every step yourself.</dd></div>
+                <div class="fx-part"><dt>Outcome</dt><dd>An <strong>answer handoff</strong>: every step is applied and checked by hand.</dd></div>
                 <div class="fx-part"><dt>Leaves behind</dt><dd>A transcript to copy from.</dd></div>
               </dl>
             </article>
@@ -1986,14 +1998,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <h3 class="fx-state-tag">Agentic platform</h3>
               <p class="fx-state-line">The same request, the same context.</p>
               <dl class="fx-parts">
-                <div class="fx-part"><dt>Boundary</dt><dd>Your work surface, behind the permission and tool boundary.</dd></div>
+                <div class="fx-part"><dt>Boundary</dt><dd>The work surface, behind the permission and tool boundary.</dd></div>
                 <div class="fx-part"><dt>Action</dt><dd>May, when permitted and supported, inspect the material, run processes, edit files or documents, and verify the result.</dd></div>
-                <div class="fx-part"><dt>Outcome</dt><dd>A <strong>work handoff</strong>: a report plus a saved change you can check result by result.</dd></div>
+                <div class="fx-part"><dt>Outcome</dt><dd>A <strong>work handoff</strong>: a report plus a saved change that can be checked result by result.</dd></div>
                 <div class="fx-part"><dt>Leaves behind</dt><dd>Durable artifacts in the work itself, not only words about it.</dd></div>
               </dl>
             </article>
           </div>
-          <p class="fx-diagram-note">Neither lane promises success. The chatbot lane hands you an answer to act on; the agentic lane, with your permission, acts and shows its checks.</p>
+          <p class="fx-diagram-note">Neither lane promises success. The chatbot lane hands back an answer to act on; the agentic lane, with permission, acts and shows its checks.</p>
         </div>
       </section>
       <section class="fx-scene fx-stack reveal" id="fx-harness" aria-labelledby="fx-harness-title">
@@ -2047,7 +2059,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <p class="fx-subtitle">One governed loop that leaves a durable trail</p>
             <h2 id="fx-practice-title" class="section-title">Nexus Hub Harness</h2>
           </div>
-          <p>Nexus Hub is a <strong>portable workflow layer above</strong> that built-in capability. It does not replace the model, and it does not replace the platform runtime; it standardizes how the work is asked for, gated, and recorded, whichever platform you prefer.</p>
+          <p>Nexus Hub is a <strong>portable workflow layer above</strong> that built-in capability. It does not replace the model, and it does not replace the platform runtime; it standardizes how the work is asked for, gated, and recorded, whichever platform is in use.</p>
         </div>
         <div class="fx-diagram">
           <figure class="fx-hstack is-nexus-focus" id="fx-hstack-nexus" data-seq-root data-seq-loop data-seq-hold="3000">
@@ -2103,14 +2115,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <p class="fx-state-why">Each step leaves a file the next step reads &mdash; the artifacts <strong>chain</strong>, so the work survives the session that produced it.</p>
             </div>
           </div>
-          <p class="fx-diagram-note">The takeaway: keep the platform you prefer, add the workflow. The same job, asked the same way, gated the same way, leaving the same trail &mdash; everywhere.</p>
+          <p class="fx-diagram-note">The takeaway: keep the preferred platform, add the workflow. The same job, asked the same way, gated the same way, leaving the same trail &mdash; everywhere.</p>
         </div>
       </section>
 
       <section class="section reveal fx-bridge">
         <span class="eyebrow">Next</span>
         <h2 class="section-title">That is the whole mental model</h2>
-        <p>Training runs this loop on a small project with real problems in it &mdash; you press the keys and watch each step happen.</p>
+        <p>Training runs this loop on a small project with real problems in it &mdash; every key press is real and each step happens in view.</p>
         <div class="btn-row">
           <a class="btn btn--primary" href="#training" data-go="training">Open Training</a>
           <a class="btn" href="#cheatsheets" data-go="cheatsheets">Open Cheatsheets</a>
@@ -2166,7 +2178,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                   <span class="nag-tag" data-arcade="mode">seeded bug</span>
                 </div>
                 <div class="nag-stage" data-arcade="stage">
-                  <canvas class="nag-canvas" data-arcade-canvas width="360" height="480" aria-label="Playable arcade shooter. Use Left and Right arrows or A and D to move, and Space or a click to fire. Up and Down work after the vertical-movement feature is added.">Your browser cannot display the game canvas.</canvas>
+                  <canvas class="nag-canvas" data-arcade-canvas width="360" height="480" aria-label="Playable arcade shooter. Use Left and Right arrows or A and D to move, and Space or a click to fire. Up and Down work after the vertical-movement feature is added.">This browser cannot display the game canvas.</canvas>
                   <div class="nag-fallback" id="nagFallback" data-arcade-fallback hidden role="status"></div>
                   <div class="nag-start" data-arcade="start-overlay">
                     <button type="button" class="nag-start-btn" data-arcade-start>Click to start</button>
@@ -2205,7 +2217,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="term term--nht" data-nht="terminal">
                 <div class="term-bar">
                   <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-                  <span class="label">your assistant &middot; simulated</span>
+                  <span class="label">assistant &middot; simulated</span>
                 </div>
                 <div class="term-body">
                   <div class="cmd-line nht-cmd">
@@ -2290,8 +2302,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="cs-group" id="cs-explore">
         <span class="eyebrow">Understand and evaluate</span>
-        <h2 class="section-title">Find out what you are dealing with</h2>
-        <p>Read-only commands. They write reports; they never edit your code.</p>
+        <h2 class="section-title">Find out what the codebase really is</h2>
+        <p>Read-only commands. They write reports; they never edit the code.</p>
 
         <article class="cs-cmd">
           <div class="cs-head"><span class="cs-name">/describe</span><span class="cs-desc">Produce a structured description of any directory, software or not.</span></div>
@@ -2349,7 +2361,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <div class="cs-scopes">
               <div class="cs-scope"><code>repo</code><span>Clone a Git repo; compare structure, dependencies, patterns.</span></div>
               <div class="cs-scope"><code>article</code><span>Fetch a web article; compare its claims and recommendations.</span></div>
-              <div class="cs-scope"><code>local</code><span>Compare against a path already on your disk.</span></div>
+              <div class="cs-scope"><code>local</code><span>Compare against a path already on disk.</span></div>
             </div>
             <div class="cs-usage">
             <div class="term term--mini">
@@ -2578,7 +2590,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="cs-group" id="cs-communicate">
         <span class="eyebrow">Communicate</span>
-        <h2 class="section-title">Turn the work into something you can send</h2>
+        <h2 class="section-title">Turn the work into something sendable</h2>
 
         <article class="cs-cmd">
           <div class="cs-head"><span class="cs-name">/presentify</span><span class="cs-desc">Turn documents, code, or a whole folder into one self-contained offline interactive website.</span></div>
@@ -2861,6 +2873,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     }
     renderPageNav(idx);
     renderProgress(idx);
+    /* A hidden page measures zero, so its headings can only be fitted once it is on screen. */
+    if (window.NexusFit) window.NexusFit.refit();
     window.scrollTo(0, 0);
     var nl = document.getElementById("navLinks");
     if (nl) nl.classList.remove("open");
@@ -3019,6 +3033,73 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   })();
 
 
+
+  /* -------------------------------------------------- NexusFit: headings that never wrap
+     A size in the stylesheet cannot know how wide its container will be, so the v4.4.3 no-wrap rule
+     is measured, not declared. Each label and title is measured at its stylesheet size with wrapping
+     off; if it needs more room than the container has, the size drops by exactly the shortfall ratio
+     (one correction pass, because letter-spacing rounds). The 15px floor is deliberate: below it
+     wrapping is the lesser evil, and the test asserts the floor rather than a single line at 320px. */
+  (function initNexusFit() {
+    var FLOOR = 15;
+    var SEL = ".section-title, .eyebrow, .fx-subtitle";
+    function base(el) {
+      var b = el.getAttribute("data-fit-base");
+      if (b === null) {
+        el.style.fontSize = "";
+        b = String(Math.round(parseFloat(getComputedStyle(el).fontSize) * 100) / 100);
+        el.setAttribute("data-fit-base", b);
+      }
+      return parseFloat(b);
+    }
+    /* The natural width has to be measured with the cap and the track share removed, or the number
+       read back is the CONSTRAINED box, not what the text needs: an inline-block pinned by
+       max-width, or a grid child in a minmax(0, 1fr) track, both report their allotted width while
+       the glyphs spill past it. Measuring at width:max-content with no cap is the only reading that
+       reflects the text itself, pseudo-element rule included. */
+    function room(el) {
+      var host = el.parentElement || el;
+      var hcs = getComputedStyle(host);
+      var avail = host.clientWidth - parseFloat(hcs.paddingLeft || 0) - parseFloat(hcs.paddingRight || 0);
+      var mw = el.style.maxWidth, w = el.style.width;
+      el.style.maxWidth = "none";
+      el.style.width = "max-content";
+      var need = el.getBoundingClientRect().width;
+      el.style.maxWidth = mw;
+      el.style.width = w;
+      return { need: need, avail: avail };
+    }
+    function fit(el) {
+      var b = base(el);
+      el.style.whiteSpace = "nowrap";
+      el.style.fontSize = b + "px";
+      var size = b, m = room(el), pass = 0;
+      while (pass++ < 2 && m.avail > 0 && m.need > m.avail + 0.5 && el.style.whiteSpace === "nowrap") {
+        size = size * (m.avail / m.need);
+        if (size < FLOOR) {
+          /* A single line cannot survive every viewport: the longest Home title needs about 6px at
+             320px. Below the floor, wrapping is the lesser evil and horizontal overflow is never
+             the answer, so the floor is held and wrapping is handed back. */
+          size = FLOOR;
+          el.style.whiteSpace = "normal";
+        }
+        size = Math.floor(size * 100) / 100;
+        el.style.fontSize = size + "px";
+        if (el.style.whiteSpace === "nowrap") m = room(el);
+      }
+      el.setAttribute("data-fit", String(size));
+      el.setAttribute("data-fit-wrap", el.style.whiteSpace);
+    }
+    function refit() {
+      var nodes = document.querySelectorAll(SEL);
+      for (var i = 0; i < nodes.length; i++) fit(nodes[i]);
+      if (window.NexusFlow) window.NexusFlow.redraw();
+    }
+    refit();
+    window.addEventListener("resize", refit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
+    window.NexusFit = { refit: refit, floor: FLOOR };
+  })();
 
   /* -------------------------------------------------- NexusFlow: connectors from live geometry
      Each [data-flow-root] gets one overlay SVG; consecutive [data-flow-node] children are joined

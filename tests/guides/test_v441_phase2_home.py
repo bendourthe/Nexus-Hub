@@ -246,15 +246,15 @@ _FIXTURE = _ROOT / "tests" / "guides" / "fixtures" / "v412-home-copy.json"
 _HOOKS_DIR = _ROOT / "catalog" / "hooks"
 
 EXPECTED_HOME_ORDER = [
-    "Upgrade your agentic AI platforms with an autonomous team of world experts",
-    "What you get that raw prompting can't give you",
-    "One command, then restart your assistant",
+    "Upgrade any agentic AI platform with an autonomous team of world experts",
+    "What raw prompting cannot deliver",
+    "One command, then an assistant restart",
     "Three things make this more than a prompt library",
     "Guardrails and safety",
     "Raw prompting vs Nexus Hub",
-    "Your favorite commands, leveled up",
+    "Familiar commands, leveled up",
     "One governed loop, from first look to shipped",
-    "Learn it, then run it on your project",
+    "Learn it, then run it on a real project",
 ]
 
 
