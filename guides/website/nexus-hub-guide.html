@@ -862,7 +862,7 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 /* ---------- Prompt + Context request story (v4.4.1 Phase 3) ---------- */
 /* Weaker state always precedes stronger state in DOM order, so reading order and
    screen-reader order match the teaching sequence at every breakpoint. */
-.fx-states { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: stretch; }
+.fx-states { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
 .fx-state { min-width: 0; margin: 0; padding: 13px 15px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
 .fx-state--weak { border-style: dashed; }
 .fx-state--strong { border-color: var(--border-bright); }
@@ -871,6 +871,31 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-state-line { margin: 0; color: var(--ink); font-size: 15px; line-height: 1.45; }
 .fx-state-why { margin: 10px 0 0; color: var(--ink-dim); font-size: 13px; line-height: 1.5; }
 .fx-state-link { display: flex; align-items: center; }
+/* v4.4.3: the comparison was two columns of prose, which asked the reader to hold four labelled
+   sentences per lane in their head and compare them. The rebuild draws the thing that actually
+   differs: which zones each lane can REACH. Both lanes show the same two zones, so the picture is
+   the comparison and the words underneath only name what happens in each. A zone the lane cannot
+   reach is marked with a dashed edge and a full-contrast label, never by dimming its text: the
+   v4.4.2 contrast rule (BG-13, BG-14) applies to a state marker as much as to a sequence step. */
+.cv-shared { padding: 11px 14px; border: 1px solid var(--border-bright); border-radius: var(--radius-sm); background: var(--surface); }
+.cv-shared-tag { display: block; color: var(--teal-soft); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.cv-shared p { margin: 4px 0 0; color: var(--ink); font-size: 15px; line-height: 1.4; }
+.cv-split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 7px 0; }
+.cv-tip { justify-self: center; width: 0; height: 0; border-top: 11px solid var(--accent); border-left: 9px solid transparent; border-right: 9px solid transparent; }
+.cv-zones { display: grid; gap: 6px; margin: 0 0 10px; }
+.cv-zone { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 9px; align-items: center; padding: 8px 10px; border-radius: 9px; border: 1px dashed var(--border); background: var(--bg-0); }
+.cv-zone--reached { border-style: solid; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg-0)); }
+.cv-zone-name { color: var(--ink); font-size: 12.5px; font-weight: 650; }
+.cv-zone-state { font: 700 10.5px var(--sans); letter-spacing: .09em; text-transform: uppercase; color: var(--ink-faint); }
+.cv-zone--reached .cv-zone-state { color: var(--accent); }
+.cv-art { width: 34px; height: 26px; display: block; overflow: visible; }
+.cv-art .cv-line { fill: none; stroke: var(--ink-faint); stroke-width: 1.6; stroke-linecap: round; }
+.cv-art .cv-fill { fill: color-mix(in srgb, var(--ink-faint) 22%, transparent); stroke: var(--ink-faint); stroke-width: 1.4; }
+.cv-zone--reached .cv-art .cv-line { stroke: var(--accent); }
+.cv-zone--reached .cv-art .cv-fill { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: var(--accent); }
+.cv-changes { display: flex; flex-wrap: wrap; gap: 5px; grid-column: 1 / -1; }
+.cv-changes li { list-style: none; font: 500 11px var(--mono); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 5px; padding: 2px 6px; }
+.fx-state .fx-parts { display: grid; gap: 7px; }
 .fx-inline-arrow { width: 34px; height: 12px; overflow: visible; }
 .fx-ctx { display: grid; gap: 11px; }
 .fx-ctx-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: stretch; }
@@ -2053,37 +2078,22 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </div>
         </div>
       </section>
-      <section class="fx-scene fx-wide reveal" id="fx-chatbot-agent" aria-labelledby="fx-chatbot-agent-title">
+      <section class="fx-scene fx-wide fx-stack reveal" id="fx-chatbot-agent" aria-labelledby="fx-chatbot-agent-title">
         <div class="fx-copy">
           <div class="fx-title">
             <p class="fx-subtitle">Same request, different handoff</p>
-            <h2 id="fx-chatbot-agent-title" class="section-title">Chatbot vs. Agentic Platform</h2>
+            <h2 id="fx-chatbot-agent-title" class="section-title">Chatbot vs. Agentic Platforms</h2>
           </div>
-          <p>Send the <strong>same request</strong> with the same context to both, and the difference is not intelligence. It is <strong>where the work happens</strong> and <strong>what each lane leaves behind</strong>. Chatbots can increasingly use tools too; the lane below shows their most common shape.</p>
+          <p>Send the <strong>same request</strong> to both and the difference is not intelligence. It is <strong>where the work happens</strong> and <strong>what each lane leaves behind</strong>. Both lanes below show the same two zones; what differs is which of them the lane can reach.</p>
         </div>
         <div class="fx-diagram">
-          <div class="fx-states" role="group" aria-label="One request handled by a chatbot and by an agentic platform">
-            <article class="fx-state fx-state--weak" data-phase3-node="chatbot-handoff">
-              <h3 class="fx-state-tag">Chatbot</h3>
-              <p class="fx-state-line" data-phase3-node="shared-request">&ldquo;Summarise this contract and list every deadline.&rdquo;</p>
-              <dl class="fx-parts">
-                <div class="fx-part"><dt>Boundary</dt><dd>The conversation window. The work surface stays untouched.</dd></div>
-                <div class="fx-part"><dt>Action</dt><dd>Generates guidance and a draft summary in the chat.</dd></div>
-                <div class="fx-part"><dt>Outcome</dt><dd>An <strong>answer handoff</strong>: every step is applied and checked by hand.</dd></div>
-                <div class="fx-part"><dt>Leaves behind</dt><dd>A transcript to copy from.</dd></div>
-              </dl>
-            </article>
-            <div class="fx-state-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M21 0.8 L33 6 L21 11.2 Z"/></svg></div>
-            <article class="fx-state fx-state--strong" data-phase3-node="agent-handoff">
-              <h3 class="fx-state-tag">Agentic platform</h3>
-              <p class="fx-state-line">The same request, the same context.</p>
-              <dl class="fx-parts">
-                <div class="fx-part"><dt>Boundary</dt><dd>The work surface, behind the permission and tool boundary.</dd></div>
-                <div class="fx-part"><dt>Action</dt><dd>May, when permitted and supported, inspect the material, run processes, edit files or documents, and verify the result.</dd></div>
-                <div class="fx-part"><dt>Outcome</dt><dd>A <strong>work handoff</strong>: a report plus a saved change that can be checked result by result.</dd></div>
-                <div class="fx-part"><dt>Leaves behind</dt><dd>Durable artifacts in the work itself, not only words about it.</dd></div>
-              </dl>
-            </article>
+          <div class="fx-cv" data-seq-root data-seq-loop data-seq-hold="3000">
+            <div class="cv-shared seq-rise" data-seq="1" data-seq-dur="700" data-phase3-node="shared-request"><span class="cv-shared-tag">One request, sent to both</span><p>Add rate limiting to the public API and prove it with tests.</p></div>
+            <div class="cv-split" aria-hidden="true"><span class="cv-tip"></span><span class="cv-tip"></span></div>
+            <div class="fx-states" role="group" aria-label="One request handled by a chatbot and by an agentic platform">
+              <article class="fx-state fx-state--weak" data-phase3-node="chatbot-handoff" data-lane="chatbot"><h3 class="fx-state-tag">Chatbot</h3><div class="cv-zones"><div class="cv-zone cv-zone--reached seq-rise" data-seq="2" data-seq-dur="700"><svg class="cv-art" viewBox="0 0 34 26" aria-hidden="true"><path class="cv-fill" d="M3 3 h22 a2 2 0 0 1 2 2 v10 a2 2 0 0 1 -2 2 H12 l-5 5 v-5 H3 a2 2 0 0 1 -2 -2 V5 a2 2 0 0 1 2 -2 z"/><path class="cv-line" d="M6 8 h14 M6 12 h9"/></svg><span class="cv-zone-name">The conversation window</span><span class="cv-zone-state">reached</span></div><div class="cv-zone"><svg class="cv-art" viewBox="0 0 34 26" aria-hidden="true"><path class="cv-fill" d="M4 2 h13 l6 6 v14 a1.6 1.6 0 0 1 -1.6 1.6 H5.6 A1.6 1.6 0 0 1 4 22 V3.6 A1.6 1.6 0 0 1 5.6 2 z"/><path class="cv-line" d="M17 2 v6 h6 M8 13 h10 M8 17 h10"/><path class="cv-line" d="M26 7 v15 a1.6 1.6 0 0 1 -1.6 1.6"/></svg><span class="cv-zone-name">The work surface</span><span class="cv-zone-state">untouched</span></div></div><dl class="fx-parts"><div class="fx-part"><dt>Boundary</dt><dd>The conversation window only.</dd></div><div class="fx-part"><dt>Action</dt><dd>Answers, drafts, and explains. Chatbots can call tools inside the conversation.</dd></div><div class="fx-part"><dt>Outcome</dt><dd>An <strong>answer handoff</strong>: every step is applied and checked by hand.</dd></div><div class="fx-part"><dt>Leaves behind</dt><dd>A transcript to copy from.</dd></div></dl></article>
+              <article class="fx-state fx-state--strong" data-phase3-node="agent-handoff" data-lane="agentic"><h3 class="fx-state-tag">Agentic platform</h3><div class="cv-zones"><div class="cv-zone cv-zone--reached seq-rise" data-seq="3" data-seq-dur="700"><svg class="cv-art" viewBox="0 0 34 26" aria-hidden="true"><path class="cv-fill" d="M3 3 h22 a2 2 0 0 1 2 2 v10 a2 2 0 0 1 -2 2 H12 l-5 5 v-5 H3 a2 2 0 0 1 -2 -2 V5 a2 2 0 0 1 2 -2 z"/><path class="cv-line" d="M6 8 h14 M6 12 h9"/></svg><span class="cv-zone-name">The conversation window</span><span class="cv-zone-state">reached</span></div><div class="cv-zone cv-zone--reached seq-rise" data-seq="4" data-seq-dur="900"><svg class="cv-art" viewBox="0 0 34 26" aria-hidden="true"><path class="cv-fill" d="M4 2 h13 l6 6 v14 a1.6 1.6 0 0 1 -1.6 1.6 H5.6 A1.6 1.6 0 0 1 4 22 V3.6 A1.6 1.6 0 0 1 5.6 2 z"/><path class="cv-line" d="M17 2 v6 h6 M8 13 h10 M8 17 h10"/><path class="cv-line" d="M26 7 v15 a1.6 1.6 0 0 1 -1.6 1.6"/></svg><span class="cv-zone-name">The work surface</span><span class="cv-zone-state">reached, when permitted</span><ul class="cv-changes" aria-label="What changed on the work surface"><li>limiter added</li><li>tests added</li><li>checks run</li></ul></div></div><dl class="fx-parts"><div class="fx-part"><dt>Boundary</dt><dd>The work surface, behind the permission and tool boundary.</dd></div><div class="fx-part"><dt>Action</dt><dd>Reads, runs, edits, and verifies, when supported and permitted.</dd></div><div class="fx-part"><dt>Outcome</dt><dd>A <strong>work handoff</strong>: a report plus a saved change that can be checked result by result.</dd></div><div class="fx-part"><dt>Leaves behind</dt><dd>Durable artifacts in the work itself, not only words about it.</dd></div></dl></article>
+            </div>
           </div>
           <p class="fx-diagram-note">Neither lane promises success. The chatbot lane hands back an answer to act on; the agentic lane, with permission, acts and shows its checks.</p>
         </div>
