@@ -15,7 +15,7 @@ Usage::
 
     python tests/guides/tools/browser_matrix.py --label phase-7
     python tests/guides/tools/browser_matrix.py --label phase-7 --groups home,fullscreen
-    python tests/guides/tools/browser_matrix.py --label phase-7 --out docs/releases/v4/v4.4/development/guide-production-ready-rebuild/renders
+    python tests/guides/tools/browser_matrix.py --label phase-9 --out docs/releases/v4/v4.4/development/guide-illustration-clarity-rebuild/renders
 
 If one invocation would exceed the 20 minute focused-runtime ceiling, run the groups in
 labelled batches with ``--groups`` rather than dropping a declared case. Evidence must stay
@@ -32,7 +32,9 @@ import time
 
 _ROOT = pathlib.Path(__file__).resolve().parents[3]
 GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
-DEFAULT_OUT = _ROOT / "docs" / "releases" / "v4" / "v4.4" / "development" / "guide-production-ready-rebuild" / "renders"
+PLAN_SLUG = "guide-illustration-clarity-rebuild"
+PLAN_LABEL = "v4.4.3 guide-illustration-clarity-rebuild"
+DEFAULT_OUT = _ROOT / "docs" / "releases" / "v4" / "v4.4" / "development" / PLAN_SLUG / "renders"
 
 PAGES = ("home", "foundations", "training", "cheatsheets")
 THEMES = ("dark", "light")
@@ -219,7 +221,7 @@ def run(groups: dict[str, list[dict]], out: pathlib.Path, label: str) -> dict:
                 or r["geometry"].get("missing") or r["geometry"].get("horizontalOverflow")]
     evidence_bytes = sum(f.stat().st_size for f in out_dir.glob("*.png"))
     summary = {
-        "generated": time.strftime("%Y-%m-%d"), "label": label, "plan": "v4.4.2 guide-production-ready-rebuild",
+        "generated": time.strftime("%Y-%m-%d"), "label": label, "plan": PLAN_LABEL,
         "declaredCases": declared, "executedCases": len(cases),
         "declaredScreenshots": sum(1 for v in groups.values() for c in v if c.get("retain")), "retainedScreenshots": shots,
         "focusedRuntimeSeconds": round(elapsed, 1), "runtimeTargetSeconds": 1200,

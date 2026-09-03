@@ -139,3 +139,8 @@ catalog/skills/ai-development/ai-agent-development/references/references-[0-9]*.
 # Repository-native CI engine output (v4.0.0). scripts/ci/run.py writes here on
 # every local run; the artifacts are per-run evidence, never source.
 /reports/
+
+# v4.4.3: the declared browser matrix's screenshots are regenerable evidence and are not committed.
+# The per-run summary JSON beside them IS committed and is the authoritative record. See
+# docs/releases/v4/v4.4/development/guide-illustration-clarity-rebuild/renders/README.md
+docs/releases/v4/v4.4/development/guide-illustration-clarity-rebuild/renders/**/*.png

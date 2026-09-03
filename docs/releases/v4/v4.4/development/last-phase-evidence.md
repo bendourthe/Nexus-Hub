@@ -882,7 +882,7 @@ validate_unicode_safety.py --strict / validate_no_personal_paths.py       clean
 check_docs_conventions.py                                OK
 ```
 
-The matrix grew from 150 declared cases to 164: the harness group now drives six stops instead of seven, and two groups were added for the scenes this version made choreographed (the chatbot comparison at 420 and 1440, and the platforms flow). Three figures gained ids, because the matrix addresses a sequence root by id and the new ones were built with class selectors only.
+The matrix grew from 150 declared cases to 164: the harness group now drives six stops instead of seven, and two groups were added for the scenes this version made choreographed (the chatbot comparison at 420 and 1440, and the platforms flow). Three figures gained ids, because the matrix addresses a sequence root by id and the new ones were built with class selectors only. The tool also had the previous version's slug hardcoded, so the run first wrote into the v4.4.2 evidence directory; the path and the plan label now derive from one constant and the run was moved under this plan's slug. The 138 screenshots are regenerable and are not committed (the v4.4.2 set is already 28 MB); the per-run summary JSON is, and the renders README records the reasoning.
 
 ## Byte ledger, closed
 
