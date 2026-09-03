@@ -524,6 +524,31 @@ html[data-theme="light"] .guard-fig .gf-out { background: transparent; border: 1
 
 /* ---------- Audio waveform ---------- */
 
+/* ---------- Harness flow (v4.4.4) ----------
+   v4.4.3 drew the two harnesses as nested rings plus a separate six-stop journey. The review asked
+   instead for one animated chart following a prompt through the model and both harnesses, with the
+   platform layer's limits named, and supplied the analogy that makes the layers land: a powerful
+   brain, a graduate degree, decades of practical experience. One flow now carries all of it, so the
+   reader follows a single path instead of mapping a picture onto a list. */
+.hxf { list-style: none; display: grid; gap: 0; margin: 0; padding: 0; }
+.hxf-step { padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
+.hxf-step--model { border-color: var(--border-bright); }
+.hxf-step--platform { border-color: var(--border-bright); background: color-mix(in srgb, var(--surface-2) 70%, transparent); }
+.hxf-step--nexus { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
+.hxf-step--out { border-color: var(--green); }
+.hxf-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.hxf-tag { font: 700 12px var(--sans); letter-spacing: .09em; text-transform: uppercase; color: var(--ink-dim); }
+.hxf-step--nexus .hxf-tag { color: var(--accent); }
+.hxf-step--out .hxf-tag { color: var(--green); }
+.hxf-like { font-size: 13px; font-weight: 650; color: var(--ink); }
+.hxf-like::before { content: "like "; color: var(--ink-faint); font-weight: 500; }
+.hxf-step p { margin: 5px 0 0; color: var(--ink-dim); font-size: 13px; line-height: 1.5; }
+.hxf-limit { margin: 7px 0 0; padding: 6px 9px; border-radius: 7px; border: 1px dashed color-mix(in srgb, var(--amber) 55%, var(--border)); color: var(--ink-dim); font-size: 12.5px; line-height: 1.45; }
+.hxf-limit b { color: var(--amber); font-weight: 700; }
+.hxf-link { display: flex; justify-content: center; padding: 5px 0; }
+.hxf-link span { width: 0; height: 0; border-top: 12px solid var(--accent); border-left: 9px solid transparent; border-right: 9px solid transparent; }
+@media (max-width: 700px) { .hxf-head { gap: 4px; } }
+
 /* ---------- Agentic Platforms (v4.4.4) ----------
    The scene ran a six-stage flow and the chatbot comparison ran beside it as a second scene. The
    review called the flow unreadable and asked for one segment carrying one idea: a chatbot answers,
@@ -632,28 +657,15 @@ html[data-theme="light"] .ap-step::before { color: #fffdf8; }
    an inline box. The structure is one figure now, because the reader needs one picture of where the
    two loops sit, not two pictures that have to be mentally superimposed. */
 .hx { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
-.hx-ring { min-width: 0; border-radius: 16px; padding: 11px 13px 13px; }
-.hx-ring--nexus { border: 1.5px dashed var(--accent); }
-.hx-ring--platform { border: 1.5px solid var(--border-bright); margin-top: 9px; background: color-mix(in srgb, var(--surface) 65%, transparent); }
 .hx-tag { display: block; font: 700 12px var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-dim); }
 .hx-tag--nexus { color: var(--accent); }
 .hx-note { display: block; margin-top: 2px; color: var(--ink-faint); font-size: 12.5px; line-height: 1.4; }
 .hx-ports { display: flex; flex-wrap: wrap; gap: 6px; margin: 9px 0 0; padding: 0; list-style: none; }
 .hx-ports li { font: 500 11.5px var(--mono); border-radius: 6px; padding: 3px 8px; border: 1px solid var(--border); color: var(--ink-dim); background: var(--bg-0); }
-.hx-ring--nexus > .hx-ports li { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }
-.hx-core { margin: 11px auto 2px; width: max-content; max-width: 100%; padding: 11px 24px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border-bright); text-align: center; }
-.hx-core-tag { display: block; font: 700 13px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink); }
-.hx-journey { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin: 0; padding: 0; list-style: none; counter-reset: hx; }
-.hx-stop { min-width: 0; padding: 9px 11px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface); color: var(--ink-dim); font-size: 12.5px; line-height: 1.4; }
-.hx-stop::before { counter-increment: hx; content: counter(hx); display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; margin-right: 7px; border-radius: 50%; background: var(--accent); color: var(--bg-deep); font: 700 10.5px var(--sans); vertical-align: 1px; }
-html[data-theme="light"] .hx-stop::before { color: #fffdf8; }
-.hx-stop--out { border-color: var(--green); color: var(--ink); }
-.hx-stop--out::before { background: var(--green); }
 .hx-trail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .hx-lane { min-width: 0; padding: 11px 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
 .hx-lane--with { border-color: var(--accent); }
 @media (max-width: 760px) {
-  .hx-journey { grid-template-columns: minmax(0, 1fr); }
   .hx-trail { grid-template-columns: minmax(0, 1fr); }
 }
 
@@ -2201,21 +2213,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         </div>
         <div class="fx-diagram">
           <div class="hx" id="hx-harness" data-seq-root data-seq-loop data-seq-hold="3400">
-            <div class="hx-ring hx-ring--nexus" data-phase3-harness-layer="nexus-hub" role="group" aria-label="The Nexus Hub harness, wrapped around the platform harness">
-              <span class="hx-tag hx-tag--nexus">Nexus Hub harness</span>
-              <span class="hx-note">The portable workflow layer: matched procedures, guardrails, written gates, and a durable trail</span>
-              <ul class="hx-ports" aria-label="What the outer loop contributes"><li>skills</li><li>hooks</li><li>gates</li><li>artifacts</li></ul>
-              <div class="hx-ring hx-ring--platform" data-phase3-harness-layer="platform" role="group" aria-label="The platform harness, the built-in runtime loop">
-                <span class="hx-tag">Platform harness</span>
-                <span class="hx-note">The built-in runtime loop, one per platform</span>
-                <ul class="hx-ports" aria-label="What the built-in loop does"><li>context</li><li>tools</li><li>permissions</li><li>execution</li><li>observations</li></ul>
-                <div class="hx-core" data-phase3-harness-layer="model">
-                  <span class="hx-core-tag">Model</span>
-                  <span class="hx-note">Reasons inside the loop, one request at a time</span>
-                </div>
-              </div>
-            </div>
-            <ol class="hx-journey" aria-label="One request, from the operator to reviewed work"><li class="hx-stop seq-rise" data-seq="1" data-seq-dur="620">Prompt and material go in, from the operator</li><li class="hx-stop seq-rise" data-seq="2" data-seq-dur="660">Nexus Hub loads the procedures matched to the job, and the gates the result must meet</li><li class="hx-stop seq-rise" data-seq="3" data-seq-dur="700">The platform harness assembles the context, offers the tools, and enforces the permissions</li><li class="hx-stop seq-rise" data-seq="4" data-seq-dur="740">The model reasons inside that loop, one request at a time</li><li class="hx-stop seq-rise" data-seq="5" data-seq-dur="780">Hooks check each action as it runs; the verification pass repeats until the gate is met</li><li class="hx-stop hx-stop--out seq-rise" data-seq="6" data-seq-dur="820">Out comes reviewed, verified work, and the artifacts that record it</li></ol>
+            <ol class="hxf" aria-label="One request, from the operator through both harnesses to reviewed work"><li class="hxf-step seq-rise" data-seq="1" data-seq-dur="620"><span class="hxf-head"><span class="hxf-tag">The request</span></span><p>A prompt and the material it names go in, from the operator.</p></li><li class="hxf-link" aria-hidden="true"><span></span></li><li class="hxf-step hxf-step--model seq-rise" data-phase3-harness-layer="model" data-seq="2" data-seq-dur="680"><span class="hxf-head"><span class="hxf-tag">The model</span><span class="hxf-like">a powerful brain</span></span><p>Enormous general capability, and no idea how this particular project works, what it already decided, or what counts as finished here.</p></li><li class="hxf-link" aria-hidden="true"><span></span></li><li class="hxf-step hxf-step--platform seq-rise" data-phase3-harness-layer="platform" data-seq="3" data-seq-dur="740"><span class="hxf-head"><span class="hxf-tag">The platform harness</span><span class="hxf-like">a graduate degree</span></span><p>Competent general practice, built in. It assembles the context, offers the tools, enforces the permissions, executes the actions, and feeds the observations back to the model.</p><ul class="hx-ports" aria-label="What this layer contributes"><li>context</li><li>tools</li><li>permissions</li><li>execution</li><li>observations</li></ul><p class="hxf-limit"><b>Its limits:</b> it knows the general practice, not this project's standard, and it carries nothing from one session to the next.</p></li><li class="hxf-link" aria-hidden="true"><span></span></li><li class="hxf-step hxf-step--nexus seq-rise" data-phase3-harness-layer="nexus-hub" data-seq="4" data-seq-dur="800"><span class="hxf-head"><span class="hxf-tag">The Nexus Hub harness</span><span class="hxf-like">decades of practice across many fields</span></span><p>Wrapped around that loop. Procedures matched to the job load themselves, hooks refuse unsafe actions whatever the prompt said, written gates say what done means, and each step leaves an artifact the next one reads.</p><ul class="hx-ports" aria-label="What this layer contributes"><li>skills</li><li>hooks</li><li>gates</li><li>artifacts</li></ul></li><li class="hxf-link" aria-hidden="true"><span></span></li><li class="hxf-step hxf-step--out seq-rise" data-seq="5" data-seq-dur="860"><span class="hxf-head"><span class="hxf-tag">What comes out</span></span><p>Reviewed, verified work, and the artifacts that record how it got there.</p></li></ol>
             <div class="fx-layer fx-layer--nexus" data-phase3-harness-layer="nexus-hub" role="group" aria-label="The five repository-anchored claims of the Nexus Hub layer">
               <span class="fx-layer-tag">What the outer loop adds, and the artifact behind each claim</span>
               <ul class="fx-claims">

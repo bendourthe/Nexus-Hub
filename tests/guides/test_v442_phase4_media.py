@@ -159,6 +159,7 @@ def test_harness_diagram_is_layered_and_choreographed(playwright_mod) -> None:
                     const r = {root};
                     const layers = [...r.querySelectorAll('[data-phase3-harness-layer]')].map(g => g.dataset.phase3HarnessLayer);
                     const ports = [...r.querySelectorAll('.hx-ports li')].map(t => t.textContent.trim());
+                    // v4.4.4: the journey became the flow, so the steps are the flow's own.
                     return {{ layers, ports, total: window.NexusSeq.state(r).total }};
                 }}"""
             )
@@ -173,8 +174,8 @@ def test_harness_diagram_is_layered_and_choreographed(playwright_mod) -> None:
                 page.wait_for_timeout(150)
             end = page.evaluate(
                 f"""() => {{ const r = {root}; return {{
-                    stops: r.querySelectorAll('.hx-stop.is-on').length,
-                    out: r.querySelector('.hx-stop--out').classList.contains('is-on') }}; }}"""
+                    stops: r.querySelectorAll('.hxf-step.is-on').length,
+                    out: r.querySelector('.hxf-step--out').classList.contains('is-on') }}; }}"""
             )
         finally:
             browser.close()
@@ -182,9 +183,9 @@ def test_harness_diagram_is_layered_and_choreographed(playwright_mod) -> None:
     for port in ("context", "tools", "permissions", "execution", "observations", "skills", "hooks", "gates", "artifacts"):
         assert port in structure["ports"], port
     assert len(structure["ports"]) == 9, structure["ports"]
-    assert structure["total"] == 6, "six journey stops, from the prompt to the verified work"
-    assert seen == sorted(seen) and seen[-1] == 6, seen
-    assert end["stops"] == 6 and end["out"], end
+    assert structure["total"] == 5, "five flow steps, from the prompt to the verified work"
+    assert seen == sorted(seen) and seen[-1] == 5, seen
+    assert end["stops"] == 5 and end["out"], end
 
 
 def test_harness_choreography_end_state_under_reduced_motion(playwright_mod) -> None:
@@ -199,7 +200,7 @@ def test_harness_choreography_end_state_under_reduced_motion(playwright_mod) -> 
             lit = page.evaluate("() => document.querySelectorAll('#fx-harness .hx .seq-rise.is-on').length")
         finally:
             browser.close()
-    assert lit == 6, lit
+    assert lit == 5, lit
 
 
 @pytest.mark.parametrize("width", WIDTHS)

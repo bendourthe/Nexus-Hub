@@ -18,7 +18,7 @@ start, because retiring the audio output and merging two Foundations scenes both
 | E5 | Context Engineering: copy full width, prompt left and material right, bad versus good with cost named | `test_v443_phase4_context.py` (`..._grid_of_examples`, `test_dumping_everything_names_its_cost`) | 5 |
 | E6 | Models: one model per provider without numbers, next-token, base versus reasoning, three modality tiers | `test_v444_phase6_models.py` (4 tests) | 6 |
 | E7 | ONE Agentic Platforms scene, chatbot merged in | `test_v443_phase7_comparison.py` (4, repointed) + `test_v441_phase4_foundations.py::test_the_agentic_scene_carries_the_comparison_and_the_boundary` | 7 |
-| E8 | Harnesses: animated journey carrying the brain, degree, and experience analogy | NEW, Phase 8 | 8 |
+| E8 | Harnesses: animated journey carrying the brain, degree, and experience analogy | `test_v443_phase8_harness.py::test_the_flow_carries_the_analogy_and_the_platform_limits` | 8 |
 | E9 | Matrix green, byte ledger closed | Phase 9 | 9 |
 
 ## 2. Superseded-assertion register
@@ -50,6 +50,9 @@ start, because retiring the audio output and merging two Foundations scenes both
 | `test_v442_phase1_foundation.py` | 23 section titles across the four pages | E7 | one scene fewer | DONE: 22 |
 | `test_v443_phase5_models.py` | `data-grammar="one-pass"` count 2 | E7 | DONE: 1 |
 | `test_v443_phase8_harness.py` | seven Foundations scenes | E7 | DONE: 6 |
+| `test_v443_phase8_harness.py` | `test_the_three_layers_are_geometrically_nested` | the rings nest with the model innermost | E8: the review asked for a flow, not a picture of where the layers sit | DONE: replaced by `test_the_flow_carries_the_analogy_and_the_platform_limits`, which asserts the three layers in order, their ports, the analogy on each, and the platform layer's stated limits |
+| `test_v443_phase8_harness.py` | `test_the_journey_reads_as_movement_and_ends_in_verified_work` | six `.hx-stop` elements | E8 | DONE: five `.hxf-step` elements, renamed to `..._the_flow_is_choreographed_...` |
+| `test_v442_phase4_media.py` | the harness figure tests | `.hx-stop`, `.hx-stop--out`, six steps | E8 | DONE: `.hxf-step`, `.hxf-step--out`, five steps |
 
 ## 3. One rule narrowed, with its reasoning
 

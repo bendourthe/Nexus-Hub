@@ -1,9 +1,14 @@
 """v4.4.3 Phase 8 gates: one harness scene, and a guard for the defect this phase uncovered.
 
 The review asked for a single harness segment: define a harness, then show what Nexus Hub adds. The
-two scenes it replaces drew their labels as SVG text inside a 540-unit viewBox, so at a narrow
+two scenes it replaced drew their labels as SVG text inside a 540-unit viewBox, so at a narrow
 column the port names overlapped each other and the rings. Nested elements cannot overlap their own
 labels, so the figure is HTML and the containment property is asserted directly.
+
+v4.4.4 then replaced the nested rings with one flow, because the next review asked for a chart
+following a prompt through the model and both harnesses rather than a picture of where they sit.
+The containment and class-coverage guards are unchanged; the nesting assertion retired with the
+rings.
 
 The third test here is a general guard, added because Phase 4 of this same plan removed CSS rules it
 judged dead from a usage COUNT rather than from the locations of those usages. Two of the four
@@ -81,67 +86,58 @@ def test_there_is_exactly_one_harness_scene(guide_text: str) -> None:
     assert scene.count("data-phase3-claim") == 5, "the five repository-anchored claims must survive"
 
 
-def test_the_three_layers_are_geometrically_nested(playwright_mod) -> None:
+def test_the_flow_carries_the_analogy_and_the_platform_limits(playwright_mod) -> None:
+    """v4.4.4 replaced the nested rings with one flow, on the review's instruction.
+
+    The rings showed WHERE the layers sit; the review asked instead for a chart following a prompt
+    through the model and both harnesses, with the platform layer's limits named and the analogy it
+    supplied carried: a powerful brain, a graduate degree, decades of practical experience. The
+    nesting assertion retires with the rings, and what replaces it is stronger about the teaching:
+    the three layers appear in order, each with its own ports, and the middle one states its limits.
+    """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
             ctx, page = _scene(browser)
             data = page.evaluate(
                 """() => {
-                    const fig = document.querySelector('#fx-harness .hx');
-                    const box = sel => { const e = fig.querySelector(sel); return e && e.getBoundingClientRect(); };
-                    const outer = box('.hx-ring--nexus'), inner = box('.hx-ring--platform'), core = box('.hx-core');
-                    const inside = (a, b) => a.left >= b.left - 1 && a.right <= b.right + 1
-                                          && a.top >= b.top - 1 && a.bottom <= b.bottom + 1;
-                    return {
-                      nested: inside(inner, outer) && inside(core, inner),
-                      outerPorts: [...fig.querySelectorAll('.hx-ring--nexus > .hx-ports li')].map(l => l.textContent.trim()),
-                      innerPorts: [...fig.querySelectorAll('.hx-ring--platform > .hx-ports li')].map(l => l.textContent.trim()),
-                      layers: [...fig.querySelectorAll('[data-phase3-harness-layer]')].map(e => e.dataset.phase3HarnessLayer),
-                    };
+                    const flow = document.querySelector('#fx-harness .hxf');
+                    const steps = [...flow.querySelectorAll('.hxf-step')].map(s => ({
+                      tag: s.querySelector('.hxf-tag').textContent.trim(),
+                      like: (s.querySelector('.hxf-like') || {textContent: ''}).textContent.trim(),
+                      layer: s.dataset.phase3HarnessLayer || null,
+                      ports: [...s.querySelectorAll('.hx-ports li')].map(l => l.textContent.trim()),
+                      limit: (s.querySelector('.hxf-limit') || {textContent: ''}).textContent.trim(),
+                      top: Math.round(s.getBoundingClientRect().top),
+                    }));
+                    return { steps, links: flow.querySelectorAll('.hxf-link').length,
+                             pointsDown: [...flow.querySelectorAll('.hxf-link span')]
+                               .every(t => parseFloat(getComputedStyle(t).borderTopWidth) >= 10) };
                 }"""
             )
             ctx.close()
         finally:
             browser.close()
-    assert data["nested"], "the platform ring must sit inside the Nexus Hub ring, with the model innermost"
-    assert set(data["layers"]) == {"nexus-hub", "platform", "model"}, data["layers"]
-    assert data["innerPorts"] == list(PLATFORM_PORTS), data["innerPorts"]
-    assert data["outerPorts"] == list(NEXUS_PORTS), data["outerPorts"]
-
-
-def test_the_journey_reads_as_movement_and_ends_in_verified_work(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        try:
-            ctx, page = _scene(browser)
-            page.wait_for_function(
-                "() => { const s = window.NexusSeq.state(document.querySelector('#fx-harness .hx'));"
-                " return s && s.step === s.total; }"
-            )
-            data = page.evaluate(
-                """() => {
-                    const stops = [...document.querySelectorAll('#fx-harness .hx-stop')];
-                    return {
-                      total: window.NexusSeq.state(document.querySelector('#fx-harness .hx')).total,
-                      seq: stops.map(s => +s.dataset.seq),
-                      lit: stops.filter(s => s.classList.contains('is-on')).length,
-                      lastIsOut: stops[stops.length - 1].classList.contains('hx-stop--out'),
-                      outCount: stops.filter(s => s.classList.contains('hx-stop--out')).length,
-                      texts: stops.map(s => s.textContent.trim().toLowerCase()),
-                    };
-                }"""
-            )
-            ctx.close()
-        finally:
-            browser.close()
-    assert data["total"] == 6 and data["seq"] == [1, 2, 3, 4, 5, 6], data
-    assert data["lit"] == 6, "every stop must be lit at the end state"
-    assert data["lastIsOut"] and data["outCount"] == 1, data
-    # the journey the review asked for: in from the operator, through both loops, out verified
-    assert "prompt" in data["texts"][0] and "material" in data["texts"][0], data["texts"][0]
-    assert "reasons" in data["texts"][3], data["texts"][3]
-    assert "verified" in data["texts"][5], data["texts"][5]
+    steps = data["steps"]
+    assert len(steps) == 5, [s["tag"] for s in steps]
+    assert data["links"] == 4 and data["pointsDown"], data
+    tops = [s["top"] for s in steps]
+    assert tops == sorted(tops), f"the flow must read top to bottom: {tops}"
+    layers = [s["layer"] for s in steps if s["layer"]]
+    assert layers == ["model", "platform", "nexus-hub"], layers
+    # the analogy the review supplied, on the three layers that have one
+    model, platform, nexus = steps[1], steps[2], steps[3]
+    assert "brain" in model["like"], model
+    assert "degree" in platform["like"], platform
+    assert "decades" in nexus["like"], nexus
+    # each harness layer names what it contributes
+    assert platform["ports"] == list(PLATFORM_PORTS), platform["ports"]
+    assert nexus["ports"] == list(NEXUS_PORTS), nexus["ports"]
+    # the platform layer's limits are named, which is what makes the outer layer necessary
+    assert platform["limit"], "the platform layer must state its limits"
+    lowered = platform["limit"].lower()
+    assert "limits" in lowered and "session" in lowered, platform["limit"]
+    assert not model["ports"] and not steps[0]["ports"], "only the harness layers carry ports"
 
 
 def test_every_class_used_in_foundations_has_a_style_rule(guide_text: str) -> None:
