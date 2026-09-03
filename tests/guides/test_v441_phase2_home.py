@@ -418,8 +418,8 @@ def test_guardrails_section_names_only_shipped_registered_hooks(playwright_mod) 
         try:
             data = page.evaluate(
                 """() => ({
-                    ports: [...document.querySelectorAll('#nhg-guard-fig .g-port')].map(e => e.textContent.trim()),
-                    blocked: [...document.querySelectorAll('#nhg-guard-fig .g-blocked')].map(e => e.textContent.trim()),
+                    ports: [...document.querySelectorAll('#nhg-guard-fig .gf-hooks li')].map(e => e.textContent.trim()),
+                    blocked: [...document.querySelectorAll('#nhg-guard-fig .gf-cell--stop b')].map(e => e.textContent.trim()),
                     pretooluse: +document.querySelector('#nhg-guardrails [data-count="pretooluse"]').textContent,
                     hooks: +document.querySelector('#nhg-guardrails [data-count="hooks"]').textContent,
                     text: document.getElementById('nhg-guardrails').innerText.toLowerCase(),
@@ -432,9 +432,9 @@ def test_guardrails_section_names_only_shipped_registered_hooks(playwright_mod) 
         assert (_HOOKS_DIR / f"{name}.sh").is_file(), f"{name}.sh does not ship"
         assert (_HOOKS_DIR / f"{name}.ps1").is_file(), f"{name}.ps1 sibling missing"
         assert name in registered, f"{name} is not registered in settings.json"
-    for label in data["blocked"]:
-        hook = label.replace("blocked by ", "")
-        assert hook in data["ports"], label
+    assert data["blocked"], "no attempt names the hook that blocked it"
+    for hook in data["blocked"]:
+        assert hook in data["ports"], hook
     assert data["pretooluse"] == len(pretooluse) and data["hooks"] == len(registered)
     assert "makes ai safe" not in data["text"], "claims must be enforcement statements, not a safety guarantee"
 
@@ -451,9 +451,9 @@ def test_guardrails_choreography_reaches_a_fully_blocked_end_state(playwright_mo
                 """() => ({
                     total: window.NexusSeq.state(document.getElementById('nhg-guard-fig')).total,
                     lit: document.querySelectorAll('#nhg-guard-fig .is-on').length,
-                    blocks: document.querySelectorAll('#nhg-guard-fig .g-block').length,
+                    blocks: document.querySelectorAll('#nhg-guard-fig .gf-out--stop').length,
                 })"""
             )
         finally:
             browser.close()
-    assert data["total"] == 5 and data["lit"] == 5 and data["blocks"] == 2
+    assert data["total"] == 3 and data["lit"] == 3 and data["blocks"] == 2

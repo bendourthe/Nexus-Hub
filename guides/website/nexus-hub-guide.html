@@ -343,23 +343,53 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
 .callout--star .ci { color: var(--amber); font-size: 18px; line-height: 1.2; }
 
 /* ---------- Guardrails and safety ---------- */
-.guard-grid { display: grid; grid-template-columns: minmax(280px, 5fr) minmax(320px, 6fr); gap: var(--sp-5); align-items: center; margin-top: var(--sp-4); }
+.guard-grid { display: grid; grid-template-columns: minmax(260px, 4fr) minmax(360px, 7fr); gap: var(--sp-5); align-items: center; margin-top: var(--sp-4); }
 .guard-grid p { color: var(--ink-dim); }
 .guard-fig { margin: 0; }
-.guard-fig svg { width: 100%; height: auto; display: block; overflow: visible; }
-.guard-fig .g-ring { fill: none; stroke: var(--border-bright); stroke-width: 1.5; }
-.guard-fig .g-ring--nexus { stroke: var(--accent); }
-.guard-fig .g-model { fill: var(--surface); stroke: var(--border-bright); }
-.guard-fig .g-label { font: 600 11px var(--sans); fill: var(--ink-dim); text-transform: uppercase; letter-spacing: .08em; }
-.guard-fig .g-label--nexus { fill: var(--accent); }
-.guard-fig .g-port { font: 500 10.5px var(--mono); fill: var(--ink-faint); }
-.guard-fig .g-chip { fill: var(--surface-2); stroke: var(--border-bright); }
-.guard-fig .g-chip-text { font: 600 10.5px var(--mono); fill: var(--ink); }
-.guard-fig .g-asked { fill: var(--amber); font: 600 10px var(--sans); }
-.guard-fig .g-block { stroke: var(--red); stroke-width: 2.5; fill: none; }
-.guard-fig .g-blocked { fill: var(--red); font: 700 10px var(--sans); }
-.js .guard-fig .seq-rise.is-on ~ .g-ring--nexus.is-hot { stroke: var(--red); }
-.guard-fig figcaption { margin-top: 8px; font-size: 12.5px; color: var(--ink-faint); text-align: center; }
+/* v4.4.3: the v4.4.2 figure drew its labels as SVG <text> at a fixed 10.5px inside a 420-unit
+   viewBox that scales with the column, so a label wider than its chip escaped the chip and two
+   port names collided with the rings. Boxes that size to their own text cannot do that, so the
+   rings are nested elements and every label is a real inline box. The rings carry the concept
+   (the inner one asks, the outer one blocks); the lanes carry the evidence. */
+.guard-fig .gf-rings { display: flex; justify-content: center; margin-bottom: var(--sp-4); }
+.guard-fig .gf-ring { border: 1.5px solid var(--border-bright); border-radius: 18px; padding: 10px 14px 14px; }
+.guard-fig .gf-ring--nexus { border-color: var(--accent); border-style: dashed; width: 100%; max-width: 460px; }
+.guard-fig .gf-ring--platform { margin-top: 8px; background: color-mix(in srgb, var(--surface) 70%, transparent); }
+.guard-fig .gf-ring-tag { display: block; font: 700 12px var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-dim); }
+.guard-fig .gf-ring--nexus > .gf-ring-tag { color: var(--accent); }
+.guard-fig .gf-ring-note { display: block; font-size: 12px; color: var(--ink-faint); margin-top: 1px; }
+.guard-fig .gf-core {
+  margin: 10px auto 2px; width: max-content; padding: 12px 26px; border-radius: 12px;
+  background: var(--surface-2); border: 1px solid var(--border-bright);
+  font: 700 13px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink); text-align: center;
+}
+.guard-fig .gf-hooks { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.guard-fig .gf-hooks li { font: 500 11.5px var(--mono); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 6px; padding: 3px 7px; }
+.guard-fig .gf-lanes { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.guard-fig .gf-lane {
+  display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr) minmax(0, 6fr) minmax(0, 5fr);
+  align-items: center; gap: 6px;
+}
+.guard-fig .gf-cell {
+  min-width: 0; padding: 7px 9px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface); font-size: 12.5px; color: var(--ink-dim); overflow-wrap: break-word;
+}
+.guard-fig .gf-cell code { font-size: 12px; color: var(--ink); }
+.guard-fig .gf-cell b { color: var(--ink); font-weight: 650; }
+.guard-fig .gf-cell--ask { border-color: color-mix(in srgb, var(--amber) 45%, var(--border)); }
+.guard-fig .gf-cell--hook { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.guard-fig .gf-cell--stop { border-color: color-mix(in srgb, var(--red) 55%, var(--border)); }
+.guard-fig .gf-out { font: 700 12px var(--sans); letter-spacing: .04em; text-transform: uppercase; text-align: center; padding: 7px 6px; border-radius: 8px; }
+.guard-fig .gf-out--ok { color: var(--green); background: color-mix(in srgb, var(--green) 14%, transparent); }
+.guard-fig .gf-out--stop { color: var(--red); background: color-mix(in srgb, var(--red) 14%, transparent); }
+.guard-fig .gf-head { display: block; font: 700 10.5px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); padding: 0 9px 2px; }
+.guard-fig .gf-legend { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr) minmax(0, 6fr) minmax(0, 5fr); gap: 6px; }
+@media (max-width: 700px) {
+  .guard-fig .gf-legend { display: none; }
+  .guard-fig .gf-lane { grid-template-columns: 1fr 1fr; }
+  .guard-fig .gf-cell::before { content: attr(data-th) ": "; font-weight: 700; color: var(--ink-faint); }
+}
+.guard-fig figcaption { margin-top: 10px; font-size: 12.5px; color: var(--ink-faint); text-align: center; }
 
 /* ---------- Command migration table ---------- */
 .tbl-migrate { width: 100%; border-collapse: collapse; margin-top: var(--sp-4); font-size: 14.5px; }
@@ -372,6 +402,8 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
 .tbl-migrate th:nth-child(1) { color: var(--amber); }
 .tbl-migrate th:nth-child(2) { color: var(--accent); }
 .tbl-migrate th:nth-child(3) { color: var(--ink); }
+.tbl-migrate th:nth-child(1) { width: 27%; }
+.tbl-migrate th:nth-child(2) { width: 21%; }
 @media (max-width: 900px) { .tbl-migrate th { font-size: 20px; } }
 .tbl-migrate td { padding: 12px 10px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--ink-dim); }
 .tbl-migrate td:first-child code, .tbl-migrate td:nth-child(2) code { white-space: nowrap; }
@@ -1563,26 +1595,41 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 <p>Nexus Hub registers <span data-count="hooks">30</span> hooks on the platform's own tool events, <span data-count="pretooluse">15</span> of them before an action runs, and they block the action whatever the prompt said: secret scanning on every write, confirmation on destructive git operations, a large-file guard, and a memory-store guard.</p>
 <p>It is local-first. The reverse-engineer-first MCP policy keeps search, embeddings, scraping, and generation off third-party services, and this guide itself makes zero network calls.</p>
 </div>
-<figure class="guard-fig" id="nhg-guard-fig" data-seq-root data-seq-loop data-seq-hold="2600">
-<svg viewBox="0 0 420 260" role="img" aria-labelledby="nhg-guard-title">
-<title id="nhg-guard-title">A model inside a platform permission ring, inside a Nexus Hub hook ring; a risky commit passes the platform prompt and is blocked by a hook.</title>
-<rect class="g-ring g-ring--nexus" x="112" y="14" width="296" height="232" rx="26"/>
-<text class="g-label g-label--nexus" x="260" y="34" text-anchor="middle">Nexus Hub hooks &#183; blocks regardless</text>
-<rect class="g-ring" x="152" y="52" width="216" height="156" rx="20"/>
-<text class="g-label" x="260" y="70" text-anchor="middle">Platform permissions &#183; asks first</text>
-<rect class="g-model" x="205" y="98" width="110" height="64" rx="12"/>
-<text class="g-label" x="260" y="135" text-anchor="middle">Model</text>
-<text class="g-port" x="126" y="232">secret-scan</text>
-<text class="g-port" x="230" y="232" text-anchor="middle">git-guardrails</text>
-<text class="g-port" x="394" y="232" text-anchor="end">large-file-guard</text>
-<text class="g-port" x="394" y="50" text-anchor="end">memory-store-guard</text>
-<g class="seq-rise" data-seq="1" data-seq-dur="900"><rect class="g-chip" x="6" y="88" width="86" height="26" rx="7"/><text class="g-chip-text" x="49" y="105" text-anchor="middle">commit + key</text></g>
-<g class="seq-rise" data-seq="2" data-seq-dur="1100"><rect class="g-chip" x="160" y="180" width="86" height="26" rx="7"/><text class="g-chip-text" x="203" y="197" text-anchor="middle">commit + key</text><text class="g-asked" x="203" y="176" text-anchor="middle">asked, allowed</text></g>
-<g class="seq-rise" data-seq="3" data-seq-dur="1400"><rect class="g-chip" x="118" y="216" width="86" height="26" rx="7" transform="translate(0 -6)"/><path class="g-block" d="M112 214 l-14 -14 M98 214 l14 -14"/><text class="g-blocked" x="161" y="255" text-anchor="middle">blocked by secret-scan</text></g>
-<g class="seq-rise" data-seq="4" data-seq-dur="900"><rect class="g-chip" x="6" y="150" width="86" height="26" rx="7"/><text class="g-chip-text" x="49" y="167" text-anchor="middle">rewrite history</text></g>
-<g class="seq-rise" data-seq="5" data-seq-dur="1600"><path class="g-block" d="M112 158 l-14 -14 M98 158 l14 -14"/><text class="g-blocked" x="49" y="190" text-anchor="middle">blocked by git-guardrails</text></g>
-</svg>
-<figcaption>The inner ring asks. The outer ring blocks, whatever the prompt said.</figcaption>
+<figure class="guard-fig" id="nhg-guard-fig" data-seq-root data-seq-loop data-seq-hold="2800">
+<div class="gf-rings">
+<div class="gf-ring gf-ring--nexus" role="group" aria-label="Nexus Hub hook ring, which blocks regardless of the prompt">
+<span class="gf-ring-tag gf-ring-tag--nexus">Nexus Hub hooks</span>
+<span class="gf-ring-note">Block the action outright, whatever the prompt said</span>
+<div class="gf-ring gf-ring--platform" role="group" aria-label="Platform permission ring, which asks first">
+<span class="gf-ring-tag">Platform permissions</span>
+<span class="gf-ring-note">Ask first, and a model can be talked past the answer</span>
+<div class="gf-core">Model</div>
+</div>
+<ul class="gf-hooks" aria-label="Hooks that fire before an action runs"><li>secret-scan</li><li>git-guardrails</li><li>large-file-guard</li><li>memory-store-guard</li></ul>
+</div>
+</div>
+<div class="gf-legend" aria-hidden="true"><span class="gf-head">Attempted action</span><span class="gf-head">Platform ring</span><span class="gf-head">Nexus Hub ring</span><span class="gf-head">Result</span></div>
+<ol class="gf-lanes">
+<li class="gf-lane seq-rise" data-seq="1" data-seq-dur="900">
+<span class="gf-cell" data-th="Action"><code>edit a config file</code></span>
+<span class="gf-cell gf-cell--ask" data-th="Platform">asks, and is allowed</span>
+<span class="gf-cell gf-cell--hook" data-th="Nexus Hub">no hook objects</span>
+<span class="gf-out gf-out--ok">Runs</span>
+</li>
+<li class="gf-lane seq-rise" data-seq="2" data-seq-dur="1100">
+<span class="gf-cell" data-th="Action"><code>commit a file holding a key</code></span>
+<span class="gf-cell gf-cell--ask" data-th="Platform">asks, and is allowed</span>
+<span class="gf-cell gf-cell--stop" data-th="Nexus Hub"><b>secret-scan</b> refuses the write</span>
+<span class="gf-out gf-out--stop">Blocked</span>
+</li>
+<li class="gf-lane seq-rise" data-seq="3" data-seq-dur="1300">
+<span class="gf-cell" data-th="Action"><code>rewrite published history</code></span>
+<span class="gf-cell gf-cell--ask" data-th="Platform">asks, and is allowed</span>
+<span class="gf-cell gf-cell--stop" data-th="Nexus Hub"><b>git-guardrails</b> demands confirmation</span>
+<span class="gf-out gf-out--stop">Blocked</span>
+</li>
+</ol>
+<figcaption>Same three actions, same permissive answer at the prompt. The outer ring is what changes the outcome.</figcaption>
 </figure>
 </div>
 </section>

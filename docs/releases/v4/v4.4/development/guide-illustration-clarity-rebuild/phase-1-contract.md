@@ -41,6 +41,8 @@ it, with what replaced it. A test updated without a row here is how a silent loo
 | `test_v441_phase2_home.py` | `test_home_sections_render_in_the_agreed_order` | four heading strings carrying `you` or `your` | T5 | DONE |
 | `test_nexus_hub_guide.py` | `test_foundations_model_lifecycle_is_chronological_and_responsive` | `happens long before your request` | T5 | DONE: `happens long before any request` |
 | `test_nexus_hub_guide.py` | `test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff` | `you apply and check` | T5 | DONE: `every step is applied and checked` |
+| `test_v441_phase2_home.py` | `test_guardrails_section_names_only_shipped_registered_hooks` | `.g-port`, `.g-blocked`, and the `blocked by ` prefix | G1: the figure has no SVG | DONE: reads `.gf-hooks li` and the `<b>` hook name in each stop cell; the rule (only shipped, registered hooks named) is unchanged |
+| `test_v441_phase2_home.py` | `test_guardrails_choreography_reaches_a_fully_blocked_end_state` | `total == 5`, `.g-block` count | G1: three attempts, not five chips | DONE: `total == 3`, stop count read from `.gf-out--stop`; the rule (ends fully blocked) is unchanged |
 
 Not superseded, and deliberately not touched: `test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count`.
 The sweep pushed the How-it-works section to 118 words against a 116 ceiling, so the COPY was
@@ -66,5 +68,6 @@ shipped is therefore:
 |---|---|---:|---:|
 | start | v4.4.2 final | | 345,623 |
 | 1 | two size tokens, NexusFit, table-header grade, second-person sweep | +4,282 | 349,905 |
+| 2 | guardrails figure rebuilt in HTML, SVG removed, table column shares | +2,584 | 352,489 |
 
-Headroom at Phase 1 close: 150,095 under the ceiling.
+Headroom at Phase 2 close: 147,511 under the ceiling.
