@@ -76,7 +76,8 @@ def test_no_work_cycle_ring_survives_anywhere_in_a_scene(guide_text: str) -> Non
     fx = guide_text[guide_text.index('id="page-foundations"') : guide_text.index('id="page-training"')]
     assert 'class="fx-cycle"' not in fx, "the ring came back into a Foundations scene"
     assert 'data-grammar="work-cycle"' not in guide_text, "the ring grammar is retired"
-    assert guide_text.count('data-grammar="one-pass"') == 2, "both scenes share the replacement motif"
+    # v4.4.4 retired the platform scene's flow, so the motif belongs to the Models scene alone.
+    assert guide_text.count('data-grammar="one-pass"') == 1, "the motif belongs to the Models scene"
     # The CSS that spun it, and the reduced-motion state it needed, go with it.
     assert ".js .fx-scene.live .fx-cycle svg" not in guide_text
     assert "nhg-cycle-spin 6s" not in guide_text

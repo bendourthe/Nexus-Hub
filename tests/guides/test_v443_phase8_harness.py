@@ -72,7 +72,7 @@ def test_there_is_exactly_one_harness_scene(guide_text: str) -> None:
     assert fx.count('id="fx-harness"') == 1
     assert "fx-practice" not in guide_text, "the second harness scene must be gone, markup and styles"
     assert "fx-hstack" not in guide_text, "the retired SVG figure must not survive anywhere"
-    assert fx.count('class="fx-scene') == 7, "Foundations carries seven scenes after the merge"
+    assert fx.count('class="fx-scene') == 6, "Foundations carries six scenes after both merges"
     # Both halves of the story must live in the one scene.
     scene = fx[fx.index('id="fx-harness"') : fx.index("</section>", fx.index('id="fx-harness"'))]
     text = re.sub(r"<[^>]+>", " ", scene).lower()

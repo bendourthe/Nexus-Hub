@@ -17,7 +17,7 @@ start, because retiring the audio output and merging two Foundations scenes both
 | E4 | Prompt Engineering: vague prompt beside its flaws, full-width engineered prompt below | `test_v444_phase4_prompts.py` (4 tests) | 4 |
 | E5 | Context Engineering: copy full width, prompt left and material right, bad versus good with cost named | `test_v443_phase4_context.py` (`..._grid_of_examples`, `test_dumping_everything_names_its_cost`) | 5 |
 | E6 | Models: one model per provider without numbers, next-token, base versus reasoning, three modality tiers | `test_v444_phase6_models.py` (4 tests) | 6 |
-| E7 | ONE Agentic Platforms scene, chatbot merged in | NEW, Phase 7 | 7 |
+| E7 | ONE Agentic Platforms scene, chatbot merged in | `test_v443_phase7_comparison.py` (4, repointed) + `test_v441_phase4_foundations.py::test_the_agentic_scene_carries_the_comparison_and_the_boundary` | 7 |
 | E8 | Harnesses: animated journey carrying the brain, degree, and experience analogy | NEW, Phase 8 | 8 |
 | E9 | Matrix green, byte ledger closed | Phase 9 | 9 |
 
@@ -39,6 +39,17 @@ start, because retiring the audio output and merging two Foundations scenes both
 | `test_v442_phase4_media.py` | `test_output_labels_and_waveform_states`, `test_waveform_is_static_under_reduced_motion` | four output labels and the waveform's static and live states | E6 | DONE: replaced by one `test_modality_tier_labels`. The waveform tests are GONE rather than rewritten, because there is no waveform to be static or live. |
 | `test_v443_phase5_models.py` | `test_inside_the_model_states_three_true_things_with_the_caveat`, `test_released_models_are_named_from_three_providers` | the three-step block and the versioned provider list | E6 | DONE: both removed, because `test_v444_phase6_models.py` asserts the replacements. Thin duplicates would have meant two places to update and one going stale. |
 | `test_v443_phase5_models.py` | `test_the_video_output_plays_without_being_asked` | the label came from `.fx-out-tag` inside `.fx-out` | E6 | DONE: reads the omni tier's tag |
+| `test_nexus_hub_guide.py` | `test_foundations_phase3_has_eight_title_subtitle_scenes` | seven scenes, and the title `Chatbot vs. Agentic Platforms` | E7: the comparison moved inside the platform scene | DONE: six scenes, the entry removed |
+| `test_nexus_hub_guide.py` | `test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff` | `_foundation_scene(..., "fx-chatbot-agent")` and `Same request, different handoff` | E7 | DONE: reads the merged scene. Its three copy requirements (`same request`, `where the work happens`, `what each lane leaves behind`) were put BACK into the copy rather than out of the test. |
+| `test_nexus_hub_guide.py` | `test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback` | `data-grammar="one-pass"` count 2 | E7: the platform's flow is retired | DONE: 1 |
+| `test_v442_phase3_foundations.py` | two scene counts | seven scenes | E7 | DONE: six |
+| `test_v443_phase6_platforms.py` | `test_the_flow_is_choreographed_in_execution_order` | the five-stage flow and its order | E7: the flow is retired | DONE: removed, recorded here rather than quietly dropped; the comparison's choreography is asserted in the comparison module |
+| `test_v441_phase4_foundations.py` | `test_models_and_agentic_platform_share_visual_grammar` | two byte-identical entry motifs, three missions, an execution order | E7 | DONE: rewritten as `test_the_agentic_scene_carries_the_comparison_and_the_boundary`. The shared-grammar rule existed so a comparison BETWEEN two scenes would teach; with one scene carrying both lanes the sameness is on screen instead. |
+| `test_v442_phase4_media.py` | `test_flow_connectors_never_cross_a_card` | three roots, seven paths | E7: the retired flow owned one root and four connectors | DONE: two roots, three paths |
+| `test_v442_phase4_media.py` | `test_models_and_agentic_still_share_the_entry_and_inside_bytes` | two entries, byte-identical, and two one-pass motifs | E7 | DONE: renamed to `test_the_entry_motif_is_singular_after_the_merge`; one each, and the retired scene asserted absent |
+| `test_v442_phase1_foundation.py` | 23 section titles across the four pages | E7 | one scene fewer | DONE: 22 |
+| `test_v443_phase5_models.py` | `data-grammar="one-pass"` count 2 | E7 | DONE: 1 |
+| `test_v443_phase8_harness.py` | seven Foundations scenes | E7 | DONE: 6 |
 
 ## 3. One rule narrowed, with its reasoning
 
@@ -84,6 +95,21 @@ The first two are pre-existing and shipped invisible; only the third is this pha
 lesson is uncomfortable and worth keeping: **a contrast sweep that skips hidden text will pass a
 palette it never measured.** The missing `--blue` override is the same shape of gap: a token used for
 strokes and fills for four versions, then used for text once, at which point its absence mattered.
+
+## 3ba. The stale-offset splice, repeated
+
+v4.4.3 Phase 8 recorded this exact mistake: compute a section's offsets, edit something EARLIER in
+the file, then splice with the offsets already computed. v4.4.4 Phase 7 made it again. Inserting the
+new stylesheet block shifted every later index, so the merged scene was spliced into the middle of a
+base64 GIF payload, taking the Models scene's closing tags with it.
+
+It was caught immediately, by rendering the scene and looking at it: the screenshot showed an image
+alt text where a scene should have been. The guide was restored from the last commit and the splice
+redone with the spans recomputed.
+
+Recording a lesson in a history file did not prevent the repeat. What prevents it is the recompute
+sitting on the line above the splice, in the script, where the next person editing that script reads
+it. Both scripts now carry it.
 
 ## 3c. One accessibility contract strengthened
 

@@ -91,20 +91,27 @@ def test_flow_connectors_never_cross_a_card(playwright_mod, width: int) -> None:
             )
         finally:
             browser.close()
-    # Three roots by design: the Models flow, the request region nested inside it, and the Agentic flow.
-    assert data["roots"] == 3 and data["inline"] == 0, data
-    assert data["paths"] == 7, f"1 + 2 + 4 connectors expected, drew {data['paths']}"
+    # v4.4.4 retired the Agentic scene's six-stage flow, so two roots remain by design: the Models
+    # flow and the request region nested inside it.
+    assert data["roots"] == 2 and data["inline"] == 0, data
+    assert data["paths"] == 3, f"1 + 2 connectors expected, drew {data['paths']}"
     assert not data["crossings"], f"connectors overlap cards at {width}px: {data['crossings']}"
 
 
-def test_models_and_agentic_still_share_the_entry_and_inside_bytes(playwright_mod) -> None:
-    """v4.4.3 replaced the ring with the one-pass block; the sharing rule is unchanged."""
+def test_the_entry_motif_is_singular_after_the_merge(playwright_mod) -> None:
+    """v4.4.4 merged the two scenes, so there is one entry motif and one inside-the-model motif.
+
+    The byte-identical rule existed to make a comparison between two scenes teach. With one scene
+    carrying both lanes, the comparison is on screen instead, and the rule it replaced is recorded
+    as retired rather than quietly deleted.
+    """
     html = GUIDE.read_text(encoding="utf-8")
     import re
     entries = re.findall(r'<div class="fx-entry" data-grammar="entry">[\s\S]*?<div class="fx-ctx-plus"', html)
-    assert len(entries) == 2 and entries[0] == entries[1]
-    assert html.count('data-grammar="one-pass"') == 2
+    assert len(entries) == 1, "the entry motif belongs to the Models scene alone"
+    assert html.count('data-grammar="one-pass"') == 1
     assert html.count('data-grammar="work-cycle"') == 0, "the ring grammar is retired"
+    assert "fx-chatbot-agent" not in html, "the separate comparison scene must not come back"
 
 
 # ------------------------------------------------------------------ media

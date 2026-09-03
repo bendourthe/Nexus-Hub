@@ -115,25 +115,26 @@ def test_media_ledger_records_every_embedded_payload() -> None:
 # ------------------------------------------------------------------ shared visual grammar
 
 
-def test_models_and_agentic_platform_share_visual_grammar(guide_text: str) -> None:
-    """The comparison only teaches if the two scenes are the same picture up to the fork."""
+def test_the_agentic_scene_carries_the_comparison_and_the_boundary(guide_text: str) -> None:
+    """v4.4.4 retired the shared-grammar rule with the scene that made it possible.
+
+    The rule was that Models and Agentic Platform open with a byte-identical entry motif, so the
+    comparison between them teaches. v4.4.4 merged the chatbot comparison INTO the platform scene
+    and dropped its six-stage flow, so there is one entry motif in Foundations and nothing left to
+    compare it against. What replaced the rule is stronger for the reader: the platform scene now
+    shows one request going to BOTH lanes, so the sameness is on screen rather than in the markup.
+    """
     fx = guide_text[guide_text.index('id="page-foundations"'): guide_text.index('id="page-training"')]
-    assert fx.count('data-grammar="entry"') == 2, "both scenes must open with the entry motif"
-    assert fx.count('data-grammar="one-pass"') == 2, "both scenes must share the inside-the-model motif"
-    # The entry motif must be byte-identical between the scenes: same prompt, same kinds.
-    entries = re.findall(r'<div class="fx-entry" data-grammar="entry">[\s\S]*?</div>\s*<div class="fx-ctx-plus"', fx)
-    assert len(entries) == 2 and entries[0] == entries[1], (
-        "the prompt/context entry cards must be identical in Models and Agentic Platform"
-    )
-    assert fx.count('data-agent-mission') == 3, "exactly three specialized missions"
-    assert fx.count('data-grammar="boundary"') == 1
-    # DOM order inside Agentic Platform: entry -> cycle -> missions -> boundary -> report.
+    assert fx.count('data-grammar="entry"') == 1, "the entry motif belongs to the Models scene alone"
+    assert "fx-chatbot-agent" not in fx, "the separate comparison scene must not come back"
     agent = re.search(r'<section class="fx-scene[^"]*" id="fx-agent-platform"[\s\S]*?</section>', fx).group(0)
-    order = [agent.index(m) for m in (
-        'data-grammar="entry"', 'data-grammar="one-pass"', "data-agent-mission",
-        'data-grammar="boundary"', 'data-stage="observations"', 'data-stage="report"',
-    )]
-    assert order == sorted(order), "the agentic flow must read in execution order"
+    # one request, two lanes, chatbot first, and the boundary that makes the capability conditional
+    assert agent.count('data-phase3-node="shared-request"') == 1
+    assert agent.index('data-phase3-node="chatbot-handoff"') < agent.index('data-phase3-node="agent-handoff"')
+    assert agent.count('data-grammar="boundary"') == 1
+    assert "when permitted" in agent and "when supported" in agent
+    # the four things the agentic lane runs, that the chatbot lane cannot
+    assert agent.count('class="ap-step"') == 4, "four steps expected"
 
 
 # ------------------------------------------------------------------------ browser gates

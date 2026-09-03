@@ -1,5 +1,9 @@
 """v4.4.3 Phase 7 gates: chatbot versus agentic platforms, as an illustration of reach.
 
+v4.4.4 merged this comparison INTO the Agentic Platforms scene, so every selector here moved with
+it. The rules are unchanged: both lanes show the same two zones, only the reach differs, the
+unreached zone keeps full text contrast, and the split is choreographed and complete without motion.
+
 The scene was two columns of prose that asked the reader to hold four labelled sentences per lane
 and compare them. The rebuild draws what actually differs: both lanes show the SAME two zones, and
 only the reach changes. These tests assert that symmetry, because it is the whole argument -- a
@@ -53,13 +57,13 @@ def _scene(browser, width: int = 1440, **ctx_kw):
     page = ctx.new_page()
     page.goto(GUIDE.as_uri() + "#foundations")
     page.wait_for_function("window.NexusFit && window.NexusSeq")
-    page.locator("#fx-chatbot-agent").scroll_into_view_if_needed()
+    page.locator("#fx-agent-platform").scroll_into_view_if_needed()
     page.wait_for_timeout(300)
     return ctx, page
 
 
 LANES = """() => {
-  const lanes = [...document.querySelectorAll('#fx-chatbot-agent .fx-state')].map(a => ({
+  const lanes = [...document.querySelectorAll('#fx-agent-platform .fx-state')].map(a => ({
     lane: a.dataset.lane,
     node: a.dataset.phase3Node,
     zones: [...a.querySelectorAll('.cv-zone')].map(z => ({
@@ -72,11 +76,11 @@ LANES = """() => {
     })),
     parts: [...a.querySelectorAll('.fx-part dt')].map(d => d.textContent.trim()),
   }));
-  const shared = document.querySelectorAll('#fx-chatbot-agent [data-phase3-node="shared-request"]');
+  const shared = document.querySelectorAll('#fx-agent-platform [data-phase3-node="shared-request"]');
   return { lanes, shared: shared.length,
            sharedText: shared[0] ? shared[0].querySelector('p').textContent.trim() : null,
-           tips: document.querySelectorAll('#fx-chatbot-agent .cv-tip').length,
-           svgText: document.querySelectorAll('#fx-chatbot-agent svg text, #fx-chatbot-agent svg tspan').length };
+           tips: document.querySelectorAll('#fx-agent-platform .cv-tip').length,
+           svgText: document.querySelectorAll('#fx-agent-platform svg text, #fx-agent-platform svg tspan').length };
 }"""
 
 
@@ -140,7 +144,7 @@ def test_the_unreached_zone_keeps_full_text_contrast(playwright_mod) -> None:
                       if (c && !/rgba\\(0, 0, 0, 0\\)|transparent/.test(c)) return c; n = n.parentElement; }
                     return getComputedStyle(document.body).backgroundColor; };
                   let worst = 99;
-                  document.querySelectorAll('#fx-chatbot-agent .cv-zone .cv-zone-name, #fx-chatbot-agent .cv-zone .cv-zone-state')
+                  document.querySelectorAll('#fx-agent-platform .cv-zone .cv-zone-name, #fx-agent-platform .cv-zone .cv-zone-state')
                     .forEach(el => { const cs = getComputedStyle(el);
                       if (parseFloat(cs.opacity) < 1) worst = 0;
                       const a = lum(cs.color), b = lum(bgOf(el));
@@ -161,17 +165,17 @@ def test_the_split_is_choreographed_and_complete_without_motion(playwright_mod) 
         try:
             ctx, page = _scene(browser)
             page.wait_for_function(
-                "() => { const s = window.NexusSeq.state(document.querySelector('#fx-chatbot-agent .fx-cv'));"
+                "() => { const s = window.NexusSeq.state(document.querySelector('#fx-agent-platform .fx-cv'));"
                 " return s && s.step === s.total; }"
             )
             total = page.evaluate(
-                "() => window.NexusSeq.state(document.querySelector('#fx-chatbot-agent .fx-cv')).total"
+                "() => window.NexusSeq.state(document.querySelector('#fx-agent-platform .fx-cv')).total"
             )
             ctx.close()
 
             rctx, rpage = _scene(browser, reduced_motion="reduce")
             hidden = rpage.evaluate(
-                """() => [...document.querySelectorAll('#fx-chatbot-agent .fx-cv [data-seq]')]
+                """() => [...document.querySelectorAll('#fx-agent-platform .fx-cv [data-seq]')]
                      .filter(e => getComputedStyle(e).opacity !== '1').map(e => e.dataset.seq)"""
             )
             rctx.close()

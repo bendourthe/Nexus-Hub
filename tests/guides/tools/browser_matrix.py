@@ -135,10 +135,10 @@ def declare_groups() -> dict[str, list[dict]]:
     g["harness"] = [dict(label=f"harness-step{step}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
                          scroll="#fx-harness", seq=("hx-harness", step)) for step in (1, 3, 6, "end") for th in THEMES]
     g["comparison"] = [dict(label=f"compare-{state}-{th}-{w}", url=f"{base}#foundations", width=w, height=900, theme=th, retain=True,
-                            scroll="#fx-chatbot-agent", seq=("cv-compare", state))
+                            scroll="#fx-agent-platform", seq=("cv-compare", state))
                        for state in ("mid", "end") for th in THEMES for w in (420, 1440)]
-    g["platforms"] = [dict(label=f"platforms-step{step}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
-                           scroll="#fx-agent-platform", seq=("plat-flow", step)) for step in (1, 5, "end") for th in THEMES]
+    # v4.4.4 merged the comparison into the Agentic Platforms scene and retired its six-stage
+    # flow, so the comparison group below photographs that scene and this one is not needed.
     g["pointer"] = [dict(label=f"arena-pointer-paused-{th}-1440", url=f"{base}#training/describe", width=1440, height=900, theme=th, retain=True, pointer=True)
                     for th in THEMES]
     return g

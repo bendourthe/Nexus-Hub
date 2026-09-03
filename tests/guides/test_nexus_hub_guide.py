@@ -858,16 +858,17 @@ def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> 
     fx = _foundations_markup(guide_text)
     # v4.4.3 merged the two harness scenes into one, on the review's instruction that a reader
     # needs one picture of where the two loops sit rather than two to superimpose.
-    assert fx.count('class="fx-scene') == 7, "expected seven Foundations scenes"
-    assert fx.count('class="fx-title"') == 7
-    assert fx.count('class="fx-subtitle"') == 7
+    # v4.4.4 merged the chatbot comparison into the Agentic Platforms scene, on the review's
+    # instruction that one segment should carry the idea.
+    assert fx.count('class="fx-scene') == 6, "expected six Foundations scenes"
+    assert fx.count('class="fx-title"') == 6
+    assert fx.count('class="fx-subtitle"') == 6
     expected = [
         "Tokens Definition",
         "Prompt Engineering",
         "Context Engineering",
         "Models",
         "Agentic Platforms",
-        "Chatbot vs. Agentic Platforms",
         "Harnesses",
     ]
     found = re.findall(r'<h2 id="[^"]+"[^>]*>([^<]*)</h2>', fx)
@@ -888,9 +889,10 @@ def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> 
 def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
     guide_text: str,
 ) -> None:
-    scene = _foundation_scene(guide_text, "fx-chatbot-agent")
-    assert "Chatbot vs. Agentic Platform" in scene
-    assert "Same request, different handoff" in scene
+    # v4.4.4: the comparison lives inside the Agentic Platforms scene now.
+    scene = _foundation_scene(guide_text, "fx-agent-platform")
+    assert "Agentic Platforms" in scene
+    assert "Where a chatbot answers, an agentic platform can act" in scene
     # v4.4.1 Phase 4: the comparison is an HTML two-lane group, chatbot lane first.
     assert scene.count('data-phase3-node="shared-request"') == 1
     assert scene.index('data-phase3-node="chatbot-handoff"') < scene.index(
@@ -984,8 +986,11 @@ def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
     which keeps the liveness gate the ring used to carry.
     """
     fx = _foundations_markup(guide_text)
-    assert fx.count('data-grammar="one-pass"') == 2, (
-        "Models and Agentic Platforms must share the same inside-the-model motif"
+    # v4.4.4 retired the platform scene's six-stage flow, so the one-pass motif belongs to Models
+    # alone. What the two scenes now share is the request: the comparison sends the SAME prompt to
+    # both lanes, which is asserted in the comparison module.
+    assert fx.count('data-grammar="one-pass"') == 1, (
+        "the inside-the-model motif belongs to the Models scene"
     )
     assert 'class="fx-cycle"' not in fx, "the work-cycle ring must not come back into a scene"
     assert ".js .hero-lockup.live .hero-lockup-float" in guide_text, (

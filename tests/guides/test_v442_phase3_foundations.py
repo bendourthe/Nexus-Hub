@@ -123,7 +123,7 @@ def test_scene_titles_come_before_their_subtitles(playwright_mod) -> None:
             )
         finally:
             browser.close()
-    assert len(rows) == 7, "v4.4.3 merged the two harness scenes"
+    assert len(rows) == 6, "v4.4.4 also merged the chatbot comparison into Agentic Platforms"
     for row in rows:
         assert row["title"] and row["subtitle"], row
         assert row["titleFirstOnScreen"] and row["titleFirstInDom"], row
@@ -150,7 +150,7 @@ def test_no_scene_has_an_empty_column_at_1440(playwright_mod) -> None:
             )
         finally:
             browser.close()
-    assert len(scenes) == 7, "v4.4.3 merged the two harness scenes"
+    assert len(scenes) == 6, "v4.4.4 also merged the chatbot comparison into Agentic Platforms"
     for sc in scenes:
         if sc["cols"] == 1:
             continue

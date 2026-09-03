@@ -121,45 +121,13 @@ def test_the_copy_is_shorter_and_keeps_its_conditional_language(scene: str) -> N
         assert keep in lowered, f"the cut removed load-bearing language: {keep!r}"
 
 
-def test_the_flow_is_choreographed_in_execution_order(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        try:
-            ctx = browser.new_context(viewport={"width": 1440, "height": 1000})
-            page = ctx.new_page()
-            page.goto(GUIDE.as_uri() + "#foundations")
-            page.wait_for_function("window.NexusSeq && window.NexusFlow")
-            page.locator("#fx-agent-platform").scroll_into_view_if_needed()
-            page.wait_for_function(
-                "() => { const s = window.NexusSeq.state("
-                "document.querySelector('#fx-agent-platform .fx-model-flow')); return s && s.step === s.total; }"
-            )
-            data = page.evaluate(
-                """() => {
-                    const flow = document.querySelector('#fx-agent-platform .fx-model-flow');
-                    const steps = [...flow.querySelectorAll('[data-seq]')].map(e => +e.getAttribute('data-seq'));
-                    const order = ['data-grammar="entry"', 'data-grammar="one-pass"', 'data-grammar="missions"',
-                                   'data-grammar="boundary"', '[data-stage="report"]'];
-                    const tops = order.map(sel => {
-                      const el = sel.startsWith('[') ? flow.querySelector(sel) : flow.querySelector('[' + sel.replace(/"/g, '\\"') + ']');
-                      return el ? Math.round(el.getBoundingClientRect().top) : null;
-                    });
-                    return { total: window.NexusSeq.state(flow).total, steps,
-                             lit: flow.querySelectorAll('.is-on').length, tops };
-                }"""
-            )
-            ctx.close()
-        finally:
-            browser.close()
-    assert data["total"] == 5, data
-    assert data["steps"] == [1, 2, 3, 4, 5], data["steps"]
-    assert data["lit"] == 5, "every stage must be lit at the end state"
-    tops = [t for t in data["tops"] if t is not None]
-    assert len(tops) == 5, data["tops"]
-    assert tops == sorted(tops), f"the stages do not read top to bottom: {tops}"
-
-
 def test_every_stage_is_visible_without_motion(playwright_mod) -> None:
+    """v4.4.4 retired the six-stage flow this once measured.
+
+    The review called that flow unreadable, so the scene now carries the chatbot comparison and four
+    chips instead. The comparison's own choreography is asserted in `test_v443_phase7_comparison.py`;
+    what remains worth holding here is that nothing in the scene is hidden without motion.
+    """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
@@ -170,7 +138,7 @@ def test_every_stage_is_visible_without_motion(playwright_mod) -> None:
             page.locator("#fx-agent-platform").scroll_into_view_if_needed()
             page.wait_for_timeout(300)
             hidden = page.evaluate(
-                """() => [...document.querySelectorAll('#fx-agent-platform .fx-model-flow [data-seq]')]
+                """() => [...document.querySelectorAll('#fx-agent-platform [data-seq]')]
                      .filter(e => getComputedStyle(e).opacity !== '1')
                      .map(e => e.getAttribute('data-seq'))"""
             )
