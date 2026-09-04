@@ -87,6 +87,23 @@ before it writes.
 Found by screenshot, as with the Gemini mark in Phase 1. Two of this plan's five defects so far
 were invisible to the suite and obvious to a rendered image.
 
+### 3f. A test that passed on a broken layout (Phase 7)
+
+The artifact chain shipped as four full-width chips stacked one per line, which is not a chain,
+and the test passed. It asserted that the chips' left offsets were SORTED, and four identical
+offsets sort perfectly well.
+
+Two lessons, and the second is the bigger one.
+
+The layout cause is the specificity trap this project has now recorded three times: `.hx-row
+span { display: block }` has two components, a lone `.hx-chain` has one, and the lone class loses
+on source order no matter what it declares. Every chain selector is compound now.
+
+**A sorted list is not a proof of order when the values can be equal.** The assertion now
+measures what actually failed: four chips on ONE row, with four DISTINCT and increasing offsets.
+This is the same shape of error as Phase 5's duplication and Phase 1's blank mark: an assertion
+that describes the intent rather than the failure mode passes on the failure.
+
 ## 4. Byte ledger
 
 | Phase | Change | Bytes | Running total |
@@ -98,5 +115,6 @@ were invisible to the suite and obvious to a rendered image.
 | 4 | token captions restyled and renamed; three Context Engineering renames; three dead selectors fixed | -47 | 380,706 |
 | 5 | Models rebuilt on the eight-stage spine; Select and Predict stages added; provider row dropped | +6165 | 386,871 |
 | 6 | Agentic Platforms: the equation, three visible boundary settings, the six-part anatomy | +5043 | 391,914 |
+| 7 | Harnesses: a limit or guarantee on every layer, the five-step work sequence, the artifact chain | +4511 | 396,425 |
 
 Counts are of the file as stored (LF). The worktree copy is CRLF under `core.autocrlf`, so an on-disk byte count runs about 5 KB higher and is not the ledger's number.

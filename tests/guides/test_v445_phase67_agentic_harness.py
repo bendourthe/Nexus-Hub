@@ -186,6 +186,7 @@ def test_the_artifact_chain_is_shown_rather_than_claimed(playwright_mod) -> None
                     const rows = [...document.querySelectorAll('#fx-harness .hx-row b')];
                     return { chips: chips.map(c => c.textContent.trim()),
                              lefts: chips.map(c => Math.round(c.getBoundingClientRect().left)),
+                             tops: chips.map(c => Math.round(c.getBoundingClientRect().top)),
                              rows: rows.map(r => r.textContent.trim()) };
                 }"""
             )
@@ -193,8 +194,15 @@ def test_the_artifact_chain_is_shown_rather_than_claimed(playwright_mod) -> None
         finally:
             browser.close()
     assert data["chips"] == ["skill", "plan", "gate", "evidence"], data["chips"]
-    assert data["lefts"] == sorted(data["lefts"]), (
-        f"a chain has to read in one direction: {data['lefts']}"
+    # Sorted left offsets are NOT enough: four identical offsets sort fine, and that is
+    # exactly what a stacked chain produces. The first run of this phase shipped one chip per
+    # line at full width and this assertion passed. One row with strictly increasing offsets
+    # is the property that failed, so it is the property measured.
+    assert len(set(data["tops"])) == 1, (
+        f"the chain must read across one row, not stack: tops {data['tops']}"
+    )
+    assert data["lefts"] == sorted(data["lefts"]) and len(set(data["lefts"])) == 4, (
+        f"a chain has to read in one direction, one chip at a time: {data['lefts']}"
     )
     assert len(data["rows"]) == 4, f"two rows per lane, both lanes: {data['rows']}"
 
