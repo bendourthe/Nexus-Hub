@@ -274,3 +274,54 @@
 - **Phases 1 and 2 share one commit.** Both are Home wording and illustration work, and the Phase 1 edits were already in the working tree when Phase 2 began; splitting afterwards would have meant reconstructing a boundary rather than observing one.
 - **One word-count rule narrowed rather than raised.** The v4.4.1 ceiling on restored Home prose now excludes blocks marked `data-v444-new`, which carry their own explicit cap. Restored prose still cannot creep back toward its v4.1.2 length, and the new figure cannot grow unmeasured.
 - **The audio asset is retired but not deleted.** The staged WAV stays in `assets/` and its ledger row stays in the provenance document, so a future reinstatement needs the approval gate rather than a new acquisition pass.
+
+## v4.4.5 - guide-mockup-integration
+
+**Plan**: [v4.4.5-guide-mockup-integration.md](plans/v4.4.5-guide-mockup-integration.md)
+**Base**: the v4.4.4 closeout at `3ac90bb2`, on the same branch (neither v4.4.3 nor v4.4.4 was published)
+**Status**: eight phases complete locally. Still deliberately UNPUBLISHED: the operator reviews Home and Foundations before Training work begins.
+
+### Closed during v4.4.5
+
+| ID | What it was | Closed in |
+|---|---|---|
+| MI-1 | The portability figure revealed itself in three steps, which the review said made the boxes hard to read; it had no platform logos, and its triangles drifted off centre at every width but the authored one | Phase 1 |
+| MI-2 | Eleven Foundations tag rules each declared their own hand-written size, and every one of them was half the size the review asked for | Phase 2 |
+| MI-3 | The prompt's four parts used a vocabulary the review replaced, and one word changed MEANING rather than spelling | Phase 3 |
+| MI-4 | The vague prompt sat in a narrow column beside one tall stack of flaws | Phase 3 |
+| MI-5 | Two token captions rendered as plain body text because their rule had matched nothing since the figure moved | Phase 4 |
+| MI-6 | Models catalogued its content instead of following the eight-stage spine the review supplied, and had no Select or Predict stage | Phase 5 |
+| MI-7 | Agentic Platforms never said what "agentic" means, and its boundary showed one setting of three | Phase 6 |
+| MI-8 | Only one of the three harness layers stated a limit; the outer loop's work sequence was absent and its artifact chain was claimed rather than shown | Phase 7 |
+
+### Defects this plan introduced and fixed inside it
+
+| ID | Defect | Found by | Fixed in |
+|---|---|---|---|
+| BG-32 | Hoisting the four vendor marks into shared symbols rendered the Gemini mark BLANK: a `<use>` clone resolves a mask reference against its own shadow tree and found the cloned mask | a screenshot | Phase 1 |
+| BG-33 | Hoisting that mask to document level, the documented workaround, rendered an unmasked SQUARE | a screenshot | Phase 1 |
+| BG-34 | The centring measurement reported a triangle 530px off centre inside a 720px figure, by comparing a hidden lane's zero rect against a real box | reading an impossible number | Phase 1 |
+| BG-35 | The Models rebuild rendered the base-versus-reasoning lanes TWICE, because `.mx-lanes` was a child of `.fx-pass` rather than its sibling. Every test passed | a screenshot | Phase 5 |
+| BG-36 | `data-stage="output"` landed on both the phase wrapper and the harvested tiers block | the v4.4.1 chronology guard | Phase 5 |
+| BG-37 | The artifact chain shipped as four full-width chips stacked one per line. The test passed, because four identical left offsets sort perfectly well | a screenshot | Phase 7 |
+
+### Pre-existing defects found and closed
+
+| ID | Defect | Note |
+|---|---|---|
+| BG-38 | `.fx-copy .fx-tokfig-cap`, `--mid`, and `.fx-tokfig-note` have matched NOTHING since the token figure moved into `.fx-diagram`. Both captions and the note under the chips have been rendering as plain 16px sentence-case body text | This is what the review is asking about when it wants a caption "styled like 'Vague'": the styling the rule already described and never applied. The v4.4.3 class-coverage guard cannot catch this class of defect - it proves a class USED in the markup has a rule, not that a rule's selector matches anything. Those are different questions. |
+
+### Open
+
+- **`RV-3` The Models scene names `xAI Grok`, not `Cursor Grok` as the brief listed.** Grok is xAI's model; Cursor is a platform that serves models. Applied with the correction flagged rather than silently, and carried forward from `RV-1` because the brief repeated the pairing.
+- **`RV-4` `Context Engineering Best Practices` now reads QUIETER than the two budget tags below it.** Both instructions were followed exactly and they pull against each other: the heading was asked to match the scene subtitle (17px, weight 500, dimmed), and Phase 2 doubled the tags under it to 23px. Which one wins is the operator's call.
+- **`RV-5` The Home label still renders slightly larger than its title**, carried from `RV-2`. Unchanged by this plan.
+- **`GA-1` A rule's selector is never proven to match anything.** `BG-38` shipped for versions because no guard asks that question, and there is no reason to believe it is the only dead selector in a 396 KB stylesheet. A dead-selector sweep would be cheap and is not in this plan.
+- **`HT-4` (carried)** No human comprehension cohort. Three rounds of operator review have now driven these illustrations, which is far better than none, but no reader outside this loop has been asked whether the pictures land.
+- **`CQ-1`, `HT-2`, `QG-1` (carried)** Unchanged by this plan.
+
+### Deviations recorded
+
+- **Phases 6 and 7 are separate commits, but Phase 6's evidence is targeted rather than the full suite.** The full guides suite ran at Phase 7, the next change to the same file. Running it twice for two consecutive edits to one artifact buys nothing, and Phase 6's own modules plus the broad module were green at its commit.
+- **The mockups' four closing truths are not all imported.** Two of the agentic mockup's four are now said by the equation and by step 02 of the existing loop; a reader told the same thing twice trusts the second telling less. The two said nowhere else are folded into the boundary block and the closing note.
+- **The Gemini mark is duplicated rather than shared, at a cost of about 12 KB.** Three attempts at sharing are recorded in `BG-32`, `BG-33`, and the ledger hash guard. The approved bytes stay where the ledger pinned them.

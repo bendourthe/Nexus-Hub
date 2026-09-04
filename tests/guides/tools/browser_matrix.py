@@ -134,6 +134,12 @@ def declare_groups() -> dict[str, list[dict]]:
     # became choreographed. Each group names the id its sequence root now has.
     g["harness"] = [dict(label=f"harness-step{step}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
                          scroll="#fx-harness", seq=("hx-harness", step)) for step in (1, 3, 5, "end") for th in THEMES]
+    # v4.4.5 rebuilt Models on an eight-stage spine, and a rebuilt scene that nothing
+    # photographs is a scene whose duplication ships. This plan's Phase 5 shipped exactly that
+    # for one commit, so the scene now has its own group at a narrow and a wide width.
+    g["models"] = [dict(label=f"models-{th}-{w}", url=f"{base}#foundations", width=w, height=900,
+                        theme=th, retain=True, scroll="#fx-model-lifecycle")
+                   for th in THEMES for w in (420, 1440)]
     g["comparison"] = [dict(label=f"compare-{state}-{th}-{w}", url=f"{base}#foundations", width=w, height=900, theme=th, retain=True,
                             scroll="#fx-agent-platform", seq=("cv-compare", state))
                        for state in ("mid", "end") for th in THEMES for w in (420, 1440)]

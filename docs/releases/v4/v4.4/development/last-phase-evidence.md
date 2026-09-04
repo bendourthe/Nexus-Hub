@@ -1005,3 +1005,83 @@ Recorded in the same contract's register. The two that retired a rule rather tha
 No P0 and no P1. Every task in the plan is measured. Two items are the operator's to judge rather than defects, both recorded in `known-gaps.md`: the Models scene names `xAI Grok` rather than `Cursor Grok` as the brief listed, because Grok is xAI's model and Cursor is a platform that offers models; and the Home label still renders slightly larger than its title, which is what tripling one and halving the other produces.
 
 <!-- END v4.4.4-guide-teaching-clarity-rebuild -->
+
+<!-- BEGIN v4.4.5-guide-mockup-integration -->
+
+# Last-Phase Evidence - v4.4.5 Guide Mockup Integration
+
+**Date**: 2026-09-04
+**Branch**: `feat/v4.4.3-guide-illustration-rebuild` (neither v4.4.3 nor v4.4.4 was published, so v4.4.5 continues on it)
+**Base revision**: `3ac90bb2`, the v4.4.4 closeout
+**Publication state**: NOT published. Eight phases are committed locally. Nothing was pushed, no pull request was opened, and no remote pipeline ran. The operator reviews Home and Foundations before Training work begins.
+
+## What the third review round asked for
+
+Two different kinds of change, kept apart by the plan on purpose.
+
+**Precise corrections** to scenes that already worked (Phases 1 to 4): stop an animation that made a figure hard to read, add the platform logos, centre the connectors, widen a strip, double the block tags, rename the prompt's four parts, re-lay out two figures, and restyle two captions.
+
+**Three full scene rebuilds** from operator-supplied mockups (Phases 5 to 7). This is the part worth recording carefully, because the mockups and this guide have incompatible constraints.
+
+| Phase | Scene | What the mockup gave | What it could not give |
+|---|---|---|---|
+| 5 | Models | The eight-stage spine, and two stages the guide lacked: Select and Predict | Two tablists, a ring whose labels and arrows lived in unrelated coordinate systems, a `<select>`, a `<textarea>`, and a run button |
+| 6 | Agentic Platforms | The model-plus-harness equation, the boundary's three settings, the six-part anatomy | Scenario tabs, boundary buttons, a run button, a 720x520 SVG map |
+| 7 | Harnesses | A limit or guarantee on every layer, the five-step work sequence, the artifact chain | Layer, mode, and host buttons, a run button, a hero orbit, a 760x470 SVG map |
+
+Each mockup hid at least one of its best lessons behind a control. The agentic one only teaches that a boundary REPORTS a refusal rather than routing around it if the reader presses read-only and watches step 03 stop. Those states are all on the page now, and the tests assert multiplicity rather than presence.
+
+## Verification
+
+```text
+NEXUS_REQUIRE_RENDER=1 pytest -q tests/guides/ tests/verification/test_visual_defect_detector.py
+                                                        376 passed, 1 skipped in 341s
+
+python tests/guides/tools/browser_matrix.py --label phase-8-v445
+    cases 158/158 | screenshots 132/132 | failures 0
+    runtime 151s / 1200s | evidence 12.9 MiB / 30 MiB
+
+python scripts/ci/run.py --profile fast --quiet                 13 passed, 0 failed
+python scripts/ci/run.py --profile full --only docs,catalog,security --quiet
+                                                                16 passed, 0 failed
+python scripts/stamp_guide_counts.py --check
+    5 markers match the catalog (skills=329, hooks=30, pretooluse=15, commands=18)
+python scripts/check_docs_conventions.py                        OK
+```
+
+The matrix grew from 154 to 158 cases. Phase 8 gave the rebuilt Models scene its own group at a narrow and a wide width in both themes, because **a rebuilt scene that nothing photographs is a scene whose duplication ships** - which is precisely what Phase 5 did for one commit.
+
+## Byte ledger
+
+Closed in [`guide-mockup-integration/phase-1-contract.md`](guide-mockup-integration/phase-1-contract.md).
+
+Final: **396,425 bytes**, 103,575 under the ceiling. The plan named the ceiling as this round's real constraint, and it was the right thing to watch: three scene rebuilds plus four copied vendor marks spent 29,896 of 133,471 bytes of headroom. The largest single line item is not a rebuild but the 12 KB of duplicated vendor artwork, which bought one thing worth buying: the approved bytes stayed where the ledger pinned them.
+
+## Defect ledger
+
+Six defects were introduced by this plan and fixed inside it, and one pre-existing defect was found and closed. All are in `known-gaps.md` as `BG-32` through `BG-38`. One theme runs through them and it is the finding of this plan:
+
+**Three of the six shipped past a passing test, and they passed for the same reason.** A vendor mark asserted as an ELEMENT rendered blank. A rebuilt scene asserted for presence, order, balance, and containment said everything TWICE. An artifact chain asserted as `lefts == sorted(lefts)` stacked one chip per line, because four identical offsets sort perfectly well. In each case the assertion described the INTENT and the failure mode slipped underneath it. The three replacements measure a painted box larger than 8px, an exact occurrence count, and four distinct increasing offsets on one row.
+
+**Two of the six were found by looking at a screenshot, not by the suite.** That is now the second plan in a row where the rendered image caught what 300-plus tests could not, and it is worth treating as a standing practice rather than a lucky habit.
+
+The pre-existing defect is the sharpest one. `.fx-copy .fx-tokfig-cap` has matched NOTHING since the token figure moved into `.fx-diagram`, so two captions and a note have been rendering as plain body text for versions. The v4.4.3 class-coverage guard cannot catch this class: it proves a class USED in the markup has a rule, and says nothing about whether a rule's selector matches anything. Those are different questions and only one was being asked. `GA-1` records that the other direction is still unguarded.
+
+## Superseded assertions
+
+Six register rows in the same contract. The two that retired a rule rather than repointing one:
+
+- **The portability figure's three-step reveal.** v4.4.4 asserted `NexusSeq.state(fig).total == 3`. The review said the animation made the figure hard to read, so the assertion is INVERTED to require no sequence root at all.
+- **The flaws beside the vague prompt.** v4.4.4 asserted that arrangement, having itself corrected v4.4.3's. This round asked for a third arrangement. Recorded as inverted, not deleted, because the previous two were also requested and a reader of this file should be able to see that.
+
+## Documentation
+
+`guides/website/README.md` carries five new v4.4.5 rules: an assertion has to describe the failure rather than the intent; a rename is not finished until every sentence about the old name has been read; one tag size from one token, with the in-cell exception asserted in both directions; an approved asset is copied rather than shared when sharing would rewrite it; and a mockup is a source of teaching rather than markup to paste.
+
+## GO / NO-GO
+
+**GO for the operator's review, NO-GO for publication until that review happens.**
+
+No P0 and no P1. Every task in the plan is measured. Three items are the operator's to judge rather than defects, all in `known-gaps.md`: the Models scene names `xAI Grok` rather than `Cursor Grok` as the brief listed, because Grok is xAI's model and Cursor is a platform that serves models; `Context Engineering Best Practices` now reads quieter than the two tags below it, because "match the subtitle" and "double the tags" were both followed exactly and pull against each other; and the Home label still renders larger than its title, which is what the first round's two numbers produce.
+
+<!-- END v4.4.5-guide-mockup-integration -->

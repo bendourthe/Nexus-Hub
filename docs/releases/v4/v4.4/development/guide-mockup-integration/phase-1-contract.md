@@ -116,5 +116,10 @@ that describes the intent rather than the failure mode passes on the failure.
 | 5 | Models rebuilt on the eight-stage spine; Select and Predict stages added; provider row dropped | +6165 | 386,871 |
 | 6 | Agentic Platforms: the equation, three visible boundary settings, the six-part anatomy | +5043 | 391,914 |
 | 7 | Harnesses: a limit or guarantee on every layer, the five-step work sequence, the artifact chain | +4511 | 396,425 |
+| 8 | Verification and closeout; no artifact change | 0 | 396,425 |
+
+Final: **396,425 bytes**, 103,575 under the 500,000 ceiling. The plan's own risk section named the ceiling as the real constraint this time, and three scene rebuilds plus four duplicated vendor marks spent 29,896 bytes against 133,471 of headroom.
+
+The single largest line item is not a rebuild. It is the 12 KB of copied vendor artwork in Phase 1, which bought one thing: the approved bytes stayed exactly where the ledger pinned them. Two of the three scene rebuilds cost less than half that each.
 
 Counts are of the file as stored (LF). The worktree copy is CRLF under `core.autocrlf`, so an on-disk byte count runs about 5 KB higher and is not the ledger's number.
