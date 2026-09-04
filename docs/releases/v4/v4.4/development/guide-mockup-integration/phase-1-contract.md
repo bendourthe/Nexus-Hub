@@ -15,6 +15,7 @@ Two kinds of change, kept apart on purpose. Precise corrections to scenes that a
 |---|---|---|---|---|
 | S1 | `test_the_segment_carries_both_benefits` asserted `NexusSeq.state(fig).total == 3` on the portability figure | that the figure reveals itself in three steps | Phase 1 retired the reveal on instruction; the assertion is INVERTED to require no `data-seq-root` | Phase 1 |
 | S2 | The same test counted `.ph-fan span` | the fan's connectors were bare `span` triangles | Phase 1 rebuilt each connector as a `.ph-lane` carrying a line, a travelling dot, and the triangle | Phase 1 |
+| S3 | Eight rules declared a hand-written `11px`, `11.5px`, or `12px` tag size | that each tag owned its own number | Phase 2 moved them all onto one `--fx-tag` token | Phase 2 |
 
 ## 3. Mistakes this plan made, and what they cost
 
@@ -36,11 +37,27 @@ The first centring measurement reported a triangle 530px off centre inside a 720
 
 The lesson is narrow and worth keeping: **a geometry check must filter for visibility before it compares.** The version in the test does, and it also asserts what the narrow layout is actually for, which is a single centred arrow rather than four arrows over a two-column list, where a per-box arrow would point at the gap between two boxes.
 
+### 3c. A dead CSS rule found while measuring Phase 2 (pre-existing)
+
+Phase 2's measurement reported `.fx-tokfig-cap` at 16px when every other block tag had moved to
+23px. The rule is selected as `.fx-copy .fx-tokfig-cap`, and the captions it was written for live
+in `.fx-diagram`, so it has matched NOTHING since the figure moved. Both token captions have been
+rendering as plain 16px sentence-case body text.
+
+This is why the review's screenshot 4 asks for one of them to be "styled like 'Vague'": it is
+asking for the styling the rule already describes and never applied. Phase 4 owns the fix, because
+that is the phase that renames the captions.
+
+The class-coverage guard added in v4.4.3 could not catch this. It proves every class USED in the
+markup has a style rule; it says nothing about whether a rule's selector matches anything. The two
+questions are different and only one of them was being asked.
+
 ## 4. Byte ledger
 
 | Phase | Change | Bytes | Running total |
 |---|---|---:|---:|
 | start | v4.4.4 final | | 366,529 |
 | 1 | portability figure: reveal retired, flow pulse, four copied marks, full-width strip | +14,090 | 380,619 |
+| 2 | one tag-size token; every Foundations block tag doubled | +105 | 380,724 |
 
 Counts are of the file as stored (LF). The worktree copy is CRLF under `core.autocrlf`, so an on-disk byte count runs about 5 KB higher and is not the ledger's number.

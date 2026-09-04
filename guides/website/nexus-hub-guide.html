@@ -255,7 +255,7 @@ h2 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); line-height: 1.2; letter-spacing:
    and the title stops dominating the viewport. Two tokens, never edited per selector. Nothing here can
    guarantee a single line on its own, because a fixed size cannot know the container: NexusFit shrinks
    any label or title that would wrap, down to a 15px floor. */
-:root { --title-scale: 1.2; --eyebrow-scale: 3; }
+:root { --title-scale: 1.2; --eyebrow-scale: 3; --fx-tag: 23px; }
 .section-title {
   font-size: clamp(calc(1.2rem * var(--title-scale)), calc(2.4vw * var(--title-scale)), calc(1.7rem * var(--title-scale)));
   line-height: 1.05; letter-spacing: -.02em; text-wrap: balance; overflow-wrap: break-word;
@@ -426,7 +426,7 @@ html[data-theme="light"] .guard-fig .gf-out { background: transparent; border: 1
 .ph-target b { display: block; color: var(--ink); font-size: 13.5px; font-weight: 650; }
 .ph-target span { display: block; margin-top: 1px; color: var(--ink-faint); font-size: 11.5px; }
 .ph-switch { padding: 11px 13px; border: 1px solid var(--border-bright); border-radius: var(--radius-sm); background: var(--bg-0); }
-.ph-switch-tag { display: block; color: var(--teal-soft); font: 700 11px var(--sans); letter-spacing: .08em; text-transform: uppercase; }
+.ph-switch-tag { display: block; color: var(--teal-soft); font: 700 var(--fx-tag) var(--sans); letter-spacing: .08em; text-transform: uppercase; }
 .ph-run { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) auto repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 8px; margin-top: 8px; }
 .ph-step { display: flex; min-width: 0; flex-direction: column; justify-content: center; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); }
 .ph-step code { background: transparent; border: 0; padding: 0; color: var(--teal-soft); font-weight: 700; font-size: 13px; }
@@ -520,7 +520,7 @@ html[data-theme="light"] .guard-fig .gf-out { background: transparent; border: 1
 .ann-legend-row[data-part="material"], .ann-legend-row[data-part="context"] { --ann: var(--blue); }
 .ann-legend-row[data-part="done"] { --ann: var(--amber); }
 .ann-legend-row[data-part="format"] { --ann: var(--cyan); }
-.ann-legend-row dt { display: block; font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ink); }
+.ann-legend-row dt { display: block; font-size: var(--fx-tag); font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ink); }
 .ann-legend-row dt::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 2px; background: var(--ann); margin-right: 6px; vertical-align: 1px; }
 .ann-legend-row dd { display: block; margin: 2px 0 0; font-size: 13.5px; line-height: 1.4; color: var(--ink-dim); }
 .js .ann-legend-row.is-on { background: color-mix(in srgb, var(--ann) 14%, transparent); }
@@ -552,7 +552,7 @@ html[data-theme="light"] .guard-fig .gf-out { background: transparent; border: 1
 .hxf-step--nexus { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
 .hxf-step--out { border-color: var(--green); }
 .hxf-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
-.hxf-tag { font: 700 12px var(--sans); letter-spacing: .09em; text-transform: uppercase; color: var(--ink-dim); }
+.hxf-tag { font: 700 var(--fx-tag) var(--sans); letter-spacing: .09em; text-transform: uppercase; color: var(--ink-dim); }
 .hxf-step--nexus .hxf-tag { color: var(--accent); }
 .hxf-step--out .hxf-tag { color: var(--green); }
 .hxf-like { font-size: 13px; font-weight: 650; color: var(--ink); }
@@ -570,7 +570,7 @@ html[data-theme="light"] .guard-fig .gf-out { background: transparent; border: 1
    an agentic platform can also act. The comparison is now the illustration, and what the platform
    does beyond answering is four chips rather than six stacked stages. */
 .ap-adds { display: grid; gap: 8px; margin-top: 12px; }
-.ap-adds-tag { display: block; color: var(--teal-soft); font: 700 11px var(--sans); letter-spacing: .08em; text-transform: uppercase; }
+.ap-adds-tag { display: block; color: var(--teal-soft); font: 700 var(--fx-tag) var(--sans); letter-spacing: .08em; text-transform: uppercase; }
 .ap-steps { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; counter-reset: ap; }
 .ap-step { min-width: 0; padding: 9px 11px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); color: var(--ink-dim); font-size: 12.5px; line-height: 1.35; }
 .ap-step b { display: block; color: var(--ink); font-size: 13px; font-weight: 650; }
@@ -591,7 +591,7 @@ html[data-theme="light"] .ap-step::before { color: #fffdf8; }
 .mx-lanes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .mx-lane { min-width: 0; padding: 11px 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
 .mx-lane--reason { border-color: var(--accent); }
-.mx-lane-tag { display: block; font: 700 11.5px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-dim); }
+.mx-lane-tag { display: block; font: 700 var(--fx-tag) var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-dim); }
 .mx-lane--reason .mx-lane-tag { color: var(--accent); }
 .mx-flow { display: grid; gap: 5px; margin: 8px 0 0; }
 .mx-node { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-0); color: var(--ink-dim); font-size: 12.5px; line-height: 1.35; }
@@ -602,7 +602,7 @@ html[data-theme="light"] .ap-step::before { color: #fffdf8; }
 .mx-lane-why { margin: 8px 0 0; color: var(--ink-faint); font-size: 12px; line-height: 1.45; }
 .fx-outs.mx-tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .mx-tier { min-width: 0; padding: 11px 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-0); }
-.mx-tier-tag { display: block; font: 700 11.5px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--teal-soft); }
+.mx-tier-tag { display: block; font: 700 var(--fx-tag) var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--teal-soft); }
 .mx-tier p { margin: 5px 0 0; color: var(--ink-dim); font-size: 12.5px; line-height: 1.45; }
 .mx-tier-io { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0 0; }
 .mx-tier-io span { font: 500 11px var(--mono); border-radius: 5px; padding: 2px 7px; border: 1px solid var(--border); color: var(--ink-dim); }
@@ -643,7 +643,7 @@ html[data-theme="light"] .ap-step::before { color: #fffdf8; }
 .pe { display: grid; gap: 10px; }
 .pe-vague { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 12px; align-items: start; }
 .pe-box { padding: 12px 14px; border: 1px dashed var(--border); border-radius: var(--radius-sm); background: var(--surface); }
-.pe-tag { display: block; font: 700 12px var(--sans); letter-spacing: .09em; text-transform: uppercase; }
+.pe-tag { display: block; font: 700 var(--fx-tag) var(--sans); letter-spacing: .09em; text-transform: uppercase; }
 .pe-tag--weak { color: var(--ink-faint); }
 .pe-tag--strong { color: var(--accent); }
 .pe-line { margin: 6px 0 0; color: var(--ink); font-size: 16px; line-height: 1.4; }
@@ -998,7 +998,7 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-lane-tag { display: block; color: var(--ink); font-size: 13px; font-weight: 650; line-height: 1.3; }
 .fx-lane p { margin: 4px 0 0; color: var(--ink-dim); font-size: 12.5px; line-height: 1.45; }
 .fx-boundary { padding: 10px 14px; border: 1.5px dashed var(--accent); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
-.fx-boundary-tag { display: block; color: var(--teal-soft); font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.fx-boundary-tag { display: block; color: var(--teal-soft); font-size: var(--fx-tag); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .fx-boundary-list { margin: 6px 0 0; padding: 0 0 0 18px; color: var(--ink-dim); font-size: 13px; line-height: 1.55; }
 .fx-boundary-list em { color: var(--ink-faint); font-style: normal; font-size: 12px; }
 .fx-layer { padding: 12px 14px; border: 1px solid var(--border-bright); border-radius: var(--radius-sm); background: var(--surface); }
@@ -1064,7 +1064,7 @@ html[data-theme="light"] .cv-changes li { background: transparent; border: 1px s
 .fx-ctx-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: stretch; }
 .fx-ctx-query { padding: 12px 14px; border: 1px solid var(--border-bright); border-radius: var(--radius-sm); background: var(--surface); }
 .fx-ctx-query p { margin: 5px 0 0; color: var(--ink); font-size: 14.5px; line-height: 1.4; }
-.fx-ctx-tag { color: var(--teal-soft); font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.fx-ctx-tag { color: var(--teal-soft); font-size: var(--fx-tag); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .fx-ctx-plus { color: var(--ink-faint); font-size: 20px; font-weight: 700; text-align: center; line-height: 1; }
 /* v4.4.3: a dashed box with a bare noun in it told the reader nothing they did not already know
    from the noun. Each kind of material now gets a cell with its name and a drawing of the thing,
@@ -1086,7 +1086,7 @@ html[data-theme="light"] .cv-changes li { background: transparent; border: 1px s
 @media (max-width: 760px) { .fx-spend { grid-template-columns: minmax(0, 1fr); } }
 .fx-spend-head { margin: 0; font: 700 13px var(--sans); color: var(--ink); }
 .fx-spend-row { display: grid; gap: 4px; min-width: 0; }
-.fx-spend-tag { font: 700 11.5px var(--sans); letter-spacing: .07em; text-transform: uppercase; }
+.fx-spend-tag { font: 700 var(--fx-tag) var(--sans); letter-spacing: .07em; text-transform: uppercase; }
 .fx-spend-tag--bad { color: var(--amber); }
 .fx-spend-tag--good { color: var(--accent); }
 .fx-meter { display: flex; height: 27px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-bright); background: var(--bg-0); }
@@ -1099,7 +1099,7 @@ html[data-theme="light"] .cv-changes li { background: transparent; border: 1px s
 .fx-ink-free { color: var(--ink-faint); font-weight: 650; }
 /* ---------- Tokens scene (v4.4.1 Phase 3) ---------- */
 .fx-tokfig { margin: var(--sp-3) 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
-.fx-copy .fx-tokfig-cap { margin: 0; color: var(--ink-faint); font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.fx-copy .fx-tokfig-cap { margin: 0; color: var(--ink-faint); font-size: var(--fx-tag); font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
 .fx-copy .fx-tokfig-cap--mid { margin-top: 12px; }
 /* The source prompt must stay legible and dominant, so it is HTML with a real font-size
    floor rather than SVG text whose computed size depends on the viewBox scale. */
