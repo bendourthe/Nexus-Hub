@@ -572,16 +572,6 @@ def test_home_identity_is_centered_nonwrapping_and_observer_gated(guide_text: st
     assert ".js .hero-lockup.reveal .hero-mark" in reduced_motion
 
 
-def test_home_hero_restores_the_v412_subtitle_and_lead(guide_text: str) -> None:
-    home = _home_markup(guide_text)
-    assert "hero-tagline" not in home, "the v4.4.1 tagline is replaced by the v4.1.2 statement"
-    sub = re.search(r'<h2 class="hero-subtitle">([\s\S]*?)</h2>', home)
-    assert sub and re.sub(r"<[^>]+>", "", sub.group(1)) == (
-        "Upgrade any agentic AI platform with an autonomous team of world experts"
-    )
-    assert '<span class="gtext">autonomous team of world experts</span>' in sub.group(1)
-    lead = re.search(r'<p class="hero-lead">([^<]+)</p>', home)
-    assert lead and lead.group(1).startswith("Nexus Hub is an advanced harness for agentic AI platforms.")
 
 
 def test_home_lists_the_five_approved_platforms_from_ledger_bytes(guide_text: str) -> None:
@@ -718,27 +708,8 @@ def test_home_troubleshooting_is_structured_and_copyable(guide_text: str) -> Non
         assert f'data-copy="{command}"' in block.group(1)
 
 
-def test_home_comparison_has_centered_explicit_sides(guide_text: str) -> None:
-    home = _home_markup(guide_text)
-    assert "Raw prompting vs Nexus Hub" in home, "v4.4.2 merges the two comparisons under one title"
-    assert '<div class="cmp-head">' in home
-    head_rule = re.search(r"\.cmp-head\s*\{([^}]+)\}", guide_text)
-    side_rule = re.search(r"\.cmp-side\s*\{([^}]+)\}", guide_text)
-    assert head_rule and "grid-template-columns: 1fr auto 1fr" in head_rule.group(1)
-    assert side_rule and "text-align: center" in side_rule.group(1)
-    size = re.search(r"font-size:\s*([\d.]+)px", side_rule.group(1))
-    assert size and float(size.group(1)) >= 12
-    assert ".cmp-side--without" in guide_text and ".cmp-side--with" in guide_text
 
 
-def test_home_definitions_are_structured_and_link_to_foundations(guide_text: str) -> None:
-    home = _home_markup(guide_text)
-    block = re.search(r'<details class="definition-details">([\s\S]*?)</details>', home)
-    assert block and 'class="definition-list"' in block.group(1)
-    for term in ("Command", "Skill", "Hook", "Agent", "Rule"):
-        assert f"<dt>{term}</dt>" in block.group(1)
-    assert 'data-go="foundations"' in block.group(1)
-    assert 'data-go="cheatsheets"' not in block.group(1)
 
 
 def test_windows_install_tab_is_first_and_default(parsed: GuideParser, guide_text: str) -> None:
@@ -792,21 +763,6 @@ def test_install_verify_is_a_two_step_sequence(guide_text: str, parsed: GuidePar
     assert "/skills list" in payloads and "/commands" in payloads
 
 
-def test_home_comparison_is_animated_not_a_table(guide_text: str) -> None:
-    home = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
-    assert "nhg-compare" not in guide_text, "the plain table was replaced"
-    assert 'class="cmp reveal"' in home
-    assert home.count('class="cmp-row"') == 5, "all five concerns survive the rewrite"
-    # without-then-with ordering: the muted side precedes the accent side
-    row = re.search(r'<div class="cmp-pair">([\s\S]*?)</div>', home)
-    assert row and row.group(1).index("cmp-a") < row.group(1).index("cmp-b")
-    assert ".cmp-side--without" in guide_text and ".cmp-side--with" in guide_text
-    # animated, and not a card grid or pill row
-    assert ".js .cmp.in .cmp-row" in guide_text, "staggered entry animation"
-    assert ".js .cmp.in .cmp-line" in guide_text, "the connector draws"
-    reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
-    for cls in (".cmp-row", ".cmp-line", ".cmp-tip", ".cmp-b"):
-        assert cls in reduce_block, f"{cls} needs a reduced-motion static state"
 
 
 def test_onboarding_has_no_hardcoded_catalog_counts(parsed: GuideParser) -> None:

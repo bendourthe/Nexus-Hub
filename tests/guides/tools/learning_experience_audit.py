@@ -54,16 +54,16 @@ def main():
                     if args.screenshots and width in [420,1440]:
                         # Walk the page as a reader would, never force classes or opacity.
                         for y in range(0,case['height'],700):
-                            page.evaluate('(y)=>window.scrollTo(0,y)',y)
+                            page.evaluate('(y)=>window.scrollTo({top:y,behavior:"instant"})',y)
                             page.wait_for_timeout(100)
-                        page.evaluate('window.scrollTo(0,0)')
+                        page.evaluate('window.scrollTo({top:0,behavior:"instant"})')
                         page.wait_for_timeout(150)
                         page.screenshot(path=str(args.out/f'{route}-{theme}-{width}-top.png'))
                         page.screenshot(path=str(args.out/f'{route}-{theme}-{width}-full.png'),full_page=True)
                         scenes=page.locator('.page.active .lesson')
                         for i in range(scenes.count()):
                             scene=scenes.nth(i)
-                            scene.evaluate('(el)=>el.scrollIntoView({block:"start"})')
+                            scene.evaluate('(el)=>el.scrollIntoView({block:"start",behavior:"instant"})')
                             page.wait_for_timeout(150)
                             page.screenshot(path=str(args.out/f'{route}-{theme}-{width}-{scene.get_attribute("id")}.png'))
                     case.update(errors=list(errors),externalRequests=list(requests))

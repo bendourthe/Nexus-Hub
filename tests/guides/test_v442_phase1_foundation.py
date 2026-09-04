@@ -56,7 +56,7 @@ def _open(browser, route: str = "home", **ctx):
     return context, page
 
 
-STATE = "() => window.NexusSeq.state(document.getElementById('nhg-loop'))"
+STATE = "() => window.NexusSeq.state(document.getElementById('home-example'))"
 
 
 # ------------------------------------------------------------------ sequencer
@@ -73,18 +73,18 @@ def test_reduced_motion_reaches_the_end_state_without_scheduling(playwright_mod)
         browser = pw.chromium.launch()
         context, page = _open(browser, reduced_motion="reduce")
         try:
-            page.locator("#nhg-loop").scroll_into_view_if_needed()
+            page.locator("#home-example").scroll_into_view_if_needed()
             page.wait_for_function(f"({STATE})().step === ({STATE})().total")
             st = page.evaluate(STATE)
-            lit = page.evaluate("() => document.querySelectorAll('#nhg-loop .is-on').length")
-            done = page.evaluate("() => document.getElementById('nhg-loop').classList.contains('seq-done')")
+            lit = page.evaluate("() => document.querySelectorAll('#home-example .is-on').length")
+            done = page.evaluate("() => document.getElementById('home-example').classList.contains('seq-done')")
             # Under reduced motion play() is synchronous: nothing is left running to tick.
             page.wait_for_timeout(700)
             again = page.evaluate(STATE)
         finally:
             browser.close()
     assert st["reduced"] is True and st["running"] is False
-    assert lit == st["total"] == 6 and done
+    assert lit == st["total"] == 3 and done
     assert again["step"] == st["step"] and again["running"] is False
 
 

@@ -100,3 +100,59 @@ def test_game_sleeps_between_routes_and_resumes(browser):
     page.wait_for_timeout(150)
     assert page.evaluate('guideFrames')>before+2
     page.close()
+
+@pytest.mark.parametrize('width',[420,1440])
+def test_home_explains_layers_and_offers_a_visible_learning_action(browser,width):
+    page=browser.new_page(viewport={'width':width,'height':900})
+    page.goto(GUIDE.as_uri())
+    assert page.locator('.home-layers dt').all_text_contents()==['Model','Platform','Nexus Hub']
+    action=page.locator('#page-home .hero [data-go="foundations"]')
+    assert action.is_visible()
+    assert action.bounding_box()['y']+action.bounding_box()['height']<=900
+    if width==1440:
+        box=page.locator('.home-layers').bounding_box()
+        assert box['y']+box['height']<=900
+    text=page.locator('#page-home').inner_text()
+    assert 'cannot bypass' not in text and 'world experts' not in text
+    assert 'depend on the host platform' in text
+    page.close()
+
+def test_home_example_connects_request_to_checked_artifact(browser):
+    page=browser.new_page()
+    page.goto(GUIDE.as_uri())
+    example=page.locator('#home-example')
+    assert example.locator('.document-sheet').count()==2
+    text=example.inner_text()
+    assert 'Maya' in text and 'Friday' in text and 'Confirm the follow-up date' in text
+    assert example.locator('[data-seq-play]').get_attribute('type')=='button'
+    assert page.locator('.platform-rail .platform-item').count()==5
+    assert page.locator('#nhg-install [data-copy]').count()>=5
+    page.close()
+
+def test_home_copy_is_shorter_without_hiding_it(browser):
+    page=browser.new_page()
+    page.goto(GUIDE.as_uri())
+    counts=page.locator('#page-home').evaluate('''el=>{
+      const clone=el.cloneNode(true);
+      clone.querySelectorAll('nav,.pagenav,.progress-dots,pre,code,script,style').forEach(n=>n.remove());
+      const total=clone.textContent.trim().split(/\\s+/).length;
+      clone.querySelectorAll('details:not([open])').forEach(n=>n.remove());
+      return {total,main:clone.textContent.trim().split(/\\s+/).length};
+    }''')
+    assert counts['main']<=777
+    assert counts['total']<1150
+    page.close()
+
+@pytest.mark.parametrize('width',[320,420,720,1024,1440,1920])
+@pytest.mark.parametrize('theme',['light','dark'])
+def test_home_instruction_labels_stay_readable_and_bounded(browser,width,theme):
+    page=browser.new_page(viewport={'width':width,'height':900})
+    page.add_init_script(f'localStorage.setItem("portfolio-theme","{theme}")')
+    page.goto(GUIDE.as_uri())
+    issues=page.locator('#page-home').evaluate('''el=>[...el.querySelectorAll('.home-layers dt,.home-layers dd,.home-demo p,.home-demo dt,.home-demo dd,.home-process strong,.home-process span')].flatMap(n=>{
+      const box=n.getBoundingClientRect(),range=document.createRange();range.selectNodeContents(n);
+      const text=range.getBoundingClientRect(),font=parseFloat(getComputedStyle(n).fontSize);
+      return font<14 || text.right>box.right+2 || text.left<box.left-2 ? [n.textContent] : [];
+    })''')
+    assert issues==[]
+    page.close()

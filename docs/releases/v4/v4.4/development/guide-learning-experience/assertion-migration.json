@@ -63,5 +63,150 @@
     "test": "test_v445_phase1_portability.py::test_the_pulse_runs_normally_and_stops_under_reduced_motion",
     "reason": "Decorative pulses removed; static visibility retained.",
     "replacement": "test_v445_phase1_portability.py::test_connectors_are_static_and_content_stays_visible"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_home_comparison_is_animated_not_a_table",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_home_definitions_are_structured_and_link_to_foundations",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_home_comparison_has_centered_explicit_sides",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_home_hero_restores_the_v412_subtitle_and_lead",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_guardrails_choreography_reaches_a_fully_blocked_end_state",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_guardrails_section_names_only_shipped_registered_hooks",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_migration_table_stacks_into_labelled_cards_below_720px",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_merged_comparison_labels_render_at_twice_the_v441_size",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_home_sections_render_in_the_agreed_order",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_home_hero_statement_is_centred_and_exact",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_workflow_pills_are_readable_two_line_pills",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase1_headings.py::test_migration_table_headers_carry_the_comparison_grade",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase2_guardrails.py::test_every_attempt_shows_both_rings_and_a_result",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase2_guardrails.py::test_the_figure_carries_no_svg_text",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase2_guardrails.py::test_no_guardrails_label_escapes_its_box",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase3_loop.py::test_the_loop_stacks_and_rotates_its_heads_when_narrow",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase3_loop.py::test_the_heads_are_triangles_not_glyphs",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase3_loop.py::test_the_loop_fills_its_column_with_legible_boxes",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v444_phase12_home.py::test_the_segment_carries_both_benefits",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v444_phase12_home.py::test_the_command_segment_is_renamed",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v444_phase12_home.py::test_the_guardrails_segment_is_renamed_and_centred",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v445_phase1_portability.py::test_connectors_are_static_and_content_stays_visible",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v445_phase1_portability.py::test_the_mid_task_strip_uses_the_width_it_has",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v445_phase1_portability.py::test_each_triangle_sits_on_the_centre_of_its_own_box",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v445_phase1_portability.py::test_every_platform_carries_its_mark",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v445_phase1_portability.py::test_no_box_is_ever_hidden_and_nothing_overflows",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase1_headings.py::test_static_document_never_addresses_the_reader",
+    "reason": "Approved teaching design uses concise direct address; a pronoun ban does not establish clarity.",
+    "replacement": "test_learning_experience.py::test_home_copy_is_shorter_without_hiding_it and reviewed example screenshots"
+  },
+  {
+    "test": "test_v442_phase1_foundation.py::test_reduced_motion_shows_complete_sequences",
+    "reason": "Removed Home choreography replaced by a three-step checked-brief example.",
+    "replacement": "Reduced-motion test retained against home-example; shared replay and lifecycle tests retained"
   }
 ]
