@@ -38,6 +38,11 @@ repos:
       - id: trailing-whitespace
         exclude: '\.(md)$'
       - id: end-of-file-fixer
+        # Release evidence under docs/releases/**/assets/ holds approved-bytes-only
+        # artifacts whose SHA-256 is pinned in an asset-provenance ledger and matched
+        # against the bytes embedded in the guide. Appending a newline would change
+        # every hash and break that discipline, so the fixer must not touch them.
+        exclude: '^docs/releases/.*/assets/'
       - id: check-yaml
         exclude: 'templates.json|skills.json'
       - id: check-json

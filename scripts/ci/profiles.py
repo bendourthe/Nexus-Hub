@@ -200,6 +200,9 @@ DOCS = Group(
         _py("validate_solution_frontmatter", timeout=120),
         _py("check_incident_notes", timeout=120),
         _py("validate_decision_records", timeout=120),
+        # v4.4.2: the guide may not carry a hand-typed catalog count; every count is a
+        # data-count marker stamped from data/ and catalog/, and this is the drift gate.
+        _py("stamp_guide_counts", "--check", timeout=120),
         _py("check_memory_provenance", timeout=120),
         # Advisory by design: archiving repairs references repo-wide, so it
         # belongs in a reviewed pass. A hard gate here would stop an unrelated
