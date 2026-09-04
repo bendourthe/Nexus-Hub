@@ -438,5 +438,140 @@
     "test": "test_v441_phase4_foundations.py::test_the_agentic_scene_carries_the_comparison_and_the_boundary",
     "reason": "The Models entry motif was replaced; platform boundary assertions remain until Phase 5.",
     "replacement": "test_lessons_keep_evidence_and_model_boundaries_explicit plus retained platform boundary check"
+  },
+  {
+    "test": "test_v443_phase8_harness.py::test_there_is_exactly_one_harness_scene",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase8_harness.py::test_the_flow_carries_the_analogy_and_the_platform_limits",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase8_harness.py::test_every_class_used_in_foundations_has_a_style_rule",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase7_comparison.py::test_both_lanes_show_the_same_two_zones",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase7_comparison.py::test_only_the_reach_differs_between_the_lanes",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase7_comparison.py::test_the_unreached_zone_keeps_full_text_contrast",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase7_comparison.py::test_the_split_is_choreographed_and_complete_without_motion",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_the_equation_names_what_agentic_means",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_all_three_boundary_settings_are_visible_with_their_outcomes",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_the_anatomy_names_six_parts_without_importing_the_map",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_every_harness_layer_states_a_limit_or_a_guarantee",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_the_work_sequence_shows_five_steps_with_nothing_to_run",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_the_artifact_chain_is_shown_rather_than_claimed",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_neither_rebuilt_scene_overflows_at_any_width",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase6_platforms.py::test_the_scene_is_plural",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase6_platforms.py::test_four_platforms_are_named_with_ledger_approved_marks",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase6_platforms.py::test_the_copy_is_shorter_and_keeps_its_conditional_language",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase6_platforms.py::test_every_stage_is_visible_without_motion",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_flow_connectors_never_cross_a_card",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_the_entry_motif_is_singular_after_the_merge",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_modality_tier_labels",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_harness_diagram_is_layered_and_choreographed",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_harness_choreography_end_state_under_reduced_motion",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_harness_text_stays_inside_its_own_box",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_harness_layers_are_honest_and_repository_anchored",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v441_phase4_foundations.py::test_the_agentic_scene_carries_the_comparison_and_the_boundary",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
   }
 ]

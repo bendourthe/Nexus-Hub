@@ -812,80 +812,10 @@ def _foundation_scene(guide_text: str, scene_id: str) -> str:
 
 
 
-def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
-    guide_text: str,
-) -> None:
-    # v4.4.4: the comparison lives inside the Agentic Platforms scene now.
-    scene = _foundation_scene(guide_text, "fx-agent-platform")
-    assert "Agentic Platforms" in scene
-    assert "Where a chatbot answers, an agentic platform can act" in scene
-    # v4.4.1 Phase 4: the comparison is an HTML two-lane group, chatbot lane first.
-    assert scene.count('data-phase3-node="shared-request"') == 1
-    assert scene.index('data-phase3-node="chatbot-handoff"') < scene.index(
-        'data-phase3-node="agent-handoff"'
-    )
-    # v4.4.5 added the mockup's six-part anatomy to this scene, which names `Boundary` a third
-    # time in a different block. The claim was always about the two LANES carrying matching
-    # labels, so it is measured over the lane lists rather than over the whole scene.
-    lanes = "".join(
-        scene[m.start() : scene.index("</dl>", m.start())]
-        for m in re.finditer(r'<dl class="fx-parts">', scene)
-    )
-    assert lanes.count('<dl class="fx-parts">') == 2, "expected exactly two lanes"
-    for part in ("Boundary", "Action", "Outcome", "Leaves behind"):
-        assert lanes.count("<dt>" + part + "</dt>") == 2, (
-            "both lanes must carry an explicit " + part + " label"
-        )
-    text = re.sub(r"<[^>]+>", " ", scene).lower()
-    assert "same request" in text
-    assert "answer handoff" in text and "every step is applied and checked" in text
-    assert "work handoff" in text and "saved change" in text and "checked result" in text
-    assert re.search(r"chatbots?.{0,100}(?:can|may|increasingly).{0,60}tools", text)
-    assert "where the work happens" in text
-    assert re.search(r"what .{0,30} leaves behind", text)
-    # Honest capability language, never a promise.
-    assert "when permitted" in text and "supported" in text
-    assert "promises success" in text or "promise" in text
 
 
 
 
-def test_foundations_harness_layers_are_honest_and_repository_anchored(
-    guide_text: str,
-) -> None:
-    """v4.4.3 merged the two harness scenes: one scene now defines a harness AND shows what the
-    Nexus Hub layer adds, so all three layers and the five repository-anchored claims live here.
-    The rules are unchanged; only the scene they live in is."""
-    harness = _foundation_scene(guide_text, "fx-harness")
-    for layer in ("model", "platform", "nexus-hub"):
-        assert f'data-phase3-harness-layer="{layer}"' in harness
-    htext = re.sub(r"<[^>]+>", " ", harness).lower()
-    assert re.search(r"(?:every|agentic) platform.{0,80}(?:already|ships).{0,40}harness", htext)
-    for part in ("context", "tools", "permissions", "execution", "observations"):
-        assert part in htext, f"the built-in loop must name {part}"
-    for part in ("skills", "hooks", "gates", "artifacts"):
-        assert part in htext, f"the outer loop must name {part}"
-
-    practice = harness
-    claims = re.findall(
-        r'data-phase3-claim="([^"]+)" data-artifact="([^"]+)"', practice
-    )
-    assert {claim for claim, _artifact in claims} == {
-        "one-source-catalog",
-        "matched-procedures",
-        "event-hooks",
-        "written-gates",
-        "durable-artifacts",
-    }
-    assert all(artifact.strip() for _claim, artifact in claims)
-    ptext = re.sub(r"<[^>]+>", " ", practice).lower()
-    for claim in ("one source", "hooks", "prompt-independent", "definition of done"):
-        assert claim in ptext
-    assert "chain" in ptext, "the trail must show artifacts chaining between commands"
-    assert "does not replace the model" in ptext, "the honest scope qualifier is required"
-    assert re.search(r"only where the host exposes the registered event", ptext)
-    for vendor in ("claude", "codex", "cursor", "copilot", "antigravity"):
-        assert not re.search(rf"{vendor}.{{0,30}}(?:lacks?|cannot|does not)", ptext)
 
 
 

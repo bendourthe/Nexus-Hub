@@ -6,7 +6,7 @@ This directory holds the public-facing Nexus Hub guide, its arcade-shooter Train
 
 The [v4.4.6 plan](../../docs/releases/v4/v4.4/plans/v4.4.6-guide-learning-experience.md) replaces the earlier always-animated teaching design. Essential text and diagram nodes are visible at rest, headings wrap through CSS, and reduced motion shows the complete static scene. The constellation is static. The Training canvas requests frames only while its game is running on the active page; pause, hidden-tab, reset, and route changes stop the loop. Without JavaScript, all reading pages are available through a simple contents navigation. Historical design notes below describe earlier revisions and do not override this contract.
 
-Foundations opens with model, tokens, prompt, and context. Text token chips select their exact source span, using a verified offline fixture.
+Foundations teaches model, tokens, prompt, context, harness, loop, and graph through one meeting-notes example. Loop steps and graph branches are reader-paced, with explicit budget stops, failed joins, and pending approval. Text token chips select their exact source span, using a verified offline fixture.
 
 Home uses one responsibility map and one meeting-notes-to-brief example. Installation commands and approved platform marks retain their existing behavior.
 

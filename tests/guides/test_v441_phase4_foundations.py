@@ -88,25 +88,6 @@ def test_media_ledger_records_every_embedded_payload() -> None:
 # ------------------------------------------------------------------ shared visual grammar
 
 
-def test_the_agentic_scene_carries_the_comparison_and_the_boundary(guide_text: str) -> None:
-    """v4.4.4 retired the shared-grammar rule with the scene that made it possible.
-
-    The rule was that Models and Agentic Platform open with a byte-identical entry motif, so the
-    comparison between them teaches. v4.4.4 merged the chatbot comparison INTO the platform scene
-    and dropped its six-stage flow, so there is one entry motif in Foundations and nothing left to
-    compare it against. What replaced the rule is stronger for the reader: the platform scene now
-    shows one request going to BOTH lanes, so the sameness is on screen rather than in the markup.
-    """
-    fx = guide_text[guide_text.index('id="page-foundations"'): guide_text.index('id="page-training"')]
-    assert "fx-chatbot-agent" not in fx, "the separate comparison scene must not come back"
-    agent = re.search(r'<section class="fx-scene[^"]*" id="fx-agent-platform"[\s\S]*?</section>', fx).group(0)
-    # one request, two lanes, chatbot first, and the boundary that makes the capability conditional
-    assert agent.count('data-phase3-node="shared-request"') == 1
-    assert agent.index('data-phase3-node="chatbot-handoff"') < agent.index('data-phase3-node="agent-handoff"')
-    assert agent.count('data-grammar="boundary"') == 1
-    assert "when permitted" in agent and "when supported" in agent
-    # the four things the agentic lane runs, that the chatbot lane cannot
-    assert agent.count('class="ap-step"') == 4, "four steps expected"
 
 
 # ------------------------------------------------------------------------ browser gates

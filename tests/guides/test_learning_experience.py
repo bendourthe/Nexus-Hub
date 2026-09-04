@@ -214,3 +214,61 @@ def test_lesson_links_reach_the_named_reading_position(browser,concept,section):
     assert 50<=box['y']<=100
     assert page.locator('#page-foundations').is_visible()
     page.close()
+
+@pytest.mark.parametrize('scenario,steps,ending',[('success',4,'checks pass'),('missing',3,'ask a person'),('budget',3,'budget reached')])
+def test_loop_stops_at_its_goal_or_limit_and_resets(browser,scenario,steps,ending):
+    page=browser.new_page()
+    page.goto(GUIDE.as_uri()+'#foundations/loop')
+    page.locator('#loop-scenario').select_option(scenario)
+    button=page.locator('[data-loop-next]')
+    for _ in range(steps):button.click()
+    assert button.is_disabled()
+    assert ending in page.locator('[data-loop-status]').inner_text()
+    stopped=page.locator('[data-loop-status]').inner_text()
+    page.wait_for_timeout(300)
+    assert page.locator('[data-loop-status]').inner_text()==stopped
+    page.locator('[data-loop-reset]').click()
+    assert button.is_enabled()
+    assert 'Ready:' in page.locator('[data-loop-status]').inner_text()
+    page.close()
+
+@pytest.mark.parametrize('order',[['dates','decisions'],['decisions','dates']])
+def test_graph_joins_only_complete_results_and_invalidates_stale_success(browser,order):
+    page=browser.new_page()
+    page.goto(GUIDE.as_uri()+'#foundations/graph')
+    join=page.locator('[data-graph-action="join"]')
+    assert join.is_disabled()
+    page.locator('[data-graph-action="'+order[0]+'"]').click()
+    assert join.is_disabled()
+    page.locator('[data-graph-action="'+order[1]+'"]').click()
+    assert join.is_enabled()
+    join.click()
+    assert 'approval still pending' in page.locator('[data-review-state]').inner_text()
+    page.locator('[data-graph-action="fail"]').click()
+    assert join.is_disabled()
+    assert 'Nothing ready' in page.locator('[data-review-state]').inner_text()
+    assert 'Blocked' in page.locator('[data-join-state]').inner_text()
+    page.locator('[data-graph-action="dates"]').click()
+    join.click()
+    page.locator('[data-graph-action="reset"]').click()
+    assert join.is_disabled()
+    assert page.locator('[data-branch-state]').all_text_contents()==['Waiting','Waiting']
+    page.close()
+
+def test_harness_cannot_bypass_the_host_permission_example(browser):
+    page=browser.new_page()
+    page.goto(GUIDE.as_uri()+'#foundations/harness')
+    for _ in range(3):page.locator('[data-try-share]').click()
+    assert 'Refused by the host' in page.locator('[data-permission-status]').inner_text()
+    assert 'nothing was shared' in page.locator('[data-permission-status]').inner_text()
+    page.close()
+
+@pytest.mark.parametrize('width,max_height',[(420,11000),(1440,6000)])
+def test_foundations_is_a_compact_seven_lesson_path(browser,width,max_height):
+    page=browser.new_page(viewport={'width':width,'height':900})
+    page.goto(GUIDE.as_uri()+'#foundations')
+    assert page.locator('[data-concept]').evaluate_all('els=>els.map(n=>n.dataset.concept)')==['model','tokens','prompt','context','harness','loop','graph']
+    assert page.evaluate('document.documentElement.scrollHeight')<=max_height
+    WORDS = "el=>{const c=el.cloneNode(true);c.querySelectorAll('nav,.pagenav,.progress-dots,pre,code,script,style,details:not([open])').forEach(n=>n.remove());return {main:c.textContent.trim().split(/\\s+/).length}}"
+    assert page.locator('#page-foundations').evaluate(WORDS)['main']<=1598
+    page.close()

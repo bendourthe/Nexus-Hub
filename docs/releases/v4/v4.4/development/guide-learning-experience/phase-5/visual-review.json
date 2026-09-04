@@ -1,0 +1,77 @@
+{
+  "sha256": "affec5f95a2f78ac7a935b60e8e6d792faef36b4b916cc77a1121b4bc45c3c32",
+  "reviewed": [
+    {
+      "file": "foundations-dark-1440-fx-graph.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-dark-1440-fx-harness.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-dark-1440-fx-loop.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-dark-420-fx-graph-bottom.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-dark-420-fx-graph.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-dark-420-fx-harness-bottom.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-dark-420-fx-harness.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-dark-420-fx-loop-bottom.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-dark-420-fx-loop.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-light-1440-fx-graph.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-light-1440-fx-harness.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-light-1440-fx-loop.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-light-420-fx-graph-bottom.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-light-420-fx-graph.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-light-420-fx-harness-bottom.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-light-420-fx-harness.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-light-420-fx-loop-bottom.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    },
+    {
+      "file": "foundations-light-420-fx-loop.png",
+      "verdict": "PASS: nested responsibility boundaries, finite exits, and fork/join are legible; controls and filenames fit."
+    }
+  ]
+}
