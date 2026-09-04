@@ -158,3 +158,82 @@ Phase 2 may inline ONLY these five hashes. Re-sanitizing, re-minifying, or re-fe
 The CC BY 4.0 obligation on the GitHub Copilot codicon is satisfied by a **collapsed credits disclosure placed beside the platform rail**: a keyboard-accessible `<details>`/`<summary>` element titled "Trademarks and credits" that names the Codicons set and Microsoft Corporation under CC BY 4.0, and carries one nominative-use statement covering all five marks. It is visible on demand, costs no persistent layout in the Home hero, and keeps the attribution adjacent to the mark it covers.
 
 Phase 2 must implement this disclosure in the same commit that inlines the marks, and must assert it exists. A rail without it is a licence violation rather than a cosmetic omission.
+
+## 5. v4.4.3 reuse in the Foundations Agentic Platforms scene
+
+**Date**: 2026-09-03. **Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](../../plans/v4.4.3-guide-illustration-clarity-rebuild.md), Phase 6.
+
+The v4.4.3 review asked for the Agentic Platforms scene to name four platforms and show each one's
+logo, linking to an icon aggregator for the marks. Four already-approved marks are reused instead,
+for three reasons recorded here so the decision is reviewable rather than implicit:
+
+1. The linked aggregator serves a client-rendered page; a fetch returns application markup, not the
+   vector, and the page states no licence for the marks it hosts.
+2. The four vendors are the same four whose marks this ledger already approves at a pinned hash, so
+   reuse adds no new provenance surface and no new outbound dependency.
+3. The chips are labelled with the PRODUCT name while the mark is the VENDOR's mark. That is a
+   substitution, not an equivalence, and it is stated plainly here: Claude Code carries the Claude
+   mark, Codex the ChatGPT mark, Antigravity the Gemini mark. Cursor is exact. If product-specific
+   marks are wanted, they need their own acquisition, sanitization, and approval pass.
+
+Nominative use and the CC BY 4.0 obligation are unchanged and are carried by the site footer, per
+the v4.4.2 decision record `2026-09-02-platform-mark-attribution-in-footer.md`.
+
+### 5.1 One documented second sanitization
+
+| Mark | Instance | Bytes | SHA-256 |
+|---|---|---:|---|
+| Gemini | Foundations chip, ids re-namespaced `nxp-gm-` to `nxp-gm2-` | 8,871 | derived; see below |
+
+The Gemini asset carries 13 internal ids and `url(#...)` references. Section 1.3 namespaced them
+because the upstream ids were generic enough to collide with another inlined asset; a SECOND copy of
+the same asset in the same document collides with itself, and the second instance would resolve its
+mask and five blur filters against the first instance's defs. The Foundations chip therefore ships
+the identical geometry with the id prefix changed, and `tests/guides/test_v443_phase6_platforms.py`
+DERIVES the expected bytes by applying that one prefix substitution to the approved staged asset.
+No hash is stored for the variant, so the test proves the prefix is the only difference; a real edit
+to the geometry fails it. The other three marks carry no internal ids and are byte-identical to the
+staged assets.
+
+## 6. v4.4.4 retirement of the audio asset
+
+**Date**: 2026-09-03. **Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](../../plans/v4.4.4-guide-teaching-clarity-rebuild.md), Phase 6.
+
+`assets/model-output-audio.wav` is no longer embedded in the guide. The v4.4.4 review rebuilt the
+Models scene around how a model works and instructed that audio be left out of the teaching, so the
+asset, its `<audio>` element, its waveform canvas, and the ~90 lines of waveform engine that drove
+it were all removed rather than left shipping without an explanation. That returned about 12 KB of
+base64 payload.
+
+The row in section 1 stays as the record of what was approved and when. The staged file stays in
+`assets/` so a future reinstatement needs no new acquisition pass, only the same approval gate.
+`tests/guides/test_v441_phase4_foundations.py::test_the_audio_asset_left_the_page_with_its_teaching`
+now asserts the ABSENCE: the WAV, the element, the canvas, and the engine must all stay out unless
+the teaching that explains them comes back with them.
+
+The image and the moving image are unaffected and still hash-matched to this ledger; they now sit in
+the multimodal and omni tiers.
+
+## 7. v4.4.5 second placement of the four platform marks
+
+**Date**: 2026-09-04. **Plan**: [v4.4.5-guide-mockup-integration.md](../../plans/v4.4.5-guide-mockup-integration.md), Phase 1.
+
+The review asked for a logo on each platform box in the Home portability figure, so the Claude,
+ChatGPT, Cursor, and Gemini marks now appear TWICE in the guide: once in the compatibility rail,
+where the hash guard pins them, and once in the figure. No new asset was acquired and no artwork
+was altered. The rows in section 1 still describe every byte on the page.
+
+Each figure instance is a COPY of the rail's bytes rather than a shared `<symbol>`, and that is a
+deliberate reversal of the cheaper design. Sharing was tried and abandoned for two reasons. The
+Gemini mark is a masked stack of blurred colour blobs, and a `<use>` clone cannot resolve the mask
+it carries: cloning rendered a blank box, and hoisting the mask to document level rendered an
+unmasked square. More decisively, rewriting a rail chip into a `<use>` fails
+`test_home_lists_the_five_approved_platforms_from_ledger_bytes`, whose message states that
+re-approval is required rather than a ledger update. That guard is right, so the approved bytes stay
+verbatim where they were approved and the duplication is paid for instead: about 12 KB, most of it
+Gemini.
+
+The copies namespace the mark's own internal ids with a `-ph` suffix, for the same reason the rail's
+Gemini variant already carries the `nxp-gm-` prefix recorded in section 5: two elements sharing an
+id is invalid, and a mask reference that resolves to the wrong twin renders correctly right up until
+it does not. `test_ids_are_unique` proves there is no collision, and the geometry is untouched.

@@ -15,7 +15,7 @@ Usage::
 
     python tests/guides/tools/browser_matrix.py --label phase-7
     python tests/guides/tools/browser_matrix.py --label phase-7 --groups home,fullscreen
-    python tests/guides/tools/browser_matrix.py --label phase-7 --out docs/releases/v4/v4.4/development/guide-production-ready-rebuild/renders
+    python tests/guides/tools/browser_matrix.py --label phase-9 --out docs/releases/v4/v4.4/development/guide-illustration-clarity-rebuild/renders
 
 If one invocation would exceed the 20 minute focused-runtime ceiling, run the groups in
 labelled batches with ``--groups`` rather than dropping a declared case. Evidence must stay
@@ -32,7 +32,9 @@ import time
 
 _ROOT = pathlib.Path(__file__).resolve().parents[3]
 GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
-DEFAULT_OUT = _ROOT / "docs" / "releases" / "v4" / "v4.4" / "development" / "guide-production-ready-rebuild" / "renders"
+PLAN_SLUG = "guide-illustration-clarity-rebuild"
+PLAN_LABEL = "v4.4.3 guide-illustration-clarity-rebuild"
+DEFAULT_OUT = _ROOT / "docs" / "releases" / "v4" / "v4.4" / "development" / PLAN_SLUG / "renders"
 
 PAGES = ("home", "foundations", "training", "cheatsheets")
 THEMES = ("dark", "light")
@@ -127,10 +129,22 @@ def declare_groups() -> dict[str, list[dict]]:
     g["annotated"] = [dict(label=f"ann-{scene}-{state}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
                            scroll=f"#{scene}", seq=(scene, state))
                       for scene in ("fx-ann-prompt", "fx-ann-context") for state in ("mid", "end") for th in THEMES]
-    g["waveform"] = [dict(label=f"wave-{state}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
-                          scroll="#fx-model-lifecycle .fx-outs", wave=state) for state in ("playing", "paused") for th in THEMES]
+    # v4.4.4 retired the audio output and its waveform, so the group that photographed it goes too.
+    # v4.4.3: the two harness scenes are one, its figure carries six stops, and two more scenes
+    # became choreographed. Each group names the id its sequence root now has.
     g["harness"] = [dict(label=f"harness-step{step}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
-                         scroll="#fx-hstack-nexus", seq=("fx-hstack-nexus", step)) for step in (1, 4, 7, "end") for th in THEMES]
+                         scroll="#fx-harness", seq=("hx-harness", step)) for step in (1, 3, 5, "end") for th in THEMES]
+    # v4.4.5 rebuilt Models on an eight-stage spine, and a rebuilt scene that nothing
+    # photographs is a scene whose duplication ships. This plan's Phase 5 shipped exactly that
+    # for one commit, so the scene now has its own group at a narrow and a wide width.
+    g["models"] = [dict(label=f"models-{th}-{w}", url=f"{base}#foundations", width=w, height=900,
+                        theme=th, retain=True, scroll="#fx-model-lifecycle")
+                   for th in THEMES for w in (420, 1440)]
+    g["comparison"] = [dict(label=f"compare-{state}-{th}-{w}", url=f"{base}#foundations", width=w, height=900, theme=th, retain=True,
+                            scroll="#fx-agent-platform", seq=("cv-compare", state))
+                       for state in ("mid", "end") for th in THEMES for w in (420, 1440)]
+    # v4.4.4 merged the comparison into the Agentic Platforms scene and retired its six-stage
+    # flow, so the comparison group below photographs that scene and a platforms group is not needed.
     g["pointer"] = [dict(label=f"arena-pointer-paused-{th}-1440", url=f"{base}#training/describe", width=1440, height=900, theme=th, retain=True, pointer=True)
                     for th in THEMES]
     return g
@@ -212,7 +226,7 @@ def run(groups: dict[str, list[dict]], out: pathlib.Path, label: str) -> dict:
                 or r["geometry"].get("missing") or r["geometry"].get("horizontalOverflow")]
     evidence_bytes = sum(f.stat().st_size for f in out_dir.glob("*.png"))
     summary = {
-        "generated": time.strftime("%Y-%m-%d"), "label": label, "plan": "v4.4.2 guide-production-ready-rebuild",
+        "generated": time.strftime("%Y-%m-%d"), "label": label, "plan": PLAN_LABEL,
         "declaredCases": declared, "executedCases": len(cases),
         "declaredScreenshots": sum(1 for v in groups.values() for c in v if c.get("retain")), "retainedScreenshots": shots,
         "focusedRuntimeSeconds": round(elapsed, 1), "runtimeTargetSeconds": 1200,

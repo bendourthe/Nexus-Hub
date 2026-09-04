@@ -246,22 +246,42 @@ _FIXTURE = _ROOT / "tests" / "guides" / "fixtures" / "v412-home-copy.json"
 _HOOKS_DIR = _ROOT / "catalog" / "hooks"
 
 EXPECTED_HOME_ORDER = [
-    "Upgrade your agentic AI platforms with an autonomous team of world experts",
-    "What you get that raw prompting can't give you",
-    "One command, then restart your assistant",
+    "Upgrade any agentic AI platform with an autonomous team of world experts",
+    "What raw prompting cannot deliver",
+    "One command, then an assistant restart",
     "Three things make this more than a prompt library",
-    "Guardrails and safety",
+    "Adds an extra layer of security",
     "Raw prompting vs Nexus Hub",
-    "Your favorite commands, leveled up",
+    "Install once, work anywhere",
     "One governed loop, from first look to shipped",
-    "Learn it, then run it on your project",
+    "Learn it, then run it on a real project",
 ]
 
 
 def _section_words(page, section_id: str) -> int:
+    """Word count of a section's RESTORED prose.
+
+    v4.4.4 adds content to a restored section that v4.1.2 never had, the portability figure the
+    operator asked for, so measuring it against a v4.1.2 baseline measures the wrong thing. Blocks
+    marked `data-v444-new` are excluded here and capped separately in the test below, which keeps
+    both halves honest: restored prose still cannot creep back toward its old length, and the new
+    block cannot grow without a number on it.
+    """
     return page.evaluate(
-        "id => document.getElementById(id).innerText.replace(/\\s+/g, ' ').trim().split(' ').length",
+        """id => { const sec = document.getElementById(id).cloneNode(true);
+             sec.querySelectorAll('[data-v444-new]').forEach(e => e.remove());
+             document.body.appendChild(sec);
+             const n = sec.innerText.replace(/\s+/g, ' ').trim().split(' ').length;
+             sec.remove(); return n; }""",
         section_id,
+    )
+
+
+def _new_block_words(page, selector: str) -> int:
+    return page.evaluate(
+        """sel => { const e = document.querySelector(sel);
+             return e ? e.innerText.replace(/\s+/g, ' ').trim().split(' ').length : 0; }""",
+        selector,
     )
 
 
@@ -321,6 +341,7 @@ def test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count(playw
         browser, page = _launch(pw)
         try:
             counts = {key: _section_words(page, sid) for key, sid in ids.items()}
+            portability = _new_block_words(page, "#nhg-commands [data-v444-new]")
             merged = page.evaluate(
                 "() => { const h = [...document.querySelectorAll('#page-home .section-title')]"
                 ".find(e => e.textContent.trim() === 'Raw prompting vs Nexus Hub');"
@@ -333,6 +354,9 @@ def test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count(playw
         assert words <= ceiling, f"{key}: {words} words exceeds the two-thirds ceiling of {ceiling}"
     # The merged comparison replaces v4.1.2's "The difference" and must not exceed ITS ceiling.
     assert merged <= fixture["the-difference"]["v412_words"] * 2 // 3, merged
+    # v4.4.4's portability figure is new content, so it is capped on its own terms rather than
+    # against a v4.1.2 section that never contained it.
+    assert 20 <= portability <= 120, f"the portability figure is {portability} words"
 
 
 def test_merged_comparison_labels_render_at_twice_the_v441_size(playwright_mod) -> None:
@@ -418,8 +442,8 @@ def test_guardrails_section_names_only_shipped_registered_hooks(playwright_mod) 
         try:
             data = page.evaluate(
                 """() => ({
-                    ports: [...document.querySelectorAll('#nhg-guard-fig .g-port')].map(e => e.textContent.trim()),
-                    blocked: [...document.querySelectorAll('#nhg-guard-fig .g-blocked')].map(e => e.textContent.trim()),
+                    ports: [...document.querySelectorAll('#nhg-guard-fig .gf-hooks li')].map(e => e.textContent.trim()),
+                    blocked: [...document.querySelectorAll('#nhg-guard-fig .gf-cell--stop b')].map(e => e.textContent.trim()),
                     pretooluse: +document.querySelector('#nhg-guardrails [data-count="pretooluse"]').textContent,
                     hooks: +document.querySelector('#nhg-guardrails [data-count="hooks"]').textContent,
                     text: document.getElementById('nhg-guardrails').innerText.toLowerCase(),
@@ -432,9 +456,9 @@ def test_guardrails_section_names_only_shipped_registered_hooks(playwright_mod) 
         assert (_HOOKS_DIR / f"{name}.sh").is_file(), f"{name}.sh does not ship"
         assert (_HOOKS_DIR / f"{name}.ps1").is_file(), f"{name}.ps1 sibling missing"
         assert name in registered, f"{name} is not registered in settings.json"
-    for label in data["blocked"]:
-        hook = label.replace("blocked by ", "")
-        assert hook in data["ports"], label
+    assert data["blocked"], "no attempt names the hook that blocked it"
+    for hook in data["blocked"]:
+        assert hook in data["ports"], hook
     assert data["pretooluse"] == len(pretooluse) and data["hooks"] == len(registered)
     assert "makes ai safe" not in data["text"], "claims must be enforcement statements, not a safety guarantee"
 
@@ -451,9 +475,9 @@ def test_guardrails_choreography_reaches_a_fully_blocked_end_state(playwright_mo
                 """() => ({
                     total: window.NexusSeq.state(document.getElementById('nhg-guard-fig')).total,
                     lit: document.querySelectorAll('#nhg-guard-fig .is-on').length,
-                    blocks: document.querySelectorAll('#nhg-guard-fig .g-block').length,
+                    blocks: document.querySelectorAll('#nhg-guard-fig .gf-out--stop').length,
                 })"""
             )
         finally:
             browser.close()
-    assert data["total"] == 5 and data["lit"] == 5 and data["blocks"] == 2
+    assert data["total"] == 3 and data["lit"] == 3 and data["blocks"] == 2

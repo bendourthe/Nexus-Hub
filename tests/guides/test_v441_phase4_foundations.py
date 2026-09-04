@@ -53,7 +53,8 @@ def _staged_hash(name: str) -> str:
 
 
 def test_embedded_image_matches_the_approved_asset(models_scene: str) -> None:
-    m = re.search(r'<span class="fx-out-media" data-media="image">(<svg[\s\S]*?</svg>)</span>', models_scene)
+    # v4.4.4 moved the image into the multimodal tier, so the wrapper carries a second class.
+    m = re.search(r'<span class="[^"]*fx-out-media" data-media="image">(<svg[\s\S]*?</svg>)</span>', models_scene)
     assert m, "the image output must inline the approved SVG verbatim"
     embedded = hashlib.sha256(m.group(1).encode("utf-8")).hexdigest()
     assert embedded == _staged_hash("model-output-image.svg"), (
@@ -66,10 +67,13 @@ def test_embedded_gif_and_poster_match_the_approved_assets(models_scene: str) ->
     assert img, "missing the moving-image element"
     tag = img.group(0)
     poster = re.search(r'data-poster-src="data:image/svg\+xml;base64,([A-Za-z0-9+/=]+)"', tag)
-    motion = re.search(r'data-motion-src="data:image/gif;base64,([A-Za-z0-9+/=]+)"', tag)
-    src = re.search(r' src="data:image/svg\+xml;base64,([A-Za-z0-9+/=]+)"', tag)
-    assert poster and motion and src
-    assert src.group(1) == poster.group(1), "the resting src must be the poster, not the GIF"
+    src = re.search(r' src="data:image/gif;base64,([A-Za-z0-9+/=]+)"', tag)
+    motion = src
+    assert poster and src, tag[:200]
+    # v4.4.3: the animation is the element's own src, so there is no second copy of the GIF and no
+    # data-motion-src. The approved-bytes rule is unchanged: both assets still hash to the ledger.
+    assert "data-motion-src" not in tag, "the GIF must appear once, as the src"
+    assert src.group(1) != poster.group(1), "the src must be the animation, not the still"
     assert hashlib.sha256(base64.b64decode(poster.group(1))).hexdigest() == _staged_hash(
         "model-output-video-poster.svg"
     )
@@ -79,14 +83,19 @@ def test_embedded_gif_and_poster_match_the_approved_assets(models_scene: str) ->
     assert re.search(r'alt="[^"]{20,}"', tag), "the moving image needs a substantive alt text"
 
 
-def test_embedded_audio_matches_the_approved_asset(models_scene: str) -> None:
-    m = re.search(r'<audio class="fx-out-audio"[^>]*src="data:audio/wav;base64,([A-Za-z0-9+/=]+)"', models_scene)
-    assert m, "missing the audio output"
-    assert hashlib.sha256(base64.b64decode(m.group(1))).hexdigest() == _staged_hash(
-        "model-output-audio.wav"
-    )
-    tag = models_scene[m.start(): models_scene.index(">", m.start()) + 1]
-    assert "controls" in tag and 'preload="none"' in tag and "autoplay" not in tag
+def test_the_audio_asset_left_the_page_with_its_teaching(models_scene: str, guide_text: str) -> None:
+    """v4.4.4 retired audio from the Models teaching, on the operator's instruction.
+
+    The old test asserted the embedded WAV matched the approved ledger bytes. With audio out of the
+    teaching, the honest assertion is the opposite: the asset must NOT be shipped, because a 12 KB
+    embedded payload nothing explains is worse than no payload. The ledger row stays in the
+    provenance document as a record of what was once approved.
+    """
+    assert "data:audio/wav" not in guide_text, "the approved WAV is still embedded"
+    assert "<audio" not in guide_text, "the audio element is still shipped"
+    assert "fx-out-audio" not in guide_text and "fx-wave" not in guide_text
+    assert "initWaveform" not in guide_text, "the waveform engine is still shipped"
+    assert 'data-output-kind="audio"' not in models_scene
 
 
 def test_media_ledger_records_every_embedded_payload() -> None:
@@ -106,25 +115,26 @@ def test_media_ledger_records_every_embedded_payload() -> None:
 # ------------------------------------------------------------------ shared visual grammar
 
 
-def test_models_and_agentic_platform_share_visual_grammar(guide_text: str) -> None:
-    """The comparison only teaches if the two scenes are the same picture up to the fork."""
+def test_the_agentic_scene_carries_the_comparison_and_the_boundary(guide_text: str) -> None:
+    """v4.4.4 retired the shared-grammar rule with the scene that made it possible.
+
+    The rule was that Models and Agentic Platform open with a byte-identical entry motif, so the
+    comparison between them teaches. v4.4.4 merged the chatbot comparison INTO the platform scene
+    and dropped its six-stage flow, so there is one entry motif in Foundations and nothing left to
+    compare it against. What replaced the rule is stronger for the reader: the platform scene now
+    shows one request going to BOTH lanes, so the sameness is on screen rather than in the markup.
+    """
     fx = guide_text[guide_text.index('id="page-foundations"'): guide_text.index('id="page-training"')]
-    assert fx.count('data-grammar="entry"') == 2, "both scenes must open with the entry motif"
-    assert fx.count('data-grammar="work-cycle"') == 2, "both scenes must share the cycle glyph"
-    # The entry motif must be byte-identical between the scenes: same prompt, same kinds.
-    entries = re.findall(r'<div class="fx-entry" data-grammar="entry">[\s\S]*?</div>\s*<div class="fx-ctx-plus"', fx)
-    assert len(entries) == 2 and entries[0] == entries[1], (
-        "the prompt/context entry cards must be identical in Models and Agentic Platform"
-    )
-    assert fx.count('data-agent-mission') == 3, "exactly three specialized missions"
-    assert fx.count('data-grammar="boundary"') == 1
-    # DOM order inside Agentic Platform: entry -> cycle -> missions -> boundary -> report.
+    assert fx.count('data-grammar="entry"') == 1, "the entry motif belongs to the Models scene alone"
+    assert "fx-chatbot-agent" not in fx, "the separate comparison scene must not come back"
     agent = re.search(r'<section class="fx-scene[^"]*" id="fx-agent-platform"[\s\S]*?</section>', fx).group(0)
-    order = [agent.index(m) for m in (
-        'data-grammar="entry"', 'data-grammar="work-cycle"', "data-agent-mission",
-        'data-grammar="boundary"', 'data-stage="observations"', 'data-stage="report"',
-    )]
-    assert order == sorted(order), "the agentic flow must read in execution order"
+    # one request, two lanes, chatbot first, and the boundary that makes the capability conditional
+    assert agent.count('data-phase3-node="shared-request"') == 1
+    assert agent.index('data-phase3-node="chatbot-handoff"') < agent.index('data-phase3-node="agent-handoff"')
+    assert agent.count('data-grammar="boundary"') == 1
+    assert "when permitted" in agent and "when supported" in agent
+    # the four things the agentic lane runs, that the chatbot lane cannot
+    assert agent.count('class="ap-step"') == 4, "four steps expected"
 
 
 # ------------------------------------------------------------------------ browser gates
@@ -148,34 +158,46 @@ def playwright_mod():
     return sync_playwright
 
 
-def test_moving_image_plays_only_on_request(playwright_mod) -> None:
+def test_moving_image_plays_unaided_and_stills_under_reduced_motion(playwright_mod) -> None:
+    """v4.4.3 inverts the v4.4.1 rule, and keeps its accessibility half.
+
+    The old rule was that motion never starts without a press. The review asked for the opposite,
+    so the animation is the element's own src and no control exists. A reader who asks for reduced
+    motion still gets the still frame, which is the half of the old rule that was about access
+    rather than about asking.
+    """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
-        page = browser.new_page(viewport={"width": 1440, "height": 900})
         try:
+            page = browser.new_page(viewport={"width": 1440, "height": 900})
             page.goto(GUIDE.as_uri() + "#foundations")
             page.wait_for_timeout(400)
+            assert page.locator("[data-media-toggle]").count() == 0, "there is nothing to press"
             img = page.locator(".fx-out-motion")
-            btn = page.locator("[data-media-toggle]")
-            assert img.get_attribute("src").startswith("data:image/svg+xml"), (
-                "the moving image must rest on its poster"
-            )
-            btn.scroll_into_view_if_needed()
-            btn.click()
             assert img.get_attribute("src").startswith("data:image/gif"), (
-                "clicking Play must swap in the approved GIF"
+                "the moving image must play without being asked"
             )
-            assert btn.get_attribute("aria-pressed") == "true"
-            btn.click()
-            assert img.get_attribute("src").startswith("data:image/svg+xml"), (
-                "clicking again must restore the still poster"
+            assert img.get_attribute("data-motion-state") == "playing"
+            page.close()
+
+            reduced = browser.new_page(viewport={"width": 1440, "height": 900}, reduced_motion="reduce")
+            reduced.goto(GUIDE.as_uri() + "#foundations")
+            reduced.wait_for_timeout(400)
+            still = reduced.locator(".fx-out-motion")
+            assert still.get_attribute("src").startswith("data:image/svg+xml"), (
+                "reduced motion must show the still frame"
             )
-            assert btn.get_attribute("aria-pressed") == "false"
+            assert still.get_attribute("data-motion-state") == "still"
         finally:
             browser.close()
 
 
-def test_work_cycle_is_static_and_complete_under_reduced_motion(playwright_mod) -> None:
+def test_inside_the_model_is_complete_under_reduced_motion(playwright_mod) -> None:
+    """v4.4.4 replaced the three-step block with the token strip; the rule is unchanged.
+
+    Whatever the scene uses to show what happens inside a model must be fully readable without
+    motion, and the honesty caveat must survive the rebuild.
+    """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page(viewport={"width": 1440, "height": 900}, reduced_motion="reduce")
@@ -184,17 +206,28 @@ def test_work_cycle_is_static_and_complete_under_reduced_motion(playwright_mod) 
             page.wait_for_timeout(400)
             state = page.evaluate(
                 """() => {
-                    const svg = document.querySelector('#fx-model-lifecycle .fx-cycle svg');
-                    svg.closest('.fx-scene').classList.add('live');
-                    const cs = getComputedStyle(svg);
-                    const label = svg.querySelector('text');
+                    const pass = document.querySelector('#fx-model-lifecycle .fx-pass');
+                    const chips = [...pass.querySelectorAll('.mx-tok-chip')];
+                    const nodes = [...document.querySelectorAll('#fx-model-lifecycle .mx-node')];
                     return {
-                        animation: cs.animationName,
-                        labelShown: getComputedStyle(label).display !== 'none',
+                        chips: chips.length,
+                        nodes: nodes.length,
+                        allVisible: [...chips, ...nodes].every(e => getComputedStyle(e).opacity === '1'
+                                                                    && e.getBoundingClientRect().height > 0),
+                        rings: document.querySelectorAll('#fx-model-lifecycle .fx-cycle').length,
+                        note: pass.querySelector('.fx-pass-note').textContent.toLowerCase(),
                     };
                 }"""
             )
         finally:
             browser.close()
-    assert state["animation"] == "none", "the cycle must not spin under reduced motion"
-    assert state["labelShown"], "the static cycle must still show its label"
+    assert state["rings"] == 0, "the work-cycle ring must not come back"
+    # v4.4.5 moved `.mx-lanes` OUT of `.fx-pass`. It had been a child, which meant
+    # harvesting `.fx-pass` for one stage dragged the lanes into it and rendered them
+    # twice. The nodes are still asserted, and still asserted visible under reduced
+    # motion; they are just no longer reached through the token block.
+    assert state["chips"] >= 6 and state["nodes"] >= 5, state
+    assert state["allVisible"], state
+    assert "not a transcript of hidden reasoning" in state["note"], (
+        "the honesty caveat must survive the rebuild"
+    )

@@ -171,3 +171,157 @@
 - `.section-title` minimum bound is 0.6x the scaled floor (34.5 px at scale 3) instead of the plan formula's 57.6 px, so a long word cannot overflow a 320 px viewport; the 1440 px anchor (81.6 px, exactly 3x v4.4.1) is unchanged. Recorded in the Phase 1 contract.
 
 > Not finalized. v4.4.2 is in progress; this section is appended per phase and reconciled at the plan's final phase.
+## v4.4.3 - guide-illustration-clarity-rebuild
+
+**Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](plans/v4.4.3-guide-illustration-clarity-rebuild.md)
+**Base**: `develop` at `a376c1ae`
+**Status**: nine phases complete locally; the operator reviews Home and Foundations before Training work begins, so this version is deliberately NOT published yet.
+
+### Closed during v4.4.3
+
+| ID | What it was | Closed in |
+|---|---|---|
+| CV-1 | The guardrails figure escaped its own chips and collided its hook names with the rings | Phase 2 |
+| CV-2 | The command loop occupied about two thirds of its column with unreadable arrow glyphs | Phase 3 |
+| CV-3 | The budget comparison could not be read: three legend numbers mapped onto three unlabelled stripes | Phase 4 |
+| CV-4 | Four dashed boxes each containing the noun they were already labelled with | Phase 4 |
+| CV-5 | A spinning ring whose own caption denied what it appeared to show | Phase 5 |
+| CV-6 | The motion output required a press before anything moved | Phase 5 |
+| CV-7 | The scene taught a singular abstraction and named no platform | Phase 6 |
+| CV-8 | The chatbot comparison was two columns of prose the reader had to compare unaided | Phase 7 |
+| CV-9 | Two harness scenes whose SVG labels overlapped each other and the rings | Phase 8 |
+| CV-10 | The product addressed the reader in 55 places | Phase 1 |
+
+### Defects this plan introduced and fixed inside it
+
+| ID | Defect | Found by | Fixed in |
+|---|---|---|---|
+| BG-17 | The fit pass measured a `max-width`-capped box, so no label ever shrank and whole scenes overflowed | `test_every_scene_child_stays_inside_its_scene_box` | Phase 1 |
+| BG-18 | A `nowrap` heading inflated a `1fr` scene track to 753px inside a 672px scene, and the fit pass then read the inflated track as available room | same | Phase 1 |
+| BG-19 | A fixed pixel `max-width` on the guardrails ring, which the v4.2.3 responsive rule forbids on a text-bearing element | `test_no_hardcoded_text_width_caps_remain` | Phase 4, shipped in Phase 2 |
+| BG-20 | Removing the budget CSS also unstyled the harness trail, which had borrowed those rules; it rendered with no border, no background, and no columns for four commits | Phase 8 rebuild, then a new class-coverage guard | Phase 8, shipped in Phase 4 |
+| BG-21 | `width: max-content` on the harness model box pushed both rings 88px outside the scene at 320px | `test_every_scene_child_stays_inside_its_scene_box[320]` | Phase 8 |
+| BG-22 | The `.fx-mat--row` modifier lost to `.fx-mat` on source order, so the wide material row stayed two columns | direct measurement | Phase 5 |
+| BG-23 | The merged harness label was 66 characters, which cannot hold one line at 720px above the 15px floor | `test_no_heading_wraps_from_720_upward` | Phase 8 |
+
+### Pre-existing defects found and closed
+
+| ID | Defect | Note |
+|---|---|---|
+| BG-24 | The hero lockup's seven-second infinite float had NO reduced-motion state | Exposed by Phase 5: removing the ring left the lockup as the only continuous animation, and the old assertion covered the ring instead of it. One rule added. |
+| BG-25 | `test_harness_svg_text_stays_inside_its_viewbox` would have passed vacuously once its selector matched nothing | Rewritten over the HTML figure, where it measures every leaf's glyph run against its own box at six widths. |
+
+### Open
+
+- **`CQ-1` (carried from v4.4.2)** CodeQL `js/xss-through-dom` on the guide's media toggle. The toggle itself was REMOVED in Phase 5, so the flagged assignment no longer exists in the shipped file. The alert should be re-evaluated on the next scan rather than assumed closed; if it clears, close `CQ-1` then.
+- **`HT-4` No human comprehension cohort for the rebuilt illustrations.** Owner: operator. The whole point of this version is that the pictures read on first look, and that claim is measured only by geometry and contrast, never by a reader. The operator's own review is the intended next step and is why this version is unpublished.
+- **`HT-2` (carried from v4.4.1)** Real current-host installer run and the operator's config repair. Untouched by this plan.
+- **`QG-1` (carried from v4.4.2)** Six PowerShell core-settings seeding tests fail only under the CI profile runner's `PYTHONUTF8=1`.
+
+### Deviations recorded
+
+- **`D2` relaxed with arithmetic.** No heading wraps at 720px and wider. Below 720px the fit pass holds a 15px floor and hands wrapping back, because one line at 320px costs about 8px of type; nothing spills past its container at any width. Recorded in the phase contract.
+- **The label is now larger than the title.** The review named both numbers (triple the label, halve the title), which converges them at about 33px and inverts the usual hierarchy. Shipped exactly as asked, and flagged for the review.
+- **Product names against vendor marks.** The four platform chips label the product while the mark belongs to the vendor: Claude Code carries the Claude mark, Codex the ChatGPT mark, Antigravity the Gemini mark. Cursor is exact. Recorded in the asset provenance ledger with the reason the linked aggregator was not used.
+- **One second sanitization of an approved asset.** The Gemini mark's 13 internal ids are re-namespaced in its second instance, because a duplicate id would make the second copy resolve its mask and filters against the first. The test derives the variant from the approved bytes so the prefix is provably the only change.
+- **Two commits in Phase 2 and Phase 8 carry work belonging to an adjacent task.** Phase 2 carries the table column widths (a Phase 1 refinement found after that commit), and Phase 8 carries three count updates caused by its own scene merge. Both are stated in their histories.
+
+## v4.4.4 - guide-teaching-clarity-rebuild
+
+**Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](plans/v4.4.4-guide-teaching-clarity-rebuild.md)
+**Base**: the v4.4.3 closeout at `bcfa3413`, on the same branch (v4.4.3 was never published)
+**Status**: nine phases complete locally. Still deliberately UNPUBLISHED: the operator reviews Home and Foundations before Training work begins.
+
+### Closed during v4.4.4
+
+| ID | What it was | Closed in |
+|---|---|---|
+| TC-1 | The guardrails segment was named for a property rather than for what it does, and its ring headers were left-aligned | Phase 1 |
+| TC-2 | The command segment taught one benefit of two: it never showed that one install reaches every platform | Phase 2 |
+| TC-3 | Foundations put the scene DESCRIPTION above the scene NAME | Phase 3 |
+| TC-4 | Prompt Engineering pointed a sideways arrow into empty space and compared two paragraphs | Phase 4 |
+| TC-5 | Context Engineering stacked the request above the material and left the cost of dumping everything implied | Phase 5 |
+| TC-6 | Models catalogued four outputs instead of teaching next-token prediction, base against reasoning, and modality | Phase 6 |
+| TC-7 | Two scenes taught one idea, and the platform scene's six-stage flow was unreadable | Phase 7 |
+| TC-8 | The harness showed WHERE the layers sit rather than following a request through them | Phase 8 |
+
+### Defects this plan introduced and fixed inside it
+
+| ID | Defect | Found by | Fixed in |
+|---|---|---|---|
+| BG-26 | Two non-greedy replacements left stray closing tags in the Models scene; one closed the request region early, dropping a flow root and cutting the connectors from seven to two while rendering without visible error | `test_flow_connectors_never_cross_a_card` | Phase 6 |
+| BG-27 | The stale-offset splice from v4.4.3 Phase 8, repeated: the CSS insertion shifted every index and the merged scene landed inside a base64 payload | rendering the scene and looking at it | Phase 7 |
+| BG-28 | `.cx-ex` used `--blue`, which had no light-theme override at all, measuring 1.90:1 | the contrast sweep, once the reduced-motion fix made the text visible | Phase 6 |
+| BG-29 | Three modifier classes lost to their base class on source order (`.fx-mat--row`, `.cx-row`, `.mx-tiers`) | direct measurement | Phases 5 and 6 |
+
+### Pre-existing defects found and closed
+
+| ID | Defect | Note |
+|---|---|---|
+| BG-30 | A sequence step stayed HIDDEN under reduced motion until the observer played it | Zeroing the transition was not enough. A reader who asked for less motion saw an empty strip until they scrolled. |
+| BG-31 | `.gf-out--ok` / `--stop` (v4.4.3 Phase 2) and `.cv-changes li` (v4.4.3 Phase 7) failed WCAG AA in light theme, at 3.92 and 4.08 | Both shipped INVISIBLE, because the contrast sweep samples only visible text. Closing `BG-30` is what exposed them. **A contrast sweep that skips hidden text will pass a palette it never measured.** |
+
+### Open
+
+- **`HT-4` (carried)** No human comprehension cohort. Two rounds of operator review have now driven the illustrations, which is better than none, but no reader outside this loop has been asked whether the pictures land.
+- **`RV-1` One correction to the brief, for the operator to accept or reject.** The Models scene names `xAI Grok`, not `Cursor Grok` as the brief listed. Grok is xAI's model; Cursor is a platform that offers models. Applied with the correction flagged rather than silently.
+- **`RV-2` The label still renders slightly larger than the title on Home.** That is what tripling one and halving the other produces, and it was asked for explicitly in the first review round. Flagged again because it is the kind of thing a reader notices before a maintainer does.
+- **`CQ-1` (carried)** CodeQL `js/xss-through-dom` on the media toggle. The toggle was removed in v4.4.3 and the audio output in v4.4.4, so the flagged construct is gone; re-evaluate on the next scan rather than assuming closed.
+- **`HT-2`, `QG-1` (carried from v4.4.1 and v4.4.2)** Unchanged by this plan.
+
+### Deviations recorded
+
+- **Phases 1 and 2 share one commit.** Both are Home wording and illustration work, and the Phase 1 edits were already in the working tree when Phase 2 began; splitting afterwards would have meant reconstructing a boundary rather than observing one.
+- **One word-count rule narrowed rather than raised.** The v4.4.1 ceiling on restored Home prose now excludes blocks marked `data-v444-new`, which carry their own explicit cap. Restored prose still cannot creep back toward its v4.1.2 length, and the new figure cannot grow unmeasured.
+- **The audio asset is retired but not deleted.** The staged WAV stays in `assets/` and its ledger row stays in the provenance document, so a future reinstatement needs the approval gate rather than a new acquisition pass.
+
+## v4.4.5 - guide-mockup-integration
+
+**Plan**: [v4.4.5-guide-mockup-integration.md](plans/v4.4.5-guide-mockup-integration.md)
+**Base**: the v4.4.4 closeout at `3ac90bb2`, on the same branch (neither v4.4.3 nor v4.4.4 was published)
+**Status**: eight phases complete locally. Still deliberately UNPUBLISHED: the operator reviews Home and Foundations before Training work begins.
+
+### Closed during v4.4.5
+
+| ID | What it was | Closed in |
+|---|---|---|
+| MI-1 | The portability figure revealed itself in three steps, which the review said made the boxes hard to read; it had no platform logos, and its triangles drifted off centre at every width but the authored one | Phase 1 |
+| MI-2 | Eleven Foundations tag rules each declared their own hand-written size, and every one of them was half the size the review asked for | Phase 2 |
+| MI-3 | The prompt's four parts used a vocabulary the review replaced, and one word changed MEANING rather than spelling | Phase 3 |
+| MI-4 | The vague prompt sat in a narrow column beside one tall stack of flaws | Phase 3 |
+| MI-5 | Two token captions rendered as plain body text because their rule had matched nothing since the figure moved | Phase 4 |
+| MI-6 | Models catalogued its content instead of following the eight-stage spine the review supplied, and had no Select or Predict stage | Phase 5 |
+| MI-7 | Agentic Platforms never said what "agentic" means, and its boundary showed one setting of three | Phase 6 |
+| MI-8 | Only one of the three harness layers stated a limit; the outer loop's work sequence was absent and its artifact chain was claimed rather than shown | Phase 7 |
+
+### Defects this plan introduced and fixed inside it
+
+| ID | Defect | Found by | Fixed in |
+|---|---|---|---|
+| BG-32 | Hoisting the four vendor marks into shared symbols rendered the Gemini mark BLANK: a `<use>` clone resolves a mask reference against its own shadow tree and found the cloned mask | a screenshot | Phase 1 |
+| BG-33 | Hoisting that mask to document level, the documented workaround, rendered an unmasked SQUARE | a screenshot | Phase 1 |
+| BG-34 | The centring measurement reported a triangle 530px off centre inside a 720px figure, by comparing a hidden lane's zero rect against a real box | reading an impossible number | Phase 1 |
+| BG-35 | The Models rebuild rendered the base-versus-reasoning lanes TWICE, because `.mx-lanes` was a child of `.fx-pass` rather than its sibling. Every test passed | a screenshot | Phase 5 |
+| BG-36 | `data-stage="output"` landed on both the phase wrapper and the harvested tiers block | the v4.4.1 chronology guard | Phase 5 |
+| BG-37 | The artifact chain shipped as four full-width chips stacked one per line. The test passed, because four identical left offsets sort perfectly well | a screenshot | Phase 7 |
+
+### Pre-existing defects found and closed
+
+| ID | Defect | Note |
+|---|---|---|
+| BG-38 | `.fx-copy .fx-tokfig-cap`, `--mid`, and `.fx-tokfig-note` have matched NOTHING since the token figure moved into `.fx-diagram`. Both captions and the note under the chips have been rendering as plain 16px sentence-case body text | This is what the review is asking about when it wants a caption "styled like 'Vague'": the styling the rule already described and never applied. The v4.4.3 class-coverage guard cannot catch this class of defect - it proves a class USED in the markup has a rule, not that a rule's selector matches anything. Those are different questions. |
+
+### Open
+
+- **`RV-3` The Models scene names `xAI Grok`, not `Cursor Grok` as the brief listed.** Grok is xAI's model; Cursor is a platform that serves models. Applied with the correction flagged rather than silently, and carried forward from `RV-1` because the brief repeated the pairing.
+- **`RV-4` `Context Engineering Best Practices` now reads QUIETER than the two budget tags below it.** Both instructions were followed exactly and they pull against each other: the heading was asked to match the scene subtitle (17px, weight 500, dimmed), and Phase 2 doubled the tags under it to 23px. Which one wins is the operator's call.
+- **`RV-5` The Home label still renders slightly larger than its title**, carried from `RV-2`. Unchanged by this plan.
+- **`GA-1` A rule's selector is never proven to match anything.** `BG-38` shipped for versions because no guard asks that question, and there is no reason to believe it is the only dead selector in a 396 KB stylesheet. A dead-selector sweep would be cheap and is not in this plan.
+- **`HT-4` (carried)** No human comprehension cohort. Three rounds of operator review have now driven these illustrations, which is far better than none, but no reader outside this loop has been asked whether the pictures land.
+- **`CQ-1`, `HT-2`, `QG-1` (carried)** Unchanged by this plan.
+
+### Deviations recorded
+
+- **Phases 6 and 7 are separate commits, but Phase 6's evidence is targeted rather than the full suite.** The full guides suite ran at Phase 7, the next change to the same file. Running it twice for two consecutive edits to one artifact buys nothing, and Phase 6's own modules plus the broad module were green at its commit.
+- **The mockups' four closing truths are not all imported.** Two of the agentic mockup's four are now said by the equation and by step 02 of the existing loop; a reader told the same thing twice trusts the second telling less. The two said nowhere else are folded into the boundary block and the closing note.
+- **The Gemini mark is duplicated rather than shared, at a cost of about 12 KB.** Three attempts at sharing are recorded in `BG-32`, `BG-33`, and the ledger hash guard. The approved bytes stay where the ledger pinned them.

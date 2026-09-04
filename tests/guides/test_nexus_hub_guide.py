@@ -577,7 +577,7 @@ def test_home_hero_restores_the_v412_subtitle_and_lead(guide_text: str) -> None:
     assert "hero-tagline" not in home, "the v4.4.1 tagline is replaced by the v4.1.2 statement"
     sub = re.search(r'<h2 class="hero-subtitle">([\s\S]*?)</h2>', home)
     assert sub and re.sub(r"<[^>]+>", "", sub.group(1)) == (
-        "Upgrade your agentic AI platforms with an autonomous team of world experts"
+        "Upgrade any agentic AI platform with an autonomous team of world experts"
     )
     assert '<span class="gtext">autonomous team of world experts</span>' in sub.group(1)
     lead = re.search(r'<p class="hero-lead">([^<]+)</p>', home)
@@ -856,18 +856,20 @@ def _foundation_scene(guide_text: str, scene_id: str) -> str:
 
 def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> None:
     fx = _foundations_markup(guide_text)
-    assert fx.count('class="fx-scene') == 8, "expected eight Phase 3 scenes"
-    assert fx.count('class="fx-title"') == 8
-    assert fx.count('class="fx-subtitle"') == 8
+    # v4.4.3 merged the two harness scenes into one, on the review's instruction that a reader
+    # needs one picture of where the two loops sit rather than two to superimpose.
+    # v4.4.4 merged the chatbot comparison into the Agentic Platforms scene, on the review's
+    # instruction that one segment should carry the idea.
+    assert fx.count('class="fx-scene') == 6, "expected six Foundations scenes"
+    assert fx.count('class="fx-title"') == 6
+    assert fx.count('class="fx-subtitle"') == 6
     expected = [
         "Tokens Definition",
         "Prompt Engineering",
         "Context Engineering",
         "Models",
-        "Agentic Platform",
-        "Chatbot vs. Agentic Platform",
+        "Agentic Platforms",
         "Harnesses",
-        "Nexus Hub Harness",
     ]
     found = re.findall(r'<h2 id="[^"]+"[^>]*>([^<]*)</h2>', fx)
     assert found == expected, (
@@ -887,22 +889,31 @@ def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> 
 def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
     guide_text: str,
 ) -> None:
-    scene = _foundation_scene(guide_text, "fx-chatbot-agent")
-    assert "Chatbot vs. Agentic Platform" in scene
-    assert "Same request, different handoff" in scene
+    # v4.4.4: the comparison lives inside the Agentic Platforms scene now.
+    scene = _foundation_scene(guide_text, "fx-agent-platform")
+    assert "Agentic Platforms" in scene
+    assert "Where a chatbot answers, an agentic platform can act" in scene
     # v4.4.1 Phase 4: the comparison is an HTML two-lane group, chatbot lane first.
     assert scene.count('data-phase3-node="shared-request"') == 1
     assert scene.index('data-phase3-node="chatbot-handoff"') < scene.index(
         'data-phase3-node="agent-handoff"'
     )
+    # v4.4.5 added the mockup's six-part anatomy to this scene, which names `Boundary` a third
+    # time in a different block. The claim was always about the two LANES carrying matching
+    # labels, so it is measured over the lane lists rather than over the whole scene.
+    lanes = "".join(
+        scene[m.start() : scene.index("</dl>", m.start())]
+        for m in re.finditer(r'<dl class="fx-parts">', scene)
+    )
+    assert lanes.count('<dl class="fx-parts">') == 2, "expected exactly two lanes"
     for part in ("Boundary", "Action", "Outcome", "Leaves behind"):
-        assert scene.count("<dt>" + part + "</dt>") == 2, (
+        assert lanes.count("<dt>" + part + "</dt>") == 2, (
             "both lanes must carry an explicit " + part + " label"
         )
     text = re.sub(r"<[^>]+>", " ", scene).lower()
     assert "same request" in text
-    assert "answer handoff" in text and "you apply and check" in text
-    assert "work handoff" in text and "saved change" in text and "check result" in text
+    assert "answer handoff" in text and "every step is applied and checked" in text
+    assert "work handoff" in text and "saved change" in text and "checked result" in text
     assert re.search(r"chatbots?.{0,100}(?:can|may|increasingly).{0,60}tools", text)
     assert "where the work happens" in text
     assert re.search(r"what .{0,30} leaves behind", text)
@@ -916,12 +927,14 @@ def test_foundations_context_makes_budget_competition_and_full_behavior_visible(
 ) -> None:
     """v4.4.1 Phase 3: context is separable from the request, finite, and selectable."""
     scene = _foundation_scene(guide_text, "fx-context")
-    assert 'class="fx-ctx-query"' in scene and 'class="fx-ctx-kinds"' in scene
+    assert 'class="fx-ctx-query"' in scene and 'class="cx-mat' in scene
+    # v4.4.4 replaced each drawing with a concrete example, on the review's instruction. The four
+    # kinds are still required; what changed is what sits under each name.
     for kind in ("Image", "File or document", "Project folder or workspace", "Codebase"):
-        assert '<span class="fx-ctx-kind">' + kind + "</span>" in scene, (
+        assert '<span class="cx-kind">' + kind + "</span>" in scene, (
             "missing context kind: " + kind
         )
-    assert scene.index("fx-budget--noisy") < scene.index("fx-budget--focused"), (
+    assert scene.index("fx-spend-tag--bad") < scene.index("fx-spend-tag--good"), (
         "the unfocused selection must read before the task-matched one"
     )
     text = re.sub(r"<[^>]+>", " ", scene).lower()
@@ -935,18 +948,20 @@ def test_foundations_context_makes_budget_competition_and_full_behavior_visible(
 def test_foundations_harness_layers_are_honest_and_repository_anchored(
     guide_text: str,
 ) -> None:
-    """v4.4.1 Phase 4 split the hierarchy: fx-harness holds the built-in platform loop,
-    fx-practice holds the Nexus-Hub layer with the five repository-anchored claims."""
+    """v4.4.3 merged the two harness scenes: one scene now defines a harness AND shows what the
+    Nexus Hub layer adds, so all three layers and the five repository-anchored claims live here.
+    The rules are unchanged; only the scene they live in is."""
     harness = _foundation_scene(guide_text, "fx-harness")
-    for layer in ("model", "platform"):
+    for layer in ("model", "platform", "nexus-hub"):
         assert f'data-phase3-harness-layer="{layer}"' in harness
     htext = re.sub(r"<[^>]+>", " ", harness).lower()
     assert re.search(r"(?:every|agentic) platform.{0,80}(?:already|ships).{0,40}harness", htext)
     for part in ("context", "tools", "permissions", "execution", "observations"):
         assert part in htext, f"the built-in loop must name {part}"
+    for part in ("skills", "hooks", "gates", "artifacts"):
+        assert part in htext, f"the outer loop must name {part}"
 
-    practice = _foundation_scene(guide_text, "fx-practice")
-    assert 'data-phase3-harness-layer="nexus-hub"' in practice
+    practice = harness
     claims = re.findall(
         r'data-phase3-claim="([^"]+)" data-artifact="([^"]+)"', practice
     )
@@ -971,20 +986,31 @@ def test_foundations_harness_layers_are_honest_and_repository_anchored(
 def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
     guide_text: str,
 ) -> None:
-    """v4.4.1 Phase 4: the story diagrams are HTML node trees; the remaining continuous
-    motion (the shared work-cycle glyph) is observer-gated and statically complete."""
+    """v4.4.1 Phase 4: the story diagrams are HTML node trees.
+
+    v4.4.3 removed the spinning work-cycle ring from both scenes: it depicted nothing a reader
+    could name, and its own caption had to say so. The shared grammar it provided is still
+    required, now as the one-pass block, and the remaining continuous motion is the hero lockup,
+    which keeps the liveness gate the ring used to carry.
+    """
     fx = _foundations_markup(guide_text)
-    assert fx.count('data-grammar="work-cycle"') == 2, (
-        "Models and Agentic Platform must share the same work-cycle glyph"
+    # v4.4.4 retired the platform scene's six-stage flow, so the one-pass motif belongs to Models
+    # alone. What the two scenes now share is the request: the comparison sends the SAME prompt to
+    # both lanes, which is asserted in the comparison module.
+    assert fx.count('data-grammar="one-pass"') == 1, (
+        "the inside-the-model motif belongs to the Models scene"
     )
-    assert ".js .fx-scene.live .fx-cycle svg" in guide_text, (
-        "the cycle spin must be gated on scene liveness, not free-running"
+    assert 'class="fx-cycle"' not in fx, "the work-cycle ring must not come back into a scene"
+    assert ".js .hero-lockup.live .hero-lockup-float" in guide_text, (
+        "continuous motion must be gated on liveness, not free-running"
     )
     assert 'document.querySelectorAll(".fx-scene, .hero-lockup")' in guide_text
     assert "IntersectionObserver" in guide_text
     reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
     assert ".fx-tokchip" in reduce_block, "token chips need a static reduced-motion state"
-    assert ".fx-cycle svg" in reduce_block, "the cycle needs a static reduced-motion state"
+    assert "nhg-lockup-float" in guide_text and ".hero-lockup-float" in reduce_block, (
+        "the lockup float needs a static reduced-motion state"
+    )
     for retired in ("fx-pulse", "fx-grow", "fx-fade", "offset-path"):
         assert retired not in guide_text, (
             retired + " was retired; a reintroduced consumer must restore its states"
@@ -1004,17 +1030,19 @@ def test_foundations_model_lifecycle_is_chronological_and_responsive(
         positions.append(scene.index(marker))
     assert positions == sorted(positions), "lifecycle stages are out of order"
     assert scene.index('data-region="provider"') < scene.index('data-region="user"')
-    assert "happens long before your request" in scene
+    assert "happens long before any request" in scene
     assert "never retrains" in scene
     text = re.sub(r"<[^>]+>", " ", scene).lower()
     assert re.search(r"effort level.{0,200}when supported", text, re.DOTALL)
     assert "does not promise a fixed number of iterations" in text
     assert "not a transcript of hidden reasoning" in text or "not hidden chain-of-thought" in text
-    # The four output kinds, each an approved inline asset or accessible equivalent.
-    for kind in ("text", "image", "video", "audio"):
+    # v4.4.4: the scene teaches three modality tiers instead of cataloguing four outputs, and audio
+    # left the teaching on instruction, so its element, its asset, and its transcript-equivalent
+    # description left the page with it rather than sitting unused.
+    for kind in ("text", "image", "video"):
         assert f'data-output-kind="{kind}"' in scene, f"missing output kind {kind}"
-    assert 'preload="none"' in scene and "autoplay" not in scene
-    assert "transcript equivalent" in text
+    assert 'data-output-kind="audio"' not in scene, "audio was retired from this scene"
+    assert "<audio" not in scene, "the audio element must not come back without its teaching"
 
 
 def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
@@ -1058,13 +1086,24 @@ def test_foundations_prompt_engineering_uses_one_non_coding_job(
 ) -> None:
     """v4.4.1 Phase 3: one non-coding request, shown vague and then precise."""
     scene = _foundation_scene(guide_text, "fx-prompts")
-    assert scene.index("Vague") < scene.index("Precise"), "the weaker state must read first"
-    for part in ("Goal", "Material", "Done", "Format"):
+    # v4.4.4 rebuilt this scene: the vague prompt sits beside the reasons it fails and the
+    # engineered prompt spans the diagram below. The `fx-state` lane classes went with the old
+    # three-column grid, so the weaker-state-first rule is asserted on the new carriers.
+    assert scene.index("Vague") < scene.index("Engineered"), "the weaker state must read first"
+    assert scene.index('class="pe-box"') < scene.index('class="pe-precise"')
+    # v4.4.5 renamed the parts Query, Context, Goal, Format on instruction. One word changed
+    # MEANING rather than spelling: "Goal" now names the finish line the figure used to call
+    # "Done". The old four are asserted absent, because a scene carrying both vocabularies
+    # teaches neither.
+    for part in ("Query", "Context", "Goal", "Format"):
         assert "<dt>" + part + "</dt>" in scene, "missing prompt part: " + part
+    for retired in ("Material", "Done"):
+        assert "<dt>" + retired + "</dt>" not in scene, "the old vocabulary survives: " + retired
     assert "Summarise this contract and list every deadline." in scene
     assert "Look at this contract." in scene
-    assert 'class="fx-state fx-state--weak"' in scene
-    assert 'class="fx-state fx-state--strong"' in scene
+    # the flaws are named rather than summarised in one sentence
+    for flaw in ("No query", "No context", "No goal", "No format"):
+        assert flaw in scene, "missing named flaw: " + flaw
     assert "terminal" not in scene.lower() and "source code" not in scene.lower()
 
 
@@ -1083,10 +1122,11 @@ def test_foundations_comparisons_show_both_states_without_a_toggle(
 ) -> None:
     """Each teaching comparison keeps both states available in the same scene."""
     fx = _foundations_markup(guide_text)
-    assert "fx-budget--noisy" in fx and "fx-budget--focused" in fx
+    assert "fx-spend-tag--bad" in fx and "fx-spend-tag--good" in fx
     assert 'data-phase3-node="chatbot-handoff"' in fx
     assert 'data-phase3-node="agent-handoff"' in fx
-    practice = _foundation_scene(guide_text, "fx-practice")
+    # v4.4.3: the merged harness scene carries the without-then-with trail.
+    practice = _foundation_scene(guide_text, "fx-harness")
     assert ">PLATFORM LOOP<" in practice
     assert ">PLATFORM LOOP + NEXUS HUB<" in practice
     assert 'type="range"' not in fx
@@ -1102,7 +1142,7 @@ def test_foundations_comparisons_show_both_states_without_a_toggle(
 def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
     """v4.2.3: every comparison reads without-then-with, the same direction."""
     fx = _foundations_markup(guide_text)
-    assert fx.index("fx-budget--noisy") < fx.index("fx-budget--focused"), (
+    assert fx.index("fx-spend-tag--bad") < fx.index("fx-spend-tag--good"), (
         "the unaided context must come first"
     )
     assert fx.index("fx-state--weak") < fx.index("fx-state--strong"), (
@@ -1111,7 +1151,8 @@ def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
     assert fx.index('data-phase3-node="chatbot-handoff"') < fx.index(
         'data-phase3-node="agent-handoff"'
     ), "the answer-handoff lane must come first"
-    practice = _foundation_scene(guide_text, "fx-practice")
+    # v4.4.3: the merged harness scene carries the without-then-with trail.
+    practice = _foundation_scene(guide_text, "fx-harness")
     assert practice.index(">PLATFORM LOOP<") < practice.index(
         ">PLATFORM LOOP + NEXUS HUB<"
     ), "the host-native run must come before the augmented run"
@@ -1197,7 +1238,7 @@ def test_foundations_animations_have_reduced_motion_fallback(guide_text: str) ->
     reduce_block = reduce_block.split("}\n</style>", 1)[0] if "}\n</style>" in reduce_block else reduce_block
     # The live motion primitives after the Phase 4 rebuild: reveal pops, drawn connectors,
     # token-chip reveals, and the shared work-cycle spin.
-    for cls in (".fx-pop", ".fx-draw", ".fx-tokchip", ".fx-cycle svg"):
+    for cls in (".fx-pop", ".fx-draw", ".fx-tokchip", ".hero-lockup-float"):
         assert cls in reduce_block, f"{cls} missing a reduced-motion static state"
 
 
