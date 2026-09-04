@@ -1,0 +1,67 @@
+[
+  {
+    "test": "test_v442_phase1_foundation.py::test_section_titles_share_one_scale_and_never_overflow",
+    "reason": "Explicit replay replaces autoplay; CSS wrapping replaces runtime shrinking.",
+    "replacement": "test_learning_experience.py::test_sequence_replay_pause_and_motion_preference and test_headings_keep_css_sizes_and_reading_page_is_idle; audit geometry matrix"
+  },
+  {
+    "test": "test_v442_phase1_foundation.py::test_sequencer_pauses_on_a_hidden_tab",
+    "reason": "Explicit replay replaces autoplay; CSS wrapping replaces runtime shrinking.",
+    "replacement": "test_learning_experience.py::test_sequence_replay_pause_and_motion_preference and test_headings_keep_css_sizes_and_reading_page_is_idle; audit geometry matrix"
+  },
+  {
+    "test": "test_v442_phase1_foundation.py::test_sequencer_pauses_offscreen_and_resumes_from_the_same_step",
+    "reason": "Explicit replay replaces autoplay; CSS wrapping replaces runtime shrinking.",
+    "replacement": "test_learning_experience.py::test_sequence_replay_pause_and_motion_preference and test_headings_keep_css_sizes_and_reading_page_is_idle; audit geometry matrix"
+  },
+  {
+    "test": "test_v442_phase1_foundation.py::test_sequencer_advances_steps_in_document_order",
+    "reason": "Explicit replay replaces autoplay; CSS wrapping replaces runtime shrinking.",
+    "replacement": "test_learning_experience.py::test_sequence_replay_pause_and_motion_preference and test_headings_keep_css_sizes_and_reading_page_is_idle; audit geometry matrix"
+  },
+  {
+    "test": "test_v443_phase1_headings.py::test_label_is_tripled_and_title_is_halved",
+    "reason": "Explicit replay replaces autoplay; CSS wrapping replaces runtime shrinking.",
+    "replacement": "test_learning_experience.py::test_sequence_replay_pause_and_motion_preference and test_headings_keep_css_sizes_and_reading_page_is_idle; audit geometry matrix"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_no_hardcoded_text_width_caps_remain",
+    "reason": "The approved design uses a reading measure and allows natural heading wrapping.",
+    "replacement": "test_learning_experience.py::test_headings_keep_css_sizes_and_reading_page_is_idle and retained test_no_heading_spills_past_its_container"
+  },
+  {
+    "test": "test_v443_phase1_headings.py::test_no_heading_wraps_from_720_upward",
+    "reason": "The approved design uses a reading measure and allows natural heading wrapping.",
+    "replacement": "test_learning_experience.py::test_headings_keep_css_sizes_and_reading_page_is_idle and retained test_no_heading_spills_past_its_container"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_full_lockup_floats_as_one_unit",
+    "reason": "Continuous decorative motion removed by the approved design.",
+    "replacement": "test_v441_phase2_home.py::test_full_lockup_stays_aligned_at_rest"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_annotated_prompt_reveals_in_document_order_and_all_at_once_under_reduced_motion",
+    "reason": "Autoplay changed to explicit replay; ordering, structure, and completion assertions retained.",
+    "replacement": "test_v442_phase3_foundations.py::test_annotated_prompt_reveals_in_document_order_and_all_at_once_under_reduced_motion"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_harness_diagram_is_layered_and_choreographed",
+    "reason": "Autoplay changed to explicit replay; ordering, structure, and completion assertions retained.",
+    "replacement": "test_v442_phase4_media.py::test_harness_diagram_is_layered_and_choreographed"
+  },
+  {
+    "test": "test_v443_phase7_comparison.py::test_the_split_is_choreographed_and_complete_without_motion",
+    "reason": "Explicit replay replaces autoplay; visual completion assertions retained.",
+    "replacement": "test_v443_phase7_comparison.py::test_the_split_is_choreographed_and_complete_without_motion"
+  },
+  {
+    "test": "test_v444_phase4_prompts.py::test_the_active_marker_is_quiet",
+    "reason": "Explicit replay replaces autoplay; visual completion assertions retained.",
+    "replacement": "test_v444_phase4_prompts.py::test_the_active_marker_is_quiet"
+  },
+  {
+    "test": "test_v445_phase1_portability.py::test_the_pulse_runs_normally_and_stops_under_reduced_motion",
+    "reason": "Decorative pulses removed; static visibility retained.",
+    "replacement": "test_v445_phase1_portability.py::test_connectors_are_static_and_content_stays_visible"
+  }
+]

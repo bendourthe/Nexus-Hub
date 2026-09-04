@@ -164,6 +164,7 @@ def test_the_split_is_choreographed_and_complete_without_motion(playwright_mod) 
         browser = pw.chromium.launch()
         try:
             ctx, page = _scene(browser)
+            page.locator("#cv-compare").evaluate("el => { NexusSeq.reset(el); NexusSeq.play(el); }")
             page.wait_for_function(
                 "() => { const s = window.NexusSeq.state(document.querySelector('#fx-agent-platform .fx-cv'));"
                 " return s && s.step === s.total; }"

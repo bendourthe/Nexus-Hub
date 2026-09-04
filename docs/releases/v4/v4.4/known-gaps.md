@@ -325,3 +325,27 @@
 - **Phases 6 and 7 are separate commits, but Phase 6's evidence is targeted rather than the full suite.** The full guides suite ran at Phase 7, the next change to the same file. Running it twice for two consecutive edits to one artifact buys nothing, and Phase 6's own modules plus the broad module were green at its commit.
 - **The mockups' four closing truths are not all imported.** Two of the agentic mockup's four are now said by the equation and by step 02 of the existing loop; a reader told the same thing twice trusts the second telling less. The two said nowhere else are folded into the boundary block and the closing note.
 - **The Gemini mark is duplicated rather than shared, at a cost of about 12 KB.** Three attempts at sharing are recorded in `BG-32`, `BG-33`, and the ledger hash guard. The approved bytes stay where the ledger pinned them.
+
+## v4.4.6 - guide-learning-experience
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 2 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+None from the completed shared-layout work. The remaining planned lessons, Training state correction, and final review gates are tracked in the active plan rather than counted as slipped work.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| BG-39 | Essential teaching nodes depended on animation visibility | Phase 2 | Nodes and connectors remain visible at rest, on ordinary scrolling, and under reduced motion. No-script reading fallback added. The tall-scene observer is no longer a content gate. |
+| BG-40 | Hidden Training canvas repainted on every animation frame | Phase 2 | The original frame function unconditionally scheduled its successor and painted even when idle or offscreen. Lifecycle-owned scheduling now stops idle/hidden/inactive work and resumes a running game. All four idle-page checks, route resume, and the deterministic game suite pass. |

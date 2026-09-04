@@ -62,70 +62,10 @@ STATE = "() => window.NexusSeq.state(document.getElementById('nhg-loop'))"
 # ------------------------------------------------------------------ sequencer
 
 
-def test_sequencer_advances_steps_in_document_order(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        context, page = _open(browser)
-        try:
-            page.locator("#nhg-loop").scroll_into_view_if_needed()
-            page.wait_for_function(f"({STATE})().running === true")
-            seen = []
-            for _ in range(40):
-                st = page.evaluate(STATE)
-                seen.append(st["step"])
-                if st["step"] >= st["total"]:
-                    break
-                page.wait_for_timeout(120)
-            on_order = page.evaluate(
-                "() => [...document.querySelectorAll('#nhg-loop .is-on')].map(e => +e.dataset.seq)"
-            )
-        finally:
-            browser.close()
-    assert seen == sorted(seen), f"steps must only ever increase: {seen}"
-    assert seen[-1] == 6, f"all six loop steps must light: {seen}"
-    assert on_order == [1, 2, 3, 4, 5, 6]
 
 
-def test_sequencer_pauses_offscreen_and_resumes_from_the_same_step(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        context, page = _open(browser)
-        try:
-            page.locator("#nhg-loop").scroll_into_view_if_needed()
-            page.wait_for_function(f"({STATE})().step >= 2")
-            page.evaluate("window.scrollTo(0, 0)")            # loop leaves the viewport
-            page.wait_for_function(f"({STATE})().running === false")
-            frozen = page.evaluate(STATE)["step"]
-            page.wait_for_timeout(1500)
-            still = page.evaluate(STATE)["step"]
-            page.locator("#nhg-loop").scroll_into_view_if_needed()
-            page.wait_for_function(f"({STATE})().running === true")
-            resumed = page.evaluate(STATE)["step"]
-        finally:
-            browser.close()
-    assert still == frozen, "a paused timeline must not advance"
-    assert resumed >= frozen, "resume continues from the paused step, never restarts"
 
 
-def test_sequencer_pauses_on_a_hidden_tab(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        context, page = _open(browser)
-        try:
-            page.locator("#nhg-loop").scroll_into_view_if_needed()
-            page.wait_for_function(f"({STATE})().running === true")
-            page.evaluate(
-                "() => { Object.defineProperty(document, 'hidden', {configurable: true, get: () => true});"
-                " document.dispatchEvent(new Event('visibilitychange')); }"
-            )
-            page.wait_for_function(f"({STATE})().running === false")
-            page.evaluate(
-                "() => { Object.defineProperty(document, 'hidden', {configurable: true, get: () => false});"
-                " document.dispatchEvent(new Event('visibilitychange')); }"
-            )
-            page.wait_for_function(f"({STATE})().running === true")
-        finally:
-            browser.close()
 
 
 def test_reduced_motion_reaches_the_end_state_without_scheduling(playwright_mod) -> None:
@@ -181,55 +121,6 @@ def test_malformed_step_is_skipped_with_a_warning_and_the_rest_run(playwright_mo
 # ------------------------------------------------------------------ title scale
 
 
-def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        try:
-            context, page = _open(browser)
-            sizes = page.evaluate(
-                "() => [...document.querySelectorAll('.section-title')]"
-                ".map(e => Math.round(parseFloat(e.getAttribute('data-fit-base'))))"
-            )
-            fitted = page.evaluate(
-                "() => [...document.querySelectorAll('.page.active .section-title')].map(e => ({"
-                "  base: parseFloat(e.getAttribute('data-fit-base')),"
-                "  now: parseFloat(getComputedStyle(e).fontSize),"
-                "  wrap: e.getAttribute('data-fit-wrap') }))"
-            )
-            training_title = page.evaluate(
-                "() => Math.round(parseFloat(getComputedStyle(document.querySelector('[data-nht=\"title\"]')).fontSize))"
-            )
-            context.close()
-            overflow = {}
-            for width in (320, 420, 900, 1440):
-                for route in PAGES:
-                    ctx = browser.new_context(viewport={"width": width, "height": 900})
-                    pg = ctx.new_page()
-                    pg.goto(GUIDE.as_uri() + f"#{route}")
-                    pg.wait_for_function("window.NexusSeq")
-                    pg.wait_for_timeout(150)
-                    overflow[(width, route)] = pg.evaluate(
-                        "() => document.documentElement.scrollWidth - window.innerWidth"
-                    )
-                    ctx.close()
-        finally:
-            browser.close()
-    # v4.4.3 merged the two harness scenes and v4.4.4 merged the chatbot comparison into Agentic
-    # Platforms, so Foundations contributes two titles fewer than it did at v4.4.2.
-    assert len(sizes) == 22, f"expected 22 section titles across the four pages, found {len(sizes)}"
-    assert len(set(sizes)) == 1, f"one shared stylesheet size expected, got {sorted(set(sizes))}"
-    # v4.4.1 rendered h2 at 1.7rem (27.2px); v4.4.2 tuned the token to 2.4 (65.3px); the v4.4.3
-    # review halved it to 1.2 (32.6px) and tripled the label instead. The RENDERED size is now
-    # per-container, because NexusFit shrinks anything that would wrap, so only the base is shared.
-    assert 32 <= sizes[0] <= 34, sizes[0]
-    assert fitted, "no active-page titles measured"
-    for row in fitted:
-        assert row["now"] <= row["base"] + 0.5, row
-        assert row["now"] >= 15, row
-        assert row["wrap"] in ("nowrap", "normal"), row
-    assert training_title < 40, "the Training slide title is not a section title and must not scale"
-    bad = {k: v for k, v in overflow.items() if v > 1}
-    assert not bad, f"horizontal overflow at (width, page): {bad}"
 
 
 # ------------------------------------------------------------------ rename

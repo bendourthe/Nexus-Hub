@@ -144,6 +144,7 @@ def test_the_active_marker_is_quiet(playwright_mod) -> None:
         browser = pw.chromium.launch()
         try:
             ctx, page = _scene(browser)
+            page.locator("#fx-ann-prompt").evaluate("el => { NexusSeq.reset(el); NexusSeq.play(el); }")
             page.wait_for_function(
                 "() => { const s = window.NexusSeq.state(document.getElementById('fx-ann-prompt'));"
                 " return s && s.step >= 1; }"

@@ -157,7 +157,7 @@ def test_the_mid_task_strip_uses_the_width_it_has(playwright_mod) -> None:
             browser.close()
 
 
-def test_the_pulse_runs_normally_and_stops_under_reduced_motion(playwright_mod) -> None:
+def test_connectors_are_static_and_content_stays_visible(playwright_mod) -> None:
     """Motion replaced a reveal, so silencing it can hide nothing -- and must not."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
@@ -166,6 +166,6 @@ def test_the_pulse_runs_normally_and_stops_under_reduced_motion(playwright_mod) 
             reduced = _probe(browser, 1440, reduced=True)
         finally:
             browser.close()
-    assert normal["pulse"] != "none", "the connectors carry no flow animation"
+    assert normal["pulse"] == "none", "decorative connectors must stay still"
     assert reduced["pulse"] == "none", f"reduced motion still animates: {reduced['pulse']}"
     assert reduced["faded"] == 0, "reduced motion must not hide a box"

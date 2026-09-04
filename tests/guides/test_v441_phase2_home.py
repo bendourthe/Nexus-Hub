@@ -73,7 +73,7 @@ def _lockup_positions(page) -> tuple[float, float, float]:
     )
 
 
-def test_full_lockup_floats_as_one_unit(playwright_mod) -> None:
+def test_full_lockup_stays_aligned_at_rest(playwright_mod) -> None:
     with playwright_mod() as pw:
         browser, page = _launch(pw)
         try:
@@ -84,12 +84,12 @@ def test_full_lockup_floats_as_one_unit(playwright_mod) -> None:
         finally:
             browser.close()
 
-    # Some sample must differ from the first, or nothing is animating at all.
+    # The identity stays still; motion is reserved for explanatory playback.
     deltas = [
         tuple(round(later[i] - samples[0][i], 2) for i in range(3)) for later in samples[1:]
     ]
-    assert any(any(abs(d) > 0.5 for d in delta) for delta in deltas), (
-        f"the lockup never moved across three samples: {samples}"
+    assert all(all(abs(d) <= 0.5 for d in delta) for delta in deltas), (
+        f"the lockup drifted while reading: {samples}"
     )
 
     # Every moving sample must move all three elements by the SAME delta: that is what makes

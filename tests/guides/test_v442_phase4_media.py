@@ -164,6 +164,7 @@ def test_harness_diagram_is_layered_and_choreographed(playwright_mod) -> None:
                 }}"""
             )
             page.locator("#fx-harness").scroll_into_view_if_needed()
+            page.locator("#hx-harness").evaluate("el => { NexusSeq.reset(el); NexusSeq.play(el); }")
             page.wait_for_function(f"() => window.NexusSeq.state({root}).running === true")
             seen = []
             for _ in range(120):

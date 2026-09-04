@@ -1735,6 +1735,76 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   .js .fx-scene .fx-sweep { stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
   .js .ph-dot { animation: none; }
 }
+
+/* Learning experience: content is complete at rest; only emphasis changes. */
+html:not(.js) .page { display: block; }
+html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
+.js .reveal, .js .seq-rise, .js .seq-fade { opacity: 1; transform: none; }
+.js .seq-draw { stroke-dashoffset: 0; }
+.js .hero-lockup.live .hero-lockup-float, .js .ph-dot, .js .pe-tip { animation: none; }
+.section-title { white-space: normal; text-wrap: balance; font-size: clamp(1.375rem, 2.2vw, 2rem); line-height: 1.2; }
+.eyebrow { white-space: normal; font-size: 14px; letter-spacing: .06em; }
+.hero-lead, .lead { max-width: 68ch; }
+.fx-copy p { font-size: 16px; line-height: 1.55; }
+.lesson { scroll-margin-top: 88px; }
+.lesson { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.4fr); gap: 40px; align-items: center; padding: 36px 0; border-top: 1px solid var(--border); }
+.lesson > *, .lesson figure > * { min-width: 0; }
+.lesson h2 { margin: 8px 0 16px; font-size: clamp(26px, 2.4vw, 34px); line-height: 1.18; letter-spacing: -.025em; text-wrap: balance; }
+.lesson p { font-size: 16px; line-height: 1.55; }
+.lesson-copy > p { color: var(--ink-dim); max-width: 42ch; }
+.lesson-kicker { display: block; color: var(--accent); font-size: 14px; font-weight: 650; }
+.lesson-takeaway { padding: 12px 0 0 14px; border-left: 3px solid var(--accent); color: var(--ink); }
+.lesson figure { margin: 0; padding: 24px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.lesson figcaption { margin-top: 16px; color: var(--ink-dim); font-size: 14px; line-height: 1.5; }
+.lesson .diagram-label { display: block; margin-bottom: 10px; font-size: 14px; color: var(--ink-dim); font-weight: 600; }
+.diagram-controls { display: flex; gap: 8px; margin-top: 16px; }
+.document-sheet { padding: 18px; border: 1px solid var(--border-bright); border-radius: 6px; background: var(--bg-0); }
+.document-sheet h3 { margin: 0 0 12px; font-size: 18px; }
+.document-sheet p:last-child { margin-bottom: 0; }
+.document-sheet .doc-line { display: block; height: 5px; margin-top: 8px; background: var(--border); border-radius: 2px; }
+.document-sheet .doc-line:last-child { width: 68%; }
+.diagram-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.diagram-node { flex: 1 1 110px; padding: 14px; border: 1px solid var(--border-bright); border-radius: 6px; background: var(--bg-0); font-size: 16px; }
+.diagram-node strong, .diagram-node span { display: block; }
+.diagram-node span { margin-top: 5px; font-size: 14px; color: var(--ink-dim); }
+.diagram-arrow { flex: 0 0 auto; color: var(--accent); font-size: 26px; line-height: 1; }
+.lesson-token { padding: 7px 10px; border: 1px solid var(--border-bright); border-radius: 5px; background: var(--bg-0); color: var(--ink); font: 16px var(--mono); }
+.budget-track { display: flex; height: 18px; margin: 18px 0 10px; gap: 3px; }
+.budget-track span { display: block; border-radius: 3px; }
+.budget-input { flex: 3; background: var(--accent); }
+.budget-output { flex: 1; border: 2px solid var(--accent); }
+.budget-key { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--ink); }
+.prompt-parts { margin: 0; }
+.prompt-parts > div { display: grid; grid-template-columns: 85px minmax(0, 1fr); gap: 14px; padding: 10px 0; border-top: 1px solid var(--border); }
+.prompt-parts dt { color: var(--accent); font-size: 14px; font-weight: 650; }
+.prompt-parts dd { margin: 0; font-size: 16px; line-height: 1.5; }
+.lesson .contrast-note { padding-bottom: 14px; margin-bottom: 6px; color: var(--ink-dim); }
+.lesson .small-note { font-size: 14px; color: var(--ink-dim); }
+.layer-map { margin: 0; padding: 0; }
+.layer-map > div { display: grid; grid-template-columns: 30px 95px minmax(0, 1fr); gap: 12px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.layer-map > div:last-child { border-bottom: 0; }
+.layer-map .layer-number { color: var(--accent); font: 600 14px var(--mono); }
+.layer-map dt { font-size: 16px; font-weight: 650; }
+.layer-map dd { margin: 0; font-size: 16px; color: var(--ink-dim); line-height: 1.5; }
+.lesson-nav { display: flex; gap: 6px 18px; flex-wrap: wrap; margin: 24px 0; padding: 14px 0; border-block: 1px solid var(--border); }
+.lesson-nav a { display: inline-flex; align-items: center; min-height: 44px; font-size: 16px; }
+@media (max-width: 720px) {
+  .lesson { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 28px 0; }
+  .lesson-copy > p { max-width: none; }
+  .lesson figure { padding: 18px; }
+  .lesson h2 { font-size: 28px; margin-bottom: 12px; }
+  .layer-map > div { grid-template-columns: 24px minmax(0, 1fr); gap: 6px 10px; }
+  .layer-map dd { grid-column: 2; }
+  .prompt-parts > div { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+}
+.lesson button { min-height: 44px; }
+[data-seq-play], [data-seq-pause] { padding: 8px 14px; border: 1px solid var(--border-bright); border-radius: 6px; background: var(--surface); color: var(--ink); cursor: pointer; font: inherit; }
+[data-seq-play]:hover, [data-seq-pause]:hover { border-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) {
+  .js .seq-glow { transition: none; }
+  [data-seq-play], [data-seq-pause] { display: none; }
+}
+
 </style>
 </head>
 <body>
@@ -1803,6 +1873,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     </nav>
   </header>
 
+  <noscript><nav class="container lesson-nav" aria-label="Guide pages without JavaScript"><a href="#page-home">Home</a><a href="#page-foundations">Foundations</a><a href="#page-training">Training overview</a><a href="#page-cheatsheets">Cheatsheets</a></nav></noscript>
   <main id="app">
 
   <!-- =====================================================================
@@ -3170,7 +3241,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   function keysOwnedByTarget(el) {
     if (!el || el === document.body || el === document.documentElement) return false;
     var tag = (el.tagName || "").toLowerCase();
-    if (tag === "input" || tag === "textarea" || tag === "select" || tag === "button") return tag !== "button";
+    if (tag === "input" || tag === "textarea" || tag === "select" || tag === "button") return true;
     if (el.isContentEditable) return true;
     if (el.closest && el.closest("input, textarea, select, [contenteditable='true'], [data-nhg-keys='self']")) return true;
     return false;
@@ -3237,72 +3308,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
 
 
-  /* -------------------------------------------------- NexusFit: headings that never wrap
-     A size in the stylesheet cannot know how wide its container will be, so the v4.4.3 no-wrap rule
-     is measured, not declared. Each label and title is measured at its stylesheet size with wrapping
-     off; if it needs more room than the container has, the size drops by exactly the shortfall ratio
-     (one correction pass, because letter-spacing rounds). The 15px floor is deliberate: below it
-     wrapping is the lesser evil, and the test asserts the floor rather than a single line at 320px. */
-  (function initNexusFit() {
-    var FLOOR = 15;
-    var SEL = ".section-title, .eyebrow";
-    function base(el) {
-      var b = el.getAttribute("data-fit-base");
-      if (b === null) {
-        el.style.fontSize = "";
-        b = String(Math.round(parseFloat(getComputedStyle(el).fontSize) * 100) / 100);
-        el.setAttribute("data-fit-base", b);
-      }
-      return parseFloat(b);
-    }
-    /* The natural width has to be measured with the cap and the track share removed, or the number
-       read back is the CONSTRAINED box, not what the text needs: an inline-block pinned by
-       max-width, or a grid child in a minmax(0, 1fr) track, both report their allotted width while
-       the glyphs spill past it. Measuring at width:max-content with no cap is the only reading that
-       reflects the text itself, pseudo-element rule included. */
-    function room(el) {
-      var host = el.parentElement || el;
-      var hcs = getComputedStyle(host);
-      var avail = host.clientWidth - parseFloat(hcs.paddingLeft || 0) - parseFloat(hcs.paddingRight || 0);
-      var mw = el.style.maxWidth, w = el.style.width;
-      el.style.maxWidth = "none";
-      el.style.width = "max-content";
-      var need = el.getBoundingClientRect().width;
-      el.style.maxWidth = mw;
-      el.style.width = w;
-      return { need: need, avail: avail };
-    }
-    function fit(el) {
-      var b = base(el);
-      el.style.whiteSpace = "nowrap";
-      el.style.fontSize = b + "px";
-      var size = b, m = room(el), pass = 0;
-      while (pass++ < 2 && m.avail > 0 && m.need > m.avail + 0.5 && el.style.whiteSpace === "nowrap") {
-        size = size * (m.avail / m.need);
-        if (size < FLOOR) {
-          /* A single line cannot survive every viewport: the longest Home title needs about 6px at
-             320px. Below the floor, wrapping is the lesser evil and horizontal overflow is never
-             the answer, so the floor is held and wrapping is handed back. */
-          size = FLOOR;
-          el.style.whiteSpace = "normal";
-        }
-        size = Math.floor(size * 100) / 100;
-        el.style.fontSize = size + "px";
-        if (el.style.whiteSpace === "nowrap") m = room(el);
-      }
-      el.setAttribute("data-fit", String(size));
-      el.setAttribute("data-fit-wrap", el.style.whiteSpace);
-    }
-    function refit() {
-      var nodes = document.querySelectorAll(SEL);
-      for (var i = 0; i < nodes.length; i++) fit(nodes[i]);
-      if (window.NexusFlow) window.NexusFlow.redraw();
-    }
-    refit();
-    window.addEventListener("resize", refit);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
-    window.NexusFit = { refit: refit, floor: FLOOR };
-  })();
+  /* CSS owns wrapping; retain the routing seam without measuring text. */
+  window.NexusFit = { refit: function () { if (window.NexusFlow) window.NexusFlow.redraw(); }, floor: 16 };
 
   /* -------------------------------------------------- NexusFlow: connectors from live geometry
      Each [data-flow-root] gets one overlay SVG; consecutive [data-flow-node] children are joined
@@ -3342,7 +3349,17 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         svg.appendChild(head);
       }
     }
-    function drawAll() { for (var r = 0; r < roots.length; r++) draw(roots[r]); }
+    var pending = false;
+    function drawAll() {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(function () {
+        pending = false;
+        for (var r = 0; r < roots.length; r++) {
+          if (roots[r].getClientRects().length) draw(roots[r]);
+        }
+      });
+    }
     drawAll();
     window.addEventListener("resize", drawAll);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawAll);
@@ -3353,12 +3370,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     window.NexusFlow = { redraw: drawAll };
   })();
 
-  /* -------------------------------------------------- NexusSeq: declarative step timelines
-     One shared engine for every choreographed scene, so motion is consistent, testable, and
-     cheap. Contract: a [data-seq-root] holds [data-seq=N] steps (optional data-seq-dur ms);
-     steps gain .is-on in order; data-seq-loop repeats after data-seq-hold ms. Starts at 40%
-     visibility, pauses offscreen and on a hidden tab, and under reduced motion play() applies
-     the terminal state synchronously and schedules nothing. */
+  /* Finite, replay-only emphasis. Text and connectors remain visible at rest.
+     Leaving the viewport or hiding the document cancels the pending timer. */
   window.NexusSeq = (function () {
     var roots = [];
     function warn(msg) { if (window.console && console.warn) { console.warn("NexusSeq: " + msg); } }
@@ -3432,15 +3445,16 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       if (!root || entry(root)) { return; }
       roots.push({
         root: root, steps: parseSteps(root), idx: 0, timer: null, running: false, visible: false, gen: 0,
-        loop: root.hasAttribute("data-seq-loop"),
+        loop: false,
         hold: parseInt(root.getAttribute("data-seq-hold") || "1500", 10) || 1500
       });
+      if (REDUCE) finish(roots[roots.length - 1]);
     }
     function init() {
       var all = document.querySelectorAll("[data-seq-root]");
       for (var i = 0; i < all.length; i++) { register(all[i]); }
       if (!("IntersectionObserver" in window)) {
-        for (var k = 0; k < roots.length; k++) { play(roots[k].root); }   /* never "never": start now */
+        for (var k = 0; k < roots.length; k++) { finish(roots[k]); }
         return;
       }
       var io = new IntersectionObserver(function (entries) {
@@ -3448,19 +3462,33 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           var e = entry(entries[i].target);
           if (!e) { continue; }
           e.visible = entries[i].isIntersecting;
-          if (e.visible && !document.hidden) { play(e.root); } else { pause(e.root); }
+          if (!e.visible || document.hidden) { pause(e.root); }
         }
-      }, { threshold: 0.4 });
+      }, { threshold: 0 });
       for (var r = 0; r < roots.length; r++) { io.observe(roots[r].root); }
       document.addEventListener("visibilitychange", function () {
         for (var r = 0; r < roots.length; r++) {
-          if (document.hidden) { pause(roots[r].root); } else if (roots[r].visible) { play(roots[r].root); }
+          if (document.hidden) { pause(roots[r].root); }
         }
       });
     }
     return { init: init, register: register, play: play, pause: pause, reset: reset, state: state };
   })();
   window.NexusSeq.init();
+  document.addEventListener("click", function (event) {
+    var button = event.target.closest("[data-seq-play], [data-seq-pause]");
+    if (!button) return;
+    var root = button.closest("[data-seq-root]");
+    if (button.hasAttribute("data-seq-pause")) window.NexusSeq.pause(root);
+    else { window.NexusSeq.reset(root); window.NexusSeq.play(root); }
+  });
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", function (event) {
+      REDUCE = event.matches;
+      document.querySelectorAll("[data-seq-root]").forEach(function (root) { window.NexusSeq.pause(root); });
+      syncConstellation();
+    });
+  }
 
   /* -------------------------------------------------- tabs */
   var tabGroups = document.querySelectorAll("[data-tabs]");
@@ -3590,15 +3618,9 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       return {
         start: function () {
           if (currentTheme() !== "dark" || document.hidden) return;
-          if (REDUCE) {
-            running = false;
-            if (raf) { window.cancelAnimationFrame(raf); raf = null; }
-            frame(false);
-            return;
-          }
-          if (running) return;
-          running = true;
-          loop();
+          running = false;
+          if (raf) { window.cancelAnimationFrame(raf); raf = null; }
+          frame(false);
         },
         stop: function () {
           running = false;
@@ -4341,12 +4363,24 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         ? "Ship destroyed. Press Reset to try again."
         : "Lives " + state.lives + ". Game " + state.lifecycle + ".";
     }
+    syncFrameLoop();
   }
 
   /* ------------------------------------------------------------------ main loop */
 
+  function syncFrameLoop() {
+    var active = state && state.lifecycle === "running" && !document.hidden && game.closest(".page.active");
+    if (active && !frameRequest) frameRequest = window.requestAnimationFrame(frame);
+    if (!active) {
+      if (frameRequest) window.cancelAnimationFrame(frameRequest);
+      frameRequest = null;
+      lastFrameTime = 0;
+      accumulator = 0;
+    }
+  }
   function frame(now) {
-    frameRequest = window.requestAnimationFrame(frame);
+    frameRequest = null;
+    if (state.lifecycle !== "running" || document.hidden || !game.closest(".page.active")) { syncFrameLoop(); return; }
     var gen = generation;
     if (!lastFrameTime) lastFrameTime = now;
     var elapsed = Math.min(MAX_FRAME_SECONDS, (now - lastFrameTime) / 1000);
@@ -4515,8 +4549,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
   syncHud();
   paint();
-  frameRequest = window.requestAnimationFrame(frame);
-  void frameRequest;
+  syncFrameLoop();
 
   window.NexusShooter = Object.freeze({
     snapshot: snapshot,

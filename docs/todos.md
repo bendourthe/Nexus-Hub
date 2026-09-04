@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Branch:** `feat/v4.4.3-guide-illustration-rebuild`
-**Active plan:** [v4.4.6 guide-learning-experience](releases/v4/v4.4/plans/v4.4.6-guide-learning-experience.md), implementation in progress; Phase 1 complete. Predecessor v4.4.5 is locally complete and unpublished.
+**Active plan:** [v4.4.6 guide-learning-experience](releases/v4/v4.4/plans/v4.4.6-guide-learning-experience.md), implementation in progress; Phases 1-2 complete. Predecessor v4.4.5 is locally complete and unpublished.
 **Last refreshed:** 2026-09-04
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -14,15 +14,15 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.4.6 guide-learning-experience phases complete | 1 | 7 | 6 |
-| v4.4.6 guide-learning-experience tasks complete | 3 | 28 | 25 |
+| v4.4.6 guide-learning-experience phases complete | 2 | 7 | 5 |
+| v4.4.6 guide-learning-experience tasks complete | 6 | 28 | 22 |
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
 | v4.4.2 guide-production-ready-rebuild phases complete | 8 | 8 | 0 |
 | v4.4.2 local phase commits | 8 | 8 | 0 |
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
-| Confirmed guide defects in the current review | 2 | 0 | 2 |
+| Confirmed guide defects remaining | 1 | 0 | 1 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 396,424 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 404,762 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -32,14 +32,14 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Review current Home, Foundations, Training, and the two supplied source documents; retain current browser evidence.
 - [x] Write the seven-phase implementation plan with continuous visual and performance gates.
 - [x] Phase 1 - Baseline and teaching/design contract.
-- [ ] Phase 2 - Shared layout and motion repair.
+- [x] Phase 2 - Shared layout and motion repair.
 - [ ] Phase 3 - Home refinement.
 - [ ] Phase 4 - Foundations: model, tokens, prompt, context.
 - [ ] Phase 5 - Foundations: harness, loop, graph.
 - [ ] Phase 6 - Training clarity and state integrity.
 - [ ] Phase 7 - Final verification, known gaps, CI/CD, and approval-gated integration.
 
-Current review found hidden mobile harness steps and a pre-run Training success claim. The exact visibility cause and user-reported lag remain diagnostic work in Phases 1-2. Earlier dashboard counts below are historical and do not qualify this new plan. No HTML was changed during planning.
+Shared visibility and idle game rendering are fixed and browser-verified. Home and Foundations content rebuilds are next; the pre-run Training success claim remains scheduled for Phase 6. Earlier dashboard counts below are historical and do not qualify this plan.
 
 ---
 

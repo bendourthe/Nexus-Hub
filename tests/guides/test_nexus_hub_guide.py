@@ -1524,16 +1524,6 @@ def test_present_mode_fills_the_viewport(guide_text: str) -> None:
     assert "overflow-y: auto" in block, "the terminal keeps the one bounded secondary scroll"
 
 
-def test_no_hardcoded_text_width_caps_remain(guide_text: str) -> None:
-    """The container is the only width constraint (v4.2.3)."""
-    css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
-    # Only declarations, never `@media (max-width: ...)` breakpoints.
-    caps = re.findall(r"(?<!\()max-width:\s*(\d+)(ch|px)", css)
-    allowed_px = {"1600"}  # present-mode stage bound, not a body-copy cap
-    offenders = [
-        f"{v}{u}" for v, u in caps if u == "ch" or (u == "px" and v not in allowed_px)
-    ]
-    assert not offenders, f"hardcoded text width caps remain: {offenders}"
 
 
 def test_training_deep_link_clamps_unknown_scene_and_ignores_legacy_beat(

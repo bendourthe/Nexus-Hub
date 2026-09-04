@@ -22,12 +22,14 @@ WORDS = """el => {
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--guide', type=Path, default=GUIDE)
     parser.add_argument('--pages', nargs='+', default=['home','foundations','training','cheatsheets'])
     parser.add_argument('--performance', action='store_true')
     parser.add_argument('--screenshots', action='store_true')
     args = parser.parse_args()
+    guide = args.guide.resolve()
     args.out.mkdir(parents=True, exist_ok=True)
-    report = dict(sha256=hashlib.sha256(GUIDE.read_bytes()).hexdigest(),bytes=GUIDE.stat().st_size,
+    report = dict(sha256=hashlib.sha256(guide.read_bytes()).hexdigest(),bytes=guide.stat().st_size,
                   machine=platform.platform(), cases=[], performance=[])
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
@@ -42,7 +44,7 @@ def main():
                 page.on('pageerror',lambda e:errors.append(str(e)))
                 page.on('request',lambda r:requests.append(r.url) if r.url.startswith('http') else None)
                 for route in args.pages:
-                    page.goto(GUIDE.as_uri()+'#'+route)
+                    page.goto(guide.as_uri()+'#'+route)
                     page.wait_for_timeout(100)
                     root=page.locator('#page-'+route)
                     case=dict(theme=theme,width=width,page=route,words=root.evaluate(WORDS))
@@ -75,7 +77,7 @@ def main():
                 cdp=ctx.new_cdp_session(page)
                 cdp.send('Performance.enable')
                 for run in range(4): # warmup followed by three comparable samples
-                    page.goto(GUIDE.as_uri()+'#foundations')
+                    page.goto(guide.as_uri()+'#foundations')
                     page.wait_for_timeout(300)
                     before={m['name']:m['value'] for m in cdp.send('Performance.getMetrics')['metrics']}
                     sample=page.evaluate('''async()=>{

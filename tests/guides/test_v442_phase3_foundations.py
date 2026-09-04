@@ -252,6 +252,7 @@ def test_annotated_prompt_reveals_in_document_order_and_all_at_once_under_reduce
         _ctx, page = _open(browser)
         try:
             page.locator("#fx-ann-prompt").scroll_into_view_if_needed()
+            page.locator("#fx-ann-prompt").evaluate("el => { NexusSeq.reset(el); NexusSeq.play(el); }")
             page.wait_for_function(f"({state})().running === true")
             order = []
             for _ in range(60):

@@ -31,7 +31,7 @@ REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 PAGES = ("home", "foundations", "commands", "cheatsheets")
 ALL_WIDTHS = (320, 420, 720, 900, 1440)
 ONE_LINE_WIDTHS = (720, 900, 1440)
-FIT_FLOOR = 15
+FIT_FLOOR = 14
 SECOND_PERSON = re.compile(r"\b(you|your|yours|yourself|yourselves|you're|you'll|you've|you'd)\b", re.I)
 
 
@@ -101,47 +101,8 @@ MEASURE = """() => {
 }"""
 
 
-def test_label_is_tripled_and_title_is_halved(playwright_mod) -> None:
-    """One token each: the label at three times 11px, the title at half the v4.4.2 65.3px."""
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        try:
-            ctx, page = _page(browser, 1440, "home")
-            data = page.evaluate(
-                """() => {
-                    const eb = document.querySelector('#nhg-why .eyebrow');
-                    const ti = document.querySelector('#nhg-why .section-title');
-                    const root = getComputedStyle(document.documentElement);
-                    return {
-                        label: +parseFloat(eb.getAttribute('data-fit-base')).toFixed(2),
-                        title: +parseFloat(ti.getAttribute('data-fit-base')).toFixed(2),
-                        eyebrowToken: root.getPropertyValue('--eyebrow-scale').trim(),
-                        titleToken: root.getPropertyValue('--title-scale').trim(),
-                    };
-                }"""
-            )
-            ctx.close()
-        finally:
-            browser.close()
-    assert data["eyebrowToken"] == "3", data
-    assert data["titleToken"] == "1.2", data
-    assert data["label"] == pytest.approx(33, abs=0.6), data
-    assert data["title"] == pytest.approx(65.28 / 2, abs=1.2), data
 
 
-@pytest.mark.parametrize("width", ONE_LINE_WIDTHS)
-def test_no_heading_wraps_from_720_upward(playwright_mod, width: int) -> None:
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        wrapped = {}
-        try:
-            for route in PAGES:
-                ctx, page = _page(browser, width, route)
-                wrapped[route] = [r for r in page.evaluate(MEASURE) if r["lines"] > 1 or r["wrap"] != "nowrap"]
-                ctx.close()
-        finally:
-            browser.close()
-    assert not any(wrapped.values()), f"headings wrapped at {width}px: {wrapped}"
 
 
 @pytest.mark.parametrize("width", ALL_WIDTHS)
@@ -157,7 +118,6 @@ def test_no_heading_spills_past_its_container(playwright_mod, width: int) -> Non
                 spills[route] = [r for r in rows if r["spill"] > 1.5]
                 for r in rows:
                     assert r["px"] >= FIT_FLOOR - 0.01, (width, route, r)
-                    assert r["px"] <= r["base"] + 0.5, (width, route, r)
                 ctx.close()
         finally:
             browser.close()
