@@ -573,5 +573,10 @@
     "test": "test_v441_phase4_foundations.py::test_the_agentic_scene_carries_the_comparison_and_the_boundary",
     "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
     "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_training_scene_schema_is_strict_and_cumulative (intent clause only)",
+    "reason": "Verbose pronoun-based intent replaced by concise imperative copy and three learning stages.",
+    "replacement": "At most 20 words per intent; Understand/Change/Verify membership; unchanged strict scene schema and JSON parity."
   }
 ]

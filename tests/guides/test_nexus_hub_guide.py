@@ -983,7 +983,8 @@ def test_training_scene_schema_is_strict_and_cumulative(parsed: GuideParser) -> 
             "gate",
             "takeaway",
         }
-        assert re.search(r"\byou\b", scene["intent"], re.IGNORECASE)
+        assert len(scene["intent"].split()) <= 20
+        assert scene["stage"] in {"Understand", "Change", "Verify"}
         assert scene["command"].startswith(f"/{scene['id']}")
         assert scene["tools"] and all(
             set(tool) == {"name", "purpose"} and all(tool.values())

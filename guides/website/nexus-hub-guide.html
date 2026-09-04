@@ -1357,11 +1357,11 @@ html[data-theme="light"] .nht-ico--go:hover:not(:disabled) { color: #fffdf8; }
 .nag-tag.is-fixed { border-color: var(--green); color: var(--green); }
 /* Portrait 3:4 world in a bounded frame; the guard forbids max-width tokens, so min(). */
 .nag-stage { position: relative; aspect-ratio: 3 / 4; width: min(100%, 330px); margin-inline: auto; min-height: 0; background: var(--bg-deep); border-bottom: 1px solid var(--border); overflow: hidden; }
-.nag-start { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: center; background: color-mix(in srgb, var(--bg-deep) 72%, transparent); }
+.nag-start { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: center; background: rgba(4, 16, 29, .72); }
 .nag-start[hidden] { display: none; }
 .nag-start-btn { padding: 10px 22px; border: 1px solid var(--accent); border-radius: 999px; background: var(--surface); color: var(--ink); font-size: 15px; font-weight: 700; cursor: pointer; }
 .nag-start-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.nag-start-hint { color: var(--ink-faint); font-size: 12px; }
+.nag-start-hint { color: #c6dce1; font-size: 12px; }
 .nag-canvas { width: 100%; height: 100%; display: block; touch-action: none; outline: 0; }
 .nag-overlay {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -1483,6 +1483,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 .nht-filebody .diff-add, .nht-filebody .diff-remove, .nht-filebody .diff-line { display: block; min-height: 1.6em; }
 .nht-filebody .diff-add { color: var(--green); background: color-mix(in srgb, var(--green) 8%, transparent); }
 .nht-filebody .diff-remove { color: #ffb4ab; background: color-mix(in srgb, var(--red) 8%, transparent); }
+html[data-theme="light"] .nht-filebody .diff-remove { color: #a12d24; }
 .nht-filebody.is-pending { display: grid; place-content: center; min-height: 215px; color: var(--ink-faint); text-align: center; }
 .nht-takeaway {
   margin: var(--sp-4) 0 0; padding-top: var(--sp-3); border-top: 1px solid var(--border);
@@ -1508,7 +1509,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
    inside a content-sized parent). No max-width: a fullscreen 1920 is used, not centred. */
 .nht.is-present .nht-slide {
   flex: 1 1 auto; min-height: 0;
-  display: grid; grid-template-columns: minmax(300px, 34fr) minmax(0, 33fr) minmax(0, 33fr);
+  display: grid; grid-template-columns: minmax(300px, 28fr) minmax(0, 36fr) minmax(0, 36fr);
   grid-template-rows: auto minmax(0, 1fr) auto auto; column-gap: 14px; row-gap: 6px;
   align-content: stretch;
   width: 100%; max-width: none; margin: 0; padding: 6px 16px 8px;
@@ -1562,6 +1563,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 .nht.is-present .nag-note { display: none; }
 .nht.is-present .nag-actions { padding: 6px 8px 2px; }
 .nht.is-present .nht-head { margin-bottom: 0; }
+@media (min-width: 1024px) and (min-height: 640px) {
+  .nht.is-present .nht-head { display: grid; grid-template-columns: auto minmax(0,1fr); column-gap: 12px; align-items: center; }
+  .nht.is-present .nht-num { margin: 0; }
+  .nht.is-present .nht-intent { grid-column: 2; }
+}
 .nht.is-present .nht-takeaway { margin-top: 0; padding-top: 6px; }
 .nht.is-present .nht-controls { margin-top: 0; }
 /* Outline OVERLAYS the slide in present mode instead of reflowing it (closes the v4.4.1 P3). */
@@ -1571,7 +1577,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 .nht.is-present .nht-out { flex: 1 1 auto; min-height: 0; max-height: none; overflow-y: auto; }
 .nht.is-present .nht-after { flex: none; }
 .nht.is-present .nht-artifact p,
-.nht.is-present .nht-gate p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.nht.is-present .nht-gate p { white-space: normal; overflow: visible; }
 .nht.is-present .nht-takeaway { flex: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .nht.is-present .nht-controls { flex: none; }
 /* Narrow widths and 200% zoom (which shrinks the CSS viewport below this breakpoint)
@@ -1940,6 +1946,34 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
 .lesson button:disabled { opacity: .55; cursor: not-allowed; }
 .lesson-experiment { margin-top: 20px; }
 @media (max-width: 400px) { .loop-path { grid-template-columns: minmax(0,1fr); } .artifact-pair { gap: 14px; } }
+
+/* Training follows the same reading hierarchy as Home and Foundations. */
+#page-training .hero { padding: 32px 0 24px; }
+#page-training .hero .lead { max-width: 68ch; margin: 16px auto; font-size: 18px; }
+.training-stages { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px 28px; font-size: 14px; color: var(--accent); }
+.nag-proof { display: block; flex-basis: 100%; font-size: 14px; color: var(--ink); line-height: 1.5; }
+.nht:not(.is-present) .nht-grid { align-items: start; }
+.nht:not(.is-present) .nht-filebody.is-pending { min-height: 80px; max-height: 120px; }
+.nht:not(.is-present) .nht-idle { padding-block: 16px; min-height: 0; }
+.nht-gate .ng-k { text-transform: none; }
+
+.nht:not(.is-present) .term--nht:not(.has-run) .nht-out { min-height: 0; }
+.nht:not(.is-present) .nht-explorer { min-height: 0; }
+.nht-out { font-size: 14px; }
+.nht-intent,.nht-takeaway { font-size: 16px; }
+.nag-start-hint { text-align: center; padding-inline: 14px; }
+@media (min-width: 1024px) {
+  .nht:not(.is-present) .nht-slide { display: grid; grid-template-columns: minmax(0,.8fr) minmax(0,1.2fr); grid-template-rows: auto min-content 1fr auto auto; gap: 18px; align-items: start; }
+  .nht:not(.is-present) .nht-head { grid-column: 1 / -1; }
+  .nht:not(.is-present) .nht-grid { display: contents; }
+  .nht:not(.is-present) .nht-col:first-child { grid-column: 1; grid-row: 2 / 4; }
+  .nht:not(.is-present) .nht-col:last-child { grid-column: 2; grid-row: 2; }
+  .nht:not(.is-present) .nht-explorer { grid-column: 2; grid-row: 3; margin: 0; grid-template-columns: minmax(0,1fr); }
+  .nht:not(.is-present) .nht-filetree { display: flex; flex-wrap: wrap; gap: 4px; max-height: 132px; overflow: auto; }
+  .nht:not(.is-present) .nht-fileitem { width: auto; }
+  .nht:not(.is-present) .nht-filebody { min-height: 120px; max-height: 300px; }
+  .nht:not(.is-present) .nht-takeaway,.nht:not(.is-present) .nht-controls { grid-column: 1 / -1; margin: 0; }
+}
 </style>
 </head>
 <body>
@@ -2190,12 +2224,7 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
        ===================================================================== -->
   <section class="page" id="page-training" data-page="training">
     <div class="container">
-      <div class="hero">
-        <span class="eyebrow">Training</span>
-        <h1>Find the edge case by playing it</h1>
-        <p class="lead">This playable arcade shooter starts with one deliberate damage bug: the first enemy shot destroys the ship outright instead of costing one of three lives. Run the eight-command loop, watch its evidence accumulate, fix the damage at <code>/implement</code>, and add vertical movement after <code>/compare</code>. Everything happens here in the browser.</p>
-      </div>
-
+<div class="hero"><h1 class="hero-subtitle page-title">Observe a defect. Guide a fix. Inspect the proof.</h1><p class="lead">The same method used to check a status brief can repair a small game. This offline simulation shows the request, changed files, and evidence; it does not call a live assistant.</p><div class="training-stages" aria-label="Learning stages"><span>01 Understand the defect</span><span>02 Change the behavior</span><span>03 Verify the result</span></div></div>
       <div class="nht" id="nhTraining" data-training-root data-nhg-keys="self">
         <div class="nht-bar">
           <p class="nht-where" data-nht="where"></p>
@@ -2245,6 +2274,7 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
                 <div class="nag-actions">
                   <button type="button" class="nag-action nag-action--primary" data-arcade-action="toggle">Pause game</button>
                   <button type="button" class="nag-action" data-arcade-action="reset">Reset demo</button>
+                  <button type="button" class="nag-action" data-nht="show-hit">Show first hit</button><span class="nag-proof" data-nht="hit-proof" role="status">No playing skill needed.</span>
                   <button type="button" class="nag-action nag-step" data-arcade-action="step" data-arcade-step>Advance one step</button>
                 </div>
                 <ul class="nag-guide" role="list" aria-label="Keyboard and mouse controls">
@@ -2260,7 +2290,7 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
                   <button type="button" class="nag-control" data-arcade-control="down" aria-label="Move down, once the vertical-movement feature is enabled">&#9660; Down</button>
                   <button type="button" class="nag-control" data-arcade-control="fire" aria-label="Fire">&#9679; Fire</button>
                 </div>
-                <p class="nag-note" id="nagInstructions"><strong>Controls:</strong> click the start button or press Enter on it, then use Left and Right arrows or A and D to move and Space or a click inside the arena to fire; Up and Down (or W and S) work after the vertical-movement feature is added, and Escape or moving the pointer out of the arena pauses and releases the keys. On touch devices, labelled buttons mirror every key. <strong>Seeded defect:</strong> the very first enemy shot destroys the ship outright instead of costing one of three lives. Fixed damage counts lives 3, 2, 1, 0; touching an asteroid is always fatal.</p>
+                <p class="nag-note" id="nagInstructions">The first enemy hit should cost one life. <strong>Show first hit</strong> demonstrates the current behavior without playing. Asteroid contact is always fatal. The labeled controls above work with keyboard and touch.</p>
               </div>
             </div>
 
@@ -2286,7 +2316,7 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
 
               <div class="nht-after">
                 <div class="nht-artifact" data-nht="artifact">
-                  <span class="na-k">Left on disk</span>
+                  <span class="na-k" data-nht="artifact-label">Expected artifact</span>
                   <code data-nht="artifact-path"></code>
                   <p data-nht="artifact-summary"></p>
                 </div>
@@ -3542,7 +3572,449 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
 </script>
 
 <script type="application/json" id="nh-training-scenes">
-{"initial":{"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"src/damage.js","language":"javascript","content":"export function applyEnemyHit(ship) {\n  // TODO: lives were added to the design, but this handler predates them.\n  return { ...ship, destroyed: true };\n}\n"},{"path":"src/game.js","language":"javascript","content":"import { applyEnemyHit } from \u0027./damage.js\u0027;\n\nexport function resolveEnemyShot(ship, shot) {\n  if (!overlaps(ship, shot)) return ship;\n  return applyEnemyHit(ship);\n}\n\nfunction overlaps(a, b) {\n  const dx = a.x - b.x;\n  const dy = a.y - b.y;\n  return Math.hypot(dx, dy) \u003c= a.radius + b.radius;\n}\n"}]},"scenes":[{"id":"describe","stage":"Understand","title":"Map the game before changing it","intent":"You ask the assistant to trace what actually happens when an enemy shot reaches the ship, before touching anything.","command":"/describe full","tools":[{"name":"Search","purpose":"find where enemy hits are resolved"},{"name":"Read","purpose":"inspect the two source files"}],"output":["Read src/damage.js and src/game.js.","resolveEnemyShot hands every overlap to applyEnemyHit.","applyEnemyHit sets destroyed: true unconditionally; the lives counter is never consulted.","The HUD reads 3 lives while the very first hit ends the run.","Hostile fixture stays text: \u003cimg onerror\u003e and \u003c/script\u003e.","Wrote docs/analysis.md."],"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"docs/analysis.md","action":"create","language":"markdown","content":"# Sky Sentinel code map\n\n`src/game.js` detects the overlap between an enemy shot and the ship, then delegates to `applyEnemyHit` in `src/damage.js`. That handler predates the lives system: it returns `destroyed: true` on every call and never reads `ship.lives`.\n\nObserved in play: the HUD shows 3 lives, yet the first enemy shot ends the run instantly.\n\nRisk: any future damage source that reuses this handler inherits the same instant death.\n"}],"focus_file":"docs/analysis.md","artifact":{"path":"docs/analysis.md","summary":"A code map anchored to the real hit-resolution path."},"gate":{"name":"Understanding","status":"pass","prompt":"The defect is localized before any edit."},"takeaway":"You now have an evidence-backed map of the damage path, not a guess about the symptom."},{"id":"review","stage":"Evaluate","title":"Turn the symptom into a finding","intent":"You ask for a severity-ranked review that proves why instant death is a defect and not a difficulty choice.","command":"/review","tools":[{"name":"Read","purpose":"verify the damage contract against the HUD"},{"name":"Test","purpose":"exercise the seeded first-hit fixture"}],"output":["Reproduced it: in the enemy-hit fixture the first shot destroys the ship at three lives.","P1 correctness: applyEnemyHit ignores ship.lives entirely.","Root cause is an unconditional destroyed: true kept from before lives existed.","Wrote docs/review.md."],"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"docs/review.md","action":"create","language":"markdown","content":"# Damage review\n\n## P1 - The first enemy hit is always fatal\n\n`applyEnemyHit` returns `destroyed: true` unconditionally. The HUD promises three lives; the handler delivers none. The seeded enemy-hit fixture reproduces it deterministically: one falling shot, one dead ship, lives still reading 3.\n\nFix: consume one life per hit, grant a brief invulnerability window, and destroy only when lives reach zero.\n"}],"focus_file":"docs/review.md","artifact":{"path":"docs/review.md","summary":"One prioritized finding with reproduction and root cause."},"gate":{"name":"Review","status":"pass","prompt":"The finding is reproducible and actionable."},"takeaway":"You can tell a real damage defect from hard difficulty, and you can prove the difference."},{"id":"plan","stage":"Decide","title":"Make the repair testable","intent":"You turn the finding into one small phase with an observable in-game exit gate.","command":"/plan feature","tools":[{"name":"Read","purpose":"ground the plan in analysis and review"},{"name":"Write","purpose":"record ordered work and exit gates"}],"output":["Planned one phase: prove the instant death, implement per-hit lives, replay the fixture.","Exit gate: the seeded first hit leaves the ship alive at two lives.","Vertical movement stays out of scope until comparison evidence exists.","Wrote docs/releases/v0.1/plans/fix-damage-handling.md."],"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"docs/releases/v0.1/plans/fix-damage-handling.md","action":"create","language":"markdown","content":"# Fix damage handling\n\n## Phase 1\n\n1. Add a failing test: one hit on a 3-life ship must leave 2 lives, not a destroyed ship.\n2. Rewrite applyEnemyHit to consume one life, grant a 90-tick invulnerability window, and destroy only at zero.\n3. Keep asteroid contact fatal; it never routes through this handler.\n4. Replay the enemy-hit fixture: the run must survive the first shot.\n\nExit: focused tests pass and the in-browser first hit leaves the HUD at 2. Vertical movement is excluded.\n"}],"focus_file":"docs/releases/v0.1/plans/fix-damage-handling.md","artifact":{"path":"docs/releases/v0.1/plans/fix-damage-handling.md","summary":"A one-phase repair plan with a playable exit gate."},"gate":{"name":"Plan","status":"pass","prompt":"Scope is bounded to damage correctness."},"takeaway":"You know exactly what will change, what will not, and how the game will prove it."},{"id":"implement","stage":"Build","title":"Make a hit cost one life","intent":"You run the planned phase and immediately replay the same seeded shot against the repaired handler.","command":"/implement fix-damage-handling phase-1","tools":[{"name":"Edit","purpose":"rewrite the damage handler around lives"},{"name":"Test","purpose":"run first-hit, third-hit, and invulnerability cases"}],"output":["RED: the one-hit-one-life test failed against the unconditional destroy.","GREEN: applyEnemyHit now consumes a life and grants the 90-tick window.","Focused tests: 3 passed.","Playable check: the seeded first hit leaves the HUD at 2 lives.","Wrote the source change, regression tests, diff, and phase history."],"game":{"damageMode":"fixed","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"src/damage.js","action":"modify","language":"javascript","content":"const INVULN_TICKS = 90;\n\nexport function applyEnemyHit(ship) {\n  if (ship.invulnerableTicks \u003e 0) return ship;\n  const lives = ship.lives - 1;\n  return {\n    ...ship,\n    lives,\n    destroyed: lives \u003c= 0,\n    invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0,\n  };\n}\n","diff":"-export function applyEnemyHit(ship) {\n-  // TODO: lives were added to the design, but this handler predates them.\n-  return { ...ship, destroyed: true };\n-}\n+export function applyEnemyHit(ship) {\n+  if (ship.invulnerableTicks \u003e 0) return ship;\n+  const lives = ship.lives - 1;\n+  return { ...ship, lives, destroyed: lives \u003c= 0,\n+           invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0 };\n+}\n"},{"path":"tests/damage.test.js","action":"create","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { applyEnemyHit } from \u0027../src/damage.js\u0027;\n\ntest(\u0027one hit costs exactly one life\u0027, () =\u003e {\n  const ship = applyEnemyHit({ lives: 3, invulnerableTicks: 0 });\n  assert.equal(ship.lives, 2);\n  assert.equal(ship.destroyed, false);\n  assert.equal(ship.invulnerableTicks, 90);\n});\n\ntest(\u0027the third hit destroys the ship\u0027, () =\u003e {\n  const ship = applyEnemyHit({ lives: 1, invulnerableTicks: 0 });\n  assert.equal(ship.lives, 0);\n  assert.equal(ship.destroyed, true);\n});\n\ntest(\u0027an invulnerable ship shrugs the hit off\u0027, () =\u003e {\n  const ship = applyEnemyHit({ lives: 2, invulnerableTicks: 45 });\n  assert.equal(ship.lives, 2);\n});\n"},{"path":"docs/releases/v0.1/evidence/damage.diff","action":"create","language":"diff","content":"-export function applyEnemyHit(ship) {\n-  // TODO: lives were added to the design, but this handler predates them.\n-  return { ...ship, destroyed: true };\n-}\n+export function applyEnemyHit(ship) {\n+  if (ship.invulnerableTicks \u003e 0) return ship;\n+  const lives = ship.lives - 1;\n+  return { ...ship, lives, destroyed: lives \u003c= 0,\n+           invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0 };\n+}\n"},{"path":"docs/releases/v0.1/history/phase-1.md","action":"create","language":"markdown","content":"# Phase 1 history\n\nCompleted: per-hit lives with a 90-tick invulnerability window.\n\nVerified: 3 focused tests passed; the seeded browser hit left 2 lives on the HUD.\n\nOpen: vertical movement is not implemented. No push or remote CI was run.\n"}],"focus_file":"docs/releases/v0.1/evidence/damage.diff","artifact":{"path":"docs/releases/v0.1/history/phase-1.md","summary":"Code, tests, diff, and evidence for the completed repair."},"gate":{"name":"Implementation","status":"pass","prompt":"Take a hit now: the HUD must read 2."},"takeaway":"You can play the same seeded situation before and after the change and watch the fix land."},{"id":"compare","stage":"Extend","title":"Adopt vertical movement without importing a project","intent":"You compare a reference behavior, record the useful pattern, and run its follow-on plan and implementation.","command":"/compare vertical-movement-reference","tools":[{"name":"Compare","purpose":"isolate the reference movement behavior"},{"name":"Edit","purpose":"implement the adopted pattern locally"},{"name":"Test","purpose":"prove gating and band clamping"}],"output":["Adopt: Up and Down move the ship inside a bounded lower play band.","Reject: the reference renderer, input library, and dependency layout.","Follow-on /plan and /implement completed inside this comparison step.","Movement tests: 3 passed.","The playable game now climbs and dives between y 360 and y 460."],"game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"},"files":[{"path":"docs/comparison.md","action":"create","language":"markdown","content":"# Vertical movement comparison\n\nAdopt the behavior contract: while the feature flag is on, Up and Down move the ship at its vertical speed, clamped to the lower play band between y 360 and y 460. While the flag is off, vertical input is read and ignored.\n\nReject the reference renderer, input library, and package structure. Implement through a small pure `applyVerticalInput` seam beside the existing damage seam.\n"},{"path":"docs/releases/v0.1/plans/add-vertical-movement.md","action":"create","language":"markdown","content":"# Add vertical movement\n\nOne follow-on phase: implement `applyVerticalInput` behind the feature flag, clamp to the band, and cover off, top-clamp, and bottom-clamp cases. Exit when the playable ship climbs and dives inside the band and never leaves it.\n"},{"path":"src/movement.js","action":"create","language":"javascript","content":"const BAND = { top: 360, bottom: 460 };\n\nexport function applyVerticalInput(ship, input, enabled) {\n  if (!enabled) return ship;\n  let y = ship.y;\n  if (input.up) y -= ship.speedY;\n  if (input.down) y += ship.speedY;\n  return { ...ship, y: Math.min(BAND.bottom, Math.max(BAND.top, y)) };\n}\n"},{"path":"tests/movement.test.js","action":"create","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { applyVerticalInput } from \u0027../src/movement.js\u0027;\n\nconst ship = { y: 440, speedY: 2 };\n\ntest(\u0027vertical input is ignored while the feature is off\u0027, () =\u003e {\n  assert.equal(applyVerticalInput(ship, { up: true }, false).y, 440);\n});\n\ntest(\u0027upward travel clamps at the top of the play band\u0027, () =\u003e {\n  const high = { ...ship, y: 361 };\n  assert.equal(applyVerticalInput(high, { up: true }, true).y, 360);\n});\n\ntest(\u0027downward travel clamps at the bottom of the play band\u0027, () =\u003e {\n  const low = { ...ship, y: 459 };\n  assert.equal(applyVerticalInput(low, { down: true }, true).y, 460);\n});\n"}],"focus_file":"docs/comparison.md","artifact":{"path":"docs/comparison.md","summary":"An adoption decision plus its completed follow-on change."},"gate":{"name":"Comparison","status":"pass","prompt":"Only the behavior pattern was adopted."},"takeaway":"You can borrow a useful idea without importing another project\u0027s architecture."},{"id":"test","stage":"Prove","title":"Exercise both behavior boundaries","intent":"You run the focused suite and confirm the damage and movement seams cover their boundary cases.","command":"/test unit","tools":[{"name":"Test","purpose":"run damage and movement unit tests"},{"name":"Coverage","purpose":"confirm both seams and their branches execute"}],"output":["Ran damage and movement unit tests.","6 passed: one-hit, third-hit, invulnerability, gated-off, top clamp, bottom clamp.","Both pure seams and every branch executed.","Wrote reports/unit-summary.txt."],"game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"},"files":[{"path":"reports/unit-summary.txt","action":"create","language":"text","content":"damage.test.js    3 passed\nmovement.test.js  3 passed\nTOTAL             6 passed\nBranches: hit, fatal hit, invulnerable, feature off, top clamp, bottom clamp\n"}],"focus_file":"reports/unit-summary.txt","artifact":{"path":"reports/unit-summary.txt","summary":"A focused test result tied to both behaviors."},"gate":{"name":"Tests","status":"pass","prompt":"All six behavior checks pass."},"takeaway":"You have executable proof for the fix and the feature, including their boundary cases."},{"id":"update","stage":"Record","title":"Leave the project history current","intent":"You record what changed and the exact proof a future maintainer can rerun.","command":"/update changelog","tools":[{"name":"Diff","purpose":"derive notes from actual changes"},{"name":"Write","purpose":"update release history"}],"output":["Derived notes from the damage, movement, and test diffs.","Recorded the per-hit lives fix and the vertical-movement feature.","Included the 6-test verification result.","Updated CHANGELOG.md."],"game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"},"files":[{"path":"CHANGELOG.md","action":"create","language":"markdown","content":"# Changelog\n\n## 0.1.0\n\n### Fixed\n\n- An enemy hit now costs one life instead of destroying the ship outright; destruction happens only at zero lives, after a brief invulnerability window per hit.\n\n### Added\n\n- Vertical movement behind a feature flag, clamped to the lower play band.\n\n### Verified\n\n- Six focused damage and movement tests pass.\n"}],"focus_file":"CHANGELOG.md","artifact":{"path":"CHANGELOG.md","summary":"Release notes derived from the implemented diff and tests."},"gate":{"name":"History","status":"pass","prompt":"The durable record matches the code."},"takeaway":"You leave enough evidence for the next person to understand and verify the work."},{"id":"presentify","stage":"Communicate","title":"Turn the evidence into a briefing","intent":"You assemble the analysis, finding, implementation, and proof into an offline walkthrough.","command":"/presentify docs/analysis.md docs/review.md CHANGELOG.md","tools":[{"name":"Read","purpose":"collect the completed evidence trail"},{"name":"Render","purpose":"build one self-contained briefing"}],"output":["Built a four-part briefing: symptom, cause, repair, proof.","Included the surviving-first-hit result and the band-clamped climb.","Wrote shooter-briefing.html; offline: yes."],"game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"},"files":[{"path":"shooter-briefing.html","action":"create","language":"html","content":"\u003c!doctype html\u003e\n\u003chtml lang=\"en\"\u003e\n\u003cmeta charset=\"utf-8\"\u003e\n\u003ctitle\u003eSky Sentinel repair briefing\u003c/title\u003e\n\u003cbody\u003e\n  \u003cmain\u003e\n    \u003ch1\u003eOne damage bug, one playable proof\u003c/h1\u003e\n    \u003cp\u003eBefore: the first enemy shot destroyed the ship at three lives. After: hits cost one life each, and the ship climbs and dives inside its play band.\u003c/p\u003e\n    \u003cp\u003eEvidence: six focused tests pass.\u003c/p\u003e\n  \u003c/main\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n"}],"focus_file":"shooter-briefing.html","artifact":{"path":"shooter-briefing.html","summary":"A self-contained briefing built from the accumulated evidence."},"gate":{"name":"Communication","status":"pass","prompt":"The result is understandable without the implementation session."},"takeaway":"You finish the loop with a concise story backed by the files and behavior you produced."}]}
+{
+  "initial": {
+    "game": {
+      "damageMode": "buggy",
+      "verticalMovementEnabled": false,
+      "fixture": "enemy-hit"
+    },
+    "files": [
+      {
+        "path": "src/damage.js",
+        "language": "javascript",
+        "content": "export function applyEnemyHit(ship) {\n  // TODO: lives were added to the design, but this handler predates them.\n  return { ...ship, destroyed: true };\n}\n"
+      },
+      {
+        "path": "src/game.js",
+        "language": "javascript",
+        "content": "import { applyEnemyHit } from './damage.js';\n\nexport function resolveEnemyShot(ship, shot) {\n  if (!overlaps(ship, shot)) return ship;\n  return applyEnemyHit(ship);\n}\n\nfunction overlaps(a, b) {\n  const dx = a.x - b.x;\n  const dy = a.y - b.y;\n  return Math.hypot(dx, dy) \u003c= a.radius + b.radius;\n}\n"
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "id": "describe",
+      "stage": "Understand",
+      "title": "Map the game before changing it",
+      "intent": "Trace the damage path before editing it.",
+      "command": "/describe full",
+      "tools": [
+        {
+          "name": "Search",
+          "purpose": "find where enemy hits are resolved"
+        },
+        {
+          "name": "Read",
+          "purpose": "inspect the two source files"
+        }
+      ],
+      "output": [
+        "Read src/damage.js and src/game.js.",
+        "resolveEnemyShot hands every overlap to applyEnemyHit.",
+        "applyEnemyHit sets destroyed: true unconditionally; the lives counter is never consulted.",
+        "The HUD reads 3 lives while the very first hit ends the run.",
+        "Hostile fixture stays text: \u003cimg onerror\u003e and \u003c/script\u003e.",
+        "Wrote docs/analysis.md."
+      ],
+      "game": {
+        "damageMode": "buggy",
+        "verticalMovementEnabled": false,
+        "fixture": "enemy-hit"
+      },
+      "files": [
+        {
+          "path": "docs/analysis.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Sky Sentinel code map\n\n`src/game.js` detects the overlap between an enemy shot and the ship, then delegates to `applyEnemyHit` in `src/damage.js`. That handler predates the lives system: it returns `destroyed: true` on every call and never reads `ship.lives`.\n\nObserved in play: the HUD shows 3 lives, yet the first enemy shot ends the run instantly.\n\nRisk: any future damage source that reuses this handler inherits the same instant death.\n"
+        }
+      ],
+      "focus_file": "docs/analysis.md",
+      "artifact": {
+        "path": "docs/analysis.md",
+        "summary": "A code map anchored to the real hit-resolution path."
+      },
+      "gate": {
+        "name": "Understanding",
+        "status": "pass",
+        "prompt": "The defect is localized before any edit."
+      },
+      "takeaway": "You now have an evidence-backed map of the damage path, not a guess about the symptom."
+    },
+    {
+      "id": "review",
+      "stage": "Understand",
+      "title": "Turn the symptom into a finding",
+      "intent": "Prove that instant destruction is a defect.",
+      "command": "/review",
+      "tools": [
+        {
+          "name": "Read",
+          "purpose": "verify the damage contract against the HUD"
+        },
+        {
+          "name": "Test",
+          "purpose": "exercise the seeded first-hit fixture"
+        }
+      ],
+      "output": [
+        "Reproduced it: in the enemy-hit fixture the first shot destroys the ship at three lives.",
+        "P1 correctness: applyEnemyHit ignores ship.lives entirely.",
+        "Root cause is an unconditional destroyed: true kept from before lives existed.",
+        "Wrote docs/review.md."
+      ],
+      "game": {
+        "damageMode": "buggy",
+        "verticalMovementEnabled": false,
+        "fixture": "enemy-hit"
+      },
+      "files": [
+        {
+          "path": "docs/review.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Damage review\n\n## P1 - The first enemy hit is always fatal\n\n`applyEnemyHit` returns `destroyed: true` unconditionally. The HUD promises three lives; the handler delivers none. The seeded enemy-hit fixture reproduces it deterministically: one falling shot, one dead ship, lives still reading 3.\n\nFix: consume one life per hit, grant a brief invulnerability window, and destroy only when lives reach zero.\n"
+        }
+      ],
+      "focus_file": "docs/review.md",
+      "artifact": {
+        "path": "docs/review.md",
+        "summary": "One prioritized finding with reproduction and root cause."
+      },
+      "gate": {
+        "name": "Review",
+        "status": "pass",
+        "prompt": "The finding is reproducible and actionable."
+      },
+      "takeaway": "You can tell a real damage defect from hard difficulty, and you can prove the difference."
+    },
+    {
+      "id": "plan",
+      "stage": "Understand",
+      "title": "Make the repair testable",
+      "intent": "Define a small repair and its acceptance check.",
+      "command": "/plan feature",
+      "tools": [
+        {
+          "name": "Read",
+          "purpose": "ground the plan in analysis and review"
+        },
+        {
+          "name": "Write",
+          "purpose": "record ordered work and exit gates"
+        }
+      ],
+      "output": [
+        "Planned one phase: prove the instant death, implement per-hit lives, replay the fixture.",
+        "Exit gate: the seeded first hit leaves the ship alive at two lives.",
+        "Vertical movement stays out of scope until comparison evidence exists.",
+        "Wrote docs/releases/v0.1/plans/fix-damage-handling.md."
+      ],
+      "game": {
+        "damageMode": "buggy",
+        "verticalMovementEnabled": false,
+        "fixture": "enemy-hit"
+      },
+      "files": [
+        {
+          "path": "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Fix damage handling\n\n## Phase 1\n\n1. Add a failing test: one hit on a 3-life ship must leave 2 lives, not a destroyed ship.\n2. Rewrite applyEnemyHit to consume one life, grant a 90-tick invulnerability window, and destroy only at zero.\n3. Keep asteroid contact fatal; it never routes through this handler.\n4. Replay the enemy-hit fixture: the run must survive the first shot.\n\nExit: focused tests pass and the in-browser first hit leaves the HUD at 2. Vertical movement is excluded.\n"
+        }
+      ],
+      "focus_file": "docs/releases/v0.1/plans/fix-damage-handling.md",
+      "artifact": {
+        "path": "docs/releases/v0.1/plans/fix-damage-handling.md",
+        "summary": "A one-phase repair plan with a playable exit gate."
+      },
+      "gate": {
+        "name": "Plan",
+        "status": "pass",
+        "prompt": "Scope is bounded to damage correctness."
+      },
+      "takeaway": "You know exactly what will change, what will not, and how the game will prove it."
+    },
+    {
+      "id": "implement",
+      "stage": "Change",
+      "title": "Make a hit cost one life",
+      "intent": "Repair the handler, then replay the same enemy hit.",
+      "command": "/implement fix-damage-handling phase-1",
+      "tools": [
+        {
+          "name": "Edit",
+          "purpose": "rewrite the damage handler around lives"
+        },
+        {
+          "name": "Test",
+          "purpose": "run first-hit, third-hit, and invulnerability cases"
+        }
+      ],
+      "output": [
+        "RED: the one-hit-one-life test failed against the unconditional destroy.",
+        "GREEN: applyEnemyHit now consumes a life and grants the 90-tick window.",
+        "Focused tests: 3 passed.",
+        "Playable check: the seeded first hit leaves the HUD at 2 lives.",
+        "Wrote the source change, regression tests, diff, and phase history."
+      ],
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": false,
+        "fixture": "enemy-hit"
+      },
+      "files": [
+        {
+          "path": "src/damage.js",
+          "action": "modify",
+          "language": "javascript",
+          "content": "const INVULN_TICKS = 90;\n\nexport function applyEnemyHit(ship) {\n  if (ship.invulnerableTicks \u003e 0) return ship;\n  const lives = ship.lives - 1;\n  return {\n    ...ship,\n    lives,\n    destroyed: lives \u003c= 0,\n    invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0,\n  };\n}\n",
+          "diff": "-export function applyEnemyHit(ship) {\n-  // TODO: lives were added to the design, but this handler predates them.\n-  return { ...ship, destroyed: true };\n-}\n+export function applyEnemyHit(ship) {\n+  if (ship.invulnerableTicks \u003e 0) return ship;\n+  const lives = ship.lives - 1;\n+  return { ...ship, lives, destroyed: lives \u003c= 0,\n+           invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0 };\n+}\n"
+        },
+        {
+          "path": "tests/damage.test.js",
+          "action": "create",
+          "language": "javascript",
+          "content": "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { applyEnemyHit } from '../src/damage.js';\n\ntest('one hit costs exactly one life', () =\u003e {\n  const ship = applyEnemyHit({ lives: 3, invulnerableTicks: 0 });\n  assert.equal(ship.lives, 2);\n  assert.equal(ship.destroyed, false);\n  assert.equal(ship.invulnerableTicks, 90);\n});\n\ntest('the third hit destroys the ship', () =\u003e {\n  const ship = applyEnemyHit({ lives: 1, invulnerableTicks: 0 });\n  assert.equal(ship.lives, 0);\n  assert.equal(ship.destroyed, true);\n});\n\ntest('an invulnerable ship shrugs the hit off', () =\u003e {\n  const ship = applyEnemyHit({ lives: 2, invulnerableTicks: 45 });\n  assert.equal(ship.lives, 2);\n});\n"
+        },
+        {
+          "path": "docs/releases/v0.1/evidence/damage.diff",
+          "action": "create",
+          "language": "diff",
+          "content": "-export function applyEnemyHit(ship) {\n-  // TODO: lives were added to the design, but this handler predates them.\n-  return { ...ship, destroyed: true };\n-}\n+export function applyEnemyHit(ship) {\n+  if (ship.invulnerableTicks \u003e 0) return ship;\n+  const lives = ship.lives - 1;\n+  return { ...ship, lives, destroyed: lives \u003c= 0,\n+           invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0 };\n+}\n"
+        },
+        {
+          "path": "docs/releases/v0.1/history/phase-1.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Phase 1 history\n\nCompleted: per-hit lives with a 90-tick invulnerability window.\n\nVerified: 3 focused tests passed; the seeded browser hit left 2 lives on the HUD.\n\nOpen: vertical movement is not implemented. No push or remote CI was run.\n"
+        }
+      ],
+      "focus_file": "docs/releases/v0.1/evidence/damage.diff",
+      "artifact": {
+        "path": "docs/releases/v0.1/history/phase-1.md",
+        "summary": "Code, tests, diff, and evidence for the completed repair."
+      },
+      "gate": {
+        "name": "Implementation",
+        "status": "pass",
+        "prompt": "Take a hit now: the HUD must read 2."
+      },
+      "takeaway": "You can play the same seeded situation before and after the change and watch the fix land."
+    },
+    {
+      "id": "compare",
+      "stage": "Change",
+      "title": "Adopt vertical movement without importing a project",
+      "intent": "Add vertical movement from a focused behavior comparison.",
+      "command": "/compare vertical-movement-reference",
+      "tools": [
+        {
+          "name": "Compare",
+          "purpose": "isolate the reference movement behavior"
+        },
+        {
+          "name": "Edit",
+          "purpose": "implement the adopted pattern locally"
+        },
+        {
+          "name": "Test",
+          "purpose": "prove gating and band clamping"
+        }
+      ],
+      "output": [
+        "Adopt: Up and Down move the ship inside a bounded lower play band.",
+        "Reject: the reference renderer, input library, and dependency layout.",
+        "Follow-on /plan and /implement completed inside this comparison step.",
+        "Movement tests: 3 passed.",
+        "The playable game now climbs and dives between y 360 and y 460."
+      ],
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": true,
+        "fixture": "play"
+      },
+      "files": [
+        {
+          "path": "docs/comparison.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Vertical movement comparison\n\nAdopt the behavior contract: while the feature flag is on, Up and Down move the ship at its vertical speed, clamped to the lower play band between y 360 and y 460. While the flag is off, vertical input is read and ignored.\n\nReject the reference renderer, input library, and package structure. Implement through a small pure `applyVerticalInput` seam beside the existing damage seam.\n"
+        },
+        {
+          "path": "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Add vertical movement\n\nOne follow-on phase: implement `applyVerticalInput` behind the feature flag, clamp to the band, and cover off, top-clamp, and bottom-clamp cases. Exit when the playable ship climbs and dives inside the band and never leaves it.\n"
+        },
+        {
+          "path": "src/movement.js",
+          "action": "create",
+          "language": "javascript",
+          "content": "const BAND = { top: 360, bottom: 460 };\n\nexport function applyVerticalInput(ship, input, enabled) {\n  if (!enabled) return ship;\n  let y = ship.y;\n  if (input.up) y -= ship.speedY;\n  if (input.down) y += ship.speedY;\n  return { ...ship, y: Math.min(BAND.bottom, Math.max(BAND.top, y)) };\n}\n"
+        },
+        {
+          "path": "tests/movement.test.js",
+          "action": "create",
+          "language": "javascript",
+          "content": "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { applyVerticalInput } from '../src/movement.js';\n\nconst ship = { y: 440, speedY: 2 };\n\ntest('vertical input is ignored while the feature is off', () =\u003e {\n  assert.equal(applyVerticalInput(ship, { up: true }, false).y, 440);\n});\n\ntest('upward travel clamps at the top of the play band', () =\u003e {\n  const high = { ...ship, y: 361 };\n  assert.equal(applyVerticalInput(high, { up: true }, true).y, 360);\n});\n\ntest('downward travel clamps at the bottom of the play band', () =\u003e {\n  const low = { ...ship, y: 459 };\n  assert.equal(applyVerticalInput(low, { down: true }, true).y, 460);\n});\n"
+        }
+      ],
+      "focus_file": "docs/comparison.md",
+      "artifact": {
+        "path": "docs/comparison.md",
+        "summary": "An adoption decision plus its completed follow-on change."
+      },
+      "gate": {
+        "name": "Comparison",
+        "status": "pass",
+        "prompt": "Only the behavior pattern was adopted."
+      },
+      "takeaway": "You can borrow a useful idea without importing another project's architecture."
+    },
+    {
+      "id": "test",
+      "stage": "Verify",
+      "title": "Exercise both behavior boundaries",
+      "intent": "Check the damage and movement boundaries.",
+      "command": "/test unit",
+      "tools": [
+        {
+          "name": "Test",
+          "purpose": "run damage and movement unit tests"
+        },
+        {
+          "name": "Coverage",
+          "purpose": "confirm both seams and their branches execute"
+        }
+      ],
+      "output": [
+        "Ran damage and movement unit tests.",
+        "6 passed: one-hit, third-hit, invulnerability, gated-off, top clamp, bottom clamp.",
+        "Both pure seams and every branch executed.",
+        "Wrote reports/unit-summary.txt."
+      ],
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": true,
+        "fixture": "play"
+      },
+      "files": [
+        {
+          "path": "reports/unit-summary.txt",
+          "action": "create",
+          "language": "text",
+          "content": "damage.test.js    3 passed\nmovement.test.js  3 passed\nTOTAL             6 passed\nBranches: hit, fatal hit, invulnerable, feature off, top clamp, bottom clamp\n"
+        }
+      ],
+      "focus_file": "reports/unit-summary.txt",
+      "artifact": {
+        "path": "reports/unit-summary.txt",
+        "summary": "A focused test result tied to both behaviors."
+      },
+      "gate": {
+        "name": "Tests",
+        "status": "pass",
+        "prompt": "All six behavior checks pass."
+      },
+      "takeaway": "You have executable proof for the fix and the feature, including their boundary cases."
+    },
+    {
+      "id": "update",
+      "stage": "Verify",
+      "title": "Leave the project history current",
+      "intent": "Record the change and its repeatable proof.",
+      "command": "/update changelog",
+      "tools": [
+        {
+          "name": "Diff",
+          "purpose": "derive notes from actual changes"
+        },
+        {
+          "name": "Write",
+          "purpose": "update release history"
+        }
+      ],
+      "output": [
+        "Derived notes from the damage, movement, and test diffs.",
+        "Recorded the per-hit lives fix and the vertical-movement feature.",
+        "Included the 6-test verification result.",
+        "Updated CHANGELOG.md."
+      ],
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": true,
+        "fixture": "play"
+      },
+      "files": [
+        {
+          "path": "CHANGELOG.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Changelog\n\n## 0.1.0\n\n### Fixed\n\n- An enemy hit now costs one life instead of destroying the ship outright; destruction happens only at zero lives, after a brief invulnerability window per hit.\n\n### Added\n\n- Vertical movement behind a feature flag, clamped to the lower play band.\n\n### Verified\n\n- Six focused damage and movement tests pass.\n"
+        }
+      ],
+      "focus_file": "CHANGELOG.md",
+      "artifact": {
+        "path": "CHANGELOG.md",
+        "summary": "Release notes derived from the implemented diff and tests."
+      },
+      "gate": {
+        "name": "History",
+        "status": "pass",
+        "prompt": "The durable record matches the code."
+      },
+      "takeaway": "You leave enough evidence for the next person to understand and verify the work."
+    },
+    {
+      "id": "presentify",
+      "stage": "Verify",
+      "title": "Turn the evidence into a briefing",
+      "intent": "Turn the evidence into a short offline briefing.",
+      "command": "/presentify docs/analysis.md docs/review.md CHANGELOG.md",
+      "tools": [
+        {
+          "name": "Read",
+          "purpose": "collect the completed evidence trail"
+        },
+        {
+          "name": "Render",
+          "purpose": "build one self-contained briefing"
+        }
+      ],
+      "output": [
+        "Built a four-part briefing: symptom, cause, repair, proof.",
+        "Included the surviving-first-hit result and the band-clamped climb.",
+        "Wrote shooter-briefing.html; offline: yes."
+      ],
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": true,
+        "fixture": "play"
+      },
+      "files": [
+        {
+          "path": "shooter-briefing.html",
+          "action": "create",
+          "language": "html",
+          "content": "\u003c!doctype html\u003e\n\u003chtml lang=\"en\"\u003e\n\u003cmeta charset=\"utf-8\"\u003e\n\u003ctitle\u003eSky Sentinel repair briefing\u003c/title\u003e\n\u003cbody\u003e\n  \u003cmain\u003e\n    \u003ch1\u003eOne damage bug, one playable proof\u003c/h1\u003e\n    \u003cp\u003eBefore: the first enemy shot destroyed the ship at three lives. After: hits cost one life each, and the ship climbs and dives inside its play band.\u003c/p\u003e\n    \u003cp\u003eEvidence: six focused tests pass.\u003c/p\u003e\n  \u003c/main\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n"
+        }
+      ],
+      "focus_file": "shooter-briefing.html",
+      "artifact": {
+        "path": "shooter-briefing.html",
+        "summary": "A self-contained briefing built from the accumulated evidence."
+      },
+      "gate": {
+        "name": "Communication",
+        "status": "pass",
+        "prompt": "The result is understandable without the implementation session."
+      },
+      "takeaway": "You finish the loop with a concise story backed by the files and behavior you produced."
+    }
+  ]
+}
 </script>
 
 <script>
@@ -4442,6 +4914,10 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
   if (!SCENES.length) return;
 
   var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (window.matchMedia) window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", function (event) {
+    REDUCE = event.matches;
+    if (REDUCE && runToken) finishRun(SCENES[step], false);
+  });
 
   function q(name) { return root.querySelector('[data-nht="' + name + '"]'); }
   var els = {
@@ -4459,6 +4935,8 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
   var appliedThrough = -1;
   var selectedFile = "";
   var runToken = null;
+  var completedScenes = Object.create(null);
+  var runState = "not-run";
 
   /* ---------------------------------------------- cumulative project state */
   function configureGame(config) {
@@ -4470,6 +4948,26 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
 
   function gameStateThrough(index) {
     return index < 0 ? INITIAL.game : SCENES[index].game;
+  }
+
+  function invalidateFrom(index) {
+    Object.keys(completedScenes).forEach(function (key) {
+      if (Number(key) >= index) delete completedScenes[key];
+    });
+  }
+
+  function prerequisitesReady() {
+    for (var i = 0; i < step; i++) {
+      if (completedScenes[i]) continue;
+      renderRunState(SCENES[step], "blocked");
+      var message = "Run " + SCENES[i].command + " first. Later results depend on that work.";
+      if (els.gatePrompt) els.gatePrompt.textContent = message;
+      if (els.hint) els.hint.textContent = message;
+      if (els.output) els.output.textContent = "";
+      if (els.takeaway) els.takeaway.textContent = "No result recorded. Select the first incomplete command above to continue.";
+      return false;
+    }
+    return true;
   }
 
   function projectStateThrough(index) {
@@ -4486,6 +4984,7 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
     }
     (INITIAL.files || []).forEach(function (file) { place(file, "existing"); });
     for (var sceneIndex = 0; sceneIndex <= index; sceneIndex++) {
+      if (!completedScenes[sceneIndex]) continue;
       (SCENES[sceneIndex].files || []).forEach(function (file) {
         var status = sceneIndex === index ? (file.action === "modify" ? "changed" : "new") : "existing";
         place(file, status);
@@ -4569,10 +5068,42 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
   }
 
   function applySceneState(includeCurrent) {
-    appliedThrough = includeCurrent ? step : step - 1;
+    appliedThrough = -1;
+    Object.keys(completedScenes).forEach(function (key) { appliedThrough = Math.max(appliedThrough, Number(key)); });
     configureGame(gameStateThrough(appliedThrough));
-    renderExplorer(projectStateThrough(appliedThrough), SCENES[step].focus_file);
+    var files = projectStateThrough(appliedThrough);
+    var preferred = completedScenes[step] ? SCENES[step].focus_file : (fileAt(files, selectedFile) ? selectedFile : (files[0] && files[0].path));
+    renderExplorer(files, preferred);
   }
+
+  function renderRunState(scene, state) {
+    runState = state;
+    root.setAttribute("data-run-state", state);
+    var complete = state === "complete", gate = scene.gate || {}, art = scene.artifact || {};
+    var status = complete ? (gate.status === "pass" ? "pass" : "hold") : state === "blocked" ? "hold" : state === "failed" ? "fail" : state === "running" ? "running" : "pending";
+    if (els.gate) els.gate.className = "nht-gate " + (status === "pass" ? "pass" : "hold");
+    if (els.gateStatus) els.gateStatus.textContent = "Gate: " + status;
+    if (els.gateName) els.gateName.textContent = complete ? (gate.name || "Check") : state === "blocked" ? "Earlier work needed" : state === "failed" ? "Simulation interrupted" : "Planned check";
+    if (els.gatePrompt) els.gatePrompt.textContent = state === "failed" ? "No completion evidence. Retry this step." : gate.prompt || "";
+    var label = q("artifact-label"); if (label) label.textContent = complete ? "Simulated artifact" : "Expected artifact";
+    if (els.artifactPath) els.artifactPath.textContent = art.path || "";
+    if (els.artifactSummary) els.artifactSummary.textContent = complete ? art.summary || "" : "Run this step to produce and inspect its result.";
+    if (els.takeaway) els.takeaway.textContent = complete ? "Result: " + (scene.takeaway || "") : state === "failed" ? "This step did not finish. Its result is not available." : "Success will mean: " + (gate.prompt || "the planned check has evidence.");
+    if (els.progress) els.progress.querySelectorAll(".nht-seg").forEach(function (node,index) { node.classList.toggle("is-done", !!completedScenes[index] && index !== step); });
+    var proof = q("hit-proof"); if (proof) proof.textContent = "No playing skill needed.";
+  }
+  function cancelRun() {
+    if (!runToken) return;
+    runToken.cancelled = true; runToken = null;
+    if (els.output) els.output.textContent = "";
+    var term = q("terminal"); if (term) term.classList.remove("has-run");
+    renderRunState(SCENES[step], "not-run");
+    if (els.run) { els.run.disabled = false; els.run.textContent = "Run"; }
+    if (els.hint) els.hint.textContent = "Interrupted. Run this step again when ready.";
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) cancelRun();
+  });
 
   /* ---------------------------------------------- terminal */
   function resetTerminal(scene) {
@@ -4600,10 +5131,13 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
       els.command.setAttribute("data-copy", full);
     }
     if (els.run) { els.run.disabled = false; els.run.textContent = "Run"; }
-    if (els.hint) els.hint.textContent = "Press Run to send this command.";
+    if (els.hint) els.hint.textContent = "Press Run to simulate this command.";
+    if (completedScenes[step]) finishRun(scene, false);
+    else renderRunState(scene, "not-run");
   }
   function finishRun(scene, preserveOutput) {
-    if (!els.output) return;
+    if (!els.output || scene !== SCENES[step]) return;
+    if (!prerequisitesReady()) return;
     if (runToken) runToken.cancelled = true;
     runToken = null;
     if (!preserveOutput) {
@@ -4615,19 +5149,35 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
         els.output.appendChild(row);
       });
     }
-    applySceneState(true);
+    try {
+      completedScenes[step] = true;
+      applySceneState(true);
+      renderRunState(scene, "complete");
+    } catch (error) {
+      delete completedScenes[step];
+      try { applySceneState(false); } catch (rollbackError) { if (els.fileBody) els.fileBody.textContent = "Result unavailable. Retry this step."; }
+      els.output.textContent = "The simulation could not finish. No result was recorded.";
+      renderRunState(scene, "failed");
+      if (els.hint) els.hint.textContent = "Retry this step.";
+      if (els.run) { els.run.disabled = false; els.run.textContent = "Retry"; }
+      return;
+    }
     if (els.hint) els.hint.textContent = "This is a simulation of the real assistant's report.";
     if (els.run) { els.run.disabled = false; els.run.textContent = "Run again"; }
   }
   function runCommand() {
     var scene = SCENES[step];
     if (!scene || !els.output) return;
+    if (!prerequisitesReady()) return;
     var term = root.querySelector('[data-nht="terminal"]');
     if (term) term.classList.add("has-run");
     if (runToken) { runToken.cancelled = true; finishRun(scene, false); return; }
+    invalidateFrom(step);
+    applySceneState(false);
+    renderRunState(scene, "running");
     if (REDUCE) { finishRun(scene, false); return; }
 
-    var tok = runToken = { cancelled: false };
+    var tok = runToken = { cancelled: false, scene: scene };
     els.output.textContent = "";
     if (els.run) { els.run.disabled = false; els.run.textContent = "Show now"; }
     if (els.hint) els.hint.textContent = "Running (click Show now to skip the animation).";
@@ -4655,7 +5205,7 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
         var row = document.createElement("div");
         row.textContent = lines[oi];   /* textContent, never innerHTML */
         els.output.appendChild(row);
-        window.requestAnimationFrame(function () { row.classList.add("on"); });
+        window.requestAnimationFrame(function () { if (!tok.cancelled) row.classList.add("on"); });
         oi++;
         window.setTimeout(revealLines, 220);
       } else {
@@ -4686,7 +5236,7 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
         (function (idx) {
           var seg = document.createElement("button");
           seg.type = "button";
-          seg.className = "nht-seg" + (idx === step ? " is-now" : (idx < step ? " is-done" : ""));
+          seg.className = "nht-seg" + (idx === step ? " is-now" : (completedScenes[idx] ? " is-done" : ""));
           if (idx === step) seg.setAttribute("aria-current", "step");
           seg.setAttribute("aria-label",
             (SCENES[idx].stage || "") + ": " + (SCENES[idx].command || SCENES[idx].id));
@@ -4694,7 +5244,7 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
           nm.className = "nht-seg-k";
           nm.textContent = (SCENES[idx].command || "").replace(/^[/]/, "").split(" ")[0];
           seg.appendChild(nm);
-          seg.addEventListener("click", function () { step = idx; render(true); });
+          seg.addEventListener("click", function () { step = idx; render(true); els.progress.children[idx].focus(); });
           els.progress.appendChild(seg);
         })(i);
       }
@@ -4711,24 +5261,6 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
         chip.appendChild(document.createTextNode(" " + (tool.purpose || "")));
         els.tools.appendChild(chip);
       });
-    }
-
-    var art = scene.artifact || {};
-    if (els.artifactPath) els.artifactPath.textContent = art.path || "";
-    if (els.artifactSummary) els.artifactSummary.textContent = art.summary || "";
-
-    var gate = scene.gate || {};
-    if (els.gate) els.gate.className = "nht-gate " + (gate.status === "pass" ? "pass" : "hold");
-    if (els.gateStatus) els.gateStatus.textContent = gate.status === "pass" ? "Gate: pass" : "Gate: hold";
-    if (els.gateName) els.gateName.textContent = gate.name || "";
-    if (els.gatePrompt) els.gatePrompt.textContent = gate.prompt || "";
-
-    if (els.takeaway) {
-      els.takeaway.textContent = "";
-      var claim = document.createElement("b");
-      claim.textContent = "Takeaway";
-      els.takeaway.appendChild(claim);
-      els.takeaway.appendChild(document.createTextNode("  " + (scene.takeaway || "")));
     }
 
     if (resetGame) {
@@ -4760,11 +5292,23 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
         step = idx; render(true);
         if (els.outline) els.outline.hidden = true;
         var t = root.querySelector('[data-nht="outline"]');
-        if (t) t.setAttribute("aria-expanded", "false");
+        if (t) { t.setAttribute("aria-expanded", "false"); t.focus(); }
       });
       li.appendChild(btn);
       els.outlineList.appendChild(li);
     });
+  }
+
+  function showFirstHit() {
+    if (!window.NexusShooter) return;
+    var api = window.NexusShooter, config = gameStateThrough(appliedThrough);
+    api.reset("enemy-hit"); api.setDamageMode(config.damageMode); api.setVerticalMovementEnabled(config.verticalMovementEnabled); api.start();
+    var snap = api.snapshot(), ticks = 0;
+    while (snap.lifecycle !== "destroyed" && snap.lives === 3 && ticks++ < 180) snap = api.step();
+    api.pause("manual");
+    var proof = q("hit-proof");
+    if (proof) proof.textContent = snap.lifecycle === "destroyed" ? "Defect reproduced: ship destroyed, but all 3 lives remain." : snap.lives === 2 ? "Fix demonstrated: first hit costs one life; 2 lives remain." : "Hit not observed. Reset and try again.";
+    return snap;
   }
 
   /* ---------------------------------------------- navigation */
@@ -4878,7 +5422,7 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
     syncPresentControl();
   });
   window.addEventListener("hashchange", function () {
-    if (document.body.getAttribute("data-page") !== "training" && inPresent()) exitPresent();
+    if (document.body.getAttribute("data-page") !== "training") { cancelRun(); if (inPresent()) exitPresent(); }
   });
 
   /* ---------------------------------------------- wiring */
@@ -4889,7 +5433,8 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
     var action = t.getAttribute("data-nht");
     if (action === "next") { goNext(); }
     else if (action === "prev") { goPrev(); }
-    else if (action === "restart") { render(true); }
+    else if (action === "restart") { cancelRun(); invalidateFrom(step); render(true); }
+    else if (action === "show-hit") { showFirstHit(); }
     else if (action === "run") { runCommand(); }
     else if (action === "file") {
       var path = t.getAttribute("data-file-path");
@@ -4957,10 +5502,9 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
     if (e.target.closest && e.target.closest("[data-arcade-game]")) return;
     if (e.target.closest && e.target.closest('[data-nht="explorer"]')) return;
     var tag = (e.target.tagName || "").toLowerCase();
-    if (tag === "input" || tag === "textarea" || tag === "select") return;
+    if (tag === "input" || tag === "textarea" || tag === "select" || tag === "button" || tag === "a") return;
     if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); goNext(); }
     else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); goPrev(); }
-    else if (e.key === "Enter" && e.target === els.run) { runCommand(); }
     else if (e.key === "f" || e.key === "F") { togglePresent(); }
   });
 
@@ -4995,18 +5539,22 @@ html:not(.js) [data-seq-play], html:not(.js) [data-seq-pause] { display: none; }
         verticalMovementEnabled: game.verticalMovementEnabled,
         fixture: game.fixture
       },
-      ran: appliedThrough === step
+      ran: runState === "complete",
+      runState: runState,
+      completedScenes: Object.keys(completedScenes).map(function (key) { return SCENES[Number(key)].id; })
     };
   }
 
   var trainingApi = Object.freeze({
     go: goTo,
     run: function () {
+      var term = q("terminal"); if (term) term.classList.add("has-run");
       finishRun(SCENES[step], false);
       return trainingSnapshot();
     },
     selectFile: selectProjectFile,
     snapshot: trainingSnapshot,
+    showFirstHit: showFirstHit,
     syncFromHash: function (sceneId) {
       var idx = -1;
       for (var i = 0; i < SCENES.length; i++) { if (SCENES[i].id === sceneId) idx = i; }

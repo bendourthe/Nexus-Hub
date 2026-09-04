@@ -334,14 +334,14 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 0 | 2 |
+| Bugs / regressions (BG) | 0 | 4 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-None from the completed shared-layout work. The remaining planned lessons, Training state correction, and final review gates are tracked in the active plan rather than counted as slipped work.
+No confirmed defect remains from Phases 1-6. Final cross-page stabilization and human review remain tracked in the active plan.
 
 ### Resolved
 
@@ -349,3 +349,5 @@ None from the completed shared-layout work. The remaining planned lessons, Train
 |---|---|---|---|
 | BG-39 | Essential teaching nodes depended on animation visibility | Phase 2 | Nodes and connectors remain visible at rest, on ordinary scrolling, and under reduced motion. No-script reading fallback added. The tall-scene observer is no longer a content gate. |
 | BG-40 | Hidden Training canvas repainted on every animation frame | Phase 2 | The original frame function unconditionally scheduled its successor and painted even when idle or offscreen. Lifecycle-owned scheduling now stops idle/hidden/inactive work and resumes a running game. All four idle-page checks, route resume, and the deterministic game suite pass. |
+| BG-41 | Training claimed success before matching completed work | Phase 6 | Pending/blocked/running/complete/failed states, prerequisite checks, and dependent reset invalidation align game, files, and evidence. |
+| BG-42 | Keyboard command selection lost focus | Phase 6 | Progress and Outline restore focus after rebuilding the scene. Independent failing proof now passes. |

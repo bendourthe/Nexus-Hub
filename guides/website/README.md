@@ -253,7 +253,7 @@ Before a workshop or a portfolio publish, also open the file by hand and check:
 - Light and dark themes, including a reload (theme must persist only `light` or `dark`)
 - Reduced motion across all four pages, including the static Foundations end states, the paused shooter with its single-step control, and immediate Training terminal output
 - Home install copy on the Windows and macOS/Linux tabs, and the verify-command copy cells
-- Foundations: eight scenes, correct responsive diagram variant, no pinned overlay, no comparison toggle
+- Foundations: seven lessons, complete static diagrams, token selection, bounded loop exits, and a graph join that waits for both branches
 - Training: playable shooter controls, the damage fix at `/implement`, vertical movement after `/compare` and its follow-on implementation, terminal output, cumulative explorer, missing-file state, Outline, full screen mode, and a mid-walkthrough URL
 - Cheatsheets: every scope readable, jump nav, and a deep link such as `#cheatsheets/explore`
 - Keyboard-only path through all four pages
@@ -269,3 +269,7 @@ Lighthouse Accessibility is a last-phase human bar, not a mid-plan merge gate.
 ## Editing
 
 The guide is a single HTML file: CSS in the `<style>` block, content in `<section class="page">` blocks, behavior in the two `<script>` blocks at the bottom (the app shell, then the Training engine after the scene JSON). Class prefixes: `fx-` for Foundations scenes (`fx-hstack` and its `h-` children for the layered harness), `ann-` for the annotated prompt, `seq-` for NexusSeq step primitives, `nht-` for Training, `nag-` for the arcade game, `g-` for the Home guardrails figure, and `cs-` for Cheatsheets. Scene data is `example/training-scenes.json` plus the matching inline JSON block. Do not edit or regenerate the retained Glow Booth fixtures as part of reader-facing Training work.
+
+## Training state integrity
+
+Run commands in order. Selecting a later command previews its objective; Run holds until earlier work is complete. Restart clears that step and dependent results. Show first hit provides deterministic bug/fix evidence without manual play. Output, files, gate, and takeaway share one completion state. Training is an offline simulation, including its test and publication examples.

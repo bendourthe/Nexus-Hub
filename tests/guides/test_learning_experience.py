@@ -272,3 +272,104 @@ def test_foundations_is_a_compact_seven_lesson_path(browser,width,max_height):
     WORDS = "el=>{const c=el.cloneNode(true);c.querySelectorAll('nav,.pagenav,.progress-dots,pre,code,script,style,details:not([open])').forEach(n=>n.remove());return {main:c.textContent.trim().split(/\\s+/).length}}"
     assert page.locator('#page-foundations').evaluate(WORDS)['main']<=1598
     page.close()
+
+@pytest.mark.parametrize('scene',['describe','presentify'])
+def test_training_does_not_claim_unrun_work(browser,scene):
+    page=browser.new_page()
+    page.goto(GUIDE.as_uri()+'#training/'+scene)
+    assert page.locator('[data-nht="gate-status"]').inner_text()=='Gate: pending'
+    assert page.locator('#nhTraining').get_attribute('data-run-state')=='not-run'
+    state=page.evaluate('NexusTraining.snapshot()')
+    assert state['filePaths']==['src/damage.js','src/game.js']
+    assert not state['ran']
+    page.close()
+
+def test_training_records_only_completed_scenes_and_restart_removes_current_claim(browser):
+    page=browser.new_page(reduced_motion='reduce')
+    page.goto(GUIDE.as_uri()+'#training')
+    page.locator('[data-nht="run"]').click()
+    first=page.evaluate('NexusTraining.snapshot()')
+    assert first['ran'] and first['completedScenes']==['describe']
+    page.evaluate('NexusTraining.go("test")')
+    later=page.evaluate('NexusTraining.snapshot()')
+    assert later['filePaths']==first['filePaths'] and not later['ran']
+    page.locator('[data-nht="run"]').click()
+    assert page.evaluate('NexusTraining.snapshot().completedScenes')==['describe']
+    assert page.locator('[data-nht="gate-status"]').inner_text()=='Gate: hold'
+    assert page.evaluate('NexusShooter.snapshot().damageMode')=='buggy'
+    page.locator('[data-nht="restart"]').click()
+    reset=page.evaluate('NexusTraining.snapshot()')
+    assert reset['filePaths']==first['filePaths'] and reset['completedScenes']==['describe']
+    assert page.locator('[data-nht="gate-status"]').inner_text()=='Gate: pending'
+    page.close()
+
+def test_training_cancelled_run_cannot_complete_after_navigation(browser):
+    page=browser.new_page()
+    page.goto(GUIDE.as_uri()+'#training')
+    page.locator('[data-nht="run"]').click()
+    assert page.locator('#nhTraining').get_attribute('data-run-state')=='running'
+    page.evaluate('location.hash="foundations"')
+    page.wait_for_timeout(1200)
+    assert page.evaluate('NexusTraining.snapshot().completedScenes')==[]
+    page.evaluate('location.hash="training/review"')
+    page.wait_for_timeout(100)
+    assert page.locator('[data-nht="output"]').inner_text()==''
+    assert page.locator('[data-nht="gate-status"]').inner_text()=='Gate: pending'
+    page.close()
+
+def test_training_proves_the_first_hit_without_gaming_skill(browser):
+    page=browser.new_page(reduced_motion='reduce')
+    page.goto(GUIDE.as_uri()+'#training')
+    page.locator('[data-nht="show-hit"]').click()
+    assert 'Defect reproduced' in page.locator('[data-nht="hit-proof"]').inner_text()
+    for scene in ['describe','review','plan']:
+        page.evaluate('(scene)=>NexusTraining.go(scene)',scene)
+        page.locator('[data-nht="run"]').click()
+    page.evaluate('NexusTraining.go("implement")')
+    page.locator('[data-nht="run"]').click()
+    page.locator('[data-nht="show-hit"]').click()
+    assert '2 lives remain' in page.locator('[data-nht="hit-proof"]').inner_text()
+    assert page.evaluate('NexusShooter.snapshot().lives')==2
+    page.close()
+
+def test_training_keyboard_run_does_not_advance_or_run_twice(browser):
+    page=browser.new_page()
+    page.goto(GUIDE.as_uri()+'#training')
+    page.locator('[data-nht="run"]').focus()
+    page.keyboard.press('Enter')
+    assert page.evaluate('NexusTraining.snapshot().runState')=='running'
+    assert page.evaluate('NexusTraining.snapshot().sceneId')=='describe'
+    page.keyboard.press('Space')
+    assert page.evaluate('NexusTraining.snapshot().sceneId')=='describe'
+    page.close()
+
+def test_training_live_reduced_motion_finishes_without_more_animation(browser):
+    page=browser.new_page()
+    page.goto(GUIDE.as_uri()+'#training')
+    page.locator('[data-nht="run"]').click()
+    assert page.evaluate('NexusTraining.snapshot().runState')=='running'
+    page.emulate_media(reduced_motion='reduce')
+    page.wait_for_timeout(100)
+    assert page.evaluate('NexusTraining.snapshot().runState')=='complete'
+    output=page.locator('[data-nht="output"]').inner_text()
+    page.wait_for_timeout(700)
+    assert page.locator('[data-nht="output"]').inner_text()==output
+    page.close()
+
+def test_training_restart_invalidates_dependent_evidence_and_preserves_focus(browser):
+    page=browser.new_page(reduced_motion='reduce')
+    page.goto(GUIDE.as_uri()+'#training')
+    for index in range(6):
+        page.locator('[data-nht="progress"] button').nth(index).focus()
+        page.keyboard.press('Enter')
+        assert page.locator('[data-nht="progress"] button').nth(index).evaluate('n=>n===document.activeElement')
+        page.locator('[data-nht="run"]').click()
+    page.locator('[data-nht="progress"] button').nth(3).click()
+    page.locator('[data-nht="restart"]').click()
+    state=page.evaluate('NexusTraining.snapshot()')
+    assert state['completedScenes']==['describe','review','plan']
+    assert 'reports/unit-summary.txt' not in state['filePaths']
+    assert page.evaluate('NexusShooter.snapshot().damageMode')=='buggy'
+    page.evaluate('NexusTraining.go("test");NexusTraining.run()')
+    assert page.locator('[data-nht="gate-status"]').inner_text()=='Gate: hold'
+    page.close()
