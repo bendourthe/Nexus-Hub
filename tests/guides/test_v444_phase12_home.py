@@ -135,13 +135,13 @@ def test_the_segment_carries_both_benefits(playwright_mod) -> None:
                     return {
                       source: fig.querySelector('.ph-src').textContent.trim(),
                       targets: [...fig.querySelectorAll('.ph-target b')].map(b => b.textContent.trim()),
-                      fans: fig.querySelectorAll('.ph-fan span').length,
+                      fans: fig.querySelectorAll('.ph-lane').length,
                       steps: [...fig.querySelectorAll('.ph-step')].map(s => ({
                         cmd: s.querySelector('code').textContent.trim(),
                         host: s.querySelector('span').textContent.trim() })),
                       cut: fig.querySelector('.ph-cut').textContent.trim().toLowerCase(),
                       note: fig.querySelector('.ph-note').textContent.trim().toLowerCase(),
-                      seq: window.NexusSeq.state(fig).total,
+                      sequenced: fig.hasAttribute('data-seq-root'),
                       generics: rows.map(r => r.children[0].textContent.trim()),
                     };
                 }"""
@@ -153,7 +153,7 @@ def test_the_segment_carries_both_benefits(playwright_mod) -> None:
     assert "One install" in data["source"], data["source"]
     assert data["targets"] == list(PLATFORMS), data["targets"]
     assert data["fans"] == 4, "one connector per platform"
-    assert data["seq"] == 3, data["seq"]
+    assert not data["sequenced"], "the figure must not reveal itself in steps"
     hosts = [step["host"] for step in data["steps"]]
     assert hosts[0] == "Claude Code" and hosts[-1] == "Codex", hosts
     assert len(set(hosts)) == 2, "the switch must cross exactly two platforms"

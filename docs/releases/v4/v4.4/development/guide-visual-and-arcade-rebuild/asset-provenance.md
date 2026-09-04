@@ -213,3 +213,27 @@ the teaching that explains them comes back with them.
 
 The image and the moving image are unaffected and still hash-matched to this ledger; they now sit in
 the multimodal and omni tiers.
+
+## 7. v4.4.5 second placement of the four platform marks
+
+**Date**: 2026-09-04. **Plan**: [v4.4.5-guide-mockup-integration.md](../../plans/v4.4.5-guide-mockup-integration.md), Phase 1.
+
+The review asked for a logo on each platform box in the Home portability figure, so the Claude,
+ChatGPT, Cursor, and Gemini marks now appear TWICE in the guide: once in the compatibility rail,
+where the hash guard pins them, and once in the figure. No new asset was acquired and no artwork
+was altered. The rows in section 1 still describe every byte on the page.
+
+Each figure instance is a COPY of the rail's bytes rather than a shared `<symbol>`, and that is a
+deliberate reversal of the cheaper design. Sharing was tried and abandoned for two reasons. The
+Gemini mark is a masked stack of blurred colour blobs, and a `<use>` clone cannot resolve the mask
+it carries: cloning rendered a blank box, and hoisting the mask to document level rendered an
+unmasked square. More decisively, rewriting a rail chip into a `<use>` fails
+`test_home_lists_the_five_approved_platforms_from_ledger_bytes`, whose message states that
+re-approval is required rather than a ledger update. That guard is right, so the approved bytes stay
+verbatim where they were approved and the duplication is paid for instead: about 12 KB, most of it
+Gemini.
+
+The copies namespace the mark's own internal ids with a `-ph` suffix, for the same reason the rail's
+Gemini variant already carries the `nxp-gm-` prefix recorded in section 5: two elements sharing an
+id is invalid, and a mask reference that resolves to the wrong twin renders correctly right up until
+it does not. `test_ids_are_unique` proves there is no collision, and the geometry is untouched.
