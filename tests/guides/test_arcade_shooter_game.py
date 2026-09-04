@@ -30,6 +30,8 @@ def playwright_mod():
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:  # pragma: no cover - environment dependent
+        sync_playwright = None
+    if sync_playwright is None:  # pragma: no cover - environment dependent
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
         pytest.skip("playwright is not installed")
