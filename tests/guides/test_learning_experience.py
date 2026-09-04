@@ -156,3 +156,61 @@ def test_home_instruction_labels_stay_readable_and_bounded(browser,width,theme):
     })''')
     assert issues==[]
     page.close()
+
+def test_token_selection_preserves_exact_text_and_keyboard_access(browser):
+    import json
+    fixture=json.loads((GUIDE.parents[2]/'tests/guides/fixtures/meeting-note-tokens.json').read_text())
+    page=browser.new_page()
+    page.goto(GUIDE.as_uri()+'#foundations/tokens')
+    buttons=page.locator('[data-token-index]')
+    assert buttons.count()==len(fixture['pieces'])
+    for i,piece in enumerate(fixture['pieces']):
+        buttons.nth(i).focus()
+        page.keyboard.press('Enter')
+        assert page.locator('.token-source').text_content()==fixture['text']
+        assert page.locator('.token-source mark').text_content()==piece
+        assert page.locator('[data-token-index][aria-pressed="true"]').count()==1
+        assert page.evaluate('document.activeElement.getAttribute("data-token-index")')==str(i)
+    assert ''.join(fixture['pieces'])==fixture['text']
+    page.close()
+
+@pytest.mark.parametrize('width',[320,420,720,721,1024,1440,1920])
+def test_foundation_lesson_text_stays_inside_its_container(browser,width):
+    page=browser.new_page(viewport={'width':width,'height':900})
+    page.goto(GUIDE.as_uri()+'#foundations')
+    assert page.locator('[data-concept]').evaluate_all('els=>els.map(n=>n.dataset.concept)').__getitem__(slice(0,4))==['model','tokens','prompt','context']
+    issues=page.locator('#page-foundations .lesson').evaluate_all('''els=>els.flatMap(el=>[...el.querySelectorAll('h2,h3,p,dt,dd,.diagram-label,.lesson-token,.budget-key span')].flatMap(n=>{
+      if(!n.checkVisibility())return [];
+      const box=n.getBoundingClientRect(),r=document.createRange();r.selectNodeContents(n);
+      const text=r.getBoundingClientRect(),font=parseFloat(getComputedStyle(n).fontSize);
+      return font<14 || text.right>box.right+2 || text.left<box.left-2 || box.right>innerWidth+1 ? [n.textContent] : [];
+    }))''')
+    assert issues==[]
+    page.close()
+
+def test_lessons_keep_evidence_and_model_boundaries_explicit(browser):
+    page=browser.new_page()
+    page.goto(GUIDE.as_uri()+'#foundations')
+    model=page.locator('#fx-model-lifecycle')
+    assert model.locator('.model-training').is_visible()
+    assert model.locator('meter').count()==3
+    assert sum(model.locator('meter').evaluate_all('els=>els.map(n=>Number(n.value))'))==100
+    assert 'invented for teaching' in model.inner_text()
+    assert 'does not, by itself, retrain' in model.inner_text()
+    assert 'Mark missing owners or dates as unknown' in page.locator('#fx-prompts').inner_text()
+    assert page.locator('#fx-context .context-tray .document-sheet').count()==2
+    assert 'Meeting notes' in page.locator('.evidence-line').inner_text()
+    assert 'Outside this request' in page.locator('.context-outside').inner_text()
+    assert page.locator('#page-foundations img[src^="data:image/gif"]').count()==0
+    page.close()
+
+@pytest.mark.parametrize('concept,section',[('model','fx-model-lifecycle'),('tokens','fx-tokens'),('prompt','fx-prompts'),('context','fx-context')])
+def test_lesson_links_reach_the_named_reading_position(browser,concept,section):
+    page=browser.new_page()
+    page.goto(GUIDE.as_uri()+'#foundations')
+    page.locator('.lesson-nav a[href="#foundations/'+concept+'"]').click()
+    page.wait_for_timeout(100)
+    box=page.locator('#'+section).bounding_box()
+    assert 50<=box['y']<=100
+    assert page.locator('#page-foundations').is_visible()
+    page.close()

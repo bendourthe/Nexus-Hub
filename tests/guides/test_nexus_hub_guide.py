@@ -810,36 +810,6 @@ def _foundation_scene(guide_text: str, scene_id: str) -> str:
     return scene.group(0)
 
 
-def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> None:
-    fx = _foundations_markup(guide_text)
-    # v4.4.3 merged the two harness scenes into one, on the review's instruction that a reader
-    # needs one picture of where the two loops sit rather than two to superimpose.
-    # v4.4.4 merged the chatbot comparison into the Agentic Platforms scene, on the review's
-    # instruction that one segment should carry the idea.
-    assert fx.count('class="fx-scene') == 6, "expected six Foundations scenes"
-    assert fx.count('class="fx-title"') == 6
-    assert fx.count('class="fx-subtitle"') == 6
-    expected = [
-        "Tokens Definition",
-        "Prompt Engineering",
-        "Context Engineering",
-        "Models",
-        "Agentic Platforms",
-        "Harnesses",
-    ]
-    found = re.findall(r'<h2 id="[^"]+"[^>]*>([^<]*)</h2>', fx)
-    assert found == expected, (
-        f"Foundations scene order is wrong; got {found} expected {expected}"
-    )
-    assert not re.search(r"What (?:Is|Are)", fx), (
-        "the old 'What Is / What Are' heading construction must not survive"
-    )
-    assert fx.count("<svg") >= 7, "each scene carries inline visual teaching"
-    # v4.4.1 Phase 4 retired fx-pulse with the last SVG story diagram; pop and draw remain
-    # live on the tokens connector, and the chip/cycle primitives carry the rest.
-    for svg_class in ("fx-pop", "fx-draw"):
-        assert svg_class in fx
-    assert 'class="fx-num"' not in fx, "the scene number line was removed in v4.2.3"
 
 
 def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
@@ -878,27 +848,6 @@ def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
     assert "promises success" in text or "promise" in text
 
 
-def test_foundations_context_makes_budget_competition_and_full_behavior_visible(
-    guide_text: str,
-) -> None:
-    """v4.4.1 Phase 3: context is separable from the request, finite, and selectable."""
-    scene = _foundation_scene(guide_text, "fx-context")
-    assert 'class="fx-ctx-query"' in scene and 'class="cx-mat' in scene
-    # v4.4.4 replaced each drawing with a concrete example, on the review's instruction. The four
-    # kinds are still required; what changed is what sits under each name.
-    for kind in ("Image", "File or document", "Project folder or workspace", "Codebase"):
-        assert '<span class="cx-kind">' + kind + "</span>" in scene, (
-            "missing context kind: " + kind
-        )
-    assert scene.index("fx-spend-tag--bad") < scene.index("fx-spend-tag--good"), (
-        "the unfocused selection must read before the task-matched one"
-    )
-    text = re.sub(r"<[^>]+>", " ", scene).lower()
-    for concept in ("token", "finite", "optional", "stale", "duplicated", "too large"):
-        assert concept in text, "missing context concept: " + concept
-    assert "conversation" in text and "tool results" in text
-    assert 'type="range"' not in scene and "aria-pressed" not in scene
-    assert not re.search(r"\b\d+(?:\.\d+)?\s+tokens?\s+per\s+word\b", scene, re.IGNORECASE)
 
 
 def test_foundations_harness_layers_are_honest_and_repository_anchored(
@@ -939,128 +888,12 @@ def test_foundations_harness_layers_are_honest_and_repository_anchored(
         assert not re.search(rf"{vendor}.{{0,30}}(?:lacks?|cannot|does not)", ptext)
 
 
-def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
-    guide_text: str,
-) -> None:
-    """v4.4.1 Phase 4: the story diagrams are HTML node trees.
-
-    v4.4.3 removed the spinning work-cycle ring from both scenes: it depicted nothing a reader
-    could name, and its own caption had to say so. The shared grammar it provided is still
-    required, now as the one-pass block, and the remaining continuous motion is the hero lockup,
-    which keeps the liveness gate the ring used to carry.
-    """
-    fx = _foundations_markup(guide_text)
-    # v4.4.4 retired the platform scene's six-stage flow, so the one-pass motif belongs to Models
-    # alone. What the two scenes now share is the request: the comparison sends the SAME prompt to
-    # both lanes, which is asserted in the comparison module.
-    assert fx.count('data-grammar="one-pass"') == 1, (
-        "the inside-the-model motif belongs to the Models scene"
-    )
-    assert 'class="fx-cycle"' not in fx, "the work-cycle ring must not come back into a scene"
-    assert ".js .hero-lockup.live .hero-lockup-float" in guide_text, (
-        "continuous motion must be gated on liveness, not free-running"
-    )
-    assert 'document.querySelectorAll(".fx-scene, .hero-lockup")' in guide_text
-    assert "IntersectionObserver" in guide_text
-    reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
-    assert ".fx-tokchip" in reduce_block, "token chips need a static reduced-motion state"
-    assert "nhg-lockup-float" in guide_text and ".hero-lockup-float" in reduce_block, (
-        "the lockup float needs a static reduced-motion state"
-    )
-    for retired in ("fx-pulse", "fx-grow", "fx-fade", "offset-path"):
-        assert retired not in guide_text, (
-            retired + " was retired; a reintroduced consumer must restore its states"
-        )
 
 
-def test_foundations_model_lifecycle_is_chronological_and_responsive(
-    guide_text: str,
-) -> None:
-    """v4.4.1 Phase 4: one HTML flow, provider region strictly before the user region."""
-    scene = _foundation_scene(guide_text, "fx-model-lifecycle")
-    stages = ("training", "delivery", "request", "work-cycle", "output")
-    positions = []
-    for stage in stages:
-        marker = f'data-stage="{stage}"'
-        assert scene.count(marker) == 1, f"expected exactly one {stage!r} stage node"
-        positions.append(scene.index(marker))
-    assert positions == sorted(positions), "lifecycle stages are out of order"
-    assert scene.index('data-region="provider"') < scene.index('data-region="user"')
-    assert "happens long before any request" in scene
-    assert "never retrains" in scene
-    text = re.sub(r"<[^>]+>", " ", scene).lower()
-    assert re.search(r"effort level.{0,200}when supported", text, re.DOTALL)
-    assert "does not promise a fixed number of iterations" in text
-    assert "not a transcript of hidden reasoning" in text or "not hidden chain-of-thought" in text
-    # v4.4.4: the scene teaches three modality tiers instead of cataloguing four outputs, and audio
-    # left the teaching on instruction, so its element, its asset, and its transcript-equivalent
-    # description left the page with it rather than sitting unused.
-    for kind in ("text", "image", "video"):
-        assert f'data-output-kind="{kind}"' in scene, f"missing output kind {kind}"
-    assert 'data-output-kind="audio"' not in scene, "audio was retired from this scene"
-    assert "<audio" not in scene, "the audio element must not come back without its teaching"
 
 
-def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
-    guide_text: str,
-) -> None:
-    """v4.4.1 Phase 3: a real prompt, a verified split, and equivalent chips.
-
-    The split asserted below is the actual cl100k_base encoding of the displayed prompt,
-    so the example is reproducible rather than illustrative. "Summarise" costing three
-    tokens is the whole teaching point: a token is not a word.
-    """
-    scene = _foundation_scene(guide_text, "fx-tokens")
-    assert 'data-tokenizer="cl100k_base"' in scene
-    assert "Summarise this contract and list every deadline." in scene
-    space = "\u2423"
-    expected = [
-        "Sum", "mar", "ise", space + "this", space + "contract", space + "and",
-        space + "list", space + "every", space + "deadline", ".",
-    ]
-    chips = re.findall(r'<span class="fx-tokchip-txt">([^<]*)</span>', scene)
-    assert chips == expected, "token chips do not match the verified split: " + repr(chips)
-    assert "fxchip--good" not in scene, (
-        "a second chip style implies a category the tokenizer does not have"
-    )
-    lowered = scene.lower()
-    assert "becomes 10 tokens" in lowered
-    assert "a token is not a word" in lowered
-    assert "other models cut the same sentence differently" in lowered
-    assert scene.count('clip-path="url(#nxp-tokcell-') == 9, "expected nine cropped image cells"
-    assert scene.count('href="#nxp-tokimg"') >= 10, (
-        "the source plus every cell must draw the same artwork, so no cell can be empty"
-    )
-    assert 'data-phase2-connector="image-tokenization"' in scene
-    assert "holds real pixels" in lowered
-    assert "not a literal token count" in lowered
-    assert not re.search(r"\b\d+(?:\.\d+)?\s+tokens?\s+per\s+word\b", scene, re.IGNORECASE)
 
 
-def test_foundations_prompt_engineering_uses_one_non_coding_job(
-    guide_text: str,
-) -> None:
-    """v4.4.1 Phase 3: one non-coding request, shown vague and then precise."""
-    scene = _foundation_scene(guide_text, "fx-prompts")
-    # v4.4.4 rebuilt this scene: the vague prompt sits beside the reasons it fails and the
-    # engineered prompt spans the diagram below. The `fx-state` lane classes went with the old
-    # three-column grid, so the weaker-state-first rule is asserted on the new carriers.
-    assert scene.index("Vague") < scene.index("Engineered"), "the weaker state must read first"
-    assert scene.index('class="pe-box"') < scene.index('class="pe-precise"')
-    # v4.4.5 renamed the parts Query, Context, Goal, Format on instruction. One word changed
-    # MEANING rather than spelling: "Goal" now names the finish line the figure used to call
-    # "Done". The old four are asserted absent, because a scene carrying both vocabularies
-    # teaches neither.
-    for part in ("Query", "Context", "Goal", "Format"):
-        assert "<dt>" + part + "</dt>" in scene, "missing prompt part: " + part
-    for retired in ("Material", "Done"):
-        assert "<dt>" + retired + "</dt>" not in scene, "the old vocabulary survives: " + retired
-    assert "Summarise this contract and list every deadline." in scene
-    assert "Look at this contract." in scene
-    # the flaws are named rather than summarised in one sentence
-    for flaw in ("No query", "No context", "No goal", "No format"):
-        assert flaw in scene, "missing named flaw: " + flaw
-    assert "terminal" not in scene.lower() and "source code" not in scene.lower()
 
 
 def test_foundations_mobile_phase2_diagrams_are_centered_and_bounded(
@@ -1073,73 +906,12 @@ def test_foundations_mobile_phase2_diagrams_are_centered_and_bounded(
     assert "fx-svg--desktop" not in guide_text
 
 
-def test_foundations_comparisons_show_both_states_without_a_toggle(
-    guide_text: str,
-) -> None:
-    """Each teaching comparison keeps both states available in the same scene."""
-    fx = _foundations_markup(guide_text)
-    assert "fx-spend-tag--bad" in fx and "fx-spend-tag--good" in fx
-    assert 'data-phase3-node="chatbot-handoff"' in fx
-    assert 'data-phase3-node="agent-handoff"' in fx
-    # v4.4.3: the merged harness scene carries the without-then-with trail.
-    practice = _foundation_scene(guide_text, "fx-harness")
-    assert ">PLATFORM LOOP<" in practice
-    assert ">PLATFORM LOOP + NEXUS HUB<" in practice
-    assert 'type="range"' not in fx
-    assert "nhgCompare" not in guide_text
-    assert "data-station-toggle" not in guide_text
-    # aria-pressed may appear ONLY on the media play toggle, never on a comparison.
-    pressed = re.findall(r"<[^>]*aria-pressed[^>]*>", fx)
-    assert all("data-media-toggle" in tag for tag in pressed), (
-        "aria-pressed outside the media toggle suggests a comparison hidden behind a control"
-    )
 
 
-def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
-    """v4.2.3: every comparison reads without-then-with, the same direction."""
-    fx = _foundations_markup(guide_text)
-    assert fx.index("fx-spend-tag--bad") < fx.index("fx-spend-tag--good"), (
-        "the unaided context must come first"
-    )
-    assert fx.index("fx-state--weak") < fx.index("fx-state--strong"), (
-        "the weaker lane must come before the stronger one"
-    )
-    assert fx.index('data-phase3-node="chatbot-handoff"') < fx.index(
-        'data-phase3-node="agent-handoff"'
-    ), "the answer-handoff lane must come first"
-    # v4.4.3: the merged harness scene carries the without-then-with trail.
-    practice = _foundation_scene(guide_text, "fx-harness")
-    assert practice.index(">PLATFORM LOOP<") < practice.index(
-        ">PLATFORM LOOP + NEXUS HUB<"
-    ), "the host-native run must come before the augmented run"
 
 
-def test_foundations_arrowheads_are_filled_not_half_chevrons(guide_text: str) -> None:
-    fx = _foundations_markup(guide_text)
-    assert "fx-arrow" not in guide_text, "the open half-chevron arrow was replaced"
-    assert 'class="fx-head' in fx, "filled arrowheads present"
-    rule = re.search(r"\.fx-head\s*\{([^}]+)\}", guide_text)
-    assert rule and "fill:" in rule.group(1) and "stroke: none" in rule.group(1)
-    # a filled head is a closed path
-    for head in re.findall(r'class="fx-head[^"]*"[^>]*d="([^"]+)"', fx):
-        assert head.strip().endswith("Z"), f"arrowhead path is not closed: {head}"
 
 
-def test_foundations_loop_labels_have_hierarchy(guide_text: str) -> None:
-    """The old labels were all one bold accent font, which read as noise."""
-    fx = _foundations_markup(guide_text)
-    # The surviving SVG labels keep the role class; the HTML scenes express the same
-    # hierarchy through tag/body class pairs with distinct computed weight and colour.
-    assert "fxt--role" in fx
-    role = re.search(r"\.fxt--role\s*\{([^}]+)\}", guide_text)
-    assert role and "var(--ink-faint)" in role.group(1) and "700" in role.group(1)
-    for tag_cls in (".fx-region-tag", ".fx-out-tag", ".fx-mini-tag", ".fx-layer-tag"):
-        rule = re.search(re.escape(tag_cls) + r"[^{]*\{([^}]+)\}", guide_text)
-        assert rule, f"missing hierarchy tag rule {tag_cls}"
-        assert "700" in rule.group(1) and "uppercase" in rule.group(1), (
-            f"{tag_cls} must read as a small-caps role label"
-        )
-    assert "action: read" not in fx and "result: file text" not in fx
 
 
 def test_foundations_pulses_are_painted_above_connectors_and_behind_nodes(
@@ -1166,7 +938,7 @@ def test_foundations_is_project_generic(guide_text: str) -> None:
         assert not re.search(r"\b" + re.escape(term) + r"\b", text), (
             "coding-only term in Foundations teaching copy: " + repr(term)
         )
-    for broad in ("image", "file or document", "project folder or workspace"):
+    for broad in ("meeting notes", "project summary", "status brief"):
         assert broad in text, (
             "Foundations must keep broad non-coding context examples; missing " + repr(broad)
         )

@@ -208,5 +208,235 @@
     "test": "test_v442_phase1_foundation.py::test_reduced_motion_shows_complete_sequences",
     "reason": "Removed Home choreography replaced by a three-step checked-brief example.",
     "replacement": "Reduced-motion test retained against home-example; shared replay and lifecycle tests retained"
+  },
+  {
+    "test": "test_v443_phase5_models.py::test_no_work_cycle_ring_survives_anywhere_in_a_scene",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase5_models.py::test_the_video_output_plays_without_being_asked",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase5_models.py::test_the_worked_example_runs_the_length_of_the_scene",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase5_models.py::test_connectors_are_thick_enough_to_read",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase6_models.py::test_one_model_family_per_provider_and_no_version_numbers",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase6_models.py::test_the_answer_is_shown_one_token_at_a_time",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase6_models.py::test_base_and_reasoning_differ_by_the_self_prompt_loop",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase6_models.py::test_three_modality_tiers_and_no_audio",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v445_phase5_models.py::test_the_eight_stages_read_in_order",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v445_phase5_models.py::test_nothing_in_the_scene_waits_to_be_operated",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v445_phase5_models.py::test_all_three_modality_tiers_are_visible_at_once",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v445_phase5_models.py::test_no_reasoning_pass_overlaps_another",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v445_phase5_models.py::test_the_prediction_panel_shows_scored_candidates_with_a_caveat",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v445_phase5_models.py::test_the_scene_does_not_overflow_at_any_width",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase4_prompts.py::test_the_flaws_sit_under_the_vague_prompt_in_a_grid",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase4_prompts.py::test_the_engineered_prompt_uses_the_whole_diagram",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase4_prompts.py::test_the_active_marker_is_quiet",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase4_prompts.py::test_the_downward_connector_stops_under_reduced_motion",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase4_context.py::test_every_legend_row_is_swatch_and_label_over_description",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase4_context.py::test_attachable_material_is_a_two_by_two_grid_of_examples",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase4_context.py::test_dumping_everything_names_its_cost",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase4_context.py::test_the_budget_comparison_reads_without_a_legend",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase4_context.py::test_the_worked_example_is_an_agentic_project_task",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_page_opens_with_a_centred_title_in_the_hero_subtitle_style",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_scene_titles_come_before_their_subtitles",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_no_scene_has_an_empty_column_at_1440",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_every_scene_child_stays_inside_its_scene_box",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_tokens_figure_and_image_top_align_side_by_side",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_annotated_prompt_is_one_text_with_four_labelled_parts",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_annotated_prompt_reveals_in_document_order_and_all_at_once_under_reduced_motion",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v441_phase4_foundations.py::test_embedded_image_matches_the_approved_asset",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v441_phase4_foundations.py::test_embedded_gif_and_poster_match_the_approved_assets",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v441_phase4_foundations.py::test_moving_image_plays_unaided_and_stills_under_reduced_motion",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v441_phase4_foundations.py::test_inside_the_model_is_complete_under_reduced_motion",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_phase3_has_eight_title_subtitle_scenes",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_context_makes_budget_competition_and_full_behavior_visible",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_model_lifecycle_is_chronological_and_responsive",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_tokens_use_a_reproducible_nonuniversal_example",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_prompt_engineering_uses_one_non_coding_job",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_comparisons_show_both_states_without_a_toggle",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_orders_unaided_state_first",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_arrowheads_are_filled_not_half_chevrons",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_loop_labels_have_hierarchy",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_is_project_generic",
+    "reason": "The shared meeting-notes example replaces the generic attachment inventory.",
+    "replacement": "Same non-coding guard retained with concrete notes, summary, and brief."
+  },
+  {
+    "test": "test_v441_phase4_foundations.py::test_the_agentic_scene_carries_the_comparison_and_the_boundary",
+    "reason": "The Models entry motif was replaced; platform boundary assertions remain until Phase 5.",
+    "replacement": "test_lessons_keep_evidence_and_model_boundaries_explicit plus retained platform boundary check"
   }
 ]

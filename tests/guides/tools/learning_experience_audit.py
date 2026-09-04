@@ -66,6 +66,9 @@ def main():
                             scene.evaluate('(el)=>el.scrollIntoView({block:"start",behavior:"instant"})')
                             page.wait_for_timeout(150)
                             page.screenshot(path=str(args.out/f'{route}-{theme}-{width}-{scene.get_attribute("id")}.png'))
+                            if scene.bounding_box()['height']>780:
+                                scene.evaluate('(el)=>el.scrollIntoView({block:"end",behavior:"instant"})')
+                                page.screenshot(path=str(args.out/f'{route}-{theme}-{width}-{scene.get_attribute("id")}-bottom.png'))
                     case.update(errors=list(errors),externalRequests=list(requests))
                     report['cases'].append(case)
                 ctx.close()

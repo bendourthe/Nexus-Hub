@@ -1,0 +1,37 @@
+{
+  "tokenizer": "cl100k_base",
+  "text": "Turn meeting notes into a status brief.",
+  "ids": [
+    19952,
+    6574,
+    8554,
+    1139,
+    264,
+    2704,
+    10015,
+    13
+  ],
+  "pieces": [
+    "Turn",
+    " meeting",
+    " notes",
+    " into",
+    " a",
+    " status",
+    " brief",
+    "."
+  ],
+  "legacy_text": "Summarise this contract and list every deadline.",
+  "legacy_pieces": [
+    "Sum",
+    "mar",
+    "ise",
+    " this",
+    " contract",
+    " and",
+    " list",
+    " every",
+    " deadline",
+    "."
+  ]
+}
