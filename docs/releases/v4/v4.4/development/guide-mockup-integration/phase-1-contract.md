@@ -16,6 +16,8 @@ Two kinds of change, kept apart on purpose. Precise corrections to scenes that a
 | S1 | `test_the_segment_carries_both_benefits` asserted `NexusSeq.state(fig).total == 3` on the portability figure | that the figure reveals itself in three steps | Phase 1 retired the reveal on instruction; the assertion is INVERTED to require no `data-seq-root` | Phase 1 |
 | S2 | The same test counted `.ph-fan span` | the fan's connectors were bare `span` triangles | Phase 1 rebuilt each connector as a `.ph-lane` carrying a line, a travelling dot, and the triangle | Phase 1 |
 | S3 | Eight rules declared a hand-written `11px`, `11.5px`, or `12px` tag size | that each tag owned its own number | Phase 2 moved them all onto one `--fx-tag` token | Phase 2 |
+| S4 | `test_the_flaws_sit_beside_the_vague_prompt` asserted the flaws sit BESIDE the prompt | the v4.4.4 arrangement, itself a correction of the v4.4.3 one | Phase 3 INVERTED it: full-width prompt, flaws in a 2x2 grid below. Third arrangement in three rounds, each requested | Phase 3 |
+| S5 | `PARTS = ("goal", "material", "done", "format")` and the `<dt>` and flaw-text assertions in the broad module | the pre-v4.4.5 vocabulary, where `Done` named the finish line | Phase 3 renamed the parts; `Goal` now names the finish line, and the old four are asserted ABSENT | Phase 3 |
 
 ## 3. Mistakes this plan made, and what they cost
 
@@ -59,5 +61,6 @@ questions are different and only one of them was being asked.
 | start | v4.4.4 final | | 366,529 |
 | 1 | portability figure: reveal retired, flow pulse, four copied marks, full-width strip | +14,090 | 380,619 |
 | 2 | one tag-size token; every Foundations block tag doubled | +105 | 380,724 |
+| 3 | prompt parts renamed Query/Context/Goal/Format; vague prompt full width, flaws 2x2 | +29 | 380,753 |
 
 Counts are of the file as stored (LF). The worktree copy is CRLF under `core.autocrlf`, so an on-disk byte count runs about 5 KB higher and is not the ledger's number.

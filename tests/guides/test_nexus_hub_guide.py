@@ -1083,12 +1083,18 @@ def test_foundations_prompt_engineering_uses_one_non_coding_job(
     # three-column grid, so the weaker-state-first rule is asserted on the new carriers.
     assert scene.index("Vague") < scene.index("Engineered"), "the weaker state must read first"
     assert scene.index('class="pe-box"') < scene.index('class="pe-precise"')
-    for part in ("Goal", "Material", "Done", "Format"):
+    # v4.4.5 renamed the parts Query, Context, Goal, Format on instruction. One word changed
+    # MEANING rather than spelling: "Goal" now names the finish line the figure used to call
+    # "Done". The old four are asserted absent, because a scene carrying both vocabularies
+    # teaches neither.
+    for part in ("Query", "Context", "Goal", "Format"):
         assert "<dt>" + part + "</dt>" in scene, "missing prompt part: " + part
+    for retired in ("Material", "Done"):
+        assert "<dt>" + retired + "</dt>" not in scene, "the old vocabulary survives: " + retired
     assert "Summarise this contract and list every deadline." in scene
     assert "Look at this contract." in scene
     # the flaws are named rather than summarised in one sentence
-    for flaw in ("No goal", "No material", "No finish line", "No shape"):
+    for flaw in ("No query", "No context", "No goal", "No format"):
         assert flaw in scene, "missing named flaw: " + flaw
     assert "terminal" not in scene.lower() and "source code" not in scene.lower()
 

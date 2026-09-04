@@ -17,7 +17,7 @@ import pytest
 _ROOT = Path(__file__).resolve().parents[2]
 GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
-PARTS = ("goal", "material", "done", "format")
+PARTS = ("query", "context", "goal", "format")
 
 
 def _load_sync_playwright():
@@ -56,7 +56,15 @@ def _scene(browser, width: int = 1440, **ctx_kw):
     return ctx, page
 
 
-def test_the_flaws_sit_beside_the_vague_prompt(playwright_mod) -> None:
+def test_the_flaws_sit_under_the_vague_prompt_in_a_grid(playwright_mod) -> None:
+    """v4.4.5 inverted the v4.4.4 arrangement, on the review's instruction.
+
+    v4.4.4 put the flaws BESIDE the prompt because the round before that had them stacked
+    under a sideways arrow pointing into empty space. The next round asked for the vague
+    prompt on one full-width line with the flaws in a 2x2 grid below it, which is neither
+    of the previous two shapes. The beside-assertion is inverted rather than deleted, and
+    the grid is measured as two rows of two rather than described.
+    """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
@@ -70,8 +78,10 @@ def test_the_flaws_sit_beside_the_vague_prompt(playwright_mod) -> None:
                     return {
                       count: flaws.length,
                       texts: flaws.map(l => l.textContent.trim()),
-                      beside: first.left >= box.right - 1,
-                      overlapsVertically: first.top < box.bottom && first.bottom > box.top,
+                      below: first.top >= box.bottom - 1,
+                      rows: new Set(flaws.map(l => Math.round(l.getBoundingClientRect().top))).size,
+                      cols: new Set(flaws.map(l => Math.round(l.getBoundingClientRect().left))).size,
+                      spansBox: Math.abs(box.width - document.querySelector('#fx-prompts .pe').getBoundingClientRect().width) <= 1,
                       crossWidth: parseFloat(cross.width),
                       crossColor: cross.backgroundColor,
                       redish: getComputedStyle(document.documentElement).getPropertyValue('--red').trim(),
@@ -82,9 +92,13 @@ def test_the_flaws_sit_beside_the_vague_prompt(playwright_mod) -> None:
         finally:
             browser.close()
     assert data["count"] == 4, data["texts"]
-    assert data["beside"] and data["overlapsVertically"], "the flaws must sit beside the prompt, not under it"
+    assert data["below"], "the flaws must sit under the prompt, not beside it"
+    assert data["spansBox"], "the vague prompt must take a full-width row of its own"
+    assert data["rows"] == 2 and data["cols"] == 2, (
+        f"the four flaws must read as a 2x2 grid, not {data['rows']}x{data['cols']}"
+    )
     assert data["crossWidth"] >= 8, f"each flaw needs a visible mark: {data}"
-    for expected in ("No goal", "No material", "No finish line", "No shape"):
+    for expected in ("No query", "No context", "No goal", "No format"):
         assert any(t.startswith(expected) for t in data["texts"]), (expected, data["texts"])
 
 

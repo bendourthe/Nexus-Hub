@@ -235,9 +235,11 @@ def test_annotated_prompt_is_one_text_with_four_labelled_parts(playwright_mod) -
         finally:
             browser.close()
     assert data["oneParagraph"] and data["nested"] == 0
-    assert data["parts"] == ["goal", "material", "done", "format"]
+    # v4.4.5 renamed the parts on instruction; "goal" now names the finish line the
+    # figure used to call "done". The order is unchanged, the vocabulary is not.
+    assert data["parts"] == ["query", "context", "goal", "format"]
     assert data["joined"].startswith("Summarise this contract and list every deadline. Use the signed PDF")
-    assert data["legend"] == ["Goal", "Material", "Done", "Format"]
+    assert data["legend"] == ["Query", "Context", "Goal", "Format"]
     assert data["colours"] == 4, "each part carries its own colour"
     assert data["weakFirst"], "the vague prompt still reads before the precise one"
     assert len(ctx_parts) >= 3 and ctx_parts[0] == "request" and set(ctx_parts[1:]) == {"context"}
@@ -274,7 +276,7 @@ def test_annotated_prompt_reveals_in_document_order_and_all_at_once_under_reduce
             )
         finally:
             browser.close()
-    assert order[-1] == ["goal", "material", "done", "format"], order
+    assert order[-1] == ["query", "context", "goal", "format"], order
     for earlier, later in zip(order, order[1:]):
         assert later[: len(earlier)] == earlier, f"reveal must be cumulative and in order: {order}"
     assert legend_lit == 4

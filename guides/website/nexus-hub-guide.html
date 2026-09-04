@@ -504,9 +504,9 @@ html[data-theme="light"] .guard-fig .gf-out { background: transparent; border: 1
 .ann-text { margin: 0; color: var(--ink); font-size: 15px; line-height: 1.65; }
 .ann { --ann: var(--ink-faint); color: inherit; border-radius: 5px; padding: 1px 4px; text-decoration: underline dotted; text-decoration-color: var(--ann); text-underline-offset: 3px;
   background: color-mix(in srgb, var(--ann) 12%, transparent); transition: background-color .35s var(--ease), box-shadow .35s var(--ease); }
-.ann[data-part="goal"], .ann[data-part="request"] { --ann: var(--teal); }
-.ann[data-part="material"], .ann[data-part="context"] { --ann: var(--blue); }
-.ann[data-part="done"] { --ann: var(--amber); }
+.ann[data-part="query"], .ann[data-part="request"] { --ann: var(--teal); }
+.ann[data-part="context"] { --ann: var(--blue); }
+.ann[data-part="goal"] { --ann: var(--amber); }
 .ann[data-part="format"] { --ann: var(--cyan); }
 /* v4.4.4: the review called the active markers flashy. A full ring around a phrase reads as a
    button; a tint plus a rule under the words reads as a highlight. Same information, quieter. */
@@ -516,9 +516,9 @@ html[data-theme="light"] .guard-fig .gf-out { background: transparent; border: 1
    three lines beside a one-word label. The operator asked for the swatch and the label on the
    first line and the description under it, which is also what stops the wrapping. */
 .ann-legend-row { --ann: var(--ink-faint); display: block; padding: 4px 7px; border-radius: 6px; transition: background-color .35s var(--ease); }
-.ann-legend-row[data-part="goal"], .ann-legend-row[data-part="request"] { --ann: var(--teal); }
-.ann-legend-row[data-part="material"], .ann-legend-row[data-part="context"] { --ann: var(--blue); }
-.ann-legend-row[data-part="done"] { --ann: var(--amber); }
+.ann-legend-row[data-part="query"], .ann-legend-row[data-part="request"] { --ann: var(--teal); }
+.ann-legend-row[data-part="context"] { --ann: var(--blue); }
+.ann-legend-row[data-part="goal"] { --ann: var(--amber); }
 .ann-legend-row[data-part="format"] { --ann: var(--cyan); }
 .ann-legend-row dt { display: block; font-size: var(--fx-tag); font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ink); }
 .ann-legend-row dt::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 2px; background: var(--ann); margin-right: 6px; vertical-align: 1px; }
@@ -641,13 +641,13 @@ html[data-theme="light"] .ap-step::before { color: #fffdf8; }
    sits beside the reasons it fails, and the engineered prompt takes the whole width below, which is
    also the only place four labelled parts fit on one row. */
 .pe { display: grid; gap: 10px; }
-.pe-vague { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 12px; align-items: start; }
+.pe-vague { display: grid; gap: 10px; }
 .pe-box { padding: 12px 14px; border: 1px dashed var(--border); border-radius: var(--radius-sm); background: var(--surface); }
 .pe-tag { display: block; font: 700 var(--fx-tag) var(--sans); letter-spacing: .09em; text-transform: uppercase; }
 .pe-tag--weak { color: var(--ink-faint); }
 .pe-tag--strong { color: var(--accent); }
 .pe-line { margin: 6px 0 0; color: var(--ink); font-size: 16px; line-height: 1.4; }
-.pe-flaws { list-style: none; display: grid; gap: 6px; margin: 0; padding: 0; }
+.pe-flaws { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; }
 .pe-flaws li { position: relative; padding: 7px 10px 7px 30px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--red) 30%, var(--border)); background: color-mix(in srgb, var(--red) 6%, transparent); color: var(--ink-dim); font-size: 13px; line-height: 1.4; }
 .pe-flaws li b { color: var(--ink); font-weight: 650; }
 /* An ASCII-only cross: two rotated bars, so no glyph and no SVG is needed for four repeats. */
@@ -663,6 +663,7 @@ html[data-theme="light"] .ap-step::before { color: #fffdf8; }
 /* Four parts, four tracks: the shared auto-fit legend would leave a fifth empty track here. */
 .pe-precise .ann-legend { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 @media (max-width: 900px) { .pe-precise .ann-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .pe-flaws { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 760px) { .pe-vague { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- One harness figure (v4.4.3) ----------
@@ -2118,20 +2119,20 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <p class="fx-subtitle">Stating the job so the result is checkable</p>
           </div>
           <p>The prompt is where <strong>the job</strong> is stated. The same request can be asked in a way nobody could grade, or in a way anyone could check. That difference is the whole skill.</p>
-          <p>A useful prompt names the <strong>Goal</strong>, points at the <strong>Material</strong>, defines what <strong>Done</strong> means, and asks for a usable <strong>Format</strong>. Miss one and the model has to guess, and it will guess confidently.</p>
+          <p>A useful prompt states the <strong>Query</strong>, points at the <strong>Context</strong>, defines the <strong>Goal</strong> the answer has to reach, and asks for a usable <strong>Format</strong>. Miss one and the model has to guess, and it will guess confidently.</p>
         </div>
         <div class="fx-diagram">
           <div class="pe" role="group" aria-label="The same request asked vaguely, then asked precisely">
             <div class="pe-vague">
               <div class="pe-box"><span class="pe-tag pe-tag--weak">Vague</span><p class="pe-line">&ldquo;Look at this contract.&rdquo;</p></div>
-              <ul class="pe-flaws" aria-label="What the vague prompt leaves out"><li><b>No goal</b>: nothing says what looking at it should produce</li><li><b>No material</b>: which contract, and which parts of it</li><li><b>No finish line</b>: nothing the answer can be checked against</li><li><b>No shape</b>: any format is arguably correct, so none is wrong</li></ul>
+              <ul class="pe-flaws" aria-label="What the vague prompt leaves out"><li><b>No query</b>: nothing says what looking at it should produce</li><li><b>No context</b>: which contract, and which parts of it</li><li><b>No goal</b>: nothing the answer can be checked against</li><li><b>No format</b>: any shape is arguably correct, so none is wrong</li></ul>
             </div>
             <div class="pe-down" aria-hidden="true"><span class="pe-tip"></span></div>
             <div class="pe-precise" id="fx-ann-prompt" data-seq-root data-seq-loop data-seq-hold="2400">
               <span class="pe-tag pe-tag--strong">Engineered</span>
-              <p class="ann-text"><mark class="ann" data-part="goal" data-seq="1" data-seq-dur="1000">Summarise this contract and list every deadline.</mark> <mark class="ann" data-part="material" data-seq="2" data-seq-dur="1000">Use the signed PDF I attached, sections 4 to 9 only.</mark> <mark class="ann" data-part="done" data-seq="3" data-seq-dur="1000">Every dated obligation appears once, with its clause number.</mark> <mark class="ann" data-part="format" data-seq="4" data-seq-dur="1600">Return a table: date, obligation, clause, who owes it.</mark></p>
-              <dl class="ann-legend" aria-label="What each highlighted part of the prompt is for"><div class="ann-legend-row" data-part="goal" data-seq="1"><dt>Goal</dt><dd>the job, stated so it can be graded</dd></div><div class="ann-legend-row" data-part="material" data-seq="2"><dt>Material</dt><dd>what the job runs on</dd></div><div class="ann-legend-row" data-part="done" data-seq="3"><dt>Done</dt><dd>the finish line</dd></div><div class="ann-legend-row" data-part="format" data-seq="4"><dt>Format</dt><dd>a shape the work can use</dd></div></dl>
-              <p class="pe-why">Every part is now checkable: the goal can be graded, the material is named, the finish line is explicit, and the shape is stated. The answer can be checked against the contract, line by line.</p>
+              <p class="ann-text"><mark class="ann" data-part="query" data-seq="1" data-seq-dur="1000">Summarise this contract and list every deadline.</mark> <mark class="ann" data-part="context" data-seq="2" data-seq-dur="1000">Use the signed PDF I attached, sections 4 to 9 only.</mark> <mark class="ann" data-part="goal" data-seq="3" data-seq-dur="1000">Every dated obligation appears once, with its clause number.</mark> <mark class="ann" data-part="format" data-seq="4" data-seq-dur="1600">Return a table: date, obligation, clause, who owes it.</mark></p>
+              <dl class="ann-legend" aria-label="What each highlighted part of the prompt is for"><div class="ann-legend-row" data-part="query" data-seq="1"><dt>Query</dt><dd>the job, stated so it can be graded</dd></div><div class="ann-legend-row" data-part="context" data-seq="2"><dt>Context</dt><dd>the material the job runs on</dd></div><div class="ann-legend-row" data-part="goal" data-seq="3"><dt>Goal</dt><dd>the finish line the answer must reach</dd></div><div class="ann-legend-row" data-part="format" data-seq="4"><dt>Format</dt><dd>a shape the work can use</dd></div></dl>
+              <p class="pe-why">Every part is now checkable: the query can be graded, the context is named, the goal is explicit, and the format is stated. The answer can be checked against the contract, line by line.</p>
             </div>
           </div>
         </div>
