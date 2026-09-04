@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.4.0 -->
+<!-- nexus-hub-version: 4.4.5 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 329 skills, 18 commands, 34 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -34,6 +34,20 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.4.5
+
+**Five patch cycles of guide work ship as one tag.** v4.4.1 through v4.4.5 were authored in sequence and held back while the operator reviewed Home and Foundations between rounds. Together they take the guide from the rebuilt structure of v4.4.0 to a product that reads correctly on first look, teaches each idea in the operator's words and order, and integrates the reviewed mockups. The range is 44 commits across 63 files, all inside `guides/website/`, `tests/guides/`, and the v4.4 release docs.
+
+**Every illustration reads correctly on first look.** The guardrails figure was rebuilt so no label can escape its box, Context Engineering reads without a legend, the two harness scenes merged into one figure that cannot overlap, the work-cycle ring was replaced and the video plays itself, and section headings follow one stated size rule. The guide no longer addresses the reader in the second person.
+
+**Each segment teaches its one idea.** Models is rebuilt on the eight-stage spine and teaches how a model works instead of listing what it outputs. One prompt is followed through both harnesses with the operator's analogy: the model is a powerful brain, the platform harness is a graduate degree, the Nexus Hub harness is decades of practical experience. The vague prompt is shown beside the reasons it fails, and the cost of dumping everything into the context is named. Every harness layer now states something and shows the chain.
+
+**Training runs on a deterministic arcade shooter.** It replaces Asteroids with the requested lives bug, asteroid hazard, and vertical-movement feature, adds pointer play and dense varied spawning, and its fullscreen presentation fills the whole window at every desktop size with three panes and an overlaid Outline.
+
+Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. This release changes no opt-in capability, installer flag, or host surface. The release-time platform re-verification found one documentation drift on the Claude Code effort lever and corrected the recorded statement; the seeded value is unchanged.
 
 ---
 

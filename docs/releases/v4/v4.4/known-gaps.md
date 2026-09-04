@@ -1,7 +1,7 @@
 # Known Gaps - v4.4
 
 **Project**: Nexus-Hub
-**Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 merged to `develop` 2026-09-02 (PR #154), release pending; v4.4.2 in progress on the same minor
+**Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 through v4.4.5 published together as the v4.4.5 tag on 2026-09-04 (PRs #154 and #157), after the operator's Home and Foundations review lifted the publication hold
 **Last updated**: 2026-09-02 (v4.4.2 Phase 8)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
@@ -175,7 +175,7 @@
 
 **Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](plans/v4.4.3-guide-illustration-clarity-rebuild.md)
 **Base**: `develop` at `a376c1ae`
-**Status**: nine phases complete locally; the operator reviews Home and Foundations before Training work begins, so this version is deliberately NOT published yet.
+**Status**: nine phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
 ### Closed during v4.4.3
 
@@ -230,7 +230,7 @@
 
 **Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](plans/v4.4.4-guide-teaching-clarity-rebuild.md)
 **Base**: the v4.4.3 closeout at `bcfa3413`, on the same branch (v4.4.3 was never published)
-**Status**: nine phases complete locally. Still deliberately UNPUBLISHED: the operator reviews Home and Foundations before Training work begins.
+**Status**: nine phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
 ### Closed during v4.4.4
 
@@ -279,7 +279,7 @@
 
 **Plan**: [v4.4.5-guide-mockup-integration.md](plans/v4.4.5-guide-mockup-integration.md)
 **Base**: the v4.4.4 closeout at `3ac90bb2`, on the same branch (neither v4.4.3 nor v4.4.4 was published)
-**Status**: eight phases complete locally. Still deliberately UNPUBLISHED: the operator reviews Home and Foundations before Training work begins.
+**Status**: eight phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
 ### Closed during v4.4.5
 
