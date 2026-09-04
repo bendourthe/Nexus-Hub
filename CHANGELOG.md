@@ -11,6 +11,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.4.5] - 2026-09-04
+
+This release ships five patch cycles of interactive-guide work as one tag: v4.4.1 through v4.4.5, authored sequentially and held unpublished while the operator reviewed Home and Foundations between rounds. Together they take the guide from a rebuilt structure (v4.4.0) to a product that reads correctly on first look, teaches each idea in the operator's words and order, and integrates the reviewed mockups. The release range is 44 non-merge commits (34 feat, 5 docs, 4 fix, 1 chore) across 63 files, confined to `guides/website/`, `tests/guides/`, and `docs/releases/v4/v4.4/`.
+
+### Capability usage
+
+This release changes no opt-in capability, installer flag, or host surface.
+
+### Added
+
+- **A deterministic arcade shooter replaces Asteroids in Training** (v4.4.1), with the requested lives bug, asteroid hazard, and vertical-movement feature driven by the eight-command walkthrough; pointer play and dense varied continuous spawning were added in v4.4.2.
+- **Fullscreen Training presentation that fills the whole window** at every desktop size, with three panes and an overlaid Outline (v4.4.2).
+- **A motion sequencer and a single title scale** for the Foundations scenes, with flow connectors drawn from live geometry and a layered harness animation showing a model nested inside a platform harness wrapped by the Nexus Hub harness (v4.4.2).
+- **The Agentic Platforms scene**, merging the former chatbot comparison into one illustration of reach and naming four agentic platforms (v4.4.3, v4.4.4).
+- **A Models section rebuilt on the eight-stage spine**, teaching how a model works rather than listing what it outputs (v4.4.4, v4.4.5).
+- **The harness analogy the operator supplied**: one prompt followed through both harnesses, with the model as a powerful brain, the platform harness as a graduate degree, and the Nexus Hub harness as decades of practical experience (v4.4.4).
+- **A worked contrast for prompt engineering**: the vague prompt shown beside the reasons it fails, and the cost of dumping everything into the context named explicitly (v4.4.4).
+- **`scripts/stamp_guide_counts.py`**, a CI-reachable check that keeps the counts stamped into the guide in step with the catalog, wired into `make`, the pre-commit config, and the CI profile (v4.4.2).
+- **A decision record** on platform-mark attribution in the guide footer, following the vendor-asset limits recorded in v4.4.0 `DF-1`.
+
+### Changed
+
+- **Home identity, platform rail, and workflow loop rebuilt** at a readable scale, restoring the v4.1.2 hero and its five explanatory sections with an illustrated guardrails story (v4.4.1, v4.4.2).
+- **Every Home and Foundations illustration reads correctly on first look** (v4.4.3): the guardrails figure is rebuilt so no label can escape its box, Context Engineering reads without a legend, the two harness scenes are merged into one figure that cannot overlap, the work-cycle ring is replaced and the video plays itself, and the command-loop column fills its width with heads that read.
+- **Section headings follow one stated size rule**, and the guide no longer addresses the reader in the second person (v4.4.3).
+- **Foundations reordered** and its first three concepts rebuilt, with Models and platform scenes matched to them (v4.4.1); the Foundations block tags doubled from one token and the prompt's parts given one vocabulary (v4.4.5).
+- **Every harness layer now states something and shows the chain**, and the portability figure is meant to be read rather than watched (v4.4.5).
+- **Token captions carry the style they always described** (v4.4.5).
+- **Guide byte budget recovered** under the frozen v4.4.1 contracts.
+
+- **Model-routing map refreshed.** The bundled `last-known-model-map.json` that `/plan` reads as its offline fallback moved frontier Anthropic from `claude-fable-5` (now listed under legacy models) to `claude-fable-5-1` and frontier Google from `gemini-3.1-pro-preview` to `gemini-3.8-flash` (general availability 2026-09-02), both from first-party pages, with the tier-placement judgment recorded as a judgment. No other cell changed.
+- **Claude Code lever contract corrected.** The vendor now documents `max` for the `effortLevel` setting, `/effort`, and `--effort`, but not for `CLAUDE_CODE_EFFORT_LEVEL`, and adds a per-model `modelSettings` key. The recorded statement and verification date in `configs/platform-defaults.json` and `docs/policy/platform-defaults-levers.md` were corrected; the seeded `high` value is unchanged and valid on both keys. Found during the release-time platform re-verification, which also re-confirmed 12 of 13 read contracts against live vendor pages (nexus-ai stays unverified, private source).
+
+### Fixed
+
+- The Foundations scene name now sits above its description (v4.4.4).
+- The matrix tool points at its own plan and keeps renders regenerable (v4.4.3).
+- The v4.4.2 rebuild satisfied its first remote validation after one fix, and the v4.4.2 Phase 2 history now points at the decision record's real path.
+
+### Known gaps
+
+Carried forward, all pre-existing and none introduced by this release: v4.4.0 `DF-1` (three platform entries use text treatments until a vendor publishes a distributable standalone mark), v4.4.1 `WN-1` (Phase 1 ran one tier below its recommendation, recorded as a deliberate choice), and v4.4.1 `WN-2` (an incomplete superseded-assertion register). Full ledger: `docs/releases/v4/v4.4/known-gaps.md`.
+
+---
+
 ## [4.4.0] - 2026-09-01
 
 This release rebuilds the interactive guide so it teaches and demonstrates rather than describes, and it is the first release produced entirely under the v4.3.0 verification discipline. That discipline found seven defects a passing test suite had not, all of them fixed and re-proved in a real browser before publication.

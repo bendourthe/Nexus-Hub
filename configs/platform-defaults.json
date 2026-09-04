@@ -16,9 +16,9 @@
   "platforms": {
     "claude": {
       "display_name": "Claude Code",
-      "source_url": "https://code.claude.com/docs/en/settings",
-      "verified": "2026-08-30",
-      "doc_statement": "The Claude Code settings.json reference documents effortLevel (\"Persist the effort level across sessions. Accepts low, medium, high, or xhigh.\"), model (read once at session start), and env (\"Environment variables applied to every session and to subprocesses Claude Code spawns from it.\"). The same page states that CLAUDE_CODE_EFFORT_LEVEL overrides effortLevel for a session, which is why both are declared together here.",
+      "source_url": "https://code.claude.com/docs/en/model-config",
+      "verified": "2026-09-04",
+      "doc_statement": "The Claude Code settings reference documents effortLevel (\"Set a default effort level for models without a saved level of their own\"), model (\"Change the model Claude Code starts with\"), env (environment variables applied to every session and its subprocesses), and a per-model modelSettings key that /effort writes. The model-config page lists the accepted effort levels as low, medium, high, xhigh, and max for the current models, and documents CLAUDE_CODE_EFFORT_LEVEL as taking precedence over settings and /effort while accepting level names or auto but not max. Both levers accept the seeded value high, which is why they are declared together here; the two no longer share one value set, so a future change to a value other than high must be checked against both.",
       "settings": {
         "effortLevel": "high",
         "model": "opus",
