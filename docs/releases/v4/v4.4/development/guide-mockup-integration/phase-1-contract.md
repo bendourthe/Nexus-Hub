@@ -39,6 +39,17 @@ The first centring measurement reported a triangle 530px off centre inside a 720
 
 The lesson is narrow and worth keeping: **a geometry check must filter for visibility before it compares.** The version in the test does, and it also asserts what the narrow layout is actually for, which is a single centred arrow rather than four arrows over a two-column list, where a per-box arrow would point at the gap between two boxes.
 
+### 3d. A rename that left the sentence below it describing the old label (Phase 4)
+
+`NINE PIECES` became `9 TOKENS`, and the sentence under it still read "The nine-square grid
+illustrates the idea", describing a label the reader can no longer see. Phase 3 had already hit
+the same shape of mistake, where the flaw list and the summary sentence both had to move with the
+part names.
+
+Twice is a habit, so it is written down as one: **a rename is not finished until every sentence
+that refers to the old name has been read.** Not searched for the old string, read: the Phase 4
+sentence did not contain the words "nine pieces" anywhere.
+
 ### 3c. A dead CSS rule found while measuring Phase 2 (pre-existing)
 
 Phase 2's measurement reported `.fx-tokfig-cap` at 16px when every other block tag had moved to
@@ -62,5 +73,6 @@ questions are different and only one of them was being asked.
 | 1 | portability figure: reveal retired, flow pulse, four copied marks, full-width strip | +14,090 | 380,619 |
 | 2 | one tag-size token; every Foundations block tag doubled | +105 | 380,724 |
 | 3 | prompt parts renamed Query/Context/Goal/Format; vague prompt full width, flaws 2x2 | +29 | 380,753 |
+| 4 | token captions restyled and renamed; three Context Engineering renames; three dead selectors fixed | -47 | 380,706 |
 
 Counts are of the file as stored (LF). The worktree copy is CRLF under `core.autocrlf`, so an on-disk byte count runs about 5 KB higher and is not the ledger's number.

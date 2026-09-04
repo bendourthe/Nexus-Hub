@@ -1085,7 +1085,7 @@ html[data-theme="light"] .cv-changes li { background: transparent; border: 1px s
 .fx-spend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
 .fx-spend-head { grid-column: 1 / -1; }
 @media (max-width: 760px) { .fx-spend { grid-template-columns: minmax(0, 1fr); } }
-.fx-spend-head { margin: 0; font: 700 13px var(--sans); color: var(--ink); }
+.fx-spend-head { margin: 0; font: 500 17px var(--sans); color: var(--ink-dim); line-height: 1.45; }
 .fx-spend-row { display: grid; gap: 4px; min-width: 0; }
 .fx-spend-tag { font: 700 var(--fx-tag) var(--sans); letter-spacing: .07em; text-transform: uppercase; }
 .fx-spend-tag--bad { color: var(--amber); }
@@ -1100,8 +1100,8 @@ html[data-theme="light"] .cv-changes li { background: transparent; border: 1px s
 .fx-ink-free { color: var(--ink-faint); font-weight: 650; }
 /* ---------- Tokens scene (v4.4.1 Phase 3) ---------- */
 .fx-tokfig { margin: var(--sp-3) 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
-.fx-copy .fx-tokfig-cap { margin: 0; color: var(--ink-faint); font-size: var(--fx-tag); font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
-.fx-copy .fx-tokfig-cap--mid { margin-top: 12px; }
+.fx-tokfig-cap { margin: 0; color: var(--ink-faint); font-size: var(--fx-tag); font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.fx-tokfig-cap--mid { margin-top: 12px; }
 /* The source prompt must stay legible and dominant, so it is HTML with a real font-size
    floor rather than SVG text whose computed size depends on the viewBox scale. */
 .fx-copy .fx-tokprompt { margin: 6px 0 0; font-size: 19px; line-height: 1.4; color: var(--ink); font-weight: 600; }
@@ -1110,7 +1110,7 @@ html[data-theme="light"] .cv-changes li { background: transparent; border: 1px s
    would imply a category the tokenizer does not have. */
 .fx-tokchip { display: inline-flex; align-items: baseline; padding: 5px 9px; border: 1px solid var(--border-bright); border-radius: 7px; background: var(--bg-0); font-size: 14px; line-height: 1.2; color: var(--ink); }
 .fx-tokchip-txt { font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace); white-space: pre; min-width: 2ch; text-align: center; }
-.fx-copy .fx-tokfig-note { margin: 10px 0 0; color: var(--ink-dim); font-size: 13.5px; line-height: 1.5; }
+.fx-tokfig-note { margin: 10px 0 0; color: var(--ink-dim); font-size: 13.5px; line-height: 1.5; }
 .fx-tokcell-edge { fill: none; stroke: var(--border-bright); stroke-width: 1; }
 .fx-tokcard { fill: none; stroke: var(--border); stroke-width: 1; }
 .fx-diagram-note { margin: 10px 0 0; color: var(--ink-faint); font-size: 13px; line-height: 1.5; }
@@ -2040,7 +2040,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         <div class="fx-diagram">
           <div class="fx-duo">
           <figure class="fx-tokfig">
-            <figcaption class="fx-tokfig-cap">A prompt of the kind actually sent</figcaption>
+            <figcaption class="fx-tokfig-cap">Prompt</figcaption>
             <p class="fx-tokprompt">Summarise this contract and list every deadline.</p>
             <p class="fx-tokfig-cap fx-tokfig-cap--mid">becomes 10 tokens</p>
             <ol class="fx-tokchips" aria-label="The ten tokens this prompt becomes, in order">
@@ -2095,7 +2095,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <path class="fx-head fx-pop" style="--d:780ms" d="M 192 88 L 206 94 L 192 100 Z"/>
             <g data-image-stage="tokens">
             <rect class="fx-tokcard" x="228" y="8" width="128" height="158" rx="10"/>
-            <text class="fxt fxt--role" x="236" y="28">NINE PIECES</text>
+            <text class="fxt fxt--role" x="236" y="28">9 TOKENS</text>
             <g clip-path="url(#nxp-tokcell-00)"><use href="#nxp-tokimg" transform="translate(222 0)"/></g><rect class="fx-tokcell-edge" x="232" y="40" width="36" height="36" rx="5"/>
             <g clip-path="url(#nxp-tokcell-01)"><use href="#nxp-tokimg" transform="translate(228 0)"/></g><rect class="fx-tokcell-edge" x="274" y="40" width="36" height="36" rx="5"/>
             <g clip-path="url(#nxp-tokcell-02)"><use href="#nxp-tokimg" transform="translate(234 0)"/></g><rect class="fx-tokcell-edge" x="316" y="40" width="36" height="36" rx="5"/>
@@ -2107,7 +2107,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <g clip-path="url(#nxp-tokcell-22)"><use href="#nxp-tokimg" transform="translate(234 12)"/></g><rect class="fx-tokcell-edge" x="316" y="124" width="36" height="36" rx="5"/>
             </g>
           </svg>
-          <p class="fx-diagram-note">Images are split too. Every square above holds real pixels from the picture beside it. The nine-square grid illustrates the idea; it is not a literal token count.</p>
+          <p class="fx-diagram-note">Images are split too. Every square above holds real pixels from the picture beside it. Nine is the number in this picture, chosen to be countable; it is not a literal token count.</p>
         </div>
         </div>
         </div>
@@ -2149,8 +2149,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         </div>
         <div class="fx-diagram">
           <div class="fx-ctx" role="group" aria-label="The request plus the optional material it can carry, then the same budget filled two ways">
-            <div class="fx-ctx-row cx-row"><div class="fx-ctx-query" id="fx-ann-context" data-seq-root data-seq-loop data-seq-hold="2400"><span class="fx-ctx-tag">The request and its material</span><p class="ann-text"><mark class="ann" data-part="request" data-seq="1" data-seq-dur="1100">Add rate limiting to the public API and prove it with tests.</mark> <mark class="ann" data-part="context" data-seq="2" data-seq-dur="1100">Use <code>src/api/</code> and Friday's load-test report.</mark> <mark class="ann" data-part="context" data-seq="3" data-seq-dur="1600">Ignore the archived v1 handlers.</mark></p><dl class="ann-legend" aria-label="What each highlighted part is"><div class="ann-legend-row" data-part="request" data-seq="1"><dt>Request</dt><dd>the words of the job</dd></div><div class="ann-legend-row" data-part="context" data-seq="2"><dt>Context</dt><dd>material the job runs on, chosen, not dumped</dd></div></dl></div><div class="fx-ctx-query" role="group" aria-label="Material the request can name"><span class="fx-ctx-tag">The material it can name</span><ul class="cx-mat fx-mat" aria-label="Optional context that can be attached"><li><span class="cx-kind">Image</span><span class="cx-ex">checkout-error.png</span></li><li><span class="cx-kind">File or document</span><span class="cx-ex">contract-2026-03.pdf</span></li><li><span class="cx-kind">Project folder or workspace</span><span class="cx-ex">src/api/</span></li><li><span class="cx-kind">Codebase</span><span class="cx-ex">every file in the project</span></li></ul></div></div>
-            <div class="fx-spend" role="group" aria-label="The same working budget, filled two ways"><p class="fx-spend-head">One working budget. What fills it is the only variable.</p><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--bad">Attach everything in the project</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--waste" style="--w:70%">files the job never touches</span><span class="fx-seg fx-seg--use" style="--w:14%"></span><span class="fx-seg fx-seg--free" style="--w:16%"></span></div><p class="fx-spend-note">The <span class="fx-ink-use">two files the job names</span> get a sliver, and there is almost no <span class="fx-ink-free">room left to answer</span>.</p><ul class="cx-outcomes cx-outcomes--cost"><li><b>More tokens</b>: the budget fills with material nobody asked about</li><li><b>Slower</b>: every attached file has to be read before anything is answered</li><li><b>Costs more</b>: metered work is charged on what was read, not on what was needed</li><li><b>Likelier to miss</b>: the one line that mattered is a needle in a haystack</li></ul></div><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--good">Attach what the job names</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--use" style="--w:58%">the API code and the load-test report</span><span class="fx-seg fx-seg--free" style="--w:42%">room to answer</span></div><p class="fx-spend-note">Same budget, spent on the material the job runs on.</p><ul class="cx-outcomes cx-outcomes--gain"><li><b>Fewer tokens</b>: only the material the job runs on is read</li><li><b>Faster</b>: less to read before the first useful sentence</li><li><b>Costs less</b>: the same answer for a fraction of the metered work</li><li><b>Likelier to land</b>: the material that decides the answer is not buried</li></ul></div></div>
+            <div class="fx-ctx-row cx-row"><div class="fx-ctx-query" id="fx-ann-context" data-seq-root data-seq-loop data-seq-hold="2400"><span class="fx-ctx-tag">Context Engineering Prompt</span><p class="ann-text"><mark class="ann" data-part="request" data-seq="1" data-seq-dur="1100">Add rate limiting to the public API and prove it with tests.</mark> <mark class="ann" data-part="context" data-seq="2" data-seq-dur="1100">Use <code>src/api/</code> and Friday's load-test report.</mark> <mark class="ann" data-part="context" data-seq="3" data-seq-dur="1600">Ignore the archived v1 handlers.</mark></p><dl class="ann-legend" aria-label="What each highlighted part is"><div class="ann-legend-row" data-part="request" data-seq="1"><dt>Request</dt><dd>the words of the job</dd></div><div class="ann-legend-row" data-part="context" data-seq="2"><dt>Context</dt><dd>material the job runs on, chosen, not dumped</dd></div></dl></div><div class="fx-ctx-query" role="group" aria-label="Material the request can name"><span class="fx-ctx-tag">Attached Material</span><ul class="cx-mat fx-mat" aria-label="Optional context that can be attached"><li><span class="cx-kind">Image</span><span class="cx-ex">checkout-error.png</span></li><li><span class="cx-kind">File or document</span><span class="cx-ex">contract-2026-03.pdf</span></li><li><span class="cx-kind">Project folder or workspace</span><span class="cx-ex">src/api/</span></li><li><span class="cx-kind">Codebase</span><span class="cx-ex">every file in the project</span></li></ul></div></div>
+            <div class="fx-spend" role="group" aria-label="The same working budget, filled two ways"><p class="fx-spend-head">Context Engineering Best Practices</p><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--bad">Attach everything in the project</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--waste" style="--w:70%">files the job never touches</span><span class="fx-seg fx-seg--use" style="--w:14%"></span><span class="fx-seg fx-seg--free" style="--w:16%"></span></div><p class="fx-spend-note">The <span class="fx-ink-use">two files the job names</span> get a sliver, and there is almost no <span class="fx-ink-free">room left to answer</span>.</p><ul class="cx-outcomes cx-outcomes--cost"><li><b>More tokens</b>: the budget fills with material nobody asked about</li><li><b>Slower</b>: every attached file has to be read before anything is answered</li><li><b>Costs more</b>: metered work is charged on what was read, not on what was needed</li><li><b>Likelier to miss</b>: the one line that mattered is a needle in a haystack</li></ul></div><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--good">Attach what the job names</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--use" style="--w:58%">the API code and the load-test report</span><span class="fx-seg fx-seg--free" style="--w:42%">room to answer</span></div><p class="fx-spend-note">Same budget, spent on the material the job runs on.</p><ul class="cx-outcomes cx-outcomes--gain"><li><b>Fewer tokens</b>: only the material the job runs on is read</li><li><b>Faster</b>: less to read before the first useful sentence</li><li><b>Costs less</b>: the same answer for a fraction of the metered work</li><li><b>Likelier to land</b>: the material that decides the answer is not buried</li></ul></div></div>
           </div>
         </div>
       </section>
