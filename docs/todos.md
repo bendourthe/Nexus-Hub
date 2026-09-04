@@ -1,8 +1,8 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `feat/v4.4.2-guide-production-ready-rebuild`
-**Active plan:** [v4.4.2 guide-production-ready-rebuild](releases/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md)
-**Last refreshed:** 2026-09-01
+**Branch:** `feat/v4.4.3-guide-illustration-rebuild`
+**Active plan:** [v4.4.6 guide-learning-experience](releases/v4/v4.4/plans/v4.4.6-guide-learning-experience.md), implementation in progress; Phase 1 complete. Predecessor v4.4.5 is locally complete and unpublished.
+**Last refreshed:** 2026-09-04
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -14,13 +14,32 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
+| v4.4.6 guide-learning-experience phases complete | 1 | 7 | 6 |
+| v4.4.6 guide-learning-experience tasks complete | 3 | 28 | 25 |
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
 | v4.4.2 guide-production-ready-rebuild phases complete | 8 | 8 | 0 |
 | v4.4.2 local phase commits | 8 | 8 | 0 |
-| Open release blockers | 0 | 0 | 0 |
+| Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
+| Confirmed guide defects in the current review | 2 | 0 | 2 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 345,623 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 396,424 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
+
+---
+
+## Plan - v4.4.6 Guide Learning Experience [IN PROGRESS]
+
+- [x] Review current Home, Foundations, Training, and the two supplied source documents; retain current browser evidence.
+- [x] Write the seven-phase implementation plan with continuous visual and performance gates.
+- [x] Phase 1 - Baseline and teaching/design contract.
+- [ ] Phase 2 - Shared layout and motion repair.
+- [ ] Phase 3 - Home refinement.
+- [ ] Phase 4 - Foundations: model, tokens, prompt, context.
+- [ ] Phase 5 - Foundations: harness, loop, graph.
+- [ ] Phase 6 - Training clarity and state integrity.
+- [ ] Phase 7 - Final verification, known gaps, CI/CD, and approval-gated integration.
+
+Current review found hidden mobile harness steps and a pre-run Training success claim. The exact visibility cause and user-reported lag remain diagnostic work in Phases 1-2. Earlier dashboard counts below are historical and do not qualify this new plan. No HTML was changed during planning.
 
 ---
 
@@ -55,7 +74,7 @@ A corrective visual and teaching pass over the shipped v4.4.0 guide. Home gains 
 
 Met. v4.4.0 is released: integration PR #150 merged at `46518d01`, release PR #151 merged at `39f73a7e`, release PR #152 merged to `main` at `5c4b1346`, tag `v4.4.0` pushed with its GitHub Release published, and the artifact round-trip verified PASS over 1835 files. Back-merge PR #153 merged, and this branch was cut from a refreshed `develop` (`316aba97`) that contains the release merge.
 
-### Current checkpoint
+### Earlier checkpoint (retained; superseded by the v4.4.5 local closeout)
 
 Phase 5 complete. `window.NexusShooter` replaces the Asteroids engine: a mulberry32-seeded fixed-step portrait shooter (360x480, 1/60s tick) whose deep-frozen snapshots deep-equal across runs with one seed, with terminal `destroyed` semantics, composable pause reasons, a Click-to-start idle gate, procedural layered art, an authoritative HUD with a change-only live region, and full keyboard, touch, reduced-motion, and no-canvas paths. The seeded bug is now first-enemy-hit-destroys; `/implement` fixes damage to walk lives 3 -> 2 -> 1 -> 0 and `/compare` enables band-clamped vertical movement. Both scene-data copies migrated to the three-field game schema (prose stays v4.4.0 until Phase 6). New 29-test engine suite replaces the 1,094-line Asteroids suite; full guide suite 190 passed, 1 skipped; detector clean on Training both themes. Guide at 284,278 bytes. Three engine defects found and fixed during stabilization (boot-order crash, a fixture that could not demonstrate fixed damage, and reset creating an unstartable game). Next: Phase 6 writes the shooter teaching narrative and the integrated Training workspace.
 

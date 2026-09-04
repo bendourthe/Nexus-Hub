@@ -1,0 +1,357 @@
+{
+  "sha256": "68f017bcac2a7c58278ce3ad7642f5860279784707e3ef4ee5fef15c8d39ec7d",
+  "bytes": 396424,
+  "cases": [
+    {
+      "height": 8648,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sections": [
+        {
+          "id": "fx-tokens",
+          "height": 566
+        },
+        {
+          "id": "fx-prompts",
+          "height": 701
+        },
+        {
+          "id": "fx-context",
+          "height": 791
+        },
+        {
+          "id": "fx-model-lifecycle",
+          "height": 2301
+        },
+        {
+          "id": "fx-agent-platform",
+          "height": 1758
+        },
+        {
+          "id": "fx-harness",
+          "height": 1750
+        }
+      ],
+      "sequences": [
+        {
+          "id": "fx-ann-prompt",
+          "cls": "pe-precise",
+          "height": 213,
+          "steps": 8,
+          "hidden": 0,
+          "state": {
+            "step": 2,
+            "total": 4,
+            "running": false,
+            "reduced": false,
+            "loop": true
+          }
+        },
+        {
+          "id": "fx-ann-context",
+          "cls": "fx-ctx-query",
+          "height": 204,
+          "steps": 5,
+          "hidden": 0,
+          "state": {
+            "step": 3,
+            "total": 3,
+            "running": false,
+            "reduced": false,
+            "loop": true
+          }
+        },
+        {
+          "id": "",
+          "cls": "fx-pass",
+          "height": 100,
+          "steps": 8,
+          "hidden": 8,
+          "state": {
+            "step": 0,
+            "total": 8,
+            "running": false,
+            "reduced": false,
+            "loop": true
+          }
+        },
+        {
+          "id": "cv-compare",
+          "cls": "fx-cv",
+          "height": 602,
+          "steps": 4,
+          "hidden": 4,
+          "state": {
+            "step": 0,
+            "total": 4,
+            "running": false,
+            "reduced": false,
+            "loop": true
+          }
+        },
+        {
+          "id": "hx-harness",
+          "cls": "hx",
+          "height": 1438,
+          "steps": 5,
+          "hidden": 3,
+          "state": {
+            "step": 2,
+            "total": 5,
+            "running": true,
+            "reduced": false,
+            "loop": true
+          }
+        }
+      ],
+      "theme": "light",
+      "width": 1440,
+      "errors": [],
+      "metrics": {
+        "LayoutCount": 46,
+        "LayoutDuration": 0.005276,
+        "RecalcStyleCount": 1073,
+        "RecalcStyleDuration": 0.150071,
+        "ScriptDuration": 0.202424,
+        "TaskDuration": 1.277314
+      }
+    },
+    {
+      "height": 8646,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": false,
+      "sections": [
+        {
+          "id": "fx-tokens",
+          "height": 566
+        },
+        {
+          "id": "fx-prompts",
+          "height": 701
+        },
+        {
+          "id": "fx-context",
+          "height": 791
+        },
+        {
+          "id": "fx-model-lifecycle",
+          "height": 2301
+        },
+        {
+          "id": "fx-agent-platform",
+          "height": 1756
+        },
+        {
+          "id": "fx-harness",
+          "height": 1750
+        }
+      ],
+      "sequences": [
+        {
+          "id": "fx-ann-prompt",
+          "cls": "pe-precise",
+          "height": 213,
+          "steps": 8,
+          "hidden": 0,
+          "state": {
+            "step": 2,
+            "total": 4,
+            "running": false,
+            "reduced": false,
+            "loop": true
+          }
+        },
+        {
+          "id": "fx-ann-context",
+          "cls": "fx-ctx-query",
+          "height": 204,
+          "steps": 5,
+          "hidden": 0,
+          "state": {
+            "step": 3,
+            "total": 3,
+            "running": false,
+            "reduced": false,
+            "loop": true
+          }
+        },
+        {
+          "id": "",
+          "cls": "fx-pass",
+          "height": 100,
+          "steps": 8,
+          "hidden": 8,
+          "state": {
+            "step": 0,
+            "total": 8,
+            "running": false,
+            "reduced": false,
+            "loop": true
+          }
+        },
+        {
+          "id": "cv-compare",
+          "cls": "fx-cv",
+          "height": 600,
+          "steps": 4,
+          "hidden": 4,
+          "state": {
+            "step": 0,
+            "total": 4,
+            "running": false,
+            "reduced": false,
+            "loop": true
+          }
+        },
+        {
+          "id": "hx-harness",
+          "cls": "hx",
+          "height": 1438,
+          "steps": 5,
+          "hidden": 3,
+          "state": {
+            "step": 2,
+            "total": 5,
+            "running": true,
+            "reduced": false,
+            "loop": true
+          }
+        }
+      ],
+      "theme": "dark",
+      "width": 1440,
+      "errors": [],
+      "metrics": {
+        "LayoutCount": 47,
+        "LayoutDuration": 0.006028,
+        "RecalcStyleCount": 1072,
+        "RecalcStyleDuration": 0.145237,
+        "ScriptDuration": 0.228858,
+        "TaskDuration": 2.93731
+      }
+    },
+    {
+      "height": 15292,
+      "viewport": {
+        "width": 420,
+        "height": 900
+      },
+      "overflow": false,
+      "sections": [
+        {
+          "id": "fx-tokens",
+          "height": 949
+        },
+        {
+          "id": "fx-prompts",
+          "height": 1139
+        },
+        {
+          "id": "fx-context",
+          "height": 1675
+        },
+        {
+          "id": "fx-model-lifecycle",
+          "height": 3961
+        },
+        {
+          "id": "fx-agent-platform",
+          "height": 3560
+        },
+        {
+          "id": "fx-harness",
+          "height": 3048
+        }
+      ],
+      "sequences": [
+        {
+          "id": "fx-ann-prompt",
+          "cls": "pe-precise",
+          "height": 455,
+          "steps": 8,
+          "hidden": 0,
+          "state": {
+            "step": 2,
+            "total": 4,
+            "running": false,
+            "reduced": false,
+            "loop": true
+          }
+        },
+        {
+          "id": "fx-ann-context",
+          "cls": "fx-ctx-query",
+          "height": 314,
+          "steps": 5,
+          "hidden": 0,
+          "state": {
+            "step": 0,
+            "total": 3,
+            "running": false,
+            "reduced": false,
+            "loop": true
+          }
+        },
+        {
+          "id": "",
+          "cls": "fx-pass",
+          "height": 182,
+          "steps": 8,
+          "hidden": 8,
+          "state": {
+            "step": 0,
+            "total": 8,
+            "running": false,
+            "reduced": false,
+            "loop": true
+          }
+        },
+        {
+          "id": "cv-compare",
+          "cls": "fx-cv",
+          "height": 1166,
+          "steps": 4,
+          "hidden": 4,
+          "state": {
+            "step": 0,
+            "total": 4,
+            "running": false,
+            "reduced": false,
+            "loop": true
+          }
+        },
+        {
+          "id": "hx-harness",
+          "cls": "hx",
+          "height": 2547,
+          "steps": 5,
+          "hidden": 5,
+          "state": {
+            "step": 0,
+            "total": 5,
+            "running": false,
+            "reduced": false,
+            "loop": true
+          }
+        }
+      ],
+      "theme": "light",
+      "width": 420,
+      "errors": [],
+      "metrics": {
+        "LayoutCount": 38,
+        "LayoutDuration": 0.002927,
+        "RecalcStyleCount": 1065,
+        "RecalcStyleDuration": 0.135964,
+        "ScriptDuration": 0.210947,
+        "TaskDuration": 1.137918
+      }
+    }
+  ]
+}
