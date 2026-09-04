@@ -18,6 +18,7 @@ Two kinds of change, kept apart on purpose. Precise corrections to scenes that a
 | S3 | Eight rules declared a hand-written `11px`, `11.5px`, or `12px` tag size | that each tag owned its own number | Phase 2 moved them all onto one `--fx-tag` token | Phase 2 |
 | S4 | `test_the_flaws_sit_beside_the_vague_prompt` asserted the flaws sit BESIDE the prompt | the v4.4.4 arrangement, itself a correction of the v4.4.3 one | Phase 3 INVERTED it: full-width prompt, flaws in a 2x2 grid below. Third arrangement in three rounds, each requested | Phase 3 |
 | S5 | `PARTS = ("goal", "material", "done", "format")` and the `<dt>` and flaw-text assertions in the broad module | the pre-v4.4.5 vocabulary, where `Done` named the finish line | Phase 3 renamed the parts; `Goal` now names the finish line, and the old four are asserted ABSENT | Phase 3 |
+| S6 | `test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff` counted `<dt>Boundary</dt>` twice across the whole scene | that only the two lanes name a boundary | Phase 6 added the mockup's anatomy, which names `Boundary` a third time in a different block; the count is now scoped to the two lane lists | Phase 6 |
 
 ## 3. Mistakes this plan made, and what they cost
 
@@ -96,5 +97,6 @@ were invisible to the suite and obvious to a rendered image.
 | 3 | prompt parts renamed Query/Context/Goal/Format; vague prompt full width, flaws 2x2 | +29 | 380,753 |
 | 4 | token captions restyled and renamed; three Context Engineering renames; three dead selectors fixed | -47 | 380,706 |
 | 5 | Models rebuilt on the eight-stage spine; Select and Predict stages added; provider row dropped | +6165 | 386,871 |
+| 6 | Agentic Platforms: the equation, three visible boundary settings, the six-part anatomy | +5043 | 391,914 |
 
 Counts are of the file as stored (LF). The worktree copy is CRLF under `core.autocrlf`, so an on-disk byte count runs about 5 KB higher and is not the ledger's number.

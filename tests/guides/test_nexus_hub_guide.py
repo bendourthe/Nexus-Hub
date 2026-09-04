@@ -898,8 +898,16 @@ def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
     assert scene.index('data-phase3-node="chatbot-handoff"') < scene.index(
         'data-phase3-node="agent-handoff"'
     )
+    # v4.4.5 added the mockup's six-part anatomy to this scene, which names `Boundary` a third
+    # time in a different block. The claim was always about the two LANES carrying matching
+    # labels, so it is measured over the lane lists rather than over the whole scene.
+    lanes = "".join(
+        scene[m.start() : scene.index("</dl>", m.start())]
+        for m in re.finditer(r'<dl class="fx-parts">', scene)
+    )
+    assert lanes.count('<dl class="fx-parts">') == 2, "expected exactly two lanes"
     for part in ("Boundary", "Action", "Outcome", "Leaves behind"):
-        assert scene.count("<dt>" + part + "</dt>") == 2, (
+        assert lanes.count("<dt>" + part + "</dt>") == 2, (
             "both lanes must carry an explicit " + part + " label"
         )
     text = re.sub(r"<[^>]+>", " ", scene).lower()
