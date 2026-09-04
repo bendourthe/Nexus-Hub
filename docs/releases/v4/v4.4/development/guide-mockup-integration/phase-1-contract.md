@@ -65,6 +65,27 @@ The class-coverage guard added in v4.4.3 could not catch this. It proves every c
 markup has a style rule; it says nothing about whether a rule's selector matches anything. The two
 questions are different and only one of them was being asked.
 
+### 3e. A rebuilt scene that said everything twice (Phase 5)
+
+The first run of the Models rebuild rendered the base-versus-reasoning lanes under Predict AND
+under Reason. Every test passed: the scene was balanced, complete, internally consistent, and
+duplicated.
+
+The cause is one fact about the old markup: `.mx-lanes` was a CHILD of `.fx-pass`, not its
+sibling. Harvesting `.fx-pass` for one stage therefore dragged the lanes into it, and placing the
+lanes under another stage put them on the page a second time. Two smaller duplications came with
+it: the provider row's two cards restated stages 01 and 02 verbatim, and `data-stage="output"`
+ended up on both the phase wrapper and the harvested tiers block.
+
+**None of the structural assertions asked whether anything appeared MORE often than it should.**
+That is the gap. Presence, order, balance, and containment were all checked; multiplicity was
+not, and multiplicity is the failure mode of a harvest-and-reassemble rebuild. The script now
+counts `.mx-lanes`, `data-grammar="one-pass"`, `.fx-pass-note`, and every `data-stage` marker
+before it writes.
+
+Found by screenshot, as with the Gemini mark in Phase 1. Two of this plan's five defects so far
+were invisible to the suite and obvious to a rendered image.
+
 ## 4. Byte ledger
 
 | Phase | Change | Bytes | Running total |
@@ -74,5 +95,6 @@ questions are different and only one of them was being asked.
 | 2 | one tag-size token; every Foundations block tag doubled | +105 | 380,724 |
 | 3 | prompt parts renamed Query/Context/Goal/Format; vague prompt full width, flaws 2x2 | +29 | 380,753 |
 | 4 | token captions restyled and renamed; three Context Engineering renames; three dead selectors fixed | -47 | 380,706 |
+| 5 | Models rebuilt on the eight-stage spine; Select and Predict stages added; provider row dropped | +6165 | 386,871 |
 
 Counts are of the file as stored (LF). The worktree copy is CRLF under `core.autocrlf`, so an on-disk byte count runs about 5 KB higher and is not the ledger's number.

@@ -208,7 +208,7 @@ def test_inside_the_model_is_complete_under_reduced_motion(playwright_mod) -> No
                 """() => {
                     const pass = document.querySelector('#fx-model-lifecycle .fx-pass');
                     const chips = [...pass.querySelectorAll('.mx-tok-chip')];
-                    const nodes = [...pass.querySelectorAll('.mx-node')];
+                    const nodes = [...document.querySelectorAll('#fx-model-lifecycle .mx-node')];
                     return {
                         chips: chips.length,
                         nodes: nodes.length,
@@ -222,6 +222,10 @@ def test_inside_the_model_is_complete_under_reduced_motion(playwright_mod) -> No
         finally:
             browser.close()
     assert state["rings"] == 0, "the work-cycle ring must not come back"
+    # v4.4.5 moved `.mx-lanes` OUT of `.fx-pass`. It had been a child, which meant
+    # harvesting `.fx-pass` for one stage dragged the lanes into it and rendered them
+    # twice. The nodes are still asserted, and still asserted visible under reduced
+    # motion; they are just no longer reached through the token block.
     assert state["chips"] >= 6 and state["nodes"] >= 5, state
     assert state["allVisible"], state
     assert "not a transcript of hidden reasoning" in state["note"], (
