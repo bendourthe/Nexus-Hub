@@ -47,6 +47,7 @@ This release changes no opt-in capability, installer flag, or host surface.
 ### Fixed
 
 - The Foundations scene name now sits above its description (v4.4.4).
+- Four guide test fixtures (`tests/guides/test_arcade_shooter_game.py`, `test_v441_phase2_home.py`, `test_v441_phase4_foundations.py`, `test_v441_phase6_workspace.py`) now bind `sync_playwright` to `None` when the import fails and branch on that, instead of relying on `pytest.skip` or `pytest.fail` never returning. Behaviour is unchanged; this clears the four error-severity CodeQL `py/uninitialized-local-variable` alerts that blocked the release merge to `main`. Two remaining warning-severity alerts in this release's files were reviewed and dismissed as false positives with recorded reasons (see the v4.4.5 known-gaps entry).
 - The matrix tool points at its own plan and keeps renders regenerable (v4.4.3).
 - The v4.4.2 rebuild satisfied its first remote validation after one fix, and the v4.4.2 Phase 2 history now points at the decision record's real path.
 
