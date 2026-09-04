@@ -1,4 +1,6 @@
-# Arcade-Shooter Scenario -- the v4.4.1 Training game contract
+# Arcade-Shooter Scenario -- the v4.4 Training game contract
+
+> Amended 2026-09-02 by v4.4.2 Phase 5: pointer play, a key guide in place of action buttons on fine-pointer devices, and continuous varied spawning in every fixture behind a dual-stream seed that leaves the teaching beats untouched. Sections marked **(v4.4.2)** carry the amendments; everything else is the v4.4.1 contract unchanged.
 
 **Plan**: [v4.4.1-guide-visual-and-arcade-rebuild.md](../plans/v4.4.1-guide-visual-and-arcade-rebuild.md), Phase 5
 **Supersedes**: [`asteroids-scenario.md`](asteroids-scenario.md), which is preserved unchanged as the v4.4.0 historical contract
@@ -42,7 +44,7 @@ States: `idle -> running <-> paused -> destroyed`, plus `reset`/`restart` from a
   do not advance, entities do not move, and page-level arrow/Space behavior is untouched.
 - **running**: the accumulator advances the world at the fixed tick.
 - **paused**: a SET of reasons, not a boolean: `manual`, `blur`, `hidden`, `offscreen`,
-  `reduced-motion`. Resuming one reason never clears another; the game runs only when the
+  `reduced-motion`, and **(v4.4.2)** `pointer` (the pointer left the playfield). Resuming one reason never clears another; the game runs only when the
   set is empty. Manual stepping (`step()`) is legal while paused and advances exactly one tick.
 - **destroyed**: TERMINAL. `pause`/`resume` can neither enter nor leave it; a stale frame
   or held key cannot mutate it (each reset bumps a generation counter that stale callbacks
@@ -74,9 +76,9 @@ splitting.
 
 | Fixture | Purpose | Contents |
 |---|---|---|
-| `enemy-hit` | prove the damage rule | no autonomous spawning; one enemy at (180, 80) descending slowly and re-firing on a deterministic cadence (first re-fire at tick 130, then every 90..150 seeded ticks), plus one pre-placed enemy shot at (180, 240) falling at 150 px/s. The pre-placed shot lands around tick 75; in fixed mode the re-fires land after each invulnerability window expires, so the fixture demonstrates the full 3 -> 2 -> 1 -> 0 sequence |
-| `asteroid-hit` | prove asteroid fatality | no autonomous spawning; one radius-16 asteroid at (180, 200) falling at 105 px/s into the stationary player |
-| `play` | the full game | seeded autonomous enemy and asteroid spawning, both asteroid speed tiers present |
+| `enemy-hit` | prove the damage rule | one enemy at (180, 80) descending slowly and re-firing on a deterministic cadence (first re-fire at tick 130, then every 90..150 seeded on the BEAT stream); **(v4.4.2)** continuous spawning from the SPAWN stream begins at tick 120 and keeps the centre band clear (see section 10), so a stationary player still receives exactly the seeded beats ticks), plus one pre-placed enemy shot at (180, 240) falling at 150 px/s. The pre-placed shot lands around tick 75; in fixed mode the re-fires land after each invulnerability window expires, so the fixture demonstrates the full 3 -> 2 -> 1 -> 0 sequence |
+| `asteroid-hit` | prove asteroid fatality | one radius-16 asteroid at (180, 200) falling at 105 px/s into the stationary player; **(v4.4.2)** continuous centre-band-clear spawning from tick 120 |
+| `play` | the full game | seeded autonomous enemy and asteroid spawning across the full width from tick 0; **(v4.4.2)** three enemy velocity bands and three asteroid size and speed tiers |
 
 ## 6. Scene mapping -- the same eight command IDs
 
@@ -111,7 +113,8 @@ owns rewriting the surrounding prose, simulated files, and artifacts to the shoo
 | `setDamageMode(mode)` | `'buggy'` or `'fixed'`; anything else rejected without state change |
 | `setVerticalMovementEnabled(v)` | boolean coerced strictly; non-boolean rejected |
 | `input(name, pressed)` | `'left','right','up','down','fire'`; unknown names rejected |
-| `logic` | frozen pure seams for unit assertions: `collides(a, b)`, `damageOutcome(mode, lives)` |
+| `pauseReasons` (in `snapshot()`) | **(v4.4.2)** may now include `pointer` |
+| `logic` | frozen pure seams for unit assertions: `collides(a, b)`, `damageOutcome(mode, lives)`, and **(v4.4.2)** `spawnSample(fixture, seed, ticks)`, the spawn sequence a fixture and seed produce over N ticks on a scratch state (spawnStep alone), so tier variety is testable without the player surviving it |
 
 Invalid seeds, fixtures, deltas, or inputs are rejected or normalized deterministically
 and never corrupt current state; the rejection is observable (`snapshot()` unchanged).
@@ -129,7 +132,20 @@ and never corrupt current state; the rejection is observable (`snapshot()` uncha
 - While the focused game is active: Left/Right or A/D move, Space fires, Up/Down or W/S
   obey the feature flag. Escape pauses, clears held keys, releases key ownership, and
   moves focus to the visible Resume control. Modified shortcuts (Ctrl/Alt/Meta) are never
-  intercepted. Labelled touch controls mirror every key.
+  intercepted.
+- **(v4.4.2) Pointer contract.** A primary-button `pointerdown` inside the stage fires while
+  `running`, rate-limited by the same 14-tick cooldown as Space; it starts nothing while `idle`
+  (the start button owns activation) and resumes nothing while `paused` (Resume owns that), so a
+  stray click can never change lifecycle. `pointerleave` on the stage pauses with reason
+  `pointer`; `pointerenter` does NOT resume, the visible Resume control does. Secondary and
+  middle buttons are ignored and the context menu is suppressed inside the stage. A pointer
+  event without a `pointerType` is treated as a mouse.
+- **(v4.4.2) Key guide.** Under `(pointer: fine)` a `role="list"` of key and click hints
+  (`Left / Right or A / D move`, `Space or click fire`, `Up / Down or W / S move vertically
+  after the feature`, `Esc or leave the arena pauses`) replaces the touch buttons. Under
+  `(pointer: coarse)` the labelled touch controls remain and mirror every key. `Pause` /
+  `Resume`, `Reset demo`, and the reduced-motion `Advance one step` sit beside the HUD on
+  every pointer type.
 - Reduced motion: no autonomous ticks, stars, or spawns; `Advance one step` performs one
   deterministic tick while the `reduced-motion` pause reason stays set.
 - Canvas unavailable: the region shows a text fallback stating lives, damage mode, and
@@ -144,3 +160,26 @@ per-scene `game` fields in BOTH copies of the scene data to the section 6 schema
 keeps all eight Training routes initializing through the migrated `configureGame`. The
 scene prose, simulated files, artifacts, gates, and takeaways still tell the v4.4.0
 Asteroids story; rewriting them is Phase 6's deliverable, not Phase 5's.
+
+## 10. Continuous spawning and the dual-stream seed (v4.4.2)
+
+- **Two streams, one seed.** `rngBeat = mulberry32(seed)` drives everything the v4.4.1
+  contract already consumed: the starfield, the pre-placed enemy's re-fire cadence, and the
+  `play` fixture's original spawn timers. `rngSpawn = mulberry32(seed ^ 0x9E3779B9)` drives
+  every v4.4.2 spawn decision. Adding spawns can therefore never change a draw the beats
+  depend on: the buggy first hit still lands before tick 120 and the fixed-mode walk is still
+  `3 -> 2 -> 1 -> 0` with the 90-tick window, from the same seed `20260901`.
+- **When.** `play`: from tick 0 (unchanged). `enemy-hit` and `asteroid-hit`: from tick 120,
+  after the buggy first hit has landed.
+- **Intervals.** Enemies every 90..150 ticks, asteroids every 70..120 ticks (seeded on the
+  spawn stream).
+- **Enemy velocity bands** (px/s, seeded): `slow 40..55`, `mid 60..80`, `fast 90..115`.
+  Painting tints the engine glow by band so the variety is visible, not just numeric.
+- **Asteroid tiers** (seeded independently): size `small r 8..11`, `medium r 12..17`,
+  `large r 18..26`; speed `drift 45`, `fall 75`, `dive 110`. Craters scale with radius and a
+  large rock carries a third crater.
+- **Centre-band exclusion in the teaching fixtures.** Spawned enemies take `vx = 0` and an
+  `x` outside `[135, 225]`; spawned asteroids take an `x` whose whole radius stays outside
+  that band. A stationary player at `x = 180` is therefore never touched by a v4.4.2 spawn,
+  which is what keeps the two beat tests deterministic; a player who moves is fair game.
+  In `play` the full width is used.
