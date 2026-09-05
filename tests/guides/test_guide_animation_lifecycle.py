@@ -90,22 +90,22 @@ def test_home_diagrams_keep_examples_visible_and_pause_decorative_motion(browser
     page.emulate_media(reduced_motion="no-preference")
 
     handoff = page.locator(".ph-cut")
-    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationPlayState") == "paused"
+    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationName") == "none"
     page.evaluate("NexusSeq.reset(document.querySelector('#nhg-guard-fig'))")
     assert page.locator(".gf-lane").evaluate_all(
         "els => els.length === 3 && els.every(e => getComputedStyle(e).opacity === '1')"
     )
     page.locator(".ph").scroll_into_view_if_needed()
     page.wait_for_function("document.querySelector('.ph').classList.contains('live')")
-    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationPlayState") == "running"
-    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationIterationCount") == "1"
+    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationName") == "none"
+    assert handoff.evaluate("e => getComputedStyle(e, '::before').transform") == "none"
     # Exercise the visibility-event branch without relying on headless tab occlusion.
     page.evaluate("""Object.defineProperty(document, 'hidden', {value: true, configurable: true});
       document.dispatchEvent(new Event('visibilitychange'));""")
-    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationPlayState") == "paused"
+    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationName") == "none"
     page.evaluate("""delete document.hidden;
       document.dispatchEvent(new Event('visibilitychange'));""")
-    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationPlayState") == "running"
+    assert handoff.evaluate("e => getComputedStyle(e, '::before').animationName") == "none"
     page.emulate_media(reduced_motion="reduce")
     assert handoff.evaluate("e => getComputedStyle(e, '::before').animationName") == "none"
     assert page.locator(".gf-cell--ask").first.evaluate(

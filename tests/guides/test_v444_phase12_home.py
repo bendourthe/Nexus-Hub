@@ -174,7 +174,7 @@ def test_the_segment_carries_both_benefits(playwright_mod) -> None:
     assert [task["done"] for task in saved] == [True, True, False, False]
     assert [task["text"] for task in saved] == [task["text"] for task in complete]
     assert all(task["done"] for task in complete)
-    assert "/implement" in codex["commands"] and "booking.md" in codex["text"]
+    assert "/implement" in codex["commands"] and "booking-feature-plan.md" in codex["text"]
     assert "phase 1 verified and complete" in codex["text"]
     assert "next: run /implement phase 2" in codex["text"]
 
