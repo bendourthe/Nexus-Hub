@@ -450,7 +450,7 @@ def test_guardrails_section_names_only_shipped_registered_hooks(playwright_mod) 
             )
         finally:
             browser.close()
-    assert len(data["ports"]) == 4
+    assert len(data["ports"]) == 6
     for name in data["ports"]:
         assert (_HOOKS_DIR / f"{name}.sh").is_file(), f"{name}.sh does not ship"
         assert (_HOOKS_DIR / f"{name}.ps1").is_file(), f"{name}.ps1 sibling missing"
