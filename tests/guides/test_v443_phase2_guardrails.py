@@ -78,6 +78,7 @@ GEOMETRY = """() => {
     outFig, textOut,
     nested: inside(platform, nexus) && inside(core, platform),
     svg: fig.querySelectorAll('svg').length,
+    logo: fig.querySelector('.gf-logo use')?.getAttribute('href'),
     svgText: fig.querySelectorAll('svg text, svg tspan').length,
   };
 }"""
@@ -109,7 +110,7 @@ def test_the_figure_carries_no_svg_text(playwright_mod) -> None:
         finally:
             browser.close()
     assert data["svgText"] == 0, "labels are SVG text again, which cannot be contained by a chip"
-    assert data["svg"] == 0, "the figure needs no SVG at all"
+    assert data["svg"] == 1 and data["logo"] == "#nexus-mark", "only the shared brand logo belongs in SVG"
 
 
 def test_every_attempt_shows_both_rings_and_a_result(playwright_mod) -> None:

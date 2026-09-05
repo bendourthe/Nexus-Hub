@@ -254,7 +254,6 @@ EXPECTED_HOME_ORDER = [
     "Raw prompting vs Nexus Hub",
     "Install once, work anywhere",
     "One governed loop, from first look to shipped",
-    "Learn it, then run it on a real project",
 ]
 
 

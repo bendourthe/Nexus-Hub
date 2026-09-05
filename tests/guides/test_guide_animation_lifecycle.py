@@ -79,6 +79,16 @@ def test_home_diagrams_keep_examples_visible_and_pause_decorative_motion(browser
     page = browser.new_page(viewport={"width": 1440, "height": 1000})
     page.goto(GUIDE.as_uri() + "#home")
     assert page.locator(".ph-dot").count() == 0
+    logo = page.locator('.gf-logo')
+    assert logo.evaluate("e => getComputedStyle(e).animationPlayState") == "paused"
+    logo.scroll_into_view_if_needed()
+    page.wait_for_function("document.querySelector('.guard-fig').classList.contains('live')")
+    assert logo.evaluate("e => getComputedStyle(e).animationPlayState") == "running"
+    assert logo.evaluate("e => getComputedStyle(e).backgroundColor") == "rgba(0, 0, 0, 0)"
+    page.emulate_media(reduced_motion="reduce")
+    assert logo.evaluate("e => getComputedStyle(e).animationName") == "none"
+    page.emulate_media(reduced_motion="no-preference")
+
     handoff = page.locator(".ph-cut")
     assert handoff.evaluate("e => getComputedStyle(e, '::before').animationPlayState") == "paused"
     page.evaluate("NexusSeq.reset(document.querySelector('#nhg-guard-fig'))")
