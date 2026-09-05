@@ -85,7 +85,7 @@ def test_every_legend_row_is_swatch_and_label_over_description(playwright_mod) -
         assert row["descLines"] <= 2, row
 
 
-def test_attachments_and_context_folder_are_below_the_prompt_that_names_them(playwright_mod) -> None:
+def test_attachments_and_context_folder_are_above_the_prompt_that_names_them(playwright_mod) -> None:
     """The composed prompt names every visible attachment and selected folder."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
@@ -101,7 +101,7 @@ def test_attachments_and_context_folder_are_below_the_prompt_that_names_them(pla
                     }));
                     return { columns: getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,
                              cells, drawings: grid.querySelectorAll('svg').length,
-                             belowPrompt: grid.getBoundingClientRect().top >= document.querySelector('#fx-ann-context .ann-text').getBoundingClientRect().bottom,
+                             abovePrompt: grid.getBoundingClientRect().bottom <= document.querySelector('#fx-ann-context .ann-text').getBoundingClientRect().top,
                              named: cells.every(c => document.querySelector('#fx-ann-context .ann-text').textContent.includes(c.example)),
                              sameBox: grid.parentElement.id === 'fx-ann-context',
                              dashed: document.querySelectorAll('#fx-context .fx-ctx-kind').length };
@@ -110,9 +110,9 @@ def test_attachments_and_context_folder_are_below_the_prompt_that_names_them(pla
             ctx.close()
         finally:
             browser.close()
-    assert data["columns"] == 2, data
+    assert data["columns"] == 3, data
     assert len(data["cells"]) == 3, data["cells"]
-    assert data["belowPrompt"] and data["named"] and data["sameBox"], data
+    assert data["abovePrompt"] and data["named"] and data["sameBox"], data
     assert data["dashed"] == 0, "the dashed noun boxes must not return"
     names = [c["name"] for c in data["cells"]]
     assert names == ["Attached image", "Attached PDF", "Selected folder"], names
@@ -208,7 +208,10 @@ def test_context_previews_support_keyboard_close_and_folder_expansion(playwright
                 assert dialog.evaluate("e => e.open")
                 assert dialog.locator("[data-cx-close]").evaluate("e => e === document.activeElement")
                 if kind == "image":
-                    assert dialog.get_by_role("img").count() == 1
+                    image = dialog.get_by_role("img")
+                    assert image.count() == 1
+                    assert image.evaluate("e => e.src.startsWith('data:image/png') && e.naturalWidth === 720")
+                    assert "checkout-layout.png" in dialog.inner_text()
                     assert "missing delivery control" in dialog.inner_text()
                 elif kind == "pdf":
                     assert "Checkout interface" in dialog.inner_text()
