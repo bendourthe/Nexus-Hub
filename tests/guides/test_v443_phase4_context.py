@@ -85,14 +85,8 @@ def test_every_legend_row_is_swatch_and_label_over_description(playwright_mod) -
         assert row["descLines"] <= 2, row
 
 
-def test_attachable_material_is_a_two_by_two_grid_of_examples(playwright_mod) -> None:
-    """v4.4.4 replaced the drawings with concrete examples, on the review's instruction.
-
-    v4.4.3 put a drawing under each kind name, which was better than the dashed noun box it
-    replaced. The review then asked for made-up examples instead, because an example of a file is
-    more use than a picture of one. The grid and the four kinds are unchanged; the cell content is
-    not. The scenes that still show drawings assert them in their own modules.
-    """
+def test_selected_attachments_are_above_the_prompt_that_names_them(playwright_mod) -> None:
+    """The composed prompt names every visible attachment and selected folder."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
@@ -107,18 +101,22 @@ def test_attachable_material_is_a_two_by_two_grid_of_examples(playwright_mod) ->
                     }));
                     return { columns: getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,
                              cells, drawings: grid.querySelectorAll('svg').length,
+                             abovePrompt: grid.getBoundingClientRect().bottom <= document.querySelector('#fx-ann-context .ann-text').getBoundingClientRect().top,
+                             named: cells.every(c => document.querySelector('#fx-ann-context .ann-text').textContent.includes(c.example)),
+                             sameBox: grid.parentElement.id === 'fx-ann-context',
                              dashed: document.querySelectorAll('#fx-context .fx-ctx-kind').length };
                 }"""
             )
             ctx.close()
         finally:
             browser.close()
-    assert data["columns"] == 2, data
-    assert len(data["cells"]) == 4, data["cells"]
+    assert data["columns"] == 3, data
+    assert len(data["cells"]) == 3, data["cells"]
+    assert data["abovePrompt"] and data["named"] and data["sameBox"], data
     assert data["dashed"] == 0, "the dashed noun boxes must not return"
-    assert data["drawings"] == 0, "this scene shows examples now, not drawings"
+    assert data["drawings"] == 3, "each attachment has a type icon"
     names = [c["name"] for c in data["cells"]]
-    assert names == ["Image", "File or document", "Project folder or workspace", "Codebase"], names
+    assert names == ["Attached image", "Attached PDF", "Selected folder"], names
     for cell in data["cells"]:
         assert cell["example"], f"{cell['name']} has no example"
         assert cell["example"] != cell["name"], "an example must not restate the kind"

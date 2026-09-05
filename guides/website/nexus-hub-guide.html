@@ -256,7 +256,7 @@ h2 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); line-height: 1.2; letter-spacing:
    guarantee a single line on its own, because a fixed size cannot know the container: NexusFit shrinks
    any label or title that would wrap, down to a 15px floor. */
 :root { --title-scale: 1.2; --eyebrow-scale: 3; --fx-tag: 23px; }
-.section-title, .fx-copy .fx-subtitle {
+.section-title, .fx-copy .fx-subtitle, .fx-spend-head {
   font-size: clamp(calc(1.2rem * var(--title-scale)), calc(2.4vw * var(--title-scale)), calc(1.7rem * var(--title-scale)));
   line-height: 1.05; letter-spacing: -.02em; text-wrap: balance; overflow-wrap: break-word;
   min-width: 0; margin: 0 0 var(--sp-4);
@@ -712,18 +712,11 @@ html[data-theme="light"] .ap-step::before { color: #fffdf8; }
 .mx-tier-media svg, .mx-tier-media img { display: block; width: min(100%, 150px); height: auto; border-radius: 6px; }
 @media (max-width: 900px) { .fx-outs.mx-tiers { grid-template-columns: minmax(0, 1fr); } .mx-lanes { grid-template-columns: minmax(0, 1fr); } }
 
-/* ---------- Context Engineering (v4.4.4) ----------
-   The review asked for the copy at full width, the prompt beside the material rather than above it,
-   concrete examples in place of drawings, and the cost of dumping everything named rather than
-   implied. The two meters stay: they are what makes "one finite budget" visible. What is new under
-   each meter is the consequence, in four items, marked as a cost or a gain. */
-/* Compound, because .fx-ctx-row is declared later and a lone class loses on source order:
-   the third time this plan family has hit that, so it is written as a rule in the README. */
-.fx-ctx-row.cx-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
-.cx-mat { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin: 8px 0 0; padding: 0; }
-.cx-mat li { min-width: 0; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-0); }
-.cx-kind { display: block; font: 700 10.5px var(--sans); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint); }
-.cx-ex { display: block; margin-top: 2px; font: 500 12.5px var(--mono); color: var(--blue); overflow-wrap: anywhere; }
+/* Context Engineering: selected attachments and folders sit above the prompt; the meters compare focused and unfocused context. */
+.cx-mat.fx-mat{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-3);margin:var(--sp-3) 0;padding:0;}
+.cx-mat li { display:grid;grid-template-columns:28px minmax(0,1fr);column-gap:var(--sp-2);min-width: 0; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-0); }
+.cx-kind { grid-column:2;display: block; font: 700 10.5px var(--sans); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint); }
+.cx-ex { grid-column:2;display: block; margin-top: 2px; font: 500 12.5px var(--mono); color: var(--blue); overflow-wrap: anywhere; }
 .cx-outcomes { list-style: none; display: grid; gap: 5px; margin: 8px 0 0; padding: 0; }
 .cx-outcomes li { position: relative; padding: 5px 8px 5px 28px; border-radius: 7px; font-size: 12.5px; line-height: 1.35; color: var(--ink-dim); }
 .cx-outcomes li b { color: var(--ink); font-weight: 650; }
@@ -735,7 +728,9 @@ html[data-theme="light"] .ap-step::before { color: #fffdf8; }
 .cx-outcomes--cost li::after { transform: rotate(-45deg); }
 .cx-outcomes--gain li::before { content: ""; position: absolute; left: 9px; top: 14px; width: 6px; height: 2px; border-radius: 2px; background: var(--green); transform: rotate(45deg); }
 .cx-outcomes--gain li::after { content: ""; position: absolute; left: 12px; top: 12px; width: 11px; height: 2px; border-radius: 2px; background: var(--green); transform: rotate(-52deg); }
-@media (max-width: 760px) { .fx-ctx-row.cx-row, .cx-mat { grid-template-columns: minmax(0, 1fr); } }
+.cx-icon{grid-row:1/3;align-self:center;width:24px;height:24px;fill:none;stroke:var(--blue);stroke-width:1.5;stroke-linejoin:round;}
+#fx-ann-context .ann-text{border-top:1px solid var(--border);padding-top:var(--sp-3);font-size:16px;line-height:1.6;}
+@media(max-width:760px){.cx-mat.fx-mat{grid-template-columns:minmax(0,1fr);}}
 
 /* ---------- Prompt Engineering (v4.4.4) ----------
    The previous layout put the two prompts in a three-column grid with a sideways arrow between
@@ -1040,7 +1035,7 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
    keeps it. Making it the default is what made Foundations 7,235px tall at 1440. */
 .fx-wide { grid-template-columns: minmax(0, 1fr); }
 .fx-title { margin-bottom: var(--sp-3); }
-.fx-copy .fx-subtitle{font-weight:700;color:var(--ink);}
+.fx-copy .fx-subtitle,.fx-spend-head{font-weight:700;color:var(--ink);}
 .fx-copy h2 { text-wrap: balance; }
 .fx-copy p { font-size: 15.5px; color: var(--ink-dim); }
 .fx-copy strong, .fx-copy em { color: var(--ink); }
@@ -1185,7 +1180,7 @@ html[data-theme="light"] .cv-changes li { background: transparent; border: 1px s
 .fx-spend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
 .fx-spend-head { grid-column: 1 / -1; }
 @media (max-width: 760px) { .fx-spend { grid-template-columns: minmax(0, 1fr); } }
-.fx-spend-head { margin: 0; font: 500 17px var(--sans); color: var(--ink-dim); line-height: 1.45; }
+.fx-spend-head { margin:var(--sp-4) 0 var(--sp-2); }
 .fx-spend-row { display: grid; gap: 4px; min-width: 0; }
 .fx-spend-tag { font: 700 var(--fx-tag) var(--sans); letter-spacing: .07em; text-transform: uppercase; }
 .fx-spend-tag--bad { color: var(--amber); }
@@ -2220,12 +2215,12 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         <div class="fx-diagram">
           <div class="pe" role="group" aria-label="The same request asked vaguely, then asked precisely">
             <div class="pe-vague">
-              <div class="pe-box"><span class="pe-tag pe-tag--weak">Vague</span><p class="pe-line">&ldquo;Look at this contract.&rdquo;</p></div>
+              <div class="pe-box"><span class="pe-tag pe-tag--weak">Vague Prompt</span><p class="pe-line">&ldquo;Look at this contract.&rdquo;</p></div>
               <ul class="pe-flaws" aria-label="What the vague prompt leaves out"><li><b>No query</b>: nothing says what looking at it should produce</li><li><b>No context</b>: which contract, and which parts of it</li><li><b>No goal</b>: nothing the answer can be checked against</li><li><b>No format</b>: any shape is arguably correct, so none is wrong</li></ul>
             </div>
             <div class="pe-down" aria-hidden="true"><span class="pe-tip"></span></div>
             <div class="pe-precise" id="fx-ann-prompt" data-seq-root data-seq-loop data-seq-hold="2400">
-              <span class="pe-tag pe-tag--strong">Engineered</span>
+              <span class="pe-tag pe-tag--strong">Engineered Prompt</span>
               <p class="ann-text"><mark class="ann" data-part="query" data-seq="1" data-seq-dur="1000">Summarise this contract and list every deadline.</mark> <mark class="ann" data-part="context" data-seq="2" data-seq-dur="1000">Use the signed PDF I attached, sections 4 to 9 only.</mark> <mark class="ann" data-part="goal" data-seq="3" data-seq-dur="1000">Every dated obligation appears once, with its clause number.</mark> <mark class="ann" data-part="format" data-seq="4" data-seq-dur="1600">Return a table: date, obligation, clause, who owes it.</mark></p>
               <dl class="ann-legend" aria-label="What each highlighted part of the prompt is for"><div class="ann-legend-row" data-part="query" data-seq="1"><dt>Query</dt><dd>the job, stated so it can be graded</dd></div><div class="ann-legend-row" data-part="context" data-seq="2"><dt>Context</dt><dd>the material the job runs on</dd></div><div class="ann-legend-row" data-part="goal" data-seq="3"><dt>Goal</dt><dd>the finish line the answer must reach</dd></div><div class="ann-legend-row" data-part="format" data-seq="4"><dt>Format</dt><dd>a shape the work can use</dd></div></dl>
               <p class="pe-why">Every part is now checkable: the query can be graded, the context is named, the goal is explicit, and the format is stated. The answer can be checked against the contract, line by line.</p>
@@ -2245,8 +2240,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         </div>
         <div class="fx-diagram">
           <div class="fx-ctx" role="group" aria-label="The request plus the optional material it can carry, then the same budget filled two ways">
-            <div class="fx-ctx-row cx-row"><div class="fx-ctx-query" id="fx-ann-context" data-seq-root data-seq-loop data-seq-hold="2400"><span class="fx-ctx-tag">Context Engineering Prompt</span><p class="ann-text"><mark class="ann" data-part="request" data-seq="1" data-seq-dur="1100">Add rate limiting to the public API and prove it with tests.</mark> <mark class="ann" data-part="context" data-seq="2" data-seq-dur="1100">Use <code>src/api/</code> and Friday's load-test report.</mark> <mark class="ann" data-part="context" data-seq="3" data-seq-dur="1600">Ignore the archived v1 handlers.</mark></p><dl class="ann-legend" aria-label="What each highlighted part is"><div class="ann-legend-row" data-part="request" data-seq="1"><dt>Request</dt><dd>the words of the job</dd></div><div class="ann-legend-row" data-part="context" data-seq="2"><dt>Context</dt><dd>material the job runs on, chosen, not dumped</dd></div></dl></div><div class="fx-ctx-query" role="group" aria-label="Material the request can name"><span class="fx-ctx-tag">Attached Material</span><ul class="cx-mat fx-mat" aria-label="Optional context that can be attached"><li><span class="cx-kind">Image</span><span class="cx-ex">checkout-error.png</span></li><li><span class="cx-kind">File or document</span><span class="cx-ex">contract-2026-03.pdf</span></li><li><span class="cx-kind">Project folder or workspace</span><span class="cx-ex">src/api/</span></li><li><span class="cx-kind">Codebase</span><span class="cx-ex">every file in the project</span></li></ul></div></div>
-            <div class="fx-spend" role="group" aria-label="The same working budget, filled two ways"><p class="fx-spend-head">Context Engineering Best Practices</p><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--bad">Attach everything in the project</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--waste" style="--w:70%">files the job never touches</span><span class="fx-seg fx-seg--use" style="--w:14%"></span><span class="fx-seg fx-seg--free" style="--w:16%"></span></div><p class="fx-spend-note">The <span class="fx-ink-use">two files the job names</span> get a sliver, and there is almost no <span class="fx-ink-free">room left to answer</span>.</p><ul class="cx-outcomes cx-outcomes--cost"><li><b>More tokens</b>: the budget fills with material nobody asked about</li><li><b>Slower</b>: every attached file has to be read before anything is answered</li><li><b>Costs more</b>: metered work is charged on what was read, not on what was needed</li><li><b>Likelier to miss</b>: the one line that mattered is a needle in a haystack</li></ul></div><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--good">Attach what the job names</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--use" style="--w:58%">the API code and the load-test report</span><span class="fx-seg fx-seg--free" style="--w:42%">room to answer</span></div><p class="fx-spend-note">Same budget, spent on the material the job runs on.</p><ul class="cx-outcomes cx-outcomes--gain"><li><b>Fewer tokens</b>: only the material the job runs on is read</li><li><b>Faster</b>: less to read before the first useful sentence</li><li><b>Costs less</b>: the same answer for a fraction of the metered work</li><li><b>Likelier to land</b>: the material that decides the answer is not buried</li></ul></div></div>
+            <div class="fx-ctx-query" id="fx-ann-context" data-seq-root data-seq-loop data-seq-hold="2400"><span class="fx-ctx-tag">Engineered Prompt</span><ul class="cx-mat fx-mat" aria-label="Attachments and selected context folder"><li><svg class="cx-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg><span class="cx-kind">Attached image</span><span class="cx-ex">api-traffic.png</span></li><li><svg class="cx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2h9l5 5v15H5z M14 2v6h5 M8 12h8 M8 16h6"/></svg><span class="cx-kind">Attached PDF</span><span class="cx-ex">load-test-report.pdf</span></li><li><svg class="cx-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h8l2 3h10v12H2z M2 6V3h8l2 3h8v3"/></svg><span class="cx-kind">Selected folder</span><span class="cx-ex">src/api/</span></li></ul><p class="ann-text"><mark class="ann" data-part="request" data-seq="1" data-seq-dur="1100">Add rate limiting to the public API and prove it with tests.</mark> <mark class="ann" data-part="context" data-seq="2" data-seq-dur="1100">Use <code>api-traffic.png</code> for the traffic spikes, <code>load-test-report.pdf</code> for target limits, and <code>src/api/</code> for the implementation.</mark> <mark class="ann" data-part="context" data-seq="3" data-seq-dur="1600">Ignore the archived v1 handlers.</mark></p><dl class="ann-legend" aria-label="What each highlighted part is"><div class="ann-legend-row" data-part="request" data-seq="1"><dt>Request</dt><dd>the words of the job</dd></div><div class="ann-legend-row" data-part="context" data-seq="2"><dt>Context</dt><dd>material the job runs on, chosen, not dumped</dd></div></dl></div>
+            <div class="fx-spend" role="group" aria-label="The same working budget, filled two ways"><p class="fx-spend-head">Context Engineering Best Practices</p><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--bad">Attach everything in the project</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--waste" style="--w:70%">files the job never touches</span><span class="fx-seg fx-seg--use" style="--w:14%"></span><span class="fx-seg fx-seg--free" style="--w:16%"></span></div><p class="fx-spend-note">The <span class="fx-ink-use">material the job names</span> gets a sliver, and there is almost no <span class="fx-ink-free">room left to answer</span>.</p><ul class="cx-outcomes cx-outcomes--cost"><li><b>More tokens</b>: the budget fills with material nobody asked about</li><li><b>Slower</b>: every attached file has to be read before anything is answered</li><li><b>Costs more</b>: metered work is charged on what was read, not on what was needed</li><li><b>Likelier to miss</b>: the one line that mattered is a needle in a haystack</li></ul></div><div class="fx-spend-row"><span class="fx-spend-tag fx-spend-tag--good">Attach what the job names</span><div class="fx-meter" aria-hidden="true"><span class="fx-seg fx-seg--use" style="--w:58%">the image, report, and API code</span><span class="fx-seg fx-seg--free" style="--w:42%">room to answer</span></div><p class="fx-spend-note">Same budget, spent on the material the job runs on.</p><ul class="cx-outcomes cx-outcomes--gain"><li><b>Fewer tokens</b>: only the material the job runs on is read</li><li><b>Faster</b>: less to read before the first useful sentence</li><li><b>Costs less</b>: the same answer for a fraction of the metered work</li><li><b>Likelier to land</b>: the material that decides the answer is not buried</li></ul></div></div>
           </div>
         </div>
       </section>
@@ -3248,7 +3243,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
      wrapping is the lesser evil, and the test asserts the floor rather than a single line at 320px. */
   (function initNexusFit() {
     var FLOOR = 15;
-    var SEL = ".section-title, .eyebrow, .fx-subtitle";
+    var SEL = ".section-title, .eyebrow, .fx-subtitle, .fx-spend-head";
     function base(el) {
       var b = el.getAttribute("data-fit-base");
       if (b === null) {

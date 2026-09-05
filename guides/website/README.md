@@ -268,3 +268,5 @@ The guide retains the complete v4.4.5 teaching content and section order. The to
 The screenshot-selected Home safety and platform sections now use persistent action examples, finite progress animation, larger platform/handoff text, and connected distribution graphics. [Home verification](../../docs/releases/v4/v4.4/development/guide-visual-refinement/screenshot-segments/plan.md) includes before/after screenshots, breakpoint checks, contrast measurements, and content parity.
 
 The Home and Foundations closing Next sections are removed. Their page navigation remains available. The safety figure reuses the transparent Nexus Hub logo, with a gentle float that pauses off-screen and respects reduced motion.
+
+The Foundations prompt examples use Vague Prompt and Engineered Prompt labels. The context example is one composed message: an attached image, an attached report, and a selected API folder sit above the prompt that names them. Context Engineering Best Practices shares the section subtitle typography.

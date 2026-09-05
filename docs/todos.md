@@ -23,7 +23,7 @@ Refreshing this file to the active plan (rather than appending another version's
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 397,531 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 397,497 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -44,6 +44,8 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Match all Foundations section headings to Home and align the token and context box pairs; 59 affected tests pass. See [verification](releases/v4/v4.4/development/guide-visual-refinement/foundations-alignment/verification.md).
 
 - [x] Remove the Home and Foundations Next sections and replace the safety shield with the transparent floating Nexus Hub logo; 56 focused tests pass. See [verification](releases/v4/v4.4/development/guide-visual-refinement/logo-and-page-endings/verification.md).
+
+- [x] Standardize prompt labels, merge selected attachments into the context prompt, and match the Best Practices heading; 143 tests pass and one is skipped. See [verification](releases/v4/v4.4/development/guide-visual-refinement/prompt-composer/verification.md).
 
 ## Plan - v4.4.6 Guide Learning Experience [SUPERSEDED BY USER]
 
