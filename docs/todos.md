@@ -23,7 +23,7 @@ Refreshing this file to the active plan (rather than appending another version's
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 398,582 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 399,952 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -36,6 +36,8 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Refine the token illustration and harness animation while preserving all 27 sections and 1,150 text fragments.
 - [x] Stop idle Training frame scheduling: Foundations samples fell from 61 callbacks per second to zero.
 - [x] Verify both themes and responsive layouts; complete the guide suite: 342 passed, one optional skip.
+- [x] Rebuild the screenshot-selected Home safety and platform diagrams, enlarge their text, and keep all original content.
+- [x] Verify the Home refinements across nine widths and both themes; all 49 final focused regression checks pass. See [evidence](releases/v4/v4.4/development/guide-visual-refinement/screenshot-segments/plan.md).
 
 ## Plan - v4.4.6 Guide Learning Experience [SUPERSEDED BY USER]
 

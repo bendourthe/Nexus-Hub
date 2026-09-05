@@ -73,3 +73,30 @@ def test_harness_text_stays_visible_when_sequence_resets_and_motion_is_reduced(b
     assert page.locator('[data-image-stage="tokens"] .fx-tokcell-edge').evaluate_all(
         "els => els.every(el => getComputedStyle(el).animationName === 'none')"
     )
+
+
+def test_home_diagrams_keep_examples_visible_and_pause_decorative_motion(browser):
+    page = browser.new_page(viewport={"width": 1440, "height": 1000})
+    page.goto(GUIDE.as_uri() + "#home")
+    dot = page.locator(".ph-dot").first
+    assert dot.evaluate("e => getComputedStyle(e).animationPlayState") == "paused"
+    page.evaluate("NexusSeq.reset(document.querySelector('#nhg-guard-fig'))")
+    assert page.locator(".gf-lane").evaluate_all(
+        "els => els.length === 3 && els.every(e => getComputedStyle(e).opacity === '1')"
+    )
+    page.locator(".ph").scroll_into_view_if_needed()
+    page.wait_for_function("document.querySelector('.ph').classList.contains('live')")
+    assert dot.evaluate("e => getComputedStyle(e).animationPlayState") == "running"
+    assert dot.evaluate("e => getComputedStyle(e).animationIterationCount") == "2"
+    # Exercise the visibility-event branch without relying on headless tab occlusion.
+    page.evaluate("""Object.defineProperty(document, 'hidden', {value: true, configurable: true});
+      document.dispatchEvent(new Event('visibilitychange'));""")
+    assert dot.evaluate("e => getComputedStyle(e).animationPlayState") == "paused"
+    page.evaluate("""delete document.hidden;
+      document.dispatchEvent(new Event('visibilitychange'));""")
+    assert dot.evaluate("e => getComputedStyle(e).animationPlayState") == "running"
+    page.emulate_media(reduced_motion="reduce")
+    assert dot.evaluate("e => getComputedStyle(e).animationName") == "none"
+    assert page.locator(".gf-cell--ask").first.evaluate(
+        "e => getComputedStyle(e, '::after').animationName"
+    ) == "none"

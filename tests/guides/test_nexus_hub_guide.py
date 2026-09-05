@@ -502,9 +502,15 @@ def test_invocation_convention_exists_and_is_used(
 
 def test_reveal_motion_has_static_reduced_fallback(guide_text: str) -> None:
     assert ".reveal" in guide_text
-    reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)
-    assert len(reduce_block) == 2, "expected a reduced-motion block"
-    assert "opacity: 1" in reduce_block[1].split("}", 3)[-2] or "opacity: 1" in reduce_block[1][:800]
+    reduce_blocks = re.findall(
+        r"@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{((?:[^{}]|\{[^{}]*\})*)\}",
+        guide_text,
+    )
+    assert reduce_blocks, "expected a reduced-motion block"
+    assert any(
+        re.search(r"\.js \.reveal\s*\{[^}]*opacity:\s*1", block)
+        for block in reduce_blocks
+    ), "reduced motion must expose reveal content regardless of stylesheet ordering"
 
 
 def test_copy_button_is_slim(guide_text: str) -> None:
@@ -1004,7 +1010,11 @@ def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
     assert ".js .hero-lockup.live .hero-lockup-float" in guide_text, (
         "continuous motion must be gated on liveness, not free-running"
     )
-    assert 'document.querySelectorAll(".fx-scene, .hero-lockup")' in guide_text
+    scene_selector = re.search(r'var scenes = document.querySelectorAll\("([^"\n]+)"\)', guide_text)
+    assert scene_selector
+    assert {".fx-scene", ".hero-lockup", ".guard-fig", ".ph"} <= {
+        selector.strip() for selector in scene_selector.group(1).split(",")
+    }
     assert "IntersectionObserver" in guide_text
     reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
     assert ".fx-tokchip" in reduce_block, "token chips need a static reduced-motion state"

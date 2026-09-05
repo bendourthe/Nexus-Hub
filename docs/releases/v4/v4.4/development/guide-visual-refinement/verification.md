@@ -29,3 +29,7 @@ The Training canvas now schedules frames only while the game is running. Idle, p
 Native browser 200% zoom, OS occlusion, and a whole-site accessibility audit were not performed. The double-text-size check is recorded separately and is not native zoom evidence. Publication and repository-wide CI were not run for this scoped guide correction.
 
 A broader Home layout change was considered and left out because the user's correction makes the v4.4.5 composition the baseline. Removing original explanations or changing the teaching sequence was rejected by the preservation contract. The original Training content and controls remain in place; its background frame scheduling was the confirmed performance defect.
+
+## Screenshot-selected Home follow-up
+
+The two Home sections selected by the user were subsequently rebuilt with larger text, clearer safety checks, a connected platform distribution diagram, and a roomier handoff. [Follow-up verification and screenshots](screenshot-segments/plan.md) record the final scope and tests.

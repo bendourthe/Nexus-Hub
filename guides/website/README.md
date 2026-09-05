@@ -264,3 +264,5 @@ The guide is a single HTML file: CSS in the `<style>` block, content in `<sectio
 ## Targeted visual refinement after v4.4.5 restoration
 
 The guide retains the complete v4.4.5 teaching content and section order. The token prompt uses its intended typography; the paired image illustration shares its frame and shows the source grid. Harness layer symbols carry the timeline emphasis while explanations remain visible. The Training canvas schedules frames only while running, and resumes from the existing pause state without idle background work. [Verification and screenshots](../../docs/releases/v4/v4.4/development/guide-visual-refinement/verification.md) record content parity, responsive rendering, and lifecycle checks.
+
+The screenshot-selected Home safety and platform sections now use persistent action examples, finite progress animation, larger platform/handoff text, and connected distribution graphics. [Home verification](../../docs/releases/v4/v4.4/development/guide-visual-refinement/screenshot-segments/plan.md) includes before/after screenshots, breakpoint checks, contrast measurements, and content parity.
