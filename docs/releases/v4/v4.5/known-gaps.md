@@ -1,8 +1,8 @@
 # Known Gaps - v4.5
 
 **Project**: Nexus-Hub
-**Status**: v4.5.0 phases 1 to 7 complete locally on `feat/v4.5.0-anti-cliche-and-agent-security`; published to `develop` in PR #162 (merge `765d9f32`, 2026-09-05 UTC); awaiting `/update release`
-**Last updated**: 2026-09-04 (v4.5.0 Phase 7)
+**Status**: v4.5.0 finalized 2026-09-04 at `/update release`; integrated via PR #162 (merge `765d9f32`) and PR #163
+**Last updated**: 2026-09-04 (v4.5.0 release)
 
 ## v4.5.0 - anti-cliche-and-agent-security
 
