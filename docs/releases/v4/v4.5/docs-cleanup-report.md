@@ -41,3 +41,9 @@ Audit-mode report written by the phase 8.6 step of each v4.5.0 phase. Nothing mo
 - New files this phase created: the phase 6 history file only. `docs/framework-coverage.md` was regenerated in place by the repository's generator, not authored. No new scratch docs.
 - `python scripts/check_docs_conventions.py`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
 - Proposals: none.
+
+## Phase 7 (2026-09-04)
+
+- New files this phase created: `development/last-phase-evidence.md`, `development/phase-7-evidence.md`, the phase 7 history file, and the decision record `docs/decisions/implemented/policy/2026-09-04-writing-discipline-binds-chat-replies.md`. `known-gaps.md` rewritten with derived counts. No new scratch docs.
+- `python scripts/check_docs_conventions.py --root docs/releases/v4/v4.5`: OK. `python scripts/check_docs_retention.py`: nothing due for archival. `find . -type d -empty`: nothing.
+- Proposals: none. `docs/todos.md` and `docs/releases/v4/v4.4/known-gaps.md` deliberately not edited from this branch (concurrent v4.4.6 session owns both in the main checkout); dispositions recorded in `known-gaps.md`.
