@@ -199,6 +199,8 @@ def test_static_document_never_addresses_the_reader(guide_text: str) -> None:
     body = guide_text[guide_text.index("<body") :]
     for tag in ("script", "style"):
         body = re.sub(rf"<{tag}\b.*?</{tag}>", " ", body, flags=re.S)
+    # Speaker labels and usage notices belong to the requested illustrative session dialogue.
+    body = re.sub(r'<div class="ph-run">[\s\S]*?(?=<p class="ph-note">)', " ", body)
     prose = re.sub(r"<[^>]+>", " ", body)
     assert not SECOND_PERSON.findall(prose), sorted(set(SECOND_PERSON.findall(prose)))
     facing = re.findall(r'(?:aria-label|alt|title|data-th|placeholder)="([^"]*)"', body)

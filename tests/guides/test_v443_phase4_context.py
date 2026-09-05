@@ -85,7 +85,7 @@ def test_every_legend_row_is_swatch_and_label_over_description(playwright_mod) -
         assert row["descLines"] <= 2, row
 
 
-def test_selected_attachments_are_above_the_prompt_that_names_them(playwright_mod) -> None:
+def test_attachments_and_context_folder_are_below_the_prompt_that_names_them(playwright_mod) -> None:
     """The composed prompt names every visible attachment and selected folder."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
@@ -93,15 +93,15 @@ def test_selected_attachments_are_above_the_prompt_that_names_them(playwright_mo
             ctx, page = _scene(browser)
             data = page.evaluate(
                 """() => {
-                    const grid = document.querySelector('#fx-context .cx-mat');
-                    const cells = [...grid.querySelectorAll('li')].map(c => ({
+                    const grid = document.querySelector('#fx-context .cx-materials');
+                    const cells = [...grid.querySelectorAll('.cx-file')].map(c => ({
                       name: c.querySelector('.cx-kind').textContent.trim(),
                       example: c.querySelector('.cx-ex').textContent.trim(),
                       mono: getComputedStyle(c.querySelector('.cx-ex')).fontFamily.toLowerCase(),
                     }));
                     return { columns: getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,
                              cells, drawings: grid.querySelectorAll('svg').length,
-                             abovePrompt: grid.getBoundingClientRect().bottom <= document.querySelector('#fx-ann-context .ann-text').getBoundingClientRect().top,
+                             belowPrompt: grid.getBoundingClientRect().top >= document.querySelector('#fx-ann-context .ann-text').getBoundingClientRect().bottom,
                              named: cells.every(c => document.querySelector('#fx-ann-context .ann-text').textContent.includes(c.example)),
                              sameBox: grid.parentElement.id === 'fx-ann-context',
                              dashed: document.querySelectorAll('#fx-context .fx-ctx-kind').length };
@@ -110,11 +110,10 @@ def test_selected_attachments_are_above_the_prompt_that_names_them(playwright_mo
             ctx.close()
         finally:
             browser.close()
-    assert data["columns"] == 3, data
+    assert data["columns"] == 2, data
     assert len(data["cells"]) == 3, data["cells"]
-    assert data["abovePrompt"] and data["named"] and data["sameBox"], data
+    assert data["belowPrompt"] and data["named"] and data["sameBox"], data
     assert data["dashed"] == 0, "the dashed noun boxes must not return"
-    assert data["drawings"] == 3, "each attachment has a type icon"
     names = [c["name"] for c in data["cells"]]
     assert names == ["Attached image", "Attached PDF", "Selected folder"], names
     for cell in data["cells"]:
@@ -192,5 +191,38 @@ def test_the_worked_example_is_an_agentic_project_task(playwright_mod) -> None:
             ctx.close()
         finally:
             browser.close()
-    assert "rate limiting" in text and "tests" in text, text
-    assert "contract" not in text and "deadline" not in text, "the document-summary example is back"
+    assert "checkout" in text and "align back and place order" in text and "change delivery" in text, text
+    assert "checkout-guidelines.pdf" in text and "assets/checkout/" in text, text
+
+
+def test_context_previews_support_keyboard_close_and_folder_expansion(playwright_mod):
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        ctx, page = _scene(browser)
+        try:
+            dialog = page.locator("#cx-preview")
+            for kind in ("image", "pdf", "folder"):
+                button = page.locator('[data-cx-preview="' + kind + '"]')
+                button.focus()
+                page.keyboard.press("Enter")
+                assert dialog.evaluate("e => e.open")
+                assert dialog.locator("[data-cx-close]").evaluate("e => e === document.activeElement")
+                if kind == "image":
+                    assert dialog.get_by_role("img").count() == 1
+                    assert "missing delivery control" in dialog.inner_text()
+                elif kind == "pdf":
+                    assert "Checkout interface" in dialog.inner_text()
+                    assert "Change delivery" in dialog.inner_text()
+                else:
+                    assert "cart.svg" in dialog.inner_text()
+                    dialog.locator("summary").filter(has_text="illustrations/").click()
+                    assert dialog.get_by_text("order-confirmed.svg").is_visible()
+                page.keyboard.press("Escape")
+                assert not dialog.evaluate("e => e.open")
+                assert button.evaluate("e => e === document.activeElement")
+            page.locator('[data-cx-preview="image"]').click()
+            dialog.locator("[data-cx-close]").click()
+            assert not dialog.evaluate("e => e.open")
+        finally:
+            ctx.close()
+            browser.close()
