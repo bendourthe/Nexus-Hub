@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Branch:** `feat/v4.4.3-guide-illustration-rebuild`
-**Active plan:** [v4.4.6 guide-learning-experience](releases/v4/v4.4/plans/v4.4.6-guide-learning-experience.md), implementation in progress; Phases 1-6 complete. Predecessor v4.4.5 is locally complete and unpublished.
+**Active work:** [Restore v4.4.5 and refine selected visuals](releases/v4/v4.4/development/guide-learning-experience/restoration/verification.md). The v4.4.6 content redesign is rejected and superseded. Preserve the original sections and content.
 **Last refreshed:** 2026-09-04
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -15,20 +15,27 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.4.6 guide-learning-experience phases complete | 6 | 7 | 1 |
-| v4.4.6 guide-learning-experience tasks complete | 18 | 28 | 10 |
+| v4.4.5 baseline guide/test files restored | 59 | 59 | 0 |
+| Exact production-file restorations | 3 | 3 | 0 |
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
 | v4.4.2 guide-production-ready-rebuild phases complete | 8 | 8 | 0 |
 | v4.4.2 local phase commits | 8 | 8 | 0 |
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
-| Confirmed guide defects remaining | 1 | 0 | 1 |
+| Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 352,924 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 396,424 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
 
-## Plan - v4.4.6 Guide Learning Experience [IN PROGRESS]
+## Current work - v4.4.5 visual refinement
+
+- [x] Restore the exact v4.4.5 guide, Training data, README, and related tests.
+- [x] Verify baseline file parity and inspect restored desktop/mobile pages.
+- [x] Complete the guide-specific regression suite: 340 passed, one optional skip; four inherited warnings.
+- [ ] Refine the selected existing illustrations and animations while preserving all sections and substantive content.
+
+## Plan - v4.4.6 Guide Learning Experience [SUPERSEDED BY USER]
 
 - [x] Review current Home, Foundations, Training, and the two supplied source documents; retain current browser evidence.
 - [x] Write the seven-phase implementation plan with continuous visual and performance gates.
@@ -40,7 +47,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 6 - Training clarity and state integrity.
 - [ ] Phase 7 - Final verification, known gaps, CI/CD, and approval-gated integration.
 
-Shared visibility and idle game rendering are fixed and browser-verified. Home is concise and browser-verified; all seven Foundations lessons are rebuilt; Training state integrity is fixed; final cross-page stabilization and human review remain. Earlier dashboard counts below are historical and do not qualify this plan.
+Historical implementation record only: the user rejected this content/structure rewrite. v4.4.5 has been restored, and the plan above must not resume. Prior test and performance results describe the rejected artifact, not the restored guide.
 
 ---
 

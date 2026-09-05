@@ -328,6 +328,8 @@
 
 ## v4.4.6 - guide-learning-experience
 
+Current disposition: SUPERSEDED BY USER. The v4.4.6 redesign and temporary follow-up are rejected; the exact v4.4.5 guide is restored. The rows below describe the rejected artifact and remain historical. Existing v4.4.5 visual/animation issues must be assessed under the [corrected scope](development/guide-learning-experience/restoration/verification.md), preserving all sections and content.
+
 ### Summary
 
 | Category | Open | Resolved |

@@ -1085,3 +1085,7 @@ Six register rows in the same contract. The two that retired a rule rather than 
 No P0 and no P1. Every task in the plan is measured. Three items are the operator's to judge rather than defects, all in `known-gaps.md`: the Models scene names `xAI Grok` rather than `Cursor Grok` as the brief listed, because Grok is xAI's model and Cursor is a platform that serves models; `Context Engineering Best Practices` now reads quieter than the two tags below it, because "match the subtitle" and "double the tags" were both followed exactly and pull against each other; and the Home label still renders larger than its title, which is what the first round's two numbers produce.
 
 <!-- END v4.4.5-guide-mockup-integration -->
+
+## User-directed v4.4.5 restoration
+
+The user rejected the v4.4.6 removal and restructuring of Home and Foundations content. The guide, canonical Training data, README, and guide tests were restored from bdd57cee. The [restoration record](guide-learning-experience/restoration/verification.md) supersedes the v4.4.6 implementation and pending three-fix proposal as the current product disposition. Further changes must preserve the v4.4.5 sections, order, and substantive content and focus on selected existing visuals and animations. Previous records remain historical; they are not approval of the rejected guide.

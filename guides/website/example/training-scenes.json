@@ -23,7 +23,7 @@
       "id": "describe",
       "stage": "Understand",
       "title": "Map the game before changing it",
-      "intent": "Trace the damage path before editing it.",
+      "intent": "You ask the assistant to trace what actually happens when an enemy shot reaches the ship, before touching anything.",
       "command": "/describe full",
       "tools": [
         {
@@ -70,9 +70,9 @@
     },
     {
       "id": "review",
-      "stage": "Understand",
+      "stage": "Evaluate",
       "title": "Turn the symptom into a finding",
-      "intent": "Prove that instant destruction is a defect.",
+      "intent": "You ask for a severity-ranked review that proves why instant death is a defect and not a difficulty choice.",
       "command": "/review",
       "tools": [
         {
@@ -117,9 +117,9 @@
     },
     {
       "id": "plan",
-      "stage": "Understand",
+      "stage": "Decide",
       "title": "Make the repair testable",
-      "intent": "Define a small repair and its acceptance check.",
+      "intent": "You turn the finding into one small phase with an observable in-game exit gate.",
       "command": "/plan feature",
       "tools": [
         {
@@ -164,9 +164,9 @@
     },
     {
       "id": "implement",
-      "stage": "Change",
+      "stage": "Build",
       "title": "Make a hit cost one life",
-      "intent": "Repair the handler, then replay the same enemy hit.",
+      "intent": "You run the planned phase and immediately replay the same seeded shot against the repaired handler.",
       "command": "/implement fix-damage-handling phase-1",
       "tools": [
         {
@@ -231,9 +231,9 @@
     },
     {
       "id": "compare",
-      "stage": "Change",
+      "stage": "Extend",
       "title": "Adopt vertical movement without importing a project",
-      "intent": "Add vertical movement from a focused behavior comparison.",
+      "intent": "You compare a reference behavior, record the useful pattern, and run its follow-on plan and implementation.",
       "command": "/compare vertical-movement-reference",
       "tools": [
         {
@@ -301,9 +301,9 @@
     },
     {
       "id": "test",
-      "stage": "Verify",
+      "stage": "Prove",
       "title": "Exercise both behavior boundaries",
-      "intent": "Check the damage and movement boundaries.",
+      "intent": "You run the focused suite and confirm the damage and movement seams cover their boundary cases.",
       "command": "/test unit",
       "tools": [
         {
@@ -348,9 +348,9 @@
     },
     {
       "id": "update",
-      "stage": "Verify",
+      "stage": "Record",
       "title": "Leave the project history current",
-      "intent": "Record the change and its repeatable proof.",
+      "intent": "You record what changed and the exact proof a future maintainer can rerun.",
       "command": "/update changelog",
       "tools": [
         {
@@ -395,9 +395,9 @@
     },
     {
       "id": "presentify",
-      "stage": "Verify",
+      "stage": "Communicate",
       "title": "Turn the evidence into a briefing",
-      "intent": "Turn the evidence into a short offline briefing.",
+      "intent": "You assemble the analysis, finding, implementation, and proof into an offline walkthrough.",
       "command": "/presentify docs/analysis.md docs/review.md CHANGELOG.md",
       "tools": [
         {
