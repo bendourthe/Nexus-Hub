@@ -25,12 +25,6 @@
 ## {{PRIMARY_LANGUAGE}} Conventions
 {{LANGUAGE_CONVENTIONS}}
 
-## Communication Style
-- Place punctuation outside quotation marks (logical punctuation)
-- No em-dashes; use parentheses, commas, or separate sentences
-- Professional teaching tone
-- Never hard-wrap paragraph text at a fixed column width; write each paragraph or bullet point as a single continuous line and let the editor or terminal handle visual wrapping
-
 ## Communication Contract
 
 - Outcome first, in language a non-engineer follows; define jargon in place; put detail beyond ~5 lines in a linked docs/ file.
@@ -40,6 +34,18 @@
 - Work still running at turn end: lead with a one-line status banner, cap the update at ~8 lines.
 
 Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
+
+## Writing Discipline
+
+Do not produce the high-frequency AI-cliche moves: throat-clearing openers; "not just X, but Y" and "it is not X, it is Y" contrasts; importance puffery ("crucial", "it is important to note"); weasel attribution ("experts say", "studies show"); faux-insight setups ("here is the thing"); trailing "-ing" clauses that restate a sentence as analysis; fake-profound closing lines; summary-recap endings; and mannered prose, where metaphor or flourish stands in for a direct statement.
+
+Punctuation is ASCII only: no em-dashes, no clause-joining spaced hyphens, punctuation placed outside quotation marks by logic, and no hard-wrapping of paragraph text. Keep a professional teaching tone.
+
+Chatbot leftovers are defects, not style: never emit "as an AI language model", "here is the revised version", or "I hope this helps".
+
+Self-check: before returning any response or writing any file, scan your own output against this list and fix what you find. This binds live chat replies, not only generated documents.
+
+Full catalog and the Edit / Detect modes: `anti-slop-editing`.
 
 ## Documentation Layout
 

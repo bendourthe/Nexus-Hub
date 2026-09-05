@@ -124,6 +124,16 @@
       "techniqueID": "T1078"
     },
     {
+      "comment": "agent-execution-isolation",
+      "score": 1,
+      "techniqueID": "T1080"
+    },
+    {
+      "comment": "agent-execution-isolation",
+      "score": 1,
+      "techniqueID": "T1090"
+    },
+    {
       "comment": "cloud-audit-log-detection",
       "score": 1,
       "techniqueID": "T1098"

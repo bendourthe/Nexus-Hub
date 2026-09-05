@@ -140,6 +140,33 @@ def test_missing_communication_contract_heading_fails(tmp_path: Path, runner) ->
     assert "base-codex.md" in result.stderr
 
 
+def test_writing_discipline_divergence_fails(tmp_path: Path, runner) -> None:
+    # v4.5.0: the Writing Discipline body is an invariant block. A one-word
+    # reword in a single template must fail, naming the file and the section.
+    seed_lockstep_tree(tmp_path)
+    mutate(
+        tmp_path,
+        "base-gemini.md",
+        "Chatbot leftovers are defects, not style:",
+        "Chatbot leftovers are quirks, not style:",
+    )
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 1
+    assert "base-gemini.md" in result.stderr
+    assert "Writing Discipline" in result.stderr
+
+
+def test_missing_writing_discipline_heading_fails(tmp_path: Path, runner) -> None:
+    # v4.5.0: dropping the whole block from one lockstep file must fail on the
+    # required-heading check, so a platform cannot silently lose the rule.
+    seed_lockstep_tree(tmp_path)
+    mutate(tmp_path, "base-codex.md", "## Writing Discipline", "## Writing Habits")
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 1
+    assert "base-codex.md" in result.stderr
+    assert "Writing Discipline" in result.stderr
+
+
 def test_allowed_per_platform_line_still_passes(tmp_path: Path, runner) -> None:
     # Change only an allowed per-platform install path (Context References is
     # neither a required heading/placeholder nor an invariant block) -> the

@@ -18,6 +18,12 @@ Ceilings move in one direction.
 - **Raising a ceiling is a decision.** It requires an explicit justification in the pull request that raises it: what was added, why it must be always-loaded rather than on-demand, and what (if anything) was removed to partly offset it. The validator's `OVER` message says "relocate or condense" first for exactly this reason, so the cheap fix stays the obvious one.
 - **Keep at least 5% headroom.** Ceilings are seeded at roughly current size plus 10%. A budget with under 5% headroom is reported by `--list` with a `<- tight` marker: at that point the doc is effectively frozen, which is a stricter policy than intended and usually means the content needs relocating rather than the ceiling needs raising.
 
+### Recorded raises
+
+Every raise is a decision, so it is logged here as well as in the pull request that made it.
+
+- **2026-09-04, v4.5.0 phase 1.** The five lockstep templates rose by the measured cost of the new always-loaded `## Writing Discipline` block: base-claude.md 1690 to 1800 (+110; the block cost 163 words there but retired the 54-word Claude-only `## Communication Style` section it absorbed), and base-codex.md 1320 to 1490, base-cursor.md 1290 to 1460, base-gemini.md 1310 to 1480, base-opencode.md 1290 to 1460 (+170 each, the 163-word block rounded up). Why always-loaded rather than on-demand: the rule binds the agent's own chat replies and generated files on every turn, and the `anti-slop-editing` skill it points at is trigger-gated, so a user who never asks for it never receives it; the comparison that seeded v4.5.0 found the punctuation rule shipped to one platform of twelve for that reason. What offset it: the Claude-only section was removed rather than duplicated, and the block names the highest-frequency patterns in one item each and defers the catalog to the skill, so it stays at 11 lines. Phase 7 of the same plan owns the reckoning on whether the per-turn cost earned its place.
+
 ## Usage
 
 ```bash
