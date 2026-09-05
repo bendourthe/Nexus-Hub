@@ -47,7 +47,7 @@ SKILL_NAME = "model-prompting-research"
 INDEX_REL = Path("assets") / "profiles-index.json"
 PROFILES_REL = Path("references") / "models"
 
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
 ALLOWED_ROSTER_SOURCES = ("api", "picker", "config", "manual")
 ALLOWED_CONFIDENCE = ("high", "medium", "low", "unverified")
 ALLOWED_SCOPE = ("model-specific", "model-agnostic-candidate")
@@ -290,14 +290,49 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
     merged_roster = sorted(set(merged_roster) | set(index["models"]))
 
     index["schema_version"] = SCHEMA_VERSION
-    index["meta"] = {
-        "last_verified": verified_at,
+    legacy_platform = index["meta"].get("platform")
+    if legacy_platform in (None, platform):
+        # Single-platform layer, or a write for the layer's primary platform: the
+        # legacy keys stay the source of truth (schema 1.0.0 behavior).
+        index["meta"] = {
+            **index["meta"],
+            "last_verified": verified_at,
+            "platform": platform,
+            "roster_source": roster_source,
+            "roster": merged_roster,
+            "roster_hash": roster_hash(merged_roster),
+        }
+        return index, written
+
+    # v4.7.0 (schema 1.1.0): a write for ANOTHER platform lands in the optional
+    # meta.platforms array, so the primary platform's roster is never rewritten by
+    # research on a different vendor's models.
+    entries = [e for e in index["meta"].get("platforms", []) if isinstance(e, dict)]
+    existing = next((e for e in entries if e.get("platform") == platform), None)
+    prior = [str(m) for m in (existing or {}).get("roster", []) if str(m).strip()]
+    if isinstance(roster, list) and roster:
+        platform_roster = [str(m).strip() for m in roster if str(m).strip()]
+    else:
+        platform_roster = prior
+    profiled_here = [m for m, e in index["models"].items() if e.get("platform") == platform]
+    platform_roster = sorted(set(platform_roster) | set(profiled_here))
+    entry = {
         "platform": platform,
         "roster_source": roster_source,
-        "roster": merged_roster,
-        "roster_hash": roster_hash(merged_roster),
+        "roster": platform_roster,
+        "roster_hash": roster_hash(platform_roster),
+        "last_verified": verified_at,
     }
+    index["meta"]["platforms"] = [e for e in entries if e.get("platform") != platform] + [entry]
     return index, written
+
+
+def platform_roster_source(index: dict, platform: str) -> str:
+    """The roster provenance for a platform: its meta.platforms entry, else the legacy meta."""
+    for entry in index.get("meta", {}).get("platforms", []) or []:
+        if isinstance(entry, dict) and entry.get("platform") == platform:
+            return str(entry.get("roster_source", "manual"))
+    return str(index.get("meta", {}).get("roster_source", "manual"))
 
 
 def write_layer(bundle: Path, index: dict, written: list[str]) -> list[Path]:
@@ -312,11 +347,12 @@ def write_layer(bundle: Path, index: dict, written: list[str]) -> list[Path]:
 
     mirrors = bundle / PROFILES_REL
     mirrors.mkdir(parents=True, exist_ok=True)
-    roster_source = index["meta"]["roster_source"]
     for model_id in written:
+        entry = index["models"][model_id]
+        roster_source = platform_roster_source(index, str(entry.get("platform", "")))
         mirror = mirrors / f"{model_id}.md"
         mirror.write_text(
-            _render_mirror(model_id, index["models"][model_id], roster_source),
+            _render_mirror(model_id, entry, roster_source),
             encoding="utf-8",
             newline="\n",
         )
@@ -344,6 +380,10 @@ def main(argv: list[str] | None = None) -> int:
 
     p_plan = sub.add_parser("plan", help="Print the models that still need research.")
     p_plan.add_argument("--roster", nargs="*", default=None, help="The LIVE model roster.")
+    p_plan.add_argument(
+        "--platform",
+        help="Plan against the recorded roster of this platform (a meta.platforms entry); default is the legacy meta roster.",
+    )
     p_plan.add_argument("--only", help="Narrow to one model (scope-first calibration).")
     p_plan.add_argument(
         "--refresh-all", action="store_true", help="Re-research every rostered model."
@@ -365,6 +405,15 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.mode == "plan":
         roster = args.roster if args.roster else index["meta"].get("roster", [])
+        if not args.roster and args.platform:
+            roster = next(
+                (
+                    e.get("roster", [])
+                    for e in index["meta"].get("platforms", []) or []
+                    if isinstance(e, dict) and e.get("platform") == args.platform
+                ),
+                [],
+            )
         if not isinstance(roster, list):
             roster = []
         result = plan_targets(

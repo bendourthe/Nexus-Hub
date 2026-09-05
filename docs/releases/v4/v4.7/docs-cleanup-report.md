@@ -31,3 +31,9 @@ Per-phase record of the documentation cleanup audit (implement-phase step 8.6).
 - New files this phase created: `development/test-scope-decision.md`, the Phase 5 history file, and `tests/skills/test_reliability_metric_ownership.py`. No new scratch docs.
 - `python scripts/check_docs_conventions.py --root docs/releases/v4/v4.7`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
 - Proposals: none.
+
+## Amendment Phase 3 (2026-09-05)
+
+- New files this phase created: `development/profile-index-multi-platform-decision.md`, the amendment Phase 3 history file, `tests/skills/test_prompting_profile_gpt_6_astra.py`, and the writer-generated `references/models/gpt-6-astra.md`. The research payload was written to a scratch file outside the repository and removed after the write. No new scratch docs.
+- `python scripts/check_docs_conventions.py --root docs/releases/v4/v4.7`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
+- Proposals: none.

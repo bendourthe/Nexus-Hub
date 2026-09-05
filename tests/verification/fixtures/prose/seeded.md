@@ -17,3 +17,7 @@ In today's fast-paced world, developers need fast tools. Here is the thing: test
 This tool is not fast. This tool is not simple. This tool is not free. Tests catch bugs. Tests document intent. Tests slow you down. Why does it matter? What does it cost? Who pays?
 
 This line has an em-dash — and this one has curly quotes: “hello”. Fast - really fast - is what they said, with an ellipsis…
+
+Bottom Line: the cache was the cause.
+
+In short: rerun the migration after the fix.
