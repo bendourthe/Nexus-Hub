@@ -47,6 +47,8 @@ Hosts, accounts, time window, and forbidden techniques. Dual-use gate applies.
 
 Map to ATT&CK. Atomic and observable beats a cinematic chain nobody can score.
 
+One exception earns a chain: the cross-domain path. An autonomous attacker combines individually low-severity findings, a shared service, and an over-scoped credential into a route no single finding predicts, across applications, identities, cloud services, CI/CD, and third parties. When the exercise's question is whether such a path exists, trace the complete path end to end rather than enumerating isolated vulnerabilities, and still give every hop a detection owner and a score. This skill owns that tracing; see Rule ownership below.
+
 ### Step 3: Name a detection owner per TTP
 
 If nobody owns the log source, the test is already a fail.
@@ -73,9 +75,22 @@ Each miss is a detection engineering item with an owner and a due date.
 - [ ] Each TTP has a detection owner
 - [ ] Misses became tickets
 
+## Rule ownership
+
+Three skills touch attack reachability, and each owns one concern so a multi-skill review reports a root cause once.
+
+| Concern | Owner | Non-owners reference the owner and describe only the handoff |
+|---|---|---|
+| Cross-domain attack chaining: tracing a complete adversary path across applications, identities, cloud services, CI/CD, and third parties, where low-severity findings, a shared service, and an over-scoped credential combine into a route no single finding predicts | `purple-team-exercise-design` (this skill) | `exploitability-analyzer` and `cve-reachability-analyzer` hand a confirmed-reachable, scored finding to this skill when the question becomes what it chains to |
+| Within-application reachability: whether a vulnerable function executes on a real call path | `cve-reachability-analyzer` | this skill takes reachable findings as chain input and does not re-derive call paths |
+| Per-finding exploitability and severity | `exploitability-analyzer` | this skill takes the score as given and does not re-rate a hop |
+
 ## Related Skills
 
 - [[siem-detection-engineering]] -- where misses go
 - [[advanced-attack-patterns]] -- web TTP ideas stay in their skill
+- [[cve-reachability-analyzer]] -- owns within-application reachability; its confirmed-reachable findings are chain input here
+- [[exploitability-analyzer]] -- owns per-finding severity; its scores are taken as given when a hop is chained
+- [[agent-execution-isolation]] -- the shared-service and transitive-reachability controls that most cross-domain chains exploit
 
 Framework identifiers declared in frontmatter are explained in [references/standards.md](references/standards.md).

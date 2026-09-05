@@ -6,7 +6,7 @@ This file is the single place external names belong. The skill body describes th
 
 ## Source Provenance
 
-The three-layer model (OS sandbox, minimal in-loop runtime, out-of-process egress boundary), per-session ephemeral containers, placeholder-credential brokering, and static-rule plus LLM-judge plus human-escalation egress control are generalized from public articles and open-source agent-sandbox and egress-proxy designs. They are ingested as engineering patterns, not as product endorsements. Incident anecdotes in those sources are treated as unverified claims and are not reproduced in the skill.
+The four-layer model (hardened host environment, OS sandbox, minimal in-loop runtime and sandbox configuration, out-of-process egress boundary with transitive-reachability checking), per-session ephemeral containers, placeholder-credential brokering, and static-rule plus LLM-judge plus human-escalation egress control are generalized from public articles and open-source agent-sandbox and egress-proxy designs. They are ingested as engineering patterns, not as product endorsements. Incident anecdotes in those sources are treated as unverified claims and are not reproduced in the skill. The v4.5.0 additions (transitive reachability, shared writable services as inter-agent channels, the host layer under assumed sandbox compromise, boundary-interface minimization) generalize publicly reported 2026 incidents and a published virtual-machine escape result; they are described in the body as patterns, with no researcher, company, product, or hypervisor named.
 
 - Source type: public design articles and self-hosted open-source repositories (sandbox runtimes and HTTP egress proxies).
 - Not adopted: any vendor-operated hardened-image rebuild service, and any TLS-intercept proxy implementation as code in this catalog.
@@ -72,6 +72,41 @@ The three-layer model (OS sandbox, minimal in-loop runtime, out-of-process egres
 - Framework: NIST Cybersecurity Framework, Detect function.
 - Short title: "Security Continuous Monitoring".
 - Rationale: the egress audit log and human escalation path are continuous monitoring of what leaves the agent boundary.
+- Source: https://www.nist.gov/cyberframework
+
+## ATT&CK T1090 - Proxy
+
+- Framework: MITRE ATT&CK (Enterprise matrix), Command and Control tactic.
+- Short title: "Proxy".
+- Rationale: an allowlisted internal service with its own internet egress functions as a proxy for a sandboxed agent. The transitive-reachability control in step 5 exists to find that route before the allowlist approves it.
+- Source: https://attack.mitre.org/techniques/T1090/
+
+## ATT&CK T1080 - Taint Shared Content
+
+- Framework: MITRE ATT&CK (Enterprise matrix), Lateral Movement tactic.
+- Short title: "Taint Shared Content".
+- Rationale: a writable service reachable from more than one agent session is shared content one session can taint for another. The shared-writable-service enumeration and remediation ladder in step 3 are the preventive mapping.
+- Source: https://attack.mitre.org/techniques/T1080/
+
+## D3FEND D3-NI - Network Isolation
+
+- Framework: MITRE D3FEND, Isolate tactic.
+- Short title: "Network Isolation".
+- Rationale: enforcing egress at the workload, subnet, and perimeter tiers rather than at a single proxy, and restricting sandbox hosts from management networks and control planes, are network isolation applied at more than one layer.
+- Source: https://d3fend.mitre.org/technique/d3f:NetworkIsolation/
+
+## D3FEND D3-PH - Platform Hardening
+
+- Framework: MITRE D3FEND, Harden tactic.
+- Short title: "Platform Hardening".
+- Rationale: host-level mandatory access control, secrets kept off sandbox hosts, dedicated infrastructure for high-risk workloads, and a minimal sandbox configuration with unused devices, mounts, and management interfaces removed are platform hardening of the environment the sandbox stands on.
+- Source: https://d3fend.mitre.org/technique/d3f:PlatformHardening/
+
+## NIST CSF PR.PT - Protective Technology
+
+- Framework: NIST Cybersecurity Framework, Protect function.
+- Short title: "Protective Technology".
+- Rationale: mandatory access control on sandbox hosts, minimal machine configuration, and multi-layer egress enforcement are protective technology managed to secure the systems the agent runs on.
 - Source: https://www.nist.gov/cyberframework
 
 ---
