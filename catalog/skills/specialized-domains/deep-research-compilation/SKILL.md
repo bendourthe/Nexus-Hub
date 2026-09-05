@@ -44,6 +44,20 @@ Detailed guidance lives in [step-2-ingest-input-documents.md](references/step-2-
 
 Detailed guidance lives in [step-3-synthesize-unified-content.md](references/step-3-synthesize-unified-content.md) (load on demand).
 
+### Worked example: marking quotation
+
+The failure this guards against is reproducing a source's sentences without marking them. The fix is an example, not a rule.
+
+**Request**: "Compile what the three field reports say about soil moisture and the pump schedule."
+
+**Ingested sources** (the Step 2 manifest, templated): `[1]` Northfield Irrigation Review, `[2]` Delta Basin Field Notes, `[3]` Hillcrest Pump Log.
+
+**Response** (the compiled paragraph, in this skill's inline `[N]` style):
+
+> The three reports agree that the pump schedule, not the sensor network, drove the moisture swings [1][2][3]. The Northfield review and the Delta Basin notes both attribute the mid-season dry spell to a schedule that ran on calendar days rather than on readings [1][2]; the Hillcrest log differs on the remedy, recording that the crew switched to reading-triggered runs in week six and saw the swings flatten within two cycles [3]. On cost the sources part ways: Northfield calls the reading-triggered schedule "the only change that paid for itself in one season" [1], while Delta Basin reports higher pump wear and no net saving [2].
+
+**Rationale**: the paragraph is organized around where the sources agree and differ rather than walking through each source in turn; each source is conveyed in one or two sentences of the agent's own indirect speech; exactly one short phrase is marked as a quotation and attributed to one source; every other claim is reworded while staying specific (week six, two cycles, one season) and complete. Zero marked phrases is also a valid outcome when no sentence is worth quoting.
+
 ## Step 4: Reference Management
 
 Detailed guidance lives in [step-4-reference-management.md](references/step-4-reference-management.md) (load on demand).

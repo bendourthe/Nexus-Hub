@@ -82,7 +82,7 @@ These are throat-clearing, hedging, or recap phrases. Most can be cut whole; the
 - here's the thing
 - the truth is
 - let's dive in / let's delve into
-- in conclusion / to sum up / to wrap up
+- in conclusion / to sum up / to wrap up / Bottom Line: / In short: (the labelled closing-summary markers; a reply that has made its point does not need a line announcing that it has. Before: "In short: the cache was the cause." After: "The cache was the cause.")
 - last but not least
 
 Keep-it example: "when it comes to money, be precise" is weaker than "be precise about money", but "it comes down to one thing: latency" is fine because the phrase leads to a concrete point.

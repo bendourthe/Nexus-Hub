@@ -64,6 +64,7 @@ SEEDED_COUNTS = {
     "curly-quote": 2,
     "spaced-hyphen-connector": 2,
     "ellipsis-character": 1,
+    "closing-summary-marker": 2,
 }
 
 
