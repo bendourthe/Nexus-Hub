@@ -2,7 +2,7 @@
 
 **Branch:** `feat/v4.4.3-guide-illustration-rebuild`
 **Active work:** [v4.4.5 targeted visual refinement](releases/v4/v4.4/development/guide-visual-refinement/verification.md). The v4.4.6 content redesign is rejected and superseded. Preserve the original sections and content.
-**Last refreshed:** 2026-09-04
+**Last refreshed:** 2026-09-05
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -23,7 +23,7 @@ Refreshing this file to the active plan (rather than appending another version's
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 399,952 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 399,724 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -38,6 +38,8 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Verify both themes and responsive layouts; complete the guide suite: 342 passed, one optional skip.
 - [x] Rebuild the screenshot-selected Home safety and platform diagrams, enlarge their text, and keep all original content.
 - [x] Verify the Home refinements across nine widths and both themes; all 49 final focused regression checks pass. See [evidence](releases/v4/v4.4/development/guide-visual-refinement/screenshot-segments/plan.md).
+
+- [x] Align the safety figure, center the platform source text, remove connector dots, and repair line joins; 45 focused tests pass. See [verification](releases/v4/v4.4/development/guide-visual-refinement/alignment-correction/verification.md).
 
 ## Plan - v4.4.6 Guide Learning Experience [SUPERSEDED BY USER]
 
