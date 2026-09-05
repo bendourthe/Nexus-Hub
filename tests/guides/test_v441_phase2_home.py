@@ -353,9 +353,9 @@ def test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count(playw
         assert words <= ceiling, f"{key}: {words} words exceeds the two-thirds ceiling of {ceiling}"
     # The merged comparison replaces v4.1.2's "The difference" and must not exceed ITS ceiling.
     assert merged <= fixture["the-difference"]["v412_words"] * 2 // 3, merged
-    # v4.4.4's portability figure is new content, so it is capped on its own terms rather than
-    # against a v4.1.2 section that never contained it.
-    assert 20 <= portability <= 120, f"the portability figure is {portability} words"
+    # The requested Claude Code/Codex session transcripts replace the short command strip.
+    # Keep their combined illustration bounded while retaining the original section ceilings.
+    assert 20 <= portability <= 240, f"the portability figure is {portability} words"
 
 
 def test_merged_comparison_labels_render_at_twice_the_v441_size(playwright_mod) -> None:

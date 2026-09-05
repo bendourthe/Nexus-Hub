@@ -270,3 +270,5 @@ The screenshot-selected Home safety and platform sections now use persistent act
 The Home and Foundations closing Next sections are removed. Their page navigation remains available. The safety figure reuses the transparent Nexus Hub logo, with a gentle float that pauses off-screen and respects reduced motion.
 
 The Foundations prompt examples use Vague Prompt and Engineered Prompt labels. The context example is one composed message: an attached image, an attached report, and a selected API folder sit above the prompt that names them. Context Engineering Best Practices shares the section subtitle typography.
+
+The Home platform handoff is an illustrative Claude Code/Codex conversation in the same project workspace. It shows a Nexus Hub plan, Phase 2 interrupted by a usage limit, and Codex resuming the saved work before Phase 3. The transcript windows align on desktop and stack in reading order on mobile.

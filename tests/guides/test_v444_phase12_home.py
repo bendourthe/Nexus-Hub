@@ -136,9 +136,10 @@ def test_the_segment_carries_both_benefits(playwright_mod) -> None:
                       source: fig.querySelector('.ph-src').textContent.trim(),
                       targets: [...fig.querySelectorAll('.ph-target b')].map(b => b.textContent.trim()),
                       fans: fig.querySelectorAll('.ph-lane').length,
-                      steps: [...fig.querySelectorAll('.ph-step')].map(s => ({
-                        cmd: s.querySelector('code').textContent.trim(),
-                        host: s.querySelector('span').textContent.trim() })),
+                      sessions: [...fig.querySelectorAll('.ph-session')].map(s => ({
+                        host: s.querySelector('.ph-head b').textContent.trim(),
+                        commands: [...s.querySelectorAll('.ph-msg--user code')].map(e => e.textContent),
+                        text: s.textContent.toLowerCase() })),
                       cut: fig.querySelector('.ph-cut').textContent.trim().toLowerCase(),
                       note: fig.querySelector('.ph-note').textContent.trim().toLowerCase(),
                       sequenced: fig.hasAttribute('data-seq-root'),
@@ -154,9 +155,16 @@ def test_the_segment_carries_both_benefits(playwright_mod) -> None:
     assert data["targets"] == list(PLATFORMS), data["targets"]
     assert data["fans"] == 4, "one connector per platform"
     assert not data["sequenced"], "the figure must not reveal itself in steps"
-    hosts = [step["host"] for step in data["steps"]]
+    hosts = [session["host"] for session in data["sessions"]]
     assert hosts[0] == "Claude Code" and hosts[-1] == "Codex", hosts
     assert len(set(hosts)) == 2, "the switch must cross exactly two platforms"
+    claude, codex = data["sessions"]
+    assert "/plan" in claude["commands"] and "/implement" in claude["commands"]
+    assert "usage limit reached" in claude["text"] and "3 hours" in claude["text"]
+    assert "phase 2 in progress" in claude["text"]
+    assert "/implement" in codex["commands"] and "api-rate-limit.md" in codex["text"]
+    assert "finalize phase 2" in codex["text"] and "continue with phase 3" in codex["text"]
+
     assert "usage" in data["cut"], data["cut"]
     assert "files" in data["note"] and "resumes" in data["note"], data["note"]
     # benefit two: the mapping still starts from the generic built-ins
