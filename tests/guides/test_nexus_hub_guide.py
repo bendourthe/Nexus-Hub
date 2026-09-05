@@ -998,12 +998,6 @@ def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
     which keeps the liveness gate the ring used to carry.
     """
     fx = _foundations_markup(guide_text)
-    # v4.4.4 retired the platform scene's six-stage flow, so the one-pass motif belongs to Models
-    # alone. What the two scenes now share is the request: the comparison sends the SAME prompt to
-    # both lanes, which is asserted in the comparison module.
-    assert fx.count('data-grammar="one-pass"') == 1, (
-        "the inside-the-model motif belongs to the Models scene"
-    )
     assert 'class="fx-cycle"' not in fx, "the work-cycle ring must not come back into a scene"
     assert ".js .hero-lockup.live .hero-lockup-float" in guide_text, (
         "continuous motion must be gated on liveness, not free-running"
@@ -1025,32 +1019,6 @@ def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
         )
 
 
-def test_foundations_model_lifecycle_is_chronological_and_responsive(
-    guide_text: str,
-) -> None:
-    """v4.4.1 Phase 4: one HTML flow, provider region strictly before the user region."""
-    scene = _foundation_scene(guide_text, "fx-model-lifecycle")
-    stages = ("training", "delivery", "request", "work-cycle", "output")
-    positions = []
-    for stage in stages:
-        marker = f'data-stage="{stage}"'
-        assert scene.count(marker) == 1, f"expected exactly one {stage!r} stage node"
-        positions.append(scene.index(marker))
-    assert positions == sorted(positions), "lifecycle stages are out of order"
-    assert scene.index('data-region="provider"') < scene.index('data-region="user"')
-    assert "happens long before any request" in scene
-    assert "never retrains" in scene
-    text = re.sub(r"<[^>]+>", " ", scene).lower()
-    assert re.search(r"effort level.{0,200}when supported", text, re.DOTALL)
-    assert "does not promise a fixed number of iterations" in text
-    assert "not a transcript of hidden reasoning" in text or "not hidden chain-of-thought" in text
-    # v4.4.4: the scene teaches three modality tiers instead of cataloguing four outputs, and audio
-    # left the teaching on instruction, so its element, its asset, and its transcript-equivalent
-    # description left the page with it rather than sitting unused.
-    for kind in ("text", "image", "video"):
-        assert f'data-output-kind="{kind}"' in scene, f"missing output kind {kind}"
-    assert 'data-output-kind="audio"' not in scene, "audio was retired from this scene"
-    assert "<audio" not in scene, "the audio element must not come back without its teaching"
 
 
 def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
@@ -1140,8 +1108,8 @@ def test_foundations_comparisons_show_both_states_without_a_toggle(
     assert 'type="range"' not in fx
     assert "nhgCompare" not in guide_text
     assert "data-station-toggle" not in guide_text
-    # aria-pressed may appear ONLY on the media play toggle, never on a comparison.
-    pressed = re.findall(r"<[^>]*aria-pressed[^>]*>", fx)
+    # Models has capability and effort selectors; the other comparisons remain fully visible.
+    pressed = re.findall(r"<[^>]*aria-pressed[^>]*>", fx.replace(_foundation_scene(guide_text, "fx-model-lifecycle"), ""))
     assert all("data-media-toggle" in tag for tag in pressed), (
         "aria-pressed outside the media toggle suggests a comparison hidden behind a control"
     )
@@ -1185,7 +1153,7 @@ def test_foundations_loop_labels_have_hierarchy(guide_text: str) -> None:
     assert "fxt--role" in fx
     role = re.search(r"\.fxt--role\s*\{([^}]+)\}", guide_text)
     assert role and "var(--ink-faint)" in role.group(1) and "700" in role.group(1)
-    for tag_cls in (".fx-region-tag", ".fx-out-tag", ".fx-mini-tag", ".fx-layer-tag"):
+    for tag_cls in (".fx-out-tag", ".fx-mini-tag", ".fx-layer-tag"):
         rule = re.search(re.escape(tag_cls) + r"[^{]*\{([^}]+)\}", guide_text)
         assert rule, f"missing hierarchy tag rule {tag_cls}"
         assert "700" in rule.group(1) and "uppercase" in rule.group(1), (

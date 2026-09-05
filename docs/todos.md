@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Branch:** `feat/v4.4.3-guide-illustration-rebuild`
-**Active work:** [v4.4.5 targeted visual refinement](releases/v4/v4.4/development/guide-visual-refinement/verification.md). The v4.4.6 content redesign is rejected and superseded. Preserve the original sections and content.
+**Active work:** [v4.4.5 targeted visual refinement](releases/v4/v4.4/development/guide-visual-refinement/verification.md). The v4.4.6 content redesign is rejected and superseded. Preserve existing sections; Models has an explicitly authorized rebuild.
 **Last refreshed:** 2026-09-05
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -23,12 +23,14 @@ Refreshing this file to the active plan (rather than appending another version's
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 399,921 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 397,110 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
 
 ## Current work - v4.4.5 visual refinement
+
+- [x] Rebuild Models with four visual demonstrations, capability/effort controls, and finite accessible animations; 150 affected tests pass with one optional skip, 20 final Models tests pass, and 40 layout cases pass. The default section is 29% shorter with 45% fewer visible words. See [verification](releases/v4/v4.4/development/guide-visual-refinement/models-rebuild/verification.md).
 
 - [x] Move the concise shared-plan explanation into the center handoff callout and remove the bottom repetition; 34 focused tests and 12 layout/theme checks pass. See [verification](releases/v4/v4.4/development/guide-visual-refinement/centered-handoff-explanation/verification.md).
 
@@ -68,6 +70,10 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Keep prompt text plain until its matching box activates, slow both annotation sequences, and compact attachment thumbnails beside their labels; 145 focused tests, 12 layout checks, four timing cases, and 36 preview interactions pass, with one test skipped. See [verification](releases/v4/v4.4/development/guide-visual-refinement/prompt-animation-and-attachments/verification.md).
 
 - [ ] Fix the pre-existing two-pixel internal overflow in Agentic Platforms at 320 pixels, reproduced before and after the context-preview change. See [baseline evidence](releases/v4/v4.4/development/guide-visual-refinement/context-previews/baseline-overflow.json).
+
+- [ ] Improve the pre-existing Home guardrail pill contrast in light mode (4.462:1 against a 4.5:1 target). See [baseline evidence](releases/v4/v4.4/development/guide-visual-refinement/models-rebuild/baseline-sweep.json).
+
+- [ ] Reconcile five pre-existing guide assertions for the approved prompt labels/highlights, Home session dialogue, and the cx-png marker. All failures reproduce before the Models rebuild; see [verification](releases/v4/v4.4/development/guide-visual-refinement/models-rebuild/verification.md).
 
 ## Plan - v4.4.6 Guide Learning Experience [SUPERSEDED BY USER]
 
