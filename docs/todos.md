@@ -23,7 +23,7 @@ Refreshing this file to the active plan (rather than appending another version's
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 399,724 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 399,532 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -40,6 +40,8 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Verify the Home refinements across nine widths and both themes; all 49 final focused regression checks pass. See [evidence](releases/v4/v4.4/development/guide-visual-refinement/screenshot-segments/plan.md).
 
 - [x] Align the safety figure, center the platform source text, remove connector dots, and repair line joins; 45 focused tests pass. See [verification](releases/v4/v4.4/development/guide-visual-refinement/alignment-correction/verification.md).
+
+- [x] Match all Foundations section headings to Home and align the token and context box pairs; 59 affected tests pass. See [verification](releases/v4/v4.4/development/guide-visual-refinement/foundations-alignment/verification.md).
 
 ## Plan - v4.4.6 Guide Learning Experience [SUPERSEDED BY USER]
 

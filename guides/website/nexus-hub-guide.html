@@ -256,7 +256,7 @@ h2 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); line-height: 1.2; letter-spacing:
    guarantee a single line on its own, because a fixed size cannot know the container: NexusFit shrinks
    any label or title that would wrap, down to a 15px floor. */
 :root { --title-scale: 1.2; --eyebrow-scale: 3; --fx-tag: 23px; }
-.section-title {
+.section-title, .fx-copy .fx-subtitle {
   font-size: clamp(calc(1.2rem * var(--title-scale)), calc(2.4vw * var(--title-scale)), calc(1.7rem * var(--title-scale)));
   line-height: 1.05; letter-spacing: -.02em; text-wrap: balance; overflow-wrap: break-word;
   min-width: 0; margin: 0 0 var(--sp-4);
@@ -264,12 +264,12 @@ h2 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); line-height: 1.2; letter-spacing:
 h3 { font-size: 1.1rem; margin: 0 0 var(--sp-2); }
 p { margin: 0 0 var(--sp-3); }
 .lead { font-size: 17.5px; color: var(--ink-dim); }
-.eyebrow {
+.eyebrow, .fx-title h2 {
   display: block; max-width: 100%; min-width: 0; font-size: calc(11px * var(--eyebrow-scale));
   font-weight: 700; letter-spacing: .1em; line-height: 1.15;
   text-transform: uppercase; color: var(--teal-soft); margin-bottom: var(--sp-2);
 }
-.eyebrow::before { content: ""; display: inline-block; width: calc(9px * var(--eyebrow-scale)); height: 3px; background: var(--accent); vertical-align: middle; margin-right: 10px; border-radius: 2px; }
+.eyebrow::before, .fx-title h2::before { content: ""; display: inline-block; width: calc(9px * var(--eyebrow-scale)); height: 3px; background: var(--accent); vertical-align: middle; margin-right: 10px; border-radius: 2px; }
 
 /* ---------- NexusSeq step primitives ----------
    A [data-seq-root] container reveals its [data-seq=N] children in order. Scoped to .js so
@@ -499,7 +499,7 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
    on source order, and .fx-copy p (two components) beats a lone .fx-subtitle. */
 .fx-scene.fx-stack { grid-template-columns: minmax(0, 1fr); align-items: start; }
 .fx-scene.fx-stack .fx-diagram--narrow { width: 100%; }
-.fx-duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
+.fx-duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-4); align-items: stretch; }
 .fx-duo > * { margin-top: 0; }
 .fx-duo .fx-tokfig { margin: 0; }
 .fx-duo .fx-tokimg { width: 100%; margin: 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
@@ -719,7 +719,7 @@ html[data-theme="light"] .ap-step::before { color: #fffdf8; }
    each meter is the consequence, in four items, marked as a cost or a gain. */
 /* Compound, because .fx-ctx-row is declared later and a lone class loses on source order:
    the third time this plan family has hit that, so it is written as a rule in the README. */
-.fx-ctx-row.cx-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.fx-ctx-row.cx-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
 .cx-mat { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin: 8px 0 0; padding: 0; }
 .cx-mat li { min-width: 0; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-0); }
 .cx-kind { display: block; font: 700 10.5px var(--sans); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint); }
@@ -1040,9 +1040,7 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
    keeps it. Making it the default is what made Foundations 7,235px tall at 1440. */
 .fx-wide { grid-template-columns: minmax(0, 1fr); }
 .fx-title { margin-bottom: var(--sp-3); }
-.fx-copy .fx-subtitle, .fx-subtitle { display: block; max-width: 100%; min-width: 0; margin: 0 0 var(--sp-3); color: var(--ink-dim); font-size: 17px; font-weight: 500; line-height: 1.45; letter-spacing: 0; text-transform: none; }
-.fx-title h2.section-title { margin-bottom: 6px; }
-.fx-title h2 { margin-bottom: var(--sp-3); }
+.fx-copy .fx-subtitle{font-weight:700;color:var(--ink);}
 .fx-copy h2 { text-wrap: balance; }
 .fx-copy p { font-size: 15.5px; color: var(--ink-dim); }
 .fx-copy strong, .fx-copy em { color: var(--ink); }
@@ -3272,7 +3270,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
      wrapping is the lesser evil, and the test asserts the floor rather than a single line at 320px. */
   (function initNexusFit() {
     var FLOOR = 15;
-    var SEL = ".section-title, .eyebrow";
+    var SEL = ".section-title, .eyebrow, .fx-subtitle";
     function base(el) {
       var b = el.getAttribute("data-fit-base");
       if (b === null) {
