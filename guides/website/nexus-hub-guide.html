@@ -496,7 +496,8 @@ html[data-theme="light"] .guard-fig .gf-out { background: transparent; border: 1
 .fx-duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
 .fx-duo > * { margin-top: 0; }
 .fx-duo .fx-tokfig { margin: 0; }
-.fx-duo .fx-tokimg { width: min(100%, 26.25rem); margin: 0 auto; }
+.fx-duo .fx-tokimg { width: 100%; margin: 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
+.fx-duo .fx-tokimg .fx-svg { display: block; width: min(100%, 26.25rem); margin-inline: auto; }
 
 /* ---------- Annotated prompt primitive ----------
    One continuous text whose labelled spans light in sequence. Text never changes contrast
@@ -640,7 +641,13 @@ html[data-theme="light"] .guard-fig .gf-out { background: transparent; border: 1
 .hxf-step--platform { border-color: var(--border-bright); background: color-mix(in srgb, var(--surface-2) 70%, transparent); }
 .hxf-step--nexus { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
 .hxf-step--out { border-color: var(--green); }
-.hxf-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.hxf-head { display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: center; gap: 3px 8px; }
+.hxf-head .hxf-like { grid-column: 2; }
+.hxf-icon { flex: 0 0 28px; width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; color: var(--ink-dim); }
+.js .hxf-step.seq-rise { opacity: 1; transform: none; transition: border-color .3s var(--ease); }
+.hxf-step.is-on .hxf-icon { color: var(--accent); }
+.hxf-step--nexus .hxf-icon { color: var(--accent); }
+.hxf-step--out .hxf-icon { color: var(--green); }
 .hxf-tag { font: 700 var(--fx-tag) var(--sans); letter-spacing: .09em; text-transform: uppercase; color: var(--ink-dim); }
 .hxf-step--nexus .hxf-tag { color: var(--accent); }
 .hxf-step--out .hxf-tag { color: var(--green); }
@@ -1193,14 +1200,19 @@ html[data-theme="light"] .cv-changes li { background: transparent; border: 1px s
 .fx-tokfig-cap--mid { margin-top: 12px; }
 /* The source prompt must stay legible and dominant, so it is HTML with a real font-size
    floor rather than SVG text whose computed size depends on the viewBox scale. */
-.fx-copy .fx-tokprompt { margin: 6px 0 0; font-size: 19px; line-height: 1.4; color: var(--ink); font-weight: 600; }
+.fx-tokfig .fx-tokprompt { margin: 6px 0 0; font-size: 19px; line-height: 1.4; color: var(--ink); font-weight: 600; }
 .fx-tokchips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; padding: 0; }
 /* Every token is one equivalent unit, so every chip gets ONE style. A second colour here
    would imply a category the tokenizer does not have. */
 .fx-tokchip { display: inline-flex; align-items: baseline; padding: 5px 9px; border: 1px solid var(--border-bright); border-radius: 7px; background: var(--bg-0); font-size: 14px; line-height: 1.2; color: var(--ink); }
 .fx-tokchip-txt { font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace); white-space: pre; min-width: 2ch; text-align: center; }
 .fx-tokfig-note { margin: 10px 0 0; color: var(--ink-dim); font-size: 13.5px; line-height: 1.5; }
+.fx-token-grid { fill: none; stroke: #163e43; stroke-width: 1; stroke-dasharray: 3 3; }
 .fx-tokcell-edge { fill: none; stroke: var(--border-bright); stroke-width: 1; }
+@keyframes token-boundary { 0%, 55%, 100% { stroke: var(--border-bright); } 15%, 35% { stroke: var(--accent); stroke-width: 2; } }
+@media (prefers-reduced-motion: no-preference) {
+  .fx-scene.live [data-image-stage="tokens"] .fx-tokcell-edge { animation: token-boundary 4.8s ease-in-out; }
+}
 .fx-tokcard { fill: none; stroke: var(--border); stroke-width: 1; }
 .fx-diagram-note { margin: 10px 0 0; color: var(--ink-faint); font-size: 13px; line-height: 1.5; }
 /* Placed AFTER the definitions above on purpose: @media adds no specificity, so these
@@ -2178,6 +2190,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <rect class="fx-tokcard" x="6" y="8" width="116" height="146" rx="10"/>
               <text class="fxt fxt--role" x="14" y="28">ONE PICTURE</text>
               <use href="#nxp-tokimg"/>
+              <path class="fx-token-grid" d="M46 40V148 M82 40V148 M10 76H118 M10 112H118" aria-hidden="true"/>
               <rect class="fx-tokcell-edge" x="10" y="40" width="108" height="108" rx="8"/>
             </g>
             <path class="fxp fx-draw" data-phase2-connector="image-tokenization" style="--d:700ms" pathLength="1" d="M 132 94 L 196 94"/>
@@ -2307,7 +2320,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         </div>
         <div class="fx-diagram">
           <div class="hx" id="hx-harness" data-seq-root data-seq-loop data-seq-hold="3400">
-            <ol class="hxf" aria-label="One request, from the operator through both harnesses to reviewed work"><li class="hxf-step seq-rise" data-seq="1" data-seq-dur="620"><span class="hxf-head"><span class="hxf-tag">The request</span></span><p>A prompt and the material it names go in, from the operator.</p></li><li class="hxf-link" aria-hidden="true"><span></span></li><li class="hxf-step hxf-step--model seq-rise" data-phase3-harness-layer="model" data-seq="2" data-seq-dur="680"><span class="hxf-head"><span class="hxf-tag">The model</span><span class="hxf-like">a powerful brain</span></span><p>Enormous general capability, and no idea how this particular project works, what it already decided, or what counts as finished here.</p><p class="hxf-limit"><b>Why it needs the next layer:</b> on its own it has no way to assemble the context, reach a tool, or find out what happened.</p></li><li class="hxf-link" aria-hidden="true"><span></span></li><li class="hxf-step hxf-step--platform seq-rise" data-phase3-harness-layer="platform" data-seq="3" data-seq-dur="740"><span class="hxf-head"><span class="hxf-tag">The platform harness</span><span class="hxf-like">a graduate degree</span></span><p>Competent general practice, built in. It assembles the context, offers the tools, enforces the permissions, executes the actions, and feeds the observations back to the model.</p><ul class="hx-ports" aria-label="What this layer contributes"><li>context</li><li>tools</li><li>permissions</li><li>execution</li><li>observations</li></ul><p class="hxf-limit"><b>Its limits:</b> it knows the general practice, not this project's standard, and it carries nothing from one session to the next.</p></li><li class="hxf-link" aria-hidden="true"><span></span></li><li class="hxf-step hxf-step--nexus seq-rise" data-phase3-harness-layer="nexus-hub" data-seq="4" data-seq-dur="800"><span class="hxf-head"><span class="hxf-tag">The Nexus Hub harness</span><span class="hxf-like">decades of practice across many fields</span></span><p>Wrapped around that loop. Procedures matched to the job load themselves, hooks refuse unsafe actions whatever the prompt said, written gates say what done means, and each step leaves an artifact the next one reads.</p><ul class="hx-ports" aria-label="What this layer contributes"><li>skills</li><li>hooks</li><li>gates</li><li>artifacts</li></ul><p class="hxf-limit"><b>What it preserves:</b> one way of working across platforms, while each platform keeps owning its own model, execution, and permissions. Hooks fire only where the host exposes the event.</p></li><li class="hxf-link" aria-hidden="true"><span></span></li><li class="hxf-step hxf-step--out seq-rise" data-seq="5" data-seq-dur="860"><span class="hxf-head"><span class="hxf-tag">What comes out</span></span><p>Reviewed, verified work, and the artifacts that record how it got there.</p></li></ol>
+            <ol class="hxf" aria-label="One request, from the operator through both harnesses to reviewed work"><li class="hxf-step seq-rise" data-seq="1" data-seq-dur="620"><span class="hxf-head"><svg class="hxf-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 5h22v17H14l-7 5v-5H5z M10 11h12 M10 16h8"/></svg><span class="hxf-tag">The request</span></span><p>A prompt and the material it names go in, from the operator.</p></li><li class="hxf-link" aria-hidden="true"><span></span></li><li class="hxf-step hxf-step--model seq-rise" data-phase3-harness-layer="model" data-seq="2" data-seq-dur="680"><span class="hxf-head"><svg class="hxf-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 7c-7-8-15 3-9 8-6 5 1 14 9 9 8 5 15-4 9-9 6-5-2-16-9-8z M16 7v17 M10 11l6 5 6-5 M10 21l6-5 6 5"/></svg><span class="hxf-tag">The model</span><span class="hxf-like">a powerful brain</span></span><p>Enormous general capability, and no idea how this particular project works, what it already decided, or what counts as finished here.</p><p class="hxf-limit"><b>Why it needs the next layer:</b> on its own it has no way to assemble the context, reach a tool, or find out what happened.</p></li><li class="hxf-link" aria-hidden="true"><span></span></li><li class="hxf-step hxf-step--platform seq-rise" data-phase3-harness-layer="platform" data-seq="3" data-seq-dur="740"><span class="hxf-head"><svg class="hxf-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 8h22v18H5z M5 13h22 M10 8V5h12v3 M10 18h4 M18 18h4 M10 22h12"/></svg><span class="hxf-tag">The platform harness</span><span class="hxf-like">a graduate degree</span></span><p>Competent general practice, built in. It assembles the context, offers the tools, enforces the permissions, executes the actions, and feeds the observations back to the model.</p><ul class="hx-ports" aria-label="What this layer contributes"><li>context</li><li>tools</li><li>permissions</li><li>execution</li><li>observations</li></ul><p class="hxf-limit"><b>Its limits:</b> it knows the general practice, not this project's standard, and it carries nothing from one session to the next.</p></li><li class="hxf-link" aria-hidden="true"><span></span></li><li class="hxf-step hxf-step--nexus seq-rise" data-phase3-harness-layer="nexus-hub" data-seq="4" data-seq-dur="800"><span class="hxf-head"><svg class="hxf-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3l11 5v8c0 6-11 13-11 13S5 22 5 16V8z M10 16l4 4 8-9"/></svg><span class="hxf-tag">The Nexus Hub harness</span><span class="hxf-like">decades of practice across many fields</span></span><p>Wrapped around that loop. Procedures matched to the job load themselves, hooks refuse unsafe actions whatever the prompt said, written gates say what done means, and each step leaves an artifact the next one reads.</p><ul class="hx-ports" aria-label="What this layer contributes"><li>skills</li><li>hooks</li><li>gates</li><li>artifacts</li></ul><p class="hxf-limit"><b>What it preserves:</b> one way of working across platforms, while each platform keeps owning its own model, execution, and permissions. Hooks fire only where the host exposes the event.</p></li><li class="hxf-link" aria-hidden="true"><span></span></li><li class="hxf-step hxf-step--out seq-rise" data-seq="5" data-seq-dur="860"><span class="hxf-head"><svg class="hxf-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M7 3h13l5 5v21H7z M20 3v6h5 M11 18l4 4 7-9"/></svg><span class="hxf-tag">What comes out</span></span><p>Reviewed, verified work, and the artifacts that record how it got there.</p></li></ol>
             <div class="fx-layer fx-layer--nexus" data-phase3-harness-layer="nexus-hub" role="group" aria-label="The five repository-anchored claims of the Nexus Hub layer">
               <span class="fx-layer-tag">What the outer loop adds, and the artifact behind each claim</span>
               <ul class="fx-claims">
@@ -4333,6 +4346,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       toggleEl.textContent = (pauseSet.manual || pauseSet.pointer) ? "Resume game" : "Pause game";
     }
     game.setAttribute("data-lifecycle", state.lifecycle);
+    syncFrameLoop();
     /* Announce lives and lifecycle CHANGES only, never per-frame chatter. */
     if (liveStatus && (state.lives !== announcedLives || state.lifecycle !== announcedLifecycle)) {
       announcedLives = state.lives;
@@ -4345,8 +4359,18 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
   /* ------------------------------------------------------------------ main loop */
 
+  function syncFrameLoop() {
+    if (context && state.lifecycle === "running" && !document.hidden && !activeReasons().length) {
+      if (!frameRequest) frameRequest = window.requestAnimationFrame(frame);
+    } else {
+      if (frameRequest) window.cancelAnimationFrame(frameRequest);
+      frameRequest = 0;
+      lastFrameTime = 0;
+    }
+  }
+
   function frame(now) {
-    frameRequest = window.requestAnimationFrame(frame);
+    frameRequest = 0;
     var gen = generation;
     if (!lastFrameTime) lastFrameTime = now;
     var elapsed = Math.min(MAX_FRAME_SECONDS, (now - lastFrameTime) / 1000);
@@ -4515,8 +4539,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
   syncHud();
   paint();
-  frameRequest = window.requestAnimationFrame(frame);
-  void frameRequest;
+  syncFrameLoop();
 
   window.NexusShooter = Object.freeze({
     snapshot: snapshot,

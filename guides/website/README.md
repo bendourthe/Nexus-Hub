@@ -259,3 +259,8 @@ Lighthouse Accessibility is a last-phase human bar, not a mid-plan merge gate.
 ## Editing
 
 The guide is a single HTML file: CSS in the `<style>` block, content in `<section class="page">` blocks, behavior in the two `<script>` blocks at the bottom (the app shell, then the Training engine after the scene JSON). Class prefixes: `fx-` for Foundations scenes (`fx-hstack` and its `h-` children for the layered harness), `ann-` for the annotated prompt, `seq-` for NexusSeq step primitives, `nht-` for Training, `nag-` for the arcade game, `g-` for the Home guardrails figure, and `cs-` for Cheatsheets. Scene data is `example/training-scenes.json` plus the matching inline JSON block. Do not edit or regenerate the retained Glow Booth fixtures as part of reader-facing Training work.
+
+
+## Targeted visual refinement after v4.4.5 restoration
+
+The guide retains the complete v4.4.5 teaching content and section order. The token prompt uses its intended typography; the paired image illustration shares its frame and shows the source grid. Harness layer symbols carry the timeline emphasis while explanations remain visible. The Training canvas schedules frames only while running, and resumes from the existing pause state without idle background work. [Verification and screenshots](../../docs/releases/v4/v4.4/development/guide-visual-refinement/verification.md) record content parity, responsive rendering, and lifecycle checks.
