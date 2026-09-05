@@ -441,8 +441,8 @@ def test_guardrails_section_names_only_shipped_registered_hooks(playwright_mod) 
         try:
             data = page.evaluate(
                 """() => ({
-                    ports: [...document.querySelectorAll('#nhg-guard-fig .gf-hooks li')].map(e => e.textContent.trim()),
-                    blocked: [...document.querySelectorAll('#nhg-guard-fig .gf-cell--stop b')].map(e => e.textContent.trim()),
+                    ports: [...document.querySelectorAll('#nhg-guard-fig .gf-hooks li')].map(e => e.dataset.hook),
+                    blocked: [...document.querySelectorAll('#nhg-guard-fig .gf-cell--stop b')].map(e => e.dataset.hook),
                     pretooluse: +document.querySelector('#nhg-guardrails [data-count="pretooluse"]').textContent,
                     hooks: +document.querySelector('#nhg-guardrails [data-count="hooks"]').textContent,
                     text: document.getElementById('nhg-guardrails').innerText.toLowerCase(),

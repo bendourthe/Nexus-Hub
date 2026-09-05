@@ -74,7 +74,8 @@ def test_the_guardrails_segment_is_renamed_and_centred(playwright_mod) -> None:
                       tags: tags.map(t => t.textContent.trim()),
                       notes: notes.map(n => n.textContent.trim()),
                       allCentred: tags.every(centred) && notes.every(centred),
-                      hooksJustify: getComputedStyle(hooks).justifyContent,
+                      hooksAlignment: getComputedStyle(hooks).textAlign,
+                          platforms: [...sec.querySelectorAll(".gf-platforms>span")].map(e => e.textContent.trim()),
                     };
                 }"""
             )
@@ -83,8 +84,9 @@ def test_the_guardrails_segment_is_renamed_and_centred(playwright_mod) -> None:
             browser.close()
     assert data["label"] == "Guardrails & Safety", data["label"]
     assert data["title"] == "Adds an extra layer of security", data["title"]
+    assert data["platforms"] == ["Claude", "ChatGPT", "Cursor", "Gemini"]
     assert data["allCentred"], "both ring headers and their subtexts must be centred"
-    assert data["hooksJustify"] == "center", "the hook chips must be centred"
+    assert data["hooksAlignment"] == "center", "the guardrail descriptions must be centred"
     assert data["tags"] == ["Nexus Hub hooks", "Platform permissions"], data["tags"]
     outer, inner = data["notes"]
     for phrase in ("Block flagged unsafe actions", "even once approved", "explain the refusal"):
@@ -138,6 +140,7 @@ def test_the_segment_carries_both_benefits(playwright_mod) -> None:
                       fans: fig.querySelectorAll('.ph-lane').length,
                       sessions: [...fig.querySelectorAll('.ph-session')].map(s => ({
                         host: s.querySelector('.ph-head b').textContent.trim(),
+                        logo: !!s.querySelector(".ph-head .brand-copy svg"),
                         commands: [...s.querySelectorAll('.ph-msg--user code')].map(e => e.textContent),
                         text: s.textContent.toLowerCase() })),
                       cut: fig.querySelector('.ph-cut').textContent.trim().toLowerCase(),
@@ -159,10 +162,14 @@ def test_the_segment_carries_both_benefits(playwright_mod) -> None:
     assert hosts[0] == "Claude Code" and hosts[-1] == "Codex", hosts
     assert len(set(hosts)) == 2, "the switch must cross exactly two platforms"
     claude, codex = data["sessions"]
+    assert claude["logo"] and codex["logo"]
     assert "/plan" in claude["commands"] and "/implement" in claude["commands"]
     assert "usage limit reached" in claude["text"] and "3 hours" in claude["text"]
     assert "phase 2 in progress" in claude["text"]
-    assert "/implement" in codex["commands"] and "api-rate-limit.md" in codex["text"]
+    assert "date picker and contact fields" in claude["text"]
+    assert "date picker and contact fields" in codex["text"]
+    assert "confirmation message is still unfinished" in codex["text"]
+    assert "/implement" in codex["commands"] and "booking.md" in codex["text"]
     assert "finalize phase 2" in codex["text"] and "continue with phase 3" in codex["text"]
 
     assert "usage" in data["cut"], data["cut"]

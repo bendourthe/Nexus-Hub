@@ -23,7 +23,7 @@ Refreshing this file to the active plan (rather than appending another version's
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 399,465 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 399,265 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -50,6 +50,8 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Illustrate the Claude Code usage-limit interruption and Codex continuation of the same Nexus Hub plan; 40 verification checks pass. See [verification](releases/v4/v4.4/development/guide-visual-refinement/session-handoff/verification.md).
 
 - [x] Add the checkout repair example with image/PDF attachment previews and an expandable asset-folder explorer; 36 preview checks, 128 focused tests, and 32 final retests pass. See [verification](releases/v4/v4.4/development/guide-visual-refinement/context-previews/verification.md).
+
+- [x] Make the Home guardrails and platform handoff accessible to non-developers with platform logos, plain-language safety examples, and an appointment-booking plan; 169 focused tests and 28 layout checks pass, with one test skipped. See [verification](releases/v4/v4.4/development/guide-visual-refinement/accessible-home-examples/verification.md).
 
 - [ ] Fix the pre-existing two-pixel internal overflow in Agentic Platforms at 320 pixels, reproduced before and after the context-preview change. See [baseline evidence](releases/v4/v4.4/development/guide-visual-refinement/context-previews/baseline-overflow.json).
 
