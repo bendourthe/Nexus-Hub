@@ -1,8 +1,8 @@
 # Known Gaps - v4.5
 
 **Project**: Nexus-Hub
-**Status**: v4.5.0 in progress on `feat/v4.5.0-anti-cliche-and-agent-security`; phase 1 complete locally, not published
-**Last updated**: 2026-09-04 (v4.5.0 Phase 1)
+**Status**: v4.5.0 in progress on `feat/v4.5.0-anti-cliche-and-agent-security`; phases 1 and 2 complete locally, not published
+**Last updated**: 2026-09-04 (v4.5.0 Phase 2)
 
 ## v4.5.0 - anti-cliche-and-agent-security
 
@@ -16,20 +16,19 @@
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 0 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-#### Warnings
+None.
 
-##### WN-1 - Pre-existing lint and format drift in the parity guard, left untouched by design
+### Resolved
 
-- **Source phase**: Phase 1 - The Always-On Writing Discipline Rule.
-- **Plan reference**: `docs/releases/v4/v4.5/plans/v4.5.0-anti-cliche-and-agent-security.md` sub-task 1.2 / T002 (the docstring edit that retired `## Communication Style`).
-- **Reason**: `scripts/check_base_template_parity.py` carries two auto-fixable ruff findings (`UP035` at line 84, `UP045` at line 207) and would be reformatted by `ruff format`; all three are present on `develop` before this phase and sit in regions this phase did not change. Phase 1 edited only the module docstring, so fixing them would be adjacent cleanup outside the stated scope. They are not gating: `make lint` runs ShellCheck, and `make validate` does not run ruff on `scripts/`.
-- **Suggested next step**: Fold the three fixes into phase 2, which edits this script's `INVARIANT_SECTIONS` on purpose and can format the file as part of that change; record the format pass in that phase's history so the diff is explained.
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| WN-1 | Pre-existing lint and format drift in the parity guard | Phase 2 | Phase 2 edits `scripts/check_base_template_parity.py` on purpose (promoting `Writing Discipline` into both guard lists), so the two ruff findings (`UP035`, `UP045`) were fixed and the file formatted in that same deliberate edit; the whole diff is 15 insertions and 3 deletions. |
 
 ### Notes (not gaps)
 

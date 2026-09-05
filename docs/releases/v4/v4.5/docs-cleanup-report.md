@@ -10,3 +10,10 @@ Audit-mode report written by the phase 8.6 step of each v4.5.0 phase. Nothing mo
 - `python scripts/check_docs_conventions.py`: OK (relative links resolve, directory names kebab-case).
 - `python scripts/check_docs_retention.py`: nothing due for archival.
 - Stray comparison reports outside `comparisons/`: none.
+
+## Phase 2 (2026-09-04)
+
+- New files this phase created: `tests/validators/test_writing_discipline_rule.py` (code, not docs) and the phase 2 history file under `development/history/`. No new scratch docs.
+- Removed: the four temporary Writing Discipline tests appended to `tests/validators/test_check_base_template_parity.py` in phase 1, relocated into the companion validator so the invariant is asserted in one permanent place.
+- `python scripts/check_docs_conventions.py`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
+- Proposals: none.

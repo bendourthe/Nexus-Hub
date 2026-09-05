@@ -80,8 +80,8 @@ import argparse
 import json
 import re
 import sys
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator, Optional
 
 # The five platform-agnostic templates governed by the AGENTS.md lockstep rule,
 # in canonical order (the first present file is the parity reference).
@@ -109,6 +109,7 @@ REQUIRED_HEADINGS = [
     "Output Minimization",
     "End-of-Task Summary",
     "Construction Discipline",
+    "Writing Discipline",
     "Consequential Decisions",
     "MCP Registry Policy",
     "Skill Discovery",
@@ -167,6 +168,15 @@ INVARIANT_SECTIONS = [
     # other seven substantive templates lives in
     # tests/validators/test_construction_discipline_rule.py.
     "Construction Discipline",
+    # v4.5.0: the writing-discipline rule (cliche prohibition, ASCII punctuation,
+    # chatbot-leftover ban, and the self-check that binds live replies) is
+    # platform-agnostic by intent and has no legitimate per-platform variation:
+    # a cliche or an em-dash is a defect on every platform, and the block
+    # governs the agent's own output rather than any platform feature. Require
+    # the heading and byte-lock the body across the five lockstep templates.
+    # Coverage of the other seven substantive templates lives in
+    # tests/validators/test_writing_discipline_rule.py.
+    "Writing Discipline",
     "Consequential Decisions",
     "MCP Registry Policy",
 ]
@@ -204,7 +214,7 @@ def heading_texts(lines: list[str]) -> set[str]:
     return {text for _, text in _iter_headings(lines)}
 
 
-def section_body(lines: list[str], heading_text: str) -> Optional[list[str]]:
+def section_body(lines: list[str], heading_text: str) -> list[str] | None:
     """Return the normalized body lines of a section, or None if it is absent.
 
     The body runs from the line after the matching heading to the line before
@@ -231,7 +241,9 @@ class Finding:
     """One parity violation in one file."""
 
     def __init__(self, category: str, file: str, detail: str) -> None:
-        self.category = category  # "missing-heading" | "missing-placeholder" | "block-divergence"
+        self.category = (
+            category  # "missing-heading" | "missing-placeholder" | "block-divergence"
+        )
         self.file = file
         self.detail = detail
 
