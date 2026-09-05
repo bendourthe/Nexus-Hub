@@ -25,6 +25,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **The prompting profile layer holds more than one platform, and its first OpenAI profile.** `assets/profiles-index.json` moves to schema 1.1.0 with an optional `meta.platforms` array (one roster and hash per additional platform; the primary platform's legacy keys are untouched), understood by the structural validator, the freshness checker (`--platform <id>`), and the profile writer (`plan --platform <id>`; a write for another platform upserts its entry). `gpt-6-astra` is profiled for `codex` from the vendor's model guide, models catalog, and API changelog: twelve claims, each confirmed on a second refutation-oriented fetch, all `model-specific`, so nothing model-specific reached a shared body. Decision: `docs/releases/v4/v4.7/development/profile-index-multi-platform-decision.md`.
 - **Two more closing-summary markers.** `anti-slop-editing`'s wordlist and offline detector now flag a line-leading `Bottom Line:` or `In short:` as an advisory (`closing-summary-marker`).
 
+- **Releases publish a verifiable artifact, and installs can be pinned and rolled back.** The release workflow now attaches `Nexus-Hub-<version>.tar.gz` (built with `git archive` under pinned LF line endings), a GNU-format `SHA256SUMS`, and a GitHub-native build-provenance attestation to every GitHub Release; no package registry and no new secret. Both bootstrap installers download that tarball for a tagged ref and verify it fail-closed: a checksum mismatch, a missing checksum file, or an unresolvable ref aborts with a distinct message and never installs unverified (a network failure is reported as such, not as tampering). A branch ref, the default `main`, has no publishable digest and keeps its previous behavior. Decision record: `docs/decisions/implemented/policy/2026-09-05-verifiable-pinnable-installs.md`. Two opt-in surfaces are new; their capability elements follow.
+- **A scheduled supply-chain watch.** `.github/workflows/supply-chain-watch.yml` audits the six extension packages and every declared optional extra against known advisories weekly and on demand, publishes the JSON report as an artifact, and fails visibly on findings or an unreachable source. It produces no required status check by construction (a scheduled required check would sit Pending forever on a pull request) and is asserted absent from the required set.
+
+### Capability usage
+
+Two opt-in surfaces changed in this release; the always-loaded template blocks above are not opt-in and are described in their own entries.
+
+**Pinned install** (`--ref` / `-Ref` on the bootstrap, or `NEXUS_HUB_REF`):
+
+- Activation: `curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash -s -- --ref v4.7.0`; on Windows `&([scriptblock]::Create((irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1))) -Ref v4.7.0`; or set `NEXUS_HUB_REF=v4.7.0` before running the one-line install.
+- Validation: the bootstrap prints `checksum OK (<sha256>)` before extracting; `nexus-hub --version` reports the installed version; `~/.nexus-hub/PINNED_REF` holds the tag; `gh attestation verify Nexus-Hub-4.7.0.tar.gz -R bendourthe/Nexus-Hub` checks the build-provenance attestation of the published tarball.
+- Rollback: `nexus-hub upgrade --ref <older tag>` (any tag from v4.7.0 on carries the artifact set); `nexus-hub upgrade --latest` moves a pinned install to the newest release; installing `main` again removes the pin.
+- Authority: verification proves the download is byte-for-byte what the release workflow published for that tag. It does NOT audit the catalog's content, grant any platform permission, or protect the host; a pinned install receives no updates until you move it; tags published before v4.7.0 carry no artifact set and fail closed.
+- Docs: `README.md` (Pinning a version, verifying the download, rolling back); `docs/decisions/implemented/policy/2026-09-05-verifiable-pinnable-installs.md`.
+
+**`nexus-hub upgrade --latest` and `--ref`** (pinned-install moves):
+
+- Activation: flags on `nexus-hub upgrade`; a pinned install refuses to move without one (exit 3) and prints the options.
+- Validation: `NEXUS_HUB_UPGRADE_DRY_RUN=1 nexus-hub upgrade --latest` prints the bootstrap command and `NEXUS_HUB_REF=v<latest>` without running anything.
+- Rollback: unpinned installs are unchanged; `nexus-hub upgrade --ref main` returns a pinned install to tip-of-branch and removes the pin.
+- Authority: moves the installed version only. It grants nothing, and `--latest` always targets a release tag so the download stays verifiable.
+- Docs: `README.md` (Pinning a version, verifying the download, rolling back); `nexus-hub upgrade --help`.
+
 ### Changed
 
 - **The Claude Code effort-level contract is corrected.** `configs/platform-defaults.json` and the lever contract now record what the vendor page says: the `effortLevel` and `modelSettings` keys accept `low`, `medium`, `high`, and `xhigh` and reject `max`, while `CLAUDE_CODE_EFFORT_LEVEL` accepts a level name or `auto` and is the persistent path to `max`. The 2026-09-04 statement had the two surfaces inverted. The seeded value `high` is valid on both, so no derived artifact changed. Decision note: `docs/releases/v4/v4.7/development/effort-level-contract.md`.

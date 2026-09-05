@@ -254,7 +254,9 @@ def test_upgrade_reuses_installers_that_reach_registry_dispatcher() -> None:
         encoding="utf-8"
     )
 
-    assert "return run_bootstrap()" in cli_source
+    # v4.7.0: upgrade passes the target ref to the bootstrap on a pinned install,
+    # so the pin is the call itself, not its argument list.
+    assert "return run_bootstrap(" in cli_source
     assert "invoke_registry_platform" in bash
     assert "Invoke-RegistryPlatform" in powershell
 

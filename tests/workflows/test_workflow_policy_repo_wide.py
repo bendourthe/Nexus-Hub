@@ -160,7 +160,9 @@ def test_every_action_is_pinned_to_a_full_sha(path: Path) -> None:
 #: artifact and each merge a distinct state, so there is no later run that
 #: covers the earlier one -- cancelling would silently drop the only signal that
 #: state will ever get.
-NO_CANCEL = {"release.yml", "post-merge.yml"}
+# v4.7.0: the scheduled supply-chain watch is a distinct audit per run; a manual
+# dispatch must never cancel a scheduled run or the reverse.
+NO_CANCEL = {"release.yml", "post-merge.yml", "supply-chain-watch.yml"}
 
 #: Workflows scoped by EVENT rather than by path (v4.0.0).
 #:
@@ -170,7 +172,9 @@ NO_CANCEL = {"release.yml", "post-merge.yml"}
 #: only on a release tag -- and both are cheap by construction (post-merge runs
 #: the fast profile; release runs no test suite). Adding a path filter would
 #: make them skip the merge or the tag they exist to observe.
-LIFECYCLE_EVENT_WORKFLOWS = {"post-merge.yml", "release.yml"}
+# v4.7.0: the supply-chain watch is scoped by EVENT too (schedule plus manual
+# dispatch, never a pull request), so a path filter would be meaningless on it.
+LIFECYCLE_EVENT_WORKFLOWS = {"post-merge.yml", "release.yml", "supply-chain-watch.yml"}
 
 
 @pytest.mark.parametrize("path", ALL)

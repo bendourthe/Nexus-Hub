@@ -37,3 +37,9 @@ Per-phase record of the documentation cleanup audit (implement-phase step 8.6).
 - New files this phase created: `development/profile-index-multi-platform-decision.md`, the amendment Phase 3 history file, `tests/skills/test_prompting_profile_gpt_6_astra.py`, and the writer-generated `references/models/gpt-6-astra.md`. The research payload was written to a scratch file outside the repository and removed after the write. No new scratch docs.
 - `python scripts/check_docs_conventions.py --root docs/releases/v4/v4.7`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
 - Proposals: none.
+
+## Phase 6 (2026-09-05)
+
+- New files this phase created: `.github/workflows/supply-chain-watch.yml`, the decision record `docs/decisions/implemented/policy/2026-09-05-verifiable-pinnable-installs.md`, the Phase 6 history file, and three test modules (`tests/installer/test_bootstrap_verification.py`, `tests/installer/test_upgrade_pinned.py`, `tests/workflows/test_supply_chain_watch.py`). Scratch release directories used for the manual bash runs lived outside the repository and were removed. No new scratch docs.
+- `python scripts/check_docs_conventions.py --root docs/releases/v4/v4.7`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
+- Proposals: none.

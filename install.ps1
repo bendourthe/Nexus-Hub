@@ -26,6 +26,20 @@
 #   NEXUS_HUB_CHECKSUMS          path to a GNU sha256sum-format checksums.txt
 #   NEXUS_HUB_SKIP_CHECKSUM=1    skip SHA-256 verification (path-traversal
 #                                guard still runs). Mirrors RTK_SKIP_CHECKSUM.
+#   NEXUS_HUB_RELEASE_BASE       where a TAGGED ref's published artifact set lives
+#                                (URL base or a local directory holding
+#                                Nexus-Hub-<version>.tar.gz and SHA256SUMS);
+#                                default: the tag's GitHub Release assets
+#
+# Pinning (v4.7.0): `-Ref <tag-or-branch>` (consumed here, not passed on) or
+# NEXUS_HUB_REF selects what to install. A release tag (vX.Y.Z) downloads the
+# tarball the release workflow published and verifies it against the published
+# SHA256SUMS, FAIL-CLOSED: a mismatch, a missing checksum file, or an
+# unresolvable ref aborts with a non-zero exit and never installs unverified.
+# A branch ref (the default, main) has no publishable digest because every
+# commit changes the archive, so it keeps the pin/checksums/warning behavior
+# above. A tag install writes ~/.nexus-hub/PINNED_REF; a branch install
+# removes it; `nexus-hub upgrade` reads it. Lockstep with install.sh.
 [CmdletBinding()]
 param(
     [Parameter(ValueFromRemainingArguments = $true)]
@@ -243,6 +257,87 @@ function Assert-ArchiveChecksum {
     Write-BootstrapInfo "warning: unverified '$Ref' tarball (no published checksum). Set NEXUS_HUB_EXPECTED_SHA256 or NEXUS_HUB_CHECKSUMS, or NEXUS_HUB_SKIP_CHECKSUM=1 to skip."
 }
 
+
+# --- Release-tag verification (v4.7.0, fail-closed; lockstep with install.sh) ---
+
+function Test-ReleaseTag {
+    param([string]$Ref)
+    return [bool]($Ref -match '^v[0-9]')
+}
+
+function Get-ReleaseAssetBase {
+    param([string]$Repo, [string]$Ref)
+    if ($env:NEXUS_HUB_RELEASE_BASE) { return $env:NEXUS_HUB_RELEASE_BASE }
+    return "https://github.com/$Repo/releases/download/$Ref"
+}
+
+# Fetch published file $Name from $Base into $Dest. Returns "ok", "missing"
+# (local directory without the file), or "failed" (network or copy failure).
+function Get-ReleaseFile {
+    param([string]$Base, [string]$Name, [string]$Dest)
+    if (Test-Path -LiteralPath $Base -PathType Container) {
+        $candidate = Join-Path $Base $Name
+        if (-not (Test-Path -LiteralPath $candidate)) { return "missing" }
+        try { Copy-Item -LiteralPath $candidate -Destination $Dest -Force; return "ok" } catch { return "failed" }
+    }
+    try {
+        Invoke-WebRequest -Uri ("$Base/$Name") -OutFile $Dest -UseBasicParsing -TimeoutSec 300
+        return "ok"
+    } catch {
+        return "failed"
+    }
+}
+
+function Assert-ReleaseArchiveChecksum {
+    param([string]$ArchivePath, [string]$Name, [string]$Ref, [string]$Base)
+    if ($env:NEXUS_HUB_SKIP_CHECKSUM -eq '1') {
+        Write-BootstrapInfo "WARNING: checksum verification skipped for release $Ref (NEXUS_HUB_SKIP_CHECKSUM=1). This install is unverified by your explicit choice."
+        return
+    }
+    $actual = Get-Sha256Hex -Path $ArchivePath
+    $expected = $env:NEXUS_HUB_EXPECTED_SHA256
+    if ($expected) { $expected = $expected.ToLowerInvariant() }
+    if (-not $expected -and $env:NEXUS_HUB_CHECKSUMS) {
+        $expected = Get-ChecksumFromFile -FilePath $env:NEXUS_HUB_CHECKSUMS -ArchiveName $Name
+    }
+    if (-not $expected) {
+        $sums = Join-Path (Split-Path -Parent $ArchivePath) "SHA256SUMS"
+        $state = Get-ReleaseFile -Base $Base -Name "SHA256SUMS" -Dest $sums
+        if ($state -eq "missing") {
+            Write-BootstrapError "release $Ref carries no SHA256SUMS at $Base. Tags published before v4.7.0 have no artifact set; install a newer tag, or supply NEXUS_HUB_TARBALL plus NEXUS_HUB_EXPECTED_SHA256 for this one. Not installing unverified."
+            exit 1
+        }
+        if ($state -ne "ok") {
+            Write-BootstrapError "could not fetch SHA256SUMS for release $Ref from $Base (network failure or the asset is absent; this is NOT evidence of tampering). Check the connection or the Releases page, or supply NEXUS_HUB_EXPECTED_SHA256. Not installing unverified."
+            exit 1
+        }
+        $expected = Get-ChecksumFromFile -FilePath $sums -ArchiveName $Name
+        if (-not $expected) {
+            Write-BootstrapError "SHA256SUMS for release $Ref has no entry for $Name. Not installing unverified."
+            exit 1
+        }
+    }
+    if ($actual -ne $expected) {
+        Write-BootstrapError "checksum mismatch for $Name (release $Ref): expected $expected, got $actual. The download does not match what the release published; delete it and re-download, and if it repeats, treat the artifact as suspect. Not installing."
+        exit 1
+    }
+    Write-BootstrapInfo "checksum OK ($actual)"
+}
+
+function Set-PinMarker {
+    param([string]$Src, [string]$Ref)
+    $pinDir = Split-Path -Parent $Src
+    $marker = Join-Path $pinDir "PINNED_REF"
+    try {
+        if (Test-ReleaseTag -Ref $Ref) {
+            New-Item -ItemType Directory -Force -Path $pinDir | Out-Null
+            [System.IO.File]::WriteAllText($marker, "$Ref`n", (New-Object System.Text.UTF8Encoding($false)))
+        } elseif (Test-Path -LiteralPath $marker) {
+            Remove-Item -LiteralPath $marker -Force -ErrorAction SilentlyContinue
+        }
+    } catch {}
+}
+
 # Standalone bootstrap: precheck, fetch the catalog archive, extract it, and
 # hand off to the extracted core installer.
 function Invoke-Standalone {
@@ -254,7 +349,23 @@ function Invoke-Standalone {
         exit 0
     }
 
-    $ref = if ($env:NEXUS_HUB_REF) { $env:NEXUS_HUB_REF } else { "main" }
+    # Consume -Ref <value> here; everything else passes through to the core installer.
+    $refFlag = $null
+    $passthru = New-Object System.Collections.Generic.List[string]
+    for ($i = 0; $i -lt $ArgList.Count; $i++) {
+        $a = [string]$ArgList[$i]
+        if ($a -eq '-Ref' -or $a -eq '--ref') {
+            if ($i + 1 -ge $ArgList.Count) { Write-BootstrapError "-Ref needs a value (a tag such as v4.7.0, or a branch)"; exit 1 }
+            $refFlag = [string]$ArgList[$i + 1]; $i++
+        } elseif ($a -like '-Ref=*' -or $a -like '--ref=*') {
+            $refFlag = $a.Substring($a.IndexOf('=') + 1)
+        } else {
+            $passthru.Add($a)
+        }
+    }
+    $ArgList = $passthru.ToArray()
+    $ref = if ($refFlag) { $refFlag } elseif ($env:NEXUS_HUB_REF) { $env:NEXUS_HUB_REF } else { "main" }
+    if ([string]::IsNullOrWhiteSpace($ref)) { Write-BootstrapError "-Ref needs a value (a tag such as v4.7.0, or a branch)"; exit 1 }
     $repo = if ($env:NEXUS_HUB_REPO) { $env:NEXUS_HUB_REPO } else { $NexusHubRepoDefault }
     $src = if ($env:NEXUS_HUB_SRC) { $env:NEXUS_HUB_SRC } else { Join-Path (Get-HomeDir) ".nexus-hub\src" }
 
@@ -274,10 +385,26 @@ function Invoke-Standalone {
         $useTar = [bool]$tarExe
         $archive = $null
 
+        $assetName = "Nexus-Hub-" + ($ref -replace '^v', '') + ".tar.gz"
+        $assetBase = Get-ReleaseAssetBase -Repo $repo -Ref $ref
         if ($tarball -and (Test-Path $tarball)) {
             Write-BootstrapInfo "Using local catalog archive: $tarball"
             $archive = $tarball
             if ($tarball -match '\.zip$') { $useTar = $false }
+        } elseif (Test-ReleaseTag -Ref $ref) {
+            # A release tag installs the artifact the project PUBLISHED, not GitHub's
+            # generated archive, and the download is verified fail-closed below.
+            if (-not $useTar) {
+                Write-BootstrapError "a pinned release install needs tar (built in on Windows 10+) to read the published .tar.gz; install tar or use the main branch."
+                exit 1
+            }
+            $archive = Join-Path $tmp "nexus-hub.tar.gz"
+            Write-BootstrapInfo "Downloading Nexus-Hub release $ref ($repo)..."
+            $state = Get-ReleaseFile -Base $assetBase -Name $assetName -Dest $archive
+            if ($state -ne "ok") {
+                Write-BootstrapError "could not resolve release '$ref' at $assetBase : no $assetName (a typo, a tag that was never published, or a network failure). List versions at https://github.com/$repo/releases or with: gh release list -R $repo"
+                exit 1
+            }
         } else {
             $ext = if ($useTar) { "tar.gz" } else { "zip" }
             $archive = Join-Path $tmp ("nexus-hub." + $ext)
@@ -286,13 +413,18 @@ function Invoke-Standalone {
             try {
                 Invoke-WebRequest -Uri $url -OutFile $archive -UseBasicParsing -TimeoutSec 300
             } catch {
-                Write-BootstrapError "download failed: $url -- $($_.Exception.Message)"
+                Write-BootstrapError "could not resolve branch '$ref' in $repo (a typo or a branch that does not exist): $($_.Exception.Message). List releases at https://github.com/$repo/releases or pin one with -Ref vX.Y.Z"
                 exit 1
             }
         }
 
         Assert-ArchiveSafe -ArchivePath $archive -UseTar $useTar -TarExe $tarExe
-        Assert-ArchiveChecksum -ArchivePath $archive -Ref $ref -Repo $repo
+        if (Test-ReleaseTag -Ref $ref) {
+            Assert-ReleaseArchiveChecksum -ArchivePath $archive -Name $assetName -Ref $ref -Base $assetBase
+        } else {
+            Assert-ArchiveChecksum -ArchivePath $archive -Ref $ref -Repo $repo
+        }
+        Set-PinMarker -Src $src -Ref $ref
 
         Write-BootstrapInfo "Extracting catalog to $src ..."
         if (Test-Path $src) { Remove-Item -Recurse -Force $src }
