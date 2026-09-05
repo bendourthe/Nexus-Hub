@@ -238,6 +238,46 @@ def test_annotated_prompt_is_one_text_with_four_labelled_parts(playwright_mod) -
     assert ctx_parts == ["request", "attachments", "goal", "context"]
 
 
+@pytest.mark.parametrize("root_id", ["fx-ann-prompt", "fx-ann-context"])
+def test_prompt_highlights_wait_for_the_matching_box(playwright_mod, root_id) -> None:
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        _ctx, page = _open(browser)
+        try:
+            root = page.locator("#" + root_id)
+            root.scroll_into_view_if_needed()
+            page.wait_for_timeout(250)
+            root.evaluate("e => window.NexusSeq.reset(e)")
+            page.wait_for_timeout(400)
+
+            def snapshot():
+                return root.evaluate("""e => [...e.querySelectorAll('.ann')].map(m => ({
+                    active: m.classList.contains('is-on'),
+                    box: e.querySelector('.ann-legend-row[data-part="' + m.dataset.part + '"]').classList.contains('is-on'),
+                    background: getComputedStyle(m).backgroundColor,
+                    decoration: getComputedStyle(m).textDecorationLine,
+                    codePlain: [...m.querySelectorAll('code')].every(c => getComputedStyle(c).backgroundColor === 'rgba(0, 0, 0, 0)'),
+                }))""")
+
+            plain = snapshot()
+            assert all(not m["active"] and not m["box"] for m in plain)
+            assert all(m["background"] == "rgba(0, 0, 0, 0)" and m["decoration"] == "none" and m["codePlain"] for m in plain)
+            root.evaluate("e => window.NexusSeq.play(e)")
+            page.wait_for_timeout(1000)
+            first = snapshot()
+            assert [m["active"] for m in first] == [True, False, False, False], "the first step must last longer than one second"
+            page.wait_for_timeout(1100)
+            second = snapshot()
+            assert [m["active"] for m in second] == [True, True, False, False]
+            for marks in (first, second):
+                for mark in marks:
+                    assert mark["active"] == mark["box"]
+                    assert mark["decoration"] == ("underline" if mark["active"] else "none")
+                    assert (mark["background"] != "rgba(0, 0, 0, 0)") == mark["active"]
+        finally:
+            browser.close()
+
+
 def test_annotated_prompt_reveals_in_document_order_and_all_at_once_under_reduced_motion(playwright_mod) -> None:
     state = "() => window.NexusSeq.state(document.getElementById('fx-ann-prompt'))"
     with playwright_mod() as pw:
