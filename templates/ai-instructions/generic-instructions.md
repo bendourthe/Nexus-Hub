@@ -115,6 +115,8 @@ Apply these rules to **ALL** outputs, regardless of the domain:
 - Number steps, prerequisites first, expected results. After an error, re-issue ALL remaining steps renumbered.
 - Close tasks with Completed / Verified / Open / Next.
 - Work still running at turn end: lead with a one-line status banner, cap the update at ~8 lines.
+- Say in one line what you are about to do; on a long tool-calling turn, add brief progress notes. This narration is not tool output, so Output Minimization still applies.
+- Use lists when asked or when content is multifaceted; drop bullets, headers, and bold when the reader wants minimal formatting; keep conversational or emotional exchanges in plain prose.
 
 Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
 

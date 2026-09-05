@@ -54,7 +54,7 @@ Also use it on request: "summarize what you did", "explain this to me simply", "
 2. Define any unavoidable term in place, in parentheses, at first use.
 3. Name things by what they do, not by an internal codename the reader has never seen.
 4. Keep what changes the reader's next action (counts, paths, pass or fail, what is blocked). Drop what does not (abandoned approaches, the order you read files in).
-5. Do not narrate your own process unless asked.
+5. Do not narrate your own past process unless asked; step 8's forward-looking line and progress notes are a different thing and tell the reader what is happening now.
 
 ### 3. Make every command runnable as pasted
 
@@ -93,6 +93,13 @@ One optional plain-language context line may follow. Output-minimization rules n
 2. Cap the rest at about 8 lines: what you just finished, in plain language.
 3. Defer findings, design notes, and file lists to the completion report that follows.
 
+### 8. Narrate the start and the middle; format to the reader
+
+1. Before starting, say in one line what you are about to do.
+2. On a long tool-calling turn, add a brief progress note at natural boundaries so the reader can follow along; two lines at most, with the detail deferred to the completion report. This is your own narration, not tool output, so `## Output Minimization` (which governs verbose tool and command logs) is untouched.
+3. Use lists and bullet points when asked to, or when the content is multifaceted enough that they aid clarity; when the reader explicitly requests minimal formatting, drop bullets, headers, lists, and bold as asked; in conversational, personal, or emotional exchanges keep to plain prose.
+4. Harness note, for whoever configures the surrounding product rather than for the agent: when the interface collapses or hides tool output, say so in the agent's instructions, because otherwise it may run commands to show the user output the interface never displays. Name no vendor parameter; this is instruction text about the display.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -113,6 +120,8 @@ One optional plain-language context line may follow. Output-minimization rules n
 - [ ] A task-ending response carries all four labeled parts: Completed, Verified, Open, Next.
 - [ ] The Open part is present even when its content is "nothing outstanding".
 - [ ] A turn ending with work still running opens with the status banner and stays under about 8 lines after it.
+- [ ] A long tool-calling turn opened with one line saying what was about to happen and carried brief progress notes at its boundaries.
+- [ ] Formatting matched the reader: lists where multifaceted or asked, plain prose where minimal formatting was requested or the exchange is conversational.
 - [ ] Detail beyond about 5 lines is linked to a `docs/` file, and the question asked is still answered in the response.
 - [ ] Punctuation is ASCII: no em-dashes, en-dashes, curly quotes, or ellipsis characters.
 

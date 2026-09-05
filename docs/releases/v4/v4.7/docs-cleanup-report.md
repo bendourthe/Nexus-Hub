@@ -19,3 +19,9 @@ Per-phase record of the documentation cleanup audit (implement-phase step 8.6).
 - New files this phase created: `development/base64-context-decision.md`, the Phase 3 history file, and `tests/skills/test_presentify_output_budget.py`. The verification fixture and artifact were built in a scratch directory outside the repository and removed. No new scratch docs.
 - `python scripts/check_docs_conventions.py --root docs/releases/v4/v4.7`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
 - Proposals: none.
+
+## Phase 4 (2026-09-05)
+
+- New files this phase created: the Phase 4 history file and `tests/validators/test_communication_contract_rule.py`. No new scratch docs.
+- `python scripts/check_docs_conventions.py --root docs/releases/v4/v4.7`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
+- Proposals: none.
