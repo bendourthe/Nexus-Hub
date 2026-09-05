@@ -193,6 +193,8 @@ No headline number ships without a reproducible receipt. A pass rate, a win rate
 - **A single recompute step.** There must be one documented command that regenerates the headline from that artifact, so a reader can verify it without rebuilding the run. Here that step is `scripts/aggregate_benchmark.py <workspace>/iteration-N/`, which recomputes `benchmark.json` from the graded runs. State the exact step next to the number.
 - **A confidence interval, or an honest label.** Every rate carries an interval (for a pass@1 rate, a Wilson score interval is a sound default), so "80%" is reported as "80% (95% CI 55-93%, n=10)" rather than a bare point estimate. When the sample is too small for a meaningful interval, label the number preliminary and unproven instead of publishing a bare percentage. A small-N number stated without that caveat is the exact failure mode this rule exists to prevent.
 
+- **Repeated trials report `pass@k` or `pass^k`, never a single pass or fail.** `[[ai-output-evaluation]]` owns the definitions and the counting rules (errored trials count as non-passes; a retry is not an independent trial); this loop runs the k trials, records each result individually in the per-run `grading.json` files, and reports the figure with k stated, so `pass@3` is written as three recorded results and an aggregate, not as one green mark.
+
 This strengthens the benchmark flow above (steps 6-8): the aggregated `benchmark.json` is the receipt, the aggregator is the recompute step, and the interval is what keeps a two-iteration pass-rate comparison honest rather than a coin flip dressed as progress. The same receipt-and-interval discipline, applied to general output scoring, lives in `[[ai-output-evaluation]]`.
 
 ## Description optimizer (A7)

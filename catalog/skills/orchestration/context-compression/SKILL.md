@@ -244,6 +244,19 @@ what to watch out for]
 I will start a fresh session and reference this document."
 ```
 
+### Preservation contract for client-side summaries
+
+When the summary is produced client-side (a compaction hook, a session digest, a handoff document), it must preserve six categories, stated here as the contract the probes in Step 4 test against:
+
+1. Difficulties met and how each was resolved.
+2. Options raised or set aside, and why.
+3. Anything asked, decided, agreed, ruled out, or established as a constraint, stated exactly.
+4. Where things stand now.
+5. What is still open or promised.
+6. Hard-to-reconstruct specifics: names, numbers, dates, paths, and exact wording.
+
+Weight the user's own words close to verbatim and condense the agent's own reasoning to what it concluded; a summary that paraphrases the user and preserves the agent's deliberation has the priorities inverted. Dropping a required category is a defect to report in the summary itself ("no record of open items survived compaction"), never an acceptable compression.
+
 ### Step 4: Validate Compression Quality
 
 After compressing, verify no critical information was lost.

@@ -546,6 +546,8 @@ CONSTRAINTS:
 - **Pin SDK version**: Lock `@anthropic-ai/sdk` to a specific version in `package.json`. Minor SDK updates can change tool call behavior.
 - **Use strict TypeScript**: `noUncheckedIndexedAccess` prevents the most common runtime errors in agent code (array index out of bounds, optional property access).
 - **Per-agent Playwright instances**: If using Playwright MCP, give each parallel agent its own browser instance to avoid session state conflicts.
+- **Append-only history**: append each assistant turn to the conversation exactly as the API returned it and never edit earlier turns between requests; deliver per-turn reminders or injected context as new content rather than by rewriting history, because an edited transcript invalidates the model's own prior reasoning and any prompt cache built on it.
+- **Batch independent tool calls**: prefer requesting every independent item in one response rather than one per turn; a loop that serializes independent reads pays a full round trip per item for no gain. These two are provider-specific API concerns, which is why they live here and not in the platform-agnostic instruction templates.
 - **Design for idempotency**: Agent activities in durable workflow engines (Temporal) will be replayed on failure. Activities must produce the same result when run twice.
 
 ## Common Patterns

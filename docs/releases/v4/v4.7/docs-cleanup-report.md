@@ -25,3 +25,9 @@ Per-phase record of the documentation cleanup audit (implement-phase step 8.6).
 - New files this phase created: the Phase 4 history file and `tests/validators/test_communication_contract_rule.py`. No new scratch docs.
 - `python scripts/check_docs_conventions.py --root docs/releases/v4/v4.7`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
 - Proposals: none.
+
+## Phase 5 (2026-09-05)
+
+- New files this phase created: `development/test-scope-decision.md`, the Phase 5 history file, and `tests/skills/test_reliability_metric_ownership.py`. No new scratch docs.
+- `python scripts/check_docs_conventions.py --root docs/releases/v4/v4.7`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
+- Proposals: none.

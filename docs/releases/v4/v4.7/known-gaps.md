@@ -1,8 +1,8 @@
 # Known Gaps - v4.7
 
 **Project**: Nexus-Hub
-**Status**: v4.7.0 in progress on `feat/v4.7.0-model-behavior-and-distribution-integrity`; Phases 1 to 4 complete locally, not published
-**Last updated**: 2026-09-05 (v4.7.0 Phase 4)
+**Status**: v4.7.0 in progress on `feat/v4.7.0-model-behavior-and-distribution-integrity`; Phases 1 to 5 complete locally, not published
+**Last updated**: 2026-09-05 (v4.7.0 Phase 5)
 
 ## v4.7.0 - model-behavior-and-distribution-integrity (with the gpt-6-astra-prompting amendments folded in)
 
