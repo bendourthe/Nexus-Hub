@@ -29,3 +29,9 @@ Audit-mode report written by the phase 8.6 step of each v4.5.0 phase. Nothing mo
 - New files this phase created: the bundled script `scripts/detect_prose_cliches.py` (referenced from SKILL.md and the reference file), `tests/verification/test_prose_cliche_detector.py`, three fixtures under `tests/verification/fixtures/prose/`, and the phase 4 history file. No new scratch docs.
 - `python scripts/check_docs_conventions.py`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
 - Proposals: none.
+
+## Phase 5 (2026-09-04)
+
+- New files this phase created: the phase 5 history file only. `docs/framework-coverage.md` and `docs/attack-navigator-layer.json` were regenerated in place by the repository's generator, not authored. No new scratch docs.
+- `python scripts/check_docs_conventions.py`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
+- Proposals: none.
