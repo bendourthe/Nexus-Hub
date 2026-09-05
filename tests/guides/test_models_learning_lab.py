@@ -7,7 +7,7 @@ import pytest
 from playwright.sync_api import expect, sync_playwright
 
 GUIDE = Path(__file__).resolve().parents[2] / "guides/website/nexus-hub-guide.html"
-MODES = ("language", "diffusion", "world", "omni")
+MODES = ("language", "diffusion", "world", "multimodal")
 
 
 @pytest.fixture(scope="module")
@@ -51,7 +51,7 @@ def test_all_modes_fit_and_keep_their_text_readable(browser, width, theme):
         heights.append(geometry["height"])
         expect(panel).to_have_attribute("data-frame", "5")
         assert panel.locator(".ml-status").inner_text().strip()
-    assert max(heights) - min(heights) <= 1
+    assert min(heights) >= 320  # Outputs can grow naturally; no clipping to force equal heights.
     assert not errors and not requests
     page.close()
 
@@ -60,7 +60,7 @@ def test_keyboard_tabs_follow_focus_and_aria_contract(browser):
     page = open_scene(browser)
     tab = page.locator("#ml-tab-language")
     tab.focus()
-    for key, mode in (("ArrowRight", "diffusion"), ("End", "omni"), ("ArrowRight", "language"), ("ArrowLeft", "omni"), ("Home", "language")):
+    for key, mode in (("ArrowRight", "diffusion"), ("End", "multimodal"), ("ArrowRight", "language"), ("ArrowLeft", "multimodal"), ("Home", "language")):
         page.keyboard.press(key)
         selected = page.locator(f"#ml-tab-{mode}")
         expect(selected).to_be_focused()
@@ -72,66 +72,106 @@ def test_keyboard_tabs_follow_focus_and_aria_contract(browser):
 
 
 @pytest.mark.parametrize("mode", MODES)
-def test_finite_animation_replays_and_cancels_when_leaving(browser, mode):
-    page = open_scene(browser, motion="no-preference")
+def test_manual_steps_and_pause_keep_every_demo_inspectable(browser, mode):
+    page = open_scene(browser)
     page.locator(f"[data-mode={mode}]").click()
     panel = page.locator(f"#ml-{mode}")
-    panel.locator("[data-run]").click()
-    expect(panel).to_have_attribute("data-frame", "0")
-    if mode == "diffusion":
-        assert panel.locator(".ml-noise").evaluate("e => +getComputedStyle(e).opacity") == 1
-    expect(panel).to_have_attribute("data-frame", "2", timeout=2500)
-    if mode == "language":
-        expect(page.locator("#ml-tokens")).to_have_text("The sky")
-        scores = panel.locator(".ml-prob>div>span").all_text_contents()
-        assert sum(int(value.rstrip("%")) for value in scores) == 100
-    if mode == "diffusion":
-        assert 0 < panel.locator(".ml-noise").evaluate("e=>+getComputedStyle(e).opacity") < 1
     if mode == "world":
-        assert panel.locator(".ml-next-world").evaluate("e=>getComputedStyle(e).transform") != "none"
-    expect(panel).to_have_attribute("data-frame", "5", timeout=4500)
-    expect(panel).not_to_have_class(re.compile("ml-playing"))
-    panel.locator("[data-run]").click()
-    expect(panel).to_have_attribute("data-frame", "0")
-    page.locator("a[href='#home']").first.click()
-    expect(panel).not_to_have_class(re.compile("ml-playing"))
-    expect(panel).to_have_attribute("data-frame", "5")
-    page.wait_for_timeout(850)
-    expect(panel).to_have_attribute("data-frame", "5")
+        before = panel.locator(".ml-room").evaluate("e=>e.toDataURL()")
+    for n in range(6):
+        page.get_by_role("button", name="Next step", exact=True).click()
+        expect(panel).to_have_attribute("data-frame", str(n))
+        expect(panel).not_to_have_class(re.compile("ml-playing"))
+        if mode == "language":
+            scores = panel.locator(".ml-prob>div>span").all_text_contents()
+            assert sum(int(value.rstrip("%")) for value in scores) == 100
+        if mode == "diffusion" and n == 0:
+            assert panel.locator(".ml-noise").evaluate("e=>+getComputedStyle(e).opacity") == 1
+        if mode == "world" and n == 2:
+            assert before != panel.locator(".ml-room").evaluate("e=>e.toDataURL()")
+    expect(page.locator("#ml-motion")).to_be_disabled()
     page.close()
 
 
-def test_offscreen_and_live_reduced_motion_stop_work(browser):
+def test_language_predictions_repeat_and_pause_without_reset(browser):
+    page = open_scene(browser, motion="no-preference")
+    page.clock.install()
+    page.locator('[data-mode="language"]').click()
+    panel = page.locator("#ml-language")
+    page.clock.run_for(2500)
+    expect(panel).to_have_attribute("data-frame", "1")
+    expect(page.locator("#ml-context")).to_have_text("The")
+    expect(page.locator("#ml-prediction")).to_have_text("sky")
+    expect(page.locator("#ml-tokens")).to_have_text("The sky")
+    page.clock.run_for(12100)
+    expect(panel).to_have_attribute("data-frame", "0")
+    expect(panel).to_have_class(re.compile("ml-playing"))
+    page.get_by_role("button", name="Pause animations").click()
+    value = panel.get_attribute("data-frame")
+    page.clock.run_for(5000)
+    expect(panel).to_have_attribute("data-frame", value)
+    expect(panel).not_to_have_class(re.compile("ml-playing"))
+    page.get_by_role("button", name="Play animations").click()
+    page.clock.run_for(2500)
+    assert panel.get_attribute("data-frame") != value
+    page.close()
+
+
+def test_offscreen_routes_and_live_reduced_motion_stop_work(browser):
     page = open_scene(browser, motion="no-preference")
     panel = page.locator("#ml-language")
-    panel.locator("[data-run]").click()
-    expect(panel).to_have_attribute("data-frame", "0")
+    page.locator('[data-mode="language"]').click()
+    expect(panel).to_have_class(re.compile("ml-playing"))
     page.evaluate("window.scrollTo({top:0,behavior:'instant'})")
     expect(panel).not_to_have_class(re.compile("ml-playing"))
-    expect(panel).to_have_attribute("data-frame", "5")
-    panel.locator("[data-run]").click()
+    frame = panel.get_attribute("data-frame")
+    page.wait_for_timeout(2600)
+    expect(panel).to_have_attribute("data-frame", frame)
+    page.locator('.ml-lab').scroll_into_view_if_needed()
+    expect(panel).to_have_class(re.compile("ml-playing"))
     page.emulate_media(reduced_motion="reduce")
     expect(panel).to_have_attribute("data-frame", "5")
     expect(panel).not_to_have_class(re.compile("ml-playing"))
+    page.emulate_media(reduced_motion="no-preference")
+    page.get_by_role("button", name="Play animations").click()
+    page.locator("a[href='#home']").first.click()
+    expect(page.locator("#fx-model-lifecycle .ml-playing")).to_have_count(0)
     page.close()
 
 
-def test_capability_and_effort_are_independent_and_reach_a_response(browser):
+def test_capability_and_effort_are_independent_and_explain_the_selection(browser):
     page = open_scene(browser)
+    widths = page.locator(".ml-tier-art svg").evaluate_all("es=>es.map(e=>e.getBoundingClientRect().width)")
+    assert widths == sorted(widths) and len(set(widths)) == 4
     for tier in range(4):
-        page.locator(f"[data-tier='{tier}']").click()
+        button = page.locator(f"[data-tier='{tier}']")
+        button.click()
+        expect(button).to_contain_text("Anthropic")
+        expect(button).to_contain_text("OpenAI")
         for effort in range(4):
             page.locator(f"[data-effort='{effort}']").click()
-            expect(page.locator(f"[data-tier='{tier}']")).to_have_attribute("aria-pressed", "true")
+            expect(button).to_have_attribute("aria-pressed", "true")
             expect(page.locator(f"[data-effort='{effort}']")).to_have_attribute("aria-pressed", "true")
             expect(page.locator(".ml-tier-list [aria-pressed=true]")).to_have_count(1)
             expect(page.locator(".ml-efforts [aria-pressed=true]")).to_have_count(1)
-            family = page.locator(f"[data-tier='{tier}'] span").inner_text().split()[0]
-            level = page.locator(f"[data-effort='{effort}']").inner_text()
-            assert family in page.locator("#ml-selection").inner_text()
-            assert level in page.locator("#ml-effort-note").inner_text()
-    page.locator("#ml-send").click()
-    expect(page.locator("#ml-send-result")).to_contain_text("Response:")
+            assert page.locator(f"[data-effort='{effort}']").inner_text() in page.locator("#ml-effort-note").inner_text()
+            expect(page.locator(".ml-reason-progress [data-on]")).to_have_count(effort + 1)
+    expect(page.locator("#ml-tier-note")).to_contain_text("Frontier")
+    expect(page.locator(".ml-send, .ml-think")).to_have_count(0)
+    page.close()
+
+
+def test_higher_effort_allows_more_internal_processing_before_reply(browser):
+    page = open_scene(browser, motion="no-preference")
+    page.clock.install()
+    page.locator('[data-effort="0"]').click()
+    page.clock.run_for(2700)
+    expect(page.locator("#ml-reason-state")).to_have_text("Ready to reply")
+    page.locator('[data-effort="3"]').click()
+    page.clock.run_for(2700)
+    expect(page.locator("#ml-reason-state")).to_have_text("Compare approaches")
+    page.clock.run_for(7200)
+    expect(page.locator("#ml-reason-state")).to_have_text("Ready to reply")
     page.close()
 
 
@@ -139,7 +179,7 @@ def test_default_is_compact_and_heading_matches_foundations(browser):
     page = open_scene(browser)
     scene = page.locator("#fx-model-lifecycle")
     assert len(scene.inner_text().split()) < 420
-    assert scene.bounding_box()["height"] < 1800
+    assert scene.bounding_box()["height"] < 2100
     style = page.evaluate("""() => ['#fx-model-lifecycle .fx-subtitle','#fx-agent-platform .fx-subtitle'].map(s => {
         const c=getComputedStyle(document.querySelector(s));return [c.fontSize,c.fontWeight,c.color,c.lineHeight];})""")
     assert style[0] == style[1]
@@ -164,4 +204,8 @@ def test_teaching_distinguishes_training_prediction_and_effort():
         assert concept in text, concept
     assert 'class="fx-cycle"' not in html
     assert 'data-grammar="work-cycle"' not in html
+    for mode in MODES:
+        panel = re.search(r'id="ml-' + mode + r'" role="tabpanel"[\s\S]*?(?=<div class="ml-panel"|<p class="ml-small">Illustrated mechanisms)', scene).group()
+        assert 'User prompt' in panel and 'neural network' in panel and 'ml-board' in panel
+    assert 'omni' not in text and 'picnic' not in text
     assert '<audio' not in scene  # The voice diagram is explicitly illustrated, not a broken player.

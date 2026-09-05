@@ -1013,7 +1013,7 @@ def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
     assert "nhg-lockup-float" in guide_text and ".hero-lockup-float" in reduce_block, (
         "the lockup float needs a static reduced-motion state"
     )
-    for retired in ("fx-pulse", "fx-grow", "fx-fade", "offset-path"):
+    for retired in ("fx-pulse", "fx-grow", "fx-fade"):
         assert retired not in guide_text, (
             retired + " was retired; a reintroduced consumer must restore its states"
         )
@@ -1162,14 +1162,13 @@ def test_foundations_loop_labels_have_hierarchy(guide_text: str) -> None:
     assert "action: read" not in fx and "result: file text" not in fx
 
 
-def test_foundations_pulses_are_painted_above_connectors_and_behind_nodes(
-    guide_text: str,
-) -> None:
-    """v4.4.1 Phase 4 retired the traveling-pulse primitive with the last SVG story
-    diagram. This guard stays so a reintroduced pulse must also restore its paint-order
-    and reduced-motion contracts rather than riding back in silently."""
+def test_models_network_signal_has_a_static_fallback_and_node_layer(guide_text: str) -> None:
+    """The requested Models traversal restores motion with a readable node layer."""
     assert "fx-pulse" not in guide_text
-    assert "offset-path" not in guide_text
+    assert ".ml-network>svg:not(.ml-signal){position:relative;z-index:1;}" in guide_text
+    assert ".ml-network .ml-signal{position:absolute;z-index:0;" in guide_text
+    assert ".ml-playing .ml-signal circle{animation:ml-travel" in guide_text
+    assert "#fx-model-lifecycle *,#fx-model-lifecycle *::before{animation:none!important" in guide_text
 
 
 def test_foundations_is_project_generic(guide_text: str) -> None:

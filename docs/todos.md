@@ -23,12 +23,14 @@ Refreshing this file to the active plan (rather than appending another version's
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 397,110 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 406,247 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
 
 ## Current work - v4.4.5 visual refinement
+
+- [x] Refine Models with a common prompt/network/output flow, continuous token prediction, furnished-room camera sequence, native multimodal example, provider-labeled capability graphics and reasoning loops; 152 affected checks and 40 layout cases pass after the final source-label retest. See [verification](releases/v4/v4.4/development/guide-visual-refinement/models-flow-refinement/verification.md).
 
 - [x] Rebuild Models with four visual demonstrations, capability/effort controls, and finite accessible animations; 150 affected tests pass with one optional skip, 20 final Models tests pass, and 40 layout cases pass. The default section is 29% shorter with 45% fewer visible words. See [verification](releases/v4/v4.4/development/guide-visual-refinement/models-rebuild/verification.md).
 
