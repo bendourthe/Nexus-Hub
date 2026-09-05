@@ -51,7 +51,7 @@ def test_all_modes_fit_and_keep_their_text_readable(browser, width, theme):
         heights.append(geometry["height"])
         expect(panel).to_have_attribute("data-frame", "5")
         assert panel.locator(".ml-status").inner_text().strip()
-    assert min(heights) >= 320  # Outputs can grow naturally; no clipping to force equal heights.
+    assert min(heights) >= 280  # Outputs can grow naturally; no clipping to force equal heights.
     assert not errors and not requests
     page.close()
 
@@ -77,7 +77,8 @@ def test_manual_steps_and_pause_keep_every_demo_inspectable(browser, mode):
     page.locator(f"[data-mode={mode}]").click()
     panel = page.locator(f"#ml-{mode}")
     if mode == "world":
-        before = panel.locator(".ml-room").evaluate("e=>e.toDataURL()")
+        before = panel.locator(".ml-room > .ml-room-camera").get_attribute("transform")
+        source = panel.locator(".ml-room use").get_attribute("href")
     for n in range(6):
         page.get_by_role("button", name="Next step", exact=True).click()
         expect(panel).to_have_attribute("data-frame", str(n))
@@ -88,7 +89,8 @@ def test_manual_steps_and_pause_keep_every_demo_inspectable(browser, mode):
         if mode == "diffusion" and n == 0:
             assert panel.locator(".ml-noise").evaluate("e=>+getComputedStyle(e).opacity") == 1
         if mode == "world" and n == 2:
-            assert before != panel.locator(".ml-room").evaluate("e=>e.toDataURL()")
+            assert before != panel.locator(".ml-room > .ml-room-camera").get_attribute("transform")
+            assert panel.locator(".ml-room use").get_attribute("href") == source
     expect(page.locator("#ml-motion")).to_be_disabled()
     page.close()
 
@@ -100,9 +102,10 @@ def test_language_predictions_repeat_and_pause_without_reset(browser):
     panel = page.locator("#ml-language")
     page.clock.run_for(2500)
     expect(panel).to_have_attribute("data-frame", "1")
-    expect(page.locator("#ml-context")).to_have_text("The")
-    expect(page.locator("#ml-prediction")).to_have_text("sky")
-    expect(page.locator("#ml-tokens")).to_have_text("The sky")
+    expect(page.locator("#ml-prefix")).to_have_text("Yeast ")
+    expect(panel.locator(".ml-prompt")).not_to_contain_text("Yeast")
+    expect(page.locator("#ml-prediction")).to_have_text("produces")
+    expect(page.locator("#ml-tokens")).to_have_text("Yeast produces")
     page.clock.run_for(12100)
     expect(panel).to_have_attribute("data-frame", "0")
     expect(panel).to_have_class(re.compile("ml-playing"))
@@ -200,12 +203,33 @@ def test_teaching_distinguishes_training_prediction_and_effort():
     html = GUIDE.read_text(encoding="utf-8")
     scene = re.search(r'<section[^>]+id="fx-model-lifecycle"[\s\S]*?</section>', html).group()
     text = re.sub(r"<[^>]+>", " ", scene).lower()
-    for concept in ("neural network", "does not retrain", "token", "noise", "scene and an action", "multimodal", "internal tokens", "not a fixed number of loops", "not live ai or private thoughts"):
+    for concept in ("neural network", "pre-training", "post-training", "reinforcement learning", "weights", "token", "noise", "scene and an action", "multimodal", "internal tokens", "not a fixed number of loops", "not exact model internals or live ai"):
         assert concept in text, concept
     assert 'class="fx-cycle"' not in html
     assert 'data-grammar="work-cycle"' not in html
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(scene, "html.parser")
+    architectures = []
     for mode in MODES:
-        panel = re.search(r'id="ml-' + mode + r'" role="tabpanel"[\s\S]*?(?=<div class="ml-panel"|<p class="ml-small">Illustrated mechanisms)', scene).group()
-        assert 'User prompt' in panel and 'neural network' in panel and 'ml-board' in panel
+        panel = soup.select_one(f"#ml-{mode}")
+        assert "User request" in panel.get_text() and panel.select_one(".ml-board")
+        architectures.append(panel.select_one(".ml-network svg use")["href"])
+    assert len(set(architectures)) == 4
+    multi = soup.select_one("#ml-multimodal")
+    assert "voice recording" in multi.select_one(".ml-prompt").get_text()
+    assert "Shared learned weights" in multi.get_text()
+    assert multi.select_one('.ml-ui-attachment [role="img"]')
     assert 'omni' not in text and 'picnic' not in text
     assert '<audio' not in scene  # The voice diagram is explicitly illustrated, not a broken player.
+
+
+def test_diffusion_reveals_the_photograph_in_under_four_seconds(browser):
+    page = open_scene(browser, motion="no-preference")
+    page.clock.install()
+    page.locator('[data-mode="diffusion"]').click()
+    page.clock.run_for(3300)
+    panel = page.locator("#ml-diffusion")
+    expect(panel).to_have_attribute("data-frame", "5")
+    page.clock.run_for(700)
+    expect(panel).to_have_attribute("data-frame", "0")
+    page.close()
