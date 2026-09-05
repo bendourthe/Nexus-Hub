@@ -142,6 +142,8 @@ def test_the_segment_carries_both_benefits(playwright_mod) -> None:
                         host: s.querySelector('.ph-head b').textContent.trim(),
                         logo: !!s.querySelector(".ph-head .brand-copy svg"),
                         commands: [...s.querySelectorAll('.ph-msg--user code')].map(e => e.textContent),
+                        tasks: [...s.querySelectorAll(".ph-tasks")].map(list => [...list.querySelectorAll("label")].map(label => ({text: label.textContent, done: label.querySelector("input").checked}))),
+                        phases: [...s.querySelectorAll(".ph-plan tbody tr")].map(row => row.cells.length),
                         text: s.textContent.toLowerCase() })),
                       cut: fig.querySelector('.ph-cut').textContent.trim().toLowerCase(),
                       note: fig.querySelector('.ph-note').textContent.trim().toLowerCase(),
@@ -165,12 +167,16 @@ def test_the_segment_carries_both_benefits(playwright_mod) -> None:
     assert claude["logo"] and codex["logo"]
     assert "/plan" in claude["commands"] and "/implement" in claude["commands"]
     assert "usage limit reached" in claude["text"] and "3 hours" in claude["text"]
-    assert "phase 2 in progress" in claude["text"]
-    assert "date picker and contact fields" in claude["text"]
-    assert "date picker and contact fields" in codex["text"]
-    assert "confirmation message is still unfinished" in codex["text"]
+    assert "phase 1 in progress" in claude["text"]
+    assert claude["phases"] == [3, 3, 3]
+    saved, resumed, complete = claude["tasks"][0], *codex["tasks"]
+    assert len(saved) == 4 and saved == resumed
+    assert [task["done"] for task in saved] == [True, True, False, False]
+    assert [task["text"] for task in saved] == [task["text"] for task in complete]
+    assert all(task["done"] for task in complete)
     assert "/implement" in codex["commands"] and "booking.md" in codex["text"]
-    assert "finalize phase 2" in codex["text"] and "continue with phase 3" in codex["text"]
+    assert "phase 1 verified and complete" in codex["text"]
+    assert "next: run /implement phase 2" in codex["text"]
 
     assert "usage" in data["cut"], data["cut"]
     assert "files" in data["note"] and "resumes" in data["note"], data["note"]

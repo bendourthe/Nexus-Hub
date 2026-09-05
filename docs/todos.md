@@ -23,12 +23,14 @@ Refreshing this file to the active plan (rather than appending another version's
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 399,917 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 399,931 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
 
 ## Current work - v4.4.5 visual refinement
+
+- [x] Add the phase/model/effort plan table and show the same Phase 1 checklist from interruption through Codex completion; 52 focused checks plus the updated word-budget rerun and 12 layout/theme checks pass. See [verification](releases/v4/v4.4/development/guide-visual-refinement/phase-one-handoff/verification.md).
 
 - [x] Replace the Model network with a colored clustered illustration and show six guardrail pills; 59 focused tests and 12 responsive/theme checks pass. See [verification](releases/v4/v4.4/development/guide-visual-refinement/clustered-model-and-guardrails/verification.md).
 
