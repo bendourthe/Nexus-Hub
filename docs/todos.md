@@ -23,12 +23,14 @@ Refreshing this file to the active plan (rather than appending another version's
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 399,948 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 399,921 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
 
 ## Current work - v4.4.5 visual refinement
+
+- [x] Move the concise shared-plan explanation into the center handoff callout and remove the bottom repetition; 34 focused tests and 12 layout/theme checks pass. See [verification](releases/v4/v4.4/development/guide-visual-refinement/centered-handoff-explanation/verification.md).
 
 - [x] Rename the example plan, emphasize Example:, and add a prominent handoff callout with a fixed centered clock; 34 focused tests and 12 responsive/theme checks pass. See [verification](releases/v4/v4.4/development/guide-visual-refinement/handoff-callout/verification.md).
 
