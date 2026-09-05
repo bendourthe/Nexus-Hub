@@ -24,7 +24,7 @@ cross-platform from a single `.py` file, consistent with the other top-level
 THE PARITY CONTRACT (structural, never raw-byte whole-file)
 
 The five templates are NOT structurally identical today: base-claude.md is the
-"full" template (separate Communication Style + Critical Rules sections, plus
+"full" template (a separate Critical Rules section, plus
 Agent Registry / Spending Controls / Environment Variables / MCP Integration),
 while the other four collapse those into one Working Conventions section and
 omit the optional blocks. The contract is therefore built on what the five
@@ -47,7 +47,7 @@ files actually share, not on a naive equality of the whole file.
     * Platform names and per-platform install paths (`.claude/skills/`,
       `.codex/skills/`, `skills/`, ...).
     * Claude-only optional sections (Agent Registry, Spending Controls,
-      Environment Variables, MCP Integration) and the Communication Style +
+      Environment Variables, MCP Integration) and the
       Critical Rules vs Working Conventions split.
     * Context References (absent in base-gemini.md), the per-platform
       behavioral-rule bullet wording, and Output Minimization's claude-only

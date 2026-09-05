@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A platform-wide Writing Discipline rule, always loaded.** Every AI platform Nexus-Hub installs into now receives a short `## Writing Discipline` block in its instruction file: a prohibition list of the highest-frequency AI-cliche moves, the ASCII punctuation rule that was previously Claude-only, an outright ban on chatbot leftovers, and a self-check that binds the agent's own chat replies as well as the files it writes. The block is byte-identical across the five lockstep templates and present in all twelve substantive ones. Its per-turn cost is recorded in the v4.5.0 phase history, and the five template word ceilings were raised by the measured delta with the justification in `docs/policy/doc-budgets.md`.
+
 ---
 
 ## [4.4.5] - 2026-09-04

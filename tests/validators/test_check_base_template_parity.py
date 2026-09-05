@@ -196,3 +196,85 @@ def test_json_output_reports_findings(tmp_path: Path, runner) -> None:
     assert payload["in_parity"] is False
     assert any(f["file"] == "base-opencode.md" for f in payload["findings"])
     assert any(f["category"] == "block-divergence" for f in payload["findings"])
+
+
+# --- v4.5.0 phase 1: the always-on Writing Discipline block ---------------------
+# Temporary home. Phase 2 promotes "Writing Discipline" into the guard's
+# INVARIANT_SECTIONS (covering the lockstep five) and moves the twelve-template
+# assertion into its own companion validator; when that lands, this block of
+# tests is relocated rather than duplicated.
+
+SUBSTANTIVE_UNGUARDED = [
+    "base-google-shared.md",
+    "base-aider.md",
+    "base-kimi.md",
+    "base-openclaw.md",
+    "base-qwen.md",
+    "base-windsurf.md",
+    "generic-instructions.md",
+]
+SURFACE_NOTES = [
+    "base-antigravity-10.md",
+    "base-antigravity-20.md",
+    "base-antigravity-cli.md",
+    "base-gemini-cli.md",
+]
+WRITING_DISCIPLINE_HEADING = "## Writing Discipline"
+
+
+def _section_body(text: str, heading: str) -> str | None:
+    """Return the normalized body under `heading`, or None when the heading is absent."""
+    lines = text.replace("\r\n", "\n").split("\n")
+    try:
+        start = next(i for i, line in enumerate(lines) if line.strip() == heading)
+    except StopIteration:
+        return None
+    body: list[str] = []
+    for line in lines[start + 1 :]:
+        if line.startswith("## "):
+            break
+        body.append(line.rstrip())
+    return "\n".join(body).strip("\n")
+
+
+def test_writing_discipline_present_in_all_twelve_substantive_templates() -> None:
+    missing = [
+        name
+        for name in LOCKSTEP_FILES + SUBSTANTIVE_UNGUARDED
+        if _section_body(_real_template(name), WRITING_DISCIPLINE_HEADING) is None
+    ]
+    assert not missing, f"Writing Discipline block missing from: {missing}"
+
+
+def test_writing_discipline_absent_from_surface_note_files() -> None:
+    present = [
+        name
+        for name in SURFACE_NOTES
+        if WRITING_DISCIPLINE_HEADING in _real_template(name)
+    ]
+    assert not present, (
+        f"surface-note pointer files must not carry the block: {present}"
+    )
+
+
+def test_writing_discipline_body_identical_across_all_twelve() -> None:
+    bodies = {
+        name: _section_body(_real_template(name), WRITING_DISCIPLINE_HEADING)
+        for name in LOCKSTEP_FILES + SUBSTANTIVE_UNGUARDED
+    }
+    distinct = {body for body in bodies.values() if body is not None}
+    assert len(distinct) == 1, (
+        "Writing Discipline body differs across templates: "
+        + ", ".join(sorted(n for n, b in bodies.items() if b != next(iter(distinct))))
+    )
+
+
+def test_writing_discipline_block_stays_within_budget_and_ascii() -> None:
+    body = _section_body(_real_template("base-claude.md"), WRITING_DISCIPLINE_HEADING)
+    assert body is not None
+    non_ascii = sorted({c for c in body if ord(c) > 127})
+    assert not non_ascii, f"block must be ASCII only, found {non_ascii!r}"
+    # heading + body lines, counting separators, must not exceed the plan's 14-line budget
+    assert body.count("\n") + 2 <= 14, (
+        "Writing Discipline block exceeds its 14-line budget"
+    )
