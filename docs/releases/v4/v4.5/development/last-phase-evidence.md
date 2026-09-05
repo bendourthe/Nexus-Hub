@@ -183,9 +183,14 @@ python scripts/validate_decision_records.py: result recorded in the phase 7 hist
 
 ## Publication and integration
 
-Not yet performed. This plan's driver ran phases 1 to 6 commit-only and was instructed to STOP for explicit approval before phase 7 publishes. The intended single remote event, pending that approval:
+Performed 2026-09-04 (UTC 2026-09-05) after explicit maintainer approval at the gate, then a second explicit approval for the merge.
 
-- Branching model: `develop` + `main` (AGENTS.md); feature branch integrates through `develop`.
-- Remote: `origin` (`bendourthe/Nexus-Hub`). Branch: `feat/v4.5.0-anti-cliche-and-agent-security`. Pull-request target: `develop`.
-- Expected required checks (from `docs/policy/required-checks.json`, ten contexts across two branches): `validate`, `shellcheck`, `colocation`, `verify`, `ci-required`, plus the CodeQL code-scanning merge protection, which is not a required context but blocks on new alerts.
-- Post-approval sequence: final local phase commit; push once; open the pull request; wait for every required check against the merge result; on red, reopen this phase and reproduce locally before any re-push; merge on green with approval; confirm the post-merge workflow did not rerun the full suite; then record the check results and merge SHA here and hand off to `/update release`.
+- Push: `git push -u origin feat/v4.5.0-anti-cliche-and-agent-security`, one push, seven commits (`4d60c974` phase 1 through `b99c43d6` phase 7).
+- Pull request: https://github.com/bendourthe/Nexus-Hub/pull/162 into `develop`.
+- Required checks against the merge result, all green: `validate` (44s), `shellcheck` (24s), `colocation` (8s), `verify` (2s), `ci-required` (aggregate, 4s); CodeQL code-scanning (`Analyze (python)`, `Analyze (javascript-typescript)`, `CodeQL`) passed with no new alert. Non-required jobs also green: `tests` (11m44s), `tests-windows` (12m32s), `guide-render` (5m59s), `bootstrap` and `install-smoke` and `installer-smoke` on all three runners; `render` skipped by its job-level path filter. `mergeStateStatus: CLEAN`.
+- No red check, so the phase was not reopened and no re-push occurred.
+- Merge: merge commit `765d9f32b158647cb2328972ed72d1f8e8d0c313` into `develop`, merged 2026-09-05T04:41:39Z; branch retained for the record.
+- Post-merge behavior: the `develop` runs for `765d9f32` are recorded in the phase 7 history; the post-merge workflow performed only its scoped work and did not rerun the full suite (see that record).
+- This evidence section itself lands after the merge, as the minimal post-merge documentation commit the lifecycle allows; it carries no code change.
+
+Handoff: `/update release` may start. `T030` is ticked in the plan.
