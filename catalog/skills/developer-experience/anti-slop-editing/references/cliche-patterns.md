@@ -167,5 +167,6 @@ This cluster is judgment, not defect. A metaphor can be the precise choice, and 
 ## Cross-reference
 
 - The three countable rhythm rules (echoing sentence runs, repeated openers, stacked questions) live in the `Robotic rhythm` entry of `SKILL.md`, because a rule with a threshold belongs where the agent reads it every time.
+- The offline detector `scripts/detect_prose_cliches.py` encodes the lexical entries above and the three rhythm rules, reports each finding with its class, and deliberately skips mannered prose.
 - The lexical long tail of these registers (single phrases that do not warrant a named entry) lives in `references/slop-wordlist.md`.
 - The always-loaded `## Writing Discipline` block in every instruction template names the highest-frequency moves in one item each and points at this skill; this file is where those names resolve to examples.

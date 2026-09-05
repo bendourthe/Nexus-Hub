@@ -51,12 +51,13 @@ Follow these steps in order for every request.
 1. **Confirm the mode.** Default to Edit. Switch to Detect when the user asks to find, name, audit, or flag slop without a rewrite ("what's slop here", "point out the AI tells", "don't rewrite it, just show me").
 2. **Read the whole draft first and identify 3-5 voice signals to preserve.** Note the writer's characteristic moves before touching anything: sentence length preference, humor, directness, technical register, a recurring turn of phrase, first-person candor. These are protected. See "Voice-Preservation Discipline" below.
 3. **Scan for the named patterns** in the catalog below, then against the extended register catalog in `references/cliche-patterns.md` (the reflective and faux-reveal registers, emphatic negation, performative honesty, the stranded auxiliary, chatbot leftovers, and mannered prose). Mark every hit with its pattern name and the exact line, and note its class: judgment (flag, cut only when it adds nothing) or defect (always remove).
-4. **Consult the word and phrase lists** in `references/slop-wordlist.md` for banned words, often-empty adverbs, and empty phrases. Apply them with judgment, not as a hard lint: cut a word when it adds nothing, keep it when it carries real emphasis, contrast, uncertainty, or the writer's spoken rhythm.
-5. **Act on the mode.**
+4. **Run the deterministic detector as a floor, not a ceiling.** `python scripts/detect_prose_cliches.py <file>` (or `-` for stdin; `--json` for machine output) reports the patterns it encodes with line, column, and class: `defect` for chatbot leftovers and forbidden Unicode punctuation, `advisory` for the registers, the spaced-hyphen connector, and the three rhythm rules. In Detect mode run it first and fold its findings into your own reading; in Edit mode run it after editing as a check. It is stdlib-only and offline, exits zero by default, gates only with `--fail-on defect`, ignores quoted mentions, and skips list items in the rhythm rules. It catches what it encodes and nothing else: mannered prose and every judgment call about voice stay with you, so a clean detector run is not a clean draft.
+5. **Consult the word and phrase lists** in `references/slop-wordlist.md` for banned words, often-empty adverbs, and empty phrases. Apply them with judgment, not as a hard lint: cut a word when it adds nothing, keep it when it carries real emphasis, contrast, uncertainty, or the writer's spoken rhythm.
+6. **Act on the mode.**
     - Edit: make the minimum effective edit. Fix the flagged lines, leave strong human sentences untouched, and do not reach for a "better" word where the writer's word already works. Then assemble the "What changed" list.
     - Detect: produce the findings list (pattern name, quoted line, short fix) and stop. Do not rewrite.
-6. **Self-check before returning.** Grade the output against the rubric in `references/self-check.md`. If any check fails, fix it and re-grade. Repeat until every check passes. This happens inside this one agent; do not spawn a separate evaluator.
-7. **Return the result** in the mode's output shape.
+7. **Self-check before returning.** Grade the output against the rubric in `references/self-check.md`. If any check fails, fix it and re-grade. Repeat until every check passes. This happens inside this one agent; do not spawn a separate evaluator.
+8. **Return the result** in the mode's output shape.
 
 ## Named-Pattern Catalog
 
@@ -269,8 +270,9 @@ The catalog tells you what to cut. This section tells you what to protect. A de-
 
 Before returning any result, grade it against the rubric in `references/self-check.md`. If a check fails, fix the output and grade again. Loop until every check passes. All of this happens inside this single agent; there is no separate evaluator agent and no external call.
 
-These three quality surfaces are distinct and do not replace each other:
+These four quality surfaces are distinct and do not replace each other:
 
+- The **deterministic detector** (`scripts/detect_prose_cliches.py`) finds the encoded patterns offline with line and column, before the model reads in Detect mode and after it edits in Edit mode. It is a floor: it never sees mannered prose or a voice judgment.
 - The **self-check loop** (`references/self-check.md`) grades the CONTENT of a specific edit or detection at runtime, and drives the fix-and-recheck loop above.
 - The **Verification** section below checks OBSERVABLE ARTIFACTS after authoring the skill (files exist, checks pass).
 - The **`evals/trigger-cases.json`** file checks ROUTING (that a de-slop request reaches this skill and not `writing-editing`). It is consumed by the trigger-eval runner, not read at edit time.
@@ -297,6 +299,7 @@ These three quality surfaces are distinct and do not replace each other:
 - [ ] No em-dashes and no clause-joining spaced hyphens appear in the edited output; punctuation is ASCII-only.
 - [ ] The 3-5 identified voice signals are preserved in the edited draft (strong human sentences left intact).
 - [ ] Every referring expression resolves for a reader at HEAD with no transcript: no citation points at an unshipped option, and no temporal contrast appears outside a changelog, migration guide, deprecation notice, or incident timeline.
+- [ ] `python scripts/detect_prose_cliches.py <file>` was run (first in Detect mode, after editing in Edit mode) and its `defect` count on the returned draft is zero.
 - [ ] Every chatbot leftover in the draft is gone in Edit mode, or named as a defect (not a flagged style) in Detect mode.
 - [ ] Each `Robotic rhythm` finding cites the rule number and the run that tripped its threshold, so the same finding is reproducible by the offline detector.
 - [ ] The output was graded against `references/self-check.md` and every check passes.

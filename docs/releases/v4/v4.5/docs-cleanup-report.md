@@ -23,3 +23,9 @@ Audit-mode report written by the phase 8.6 step of each v4.5.0 phase. Nothing mo
 - New files this phase created: `catalog/skills/developer-experience/anti-slop-editing/references/cliche-patterns.md` (a bundled skill reference, referenced from SKILL.md, so the orphan audit stays clean) and the phase 3 history file. No new scratch docs.
 - `python scripts/check_docs_conventions.py`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
 - Proposals: none.
+
+## Phase 4 (2026-09-04)
+
+- New files this phase created: the bundled script `scripts/detect_prose_cliches.py` (referenced from SKILL.md and the reference file), `tests/verification/test_prose_cliche_detector.py`, three fixtures under `tests/verification/fixtures/prose/`, and the phase 4 history file. No new scratch docs.
+- `python scripts/check_docs_conventions.py`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
+- Proposals: none.
