@@ -15,7 +15,7 @@ Scanned `catalog/skills`. Each row links a public framework control ID to the Ne
 | MITRE ATT&CK | 64 | 103 |
 | MITRE ATLAS | 4 | 6 |
 | MITRE F3 | 1 | 1 |
-| MITRE D3FEND | 18 | 51 |
+| MITRE D3FEND | 20 | 53 |
 | NIST CSF | 19 | 127 |
 | NIST AI RMF | 2 | 4 |
 
@@ -108,6 +108,7 @@ Scanned `catalog/skills`. Each row links a public framework control ID to the Ne
 | Control ID | Skills |
 |---|---|
 | `D3-CH` | cryptographic-control-audit, digital-signatures-and-jwt-signing |
+| `D3-CR` | agentic-endpoint-hardening |
 | `D3-DE` | honeytoken-placement |
 | `D3-DNRA` | cert-transparency-and-typosquat-monitoring |
 | `D3-FA` | agent-execution-isolation, agentic-endpoint-hardening, disk-artifact-forensics, malware-triage-analysis, phishing-analysis-and-defense, ransomware-incident-response, skill-security-scan |
@@ -121,6 +122,7 @@ Scanned `catalog/skills`. Each row links a public framework control ID to the Ne
 | `D3-PA` | agent-execution-isolation, agentic-endpoint-hardening, cloud-audit-log-detection, cloud-security-posture-detection, container-runtime-detection, endpoint-edr-detection, hunting-credential-dumping, identity-threat-detection, lateral-movement-detection, log-threat-hunting, memory-forensics, persistence-mechanism-hunting, siem-detection-engineering |
 | `D3-PH` | agent-execution-isolation |
 | `D3-PSA` | endpoint-edr-detection, hunting-credential-dumping, memory-forensics |
+| `D3-PT` | agentic-endpoint-hardening |
 | `D3-SCI` | slsa-provenance-and-sigstore-verification |
 | `D3-SFA` | disk-artifact-forensics, persistence-mechanism-hunting |
 | `D3-TBPA` | tpm-measured-boot-attestation |

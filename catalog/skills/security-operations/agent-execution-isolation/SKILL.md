@@ -138,7 +138,7 @@ Write down what remains: kernel features the host lacks, destinations that had t
 
 ## Related Skills
 
-- [[agentic-endpoint-hardening]] -- host config-write trust seam; pair with this skill so a confined agent still cannot plant host-executed config, and see its deterministic-stop class for architectural-assumption violations that this skill's layers are meant to make impossible.
+- [[agentic-endpoint-hardening]] -- host config-write trust seam; pair with this skill so a confined agent still cannot plant host-executed config, and see its deterministic response class for architectural-assumption violations that this skill's layers are meant to make impossible.
 - [[egress-redaction]] -- agent-applied content policy; this skill's egress proxy is the network boundary that policy cannot replace.
 - [[prompt-injection-defense]] -- how a hostile instruction reaches the agent; isolation bounds the cost when it does.
 - [[network-microsegmentation-design]] -- the subnet tier of multi-layer egress enforcement behind the proxy in step 5.

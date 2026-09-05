@@ -35,3 +35,9 @@ Audit-mode report written by the phase 8.6 step of each v4.5.0 phase. Nothing mo
 - New files this phase created: the phase 5 history file only. `docs/framework-coverage.md` and `docs/attack-navigator-layer.json` were regenerated in place by the repository's generator, not authored. No new scratch docs.
 - `python scripts/check_docs_conventions.py`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
 - Proposals: none.
+
+## Phase 6 (2026-09-04)
+
+- New files this phase created: the phase 6 history file only. `docs/framework-coverage.md` was regenerated in place by the repository's generator, not authored. No new scratch docs.
+- `python scripts/check_docs_conventions.py`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
+- Proposals: none.
