@@ -193,11 +193,13 @@ def test_unresolvable_release_ref_aborts_naming_the_ref(
 
 
 def test_release_dir_path_with_space_and_backslash(impl: str, tmp_path: Path) -> None:
-    odd = (
-        tmp_path
-        / "odd dir"
-        / ("back\\slash" if sys.platform != "win32" else "backslash")
-    )
+    # The space applies everywhere. A LITERAL backslash in a directory name is a
+    # bash-on-POSIX case only: Windows treats it as a separator, and PowerShell 7
+    # on Linux normalizes it to one too (the ubuntu `ps` leg of PR #167 proved
+    # that by looking up `back/slash`), so neither of those hosts can hold the
+    # directory this fixture would create.
+    literal_backslash = impl == "sh" and sys.platform != "win32"
+    odd = tmp_path / "odd dir" / ("back\\slash" if literal_backslash else "backslash")
     release = _release_dir(odd, impl)
     src = tmp_path / "home" / ".nexus-hub" / "src"
     proc = _run(

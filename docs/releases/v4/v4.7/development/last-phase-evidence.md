@@ -177,7 +177,11 @@ The three extension results are ENV, identical to the v4.5.0 record: git diff or
 
 ## Publication and integration
 
-Not yet performed. The driver stops here for explicit approval before the plan's single push, as instructed at the start of this run. Intended single remote event:
+Push performed 2026-09-05 after explicit approval (eight commits, one push); pull request https://github.com/bendourthe/Nexus-Hub/pull/167 into `develop`.
+
+**First remote validation: one red required check, phase reopened.** `tests` (ubuntu) failed on exactly one case, `tests/installer/test_bootstrap_verification.py::test_release_dir_path_with_space_and_backslash[ps]`; every other job was green (`validate`, `shellcheck`, `colocation`, `verify`, CodeQL, `tests-windows`, `guide-render`, the three-OS bootstrap and smoke matrices), and `ci-required` was red only because it aggregates `tests`. Classification: TEST (a fixture defect). The fixture created a directory literally named `back\slash`; PowerShell 7 on Linux normalizes the backslash to a path separator and looked for `back/slash`, so the bootstrap correctly reported the release as unresolvable. The bash leg with the same literal name passed on the same runner, and both legs pass on Windows, where the fixture already avoided the literal backslash. It cannot be reproduced on this Windows host for that reason, which the runbook treats as the finding itself (an environment difference). Fix: the literal-backslash case now applies only to the bash leg on POSIX, with the reason in the test; one narrowly scoped stabilization commit, re-pushed with approval. The product code did not change.
+
+Intended remainder of the single remote event:
 
 - Branching model: `develop` + `main` (AGENTS.md); feature branch integrates through `develop`.
 - Remote: `origin` (`bendourthe/Nexus-Hub`). Branch: `feat/v4.7.0-model-behavior-and-distribution-integrity` (seven phase commits plus this final commit). Pull-request target: `develop`.
