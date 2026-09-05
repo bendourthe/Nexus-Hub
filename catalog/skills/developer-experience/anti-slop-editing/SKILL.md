@@ -1,6 +1,6 @@
 ---
 name: anti-slop-editing
-description: "Edit prose to remove AI-slop patterns (filler, robotic rhythm) and keep the writer's voice, or detect slop without rewriting. For 'de-slop this', 'make it less AI-sounding', 'does this read as AI'. SKIP general writing (use writing-editing)."
+description: "Edit prose to remove AI-slop patterns (filler, robotic rhythm, chatbot leftovers, mannered prose, the therapist-voice register) and keep the writer's voice, or detect slop without rewriting. For 'de-slop this', 'make it less AI-sounding', 'does this read as AI', 'strip the chatbot leftovers', 'remove the mannered prose'. SKIP general writing (use writing-editing)."
 summary_l0: "Remove named AI-slop prose patterns while preserving voice, or detect slop without rewriting"
 overview_l1: "This skill acts as a sharp human editor that strips the recognizable AI-slop signature out of prose while protecting the writer's own voice. It carries a catalog of 20+ named prose-slop patterns (binary contrasts, throat-clearing openers, faux-insight setups, importance puffery, weasel attribution, synonym cycling, robotic rhythm, fake-profound kickers, formatting slop, and more), each with a quoted smell and a concrete before/after fix. It runs in two modes: Edit (default) makes the minimum effective edit and returns the edited draft plus a What-changed note; Detect names each pattern, quotes the offending line, and gives a short fix without rewriting, scoring, or guessing AI authorship. It preserves 3-5 identified voice signals, leaves strong human sentences alone, and grades its own output against a rubric before returning. Trigger phrases: de-slop this, make it less AI-sounding, does this read as AI, remove AI patterns, audit this draft for slop."
 version: 1.0.0
@@ -50,7 +50,7 @@ Follow these steps in order for every request.
 
 1. **Confirm the mode.** Default to Edit. Switch to Detect when the user asks to find, name, audit, or flag slop without a rewrite ("what's slop here", "point out the AI tells", "don't rewrite it, just show me").
 2. **Read the whole draft first and identify 3-5 voice signals to preserve.** Note the writer's characteristic moves before touching anything: sentence length preference, humor, directness, technical register, a recurring turn of phrase, first-person candor. These are protected. See "Voice-Preservation Discipline" below.
-3. **Scan for the named patterns** in the catalog below. Mark every hit with its pattern name and the exact line.
+3. **Scan for the named patterns** in the catalog below, then against the extended register catalog in `references/cliche-patterns.md` (the reflective and faux-reveal registers, emphatic negation, performative honesty, the stranded auxiliary, chatbot leftovers, and mannered prose). Mark every hit with its pattern name and the exact line, and note its class: judgment (flag, cut only when it adds nothing) or defect (always remove).
 4. **Consult the word and phrase lists** in `references/slop-wordlist.md` for banned words, often-empty adverbs, and empty phrases. Apply them with judgment, not as a hard lint: cut a word when it adds nothing, keep it when it carries real emphasis, contrast, uncertainty, or the writer's spoken rhythm.
 5. **Act on the mode.**
     - Edit: make the minimum effective edit. Fix the flagged lines, leave strong human sentences untouched, and do not reach for a "better" word where the writer's word already works. Then assemble the "What changed" list.
@@ -139,9 +139,15 @@ Smell: sentence fragments used for manufactured punch. "And that changes everyth
 - Before: "The results were in. And they were staggering. Truly."
 - After: "The results were clear: a 3x speedup."
 
-### Robotic rhythm
+### Robotic rhythm (three countable rules)
 
-Smell: every sentence the same length and shape, so the prose reads metronomic and flat.
+Smell: every sentence the same length and shape, so the prose reads metronomic and flat. "Metronomic" is not checkable on its own, so this entry states three rules with thresholds; the agent and the offline detector apply the same numbers.
+
+1. **Echoing sentence runs**: two or more consecutive sentences that share the same four-word skeleton (the same four words in the same order after dropping articles). "The tool is fast. The tool is simple." trips it.
+2. **Repeated sentence openers**: three or more consecutive sentences that start on the same non-function word (a word other than a, an, the, and, but, or, so, it, this, that, there). "Tests catch bugs. Tests document intent. Tests slow you down." trips it.
+3. **Stacked rhetorical questions**: two or more consecutive sentences that are questions. "Why does it matter? What does it cost?" trips it; the `Rhetorical setups` entry below covers the single question posed only to be answered.
+
+A run that trips a rule is a flag, not an automatic cut: parallel structure is sometimes the point. In Edit mode, break the run by varying length or merging; in Detect mode, quote the run and name the rule number.
 
 - Before: "The tool is fast. The tool is simple. The tool is free. The tool is here."
 - After: "The tool is fast and simple, and it is free. Try it."
@@ -152,6 +158,8 @@ Smell: a question posed only so the text can answer it. "But what does this mean
 
 - Before: "But what does this actually mean? It means faster builds."
 - After: "This means faster builds."
+
+Two or more questions in a row are counted separately under rule 3 of `Robotic rhythm` above.
 
 ### Fake-profound kickers
 
@@ -183,7 +191,25 @@ Smell: em-dashes and clause-joining spaced hyphens sprinkled through the text as
 
 This project sets a firm ceiling on this pattern, stronger than a generic "one or two em-dashes are fine" guideline. The rule here: no em-dashes at all, and no clause-joining spaced hyphens (the " - " connector) either. Replace them with parentheses, commas, colons, or separate sentences. Prose stays ASCII-only: straight quotes, hyphens, and "..." for ellipsis, never the Unicode punctuation variants. This keeps output consistent with the project Communication Style rules and avoids encoding corruption on Windows.
 
-For the full banned-word, empty-adverb, and empty-phrase lists that back this catalog, see `references/slop-wordlist.md`.
+### Chatbot leftovers (defect, never a matter of taste)
+
+Smell: assistant-role text from a conversation leaking into a document. "As an AI language model, ..." "Here is the revised version:" "I hope this helps." "Certainly!" "Great question."
+
+- Before: "Certainly! Here is the revised version of your deployment guide. I hope this helps."
+- After: (cut entirely; the guide begins at its first heading.)
+
+This is the one catalog entry with no judgment call. Every other pattern is flagged and weighed against voice; a chatbot leftover is removed in Edit mode without asking and named as a defect in Detect mode, because it announces that a document was pasted from a chat window and never read.
+
+### Reflective and faux-reveal register
+
+Smell: the voice of a counsellor or a confessional essayist applied to a subject that has no inner life, and its companion move, staging an ordinary fact as a disclosure. "Sit with that for a moment." "That is worth naming." "That is not nothing." "You already know this." "Here is the twist." "Turns out, ..." "X is dead."
+
+- Before: "Turns out, the cache was never enabled. Sit with that for a moment."
+- After: "The cache was never enabled, so every request hit the database."
+
+This entry names the family. The full set, with one original before and after pair per pattern and each pattern's class (judgment or defect), lives in `references/cliche-patterns.md`, alongside emphatic negation, performative honesty, the stranded auxiliary, and mannered prose. These registers are judgment calls: a writer may sit with a feeling on purpose, so flag and quote rather than auto-cut, and apply the voice-preservation discipline in full.
+
+For the full banned-word, empty-adverb, and empty-phrase lists that back this catalog, see `references/slop-wordlist.md`. For the extended register catalog, see `references/cliche-patterns.md`.
 
 ## Chain-of-Thought Leakage (Authoring-Session Vantage)
 
@@ -260,6 +286,8 @@ These three quality surfaces are distinct and do not replace each other:
 | "The banned-word list says cut 'robust', so I'll cut every instance." | The word lists are judgment guidance, not a lint. "Robust" in "robust error handling" describing real retry logic is fine; cut it only when it is empty praise. Flattening every listed word damages legitimate voice. |
 | "The phrase 'no longer validates X' is accurate, so it is not slop." | Accuracy is not the test; resolvability is. A reader at HEAD cannot see the state you are contrasting against, so the sentence spends words on a comparison they cannot make. Accurate in a changelog, leakage in a reference doc. |
 | "There's slop, so I should rewrite the whole thing cleanly." | The minimum effective edit is the rule. A wholesale rewrite that removes slop AND the writer's character has traded one failure for another. Change what is slop; leave what works. |
+| "The essay sits with a feeling on purpose, so the reflective register is fine here and I should leave every instance." | It may be. That is exactly why the register is a judgment class: flag each instance and quote it, then keep the ones the writer clearly meant and cut the ones that are templated warmth. Neither "leave all" nor "cut all" is the rule; the per-instance call is. |
+| "'I hope this helps' at the end is friendly, not slop." | In a chat reply it is a sign-off. In a shipped document it is a chatbot leftover, the one defect class in the catalog, and it tells the reader the text was pasted from a conversation and never read. Remove it without asking. |
 
 ## Verification
 
@@ -269,6 +297,8 @@ These three quality surfaces are distinct and do not replace each other:
 - [ ] No em-dashes and no clause-joining spaced hyphens appear in the edited output; punctuation is ASCII-only.
 - [ ] The 3-5 identified voice signals are preserved in the edited draft (strong human sentences left intact).
 - [ ] Every referring expression resolves for a reader at HEAD with no transcript: no citation points at an unshipped option, and no temporal contrast appears outside a changelog, migration guide, deprecation notice, or incident timeline.
+- [ ] Every chatbot leftover in the draft is gone in Edit mode, or named as a defect (not a flagged style) in Detect mode.
+- [ ] Each `Robotic rhythm` finding cites the rule number and the run that tripped its threshold, so the same finding is reproducible by the offline detector.
 - [ ] The output was graded against `references/self-check.md` and every check passes.
 
 ## Related Skills

@@ -17,3 +17,9 @@ Audit-mode report written by the phase 8.6 step of each v4.5.0 phase. Nothing mo
 - Removed: the four temporary Writing Discipline tests appended to `tests/validators/test_check_base_template_parity.py` in phase 1, relocated into the companion validator so the invariant is asserted in one permanent place.
 - `python scripts/check_docs_conventions.py`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
 - Proposals: none.
+
+## Phase 3 (2026-09-04)
+
+- New files this phase created: `catalog/skills/developer-experience/anti-slop-editing/references/cliche-patterns.md` (a bundled skill reference, referenced from SKILL.md, so the orphan audit stays clean) and the phase 3 history file. No new scratch docs.
+- `python scripts/check_docs_conventions.py`: OK. `python scripts/check_docs_retention.py`: nothing due for archival.
+- Proposals: none.
