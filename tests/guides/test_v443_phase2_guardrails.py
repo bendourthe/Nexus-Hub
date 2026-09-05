@@ -110,7 +110,7 @@ def test_the_figure_carries_no_svg_text(playwright_mod) -> None:
         finally:
             browser.close()
     assert data["svgText"] == 0, "labels are SVG text again, which cannot be contained by a chip"
-    assert data["svg"] == 5 and data["logo"] == "#nexus-mark", "the Nexus logo and four platform marks must render"
+    assert data["svg"] == 6 and data["logo"] == "#nexus-mark", "the Nexus logo, four platform marks, and neural network must render"
 
 
 def test_every_attempt_shows_both_rings_and_a_result(playwright_mod) -> None:

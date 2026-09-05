@@ -23,7 +23,7 @@ Refreshing this file to the active plan (rather than appending another version's
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 399,794 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 399,999 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -54,6 +54,8 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Make the Home guardrails and platform handoff accessible to non-developers with platform logos, plain-language safety examples, and an appointment-booking plan; 169 focused tests and 28 layout checks pass, with one test skipped. See [verification](releases/v4/v4.4/development/guide-visual-refinement/accessible-home-examples/verification.md).
 
 - [x] Move checkout attachments above the prompt, render the image as PNG, add matching Request/Attachments/Goal/Context highlights, and rename Query to Request; 144 focused tests, 12 layout/color cases, and 36 keyboard preview checks pass, with one test skipped. See [verification](releases/v4/v4.4/development/guide-visual-refinement/prompt-categories/verification.md).
+
+- [x] Widen the safety Model box, add a neural-network illustration, and shorten guardrails into highlighted pills; 59 focused tests and 12 layout checks pass. See [verification](releases/v4/v4.4/development/guide-visual-refinement/model-and-guardrail-pills/verification.md).
 
 - [ ] Fix the pre-existing two-pixel internal overflow in Agentic Platforms at 320 pixels, reproduced before and after the context-preview change. See [baseline evidence](releases/v4/v4.4/development/guide-visual-refinement/context-previews/baseline-overflow.json).
 
