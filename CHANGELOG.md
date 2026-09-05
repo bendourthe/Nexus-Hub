@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **An always-loaded `## Autonomous Operation` block on every platform.** All twelve substantive instruction templates carry one byte-identical block stating that the agent operates autonomously and proceeds on reversible work the request already covers, stops only for destructive actions and genuine scope changes (with `## Consequential Decisions` owning how a stop is presented), reports and stops when the user is thinking aloud rather than requesting a change, finishes any promise left in its last paragraph before ending the turn, and prefers a targeted edit over a whole-file rewrite. Its second paragraph states that the user's instructions take precedence over a skill's guidelines: routine skill lookup stays silent, but a skill instruction that blocks, narrows, or alters the request is disclosed by name, linked `SKILL.md`, and quoted line. The parity guard byte-locks the block across the lockstep five; `tests/validators/test_autonomy_block_rule.py` asserts it on all twelve with a directory-derived roster and a negative fixture. Decision record: `docs/decisions/implemented/policy/2026-09-05-autonomous-operation-block-on-every-platform.md`. The five template word ceilings rose by the measured cost, recorded in `docs/policy/doc-budgets.md`.
+- **Routing data re-verified and `gpt-6-astra` mapped.** Every cell of the bundled model map was re-fetched from the vendor pages on 2026-09-05: `gpt-6-astra` enters at frontier now that the OpenAI catalog lists it without a rollout gate, `gpt-5.6-sol` moves to strong, `gpt-5.6-terra` takes standard alone, and `claude-mythos-5-1` stays deliberately unmapped as invite-only with the page quoted. `model-routing` gains two rules: effort levels are not comparable across models (re-sweep when a tier's model changes), and a recognized name is not a known name (search a fast-moving name as the user wrote it). Decision notes: `docs/releases/v4/v4.7/development/astra-routing-decision.md`.
+
+### Changed
+
+- **The Claude Code effort-level contract is corrected.** `configs/platform-defaults.json` and the lever contract now record what the vendor page says: the `effortLevel` and `modelSettings` keys accept `low`, `medium`, `high`, and `xhigh` and reject `max`, while `CLAUDE_CODE_EFFORT_LEVEL` accepts a level name or `auto` and is the persistent path to `max`. The 2026-09-04 statement had the two surfaces inverted. The seeded value `high` is valid on both, so no derived artifact changed. Decision note: `docs/releases/v4/v4.7/development/effort-level-contract.md`.
+- **`## Consequential Decisions` and `## Skill Discovery` cross-reference the new block** in all twelve templates; the silent-lookup sentence is unchanged and pinned by a test.
+
 ---
 
 ## [4.5.0] - 2026-09-04
