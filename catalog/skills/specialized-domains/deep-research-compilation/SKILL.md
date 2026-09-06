@@ -58,6 +58,49 @@ The failure this guards against is reproducing a source's sentences without mark
 
 **Rationale**: the paragraph is organized around where the sources agree and differ rather than walking through each source in turn; each source is conveyed in one or two sentences of the agent's own indirect speech; exactly one short phrase is marked as a quotation and attributed to one source; every other claim is reworded while staying specific (week six, two cycles, one season) and complete. Zero marked phrases is also a valid outcome when no sentence is worth quoting.
 
+## Grounded-citation verification
+
+Research output that *quotes* a source must match the fetched or extracted text. This is a verification discipline on top of citation numbering, reverse-engineered as instruction (no new tools, no engine code).
+
+Keep a verbatim excerpt store while ingesting: for a URL, the fetched page text after script/style stripping; for a local file, the extracted text from Step 2. Do not discard it after synthesis. Every quoted passage in `merged.md` is checked against that store before the document is finalized.
+
+### Quote-verification step
+
+A quoted passage is any of: text inside quotation marks, a Markdown blockquote, or a lead-in of the form `According to <source>: ...` that presents the source's own words.
+
+For each quoted passage:
+
+1. Normalize whitespace (collapse runs, strip leading/trailing space). Do not otherwise rewrite the quote.
+2. Search the excerpt store of the cited source for that normalized string (or a clearly contiguous substring if the quote is truncated with an ellipsis).
+3. **Match:** leave the quote as written.
+4. **No match:** flag it in place with `[UNVERIFIED QUOTE]` (and a one-line note naming the source that was searched). Do **not** silently rephrase the quote so it "sounds like" the source. Do **not** invent a different quote that would have matched.
+
+A paraphrase is not a quote. Paraphrases stay citation-numbered (Step 4) and are covered by the fact-check pass below, not by string matching.
+
+### Fact-checking pass (before finalize)
+
+After `merged.md` is written and quotes are verified, walk every sentence that carries an inline `[N]`:
+
+1. Open the canonical reference `N` and the corresponding excerpt.
+2. Confirm the cited source actually supports the claim (same fact, not merely the same topic).
+3. **Supported:** leave the citation.
+4. **Unsupported or source missing:** flag the sentence with `[UNSUPPORTED]` and keep the claim only if it is clearly marked as unverified. Do **not** attach a different `[N]` that would make the claim look sourced. Do **not** fabricate a reference entry.
+
+Run this pass before Step 5 (docx generation) and again after any edit iteration in Step 8. Maximum one extra fact-check loop after a user edit; if flags remain, hand the flagged document to the user rather than clearing flags by invention.
+
+### Failure behavior
+
+| Failure | Action |
+|---|---|
+| Quote does not appear in the fetched/extracted text | Flag `[UNVERIFIED QUOTE]`. Do not fabricate a matching quote. |
+| Cited source does not support the claim | Flag `[UNSUPPORTED]`. Do not swap in a prettier citation. |
+| Source could not be fetched or had no text layer | Flag the dependent quotes and claims. Do not fill gaps from model memory. |
+| Fact-check loop still has flags after one retry | Stop. Report the flag list. Ship the flagged draft if the user accepts it. |
+
+Never treat a flag as optional decoration. A compiled document that still contains `[UNVERIFIED QUOTE]` or `[UNSUPPORTED]` is unfinished until the user explicitly accepts the flags.
+
+---
+
 ## Step 4: Reference Management
 
 Detailed guidance lives in [step-4-reference-management.md](references/step-4-reference-management.md) (load on demand).
@@ -98,6 +141,8 @@ Detailed guidance lives in [step-8-validate-iterate.md](references/step-8-valida
 ## Critical Rules
 
 - **Never fabricate citations.** A sentence that had no citation in the source material gets no citation in the merged document.
+- **Never ship an unverified quote as if it were sourced.** Quoted passages must match fetched or extracted text; on failure, flag `[UNVERIFIED QUOTE]` and do not invent replacement wording.
+- **Never clear a fact-check flag by fabricating support.** `[UNSUPPORTED]` stays until the user accepts it or a real source is ingested.
 - **Never silently drop references.** Every canonical reference appears in the final References section even if its inline citation count is zero (it might have been cut during editing -- preserve it for the user to decide).
 - **Never hardcode output format.** The command always asks.
 - **Always ask for the template.** Silently defaulting is the v1 bug; the command's Phase 2 must be honored.
@@ -111,6 +156,8 @@ Detailed guidance lives in [step-8-validate-iterate.md](references/step-8-valida
 | Rationalization | Reality |
 |---|---|
 | "I'll add a citation here to make the claim look sourced" | A fabricated citation is worse than none: it points a reader to a source that does not support the claim, destroying the document's credibility. A sentence with no citation in the source material gets none in the merge. |
+| "The quote is close enough; I'll tidy the wording so it matches the source" | Close is not a match. Rewriting a quote to pass verification is fabrication. Flag `[UNVERIFIED QUOTE]` or shorten to a paraphrase with a citation. |
+| "I'll drop the fact-check pass because the sources were just fetched" | Fetching proves availability, not support. A page can mention a topic without backing the specific number or claim you attached to `[N]`. |
 | "These two references look like the same paper, I'll keep both" | Near-duplicate references with slightly different titles inflate the reference count and break renumbering. Dedup by DOI, normalized URL, and fuzzy title before assigning the canonical [N]. |
 | "I'll hardcode the fonts to match the last template, it's faster" | Hardcoded fonts and colors are the documented v1 bug: the output then matches the previous template, not the one the user just supplied. Every style value must read from the template's style profile. |
 | "The document opens in Word, so the citations and TOC are fine" | Word opens documents with broken citation anchors and empty TOCs without complaint. Only a post-generation validation pass catches the unresolved [N] links and the missing references. |
@@ -118,9 +165,8 @@ Detailed guidance lives in [step-8-validate-iterate.md](references/step-8-valida
 ## Verification
 
 - [ ] The final document is written to `docs/compiled/` and intermediates stay in `.cache/compile-deep-research/<ReportTitle>/`
-- [ ] Every inline [N] citation resolves to an entry in the References section
-- [ ] Every canonical reference appears in References (even if its inline count is zero)
-- [ ] No citation exists in the merged document that was absent from the source material
+- [ ] Every inline [N] resolves; every quoted passage matches fetched or extracted source text, or is flagged `[UNVERIFIED QUOTE]` (never rewritten to look sourced)
+- [ ] A fact-check pass ran before finalize; unsupported claims are flagged `[UNSUPPORTED]`, not given invented citations
 - [ ] The output's fonts, colors, and sizes are read from the template style profile, not hardcoded
 - [ ] The generator script is saved at `<cache_dir>/generate.py` for re-run
 - [ ] The output format (.docx / .pdf / .md) matches what the user explicitly chose
