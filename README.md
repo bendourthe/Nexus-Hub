@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.5.0 -->
+<!-- nexus-hub-version: 4.7.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 329 skills, 18 commands, 34 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -34,6 +34,20 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.7.0
+
+**Releases now ship a verifiable artifact, and installs can be pinned and rolled back.** Every GitHub Release carries `Nexus-Hub-<version>.tar.gz`, a `SHA256SUMS` file, and a build-provenance attestation. Both bootstrap installers verify that download fail-closed for a tagged ref: a checksum mismatch, a missing checksum file, or an unresolvable tag aborts with a distinct message and never installs unverified, while a network failure is reported as a network failure rather than tampering. Pin with `--ref v4.7.0`, move with `nexus-hub upgrade --latest`, and roll back with `nexus-hub upgrade --ref <older tag>`. No package registry and no new secret.
+
+**Every platform carries an always-loaded `## Autonomous Operation` block.** All twelve substantive instruction templates state that the agent proceeds on reversible work the request already covers and stops only for destructive actions and genuine scope changes. It also settles precedence: your instructions outrank a skill's guidelines, routine skill lookup stays silent, and a skill instruction that would block, narrow, or alter your request is disclosed by name with the line quoted. The communication contract gains its progress-narration half and a rule that formatting follows the reader.
+
+**The interactive guide teaches by showing.** The Models section is rebuilt as a visual learning lab whose language, diffusion, world, and multimodal demos run on a shared clock, pause on hover and focus, and stop under reduced motion. Home is simplified around one checked brief example, and its platform handoff is an illustrative Claude Code to Codex conversation resuming a plan interrupted by a usage limit. The token, prompt, and context lessons are rebuilt, with attachment and context previews that open as native dialogs and stay embedded and offline.
+
+**Routing data re-verified and `gpt-6-astra` mapped.** Every cell of the bundled model map was re-fetched from vendor pages, `gpt-6-astra` enters at frontier, and the prompting profile layer now holds more than one platform with its first OpenAI profile. A scheduled supply-chain watch audits the extension packages and optional extras weekly, producing no required status check by construction.
+
+Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. Two opt-in surfaces are new, the pinned install and the upgrade flags; both are documented above with their activation, validation, rollback, and the authority they do not grant.
 
 ---
 
