@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSION_DIR = ROOT / "docs" / "v3" / "v3.15"
+VERSION_DIR = ROOT / "docs" / "releases" / "v3" / "v3.15"
 DEVELOPMENT_DIR = VERSION_DIR / "development"
 DATA_CONTRACT = DEVELOPMENT_DIR / "cursor-usage-data-contract.md"
 AUTH_PROBE = DEVELOPMENT_DIR / "cursor-usage-auth-probe.md"

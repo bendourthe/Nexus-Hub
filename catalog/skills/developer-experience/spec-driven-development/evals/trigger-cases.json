@@ -1,0 +1,8 @@
+{
+  "skill": "spec-driven-development",
+  "purpose": "Route specification-first implementation with canonical release-bound placement.",
+  "cases": [
+    {"id": "pos-spec", "prompt": "write specifications before code and place release-bound artifacts canonically", "should_trigger": true, "assert": "routes to spec-driven-development first", "lexical": true},
+    {"id": "neg-weather", "prompt": "show the weather forecast for tomorrow", "should_trigger": false, "assert": "does not route to spec-driven-development", "lexical": true}
+  ]
+}

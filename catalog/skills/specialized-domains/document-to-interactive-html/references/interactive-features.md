@@ -26,6 +26,12 @@ Every figure that carries real data (a `chart` block in the content model, or a 
 
 Implementation approach (no library): render to a `<canvas>` (or an inline SVG you update), keep the data plus the current view state (`xMin/xMax/yMin/yMax`, the hidden-series set) in a small JS object, and redraw on interaction. Bar, line, area, scatter, and pie/doughnut all follow the same redraw-on-state pattern. Always include an accessible label and a text+swatch legend so color is never the sole carrier of meaning. Use the source's REAL numbers; never invent values or round data away.
 
+**Mixed-scale series (BINARY).** When one chart carries series of very different ranges (an inventory line topping out near 40 beside a cumulative-patients series reaching 179), NEVER draw a value clamped flat at the axis maximum - a flat-topped bar at y-max reads as a real measurement and is therefore fabricated data. Instead: (1) series whose range dwarfs the primary axis carry `startHidden` and begin toggled off, so the default view matches the source figure; (2) every legend toggle re-fits the axis to the maximum of the VISIBLE series (nice-rounded, and the y-max input reflects the refit); (3) a value may only ever render at its true position. State the start-hidden behavior in the chart's hint line so the reader knows the extra series exist.
+
+**Component CSS namespacing (BINARY).** Every class an authored component introduces is prefixed with the component's name: `.map-pin`, `.chart-legend`, `.lightbox-cap` - never bare generic nouns (`.pin`, `.card`, `.tip`, `.legend` used twice). Two features that each picked an "obvious" name collide silently: a map-pin's `width:14px` once applied to the cinematic stage's `.pin` sticky wrapper and crushed every hero canvas to a 10px strip with zero console errors. The rule is preventive, not curative - by the time the collision is visible it has already shipped past change-local checks.
+
+**Scorer contract (emit during authoring, not as repair).** `scripts/visual_qa_score.py` parses specific markup shapes; a page authored without them burns a full QA iteration on format repair. Emit from the start: `data-aspect="<full|standard|portrait>"` on `<body>`; `--page-max` and `--gutter` canvas custom properties; design-record `placement:` lines in the exact `section | role | embedded | why` or `section | none: reason` form; hero-figure caps as the literal strings `max-height: 80vh` and `object-fit: contain`; and color custom-property names that reflect where the color is used - the contrast check pairs foregrounds and backgrounds by NAME heuristics (`fg`/`ink`/`text` vs `paper`/`surface`/`bg`/`base`), so a foreground that only ever sits on a dark band must not carry a name that pairs it with paper surfaces (call it `--band-hi`, not `--band-fg`).
+
 ### Real visuals
 
 If the source has figures, tables, or images, they appear in the site: images inline as base64; numeric data as the interactive charts above; large tables as sortable / filterable tables where that helps the reader.
@@ -122,7 +128,7 @@ The interactivity level is one of the four high-level design choices resolved TO
 
     Cinematic carries a size / cost gate the other levels do not, because its assets are the largest thing this skill embeds and the output must stay one offline file. State clip count, projected base64 size impact, key requirements, and QA-depth cost, then get a go / no-go BEFORE generating or embedding anything. The full protocol - the asset boundary (no hosted generation, ever), the seam rule, the pacing knobs, the stills-only fallback, and the accessibility floor - is `references/scroll-scrub.md`; the engine implementing it is `assets/scroll-scrub-engine.js`.
 
-Mapping summary: RESTRAINED = user-initiated patterns (3, 6, lightbox, anchor nav) with no scroll motion; BALANCED = RESTRAINED plus scroll-triggered patterns (1, 2, 4, 7); RICH = BALANCED plus one or more scrollytelling patterns; CINEMATIC = RICH plus the scroll-scrubbed stage, opt-in and size-gated. The non-interactive fallback picks the level from the content (a deck or data story -> BALANCED; a report -> RESTRAINED) and records it in the design-record comment.
+Mapping summary: RESTRAINED = user-initiated patterns (3, 6, lightbox, anchor nav) with no scroll motion; BALANCED = RESTRAINED plus scroll-triggered patterns (1, 2, 4, 7); RICH = BALANCED plus one or more scrollytelling patterns; CINEMATIC = RICH plus the scroll-scrubbed stage, opt-in and size-gated. The non-interactive fallback picks the level from the content (a deck or data story -> BALANCED; a report -> RESTRAINED) and records it in the design-record comment. In slide mode (`nav=slides`), every scroll-keyed pattern each level ships is re-expressed per the "Slide-mode animation grammar" below; RESTRAINED needs no adaptation.
 
 ### Scrollytelling pattern catalog (RICH level)
 
@@ -175,6 +181,41 @@ Each pattern is inlined vanilla JS / CSS - no external library, no CDN - and eac
     ```
 
     Accessibility: the range input is keyboard-operable (arrow keys move the divider) and labelled; both images carry `alt`; the comparison works without a pointer and needs no motion guard (it is user-driven, not scroll-driven).
+
+### Slide-mode animation grammar (nav=slides)
+
+When the design record says `nav=slides`, there is no scroll, so every scroll-keyed pattern above must be re-expressed. This grammar is the normative mapping. RESTRAINED needs no adaptation in slide mode - it never had scroll-triggered motion, and its user-initiated patterns work identically on a slide. BALANCED, RICH, and CINEMATIC use the three trigger classes below. The slide runtime, fragment contract, and reduced-motion baseline these classes plug into are `references/slide-navigation.md`.
+
+Three slide-native trigger classes, and only three - an author never invents a fourth:
+
+1. **Entry-triggered (once per activation)** - replaces scroll-triggered reveals and animated counters: the effect runs when its slide becomes active. Counters count up on FIRST activation; a re-activated slide shows final values immediately, because a re-run of a numeric build can misread as new data arriving. The general re-entry rule (BINARY): an entry-triggered effect may re-run on re-activation only if it is idempotent AND non-data-bearing (a fade may re-run; anything numeric or chart-shaped runs once per session and thereafter renders settled).
+2. **Fragment-stepped** - replaces every progress-driven pattern: each discrete state becomes a `data-fragment` step advanced by arrow keys per the slide-navigation fragment contract (ordered reveal, backward re-hide, idempotent under deep entry). The scrollytelling STATE TABLE requirement carries over UNCHANGED: each step still declares its prose claim, its visual change, and its takeaway - the trigger moved from scroll progress to a keystroke, the narrative discipline did not.
+3. **Ambient loop (permanent)** - replaces atmosphere-class scroll animation ONLY: moving background illustrations, parallax texture layers, gradient drift, particle fields, slow procedural motion. These become smooth, seamless, infinitely-repeating CSS/JS animations that run while their slide is active, PAUSE when the slide is inactive (`animation-play-state: paused`, or the loop's rAF gated on the active class - an off-screen loop burns battery for nobody), and are DISABLED entirely under `prefers-reduced-motion: reduce` - removed, not slowed.
+
+The appropriateness rule for class 3 is BINARY: ambient conversion applies ONLY to non-data-bearing, non-narrative animation. A chart build, a numeric transition, or any effect whose motion carries MEANING must be class 1 or 2, never a loop - looping data motion fabricates the impression of live data. Amplitude discipline: ambient loops are subtle (background-layer opacity/position drift), never foreground distraction, and at most ONE ambient system runs per slide.
+
+The mapping table. Every pattern named in this reference has a row; none is left to judgment:
+
+| Scroll-keyed pattern (source) | Slide-mode expression | Class |
+|---|---|---|
+| Scroll-triggered reveal (pattern 1) | Runs on slide activation; multi-part reveals become fragments | Entry-triggered |
+| Active-section nav + reading-progress bar (pattern 2) | The progress rail + slide counter ARE the nav; the active rail segment is the active state | (chrome, per the slide-navigation contract - no animation to adapt) |
+| Animated counters (pattern 4) | Count up on first activation; final values on re-entry | Entry-triggered |
+| Hover / focus affordances (pattern 3) | Unchanged - they are user-initiated | (none needed) |
+| Expand / collapse (pattern 6) | Unchanged in trigger, but bounded by the overflow rule: expansion that would overflow the stage becomes a declared scrollable region or splits into a fragment/continuation - never an undeclared inner scrollbar | (none needed; overflow rule applies) |
+| Micro-transitions (pattern 7) | Unchanged - they are user-initiated | (none needed) |
+| Image lightbox (pattern 5 of the budget) | Unchanged | (none needed) |
+| Pinned / sticky graphic with scroll steps (catalog 1) | Each step's graphic state becomes one fragment; the graphic swaps state per keystroke | Fragment-stepped |
+| Full-bleed image-to-text transition (catalog 2) | The image is one fragment state, the text the next - or a single entry-triggered cross-fade when the pair is not narratively staged | Fragment-stepped or entry-triggered |
+| Parallax layers (catalog 3) | Background-layer drift as a slow seamless loop, active-slide only | Ambient loop |
+| Progress-driven timeline (catalog 4) | Each node is one fragment; `aria-current` moves per keystroke | Fragment-stepped |
+| Before / after comparison slider (catalog 5) | Unchanged - user-initiated patterns need no adaptation | (none needed) |
+| Marquee / atmospheric texture (any decorative drifting layer) | Slow seamless loop, background amplitude, active-slide only | Ambient loop |
+| Scroll-scrubbed stage (CINEMATIC) | Fragment-stepped camera with ambient hold states - the full protocol is the "Cinematic without scroll" section of `references/scroll-scrub.md` | Fragment-stepped + ambient |
+
+Fallback rule (BINARY): a pattern with no row above defaults to **entry-triggered-once** - the safest expression, the one that can never fabricate data or loop a narrative - and the design record notes the pattern and the fallback. The author never invents a fourth trigger class for it.
+
+Reduced motion in slide mode, restated as one rule set: ambient loops are DISABLED entirely (not slowed), fragment transitions become instant cuts, and entry-triggered reveals render visible-immediately. A reduced-motion slide deck is a sequence of settled, fully-legible stages - by design, the same posture as the scrolling page.
 
 ### Design direction (choose the direction up front, then brainstorm after extraction - creativity-first)
 
@@ -501,12 +542,12 @@ The same pipeline serves three intents; the mode is auto-detected from the input
 
 ## Two authoring rules from maintainer review (v3.16.5 errata E9)
 
-**Key-value cells render as bullet lists, never comma-run sentences.** A cell describing what a step reads, writes, and outputs is a LIST of facts, and a reader scans it to find one of them. Written as a comma-run sentence it has to be read start to finish to answer any question about it. Give each key its own bullet, and give every one a CONCRETE example value rather than a category name - `docs/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md` teaches what "a plan file path" does not.
+**Key-value cells render as bullet lists, never comma-run sentences.** A cell describing what a step reads, writes, and outputs is a LIST of facts, and a reader scans it to find one of them. Written as a comma-run sentence it has to be read start to finish to answer any question about it. Give each key its own bullet, and give every one a CONCRETE example value rather than a category name - `docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md` teaches what "a plan file path" does not.
 
 ```html
 <!-- CORRECT - scannable, with real values -->
 <ul>
-  <li><b>Reads</b> <code>docs/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md</code></li>
+  <li><b>Reads</b> <code>docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md</code></li>
   <li><b>Writes</b> <code>tests/skills/test_presentify_visual_qa.py</code></li>
   <li><b>Outputs</b> coverage 93% against an 80% threshold</li>
 </ul>

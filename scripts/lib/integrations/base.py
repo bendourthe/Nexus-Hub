@@ -76,6 +76,9 @@ class InstallContext:
     # `safe_folder_copy` block and only needs the registry to render the
     # marker-merged instruction file (the DF-001 legacy-block replacement path).
     instruction_only: bool = False
+    # v3.17.4 Phase 3 -- diagnostic detail is opt-in so an absent organization
+    # connection remains silent during installer --quiet runs.
+    verbose: bool = False
     # v3.16.1 Phase 5.4 -- the resolved install selection, a
     # `scripts.lib.installer.selection.SelectionPlan`, or None.
     #
@@ -173,7 +176,7 @@ class IntegrationBase:
             # Cleanups happened before the install, so prepend them so the
             # rendered output reads top-to-bottom in execution order.
             result.files = list(cleanup_actions) + list(result.files)
-        if ctx.scope == "global" and result.detected is not False:
+        if result.detected is not False:
             # v3.16.0 Phase 3: seed the platform's declared install-time
             # behavioral defaults. Deliberately hooked here rather than in
             # install_global, because subclasses override that and a subclass
@@ -188,9 +191,16 @@ class IntegrationBase:
             # undetected platform would create a config file for software the
             # user does not have installed, which is worse than shipping no
             # default at all.
+            from .org_knowledge import seed_org_knowledge
             from .platform_defaults import seed_platform_defaults
 
             result.files.extend(seed_platform_defaults(self.key, ctx))
+            # Organization knowledge belongs at this same dispatcher seam, not
+            # in install_global/install_workspace overrides. Unlike platform
+            # defaults, its helper intentionally handles both scopes so
+            # workspace-only instruction surfaces such as Cursor and Aider are
+            # materialized without inventing global files.
+            result.files.extend(seed_org_knowledge(self.key, ctx))
         return result
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
@@ -224,7 +234,9 @@ class IntegrationBase:
         """Remove every file/directory previously logged in the manifest for
         this integration. Safe to call multiple times.
         """
-        result = WriteResult()
+        from .org_knowledge import remove_org_knowledge
+
+        result = WriteResult(files=remove_org_knowledge(self.key, ctx))
         for path_str in list(ctx.manifest.files_for(self.key)):
             path = Path(path_str)
             if path.is_file():

@@ -4,7 +4,7 @@ Covers catalog/hooks/notify-on-complete.{sh,ps1} (trigger B, Stop) and
 catalog/hooks/notify-attention-required.{sh,ps1} (trigger A, Notification),
 plus the shared _notify_common.{sh,ps1} helpers.
 
-Contract: docs/v3/v3.15/development/end-of-task-notification-contract.md
+Contract: docs/releases/v3/v3.15/development/end-of-task-notification-contract.md
 
 The load-bearing assertions are the ones that pin the three field defects this
 release exists to fix:

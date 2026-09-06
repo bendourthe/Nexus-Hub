@@ -40,6 +40,12 @@ import sync_platform_defaults as sync  # noqa: E402
 from scripts.lib.integrations import list_keys  # noqa: E402
 from scripts.lib.integrations import claude as claude_integration  # noqa: E402
 
+# v4.0.0: `ci.yml` calls scripts/ci/run.py rather than naming each guard in its
+# own `run:` step, so CI reachability is resolved through the profile
+# definitions. See tests/validators/_ci_reachability.py for why greping the
+# YAML would be both wrong and dangerous to "fix".
+from tests.validators._ci_reachability import assert_wired_into_ci
+
 SCRIPT = REPO_ROOT / "scripts" / "sync_platform_defaults.py"
 REAL_SOURCE = REPO_ROOT / "configs" / "platform-defaults.json"
 REAL_TEMPLATE = REPO_ROOT / "catalog" / "hooks" / "settings.json"
@@ -807,10 +813,7 @@ def test_drift_check_is_wired_into_make_validate():
 
 
 def test_drift_check_is_wired_into_ci():
-    body = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
-    assert "sync_platform_defaults.py --check" in body, (
-        "the CI validate job must run the defaults drift check"
-    )
+    assert_wired_into_ci("sync_platform_defaults.py")
 
 
 def test_script_is_classified_as_a_repo_internal_guard():

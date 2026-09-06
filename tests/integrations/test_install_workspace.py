@@ -16,11 +16,11 @@ from scripts.lib.integrations.base import InstallContext
         # v2.3.0 / DF-001: claude/codex render the instruction file at the
         # project root (where the tools read it); skills/ still mirror nested.
         ("claude", ["CLAUDE.md", ".claude/skills", ".claude/commands"]),
-        ("codex", ["AGENTS.md", ".codex/skills", ".codex/prompts"]),
+        ("codex", ["AGENTS.md", ".agents/skills", ".codex/prompts"]),
         ("gemini", [".gemini/GEMINI.md", ".gemini/skills", ".gemini/workflows"]),
-        ("opencode", [".opencode/AGENTS.md", ".opencode/skills", ".opencode/commands"]),
+        ("opencode", ["AGENTS.md", ".opencode/skills", ".opencode/commands"]),
         ("antigravity", [".gemini/antigravity/rules.md", ".gemini/antigravity/skills"]),
-        ("antigravity2", [".agents/AGENTS.md", ".agents/skills", ".agents/workflows"]),
+        ("antigravity2", ["AGENTS.md", ".agents/skills", ".agents/workflows"]),
         ("nexus-ai", [".nexus-ai/catalog/NEXUS_AI.md", ".nexus-ai/catalog/skills", ".nexus-ai/catalog/commands"]),
     ],
 )

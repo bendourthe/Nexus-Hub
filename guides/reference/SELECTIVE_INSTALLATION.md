@@ -2,7 +2,7 @@
 
 How to install a subset of the Nexus-Hub catalog, what each selector means, and what to do when one does not behave as expected.
 
-The normative rules live in [`docs/v3/v3.16/development/install-selection-contract.md`](../../docs/v3/v3.16/development/install-selection-contract.md). This guide is the user-facing view of them.
+The normative rules live in [`docs/releases/v3/v3.16/development/install-selection-contract.md`](../../docs/releases/v3/v3.16/development/install-selection-contract.md). This guide is the user-facing view of them.
 
 ## The short version
 
@@ -101,7 +101,7 @@ python scripts/lib/integrations/runner.py list-installed --target .
 | `Profile 'full' cannot be combined with other selectors` (exit 2) | `full` already means everything. Drop `full` to narrow, or drop the others to widen. |
 | `Selection resolved to no skills` (exit 2) | The selectors are valid but select nothing. An empty install is never a useful end state. |
 | `Selection references skill(s) with no catalog directory` (exit 3) | A catalog defect, not your input: `data/bundles.json` names a skill that does not exist. |
-| `--profile / --modules / --bundles need Python to resolve` (exit 2) | Selectors are resolved by a Python module. Install Python 3, or drop the selector - a full install needs neither Python nor jq. |
+| `--profile / --modules / --bundles need Python to resolve` (exit 2) | Selectors are resolved by a Python module. Install Python 3, or drop the selector - a full install needs no selector resolution. (Since v3.17.0 the permission baseline is merged by a Python helper on every host, replacing a `jq` dependency that silently installed nothing on a stock macOS; a Python-less host therefore skips the baseline with a warning, as it already skips every registry-backed platform.) |
 | Warning: selection resolved to the entire catalog | Your selectors happened to union to everything. Not an error; `--profile full` says it directly. |
 | A command you expected is missing | See "Why a command disappeared" above. |
 | Nothing was filtered at all | Check the install output for a `Selection:` line. If it is absent, no selector reached the installer. |
@@ -117,6 +117,7 @@ Exit codes are consistent across all three install paths: **2** means your selec
 
 ## Related
 
-- [`install-selection-contract.md`](../../docs/v3/v3.16/development/install-selection-contract.md) - the normative rules
-- [`selective-install-baseline.md`](../../docs/v3/v3.16/development/selective-install-baseline.md) - which install path owns which surface
+- [`install-selection-contract.md`](../../docs/releases/v3/v3.16/development/install-selection-contract.md) - the normative rules
+- [`selective-install-baseline.md`](../../docs/releases/v3/v3.16/development/selective-install-baseline.md) - which install path owns which surface
 - [`data/bundles.json`](../../data/bundles.json) - profiles, modules, bundles, and `surface_requirements`
+- [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md) - local security-audit procedure for a `security-specialist` (or equivalent) install

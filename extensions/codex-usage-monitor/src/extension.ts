@@ -84,7 +84,6 @@ export function activate(context: vscode.ExtensionContext): void {
   const store = new UsageStore(context.globalState);
   const provider = new CodexUsageProvider();
   const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND);
-
   const config = vscode.workspace.getConfiguration("codexUsage");
   if (config.get<boolean>("showInStatusBar", true)) {
     statusBar.show();
@@ -262,7 +261,7 @@ export function activate(context: vscode.ExtensionContext): void {
     resetCommand,
     settingsCommand,
     configWatcher,
-    { dispose: () => statusBar.dispose() }
+    { dispose: () => statusBar.dispose() },
   );
 }
 

@@ -4,7 +4,7 @@ description: "Harden a local coding agent's endpoint against the config-write-th
 summary_l0: "Harden the coding-agent endpoint against config-write-then-executed sandbox escapes at the trust seam"
 overview_l1: "This skill models and hardens the trust seam where a local coding agent's file writes become some other component's execution. The threat is rarely a direct sandbox break. It is a three-step pattern: the agent writes a workspace file that is legal and in scope, a trusted component outside the sandbox later reads that file as its own configuration, and that component executes it at host privilege once the agent is no longer being watched. The skill enumerates the canonical execution-trigger surfaces (agent-harness settings and hooks, editor task and launch files, version-control hook paths and filesystem-monitor commands, interpreter and virtual-environment paths), names the executor and trigger behind each, and applies nine layered controls running from deny-by-default through provenance and seam monitoring. It supplies a seven-question audit checklist for evaluating any agent platform, and it states plainly that a pattern denylist is defense-in-depth rather than a boundary."
 mitre_attack: [T1546, T1059, T1611]
-d3fend_techniques: [D3-FA, D3-FH, D3-PA]
+d3fend_techniques: [D3-FA, D3-FH, D3-PA, D3-CR, D3-PT]
 nist_csf: [PR.PS, DE.CM]
 ---
 
@@ -31,7 +31,8 @@ The taxonomy and controls below are generalized from publicly disclosed advisori
 - Writing the access-control policy once you already know the seam: use [[agent-access-policy]], which owns the deny-by-default scoping, tool allowlists, and approval gates this threat model feeds.
 - Recognizing or resisting a hostile instruction as it arrives: use [[prompt-injection-defense]], which owns instruction-origin discipline. This skill assumes the agent may already be misdirected and bounds what that costs.
 - Adjudicating scanner findings on an imported skill bundle: use [[skill-security-scan]].
-- Deciding what may leave the machine: use [[egress-redaction]]. This skill covers a local handoff, not an outbound one.
+- Deciding what may leave the machine at the content layer: use [[egress-redaction]]. This skill covers a local handoff, not an outbound one.
+- Confining the agent process with OS-level sandboxing, ephemeral containers, or an out-of-process egress proxy: use [[agent-execution-isolation]]. This skill hardens the host trust seam around that sandbox; it does not replace it.
 
 ## The Config-Write-Then-Executed Pattern
 
@@ -148,7 +149,10 @@ Work the layer table in the next section. For each layer, mark it enforced, advi
 
 1. Ensure a write to any surface on the list produces at least an advisory signal, and confirm the signal by observing it fire on a test write. An untested advisory is indistinguishable from a missing one.
 2. Where feasible, correlate write to execution: record the path and a content hash on write, and flag a later command that executes a recently written path. Record paths and hashes only, never file bodies or secret material, per [[egress-redaction]].
-3. Default the signal to advisory rather than blocking on surfaces the project's own tooling legitimately writes, so the guardrail does not block the tooling that installs it. Suppress by writer identity where identity can actually be established, rather than dropping the surface from the list.
+3. Default the signal to advisory rather than blocking on surfaces the project's own tooling legitimately writes, so the guardrail does not block the tooling that installs it. Suppress by writer identity where identity can actually be established, rather than dropping the surface from the list. This advisory default remains the default; sub-steps 4 to 6 add a second, narrow class beside it and replace nothing.
+4. **Deterministic response class.** A violation of an ARCHITECTURAL ASSUMPTION, a behavior with no legitimate case whatever, connects to a deterministic response rather than to a human queue. The qualifying test is one question: would any legitimate operation produce this signal? If yes, it stays advisory. If no, it qualifies. Examples that pass the test: a sandbox contacting the cluster control-plane API; a processing worker reading secrets unrelated to its function; a research identity creating public infrastructure. Each is definitionally illegitimate, so waiting for a human adds delay and no judgment.
+5. The response options for a qualifying violation are: revoke the credential, isolate the host, terminate the workload. A model-based monitor may identify suspicious intent, but it must connect to one of these deterministic actions rather than to another model's judgment; a chain of two models is still a guardrail, not a boundary.
+6. Carry the untested-signal discipline forward and extend it: a signal is untrusted until it has been observed firing on a test event, and an automated stop is untrusted until it has been observed stopping something in a test before it is trusted in production. An unobserved stop is indistinguishable from a missing one, and a stop that fires on a legitimate operation is a self-inflicted outage, which is exactly why the qualifying test is strict. This class is guidance for the project's own control plane; this skill ships no reference implementation and no script capable of terminating a workload.
 
 ### 8. Record the residual boundary
 
@@ -214,7 +218,7 @@ State these plainly wherever the controls are documented, because a control mist
 - **Matching a raw command string is not argument parsing.** A guardrail that regex-matches a command line does not decompose arguments, so quoting, ordering, environment indirection, and equivalent alternate flags can all evade it. This is a real limitation of the group B control, not a hypothetical one.
 - **Provenance is partial locally.** A local hook can record that the agent wrote a path, but it cannot retroactively label files created before it was installed, and it cannot force an external executor to consult the provenance record before acting.
 - **Seam monitoring cannot cover every executor.** A local hook observes the tool calls of the harness it is installed in. It cannot instrument an editor extension, a language server, or a version-control integration running in another process. Correlating an agent write with a later execution in the same session is achievable; full cross-executor instrumentation is not, and claiming otherwise is the failure mode to avoid.
-- **Advisory controls do not stop anything.** A warning that defaults to advisory (the correct default where first-party tooling writes the same paths) informs a reviewer and blocks nothing. Do not count an advisory as a preventive control in a risk register.
+- **Advisory controls do not stop anything.** A warning that defaults to advisory (the correct default where first-party tooling writes the same paths) informs a reviewer and blocks nothing. Do not count an advisory as a preventive control in a risk register. Only the deterministic response class in step 7 counts as preventive, and only for the narrow set of architectural-assumption violations that pass its qualifying test and have been observed stopping something in a test.
 - **This skill hardens, it does not sandbox.** The strongest available answer to an unclosable seam is to move execution into an isolated tier rather than to add another pattern to a list.
 
 ## Common Rationalizations
@@ -229,6 +233,7 @@ State these plainly wherever the controls are documented, because a control mist
 | "We do not use containers, so a daemon socket is irrelevant" | Container daemons are one instance, not the class. Build daemons, package-manager sockets, and service managers each perform privileged work on request. Enumerate what is actually reachable instead of concluding there is nothing. |
 | "Nothing has warned us, so the seam is not being crossed" | Nothing monitors the seam by default; there is typically no hook on the handoff at all. Absence of alerts from uninstrumented ground is absence of instrumentation, not absence of crossings. |
 | "Our own installer writes these paths, so warning on them is noise" | The advisory exists precisely because a legitimate writer and a hostile one produce an identical file. Suppress by writer identity where identity can be established, and keep the surface classified, rather than deleting the class to quiet the signal. |
+| "Automating a stop is dangerous, so every alert should go to a human" | For surfaces the project's own tooling writes, yes, and that stays the default. For a sandbox calling the cluster control plane or a worker reading secrets it has no function for, there is no legitimate case to protect, so the human in the queue adds latency and nothing else. Apply the qualifying test rather than the blanket rule: if no legitimate operation produces the signal, connect it to a deterministic response and prove the response in a test first. |
 | "The platform vendor patched those CVEs, so this is handled" | The specific bypasses were patched; the pattern was not, because the pattern is a consequence of an agent that writes files and a host that trusts them. Assess your own write scope and executors rather than treating a vendor patch as coverage. |
 
 ## Verification
@@ -240,9 +245,15 @@ State these plainly wherever the controls are documented, because a control mist
 - [ ] The command policy has been tested against at least one name-allowlisted command carrying a dangerous argument, and the observed result is recorded (an approval is a failed test).
 - [ ] A test write to a listed surface has been observed producing its advisory signal. The signal was seen firing, not assumed.
 - [ ] The default action for each guardrail is recorded, and a legitimate first-party write has been tested to confirm the guardrail does not block the project's own tooling.
+- [ ] Every signal wired to a deterministic response passes the qualifying test (no legitimate operation produces it), names its response (revoke, isolate, or terminate), and has been observed stopping a test event; every signal that fails the test stays advisory.
 - [ ] All nine control layers are marked enforced, advisory, or guidance-only for this project, with no layer left unclassified.
 - [ ] The denylist limitation is documented where the denylist lives, so no reader can mistake it for a boundary.
 - [ ] The residual boundary (uninstrumentable executors, allowed daemons, guidance-only layers) is written down as accepted risk rather than omitted.
+- [ ] Live production credentials are absent from the agent environment; substitution happens at a broker outside the trust seam ([references/credential-brokering.md](references/credential-brokering.md)).
+
+## Credential Brokering
+
+The agent process is assumed compromisable. Live API keys in its environment are therefore keys a hijacked session can steal. Hold placeholders only inside the agent; a broker outside the trust seam (an L7 proxy or a host wrapper) attaches real keys solely to egress requests that already passed policy. Wiring, placement options, the approval flow for new endpoints, and the limits of the pattern (it does not protect the broker, and it does not stop misuse of already-approved destinations) are in [references/credential-brokering.md](references/credential-brokering.md). Pair with [[agent-execution-isolation]] for the sandbox and egress architecture, and with [[authentication-patterns]] for application auth protocols.
 
 ## Related Skills
 
@@ -251,5 +262,7 @@ State these plainly wherever the controls are documented, because a control mist
 - [[skill-security-scan]]: adjudicates imported skill bundles, another agent-writable surface that a trusted component later executes.
 - [[egress-redaction]]: the redaction discipline any provenance or seam ledger must apply, namely paths and hashes only, never file bodies or secret material.
 - [[containerization]]: builds the isolated execution tier that is the correct answer when a seam cannot be closed.
+- [[agent-execution-isolation]]: OS-level sandbox, ephemeral per-session containers, and the out-of-process egress boundary this skill's credential-brokering pattern rides on.
+- [[authentication-patterns]]: application OAuth/JWT/MFA; this skill isolates agent-held credentials, it does not design those protocols.
 - [[ai-agent-governance]]: governs a deployed autonomous service agent's lifecycle, risk, security, and observability. Use it instead of this skill when the subject is a production service rather than a local endpoint.
 - [[security-framework-mapping]]: assigns and verifies the framework identifiers declared in this skill's frontmatter.

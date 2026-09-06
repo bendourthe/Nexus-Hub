@@ -16,7 +16,7 @@ priority: high
 
 - Package names: short, lowercase, no underscores (e.g., `auth`, `httputil`, not `http_util`).
 - Exported identifiers: `PascalCase`. Unexported: `camelCase`.
-- Acronyms: treat as a word — `userID`, `httpURL`, `APIKey` (consistent casing, not `userID` and `HTTPurl`).
+- Acronyms: treat as a word -- `userID`, `httpURL`, `APIKey` (consistent casing, not `userID` and `HTTPurl`).
 - Error variables: name them `ErrFoo` for sentinel errors; error types end in `Error` (e.g., `type ValidationError struct`).
 - Interfaces with one method: name as `<Method>er` (e.g., `Reader`, `Stringer`, `Closer`).
 
@@ -25,7 +25,7 @@ priority: high
 - Keep functions under 40 lines. Split at logical boundaries; each function should have one clear purpose.
 - Interfaces belong in the package that *uses* them, not the package that implements them (Go proverb).
 - Avoid `init()` functions. Use explicit initialization in `main()` or constructors.
-- Group related declarations: `const` blocks, `type` blocks, `var` blocks — in that order.
+- Group related declarations: `const` blocks, `type` blocks, `var` blocks -- in that order.
 - Use `_` for unused loop variables; never shadow the blank identifier.
 
 ## Error Handling

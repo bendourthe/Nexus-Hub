@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSION_DIR = ROOT / "docs" / "v3" / "v3.15"
+VERSION_DIR = ROOT / "docs" / "releases" / "v3" / "v3.15"
 PLAN_PATH = (
     VERSION_DIR / "plans" / "v3.15.9-cross-provider-routing-and-cursor-usage-monitor.md"
 )

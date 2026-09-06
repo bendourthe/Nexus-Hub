@@ -141,8 +141,8 @@ Related: [[ambiguity-detector]] is the structured, non-interactive way to detect
 
 | Rationalization | Reality |
 |---|---|
-| "The idea is obvious — let's just build it" | The idea is obvious to you; the user's actual need is still unverified. 30 minutes of clarification prevents 2 weeks of wrong implementation. |
-| "We'll figure out the details as we go" | That's not agility — that's guessing. Scope defined during coding inflates scope by 3–5x. |
+| "The idea is obvious -- let's just build it" | The idea is obvious to you; the user's actual need is still unverified. 30 minutes of clarification prevents 2 weeks of wrong implementation. |
+| "We'll figure out the details as we go" | That's not agility -- that's guessing. Scope defined during coding inflates scope by 3-5x. |
 | "I've built this before, I know what they want" | Every context is different. The user's situation, constraints, and definition of success may not match your mental model. |
 | "We don't have time for this" | You don't have time to rebuild after shipping the wrong thing. A problem statement takes under an hour. |
 | "The user knows what they want" | Users know what outcome they want; they rarely know which solution will deliver it. That gap is the job. |
@@ -161,3 +161,4 @@ Related: [[ambiguity-detector]] is the structured, non-interactive way to detect
 - [[ambiguity-detector]] -- detects ambiguous, incomplete, or contradictory requirements in existing specs
 - [[requirement-enhancer]] -- improves an existing requirement's quality, testability, and completeness
 - [[plan-before-code]] -- planning phase after the spec is confirmed
+- [[design-interview]] -- interview engine for unresolved design branches and the CONTEXT.md glossary; invoke it after the problem is named, do not use it as a substitute for this skill

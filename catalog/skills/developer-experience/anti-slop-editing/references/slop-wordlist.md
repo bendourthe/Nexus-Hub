@@ -82,11 +82,34 @@ These are throat-clearing, hedging, or recap phrases. Most can be cut whole; the
 - here's the thing
 - the truth is
 - let's dive in / let's delve into
-- in conclusion / to sum up / to wrap up
+- in conclusion / to sum up / to wrap up / Bottom Line: / In short: (the labelled closing-summary markers; a reply that has made its point does not need a line announcing that it has. Before: "In short: the cache was the cause." After: "The cache was the cause.")
 - last but not least
 
 Keep-it example: "when it comes to money, be precise" is weaker than "be precise about money", but "it comes down to one thing: latency" is fine because the phrase leads to a concrete point.
 
+## Long-tail register phrases
+
+Single phrases from the reflective, faux-reveal, and performative-honesty registers that do not warrant a named entry in `cliche-patterns.md`. Same rule as every list above: judgment, not lint. A writer may use one of these on purpose; cut it when it is templated warmth or a staged reveal, keep it when the sentence would lose something real.
+
+- let that sink in
+- read that again
+- I will say it plainly
+- if I am being honest
+- full stop / period (as a rhetorical terminator)
+- and that is okay / and that is fine
+- quietly (as in "quietly one of the best")
+- the real work is / the hard part is
+- this is the thing nobody tells you
+- most people never / most teams never
+- it is easy to forget that
+- the more I think about it
+- there is a version of this where
+- in the same breath
+- which is to say
+- and yet
+
+Keep-it example: "and yet the test passed" carries a real reversal. Cut-it example: "And yet." as a one-word paragraph is a staged beat.
+
 ## Cross-reference
 
-These lists operationalize the project Communication Style rules (place punctuation outside quotation marks; no em-dashes and no clause-joining spaced hyphens; professional teaching tone; never hard-wrap paragraph text). The anti-slop pass and those rules are the same discipline applied to prose. Punctuation in this file and in all edited output stays ASCII-only: straight quotes, hyphens, and "..." for ellipsis.
+These lists operationalize the always-loaded `## Writing Discipline` block every instruction template carries since v4.5.0 (ASCII punctuation placed outside quotation marks by logic; no em-dashes and no clause-joining spaced hyphens; professional teaching tone; never hard-wrap paragraph text). The anti-slop pass and those rules are the same discipline applied to prose. Punctuation in this file and in all edited output stays ASCII-only: straight quotes, hyphens, and "..." for ellipsis.

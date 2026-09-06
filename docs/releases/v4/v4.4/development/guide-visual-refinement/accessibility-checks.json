@@ -1,0 +1,576 @@
+[
+  {
+    "theme": "dark",
+    "contrastPairs": [
+      {
+        "selector": "fx-tokprompt",
+        "foreground": [
+          220,
+          232,
+          235
+        ],
+        "background": [
+          12,
+          31,
+          38
+        ],
+        "ratio": 13.54
+      },
+      {
+        "selector": "fx-tokfig-note",
+        "foreground": [
+          155,
+          176,
+          182
+        ],
+        "background": [
+          12,
+          31,
+          38
+        ],
+        "ratio": 7.49
+      },
+      {
+        "selector": "fx-diagram-note",
+        "foreground": [
+          126,
+          154,
+          161
+        ],
+        "background": [
+          12,
+          31,
+          38
+        ],
+        "ratio": 5.67
+      },
+      {
+        "selector": "hxf-tag",
+        "foreground": [
+          155,
+          176,
+          182
+        ],
+        "background": [
+          12,
+          31,
+          38
+        ],
+        "ratio": 7.49
+      },
+      {
+        "selector": "P",
+        "foreground": [
+          155,
+          176,
+          182
+        ],
+        "background": [
+          12,
+          31,
+          38
+        ],
+        "ratio": 7.49
+      },
+      {
+        "selector": "hxf-tag",
+        "foreground": [
+          155,
+          176,
+          182
+        ],
+        "background": [
+          12,
+          31,
+          38
+        ],
+        "ratio": 7.49
+      },
+      {
+        "selector": "hxf-like",
+        "foreground": [
+          220,
+          232,
+          235
+        ],
+        "background": [
+          12,
+          31,
+          38
+        ],
+        "ratio": 13.54
+      },
+      {
+        "selector": "P",
+        "foreground": [
+          155,
+          176,
+          182
+        ],
+        "background": [
+          12,
+          31,
+          38
+        ],
+        "ratio": 7.49
+      },
+      {
+        "selector": "hxf-limit",
+        "foreground": [
+          155,
+          176,
+          182
+        ],
+        "background": [
+          12,
+          31,
+          38
+        ],
+        "ratio": 7.49
+      },
+      {
+        "selector": "hxf-tag",
+        "foreground": [
+          155,
+          176,
+          182
+        ],
+        "background": [
+          15.423529411764704,
+          39.65490196078431,
+          47.05882352941176
+        ],
+        "ratio": 6.82
+      },
+      {
+        "selector": "hxf-like",
+        "foreground": [
+          220,
+          232,
+          235
+        ],
+        "background": [
+          15.423529411764704,
+          39.65490196078431,
+          47.05882352941176
+        ],
+        "ratio": 12.33
+      },
+      {
+        "selector": "P",
+        "foreground": [
+          155,
+          176,
+          182
+        ],
+        "background": [
+          15.423529411764704,
+          39.65490196078431,
+          47.05882352941176
+        ],
+        "ratio": 6.82
+      },
+      {
+        "selector": "hxf-limit",
+        "foreground": [
+          155,
+          176,
+          182
+        ],
+        "background": [
+          15.423529411764704,
+          39.65490196078431,
+          47.05882352941176
+        ],
+        "ratio": 6.82
+      },
+      {
+        "selector": "hxf-tag",
+        "foreground": [
+          45,
+          212,
+          191
+        ],
+        "background": [
+          14,
+          42,
+          47
+        ],
+        "ratio": 8.11
+      },
+      {
+        "selector": "hxf-like",
+        "foreground": [
+          220,
+          232,
+          235
+        ],
+        "background": [
+          14,
+          42,
+          47
+        ],
+        "ratio": 12.07
+      },
+      {
+        "selector": "P",
+        "foreground": [
+          155,
+          176,
+          182
+        ],
+        "background": [
+          14,
+          42,
+          47
+        ],
+        "ratio": 6.67
+      },
+      {
+        "selector": "hxf-limit",
+        "foreground": [
+          155,
+          176,
+          182
+        ],
+        "background": [
+          14,
+          42,
+          47
+        ],
+        "ratio": 6.67
+      },
+      {
+        "selector": "hxf-tag",
+        "foreground": [
+          74,
+          222,
+          128
+        ],
+        "background": [
+          12,
+          31,
+          38
+        ],
+        "ratio": 9.72
+      },
+      {
+        "selector": "P",
+        "foreground": [
+          155,
+          176,
+          182
+        ],
+        "background": [
+          12,
+          31,
+          38
+        ],
+        "ratio": 7.49
+      },
+      {
+        "selector": "hxf-tag",
+        "foreground": [
+          155,
+          176,
+          182
+        ],
+        "background": [
+          7,
+          20,
+          26
+        ],
+        "ratio": 8.26
+      }
+    ],
+    "minimumContrast": 5.67,
+    "doubleTextSizeAt720Clipped": []
+  },
+  {
+    "theme": "light",
+    "contrastPairs": [
+      {
+        "selector": "fx-tokprompt",
+        "foreground": [
+          28,
+          42,
+          46
+        ],
+        "background": [
+          255,
+          253,
+          248
+        ],
+        "ratio": 14.55
+      },
+      {
+        "selector": "fx-tokfig-note",
+        "foreground": [
+          74,
+          92,
+          97
+        ],
+        "background": [
+          255,
+          253,
+          248
+        ],
+        "ratio": 6.9
+      },
+      {
+        "selector": "fx-diagram-note",
+        "foreground": [
+          88,
+          103,
+          105
+        ],
+        "background": [
+          255,
+          253,
+          248
+        ],
+        "ratio": 5.8
+      },
+      {
+        "selector": "hxf-tag",
+        "foreground": [
+          74,
+          92,
+          97
+        ],
+        "background": [
+          255,
+          253,
+          248
+        ],
+        "ratio": 6.9
+      },
+      {
+        "selector": "P",
+        "foreground": [
+          74,
+          92,
+          97
+        ],
+        "background": [
+          255,
+          253,
+          248
+        ],
+        "ratio": 6.9
+      },
+      {
+        "selector": "hxf-tag",
+        "foreground": [
+          74,
+          92,
+          97
+        ],
+        "background": [
+          255,
+          253,
+          248
+        ],
+        "ratio": 6.9
+      },
+      {
+        "selector": "hxf-like",
+        "foreground": [
+          28,
+          42,
+          46
+        ],
+        "background": [
+          255,
+          253,
+          248
+        ],
+        "ratio": 14.55
+      },
+      {
+        "selector": "P",
+        "foreground": [
+          74,
+          92,
+          97
+        ],
+        "background": [
+          255,
+          253,
+          248
+        ],
+        "ratio": 6.9
+      },
+      {
+        "selector": "hxf-limit",
+        "foreground": [
+          74,
+          92,
+          97
+        ],
+        "background": [
+          255,
+          253,
+          248
+        ],
+        "ratio": 6.9
+      },
+      {
+        "selector": "hxf-tag",
+        "foreground": [
+          74,
+          92,
+          97
+        ],
+        "background": [
+          245.10588235294117,
+          243.10588235294117,
+          235.40392156862745
+        ],
+        "ratio": 6.32
+      },
+      {
+        "selector": "hxf-like",
+        "foreground": [
+          28,
+          42,
+          46
+        ],
+        "background": [
+          245.10588235294117,
+          243.10588235294117,
+          235.40392156862745
+        ],
+        "ratio": 13.33
+      },
+      {
+        "selector": "P",
+        "foreground": [
+          74,
+          92,
+          97
+        ],
+        "background": [
+          245.10588235294117,
+          243.10588235294117,
+          235.40392156862745
+        ],
+        "ratio": 6.32
+      },
+      {
+        "selector": "hxf-limit",
+        "foreground": [
+          74,
+          92,
+          97
+        ],
+        "background": [
+          245.10588235294117,
+          243.10588235294117,
+          235.40392156862745
+        ],
+        "ratio": 6.32
+      },
+      {
+        "selector": "hxf-tag",
+        "foreground": [
+          15,
+          111,
+          102
+        ],
+        "background": [
+          241,
+          244,
+          239
+        ],
+        "ratio": 5.43
+      },
+      {
+        "selector": "hxf-like",
+        "foreground": [
+          28,
+          42,
+          46
+        ],
+        "background": [
+          241,
+          244,
+          239
+        ],
+        "ratio": 13.33
+      },
+      {
+        "selector": "P",
+        "foreground": [
+          74,
+          92,
+          97
+        ],
+        "background": [
+          241,
+          244,
+          239
+        ],
+        "ratio": 6.32
+      },
+      {
+        "selector": "hxf-limit",
+        "foreground": [
+          74,
+          92,
+          97
+        ],
+        "background": [
+          241,
+          244,
+          239
+        ],
+        "ratio": 6.32
+      },
+      {
+        "selector": "hxf-tag",
+        "foreground": [
+          31,
+          122,
+          76
+        ],
+        "background": [
+          255,
+          253,
+          248
+        ],
+        "ratio": 5.23
+      },
+      {
+        "selector": "P",
+        "foreground": [
+          74,
+          92,
+          97
+        ],
+        "background": [
+          255,
+          253,
+          248
+        ],
+        "ratio": 6.9
+      },
+      {
+        "selector": "hxf-tag",
+        "foreground": [
+          74,
+          92,
+          97
+        ],
+        "background": [
+          243,
+          241,
+          234
+        ],
+        "ratio": 6.2
+      }
+    ],
+    "minimumContrast": 5.23,
+    "doubleTextSizeAt720Clipped": []
+  }
+]

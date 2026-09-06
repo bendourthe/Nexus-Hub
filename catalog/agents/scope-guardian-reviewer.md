@@ -28,7 +28,7 @@ Return ONLY a JSON array of findings (fields per [`catalog/skills/code-review/co
   {
     "title": "No in-scope / out-of-scope split; every item marked required",
     "severity": "P1",
-    "file": "docs/v1.2.0/plans/dashboard.md",
+    "file": "docs/releases/v1/v1.2/plans/v1.2.0-dashboard.md",
     "line": 15,
     "confidence": 75,
     "persona": "scope-guardian",

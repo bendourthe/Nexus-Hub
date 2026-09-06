@@ -1,0 +1,1 @@
+Required-check coverage: OK -- 10 declared context(s) across 2 branch(es), every one produced unconditionally.

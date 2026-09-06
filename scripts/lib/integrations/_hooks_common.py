@@ -102,6 +102,28 @@ def sibling_scripts(script: str) -> tuple[str, str]:
     return f"{stem}.sh", f"{stem}.ps1"
 
 
+def sourced_modules(scripts: set[str], src_hooks_dir: Path) -> set[str]:
+    """Return underscore-prefixed sibling modules sourced by delivered hooks."""
+    found: set[str] = set()
+    modules = [p for p in src_hooks_dir.glob("_*") if p.suffix in (".sh", ".ps1")]
+    for script in sorted(scripts):
+        path = src_hooks_dir / script
+        if path.suffix not in (".sh", ".ps1") or not path.exists():
+            continue
+        try:
+            body = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for module in modules:
+            if module.name == script or module.name not in body:
+                continue
+            found.add(module.name)
+            sibling = module.with_suffix(".ps1" if module.suffix == ".sh" else ".sh")
+            if sibling.exists():
+                found.add(sibling.name)
+    return found
+
+
 # ----- ownership of an existing handler ------------------------------------
 
 
@@ -159,5 +181,6 @@ __all__ = [
     "script_basename",
     "script_for_host",
     "sibling_scripts",
+    "sourced_modules",
     "strip_owned_handlers",
 ]

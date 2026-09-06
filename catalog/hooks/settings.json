@@ -1,8 +1,8 @@
 {
-  "effortLevel": "medium",
+  "effortLevel": "high",
   "model": "opus",
   "env": {
-    "CLAUDE_CODE_EFFORT_LEVEL": "medium"
+    "CLAUDE_CODE_EFFORT_LEVEL": "high"
   },
   "hooks": {
     "SessionStart": [
@@ -54,6 +54,24 @@
         ]
       },
       {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/rewrite-command.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Grep|Glob|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/code-search-routing.sh"
+          }
+        ]
+      },
+      {
         "matcher": "PowerShell",
         "hooks": [
           {
@@ -80,6 +98,10 @@
           },
           {
             "type": "command",
+            "command": "bash .claude/hooks/html-responsive-guard.sh"
+          },
+          {
+            "type": "command",
             "command": "bash .claude/hooks/large-file-guard.sh"
           },
           {
@@ -101,6 +123,10 @@
           },
           {
             "type": "command",
+            "command": "bash .claude/hooks/html-responsive-guard.sh"
+          },
+          {
+            "type": "command",
             "command": "bash .claude/hooks/escalation-trigger.sh"
           },
           {
@@ -115,6 +141,15 @@
           {
             "type": "command",
             "command": "python3 .claude/hooks/skill-guard.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/memory-store-guard.sh"
           }
         ]
       }

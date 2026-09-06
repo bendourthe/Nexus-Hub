@@ -22,6 +22,12 @@ from pathlib import Path
 
 import pytest
 
+# v4.0.0: `ci.yml` calls scripts/ci/run.py rather than naming each guard in its
+# own `run:` step, so CI reachability is resolved through the profile
+# definitions. See tests/validators/_ci_reachability.py for why greping the
+# YAML would be both wrong and dangerous to "fix".
+from tests.validators._ci_reachability import assert_wired_into_ci
+
 _ROOT = Path(__file__).resolve().parents[2]
 _UPDATE_CMD = _ROOT / "catalog" / "commands" / "update.md"
 _RUNBOOK = (
@@ -79,7 +85,7 @@ def test_freshness_checker_is_not_wired_into_any_gate(label: str, path: Path) ->
     """
     assert FRESHNESS_SCRIPT not in _executable_lines(path), (
         f"{label} invokes {FRESHNESS_SCRIPT}.py, making profile freshness a blocking "
-        f"gate. It is ADVISORY by design; see /update release governance step 5."
+        f"gate. It is ADVISORY by design; see /update release governance step 6."
     )
 
 
@@ -106,8 +112,13 @@ def test_each_gate_file_documents_why_the_checker_is_absent(label: str, path: Pa
 )
 def test_the_structural_sibling_IS_wired_into_every_gate(label: str, path: Path) -> None:
     """The contrast that makes the split meaningful: shape is gated, freshness is not."""
-    body = path.read_text(encoding="utf-8")
+    if label == "ci.yml":
+        # v4.0.0: ci.yml calls scripts/ci/run.py rather than naming each guard,
+        # so reachability is resolved through the profile definitions.
+        assert_wired_into_ci(f"{SCHEMA_SCRIPT}.py")
+        return
 
+    body = path.read_text(encoding="utf-8")
     assert SCHEMA_SCRIPT in body, (
         f"{label} no longer runs {SCHEMA_SCRIPT}.py. The profile layer's STRUCTURE "
         f"is a hard gate even though its freshness is not."
@@ -187,7 +198,7 @@ def test_the_final_phase_gate_defers_instead_of_duplicating(runbook: str) -> Non
     gate = runbook[runbook.index("### 9.0"):runbook.index("### 9A")]
 
     assert "Do NOT duplicate its logic" in gate
-    assert "governance step 5" in gate, "the gate should point at the canonical description"
+    assert "governance step 6" in gate, "the gate should point at the canonical description"
 
 
 def test_the_final_phase_gate_states_it_never_blocks(runbook: str) -> None:

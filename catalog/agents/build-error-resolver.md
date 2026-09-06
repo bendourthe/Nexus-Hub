@@ -31,7 +31,7 @@ cargo check 2>&1
 <build_command> 2>&1 | tail -50
 ```
 
-### Step 2: Triage — Root Cause vs. Cascading Errors
+### Step 2: Triage -- Root Cause vs. Cascading Errors
 
 Most build failures produce cascading errors: one broken import causes 20 downstream failures. Identify the first error in dependency order:
 
@@ -39,7 +39,7 @@ Most build failures produce cascading errors: one broken import causes 20 downst
 2. Fix the earliest-occurring root error
 3. Re-run the build to see how many errors disappear
 
-Never fix errors in the order the compiler reports them — compilers report them in traversal order, not dependency order.
+Never fix errors in the order the compiler reports them -- compilers report them in traversal order, not dependency order.
 
 ### Step 3: Fix
 
@@ -85,5 +85,5 @@ If tests exist, run them after a successful build: a fix that breaks tests is no
 
 - Never suppress type errors without a comment explaining why it is safe to do so
 - Never delete error-checking code to make a build pass
-- If a fix requires understanding an unfamiliar module, read it fully before editing — guessing creates new bugs
+- If a fix requires understanding an unfamiliar module, read it fully before editing -- guessing creates new bugs
 - Report the root cause and fix to the user; do not silently change code

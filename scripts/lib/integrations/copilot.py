@@ -1,8 +1,10 @@
 """GitHub Copilot integration.
 
-Copilot (in VS Code) reads .github/copilot-instructions.md at repo root for
-custom instructions, and respects the
-`github.copilot.chat.codeGeneration.useInstructionFiles` VS Code setting.
+Copilot reads repository instructions from ``.github/copilot-instructions.md``
+and personal instructions from ``~/.copilot/copilot-instructions.md``. Native
+custom agents live under ``.github/agents`` and ``~/.copilot/agents``; native
+version-1 hook files live under ``.github/hooks/*.json`` and
+``~/.copilot/hooks/*.json``.
 
 Copilot DOES expose a user-global slash-command surface via VS Code *prompt
 files*: ``<vscode-user>/prompts/<name>.prompt.md`` is offered as ``/<name>`` in
@@ -17,36 +19,11 @@ GitHub CLI's `gh copilot` extension is also implicitly supported because it
 reads the same .github/copilot-instructions.md and the user's gh-installed
 extensions independently.
 
-Claude-format compatibility (v3.15.8 Phase 8)
----------------------------------------------
-Re-verification on 2026-08-03 established that Copilot in VS Code reads
-Claude-format customization files BY DEFAULT, which changes what this integration
-needs to write rather than what Copilot receives:
-
-  - **Hooks**: the default ``chat.hookFilesLocations`` is
-    ``{".github/hooks": true, ".claude/settings.local.json": true,
-    ".claude/settings.json": true, "~/.claude/settings.json": true}``, and
-    "VS Code uses the same hook format as Claude Code and Copilot CLI for
-    compatibility". Nexus-Hub already merges ``catalog/hooks/settings.json`` into
-    ``~/.claude/settings.json`` (global) and ``.claude/settings.json`` (project),
-    so Copilot already runs those hooks at both scopes with no write here.
-  - **Project agents**: the default workspace agent locations are
-    ``.github/agents`` AND ``.claude/agents``; the ``claude`` integration already
-    populates ``.claude/agents``.
-
-So no ``.github/hooks`` or ``.github/agents`` copy is written. Doing so would put
-a redundant, COMMIT-VISIBLE duplicate in the user's repository -- the same
-policy concern that keeps ``.github/skills`` opt-in -- for a surface Copilot
-already reads. Agent files also deduplicate across levels by filename (minus
-``.md`` / ``.agent.md``) with the lowest level winning, so a parallel copy would
-buy nothing.
-
-The one real gap is GLOBAL agents: Copilot's documented user-profile agent
-location is ``~/.copilot/agents``, not ``~/.claude/agents``, so the catalog
-agents were unavailable to Copilot outside a repository. That IS written here
-(v3.15.8 Phase 8), verbatim, because Copilot accepts the Claude frontmatter shape
--- ``description`` is the only required field and Claude's tool names are mapped
-to VS Code tools.
+Copilot accepts PascalCase Claude-compatible hook events, snake_case payloads,
+and Claude matcher semantics. Nexus-Hub therefore transforms the catalog hook
+registration into a dedicated native ``nexus-hub.json`` file while reusing the
+catalog scripts and PowerShell siblings. The dedicated file is ownership-aware;
+an unrelated user file is never overwritten.
 """
 
 from __future__ import annotations
@@ -61,6 +38,7 @@ from scripts.lib.installer.instruction_merge import merge_marker_section
 
 from ._catalog_adapters import _split_frontmatter
 from ._command_surface import mirror_command_surface
+from ._copilot_native import build_copilot_hooks
 from ._owned import remove_dir_if_empty, write_owned_file
 from .base import InstallContext, MarkdownIntegration
 from .result import FileAction, WriteResult
@@ -160,11 +138,13 @@ class CopilotIntegration(MarkdownIntegration):
         "workspace_dir": ".github",
         "instruction_file": "copilot-instructions.md",
         "instruction_template": "templates/ai-instructions/base-codex.md",
-        "hooks_supported": False,
+        "agents_subdir": "agents",
+        "hooks_subdir": "hooks",
+        "hooks_supported": True,
     }
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
-        """Write the user-global Copilot surfaces: prompt files and custom agents.
+        """Write personal instructions, prompts, agents, and native hooks.
 
         Commands become ``<name>.prompt.md`` under VS Code's user-profile
         ``prompts/`` dir, offered as ``/<name>`` in Copilot Chat from any repo.
@@ -198,7 +178,12 @@ class CopilotIntegration(MarkdownIntegration):
                 mirror_command_surface(ctx, self.key, prompts_dir, suffix=".prompt.md")
             )
         if not ctx.instruction_only:
+            self._ensure_dir(copilot_home, ctx)
+            result.files.append(self._write_personal_instruction(copilot_home, ctx))
             result.files.extend(self._install_global_agents(copilot_home, ctx))
+            result.files.extend(
+                self._install_native_hooks(copilot_home, ctx, scope="global")
+            )
         return result
 
     # ----- global custom agents (v3.15.8 Phase 8) --------------------------
@@ -231,11 +216,16 @@ class CopilotIntegration(MarkdownIntegration):
         reached for Kimi. Writes go through ``write_owned_file`` so a user-authored
         agent at the same path is preserved and a drifted owned one is repaired.
         """
+        return self._install_agents(copilot_home / _COPILOT_AGENTS_SUBDIR, ctx)
+
+    def _install_agents(
+        self, dst_dir: Path, ctx: InstallContext
+    ) -> list[FileAction]:
+        """Copy catalog agents into one Copilot-native agent directory."""
         src_dir = ctx.repo_root / "catalog" / "agents"
         if not src_dir.exists():
             ctx.manifest.log(self.key, f"missing-tree: {src_dir}")
             return [FileAction(path=str(src_dir), action="not-found")]
-        dst_dir = copilot_home / _COPILOT_AGENTS_SUBDIR
         self._ensure_dir(dst_dir, ctx)
         actions: list[FileAction] = []
         for md in sorted(src_dir.glob("*.md")):
@@ -248,13 +238,103 @@ class CopilotIntegration(MarkdownIntegration):
             actions.append(write_owned_file(ctx, self.key, dst, content))
         return actions
 
+    def _write_personal_instruction(
+        self, copilot_home: Path, ctx: InstallContext
+    ) -> FileAction:
+        """Marker-merge Nexus-Hub into Copilot's personal instruction file."""
+        template = ctx.repo_root / self.config["instruction_template"]
+        if not template.exists():
+            return FileAction(path=str(template), action="not-found")
+        dst = copilot_home / "copilot-instructions.md"
+        action = merge_marker_section(
+            dst,
+            self._render(template, ctx),
+            legacy_header="## Nexus-Hub",
+            dry_run=ctx.dry_run,
+        )
+        ctx.manifest.track_shared(self.key, str(dst))
+        return action
+
+    def _hooks_command_base(
+        self, copilot_home_or_github: Path, scope: str
+    ) -> str:
+        scripts_subdir = "nexus-hub-scripts"
+        if scope == "workspace":
+            return f".github/{self.config['hooks_subdir']}/{scripts_subdir}"
+        return (
+            copilot_home_or_github / self.config["hooks_subdir"] / scripts_subdir
+        ).as_posix()
+
+    def _install_native_hooks(
+        self,
+        copilot_home_or_github: Path,
+        ctx: InstallContext,
+        *,
+        scope: str,
+    ) -> list[FileAction]:
+        """Write one Copilot-native hook file and its referenced scripts."""
+        src_hooks = ctx.repo_root / "catalog" / "hooks"
+        settings_file = src_hooks / "settings.json"
+        if not settings_file.exists():
+            return [FileAction(path=str(settings_file), action="not-found")]
+        command_base = self._hooks_command_base(copilot_home_or_github, scope)
+        try:
+            settings = json.loads(settings_file.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return [FileAction(path=str(settings_file), action="kept")]
+        payload, scripts, skipped = build_copilot_hooks(
+            settings, src_hooks, command_base
+        )
+        for reason in skipped:
+            ctx.manifest.log(self.key, f"skip-hook {reason}")
+        hooks_root = copilot_home_or_github / self.config["hooks_subdir"]
+        scripts_root = hooks_root / "nexus-hub-scripts"
+        actions = [
+            write_owned_file(
+                ctx,
+                self.key,
+                scripts_root / script,
+                (src_hooks / script).read_bytes(),
+            )
+            for script in sorted(scripts)
+        ]
+        compat_source = (
+            ctx.repo_root
+            / "scripts"
+            / "lib"
+            / "integrations"
+            / "_cascade_hook_compat.py"
+        )
+        actions.append(
+            write_owned_file(
+                ctx,
+                self.key,
+                scripts_root / "copilot-hook-compat.py",
+                compat_source.read_bytes(),
+            )
+        )
+        actions.append(
+            write_owned_file(
+                ctx,
+                self.key,
+                hooks_root / "nexus-hub.json",
+                (json.dumps(payload, indent=2) + "\n").encode("utf-8"),
+            )
+        )
+        return actions
+
     def teardown(self, ctx: InstallContext) -> WriteResult:
-        """Run the manifest sweep, then drop the agents dir if it emptied."""
+        """Run the manifest sweep, then drop native directories if they emptied."""
         result = super().teardown(ctx)
         if ctx.scope == "global":
-            remove_dir_if_empty(
-                _copilot_home() / _COPILOT_AGENTS_SUBDIR, ctx, result
-            )
+            root = _copilot_home()
+        else:
+            root = (ctx.target_root / ".github").resolve()
+        remove_dir_if_empty(root / _COPILOT_AGENTS_SUBDIR, ctx, result)
+        remove_dir_if_empty(
+            root / self.config["hooks_subdir"] / "nexus-hub-scripts", ctx, result
+        )
+        remove_dir_if_empty(root / self.config["hooks_subdir"], ctx, result)
         return result
 
     def install_workspace(self, ctx: InstallContext) -> WriteResult:
@@ -277,6 +357,13 @@ class CopilotIntegration(MarkdownIntegration):
         )
         ctx.manifest.track_shared(self.key, str(dst))
         result.files.append(action)
+        if not ctx.instruction_only:
+            result.files.extend(
+                self._install_agents(target / self.config["agents_subdir"], ctx)
+            )
+            result.files.extend(
+                self._install_native_hooks(target, ctx, scope="workspace")
+            )
         return result
 
     def wire_project_surfaces(self, ctx: InstallContext) -> Optional[WriteResult]:
@@ -293,7 +380,7 @@ class CopilotIntegration(MarkdownIntegration):
         seeds that bundle, and ``all`` seeds the full catalog (heavy). It seeds thin
         WRAPPER files (Copilot-safe ``name`` + ``description`` frontmatter plus a
         pointer to the installed ``~/.nexus-hub/`` content), ASCII-sanitized, never
-        overwriting an existing file. See docs/v3/v3.11/development/copilot-skills-design.md.
+        overwriting an existing file. See docs/releases/v3/v3.11/development/copilot-skills-design.md.
         """
         result = WriteResult()
         if not _copilot_skills_enabled(os.environ.get(_COPILOT_SKILLS_ENV)):
@@ -306,6 +393,18 @@ class CopilotIntegration(MarkdownIntegration):
                 "a bundle id, or 'all') not set; .github/skills/ not seeded"
             )
             return result
+        # Project agents and native hooks are seeded only once the opt-in is set.
+        # They land under the same COMMIT-VISIBLE .github/ tree the opt-in exists to
+        # protect, so gating skills while writing these unconditionally would put 82
+        # uninvited files into every consuming repository (v4.3.0 Phase 5 regression).
+        github_root = (ctx.target_root / ".github").resolve()
+        if not ctx.instruction_only:
+            result.files.extend(
+                self._install_agents(github_root / self.config["agents_subdir"], ctx)
+            )
+            result.files.extend(
+                self._install_native_hooks(github_root, ctx, scope="workspace")
+            )
         skills_root = (ctx.target_root / ".github" / "skills").resolve()
         for name in self._curated_skill_names(ctx):
             src_md = self._find_skill_md(ctx.repo_root, name)

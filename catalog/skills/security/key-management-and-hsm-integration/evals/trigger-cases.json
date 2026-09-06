@@ -1,0 +1,48 @@
+{
+  "skill": "key-management-and-hsm-integration",
+  "purpose": "Route KMS/HSM operations here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "HSM integration for signing keys",
+      "should_trigger": true,
+      "assert": "routes to key-management-and-hsm-integration first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "KMS key policy dual control",
+      "should_trigger": true,
+      "assert": "routes to key-management-and-hsm-integration first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "no export of private keys",
+      "should_trigger": true,
+      "assert": "routes to key-management-and-hsm-integration first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "envelope encryption schema",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "TLS expiry check",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "JWT alg none",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

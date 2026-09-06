@@ -1,0 +1,222 @@
+{
+  "guide_sha256": "6848938156266c2806c734575c963a64ba71a84bf3b357e912e0583b730324fd",
+  "cases": [
+    {
+      "route": "home",
+      "theme": "light",
+      "width": 768,
+      "height": 1024,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "home-light-768-1024.json"
+    },
+    {
+      "route": "home",
+      "theme": "light",
+      "width": 1024,
+      "height": 768,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "home-light-1024-768.json"
+    },
+    {
+      "route": "home",
+      "theme": "light",
+      "width": 1920,
+      "height": 1080,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "home-light-1920-1080.json"
+    },
+    {
+      "route": "foundations",
+      "theme": "light",
+      "width": 768,
+      "height": 1024,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "foundations-light-768-1024.json"
+    },
+    {
+      "route": "foundations",
+      "theme": "light",
+      "width": 1024,
+      "height": 768,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "foundations-light-1024-768.json"
+    },
+    {
+      "route": "foundations",
+      "theme": "light",
+      "width": 1920,
+      "height": 1080,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "foundations-light-1920-1080.json"
+    },
+    {
+      "route": "training",
+      "theme": "light",
+      "width": 768,
+      "height": 1024,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "training-light-768-1024.json"
+    },
+    {
+      "route": "training",
+      "theme": "light",
+      "width": 1024,
+      "height": 768,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "training-light-1024-768.json"
+    },
+    {
+      "route": "training",
+      "theme": "light",
+      "width": 1920,
+      "height": 1080,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "training-light-1920-1080.json"
+    },
+    {
+      "route": "cheatsheets",
+      "theme": "light",
+      "width": 768,
+      "height": 1024,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "cheatsheets-light-768-1024.json"
+    },
+    {
+      "route": "cheatsheets",
+      "theme": "light",
+      "width": 1024,
+      "height": 768,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "cheatsheets-light-1024-768.json"
+    },
+    {
+      "route": "cheatsheets",
+      "theme": "light",
+      "width": 1920,
+      "height": 1080,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "cheatsheets-light-1920-1080.json"
+    },
+    {
+      "route": "home",
+      "theme": "dark",
+      "width": 768,
+      "height": 1024,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "home-dark-768-1024.json"
+    },
+    {
+      "route": "home",
+      "theme": "dark",
+      "width": 1024,
+      "height": 768,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "home-dark-1024-768.json"
+    },
+    {
+      "route": "home",
+      "theme": "dark",
+      "width": 1920,
+      "height": 1080,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "home-dark-1920-1080.json"
+    },
+    {
+      "route": "foundations",
+      "theme": "dark",
+      "width": 768,
+      "height": 1024,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "foundations-dark-768-1024.json"
+    },
+    {
+      "route": "foundations",
+      "theme": "dark",
+      "width": 1024,
+      "height": 768,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "foundations-dark-1024-768.json"
+    },
+    {
+      "route": "foundations",
+      "theme": "dark",
+      "width": 1920,
+      "height": 1080,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "foundations-dark-1920-1080.json"
+    },
+    {
+      "route": "training",
+      "theme": "dark",
+      "width": 768,
+      "height": 1024,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "training-dark-768-1024.json"
+    },
+    {
+      "route": "training",
+      "theme": "dark",
+      "width": 1024,
+      "height": 768,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "training-dark-1024-768.json"
+    },
+    {
+      "route": "training",
+      "theme": "dark",
+      "width": 1920,
+      "height": 1080,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "training-dark-1920-1080.json"
+    },
+    {
+      "route": "cheatsheets",
+      "theme": "dark",
+      "width": 768,
+      "height": 1024,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "cheatsheets-dark-768-1024.json"
+    },
+    {
+      "route": "cheatsheets",
+      "theme": "dark",
+      "width": 1024,
+      "height": 768,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "cheatsheets-dark-1024-768.json"
+    },
+    {
+      "route": "cheatsheets",
+      "theme": "dark",
+      "width": 1920,
+      "height": 1080,
+      "exit_code": 0,
+      "status": "pass",
+      "file": "cheatsheets-dark-1920-1080.json"
+    }
+  ],
+  "scope": "Exact remaining plan geometry sizes; 320x900 already retained in interactions and detector. Geometry is not subjective visual approval."
+}

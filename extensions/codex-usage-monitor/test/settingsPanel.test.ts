@@ -129,9 +129,21 @@ describe("workbench color synchronization", () => {
     expect(stubConfig.workbench.colorCustomizations).toEqual({
       "statusBarItem.warningBackground": "#111111",
     });
+  });
 
-    await syncActiveColorToWorkbench("low", { ...colors, moderate: "none" });
-    expect(stubConfig.workbench.colorCustomizations).toEqual({});
+  it("does not let low or critical display ticks overwrite an active high color", async () => {
+    const colors = { moderate: "#cca700", high: "#f0643c", critical: "#e05555" };
+    __setStubConfig("workbench", "colorCustomizations", {
+      "statusBarItem.warningBackground": colors.high,
+    });
+
+    await syncActiveColorToWorkbench("low", colors);
+    await syncActiveColorToWorkbench("critical", colors);
+
+    expect(stubConfig.workbench.colorCustomizations).toEqual({
+      "statusBarItem.warningBackground": colors.high,
+    });
+    expect(configurationUpdates).toHaveLength(0);
   });
 
   it("ignores invalid color values rather than writing malformed customizations", async () => {

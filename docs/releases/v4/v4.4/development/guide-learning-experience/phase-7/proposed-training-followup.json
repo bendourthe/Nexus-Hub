@@ -1,0 +1,48 @@
+{
+  "status": "PROPOSED ONLY: additional bounded pass awaits user decision",
+  "issues": [
+    "BG-46",
+    "BG-47",
+    "BG-48"
+  ],
+  "files": [
+    "guides/website/nexus-hub-guide.html",
+    "guides/website/example/training-scenes.json",
+    "tests/guides/test_nexus_hub_guide.py",
+    "tests/guides/test_training_explorer.py"
+  ],
+  "candidate_directory": "<temporary-directory>/nexus-v446-training-followup",
+  "patch_sha256": "dec3362be9170472acd8d5a877763829816047e2921ead523583d5760d2d25c2",
+  "guide_sha256": "e67324c11c1eab202e7f991e44b64caa8a76120f9a5d8f84af29b803782bdcb7",
+  "verification": "Five affected tests passed in 20.28s on the temporary candidate. Earlier identical title/idle-CSS preview passed 48 before/after geometry/state checks; these final screenshots additionally omit the production hostile fixture.",
+  "images": [
+    {
+      "file": "final-light-before.png",
+      "sha256": "cfe533c28c8d5e0572f453e3ab4b427ae1639e8f12cb867568c78ab49bdcbcbc",
+      "theme": "light",
+      "state": "before"
+    },
+    {
+      "file": "final-light-after.png",
+      "sha256": "e469574dc24c19a08bb5fc75d06b16cc8ac725ee6fdae37b5924ae07b51b8e95",
+      "theme": "light",
+      "state": "after"
+    },
+    {
+      "file": "final-dark-before.png",
+      "sha256": "7237798c25f72be81797e43bde01385c8d8fe07afe8a3b804b51e2da0d5a5dfa",
+      "theme": "dark",
+      "state": "before"
+    },
+    {
+      "file": "final-dark-after.png",
+      "sha256": "74c219c4ffb28a231b2418f5488f90b66e672cb86c09bf92480a1000fa5bedec",
+      "theme": "dark",
+      "state": "after"
+    }
+  ],
+  "root_cause": "BG-48 inherited a security fixture dating to 866a9684 and carried in ea8c9070. Independent reviewer confirms it is not teaching content; no demonstrated XSS vulnerability. Prior Phase 6 semantics verdict missed its editorial significance.",
+  "images_actually_viewed": 4,
+  "visual_verdict": "Both themes: compact idle reply panel, complete post-Run output without leaked fixture, visible controls/files/pending or pass state; no observed clipping or collisions in the four final 1440x900 previews.",
+  "decision_request": "Updated three-correction request supersedes the earlier two-layout-fix request. No answer has been received."
+}

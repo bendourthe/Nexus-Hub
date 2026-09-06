@@ -104,6 +104,14 @@ The same value can be safe internally and unsafe on egress, so classify on every
 - The first time a given destination receives project content, state in one place WHAT is being sent, WHICH destination receives it, and WHICH actions were applied, then proceed. Recording this lets later sends to the same destination in the same session reuse the decision instead of re-deriving it.
 - This is detection-and-policy guidance for the agent's own judgment. It reduces leak surface; it does not guarantee zero leakage. For regulated or high-assurance data, a programmatic DLP layer must sit underneath this skill, and `[[security-review]]` should confirm that layer exists.
 
+## Content policy vs network boundary
+
+This skill is a content control: typed BLOCK / REDACT / HASH / PASS applied by the agent before a send. The agent can skip it, forget a destination, or be instructed not to apply it. That is expected. It is not a network boundary.
+
+High-stakes or untrusted-tool flows need an out-of-process egress proxy that the agent cannot bypass: static destination rules, an optional LLM judge on the request, SSRF and RFC-1918 blocks, and human approval for new hosts. That architecture lives in [[agent-execution-isolation]] (`references/egress-boundary.md`). Do not copy that runbook here. Use this skill to classify what may leave; use that skill to enforce that only classified, allowed traffic can leave.
+
+A local DLP library that the agent process loads is still in-loop. Treat it as defense-in-depth on top of this policy, not as a substitute for the proxy.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -123,6 +131,7 @@ The same value can be safe internally and unsafe on egress, so classify on every
 - [ ] Redacted values carry a visible typed marker so the recipient knows a typed value was removed
 - [ ] No secret, credential, government ID, or payment identifier was sent in cleartext across any external boundary
 - [ ] A recipient treated as exempt was confirmed to be fully local before its handoff was skipped
+- [ ] High-stakes or untrusted-tool egress is named as content-policy-only or as out-of-process-enforced; if the latter, [[agent-execution-isolation]] `references/egress-boundary.md` is the architecture, not a second copy of this taxonomy
 
 ## Related Skills
 
@@ -130,6 +139,7 @@ The same value can be safe internally and unsafe on egress, so classify on every
 - [[agent-access-policy]] - the broader least-privilege access posture that redaction fits into
 - [[context-pack-builder]] - typed-fact entries that may carry sensitive content across an agent boundary
 - [[security-review]] - application-level review that should confirm a programmatic DLP layer exists for high-assurance flows
+- [[agent-execution-isolation]] - the out-of-process egress proxy and destination policy this content control does not replace
 
 ---
 

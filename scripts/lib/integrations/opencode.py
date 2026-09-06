@@ -44,6 +44,10 @@ class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
         # aliases even before this fix; the instruction file + commands did not.
         "global_dir": "~/.config/opencode",
         "workspace_dir": ".opencode",
+        # OpenCode walks from the working directory to the repository root and
+        # reads ambient AGENTS.md files. The catalog mirror remains namespaced
+        # under .opencode/, but the instruction file belongs at the project root.
+        "instruction_workspace_dir": "",
         "instruction_file": "AGENTS.md",
         "instruction_template": "templates/ai-instructions/base-opencode.md",
         # OpenCode discovers skills one level deep (skills/<name>/SKILL.md) and

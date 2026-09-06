@@ -2646,9 +2646,68 @@ def build_model(
         "sections": out_sections,
         "coverage": coverage_obj,
     }
+    placeholders = _scan_placeholders(out_sections)
+    if placeholders:
+        model["placeholders"] = placeholders
     if tree is not None:
         model["tree"] = tree
     return model
+
+
+# Unfilled author placeholders ("enrolled xx subjects", "[insert Q3 figure]")
+# ship inside real documents more often than one would hope. Detect them so the
+# agent can ASK the user for the real value during the design intake instead of
+# discovering the gap after delivery - and never silently invent the number.
+_PLACEHOLDER_RES = [
+    re.compile(r"(?<![\w.])[xX]{2,}(?![\w.])"),
+    re.compile(r"\[(?:insert|tbd|placeholder|todo|fill[ -]?in)[^\]]{0,60}\]", re.IGNORECASE),
+    re.compile(r"<(?:insert|tbd|placeholder|todo)[^>]{0,60}>", re.IGNORECASE),
+]
+_PLACEHOLDER_BLOCK_TYPES = {"paragraph", "heading", "bullets", "table"}
+_PLACEHOLDER_CAP = 50
+
+
+def _scan_placeholders(sections: list) -> list:
+    """Scan document-text blocks for unfilled author placeholders.
+
+    Deliberately conservative (repeated x tokens and bracketed insert/TBD
+    markers only) and scoped to prose block types, so code listings from a
+    repository walk cannot flood the report with hex strings or templates.
+    """
+    found: list = []
+    for s_idx, section in enumerate(sections):
+        for block in section.get("blocks", []):
+            if block.get("type") not in _PLACEHOLDER_BLOCK_TYPES:
+                continue
+            texts: list = []
+            if isinstance(block.get("text"), str):
+                texts.append(block["text"])
+            for item in block.get("items", []) or []:
+                if isinstance(item, dict) and isinstance(item.get("text"), str):
+                    texts.append(item["text"])
+                elif isinstance(item, str):
+                    texts.append(item)
+            for row in block.get("rows", []) or []:
+                for cell in row or []:
+                    if isinstance(cell, str):
+                        texts.append(cell)
+            for text in texts:
+                for rx in _PLACEHOLDER_RES:
+                    for match in rx.finditer(text):
+                        start = max(0, match.start() - 40)
+                        end = min(len(text), match.end() + 40)
+                        found.append(
+                            {
+                                "section_index": s_idx,
+                                "section_title": section.get("title") or "",
+                                "block_type": block.get("type"),
+                                "token": match.group(0),
+                                "context": text[start:end].strip(),
+                            }
+                        )
+                        if len(found) >= _PLACEHOLDER_CAP:
+                            return found
+    return found
 
 
 def main(argv: list | None = None) -> int:
@@ -2712,6 +2771,20 @@ def main(argv: list | None = None) -> int:
             f"{walk['file_count_capped']} over the file cap.",
             file=sys.stderr,
         )
+    placeholders = model.get("placeholders") or []
+    if placeholders:
+        print(
+            f"NOTE: {len(placeholders)} unfilled source placeholder(s) detected "
+            f"(see the model's 'placeholders' list) - surface them to the user "
+            f"during the design intake; never invent the missing value.",
+            file=sys.stderr,
+        )
+        for entry in placeholders[:5]:
+            print(
+                f"  - [{entry['token']}] in section {entry['section_index']}: "
+                f"...{entry['context'][:90]}...",
+                file=sys.stderr,
+            )
     print(
         f"Wrote {out_path} ({len(model['sources'])} source(s), "
         f"{len(model['sections'])} section(s)).",

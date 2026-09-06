@@ -61,6 +61,26 @@ def _load_real_patterns() -> list[str]:
 
 REAL_PATTERNS: list[str] = _load_real_patterns()
 
+# Fixed pattern list for tests about the PARSER's structural handling (compound
+# commands, if/else, loops, prefix variable assignments) rather than about catalog
+# policy.
+#
+# v3.17.0 Phase 1: these tests used REAL_PATTERNS with `echo` as filler in their loop
+# and branch bodies, so the Phase 1.1 hardening -- which removed `Bash(echo *)`,
+# `Bash(cat *)`, and `Bash(printf *)` because Claude Code's built-in read-only set
+# already covers them with real redirect analysis -- broke 7 parser tests that have
+# nothing to do with which commands the catalog ships. Pinning them to a fixed list
+# keeps each test measuring the one thing it was written to measure, and stops the next
+# catalog-policy change from breaking them again. Tests that ARE about policy keep
+# using REAL_PATTERNS.
+STRUCTURAL_PATTERNS: list[str] = [
+    "echo", "echo *", "ls", "ls *", "cd", "cd *", "wc", "wc *",
+    "basename", "basename *", "git status", "git status *",
+    # Condition commands used by the if/elif fixtures. Both forms are present in the
+    # real baseline, so this list mirrors it rather than inventing an allowance.
+    "[ *", "test *",
+]
+
 
 def _run_hook(payload: dict[str, Any]) -> tuple[str, int]:
     """Run the hook script as a subprocess, returning (stdout, returncode)."""
@@ -357,9 +377,6 @@ class TestCommandIsAllowed:
     def test_git_ls_files(self):
         assert command_is_allowed("git ls-files --others", REAL_PATTERNS)
 
-    def test_find_basic(self):
-        assert command_is_allowed("find . -name '*.py'", REAL_PATTERNS)
-
     def test_grep_pattern(self):
         assert command_is_allowed("grep -r 'import' src/", REAL_PATTERNS)
 
@@ -369,17 +386,11 @@ class TestCommandIsAllowed:
     def test_tail(self):
         assert command_is_allowed("tail -f log.txt", REAL_PATTERNS)
 
-    def test_cat(self):
-        assert command_is_allowed("cat README.md", REAL_PATTERNS)
-
     def test_ls(self):
         assert command_is_allowed("ls -la", REAL_PATTERNS)
 
     def test_wc(self):
         assert command_is_allowed("wc -l file.txt", REAL_PATTERNS)
-
-    def test_echo(self):
-        assert command_is_allowed("echo hello", REAL_PATTERNS)
 
     def test_cd(self):
         assert command_is_allowed("cd /tmp", REAL_PATTERNS)
@@ -423,9 +434,6 @@ class TestCommandIsAllowed:
 
     def test_jq_stdin(self):
         assert command_is_allowed("jq '.'", REAL_PATTERNS)
-
-    def test_awk_print(self):
-        assert command_is_allowed("awk '{print $1}' file.txt", REAL_PATTERNS)
 
     def test_cut(self):
         assert command_is_allowed("cut -d',' -f1 file.csv", REAL_PATTERNS)
@@ -514,17 +522,6 @@ class TestCommandIsAllowed:
     def test_cd_and_git_log(self):
         assert command_is_allowed("cd /tmp && git log --oneline", REAL_PATTERNS)
 
-    def test_find_pipe_head(self):
-        assert command_is_allowed("find . -name '*.py' | head -10", REAL_PATTERNS)
-
-    def test_find_pipe_xargs_grep_pipe_head(self):
-        """Exact failing command from screenshot 2 must now be allowed."""
-        cmd = (
-            'find "/c/src/core" -name "__init__.py" -type f'
-            ' | xargs grep -l "def\\|import" | head -20'
-        )
-        assert command_is_allowed(cmd, REAL_PATTERNS)
-
     def test_screenshot1_full_command(self):
         """cd && git log … $(… || …)..HEAD must be auto-approved."""
         cmd = (
@@ -568,11 +565,6 @@ class TestCommandIsAllowed:
             "git log --format='%H %s' | head -20", REAL_PATTERNS
         )
 
-    def test_find_pipe_xargs_wc(self):
-        assert command_is_allowed(
-            "find . -name '*.py' | xargs wc -l", REAL_PATTERNS
-        )
-
     def test_od_pipeline_auto_approved(self):
         """Regression: cd && sed -n … | od -c | head must be auto-approved.
 
@@ -588,6 +580,61 @@ class TestCommandIsAllowed:
         assert command_is_allowed(cmd, REAL_PATTERNS)
 
     # ── Negative: commands that must NOT be auto-approved ─────────────────
+
+    # v3.17.0 Phase 1.1 moved the next four out of the positive section. These commands
+    # are not read-only at the side-effect level, so the hardening removed their patterns
+    # from the baseline (the I6 invariant: classify by what an invocation CAN do, not by
+    # the command's name):
+    #   * awk executes its program argument -- awk 'BEGIN{print > "/path"}' writes a file.
+    #   * find admits -delete, -exec, -execdir, -fprint and -fprintf, and no prefix
+    #     pinning can exclude a flag that appears later in the command.
+    #
+    # Little real capability is lost, which is why the removal was the right trade:
+    # Claude Code auto-approves a BUILT-IN read-only set that already includes find (and
+    # echo, cat, head) using real semantic analysis, and prompts on exactly the dangerous
+    # forms -- find with -exec or -delete, and unquoted globs for write-capable commands.
+    # That analysis is strictly better than the glob it replaced. This hook only stops
+    # PRE-approving; it never denies, so the platform's own read-only handling still
+    # applies. See docs/releases/v3/v3.17/development/permission-matcher-findings.md, findings 3
+    # and 5. The last test guards the blast radius: the rest of the pipeline vocabulary
+    # must survive the find removals.
+
+    def test_awk_not_auto_approved(self):
+        """awk executes its program argument, so it can write files."""
+        assert not command_is_allowed("awk '{print $1}' file.txt", REAL_PATTERNS)
+
+    def test_find_pipe_head_not_auto_approved(self):
+        assert not command_is_allowed("find . -name '*.py' | head -10", REAL_PATTERNS)
+
+    def test_find_pipe_xargs_grep_pipe_head_not_auto_approved(self):
+        """Exact failing command from screenshot 2 must now be allowed."""
+        cmd = (
+            'find "/c/src/core" -name "__init__.py" -type f'
+            ' | xargs grep -l "def\\|import" | head -20'
+        )
+        assert not command_is_allowed(cmd, REAL_PATTERNS)
+
+    def test_find_pipe_xargs_wc_not_auto_approved(self):
+        assert not command_is_allowed(
+            "find . -name '*.py' | xargs wc -l", REAL_PATTERNS
+        )
+
+    # Same class, Tier B of the same hardening: find, cat and echo are all in Claude
+    # Code's built-in read-only set, which analyzes redirects for real. A glob entry for
+    # them could only WIDEN the grant past that analysis (echo * admits `echo x > file`),
+    # so removing them is coverage-neutral and security-positive.
+
+    def test_find_basic_not_auto_approved(self):
+        assert not command_is_allowed("find . -name '*.py'", REAL_PATTERNS)
+
+    def test_cat_not_auto_approved(self):
+        assert not command_is_allowed("cat README.md", REAL_PATTERNS)
+
+    def test_echo_not_auto_approved(self):
+        assert not command_is_allowed("echo hello", REAL_PATTERNS)
+
+    def test_head_still_auto_approved_on_its_own(self):
+        assert command_is_allowed("head -10 file.py", REAL_PATTERNS)
 
     def test_npm_install_not_allowed(self):
         assert not command_is_allowed("npm install", REAL_PATTERNS)
@@ -680,7 +727,7 @@ class TestVariableAssignmentAllowance:
 
     def test_prefix_var_assign_followed_by_command(self):
         """FOO=bar echo hello -- prefix assignment before allowed command."""
-        assert command_is_allowed("FOO=bar echo hello", REAL_PATTERNS)
+        assert command_is_allowed("FOO=bar echo hello", STRUCTURAL_PATTERNS)
 
     def test_for_loop_with_var_assign_body(self):
         """The exact command that triggered the original false-negative."""
@@ -690,7 +737,7 @@ class TestVariableAssignmentAllowance:
             'echo "$(basename "$category"): $count"; '
             "done"
         )
-        assert command_is_allowed(cmd, REAL_PATTERNS)
+        assert command_is_allowed(cmd, STRUCTURAL_PATTERNS)
 
     def test_cd_then_for_loop_with_var_assign(self):
         """Full compound command from the bug report."""
@@ -701,7 +748,7 @@ class TestVariableAssignmentAllowance:
             ' echo "$(basename "$category"): $count";'
             " done"
         )
-        assert command_is_allowed(cmd, REAL_PATTERNS)
+        assert command_is_allowed(cmd, STRUCTURAL_PATTERNS)
 
     def test_var_assign_with_dangerous_inner_cmd_blocked(self):
         """OUT=$(rm -rf /tmp) must still be blocked despite the assignment wrapper."""
@@ -717,19 +764,19 @@ class TestIfElseAllowance:
 
     def test_simple_if_then(self):
         assert command_is_allowed(
-            "if [ -f foo.txt ]; then echo yes; fi", REAL_PATTERNS
+            "if [ -f foo.txt ]; then echo yes; fi", STRUCTURAL_PATTERNS
         )
 
     def test_if_then_else(self):
         """else branch must also be checked and not cause a false negative."""
         assert command_is_allowed(
-            "if [ -f foo.txt ]; then echo yes; else echo no; fi", REAL_PATTERNS
+            "if [ -f foo.txt ]; then echo yes; else echo no; fi", STRUCTURAL_PATTERNS
         )
 
     def test_if_elif_else(self):
         assert command_is_allowed(
             "if [ -f a ]; then echo a; elif [ -f b ]; then echo b; else echo c; fi",
-            REAL_PATTERNS,
+            STRUCTURAL_PATTERNS,
         )
 
     def test_if_else_with_dangerous_branch_blocked(self):
@@ -744,7 +791,7 @@ class TestSelectConstruct:
 
     def test_select_loop_allowed(self):
         assert command_is_allowed(
-            "select opt in a b c; do echo \"$opt\"; done", REAL_PATTERNS
+            "select opt in a b c; do echo \"$opt\"; done", STRUCTURAL_PATTERNS
         )
 
     def test_select_with_dangerous_body_blocked(self):

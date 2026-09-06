@@ -86,6 +86,20 @@ The first row is the reason this skill exists in this catalog specifically: the 
 - Rationale: control layer 9 instruments the trust handoff so a write that is later executed leaves a correlated record, which is the continuous-monitoring category. The skill's honest-boundary section records where that monitoring cannot reach.
 - Source: https://www.nist.gov/cyberframework
 
+## D3FEND D3-CR - Credential Revoking
+
+- Framework: MITRE D3FEND, Evict tactic.
+- Short title: "Credential Revoking".
+- Rationale: the deterministic response class in step 7 names credential revocation as one of three automated responses to an architectural-assumption violation that no legitimate operation produces.
+- Source: https://d3fend.mitre.org/technique/d3f:CredentialRevoking/
+
+## D3FEND D3-PT - Process Termination
+
+- Framework: MITRE D3FEND, Evict tactic.
+- Short title: "Process Termination".
+- Rationale: terminating the workload is the strongest of the three deterministic responses in step 7, reserved for violations that pass the qualifying test and have been observed stopping a test event.
+- Source: https://d3fend.mitre.org/technique/d3f:ProcessTermination/
+
 ---
 
 ## Attribution

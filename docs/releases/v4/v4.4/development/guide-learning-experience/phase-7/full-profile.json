@@ -1,0 +1,484 @@
+{
+  "duration_s": 5590.171999999904,
+  "finished_at": "2026-09-05T00:18:22Z",
+  "groups": [
+    {
+      "commands": [
+        {
+          "duration_s": 0.14099999994505197,
+          "exit_code": 0,
+          "group": "catalog-parse",
+          "name": "skills.json parses",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.10900000005494803,
+          "exit_code": 0,
+          "group": "catalog-parse",
+          "name": "bundles.json parses",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.125,
+          "exit_code": 0,
+          "group": "catalog-parse",
+          "name": "workflows.json parses",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.125,
+          "exit_code": 0,
+          "group": "catalog-parse",
+          "name": "templates.json parses",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "catalog-parse",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 3.875,
+          "exit_code": 2,
+          "group": "hygiene",
+          "name": "validate_unicode_safety",
+          "output": "docs\\releases\\v4\\v4.4\\development\\guide-learning-experience\\phase-6\\ADVERSARIAL-REPORT.md:1:1: unsafe Unicode U+FEFF (ZERO WIDTH NO-BREAK SPACE / BOM)\ndocs\\releases\\v4\\v4.4\\development\\guide-learning-experience\\phase-6\\focus-retest.txt: IO: not valid UTF-8: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte\n\nvalidate_unicode_safety: 1 file(s) could not be read or decoded; 1 error(s) and 0 warning(s) in the 2368 file(s) scanned.\n",
+          "reason": "exit 2",
+          "status": "fail"
+        },
+        {
+          "duration_s": 1.702999999979511,
+          "exit_code": 1,
+          "group": "hygiene",
+          "name": "validate_no_personal_paths",
+          "output": "docs\\releases\\v4\\v4.9\\analysis\\interactive-handbooks-source-analysis.md:18:27: personal path leak: '<user-home>' (username='BEDOURTHE')\ndocs\\releases\\v4\\v4.9\\analysis\\interactive-handbooks-source-analysis.md:18:25: personal path leak: '<user-home>' (username='BEDOURTHE')\n\nvalidate_no_personal_paths: 2 finding(s) in 2273 scanned file(s).\n",
+          "reason": "exit 1",
+          "status": "fail"
+        },
+        {
+          "duration_s": 0.25,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "check_docs_conventions",
+          "output": "OK: docs conventions hold under <workspace>\\docs\\releases\\v4\\v4.4\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.10899999993853271,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "validate_doc_budgets",
+          "output": "  8 budgeted doc(s) within ceiling\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.5,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "check_memory_integration_budget",
+          "output": "OK   <workspace>/docs/policy/memory-integration-prose.md: 222 tokens (tiktoken) / 500\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "hygiene",
+      "skipped_reason": "",
+      "status": "fail"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.5790000000270084,
+          "exit_code": 1,
+          "group": "interpreters",
+          "name": "check_interpreter_resolution",
+          "output": "[interpreters] FAIL bash: PATH bash is unusable (exited 127: /bin/bash: C:UsersBEDOUR~1AppDataLocalTemptmpmaf2o5gknexus-probe.sh: No such file or directory); a working Git Bash exists at C:\\Program Files\\Git\\bin\\bash.exe. Put its directory ahead of System32 on PATH so hooks the host launches as `bash <script>` can run.\n[interpreters] A hook registered as `bash <script>` would not run on this host. Hooks would be silently inert rather than reporting an error.\n",
+          "reason": "exit 1",
+          "status": "fail"
+        }
+      ],
+      "name": "interpreters",
+      "skipped_reason": "",
+      "status": "fail"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.625,
+          "exit_code": 0,
+          "group": "catalog",
+          "name": "validate_skills",
+          "output": "Scanned 329 skills under catalog\\skills (bundle audit)\n\nRESULT: PASS (0 errors, 64 warnings)\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.1559999999590218,
+          "exit_code": 0,
+          "group": "catalog",
+          "name": "check_agentskills_conformance",
+          "output": "Scanned 329 skills under <workspace>\\catalog\\skills\nINFO: extra top-level keys beyond the agentskills.io recognized set (permitted): atlas_techniques, attribution, author, category, d3fend_techniques, language, languages, long_description, mitre_attack, mitre_f3, nist_ai_rmf, nist_csf, overview_l1, priority, summary_l0, tags, tools_required, version\nINFO: grandfathered over-1024-character descriptions (13): deepseek-harness, mcp-builder, cross-artifact-analyzer, agentic-endpoint-hardening, document-to-interactive-html, continuous-learning, product-strategy, project-constitution, session-query, skill-create, skill-eval-loop, skill-stocktake, tasks-to-issues\nRESULT: PASS (0 errors, 329 skills scanned)\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.1720000000204891,
+          "exit_code": 0,
+          "group": "catalog",
+          "name": "build_framework_coverage",
+          "output": "OK: framework coverage in sync (docs/framework-coverage.md, docs/attack-navigator-layer.json)\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.43700000003445894,
+          "exit_code": 0,
+          "group": "catalog",
+          "name": "run_trigger_evals",
+          "output": "Scanned 329 skill descriptions under catalog\\skills (threshold 0.5, margin 1.15, gate mode)\n  Routing coverage: 88/329 skills have trigger-cases.json (513 lexical case(s) evaluated, 0 non-lexical skipped)\n  WARN: 241/329 skills have no trigger-cases.json (incremental coverage; never fails the gate)\n\nRESULT: PASS (0 un-allowlisted collisions, 37 allowlisted; 0 routing failures across 88 skill(s) with cases)\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.3440000000409782,
+          "exit_code": 0,
+          "group": "catalog",
+          "name": "check_registry_entries",
+          "output": "  registry entries: structure and reachability agree with the catalog\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 5.358999999938533,
+          "exit_code": 0,
+          "group": "catalog",
+          "name": "scan_skill_security",
+          "output": "Skill-security scan: catalog/skills, catalog/mcp-configs\n  files scanned: 1185   findings: 42   score: 100/100 (CRITICAL)\n  severity: critical=0  high=0  medium=38  low=4\n\n  [MEDIUM  ] class  1 Prompt Injection - Instruction-override directive\n             catalog/skills/security/prompt-injection-defense/SKILL.md:65\n             > - \"Ignore previous instructions\" patterns and any attempt to override the user or system prompt.\n             Text instructs the agent to ignore prior instructions -- an instruction-override aimed at the system prompt or the user's directives.\n             frameworks: ATTACK:T1059, ATLAS:AML.T0051, NIST-CSF:DE.AE\n\n  [MEDIUM  ] class  1 Prompt Injection - Instruction-override directive\n             catalog/skills/security/prompt-injection-defense/SKILL.md:122\n             > - [ ] Present injection cues (imperative shift, \"ignore previous instructions\", encoded or obfuscated payloads, instructions in data fields, exfiltration reques\n             Text instructs the agent to ignore prior instructions -- an instruction-override aimed at the system prompt or the user's directives.\n             frameworks: ATTACK:T1059, ATLAS:AML.T0051, NIST-CSF:DE.AE\n\n  [MEDIUM  ] class  1 Prompt Injection - Instruction-override directive\n             catalog/skills/security/skill-security-scan/SKILL.md:53\n             > - **Producer catalog** (you are scanning Nexus-Hub's own skills, or any catalog whose job is to *teach* security): expect a high rate of benign matches. A skill\n             Text instructs the agent to ignore prior instructions -- an instruction-override aimed at the system prompt or the user's directives.\n             frameworks: ATTACK:T1059, ATLAS:AML.T0051, NIST-CSF:DE.AE\n\n  [MEDIUM  ] class  1 Prompt Injection - Instruction-override directive\n             catalog/skills/security/skill-security-scan/SKILL.md:63\n             > - **Intent of surrounding text**: \"ignore previous instructions\" inside a section *teaching how to detect prompt injection* is benign; the same string positione\n             Text instructs the agent to ignore prior instructions -- an instruction-override aimed at the system prompt or the user's directives.\n             frameworks: ATTACK:T1059, ATLAS:AML.T0051, NIST-CSF:DE.AE\n\n  [MEDIUM  ] class  1 Prompt Injection - Instruction-override directive\n             catalog/skills/security/skill-security-scan/SKILL.md:91\n             > | \"The scanner flagged it, so it is a vulnerability -- block the install.\" | The deterministic detector cannot tell an attack from a documentation example. A pr\n             Text instructs the agent to ignore prior instructions -- an instruction-override aimed at the system prompt or the user's directives.\n             frameworks: ATTACK:T1059, ATLAS:AML.T0051, NIST-CSF:DE.AE\n\n  [MEDIUM  ] class  1 Prompt Injection - Instruction-override directive\n             catalog/skills/workflow/cross-project-comparison/SKILL.md:73\n             > - **Prompt injection and embedded agent-directed instructions**: text that attempts to override the agent's instructions, hidden or obfuscated instructions (zer\n             Text instructs the agent to ignore prior instructions -- an instruction-override aimed at the system prompt or the user's directives.\n             frameworks: ATTACK:T1059, ATLAS:AML.T0051, NIST-CSF:DE.AE\n\n  [MEDIUM  ] class  2 Data Exfiltration - Network egress: requests.get\n             catalog/skills/specialized-domains/document-to-interactive-html/scripts/fetch_stock_media.py:171\n             > resp = requests.get(url, params=params, headers=headers, timeout=HTTP_TIMEOUT)\n             requests.get makes an outbound network call. Confirm what data leaves the machine and to where.\n             frameworks: ATTACK:T1041, ATTACK:T1567, ATLAS:AML.T0024, NIST-CSF:PR.DS\n\n  [MEDIUM  ] class  2 Data Exfiltration - Network egress: urllib.request.Request\n             catalog/skills/specialized-domains/document-to-interactive-html/scripts/fetch_stock_media.py:179\n             > req = urllib.request.Request(full, headers=headers)  # noqa: S310 (https-only, validated)\n             urllib.request.Request makes an outbound network call. Confirm what data leaves the machine and to where.\n             frameworks: ATTACK:T1041, ATTACK:T1567, ATLAS:AML.T0024, NIST-CSF:PR.DS\n\n  [MEDIUM  ] class  2 Data Exfiltration - Network egress: urllib.request.urlopen\n             catalog/skills/specialized-domains/document-to-interactive-html/scripts/fetch_stock_media.py:180\n             > with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310\n             urllib.request.urlopen makes an outbound network call. Confirm what data leaves the machine and to where.\n             frameworks: ATTACK:T1041, ATTACK:T1567, ATLAS:AML.T0024, NIST-CSF:PR.DS\n\n  [MEDIUM  ] class  2 Data Exfiltration - Network egress: requests.get\n             catalog/skills/specialized-domains/document-to-interactive-html/scripts/fetch_stock_media.py:191\n             > with requests.get(url, headers=headers, timeout=HTTP_TIMEOUT, stream=True) as resp:\n             requests.get makes an outbound network call. Confirm what data leaves the machine and to where.\n             frameworks: ATTACK:T1041, ATTACK:T1567, ATLAS:AML.T0024, NIST-CSF:PR.DS\n\n  [MEDIUM  ] class  2 Data Exfiltration - Network egress: urllib.request.Request\n             catalog/skills/specialized-domains/document-to-interactive-html/scripts/fetch_stock_media.py:203\n             > req = urllib.request.Request(url, headers=headers)  # noqa: S310 (https validated)\n             urllib.request.Request makes an outbound network call. Confirm what data leaves the machine and to where.\n             frameworks: ATTACK:T1041, ATTACK:T1567, ATLAS:AML.T0024, NIST-CSF:PR.DS\n\n  [MEDIUM  ] class  2 Data Exfiltration - Network egress: urllib.request.urlopen\n             catalog/skills/specialized-domains/document-to-interactive-html/scripts/fetch_stock_media.py:204\n             > with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:  # noqa: S310\n             urllib.request.urlopen makes an outbound network call. Confirm what data leaves the machine and to where.\n             frameworks: ATTACK:T1041, ATTACK:T1567, ATLAS:AML.T0024, NIST-CSF:PR.DS\n\n  [MEDIUM  ] class  2 Data Exfiltration - Credential read + network egress (self-authenticating API client)\n             catalog/skills/specialized-domains/document-to-interactive-html/scripts/fetch_stock_media.py:481\n             > env = os.environ.get(\"PEXELS_API_KEY\", \"\").strip()\n             The script reads an environment credential and makes a network call, but the credential's service (pexels) matches an egress host the script calls -- it looks like an API client sending its own key to its own service, not credential exfiltration to an unrelated host. Verify the key is used only as authentication to that service.\n             frameworks: ATTACK:T1041, ATTACK:T1567, ATLAS:AML.T0024, NIST-CSF:PR.DS\n\n  [MEDIUM  ] class  3 Privilege Escalation - Hardcoded secret: Generic secret assignment\n             catalog/skills/orchestration/agent-access-policy/scripts/capability-grant-broker.py:33\n             A Generic secret assignment appears in this file. Verify it is not a live credential; if real, rotate it and load from the environment instead.\n             frameworks: ATTACK:T1548, ATTACK:T1552, NIST-CSF:PR.AA\n\n  [MEDIUM  ] class  6 Output Handling - Unsafe output sink\n             catalog/skills/code-review/security-review/SKILL.md:129\n             > - XSS (innerHTML, dangerouslySetInnerHTML, unescaped template output)\n             Untrusted output rendered as HTML without sanitization (XSS sink).\n             frameworks: ATTACK:T1059, NIST-CSF:PR.PS\n\n  [MEDIUM  ] class  6 Output Handling - Unsafe output sink\n             catalog/skills/code-review/security-review/SKILL.md:359\n             > - XSS (innerHTML, dangerouslySetInnerHTML)\n             Untrusted output rendered as HTML without sanitization (XSS sink).\n             frameworks: ATTACK:T1059, NIST-CSF:PR.PS\n\n  [MEDIUM  ] class  6 Output Handling - Unsafe output sink\n             catalog/skills/code-review/security-review/references/security-checklist.md:11\n             > | **XSS** | Unescaped user input rendered in HTML, `innerHTML`, `dangerouslySetInnerHTML` |\n             Untrusted output rendered as HTML without sanitization (XSS sink).\n             frameworks: ATTACK:T1059, NIST-CSF:PR.PS\n\n  [MEDIUM  ] class  7 System Prompt Leakage - System-prompt exfiltration prompt\n             catalog/skills/security/ai-attack-patterns/SKILL.md:84\n             > Record: did the model leak the system prompt, change persona, or follow the injected instruction instead of the legitimate task? Each \"yes\" is a finding.\n             Text is engineered to elicit the agent's system prompt or hidden instructions.\n             frameworks: ATLAS:AML.T0051, NIST-CSF:DE.AE\n\n  [MEDIUM  ] class  9 Tool Misuse - System-path write\n             catalog/skills/workflow/org-standards-authoring/references/enforcement-escalation.md:13\n             > | Claude Code | Managed policy `CLAUDE.md`, managed settings, or company standards linked through `.claude/rules/` | Managed policy and settings are administere\n             A file/shell operation targets a sensitive system path -- a legitimate tool misdirected toward a harmful end.\n             frameworks: ATTACK:T1059, ATLAS:AML.T0053, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 10 Rogue Agent - Self-modification / persistence\n             catalog/skills/ai-development/mcp-builder/SKILL.md:3\n             > description: \"Build a local MCP (Model Context Protocol) server in Python (FastMCP) or TypeScript / Node (the official MCP SDK) - tool definitions, structured o\n             Skill modifies its own definition or the agent's config -- rogue-agent self-modification.\n             frameworks: ATTACK:T1546, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 10 Rogue Agent - Self-modification / persistence\n             catalog/skills/ai-development/prompt-engineering/references/effort-level-strategy.md:17\n             > Nexus-Hub ships `\"effortLevel\": \"high\"` as the Claude Code installer default (raised from `medium` in v4.4.0), with the matching `env.CLAUDE_CODE_EFFORT_LEVEL`\n             Skill modifies its own definition or the agent's config -- rogue-agent self-modification.\n             frameworks: ATTACK:T1546, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 10 Rogue Agent - Self-modification / persistence\n             catalog/skills/developer-experience/skill-description-authoring/SKILL.md:3\n             > description: Author and rewrite SKILL.md frontmatter descriptions so they stay single-line, ASCII-sanitized, and preserve the four matching trigger nouns (produ\n             Skill modifies its own definition or the agent's config -- rogue-agent self-modification.\n             frameworks: ATTACK:T1546, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 10 Rogue Agent - Self-modification / persistence\n             catalog/skills/developer-experience/skill-description-authoring/SKILL.md:5\n             > overview_l1: \"Write and rewrite the SKILL.md description so the matcher loads the skill. Use when authoring, compacting, or repairing a description that stopped\n             Skill modifies its own definition or the agent's config -- rogue-agent self-modification.\n             frameworks: ATTACK:T1546, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 10 Rogue Agent - Self-modification / persistence\n             catalog/skills/developer-experience/skill-description-authoring/references/agent-writing-theory.md:3\n             > Six authoring concepts that keep a skill cheap to load, cheap to follow, and still able to change the agent's behavior. This file is Tier 3: read it when drafti\n             Skill modifies its own definition or the agent's config -- rogue-agent self-modification.\n             frameworks: ATTACK:T1546, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 10 Rogue Agent - Self-modification / persistence\n             catalog/skills/developer-experience/skill-description-authoring/references/agent-writing-theory.md:116\n             > - `skill-description-authoring` has no hard setup dependency. You can rewrite a description from the SKILL.md in front of you.\n             Skill modifies its own definition or the agent's config -- rogue-agent self-modification.\n             frameworks: ATTACK:T1546, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 10 Rogue Agent - Self-modification / persistence\n             catalog/skills/developer-experience/skill-description-authoring/references/agent-writing-theory.md:123\n             > Use this when drafting or editing a SKILL.md. Every item maps to one concept above.\n             Skill modifies its own definition or the agent's config -- rogue-agent self-modification.\n             frameworks: ATTACK:T1546, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 10 Rogue Agent - Self-modification / persistence\n             catalog/skills/security/skill-security-scan/references/detection-classes.md:20\n             > | 10 | Rogue Agent (2) | Self-modification or unauthorized persistence (the skill installs itself, edits its own triggers, or survives beyond its task). | Does\n             Skill modifies its own definition or the agent's config -- rogue-agent self-modification.\n             frameworks: ATTACK:T1546, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 10 Rogue Agent - Self-modification / persistence\n             catalog/skills/workflow/skill-stocktake/SKILL.md:117\n             > When a `language-specialists/*-expert` skill, or a similarly shaped `framework-specialists/*-expert` skill, has mostly expository substantial sections, label it\n             Skill modifies its own definition or the agent's config -- rogue-agent self-modification.\n             frameworks: ATTACK:T1546, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 12 Behavioral AST - Process execution: subprocess.run\n             catalog/skills/ai-development/model-prompting-research/scripts/apply_prompting_edits.py:196\n             > result = subprocess.run(\n             subprocess.run spawns an external process. Verify the command is a fixed argument list, not built from untrusted input.\n             frameworks: ATTACK:T1059, ATTACK:T1620, D3FEND:D3-DA, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 12 Behavioral AST - Process execution: subprocess.run\n             catalog/skills/ai-development/model-prompting-research/scripts/apply_prompting_edits.py:241\n             > result = subprocess.run(\n             subprocess.run spawns an external process. Verify the command is a fixed argument list, not built from untrusted input.\n             frameworks: ATTACK:T1059, ATTACK:T1620, D3FEND:D3-DA, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 12 Behavioral AST - Process execution: subprocess.run\n             catalog/skills/ai-development/model-prompting-research/scripts/apply_prompting_edits.py:248\n             > shell = subprocess.run(\n             subprocess.run spawns an external process. Verify the command is a fixed argument list, not built from untrusted input.\n             frameworks: ATTACK:T1059, ATTACK:T1620, D3FEND:D3-DA, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 12 Behavioral AST - Process execution: subprocess.run\n             catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py:326\n             > return subprocess.run(\n             subprocess.run spawns an external process. Verify the command is a fixed argument list, not built from untrusted input.\n             frameworks: ATTACK:T1059, ATTACK:T1620, D3FEND:D3-DA, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 12 Behavioral AST - Process execution: subprocess.run\n             catalog/skills/code-cleanup/docs-layout-refactor/scripts/link-baseline.py:31\n             > result = subprocess.run(\n             subprocess.run spawns an external process. Verify the command is a fixed argument list, not built from untrusted input.\n             frameworks: ATTACK:T1059, ATTACK:T1620, D3FEND:D3-DA, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 12 Behavioral AST - Process execution: subprocess.run\n             catalog/skills/orchestration/agent-access-policy/scripts/capability-grant-broker.py:359\n             > completed = subprocess.run([*prefix, *plan.command], shell=False, check=False)\n             subprocess.run spawns an external process. Verify the command is a fixed argument list, not built from untrusted input.\n             frameworks: ATTACK:T1059, ATTACK:T1620, D3FEND:D3-DA, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 12 Behavioral AST - Process execution: subprocess.run\n             catalog/skills/specialized-domains/document-to-interactive-html/scripts/ensure_render_env.py:197\n             > result = subprocess.run(command.split(), check=False)\n             subprocess.run spawns an external process. Verify the command is a fixed argument list, not built from untrusted input.\n             frameworks: ATTACK:T1059, ATTACK:T1620, D3FEND:D3-DA, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 12 Behavioral AST - Process execution: subprocess.run\n             catalog/skills/specialized-domains/document-to-interactive-html/scripts/generate_local_image.py:218\n             > subprocess.run(parts, check=True, timeout=CLI_TIMEOUT, shell=False,  # noqa: S603\n             subprocess.run spawns an external process. Verify the command is a fixed argument list, not built from untrusted input.\n             frameworks: ATTACK:T1059, ATTACK:T1620, D3FEND:D3-DA, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 12 Behavioral AST - Process execution: subprocess.run\n             catalog/skills/workflow/demo-capture/scripts/capture-demo.py:185\n             > proc = subprocess.run(cmd, capture_output=True, text=True, check=False)\n             subprocess.run spawns an external process. Verify the command is a fixed argument list, not built from untrusted input.\n             frameworks: ATTACK:T1059, ATTACK:T1620, D3FEND:D3-DA, NIST-CSF:DE.CM\n\n  [MEDIUM  ] class 13 Taint Tracking - Tainted input reaches subprocess.run\n             catalog/skills/specialized-domains/document-to-interactive-html/scripts/generate_local_image.py:218\n             > subprocess.run(parts, check=True, timeout=CLI_TIMEOUT, shell=False,  # noqa: S603\n             External input flows into a process-execution sink -- verify the command cannot be hijacked.\n             frameworks: ATTACK:T1059, ATTACK:T1041, D3FEND:D3-DA, NIST-CSF:DE.CM\n\n  [LOW     ] class  2 Data Exfiltration - Exfiltration directive\n             catalog/skills/security/advanced-attack-patterns/SKILL.md:151\n             > - **Cryptographic side channels**: RSA decryption, ECDSA signing, or AES operations implemented without constant-time primitives leak the secret through observa\n             Text directs the agent to ship secrets/credentials off the machine -- a data-exfiltration directive (the executable form is detected by the AST analyzer).\n             frameworks: ATTACK:T1041, ATTACK:T1567, ATLAS:AML.T0024, NIST-CSF:PR.DS\n\n  [LOW     ] class 12 Behavioral AST - Reflective attribute access: getattr\n             catalog/skills/specialized-domains/document-to-interactive-html/scripts/extract_content.py:1151\n             > for obj in getattr(page, kind, None) or []:\n             getattr resolves an attribute name at runtime -- reflection that can reach unexpected callables.\n             frameworks: ATTACK:T1059, ATTACK:T1620, D3FEND:D3-DA, NIST-CSF:DE.CM\n\n  [LOW     ] class 12 Behavioral AST - Reflective attribute access: getattr\n             catalog/skills/specialized-domains/document-to-interactive-html/scripts/generate_local_image.py:173\n             > pipe_cls = getattr(diffusers, spec[\"pipeline\"], None)\n             getattr resolves an attribute name at runtime -- reflection that can reach unexpected callables.\n             frameworks: ATTACK:T1059, ATTACK:T1620, D3FEND:D3-DA, NIST-CSF:DE.CM\n\n  [LOW     ] class 16 MCP Tool Poisoning - MCP server 'supabase' pins a moving package ref\n             catalog/mcp-configs/mcp-servers.json:27\n             > @supabase/mcp-server-supabase@latest\n             '@supabase/mcp-server-supabase@latest' resolves a moving tag at spawn time; pin a version for a reproducible, auditable supply chain.\n             frameworks: ATTACK:T1195, ATLAS:AML.T0051, D3FEND:D3-NTA, NIST-CSF:DE.AE\n\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "catalog",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 3.672000000020489,
+          "exit_code": 0,
+          "group": "security",
+          "name": "scan_supply_chain_iocs",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.2190000000409782,
+          "exit_code": 0,
+          "group": "security",
+          "name": "validate_permission_baseline",
+          "output": "  claude-permissions.json OK (glob matcher)\n  gemini-permissions.json OK (prefix matcher)\nPermission baseline is read-only at the side-effect level.\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.26599999994505197,
+          "exit_code": 0,
+          "group": "security",
+          "name": "check_no_outbound",
+          "output": "check_no_outbound: OK (<workspace>/extensions/nexus-context-compressor)\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "security",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.39000000001396984,
+          "exit_code": 0,
+          "group": "workflows",
+          "name": "validate_workflow_security",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.2970000000204891,
+          "exit_code": 0,
+          "group": "workflows",
+          "name": "check_required_check_coverage",
+          "output": "Required-check coverage: OK -- 10 declared context(s) across 2 branch(es), every one produced unconditionally.\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "workflows",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.39099999994505197,
+          "exit_code": 0,
+          "group": "platform-contracts",
+          "name": "check_installer_parity",
+          "output": "installer parity: PASS\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.2029999999795109,
+          "exit_code": 0,
+          "group": "platform-contracts",
+          "name": "check_base_template_parity",
+          "output": "base-template parity: 5 of 5 lockstep templates present (templates/ai-instructions)\n  [present] base-claude.md\n  [present] base-codex.md\n  [present] base-cursor.md\n  [present] base-gemini.md\n  [present] base-opencode.md\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.2660000000614673,
+          "exit_code": 0,
+          "group": "platform-contracts",
+          "name": "verify_platform_contracts",
+          "output": "[verify-contracts] OK: 13 platforms match the contract doc.\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.26599999994505197,
+          "exit_code": 0,
+          "group": "platform-contracts",
+          "name": "check_platform_contract_freshness",
+          "output": "[contract-freshness] OK: contract verified for v4.4.0 (last_verified 2026-09-01).\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.28100000007543713,
+          "exit_code": 0,
+          "group": "platform-contracts",
+          "name": "sync_platform_defaults",
+          "output": "  platform-defaults OK -- 13 platform(s), all derived artifacts in sync\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.1869999999180436,
+          "exit_code": 0,
+          "group": "platform-contracts",
+          "name": "verify_model_prompting_profiles",
+          "output": "[profile-schema] OK: 1 profiled model(s) of 4 rostered (schema 1.0.0, last verified 2026-07-27).\n  Note: 3 rostered model(s) not yet profiled (claude-fable-5, claude-haiku-4-5-20251001, claude-sonnet-5); tracked as known gaps, not a gate failure.\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "platform-contracts",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.20400000002700835,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "check_doc_colocation",
+          "output": "No docs/v<N> tree found; nothing to check.\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.18700000003445894,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "validate_solution_frontmatter",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.1559999999590218,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "check_incident_notes",
+          "output": "  OK powershell-sibling-parse-error-20260709.md\n  OK provenance-ledger-sibling-divergence-20260722.md\n  2 incident note(s) OK\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.2190000000409782,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "validate_decision_records",
+          "output": "  30 decision record(s) OK\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.2029999999795109,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "stamp_guide_counts",
+          "output": "stamp_guide_counts: OK -- 1 marker(s) match the catalog (skills=329, hooks=30, pretooluse=15, commands=18)\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.1559999999590218,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "check_memory_provenance",
+          "output": "OK: memory provenance contract holds under <workspace>\\catalog\\memory\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.20400000002700835,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "check_docs_retention",
+          "output": "  docs retention: nothing due for archival (current v4.4, threshold 2 minors)\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "docs",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.18700000003445894,
+          "exit_code": 0,
+          "group": "version",
+          "name": "check_version_sync",
+          "output": "canonical version: 4.4.0 (.claude-plugin/plugin.json)\n  [      match] data/marketplace.json: matches 4.4.0\n  [      match] scripts/installer.sh: matches 4.4.0\n  [      match] scripts/installer.ps1: matches 4.4.0\n  [      match] CHANGELOG.md: matches 4.4.0\n  [      match] README.md: matches 4.4.0\n  [      match] AGENTS.md: matches 4.4.0\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "version",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 664.1879999999655,
+          "exit_code": 0,
+          "group": "tests",
+          "name": "hook-tests",
+          "output": "......................................................ssss.............. [  5%]\n.......sssssssssssss.................................................... [ 10%]\n........................................................................ [ 16%]\n........................................................................ [ 21%]\n........................................................................ [ 27%]\n........................................................................ [ 32%]\n........................................................................ [ 38%]\n........................................................................ [ 43%]\n........................................................................ [ 49%]\n........................................................................ [ 54%]\n........................................................................ [ 60%]\n........................................................................ [ 65%]\n........................................................................ [ 71%]\n........................................................................ [ 76%]\n........................................................................ [ 82%]\n........................................................................ [ 87%]\n........................................................................ [ 93%]\n.....................................................................sss [ 98%]\nssssss..sssssss..                                                        [100%]\n1280 passed, 33 skipped in 661.76s (0:11:01)\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 4825.5,
+          "exit_code": null,
+          "group": "tests",
+          "name": "repo-tests",
+          "output": "",
+          "reason": "exceeded 4500s",
+          "status": "timeout"
+        }
+      ],
+      "name": "tests",
+      "skipped_reason": "",
+      "status": "fail"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 14.21799999999348,
+          "exit_code": 0,
+          "group": "extension-tests",
+          "name": "skill-server",
+          "output": "...........................................                              [100%]\n43 passed in 4.32s\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 24.85999999998603,
+          "exit_code": 0,
+          "group": "extension-tests",
+          "name": "code-search",
+          "output": "........................................................................ [ 19%]\n........................................................................ [ 39%]\n..................................................s..................... [ 58%]\n........................................................................ [ 78%]\n........................................................................ [ 97%]\n.........                                                                [100%]\n368 passed, 1 skipped in 23.30s\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 5.75,
+          "exit_code": 0,
+          "group": "extension-tests",
+          "name": "web-fetch",
+          "output": ".............................                                            [100%]\n29 passed in 4.17s\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 4.547000000020489,
+          "exit_code": 0,
+          "group": "extension-tests",
+          "name": "skill-scanner",
+          "output": "........................................................................ [ 80%]\n.................                                                        [100%]\n89 passed in 2.97s\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 5.437000000034459,
+          "exit_code": 0,
+          "group": "extension-tests",
+          "name": "context-compressor",
+          "output": "........................................................................ [ 30%]\n........................................................................ [ 60%]\n........................................................................ [ 91%]\n.....................                                                    [100%]\n237 passed in 3.88s\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 22.593999999924563,
+          "exit_code": 0,
+          "group": "extension-tests",
+          "name": "memory",
+          "output": "............................s.........................                   [100%]\n53 passed, 1 skipped in 20.38s\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.5,
+          "exit_code": 0,
+          "group": "extension-tests",
+          "name": "compression-accuracy-gate",
+          "output": "Compression accuracy gate PASSED (CCR 100.0%, signatures 100.0%, reduction 45.8%).\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "extension-tests",
+      "skipped_reason": "",
+      "status": "pass"
+    }
+  ],
+  "platform": "windows",
+  "profile": "full",
+  "scope_conservative": true,
+  "scope_reason": "unrecognized path(s), running everything: ['guides/website/README.md', 'guides/website/example/training-scenes.json', 'guides/website/nexus-hub-guide.html']",
+  "started_at": "2026-09-04T22:45:12Z"
+}

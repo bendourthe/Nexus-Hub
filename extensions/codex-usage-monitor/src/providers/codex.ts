@@ -342,7 +342,10 @@ function formatCreditsSummary(raw: unknown): string | undefined {
 /** Parse a detailed monthly workspace credit limit from supported payload aliases. */
 function readExtraCredits(payload: Record<string, unknown>, nowMs: number): CreditUsageInfo | undefined {
   const credits = asRecord(payload.credits ?? payload.credit_balance);
+  const spendControl = asRecord(payload.spend_control ?? payload.spendControl);
   const candidates: unknown[] = [
+    spendControl?.individual_limit,
+    spendControl?.individualLimit,
     payload.workspace_monthly_credit_limit,
     payload.workspaceMonthlyCreditLimit,
     payload.monthly_credit_limit,
@@ -407,6 +410,22 @@ function readExtraCredits(payload: Record<string, unknown>, nowMs: number): Cred
     const percent = Math.round(
       Math.min(100, Math.max(0, directPercent ?? normalizedUsed / monthlyLimit * 100)),
     );
+    const usedAmountUsd = firstNumber(
+      rec.used_usd,
+      rec.usedUsd,
+      rec.used_amount_usd,
+      rec.usedAmountUsd,
+      rec.used_dollars,
+      rec.usedDollars,
+    );
+    const limitAmountUsd = firstNumber(
+      rec.limit_usd,
+      rec.limitUsd,
+      rec.limit_amount_usd,
+      rec.limitAmountUsd,
+      rec.limit_dollars,
+      rec.limitDollars,
+    );
     const resetsAt = resolveResetsAt(rec, nowMs) ?? nextMonthlyResetAt(nowMs);
     return {
       usedCredits: normalizedUsed,
@@ -414,6 +433,9 @@ function readExtraCredits(payload: Record<string, unknown>, nowMs: number): Cred
       percent,
       resetsIn: formatResetTime(resetsAt),
       resetsAt,
+      ...(usedAmountUsd != null && usedAmountUsd >= 0 && limitAmountUsd != null && limitAmountUsd >= 0
+        ? { usedAmountUsd, limitAmountUsd }
+        : {}),
     };
   }
 

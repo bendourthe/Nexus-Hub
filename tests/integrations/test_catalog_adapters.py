@@ -114,6 +114,9 @@ def test_commands_to_skills_synthesizes_skill_md(tmp_path: Path):
     assert "name: demo" in text
     assert "/demo" in text, "description should carry the slash-command lead-in"
     assert "Do the thing" in text, "description should carry the source command description"
+    assert "disable-model-invocation: true" in text, (
+        "command-skills must be user-invoked; the installer emits the flag"
+    )
     assert "Body line." in text, "command body should become the skill body"
 
 

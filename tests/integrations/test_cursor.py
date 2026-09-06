@@ -16,8 +16,10 @@ parity_verification_v3_15_0 in the sibling .json):
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import replace
 
+from scripts.lib.integrations import cursor as cursor_module
 from scripts.lib.integrations import get
 from scripts.lib.integrations.base import InstallContext
 from scripts.lib.integrations.cursor import CursorIntegration
@@ -57,6 +59,7 @@ def test_cursor_workspace_commands_as_skills_and_project_commands(install_ctx: I
     text = skill_md.read_text(encoding="utf-8")
     assert "name: presentify" in text
     assert "/presentify" in text, "command-skill description should carry the slash lead-in"
+    assert "disable-model-invocation: true" in text
 
     project_cmd = root / ".cursor" / "commands" / "presentify.md"
     assert project_cmd.exists(), "project-scoped .cursor/commands/ mirror missing"
@@ -91,8 +94,47 @@ def test_cursor_workspace_writes_schema_valid_hooks_json(install_ctx: InstallCon
     assert data["version"] == 1, "Cursor hooks.json requires version: 1"
     assert "beforeShellExecution" in data["hooks"], "git-guardrails maps to beforeShellExecution"
     entry = data["hooks"]["beforeShellExecution"][0]
-    assert entry["command"].endswith("git-guardrails.sh"), entry
-    assert (cursor_root / "hooks" / "git-guardrails.sh").exists(), "hook script not copied"
+    expected_suffix = "git-guardrails.ps1\"" if os.name == "nt" else "git-guardrails.sh\""
+    assert entry["command"].endswith(expected_suffix), entry
+    assert entry["failClosed"] is True, "security-critical shell hook must fail closed"
+    assert "cursor-hook-compat.py" in entry["command"]
+    assert (cursor_root / "hooks" / "cursor-hook-compat.py").exists()
+    assert (cursor_root / "hooks" / "git-guardrails.sh").exists(), "bash hook not copied"
+    assert (cursor_root / "hooks" / "git-guardrails.ps1").exists(), "PowerShell hook not copied"
+
+
+def test_cursor_windows_registration_uses_powershell(
+    install_ctx: InstallContext, monkeypatch
+):
+    """A Windows install must never depend on bash being present or correctly mapped."""
+    monkeypatch.setattr(cursor_module, "is_windows_host", lambda: True)
+
+    get("cursor").install(install_ctx)
+
+    cursor_root = install_ctx.target_root / ".cursor"
+    data = json.loads((cursor_root / "hooks.json").read_text(encoding="utf-8"))
+    commands = [entry["command"] for entries in data["hooks"].values() for entry in entries]
+    assert commands
+    assert all(command.startswith("python ") for command in commands)
+    assert all("cursor-hook-compat.py" in command for command in commands)
+    assert all(".ps1" in command and ".sh" not in command for command in commands)
+
+
+def test_cursor_posix_registration_uses_bash(
+    install_ctx: InstallContext, monkeypatch
+):
+    """macOS and Linux installs must retain the Bash sibling and Python 3 runner."""
+    monkeypatch.setattr(cursor_module, "is_windows_host", lambda: False)
+
+    get("cursor").install(install_ctx)
+
+    cursor_root = install_ctx.target_root / ".cursor"
+    data = json.loads((cursor_root / "hooks.json").read_text(encoding="utf-8"))
+    commands = [entry["command"] for entries in data["hooks"].values() for entry in entries]
+    assert commands
+    assert all(command.startswith("python3 ") for command in commands)
+    assert all("cursor-hook-compat.py" in command for command in commands)
+    assert all("bash " in command and ".sh" in command and ".ps1" not in command for command in commands)
 
 
 def test_cursor_stop_carries_the_completion_notification(install_ctx: InstallContext):
@@ -107,8 +149,10 @@ def test_cursor_stop_carries_the_completion_notification(install_ctx: InstallCon
 
     assert "stop" in data["hooks"], "the completion notification must ride Cursor's `stop`"
     entry = data["hooks"]["stop"][0]
-    assert entry["command"].endswith("notify-on-complete.sh"), entry
+    expected_suffix = "notify-on-complete.ps1\"" if os.name == "nt" else "notify-on-complete.sh\""
+    assert entry["command"].endswith(expected_suffix), entry
     assert (cursor_root / "hooks" / "notify-on-complete.sh").exists()
+    assert (cursor_root / "hooks" / "notify-on-complete.ps1").exists()
 
 
 def test_cursor_ships_the_notify_helper_module_alongside_the_hook(install_ctx: InstallContext):
@@ -122,6 +166,9 @@ def test_cursor_ships_the_notify_helper_module_alongside_the_hook(install_ctx: I
 
     assert (hooks_dir / "_notify_common.sh").exists(), (
         "_notify_common.sh missing; notify-on-complete.sh would source nothing and no-op"
+    )
+    assert (hooks_dir / "_notify_common.ps1").exists(), (
+        "_notify_common.ps1 missing; notify-on-complete.ps1 would import nothing and no-op"
     )
 
 

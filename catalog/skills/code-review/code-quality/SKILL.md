@@ -21,6 +21,8 @@ Use this skill when you need to:
 - Evaluate SOLID principle adherence
 - Identify dead code removal candidates
 
+**When NOT to use:** Over-engineering delete-lists belong to `over-engineering-review` as an optional lens. Do not copy its tags. This skill keeps SOLID, maintainability, and complexity scoring.
+
 **Trigger phrases**: "code quality", "code review", "technical debt", "code smells", "maintainability", "complexity", "best practices", "clean code", "SOLID", "dead code"
 
 ## What This Skill Does
@@ -236,8 +238,8 @@ When proposing fixes, follow these 7 heuristics:
 | "High cyclomatic complexity is fine if the code works" | Functions with cyclomatic complexity above 10 have statistically higher defect rates and significantly longer mean-time-to-diagnose during incidents, as found in Microsoft Research studies on Windows Vista defect density. |
 | "We'll refactor when we have time" | Technical debt accumulates compound interest; a module with 5 SOLID violations today routinely becomes the highest-change-rate module next quarter, where each new feature requires touching (and risks breaking) the same fragile code. |
 | "Naming doesn't matter, only logic does" | Ambiguous names (`data`, `tmp`, `obj`) are the primary cause of incorrect assumptions during maintenance; studies of code comprehension show 60-70% of debugging time is spent understanding intent, not finding the error. |
-| "Dead code doesn't hurt anything" | Dead code increases cognitive load for every future reader, causes incorrect grep results, and is regularly reactivated with copy-paste edits — producing bugs from code that was intentionally disabled. |
-| "SOLID principles are academic and slow development" | The Open-Closed Principle specifically exists to prevent the scenario where adding a new payment method requires modifying and re-testing existing payment method code — a scenario most teams experience repeatedly before adopting it. |
+| "Dead code doesn't hurt anything" | Dead code increases cognitive load for every future reader, causes incorrect grep results, and is regularly reactivated with copy-paste edits -- producing bugs from code that was intentionally disabled. |
+| "SOLID principles are academic and slow development" | The Open-Closed Principle specifically exists to prevent the scenario where adding a new payment method requires modifying and re-testing existing payment method code -- a scenario most teams experience repeatedly before adopting it. |
 | "Duplication is easier to understand than abstraction" | Duplicated validation logic diverges over time; security-relevant duplicated code (email validation, permission checks) has caused real vulnerabilities when one copy was patched and others were missed. |
 
 ## Verification
@@ -258,6 +260,7 @@ When proposing fixes, follow these 7 heuristics:
 - [[final-report]] -- Consolidated report (Phase 6)
 - [[code-smell-detector]] -- deeper Fowler-catalog smell detection beyond the quick smell table here
 - [[refactoring-expert]] -- behavior-preserving transforms that resolve the SOLID violations this skill flags
+- [[over-engineering-review]] -- optional tagged delete-list for extra machinery; not a replacement for SOLID or smells
 
 ---
 

@@ -14,6 +14,12 @@ Nexus-Hub today owns no compression engine, only methodology skills (`context-co
 - **Reversible compression (CCR).** When a strategy drops content, it leaves a `<<ccr:HASH N_rows>>` marker and persists the originals in a local content-hashed store, so a consumer can fetch the dropped data back on demand. Compression is therefore non-lossy.
 - **Content-routed strategies.** A router classifies each segment (JSON, code, log, text) and dispatches it to the optimal compressor.
 
+### Producer encoding versus consumer compression
+
+`nexus-code-search` may encode its own structured MCP responses with the schema-aware Nexus Compact Wire format before they reach this engine. That producer-side codec removes repeated table keys and uses the exact `NEXUS-CW/1` first-line marker. This package remains consumer-side and content-routed: it accepts arbitrary tool output, classifies it, and uses reversible CCR markers for any dropped content.
+
+The paths compose in that order: producer encoding first, consumer compression second. `compress_output(text)` recognizes the exact compact-wire marker and returns those bytes unchanged with identity metrics, preventing double compression or delimiter corruption. CCR marker strings inside a compact response remain ordinary typed values and round-trip through the producer decoder unchanged. The format and JSON retry contract are documented in the [`nexus-code-search` wire-format specification](../nexus-code-search/docs/wire-format.md).
+
 ## Architecture
 
 ### The pipeline
@@ -82,6 +88,24 @@ Every default-path strategy is pure standard library. The only required dependen
 ### Migrating from rtk
 
 This engine supersedes the external `rtk` Rust binary the project previously recommended. Existing rtk users remove the rtk PreToolUse hook (or the Windows `CLAUDE.md` instruction block), optionally `cargo uninstall rtk`, and enable the internal hook with `export NEXUS_CONTEXT_COMPRESS=1`. Do not run both at once. The full migration steps, platform matrix, and trust rationale are in [`guides/reference/RTK_CONTEXT_COMPRESSION.md`](../../guides/reference/RTK_CONTEXT_COMPRESSION.md).
+
+### Semantic reformatters (named short list)
+
+`reformatters.py` parse-and-restructures a handful of high-frequency command outputs before the content router runs: `git status`, pytest/vitest/jest failures-only, and ruff/eslint/tsc diagnostics grouped by file. Each handler has a fixture test that requires at least 60% token reduction. This is not parity with a dedicated ~60-handler command-output compressor; uncovered commands still pass through the existing JSON/code router or leave the text unchanged. See known-gaps **DF-3**.
+
+Command rewrite is a separate PreToolUse decision (`rewrite.py`, `catalog/hooks/rewrite-command.sh`): exit 0 allow / 1 passthrough / 2 deny / 3 ask. The default when a rewrite exists is 3 (ask), never 0 (auto-allow). Host deny beats ask beats allow. A compound command (`&&` `||` `;` `|`) is allowed only when every segment independently matches allow.
+
+### Bring-your-own filters (SHA-256 trust store)
+
+Project file `.nexus-hub/compressor-filters.json`, then `~/.nexus-hub/compressor-filters.json`, then built-in (none), then passthrough. An on-disk file is applied only after `python -m nexus_context_compressor trust <file>` records its SHA-256. Editing the file changes the hash, so compress skips it until trusted again. `untrust` removes the pin. `verify` runs inline `tests[]` (`name` / `input` / `expected`) even on an untrusted file. This is consent plus tamper-evidence, not a sandbox.
+
+### Recoverable truncation
+
+`compress --max-lines N` / `--max-bytes N` (and `compress_output(..., max_lines=, max_bytes=)`) tee the full blob to a spool file, keep a prefix, and print a recovery pointer (`tail -n +LINE FILE`). If the spool cannot be written, the original text is left intact. Nothing is silently unrecoverable.
+
+### Passthrough log (session mining)
+
+When compression does not shrink the blob, one JSON line is appended to `~/.nexus-hub/compressor-passthrough.jsonl` (or a sibling of `NEXUS_CCR_STORE_PATH`). `session-query` and `continuous-learning` mine that log for unrealized savings and repeated CLI mistakes. Local, append-only, no outbound I/O.
 
 ## Status
 

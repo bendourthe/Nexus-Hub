@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { UsageData, isTracked } from "./types";
-import { formatCreditCount, formatResetLabel } from "./usageStore";
+import { formatCreditUsageLine, formatResetLabel } from "./usageStore";
 import { ProviderFetchError, describeProviderError } from "./providers";
 import {
   getRecommendation,
@@ -198,8 +198,12 @@ export class DashboardPanel {
       ? `
       <div class="section">
         <h3>Extra Credits</h3>
-        ${this.renderProgressBar(data.extraCredits.percent, data.extraCredits.resetsIn, data.extraCredits.resetsAt)}
-        <div class="extra-credits-info">${formatCreditCount(data.extraCredits.usedCredits)} of ${formatCreditCount(data.extraCredits.monthlyLimit)} credits used</div>
+        ${this.renderProgressBar(
+          data.extraCredits.percent,
+          data.extraCredits.resetsIn,
+          data.extraCredits.resetsAt,
+          formatCreditUsageLine(data.extraCredits),
+        )}
       </div>`
       : data.creditsSummary
         ? `
@@ -276,7 +280,12 @@ export class DashboardPanel {
     `);
   }
 
-  private renderProgressBar(percent: number, resetsIn: string, resetsAt: number | null): string {
+  private renderProgressBar(
+    percent: number,
+    resetsIn: string,
+    resetsAt: number | null,
+    detailLine?: string,
+  ): string {
     const attr = resetsAt != null ? ` data-resets-at="${resetsAt}"` : "";
     return `
       <div class="progress-container">
@@ -285,6 +294,7 @@ export class DashboardPanel {
         </div>
         <span class="progress-label">${percent}%</span>
       </div>
+      ${detailLine ? `<span class="extra-credits-info">${escapeHtml(detailLine)}</span>` : ""}
       <span class="progress-subtitle"${attr}>${escapeHtml(formatResetLabel(resetsIn))}</span>
     `;
   }
@@ -358,7 +368,8 @@ export class DashboardPanel {
     }
     .extra-credits-info {
       font-size: 13px;
-      margin-bottom: 6px;
+      display: block;
+      margin-top: 6px;
     }
     .retry-btn {
       flex-shrink: 0;
@@ -375,12 +386,10 @@ export class DashboardPanel {
       background: var(--vscode-button-hoverBackground);
     }
     .progress-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      position: relative;
     }
     .progress-bar {
-      flex: 1;
+      width: 100%;
       height: 8px;
       background: rgba(128,128,128,0.2);
       border-radius: 4px;
@@ -393,9 +402,11 @@ export class DashboardPanel {
       transition: width 0.3s ease;
     }
     .progress-label {
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 8px);
       font-size: 14px;
       font-weight: bold;
-      min-width: 40px;
       text-align: right;
     }
     .progress-subtitle {

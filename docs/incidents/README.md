@@ -16,7 +16,7 @@ This is the load-bearing rule of the directory, and the only control that stops 
 
 **Every incident note must name AND link a durable fix**: a concrete change that makes the lesson survive the memory of the people who lived it. A commit, a test, a CI gate, a hook, a validator, a skill edit. Not "we should be more careful", not "the team is now aware", not a paragraph explaining what went wrong.
 
-**A note with no linked fix is an open item, not an archive entry.** If you write one up and the fix does not exist yet, that is fine and honest, but it belongs in [`known-gaps.md`](../v3/v3.16/known-gaps.md) for the active version as tracked work, with the incident note linking to it. Do not let the note stand alone as though writing it were the resolution.
+**A note with no linked fix is an open item, not an archive entry.** If you write one up and the fix does not exist yet, that is fine and honest, but it belongs in [`known-gaps.md`](../releases/v3/v3.16/known-gaps.md) for the active version as tracked work, with the incident note linking to it. Do not let the note stand alone as though writing it were the resolution.
 
 The practical test: if this exact failure recurred next quarter with a different person at the keyboard, would anything stop it? If the answer is "someone would remember reading the note", there is no durable fix yet.
 

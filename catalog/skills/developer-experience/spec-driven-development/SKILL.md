@@ -1,13 +1,13 @@
 ---
 name: spec-driven-development
-description: "Writes a structured technical specification before any code is written. Use when starting a new project, feature, or significant change and no written specification exists — especially when requirements are ambiguous, the change touches multiple files, or architectural decisions must be made. Trigger phrases: write a spec, create a specification, spec this out, define the requirements, spec-driven, write the spec before coding."
-summary_l0: "Write a structured specification before coding to prevent rework from misunderstood requirements"
-overview_l1: "This skill produces a written technical specification before implementation begins, following a four-phase gated workflow: Specify → Plan → Tasks → Implement. Use it when requirements are ambiguous, the change spans multiple files or modules, or you are making an architectural decision. Key capabilities include assumption surfacing, success criteria formulation, scope bounding through explicit non-goals, spec depth chosen by blast radius, and task breakdown with per-task acceptance criteria. The spec is committed to the repo as a living document — updated as decisions change, referenced in PRs, and never discarded after implementation begins. Without this skill, implementation risks solving the wrong problem or building an architecture that does not match the team's intent. Trigger phrases: write a spec, spec this out, create a specification, define requirements, spec before coding, what should I build."
+description: "Writes a structured technical specification before any code is written. Use when starting a new project, feature, or significant change and no written specification exists -- especially when requirements are ambiguous, the change touches multiple files, or architectural decisions must be made. Trigger phrases: write a spec, create a specification, spec this out, define the requirements, spec-driven, write the spec before coding. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
+summary_l0: "Write specifications before code and place release-bound artifacts canonically"
+overview_l1: "This skill produces a written technical specification before implementation begins, following a four-phase gated workflow: Specify → Plan → Tasks → Implement. Use it when requirements are ambiguous, the change spans multiple files or modules, or you are making an architectural decision. Key capabilities include assumption surfacing, success criteria formulation, scope bounding through explicit non-goals, spec depth chosen by blast radius, and task breakdown with per-task acceptance criteria. The spec is committed to the repo as a living document -- updated as decisions change, referenced in PRs, and never discarded after implementation begins. Without this skill, implementation risks solving the wrong problem or building an architecture that does not match the team's intent. Trigger phrases: write a spec, spec this out, create a specification, define requirements, spec before coding, what should I build. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # Spec-Driven Development
 
-Write a structured specification before writing any code. The spec is the shared source of truth between you and the human engineer — it defines what we're building, why, and how we'll know it's done. Code without a spec is guessing.
+Write a structured specification before writing any code. The spec is the shared source of truth between you and the human engineer -- it defines what we're building, why, and how we'll know it's done. Code without a spec is guessing.
 
 "Guessing" is the precise word, and it explains why the cost is worse than rework. An agent that reaches an unstated requirement does not stop and ask; it fills the gap with the most plausible interpretation and keeps building on it. In a small codebase those guesses stay visible, because there is not much code for them to hide in. In a large one they land in details nobody inspects, so the consequence surfaces later, somewhere else, in code the author never touched, where it reads as an unrelated bug rather than as a decision that was never made. Guess cost therefore scales with the size of the system, not with the size of the change, which is why a small change to a large codebase deserves more written agreement than its diff suggests. The two mechanisms this skill ships exist for exactly this: the `[NEEDS CLARIFICATION]` marker and the mandatory `## Assumptions` section both convert a silent guess into a recorded decision the reviewer can overturn with one line.
 
@@ -201,7 +201,7 @@ Break the plan into discrete, implementable tasks:
 
 ```markdown
 - [ ] Task: [Description]
-  - Acceptance: [What must be true when done — observable]
+  - Acceptance: [What must be true when done -- observable]
   - Verify: [Test command, build command, or manual check]
   - Files: [Which files will be touched]
 ```
@@ -233,7 +233,7 @@ Split the specification into two artifacts with different jobs, so the spec cann
 Map this onto Nexus-Hub's EXISTING surfaces - do not introduce a parallel change-folder tree:
 
 - The normative spec is the `spec.md` this skill already produces from `catalog/templates/spec-template.md` (the FR-### / SC-### blocks). `/spec` creates and updates it.
-- The context lives in the surrounding per-version `docs/` tree already in use: the plan, the comparison report, and any decision records under `docs/v<MAJOR>/v<MAJOR>.<MINOR>/`. A dedicated `context.md` beside the spec is fine when a feature warrants one, but the default is the docs tree you already keep.
+- The context lives in the surrounding per-version `docs/` tree already in use: the plan, the comparison report, and any decision records under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`. A dedicated `context.md` beside the spec is fine when a feature warrants one, but the default is the docs tree you already keep.
 
 **The external `openspec` CLI is NOT adopted - only the convention is.** The normative/context separation is a convention Nexus-Hub adopts skill-natively; the external `openspec` tool that popularized it is not added as a dependency. Per the AGENTS.md MCP Registry Policy (reverse-engineer-first: prefer an LLM-native / skill-native convention over an external tool dependency), a convention the agent can follow with its own judgment beats a new CLI, and no parallel `openspec/`-style change-folder tree is created. The convention rides on `/spec`, the spec template, and the per-version `docs/` tree.
 
@@ -283,14 +283,14 @@ The rule is scoped on purpose: a typo fix, a refactor with no behavior change, o
 
 | Rationalization | Reality |
 |---|---|
-| "This is simple — I don't need a spec" | Simple tasks don't need long specs, but they still need acceptance criteria. A two-line spec is fine. |
-| "This is too simple to need a design before I code it" | Simplicity of implementation is independent of agreement on intent. The hard gate is not about effort; it is about whether you and the user agree on what to build. A trivial change built against a wrong assumption is still a rebuild. Present the smallest reviewable design and get the go-ahead — it costs one turn. |
+| "This is simple -- I don't need a spec" | Simple tasks don't need long specs, but they still need acceptance criteria. A two-line spec is fine. |
+| "This is too simple to need a design before I code it" | Simplicity of implementation is independent of agreement on intent. The hard gate is not about effort; it is about whether you and the user agree on what to build. A trivial change built against a wrong assumption is still a rebuild. Present the smallest reviewable design and get the go-ahead -- it costs one turn. |
 | "The user said 'just build it', so the gate is satisfied" | "Just build it" before any design exists is a request to skip the design, not approval of one. Present the smallest design in reviewable sections and get an explicit go-ahead first. Approval of the problem is not approval of the design. |
 | "The depth rule says small changes get a short spec, so I can skip the approval step" | The depth rule scales the document, never the agreement. It moves one axis and leaves the other exactly where it was: a one-line spec still requires an explicit go-ahead before code. If reading the tier table made the gate feel negotiable, re-read the gate - it says the approval applies regardless of how simple the change looks, and the tier table is a refinement inside that constraint, not an exception to it. |
 | "The change is small, so it falls under 'When NOT to use'" | "Small" is an answer to how deep the spec should be, not to whether one is needed. "When NOT to use" covers a single-line fix or a typo, where there is nothing to agree on. A small-but-real change gets the bottom tier: problem, acceptance criteria, Non-Goals. Collapsing the two questions is how a shallow spec turns into no spec. |
 | "I'll write the spec after coding" | That's documentation, not specification. The spec's value is forcing clarity *before* code. Writing it after confirms what you built, not what you should have built. |
 | "The spec will slow us down" | A 15-minute spec prevents hours of rework. The spec itself is not the slowdown; vague requirements are. |
-| "Requirements will change anyway" | That's why the spec is a living document. An outdated spec is still better than no spec — it shows the intent at the time. |
+| "Requirements will change anyway" | That's why the spec is a living document. An outdated spec is still better than no spec -- it shows the intent at the time. |
 | "The user knows what they want" | Users know what outcome they want; they rarely know which implementation delivers it. The spec surfaces that gap before code is written. |
 | "I'll just use bullet points instead of FR/SC IDs" | The IDs are not decoration - they are the join key the `[[cross-artifact-analyzer]]` skill uses to build the Coverage Summary table in `/analyze-spec`. A spec written with prose bullets produces an empty matrix and the analyzer cannot flag missing tasks. Use the format from `catalog/templates/spec-template.md`. |
 | "This feature only has one user story" | Still write it as `### User Story 1 - [Title] (Priority: P1)` with the full Independent Test paragraph and Acceptance Scenarios. The single-story case is the most common; `/analyze-spec` and the Phase 6 task discipline both key off the story heading regardless of count. A spec with no `## User Stories` block fails the analyzer's underspecification pass. |
@@ -329,4 +329,4 @@ Every item below is checked against the canonical template `catalog/templates/sp
 
 ## Methodology essay
 
-For the broader motivation behind treating the specification as the source of truth that code compiles from, see `docs/archive/v2/v2.1/spec-driven-methodology.md`. The essay covers the power inversion (specs lead, code follows), the seven-station Nexus-Hub SDD workflow, the six core principles, and the pitfalls / anti-patterns (over-specifying the trivial, hiding behind the gate, treating the analyzer as a linter).
+For the broader motivation behind treating the specification as the source of truth that code compiles from, see `docs/archives/v2/v2.1/spec-driven-methodology.md`. The essay covers the power inversion (specs lead, code follows), the seven-station Nexus-Hub SDD workflow, the six core principles, and the pitfalls / anti-patterns (over-specifying the trivial, hiding behind the gate, treating the analyzer as a linter).

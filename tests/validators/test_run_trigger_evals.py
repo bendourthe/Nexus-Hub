@@ -467,3 +467,71 @@ def test_real_catalog_routing_tranche_passes() -> None:
     assert routing["failures"] == [], routing["failures"]
     assert routing["skills_with_cases"] >= 6
     assert routing["skills_without_cases"] > 0  # incremental coverage, not the whole catalog
+
+
+# ---------------------------------------------------------------------------
+# SKIP-clause stripping (v3.18.0 gap DF-2)
+# ---------------------------------------------------------------------------
+#
+# A description's SKIP clause states what the skill is NOT for. Tokenizing it
+# counted that fenced-off vocabulary as POSITIVE trigger evidence, which is
+# backwards, and it penalised authors for following the AGENTS.md rule that says
+# to write a SKIP clause at all. Two real cases from v3.18.0: "generate the
+# changelog entry for this release" scored a perfect 1.00 against
+# devlog-generation, and so did "what work is still open or deferred for this
+# version" -- both purely on SKIP-clause text.
+
+
+def test_strip_skip_clause_removes_uppercase_marker() -> None:
+    module = _load_runner()
+    text = "Maintain the index. SKIP: the changelog (use release-notes-writer)."
+    assert module.strip_skip_clause(text) == "Maintain the index. "
+
+
+def test_strip_skip_clause_removes_dashed_marker() -> None:
+    module = _load_runner()
+    text = "Maintain the index. SKIP - the changelog (use release-notes-writer)."
+    assert module.strip_skip_clause(text) == "Maintain the index. "
+
+
+def test_strip_skip_clause_removes_do_not_use_for_marker() -> None:
+    module = _load_runner()
+    text = "Build a chart. Do NOT use for dashboards."
+    assert module.strip_skip_clause(text) == "Build a chart. "
+
+
+def test_strip_skip_clause_leaves_a_description_without_one_alone() -> None:
+    module = _load_runner()
+    text = "Maintain the index, one line per release."
+    assert module.strip_skip_clause(text) == text
+
+
+def test_skip_clause_vocabulary_is_not_positive_trigger_evidence() -> None:
+    """The defect this closes, stated as a behavior rather than a helper call."""
+    module = _load_runner()
+    description = (
+        "Maintain the DEVLOG index. Use when the user says update the devlog. "
+        "SKIP: the authoritative record of what changed in a release "
+        "(use release-notes-writer)."
+    )
+    tokens = module.tokenize(module.strip_skip_clause(description))
+    assert "devlog" in tokens, "the positive trigger vocabulary must survive"
+    for fenced in ("release", "record", "changed"):
+        assert fenced not in tokens, (
+            f"'{fenced}' appears only in the SKIP clause and must not count as "
+            "evidence for triggering this skill"
+        )
+
+
+def test_skip_marker_pattern_contains_no_control_characters() -> None:
+    """Guards a real authoring accident, not a hypothetical one.
+
+    The first cut of this pattern was written with escaped word boundaries that
+    reached the file as literal backspace bytes (0x08). The regex silently
+    matched nothing, the stripper became a no-op, and `grep` rendered the
+    corruption as invisible whitespace.
+    """
+    module = _load_runner()
+    pattern = module._SKIP_MARKER.pattern
+    control = [c for c in pattern if ord(c) < 0x20]
+    assert not control, f"control characters in the SKIP marker: {[hex(ord(c)) for c in control]}"

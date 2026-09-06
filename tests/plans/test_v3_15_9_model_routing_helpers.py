@@ -93,7 +93,17 @@ def test_bundled_snapshot_parses_and_renders_dated_fallback() -> None:
     render_result = _run("fallback")
     assert render_result.returncode == 0, render_result.stderr
     rendered = render_result.stdout
-    assert "**Model map status**: offline fallback; stale as of 2026-08-03." in rendered
+    # Derive the date from the snapshot rather than hardcoding it. The contract
+    # under test is that the fallback renders the snapshot's own `verified_as_of`
+    # in that exact sentence, NOT that the snapshot holds any particular date.
+    # A hardcoded date makes this a time bomb that fires on every legitimate map
+    # refresh: v3.16.8 found it red because b29a0ffa moved the snapshot to
+    # 2026-08-14 while the assertion still read 2026-08-03.
+    verified_as_of = json.loads(SNAPSHOT.read_text(encoding="utf-8"))["verified_as_of"]
+    assert (
+        f"**Model map status**: offline fallback; stale as of {verified_as_of}."
+        in rendered
+    )
     assert rendered.count("\n| frontier |") == 1
     assert rendered.count("\n| strong |") == 1
     assert rendered.count("\n| standard |") == 1

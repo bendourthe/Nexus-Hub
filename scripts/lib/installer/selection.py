@@ -1,7 +1,7 @@
 """Deterministic install-selection resolver (v3.16.1 Phase 5.4).
 
 Implements the normative contract in
-`docs/v3/v3.16/development/install-selection-contract.md`. That document is the
+`docs/releases/v3/v3.16/development/install-selection-contract.md`. That document is the
 authority; where this module and the contract disagree, the contract is right.
 
 Three properties matter more than anything else here, and each is load-bearing

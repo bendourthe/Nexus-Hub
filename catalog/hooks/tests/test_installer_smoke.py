@@ -7,7 +7,7 @@ is deferred to v0.9.8 and tracked as a follow-up). Instead it verifies:
    refactor (global-vs-workspace upfront choice, no template-import prompt).
 2. The source artifacts the installer will copy exist at their expected paths
    (new v0.9.7 skills, guides, checklist, templates).
-3. The canonical template (`catalog/hooks/settings.json`) has `effortLevel: medium`
+3. The canonical template (`catalog/hooks/settings.json`) has `effortLevel: high`
    which is what the installer writes into `~/.claude/settings.json` on a fresh
    install.
 4. The installer scripts are syntactically valid (bash -n for .sh; PowerShell
@@ -242,26 +242,26 @@ def test_installers_use_claude_usage_monitor_banner():
 
 
 # Every usage monitor the installers must build, in the vendor order both shells
-# present them (Anthropic, OpenAI, GitHub for VS Code; Anysphere/Cursor last).
+# present them (Anthropic, OpenAI for VS Code; Anysphere/Cursor last).
 # Adding a monitor means adding a row here; the tests below then enforce presence
 # AND ordering in both shells, so a monitor cannot be wired into one installer
 # and forgotten in the other, and the two cannot drift out of order.
 USAGE_MONITORS = (
     ("claude-usage-monitor", "nexus-hub.claude-usage-monitor", "Claude Usage Monitor"),
     ("codex-usage-monitor", "nexus-hub.codex-usage-monitor", "Codex Usage Monitor"),
-    # v3.15.12 Phase 3 renamed the display surfaces to "GitHub Billing Usage";
-    # v3.16.3 Phase 1 reverted them to "GitHub Usage Monitor". The folder and the
-    # extension id deliberately did NOT change through either rename: an id is
-    # publisher.name, so renaming it would orphan an existing install.
-    ("github-usage-monitor", "nexus-hub.github-usage-monitor", "GitHub Usage Monitor"),
+    # The GitHub monitor was WITHDRAWN in v3.18.2; see RETIRED_EXTENSION_IDS below.
     ("cursor-usage-monitor", "nexus-hub.cursor-usage-monitor", "Cursor Usage Monitor"),
 )
 
-VS_CODE_USAGE_MONITORS = USAGE_MONITORS[:3]
-CURSOR_USAGE_MONITOR = USAGE_MONITORS[3]
-#: Installs into VS Code AND Cursor. The only monitor whose subject (GitHub billing)
-#: is independent of which editor the developer happens to be using.
-DUAL_HOST_MONITOR_ID = "nexus-hub.github-usage-monitor"
+VS_CODE_USAGE_MONITORS = USAGE_MONITORS[:2]
+CURSOR_USAGE_MONITOR = USAGE_MONITORS[2]
+
+#: Extensions a previous release installed that the installers must now UNINSTALL.
+#: Unshipping alone is not enough: an extension already on a user's machine keeps
+#: running. nexus-hub.github-usage-monitor reconstructed GitHub's included-usage
+#: meter from data GitHub does not publish and could report a confident 0% against
+#: an exhausted allowance, so it is actively removed from both hosts.
+RETIRED_EXTENSION_IDS = ("nexus-hub.github-usage-monitor",)
 
 
 def test_installers_build_every_usage_monitor_extension():
@@ -281,6 +281,47 @@ def test_installers_build_every_usage_monitor_extension():
             assert display_name.lower() in lower, (
                 f"{path.name} must reference the '{display_name}' display name"
             )
+
+
+def test_installers_uninstall_retired_extensions_from_both_hosts():
+    """A withdrawn extension must be UNINSTALLED, not merely unshipped.
+
+    Removing an extension from the build loop stops new installs but leaves every
+    existing one running. nexus-hub.github-usage-monitor is the case this guards:
+    it reported a confident 0% against an exhausted GitHub allowance, so a user who
+    upgrades and still sees it is strictly worse off than one who never had it.
+
+    Both hosts are asserted because that monitor was the one dual-host monitor,
+    installed into Cursor as well as VS Code. A VS Code-only sweep would leave the
+    Cursor copy on screen, which is the exact failure this test exists to catch.
+    """
+    for path in (INSTALLER_SH, INSTALLER_PS1):
+        body = path.read_text(encoding="utf-8")
+        for extension_id in RETIRED_EXTENSION_IDS:
+            # Assert on the retirement ARRAY, not merely on the id appearing
+            # somewhere in the file. The id is also named in a nearby comment, so a
+            # bare substring check passes even when the entry is deleted - the
+            # fail-open shape this test exists to prevent.
+            marker = "legacy_ids=(" if path is INSTALLER_SH else "$legacyIds = @("
+            start = body.index(marker)
+            array = body[start : body.index(")", start)]
+            assert extension_id in array, (
+                f"{path.name} must list {extension_id} in its retirement array so it "
+                f"is uninstalled from existing installs, not merely unshipped"
+            )
+            assert "--uninstall-extension" in body, (
+                f"{path.name} must uninstall retired extensions"
+            )
+            assert f"extensions/{extension_id.split('.', 1)[1]}" not in body, (
+                f"{path.name} must NOT build {extension_id}; it was withdrawn"
+            )
+            windows_path = "extensions" + chr(92) + extension_id.split(".", 1)[1]
+            assert windows_path not in body, (
+                f"{path.name} must NOT build {extension_id}; it was withdrawn"
+            )
+        assert '"code", "cursor"' in body or "for cli in code cursor" in body, (
+            f"{path.name} must sweep BOTH hosts for retired extensions"
+        )
 
 
 def test_installers_agree_on_usage_monitor_order():
@@ -346,25 +387,9 @@ def test_installers_isolate_vscode_and_cursor_hosts():
             assert "vscode_cli" in window or "vscodeCli" in window, (
                 f"{path.name} must pass the VS Code CLI into {extension_id} install"
             )
-            if extension_id == DUAL_HOST_MONITOR_ID:
-                # Deliberate exception, 2026-08-11. GitHub billing is not tied to the
-                # editor a developer uses: a Cursor user has the same Actions minutes
-                # and Copilot credits to watch, so this monitor installs into BOTH.
-                # The Claude and Codex monitors stay VS Code-only because each reports
-                # usage for a tool that is itself a VS Code extension.
-                continue
             assert "cursor_cli" not in window and "cursorCli" not in window, (
                 f"{path.name} must not pass the Cursor CLI into {extension_id} install"
             )
-
-        # The dual-host monitor must reach BOTH editors. Asserted positively: the
-        # exemption above only stops the old rule failing, and an exemption alone
-        # would pass just as happily if the Cursor argument were dropped entirely.
-        dual_idx = body.index(DUAL_HOST_MONITOR_ID)
-        dual_window = body[dual_idx : dual_idx + 280]
-        assert "cursor_cli" in dual_window or "cursorCli" in dual_window, (
-            f"{path.name} must also pass the Cursor CLI into {DUAL_HOST_MONITOR_ID} install"
-        )
 
         _, cursor_id, _ = CURSOR_USAGE_MONITOR
         cursor_window = body[body.index(cursor_id) : body.index(cursor_id) + 280]
@@ -378,29 +403,6 @@ def test_installers_isolate_vscode_and_cursor_hosts():
             'write_header "ANYSPHERE"' in body
             or 'Write-Header -Provider "ANYSPHERE"' in body
         ), f"{path.name} must present the Cursor monitor under an ANYSPHERE vendor header"
-
-
-def test_github_monitor_status_hint_promises_no_percentage():
-    """The GitHub monitor's installer status hint must not promise a percentage.
-
-    GitHub does not guarantee an included allowance for Copilot or Actions, so
-    the monitor shows absolute usage until a verified or manually configured
-    denominator exists. A 'GitHub: --%' hint would advertise the false-quota
-    claim the v3.15.8 data contract forbids.
-    """
-    for path in (INSTALLER_SH, INSTALLER_PS1):
-        body = path.read_text(encoding="utf-8")
-        # The prefix moved to "GitHub Billing" in v3.15.12 Phase 3 and back to
-        # "GitHub Usage" in v3.16.3 Phase 1, matching buildStatusText's own label.
-        # The point of this assertion is the absent "%", not the prefix.
-        assert "GitHub Usage: --" in body, (
-            f"{path.name} must use the absolute-usage 'GitHub Usage: --' status hint"
-        )
-        for promised in ("GitHub: --%", "GitHub Billing: --%", "GitHub Usage: --%"):
-            assert promised not in body, (
-                f"{path.name} must not promise a GitHub usage percentage before a "
-                "denominator is verified"
-            )
 
 
 def test_installer_ps1_surfaces_vsce_errors():
@@ -474,12 +476,12 @@ def _declared_claude_settings() -> dict:
     return data["platforms"]["claude"]["settings"]
 
 
-def test_declared_claude_effort_level_is_medium():
-    """Intent guard for the shipped default `medium`, asserted at the SOURCE.
+def test_declared_claude_effort_level_is_high():
+    """Intent guard for the shipped Claude default `high`, asserted at the source.
 
-    The default was `xhigh` through v3.15.4 and was lowered to `medium` so a
-    fresh install starts at a balanced speed/cost tier that the operator raises
-    deliberately. Both the scalar and the `env` override are pinned, because
+    The default moved from `medium` to `high` in v4.4.0 so a fresh install starts
+    at the deeper reasoning tier expected by plan-driven, multi-step work. Both
+    the scalar and the `env` override are pinned, because
     `env.CLAUDE_CODE_EFFORT_LEVEL` is the higher-precedence lever: leaving the
     two out of step would make the scalar a no-op.
 
@@ -490,12 +492,12 @@ def test_declared_claude_effort_level_is_medium():
     separately by `scripts/sync_platform_defaults.py --check`.
     """
     settings = _declared_claude_settings()
-    assert settings["effortLevel"] == "medium", (
-        f"Expected declared effortLevel='medium', got {settings['effortLevel']!r}. "
+    assert settings["effortLevel"] == "high", (
+        f"Expected declared effortLevel='high', got {settings['effortLevel']!r}. "
         "If this was a deliberate change, update the CHANGELOG + test together."
     )
-    assert settings.get("env", {}).get("CLAUDE_CODE_EFFORT_LEVEL") == "medium", (
-        "env.CLAUDE_CODE_EFFORT_LEVEL must match effortLevel ('medium'); it is "
+    assert settings.get("env", {}).get("CLAUDE_CODE_EFFORT_LEVEL") == "high", (
+        "env.CLAUDE_CODE_EFFORT_LEVEL must match effortLevel ('high'); it is "
         "the higher-precedence lever, so a mismatch silently wins over the scalar."
     )
 
@@ -550,9 +552,36 @@ def test_installer_ps1_fallback_literal_matches_template():
 # so a future contributor can tell whether a new script belongs here or in the
 # installer copy blocks.
 DEV_ONLY_SCRIPTS = {
+    # Repo-internal co-location guard (v3.17.7): enforces that a /compare
+    # report and the plan it seeds share a version directory. Moved out of
+    # .github/workflows/doc-colocation.yml so its three fail-open defects
+    # could be unit-tested. Runs in CI and make validate; meaningless in an
+    # end-user ~/.nexus-hub/scripts/.
+    # Repo-internal host-interpreter gate (v4.3.0): probes that the
+    # interpreters hook registrations are launched with (`bash <script>`)
+    # can actually execute a script on this host. Runs in the fast, full,
+    # and platform profiles. Meaningless in an end-user
+    # ~/.nexus-hub/scripts/; the equivalent user-facing report is the
+    # NEEDS-ACTION line that `runner.py verify` (nexus-hub doctor) emits.
+    "check_interpreter_resolution.py",
+    "check_doc_colocation.py",
+    # Repo-internal retention reporter (v3.18.0): reports per-version
+    # development/ subtrees due for archival per docs/policy/docs-retention.md.
+    # Advisory (always exit 0), runs in make validate; meaningless in an
+    # end-user ~/.nexus-hub/scripts/ with no docs/v* tree.
+    "check_docs_retention.py",
     # Repo validator: walks catalog/ for frontmatter + secret scans. Runs in CI
     # and by maintainers; not useful in an end-user ~/.nexus-hub/scripts/.
     "validate_skills.py",
+    # Repo-internal agentskills.io contract guard (v3.20.1): proves every
+    # SKILL.md satisfies the open-standard name/description rules. Runs in
+    # make validate and CI. An end-user install has no catalog source to
+    # check, so it is deliberately not installer-copied.
+    "check_agentskills_conformance.py",
+    # Repo-internal guide count stamper (v4.4.2): rewrites <span data-count> markers in
+    # guides/website/nexus-hub-guide.html from data/ and catalog/ so page counts cannot
+    # drift; --check runs in make validate. An end-user install has neither source tree.
+    "stamp_guide_counts.py",
     # One-shot cross-catalog maintenance utility that injects iterative-refinement
     # text into SKILL.md / command .md files. Maintainer tool only.
     "apply_iterative_workflow.py",
@@ -588,11 +617,62 @@ DEV_ONLY_SCRIPTS = {
     # docs/incidents/ tree, so like the four guards above it is deliberately not
     # installer-copied.
     "check_incident_notes.py",
+    # Repo-internal doc word-budget guard (v3.17.5): asserts every doc listed
+    # in docs/policy/doc-budgets.json stays under its ceiling. Runs in
+    # `make validate` and CI. An end-user install carries no repo instruction
+    # sources to budget, so like the guards above it is deliberately not
+    # installer-copied.
+    "validate_doc_budgets.py",
+    # Repo-internal memory-integration token-budget guard (v3.19.1): asserts
+    # docs/policy/memory-integration-prose.md stays under the 500-token
+    # ceiling in the memory substrate contract. Runs in make validate and CI.
+    # An end-user install has no policy tree to measure, so it is deliberately
+    # not installer-copied.
+    "check_memory_integration_budget.py",
+    # Repo-internal zero-outbound guard over the context compressor (v3.19.2).
+    # Scans production sources for network imports and curl/wget subprocesses.
+    # Runs in make validate and CI. Meaningless on an end-user install.
+    "check_no_outbound.py",
+    # Repo-internal docs convention guard (v3.19.2): case-sensitive relative
+    # links, empty directories, kebab-case directory names under docs/.
+    # Runs in make validate and CI. An end-user install has no docs/ tree
+    # to audit, so it is deliberately not installer-copied.
+    "check_docs_conventions.py",
+    # Repo-internal memory provenance guard (v3.19.2): asserts catalog/memory
+    # templates require a source, keep an append-only changelog, and supersede
+    # instead of deleting. Runs in make validate and CI. An end-user install
+    # has no catalog/memory templates to audit, so it is not installer-copied.
+    "check_memory_provenance.py",
+    # Repo-internal decision-record guard (v3.17.5): asserts every record under
+    # docs/decisions/ sits at lifecycle/class/file, carries the 3-line header
+    # matching its folder, and states its alternatives. Runs in `make validate`
+    # and CI. An end-user install carries no decision tree, so like the guards
+    # above it is deliberately not installer-copied.
+    "validate_decision_records.py",
+    # Repo-internal registry drift-check (v3.17.5): renders each skill's
+    # expected SKILL_INDEX row and skills.json entry from its own frontmatter
+    # and diffs against the committed bytes, plus capability-module
+    # reachability. Runs in `make validate` and CI. An end-user install has no
+    # catalog source to derive from, so it is deliberately not installer-copied.
+    "check_registry_entries.py",
+    # Repo-internal required-check coverage guard (v3.17.6): asserts every
+    # context in docs/policy/required-checks.json is produced by a workflow that
+    # triggers unconditionally, so a required check can never sit Pending
+    # forever. Runs in `make validate` and CI. An end-user install has no
+    # .github/workflows/ tree or branch protection to check, so like the guards
+    # above it is deliberately not installer-copied.
+    "check_required_check_coverage.py",
     # Repo-internal release-notes guard (v3.16.2): asserts every opt-in surface a
     # release ships documents its five capability-usage elements. Advisory until
     # it has caught a real omission. An end user has no release notes to check,
     # so like the guards above it is deliberately not installer-copied.
     "check_release_capability_docs.py",
+    # Repo-internal hard gate over configs/installer-parity.json. It checks the
+    # source installers against each other and has no end-user runtime role.
+    "check_installer_parity.py",
+    # CI-only shared postcondition checker for throwaway real-installer runs.
+    # Installed users do not need a harness that validates CI's temporary HOME.
+    "check_installer_smoke.py",
 }
 
 
@@ -648,11 +728,11 @@ V0_9_7_ARTIFACTS = [
     # command name minus the -style-guide suffix.
     "catalog/style-guides/compile-deep-research.md",
     # New guides (Phase 1 + 4). The v0.9.6 migration note was archived
-    # into docs/archive/v0/ during v2.1.0 post-Phase-10 maintenance
+    # into the legacy migration source docs/archive/v0/ during v2.1.0 post-Phase-10 maintenance
     # (commit 590ea5a). The test continues to assert it exists at its new
     # canonical path so the historical record stays reachable.
     "guides/reference/SESSION_LIFECYCLE_DECISIONS.md",
-    "docs/archive/v0/v0.9/opus-4-7-migration.md",
+    "docs/archives/v0/v0.9/opus-4-7-migration.md",  # Canonical frozen container since the v4.0.0 rename.
     # New checklist (Phase 3)
     "catalog/checklists/file-upload-security.md",
     # Bundled report templates (copied silently by installer)
@@ -691,10 +771,11 @@ def test_installer_sh_bash_syntax_clean():
         print("SKIP: bash not available on PATH", file=sys.stderr)
         return  # Treat as skip rather than fail on Windows without bash
     result = subprocess.run(
-        [bash, "-n", str(INSTALLER_SH)],
+        [bash, "-n", "scripts/installer.sh"],
         capture_output=True,
         text=True,
         timeout=30,
+        cwd=REPO_ROOT,
     )
     assert result.returncode == 0, (
         f"bash -n failed on installer.sh:\n{result.stderr}"
@@ -741,17 +822,17 @@ def _run_all():
         test_installer_ps1_has_nexus_ascii_banner,
         test_installer_sh_migrates_legacy_nexus_hub_dir,
         test_installer_ps1_migrates_legacy_nexus_hub_dir,
-        test_installer_sh_asks_global_vs_workspace_first,
-        test_installer_ps1_asks_global_vs_workspace_first,
+        test_installer_sh_scope_is_no_prompt_default_global,
+        test_installer_ps1_scope_is_no_prompt_default_global,
         test_installers_have_no_phase_labels,
         test_installer_ps1_does_not_clear_host_after_scope_choice,
         test_installer_sh_does_not_clear_after_scope_choice,
         test_installers_use_claude_usage_monitor_banner,
         test_installer_ps1_surfaces_vsce_errors,
-        test_installer_ps1_has_overwrite_request_subsection,
+        test_installer_ps1_uses_conflict_only_overwrite,
         test_installer_sh_removed_template_import_prompt,
         test_installer_ps1_removed_template_import_prompt,
-        test_catalog_hooks_settings_effort_level_is_medium,
+        test_declared_claude_effort_level_is_high,
         test_installer_ps1_fallback_literal_matches_template,
         test_installers_copy_every_scripts_dir_py_file,
         test_all_v0_9_7_source_artifacts_exist,

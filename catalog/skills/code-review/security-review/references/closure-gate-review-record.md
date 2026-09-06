@@ -4,11 +4,11 @@ The deterministic closure gate reads one local JSON object. The record is a Nexu
 
 ## Top-Level Shape
 
-All six top-level fields are required.
+Schema v1 requires the six fields below. Schema v2 keeps those fields and adds the scanner, remediation, and verifier collections described later. Unknown schema versions are usage errors.
 
 | Field | Type | Purpose |
 |-------|------|---------|
-| `schema_version` | integer | Must be `1` so future schema changes fail closed |
+| `schema_version` | integer | `1` for the original closure record, or `2` for a full security-audit record with scanner receipts |
 | `components` | array | The complete Phase 3 component denominator |
 | `review_actions` | array | Logged actions and results that establish component coverage |
 | `findings` | array | Every candidate and its terminal or explicitly pending disposition |
@@ -32,7 +32,7 @@ Use exactly one of the established dispositions: `confirmed`, `needs-live-valida
 - A `confirmed` finding names one or more `evidence_fact_ids`. Every referenced fact must exist and carry non-empty evidence.
 - A `needs-live-validation` finding carries `pending_validation` with non-empty `safe_test`, `expected_vulnerable`, `expected_safe`, and `potential_severity` fields. A bare disposition string is not explicitly pending.
 - A `rejected` finding carries a complete `rejection_record` with a `counter_hypothesis`, an `actual_input_sources` denominator, and one route result for every source. Each route uses `observed-blocked`, `observed-safe`, or `not-applicable` and cites evidence. When `reachability_claim` is true, `reachability_evidence` is also required.
-- A `corrected` finding is terminal. Its corrected scope and rating remain report content, while this gate verifies only that the disposition is not dropped.
+- A `corrected` finding is terminal. Its corrected scope and rating remain report content, while this gate verifies only that the disposition is not dropped. Under schema v2, a corrected finding with `source_scanner_id` also requires equivalent before and after scanner receipts.
 
 ## Facts and Report Claims
 
@@ -109,6 +109,30 @@ The same fact may support both a confirmed finding and a report claim. That is i
   ]
 }
 ```
+
+## Schema v2 Scanner Receipts
+
+Schema v2 is opt-in for full security-audit runs. Schema v1 records keep their previous required fields, diffs, and exit behavior. Extra v2 keys on a v1 record are ignored.
+
+A v2 record also requires `scanner_inventory`, `scanner_receipts`, `deterministic_coverage`, `remediation_receipts`, and `verifiers`.
+
+`scanner_inventory` is the scanner denominator. Each entry has a unique `id`, boolean `applicable`, and non-empty `evidence`. Every inventory id must have at least one receipt whose `scanner_id` matches.
+
+Receipt `state` is exactly one of `RAN`, `NOT_APPLICABLE`, `UNAVAILABLE`, `FAILED`, or `DECLINED`.
+
+A `RAN` receipt requires `scanner_version`, `applicability_evidence`, `target_scope` with a non-empty `fingerprint`, `config_fingerprint`, `command`, integer `exit_code`, `started_at`, `finished_at`, and `artifact_path`. `NOT_APPLICABLE` requires `applicability_evidence` and `omission_reason`. `UNAVAILABLE` and `DECLINED` require those two fields. `FAILED` also requires `command` and integer `exit_code`.
+
+`deterministic_coverage.status` is `complete` or `degraded`. `complete` is allowed only when every applicable scanner `RAN`. An inventory scanner with no receipt is a silent omission and always fails.
+
+`remediation_receipts` may be empty when no patch was produced. Each remediation names `finding_ids`, `fixer_identity`, `before_receipt_id`, `after_receipt_id`, and `finding_delta` with `resolved_finding_ids`, `unresolved_finding_ids`, and `new_finding_ids`. Before and after receipts must share detector, config fingerprint, and target-scope fingerprint.
+
+When remediations exist, `verifiers` must include at least one `read_only` identity that is not a fixer. The fixer may appear as an additional verifier. The independent verifier must not be the patch producer.
+
+Schema v2 adds these diffs: `applicable_scanners_without_successful_run`, `malformed_or_unsupported_receipt_states`, `corrected_scanner_findings_without_equivalent_rescan`, `mismatched_detector_config_or_scope`, `unresolved_new_after_scan_findings`, and `fixer_is_sole_verifier`.
+
+## Running the Gate
+
+The schema-v1 example above remains valid. A schema-v2 detection-only record adds inventory, receipts, degraded-or-complete coverage, empty remediations, and empty verifiers without changing the original collections.
 
 Run the bundled gate from the `security-review` skill directory:
 

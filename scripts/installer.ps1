@@ -30,7 +30,7 @@ param(
     # configs/permissions/claude-permissions-strict.json.
     [switch]$StrictPermissions,
     # v3.16.1 -- install-selection selectors. Contract:
-    # docs/v3/v3.16/development/install-selection-contract.md
+    # docs/releases/v3/v3.16/development/install-selection-contract.md
     # Absent (the default) installs the full catalog, exactly as before.
     # Bound as -Profile for lockstep with the Bash --profile flag, but stored in
     # $InstallProfile: $Profile is a PowerShell AUTOMATIC variable (the path to
@@ -144,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.16.6"
+$script:NexusHubVersion = "4.7.0"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -710,6 +710,123 @@ function Flatten-SkillsInto {
 
 # --- Hook Installation ---
 
+function Convert-ClaudeHookCommandsForWindows {
+    param(
+        [string]$SettingsFile,
+        [string]$RepoRoot,
+        [string]$Scope
+    )
+
+    if (-not (Test-Path $SettingsFile)) { return }
+    $python = Resolve-PythonExecutable
+    if (-not $python) { throw "Python is required to migrate Claude hook commands for Cursor compatibility" }
+    $compat = Join-Path $RepoRoot "catalog\hooks\cursor-hook-compat.py"
+    & $python $compat --rewrite-settings $SettingsFile --catalog-hooks-dir (Join-Path $RepoRoot "catalog\hooks") --host windows --scope $Scope.ToLowerInvariant()
+    if ($LASTEXITCODE -ne 0) { throw "Could not migrate Claude hook commands for Windows" }
+}
+
+function Install-ClaudeHookFiles {
+    param(
+        [string]$RepoRoot,
+        [string]$TargetClaudeDir,
+        [string]$Scope
+    )
+
+    $sourceDir = Join-Path $RepoRoot "catalog\hooks"
+    $hooksDir = Join-Path $TargetClaudeDir "hooks"
+    if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
+
+    foreach ($pattern in @("*.ps1", "*.py")) {
+        foreach ($source in @(Get-ChildItem -LiteralPath $sourceDir -Filter $pattern -File)) {
+            Safe-Copy -Source $source.FullName -Destination (Join-Path $hooksDir $source.Name) -Confirm:$true -CustomMessage "✓ $Scope hook installed: $($source.Name)"
+        }
+    }
+}
+
+function Get-ManagedHookStem {
+    param([object]$Hook)
+
+    if ($null -eq $Hook) { return "" }
+    $commandProperty = $Hook.PSObject.Properties["command"]
+    if (-not $commandProperty -or -not $commandProperty.Value) { return "" }
+    $matches = [regex]::Matches(
+        [string]$commandProperty.Value,
+        '(?<stem>[A-Za-z0-9_-]+)\.(?:sh|ps1|py)'
+    )
+    if ($matches.Count -gt 0) {
+        return $matches[$matches.Count - 1].Groups["stem"].Value
+    }
+    return [string]$commandProperty.Value
+}
+
+function Merge-ManagedClaudeHooks {
+    param(
+        [Parameter(Mandatory = $true)][object]$ExistingJson,
+        [Parameter(Mandatory = $true)][object]$TemplateJson
+    )
+
+    $hooksProperty = $ExistingJson.PSObject.Properties["hooks"]
+    if (-not $hooksProperty) {
+        $ExistingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([pscustomobject]@{})
+    }
+    elseif ($null -eq $hooksProperty.Value -or -not ($hooksProperty.Value -is [pscustomobject])) {
+        $hooksProperty.Value = [pscustomobject]@{}
+    }
+
+    foreach ($eventProperty in $TemplateJson.hooks.PSObject.Properties) {
+        $eventName = $eventProperty.Name
+        $existingEventProperty = $ExistingJson.hooks.PSObject.Properties[$eventName]
+        if (-not $existingEventProperty) {
+            $ExistingJson.hooks | Add-Member -NotePropertyName $eventName -NotePropertyValue @($eventProperty.Value)
+            continue
+        }
+
+        $existingEntries = @($existingEventProperty.Value)
+        foreach ($templateEntry in @($eventProperty.Value)) {
+            $templateMatcherProperty = $templateEntry.PSObject.Properties["matcher"]
+            $templateMatcher = if ($templateMatcherProperty) { [string]$templateMatcherProperty.Value } else { "" }
+            foreach ($templateHook in @($templateEntry.hooks)) {
+                $templateTypeProperty = $templateHook.PSObject.Properties["type"]
+                $templateType = if ($templateTypeProperty) { [string]$templateTypeProperty.Value } else { "" }
+                $templateStem = Get-ManagedHookStem -Hook $templateHook
+                $alreadyInstalled = $false
+
+                foreach ($existingEntry in $existingEntries) {
+                    $existingMatcherProperty = $existingEntry.PSObject.Properties["matcher"]
+                    $existingMatcher = if ($existingMatcherProperty) { [string]$existingMatcherProperty.Value } else { "" }
+                    if ($existingMatcher -ne $templateMatcher) { continue }
+                    foreach ($existingHook in @($existingEntry.hooks)) {
+                        $existingTypeProperty = $existingHook.PSObject.Properties["type"]
+                        $existingType = if ($existingTypeProperty) { [string]$existingTypeProperty.Value } else { "" }
+                        if (
+                            $existingType -eq $templateType -and
+                            (Get-ManagedHookStem -Hook $existingHook) -eq $templateStem
+                        ) {
+                            $alreadyInstalled = $true
+                            break
+                        }
+                    }
+                    if ($alreadyInstalled) { break }
+                }
+
+                if (-not $alreadyInstalled) {
+                    $newEntry = [ordered]@{}
+                    foreach ($property in $templateEntry.PSObject.Properties) {
+                        if ($property.Name -ne "hooks") {
+                            $newEntry[$property.Name] = $property.Value
+                        }
+                    }
+                    $newEntry["hooks"] = @($templateHook)
+                    $existingEntries += [pscustomobject]$newEntry
+                }
+            }
+        }
+        $existingEventProperty.Value = $existingEntries
+    }
+
+    return $ExistingJson
+}
+
 function Install-GitGuardrails {
     param(
         [string]$RepoRoot,
@@ -717,7 +834,12 @@ function Install-GitGuardrails {
         [string]$Scope  # "Global" or "Workspace"
     )
 
-    # Copy hook script
+    # Copy every PowerShell/Python hook referenced by the full settings template,
+    # including private helper modules sourced by registered hooks.
+    Install-ClaudeHookFiles -RepoRoot $RepoRoot -TargetClaudeDir $TargetClaudeDir -Scope $Scope
+
+    # Preserve the legacy explicit copies for compatibility with narrowly staged
+    # source bundles while the full catalog copy above owns normal installations.
     $hooksDir = Join-Path $TargetClaudeDir "hooks"
     if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
     Safe-Copy -Source "$RepoRoot\catalog\hooks\git-guardrails.sh" -Destination (Join-Path $hooksDir "git-guardrails.sh") -Confirm:$true -CustomMessage "✓ $Scope git guardrails hook installed at: $hooksDir"
@@ -739,8 +861,8 @@ function Install-GitGuardrails {
 
     $templateRaw = Get-Content $templateFile -Raw
 
-    # Windows uses "python" not "python3"; global scope uses ~/.claude/ paths
-    $templateRaw = $templateRaw -replace 'python3 ', 'python '
+    # Global scope uses ~/.claude/ paths. The parsed template is then converted to
+    # PowerShell commands so Cursor and Claude never need Bash on Windows.
     if ($Scope -eq "Global") {
         $templateRaw = $templateRaw -replace '(?<![~/.])\.claude/hooks/', '~/.claude/hooks/'
     }
@@ -750,43 +872,10 @@ function Install-GitGuardrails {
     if (Test-Path $settingsFile) {
         try {
             $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
-
-            # Check if hooks.PreToolUse already has our guardrail
-            $alreadyInstalled = $false
-            if ($existingJson.hooks -and $existingJson.hooks.PreToolUse) {
-                foreach ($hookEntry in $existingJson.hooks.PreToolUse) {
-                    foreach ($h in $hookEntry.hooks) {
-                        if ($h.command -and $h.command -like "*git-guardrails*") {
-                            $alreadyInstalled = $true
-                            break
-                        }
-                    }
-                }
-            }
-
-            if ($alreadyInstalled) {
-                Write-Item -Message "✓ Git guardrails hook already configured in settings.json" -Color "DarkGreen"
-            }
-            else {
-                # Add hooks key if missing
-                if (-not $existingJson.hooks) {
-                    $existingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue $templateJson.hooks
-                }
-                else {
-                    if (-not $existingJson.hooks.PreToolUse) {
-                        $existingJson.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue $templateJson.hooks.PreToolUse
-                    }
-                    else {
-                        # Append our hook entry to existing PreToolUse array
-                        $existingArray = @($existingJson.hooks.PreToolUse)
-                        $existingArray += $templateJson.hooks.PreToolUse
-                        $existingJson.hooks.PreToolUse = $existingArray
-                    }
-                }
-
-                Write-JsonFile -Path $settingsFile -Object $existingJson
-                Write-Item -Message "✓ $Scope settings.json updated with git guardrails hook" -Color "DarkGreen"
-            }
+            $existingJson = Merge-ManagedClaudeHooks -ExistingJson $existingJson -TemplateJson $templateJson
+            Write-JsonFile -Path $settingsFile -Object $existingJson
+            Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
+            Write-Item -Message "✓ $Scope settings.json reconciled with managed hooks" -Color "DarkGreen"
         }
         catch {
             Write-Item -Message "Warning: Could not merge into existing settings.json ($($_.Exception.Message))" -Color "Yellow"
@@ -794,8 +883,10 @@ function Install-GitGuardrails {
         }
     }
     else {
-        # No existing settings.json, copy template
-        Copy-Item -Path $templateFile -Destination $settingsFile -Force
+        # No existing settings.json: write the host-converted template rather than
+        # copying its POSIX commands verbatim.
+        Write-JsonFile -Path $settingsFile -Object $templateJson
+        Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
         Write-Item -Message "✓ $Scope settings.json created with git guardrails hook" -Color "DarkGreen"
     }
 }
@@ -829,8 +920,7 @@ function Install-UsageDisplay {
 
     $templateRaw = Get-Content $templateFile -Raw
 
-    # Windows uses "python" not "python3"; global scope uses ~/.claude/ paths
-    $templateRaw = $templateRaw -replace 'python3 ', 'python '
+    # Global scope uses ~/.claude/ paths; convert the parsed hook commands below.
     if ($Scope -eq "Global") {
         $templateRaw = $templateRaw -replace '(?<![~/.])\.claude/hooks/', '~/.claude/hooks/'
     }
@@ -874,6 +964,7 @@ function Install-UsageDisplay {
             }
 
             Write-JsonFile -Path $settingsFile -Object $existingJson
+            Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
             Write-Item -Message "✓ $Scope settings.json updated with usage display hook" -Color "DarkGreen"
         }
     }
@@ -940,7 +1031,7 @@ function Install-RequireDescription {
                 hooks   = @(
                     [PSCustomObject]@{
                         type    = "command"
-                        command = "bash $hookPath/require-description.sh"
+                        command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$hookPath/require-description.ps1`""
                     }
                 )
             }
@@ -955,7 +1046,7 @@ function Install-RequireDescription {
                 hooks   = @(
                     [PSCustomObject]@{
                         type    = "command"
-                        command = "python3 $hookPath/format-powershell-description.py"
+                        command = "python $hookPath/format-powershell-description.py"
                     }
                 )
             }
@@ -964,7 +1055,7 @@ function Install-RequireDescription {
                 hooks   = @(
                     [PSCustomObject]@{
                         type    = "command"
-                        command = "bash $hookPath/require-powershell-description.sh"
+                        command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$hookPath/require-powershell-description.ps1`""
                     }
                 )
             }
@@ -989,6 +1080,7 @@ function Install-RequireDescription {
             $added = ($entriesToAdd | ForEach-Object { $_.matcher }) -join ", "
             Write-Item -Message "✓ $Scope settings.json updated with description hooks ($added)" -Color "DarkGreen"
         }
+        Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
     }
     catch {
         Write-Item -Message "Warning: Could not merge description hooks into settings.json ($($_.Exception.Message))" -Color "Yellow"
@@ -1022,47 +1114,55 @@ function Install-CoreSettings {
         $coreKeys = @("effortLevel", "model")
         $applied = @()
 
+        # Treat the scalar and higher-precedence env lever as one user-owned
+        # pair. If either exists, preserve the pair exactly; only a config with
+        # neither effort key and an absent or object-shaped env receives both
+        # defaults.
+        $hasScalarEffort = [bool]$existingJson.PSObject.Properties["effortLevel"]
+        $hasEnvEffort = (
+            $existingJson.PSObject.Properties["env"] -and
+            $existingJson.env -is [System.Management.Automation.PSCustomObject] -and
+            $existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]
+        )
+        $hasAnyEffort = $hasScalarEffort -or $hasEnvEffort
+
         foreach ($key in $coreKeys) {
             if (-not $templateJson.PSObject.Properties[$key]) { continue }
+            if ($key -eq "effortLevel" -and $hasAnyEffort) { continue }
             $templateValue = $templateJson.$key
-            if ($existingJson.PSObject.Properties[$key] -and $existingJson.$key -eq $templateValue) {
+            if ($existingJson.PSObject.Properties[$key]) {
                 continue
             }
-            if ($existingJson.PSObject.Properties[$key]) {
-                $existingJson.$key = $templateValue
-            } else {
-                $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $templateValue
-            }
+            $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $templateValue
             $applied += "${key}: ${templateValue}"
         }
 
-        # Deep-merge the env effort override, preserving any sibling env vars.
-        if ($templateJson.PSObject.Properties["env"] -and $templateJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
+        # Seed the env effort override with the scalar only when the entire
+        # effort pair is absent. Any existing pair shape remains user-owned.
+        if (-not $hasAnyEffort -and $templateJson.PSObject.Properties["env"] -and $templateJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
             $envEffort = $templateJson.env.CLAUDE_CODE_EFFORT_LEVEL
             if (-not $existingJson.PSObject.Properties["env"]) {
                 $existingJson | Add-Member -NotePropertyName "env" -NotePropertyValue ([PSCustomObject]@{})
             }
-            if ($existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
-                if ($existingJson.env.CLAUDE_CODE_EFFORT_LEVEL -ne $envEffort) {
-                    $existingJson.env.CLAUDE_CODE_EFFORT_LEVEL = $envEffort
-                    $applied += "env.CLAUDE_CODE_EFFORT_LEVEL: $envEffort"
-                }
-            } else {
+            if ($existingJson.env -is [System.Management.Automation.PSCustomObject] -and -not $existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
                 $existingJson.env | Add-Member -NotePropertyName "CLAUDE_CODE_EFFORT_LEVEL" -NotePropertyValue $envEffort
                 $applied += "env.CLAUDE_CODE_EFFORT_LEVEL: $envEffort"
+            }
+            elseif ($existingJson.env -isnot [System.Management.Automation.PSCustomObject]) {
+                Write-Warning "existing env is not an object; preserving it and skipping env.CLAUDE_CODE_EFFORT_LEVEL"
             }
         }
 
         if ($applied.Count -eq 0) {
-            Write-Item -Message "✓ Core settings (effortLevel, model, env effort) already current in settings.json" -Color "DarkGreen"
+            Write-Item -Message "✓ Core settings already present; existing values preserved in settings.json" -Color "DarkGreen"
             return
         }
         Write-JsonFile -Path $settingsFile -Object $existingJson
-        Write-Item -Message "✓ $Scope settings.json updated core settings ($($applied -join ', '))" -Color "DarkGreen"
+        Write-Item -Message "✓ $Scope settings.json seeded absent core settings ($($applied -join ', ')); existing values preserved" -Color "DarkGreen"
     }
     catch {
-        Write-Item -Message "Warning: Could not set core settings ($($_.Exception.Message))" -Color "Yellow"
-        Write-Item -Message "  Manually copy effortLevel/model/env from $templateFile to $settingsFile" -Color "Yellow"
+        Write-Warning "Could not set core settings ($($_.Exception.Message))"
+        Write-Warning "Manually copy effortLevel/model/env from $templateFile to $settingsFile"
     }
 }
 
@@ -1190,12 +1290,121 @@ function Merge-StrictPermissions {
     }
 }
 
+# v3.17.0 Phase 1.2 -- the single permission-merge path for BOTH installers.
+#
+# Delegates to scripts/merge_permissions.py, which installer.sh calls identically.
+# One implementation, two thin callers.
+#
+# PARITY DEBT PAID: this installer previously performed its own native JSON merge.
+# That merge was a pure union, so an entry DELETED from a shipped template was never
+# removed from an existing user's config -- meaning the Phase 1.1 hardening reached
+# macOS and Linux users on upgrade and Windows users never. Porting rather than
+# re-implementing is the only correct fix: removal safety depends on the shipped-entry
+# manifest at ~/.nexus-hub/permissions-manifest.json, and a second implementation of
+# that bookkeeping is precisely the drift this phase exists to eliminate.
+#
+# Returns $true on success, $false when the sync failed.
+function Merge-PermissionsViaHelper {
+    param(
+        [string]$RepoRoot,
+        [string]$TemplateFile,
+        [string]$SettingsFile,
+        [string]$Key,               # permissions.allow | tools.allowed | allowedDomains
+        [string]$Platform,          # manifest key: CLAUDE, GEMINI, ...
+        [string]$SetTrueKey         # set ONE literal boolean key instead (Copilot)
+    )
+
+    $helper = Join-Path $RepoRoot "scripts\merge_permissions.py"
+    if (-not (Test-Path $helper)) {
+        Write-Item -Message "Warning: merge helper not found at $helper" -Color "Yellow"
+        return $false
+    }
+
+    $py = Resolve-PythonExecutable
+    if (-not $py) {
+        Write-Item -Message "Warning: Python not found, cannot sync permissions automatically" -Color "Yellow"
+        return $false
+    }
+
+    $settingsDir = Split-Path -Parent $SettingsFile
+    if ($settingsDir -and -not (Test-Path $settingsDir)) {
+        New-Item -ItemType Directory -Force -Path $settingsDir | Out-Null
+    }
+
+    $helperArgs = @($helper, "--settings", $SettingsFile)
+    if ($SetTrueKey) {
+        $helperArgs += @("--set-true", $SetTrueKey)
+    }
+    else {
+        $manifest = Join-Path (Join-Path $env:USERPROFILE ".nexus-hub") "permissions-manifest.json"
+        $helperArgs += @("--template", $TemplateFile, "--key", $Key,
+                         "--manifest", $manifest, "--platform", $Platform)
+    }
+
+    # Deliberately NO `2>&1` here. In Windows PowerShell 5.1 redirecting a native
+    # command's stderr wraps each line in an ErrorRecord (NativeCommandError) and
+    # sets $? to $false even on a clean exit, which turns a good run into a visible
+    # error. The helper reports BOTH its count and its removals on stdout for exactly
+    # this reason, so there is nothing to redirect; real errors reach the console
+    # on their own.
+    $output = & $py @helperArgs
+    if ($LASTEXITCODE -ne 0) {
+        Write-Item -Message "Warning: could not sync permissions into $SettingsFile" -Color "Yellow"
+        return $false
+    }
+
+    # Report each retired entry rather than removing anything silently from a file
+    # the user may have hand-edited.
+    foreach ($line in $output) {
+        if ($line -like "removed: *" -or $line -like "set: *") {
+            Write-Item -Message "  $line" -Color "DarkGray"
+        }
+    }
+    return $true
+}
+
+# v3.17.0 Phase 1.2: the $Scope parameter is now load-bearing. It was documented as
+# "Global" or "Workspace" since v0.9.x, but every call site passed "Global" and
+# Install-Workspace never called this function at all, so a -Workspace install
+# received no permission baseline on any operating system.
+#
+# Only CLAUDE is wired at workspace scope. The other three skip WITH A NOTE rather
+# than guessing:
+#   * GEMINI / CODEX -- no project-scoped permission path is documented well enough
+#     to write. A guessed path is worse than none: it looks configured and is not.
+#   * COPILOT -- its surface is .vscode\settings.json, which is COMMIT-VISIBLE. The
+#     plan forbids pushing a permission grant into a user's repository history
+#     without an explicit maintainer decision (same reasoning that made the v3.11.0
+#     Copilot .github\skills\ surface opt-in).
 function Install-Permissions {
     param(
         [string]$RepoRoot,
         [string]$Platform,          # "CLAUDE", "GEMINI", "CODEX", "COPILOT"
-        [string]$Scope              # "Global" or "Workspace"
+        [string]$Scope,             # "Global" or "Workspace"
+        [string]$TargetPath         # project root; required when Scope is "Workspace"
     )
+
+    if ($Scope -eq "Workspace") {
+        if (-not $TargetPath -or -not (Test-Path $TargetPath)) {
+            Write-Item -Message "Skip: workspace permissions need a valid target path" -Color "DarkGray"
+            return
+        }
+        switch ($Platform) {
+            "GEMINI" {
+                Write-Item -Message "Skip: Gemini has no documented project-scoped permission path (global scope only)" -Color "DarkGray"
+                return
+            }
+            "CODEX" {
+                Write-Item -Message "Skip: Codex has no documented project-scoped permission path (global scope only)" -Color "DarkGray"
+                return
+            }
+            "COPILOT" {
+                Write-Item -Message "Skip: Copilot's only permission surface is .vscode\settings.json, which is commit-visible" -Color "DarkGray"
+                Write-Item -Message "  A workspace grant there would enter your repository history; use a global install instead." -Color "Gray"
+                return
+            }
+        }
+    }
 
     $permDir = Join-Path $RepoRoot "configs\permissions"
 
@@ -1210,62 +1419,43 @@ function Install-Permissions {
                 return
             }
 
-            $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
-            $newEntries = @($templateJson.permissions.allow)
+            if ($Scope -eq "Workspace") {
+                # settings.local.json, NEVER settings.json: the latter is
+                # commit-visible and would push a permission grant into the user's
+                # repository history. Confirmed target (maintainer decision,
+                # v3.17.0 Phase 1.2).
+                $configDir = Join-Path $TargetPath ".claude"
+                $settingsFile = Join-Path $configDir "settings.local.json"
+            }
 
-            if (Test-Path $settingsFile) {
-                # Counting new entries BEFORE merging avoids the stale-sentinel
-                # bug where a single fixed marker (e.g. WebFetch api.github.com)
-                # made the installer think permissions were "already installed"
-                # and skip merging new entries shipped in later versions.
-                try {
-                    $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
-
-                    # Ensure permissions.allow exists
-                    if (-not $existingJson.permissions) {
-                        $existingJson | Add-Member -NotePropertyName "permissions" -NotePropertyValue ([PSCustomObject]@{ allow = @() })
-                    }
-                    elseif (-not $existingJson.permissions.allow) {
-                        $existingJson.permissions | Add-Member -NotePropertyName "allow" -NotePropertyValue @()
-                    }
-
-                    # Union merge (deduplicate). Only write the file (and create
-                    # a backup) if the merge actually adds something new.
-                    $existing = @($existingJson.permissions.allow)
-                    $merged = @($existing + $newEntries | Select-Object -Unique)
-                    $addedCount = $merged.Count - $existing.Count
-
-                    if ($addedCount -eq 0) {
-                        Write-Item -Message "✓ Auto-approve permissions up to date in settings.json (0 new entries)" -Color "DarkGreen"
-                        return
-                    }
-
-                    # Backup before modifying
-                    $backupPath = "$settingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                    Copy-Item -Path $settingsFile -Destination $backupPath -Force
-                    Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
-
-                    $existingJson.permissions.allow = $merged
-                    Write-JsonFile -Path $settingsFile -Object $existingJson
-                    Write-Item -Message "✓ $Scope auto-approve permissions added to settings.json ($addedCount new entries)" -Color "DarkGreen"
-                }
-                catch {
-                    Write-Item -Message "Warning: Could not merge permissions into settings.json ($($_.Exception.Message))" -Color "Yellow"
-                    return
-                }
+            # v3.17.0: one path for create AND merge, shared with installer.sh. The
+            # helper creates the file when absent, unions new entries, retires entries
+            # a prior Nexus-Hub version shipped and this one no longer does (never a
+            # user's own entry), backs up before any change, writes atomically, and
+            # strips the template's `_`-prefixed documentation keys.
+            if (Merge-PermissionsViaHelper -RepoRoot $RepoRoot -TemplateFile $templateFile `
+                    -SettingsFile $settingsFile -Key "permissions.allow" -Platform "CLAUDE") {
+                Write-Item -Message "[OK] $Scope auto-approve permissions synced in settings.json" -Color "DarkGreen"
             }
             else {
-                # No existing settings.json; create with permissions only
-                $newJson = [PSCustomObject]@{ permissions = [PSCustomObject]@{ allow = $newEntries } }
-                if (-not (Test-Path $configDir)) { New-Item -ItemType Directory -Force -Path $configDir | Out-Null }
-                Write-JsonFile -Path $settingsFile -Object $newJson
-                Write-Item -Message "✓ $Scope settings.json created with auto-approve permissions" -Color "DarkGreen"
+                return
             }
 
             Write-Item -Message "  Auto-approved: file reads, search (Glob/Grep), web search, git read-only commands" -Color "Gray"
             Write-Item -Message "  WebFetch: scoped to trusted domains (see $settingsFile to customize)" -Color "Gray"
             Write-Item -Message "  NOT auto-approved: file writes, destructive commands, git mutations, package installs" -Color "Gray"
             Write-Item -Message "  Config: $settingsFile" -Color "Gray"
+
+            # A workspace grant is only private if the file is actually ignored.
+            # settings.local.json is Claude Code's local-only convention, but nothing
+            # guarantees THIS repository ignores it, so check rather than assume.
+            if ($Scope -eq "Workspace" -and (Get-Command git -ErrorAction SilentlyContinue)) {
+                & git -C $TargetPath check-ignore -q $settingsFile
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Item -Message "  Note: $settingsFile is NOT git-ignored in this project." -Color "DarkYellow"
+                    Write-Item -Message "  Add '.claude/settings.local.json' to .gitignore so the grant stays local." -Color "DarkYellow"
+                }
+            }
         }
 
         "GEMINI" {
@@ -1278,57 +1468,30 @@ function Install-Permissions {
                 return
             }
 
-            $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
-            $newTools = @($templateJson.tools.allowed)
-            $newDomains = @($templateJson.allowedDomains)
-
-            if (Test-Path $settingsFile) {
-                $content = Get-Content $settingsFile -Raw
-                if ($content -match '"ReadFileTool"' -and $content -match '"allowedDomains"') {
-                    Write-Item -Message "✓ Auto-approve permissions already configured in settings.json" -Color "DarkGreen"
-                    return
-                }
-
-                try {
-                    $existingJson = $content | ConvertFrom-Json
-
-                    $backupPath = "$settingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                    Copy-Item -Path $settingsFile -Destination $backupPath -Force
-                    Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
-
-                    # Merge tools.allowed
-                    if (-not $existingJson.tools) {
-                        $existingJson | Add-Member -NotePropertyName "tools" -NotePropertyValue ([PSCustomObject]@{ allowed = @() })
-                    }
-                    elseif (-not $existingJson.tools.allowed) {
-                        $existingJson.tools | Add-Member -NotePropertyName "allowed" -NotePropertyValue @()
-                    }
-                    $existingTools = @($existingJson.tools.allowed)
-                    $existingJson.tools.allowed = @($existingTools + $newTools | Select-Object -Unique)
-
-                    # Merge allowedDomains
-                    if (-not $existingJson.allowedDomains) {
-                        $existingJson | Add-Member -NotePropertyName "allowedDomains" -NotePropertyValue @()
-                    }
-                    $existingDomains = @($existingJson.allowedDomains)
-                    $existingJson.allowedDomains = @($existingDomains + $newDomains | Select-Object -Unique)
-
-                    Write-JsonFile -Path $settingsFile -Object $existingJson
-                    Write-Item -Message "✓ $Scope auto-approve permissions added to settings.json" -Color "DarkGreen"
-                }
-                catch {
-                    Write-Item -Message "Warning: Could not merge permissions into Gemini settings.json ($($_.Exception.Message))" -Color "Yellow"
-                    return
-                }
+            # v3.17.0 amendment A3, bug 1: this branch previously gated on fixed
+            # sentinels ('"ReadFileTool"' and '"allowedDomains"') to decide whether
+            # permissions were already configured. That is the identical stale-marker
+            # defect the CLAUDE branch was fixed for, and the bash sibling's
+            # `grep -q 'run_shell_command(docker ps)'` twin: because the sentinel
+            # entries are present in every existing user's settings.json, the branch
+            # returned early forever and those users never received newly-shipped
+            # entries -- including, critically, the v3.17.0 Phase 1.1 hardening. The
+            # sentinel is replaced by the same count-and-sync helper the CLAUDE branch
+            # uses, which is idempotent by construction and needs no marker.
+            $geminiOk = $true
+            if (-not (Merge-PermissionsViaHelper -RepoRoot $RepoRoot -TemplateFile $templateFile `
+                    -SettingsFile $settingsFile -Key "tools.allowed" -Platform "GEMINI")) {
+                $geminiOk = $false
+            }
+            if (-not (Merge-PermissionsViaHelper -RepoRoot $RepoRoot -TemplateFile $templateFile `
+                    -SettingsFile $settingsFile -Key "allowedDomains" -Platform "GEMINI_DOMAINS")) {
+                $geminiOk = $false
+            }
+            if ($geminiOk) {
+                Write-Item -Message "[OK] $Scope auto-approve permissions synced in settings.json" -Color "DarkGreen"
             }
             else {
-                if (-not (Test-Path $configDir)) { New-Item -ItemType Directory -Force -Path $configDir | Out-Null }
-                $newJson = [PSCustomObject]@{
-                    tools = [PSCustomObject]@{ allowed = $newTools }
-                    allowedDomains = $newDomains
-                }
-                Write-JsonFile -Path $settingsFile -Object $newJson
-                Write-Item -Message "✓ $Scope settings.json created with auto-approve permissions" -Color "DarkGreen"
+                return
             }
 
             Write-Item -Message "  Auto-approved: file reads, search, web search, git read-only shell commands" -Color "Gray"
@@ -1439,32 +1602,16 @@ function Install-Permissions {
                 return
             }
 
-            try {
-                $content = Get-Content $vscodeSettingsFile -Raw
-                if ($content -match 'useInstructionFiles.*true') {
-                    Write-Item -Message "✓ Copilot useInstructionFiles already enabled in VS Code settings" -Color "DarkGreen"
-                    return
-                }
-
-                $existingJson = $content | ConvertFrom-Json
-
-                $backupPath = "$vscodeSettingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                Copy-Item -Path $vscodeSettingsFile -Destination $backupPath -Force
-                Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
-
-                $key = "github.copilot.chat.codeGeneration.useInstructionFiles"
-                if (-not ($existingJson.PSObject.Properties.Name -contains $key)) {
-                    $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $true
-                }
-                else {
-                    $existingJson.$key = $true
-                }
-
-                Write-JsonFile -Path $vscodeSettingsFile -Object $existingJson
-                Write-Item -Message "✓ $Scope VS Code settings updated with Copilot instruction file support" -Color "DarkGreen"
+            # v3.17.0: routed through the shared helper so both installers write this
+            # key with one implementation (it takes its own timestamped backup, writes
+            # atomically, and no-ops when the key is already true). The bash sibling
+            # previously required `jq` here and skipped without it, which is what made
+            # its Git-Bash path unreachable.
+            if (Merge-PermissionsViaHelper -RepoRoot $RepoRoot -SettingsFile $vscodeSettingsFile `
+                    -SetTrueKey "github.copilot.chat.codeGeneration.useInstructionFiles") {
+                Write-Item -Message "[OK] $Scope VS Code settings updated with Copilot instruction file support" -Color "DarkGreen"
             }
-            catch {
-                Write-Item -Message "Warning: Could not merge Copilot settings into VS Code settings.json ($($_.Exception.Message))" -Color "Yellow"
+            else {
                 return
             }
 
@@ -1526,7 +1673,6 @@ function Install-Global {
         # per-step notices) and render ONE unified checklist afterward so Claude
         # reads identically to the registry platforms. DF-001: the registry
         # runner renders CLAUDE.md; the Safe-Folder-Copy block does the mirror.
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -InstructionOnly 6>$null
         # v3.16.1: Get-CatalogSource returns the filtered stage when a selection
         # is active and the real catalog otherwise, so the no-selector path is
         # unchanged.
@@ -1534,6 +1680,8 @@ function Install-Global {
         Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "commands") -Destination (Join-Path $globalClaude "commands") 6>$null
         Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "agents")   -Destination (Join-Path $globalClaude "agents")   6>$null
         Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $globalClaude "rules")    6>$null
+        # Org rules are seeded by the registry after refresh-mode catalog pruning.
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -InstructionOnly 6>$null
 
         $mcpConfigDest = Join-Path $globalClaude "mcp-configs"
         if (-not (Test-Path $mcpConfigDest)) { New-Item -ItemType Directory -Force -Path $mcpConfigDest | Out-Null }
@@ -1553,7 +1701,7 @@ function Install-Global {
         if (Test-Path (Join-Path $globalClaude "rules"))     { Write-ChecklistRow -Label "Rules" -State "ok" -Detail (Join-Path $globalClaude "rules") }
         if (Test-Path (Join-Path $globalClaude "settings.json")) {
             Write-ChecklistRow -Label "Hooks" -State "ok" -Detail "git-guardrails, usage, require-description, compress-output"
-            Write-ChecklistRow -Label "Core Settings" -State "ok" -Detail "effortLevel, model, env (settings.json)"
+            Write-ChecklistRow -Label "Core Settings" -State "ok" -Detail "settings.json retained; existing values preserved (see warnings above)"
         }
     }
 
@@ -1914,12 +2062,12 @@ function Install-Workspace {
             Write-Item -Message "Claude Code" -Color "Gray"
             $claudeDir = Join-Path $targetPath ".claude"
 
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
-
             Flatten-SkillsInto -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "skills")   -Destination (Join-Path $claudeDir "skills")   -CustomMessage "✓ Skills catalog installed (flattened) at: $(Join-Path $claudeDir "skills")"
             Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "commands") -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $claudeDir "commands")"
             Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "agents")   -Destination (Join-Path $claudeDir "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $claudeDir "agents")"
             Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $claudeDir "rules")    -CustomMessage "✓ Rules installed at: $(Join-Path $claudeDir "rules")"
+            # Org rules are seeded by the registry after refresh-mode catalog pruning.
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
 
             $mcpConfigDestWs = Join-Path $claudeDir "mcp-configs"
             if (-not (Test-Path $mcpConfigDestWs)) { New-Item -ItemType Directory -Force -Path $mcpConfigDestWs | Out-Null }
@@ -2047,6 +2195,32 @@ function Install-Workspace {
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "nexus-ai" -DisplayName "Nexus-AI (Local Desktop Studio)"
         }
 
+        # --- Auto-Approve Permissions sub-section ---
+        # v3.17.0 Phase 1.2: previously absent entirely, so a -Workspace install
+        # received no permission baseline on any operating system while the $Scope
+        # parameter of Install-Permissions sat decorative. Only CLAUDE has a
+        # confirmed project-scoped target (.claude\settings.local.json); the other
+        # three skip with a note stating why. Gated on the same -Platforms subset
+        # as the global block.
+        Write-CenteredBanner -Text "AUTO-APPROVE PERMISSIONS"
+
+        if ($workspacePlatforms -contains "CLAUDE") {
+            Write-Header -Provider "ANTHROPIC"
+            Install-Permissions -RepoRoot $RepoRoot -Platform "CLAUDE" -Scope "Workspace" -TargetPath $targetPath
+        }
+        if ($workspacePlatforms -contains "CODEX") {
+            Write-Header -Provider "OPENAI"
+            Install-Permissions -RepoRoot $RepoRoot -Platform "CODEX" -Scope "Workspace" -TargetPath $targetPath
+        }
+        if ($workspacePlatforms -contains "GEMINI") {
+            Write-Header -Provider "GOOGLE"
+            Install-Permissions -RepoRoot $RepoRoot -Platform "GEMINI" -Scope "Workspace" -TargetPath $targetPath
+        }
+        if ($workspacePlatforms -contains "COPILOT") {
+            Write-Header -Provider "MICROSOFT"
+            Install-Permissions -RepoRoot $RepoRoot -Platform "COPILOT" -Scope "Workspace" -TargetPath $targetPath
+        }
+
         Write-Host ""
 }
 
@@ -2061,7 +2235,7 @@ function Resolve-PythonExecutable {
 # Install selection (v3.16.1 Phase 6.2) -- lockstep with the Bash implementation
 # in scripts/installer.sh.
 #
-# Contract: docs/v3/v3.16/development/install-selection-contract.md
+# Contract: docs/releases/v3/v3.16/development/install-selection-contract.md
 #
 # Resolution delegates to scripts/lib/installer/selection.py rather than being
 # reimplemented in PowerShell, matching the Bash decision and for the same
@@ -2398,34 +2572,13 @@ function Install-VSCodeExtensions {
 
     # Build each extension under its own vendor header. VS Code monitors install
     # only via $vscodeCli; the Cursor monitor installs only via $cursorCli. The
-    # vendor order (Anthropic, OpenAI, GitHub, Anysphere) is asserted by the
+    # vendor order (Anthropic, OpenAI, Anysphere) is asserted by the
     # installer smoke test and must match scripts/installer.sh.
     Write-Header -Provider "ANTHROPIC"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\claude-usage-monitor") -ExtensionId "nexus-hub.claude-usage-monitor" -DisplayName "Claude Usage Monitor" -StatusHint "Claude: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
 
     Write-Header -Provider "OPENAI"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\codex-usage-monitor") -ExtensionId "nexus-hub.codex-usage-monitor" -DisplayName "Codex Usage Monitor" -StatusHint "Codex: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
-
-    # The GitHub monitor's status hint carries no "%" because GitHub does not
-    # guarantee an included allowance: until a verified denominator or a manual
-    # one is configured the bar shows absolute usage, so promising a percentage
-    # here would be the false-quota claim the v3.15.8 contract forbids. The
-    # install itself never authenticates to GitHub - the token is supplied later
-    # through the extension's SecretStorage command.
-    # v3.15.13 Phase 3 renamed the display surfaces to "GitHub Billing Usage";
-    # v3.16.3 Phase 1 reverted them to "GitHub Usage Monitor" for consistency with
-    # the Claude, Codex, and Cursor monitors. The extension id is deliberately
-    # unchanged through both: an id is publisher.name, so renaming it would mint a
-    # second extension and leave the previously installed one orphaned, with both
-    # writing a status-bar item. The directory path also stays
-    # extensions\github-usage-monitor.
-    # Dual-host, unlike the Claude and Codex monitors. GitHub billing is not tied to
-    # the editor a developer happens to use, and a Cursor user has the same Actions
-    # minutes and Copilot credits to watch. Requested 2026-08-11; this deliberately
-    # reverses the v3.15.9 Phase 6 blanket rule FOR THIS MONITOR ONLY. The Cursor
-    # argument is $null when Cursor is not installed, so nothing happens.
-    Write-Header -Provider "GITHUB"
-    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\github-usage-monitor") -ExtensionId "nexus-hub.github-usage-monitor" -DisplayName "GitHub Usage Monitor" -StatusHint "GitHub Usage: --" -CodeCli $vscodeCli -CodeLabel $vscodeLabel -AlsoCodeCli $cursorCli -AlsoCodeLabel $cursorLabel
 
     Write-Header -Provider "ANYSPHERE"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\cursor-usage-monitor") -ExtensionId "nexus-hub.cursor-usage-monitor" -DisplayName "Cursor Usage Monitor" -StatusHint "Cursor: --%" -CodeCli $cursorCli -CodeLabel $cursorLabel
@@ -2635,6 +2788,19 @@ function Install-Templates {
     if (Test-Path $triggerEvalsSource) {
         Safe-Copy -Source $triggerEvalsSource -Destination (Join-Path $scriptsDest "run_trigger_evals.py") -Confirm:$true -CustomMessage "✓ Trigger-and-routing eval installed at: $scriptsDest\run_trigger_evals.py"
     }
+    # v3.17.0 Phase 1: permission-baseline tooling. Registered in lockstep with
+    # scripts/installer.sh -- merge_permissions.py is the single merge implementation
+    # BOTH installers call, so a divergence here reintroduces the exact drift that
+    # phase repaired. validate_permission_baseline.py guards the read-only baseline.
+    $mergePermissionsSource = Join-Path $RepoRoot "scripts\merge_permissions.py"
+    if (Test-Path $mergePermissionsSource) {
+        Safe-Copy -Source $mergePermissionsSource -Destination (Join-Path $scriptsDest "merge_permissions.py") -Confirm:$true -CustomMessage "✓ Permission merge helper installed at: $scriptsDest\merge_permissions.py"
+    }
+    $validateBaselineSource = Join-Path $RepoRoot "scripts\validate_permission_baseline.py"
+    if (Test-Path $validateBaselineSource) {
+        Safe-Copy -Source $validateBaselineSource -Destination (Join-Path $scriptsDest "validate_permission_baseline.py") -Confirm:$true -CustomMessage "✓ Permission-baseline validator installed at: $scriptsDest\validate_permission_baseline.py"
+    }
+
     $triggerEvalsAllowlistSource = Join-Path $RepoRoot "scripts\run_trigger_evals.allowlist.json"
     if (Test-Path $triggerEvalsAllowlistSource) {
         Safe-Copy -Source $triggerEvalsAllowlistSource -Destination (Join-Path $scriptsDest "run_trigger_evals.allowlist.json") -Confirm:$true -CustomMessage "✓ Trigger-eval allowlist installed at: $scriptsDest\run_trigger_evals.allowlist.json"
@@ -2768,6 +2934,19 @@ function Install-Templates {
     $versionSyncSource = Join-Path $RepoRoot "scripts\check_version_sync.py"
     if (Test-Path $versionSyncSource) {
         Safe-Copy -Source $versionSyncSource -Destination (Join-Path $scriptsDest "check_version_sync.py") -Confirm:$true -CustomMessage "✓ Version-sync guard installed at: $scriptsDest\check_version_sync.py"
+    }
+    # check_release_preconditions.py (v3.17.6): release-flow guard. --pre-tag
+    # refuses to tag unless HEAD is the expected release branch AND matches its
+    # remote (the v3.17.5 mis-tag: a checkout failed on a locked directory and
+    # the tag was created on the wrong commit). --branches and --repo-settings
+    # report merged remote branches and delete_branch_on_merge, advisory only,
+    # deleting nothing. Stdlib-only, so it is a single cross-platform .py file
+    # with no .ps1 sibling (NI-v24-1 convention). Distributed because
+    # /update release ships to users and must not describe a check they lack.
+    # Mirror of the bash block in scripts\installer.sh.
+    $releasePrecondSource = Join-Path $RepoRoot "scripts\check_release_preconditions.py"
+    if (Test-Path $releasePrecondSource) {
+        Safe-Copy -Source $releasePrecondSource -Destination (Join-Path $scriptsDest "check_release_preconditions.py") -Confirm:$true -CustomMessage "✓ Release-preconditions guard installed at: $scriptsDest\check_release_preconditions.py"
     }
     # scan_skill_security.py (v3.0.0): thin CLI launcher for the
     # nexus-skill-scanner static skill-security engine (extensions\nexus-skill-scanner).
@@ -3187,6 +3366,9 @@ function Install-SkillDiscovery {
     if (Test-Path $codeSearchSrc) {
         if (Test-Path $codeSearchDest) { Remove-Item -Path $codeSearchDest -Recurse -Force }
         Copy-Item -Path $codeSearchSrc -Destination $codeSearchDest -Recurse -Force
+        # Repository-only measurement evidence must not reach user machines.
+        $codeSearchBenchmarks = Join-Path $codeSearchDest "benchmarks"
+        if (Test-Path $codeSearchBenchmarks) { Remove-Item -Path $codeSearchBenchmarks -Recurse -Force }
         if ($hasUv) {
             & uv pip install --python "$venvPath\Scripts\python.exe" -e $codeSearchDest 2>$null | Out-Null
         } else {
@@ -3227,6 +3409,23 @@ function Install-SkillDiscovery {
             & "$venvPath\Scripts\pip.exe" install -q -e "$contextCompressorDest[mcp]" 2>$null | Out-Null
         }
         Write-Item -Message "  nexus-context-compressor installed at $contextCompressorDest" -Color "DarkGreen"
+    }
+
+    # Install nexus-memory into the same venv (v3.19.1+). Local persistent
+    # agent-memory CLI. Stdlib only, zero outbound, not an MCP server. Dest
+    # is $nexusHome\nexus-memory so it does not collide with the default
+    # store root $nexusHome\memory.
+    $memorySrc = Join-Path $RepoRoot "extensions\nexus-memory"
+    $memoryDest = Join-Path $nexusHome "nexus-memory"
+    if (Test-Path $memorySrc) {
+        if (Test-Path $memoryDest) { Remove-Item -Path $memoryDest -Recurse -Force }
+        Copy-Item -Path $memorySrc -Destination $memoryDest -Recurse -Force
+        if ($hasUv) {
+            & uv pip install --python "$venvPath\Scripts\python.exe" -e "$memoryDest" 2>$null | Out-Null
+        } else {
+            & "$venvPath\Scripts\pip.exe" install -q -e "$memoryDest" 2>$null | Out-Null
+        }
+        Write-Item -Message "  nexus-memory installed at $memoryDest" -Color "DarkGreen"
     }
     $ErrorActionPreference = "Stop"
 
@@ -3321,24 +3520,34 @@ function Write-NexusBanner {
 # (and necessary) to re-run on every install, including for users who
 # migrated ~/.devai-hub/ in an earlier installer run.
 function Remove-LegacyVSCodeExtensions {
-    $codeCmd = Get-Command "code" -ErrorAction SilentlyContinue
-    if (-not $codeCmd) { return }
-    $installed = & code --list-extensions 2>$null
-    if ($LASTEXITCODE -ne 0 -or -not $installed) { return }
+    # nexus-hub.github-usage-monitor was WITHDRAWN in v3.18.2. It reconstructed the
+    # included-usage meter from data GitHub does not publish, and could report a
+    # confident 0% against an exhausted allowance. Leaving it installed keeps that
+    # wrong number on a user's status bar forever, so it is actively uninstalled
+    # rather than merely unshipped.
+    $legacyIds = @("devai-hub.claude-usage-monitor", "nexus-hub.github-usage-monitor")
 
-    $legacyIds = @("devai-hub.claude-usage-monitor")
+    # Both hosts, not just VS Code. The GitHub monitor was the one dual-host
+    # monitor, installed to Cursor as well, so a VS Code-only sweep would leave the
+    # Cursor copy running.
     $emitted = $false
-    foreach ($id in $legacyIds) {
-        if ($installed -contains $id) {
-            if (-not $emitted) { Write-Host "" }
-            Write-Host "  Removing legacy VS Code extension: $id" -ForegroundColor Yellow
-            & code --uninstall-extension $id 2>$null | Out-Null
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "  ✓ Removed $id" -ForegroundColor Green
-            } else {
-                Write-Host "  ⚠ Could not auto-remove $id (uninstall it manually from VS Code)" -ForegroundColor Yellow
+    foreach ($cli in @("code", "cursor")) {
+        $cliCmd = Get-Command $cli -ErrorAction SilentlyContinue
+        if (-not $cliCmd) { continue }
+        $installed = & $cli --list-extensions 2>$null
+        if ($LASTEXITCODE -ne 0 -or -not $installed) { continue }
+        foreach ($id in $legacyIds) {
+            if ($installed -contains $id) {
+                if (-not $emitted) { Write-Host "" }
+                Write-Host "  Removing retired extension from ${cli}: $id" -ForegroundColor Yellow
+                & $cli --uninstall-extension $id 2>$null | Out-Null
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "  [OK] Removed $id from $cli" -ForegroundColor Green
+                } else {
+                    Write-Host "  [!] Could not auto-remove $id (uninstall it manually from $cli)" -ForegroundColor Yellow
+                }
+                $emitted = $true
             }
-            $emitted = $true
         }
     }
     if ($emitted) { Write-Host "" }

@@ -135,7 +135,7 @@ The Claude Code effort level (`xhigh` / `high` / `max` / `medium` / `low`) is a 
 
 ### Where the effort level is configured today
 
-- Default source: [configs/platform-defaults.json](../../configs/platform-defaults.json) - the single place the shipped `effortLevel` (currently `medium`) and its matching `env.CLAUDE_CODE_EFFORT_LEVEL` are declared
+- Default source: [configs/platform-defaults.json](../../configs/platform-defaults.json) - the single place the shipped `effortLevel` (currently `high`) and its matching `env.CLAUDE_CODE_EFFORT_LEVEL` are declared
 - Harness template: [catalog/hooks/settings.json](../../catalog/hooks/settings.json) - **generated** from that source; do not hand-edit its core keys
 - User override: `~/.claude/settings.json` (written by the installer on first run; edit directly or via the `/model` slash command in a Claude Code session)
 - Decision guidance: [prompt-engineering/SKILL.md - Effort-Level Strategy](../../catalog/skills/ai-development/prompt-engineering/SKILL.md#effort-level-strategy)
@@ -155,7 +155,7 @@ Until both blockers are resolved, surfacing the effort level in this extension w
 Target design if the read/live-update blockers are resolved in a future Claude Code release:
 
 - **Display** the current effort level in the status bar tooltip and dashboard.
-- **Auto-band switching** based on current usage percentage (opt-in; PROMOTES above the installed `medium` default when usage is low, then reduces as usage rises):
+- **Auto-band switching** based on current usage percentage (opt-in; starts above the installed `high` default when usage is low, holds the default in the next band, then reduces as usage rises):
 
   | Usage % | Effort Level |
   |---------|--------------|
@@ -164,7 +164,7 @@ Target design if the read/live-update blockers are resolved in a future Claude C
   | 76-95%  | `medium`     |
   | 96-100% | `low`        |
 
-  Note: the bands sit above the installed Nexus-Hub default of `medium`, so the intent is cost-aware modulation in both directions. Spend the headroom on deeper reasoning while usage is plentiful, then step back down toward (and below) the default as the budget tightens. The feature is opt-in so operators who pin a single tier across the board are never surprised by an automatic change.
+  Note: the bands range from above the installed Nexus-Hub default of `high`, through that default, and then below it. Spend the headroom on deeper reasoning while usage is plentiful, then step down as the budget tightens. The feature is opt-in so operators who pin a single tier across the board are never surprised by an automatic change.
 
 - **Manual override** via a settings-panel control and a Command Palette entry.
 - **Opt-in only** - auto-switching is off by default; operators enable it explicitly.

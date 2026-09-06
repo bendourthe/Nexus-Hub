@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.16.6"
+NEXUS_HUB_VERSION="4.7.0"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -459,12 +459,207 @@ resolve_conflicts() {
 
 # --- Hook Installation ---
 
+install_claude_hook_files() {
+    local repo_root="$1"
+    local target_claude_dir="$2"
+    local scope="$3"
+    local hooks_dir="$target_claude_dir/hooks"
+    local source
+
+    mkdir -p "$hooks_dir"
+    for source in "$repo_root"/catalog/hooks/*.sh "$repo_root"/catalog/hooks/*.py; do
+        [ -f "$source" ] || continue
+        safe_copy "$source" "$hooks_dir/$(basename "$source")" true "[OK] $scope hook installed: $(basename "$source")"
+        if [[ "$source" == *.sh ]]; then
+            chmod +x "$hooks_dir/$(basename "$source")" 2>/dev/null || true
+        fi
+    done
+}
+
+convert_claude_hook_commands_for_posix() {
+    local repo_root="$1"
+    local settings_file="$2"
+    local scope="$3"
+    local python_bin
+
+    [ -f "$settings_file" ] || return 0
+    if ! python_bin=$(resolve_python_executable); then
+        write_item "ERROR: Python is required to migrate Claude hook commands for Cursor compatibility" "$RED" >&2
+        return 1
+    fi
+    "$python_bin" "$repo_root/catalog/hooks/cursor-hook-compat.py" \
+        --rewrite-settings "$settings_file" \
+        --catalog-hooks-dir "$repo_root/catalog/hooks" \
+        --host posix \
+        --scope "$(printf '%s' "$scope" | tr '[:upper:]' '[:lower:]')"
+}
+
+resolve_settings_write_target() {
+    local path="$1"
+    local link_target target_dir
+    local depth=0
+
+    while [ -L "$path" ]; do
+        depth=$((depth + 1))
+        if [ "$depth" -gt 40 ]; then
+            return 1
+        fi
+        if ! link_target=$(readlink "$path"); then
+            return 1
+        fi
+        case "$link_target" in
+            /*) path="$link_target" ;;
+            *) path="$(dirname "$path")/$link_target" ;;
+        esac
+    done
+
+    if ! target_dir=$(cd -P "$(dirname "$path")" 2>/dev/null && pwd); then
+        return 1
+    fi
+    printf '%s/%s\n' "$target_dir" "$(basename "$path")"
+}
+
+merge_managed_claude_hooks() {
+    local settings_file="$1"
+    local template_file="$2"
+
+    if command -v jq >/dev/null 2>&1; then
+        jq -s '
+            def hook_stem:
+                (.command // "") as $command |
+                (([
+                    $command |
+                    match("(?<stem>[A-Za-z0-9_-]+)\\.(?:sh|ps1|py)"; "g") |
+                    .captures[0].string
+                ] | last) // $command);
+            def hook_exists($hooks; $event; $matcher; $candidate):
+                any(($hooks[$event] // [])[];
+                    (.matcher // "") == $matcher and
+                    any((.hooks // [])[];
+                        (.type // "") == ($candidate.type // "") and
+                        hook_stem == ($candidate | hook_stem)
+                    )
+                );
+            .[0] as $existing | .[1] as $template |
+            reduce (($template.hooks // {}) | to_entries[]) as $event (
+                ($existing |
+                    if (.hooks | type) == "object" then .
+                    else . + {hooks: {}}
+                    end
+                );
+                reduce (($event.value // [])[]) as $entry (.;
+                    reduce (($entry.hooks // [])[]) as $hook (.;
+                        if hook_exists(.hooks; $event.key; ($entry.matcher // ""); $hook) then .
+                        else .hooks[$event.key] = (
+                            (.hooks[$event.key] // []) + [($entry | .hooks = [$hook])]
+                        )
+                        end
+                    )
+                )
+            )
+        ' "$settings_file" "$template_file" 2>/dev/null
+        return
+    fi
+
+    local python_bin
+    if ! python_bin=$(resolve_python_executable); then
+        return 127
+    fi
+
+    "$python_bin" - "$settings_file" "$template_file" <<'PY'
+import json
+import re
+import sys
+
+
+HOOK_STEM_PATTERN = re.compile(r"(?P<stem>[A-Za-z0-9_-]+)\.(?:sh|ps1|py)")
+
+
+def load_object(path):
+    with open(path, encoding="utf-8-sig") as handle:
+        value = json.load(handle)
+    if not isinstance(value, dict):
+        raise ValueError(f"{path} must contain a JSON object")
+    return value
+
+
+def hook_stem(hook):
+    command = hook.get("command") or ""
+    if not isinstance(command, str):
+        raise ValueError("managed hook command must be a string")
+    matches = list(HOOK_STEM_PATTERN.finditer(command))
+    return matches[-1].group("stem") if matches else command
+
+
+def hook_exists(hooks, event, matcher, candidate):
+    entries = hooks.get(event, [])
+    if not isinstance(entries, list):
+        raise ValueError(f"existing hooks.{event} must be an array")
+    for entry in entries:
+        if not isinstance(entry, dict) or (entry.get("matcher") or "") != matcher:
+            continue
+        installed_hooks = entry.get("hooks") or []
+        if not isinstance(installed_hooks, list):
+            raise ValueError(f"existing hooks.{event}[].hooks must be an array")
+        for installed in installed_hooks:
+            if not isinstance(installed, dict):
+                continue
+            if (installed.get("type") or "") == (candidate.get("type") or "") and hook_stem(installed) == hook_stem(candidate):
+                return True
+    return False
+
+
+try:
+    existing = load_object(sys.argv[1])
+    template = load_object(sys.argv[2])
+    hooks = existing.get("hooks")
+    if not isinstance(hooks, dict):
+        hooks = {}
+        existing["hooks"] = hooks
+    template_hooks = template.get("hooks") or {}
+    if not isinstance(template_hooks, dict):
+        raise ValueError("template hooks must be an object")
+
+    for event, entries in template_hooks.items():
+        if not isinstance(entries, list):
+            raise ValueError(f"template hooks.{event} must be an array")
+        for entry in entries:
+            if not isinstance(entry, dict):
+                raise ValueError(f"template hooks.{event} entries must be objects")
+            matcher = entry.get("matcher") or ""
+            candidates = entry.get("hooks") or []
+            if not isinstance(candidates, list):
+                raise ValueError(f"template hooks.{event}[].hooks must be an array")
+            for candidate in candidates:
+                if not isinstance(candidate, dict):
+                    raise ValueError(f"template hooks.{event}[].hooks entries must be objects")
+                if hook_exists(hooks, event, matcher, candidate):
+                    continue
+                event_hooks = hooks.setdefault(event, [])
+                if not isinstance(event_hooks, list):
+                    raise ValueError(f"existing hooks.{event} must be an array")
+                new_entry = dict(entry)
+                new_entry["hooks"] = [candidate]
+                event_hooks.append(new_entry)
+
+    json.dump(existing, sys.stdout, ensure_ascii=False, indent=2)
+    sys.stdout.write("\n")
+except (OSError, TypeError, ValueError) as error:
+    print(f"managed hook merge failed: {error}", file=sys.stderr)
+    raise SystemExit(1)
+PY
+}
+
 install_git_guardrails() {
     local repo_root="$1"
     local target_claude_dir="$2"
     local scope="$3"  # "Global" or "Workspace"
 
-    # Copy hook script
+    # Materialize every shell/Python hook referenced by the full settings template.
+    install_claude_hook_files "$repo_root" "$target_claude_dir" "$scope"
+
+    # Preserve the legacy explicit copies for compatibility with narrowly staged
+    # source bundles while the full catalog copy above owns normal installations.
     local hooks_dir="$target_claude_dir/hooks"
     mkdir -p "$hooks_dir"
     safe_copy "$repo_root/catalog/hooks/git-guardrails.sh" "$hooks_dir/git-guardrails.sh" true "[OK] $scope git guardrails hook installed at: $hooks_dir"
@@ -480,49 +675,82 @@ install_git_guardrails() {
     # Merge hook config into settings.json
     local settings_file="$target_claude_dir/settings.json"
     local template_file="$repo_root/catalog/hooks/settings.json"
+    local settings_write_target
 
     if [ ! -f "$template_file" ]; then
         write_item "Skip: Hook template not found" "$GRAY"
         return
     fi
 
+    if ! settings_write_target=$(resolve_settings_write_target "$settings_file"); then
+        write_item "ERROR: Could not resolve the settings write target for $settings_file" "$RED" >&2
+        return 1
+    fi
+
     if [ -f "$settings_file" ]; then
-        # Check if guardrails already installed
-        if grep -q "git-guardrails" "$settings_file" 2>/dev/null; then
-            write_item "[OK] Git guardrails hook already configured in settings.json" "$GREEN"
-            return
-        fi
-
-        # Merge using jq if available
-        if command -v jq >/dev/null 2>&1; then
-            local merged
-            merged=$(jq -s '
-                .[0] as $existing | .[1] as $template |
-                if $existing.hooks then
-                    if $existing.hooks.PreToolUse then
-                        $existing | .hooks.PreToolUse += $template.hooks.PreToolUse
-                    else
-                        $existing | .hooks.PreToolUse = $template.hooks.PreToolUse
-                    end
-                else
-                    $existing + {hooks: $template.hooks}
-                end
-            ' "$settings_file" "$template_file" 2>/dev/null)
-
-            if [ -n "$merged" ]; then
-                echo "$merged" > "$settings_file"
-                write_item "[OK] $scope settings.json updated with git guardrails hook" "$GREEN"
+        # Reconcile every managed template hook. Hook identity ignores the host
+        # suffix so an existing .ps1 registration and a template .sh registration
+        # represent the same managed hook during cross-host upgrades.
+        local merged merge_status candidate_file
+        if merged=$(merge_managed_claude_hooks "$settings_file" "$template_file"); then
+            if [ -z "$merged" ]; then
+                write_item "ERROR: Managed hook reconciliation produced no settings content for $settings_file" "$RED" >&2
+                return 1
             else
-                write_item "Warning: Could not merge into existing settings.json" "$YELLOW"
-                write_item "  You may need to manually add the hook config" "$YELLOW"
+                if ! candidate_file=$(mktemp "${settings_write_target}.nexus-candidate.XXXXXX"); then
+                    write_item "ERROR: Could not create a transactional settings candidate for $settings_file" "$RED" >&2
+                    return 1
+                fi
+                if ! printf '%s\n' "$merged" > "$candidate_file"; then
+                    rm -f "$candidate_file"
+                    write_item "ERROR: Could not stage reconciled settings for $settings_file" "$RED" >&2
+                    return 1
+                fi
+                if ! convert_claude_hook_commands_for_posix "$repo_root" "$candidate_file" "$scope"; then
+                    rm -f "$candidate_file"
+                    write_item "ERROR: Hook command conversion failed; $settings_file was left unchanged" "$RED" >&2
+                    return 1
+                fi
+                if ! mv -f "$candidate_file" "$settings_write_target"; then
+                    rm -f "$candidate_file"
+                    write_item "ERROR: Could not replace $settings_file with reconciled settings" "$RED" >&2
+                    return 1
+                fi
+                write_item "[OK] $scope settings.json reconciled with managed hooks" "$GREEN"
             fi
         else
-            write_item "Warning: jq not found, cannot merge settings.json automatically" "$YELLOW"
-            write_item "  Please manually add hook config from: $template_file" "$YELLOW"
+            merge_status=$?
+            if [ "$merge_status" -eq 127 ]; then
+                write_item "ERROR: Cannot safely upgrade $settings_file without jq, python3, or python" "$RED" >&2
+                write_item "Install one of these JSON parsers and rerun the installer; settings were left unchanged." "$RED" >&2
+            else
+                write_item "ERROR: Could not safely reconcile $settings_file with managed hooks" "$RED" >&2
+            fi
+            return 1
         fi
     else
-        # No existing settings.json, copy template
-        cp "$template_file" "$settings_file"
+        # A fresh settings file is also transactional: conversion failure must
+        # not leave a copied but non-runnable hook registration behind.
+        local candidate_file
+        if ! candidate_file=$(mktemp "${settings_write_target}.nexus-candidate.XXXXXX"); then
+            write_item "ERROR: Could not create a transactional settings candidate for $settings_file" "$RED" >&2
+            return 1
+        fi
+        if ! cp "$template_file" "$candidate_file"; then
+            rm -f "$candidate_file"
+            write_item "ERROR: Could not stage hook settings from $template_file" "$RED" >&2
+            return 1
+        fi
+        if ! convert_claude_hook_commands_for_posix "$repo_root" "$candidate_file" "$scope"; then
+            rm -f "$candidate_file"
+            write_item "ERROR: Hook command conversion failed; $settings_file was not created" "$RED" >&2
+            return 1
+        fi
+        if ! mv -f "$candidate_file" "$settings_write_target"; then
+            rm -f "$candidate_file"
+            write_item "ERROR: Could not create $settings_file from converted settings" "$RED" >&2
+            return 1
+        fi
         write_item "[OK] $scope settings.json created with git guardrails hook" "$GREEN"
     fi
 }
@@ -572,6 +800,7 @@ install_usage_display() {
 
             if [ -n "$merged" ]; then
                 echo "$merged" > "$settings_file"
+                convert_claude_hook_commands_for_posix "$repo_root" "$settings_file" "$scope"
                 write_item "[OK] $scope settings.json updated with usage display hook" "$GREEN"
             else
                 write_item "Warning: Could not merge usage display hook into settings.json" "$YELLOW"
@@ -648,6 +877,8 @@ install_require_description() {
             write_item "  You may need to manually add the PowerShell PreToolUse hooks" "$YELLOW"
         fi
     fi
+
+    convert_claude_hook_commands_for_posix "$repo_root" "$settings_file" "$scope"
 }
 
 install_core_settings() {
@@ -664,8 +895,8 @@ install_core_settings() {
     fi
 
     if ! command -v jq >/dev/null 2>&1; then
-        write_item "Warning: jq not found, cannot set core settings (effortLevel, model, env)" "$YELLOW"
-        write_item "  Manually copy effortLevel/model/env from $template_file to $settings_file" "$YELLOW"
+        write_item "Warning: jq not found, cannot set core settings (effortLevel, model, env)" "$YELLOW" >&2
+        write_item "  Manually copy effortLevel/model/env from $template_file to $settings_file" "$YELLOW" >&2
         return
     fi
 
@@ -673,36 +904,62 @@ install_core_settings() {
     # env.CLAUDE_CODE_EFFORT_LEVEL override. The env var is the highest-precedence
     # effort lever per the Claude Code docs, so it forces the effort past the VS
     # Code effort toggle (which otherwise resets to the model default each session).
-    local template_effort template_model template_env_effort
-    template_effort=$(jq -r '.effortLevel' "$template_file" 2>/dev/null)
-    template_model=$(jq -r '.model' "$template_file" 2>/dev/null)
-    template_env_effort=$(jq -r '.env.CLAUDE_CODE_EFFORT_LEVEL' "$template_file" 2>/dev/null)
-
-    # Idempotency: skip only if all three already match the template.
-    if jq -e -s '
-        .[0] as $e | .[1] as $t |
-        ($e.effortLevel == $t.effortLevel)
-        and ($e.model == $t.model)
-        and ($e.env.CLAUDE_CODE_EFFORT_LEVEL == $t.env.CLAUDE_CODE_EFFORT_LEVEL)
-    ' "$settings_file" "$template_file" >/dev/null 2>&1; then
-        write_item "[OK] Core settings (effortLevel, model, env effort) already current in settings.json" "$GREEN"
+    # Seed-if-absent: a reinstall must not replace a value the user already chose.
+    if jq -e '
+        has("model")
+        and (
+            has("effortLevel")
+            or (if ((.env | type) == "object") then
+                (.env | has("CLAUDE_CODE_EFFORT_LEVEL"))
+              else false end)
+        )
+    ' "$settings_file" >/dev/null 2>&1; then
+        write_item "[OK] Core settings already present or user-set; existing values preserved in settings.json" "$GREEN"
         return
     fi
 
-    # Merge scalars and deep-merge the env key, preserving any sibling env vars.
+    local env_seed_blocked=0
+    if jq -e '(has("effortLevel") | not) and has("env") and ((.env | type) != "object")' "$settings_file" >/dev/null 2>&1; then
+        env_seed_blocked=1
+        write_item "Warning: existing env is not an object; preserving it and skipping env.CLAUDE_CODE_EFFORT_LEVEL" "$YELLOW" >&2
+    fi
+
+    # Treat the scalar and higher-precedence env lever as one user-owned pair:
+    # when either exists, preserve the pair exactly. Only a config with neither
+    # effort lever and an absent or object-shaped env receives both defaults,
+    # avoiding a new env pin on upgrade.
     local merged
     merged=$(jq -s '
         .[0] as $e | .[1] as $t |
+        ($e | has("effortLevel")) as $has_scalar_effort |
+        (if (($e.env | type) == "object") then
+            ($e.env | has("CLAUDE_CODE_EFFORT_LEVEL"))
+          else false end) as $has_env_effort |
+        ($has_scalar_effort or $has_env_effort) as $has_any_effort |
         $e
-        + {effortLevel: $t.effortLevel, model: $t.model}
-        | .env = ((.env // {}) + {CLAUDE_CODE_EFFORT_LEVEL: $t.env.CLAUDE_CODE_EFFORT_LEVEL})
+        | if $has_any_effort then . else .effortLevel = $t.effortLevel end
+        | if has("model") then . else .model = $t.model end
+        | if $has_any_effort then .
+          elif has("env") then
+            if ((.env | type) == "object") then
+                .env.CLAUDE_CODE_EFFORT_LEVEL = $t.env.CLAUDE_CODE_EFFORT_LEVEL
+            else . end
+          else .env = {CLAUDE_CODE_EFFORT_LEVEL: $t.env.CLAUDE_CODE_EFFORT_LEVEL} end
     ' "$settings_file" "$template_file" 2>/dev/null)
 
     if [ -n "$merged" ]; then
+        if printf '%s\n' "$merged" | jq -e --slurpfile existing "$settings_file" '. == $existing[0]' >/dev/null 2>&1; then
+            if [ "$env_seed_blocked" -eq 1 ]; then
+                write_item "[OK] Core settings unchanged; existing non-object env preserved" "$GREEN"
+            else
+                write_item "[OK] Core settings already present in settings.json" "$GREEN"
+            fi
+            return
+        fi
         echo "$merged" > "$settings_file"
-        write_item "[OK] $scope settings.json updated core settings (effortLevel: ${template_effort}, model: ${template_model}, env CLAUDE_CODE_EFFORT_LEVEL: ${template_env_effort})" "$GREEN"
+        write_item "[OK] $scope settings.json seeded absent core settings; existing values preserved" "$GREEN"
     else
-        write_item "Warning: Could not merge core settings into settings.json" "$YELLOW"
+        write_item "Warning: Could not merge core settings into settings.json" "$YELLOW" >&2
     fi
 }
 
@@ -802,12 +1059,149 @@ merge_strict_permissions() {
     fi
 }
 
+# v3.17.0 Phase 1.2 -- the single permission-merge path for BOTH installers.
+#
+# Delegates to scripts/merge_permissions.py, which installer.ps1 calls identically.
+# One implementation, two thin callers.
+#
+# DEVIATION from the v3.17.0 plan, sub-task 1.2: the plan asked to keep `jq` as a
+# fast path when present and add a Python fallback only for hosts without it. That
+# was correct for an add-only merge, but amendment A3 added removal propagation,
+# which lives in the Python helper. Retaining a `jq` path would mean a host WITH jq
+# silently keeps retired mutation-capable entries while a host WITHOUT jq has them
+# removed -- reintroducing, inside a single installer, exactly the divergence this
+# phase exists to eliminate. Python is already a documented dependency and both
+# installers already check for it, so the `jq` path is dropped rather than forked.
+#
+# Resolve the helper script and a Python interpreter into PERM_HELPER_SCRIPT and
+# PERM_HELPER_PY. Two globals rather than one word-split string on purpose: an
+# unquoted expansion here would trip shellcheck at the severity `make lint` uses.
+PERM_HELPER_PY=""
+PERM_HELPER_SCRIPT=""
+resolve_permissions_helper() {
+    local repo_root="$1"
+    PERM_HELPER_SCRIPT="$repo_root/scripts/merge_permissions.py"
+    if [ ! -f "$PERM_HELPER_SCRIPT" ]; then
+        write_item "Warning: merge helper not found at $PERM_HELPER_SCRIPT" "$YELLOW"
+        return 1
+    fi
+    if ! PERM_HELPER_PY=$(resolve_python_executable); then
+        write_item "Warning: Python not found, cannot sync permissions automatically" "$YELLOW"
+        return 1
+    fi
+    return 0
+}
+
+# Surface the helper's stdout protocol (added: / removed: / set:) to the user. Each
+# retired entry is reported rather than removed silently, because the target file is
+# one the user may have hand-edited.
+report_permissions_helper_output() {
+    local output="$1"
+    [ -n "$output" ] || return 0
+    while IFS= read -r line; do
+        case "$line" in
+            removed:*|set:*) write_item "  $line" "$GRAY" ;;
+        esac
+    done <<< "$output"
+}
+
+# Returns 0 on success, 1 when the merge failed.
+merge_permissions_via_helper() {
+    local repo_root="$1"
+    local template_file="$2"
+    local settings_file="$3"
+    local key="$4"          # permissions.allow | tools.allowed | allowedDomains
+    local platform="$5"     # manifest key: CLAUDE, GEMINI, ...
+
+    if ! resolve_permissions_helper "$repo_root"; then
+        write_item "  Copy permissions manually from: $template_file" "$YELLOW"
+        return 1
+    fi
+
+    local manifest="$HOME/.nexus-hub/permissions-manifest.json"
+    local output
+    if ! output=$("$PERM_HELPER_PY" "$PERM_HELPER_SCRIPT" \
+            --template "$template_file" \
+            --settings "$settings_file" \
+            --key "$key" \
+            --manifest "$manifest" \
+            --platform "$platform"); then
+        write_item "Warning: could not merge permissions into $settings_file" "$YELLOW"
+        return 1
+    fi
+
+    report_permissions_helper_output "$output"
+    return 0
+}
+
+# Set one LITERAL boolean key to true through the same helper. Copilot's permission
+# surface is a single VS Code settings key rather than an array, and this branch
+# previously used `jq` and skipped without it -- which made the Git-Bash path below
+# unreachable in practice, since Git-Bash ships no `jq`.
+set_permission_flag_via_helper() {
+    local repo_root="$1"
+    local settings_file="$2"
+    local literal_key="$3"
+
+    if ! resolve_permissions_helper "$repo_root"; then
+        write_item "  Set \"$literal_key\": true manually in: $settings_file" "$YELLOW"
+        return 1
+    fi
+
+    local output
+    if ! output=$("$PERM_HELPER_PY" "$PERM_HELPER_SCRIPT" \
+            --settings "$settings_file" \
+            --set-true "$literal_key"); then
+        write_item "Warning: could not update $settings_file" "$YELLOW"
+        return 1
+    fi
+
+    report_permissions_helper_output "$output"
+    return 0
+}
+
+# v3.17.0 Phase 1.2: the `scope` parameter is now load-bearing. It was documented as
+# "Global" or "Workspace" since v0.9.x, but every call site passed "Global" and
+# install_workspace never called this function at all, so a --workspace install
+# received no permission baseline on any operating system.
+#
+# Only CLAUDE is wired at workspace scope. The other three skip WITH A NOTE rather
+# than guessing:
+#   * GEMINI / CODEX -- no project-scoped permission path is documented well enough
+#     to write. A guessed path is worse than none: it looks configured and is not.
+#   * COPILOT -- its surface is .vscode/settings.json, which is COMMIT-VISIBLE. The
+#     plan forbids pushing a permission grant into a user's repository history
+#     without an explicit maintainer decision (same reasoning that made the v3.11.0
+#     Copilot .github/skills/ surface opt-in).
 install_permissions() {
     local repo_root="$1"
     local platform="$2"    # "CLAUDE", "GEMINI", "CODEX", "COPILOT"
     local scope="$3"       # "Global" or "Workspace"
+    local target_path="${4:-}"  # project root; required when scope is "Workspace"
     local user_home="$HOME"
     local perm_dir="$repo_root/configs/permissions"
+
+    if [ "$scope" = "Workspace" ]; then
+        if [ -z "$target_path" ] || [ ! -d "$target_path" ]; then
+            write_item "Skip: workspace permissions need a valid target path" "$GRAY"
+            return
+        fi
+        case "$platform" in
+            GEMINI)
+                write_item "Skip: Gemini has no documented project-scoped permission path (global scope only)" "$GRAY"
+                return
+                ;;
+            CODEX)
+                write_item "Skip: Codex has no documented project-scoped permission path (global scope only)" "$GRAY"
+                return
+                ;;
+            COPILOT)
+                write_item "Skip: Copilot's only permission surface is .vscode/settings.json, which is commit-visible" "$GRAY"
+                write_item "  A workspace grant there would enter your repository history; use a global install instead." "$GRAY"
+                return
+                ;;
+        esac
+    fi
 
     case "$platform" in
         CLAUDE)
@@ -815,72 +1209,49 @@ install_permissions() {
             local settings_file="$config_dir/settings.json"
             local template_file="$perm_dir/claude-permissions.json"
 
+            if [ "$scope" = "Workspace" ]; then
+                # settings.local.json, NEVER settings.json: the latter is
+                # commit-visible and would push a permission grant into the
+                # user's repository history. Confirmed target (maintainer
+                # decision, v3.17.0 Phase 1.2).
+                config_dir="$target_path/.claude"
+                settings_file="$config_dir/settings.local.json"
+            fi
+
             if [ ! -f "$template_file" ]; then
                 write_item "Skip: Claude permissions template not found" "$GRAY"
                 return
             fi
 
-            if [ -f "$settings_file" ]; then
-                if ! command -v jq >/dev/null 2>&1; then
-                    write_item "Warning: jq not found, cannot merge permissions automatically" "$YELLOW"
-                    write_item "  Copy permissions manually from: $template_file" "$YELLOW"
-                    return
-                fi
-
-                # Compute how many template entries are not already present.
-                # Counting BEFORE merging avoids the stale-sentinel bug where a
-                # single fixed marker (e.g. 'Bash(gh pr list)') made the
-                # installer think permissions were "already installed" and skip
-                # merging new entries shipped in later versions.
-                local new_count
-                new_count=$(jq -sr '
-                    .[0] as $existing | .[1] as $template |
-                    ($existing.permissions.allow // []) as $ea |
-                    ($template.permissions.allow // []) as $ta |
-                    (($ea + $ta | unique) | length) - ($ea | length)
-                ' "$settings_file" "$template_file" 2>/dev/null)
-
-                if [ "$new_count" = "0" ]; then
-                    write_item "[OK] Auto-approve permissions up to date in settings.json (0 new entries)" "$GREEN"
-                    return
-                fi
-
-                # Backup before modifying
-                local backup_path
-                backup_path="$settings_file.bak.$(date +%Y%m%d-%H%M%S)"
-                cp "$settings_file" "$backup_path"
-                write_item "  Backup created: $backup_path" "$GRAY"
-
-                local merged
-                merged=$(jq -s '
-                    .[0] as $existing | .[1] as $template |
-                    ($existing.permissions.allow // []) as $ea |
-                    ($template.permissions.allow // []) as $ta |
-                    $existing | .permissions.allow = ($ea + $ta | unique)
-                ' "$settings_file" "$template_file" 2>/dev/null)
-
-                if [ -n "$merged" ]; then
-                    echo "$merged" > "$settings_file"
-                    write_item "[OK] $scope auto-approve permissions added to settings.json (${new_count} new entries)" "$GREEN"
-                else
-                    write_item "Warning: Could not merge permissions into settings.json" "$YELLOW"
-                    return
-                fi
+            # v3.17.0: one path for create AND merge. The helper creates the file
+            # when absent, unions new entries, retires entries a prior Nexus-Hub
+            # version shipped and this one no longer does (never a user's own
+            # entry), backs up before any change, and strips the template's
+            # `_`-prefixed documentation keys so they never reach a live config.
+            # The old creation path used `cp` when jq was missing, which DID copy
+            # them.
+            mkdir -p "$config_dir"
+            if merge_permissions_via_helper "$repo_root" "$template_file" \
+                    "$settings_file" "permissions.allow" "CLAUDE"; then
+                write_item "[OK] $scope auto-approve permissions synced in settings.json" "$GREEN"
             else
-                mkdir -p "$config_dir"
-                # Create settings.json with just the permissions key
-                if command -v jq >/dev/null 2>&1; then
-                    jq '{permissions: .permissions}' "$template_file" > "$settings_file"
-                else
-                    cp "$template_file" "$settings_file"
-                fi
-                write_item "[OK] $scope settings.json created with auto-approve permissions" "$GREEN"
+                return
             fi
 
             write_item "  Auto-approved: file reads, search (Glob/Grep), web search, git read-only commands" "$GRAY"
             write_item "  WebFetch: scoped to trusted domains (see $settings_file to customize)" "$GRAY"
             write_item "  NOT auto-approved: file writes, destructive commands, git mutations, package installs" "$GRAY"
             write_item "  Config: $settings_file" "$GRAY"
+
+            # A workspace grant is only private if the file is actually ignored.
+            # settings.local.json is Claude Code's local-only convention, but nothing
+            # guarantees THIS repository ignores it, so check rather than assume.
+            if [ "$scope" = "Workspace" ] && command -v git >/dev/null 2>&1; then
+                if ! git -C "$target_path" check-ignore -q "$settings_file" 2>/dev/null; then
+                    write_item "  Note: $settings_file is NOT git-ignored in this project." "$DARK_YELLOW"
+                    write_item "  Add '.claude/settings.local.json' to .gitignore so the grant stays local." "$DARK_YELLOW"
+                fi
+            fi
             ;;
 
         GEMINI)
@@ -893,50 +1264,25 @@ install_permissions() {
                 return
             fi
 
-            if [ -f "$settings_file" ]; then
-                # Sentinel: docker ps was added in v0.10+ with the expanded command set
-                if grep -q 'run_shell_command(docker ps)' "$settings_file" 2>/dev/null; then
-                    write_item "[OK] Auto-approve permissions already configured in settings.json" "$GREEN"
-                    return
-                fi
-
-                local backup_path
-                backup_path="$settings_file.bak.$(date +%Y%m%d-%H%M%S)"
-                cp "$settings_file" "$backup_path"
-                write_item "  Backup created: $backup_path" "$GRAY"
-
-                if command -v jq >/dev/null 2>&1; then
-                    local merged
-                    merged=$(jq -s '
-                        .[0] as $existing | .[1] as $template |
-                        ($existing.tools.allowed // []) as $et |
-                        ($template.tools.allowed // []) as $tt |
-                        ($existing.allowedDomains // []) as $ed |
-                        ($template.allowedDomains // []) as $td |
-                        $existing
-                        | .tools.allowed = ($et + $tt | unique)
-                        | .allowedDomains = ($ed + $td | unique)
-                    ' "$settings_file" "$template_file" 2>/dev/null)
-
-                    if [ -n "$merged" ]; then
-                        echo "$merged" > "$settings_file"
-                        write_item "[OK] $scope auto-approve permissions added to settings.json" "$GREEN"
-                    else
-                        write_item "Warning: Could not merge permissions into Gemini settings.json" "$YELLOW"
-                        return
-                    fi
-                else
-                    write_item "Warning: jq not found, cannot merge permissions automatically" "$YELLOW"
-                    return
-                fi
+            # v3.17.0 amendment A3, bug 1: this branch previously gated on a fixed
+            # sentinel (`grep -q 'run_shell_command(docker ps)'`) to decide whether
+            # permissions were already configured. That is the identical stale-marker
+            # defect the CLAUDE branch was fixed for: because the sentinel entry is
+            # present in every existing user's settings.json, the branch returned
+            # early forever and those users never received newly-shipped entries --
+            # including, critically, the v3.17.0 Phase 1.1 hardening. The sentinel is
+            # replaced by the same count-and-sync path the CLAUDE branch uses, which
+            # is idempotent by construction and needs no marker.
+            mkdir -p "$config_dir"
+            local gemini_ok=0
+            merge_permissions_via_helper "$repo_root" "$template_file" \
+                "$settings_file" "tools.allowed" "GEMINI" || gemini_ok=1
+            merge_permissions_via_helper "$repo_root" "$template_file" \
+                "$settings_file" "allowedDomains" "GEMINI_DOMAINS" || gemini_ok=1
+            if [ "$gemini_ok" -eq 0 ]; then
+                write_item "[OK] $scope auto-approve permissions synced in settings.json" "$GREEN"
             else
-                mkdir -p "$config_dir"
-                if command -v jq >/dev/null 2>&1; then
-                    jq '{tools: .tools, allowedDomains: .allowedDomains}' "$template_file" > "$settings_file"
-                else
-                    cp "$template_file" "$settings_file"
-                fi
-                write_item "[OK] $scope settings.json created with auto-approve permissions" "$GREEN"
+                return
             fi
 
             write_item "  Auto-approved: file reads, search, web search, git read-only shell commands" "$GRAY"
@@ -1028,6 +1374,25 @@ install_permissions() {
             case "$(uname -s)" in
                 Darwin*) vscode_settings="$user_home/Library/Application Support/Code/User/settings.json" ;;
                 Linux*)  vscode_settings="$user_home/.config/Code/User/settings.json" ;;
+                # v3.17.0 Phase 1.2: Windows Git-Bash previously fell through to the
+                # skip below, so a bash invocation on Windows configured Copilot not
+                # at all. Mirrors installer.ps1 exactly:
+                #   Join-Path $env:APPDATA "Code\User\settings.json"
+                MINGW*|MSYS*|CYGWIN*)
+                    local appdata="${APPDATA:-}"
+                    if [ -z "$appdata" ]; then
+                        write_item "Skip: APPDATA is not set, cannot locate VS Code settings from Git-Bash" "$GRAY"
+                        return
+                    fi
+                    # APPDATA arrives as a Windows path (C:\Users\...\Roaming); bash
+                    # file tests need a POSIX one.
+                    if command -v cygpath >/dev/null 2>&1; then
+                        appdata=$(cygpath -u "$appdata")
+                    else
+                        appdata=$(printf '%s' "$appdata" | tr '\\' '/')
+                    fi
+                    vscode_settings="$appdata/Code/User/settings.json"
+                    ;;
                 *)       write_item "Skip: Copilot permission config not supported on this OS via bash" "$GRAY"; return ;;
             esac
 
@@ -1042,23 +1407,15 @@ install_permissions() {
                 return
             fi
 
-            local backup_path
-            backup_path="$vscode_settings.bak.$(date +%Y%m%d-%H%M%S)"
-            cp "$vscode_settings" "$backup_path"
-            write_item "  Backup created: $backup_path" "$GRAY"
-
-            if command -v jq >/dev/null 2>&1; then
-                local merged
-                merged=$(jq '. + {"github.copilot.chat.codeGeneration.useInstructionFiles": true}' "$vscode_settings" 2>/dev/null)
-                if [ -n "$merged" ]; then
-                    echo "$merged" > "$vscode_settings"
-                    write_item "[OK] $scope VS Code settings updated with Copilot instruction file support" "$GREEN"
-                else
-                    write_item "Warning: Could not merge Copilot settings into VS Code settings.json" "$YELLOW"
-                    return
-                fi
+            # The helper takes its own timestamped backup and writes atomically, so
+            # this branch no longer backs up or merges by hand. It also drops the `jq`
+            # requirement, which is what made the Git-Bash arm above reachable: Git-Bash
+            # ships no `jq`, so mapping the path without this change would have moved
+            # the silent skip rather than closing it.
+            if set_permission_flag_via_helper "$repo_root" "$vscode_settings" \
+                    "github.copilot.chat.codeGeneration.useInstructionFiles"; then
+                write_item "[OK] $scope VS Code settings updated with Copilot instruction file support" "$GREEN"
             else
-                write_item "Warning: jq not found, cannot merge Copilot settings automatically" "$YELLOW"
                 return
             fi
 
@@ -1148,13 +1505,14 @@ install_global() {
     # render ONE unified checklist afterward so Claude reads identically to the
     # registry platforms. DF-001: the registry runner renders CLAUDE.md;
     # safe_folder_copy does the catalog mirror.
-    invoke_registry_platform "$repo_root" "global" "" "claude" "CLAUDE.md (instruction file)" "" "true" >/dev/null
     # v3.16.1: catalog_src returns the filtered stage when a selection is active
     # and the real catalog otherwise, so the no-selector path is unchanged.
     flatten_skills_into "$(catalog_src "$repo_root" skills)"   "$global_claude/skills"   >/dev/null
     safe_folder_copy "$(catalog_src "$repo_root" commands)" "$global_claude/commands" >/dev/null
     safe_folder_copy "$(catalog_src "$repo_root" agents)"   "$global_claude/agents"   >/dev/null
     safe_folder_copy "$repo_root/catalog/rules"    "$global_claude/rules"    >/dev/null
+    # Org rules are seeded by the registry after refresh-mode catalog pruning.
+    invoke_registry_platform "$repo_root" "global" "" "claude" "CLAUDE.md (instruction file)" "" "true" >/dev/null
 
     mkdir -p "$global_claude/mcp-configs"
     safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$global_claude/mcp-configs/mcp-servers.json" false >/dev/null
@@ -1173,7 +1531,7 @@ install_global() {
     [ -d "$global_claude/rules" ]     && write_checklist_row "Rules" "ok" "$global_claude/rules"
     if [ -f "$global_claude/settings.json" ]; then
         write_checklist_row "Hooks" "ok" "git-guardrails, usage, require-description, compress-output"
-        write_checklist_row "Core Settings" "ok" "effortLevel, model, env (settings.json)"
+        write_checklist_row "Core Settings" "ok" "settings.json retained; existing values preserved (see warnings above)"
     fi
     fi
 
@@ -1566,12 +1924,12 @@ install_workspace() {
         local claude_dir="$target_path/.claude"
         mkdir -p "$claude_dir"
 
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "claude" "CLAUDE.md (instruction file)" "$languages" "true"
-
         flatten_skills_into "$(catalog_src "$repo_root" skills)"   "$claude_dir/skills"   "[OK] Skills catalog installed (flattened) at: $claude_dir/skills"
         safe_folder_copy "$(catalog_src "$repo_root" commands)" "$claude_dir/commands" "[OK] Commands installed at: $claude_dir/commands"
         safe_folder_copy "$(catalog_src "$repo_root" agents)"   "$claude_dir/agents"   "[OK] Agents installed at: $claude_dir/agents"
         safe_folder_copy "$repo_root/catalog/rules"    "$claude_dir/rules"    "[OK] Rules installed at: $claude_dir/rules"
+        # Org rules are seeded by the registry after refresh-mode catalog pruning.
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "claude" "CLAUDE.md (instruction file)" "$languages" "true"
 
         mkdir -p "$claude_dir/mcp-configs"
         safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$claude_dir/mcp-configs/mcp-servers.json" false "[OK] MCP server config installed at: $claude_dir/mcp-configs"
@@ -1695,6 +2053,35 @@ install_workspace() {
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "nexus-ai" "Nexus-AI (Local Desktop Studio)"
         fi
 
+        # --- Auto-Approve Permissions sub-section --------------------------
+        # v3.17.0 Phase 1.2: previously absent entirely, so a --workspace install
+        # received no permission baseline on any operating system while the `scope`
+        # parameter of install_permissions sat decorative. Only CLAUDE has a
+        # confirmed project-scoped target (.claude/settings.local.json); the other
+        # three skip with a note stating why. Gated on the same --platforms subset
+        # as the global block.
+        write_section_banner "AUTO-APPROVE PERMISSIONS"
+
+        if should_install claude; then
+        write_header "ANTHROPIC"
+        install_permissions "$repo_root" "CLAUDE" "Workspace" "$target_path"
+        fi
+
+        if should_install codex; then
+        write_header "OPENAI"
+        install_permissions "$repo_root" "CODEX" "Workspace" "$target_path"
+        fi
+
+        if should_install gemini; then
+        write_header "GOOGLE"
+        install_permissions "$repo_root" "GEMINI" "Workspace" "$target_path"
+        fi
+
+        if should_install copilot; then
+        write_header "MICROSOFT"
+        install_permissions "$repo_root" "COPILOT" "Workspace" "$target_path"
+        fi
+
         echo ""
 }
 
@@ -1711,7 +2098,7 @@ resolve_python_executable() {
 # ---------------------------------------------------------------------------
 # Install selection (v3.16.1 Phase 6.1)
 #
-# Contract: docs/v3/v3.16/development/install-selection-contract.md
+# Contract: docs/releases/v3/v3.16/development/install-selection-contract.md
 #
 # Resolution delegates to scripts/lib/installer/selection.py rather than being
 # reimplemented here. The plan originally called for a native implementation so
@@ -2038,34 +2425,13 @@ install_vscode_extensions() {
 
     # Build each extension under its own vendor header. VS Code monitors install
     # only via vscode_cli; the Cursor monitor installs only via cursor_cli. The
-    # vendor order (Anthropic, OpenAI, GitHub, Anysphere) is asserted by the
+    # vendor order (Anthropic, OpenAI, Anysphere) is asserted by the
     # installer smoke test and must match scripts/installer.ps1.
     write_header "ANTHROPIC"
     build_and_install_one_extension "$repo_root/extensions/claude-usage-monitor" "nexus-hub.claude-usage-monitor" "Claude Usage Monitor" "Claude: --%" "$vscode_cli" "$vscode_label"
 
     write_header "OPENAI"
     build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$vscode_cli" "$vscode_label"
-
-    # The GitHub monitor's status hint carries no "%" because GitHub does not
-    # guarantee an included allowance: until a verified denominator or a manual
-    # one is configured the bar shows absolute usage, so promising a percentage
-    # here would be the false-quota claim the v3.15.8 contract forbids. The
-    # install itself never authenticates to GitHub - the token is supplied later
-    # through the extension's SecretStorage command.
-    # v3.15.13 Phase 3 renamed the display surfaces to "GitHub Billing Usage";
-    # v3.16.3 Phase 1 reverted them to "GitHub Usage Monitor" for consistency with
-    # the Claude, Codex, and Cursor monitors. The extension id is deliberately
-    # unchanged through both: an id is publisher.name, so renaming it would mint a
-    # second extension and leave the previously installed one orphaned, with both
-    # writing a status-bar item. The directory path also stays
-    # extensions/github-usage-monitor.
-    write_header "GITHUB"
-    # Dual-host, unlike the Claude and Codex monitors. GitHub billing is not tied
-    # to the editor a developer happens to use, and a Cursor user has the same
-    # Actions minutes and Copilot credits to watch. Requested 2026-08-11; this
-    # deliberately reverses the v3.15.9 Phase 6 blanket rule FOR THIS MONITOR ONLY.
-    # The Cursor argument is empty when Cursor is not installed, so nothing happens.
-    build_and_install_one_extension "$repo_root/extensions/github-usage-monitor" "nexus-hub.github-usage-monitor" "GitHub Usage Monitor" "GitHub Usage: --" "$vscode_cli" "$vscode_label" "$cursor_cli" "$cursor_label"
 
     write_header "ANYSPHERE"
     build_and_install_one_extension "$repo_root/extensions/cursor-usage-monitor" "nexus-hub.cursor-usage-monitor" "Cursor Usage Monitor" "Cursor: --%" "$cursor_cli" "$cursor_label"
@@ -2264,6 +2630,19 @@ install_templates() {
     if [ -f "$trigger_evals_source" ]; then
         safe_copy "$trigger_evals_source" "$scripts_dest/run_trigger_evals.py" true "[OK] Trigger-and-routing eval installed at: $scripts_dest/run_trigger_evals.py"
     fi
+    # v3.17.0 Phase 1: permission-baseline tooling. merge_permissions.py is the
+    # single merge implementation BOTH installers call (see
+    # merge_permissions_via_helper above); validate_permission_baseline.py is the
+    # guard that keeps mutation-capable entries out of the read-only baseline.
+    local merge_permissions_source="$repo_root/scripts/merge_permissions.py"
+    if [ -f "$merge_permissions_source" ]; then
+        safe_copy "$merge_permissions_source" "$scripts_dest/merge_permissions.py" true "[OK] Permission merge helper installed at: $scripts_dest/merge_permissions.py"
+    fi
+    local validate_baseline_source="$repo_root/scripts/validate_permission_baseline.py"
+    if [ -f "$validate_baseline_source" ]; then
+        safe_copy "$validate_baseline_source" "$scripts_dest/validate_permission_baseline.py" true "[OK] Permission-baseline validator installed at: $scripts_dest/validate_permission_baseline.py"
+    fi
+
     local trigger_evals_allowlist_source="$repo_root/scripts/run_trigger_evals.allowlist.json"
     if [ -f "$trigger_evals_allowlist_source" ]; then
         safe_copy "$trigger_evals_allowlist_source" "$scripts_dest/run_trigger_evals.allowlist.json" true "[OK] Trigger-eval allowlist installed at: $scripts_dest/run_trigger_evals.allowlist.json"
@@ -2405,6 +2784,19 @@ install_templates() {
     local version_sync_source="$repo_root/scripts/check_version_sync.py"
     if [ -f "$version_sync_source" ]; then
         safe_copy "$version_sync_source" "$scripts_dest/check_version_sync.py" true "[OK] Version-sync guard installed at: $scripts_dest/check_version_sync.py"
+    fi
+    # check_release_preconditions.py (v3.17.6): release-flow guard. --pre-tag
+    # refuses to tag unless HEAD is the expected release branch AND matches its
+    # remote (the v3.17.5 mis-tag: a checkout failed on a locked directory and
+    # the tag was created on the wrong commit). --branches and --repo-settings
+    # report merged remote branches and delete_branch_on_merge, advisory only,
+    # deleting nothing. Stdlib-only, so it is a single cross-platform .py file
+    # with no .ps1 sibling (NI-v24-1 convention). Distributed because
+    # /update release ships to users and must not describe a check they lack.
+    # Lockstep with scripts/installer.ps1.
+    local release_precond_source="$repo_root/scripts/check_release_preconditions.py"
+    if [ -f "$release_precond_source" ]; then
+        safe_copy "$release_precond_source" "$scripts_dest/check_release_preconditions.py" true "[OK] Release-preconditions guard installed at: $scripts_dest/check_release_preconditions.py"
     fi
     # scan_skill_security.py (v3.0.0): thin CLI launcher for the
     # nexus-skill-scanner static skill-security engine (extensions/nexus-skill-scanner).
@@ -2805,6 +3197,8 @@ install_skill_discovery() {
     if [ -d "$code_search_src" ]; then
         rm -rf "$code_search_dest"
         cp -r "$code_search_src" "$code_search_dest"
+        # Repository-only measurement evidence must not reach user machines.
+        rm -rf "$code_search_dest/benchmarks"
         if command -v uv >/dev/null 2>&1; then
             uv pip install --python "$venv_path/bin/python" -e "$code_search_dest" >/dev/null 2>&1
         else
@@ -2845,6 +3239,23 @@ install_skill_discovery() {
             "$venv_path/bin/pip" install -q -e "${context_compressor_dest}[mcp]" >/dev/null 2>&1
         fi
         write_item "  nexus-context-compressor installed at $context_compressor_dest" "$GREEN"
+    fi
+
+    # Install nexus-memory into the same venv (v3.19.1+). Local persistent
+    # agent-memory CLI. Stdlib only, zero outbound, not an MCP server. Dest
+    # is $nexus_home/nexus-memory so it does not collide with the default
+    # store root $nexus_home/memory.
+    local memory_src="$repo_root/extensions/nexus-memory"
+    local memory_dest="$nexus_home/nexus-memory"
+    if [ -d "$memory_src" ]; then
+        rm -rf "$memory_dest"
+        cp -r "$memory_src" "$memory_dest"
+        if command -v uv >/dev/null 2>&1; then
+            uv pip install --python "$venv_path/bin/python" -e "$memory_dest" >/dev/null 2>&1
+        else
+            "$venv_path/bin/pip" install -q -e "$memory_dest" >/dev/null 2>&1
+        fi
+        write_item "  nexus-memory installed at $memory_dest" "$GREEN"
     fi
 
     # Use python to safely merge MCP server config into settings.json (all three internal servers).
@@ -2927,23 +3338,35 @@ NEXUS_BANNER_EOF
 # (and necessary) to re-run on every install, including for users who
 # migrated ~/.devai-hub/ in an earlier installer run.
 remove_legacy_vscode_extensions() {
-    command -v code >/dev/null 2>&1 || return 0
-    local installed
-    installed=$(code --list-extensions 2>/dev/null) || return 0
+    # nexus-hub.github-usage-monitor was WITHDRAWN in v3.18.2. It reconstructed the
+    # included-usage meter from data GitHub does not publish, and could report a
+    # confident 0% against an exhausted allowance. Leaving it installed keeps that
+    # wrong number on a user's status bar forever, so it is actively uninstalled
+    # rather than merely unshipped.
+    local legacy_ids=("devai-hub.claude-usage-monitor" "nexus-hub.github-usage-monitor")
 
-    local legacy_ids=("devai-hub.claude-usage-monitor")
-    local id emitted=0
-    for id in "${legacy_ids[@]}"; do
-        if printf '%s\n' "$installed" | grep -qx "$id"; then
-            if [ "$emitted" -eq 0 ]; then echo ""; fi
-            echo -e "  ${YELLOW}Removing legacy VS Code extension: $id${RESET}"
-            if code --uninstall-extension "$id" >/dev/null 2>&1; then
-                echo -e "  ${GREEN}[OK] Removed $id${RESET}"
-            else
-                echo -e "  ${YELLOW}Could not auto-remove $id (uninstall it manually from VS Code)${RESET}"
+    # Both hosts, not just VS Code. The GitHub monitor was the one dual-host
+    # monitor, installed to Cursor as well, so a VS Code-only sweep would leave the
+    # Cursor copy running.
+    local cli emitted=0
+    for cli in code cursor; do
+        command -v "$cli" >/dev/null 2>&1 || continue
+        local installed
+        installed=$("$cli" --list-extensions 2>/dev/null) || continue
+        local id
+        for id in "${legacy_ids[@]}"; do
+            if printf '%s
+' "$installed" | grep -qx "$id"; then
+                if [ "$emitted" -eq 0 ]; then echo ""; fi
+                echo -e "  ${YELLOW}Removing retired extension from $cli: $id${RESET}"
+                if "$cli" --uninstall-extension "$id" >/dev/null 2>&1; then
+                    echo -e "  ${GREEN}[OK] Removed $id from $cli${RESET}"
+                else
+                    echo -e "  ${YELLOW}Could not auto-remove $id (uninstall it manually from $cli)${RESET}"
+                fi
+                emitted=1
             fi
-            emitted=1
-        fi
+        done
     done
     if [ "$emitted" -eq 1 ]; then echo ""; fi
 }

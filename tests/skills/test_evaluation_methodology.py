@@ -1,7 +1,7 @@
 """Contract tests for the v3.16.1 evaluation methodology (Phase 1).
 
 Phase 1 ships no runtime code. It ships two documents: the shared evaluation
-artifact contract (`docs/v3/v3.16/development/evaluation-artifact-contract.md`)
+artifact contract (`docs/releases/v3/v3.16/development/evaluation-artifact-contract.md`)
 and the retrieval-evaluation reference owned by `rag-implementation`. Everything
 Phases 2 through 4 build reads that vocabulary, so what needs guarding is not
 prose style but the specific claims later phases depend on.
@@ -41,7 +41,7 @@ _RAG_SKILL_DIR = _SKILLS / "ai-development" / "rag-implementation"
 _RAG_SKILL = _RAG_SKILL_DIR / "SKILL.md"
 _RAG_EVAL_REF = _RAG_SKILL_DIR / "references" / "evaluation.md"
 _CONTRACT = (
-    _ROOT / "docs" / "v3" / "v3.16" / "development"
+    _ROOT / "docs" / "releases" / "v3" / "v3.16" / "development"
     / "evaluation-artifact-contract.md"
 )
 

@@ -1,11 +1,11 @@
 {
   "meta": {
-    "last_verified": "2026-08-12",
-    "verified_for_version": "3.16.6",
-    "verified_for_version_note": "Re-stamped for v3.16.6 on 2026-08-12. SCOPE: a TARGETED pass, labeled as such deliberately - the FOURTH consecutive targeted pass, so the full-pass debt recorded since v3.16.1 still stands and is OWED AT THE NEXT MINOR (v3.17.0). v3.16.6 changes NO platform discovery surface: the release's diff is confined to one skill bundle (catalog/skills/specialized-domains/document-to-interactive-html/**), its command file, tests/, one CI workflow path filter, and docs/ - no read path, no subdir name, no global/workspace dir, no integration adapter, no installer, no base-*.md, and (unlike v3.16.5) not even a data/ registry change. TWO platforms were re-fetched from live first-party documentation this cycle, the same two every targeted pass re-checks. (1) claude, the highest-traffic platform: code.claude.com/docs/en/skills documents personal ~/.claude/skills/<skill-name>/SKILL.md and project .claude/skills/<skill-name>/SKILL.md, with enterprise > personal > project precedence on name collisions. MATCHES the contract; the commands surface remains valid. (2) codex, the one platform with standing drift: learn.chatgpt.com/docs/build-skills still documents the .agents/skills ladder (scanned from $CWD up to the repo root, plus the user, admin, and system locations) and still does NOT list ~/.codex/skills. The v3.16.0 finding now reproduces for the FIFTH cycle running; the retained ~/.codex/skills write stays on the recorded reasoning, and $HOME/.agents/skills - which Nexus-Hub also writes - remains confirmed, so delivery reaches Codex either way. The deliberate-removal proposal recorded last cycle stands and should be executed in the next minor alongside the owed full pass. NEW SIGNAL, recorded not actioned: OpenAI now documents a Skills-and-Plugins surface (developers.openai.com/codex/skills-and-plugins) with a universal plugin directory shared by ChatGPT and Codex - a distribution channel, not a read-path change, but worth evaluating as a delivery target in the next full pass. The remaining eight platforms are CARRIED FORWARD from the 2026-08-08 full pass and were NOT re-fetched. --- PRIOR: Re-stamped for v3.16.5 on 2026-08-11. SCOPE: a TARGETED pass, labeled as such deliberately. v3.16.5 changes NO platform discovery surface: a diff against the release base shows the changed set is confined to one skill bundle (catalog/skills/specialized-domains/document-to-interactive-html/**), its command file, the two data/ registries, tests/, .github/workflows/presentify-extractor.yml, and docs/ - no read path, no subdir name, no global/workspace dir, no integration adapter, no installer, and no base-*.md. TWO platforms were re-fetched from live first-party documentation this cycle, the same two every targeted pass re-checks. (1) claude, the highest-traffic platform: code.claude.com/docs/en/skills documents personal `~/.claude/skills/<skill-name>/SKILL.md` and project `.claude/skills/<skill-name>/SKILL.md`. MATCHES the contract. It also still states that custom commands have been merged into skills and that existing `.claude/commands/` files keep working, so Nexus-Hub's commands write remains valid and supported; no change made. (2) codex, the one platform that has drifted: learn.chatgpt.com/docs/build-skills lists $CWD/.agents/skills, $CWD/../.agents/skills, $REPO_ROOT/.agents/skills, $HOME/.agents/skills, and /etc/codex/skills, and still does NOT list ~/.codex/skills. The v3.16.0 finding now reproduces for the FOURTH cycle running. The retained ~/.codex/skills write stays on the recorded reasoning (writing a directory a platform ignores is harmless, while removing one it does read would silently drop coverage), and $HOME/.agents/skills - which Nexus-Hub also writes - is explicitly confirmed, so delivery reaches Codex either way. Four cycles of a stable omission is now strong enough evidence that a deliberate removal should be PROPOSED in the next minor rather than deferred again; it is not done here because v3.16.5 touches no installer. The remaining eight platforms are CARRIED FORWARD from the 2026-08-08 full pass and were NOT re-fetched. ONE BOOKKEEPING FINDING, recorded rather than quietly fixed: the stamp this pass replaced read v3.16.3, so v3.16.4 shipped WITHOUT re-stamping the contract - the freshness gate went unaddressed for that release. Nothing was broken by it (v3.16.4 touched no read path either), but the gate exists to be answered per release, and skipping it silently is the failure mode it guards against. The next MINOR release should run a FULL pass; three consecutive targeted passes have now deferred it. --- PRIOR: Re-stamped for v3.16.3 on 2026-08-10. SCOPE: a TARGETED pass, labeled as such deliberately. v3.16.3 changes NO platform discovery surface: a diff against v3.16.2 shows the only non-extension, non-docs changes are scripts/installer.{sh,ps1} (a VS Code extension DisplayName and StatusHint plus dated comments), catalog/hooks/tests/test_installer_smoke.py, and tests/installer/ - no read path, no subdir name, no global/workspace dir, no integration adapter, and no base-*.md. This is a PATCH release, and the prior note reserves the next FULL pass for the next MINOR. TWO platforms were re-fetched from live first-party documentation this cycle. (1) claude, the highest-traffic platform: code.claude.com/docs/en/skills (the docs.claude.com URL now 301-redirects there) documents Personal `~/.claude/skills/<skill-name>/SKILL.md` and Project `.claude/skills/<skill-name>/SKILL.md`. MATCHES the contract. NEW, non-breaking observation: the page now states custom commands have been MERGED into skills - `.claude/commands/deploy.md` and `.claude/skills/deploy/SKILL.md` both create `/deploy` - and explicitly confirms existing `.claude/commands/` files keep working. Nexus-Hub's commands write therefore remains valid and supported; no change made. (2) codex, the one platform that has drifted: learn.chatgpt.com/docs/build-skills (the developers.openai.com URL now 308-redirects there) lists $CWD/.agents/skills, $CWD/../.agents/skills, $REPO_ROOT/.agents/skills, $HOME/.agents/skills, and /etc/codex/skills, and still does NOT list ~/.codex/skills. The v3.16.0 finding reproduces exactly for the third cycle running; the retained ~/.codex/skills write stays on the recorded reasoning (writing a directory a platform ignores is harmless, while removing one it does read would silently drop coverage), and $HOME/.agents/skills - which Nexus-Hub also writes - is explicitly confirmed, so delivery reaches Codex either way. The remaining eight platforms are CARRIED FORWARD from the 2026-08-08 full pass and were NOT re-fetched. This note records what was and was not checked so a reader is never misled into treating a carry-forward as a fresh fetch. --- Re-stamped for v3.16.1 on 2026-08-09. SCOPE: a TARGETED pass, not a full one, and it is labeled as such deliberately. v3.16.0's FULL ten-platform pass ran one day earlier (2026-08-08) and its per-platform evidence is carried forward unchanged. Two platforms were re-fetched from live first-party documentation this cycle: (1) codex -- the one platform that drifted last cycle -- whose current skills page still lists $CWD/.agents/skills, $CWD/../.agents/skills, $REPO_ROOT/.agents/skills, $HOME/.agents/skills and /etc/codex/skills, and still does NOT list ~/.codex/skills; the v3.16.0 finding reproduces exactly and the retained ~/.codex/skills write stays on the recorded reasoning. (2) claude, the highest-traffic platform, which still reads ~/.claude/skills and .claude/skills (plus .claude/commands). The remaining eight are CARRIED FORWARD from the 2026-08-08 full pass and were NOT re-fetched: v3.16.1 changed no integration adapter, no installer read path, and no platform surface, and a full re-fetch one day after a complete pass buys evidence that is one day fresher at meaningful cost. This note records what was and was not checked so a reader is never misled into treating a carry-forward as a fresh fetch. The next MINOR release should run a full pass. --- PRIOR (v3.16.0): Re-verified for v3.16.0 on 2026-08-08. SCOPE: a FULL pass -- all ten platforms in contract_checks were re-checked against live first-party documentation this cycle, not carried forward. (1) v3.16.0 changes NO platform discovery surface: the release touches scripts/installer.{sh,ps1} (an optional-dependency check only), scripts/lib/integrations/{base,claude,platform_defaults}.py (install-time behavioral-defaults seeding), and no base-*.md; a diff of those files contains no line touching a read path, subdir name, or global/workspace dir. (2) Eight platforms MATCH: claude (~/.claude/skills/<name>/SKILL.md), cursor (~/.cursor/skills plus ~/.agents/skills, recursive discovery), opencode (~/.config/opencode/skills/<name>/SKILL.md), kimi (~/.kimi-code/skills, /skill:<name>), qwen (~/.qwen/skills), gemini-cli (~/.gemini/skills, with ~/.agents/skills taking precedence within a tier), gemini (same ~/.gemini/skills path, same Google source), and antigravity2 (global ~/.gemini/config/skills/<folder>/, project .agents/skills with .agent/skills kept for backward support). (3) ONE DRIFT, non-breaking -- codex: the current first-party skills page lists $CWD/.agents/skills, $CWD/../.agents/skills, $REPO_ROOT/.agents/skills, $HOME/.agents/skills, and /etc/codex/skills, and does NOT list ~/.codex/skills. Nexus-Hub writes BOTH ~/.codex/skills and ~/.agents/skills, and the latter is explicitly confirmed, so delivery still reaches Codex and nothing is broken. The ~/.codex/skills write is retained unchanged this release on the same reasoning already recorded for Cursor's ~/.cursor/commands: writing a directory a platform ignores is harmless, while removing one it does read would silently drop coverage. Flagged for deliberate removal once a first-party page states the path is gone rather than merely omitting it. (4) ONE UNVERIFIED -- nexus-ai: the project's repository is private, so no publicly-citable document exists; an authenticated code search for its catalog read path returned no hits. Recorded as unverified this cycle rather than assumed correct.",
+    "last_verified": "2026-09-06",
+    "verified_for_version": "4.7.0",
+    "verified_for_version_note": "Re-stamped for the v4.7.0 cut on 2026-09-06. No live first-party re-fetch was performed this cycle; the most recent one is the 2026-09-04 sweep recorded under verification_method, which classified twelve of thirteen platforms MATCH with zero discovery-path drift. That result is carried forward because nothing in the v4.5.0..v4.7.0 range can invalidate it: no file under scripts/lib/integrations/ changed (discovery paths live there), and neither scripts/installer.sh nor scripts/installer.ps1 changed, so no per-platform copy destination moved. The bootstrap entry points install.sh and install.ps1 and the nexus_hub_cli upgrade path did change, but they govern how the source tree is fetched and verified before the core installer runs, not where any platform reads from. scripts/verify_platform_contracts.py reports OK for all 13 platforms against this document. A live sweep is due at the next release that touches an adapter, an installer destination, or whose date puts real distance from 2026-09-04.",
     "description": "Machine-readable single source for the platform read-contract guards. The human-readable surface table, formats, and source URLs live alongside in platform-read-contracts.md. Consumed by: scripts/verify_platform_contracts.py (contract_checks, code-vs-contract), scripts/lib/integrations/runner.py _verify_checks (install_verify, install-vs-reality), and scripts/check_platform_contract_freshness.py (meta, the release freshness gate). Re-verified against each platform's current docs and re-stamped (last_verified + verified_for_version) at every /update release by the platform-contract-verification skill.",
-    "path_tokens": "In install_verify paths, '~/' resolves to the user home and '{project}/' resolves to the workspace/target root.",
-    "verification_method": "v3.16.6 pass: targeted (fourth consecutive). Live first-party docs re-fetched for Claude Code (code.claude.com/docs/en/skills) and Codex (learn.chatgpt.com/docs/build-skills). Eight platforms carried from the 2026-08-08 full pass; this release changed no adapter, installer, contract, template, or read path. A full pass is OWED at the next minor (v3.17.0), together with the codex ~/.codex/skills removal proposal."
+    "path_tokens": "In install_verify paths, '~/' resolves to the user home, '{project}/' resolves to the workspace/target root, and '{openclaw_workspace}/' resolves through agents.defaults.workspace, OPENCLAW_WORKSPACE_DIR, or the active state directory's documented workspace default, in that order.",
+    "verification_method": "v4.4.5 pass: RE-VERIFICATION of the live discovery contract, no correction required. Twelve of thirteen platforms re-fetched from first-party vendor documentation on 2026-09-04 and classified MATCH; nexus-ai UNVERIFIED (private source). scripts/verify_platform_contracts.py reported OK for all 13 platforms against this JSON. No redirect to a new host was observed on any page fetched this cycle. The same visit found a LEVER drift for claude (effortLevel now documents max; CLAUDE_CODE_EFFORT_LEVEL does not; new modelSettings key), recorded in docs/policy/platform-defaults-levers.md and configs/platform-defaults.json per the lever lockstep."
   },
   "parity_verification_v3_15_0": {
     "_comment": "Phase 1.2 of the v3.15.0 platform-parity release. Web re-verified (2026-07-20) the additive surfaces the 2026-07-19 (v3.14.5) re-verification log deferred to v3.15.0. This block is a findings record only; it is NOT consumed by any guard. contract_checks / install_verify rows and the verified_for_version re-stamp to 3.15.0 are added per phase AS the integration code that satisfies them lands (adding a contract_checks row before its integration writes the surface would fail verify_platform_contracts.py). The gemini_cli_class + decision fields for qwen and kimi are the Phase 4 reclassification go/no-go gate (sub-task 1.3).",
@@ -397,6 +397,41 @@
       }
     }
   },
+  "release_verification_v3_17_2": {
+    "_comment": "Release-time findings only. This block is NOT consumed by any guard. contract_checks and install_verify continue to describe delivered behavior and must change only when matching adapter and test changes land.",
+    "verified": "2026-08-15",
+    "decision": "RELEASE_WITH_DOCUMENTED_NON_BREAKING_DRIFT",
+    "read_paths": {
+      "match": [
+        "claude",
+        "antigravity2",
+        "cursor",
+        "gemini",
+        "gemini-cli",
+        "kimi",
+        "opencode",
+        "qwen"
+      ],
+      "drift_non_breaking": {
+        "codex": "Current documentation confirms the .agents/skills discovery ladder and omits ~/.codex/skills. Nexus-Hub writes the confirmed ~/.agents/skills path, so delivery remains functional."
+      },
+      "unverified": {
+        "nexus-ai": "The private repository exposes no publicly auditable read-path contract."
+      }
+    },
+    "defaults_levers": {
+      "verified": 13,
+      "unverified": 3,
+      "additive_drift": [
+        "Codex documents granular approval-policy subkeys in addition to the existing approval_policy values.",
+        "Cursor documents approvalMode values allowlist, auto-review, and unrestricted in ~/.cursor/cli-config.json.",
+        "Antigravity CLI documents toolPermission and artifactReviewPolicy in ~/.gemini/antigravity-cli/settings.json.",
+        "Hermes documents approvals.mode values smart, manual, and off while retaining HERMES_YOLO_MODE=true as an equivalent.",
+        "Copilot CLI separates editable ~/.copilot/settings.json from saved per-project approvals in ~/.copilot/permissions-config.json."
+      ]
+    },
+    "delivery_decision": "No adapter or installer path changes. The release removes Nexus-Hub's provider-override controller and restores recorded legacy state without seeding any provider's approval mode."
+  },
   "contract_checks": {
     "codex": {
       "config": {
@@ -407,7 +442,6 @@
       },
       "flatten": "override",
       "doc_mentions": [
-        "~/.codex/skills",
         "~/.agents/skills",
         "~/.codex/prompts",
         "~/.codex/AGENTS.md",
@@ -417,14 +451,19 @@
     },
     "antigravity2": {
       "config": {
-        "global_dir": "~/.gemini/config"
+        "global_dir": "~/.gemini/config",
+        "cli_global_dir": "~/.gemini/antigravity-cli",
+        "workspace_dir": ".agents",
+        "agents_subdir": "agents"
       },
       "flatten": "override",
       "doc_mentions": [
         "~/.gemini/config/skills",
         "~/.gemini/config/global_workflows",
+        "~/.gemini/config/agents",
         "~/.gemini/GEMINI.md",
-        "~/.gemini/antigravity-cli"
+        "~/.gemini/antigravity-cli/skills",
+        ".agents/agents"
       ]
     },
     "claude": {
@@ -440,9 +479,9 @@
       "config": {
         "global_dir": "~/.gemini"
       },
-      "flatten": "flag",
+      "flatten": "none",
       "doc_mentions": [
-        "~/.gemini/skills"
+        "~/.gemini/GEMINI.md"
       ]
     },
     "gemini-cli": {
@@ -458,12 +497,14 @@
     },
     "opencode": {
       "config": {
-        "global_dir": "~/.config/opencode"
+        "global_dir": "~/.config/opencode",
+        "instruction_workspace_dir": ""
       },
       "flatten": "flag",
       "doc_mentions": [
         "~/.config/opencode/skills",
-        "~/.config/opencode/agents"
+        "~/.config/opencode/agents",
+        "<project>/AGENTS.md"
       ]
     },
     "nexus-ai": {
@@ -479,15 +520,61 @@
       "config": {
         "skills_subdir": "skills",
         "agents_subdir": "agents",
-        "commands_subdir": "commands",
         "hooks_supported": true
       },
       "flatten": "flag",
       "doc_mentions": [
         "~/.cursor/skills",
         "~/.cursor/agents",
-        "~/.cursor/commands",
         "~/.cursor/hooks.json"
+      ]
+    },
+    "copilot": {
+      "config": {
+        "workspace_dir": ".github",
+        "agents_subdir": "agents",
+        "hooks_subdir": "hooks",
+        "hooks_supported": true
+      },
+      "flatten": "none",
+      "doc_mentions": [
+        "~/.copilot/copilot-instructions.md",
+        "~/.copilot/agents",
+        "~/.copilot/hooks",
+        ".github/agents",
+        ".github/hooks"
+      ]
+    },
+    "windsurf": {
+      "config": {
+        "workspace_dir": ".windsurf",
+        "instruction_workspace_dir": "",
+        "global_commands_subdir": "global_workflows",
+        "hooks_supported": true
+      },
+      "flatten": "override",
+      "doc_mentions": [
+        "~/.codeium/windsurf/skills",
+        "~/.codeium/windsurf/global_workflows",
+        "~/.codeium/windsurf/hooks.json",
+        ".windsurf/skills",
+        ".windsurf/workflows",
+        ".windsurf/hooks.json"
+      ]
+    },
+    "openclaw": {
+      "config": {
+        "workspace_dir": "",
+        "instruction_workspace_dir": "",
+        "skills_subdir": "skills",
+        "hooks_supported": false
+      },
+      "flatten": "flag",
+      "doc_mentions": [
+        "agents.defaults.workspace",
+        "<workspace>/AGENTS.md",
+        "<workspace>/skills",
+        "typed plugin"
       ]
     },
     "qwen": {
@@ -551,11 +638,6 @@
       "remediation": "re-run the installer with --platforms codex",
       "surfaces": [
         {
-          "label": "skills",
-          "kind": "nonempty_dir",
-          "path": "~/.codex/skills"
-        },
-        {
           "label": "~/.agents/skills",
           "kind": "nonempty_dir",
           "path": "~/.agents/skills"
@@ -581,12 +663,6 @@
           "kind": "file_contains",
           "path": "~/.codex/hooks.json",
           "needle": "Nexus-Hub"
-        },
-        {
-          "label": "hooks feature switch",
-          "kind": "file_contains",
-          "path": "~/.codex/config.toml",
-          "needle": "hooks = true"
         }
       ]
     },
@@ -597,16 +673,6 @@
       ],
       "remediation": "re-run the installer with --platforms gemini",
       "surfaces": [
-        {
-          "label": "skills",
-          "kind": "nonempty_dir",
-          "path": "~/.gemini/skills"
-        },
-        {
-          "label": "workflows",
-          "kind": "nonempty_dir",
-          "path": "~/.gemini/workflows"
-        },
         {
           "label": "GEMINI.md",
           "kind": "is_file",
@@ -633,6 +699,11 @@
           "path": "~/.gemini/config/global_workflows"
         },
         {
+          "label": "agents",
+          "kind": "nonempty_dir",
+          "path": "~/.gemini/config/agents"
+        },
+        {
           "label": "GEMINI.md",
           "kind": "is_file",
           "path": "~/.gemini/GEMINI.md"
@@ -651,6 +722,12 @@
           "label": "skills",
           "kind": "nonempty_dir",
           "path": "~/.gemini/antigravity-cli/skills"
+        },
+        {
+          "label": "agentMode",
+          "kind": "file_contains",
+          "path": "~/.gemini/antigravity-cli/settings.json",
+          "needle": "agentMode"
         }
       ]
     },
@@ -663,9 +740,19 @@
       "remediation": "run `nexus-hub init` in this project for project-scoped .agents/ workflows",
       "surfaces": [
         {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "{project}/.agents/skills"
+        },
+        {
           "label": "workflows",
           "kind": "nonempty_dir",
           "path": "{project}/.agents/workflows"
+        },
+        {
+          "label": "agents",
+          "kind": "nonempty_dir",
+          "path": "{project}/.agents/agents"
         }
       ]
     },
@@ -676,11 +763,6 @@
       ],
       "remediation": "re-run the installer with --platforms cursor",
       "surfaces": [
-        {
-          "label": "commands",
-          "kind": "nonempty_dir",
-          "path": "~/.cursor/commands"
-        },
         {
           "label": "skills",
           "kind": "nonempty_dir",
@@ -695,6 +777,179 @@
           "label": "hooks.json",
           "kind": "is_file",
           "path": "~/.cursor/hooks.json"
+        }
+      ]
+    },
+    {
+      "label": "GitHub Copilot",
+      "detect": [
+        "~/.copilot"
+      ],
+      "remediation": "re-run the installer with --platforms copilot",
+      "surfaces": [
+        {
+          "label": "personal instructions",
+          "kind": "is_file",
+          "path": "~/.copilot/copilot-instructions.md"
+        },
+        {
+          "label": "custom agents",
+          "kind": "nonempty_dir",
+          "path": "~/.copilot/agents"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "~/.copilot/hooks/nexus-hub.json",
+          "needle": "\"version\": 1"
+        },
+        {
+          "label": "hook scripts",
+          "kind": "nonempty_dir",
+          "path": "~/.copilot/hooks/nexus-hub-scripts"
+        }
+      ]
+    },
+    {
+      "label": "GitHub Copilot (this project)",
+      "detect": [
+        "{project}/.github/copilot-instructions.md"
+      ],
+      "remediation": "re-run the workspace installer with --platforms copilot",
+      "surfaces": [
+        {
+          "label": "repository instructions",
+          "kind": "is_file",
+          "path": "{project}/.github/copilot-instructions.md"
+        },
+        {
+          "label": "custom agents",
+          "kind": "nonempty_dir",
+          "path": "{project}/.github/agents"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "{project}/.github/hooks/nexus-hub.json",
+          "needle": "\"version\": 1"
+        }
+      ]
+    },
+    {
+      "label": "Devin Desktop / Windsurf",
+      "detect": [
+        "~/.codeium"
+      ],
+      "remediation": "re-run the installer with --platforms windsurf",
+      "surfaces": [
+        {
+          "label": "global rules",
+          "kind": "is_file",
+          "path": "~/.codeium/windsurf/memories/global_rules.md"
+        },
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "~/.codeium/windsurf/skills"
+        },
+        {
+          "label": "global workflows",
+          "kind": "nonempty_dir",
+          "path": "~/.codeium/windsurf/global_workflows"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "~/.codeium/windsurf/hooks.json",
+          "needle": "pre_run_command"
+        },
+        {
+          "label": "hook scripts",
+          "kind": "nonempty_dir",
+          "path": "~/.codeium/windsurf/hooks"
+        }
+      ]
+    },
+    {
+      "label": "Devin Desktop / Windsurf (this project)",
+      "detect": [
+        "{project}/.windsurf"
+      ],
+      "remediation": "re-run the workspace installer with --platforms windsurf",
+      "surfaces": [
+        {
+          "label": "AGENTS.md",
+          "kind": "is_file",
+          "path": "{project}/AGENTS.md"
+        },
+        {
+          "label": "legacy .windsurfrules",
+          "kind": "is_file",
+          "path": "{project}/.windsurfrules"
+        },
+        {
+          "label": "always-on rule",
+          "kind": "is_file",
+          "path": "{project}/.devin/rules/nexus-hub.md"
+        },
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "{project}/.windsurf/skills"
+        },
+        {
+          "label": "workflows",
+          "kind": "nonempty_dir",
+          "path": "{project}/.windsurf/workflows"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "{project}/.windsurf/hooks.json",
+          "needle": "pre_run_command"
+        }
+      ]
+    },
+    {
+      "label": "OpenClaw",
+      "detect": [
+        "~/.openclaw"
+      ],
+      "remediation": "re-run the installer with --platforms openclaw",
+      "surfaces": [
+        {
+          "label": "AGENTS.md",
+          "kind": "is_file",
+          "path": "{openclaw_workspace}/AGENTS.md"
+        },
+        {
+          "label": "SOUL.md",
+          "kind": "is_file",
+          "path": "{openclaw_workspace}/SOUL.md"
+        },
+        {
+          "label": "IDENTITY.md",
+          "kind": "is_file",
+          "path": "{openclaw_workspace}/IDENTITY.md"
+        },
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "{openclaw_workspace}/skills"
+        }
+      ]
+    },
+    {
+      "label": "Hermes",
+      "detect": [
+        "~/.hermes"
+      ],
+      "remediation": "run the integration installer with --integrations hermes",
+      "surfaces": [
+        {
+          "label": "native skills",
+          "kind": "nonempty_dir",
+          "path": "~/.hermes/skills"
         }
       ]
     },
@@ -720,6 +975,30 @@
           "label": "AGENTS.md",
           "kind": "is_file",
           "path": "~/.config/opencode/AGENTS.md"
+        }
+      ]
+    },
+    {
+      "label": "OpenCode (this project)",
+      "detect": [
+        "{project}/.opencode"
+      ],
+      "remediation": "re-run the workspace installer with --platforms opencode",
+      "surfaces": [
+        {
+          "label": "AGENTS.md",
+          "kind": "is_file",
+          "path": "{project}/AGENTS.md"
+        },
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "{project}/.opencode/skills"
+        },
+        {
+          "label": "agents",
+          "kind": "nonempty_dir",
+          "path": "{project}/.opencode/agents"
         }
       ]
     },

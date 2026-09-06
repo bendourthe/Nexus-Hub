@@ -302,3 +302,224 @@ def test_release_flow_regenerates_manifest() -> None:
     update = UPDATE_CMD.read_text(encoding="utf-8")
     assert "generate_manifest.py" in update
     assert "MANIFEST.sha256" in update
+
+
+# --------------------------------------------------------------------------
+# v3.16.7 (WN-1): tracked files hash their GIT BLOB bytes, not working-tree bytes
+#
+# v3.16.5 shipped a manifest generated on a Windows checkout with
+# core.autocrlf=true, so every text file was hashed with CRLF while the released
+# tarball carries LF. `nexus-hub verify` would have reported ~520 spurious
+# mismatches. The item was carried through v3.16.6 (data regenerated, generator
+# untouched) and is fixed here by hashing the index blob instead.
+# --------------------------------------------------------------------------
+
+
+def _git_repo(root: Path) -> bool:
+    """Init a git repo at `root` that FORCES CRLF in the working tree."""
+    def run(*args: str) -> int:
+        return subprocess.run(["git", "-C", str(root), *args], **_RUN_KW).returncode
+
+    if subprocess.run(["git", "--version"], **_RUN_KW).returncode != 0:
+        return False
+    if run("init", "-q") != 0:
+        return False
+    run("config", "user.email", "t@example.invalid")
+    run("config", "user.name", "T")
+    run("config", "core.autocrlf", "true")
+    return True
+
+
+def test_tracked_files_hash_blob_bytes_not_crlf_worktree_bytes(tmp_path: Path) -> None:
+    import hashlib
+
+    root = tmp_path / "repo"
+    root.mkdir()
+    if not _git_repo(root):
+        pytest.skip("git unavailable")
+
+    target = root / "catalog" / "skills" / "demo"
+    target.mkdir(parents=True)
+    (root / ".gitattributes").write_text("* text=auto\n", encoding="utf-8")
+    skill = target / "SKILL.md"
+    skill.write_bytes(b"alpha\nbeta\n")  # committed as LF
+
+    subprocess.run(["git", "-C", str(root), "add", "-A"], **_RUN_KW)
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", "x"], **_RUN_KW)
+
+    # Simulate the Windows checkout: the working tree now holds CRLF.
+    skill.write_bytes(b"alpha\r\nbeta\r\n")
+
+    entries = dict(gm.compute_manifest(root))
+    rel = "catalog/skills/demo/SKILL.md"
+    lf_hash = hashlib.sha256(b"alpha\nbeta\n").hexdigest()
+    crlf_hash = hashlib.sha256(b"alpha\r\nbeta\r\n").hexdigest()
+
+    assert entries[rel] == lf_hash, "manifest must describe the distributed (LF) blob"
+    assert entries[rel] != crlf_hash, "hashing working-tree bytes is the v3.16.5 defect"
+
+
+def test_untracked_covered_file_falls_back_to_file_bytes(tmp_path: Path) -> None:
+    import hashlib
+
+    root = tmp_path / "repo"
+    root.mkdir()
+    if not _git_repo(root):
+        pytest.skip("git unavailable")
+
+    target = root / "catalog" / "skills" / "demo"
+    target.mkdir(parents=True)
+    (target / "SKILL.md").write_bytes(b"tracked\n")
+    subprocess.run(["git", "-C", str(root), "add", "-A"], **_RUN_KW)
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", "x"], **_RUN_KW)
+
+    # Never staged, so there is no blob to read: it must still be manifested.
+    (target / "EXTRA.md").write_bytes(b"untracked\n")
+
+    entries = dict(gm.compute_manifest(root))
+    rel = "catalog/skills/demo/EXTRA.md"
+    assert rel in entries, "an untracked covered file must not vanish from the manifest"
+    assert entries[rel] == hashlib.sha256(b"untracked\n").hexdigest()
+
+
+def test_gitignored_covered_file_is_not_manifested(tmp_path: Path) -> None:
+    """Gitignored junk under a covered root must not inflate MANIFEST.sha256 (WN-5)."""
+    import hashlib
+
+    root = tmp_path / "repo"
+    root.mkdir()
+    if not _git_repo(root):
+        pytest.skip("git unavailable")
+
+    target = root / "catalog" / "skills" / "demo"
+    target.mkdir(parents=True)
+    (target / "SKILL.md").write_bytes(b"tracked\n")
+    (root / ".gitignore").write_text("*.ignored\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(root), "add", "-A"], **_RUN_KW)
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", "x"], **_RUN_KW)
+
+    (target / "junk.ignored").write_bytes(b"noise\n")
+    (target / "EXTRA.md").write_bytes(b"untracked\n")
+
+    entries = dict(gm.compute_manifest(root))
+    assert "catalog/skills/demo/SKILL.md" in entries
+    assert "catalog/skills/demo/EXTRA.md" in entries
+    assert entries["catalog/skills/demo/EXTRA.md"] == hashlib.sha256(b"untracked\n").hexdigest()
+    assert "catalog/skills/demo/junk.ignored" not in entries
+
+
+def test_non_git_tree_still_produces_a_manifest(tmp_path: Path) -> None:
+    """An installed tree or exported tarball has no .git and must still work."""
+    root = tmp_path / "plain"
+    root.mkdir()
+    _build_tree(root)
+    entries = gm.compute_manifest(root)
+    assert entries, "a non-git tree must degrade to file-byte hashing, not to empty"
+
+
+def test_unstaged_covered_changes_are_reported(tmp_path: Path) -> None:
+    """A stale manifest must be loud: index hashing makes unstaged edits invisible."""
+    root = tmp_path / "repo"
+    root.mkdir()
+    if not _git_repo(root):
+        pytest.skip("git unavailable")
+
+    target = root / "catalog" / "skills" / "demo"
+    target.mkdir(parents=True)
+    (target / "SKILL.md").write_bytes(b"one\n")
+    subprocess.run(["git", "-C", str(root), "add", "-A"], **_RUN_KW)
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", "x"], **_RUN_KW)
+
+    assert gm._dirty_covered_paths(root) == []
+    (target / "SKILL.md").write_bytes(b"two\n")
+    dirty = gm._dirty_covered_paths(root)
+    assert any("SKILL.md" in path for path in dirty), dirty
+
+
+# --------------------------------------------------------------------------
+# v3.16.8 (BG-2): the eol attribute is applied on top of the blob
+#
+# v3.16.7 hashed blob bytes, which removed the generating host's line endings
+# from the result but still was not the DISTRIBUTED form: `git archive` applies
+# .gitattributes, so a path declared `text eol=crlf` ships CRLF while its blob is
+# LF. The published v3.16.7 tarball verified 1230 OK / 1 MODIFIED / FAIL for
+# exactly that one file (scripts/nexus-hub.cmd).
+# --------------------------------------------------------------------------
+
+
+def test_eol_crlf_path_hashes_its_distributed_crlf_form(tmp_path: Path) -> None:
+    import hashlib
+
+    root = tmp_path / "repo"
+    root.mkdir()
+    if not _git_repo(root):
+        pytest.skip("git unavailable")
+
+    target = root / "scripts"
+    target.mkdir(parents=True)
+    # One path forced to CRLF, one left as ordinary text, in the same repo.
+    (root / ".gitattributes").write_text(
+        "* text=auto\nscripts/launcher.cmd text eol=crlf\n", encoding="utf-8"
+    )
+    (target / "launcher.cmd").write_bytes(b"echo one\necho two\n")
+    (target / "plain.sh").write_bytes(b"echo one\necho two\n")
+
+    subprocess.run(["git", "-C", str(root), "add", "-A"], **_RUN_KW)
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", "x"], **_RUN_KW)
+
+    entries = dict(gm.compute_manifest(root))
+    lf = b"echo one\necho two\n"
+    crlf = b"echo one\r\necho two\r\n"
+
+    assert entries["scripts/launcher.cmd"] == hashlib.sha256(crlf).hexdigest(), (
+        "an eol=crlf path must hash the CRLF form git archive emits"
+    )
+    assert entries["scripts/plain.sh"] == hashlib.sha256(lf).hexdigest(), (
+        "a text=auto path must still hash the LF blob; the fix must not convert everything"
+    )
+
+
+def test_eol_lf_attribute_is_not_converted(tmp_path: Path) -> None:
+    """The explicit-lf case is the mirror guard against a blanket conversion."""
+    import hashlib
+
+    root = tmp_path / "repo"
+    root.mkdir()
+    if not _git_repo(root):
+        pytest.skip("git unavailable")
+
+    (root / "scripts").mkdir(parents=True)
+    (root / ".gitattributes").write_text("scripts/posix text eol=lf\n", encoding="utf-8")
+    (root / "scripts" / "posix").write_bytes(b"#!/bin/sh\nexit 0\n")
+    subprocess.run(["git", "-C", str(root), "add", "-A"], **_RUN_KW)
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", "x"], **_RUN_KW)
+
+    entries = dict(gm.compute_manifest(root))
+    assert entries["scripts/posix"] == hashlib.sha256(b"#!/bin/sh\nexit 0\n").hexdigest()
+
+
+def test_apply_eol_is_idempotent_and_lf_is_a_noop() -> None:
+    """Converting twice must not double the CR, and lf must never rewrite."""
+    assert gm._apply_eol(b"a\nb\n", "crlf") == b"a\r\nb\r\n"
+    assert gm._apply_eol(b"a\r\nb\r\n", "crlf") == b"a\r\nb\r\n"
+    assert gm._apply_eol(b"a\nb\n", "lf") == b"a\nb\n"
+    assert gm._apply_eol(b"a\r\nb\r\n", "lf") == b"a\r\nb\r\n"
+
+
+def test_eol_attrs_omits_unspecified_paths(tmp_path: Path) -> None:
+    """A path with no eol attribute must be absent, so callers skip conversion."""
+    root = tmp_path / "repo"
+    root.mkdir()
+    if not _git_repo(root):
+        pytest.skip("git unavailable")
+
+    (root / "catalog").mkdir(parents=True)
+    (root / ".gitattributes").write_text("catalog/win.cmd text eol=crlf\n", encoding="utf-8")
+    (root / "catalog" / "win.cmd").write_bytes(b"x\n")
+    (root / "catalog" / "other.md").write_bytes(b"y\n")
+    subprocess.run(["git", "-C", str(root), "add", "-A"], **_RUN_KW)
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", "x"], **_RUN_KW)
+
+    attrs = gm._git_eol_attrs(root, ["catalog/win.cmd", "catalog/other.md"])
+    assert attrs.get("catalog/win.cmd") == "crlf"
+    assert "catalog/other.md" not in attrs, "unspecified must be omitted, not defaulted"

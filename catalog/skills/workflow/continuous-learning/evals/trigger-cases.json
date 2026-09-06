@@ -1,0 +1,8 @@
+{
+  "skill": "continuous-learning",
+  "purpose": "Route local instinct capture with canonical release and archive provenance.",
+  "cases": [
+    {"id": "pos-instinct", "prompt": "capture local instincts with canonical release and archive provenance", "should_trigger": true, "assert": "routes to continuous-learning first", "lexical": true},
+    {"id": "neg-weather", "prompt": "show the weather forecast for tomorrow", "should_trigger": false, "assert": "does not route to continuous-learning", "lexical": true}
+  ]
+}

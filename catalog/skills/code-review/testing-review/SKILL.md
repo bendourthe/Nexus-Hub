@@ -159,6 +159,7 @@ Immediate (before next release)
 
 ## Related Skills
 
+- [[functional-verification]] -- owns dynamic exercise of the built artifact; this skill reviews the test suite's coverage, quality, and strategy.
 - [[context-analysis]] -- Context understanding (Phase 1)
 - [[code-quality]] -- Code quality + SOLID review (Phase 2)
 - [[security-review]] -- Security analysis (Phase 3)

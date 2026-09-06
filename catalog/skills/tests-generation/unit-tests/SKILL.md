@@ -711,54 +711,7 @@ TEST_F(UserTest, IdentifiesMinorsCorrectly) {
 
 ## Common Anti-Patterns to Avoid
 
-### Testing Implementation Instead of Behavior
-```python
-# BAD
-def test_uses_hash_map():
-    cache = Cache()
-    assert isinstance(cache._storage, dict)  # Implementation detail
-
-# GOOD
-def test_caches_values():
-    cache = Cache()
-    cache.set("key", "value")
-    assert cache.get("key") == "value"  # Behavior
-```
-
-### Multiple Unrelated Assertions
-```python
-# BAD
-def test_user():
-    user = User("John", "john@example.com")
-    assert user.name == "John"
-    assert user.email == "john@example.com"
-    assert user.validate_email() is True
-    assert user.age is None
-
-# GOOD - Separate tests
-def test_user_name_initialization():
-    user = User("John", "john@example.com")
-    assert user.name == "John"
-
-def test_user_email_validation():
-    user = User("John", "john@example.com")
-    assert user.validate_email() is True
-```
-
-### Slow Tests
-```python
-# BAD
-def test_with_delay():
-    time.sleep(5)  # Don't do this
-    result = operation()
-    assert result is not None
-
-# GOOD
-def test_without_delay(mocker):
-    mocker.patch("time.sleep")  # Mock the delay
-    result = operation()
-    assert result is not None
-```
+Detailed guidance lives in [common-anti-patterns-to-avoid.md](references/common-anti-patterns-to-avoid.md) (load on demand).
 
 ## Success Criteria
 
@@ -776,7 +729,7 @@ After using this skill, you should have:
 | Rationalization | Reality |
 |---|---|
 | "Unit tests slow down development for simple functions" | Simple functions stay simple until they don't; a utility function with no tests grows into a 300-line module with 12 callers, at which point adding tests requires understanding all 12 callers before writing a single assertion. |
-| "80% coverage is arbitrary — we only test the important parts" | Without a measurable threshold, "important parts" expands to mean "whatever was easy to test"; the 20% uncovered code is disproportionately the error handling paths and edge cases where real-world bugs concentrate. |
+| "80% coverage is arbitrary -- we only test the important parts" | Without a measurable threshold, "important parts" expands to mean "whatever was easy to test"; the 20% uncovered code is disproportionately the error handling paths and edge cases where real-world bugs concentrate. |
 | "Mocking makes tests too fragile and tied to implementation" | Tests that do not mock external dependencies (databases, HTTP APIs) are integration tests, not unit tests; they are orders of magnitude slower, require infrastructure setup, and fail for infrastructure reasons unrelated to the logic under test. |
 | "Test names don't matter as long as the assertion is correct" | When a test fails in CI, the test name is the first and often only information visible before opening the test file; descriptive names like `test_transfer_fails_when_balance_insufficient` eliminate the need to read the test body to understand the failure. |
 | "We don't need tests for code that's about to be rewritten" | Code that is "about to be rewritten" typically remains in production for 6-18 months while the rewrite is deprioritized; during that period it receives changes and bug fixes without any regression protection. |

@@ -105,15 +105,15 @@ Apply these rules to **ALL** outputs, regardless of the domain:
 **Standard Project Layout**:
 ```
 project-name/
-â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ components/                # UI Components (if Frontend)
-â”‚   â”œâ”€â”€ utils/                     # Utility functions
-â”‚   â”œâ”€â”€ services/                  # API calls / Business logic
-â”‚   â””â”€â”€ index.js                   # Entry point
-â”œâ”€â”€ tests/                         # Test files
-â”œâ”€â”€ package.json                   # Dependencies & Scripts
-â”œâ”€â”€ .eslintrc.json                 # Linting config
-â””â”€â”€ README.md
+├── src/
+│   ├── components/                # UI Components (if Frontend)
+│   ├── utils/                     # Utility functions
+│   ├── services/                  # API calls / Business logic
+│   └── index.js                   # Entry point
+├── tests/                         # Test files
+├── package.json                   # Dependencies & Scripts
+├── .eslintrc.json                 # Linting config
+└── README.md
 ```
 
 **Tooling**:

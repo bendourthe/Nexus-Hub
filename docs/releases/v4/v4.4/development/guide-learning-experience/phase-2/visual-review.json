@@ -1,0 +1,98 @@
+[
+  {
+    "file": "cheatsheets-dark-1440-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "cheatsheets-dark-420-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "cheatsheets-light-1440-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "cheatsheets-light-420-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "foundations-dark-1440-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "foundations-dark-420-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "foundations-light-1440-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "foundations-light-420-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "home-dark-1440-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "home-dark-420-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "home-light-1440-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "home-light-420-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "training-dark-1440-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "training-dark-420-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "training-light-1440-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  },
+  {
+    "file": "training-light-420-top.png",
+    "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+    "verdict": "PASS for shared layout changes",
+    "inspection": "Viewport inspected for wrapping, bounds, spacing, theme consistency; planned scene/content replacements remain."
+  }
+]

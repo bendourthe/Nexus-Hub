@@ -114,6 +114,8 @@ Sample each substantial section of the body (a section with more than roughly 10
 
 Record a section as **directive** if any one is present, **expository** if none is. Report the count and name the expository sections, for example: `6 of 7 substantial sections directive; "Background on retrieval" is expository`. A skill where most substantial sections are expository is a candidate for rewriting toward instruction, or for demotion to a Tier-3 reference where explanation is the point.
 
+When a `language-specialists/*-expert` skill, or a similarly shaped `framework-specialists/*-expert` skill, has mostly expository substantial sections, label it `runbook-backlog` in the report. Propose a later edit that keeps executable procedure in SKILL.md and moves pedagogy to `references/`; do not rewrite the expert skill during the stocktake and do not turn this advisory label into a `make validate` failure.
+
 This is an **advisory quality signal, not a gate**. It never fails a run, never blocks a merge, and never produces a numeric threshold anyone can tune against.
 
 **Non-goals - do not do these:**
@@ -122,6 +124,18 @@ This is an **advisory quality signal, not a gate**. It never fails a run, never 
 - **Concise rationale that explains a failure mode is not slop, and must not be removed to raise directive density.** The "Reality" column of a Common Rationalizations table is explanatory by design and is the most valuable prose in the schema; AGENTS.md requires each entry to cite a concrete failure mode. A section that pairs one sentence of why with an observable instruction is the target state, not a violation of it.
 - **Do not flag Tier-3 reference files.** Under the three-tier model, `references/*.md` exist to carry the explanation that does not belong in the body. Expository prose there is correct.
 - **Do not remove or shorten the required Common Rationalizations or Verification sections** on the strength of this signal. Their presence is a checklist item; this review never argues for their deletion.
+
+### 4c. Audit semantic confusability
+
+Build a lowercase trigger-noun index from each scored skill's `description` plus its `SKIP` fence. Compare candidates through shared noun buckets rather than constructing a catalog-wide all-pairs matrix.
+
+- **Quick Scan**: compare each changed skill with every other skill in the same category.
+- **Full Stocktake**: start with the lowest-checklist skills in each category, then add any same-category skill that shares two or more trigger nouns with another skill in the noun index. Compare only those candidates. Do not compare every pair in the catalog.
+- **Always-run cross-category watchlist**: inspect `anti-slop-editing` versus `typed-boundary-hygiene` for anti-slop vernacular, `typed-boundary-hygiene` versus `typescript-expert` for unknown and boundary language, and `javascript-cleanup` versus `typed-boundary-hygiene` for cleanup language.
+
+Calibrate a Full Stocktake on `language-specialists` first. It must name the `typed-boundary-hygiene` / `typescript-expert` split and state whether their `SKIP` fences separate contract hygiene from general type design and I/O parsing. Fan out only after that report shape is useful; [[agent-orchestration-primitives]] is optional when the active harness supports it.
+
+Write a `## Confusable clusters` section in `.nexus/skill-stocktake/report.md`. For every real candidate, record skill A, skill B, overlapping phrases, whether their `SKIP` fences separate ownership, and one proposed description or `SKIP` repair. Propose repairs only. Never delete a skill, never auto-edit either description, and never turn this advisory pass into a `validate_skills.py` error.
 
 ### 5. Write the cache and the report
 
@@ -152,6 +166,8 @@ Both the grade and the diff are advisory by default: they print and exit 0 regar
 | "I can edit the worst skills automatically since the fixes are mechanical" | Step 6 is propose-only. Adding a Common Rationalizations table or rewriting Verification changes user-facing content that must clear the curation bar. Surface the diff; let the maintainer approve. |
 | "Directive density would be more objective as an imperative-verb ratio" | A ratio is tunable, and prose optimized toward it gets worse: the first casualty is the "Reality" column of the Common Rationalizations table, which is explanatory by design and is the most valuable prose in the schema. Step 4b asks a binary per-section question precisely so there is no number to game. |
 | "This section is mostly explanation, so it should be cut to raise directive density" | Explanation that names a concrete failure mode is what makes an instruction followable; AGENTS.md requires it. The target state is one sentence of why paired with an observable instruction, not instructions with the why stripped out. Cutting rationale to raise a signal that was never a gate is the failure mode 4b's non-goals exist to prevent. |
+| "The safest confusability audit compares every skill with every other skill" | A global all-pairs pass makes routine stocktakes unusable as the catalog grows. The noun index narrows comparisons to changed or low-scoring same-category candidates, while the named cross-category watchlist preserves known vernacular collisions. |
+| "Confusable skills should be merged or deleted" | Overlap is evidence for a clearer ownership fence, not deletion authority. The report proposes a description or `SKIP` repair; only a maintainer can approve a skill removal. |
 
 ## Verification
 
@@ -162,7 +178,12 @@ Both the grade and the diff are advisory by default: they print and exit 0 regar
 - [ ] No `.nexus/` file is written outside the project root, and no network call is made.
 - [ ] No SKILL.md is edited by the stocktake itself; remediation is proposed, not applied.
 - [ ] The directive-density review reports a directive/expository count per scored skill and names the expository sections, without emitting any ratio, threshold, or pass/fail verdict.
+- [ ] Mostly expository language- or framework-specialist expert skills are labeled `runbook-backlog` with a later Tier-3 migration proposal, without being rewritten or failed by validation.
 - [ ] No Common Rationalizations or Verification section was removed or shortened as a result of the directive-density signal, and no `references/*.md` file was flagged by it.
+- [ ] `.nexus/skill-stocktake/report.md` contains `## Confusable clusters` with each candidate pair, overlapping phrases, fence verdict, and proposed repair.
+- [ ] Quick Scan compares changed skills only against their category; Full Stocktake uses the lowest-score plus two-shared-noun candidate set rather than a catalog-wide all-pairs matrix.
+- [ ] The always-run watchlist includes anti-slop, unknown/boundary, and cleanup vernacular, and the language-specialists calibration names `typed-boundary-hygiene` versus `typescript-expert`.
+- [ ] Confusability remains advisory: no skill was deleted or auto-edited, and no `validate_skills.py` hard error was added.
 
 ## Related Skills
 

@@ -1,13 +1,13 @@
 ---
 name: claude-agent-sdk
-description: Production-grade Claude Agent SDK integration in TypeScript — multi-provider routing, retry logic with exponential backoff, spending cap enforcement, per-invocation audit logging, error classification, and MCP tool registration. Use when building autonomous Claude agents in Node.js/TypeScript.
+description: Production-grade Claude Agent SDK integration in TypeScript -- multi-provider routing, retry logic with exponential backoff, spending cap enforcement, per-invocation audit logging, error classification, and MCP tool registration. Use when building autonomous Claude agents in Node.js/TypeScript.
 summary_l0: "Integrate Claude Agent SDK in TypeScript with provider routing, spending caps, and audit logging"
 overview_l1: "This skill provides production patterns for integrating the Anthropic Claude Agent SDK in TypeScript/Node.js projects. Use it when building autonomous Claude agents, implementing multi-provider LLM routing (Anthropic, AWS Bedrock, Google Vertex AI, OpenRouter), adding spending cap enforcement, structuring per-invocation audit logging, classifying errors as retryable versus fatal, registering MCP tools, or designing agent identity via system prompts. Key capabilities include provider configuration and credential setup, exponential backoff retry logic with jitter, hard budget limits with automatic session termination, structured audit trails, error classification hierarchies, and MCP tool registration within the SDK context. The expected output is production-grade TypeScript agent code with full observability, cost controls, and multi-provider failover. Trigger phrases: Claude Agent SDK, Claude SDK TypeScript, autonomous agent Node.js, multi-provider Claude, agent spending cap, Claude SDK retry, Claude SDK audit, agent SDK production."
 ---
 
 # Claude Agent SDK (TypeScript)
 
-Production patterns for integrating the Anthropic Claude Agent SDK in TypeScript/Node.js projects. Covers the full operational stack from provider routing and credential management to spending cap enforcement, structured audit logging, and MCP tool registration. Grounded in patterns from Shannon — a 13-agent autonomous security testing pipeline achieving 96.15% benchmark success using Claude Agent SDK v0.2.38.
+Production patterns for integrating the Anthropic Claude Agent SDK in TypeScript/Node.js projects. Covers the full operational stack from provider routing and credential management to spending cap enforcement, structured audit logging, and MCP tool registration. Grounded in patterns from Shannon -- a 13-agent autonomous security testing pipeline achieving 96.15% benchmark success using Claude Agent SDK v0.2.38.
 
 ## When to Use This Skill
 
@@ -47,7 +47,7 @@ npm install @anthropic-ai/bedrock-sdk
 npm install @anthropic-ai/vertex-sdk
 ```
 
-**TypeScript configuration** (use strict mode for agent code — catches type errors before runtime):
+**TypeScript configuration** (use strict mode for agent code -- catches type errors before runtime):
 
 ```json
 {
@@ -191,7 +191,7 @@ export const DEFAULT_RETRY_CONFIG: RetryConfig = {
   jitterFactor: 0.25,
 };
 
-/** Errors that should NOT be retried — fail immediately. */
+/** Errors that should NOT be retried -- fail immediately. */
 const FATAL_STATUS_CODES = new Set([400, 401, 403, 404, 422]);
 
 export function isRetryable(error: unknown): boolean {
@@ -250,7 +250,7 @@ export async function withRetry<T>(
 
 ### Step 4: Enforce Spending Caps
 
-Autonomous agents can accumulate significant API costs. Implement hard budget limits at the invocation layer — before sending requests — so runaway agents terminate cleanly rather than silently draining budget.
+Autonomous agents can accumulate significant API costs. Implement hard budget limits at the invocation layer -- before sending requests -- so runaway agents terminate cleanly rather than silently draining budget.
 
 ```typescript
 // src/ai/budget-guard.ts
@@ -531,7 +531,7 @@ INPUT FORMAT: JSON array of research objects from the research agent.
 OUTPUT FORMAT: Markdown report with sections: Executive Summary, Key Findings, Gaps, Recommendations.
 
 CONSTRAINTS:
-1. Only use information provided in the input — no inference beyond what sources support
+1. Only use information provided in the input -- no inference beyond what sources support
 2. Explicitly note gaps and contradictions
 3. Keep executive summary under 200 words`,
 };
@@ -546,6 +546,8 @@ CONSTRAINTS:
 - **Pin SDK version**: Lock `@anthropic-ai/sdk` to a specific version in `package.json`. Minor SDK updates can change tool call behavior.
 - **Use strict TypeScript**: `noUncheckedIndexedAccess` prevents the most common runtime errors in agent code (array index out of bounds, optional property access).
 - **Per-agent Playwright instances**: If using Playwright MCP, give each parallel agent its own browser instance to avoid session state conflicts.
+- **Append-only history**: append each assistant turn to the conversation exactly as the API returned it and never edit earlier turns between requests; deliver per-turn reminders or injected context as new content rather than by rewriting history, because an edited transcript invalidates the model's own prior reasoning and any prompt cache built on it.
+- **Batch independent tool calls**: prefer requesting every independent item in one response rather than one per turn; a loop that serializes independent reads pays a full round trip per item for no gain. These two are provider-specific API concerns, which is why they live here and not in the platform-agnostic instruction templates.
 - **Design for idempotency**: Agent activities in durable workflow engines (Temporal) will be replayed on failure. Activities must produce the same result when run twice.
 
 ## Common Patterns
@@ -674,4 +676,4 @@ export function classifyError(error: unknown): ErrorClass {
 
 **Version**: 1.0.0
 **Last Updated**: March 2026
-**Reference Implementation**: Shannon (KeygraphHQ) — 13-agent autonomous security testing pipeline
+**Reference Implementation**: Shannon (KeygraphHQ) -- 13-agent autonomous security testing pipeline

@@ -4,6 +4,7 @@ import type { UsageData } from "../src/types";
 import {
   UsageStore,
   formatCreditCount,
+  formatCreditUsageLine,
   formatResetLabel,
   formatResetTime,
   nextMonthlyResetAt,
@@ -159,6 +160,23 @@ describe("usage reset formatting", () => {
     expect(nextMonthlyResetAt()).toBe(Date.UTC(2026, 8, 1));
     expect(nextMonthlyResetAt(Date.UTC(2026, 11, 31))).toBe(Date.UTC(2027, 0, 1));
     expect(formatCreditCount(5_000)).toBe("5,000");
-    expect(formatCreditCount(12.345)).toBe("12.35");
+    expect(formatCreditCount(836.88)).toBe("837");
+    expect(formatCreditUsageLine({
+      usedCredits: 836.88,
+      monthlyLimit: 5_000,
+      percent: 17,
+      resetsIn: "2d",
+      resetsAt: NOW + 2 * 24 * 60 * 60_000,
+      usedAmountUsd: 33.4752,
+      limitAmountUsd: 200,
+    })).toBe("837 out of 5,000 credits used ($33.48 / $200.00)");
+    expect(formatCreditUsageLine({
+      usedCredits: 836.88,
+      monthlyLimit: 5_000,
+      percent: 17,
+      resetsIn: "2d",
+      resetsAt: NOW + 2 * 24 * 60 * 60_000,
+      usedAmountUsd: 33.4752,
+    })).toBe("837 out of 5,000 credits used");
   });
 });

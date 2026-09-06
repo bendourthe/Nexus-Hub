@@ -45,7 +45,7 @@ Quick-reference checklist for REST, GraphQL, and gRPC API design. Use when desig
 
 ### Versioning
 
-- [ ] Version in URL path (`/v1/`) for REST (not in headers — harder to test/share)
+- [ ] Version in URL path (`/v1/`) for REST (not in headers -- harder to test/share)
 - [ ] Breaking changes require a new version; additive changes are backwards-compatible
 - [ ] Old versions have a documented sunset date with at least 6 months notice
 - [ ] `Deprecation: true` response header on deprecated endpoints
@@ -54,10 +54,10 @@ Quick-reference checklist for REST, GraphQL, and gRPC API design. Use when desig
 
 ## GraphQL API Checklist
 
-- [ ] Queries follow the principle of least data — clients request only what they need
+- [ ] Queries follow the principle of least data -- clients request only what they need
 - [ ] N+1 resolved with DataLoader for any field that fetches related entities
 - [ ] Input validation on mutations: explicit error type for each invalid field
-- [ ] Subscriptions scoped to authenticated user's data — no cross-user event leakage
+- [ ] Subscriptions scoped to authenticated user's data -- no cross-user event leakage
 - [ ] Schema documentation: every field has a description; required fields are non-null
 - [ ] Query depth and complexity limits enforced to prevent DoS
 - [ ] Persisted queries used in production to prevent schema enumeration
@@ -67,9 +67,9 @@ Quick-reference checklist for REST, GraphQL, and gRPC API design. Use when desig
 ## API Security Checklist
 
 - [ ] Authentication required before any data is returned (fail closed, not open)
-- [ ] Rate limiting per user/IP — not just per endpoint
+- [ ] Rate limiting per user/IP -- not just per endpoint
 - [ ] Input size limits on all request bodies (prevent payload-based DoS)
-- [ ] CORS restricted to known origins — `*` is never acceptable for authenticated APIs
+- [ ] CORS restricted to known origins -- `*` is never acceptable for authenticated APIs
 - [ ] Sensitive fields (passwords, tokens) never returned in responses
 - [ ] Audit log for all mutating operations (who, what, when)
 

@@ -6,21 +6,20 @@ app that merges Chat + Work + Codex) reads:
   - the AGENTS.md open-standard instruction file (``~/.codex/AGENTS.md`` global +
     the repo-root ``AGENTS.md`` in a project), which carries the ``{{SKILL_INDEX}}``
     block;
-  - skills as folder-per-skill ``SKILL.md``, discovered ONE LEVEL DEEP under a
-    skills directory -- both ``~/.codex/skills/<name>/`` and the cross-tool
-    open-standard ``~/.agents/skills/<name>/`` -- invoked as ``$name``;
+  - skills as folder-per-skill ``SKILL.md``, discovered ONE LEVEL DEEP under the
+    cross-tool open-standard ``~/.agents/skills/<name>/`` -- invoked as ``$name``;
   - custom prompts (DEPRECATED, but still read) as top-level ``.md`` files under
     ``~/.codex/prompts/``, invoked ``/prompts:name``;
   - custom agents as standalone TOML files under ``~/.codex/agents/`` and
     ``<project>/.codex/agents/`` (v3.15.8);
-  - hooks registered in ``hooks.json`` beside an active config layer, gated on
-    the ``[features].hooks`` switch in ``config.toml`` (v3.15.8).
+  - hooks registered in ``hooks.json`` beside an active config layer. Current
+    Codex releases load hooks without a mandatory ``[features].hooks`` switch.
 
 Nexus-Hub's catalog is two levels deep (``catalog/skills/<category>/<name>/``), so
 a verbatim copy buries every ``SKILL.md`` under a category folder Codex reads as a
 skill-less skill and nothing registers. This integration therefore uses the shared
 adapters (``scripts/lib/integrations/_catalog_adapters.py``) to (a) FLATTEN skills
-into both skill roots, (b) additionally emit every catalog COMMAND as a skill so
+into the shared skill root, (b) additionally emit every catalog COMMAND as a skill so
 ``$presentify`` / ``$implement`` / etc. work in the new desktop app, and (c) keep
 the legacy prompts surface so ``/prompts:name`` still works in the CLI. The full
 read-contract is documented in ``docs/policy/platform-read-contracts.md``.
@@ -33,6 +32,7 @@ from pathlib import Path
 
 from ._catalog_adapters import (
     catalog_skill_names,
+    codex_invocation_policy,
     commands_to_skills,
     commands_to_slash,
     flatten_skills,
@@ -40,7 +40,6 @@ from ._catalog_adapters import (
 from ._codex_native import (
     agents_to_codex_toml,
     build_hook_entries,
-    enable_hooks_feature,
     merge_hooks_json,
     prune_hooks_json,
 )
@@ -62,9 +61,10 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
         "instruction_workspace_dir": "",
         "instruction_file": "AGENTS.md",
         "instruction_template": "templates/ai-instructions/base-codex.md",
-        # Skills are flattened one level into BOTH ~/.codex/skills and ~/.agents/skills
-        # (see docs/policy/platform-read-contracts.md). Commands surface as skills
-        # ($name) in the same roots and as legacy top-level prompts (/prompts:name).
+        # Skills are flattened one level into the documented shared
+        # ~/.agents/skills root (see docs/policy/platform-read-contracts.md).
+        # Commands surface as skills ($name) there and as legacy top-level
+        # prompts (/prompts:name).
         # Codex has no rules/ discovery, so that tree is intentionally NOT created
         # (no dead dirs). Agents and hooks landed in v3.15.8 and are materialized by
         # _codex_native rather than the base copy helpers: agents need a Markdown ->
@@ -91,11 +91,6 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
             agents_root = (Path.home() / ".agents").resolve()
             result.files.extend(self._mirror_codex(codex_root, agents_root, ctx))
             result.files.extend(self._install_native(codex_root, ctx, scope="global"))
-            # The hook engine ships disabled, so the global config.toml switch is
-            # what makes an installed hook actually run.
-            result.files.append(
-                enable_hooks_feature(ctx, self.key, codex_root / "config.toml")
-            )
             result.notes.extend(self._trust_notes())
         return result
 
@@ -113,12 +108,6 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
             self._ensure_dir(codex_root, ctx)
             result.files.extend(self._mirror_codex(codex_root, agents_root, ctx))
             result.files.extend(self._install_native(codex_root, ctx, scope="workspace"))
-            # The feature switch is a user-global setting, so a workspace install
-            # deliberately does not reach into ~/.codex/config.toml to set it.
-            result.notes.append(
-                "Codex hooks: enable them once per machine with "
-                "[features] hooks = true in ~/.codex/config.toml."
-            )
             result.notes.extend(self._trust_notes())
         return result
 
@@ -128,18 +117,23 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
         self, codex_root: Path, agents_root: Path, ctx: InstallContext
     ) -> list:
         """Lay the catalog into Codex's read-shape: flattened skills + command
-        skills in both skill roots, plus the legacy top-level prompts.
+        skills in the shared skill root, plus the legacy top-level prompts.
         """
         src_skills = ctx.repo_root / "catalog" / "skills"
         src_commands = ctx.repo_root / "catalog" / "commands"
         existing = catalog_skill_names(src_skills)
         actions: list = []
-        # Flattened skills + commands-as-skills into BOTH skill roots.
-        for skills_dst in (codex_root / "skills", agents_root / "skills"):
-            actions.extend(flatten_skills(ctx, self.key, src_skills, skills_dst))
-            actions.extend(
-                commands_to_skills(ctx, self.key, src_commands, skills_dst, existing)
-            )
+        # The historical ~/.codex/skills duplicate is intentionally absent: the
+        # current official contract documents the shared ~/.agents/skills root.
+        skills_dst = agents_root / "skills"
+        actions.extend(flatten_skills(ctx, self.key, src_skills, skills_dst))
+        actions.extend(
+            commands_to_skills(ctx, self.key, src_commands, skills_dst, existing)
+        )
+        # Codex's invocation lever lives in a sidecar, not in SKILL.md, and
+        # its polarity is inverted. Must run AFTER command-skill synthesis so
+        # generated `disable-model-invocation: true` files get a sidecar.
+        actions.extend(codex_invocation_policy(ctx, self.key, skills_dst))
         # Legacy prompts (top-level .md) into ~/.codex/prompts for /prompts:name.
         actions.extend(
             commands_to_slash(
@@ -232,9 +226,8 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
         ``hooks.json`` is a shared file that may hold the user's own hooks, so it
         is pruned of Nexus-Hub handlers instead of deleted, and untracked before
         the manifest teardown runs (which would otherwise remove the whole file).
-        The ``[features].hooks`` switch is deliberately left enabled: it is a
-        Codex-wide setting, and turning it off would disable any hook the user
-        registered themselves.
+        No global feature switch is modified; current Codex versions discover
+        hooks from the registered hook file directly.
         """
         result = WriteResult()
         roots = self._codex_roots(ctx)
