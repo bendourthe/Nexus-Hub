@@ -280,6 +280,10 @@ Create a summary of all issues found:
 3. **Low Priority**: Review stale content in docs/
 ```
 
+### Step 9: Check Doc-Header Summaries (System Docs)
+
+Verify that every SYSTEM doc (architecture, policy, reference, runbook - not point-in-time artifacts like session histories, comparison reports, CHANGELOG, or plans) opens with a greppable summary header per `catalog/style-guides/doc-headers.md`: a title plus a 3-7 line summary (what it covers, who reads it and when, key topics) above the first `##`. Flag any system doc missing the header. Apply the SELF-HEALING rule: flag any doc whose header no longer matches the system it describes (drift), propose the corrected summary, and update the doc in the same change that alters the system.
+
 ## Common Documentation Issues
 
 ### Issue Categories
