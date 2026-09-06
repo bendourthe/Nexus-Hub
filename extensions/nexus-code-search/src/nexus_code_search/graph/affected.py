@@ -74,7 +74,11 @@ def _matches_test(path: str, custom_glob: str | None) -> bool:
             return custom_glob in path
     posix = path.replace("\\", "/")
     name = posix.rsplit("/", 1)[-1]
-    if name.startswith("test_") or name.endswith("_test.py") or name.endswith(".test.ts"):
+    if (
+        name.startswith("test_")
+        or name.endswith("_test.py")
+        or name.endswith(".test.ts")
+    ):
         return True
     return any(p in posix for p in DEFAULT_TEST_PATTERNS)
 
@@ -112,6 +116,45 @@ def _files_importing(
                 affected.add(owning_path)
                 break
     return affected
+
+
+def most_imported_files(
+    conn: sqlite3.Connection, limit: int | None = None
+) -> list[tuple[str, int]]:
+    """Rank files by how many OTHER files import them (inbound import count).
+
+    This is a FILE-level view: "which files break the most on change", distinct
+    from the symbol-level `code_impact` blast radius. It inverts the same
+    import-resolution rules `affected_tests` uses, so the two stay consistent.
+    Import nodes are loaded once; matching is done in Python. Returns
+    `(rel_path, importer_count)` sorted by count descending, then path.
+    """
+    import_rows = conn.execute(
+        "SELECT n.name, f.path "
+        "FROM nodes n JOIN files f ON n.file_id = f.id "
+        "WHERE n.kind = ?",
+        (NodeKind.IMPORT.value,),
+    ).fetchall()
+    file_paths = [row[0] for row in conn.execute("SELECT path FROM files")]
+
+    counts: list[tuple[str, int]] = []
+    for path in file_paths:
+        candidates = _module_candidates(path)
+        importers: set[str] = set()
+        for import_name, owning_path in import_rows:
+            if not import_name or owning_path == path:
+                continue
+            if import_name in candidates or any(
+                import_name.endswith("." + cand) or import_name.endswith("/" + cand)
+                for cand in candidates
+                if cand
+            ):
+                importers.add(owning_path)
+        if importers:
+            counts.append((path, len(importers)))
+
+    counts.sort(key=lambda item: (-item[1], item[0]))
+    return counts[:limit] if limit is not None else counts
 
 
 def affected_tests(

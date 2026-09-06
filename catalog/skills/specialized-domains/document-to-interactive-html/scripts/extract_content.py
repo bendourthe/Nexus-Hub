@@ -376,7 +376,7 @@ def _chart_xml_points(container: object) -> list:
 
 def _chart_xml_block(xml_bytes: bytes, cov: dict, where: str) -> dict | None:
     """Parse an OOXML chart part (chart*.xml) into a chart block (stdlib only)."""
-    import xml.etree.ElementTree as ElementTree
+    from xml.etree import ElementTree
 
     c = f"{{{_CHART_NS}}}"
     try:
@@ -428,15 +428,18 @@ def _chart_xml_block(xml_bytes: bytes, cov: dict, where: str) -> dict | None:
 # --- PowerPoint ------------------------------------------------------------
 
 
-def _iter_pptx_shapes(shapes: object, depth: int = 0):
-    """Yield leaf shapes, recursing into groups (depth-capped)."""
+def _iter_pptx_shapes(shapes: object, depth: int = 0, group_name: str | None = None):
+    """Yield (leaf shape, enclosing group name or None), recursing into groups
+    (depth-capped). The group name lets overlay-annotation capture group related
+    shapes (a region plus its label, a legend) under one grouping."""
     from pptx.enum.shapes import MSO_SHAPE_TYPE
 
     for shape in shapes:
         if shape.shape_type == MSO_SHAPE_TYPE.GROUP and depth < 8:
-            yield from _iter_pptx_shapes(shape.shapes, depth + 1)
+            name = (getattr(shape, "name", "") or "").strip() or group_name
+            yield from _iter_pptx_shapes(shape.shapes, depth + 1, name)
         else:
-            yield shape
+            yield shape, group_name
 
 
 def _pptx_text_block(text_frame: object) -> dict | None:
@@ -490,6 +493,79 @@ def _pptx_image_block(
         page=slide_no,
         page_fraction=page_fraction,
     )
+
+
+def _shape_bbox(shape: object) -> tuple | None:
+    """(left, top, width, height) in EMU, or None when the geometry is absent."""
+    try:
+        left, top, width, height = shape.left, shape.top, shape.width, shape.height
+    except (AttributeError, TypeError, ValueError):
+        return None
+    if None in (left, top, width, height):
+        return None
+    return (float(left), float(top), float(width), float(height))
+
+
+def _pptx_solid_hex(fill: object) -> str | None:
+    """A solid fill's fore color as #RRGGBB, or None (theme / gradient / no fill)."""
+    try:
+        from pptx.enum.dml import MSO_FILL
+
+        if fill is None or fill.type != MSO_FILL.SOLID:
+            return None
+        return "#" + str(fill.fore_color.rgb)
+    except Exception:  # noqa: BLE001 - color read is best-effort, never fatal
+        return None
+
+
+def _pptx_line_hex(line: object) -> str | None:
+    """A line's color as #RRGGBB, or None when unset or theme-colored."""
+    try:
+        if line is None:
+            return None
+        return "#" + str(line.color.rgb)
+    except Exception:  # noqa: BLE001 - color read is best-effort, never fatal
+        return None
+
+
+def _pptx_annotation(
+    shape: object, group_name: str | None, picture_bbox: tuple
+) -> dict | None:
+    """Overlay-shape metadata for a shape sitting over a picture (Phase 3).
+
+    The bbox is normalized to the underlying image's placed rectangle
+    (image-relative, 0..1) - the coordinate space the overlay-recreation pattern
+    consumes directly (references/figure-reconstruction.md part 5), so no
+    re-projection is needed at authoring time.
+    """
+    bbox = _shape_bbox(shape)
+    if bbox is None:
+        return None
+    pic_left, pic_top, pic_width, pic_height = picture_bbox
+    if pic_width <= 0 or pic_height <= 0:
+        return None
+    annotation: dict = {
+        "shape_type": getattr(shape.shape_type, "name", None) or str(shape.shape_type),
+        "bbox": [
+            round((bbox[0] - pic_left) / pic_width, 4),
+            round((bbox[1] - pic_top) / pic_height, 4),
+            round(bbox[2] / pic_width, 4),
+            round(bbox[3] / pic_height, 4),
+        ],
+    }
+    if getattr(shape, "has_text_frame", False):
+        text = shape.text_frame.text.strip()
+        if text:
+            annotation["text"] = text
+    fill = _pptx_solid_hex(getattr(shape, "fill", None))
+    if fill:
+        annotation["fill"] = fill
+    line = _pptx_line_hex(getattr(shape, "line", None))
+    if line:
+        annotation["line"] = line
+    if group_name:
+        annotation["group"] = group_name
+    return annotation
 
 
 def _pptx_chart_block(shape: object, cov: dict, slide_no: int) -> dict | None:
@@ -583,9 +659,49 @@ def _extract_pptx(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
                     break
             except (AttributeError, ValueError):
                 continue
+        shape_items = [
+            (shape, group)
+            for shape, group in _iter_pptx_shapes(slide.shapes)
+            if shape.shape_id not in skip_ids
+        ]
+        # Pass 1: picture placed rectangles, for overlay-annotation assignment.
+        picture_bboxes: dict = {}  # shape index -> bbox (EMU)
+        for index, (shape, _group) in enumerate(shape_items):
+            if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
+                bbox = _shape_bbox(shape)
+                if bbox is not None:
+                    picture_bboxes[index] = bbox
+        # Pass 2: a non-picture shape whose CENTER lies inside a picture, and
+        # which is smaller than that picture, is an author-added overlay - it
+        # attaches to that image as annotation metadata and is consumed (not
+        # also emitted as a stray text block). Tables and charts never qualify.
+        annotations_for: dict = {}  # picture index -> [annotation, ...]
+        consumed: set = set()
+        for index, (shape, group) in enumerate(shape_items):
+            if index in picture_bboxes:
+                continue
+            if getattr(shape, "has_table", False) or getattr(shape, "has_chart", False):
+                continue
+            bbox = _shape_bbox(shape)
+            if bbox is None:
+                continue
+            center_x, center_y = bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2
+            for pic_index, pic_bbox in picture_bboxes.items():
+                inside = (
+                    pic_bbox[0] <= center_x <= pic_bbox[0] + pic_bbox[2]
+                    and pic_bbox[1] <= center_y <= pic_bbox[1] + pic_bbox[3]
+                )
+                if inside and bbox[2] * bbox[3] < pic_bbox[2] * pic_bbox[3]:
+                    annotation = _pptx_annotation(shape, group, pic_bbox)
+                    if annotation is not None:
+                        annotations_for.setdefault(pic_index, []).append(annotation)
+                        consumed.add(index)
+                    break
+        # Pass 3: build blocks in document order, attaching annotations to their
+        # picture's image block.
         blocks: list = []
-        for shape in _iter_pptx_shapes(slide.shapes):
-            if shape.shape_id in skip_ids:
+        for index, (shape, _group) in enumerate(shape_items):
+            if index in consumed:
                 continue
             block = None
             if getattr(shape, "has_table", False):
@@ -596,6 +712,8 @@ def _extract_pptx(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
                 block = _pptx_chart_block(shape, cov, slide_no)
             elif shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
                 block = _pptx_image_block(shape, max_bytes, cov, slide_no, slide_area)
+                if block is not None and annotations_for.get(index):
+                    block["annotations"] = annotations_for[index]
             elif getattr(shape, "has_text_frame", False):
                 block = _pptx_text_block(shape.text_frame)
             if block is not None:
@@ -2528,9 +2646,68 @@ def build_model(
         "sections": out_sections,
         "coverage": coverage_obj,
     }
+    placeholders = _scan_placeholders(out_sections)
+    if placeholders:
+        model["placeholders"] = placeholders
     if tree is not None:
         model["tree"] = tree
     return model
+
+
+# Unfilled author placeholders ("enrolled xx subjects", "[insert Q3 figure]")
+# ship inside real documents more often than one would hope. Detect them so the
+# agent can ASK the user for the real value during the design intake instead of
+# discovering the gap after delivery - and never silently invent the number.
+_PLACEHOLDER_RES = [
+    re.compile(r"(?<![\w.])[xX]{2,}(?![\w.])"),
+    re.compile(r"\[(?:insert|tbd|placeholder|todo|fill[ -]?in)[^\]]{0,60}\]", re.IGNORECASE),
+    re.compile(r"<(?:insert|tbd|placeholder|todo)[^>]{0,60}>", re.IGNORECASE),
+]
+_PLACEHOLDER_BLOCK_TYPES = {"paragraph", "heading", "bullets", "table"}
+_PLACEHOLDER_CAP = 50
+
+
+def _scan_placeholders(sections: list) -> list:
+    """Scan document-text blocks for unfilled author placeholders.
+
+    Deliberately conservative (repeated x tokens and bracketed insert/TBD
+    markers only) and scoped to prose block types, so code listings from a
+    repository walk cannot flood the report with hex strings or templates.
+    """
+    found: list = []
+    for s_idx, section in enumerate(sections):
+        for block in section.get("blocks", []):
+            if block.get("type") not in _PLACEHOLDER_BLOCK_TYPES:
+                continue
+            texts: list = []
+            if isinstance(block.get("text"), str):
+                texts.append(block["text"])
+            for item in block.get("items", []) or []:
+                if isinstance(item, dict) and isinstance(item.get("text"), str):
+                    texts.append(item["text"])
+                elif isinstance(item, str):
+                    texts.append(item)
+            for row in block.get("rows", []) or []:
+                for cell in row or []:
+                    if isinstance(cell, str):
+                        texts.append(cell)
+            for text in texts:
+                for rx in _PLACEHOLDER_RES:
+                    for match in rx.finditer(text):
+                        start = max(0, match.start() - 40)
+                        end = min(len(text), match.end() + 40)
+                        found.append(
+                            {
+                                "section_index": s_idx,
+                                "section_title": section.get("title") or "",
+                                "block_type": block.get("type"),
+                                "token": match.group(0),
+                                "context": text[start:end].strip(),
+                            }
+                        )
+                        if len(found) >= _PLACEHOLDER_CAP:
+                            return found
+    return found
 
 
 def main(argv: list | None = None) -> int:
@@ -2594,6 +2771,20 @@ def main(argv: list | None = None) -> int:
             f"{walk['file_count_capped']} over the file cap.",
             file=sys.stderr,
         )
+    placeholders = model.get("placeholders") or []
+    if placeholders:
+        print(
+            f"NOTE: {len(placeholders)} unfilled source placeholder(s) detected "
+            f"(see the model's 'placeholders' list) - surface them to the user "
+            f"during the design intake; never invent the missing value.",
+            file=sys.stderr,
+        )
+        for entry in placeholders[:5]:
+            print(
+                f"  - [{entry['token']}] in section {entry['section_index']}: "
+                f"...{entry['context'][:90]}...",
+                file=sys.stderr,
+            )
     print(
         f"Wrote {out_path} ({len(model['sources'])} source(s), "
         f"{len(model['sections'])} section(s)).",

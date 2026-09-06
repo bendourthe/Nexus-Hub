@@ -1,0 +1,14 @@
+{
+  "skill": "minimal-construction",
+  "purpose": "Route pre-write smallest-construction requests here without stealing prose cleanup, security audits, dead-code campaigns, or post-write simplification.",
+  "cases": [
+    {"id": "pos-native-date-picker", "prompt": "add a date picker with the simplest solution, be lazy about what you build, yagni, do less", "should_trigger": true, "assert": "routes to minimal-construction first", "lexical": true},
+    {"id": "pos-cache-vs-stdlib", "prompt": "I need an in-memory cache, simplest solution, yagni, do less, no unnecessary dependencies, shortest path", "should_trigger": true, "assert": "routes to minimal-construction first", "lexical": true},
+    {"id": "pos-new-dependency", "prompt": "should I add a package for these few lines? simplest solution, unnecessary dependencies, shortest path, be lazy about what you build", "should_trigger": true, "assert": "routes to minimal-construction first", "lexical": true},
+    {"id": "pos-simplest-solution", "prompt": "implement this with the simplest solution, be lazy about what you build, yagni, do less, shortest path", "should_trigger": true, "assert": "routes to minimal-construction first", "lexical": true},
+    {"id": "neg-prose", "prompt": "de-slop this README and keep my voice", "should_trigger": false, "assert": "routes to anti-slop-editing, not here", "lexical": true},
+    {"id": "neg-security", "prompt": "run a penetration-style security-review on this auth change", "should_trigger": false, "assert": "routes to security-review, not here", "lexical": true},
+    {"id": "neg-dead-code", "prompt": "find unreachable exports with a call graph and delete them", "should_trigger": false, "assert": "routes to dead-code-eliminator, not here", "lexical": true},
+    {"id": "neg-post-write", "prompt": "collapse this over-abstraction in place without changing behavior", "should_trigger": false, "assert": "routes to code-simplification, not here", "lexical": true}
+  ]
+}

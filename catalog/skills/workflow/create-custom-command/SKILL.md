@@ -393,13 +393,13 @@ Prepare release notes and checklist:
 
 ## Description Style: Combat Undertriggering
 
-The description field at the top of a command's Markdown file (or, equivalently, the description that goes into a skill's YAML frontmatter) is what the AI agent scans when deciding whether to trigger this command. Claude has a measurable tendency to **under-trigger** when the description is narrow, clean, or implicit. The fix is not a longer description — it is a **pushy** description: list the trigger phrases AND the skip phrases explicitly so the agent cannot rationalize its way past them.
+The description field at the top of a command's Markdown file (or, equivalently, the description that goes into a skill's YAML frontmatter) is what the AI agent scans when deciding whether to trigger this command. Claude has a measurable tendency to **under-trigger** when the description is narrow, clean, or implicit. The fix is not a longer description -- it is a **pushy** description: list the trigger phrases AND the skip phrases explicitly so the agent cannot rationalize its way past them.
 
 ### Rules
 
 - **List trigger phrases verbatim.** If the user is likely to say "build me a dashboard", "show internal metrics", "visualize the data", put those exact phrases in the description.
 - **Add a SKIP clause.** Use `SKIP: ...` or `Do NOT use for: ...` to fence off look-alike requests the command should not handle. This is what stops over-triggering after you make the description pushier.
-- **Cover synonyms and adjacent intents.** A description for a "dashboard" command should also cover "internal metrics", "data visualization", "company data display" — not just the literal word "dashboard".
+- **Cover synonyms and adjacent intents.** A description for a "dashboard" command should also cover "internal metrics", "data visualization", "company data display" -- not just the literal word "dashboard".
 - **Lead with the action, then the trigger surface.** First sentence states what the command does; second sentence lists when to invoke it; third sentence (if needed) lists when to skip.
 
 ### Before / After example

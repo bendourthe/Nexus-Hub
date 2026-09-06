@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "verified_as_of": "2026-09-05",
+  "tiers": {
+    "frontier": {
+      "Anthropic": "claude-fable-5-1",
+      "OpenAI": "gpt-6-astra",
+      "Google": "gemini-3.8-flash",
+      "Cursor": "cursor-grok-4.6"
+    },
+    "strong": {
+      "Anthropic": "claude-opus-5",
+      "OpenAI": "gpt-5.6-sol",
+      "Google": "gemini-3.7-flash",
+      "Cursor": "cursor-grok-4.5"
+    },
+    "standard": {
+      "Anthropic": "claude-sonnet-5",
+      "OpenAI": "gpt-5.6-terra",
+      "Google": "gemini-3.6-flash",
+      "Cursor": "composer-2.5"
+    },
+    "fast": {
+      "Anthropic": "claude-haiku-4-5",
+      "OpenAI": "gpt-5.6-luna",
+      "Google": "gemini-3.5-flash-lite",
+      "Cursor": "composer-2.5-fast"
+    }
+  },
+  "notes": {
+    "refresh_2026_09_05_v470": "Refreshed during v4.7.0 Phase 1 (routing data correctness), every cell re-fetched on 2026-09-05. Anthropic (https://platform.claude.com/docs/en/models/overview): current lineup is claude-fable-5-1, claude-opus-5, claude-sonnet-5, claude-haiku-4-5-20251001 (alias claude-haiku-4-5); claude-fable-5 is listed under 'Legacy models (still available)'; no Anthropic tier value changed after verification. OpenAI (https://developers.openai.com/api/docs/models and https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra): the catalog now lists gpt-6-astra among the flagship models as 'Our most capable model, built for the hardest end-to-end work' with no trusted-access, rollout, or 'in the coming days' sentence anywhere on the page, and the model guide states no access restriction either. On 2026-09-04 the same catalog described a trusted-access rollout with API access 'in the coming days', which is why the v4.8.0 plan map excluded the id that day. Both pages now describe general availability, so gpt-6-astra enters at frontier. gpt-5.6-sol moves to strong: the vendor's own descriptions order the family (astra 'most capable', sol 'Flagship model for complex professional work', terra 'balances intelligence and cost', luna 'optimized for cost-sensitive workloads'), so sol above terra above luna is the vendor's ordering and not a judgment; terra therefore stops doubling as strong and standard and takes standard alone, luna stays fast. Full record: docs/releases/v4/v4.7/development/astra-routing-decision.md. Google (https://ai.google.dev/gemini-api/docs/models): gemini-3.8-flash Stable ('Our most intelligent Flash model, engineered for long-horizon software engineering, autonomous agents, and complex enterprise workflows'), gemini-3.7-flash Stable (previous-generation, complex coding and agentic workflows), gemini-3.6-flash Stable (balancing speed and multimodal capability), gemini-3.5-flash-lite Stable (fastest, most cost-effective 3.5 model); gemini-3.1-pro-preview remains Preview. No Google tier value changed after verification; the 2026-09-04 judgment placing a Flash model at frontier stands on the vendor's 'most intelligent' wording. Cursor (https://cursor.com/docs/models-and-pricing): the Cursor Models pool lists Grok 4.6, Grok 4.6 (Fast), Grok 4.5, Grok 4.5 (Fast), Composer 2.5, and Composer 2.5 (Fast); no Cursor tier value changed after verification. Unchanged after verification is recorded per provider above as a distinct outcome from not checked.",
+    "refresh_2026_08_28_v412": "Re-verified during v4.1.2 release preparation. Skill-discovery pages for Claude Code, Cursor, and Codex matched the v4.1.1 contract (Claude and Cursor MATCH; Codex still omits ~/.codex/skills while documenting $HOME/.agents/skills). Mapped tier ids are unchanged from the v4.1.1 same-day map. Cursor still lists Grok 4.6 Fast; fast stays composer-2.5-fast. No mapped tier value changed.",
+    "refresh_2026_08_28_v411": "Re-verified during v4.1.1 release preparation. Anthropic still lists claude-fable-5, claude-opus-5, claude-sonnet-5, and claude-haiku-4-5-20251001 (https://platform.claude.com/docs/en/models/overview). Cursor still lists Grok 4.6, Grok 4.5, Composer 2.5, and Composer 2.5 Fast, and now also lists Grok 4.6 Fast (https://cursor.com/docs/models-and-pricing). Judgment: fast stays composer-2.5-fast; Grok 4.6 Fast is a speed variant of the frontier id, not a new tier occupant. No mapped tier value changed.",
+    "refresh_2026_08_28": "Re-verified during v4.1.0 release preparation. Anthropic's current models page lists claude-fable-5, claude-opus-5, claude-sonnet-5, and claude-haiku-4-5-20251001 (https://platform.claude.com/docs/en/models/overview). OpenAI's model catalog lists gpt-5.6-sol, gpt-5.6-terra, and gpt-5.6-luna (https://developers.openai.com/api/docs/models). Google's changelog lists gemini-3.7-flash, gemini-3.6-flash, gemini-3.5-flash, and gemini-3.5-flash-lite (https://ai.google.dev/gemini-api/docs/changelog). Cursor's models-and-pricing page lists Grok 4.6, Grok 4.5, Composer 2.5, and Composer 2.5 Fast (https://cursor.com/docs/models-and-pricing). No tier value changed.",
+    "refresh_2026_08_24": "Re-verified during v3.20.3 release preparation. Anthropic overview still lists claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5 (https://platform.claude.com/docs/en/about-claude/models/overview). OpenAI models page still lists gpt-5.6-sol / gpt-5.6-terra / gpt-5.6-luna (https://developers.openai.com/api/docs/models). Cursor models-and-pricing still lists Grok 4.6, Grok 4.5, Composer 2.5, and Composer 2.5 Fast (https://cursor.com/docs/models-and-pricing). Google's Gemini models page and changelog timed out this cycle; gemini-3.7-flash remains the mapped frontier id from the 2026-08-13 first-party launch and is still discussed as a live API id. No tier value changed.",
+    "refresh_2026_08_17": "Re-verified during v3.17.4 release preparation. All four first-party provider pages returned HTTP 200 and retained the mapped identifiers for Claude Fable 5, the GPT-5.6 family, Gemini 3.7 Flash, Grok 4.6, and Composer 2.5. No tier changed.",
+    "refresh_2026_08_15": "Re-verified against live first-party documentation during v3.17.0 release preparation. No tier value changed from the 2026-08-14 refresh: Anthropic continues to list Fable 5, Opus 5, Sonnet 5, and Haiku 4.5; OpenAI continues to list the general 5.6 sol, terra, and luna family; Google's changelog continues to list gemini-3.7-flash; and Cursor continues to list Grok 4.6, Grok 4.5, Composer 2.5, and the fast Composer variant.",
+    "refresh_2026_08_14": "Refreshed from live first-party documentation. Anthropic: no drift. Google: gemini-3.7-flash shipped 2026-08-13 and takes frontier, displacing gemini-3.1-pro-preview; that placement is a judgment, since Google's changelog describes the Flash line from 3.5 onward as its most intelligent tier for sustained agentic and coding work, so a Pro-preview id no longer plausibly leads. Cursor: Grok 4.6 is now offered, so cursor-grok-4.6 takes frontier and 4.5 moves to strong; the docs list a Fast variant but NO -high variant for 4.6, so the prior cursor-grok-4.5-high id is dropped rather than renamed to a 4.6-high that was not observed. OpenAI: the API model list documents only the 5.6 family (sol, terra, luna, plus the specialized cyber); the previous gpt-5.5 standard value is NOT in it, so terra covers strong and standard rather than inventing an id, and luna takes fast.",
+    "deliberately_unmapped": "claude-mythos-5-1 (and its predecessor claude-mythos-5) is not mapped: the model page https://platform.claude.com/docs/en/models/mythos-5-1/overview, fetched 2026-09-05, states 'Invite only. Released September 1, 2026.' and 'Claude Mythos 5.1 is offered separately, by invitation only, as part of Project Glasswing. It shares Claude Fable 5.1's specifications and pricing.' with Status 'Active (invite only)'; https://www.anthropic.com/claude/fable states 'Claude Mythos 5.1 is available to vetted organizations through our trusted access programs.' A tier value must name a model the user's account can actually reach, and claude-fable-5-1 is the generally reachable model with the same specifications. Re-check condition: the model page no longer says invite only. Same rule excludes gpt-5.6-cyber, which is a specialized cybersecurity model rather than a general tier. gpt-6-astra was excluded under this rule on 2026-09-04 while the catalog described a trusted-access rollout; on 2026-09-05 the catalog carries no gate sentence, so the id is mapped (see refresh_2026_09_05_v470).",
+    "staleness_lesson": "This file went 11 days stale (2026-08-03 to 2026-08-14) across two releases without being refreshed, because the release flow's prompting-freshness step is ADVISORY and degrades to UNKNOWN when no live roster is enumerated. Accepting UNKNOWN is not the same as checking. Enumerate the roster and pass it, or refresh this file, rather than recording the degradation and moving on.",
+    "refresh_2026_09_01_v440": "Re-verified during v4.4.0 release preparation. CORRECTED a real Google tier-placement drift: the frontier slot held 'gemini-3.7-flash', a Flash model, while ai.google.dev/gemini-api/docs/models documents 'gemini-3.1-pro-preview' as the advanced-intelligence frontier offering. Google column is now frontier=gemini-3.1-pro-preview, strong=gemini-3.7-flash (documented for complex coding, agentic workflows, and reliable multi-step execution), standard=gemini-3.6-flash (documented as balancing speed and multimodal capability), fast=gemini-3.5-flash-lite (documented as the fastest, most cost-effective 3.5 model). TIER PLACEMENT IS A JUDGMENT, recorded as such: the vendor publishes capability descriptions, not a four-tier ranking, so the strong/standard split between 3.7-flash and 3.6-flash is this maintainer's reading of those descriptions and not a vendor statement. Anthropic re-confirmed unchanged (claude-fable-5 / claude-opus-5 / claude-sonnet-5 / claude-haiku-4-5). Cursor re-confirmed unchanged against cursor.com/docs/models-and-pricing, which presents Grok 4.6 as the latest generation ahead of Grok 4.5, Composer 2.5, and Composer 2.5 Fast. OpenAI column carried forward; its gpt-5.6-sol / terra / luna ids remain unprofiled in the prompting layer, which is the separately tracked v4.1.0 DF-1 and is NOT a map defect.",
+    "refresh_2026_09_04_v445": "Refreshed during the v4.4.5 /update release governance pass. Anthropic's models overview now lists claude-fable-5-1, claude-opus-5, claude-sonnet-5, and claude-haiku-4-5-20251001 as current and moves claude-fable-5 to legacy (https://platform.claude.com/docs/en/models/overview), so frontier Anthropic moves from claude-fable-5 to claude-fable-5-1. Google's changelog records gemini-3.8-flash reaching general availability on 2026-09-02 as its most intelligent model (https://ai.google.dev/gemini-api/docs/changelog), so frontier Google moves from gemini-3.1-pro-preview to gemini-3.8-flash; gemini-3.7-flash stays at strong and gemini-3.6-flash at standard. OpenAI's catalog still lists gpt-5.6-sol, gpt-5.6-terra, and gpt-5.6-luna (https://developers.openai.com/api/docs/models) and Cursor still lists Grok 4.6, Grok 4.5, Composer 2.5, and Composer 2.5 Fast (https://cursor.com/docs/models-and-pricing); no other tier value changed. Judgment recorded as a judgment: gemini-3.8-flash is placed at frontier because Google describes it as its most intelligent model for long-horizon software engineering, even though the flash naming previously signalled a speed tier. The deliberately_unmapped note about claude-mythos-5 is carried forward unverified this cycle; re-checking Mythos 5.1 availability is owned by the v4.7.0 plan."
+  },
+  "sources": {
+    "Anthropic": [
+      "https://platform.claude.com/docs/en/models/overview",
+      "https://platform.claude.com/docs/en/models/mythos-5-1/overview"
+    ],
+    "OpenAI": [
+      "https://developers.openai.com/api/docs/models",
+      "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra"
+    ],
+    "Google": [
+      "https://ai.google.dev/gemini-api/docs/models",
+      "https://ai.google.dev/gemini-api/docs/changelog"
+    ],
+    "Cursor": [
+      "https://cursor.com/docs/models-and-pricing",
+      "https://cursor.com/help/models-and-usage/available-models"
+    ]
+  }
+}

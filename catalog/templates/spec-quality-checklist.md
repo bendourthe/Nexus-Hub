@@ -9,7 +9,7 @@
 - [ ] No implementation details (languages, frameworks, APIs)
 - [ ] Focused on user value and business needs
 - [ ] Written for non-technical stakeholders
-- [ ] All mandatory sections completed
+- [ ] All mandatory sections completed (including `## Problem Statement` and `## Non-Goals`)
 
 ## Requirement Completeness
 
@@ -19,7 +19,9 @@
 - [ ] Success criteria are technology-agnostic (no implementation details)
 - [ ] All acceptance scenarios are defined
 - [ ] Edge cases are identified
-- [ ] Scope is clearly bounded
+- [ ] Scope is clearly bounded (the `## Non-Goals` section is present and non-empty)
+- [ ] Every `## Non-Goals` entry carries a reason (deferred, separate initiative, not validated, or too expensive)
+- [ ] Invariants are declared where the change touches existing behavior
 - [ ] Dependencies and assumptions identified
 
 ## Feature Readiness

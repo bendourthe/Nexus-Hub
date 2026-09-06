@@ -1,0 +1,12 @@
+{
+  "skill": "over-engineering-review",
+  "purpose": "Route over-engineering delete-list requests here without stealing security review, in-place simplification, or Fowler smell catalogs.",
+  "cases": [
+    {"id": "pos-review-over-engineering", "prompt": "review this diff for over-engineering and emit a tagged delete-list", "should_trigger": true, "assert": "routes to over-engineering-review first", "lexical": true},
+    {"id": "pos-what-can-we-delete", "prompt": "what can we delete, is this over-engineered, tagged delete-list please", "should_trigger": true, "assert": "routes to over-engineering-review first", "lexical": true},
+    {"id": "pos-audit-repo-bloat", "prompt": "audit this repo for bloat, review for over-engineering, what can we delete", "should_trigger": true, "assert": "routes to over-engineering-review first", "lexical": true},
+    {"id": "neg-security", "prompt": "run a penetration-style security-review on this auth change", "should_trigger": false, "assert": "routes to security-review, not here", "lexical": true},
+    {"id": "neg-simplify-in-place", "prompt": "collapse this over-abstraction in place without changing behavior", "should_trigger": false, "assert": "routes to code-simplification, not here", "lexical": true},
+    {"id": "neg-fowler", "prompt": "detect Fowler code smells, god class and feature envy", "should_trigger": false, "assert": "routes to code-smell-detector, not here", "lexical": true}
+  ]
+}

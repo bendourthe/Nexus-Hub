@@ -1,4 +1,4 @@
 interface:
   display_name: C++ Code Cleanup
   short_description: Modernize to C++17/20, apply RAII patterns, use smart pointers, and clean up C++ codebases. Use when cleaning up C++ projects, modernizing legacy C++ code, applying modern C++ idioms,
-    or improving cod
+    or improving code maintainability.

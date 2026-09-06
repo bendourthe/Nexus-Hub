@@ -1,0 +1,10 @@
+{
+  "_comment": "Recorded visual-detector exceptions for the v4.4.1 guide. Every entry names a finding that was reproduced, investigated, and judged benign with evidence. An entry is NOT a way to silence a rule that is telling the truth about a defect.",
+  "allow": [
+    {
+      "rule": "svg-viewbox-overflow",
+      "selector": ".platform-mark[data-mark=\"gemini\"] svg *",
+      "reason": "The approved Gemini mark is CONSTRUCTED from eleven Gaussian-blurred colour blobs behind a star-shaped alpha mask, which is how the vendor authored it. Those blobs are deliberately far larger than the 65x65 viewBox (one filter region spans x -38.583 to +39.552) so the blur has room to fall off before the mask clips it. The SVG root clips the overflow, so nothing renders outside the optical box. This was verified rather than assumed: stripping the filtered groups to satisfy the rule produced a COMPLETELY BLANK mark, proving the blurred layers are the artwork itself and not decoration that could be removed. Byte cost was measured at 6,784 bytes for the eleven layers; removing them is not an option at any price because there is no mark without them. The alternative to this entry is re-authoring third-party trademark geometry, which the provenance ledger forbids."
+    }
+  ]
+}

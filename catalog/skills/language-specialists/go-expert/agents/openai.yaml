@@ -1,4 +1,4 @@
 interface:
   display_name: Go Expert
   short_description: Deep Go expertise for concurrent systems programming. Use when writing Go code, implementing goroutines and channels, designing interfaces, handling errors idiomatically, or optimizing
-    Go applications
+    Go applications for performance.

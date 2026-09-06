@@ -1,0 +1,261 @@
+{
+  "sha256": "15757019c44eb094d7b2febe47ffbceed7d05ddec5946f463f5e8541e5ec42cc",
+  "bytes": 378250,
+  "machine": "Windows-11-10.0.26200-SP0",
+  "cases": [
+    {
+      "theme": "light",
+      "width": 320,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 3859,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 3335,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 719,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2817,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 720,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2817,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 721,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2543,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2499,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2404,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2439,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2440,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 3859,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 3335,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 719,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2817,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 720,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2817,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 721,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2543,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2499,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2404,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2439,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "page": "home",
+      "words": {
+        "main": 299,
+        "total": 351
+      },
+      "height": 2440,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    }
+  ],
+  "performance": [],
+  "browser": "151.0.7922.34"
+}

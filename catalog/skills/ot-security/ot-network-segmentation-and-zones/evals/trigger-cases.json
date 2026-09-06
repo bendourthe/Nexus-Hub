@@ -1,0 +1,48 @@
+{
+  "skill": "ot-network-segmentation-and-zones",
+  "purpose": "Route IEC 62443 plant zoning here; send cloud microseg elsewhere.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "IEC 62443 zones for our plant",
+      "should_trigger": true,
+      "assert": "routes to ot-network-segmentation-and-zones first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "Purdue model segmentation",
+      "should_trigger": true,
+      "assert": "routes to ot-network-segmentation-and-zones first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "OT DMZ design",
+      "should_trigger": true,
+      "assert": "routes to ot-network-segmentation-and-zones first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "Kubernetes network policies",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "NERC CIP evidence mapping",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "Modbus IDS signatures",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

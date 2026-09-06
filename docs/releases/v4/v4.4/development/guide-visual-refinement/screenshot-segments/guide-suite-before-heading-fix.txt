@@ -1,0 +1,14 @@
+........................................................................ [ 20%]
+...............................................................s........ [ 41%]
+........................................................................ [ 62%]
+..............................................................F......... [ 83%]
+........................................................                 [100%]
+================================== FAILURES ===================================
+___________ test_migration_table_headers_carry_the_comparison_grade ___________
+tests\guides\test_v443_phase1_headings.py:190: in test_migration_table_headers_carry_the_comparison_grade
+    assert cell["px"] == without["px"], (cell, without)
+E   AssertionError: ({'color': 'rgb(226, 179, 54)', 'px': 22, 't': 'Generic Platforms', 'upper': 'uppercase', ...}, {'color': 'rgb(226, 179, 54)', 'px': 26, 't': 'Without Nexus Hub', 'upper': 'uppercase', ...})
+E   assert 22 == 26
+=========================== short test summary info ===========================
+FAILED tests/guides/test_v443_phase1_headings.py::test_migration_table_headers_carry_the_comparison_grade
+1 failed, 342 passed, 1 skipped in 360.87s (0:06:00)

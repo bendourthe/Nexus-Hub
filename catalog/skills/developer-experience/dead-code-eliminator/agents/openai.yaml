@@ -1,4 +1,4 @@
 interface:
   display_name: Dead Code Eliminator
   short_description: Find and safely remove dead code including unreachable functions, unused imports, obsolete features, and stale feature flags using static analysis and call graph techniques. Use when
-    cleaning up codeb
+    cleaning up codebases, removing unused code, eliminating dead imports, or cleaning up feature flags.

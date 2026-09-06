@@ -1,0 +1,48 @@
+{
+  "skill": "adversary-engagement-deception",
+  "purpose": "Route deception campaigns here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "MITRE Engage deception program",
+      "should_trigger": true,
+      "assert": "routes to adversary-engagement-deception first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "adversary engagement environment",
+      "should_trigger": true,
+      "assert": "routes to adversary-engagement-deception first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "high-interaction honeypot program",
+      "should_trigger": true,
+      "assert": "routes to adversary-engagement-deception first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "plant one canary key",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "hack back the attacker",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "NERC CIP binder",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

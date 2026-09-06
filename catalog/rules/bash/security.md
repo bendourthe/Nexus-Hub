@@ -14,7 +14,7 @@ priority: critical
   eval "$user_input"
   bash -c "$user_input"
 
-  # RIGHT — pass as argument, never interpolated into command string
+  # RIGHT -- pass as argument, never interpolated into command string
   process_input "$user_input"
   ```
 - Avoid `eval` in all cases. If dynamic command construction is unavoidable, use arrays: `cmd=("git" "commit" "-m" "$message"); "${cmd[@]}"`.
@@ -44,4 +44,4 @@ priority: critical
 
 - Validate URLs before passing to `curl` or `wget`. Reject `file://` and internal IP ranges.
 - Always set timeouts: `curl --max-time 30 --connect-timeout 10`.
-- Check `curl` exit codes explicitly — `set -e` alone does not always catch curl failures in pipelines.
+- Check `curl` exit codes explicitly -- `set -e` alone does not always catch curl failures in pipelines.

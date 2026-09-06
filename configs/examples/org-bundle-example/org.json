@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "org_name": "Example Organization",
+  "core": "core.md",
+  "rules_dir": "rules/",
+  "references_dir": "references/",
+  "precedence_statement": "These organization standards take precedence over conflicting generic Nexus-Hub guidance."
+}

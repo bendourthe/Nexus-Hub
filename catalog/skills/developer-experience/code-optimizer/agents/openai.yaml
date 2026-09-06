@@ -1,4 +1,4 @@
 interface:
   display_name: Code Optimizer
-  short_description: 'Performance-focused code optimization covering algorithmic complexity, memory usage, I/O efficiency, caching, and concurrency. Use when code is slow, uses too much memory, has bottleneck
-    hotspots, or '
+  short_description: Performance-focused code optimization covering algorithmic complexity, memory usage, I/O efficiency, caching, and concurrency. Use when code is slow, uses too much memory, has bottleneck
+    hotspots, or needs performance tuning.

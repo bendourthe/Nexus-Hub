@@ -24,7 +24,7 @@ default**; when enabled without spaCy installed it degrades silently to
 regex-only rather than failing. No outbound call, no clock, no randomness:
 identical input always yields an identical, identically-partitioned result.
 
-Reference behavior: ``docs/v3/v3.2/comparisons/v3.2.0-comparison-headroom.md`` Section 5a item 2.
+Reference behavior: ``docs/releases/v3/v3.2/comparisons/v3.2.0-comparison-headroom.md`` Section 5a item 2.
 """
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
 interface:
   display_name: SQL Expert
-  short_description: 'Deep SQL expertise for query optimization and database design. Use when writing complex queries, optimizing slow queries, designing schemas, understanding execution plans, or working
-    with PostgreSQL, '
+  short_description: Deep SQL expertise for query optimization and database design. Use when writing complex queries, optimizing slow queries, designing schemas, understanding execution plans, or working
+    with PostgreSQL, MySQL, or SQL Server specific features.

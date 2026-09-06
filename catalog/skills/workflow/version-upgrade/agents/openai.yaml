@@ -1,4 +1,4 @@
 interface:
   display_name: Version Upgrade Workflow
   short_description: Comprehensive version upgrade workflow for releasing new versions. Automatically analyzes git history, updates version numbers across all files, documentation, changelogs, and generates
-    commit message
+    commit messages.

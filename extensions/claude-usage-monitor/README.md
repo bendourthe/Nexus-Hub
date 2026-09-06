@@ -1,14 +1,16 @@
 # Claude Usage Monitor
 
-A VS Code extension that automatically monitors your Claude Code API usage limits, displays them in the status bar with a rich SVG tooltip, and provides a full dashboard with model-switching recommendations.
+A VS Code extension that monitors your Claude Code (Anthropic) usage limits, displays them in the status bar with a rich SVG tooltip, and provides a full dashboard with model and effort recommendations.
+
+> Looking to monitor Codex (ChatGPT / OpenAI) usage? That lives in the separate **Codex Usage Monitor** extension (`nexus-hub.codex-usage-monitor`). This extension is Claude-only.
 
 ## Features
 
-- **Auto-fetch**: Reads your Claude Code OAuth token (from `~/.claude/.credentials.json` on Windows/Linux, or the macOS Keychain) and fetches usage data from the Anthropic API
-- **Status bar**: Shows session and weekly usage percentages with a custom Claude icon
+- **Auto-fetch**: Reads your Claude Code local OAuth token and fetches usage from your own Anthropic account
+- **Status bar**: Shows session and weekly usage percentages with the Claude icon
 - **SVG tooltip**: Hover for theme-aware progress bars showing per-metric breakdown with reset timers
 - **Dashboard panel**: Click for a full usage dashboard with model recommendations and optimization tips
-- **Manual fallback**: Enter usage data manually when API credentials are unavailable
+- **Fail-soft**: When credentials are missing or the endpoint is unavailable, shows cached data rather than erroring
 - **Auto-refresh**: Configurable interval (default 10 min) to keep data current
 
 ## Setup
@@ -54,6 +56,7 @@ $(claude-icon) Claude Usage: 12% (current) 5% (week)
 - **Click** to open the full usage dashboard panel
 
 The status bar background changes color based on urgency:
+
 - No highlight: Healthy (0-50%)
 - Yellow: Moderate (51-75%)
 - Red: High/Critical (76-100%)
@@ -66,8 +69,9 @@ Open the Command Palette (`Ctrl+Shift+P`) and search:
 |---|---|
 | `Claude Usage: Dashboard` | Open the full usage dashboard panel |
 | `Claude Usage: Refresh` | Fetch latest usage data from the API |
-| `Claude Usage: Recommend Model` | View model recommendation and tips |
+| `Claude Usage: Recommend Model` | View recommendation and tips |
 | `Claude Usage: Clear Data` | Reset all stored usage data |
+| `Claude Usage: Settings` | Open the thresholds and colors settings panel |
 
 ### Settings
 
@@ -75,9 +79,11 @@ Open Settings (`Ctrl+,`) and search "Claude Usage":
 
 | Setting | Default | Description |
 |---|---|---|
-| `claudeUsage.autoFetch` | `true` | Auto-fetch usage data from Claude API on startup and at intervals |
-| `claudeUsage.refreshInterval` | `10` | Minutes between automatic usage data refreshes (5-120) |
+| `claudeUsage.autoFetch` | `true` | Auto-fetch usage data on startup and at intervals |
+| `claudeUsage.refreshInterval` | `10` | Minutes between automatic usage data refreshes (1-120) |
 | `claudeUsage.showInStatusBar` | `true` | Show/hide the status bar item |
+| `claudeUsage.thresholds.*` | `50` / `75` / `95` | Moderate / High / Critical urgency thresholds |
+| `claudeUsage.thresholdMetric` | `highest` | Which metric the thresholds evaluate against |
 
 ## How It Works
 
@@ -121,7 +127,7 @@ Based on your current model and usage level, the dashboard also shows model-spec
 
 ## Data Storage
 
-Usage data is stored in VS Code's `globalState` (persists across sessions, local to your machine). The only external call is to the Anthropic API to fetch your own usage data. Use `Claude Usage: Clear Data` to remove all stored data.
+Usage data is stored in VS Code's `globalState` (persists across sessions, local to your machine). The only external call is to the Anthropic usage API to fetch your own usage data; the OAuth token is read locally and never transmitted anywhere except back to your own account. Use `Claude Usage: Clear Data` to remove all stored data.
 
 ## Effort Level - Current State & Roadmap
 
@@ -129,7 +135,8 @@ The Claude Code effort level (`xhigh` / `high` / `max` / `medium` / `low`) is a 
 
 ### Where the effort level is configured today
 
-- Harness template: [catalog/hooks/settings.json](../../catalog/hooks/settings.json) (`effortLevel: xhigh` is the shipped default)
+- Default source: [configs/platform-defaults.json](../../configs/platform-defaults.json) - the single place the shipped `effortLevel` (currently `high`) and its matching `env.CLAUDE_CODE_EFFORT_LEVEL` are declared
+- Harness template: [catalog/hooks/settings.json](../../catalog/hooks/settings.json) - **generated** from that source; do not hand-edit its core keys
 - User override: `~/.claude/settings.json` (written by the installer on first run; edit directly or via the `/model` slash command in a Claude Code session)
 - Decision guidance: [prompt-engineering/SKILL.md - Effort-Level Strategy](../../catalog/skills/ai-development/prompt-engineering/SKILL.md#effort-level-strategy)
 - Setting reference: [guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md - Effort Levels](../../guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md)
@@ -148,7 +155,7 @@ Until both blockers are resolved, surfacing the effort level in this extension w
 Target design if the read/live-update blockers are resolved in a future Claude Code release:
 
 - **Display** the current effort level in the status bar tooltip and dashboard.
-- **Auto-band switching** based on current usage percentage (opt-in; PROMOTES above the installed `high` default when usage is low, then reduces as usage rises):
+- **Auto-band switching** based on current usage percentage (opt-in; starts above the installed `high` default when usage is low, holds the default in the next band, then reduces as usage rises):
 
   | Usage % | Effort Level |
   |---------|--------------|
@@ -157,7 +164,7 @@ Target design if the read/live-update blockers are resolved in a future Claude C
   | 76-95%  | `medium`     |
   | 96-100% | `low`        |
 
-  Note: the top-of-band `xhigh` matches the installed Nexus-Hub default. The intent is cost-aware de-escalation - keep the default when usage headroom is plentiful, then step down as the budget tightens. The feature is opt-in so operators who keep `xhigh` across the board are never surprised by automatic de-escalation.
+  Note: the bands range from above the installed Nexus-Hub default of `high`, through that default, and then below it. Spend the headroom on deeper reasoning while usage is plentiful, then step down as the budget tightens. The feature is opt-in so operators who pin a single tier across the board are never surprised by an automatic change.
 
 - **Manual override** via a settings-panel control and a Command Palette entry.
 - **Opt-in only** - auto-switching is off by default; operators enable it explicitly.

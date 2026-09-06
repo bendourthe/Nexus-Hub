@@ -40,6 +40,18 @@ GIT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 DEVLOG="$GIT_ROOT/docs/DEVLOG.md"
 [ -f "$DEVLOG" ] || exit 0
 
+# --- Index-format guard: never prepend narrative into a per-release index ---
+# docs/DEVLOG.md may be a bounded per-release INDEX (a header plus one table row
+# per release) rather than an append-only narrative log. Prepending an entry into
+# that table corrupts it, and the corruption is silent. Detect the index header
+# and stand down; session narrative belongs in the per-version
+# development/history/ file instead (see the session-history skill).
+if grep -qE '^[[:space:]]*\|[[:space:]]*Date[[:space:]]*\|[[:space:]]*Version[[:space:]]*\|' "$DEVLOG" 2>/dev/null; then
+    printf '%b[auto-devlog]%b docs/DEVLOG.md is a per-release index; skipping. Session narrative belongs in docs/v*/*/development/history/.\n' \
+        "$COLOR_CYAN" "$COLOR_RESET" >&2
+    exit 0
+fi
+
 # --- Consume stdin (Stop hooks receive JSON payload) ---
 # shellcheck disable=SC2034  # INPUT intentionally unused; drains stdin to prevent SIGPIPE
 INPUT=$(cat 2>/dev/null || true)

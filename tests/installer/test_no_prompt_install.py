@@ -26,9 +26,14 @@ Coverage:
   * bash functional (early-exit): an unknown `--platforms` key and a missing
     `--workspace` path both exit non-zero with a clear message.
 
-WN-v36-1: bash cannot always be fully run on the Windows dev host, so the bash
-functional tests skip cleanly when bash is absent or on Windows; CI (ubuntu) is
-authoritative for the bash path. The static tests run everywhere.
+The bash functional tests skip cleanly when bash is absent or on Windows; CI
+(ubuntu) is authoritative for the bash path. The static tests run everywhere.
+
+Note on WN-v36-1, which this file used to cite as "bash cannot always be fully run
+on the Windows dev host": that framing was DISPROVEN in v3.15.6 Phase 4. The cause
+was PATH shadowing (the WSL launcher stub preceding Git Bash), not host
+incapability. The Windows skip here is retained on the narrower ground that these
+tests drive the full installer, a path this suite has never verified on Windows.
 """
 
 from __future__ import annotations
@@ -50,7 +55,7 @@ WINDOWS = sys.platform == "win32"
 
 bash_functional = pytest.mark.skipif(
     not BASH or WINDOWS,
-    reason="bash path verified on CI/macOS, not the Windows dev host (WN-v36-1)",
+    reason="full bash installer verified on CI/macOS; unverified on Windows",
 )
 
 _RUN_KW = dict(capture_output=True, text=True, encoding="utf-8", errors="replace")

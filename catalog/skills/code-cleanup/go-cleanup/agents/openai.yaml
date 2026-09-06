@@ -1,4 +1,4 @@
 interface:
   display_name: Go Code Cleanup
   short_description: Apply gofmt, remove unused packages, improve error handling, and clean up Go codebases. Use when cleaning up Go projects, removing unused imports, applying idiomatic Go patterns, or
-    improving code mai
+    improving code maintainability.

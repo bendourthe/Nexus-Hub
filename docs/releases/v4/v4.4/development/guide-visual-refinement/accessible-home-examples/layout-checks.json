@@ -1,0 +1,786 @@
+[
+  {
+    "overflow": false,
+    "top": -690.999755859375,
+    "bottom": -719.5,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 320,
+    "theme": "dark",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -1000.546875,
+    "bottom": -824.59375,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 320,
+    "theme": "dark",
+    "figure": "handoff",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -690.999755859375,
+    "bottom": -719.5,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 320,
+    "theme": "light",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -1000.546875,
+    "bottom": -824.59375,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 320,
+    "theme": "light",
+    "figure": "handoff",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -601,
+    "bottom": -626.500244140625,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 420,
+    "theme": "dark",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -823,
+    "bottom": -696.625,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 420,
+    "theme": "dark",
+    "figure": "handoff",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -601,
+    "bottom": -626.499755859375,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 420,
+    "theme": "light",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -823,
+    "bottom": -696.625,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 420,
+    "theme": "light",
+    "figure": "handoff",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -553,
+    "bottom": -556.75,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 760,
+    "theme": "dark",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -746.21875,
+    "bottom": -568.65625,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 760,
+    "theme": "dark",
+    "figure": "handoff",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -553,
+    "bottom": -556.75,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 760,
+    "theme": "light",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -746.21875,
+    "bottom": -568.65625,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 760,
+    "theme": "light",
+    "figure": "handoff",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -553,
+    "bottom": -533.5,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 999,
+    "theme": "dark",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -720.625,
+    "bottom": -543.0625,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 999,
+    "theme": "dark",
+    "figure": "handoff",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -553,
+    "bottom": -533.5,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 999,
+    "theme": "light",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": -720.625,
+    "bottom": -543.0625,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 999,
+    "theme": "light",
+    "figure": "handoff",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": 0,
+    "bottom": 0,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 1000,
+    "theme": "dark",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": 0,
+    "bottom": 0,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 1000,
+    "theme": "dark",
+    "figure": "handoff",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": 0,
+    "bottom": 0,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 1000,
+    "theme": "light",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": 0,
+    "bottom": 0,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 1000,
+    "theme": "light",
+    "figure": "handoff",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": 0,
+    "bottom": 0,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 1024,
+    "theme": "dark",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": 0,
+    "bottom": 0,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 1024,
+    "theme": "dark",
+    "figure": "handoff",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": 0,
+    "bottom": 0,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 1024,
+    "theme": "light",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": 0,
+    "bottom": 0,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 1024,
+    "theme": "light",
+    "figure": "handoff",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": 0,
+    "bottom": 0,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 1440,
+    "theme": "dark",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": 0,
+    "bottom": 0,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 1440,
+    "theme": "dark",
+    "figure": "handoff",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": 0,
+    "bottom": 0,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "cursor",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "gemini",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 121,
+    "width": 1440,
+    "theme": "light",
+    "figure": "guardrails",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "top": 0,
+    "bottom": 0,
+    "clipped": [],
+    "logos": [
+      {
+        "name": "claude",
+        "svg": true,
+        "width": 24
+      },
+      {
+        "name": "chatgpt",
+        "svg": true,
+        "width": 24
+      }
+    ],
+    "words": 216,
+    "width": 1440,
+    "theme": "light",
+    "figure": "handoff",
+    "errors": []
+  }
+]

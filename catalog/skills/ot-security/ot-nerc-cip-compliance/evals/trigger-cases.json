@@ -1,0 +1,48 @@
+{
+  "skill": "ot-nerc-cip-compliance",
+  "purpose": "Route NERC CIP evidence work here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "NERC CIP evidence binder",
+      "should_trigger": true,
+      "assert": "routes to ot-nerc-cip-compliance first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "CIP-007 ports and services",
+      "should_trigger": true,
+      "assert": "routes to ot-nerc-cip-compliance first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "CIP-010 baseline for relays",
+      "should_trigger": true,
+      "assert": "routes to ot-nerc-cip-compliance first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "ISO 27001 Statement of Applicability",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "IEC 62443 zone drawing only",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "write Modbus detections",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

@@ -16,9 +16,9 @@ Nexus-Hub is a **template repository**. Nothing is "live" until a user runs `scr
 
 1. **New file under `scripts/<name>.{py,js}`**: MUST be registered in BOTH `scripts/installer.sh` (near line 1395, next to `generate_report.py`) AND `scripts/installer.ps1` (near line 1656). The installer copies scripts by explicit name, never by folder. Pattern: see the existing `generate_report.py` copy block.
 
-2. **New skill** (`catalog/skills/<cat>/<name>/SKILL.md`): update three registry files — `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json`. The skill folder is auto-copied.
+2. **New skill** (`catalog/skills/<cat>/<name>/SKILL.md`): update three registry files — `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json`. The skill folder is auto-copied. A **new category** must also be listed in `.claude-plugin/plugin.json` `skills` (`./catalog/skills/<cat>`).
 
-3. **New command** (`catalog/commands/<name>.md`): no registry update; folder auto-copied. If the command needs a style-guide reference, place it at `catalog/style-guides/<name>.md` (NOT in `catalog/commands/`, otherwise it surfaces as a slash command).
+3. **New command** (`catalog/commands/<name>.md`): no registry update; folder auto-copied. If the command needs a style-guide reference, place it at `catalog/style-guides/<name>.md` (NOT in `catalog/commands/`, otherwise it surfaces as a slash command). Command-derived skills emit `disable-model-invocation: true` from `_synthesize_skill` (shared Python; no installer copy step). Do not invent a per-platform lever.
 
 4. **New hook** (`catalog/hooks/<name>.{sh,py}`): register in `catalog/hooks/settings.json`; add tests under `catalog/hooks/tests/`.
 

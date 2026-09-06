@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexus-hub.dev/schemas/org-bundle.schema.json",
+  "title": "Nexus-Hub organization knowledge bundle",
+  "description": "Manifest contract for an organization-maintained standards bundle.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "org_name",
+    "core"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "Bundle manifest schema version.",
+      "type": "integer",
+      "const": 1
+    },
+    "org_name": {
+      "description": "Human-readable organization name rendered with the standards.",
+      "type": "string",
+      "minLength": 1
+    },
+    "core": {
+      "description": "Relative path to the always-on Markdown standards document.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+$",
+      "default": "core.md"
+    },
+    "rules_dir": {
+      "description": "Relative path to per-language or path-scoped Markdown rules.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+$",
+      "default": "rules/"
+    },
+    "references_dir": {
+      "description": "Relative path to detailed Markdown references loaded on demand.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+$",
+      "default": "references/"
+    },
+    "precedence_statement": {
+      "description": "Optional organization-specific conflict-resolution statement.",
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": true
+}

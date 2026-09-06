@@ -1,0 +1,378 @@
+[
+  {
+    "root": "fx-ann-prompt",
+    "theme": "dark",
+    "plain": [
+      {
+        "part": "request",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "context",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "goal",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "format",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      }
+    ],
+    "afterOneSecond": [
+      {
+        "part": "request",
+        "active": true,
+        "box": true,
+        "bg": "color(srgb 0.176471 0.831373 0.74902 / 0.13)",
+        "line": "underline"
+      },
+      {
+        "part": "context",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "goal",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "format",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      }
+    ],
+    "afterTwoSeconds": [
+      {
+        "part": "request",
+        "active": true,
+        "box": true,
+        "bg": "color(srgb 0.176471 0.831373 0.74902 / 0.13)",
+        "line": "underline"
+      },
+      {
+        "part": "context",
+        "active": true,
+        "box": true,
+        "bg": "color(srgb 0.219608 0.741176 0.972549 / 0.13)",
+        "line": "underline"
+      },
+      {
+        "part": "goal",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "format",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      }
+    ]
+  },
+  {
+    "root": "fx-ann-context",
+    "theme": "dark",
+    "plain": [
+      {
+        "part": "request",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "attachments",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "goal",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "context",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      }
+    ],
+    "afterOneSecond": [
+      {
+        "part": "request",
+        "active": true,
+        "box": true,
+        "bg": "color(srgb 0.176471 0.831373 0.74902 / 0.13)",
+        "line": "underline"
+      },
+      {
+        "part": "attachments",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "goal",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "context",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      }
+    ],
+    "afterTwoSeconds": [
+      {
+        "part": "request",
+        "active": true,
+        "box": true,
+        "bg": "color(srgb 0.176471 0.831373 0.74902 / 0.13)",
+        "line": "underline"
+      },
+      {
+        "part": "attachments",
+        "active": true,
+        "box": true,
+        "bg": "color(srgb 0.768627 0.635294 1 / 0.13)",
+        "line": "underline"
+      },
+      {
+        "part": "goal",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "context",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      }
+    ]
+  },
+  {
+    "root": "fx-ann-prompt",
+    "theme": "light",
+    "plain": [
+      {
+        "part": "request",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "context",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "goal",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "format",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      }
+    ],
+    "afterOneSecond": [
+      {
+        "part": "request",
+        "active": true,
+        "box": true,
+        "bg": "color(srgb 0.176471 0.831373 0.74902 / 0.13)",
+        "line": "underline"
+      },
+      {
+        "part": "context",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "goal",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "format",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      }
+    ],
+    "afterTwoSeconds": [
+      {
+        "part": "request",
+        "active": true,
+        "box": true,
+        "bg": "color(srgb 0.176471 0.831373 0.74902 / 0.13)",
+        "line": "underline"
+      },
+      {
+        "part": "context",
+        "active": true,
+        "box": true,
+        "bg": "color(srgb 0.0823529 0.368627 0.541176 / 0.13)",
+        "line": "underline"
+      },
+      {
+        "part": "goal",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "format",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      }
+    ]
+  },
+  {
+    "root": "fx-ann-context",
+    "theme": "light",
+    "plain": [
+      {
+        "part": "request",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "attachments",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "goal",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "context",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      }
+    ],
+    "afterOneSecond": [
+      {
+        "part": "request",
+        "active": true,
+        "box": true,
+        "bg": "color(srgb 0.176471 0.831373 0.74902 / 0.13)",
+        "line": "underline"
+      },
+      {
+        "part": "attachments",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "goal",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "context",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      }
+    ],
+    "afterTwoSeconds": [
+      {
+        "part": "request",
+        "active": true,
+        "box": true,
+        "bg": "color(srgb 0.176471 0.831373 0.74902 / 0.13)",
+        "line": "underline"
+      },
+      {
+        "part": "attachments",
+        "active": true,
+        "box": true,
+        "bg": "color(srgb 0.45098 0.254902 0.65098 / 0.13)",
+        "line": "underline"
+      },
+      {
+        "part": "goal",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      },
+      {
+        "part": "context",
+        "active": false,
+        "box": false,
+        "bg": "rgba(0, 0, 0, 0)",
+        "line": "none"
+      }
+    ]
+  }
+]

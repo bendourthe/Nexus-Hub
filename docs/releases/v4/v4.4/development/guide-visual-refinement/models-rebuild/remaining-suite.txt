@@ -1,0 +1,37 @@
+F...FFF................F                                                 [100%]
+================================== FAILURES ===================================
+____________ test_every_class_used_in_foundations_has_a_style_rule ____________
+tests\guides\test_v443_phase8_harness.py:158: in test_every_class_used_in_foundations_has_a_style_rule
+    assert not undeclared, f"Foundations markup uses classes with no style rule: {undeclared}"
+E   AssertionError: Foundations markup uses classes with no style rule: ['cx-png']
+E   assert not ['cx-png']
+_____________ test_the_flaws_sit_under_the_vague_prompt_in_a_grid _____________
+tests\guides\test_v444_phase4_prompts.py:102: in test_the_flaws_sit_under_the_vague_prompt_in_a_grid
+    assert any(t.startswith(expected) for t in data["texts"]), (expected, data["texts"])
+E   AssertionError: ('No query', ['No request: nothing says what looking at it should produce', 'No context: which contract, and which par...', 'No goal: nothing the answer can be checked against', 'No format: any shape is arguably correct, so none is wrong'])
+E   assert False
+E    +  where False = any(<generator object test_the_flaws_sit_under_the_vague_prompt_in_a_grid.<locals>.<genexpr> at 0x0000022C31420BA0>)
+______________ test_the_engineered_prompt_uses_the_whole_diagram ______________
+tests\guides\test_v444_phase4_prompts.py:136: in test_the_engineered_prompt_uses_the_whole_diagram
+    assert data["parts"] == list(PARTS), data["parts"]
+E   AssertionError: ['request', 'context', 'goal', 'format']
+E   assert ['request', '...al', 'format'] == ['query', 'co...al', 'format']
+E     At index 0 diff: 'request' != 'query'
+E     Use -v to get more diff
+_______________________ test_the_active_marker_is_quiet _______________________
+tests\guides\test_v444_phase4_prompts.py:164: in test_the_active_marker_is_quiet
+    assert data["hasInset"], f"the marker should underline rather than ring: {data['shadow']}"
+E   AssertionError: the marker should underline rather than ring: none
+E   assert False
+______________ test_neither_rebuilt_scene_overflows_at_any_width ______________
+tests\guides\test_v445_phase67_agentic_harness.py:228: in test_neither_rebuilt_scene_overflows_at_any_width
+    assert not over, f"{width}: {over}"
+E   AssertionError: 320: [['fx-agent-platform', 2]]
+E   assert not [['fx-agent-platform', 2]]
+=========================== short test summary info ===========================
+FAILED tests/guides/test_v443_phase8_harness.py::test_every_class_used_in_foundations_has_a_style_rule
+FAILED tests/guides/test_v444_phase4_prompts.py::test_the_flaws_sit_under_the_vague_prompt_in_a_grid
+FAILED tests/guides/test_v444_phase4_prompts.py::test_the_engineered_prompt_uses_the_whole_diagram
+FAILED tests/guides/test_v444_phase4_prompts.py::test_the_active_marker_is_quiet
+FAILED tests/guides/test_v445_phase67_agentic_harness.py::test_neither_rebuilt_scene_overflows_at_any_width
+5 failed, 19 passed in 48.95s

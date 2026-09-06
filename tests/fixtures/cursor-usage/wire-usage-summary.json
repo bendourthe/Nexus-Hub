@@ -1,0 +1,47 @@
+{
+  "fixtureContract": {
+    "source": "credential-api",
+    "sanitized": true,
+    "provenance": "shape-from-live-probe-values-synthetic",
+    "note": "Field names, types, and units mirror a live 200 response recorded in cursor-usage-auth-probe.md Phase 6. All VALUES are synthetic and chosen to exercise the mapper, never a real account's figures. Money is minor units (cents). billingCycle* are epoch-millisecond strings, because proto3 JSON encodes 64-bit integers as strings. Percentages are precomputed and deliberately INCONSISTENT with spend over limit here, reproducing the live discrepancy so any attempt to derive them fails the tests. The spendLimitUsage block reproduces a pool drawn slightly PAST its limit (pooledUsed 20086 > pooledLimit 20000, pooledRemaining 0) while individual spend is far lower, because that combination is what the shared-pool rendering exists to communicate and it is a real observed state.",
+    "deliberatelyAbsent": [
+      "planUsage.autoSpend",
+      "planUsage.autoLimit",
+      "planUsage.apiSpend",
+      "planUsage.apiLimit",
+      "spendLimitUsage.individualLimit",
+      "spendLimitUsage.overallLimit"
+    ],
+    "verified": true
+  },
+  "billingCycleStart": "1785782587000",
+  "billingCycleEnd": "1788374587000",
+  "enabled": true,
+  "displayThreshold": 75,
+  "displayMessage": "Usage for the current period",
+  "autoModelSelectedDisplayMessage": "Auto model selected",
+  "namedModelSelectedDisplayMessage": "Named model selected",
+  "autoBucketModels": [
+    "auto-a",
+    "auto-b"
+  ],
+  "planUsage": {
+    "totalSpend": 21574,
+    "includedSpend": 2000,
+    "bonusSpend": 0,
+    "limit": 2000,
+    "remainingBonus": false,
+    "bonusTooltip": "",
+    "autoPercentUsed": 23.971111111111114,
+    "apiPercentUsed": 12,
+    "totalPercentUsed": 23.971111111111114
+  },
+  "spendLimitUsage": {
+    "totalSpend": 20086,
+    "pooledLimit": 20000,
+    "pooledUsed": 20086,
+    "pooledRemaining": 0,
+    "individualUsed": 15732,
+    "limitType": "team"
+  }
+}

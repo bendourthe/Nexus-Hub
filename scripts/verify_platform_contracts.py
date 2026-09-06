@@ -19,6 +19,7 @@ Exit 0 when code and contract agree; exit 1 with a per-divergence report otherwi
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -29,41 +30,28 @@ if str(REPO_ROOT) not in sys.path:
 from scripts.lib.integrations import get  # noqa: E402
 
 CONTRACT_DOC = REPO_ROOT / "docs" / "policy" / "platform-read-contracts.md"
+CONTRACT_JSON = REPO_ROOT / "docs" / "policy" / "platform-read-contracts.json"
 INSTALLER_SH = REPO_ROOT / "scripts" / "installer.sh"
 INSTALLER_PS1 = REPO_ROOT / "scripts" / "installer.ps1"
 
-# Per-platform expectations.
+# Per-platform expectations, loaded from the machine-readable single source
+# docs/policy/platform-read-contracts.json (its `contract_checks` block), so the
+# expected paths live in ONE place shared with the runtime `[verify]` pass and
+# the freshness guard. Each entry:
 #   config       : key/value pairs the integration config MUST declare.
 #   flatten      : "flag" (config sets flatten_skills_layout=True) or "override"
 #                  (the integration flattens in its own install_* method).
-#   doc_mentions : substrings that MUST appear in the contract doc.
-EXPECTATIONS: dict[str, dict] = {
-    "codex": {
-        "config": {"global_dir": "~/.codex"},
-        "flatten": "override",
-        "doc_mentions": [
-            "~/.codex/skills",
-            "~/.agents/skills",
-            "~/.codex/prompts",
-            "~/.codex/AGENTS.md",
-        ],
-    },
-    "antigravity2": {
-        "config": {"global_dir": "~/.gemini/config"},
-        "flatten": "override",
-        "doc_mentions": [
-            "~/.gemini/config/skills",
-            "~/.gemini/config/global_workflows",
-            "~/.gemini/GEMINI.md",
-            "~/.gemini/antigravity-cli",
-        ],
-    },
-    "claude": {"config": {"global_dir": "~/.claude"}, "flatten": "flag", "doc_mentions": ["~/.claude/skills"]},
-    "gemini": {"config": {"global_dir": "~/.gemini"}, "flatten": "flag", "doc_mentions": ["~/.gemini/skills"]},
-    "gemini-cli": {"config": {"global_dir": "~/.gemini"}, "flatten": "flag", "doc_mentions": ["~/.gemini/skills"]},
-    "opencode": {"config": {"global_dir": "~/.opencode"}, "flatten": "flag", "doc_mentions": ["~/.opencode/skills"]},
-    "nexus-ai": {"config": {"global_dir": "~/.nexus-ai/catalog"}, "flatten": "flag", "doc_mentions": ["~/.nexus-ai/catalog/skills"]},
-}
+#   doc_mentions : substrings that MUST appear in the prose contract doc.
+def _load_expectations() -> dict:
+    try:
+        data = json.loads(CONTRACT_JSON.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    checks = data.get("contract_checks")
+    return checks if isinstance(checks, dict) else {}
+
+
+EXPECTATIONS: dict[str, dict] = _load_expectations()
 
 
 def _installer_tokens(key: str) -> list[str]:
@@ -113,6 +101,9 @@ def main(argv: list[str] | None = None) -> int:
     quiet = "--quiet" in argv
     if not CONTRACT_DOC.exists():
         print(f"[verify-contracts] MISSING contract doc: {CONTRACT_DOC}")
+        return 1
+    if not EXPECTATIONS:
+        print(f"[verify-contracts] MISSING or empty contract JSON: {CONTRACT_JSON} (no contract_checks block)")
         return 1
     doc = CONTRACT_DOC.read_text(encoding="utf-8")
     installer_sh = INSTALLER_SH.read_text(encoding="utf-8") if INSTALLER_SH.exists() else ""

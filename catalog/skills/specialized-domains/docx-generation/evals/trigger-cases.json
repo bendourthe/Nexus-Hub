@@ -1,0 +1,12 @@
+{
+  "skill": "docx-generation",
+  "purpose": "Route Word/DOCX document-generation work here, not to the PPTX/XLSX siblings.",
+  "cases": [
+    {"id": "pos-docx-word", "prompt": "programmatically create a word document", "should_trigger": true, "assert": "routes to docx-generation first", "lexical": true},
+    {"id": "pos-docx-template", "prompt": "build a docx template for contracts and reports", "should_trigger": true, "assert": "routes to docx-generation first", "lexical": true},
+    {"id": "pos-docx-mailmerge", "prompt": "automate mail merge into word documents", "should_trigger": true, "assert": "routes to docx-generation first", "lexical": true},
+    {"id": "neg-pptx", "prompt": "create a powerpoint presentation with charts", "should_trigger": false, "assert": "routes to pptx-generation, not docx-generation", "lexical": true},
+    {"id": "neg-xlsx", "prompt": "create an excel spreadsheet with formulas", "should_trigger": false, "assert": "routes to xlsx-generation, not docx-generation", "lexical": true},
+    {"id": "neg-kubernetes", "prompt": "deploy a kubernetes cluster with helm", "should_trigger": false, "assert": "routes to kubernetes-expert, not docx-generation", "lexical": true}
+  ]
+}

@@ -1,4 +1,4 @@
 interface:
   display_name: Dependency Security Audit
   short_description: Audit project dependencies for known vulnerabilities (CVEs), license issues, and outdated packages with SBOM generation. Use when deploying to production, responding to CVEs, onboarding
-    legacy code, p
+    legacy code, preparing security audits, or establishing DevSecOps practices.

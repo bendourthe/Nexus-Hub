@@ -1,0 +1,40 @@
+:root {
+  --bg: #07141a;
+  --ink: #dce8eb;
+  --accent: #2dd4bf;
+  --surface: #0c1f26;
+  --border: #1e4550;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; color: var(--ink); background: var(--bg);
+  display: grid; place-items: center; padding: 24px;
+}
+.booth {
+  width: min(28rem, 100%); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 28px; padding: 18px;
+}
+h1 { margin: 0 0 8px; font-size: 1.4rem; }
+#stage {
+  height: 12rem; border-radius: 20px; margin: 12px 0;
+  display: grid; place-items: center; font-weight: 700; letter-spacing: .04em;
+  background: radial-gradient(circle at 50% 40%, rgba(45,212,191,.28), #041014);
+}
+#stage[data-pose="dawn"] { background: radial-gradient(circle at 40% 30%, #f4c27a, #07141a); }
+#stage[data-pose="neon"] { background: radial-gradient(circle at 60% 40%, #67e8f9, #1a1030); }
+#stage[data-pose="forest"] { background: radial-gradient(circle at 50% 60%, #4ade80, #07141a); }
+#stage[data-pose="studio"] { background: radial-gradient(circle at 50% 20%, #dce8eb, #123038); }
+#stage[data-pose="spark"] { background: radial-gradient(circle at 50% 50%, #e2b336, #07141a); }
+#strip { display: flex; gap: 8px; margin: 12px 0; }
+#strip button {
+  flex: 1; min-height: 44px; border-radius: 999px; border: 1px solid var(--border);
+  background: #07141a; color: var(--ink); cursor: pointer;
+}
+#strip button.is-shot { border-color: var(--accent); color: var(--accent); }
+#meter { font: 700 14px ui-monospace, Consolas, monospace; color: var(--accent); }
+#restart {
+  margin-top: 12px; min-height: 44px; width: 100%;
+  border-radius: 999px; border: 1px solid var(--border);
+  background: transparent; color: var(--ink); cursor: pointer;
+}

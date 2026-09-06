@@ -15,7 +15,7 @@ priority: critical
 
 ## Authentication and Secrets
 
-- Load secrets from environment variables using `os.Getenv` — never hardcode in source.
+- Load secrets from environment variables using `os.Getenv` -- never hardcode in source.
 - Use `golang.org/x/crypto/bcrypt` for password hashing. Never use MD5 or SHA-1 for passwords.
 - Verify JWT signatures with a well-maintained library (e.g., `github.com/golang-jwt/jwt`). Always validate `exp`, `iss`, and `aud` claims.
 - Rotate secrets immediately if committed; use `git filter-repo` (not `git filter-branch`) to purge history.
@@ -29,7 +29,7 @@ priority: critical
 ## Dependency Security
 
 - Run `govulncheck ./...` in CI to detect known vulnerabilities in dependencies.
-- Pin Go module versions in `go.sum`. Review `go mod tidy` diffs carefully — unexpected additions are a red flag.
+- Pin Go module versions in `go.sum`. Review `go mod tidy` diffs carefully -- unexpected additions are a red flag.
 - Audit new dependencies before adding them, especially those that use `unsafe` or `cgo`.
 
 ## Concurrency Safety

@@ -1,0 +1,109 @@
+{
+  "sha256": "76b66ec72cf3e81fce500707ca6a3e4a486193cfefd41d7fac1588eb671461f5",
+  "reviewed": [
+    {
+      "file": "foundations-dark-1440-fx-context.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-dark-1440-fx-model-lifecycle-bottom.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-dark-1440-fx-model-lifecycle.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-dark-1440-fx-prompts.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-dark-1440-fx-tokens.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-dark-420-fx-context-bottom.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-dark-420-fx-context.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-dark-420-fx-model-lifecycle-bottom.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-dark-420-fx-model-lifecycle.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-dark-420-fx-prompts-bottom.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-dark-420-fx-prompts.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-dark-420-fx-tokens-bottom.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-dark-420-fx-tokens.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-light-1440-fx-context.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-light-1440-fx-model-lifecycle-bottom.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-light-1440-fx-model-lifecycle.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-light-1440-fx-prompts.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-light-1440-fx-tokens.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-light-420-fx-context-bottom.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-light-420-fx-context.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-light-420-fx-model-lifecycle-bottom.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-light-420-fx-model-lifecycle.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-light-420-fx-prompts-bottom.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-light-420-fx-prompts.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-light-420-fx-tokens-bottom.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    },
+    {
+      "file": "foundations-light-420-fx-tokens.png",
+      "verdict": "PASS: complete readable diagram; bounded labels and controls. Desktop model space and prompt labels refined after initial inspection."
+    }
+  ]
+}

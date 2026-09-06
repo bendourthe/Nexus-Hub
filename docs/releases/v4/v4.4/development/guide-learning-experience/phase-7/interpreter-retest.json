@@ -1,0 +1,30 @@
+{
+  "result": {
+    "duration_s": 0.7029999999795109,
+    "finished_at": "2026-09-05T00:07:28Z",
+    "groups": [
+      {
+        "commands": [
+          {
+            "duration_s": 0.7029999999795109,
+            "exit_code": 0,
+            "group": "interpreters",
+            "name": "check_interpreter_resolution",
+            "output": "[interpreters] OK   bash -> C:\\Program Files\\Git\\bin\\bash.EXE\n[interpreters] every hook interpreter can execute a script.\n",
+            "reason": "",
+            "status": "pass"
+          }
+        ],
+        "name": "interpreters",
+        "skipped_reason": "",
+        "status": "pass"
+      }
+    ],
+    "platform": "windows",
+    "profile": "fast",
+    "scope_conservative": true,
+    "scope_reason": "no --base supplied; running every group",
+    "started_at": "2026-09-05T00:07:27Z"
+  },
+  "scope": "Test child PATH only prepended installed Git Bash. Default host PATH is unchanged and still fails the initial probe."
+}

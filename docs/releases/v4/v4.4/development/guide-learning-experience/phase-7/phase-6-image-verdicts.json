@@ -1,0 +1,1493 @@
+{
+  "review": "Independent retrospective inspection of the complete retained Phase 6 PNG set",
+  "method": "Each of the 82 listed images was opened through view_image and visually inspected. No geometry-only approval or inference from unseen images.",
+  "reviewed_count": 82,
+  "unreviewed_count": 0,
+  "scope": "Historical Phase 6 images; final guide has subsequent graph wording, arrow and disabled-control contrast corrections. This report does not certify current rendered output.",
+  "findings": [
+    {
+      "id": "P6-V1",
+      "severity": "low",
+      "category": "wrapping",
+      "description": "At normal 420px width, the introduction heading wraps Map the game before changing / it, leaving a one-word heading tail.",
+      "disposition": "Owned residual polish concern; no content loss. Parent retains it after the three global correction-cycle ceiling.",
+      "files": [
+        "phase-6/training-dark-420-full.png",
+        "phase-6/training-dark-420-top.png",
+        "phase-6/training-light-420-full.png",
+        "phase-6/training-light-420-top.png"
+      ]
+    },
+    {
+      "id": "P6-V2",
+      "severity": "low",
+      "category": "spacing",
+      "description": "Desktop fullscreen before Run leaves a substantial empty terminal band between the command and reply placeholder. Approximate observed gap grows from 108px at 1280x720 to 503px at 1920x1080; native and fallback pairs share it.",
+      "disposition": "Owned residual layout concern against the compact empty-state objective; no controls or content lost. Parent retains it after the three global correction-cycle ceiling.",
+      "files": [
+        "phase-6/states/fullscreen-1280-720-fallback-False.png",
+        "phase-6/states/fullscreen-1280-720-fallback-True.png",
+        "phase-6/states/fullscreen-1366-768-fallback-False.png",
+        "phase-6/states/fullscreen-1366-768-fallback-True.png",
+        "phase-6/states/fullscreen-1440-900-fallback-False.png",
+        "phase-6/states/fullscreen-1440-900-fallback-True.png",
+        "phase-6/states/fullscreen-1920-1080-fallback-False.png",
+        "phase-6/states/fullscreen-1920-1080-fallback-True.png"
+      ]
+    }
+  ],
+  "considered_but_rejected": [
+    {
+      "candidate": "Mobile technical file paths split inside words",
+      "reason": "Complete paths remain contained and readable; technical metadata containment differs from avoidable prose/heading wrapping."
+    },
+    {
+      "candidate": "Scrolled state captures hide the top command under navigation",
+      "reason": "These captures begin partway into the panel; paired top/fullscreen captures show the complete header. This is a capture limitation, not proof of document content loss."
+    },
+    {
+      "candidate": "Normal desktop short file previews leave spare space beside the game",
+      "reason": "The naturally shorter preview sits beside a taller comparison arena without artificial blank preview expansion or lost reading order."
+    }
+  ],
+  "images": [
+    {
+      "file": "phase-6/states/dark-1440-compare-after.png",
+      "sha256": "a39725e291633f2fa47f3d50e55774e09ec6a8cfc1be7c40ef31d09e23815623",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-compare-before.png",
+      "sha256": "fa7af8eaee8c6bdc8247820ee79376d1ccaf2315cf55ef6884feb18e7e9c3e6d",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-describe-after.png",
+      "sha256": "6536c029ffb9b41cbd3aef7e115a0c7916fa86c2bb4b655a27bdcb54dbe63fbf",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-describe-before.png",
+      "sha256": "c4f19059fa889a7eef5100b147838a90b933ee5c01aa91f4462116172465ed27",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-implement-after.png",
+      "sha256": "5278eaba97e2b91337ff61af546a5a484d620e6070ac9e00bf069b730c03fa57",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-implement-before.png",
+      "sha256": "ccecb4fd7ed00e83adc922c5178f876ba935d9b8a12d168d5fa00cb3ac57a69c",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-plan-after.png",
+      "sha256": "258066b792dc9c36430816a7b379bd6f1acdcb9369d3991baf576c98b7065725",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-plan-before.png",
+      "sha256": "efbb22d4d6142d6cf67a69dca34192955392c170762d4a9c6bcf59047d7d6c1f",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-presentify-after.png",
+      "sha256": "6ff68ac63a24a24cf57652b7d266cab6d100fb2aa1f32c7fabbe602d16dd8451",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-presentify-before.png",
+      "sha256": "b66526d7084ec8a0bc6dd8ece65c207639e993c2fb80df1126143ed9c01a2836",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-review-after.png",
+      "sha256": "8487eda098c1d48154750fffd25e6d5e6287ddad3c2dab863a7bd56f7304777f",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-review-before.png",
+      "sha256": "44c5b79ef78b0f8e1617c5aaef426ec441691d3b14cb63972abfe9cd409613d1",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-test-after.png",
+      "sha256": "fccfd8795f8579e78182f50ffe82a3d80c87fd7624b3b0e15dea484681bee7b8",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-test-before.png",
+      "sha256": "1b477becd4828850014fea9a187d1449a69cdb757580a48340d1d8a3368a9478",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-update-after.png",
+      "sha256": "5f3869af07b8780fa6cc01e18a684f9953dafbd776ff3ab9b768c9a05c37e4d1",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-1440-update-before.png",
+      "sha256": "8589b0bb43ffce8061e78b8677d6d23e17268902c4224739ba4ca7675e724d06",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-compare-after.png",
+      "sha256": "eeaf13d350290218f1ce52f25ea603abe21475f2dfd3c3f6959b73e5873a6f97",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-compare-before.png",
+      "sha256": "4e1792633388a4ab8299c175b47319f138138de7769e56235684d622cdb15cfb",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-describe-after.png",
+      "sha256": "9fd0226a07bec99fa7fddac15419934144a4bea7023650e4d7cb7f42f597baf9",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-describe-before.png",
+      "sha256": "e0e928b96a925ad773bd2027febfb4ea055e9b753714c5975a1f92060db203e0",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-implement-after.png",
+      "sha256": "50a95a0e42b5211ee9529f36f3542f7a342279a6196cd1a5a4d9f2b70b01850d",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-implement-before.png",
+      "sha256": "5d900ea3a4c88b899a1d2e72edda9337b6e6bf630ce11d45bfa15537832127c4",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-plan-after.png",
+      "sha256": "edf1b7714ea8c890a769890f0138d1fa27a8066a177a3be8a40088c9f2e57859",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-plan-before.png",
+      "sha256": "024d73ca98e0e1e94fd27412024dd89ac6393bb34f785168220d7ab62dfefcdc",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-presentify-after.png",
+      "sha256": "13a4593b0b81d094352fbd18fa458c86d5daa781ad23275db41b82e15ffef3cc",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-presentify-before.png",
+      "sha256": "62956e9a0a78de836a9e466dcbb8085977034eb51ebde12bf2ce900774df84af",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-review-after.png",
+      "sha256": "885c8a1f46315eb5ceb4bc10200d3b40041cd056ae082d90cae942679eed1667",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-review-before.png",
+      "sha256": "3437c3b45d6ed09a55f06c847e56a3bb0fea880c3f7f2f9a652c4ce754ddf597",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-test-after.png",
+      "sha256": "14c2c824d7619eafb73a58f8f93fec7030cf99d4e70f67ba08e376f72130cb8c",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-test-before.png",
+      "sha256": "df664a308f19d6e965dea62004ee263cea357b281652ca8cf1c5b3cb6b5590a3",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-update-after.png",
+      "sha256": "476aa0683b5cae8417e244346873629e2e5bd793703044e5856ffbb67b38cf80",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/dark-420-update-before.png",
+      "sha256": "6b03991605e769021b392b37efaa59d63f07a37c561f7afb3a8a58529e1844d1",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/fullscreen-1280-720-fallback-False.png",
+      "sha256": "5765161d888368236d7aa1a9182eae524a191cf4edabc0bfa45e87b87ce575f0",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Concern: expanded pre-Run terminal reserves a large blank band between command and placeholder, growing with viewport height.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "residual layout concern",
+      "findings": [
+        "P6-V2"
+      ],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture."
+      ]
+    },
+    {
+      "file": "phase-6/states/fullscreen-1280-720-fallback-True.png",
+      "sha256": "5765161d888368236d7aa1a9182eae524a191cf4edabc0bfa45e87b87ce575f0",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Concern: expanded pre-Run terminal reserves a large blank band between command and placeholder, growing with viewport height.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "residual layout concern",
+      "findings": [
+        "P6-V2"
+      ],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture."
+      ]
+    },
+    {
+      "file": "phase-6/states/fullscreen-1366-768-fallback-False.png",
+      "sha256": "25d326e3eca3889da67f92d0b1a3c2f06a902d2a9af870c18bf26e5b96114528",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Concern: expanded pre-Run terminal reserves a large blank band between command and placeholder, growing with viewport height.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "residual layout concern",
+      "findings": [
+        "P6-V2"
+      ],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture."
+      ]
+    },
+    {
+      "file": "phase-6/states/fullscreen-1366-768-fallback-True.png",
+      "sha256": "25d326e3eca3889da67f92d0b1a3c2f06a902d2a9af870c18bf26e5b96114528",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Concern: expanded pre-Run terminal reserves a large blank band between command and placeholder, growing with viewport height.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "residual layout concern",
+      "findings": [
+        "P6-V2"
+      ],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture."
+      ]
+    },
+    {
+      "file": "phase-6/states/fullscreen-1440-900-fallback-False.png",
+      "sha256": "20c2d941f0f6366fa44162236851ba0cc20c4d8d9667c4b221627f2c9535ef2e",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Concern: expanded pre-Run terminal reserves a large blank band between command and placeholder, growing with viewport height.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "residual layout concern",
+      "findings": [
+        "P6-V2"
+      ],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture."
+      ]
+    },
+    {
+      "file": "phase-6/states/fullscreen-1440-900-fallback-True.png",
+      "sha256": "20c2d941f0f6366fa44162236851ba0cc20c4d8d9667c4b221627f2c9535ef2e",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Concern: expanded pre-Run terminal reserves a large blank band between command and placeholder, growing with viewport height.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "residual layout concern",
+      "findings": [
+        "P6-V2"
+      ],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture."
+      ]
+    },
+    {
+      "file": "phase-6/states/fullscreen-1920-1080-fallback-False.png",
+      "sha256": "6abc28ff061362e5eae4b475fc6f15a3888bf7b22f3e735b942563c920b24c0f",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Concern: expanded pre-Run terminal reserves a large blank band between command and placeholder, growing with viewport height.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "residual layout concern",
+      "findings": [
+        "P6-V2"
+      ],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture."
+      ]
+    },
+    {
+      "file": "phase-6/states/fullscreen-1920-1080-fallback-True.png",
+      "sha256": "6abc28ff061362e5eae4b475fc6f15a3888bf7b22f3e735b942563c920b24c0f",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Concern: expanded pre-Run terminal reserves a large blank band between command and placeholder, growing with viewport height.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "residual layout concern",
+      "findings": [
+        "P6-V2"
+      ],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture."
+      ]
+    },
+    {
+      "file": "phase-6/states/fullscreen-420-900-fallback-False.png",
+      "sha256": "34467c7bbe92371b8ca5fa1e4193444c3cba1916487fa7a1f4e7feeaee6ccd92",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Mobile fullscreen capture shows upper stacked content only; lower terminal and file content require scrolling and are not visible here."
+      ]
+    },
+    {
+      "file": "phase-6/states/fullscreen-420-900-fallback-True.png",
+      "sha256": "34467c7bbe92371b8ca5fa1e4193444c3cba1916487fa7a1f4e7feeaee6ccd92",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Mobile fullscreen capture shows upper stacked content only; lower terminal and file content require scrolling and are not visible here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-compare-after.png",
+      "sha256": "3d50d59c0b2560f74a5f5787bfeaf2e265ecce4878238c802314a04815b92e09",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-compare-before.png",
+      "sha256": "5602a93c9c4db2dff114dee982e872629c4d7a221f284d9b84e44d7851e22d41",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-describe-after.png",
+      "sha256": "8452d8aeaea3a27013841e1a0e0ca030bfd36cd5427e38723b553b7f88c08379",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-describe-before.png",
+      "sha256": "a1044736671a19d349d88be158634a9a876d34b131c8cd698f6d1bfbcbedda4f",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-implement-after.png",
+      "sha256": "63d40515ef978c6b36c35430652cf100cc97f37ba2f9a047d808a806634c23f9",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-implement-before.png",
+      "sha256": "783a67f82f9eb254b206abaf47792140816e7f91135f8d9561626b81ad1c7fc5",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-plan-after.png",
+      "sha256": "882ed7aea14967edefcaf8c2636affacdfc7e53fed9f1e59b5d2b0b1f9dabd0f",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-plan-before.png",
+      "sha256": "d87914477124dde4dca9aa6ee1370a4c344d38b87b928cec4055da76e8ce1904",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-presentify-after.png",
+      "sha256": "fe4e7d532772a3289f63d3eed65fe42e7ec754b3580b6f6642a71a7cb178242d",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-presentify-before.png",
+      "sha256": "4ee44a71b3e5319973101ffe170903545e7ed83e4187731f94756c0bce24d694",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-review-after.png",
+      "sha256": "85535e92a80911e88fbbef90fdd215dbc661c6210330ad14b273fc2491ae5774",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-review-before.png",
+      "sha256": "ff960c8f3f4140fd91cf1500e64e121ecda282aedd8422a8b8668304435058b9",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-test-after.png",
+      "sha256": "685b2658ba907298a205972a2b81607887ecc5d9e2641e4052eeb26f6ae8865d",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-test-before.png",
+      "sha256": "87cd7f9c4efd8cccb5619c39353001ad7a8b217f59ac842dddadb03a7acdace5",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-update-after.png",
+      "sha256": "0115c6db2cda3689bda80f3226a07dcb42788caa443102df075588adcf46a9f1",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-1440-update-before.png",
+      "sha256": "775d30fea7877b345202945d9af5cd1d91b34f2cea8944891358e96e0012d77e",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-compare-after.png",
+      "sha256": "f9a9139b2ce71842467cd0efa5b69945eee129b6e1e54cfc47c222eb66c2c2f1",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-compare-before.png",
+      "sha256": "fc3fa167ee4ed91975fdb9f94f6f487c7574b91db26e25eef331ba15c20c3920",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-describe-after.png",
+      "sha256": "d4c2fe8f306b1c89da998a9002d691c9020a2e4b4869740b70bd11bca0555794",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-describe-before.png",
+      "sha256": "175fde616e7b0763f62379e9613738c8cf3b0d3e7c0a6190fe11615097d9bd06",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-implement-after.png",
+      "sha256": "e13aad279da317a3b51a68cb8638cc3ea74438d86544737a520dc935ef5c2c3c",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-implement-before.png",
+      "sha256": "99f833552541d421f2f0459d82edaf0bd482e5afb23498a9b2b14233a02d79ca",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-plan-after.png",
+      "sha256": "b9e4d221c43ab4c4796adfee40b558010ea3a90bf502896a35d6e45246053c5f",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-plan-before.png",
+      "sha256": "6c5a3f502e898cdaf0a8c3613d151aed7984833a4ed3386cd0bcb8fe823fcdef",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-presentify-after.png",
+      "sha256": "48a255ed4665ddc11f2c1a5e841cf9dbe6aa97bd8aa98a223d3981f5604d754c",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-presentify-before.png",
+      "sha256": "f3275b3c9aaae172ec795ad25419b6159d3c0ab00f29135832a598e45d5fa35d",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-review-after.png",
+      "sha256": "d69e2e7b8e423fd6d1b3240caaec1f312dffb36b6ef28f9bba36a4496ca23aa4",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-review-before.png",
+      "sha256": "4f2693a5dcb0f6050dbf7ecc034c5457d52ee98a14e9c614dff8c65a0d7284b7",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-test-after.png",
+      "sha256": "94564f0e56aad18a29574aa1418dec530092dc29eb482ae7affbfa59e8966acb",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-test-before.png",
+      "sha256": "2523dd973c84b6f57f1c4f42c5c71fccb481dd6d70a84cf991a5d9780beb6aaf",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-update-after.png",
+      "sha256": "83551c5cc1c173f78dd68d14d5819f3f97d876349081f6d80f8339cea2bea65a",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Completed simulated result, produced artifact and pass gate are visibly consistent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static after-Run result.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/states/light-420-update-before.png",
+      "sha256": "7b1280d8b8366a9640c199ab8e2ca4d2c5009fc444dbc505ae724a47ae471c85",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Before-Run expected artifact and pending gate remain visibly distinct from completed output.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Scrolled viewport starts inside the command panel, with its upper edge under the sticky navigation; complete header is assessed in paired top/fullscreen captures.",
+        "Lower file preview is outside some viewports; only visible preview content was assessed. Long command text has a contained horizontal line; offscreen text was not assessed here."
+      ]
+    },
+    {
+      "file": "phase-6/training-dark-1440-full.png",
+      "sha256": "937d61d9a21c173f4f3fbbfed3ad69d1bc88aeacf01f1583eda3765d93fb865b",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Full-page overview assessed for structure; paired top and state viewport images supply legibility. Mobile full-page images were downscaled by the image viewer."
+      ]
+    },
+    {
+      "file": "phase-6/training-dark-1440-top.png",
+      "sha256": "24aa6a955d8f5c0855ca0a639815f2a30a09021d2a8d336afe01eaed7abd1f65",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture."
+      ]
+    },
+    {
+      "file": "phase-6/training-dark-420-full.png",
+      "sha256": "1756d6b09e87b8278b1d74aad0945774685eff2df922de79fff48f2b44aaa357",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Concern: intro heading leaves isolated final word it on a second line.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "residual layout concern",
+      "findings": [
+        "P6-V1"
+      ],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Full-page overview assessed for structure; paired top and state viewport images supply legibility. Mobile full-page images were downscaled by the image viewer."
+      ]
+    },
+    {
+      "file": "phase-6/training-dark-420-top.png",
+      "sha256": "0e86ea5599a52b5543dff1f2e82de9095abd3150e2ea11ca763d80f3e1ffae36",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Concern: intro heading leaves isolated final word it on a second line.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "residual layout concern",
+      "findings": [
+        "P6-V1"
+      ],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture."
+      ]
+    },
+    {
+      "file": "phase-6/training-light-1440-full.png",
+      "sha256": "5869b15c726d0b0b08c1cb9347d89448a86caf2743d0d19bb435f5eeb9dc52a9",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Full-page overview assessed for structure; paired top and state viewport images supply legibility. Mobile full-page images were downscaled by the image viewer."
+      ]
+    },
+    {
+      "file": "phase-6/training-light-1440-top.png",
+      "sha256": "a87c4562ffdd8a8f0a0811ec4e416ef817f669f848546c5449c5316e9719bd14",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Visible prose and labels remain readable; mobile technical paths use midword containment where required.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "pass for visible static content, with stated limits",
+      "findings": [],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture."
+      ]
+    },
+    {
+      "file": "phase-6/training-light-420-full.png",
+      "sha256": "643829104976fbb7fe19a1167d3d18d00017f30bfa2a21297603fe5d1546927d",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Concern: intro heading leaves isolated final word it on a second line.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "residual layout concern",
+      "findings": [
+        "P6-V1"
+      ],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture.",
+        "Full-page overview assessed for structure; paired top and state viewport images supply legibility. Mobile full-page images were downscaled by the image viewer."
+      ]
+    },
+    {
+      "file": "phase-6/training-light-420-top.png",
+      "sha256": "8b38361203bddb174cab6550d9cd3d9521ed8387ce787e455842a48c5da16556",
+      "actually_viewed": true,
+      "typography": "Readable visible headings, controls and body text; overview legibility subject to capture limits.",
+      "wrapping": "Concern: intro heading leaves isolated final word it on a second line.",
+      "spacing": "Visible panels remain grouped, without consequential overlap or document clipping.",
+      "semantics": "Training shell, game comparison and command-led instruction are visibly coherent.",
+      "contrast": "Visible text and functional controls are distinguishable in this theme; numerical ratios cannot be inferred from a screenshot.",
+      "motion_state": "Static before-Run or idle game state; still capture does not prove animation quality.",
+      "verdict": "residual layout concern",
+      "findings": [
+        "P6-V1"
+      ],
+      "limitations": [
+        "Still image: animation timing, cancellation, keyboard operation and numerical contrast are not established by this capture."
+      ]
+    }
+  ]
+}

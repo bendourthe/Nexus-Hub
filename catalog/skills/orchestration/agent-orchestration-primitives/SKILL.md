@@ -73,6 +73,8 @@ If you cannot fill in the right-hand column, stay single-agent.
 | Independent verification / adversarial convergence | **Dynamic Workflows** (if available), else **subagents** | Workflows encode refute-until-converge natively; subagents can approximate it with an explicit verifier pass (see [[adversarial-verifier]]). |
 | Peers must unblock each other mid-task, holding shared state | **Agent teams** | Subagents cannot communicate; this is the one shape that genuinely needs peers. Keep the team <= 5. |
 
+**Non-blocking delegation.** When the platform offers it, prefer a subagent-start tool that returns immediately, delivers each result in a later message, and pairs with a separate wait tool for the moments the lead genuinely needs a result. The lead keeps working while the subagents run, which lowers average time to completion at similar quality, token use, and cost; a lead forced to idle on every delegation pays the subagent's latency twice. This is a property to look for in the primitive, not a reason to fan out work that Step 2 did not name.
+
 ### Step 4: Apply the escalation gate
 
 Before committing to the chosen primitive, confirm all three:

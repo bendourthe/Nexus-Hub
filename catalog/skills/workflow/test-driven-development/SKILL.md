@@ -376,7 +376,7 @@ def test_returns_user_by_id():
 | "Writing tests first takes longer" | TDD studies (including research at Microsoft and IBM) consistently show TDD reduces post-release defect rates by 40-90% while increasing development time by only 15-35%; the defect reduction more than compensates for the extra upfront time. |
 | "We'll write tests after the implementation when we know the shape of the code" | Tests written after implementation test the implementation, not the requirement; they systematically miss the behavior the implementation got wrong because the wrong behavior looks correct from inside the implementation. |
 | "TDD doesn't work for UI or integration code" | TDD applies at every layer; for UI, tests assert component render output and user interaction behavior; for integration, tests use test containers or mocks to assert request/response contracts. |
-| "The red phase is just extra work — I know what the test should pass" | Skipping the red phase means you never confirm the test can fail; a test that never fails is not a test — it is decorative code that provides false coverage metrics. |
+| "The red phase is just extra work -- I know what the test should pass" | Skipping the red phase means you never confirm the test can fail; a test that never fails is not a test -- it is decorative code that provides false coverage metrics. |
 | "Refactoring in the green phase is fine without running tests again" | Refactoring without re-running the suite is not TDD; it is coding with a net that you chose not to deploy. The suite must be green before and after every refactoring step. |
 
 ## Verification

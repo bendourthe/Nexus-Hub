@@ -65,5 +65,6 @@ For very large surfaces ("generate tests for every unit"), offer the dynamic-wor
 
 ## Notes
 
+- Scope boundary: when `/test` is explicitly invoked, its coverage threshold and pass-rate govern. On any other task the restraint rule owned by `minimal-construction` (step 6) governs: tests are committed only where the task asks or the repository already keeps them for that change class, and scratch checks are not promoted into the suite. Decision: `docs/releases/v4/v4.7/development/test-scope-decision.md`.
 - This command replaces `/generate-tests`, `/generate-unit-tests`, and `/tdd` (removed in v3.2.0).
 - Keep this dispatcher thin. The test-generation logic lives in the retained skills; this file owns only the tier sequence, the loop, and the gate.

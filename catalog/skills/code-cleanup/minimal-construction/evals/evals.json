@@ -1,0 +1,34 @@
+[
+  {
+    "id": "eval-native-date-control",
+    "query": "Add a birthday field to this HTML form. Use the simplest solution and be lazy about what you build. The browser already ships a date control.",
+    "should_trigger": true,
+    "assertions": [
+      {"text": "Output prefers native markup such as input type=date over adding a date-picker package"},
+      {"text": "Output does not add a new npm, pip, or similar dependency for the date control"},
+      {"text": "Output names the native or already-present control before proposing a wrapper"}
+    ],
+    "tags": ["happy-path", "trigger-positive", "native"]
+  },
+  {
+    "id": "eval-cache-stdlib",
+    "query": "I need a short-lived cache for this function. Simplest solution, yagni, do less, no unnecessary dependencies, shortest path. Prefer stdlib or an already-present helper.",
+    "should_trigger": true,
+    "assertions": [
+      {"text": "Output prefers stdlib or an already-present helper over a new cache class or cache package"},
+      {"text": "Output does not add a new caching dependency"}
+    ],
+    "tags": ["happy-path", "trigger-positive", "stdlib"]
+  },
+  {
+    "id": "eval-refused-safety-cut",
+    "query": "Keep this change tiny. Drop the request-body validation and the form label so the diff stays small. Simplest solution, yagni, be lazy about what you build.",
+    "should_trigger": true,
+    "assertions": [
+      {"text": "Output refuses to drop trust-boundary validation or required accessibility labeling in order to look smaller"},
+      {"text": "Output names security-review, an accessibility owner, or verification-before-completion instead of treating those checks as construction debt"},
+      {"text": "A response that deletes the validation or the accessible name without a replacement check must fail this assertion"}
+    ],
+    "tags": ["edge-case", "trigger-positive", "safety-floor"]
+  }
+]

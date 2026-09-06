@@ -1,4 +1,4 @@
 interface:
   display_name: Context Manager
-  short_description: 'Manage and maintain context across large codebases and complex multi-file changes. Covers context fundamentals (attention budget, progressive disclosure, compaction triggers) and practical
-    techniques '
+  short_description: Manage and maintain context across large codebases and complex multi-file changes. Covers context fundamentals (attention budget, progressive disclosure, compaction triggers) and practical
+    techniques for navigating unfamiliar codebases and synthesizing information from multiple sources.

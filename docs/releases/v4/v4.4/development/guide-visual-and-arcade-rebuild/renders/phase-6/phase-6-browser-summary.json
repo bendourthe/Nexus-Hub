@@ -1,0 +1,1835 @@
+{
+  "generated": "2026-09-01",
+  "phase": "v4.4.1 Phase 6",
+  "declaredCases": 110,
+  "executedCases": 110,
+  "declaredScreenshots": 84,
+  "retainedScreenshots": 84,
+  "focusedRuntimeSeconds": 106.2,
+  "runtimeTargetSeconds": 1200,
+  "evidenceBytes": 7471826,
+  "evidenceCeilingBytes": 31457280,
+  "failures": [],
+  "cases": [
+    {
+      "label": "base-home-dark-320",
+      "width": 320,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-home-dark-420",
+      "width": 420,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-home-dark-900",
+      "width": 900,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-home-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-home-light-320",
+      "width": 320,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-home-light-420",
+      "width": 420,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-home-light-900",
+      "width": 900,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-home-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-foundations-dark-320",
+      "width": 320,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-foundations-dark-420",
+      "width": 420,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-foundations-dark-900",
+      "width": 900,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-foundations-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-foundations-light-320",
+      "width": 320,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-foundations-light-420",
+      "width": 420,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-foundations-light-900",
+      "width": 900,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-foundations-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-training-dark-320",
+      "width": 320,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "base-training-dark-420",
+      "width": 420,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "base-training-dark-900",
+      "width": 900,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "base-training-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "base-training-light-320",
+      "width": 320,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "base-training-light-420",
+      "width": 420,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "base-training-light-900",
+      "width": 900,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "base-training-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "base-cheatsheets-dark-320",
+      "width": 320,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-cheatsheets-dark-420",
+      "width": 420,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-cheatsheets-dark-900",
+      "width": 900,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-cheatsheets-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-cheatsheets-light-320",
+      "width": 320,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-cheatsheets-light-420",
+      "width": 420,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-cheatsheets-light-900",
+      "width": 900,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "base-cheatsheets-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "seam-foundations-dark-720",
+      "width": 720,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "seam-foundations-dark-721",
+      "width": 721,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "seam-foundations-light-720",
+      "width": 720,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "seam-foundations-light-721",
+      "width": 721,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "state-describe-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-describe-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-review-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-review-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-plan-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-plan-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-implement-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-implement-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-compare-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-compare-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-test-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-test-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-update-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-update-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-presentify-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "state-presentify-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-native-dark-1280x720",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-native-dark-1366x768",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-native-dark-1440x900",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-native-dark-1920x1080",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-native-light-1280x720",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-native-light-1366x768",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-native-light-1440x900",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-native-light-1920x1080",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-fallback-dark-1280x720",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-fallback-dark-1366x768",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-fallback-dark-1440x900",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-fallback-dark-1920x1080",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-fallback-light-1280x720",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-fallback-light-1366x768",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-fallback-light-1440x900",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-describe-fallback-light-1920x1080",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-native-dark-1280x720",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-native-dark-1366x768",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-native-dark-1440x900",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-native-dark-1920x1080",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-native-light-1280x720",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-native-light-1366x768",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-native-light-1440x900",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-native-light-1920x1080",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "native",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-fallback-dark-1280x720",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-fallback-dark-1366x768",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-fallback-dark-1440x900",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-fallback-dark-1920x1080",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-fallback-light-1280x720",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-fallback-light-1366x768",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-fallback-light-1440x900",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "fs-presentify-fallback-light-1920x1080",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "narrow-describe-dark-320",
+      "width": 320,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "narrow-describe-dark-420",
+      "width": 420,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "narrow-describe-dark-900",
+      "width": 900,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "narrow-describe-light-320",
+      "width": 320,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "narrow-describe-light-420",
+      "width": 420,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "narrow-describe-light-900",
+      "width": 900,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "narrow-presentify-dark-320",
+      "width": 320,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "narrow-presentify-dark-420",
+      "width": 420,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "narrow-presentify-dark-900",
+      "width": 900,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "narrow-presentify-light-320",
+      "width": 320,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "narrow-presentify-light-420",
+      "width": 420,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "narrow-presentify-light-900",
+      "width": 900,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 1,
+      "fullscreen": "fallback",
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "rm-home-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": true,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "rm-home-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": true,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "rm-foundations-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": true,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "rm-foundations-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": true,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {}
+    },
+    {
+      "label": "rm-training-presentify-dark-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "reducedMotion": true,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "rm-training-presentify-light-1440",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "reducedMotion": true,
+      "zoom": 1,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "zoom200-describe-dark-1280x720",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 2,
+      "fullscreen": null,
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "zoom200-describe-dark-1366x768",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 2,
+      "fullscreen": null,
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "zoom200-describe-light-1280x720",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 2,
+      "fullscreen": null,
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "zoom200-describe-light-1366x768",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 2,
+      "fullscreen": null,
+      "retained": false,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "zoom200-presentify-dark-1280x720",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 2,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "zoom200-presentify-dark-1366x768",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "reducedMotion": false,
+      "zoom": 2,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "zoom200-presentify-light-1280x720",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 2,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    },
+    {
+      "label": "zoom200-presentify-light-1366x768",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "reducedMotion": false,
+      "zoom": 2,
+      "fullscreen": null,
+      "retained": true,
+      "errors": [],
+      "externalRequests": [],
+      "geometry": {
+        "missing": [],
+        "overlaps": [],
+        "horizontalOverflow": false,
+        "portraitGame": true
+      }
+    }
+  ]
+}

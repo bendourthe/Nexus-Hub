@@ -1,9 +1,48 @@
 """Shared pytest fixtures for nexus-code-search tests."""
 from __future__ import annotations
 
+import os
+import socket
 from pathlib import Path
 
 import pytest
+
+if os.environ.get("NEXUS_CODE_SEARCH_BLOCK_NETWORK") == "1":
+    _original_connect = socket.socket.connect
+    _original_connect_ex = socket.socket.connect_ex
+    _original_sendto = socket.socket.sendto
+    _original_create_connection = socket.create_connection
+    _loopback_hosts = frozenset({"127.0.0.1", "::1", "localhost"})
+
+    def _is_loopback(address: object) -> bool:
+        return isinstance(address, tuple) and str(address[0]).lower() in _loopback_hosts
+
+    def _guard_connect(sock: socket.socket, address: object) -> None:
+        if _is_loopback(address):
+            _original_connect(sock, address)
+            return
+        raise RuntimeError("network egress blocked by nexus-code-search test guard")
+
+    def _guard_connect_ex(sock: socket.socket, address: object) -> int:
+        if _is_loopback(address):
+            return _original_connect_ex(sock, address)
+        raise RuntimeError("network egress blocked by nexus-code-search test guard")
+
+    def _guard_sendto(sock: socket.socket, data: bytes, *args: object) -> int:
+        address = args[-1] if args else None
+        if _is_loopback(address):
+            return _original_sendto(sock, data, *args)
+        raise RuntimeError("network egress blocked by nexus-code-search test guard")
+
+    def _guard_create_connection(address: object, *args: object, **kwargs: object) -> socket.socket:
+        if _is_loopback(address):
+            return _original_create_connection(address, *args, **kwargs)
+        raise RuntimeError("network egress blocked by nexus-code-search test guard")
+
+    socket.socket.connect = _guard_connect
+    socket.socket.connect_ex = _guard_connect_ex
+    socket.socket.sendto = _guard_sendto
+    socket.create_connection = _guard_create_connection
 
 from nexus_code_search.config import CodeSearchConfig
 

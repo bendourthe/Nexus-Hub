@@ -1,4 +1,4 @@
 interface:
   display_name: Error Explanation Generator
   short_description: Explain cryptic error messages, stack traces, and compiler errors in plain language with fix suggestions and prevention strategies. Use when encountering confusing errors, debugging
-    stack traces, unde
+    stack traces, understanding compiler output, or diagnosing runtime exceptions.

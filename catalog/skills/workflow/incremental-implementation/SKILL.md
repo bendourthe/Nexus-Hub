@@ -1,8 +1,8 @@
 ---
 name: incremental-implementation
-description: Implements features one small, tested step at a time — never more than one task per cycle. Use when executing any implementation plan, to prevent scope expansion, half-built states, and undebuggable large diffs. Trigger phrases: implement this step by step, one task at a time, don't do everything at once, incremental changes, implement incrementally.
+description: "Implements features one small, tested step at a time -- never more than one task per cycle. Use when executing any implementation plan, to prevent scope expansion, half-built states, and undebuggable large diffs. Trigger phrases: implement this step by step, one task at a time, don't do everything at once, incremental changes, implement incrementally."
 summary_l0: "Implement features one tested step at a time to prevent scope creep and undebuggable diffs"
-overview_l1: "This skill enforces a disciplined one-task-at-a-time implementation discipline with a test-after-each-step cycle. Use it when executing any implementation plan — especially for multi-file changes, refactoring, or features with multiple interacting components. Key capabilities include task scoping, checkpoint verification, scope containment, and rollback-ready commits. The expected output is a working, tested, committed state after each task — never a half-built state spanning multiple incomplete tasks. Without this discipline, implementations accumulate debt through scope creep, interleaved changes become undebuggable, and rollback is impossible. Trigger phrases: implement step by step, one task at a time, incremental changes, don't do everything at once, implement incrementally, task-by-task execution."
+overview_l1: "This skill enforces a disciplined one-task-at-a-time implementation discipline with a test-after-each-step cycle. Use it when executing any implementation plan -- especially for multi-file changes, refactoring, or features with multiple interacting components. Key capabilities include task scoping, checkpoint verification, scope containment, and rollback-ready commits. The expected output is a working, tested, committed state after each task -- never a half-built state spanning multiple incomplete tasks. Without this discipline, implementations accumulate debt through scope creep, interleaved changes become undebuggable, and rollback is impossible. Trigger phrases: implement step by step, one task at a time, incremental changes, don't do everything at once, implement incrementally, task-by-task execution."
 ---
 
 # Incremental Implementation
@@ -43,17 +43,17 @@ Before touching any file, write out in one sentence what you are about to implem
 ```
 CURRENT TASK: Add input validation to the createUser endpoint
 DONE WHEN: POST /users with missing email returns 422 with {"error": "email required"}
-SCOPE: Only src/handlers/users.ts — no other files
+SCOPE: Only src/handlers/users.ts -- no other files
 ```
 
-If you find yourself writing "and also..." — stop. That's a new task.
+If you find yourself writing "and also..." -- stop. That's a new task.
 
 ### Step 2: Implement Only That Task
 
 Rules during implementation:
 - Change only the files listed in the task scope
-- If you discover a necessary change in a different file, add it to the task list for later — do not implement it now
-- If you find a bug in a nearby function while implementing, note it — do not fix it now
+- If you discover a necessary change in a different file, add it to the task list for later -- do not implement it now
+- If you find a bug in a nearby function while implementing, note it -- do not fix it now
 - Stop when the task's acceptance criterion is met, not when all related things are also improved
 
 ### Step 3: Verify Before Committing
@@ -71,7 +71,7 @@ npm test
 npm run build
 ```
 
-Do not commit until verification passes. If verification fails, fix the current task — do not start the next task.
+Do not commit until verification passes. If verification fails, fix the current task -- do not start the next task.
 
 ### Step 4: Commit the Working State
 
@@ -92,13 +92,13 @@ Mark the completed task as done. Review whether the next task is still correct g
 
 These are the most common ways incremental discipline breaks down:
 
-**Rule 1 — One task at a time.** If the current task reveals another problem, add it to the list. Implement it after this task is committed.
+**Rule 1 -- One task at a time.** If the current task reveals another problem, add it to the list. Implement it after this task is committed.
 
-**Rule 2 — No "while I'm here" improvements.** Seeing messy code while implementing an unrelated change does not make cleanup part of this task. Log it, commit the task, then create a cleanup task.
+**Rule 2 -- No "while I'm here" improvements.** Seeing messy code while implementing an unrelated change does not make cleanup part of this task. Log it, commit the task, then create a cleanup task.
 
-**Rule 3 — No half-built states in commits.** A commit where "the first half works but the second half is in progress" is not a commit — it is a savepoint. Only commit when the task's acceptance criterion is met.
+**Rule 3 -- No half-built states in commits.** A commit where "the first half works but the second half is in progress" is not a commit -- it is a savepoint. Only commit when the task's acceptance criterion is met.
 
-**Rule 4 — Small tasks over large tasks.** If a task will change more than ~5 files, it can be split into smaller tasks. Smaller tasks have smaller diffs and simpler verification.
+**Rule 4 -- Small tasks over large tasks.** If a task will change more than ~5 files, it can be split into smaller tasks. Smaller tasks have smaller diffs and simpler verification.
 
 ## Common Rationalizations
 

@@ -1,0 +1,12 @@
+# Nexus-Hub tagged-release SHA-256 checksums (GNU sha256sum format).
+# Lines are: <sha256>  <filename>
+#
+# Installing from `main` has no published checksum; the bootstrap prints a
+# warning and continues unless NEXUS_HUB_EXPECTED_SHA256 or NEXUS_HUB_CHECKSUMS
+# is set. Tagged releases (vX.Y.Z) list the GitHub source archive hash here
+# so a standalone install can pin what it downloaded.
+#
+# This file is empty of hashes until the first tag that publishes one.
+# v3.19.2 GitHub source archives (filled after the tag existed; do not retag).
+ded10becb96741e9538852707141cc8f7789c76a224bcd241949936e5b907540  Nexus-Hub-3.19.2.tar.gz
+a8b37da9ef5dc996ad1979bc982bfe29a747586be39cf9931fbed8c425c00d13  Nexus-Hub-3.19.2.zip

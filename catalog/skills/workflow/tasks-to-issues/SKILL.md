@@ -1,8 +1,8 @@
 ---
 name: tasks-to-issues
-description: Convert the strict task checklist in a feature directory's tasks.md (or plan.md) into linked GitHub issues via the local gh CLI. Drives /tasks-to-issues end-to-end - parses every `- [ ] T### [P?] [US?] file_path` line, builds a per-task issue payload with labels (`nexus-hub`, `spec-driven-task`, `parallel`, `user-story-N`), and either dry-runs the gh invocations or executes them sequentially after user confirmation. Use whenever the user wants to convert tasks to issues, create GitHub issues from a plan, file issues from tasks.md, dry-run the conversion to preview gh invocations, fan a plan out to issue tracking, or drive sprint planning from a generated plan. Trigger phrases include 'tasks to issues', 'convert tasks to issues', 'create issues from plan', 'file issues from tasks.md', 'issue tracking from plan', 'gh issue create from tasks', 'fan out tasks to GitHub', 'sprint from plan'. Cross-links to `[[implementation-plan]]`, `[[cross-artifact-analyzer]]`, and `[[project-constitution]]`. SKIP: project boards (use gh directly), milestone management, label creation, free-form issue authoring, plans whose tasks do NOT match the strict `- [ ] T### [P?] [US?] file_path` format (re-run /generate-plan first), or any flow that needs more than one issue per task.
-summary_l0: "Convert strict-format tasks.md / plan.md task lines into linked GitHub issues via gh CLI"
-overview_l1: "This skill drives the /tasks-to-issues command end-to-end. It locates the active feature directory, parses every `- [ ] T### [P?] [US?] file_path` line against the strict regex, builds a per-task issue payload (title, body with file path + user-story link, labels `nexus-hub` + `spec-driven-task` + optional `parallel` + `user-story-N`), and either prints the resolved `gh issue create` invocations (--dry-run) or invokes them sequentially after user confirmation. It enforces idempotency by appending `[gh#<num>]` to each filed task line so re-runs skip converted tasks. Pre-flight checks verify gh is installed and authenticated and the directory is a GitHub repo. The mechanical parsing lives in scripts/tasks-to-issues.sh and scripts/tasks-to-issues.ps1; references/gh-cli-auth-runbook.md covers gh auth and rate-limits. Trigger phrases: tasks to issues, convert tasks to issues, create issues from plan, file issues from tasks.md, issue tracking from plan, gh issue create from tasks, fan out tasks to GitHub, sprint from plan."
+description: "Convert the strict task checklist in a feature directory's tasks.md (or plan.md) into linked GitHub issues via the local gh CLI. Drives /tasks-to-issues end-to-end - parses every `- [ ] T### [P?] [US?] file_path` line, builds a per-task issue payload with labels (`nexus-hub`, `spec-driven-task`, `parallel`, `user-story-N`), and either dry-runs the gh invocations or executes them sequentially after user confirmation. Use whenever the user wants to convert tasks to issues, create GitHub issues from a plan, file issues from tasks.md, dry-run the conversion to preview gh invocations, fan a plan out to issue tracking, or drive sprint planning from a generated plan. Trigger phrases include 'tasks to issues', 'convert tasks to issues', 'create issues from plan', 'file issues from tasks.md', 'issue tracking from plan', 'gh issue create from tasks', 'fan out tasks to GitHub', 'sprint from plan'. Cross-links to `[[implementation-plan]]`, `[[cross-artifact-analyzer]]`, and `[[project-constitution]]`. SKIP: project boards (use gh directly), milestone management, label creation, free-form issue authoring, plans whose tasks do NOT match the strict `- [ ] T### [P?] [US?] file_path` format (re-run /generate-plan first), or any flow that needs more than one issue per task. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
+summary_l0: "Convert canonical release-plan tasks into linked GitHub issues"
+overview_l1: "This skill drives the /tasks-to-issues command end-to-end. It locates the active feature directory, parses every `- [ ] T### [P?] [US?] file_path` line against the strict regex, builds a per-task issue payload (title, body with file path + user-story link, labels `nexus-hub` + `spec-driven-task` + optional `parallel` + `user-story-N`), and either prints the resolved `gh issue create` invocations (--dry-run) or invokes them sequentially after user confirmation. It enforces idempotency by appending `[gh#<num>]` to each filed task line so re-runs skip converted tasks. Pre-flight checks verify gh is installed and authenticated and the directory is a GitHub repo. The mechanical parsing lives in scripts/tasks-to-issues.sh and scripts/tasks-to-issues.ps1; references/gh-cli-auth-runbook.md covers gh auth and rate-limits. Trigger phrases: tasks to issues, convert tasks to issues, create issues from plan, file issues from tasks.md, issue tracking from plan, gh issue create from tasks, fan out tasks to GitHub, sprint from plan. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # Tasks to Issues
@@ -61,6 +61,16 @@ The five marker-order rules from Phase 6 apply verbatim: `[P]` precedes `[US#]`;
 
 When the source is `plan.md`, parse phase blocks in order to preserve the task sequence. When the source is `tasks.md`, the file is already flat -- parse line-by-line.
 
+## Decision tickets
+
+Some tasks hold a QUESTION whose resolution is a decision, not an implementation slice. [[implementation-plan]] marks those with a `decision:` prefix in the description.
+
+- Keep the strict `T###` line format. Example: `- [ ] T014 decision: Which auth provider? docs/decisions/`
+- Detect `decision:` at the start of the description (after markers). Add the `decision` label in addition to the usual labels.
+- Title stays `[T###] decision: <question> (<file-path>)`. Body adds a line: `Kind: decision (resolve before blocked implementation issues)`.
+- Do not skip these lines. They still file as one issue per task. Ordering in GitHub is not a scheduler: the plan's prerequisites remain the authority for "resolve before implementation."
+- A `decision:` task may use `docs/decisions/` (or another docs path) as the file-path token. Do not invent a second regex; if the line fails the strict format, abort as today and tell the user to regenerate.
+
 ## Issue Payload
 
 For each task, build:
@@ -79,7 +89,7 @@ For each task, build:
     ```
 
     When the task carries `[US<n>]` and the feature directory contains a `spec.md` with a matching `### User Story <n>` heading, render the user-story line as a relative Markdown link: `[US<n>](../spec.md#user-story-<n>-<slug>)`.
-3. **Labels**: comma-separated. Always include `nexus-hub` and `spec-driven-task`. Add `parallel` when `[P]` is present. Add `user-story-<n>` when `[US<n>]` is present.
+3. **Labels**: comma-separated. Always include `nexus-hub` and `spec-driven-task`. Add `parallel` when `[P]` is present. Add `user-story-<n>` when `[US<n>]` is present. Add `decision` when the description starts with `decision:`.
 
 The skill does NOT create labels that do not yet exist in the repo. If a label is missing, `gh issue create` emits a warning and the issue is created without the missing label. Document this in the final summary so the user can decide whether to pre-create labels via `gh label create <name>`.
 
@@ -112,10 +122,11 @@ The `[gh#<num>]` marker is the only idempotency primitive. The skill never queri
 | Rationalization | Reality |
 |---|---|
 | "I will skip the dry-run -- it is just preview" | The dry-run is the only safe way to verify labels, titles, and bodies before issues are created. Skipping it means a bad payload becomes N rate-limited GitHub artifacts that have to be deleted manually. |
-| "I will run this on a plan with the old free-form task list" | The strict regex from Phase 6 of `docs/archive/v2/v2.1/plans/adoption-spec-kit.md` is non-negotiable. Free-form task lines abort the parse with a list of offending lines. Re-run `/generate-plan` first. |
+| "I will run this on a plan with the old free-form task list" | The strict regex from Phase 6 of `docs/archives/v2/v2.1/plans/adoption-spec-kit.md` is non-negotiable. Free-form task lines abort the parse with a list of offending lines. Re-run `/generate-plan` first. |
 | "I will create the labels later, after the issues are filed" | `gh issue create` warns when a label is missing; the issue is created without the missing label. After-the-fact label creation does NOT retroactively attach the label to existing issues. Pre-create labels via `gh label create` before running. |
 | "I will parallelize the gh invocations to make it faster" | GitHub's secondary rate limit on issue creation is strict. Sequential is the documented contract. Parallel runs trigger the rate limit and turn a 30-second job into a 10-minute job with retries. |
 | "If a gh invocation fails I will just skip and continue" | The skill stops on first failure by design. Skipping silently means already-filed issues become orphans referencing a partial plan. The contract is: stop, report, re-run after fixing the underlying cause. |
+| "A decision ticket is not a real task, I will omit it from the issue file" | Then the blocking question has no tracker row and implementation issues start without it. Keep the `T###` line, prefix the description `decision:`, add the `decision` label, and resolve it before the issues it unblocks. |
 
 ## Verification
 
@@ -126,6 +137,7 @@ The `[gh#<num>]` marker is the only idempotency primitive. The skill never queri
 - [ ] In execution mode, every newly-filed task line in the source file ends with `[gh#<num>]` after the run.
 - [ ] Re-running the skill on the same source file with all tasks already marked produces: `Newly created: 0, Skipped: N, Failed: 0` and zero `gh` invocations.
 - [ ] The final summary table has one row per task (newly created or skipped or failed); the row count matches the strict-regex match count.
+- [ ] Every source line whose description starts with `decision:` produced an issue (or dry-run invocation) that includes the `decision` label.
 
 ## Related Skills
 

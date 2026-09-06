@@ -1,0 +1,5 @@
+{
+  "routes": ["GET /health", "GET /items/{item_id}", "POST /pay"],
+  "env": ["DATABASE_URL", "PORT"],
+  "middleware": ["CORSMiddleware"]
+}

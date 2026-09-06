@@ -1,0 +1,48 @@
+{
+  "skill": "firmware-extraction-and-analysis",
+  "purpose": "Route authorized firmware analysis here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "extract this firmware image",
+      "should_trigger": true,
+      "assert": "routes to firmware-extraction-and-analysis first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "binwalk the image",
+      "should_trigger": true,
+      "assert": "routes to firmware-extraction-and-analysis first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "unsigned firmware update review",
+      "should_trigger": true,
+      "assert": "routes to firmware-extraction-and-analysis first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "dump a device we do not own",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "write a UEFI bootkit",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "Android APK static",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

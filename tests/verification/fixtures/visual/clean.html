@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clean visual detector fixture</title>
+  <style>
+    * { box-sizing: border-box; }
+    html { font-family: Arial, sans-serif; font-size: 16px; }
+    body { margin: 0; padding: 16px; background: #fff; color: #111; }
+    main { display: grid; gap: 24px; }
+    .page-container { width: 100%; max-width: 1200px; margin-inline: auto; }
+    .component { position: relative; width: 320px; min-height: 72px; padding: 12px; border: 1px solid #aaa; }
+    .contained-child { width: 100%; height: 24px; background: #eef; }
+    .captions { position: relative; height: 62px; }
+    .caption { position: absolute; top: 8px; width: 112px; height: 28px; padding: 4px; background: #eef; }
+    .caption-one { left: 8px; }
+    .caption-two { left: 144px; }
+    .scroller { width: 240px; overflow-x: auto; }
+    .reveal-shell { width: 240px; overflow-x: visible; }
+    .wide-row { display: block; width: 480px; height: 28px; }
+    .responsive-copy { max-width: min(100%, 40rem); }
+    .badge { display: inline-block; width: 32px; height: 20px; }
+    .legible { font-size: 16px; }
+    .scroll-reveal { width: 480px; height: 24px; opacity: 0; transform: translateX(40px); }
+    .collapsed-copy { width: 480px; height: 100px; margin: 0; font-size: 10px; }
+    svg { display: block; width: 200px; height: 100px; }
+    @media (max-width: 720px) {
+      .component { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-container">
+    <section class="component"><div class="contained-child">Contained text</div></section>
+    <section class="component"><svg viewBox="0 0 200 100" aria-label="Diagram"><rect x="10" y="10" width="180" height="80" fill="#def"></rect><text x="20" y="55">Inside viewBox</text></svg></section>
+    <section class="component captions"><span class="caption caption-one">First caption</span><span class="caption caption-two">Second caption</span></section>
+    <section class="component"><div class="scroller"><span class="wide-row">A legitimate horizontally scrollable data row</span></div></section>
+    <section class="component"><p class="responsive-copy">Responsive copy follows its container instead of a fixed text cap.</p></section>
+    <section class="component"><span class="badge">OK</span></section>
+    <section class="component"><p class="legible">Legible supporting copy.</p></section>
+    <section class="component"><div class="reveal-shell"><div class="scroll-reveal" data-reveal="pending">Scroll-gated content</div></div></section>
+    <details class="component"><summary>Collapsed disclosure</summary><p class="collapsed-copy">Hidden content must not enter rendered geometry checks.</p></details>
+  </main>
+</body>
+</html>

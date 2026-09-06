@@ -1,6 +1,6 @@
 ---
 name: idea-refine
-description: Refines raw ideas and vague requests into concrete, buildable problem statements before any planning or coding begins. Use when a task is described as a vague goal, a user story without acceptance criteria, a "what if we..." conversation, or anything that starts without a clear definition of done. Trigger phrases: refine this idea, I'm thinking about, help me figure out what to build, is this worth building, what should I actually make.
+description: "Refines raw ideas and vague requests into concrete, buildable problem statements before any planning or coding begins. Use when a task is described as a vague goal, a user story without acceptance criteria, a \"what if we...\" conversation, or anything that starts without a clear definition of done. Trigger phrases: refine this idea, I'm thinking about, help me figure out what to build, is this worth building, what should I actually make."
 summary_l0: "Refine vague ideas into concrete problem statements with clear success criteria"
 overview_l1: "This skill transforms vague goals, rough ideas, and ambiguous requests into concrete, buildable problem statements. Use it before any planning or specification work begins, especially when the task is described as a feeling, a direction, or a 'what if' rather than a clear requirement. Key capabilities include stakeholder intent extraction, assumption surfacing, scope bounding, success criteria formulation, and build-vs-buy-vs-wait decision framing. The expected output is a single refined problem statement with: the core user need, explicit constraints, definition of done in observable terms, and identified open questions. Without this skill, planning and implementation risk solving the wrong problem with the right code. Trigger phrases: refine this idea, I'm thinking about building, help me figure out what to make, is this worth building, what should I actually build."
 ---
@@ -106,7 +106,7 @@ Synthesize the above into one page or less:
 - <Observable thing this must do>
 
 **Out of Scope**
-- <What we are deliberately not solving>
+- <What we are deliberately not solving>. Reason: <deferred, separate initiative, not validated, or too expensive>
 
 **Success Criteria**
 - [ ] <Observable criterion 1>
@@ -115,6 +115,8 @@ Synthesize the above into one page or less:
 **Open Questions (blocking)**
 - [ ] <Question>
 ```
+
+The **Out of Scope** block above is the upstream producer of the spec's `## Non-Goals` section in `catalog/templates/spec-template.md`; the hand-off is a copy, which is why each entry carries its reason here rather than gaining one later. Likewise the **Problem Statement** heading feeds the spec's `## Problem Statement` section.
 
 Once the human approves this statement, hand off to `spec-driven-development` or `plan-before-code`. Note that approving the problem statement here is a separate approval from approving the *design*. The `spec-driven-development` hard gate still requires an explicit design approval before any code is written; do not treat a green light on the problem as a green light to implement.
 
@@ -139,8 +141,8 @@ Related: [[ambiguity-detector]] is the structured, non-interactive way to detect
 
 | Rationalization | Reality |
 |---|---|
-| "The idea is obvious — let's just build it" | The idea is obvious to you; the user's actual need is still unverified. 30 minutes of clarification prevents 2 weeks of wrong implementation. |
-| "We'll figure out the details as we go" | That's not agility — that's guessing. Scope defined during coding inflates scope by 3–5x. |
+| "The idea is obvious -- let's just build it" | The idea is obvious to you; the user's actual need is still unverified. 30 minutes of clarification prevents 2 weeks of wrong implementation. |
+| "We'll figure out the details as we go" | That's not agility -- that's guessing. Scope defined during coding inflates scope by 3-5x. |
 | "I've built this before, I know what they want" | Every context is different. The user's situation, constraints, and definition of success may not match your mental model. |
 | "We don't have time for this" | You don't have time to rebuild after shipping the wrong thing. A problem statement takes under an hour. |
 | "The user knows what they want" | Users know what outcome they want; they rarely know which solution will deliver it. That gap is the job. |
@@ -159,3 +161,4 @@ Related: [[ambiguity-detector]] is the structured, non-interactive way to detect
 - [[ambiguity-detector]] -- detects ambiguous, incomplete, or contradictory requirements in existing specs
 - [[requirement-enhancer]] -- improves an existing requirement's quality, testability, and completeness
 - [[plan-before-code]] -- planning phase after the spec is confirmed
+- [[design-interview]] -- interview engine for unresolved design branches and the CONTEXT.md glossary; invoke it after the problem is named, do not use it as a substitute for this skill

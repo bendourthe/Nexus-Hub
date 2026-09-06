@@ -2,7 +2,8 @@
 
 Every integration may register one or more cleanup functions in
 ``LEGACY_CLEANUPS``. The function inspects the disk (or, in the case of the
-VS Code extension cleanup, the user's installed VS Code extensions) for one
+VS Code extension cleanup, the user's installed VS Code extensions; or, in the
+case of the auth-monitor cleanup, the user's Windows scheduled tasks) for one
 specific legacy artifact and returns:
 
   - ``FileAction(path=..., action="removed")`` when it cleaned something up
@@ -29,6 +30,7 @@ Design notes
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -131,6 +133,84 @@ def _cleanup_claude_legacy_vscode_extension(ctx: InstallContext) -> Optional[Fil
     return FileAction(path=extension_id, action="removed")
 
 
+_AUTH_MONITOR_TASK_NAME = "Claude Code Auth Monitor"
+
+
+def _cleanup_windows_auth_monitor_task(ctx: InstallContext) -> Optional[FileAction]:
+    """Unregister the orphaned DevAI-Hub "Claude Code Auth Monitor" scheduled task.
+
+    DevAI-Hub v0.9.x registered a user-level Windows scheduled task named exactly
+    ``Claude Code Auth Monitor`` that ran
+    ``wscript.exe "...\\.devai-hub\\scripts\\run-auth-monitor.vbs"`` every two
+    minutes. The auth monitor was removed and the ``~/.devai-hub/`` tree deleted,
+    but nothing ever unregistered the task, so it still fires against a ``.vbs``
+    that no longer exists and pops a "Can not find script file" Windows Script
+    Host dialog. This cleanup removes the task, mirroring the ``code
+    --uninstall-extension`` pattern in ``_cleanup_claude_legacy_vscode_extension``.
+
+    Returns ``None`` (no-op) when:
+
+      - not on Windows (``os.name != "nt"``)
+      - ``schtasks`` is not on PATH
+      - the task is absent (``schtasks /Query`` exits non-zero) - the normal case
+      - the query or delete subprocess fails for any reason
+
+    The task is user-level (``RunLevel Limited``), so no elevation is required.
+    """
+    if os.name != "nt" or shutil.which("schtasks") is None:
+        return None
+    try:
+        query = subprocess.run(
+            ["schtasks", "/Query", "/TN", _AUTH_MONITOR_TASK_NAME],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=10,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if query.returncode != 0:
+        return None
+    if ctx.dry_run:
+        return FileAction(path=_AUTH_MONITOR_TASK_NAME, action="removed")
+    try:
+        deleted = subprocess.run(
+            ["schtasks", "/Delete", "/TN", _AUTH_MONITOR_TASK_NAME, "/F"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if deleted.returncode != 0:
+        return None
+    return FileAction(path=_AUTH_MONITOR_TASK_NAME, action="removed")
+
+
+def _cleanup_devai_hub_auth_monitor_vbs(ctx: InstallContext) -> Optional[FileAction]:
+    """Sweep a leftover ``~/.devai-hub/scripts/run-auth-monitor.vbs`` launcher.
+
+    Belt-and-suspenders for the auth-monitor task cleanup: the ``~/.devai-hub/``
+    tree is usually already gone (removed by the v2.0.0 rename), so this is a
+    no-op on almost every system. It never removes the whole ``~/.devai-hub/``
+    directory - that stays gated on ``~/.nexus-hub/`` existing in
+    ``_cleanup_devai_hub_legacy_global_dir``.
+    """
+    target = Path.home() / ".devai-hub" / "scripts" / "run-auth-monitor.vbs"
+    return _remove_path_if_exists(target, ctx.dry_run)
+
+
+def _cleanup_devai_hub_auth_monitor_ps1(ctx: InstallContext) -> Optional[FileAction]:
+    """Sweep a leftover ``~/.devai-hub/scripts/claude-auth-monitor.ps1`` launcher.
+
+    Companion to :func:`_cleanup_devai_hub_auth_monitor_vbs`; same
+    belt-and-suspenders rationale and the same never-remove-the-whole-tree rule.
+    """
+    target = Path.home() / ".devai-hub" / "scripts" / "claude-auth-monitor.ps1"
+    return _remove_path_if_exists(target, ctx.dry_run)
+
+
 def _cleanup_gemini_legacy_skill_dir(ctx: InstallContext) -> Optional[FileAction]:
     """Remove the pre-2.0.0 ``~/.gemini/devai-hub-skills/`` mirror directory."""
     target = Path.home() / ".gemini" / "devai-hub-skills"
@@ -148,6 +228,9 @@ LEGACY_CLEANUPS: Dict[str, List[CleanupFn]] = {
         _cleanup_devai_hub_legacy_global_dir,
         _cleanup_claude_legacy_skill_registry,
         _cleanup_claude_legacy_vscode_extension,
+        _cleanup_windows_auth_monitor_task,
+        _cleanup_devai_hub_auth_monitor_vbs,
+        _cleanup_devai_hub_auth_monitor_ps1,
     ],
     "codex": [
         _cleanup_codex_legacy_skill_dir,

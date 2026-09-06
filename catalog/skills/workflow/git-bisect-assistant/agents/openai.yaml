@@ -1,4 +1,4 @@
 interface:
   display_name: Git Bisect Assistant
   short_description: Guide efficient bug-finding with git bisect using binary search across commit history, automated test scripts, skip strategies, and complex history handling. Use when tracking down
-    the commit that int
+    the commit that introduced a regression, performance degradation, or behavioral change.

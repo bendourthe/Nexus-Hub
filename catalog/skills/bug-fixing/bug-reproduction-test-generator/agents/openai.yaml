@@ -1,4 +1,4 @@
 interface:
   display_name: Bug Reproduction Test Generator
   short_description: Create minimal reproduction tests from bug reports and error descriptions. Use when writing failing tests from bug reports, creating minimal reproductions, isolating test cases, or
-    building regression
+    building regression test suites from production incidents.

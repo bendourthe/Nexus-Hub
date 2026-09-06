@@ -1,4 +1,4 @@
 interface:
   display_name: Terraform Specialist
   short_description: Infrastructure as Code expertise with Terraform/OpenTofu for cloud provisioning. Use when writing Terraform modules, managing state, configuring multi-environment setups, or implementing
-    IaC best prac
+    IaC best practices for AWS, Azure, or GCP.

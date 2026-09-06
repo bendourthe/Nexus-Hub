@@ -55,7 +55,7 @@ backend), and a consumer may supply its own. The shipped default backend
 
 Deterministic given a fixed scorer: no clock, no randomness. Keeper selection
 breaks score ties by original position, so the same text and scores always yield
-the same survivors. Reference behavior: ``docs/v3/v3.2/comparisons/v3.2.0-comparison-headroom.md``
+the same survivors. Reference behavior: ``docs/releases/v3/v3.2/comparisons/v3.2.0-comparison-headroom.md``
 Section 5a (Kompress ML token-dropping).
 """
 

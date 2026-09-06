@@ -14,7 +14,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 - If `$ARGUMENTS` names a recognized scope, set SCOPE and skip the menu.
 - `/plan goals <one-liner>` accepts an inline goal (Codex `/plan <inline>` style): return a crisp goal statement + definition-of-done, no full plan.
-- `/plan from-comparison <path>` or a bare `*.md` comparison-report path routes to `from-comparison` and pre-seeds from the report's Adoption Plan.
+- `/plan from-comparison <path>` or a bare `*.md` comparison-report path routes to `from-comparison` and pre-seeds from the report's Adoption Plan. The generated plan is written into the SAME version directory as its seeding comparison, driven by the comparison's `Adoption target: vX.Y.Z` field (not a freshly-resolved in-flight version), so a comparison and the plan it seeds always live together; the `[[implementation-plan]]` skill owns the resolution and its legacy-comparison fallback.
 - Otherwise, present this menu and wait for a selection:
 
       What scope?
@@ -42,18 +42,42 @@ When dynamic workflows are available in the harness, `/plan` can use them as a q
 - **Workflow-aware phase prompts**: when a generated phase is a large fan-out task (audit every endpoint, migrate N files, generate tests for every unit), write that phase's executable prompt to recommend dynamic-workflow execution and cross-link `[[agent-orchestration-primitives]]`.
 - Always present the workflow path with the scope-first token caution: calibrate on a small slice before fanning out across the whole surface. This carries zero new outbound calls, dependencies, or credentials - dynamic workflows are an Anthropic-runtime feature, so this is command behavior plus skill-native guidance.
 
-## Optional per-phase model-routing assessment (graceful degradation)
+## Per-phase tier assessment and current model map
 
-After the phase breakdown is designed and before the plan file is written, `/plan` runs a best-effort model-routing assessment so each phase records the model and reasoning effort it should run on. This is opt-in by availability and never blocks plan generation:
+After the phase breakdown is designed and before the plan file is written, `/plan` records generic capability intent for each phase and builds a portable provider lookup:
 
-- **Assess each phase once.** For every phase in the breakdown, invoke the `[[model-routing]]` skill to score that phase's scope and sub-tasks on its complexity rubric and recommend a model plus reasoning effort, defaulting to the strongest available tier on any uncertainty or high-risk signal (the no-degradation guarantee). The skill detects the platform and enumerates the live model set itself - `/plan` never hardcodes a model list.
-- **Record platform-agnostic intent alongside the concrete name.** Write the recommendation as a tier intent ("strong reasoning tier, high effort") together with the concretely-enumerated model id and effort when enumeration succeeds, so the recommendation survives a platform switch between planning and implementation - `/implement` re-confirms it against the then-current models.
-- **Degrade silently.** If the routing skill or live enumeration is unavailable (no platform surface, offline, manual-only platform), write the neutral placeholder `assess at implementation time` for that phase's recommendation rather than failing. The plan is still valid and complete without a concrete model name.
-- This carries zero new outbound calls, dependencies, or credentials - the heavy logic stays in `[[model-routing]]`; `/plan` only invokes it per phase and records the result in the plan template (see the retained planning skill's "Phases at a Glance" column and per-phase `**Recommended model**` field).
+- **Assess each phase once.** Invoke `[[model-routing]]` for every phase and map the complexity rubric to `frontier`, `strong`, `standard`, or `fast`, plus `low`, `medium`, `high`, or `max` effort. Any uncertainty or high-risk signal defaults to `frontier` with high/max effort (the no-degradation guarantee).
+- **Keep phase rows generic.** Write only `Recommended model tier` and `Recommended effort level` in the glance table. Repeat them in separate per-phase fields with a one-line `Rationale`. Concrete provider model ids never become authoritative phase recommendations.
+- **Refresh every provider on every invocation.** Use web search and official documentation to populate a candidate map with the current Anthropic, OpenAI, Google, and Cursor model for each tier. Validate and render that candidate through `model-routing/scripts/model-map.{sh,ps1}` before writing `## Current model map`. Host-platform enumeration may validate the current picker, but it MUST NOT limit the plan to the host provider.
+- **Cite and date the map.** A fresh plan records `**Model map status**: fresh as of YYYY-MM-DD; sources cited below.` and at least one official URL per provider under `### Model map sources`.
+- **Degrade visibly.** When web access is unavailable, run the helper's `fallback` command, which validates and renders the dated bundled `last-known-model-map.json` snapshot as `offline fallback; stale as of YYYY-MM-DD.`. If that snapshot is absent or invalid, run `unavailable`, fill every map cell with `assess at implementation time`, and mark the map unavailable. The plan remains valid, but never hides staleness.
+
+Web search uses public documentation and adds no new credential or dependency. The retained planning skill owns the exact table and fallback grammar; `[[model-routing]]` owns scoring plus map validation/rendering; `/implement` re-confirms the generic tier and effort against a refreshed map and the selected provider's live platform surface.
 
 ## Mandatory final phase (planning scopes)
 
-Every plan `generate-plan` / `implementation-plan` produces now ends with a mandatory final phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - and each phase's testing sub-task also creates/updates and optimizes CI/CD for that phase's changes. This is part of the plan contract, not a dispatcher responsibility: the template and the design rules live in the `[[implementation-plan]]` skill (its "Mandatory Final Phase" block and the "Terminal refactor phase" / "CI/CD per phase" design guidelines). This dispatcher only surfaces the guarantee; it does not duplicate the template.
+Every plan ends with a fail-closed last phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - that includes independent Goal-vs-codebase review, a last-phase evidence file, and the living handbook architecture check. Automated tests still end every phase; human/manual testing suggestions wait until that last phase. New plans are written to the current version dir. This is part of the plan contract, not a dispatcher responsibility: the template and the duties live in the `[[implementation-plan]]` skill. This dispatcher only surfaces the guarantee; it does not duplicate the template.
+
+## Plan lifecycle (guarantee)
+
+Every generated plan carries the same lifecycle, and it is worth stating up front because it changes what the reader should expect while the plan runs:
+
+- **Every phase verifies locally and ends with one local commit.** Lint, tests, coverage, documentation, session history, then a single commit scoped to that phase.
+- **No non-final phase pushes.** A non-final phase does not push, does not open a pull request, and does not start remote CI. Running the pipeline once per phase bills for validating work the author already knows is incomplete, and a red check on incomplete work teaches the reader to ignore red checks.
+- **CI impact is recorded per phase; the pipeline is reconciled once.** Each phase names what it added that CI would need to know about (a command, a dependency, an environment variable, a test path, an artifact) and whether the pipeline already covers it. Pipeline files change mid-plan only when CI/CD is that phase's explicit deliverable.
+- **The final phase owns the terminal reconciliation.** It compares the repository's existing pipeline against the canonical contract via `[[cicd-architect]]`, proposes each difference with its cost, applies what the user approves, and records what the user declines as a known gap.
+- **The final phase owns publication.** One branch push, with explicit approval, then the integration pull request, which is the plan's first remote validation and runs against the merge result. A red required check reopens the final phase.
+- **Release work waits for green integration.** `/update release` starts only after the integration result is green and merged.
+
+The full templates, prompts, and exit checklists that enforce this live in `[[implementation-plan]]`; the pipeline half lives in `[[cicd-architect]]`. This dispatcher states the guarantee and stops there.
+
+## Unicode hygiene of the written plan (guarantee)
+
+Every plan file this command writes is sanitized before it is presented: the retained skill's Step 4 closing pass runs `python scripts/validate_unicode_safety.py --strict --fix --root . --path <plan-file>` on the just-written file (and again on the final file when Step 5 rewrites it), so invisible characters and non-ASCII punctuation never reach a plan the user reads. The pass is scoped to that one file, never the repository, and a non-zero exit after the fix blocks presenting the plan. This dispatcher only surfaces the guarantee; the rules live in the `[[implementation-plan]]` skill.
+
+## Presenting the finished plan
+
+Present the plan the way `catalog/style-guides/agent-communication.md` requires: lead with a plain-language summary (what the plan builds, how many phases, and which single phase carries the most risk) BEFORE the phases-at-a-glance table, then link the plan file rather than restating its contents in chat. The detail already lives in the file; a chat message that repeats it makes the reader choose between two copies. Skill: `[[agent-communication]]`.
 
 ## Delegation
 

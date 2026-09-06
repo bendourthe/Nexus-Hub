@@ -1,4 +1,4 @@
 interface:
   display_name: Context Degradation
   short_description: Detect and mitigate context quality decay in long AI agent sessions. Use when an agent starts forgetting instructions, repeating mistakes, confusing files, or producing lower-quality
-    output mid-sessio
+    output mid-session.

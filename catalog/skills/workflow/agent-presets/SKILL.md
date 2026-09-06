@@ -1,8 +1,8 @@
 ---
 name: agent-presets
-description: Invoke a ready-made agent preset (morning-briefing, research, coding-assistant) that wires existing skills and slash commands into a one-shot working bundle. Use to orient at session start, kick off research, or enter a plan-test-commit coding loop.
-summary_l0: "Ready-made agent presets that compose existing skills and slash commands into one-invocation bundles"
-overview_l1: "This skill defines a small set of agent presets -- morning-briefing, research, and coding-assistant -- each a named bundle that composes existing catalog skills and slash commands into a single invocation. Instead of remembering which skills and commands to chain for a recurring activity, the user names the preset and the agent activates the bundle in order: morning-briefing orients on what changed and what is next; research enters an evidence-gathering posture that ends in a cited report; coding-assistant runs a plan, implement, test, verify, commit loop. Presets are templates over capabilities that already exist -- they introduce no new tools and make no outbound calls. The agent announces the active preset, lists what it activates, and runs the bundle's steps. Trigger phrases: morning briefing, start my day, research preset, coding assistant, enter coding mode, run the research bundle, agent preset, daily standup."
+description: "Run agent presets: morning-briefing, research, coding-assistant, or security-audit. Full local security audit, scan-fix-rescan, dependency plus IaC audit, or pre-release security verification. SKIP: CVE, cloud-posture, patch-only, or ordinary review."
+summary_l0: "Ready-made agent presets that compose existing skills into one-invocation bundles"
+overview_l1: "This skill defines agent presets -- morning-briefing, research, coding-assistant, and security-audit -- each a named bundle over existing catalog skills. Morning-briefing orients on what changed; research gathers cited evidence before code; coding-assistant runs plan, implement, test, verify, commit; security-audit runs local detection, triage, optional user-approved remediation, same-detector re-scan, and independent read-only verification. Presets introduce no tool, MCP, service, credential, or automatic installation. Announce the active preset and, for security-audit, the scanner coverage state. Trigger phrases: morning briefing, research preset, coding assistant, security audit, scan-fix-rescan, full local security audit, pre-release security verification. SKIP: a single CVE reachability question, a single cloud posture question, writing a security patch only, or ordinary code review."
 ---
 
 # Agent Presets
@@ -15,23 +15,24 @@ Presets are templates over capabilities that already exist. They add no new tool
 
 Use when:
 
-- The user names a preset: "run the morning briefing", "research preset", "coding assistant".
-- The user starts a recurring activity that maps to a bundle: opening the day, beginning a multi-source investigation, or settling into an implementation loop.
+- The user names a preset: "run the morning briefing", "research preset", "coding assistant", "security audit", "scan-fix-rescan".
+- The user starts a recurring activity that maps to a bundle: opening the day, beginning a multi-source investigation, settling into an implementation loop, or running a full local security audit.
 - A workflow or runbook references a preset by name.
 
 **When NOT to use:**
 
-- A one-off task that does not match a bundle -- invoke the single relevant skill or command directly.
+- A one-off task that does not match a bundle -- invoke the single relevant skill or command directly. A single CVE reachability question, a single cloud posture question, writing a security patch only, or ordinary code review must not activate `security-audit`.
 - Defining a brand-new reusable command -- use [[create-custom-command]] to author it, then (optionally) add it as a preset here.
 - Switching only the agent's posture without the surrounding workflow -- use [[context-modes]] directly.
 
-## The Three Presets
+## The Four Presets
 
 | Preset | Purpose | Composes |
 |---|---|---|
 | `morning-briefing` | Orient at the start of a session: what changed, where you left off, what is next. | `/session` resume, [[dev-progress-tracker]], [[session-query]], `git log` review |
 | `research` | Gather multi-source evidence and end with a cited report, gated before any code. | [[context-modes]] (research), [[deep-research-compilation]] / [[trend-research]] / [[local-docs-lookup]], [[research-plan-implement]] |
 | `coding-assistant` | Run a disciplined plan -> implement -> test -> verify -> commit loop. | [[context-modes]] (dev), [[plan-before-code]], [[incremental-implementation]], [[test-driven-development]], [[verification-before-completion]], [[code-commit-workflow]] |
+| `security-audit` | Run a local detection-to-verification security audit with scanner receipts. | [[security-review]], [[dependency-security-audit]], [[cve-reachability-analyzer]], [[cloud-security-posture-detection]], [[security-patch-advisor]], [[testing-review]], [[adversarial-verifier]] |
 
 ## Instructions
 
@@ -68,6 +69,23 @@ An implementation loop. Run in order:
 3. **Implement incrementally** -- [[incremental-implementation]] one tested step at a time; pair with [[test-driven-development]] (red -> green -> refactor) where a test can be written first.
 4. **Verify** -- [[verification-before-completion]]: require fresh passing evidence (build / lint / test) before claiming done.
 5. **Commit** -- [[code-commit-workflow]] for an atomic conventional commit once the step is green.
+
+### Preset: security-audit
+
+A local security-audit procedure over existing skills. Announce the preset, the skills it activates, and the current scanner coverage state (`complete` or `degraded`). Introduce no tool, MCP, service, credential, or automatic installation.
+
+Run in order:
+
+1. **Scope** -- [[security-review]] Step 0 component denominator and schema-v2 choice. Authentication and licensing stay with [[authentication-patterns]] and [[licensing-compliance]]; do not duplicate those procedures.
+2. **Detect** -- application and secrets via [[security-review]] local-scanner recipes; dependencies via [[dependency-security-audit]] applicability; IaC via [[cloud-security-posture-detection]] when supported files exist. Record every scanner receipt as `RAN`, `NOT_APPLICABLE`, `UNAVAILABLE`, `FAILED`, or `DECLINED`.
+3. **Triage** -- [[cve-reachability-analyzer]] on surviving dependency findings, preserving original severity. A no-fix audit may stop after triage and still close with scanner coverage reported.
+4. **Remediate** -- only after detection and only with user approval, through [[security-patch-advisor]]. The fixer context is not the verifier.
+5. **Test** -- [[testing-review]] on the patched scope.
+6. **Re-scan** -- same detector, config fingerprint, and target scope as the before receipt.
+7. **Independent verify** -- a read-only reviewer (`security-reviewer` plus [[adversarial-verifier]]) consumes before/after receipts and the patch diff. It does not apply patches or approve its own prior fixes.
+8. **Close** -- [[security-review]] schema-v2 closure gate, then the report. Do not claim complete scanner coverage while any applicable receipt is not `RAN`.
+
+Trigger evals for this preset live in `evals/trigger-cases.json`.
 
 ## Customizing a preset
 
@@ -112,6 +130,7 @@ A preset or bundle definition is a manifest, and three authoring disciplines kee
 | "I will invoke the skills ad hoc instead of naming the preset" | Ad hoc invocation is exactly what presets remove. Naming the bundle guarantees the full sequence runs and the user knows what posture the agent is in. |
 | "Presets need new tooling to be useful" | A preset is a composition of existing skills and commands. If it needs a new tool, that is a separate capability gap, not a preset -- presets stay zero-new-surface by design. |
 | "I do not need to announce which preset is active" | Announcing the preset (and what it composes) tells the user what the agent will do next and lets them redirect before the bundle runs. |
+| "I already reviewed the components, so I can skip scanner receipts" | `security-audit` exists to make scanner coverage and independent verification mandatory. Skipping them is a silent omission. |
 
 ## Verification
 
@@ -120,6 +139,8 @@ A preset or bundle definition is a manifest, and three authoring disciplines kee
 - [ ] `morning-briefing` produces a since-last-session summary plus prioritized next actions and writes no code.
 - [ ] `research` enters research posture and ends with a cited report gated by a GO / NO-GO before any implementation.
 - [ ] `coding-assistant` runs plan -> implement -> test -> verify -> commit in that order, with verification before any done claim.
+- [ ] `security-audit` announces active skills and scanner coverage, runs detection before remediation, re-scans before closure, and keeps the independent verifier read-only.
+- [ ] `evals/trigger-cases.json` covers full security audit, scan-fix-rescan, dependency plus IaC audit, and pre-release verification as positives, and one-CVE, one-cloud-posture, patch-only, and ordinary code-review prompts as negatives.
 
 ## Related Skills
 
@@ -128,3 +149,4 @@ A preset or bundle definition is a manifest, and three authoring disciplines kee
 - [[create-custom-command]] -- formalize a frequently-used preset into a dedicated slash command.
 - [[dev-progress-tracker]] -- the tracker `morning-briefing` reads to report progress and next actions.
 - [[test-driven-development]] -- the red-green-refactor inner loop of the `coding-assistant` preset.
+- [[security-review]] -- detection, receipts, and closure gate for the `security-audit` preset. User-facing procedure: `guides/reference/SECURITY_AUDIT.md`.

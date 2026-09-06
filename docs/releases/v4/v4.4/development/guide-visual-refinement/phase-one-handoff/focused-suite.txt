@@ -1,0 +1,36 @@
+................F....................................                    [100%]
+================================== FAILURES ===================================
+___ test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count ____
+
+playwright_mod = <function sync_playwright at 0x0000020C27C77D80>
+
+    def test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count(playwright_mod) -> None:
+        fixture = _json.loads(_FIXTURE.read_text(encoding="utf-8"))["sections"]
+        ids = {"why-it-matters": "nhg-why", "how-it-works": "nhg-how", "favorite-commands": "nhg-commands"}
+        with playwright_mod() as pw:
+            browser, page = _launch(pw)
+            try:
+                counts = {key: _section_words(page, sid) for key, sid in ids.items()}
+                portability = _new_block_words(page, "#nhg-commands [data-v444-new]")
+                merged = page.evaluate(
+                    "() => { const h = [...document.querySelectorAll('#page-home .section-title')]"
+                    ".find(e => e.textContent.trim() === 'Raw prompting vs Nexus Hub');"
+                    " return h.closest('section').innerText.replace(/\\s+/g, ' ').trim().split(' ').length; }"
+                )
+            finally:
+                browser.close()
+        for key, words in counts.items():
+            ceiling = fixture[key]["v412_words"] * 2 // 3
+            assert words <= ceiling, f"{key}: {words} words exceeds the two-thirds ceiling of {ceiling}"
+        # The merged comparison replaces v4.1.2's "The difference" and must not exceed ITS ceiling.
+        assert merged <= fixture["the-difference"]["v412_words"] * 2 // 3, merged
+        # The requested Claude Code/Codex session transcripts replace the short command strip.
+        # Keep their combined illustration bounded while retaining the original section ceilings.
+>       assert 20 <= portability <= 240, f"the portability figure is {portability} words"
+E       AssertionError: the portability figure is 300 words
+E       assert 300 <= 240
+
+tests\guides\test_v441_phase2_home.py:358: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/guides/test_v441_phase2_home.py::test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count
+1 failed, 52 passed in 40.76s

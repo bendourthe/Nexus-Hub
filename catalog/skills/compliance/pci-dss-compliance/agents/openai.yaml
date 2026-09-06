@@ -1,4 +1,4 @@
 interface:
   display_name: PCI-DSS v4.0 Compliance
   short_description: Implement PCI-DSS v4.0 requirements for payment card data security. Use when handling payment card data, preparing for PCI audits, securing payment systems, or meeting merchant compliance
-    requirements
+    requirements.

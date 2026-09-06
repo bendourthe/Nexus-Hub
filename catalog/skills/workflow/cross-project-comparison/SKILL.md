@@ -1,9 +1,9 @@
 ---
 name: cross-project-comparison
-description: Compare the current project with an external knowledge source (Git repo, web article, or local path) to produce a structured gap analysis and adoption plan
-summary_l0: "Compare projects with external sources to produce gap analysis and adoption plans"
-overview_l1: "This skill compares the current project with an external knowledge source (Git repo, web article, or local path) to produce a structured gap analysis and adoption plan. Use it when benchmarking your project against industry standards, evaluating open-source alternatives, identifying adoption opportunities from articles or repos, planning migrations based on external references, or producing structured comparison reports. Key capabilities include multi-source comparison (Git repos, web articles, local paths), structured gap analysis generation, adoption plan creation with prioritized recommendations, pattern and practice extraction from external sources, compatibility assessment, and migration effort estimation. The expected output is a structured gap analysis report with identified differences, adoption recommendations, and a prioritized implementation plan. Trigger phrases: compare projects, gap analysis, benchmarking, cross-project, adoption plan, compare with repo, compare with article, project comparison."
-version: 1.1.0
+description: Compare the current project with an external knowledge source (Git repo, web article, or local path) to produce a structured gap analysis and adoption plan Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.
+summary_l0: "Compare projects and place adoption reports under their target release"
+overview_l1: "This skill compares the current project with an external knowledge source (Git repo, web article, or local path) to produce a structured gap analysis and adoption plan. Use it when benchmarking your project against industry standards, evaluating open-source alternatives, identifying adoption opportunities from articles or repos, planning migrations based on external references, or producing structured comparison reports. Key capabilities include multi-source comparison (Git repos, web articles, local paths), structured gap analysis generation, adoption plan creation with prioritized recommendations, pattern and practice extraction from external sources, compatibility assessment, and migration effort estimation. The expected output is a structured gap analysis report with identified differences, adoption recommendations, and a prioritized implementation plan. Trigger phrases: compare projects, gap analysis, benchmarking, cross-project, adoption plan, compare with repo, compare with article, project comparison. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
+version: 1.2.0
 author: Benjamin Dourthe
 category: Workflow
 language: Multi-language
@@ -173,6 +173,27 @@ This ordering IS the adoption plan. P-tier (value/effort from Step 4) operates W
 
 Order the (RE-re-sequenced) adoption items accounting for dependencies. Items that enable other items come first. Group items that can be done in parallel. When chaining into `/generate-plan`, always pass `reverse-engineer-first=true` so the generated plan sequences phases per the RE ordering.
 
+### Step 6.5: Resolve Adoption Target
+
+A comparison is intrinsically forward-looking: it seeds a *future* adoption, and the release that acts on it is usually NOT the cycle it was authored in. Before writing the report, resolve the version that will adopt it and record it in the report header as an explicit `Adoption target: vX.Y.Z` field. This field, not the authoring cycle, is the authority for where the report is versioned and placed (see the `/compare` output rule) and for where a from-comparison plan is co-located (see `/plan from-comparison`).
+
+**Resolution rule**:
+
+1. Resolve the in-flight version via the [[docs-layout-refactor]] Version-directory resolution (git tags / CHANGELOG). This is the CURRENT release, whose plan almost always already lives under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/` and is locked or in flight, so it is usually NOT free to absorb a brand-new comparison.
+2. Because that slot is taken, the default adoption target is the next FREE version slot after it: walk forward (the next patch `vX.Y.(Z+1)`, then the next minor `vX.(Y+1).0`, and so on) and skip any minor or patch whose `plans/` directory already holds a locked or in-flight plan. The first slot with no committed plan is the default target. This is exactly the reasoning the codesight comparison recorded ("v3.14.0 is taken by agentic-setup + codex-lb, so v3.15.0").
+
+    **Enumerate NUMERICALLY, and scan EVERY version directory.** Two failure modes, both of which have actually happened:
+
+    - **Sort on the parsed integers, never lexically.** A directory listing is alphabetical, which orders `v3.10`, `v3.18`, and `v3.20` BEFORE `v3.5`. Parse each directory name into `(major, minor)` and sort on those integers. A lexical walk concludes the wrong slot is free while later plans already exist.
+    - **Scan `docs/v*/v*/plans/` across the whole tree, not just the current minor.** Plans routinely exist several minors ahead of the in-flight version, and a scan scoped to the current minor cannot see them.
+
+    A live instance: a comparison resolved `v3.17.12` as free while plans already existed through `v3.20.0`. Both failures produce a confident wrong answer rather than an error, so confirm the resolved target against the highest plan actually on disk before presenting it.
+3. Only when the current in-flight plan is still open AND will genuinely absorb the comparison's highest-value items (rare) is the in-flight version itself the target. State that reason explicitly.
+
+**Always CONFIRM the resolved target with the user before writing the report.** Slotting is a judgment call: whether a gap lands in the next patch, the next minor, or a later release depends on roadmap intent the user owns. Present the resolved `vX.Y.Z` and a one-line reason, and adjust to the user's choice.
+
+Record the confirmed value in the report header as an `Adoption target: vX.Y.Z` line. The `/compare` command then versions and places the file under that target's directory with that target's prefix (not the authoring cycle's), and `/plan from-comparison` reads this field to co-locate the generated plan in the same version tree. Keep this step instruction-level: it introduces no script, dependency, or outbound call.
+
 ### Step 7: Document Risks and Conflicts
 
 For each adoption item, explicitly document:
@@ -204,6 +225,7 @@ Items classified as `drop-outright` in Step 5 belong in the NOT-recommended list
 - [ ] Items NOT recommended for adoption include reasoning
 - [ ] **Step 5 Security and Reverse-Engineering Assessment is complete** - threat model table, per-item risk scorecard, and per-item RE classification are all present
 - [ ] **Step 5.4 ordering is used to sequence the adoption plan** - skill-native first, then RE builds, then vendor-intrinsic (justified), then drops moved to NOT-recommended
+- [ ] **Step 6.5 resolved an adoption target and the report header carries an `Adoption target: vX.Y.Z` field** - the confirmed target version, not the authoring cycle, is what the file is placed under and prefixed by
 - [ ] **MCP Registry Policy is cited by name** in the Rationale column for every adoption item that involves an outbound call, new API key, new third-party data processor, or new runtime dependency
 - [ ] Reports missing Step 5 fail this checklist
 

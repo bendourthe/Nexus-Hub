@@ -1,0 +1,11 @@
+model Account {
+  id      Int      @id @default(autoincrement())
+  email   String   @unique
+  profile Profile?
+}
+
+model Profile {
+  id        Int     @id
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId Int
+}

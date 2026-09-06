@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Aggregate paired with_skill / without_skill runs into a per-iteration benchmark.
+"""Aggregate skill-eval-loop runs into a per-iteration benchmark.
 
 Reads an iteration directory produced by the skill-eval-loop:
 
@@ -7,6 +7,7 @@ Reads an iteration directory produced by the skill-eval-loop:
       eval-001/
         with_skill/    outputs/run_metadata.json   grading.json
         without_skill/ outputs/run_metadata.json   grading.json
+        raw_memory/    outputs/run_metadata.json   grading.json  # optional
       eval-002/
         ...
 
@@ -38,6 +39,7 @@ from typing import Any
 
 
 _RUN_CONDITIONS = ("with_skill", "without_skill")
+_OPTIONAL_RUN_CONDITION = "raw_memory"
 
 
 def _read_json(path: Path) -> dict[str, Any] | None:
@@ -60,7 +62,7 @@ def _safe_stats(values: list[float]) -> tuple[float, float]:
 
 
 def _aggregate_run_condition(eval_dir: Path, condition: str) -> dict[str, Any]:
-    """Aggregate one run condition (with_skill or without_skill) for one eval."""
+    """Aggregate one run condition for one eval."""
     run_dir = eval_dir / condition
     grading = _read_json(run_dir / "grading.json")
     metadata = _read_json(run_dir / "outputs" / "run_metadata.json")
@@ -98,8 +100,64 @@ def _aggregate_run_condition(eval_dir: Path, condition: str) -> dict[str, Any]:
     }
 
 
+def _is_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def _aggregate_raw_memory_condition(eval_dir: Path) -> dict[str, Any]:
+    """Validate and aggregate the optional arm without scoring partial artifacts."""
+    run_dir = eval_dir / _OPTIONAL_RUN_CONDITION
+    grading = _read_json(run_dir / "grading.json")
+    metadata = _read_json(run_dir / "outputs" / "run_metadata.json")
+    errors: list[str] = []
+
+    if metadata is None:
+        errors.append("missing or invalid outputs/run_metadata.json")
+    else:
+        if metadata.get("skill_loaded") is not False:
+            errors.append("skill_loaded must be false")
+        if metadata.get("memory_injected") is not True:
+            errors.append("memory_injected must be true")
+        if not _is_number(metadata.get("duration_ms")):
+            errors.append("duration_ms must be numeric")
+        if not _is_number(metadata.get("total_tokens")):
+            errors.append("total_tokens must be numeric")
+        if metadata.get("exit_code") != 0:
+            errors.append("exit_code must be 0")
+
+        paired_clis: set[str] = set()
+        for condition in _RUN_CONDITIONS:
+            paired = _read_json(eval_dir / condition / "outputs" / "run_metadata.json")
+            if paired is None or not isinstance(paired.get("cli"), str):
+                errors.append(f"{condition} CLI metadata is missing")
+            else:
+                paired_clis.add(paired["cli"])
+        raw_cli = metadata.get("cli")
+        if not isinstance(raw_cli, str):
+            errors.append("cli must be a string")
+        elif len(paired_clis) != 1 or raw_cli not in paired_clis:
+            errors.append("cli must match both paired runs")
+
+    if grading is None:
+        errors.append("missing or invalid grading.json")
+    elif not _is_number(grading.get("pass_rate")):
+        errors.append("grading pass_rate must be numeric")
+
+    if errors:
+        return {"status": "invalid", "errors": errors}
+
+    metrics = _aggregate_run_condition(eval_dir, _OPTIONAL_RUN_CONDITION)
+    return {"status": "run", **metrics}
+
+
 def _aggregate_eval(eval_dir: Path) -> dict[str, Any]:
     by_condition = {cond: _aggregate_run_condition(eval_dir, cond) for cond in _RUN_CONDITIONS}
+    raw_memory_dir = eval_dir / _OPTIONAL_RUN_CONDITION
+    raw_memory: dict[str, Any] | str = (
+        _aggregate_raw_memory_condition(eval_dir)
+        if raw_memory_dir.is_dir()
+        else "not_run"
+    )
     delta = {
         "pass_rate": round(
             by_condition["with_skill"]["pass_rate"]
@@ -120,7 +178,12 @@ def _aggregate_eval(eval_dir: Path) -> dict[str, Any]:
     # Premature action is a with_skill-only property (the baseline run has no
     # skill to load before), so the eval-level flag mirrors the with_skill run.
     premature_action = bool(by_condition["with_skill"].get("premature_action", False))
-    return {**by_condition, "delta": delta, "premature_action": premature_action}
+    return {
+        **by_condition,
+        _OPTIONAL_RUN_CONDITION: raw_memory,
+        "delta": delta,
+        "premature_action": premature_action,
+    }
 
 
 def aggregate(iteration_dir: Path) -> dict[str, Any]:
@@ -149,6 +212,40 @@ def aggregate(iteration_dir: Path) -> dict[str, Any]:
     overall["pass_rate_delta"] = round(
         overall["with_skill_pass_rate"] - overall["without_skill_pass_rate"], 3
     )
+
+    raw_memory_runs = [
+        value[_OPTIONAL_RUN_CONDITION]
+        for value in by_eval.values()
+        if isinstance(value[_OPTIONAL_RUN_CONDITION], dict)
+        and value[_OPTIONAL_RUN_CONDITION].get("status") == "run"
+    ]
+    invalid_raw_memory = [
+        eval_id
+        for eval_id, value in by_eval.items()
+        if isinstance(value[_OPTIONAL_RUN_CONDITION], dict)
+        and value[_OPTIONAL_RUN_CONDITION].get("status") == "invalid"
+    ]
+    if raw_memory_runs:
+        raw_pass_rate, _ = _safe_stats([run["pass_rate"] for run in raw_memory_runs])
+        raw_duration, _ = _safe_stats([run["duration_ms_mean"] for run in raw_memory_runs])
+        raw_tokens, _ = _safe_stats([run["tokens_mean"] for run in raw_memory_runs])
+        overall[_OPTIONAL_RUN_CONDITION] = {
+            "status": "partial" if invalid_raw_memory else "run",
+            "n_evals": len(raw_memory_runs),
+            "pass_rate": round(raw_pass_rate, 3),
+            "duration_ms_mean": round(raw_duration, 1),
+            "tokens_mean": round(raw_tokens, 1),
+        }
+        if invalid_raw_memory:
+            overall[_OPTIONAL_RUN_CONDITION]["invalid_evals"] = invalid_raw_memory
+    elif invalid_raw_memory:
+        overall[_OPTIONAL_RUN_CONDITION] = {
+            "status": "invalid",
+            "n_evals": 0,
+            "invalid_evals": invalid_raw_memory,
+        }
+    else:
+        overall[_OPTIONAL_RUN_CONDITION] = "not_run"
 
     iteration = _parse_iteration_number(iteration_dir.name)
 
@@ -196,6 +293,25 @@ def render_markdown(benchmark: dict[str, Any]) -> str:
         f"{o['without_skill_tokens_mean']:.0f} | "
         f"{o['with_skill_tokens_mean'] - o['without_skill_tokens_mean']:+.0f} |"
     )
+    lines.append("")
+    raw_memory = o["raw_memory"]
+    lines.append("## Raw memory arm")
+    lines.append("")
+    if raw_memory == "not_run":
+        lines.append("Status: not_run")
+    elif raw_memory["status"] == "invalid":
+        lines.append(f"Status: invalid ({', '.join(raw_memory['invalid_evals'])})")
+    else:
+        lines.append(f"Status: {raw_memory['status']}")
+        if raw_memory.get("invalid_evals"):
+            lines.append(f"Invalid evals: {', '.join(raw_memory['invalid_evals'])}")
+        lines.append("")
+        lines.append("| Evals run | Pass rate | Duration mean (ms) | Tokens mean |")
+        lines.append("|---|---|---|---|")
+        lines.append(
+            f"| {raw_memory['n_evals']} | {raw_memory['pass_rate']:.3f} | "
+            f"{raw_memory['duration_ms_mean']:.0f} | {raw_memory['tokens_mean']:.0f} |"
+        )
     lines.append("")
     lines.append("## Per-eval")
     lines.append("")

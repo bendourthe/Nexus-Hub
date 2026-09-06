@@ -70,6 +70,9 @@ DEFAULT_TARGETS: tuple[str, ...] = (
 
 EXEMPT_DIR_PARTS: frozenset[str] = frozenset({
     "archive",
+    # v4.0.0 renamed the frozen container to the plural form. Both are listed so
+    # a consuming repo still on the legacy singular tree stays exempt too.
+    "archives",
     "forensics",
     "smoke-reports",
     "installer-smoke",

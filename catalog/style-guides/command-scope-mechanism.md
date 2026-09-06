@@ -2,7 +2,7 @@
 
 This is the authoring contract every consolidated v3.0.0 command follows. The v3.0.0 release collapses 41 slash commands into 14 verb-first commands (`describe`, `plan`, `implement`, `test`, `review`, `update`, `compare`, `research`, `skills`, `spec`, `session`, `setup`, `memory`, `usage`). Each command is a thin dispatcher that resolves a scope and delegates to one or more retained skills, where the real work lives. This guide defines how scope is resolved and how delegation is written, so every command behaves the same way for users.
 
-The full design rationale is in [`docs/v3/v3.0/command-consolidation-design.md`](../../docs/v3/v3.0/command-consolidation-design.md) Section 4. This file is the distributable, command-author-facing version of that contract. It installs to `~/.nexus-hub/style-guides/command-scope-mechanism.md`.
+The full design rationale is in the legacy migration-source path [`docs/releases/v3/v3.0/command-consolidation-design.md`](../../docs/releases/v3/v3.0/command-consolidation-design.md) Section 4 until the repository tree is canonicalized. This file is the distributable, command-author-facing version of that contract. It installs to `~/.nexus-hub/style-guides/command-scope-mechanism.md`.
 
 ## Core principle: thin command, fat skill
 

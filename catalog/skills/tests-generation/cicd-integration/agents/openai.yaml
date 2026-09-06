@@ -1,4 +1,4 @@
 interface:
   display_name: CI/CD Integration for Testing
   short_description: Configure test automation in CI/CD pipelines with quality gates, parallel execution, and reporting. Use when setting up GitHub Actions, GitLab CI, Jenkins, Azure DevOps, or other CI/CD
-    systems for aut
+    systems for automated testing, test parallelization, and continuous quality assurance.

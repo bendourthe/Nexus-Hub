@@ -1,0 +1,20 @@
+{
+  "fixtureContract": {
+    "scope": "user",
+    "allowance": null,
+    "percentage": null,
+    "source": "api"
+  },
+  "timePeriod": {"year": 2026, "month": 8},
+  "user": "fixture-user",
+  "usageItems": [
+    {
+      "product": "Copilot AI Credits",
+      "sku": "AI Credit",
+      "unitType": "ai-credits",
+      "grossQuantity": 125.5,
+      "grossAmount": 1.255,
+      "netAmount": 0.255
+    }
+  ]
+}

@@ -1,4 +1,4 @@
 interface:
   display_name: Integration Test Generator
   short_description: Generate integration tests that verify component interactions across API boundaries, databases, message queues, and external services. Use when testing service-to-service communication,
-    database opera
+    database operations, contract testing, REST/GraphQL endpoints, or using testcontainers for realistic environments.

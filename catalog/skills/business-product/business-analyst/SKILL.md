@@ -512,6 +512,7 @@ Good: Change request submitted, impact assessed, approved by designated authorit
 - [[plan-before-code]] -- engineering planning and exploration before implementation begins
 - [[test-driven-development]] -- writing automated tests from the acceptance criteria defined here
 - [[requirement-enhancer]] -- sharpen the testability and completeness of individual requirements
+- [[decision-questionnaire]] -- send-ready async questionnaire when one named stakeholder must unblock a decision this skill cannot resolve in-session
 
 ---
 

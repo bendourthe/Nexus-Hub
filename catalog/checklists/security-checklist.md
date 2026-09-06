@@ -17,7 +17,7 @@ Quick-reference security checklist. Use before merging auth changes, payment int
 ## Input Validation (A03: Injection)
 
 - [ ] All external inputs validated at the system boundary (HTTP, CLI, file, env vars)
-- [ ] No string concatenation used to build SQL queries — parameterized queries only
+- [ ] No string concatenation used to build SQL queries -- parameterized queries only
 - [ ] File paths sanitized with `os.path.realpath()` / `filepath.Clean()` and checked against allowed root
 - [ ] No `eval()`, `exec()`, `shell=True` on user-supplied data
 - [ ] HTML output escaped or sanitized with DOMPurify before rendering
@@ -27,8 +27,8 @@ Quick-reference security checklist. Use before merging auth changes, payment int
 
 ## Authentication (A07: Identification and Authentication Failures)
 
-- [ ] Passwords hashed with bcrypt, scrypt, or Argon2 — never MD5 or SHA-1
-- [ ] JWT stored in `httpOnly`, `Secure`, `SameSite=Strict` cookies — not localStorage
+- [ ] Passwords hashed with bcrypt, scrypt, or Argon2 -- never MD5 or SHA-1
+- [ ] JWT stored in `httpOnly`, `Secure`, `SameSite=Strict` cookies -- not localStorage
 - [ ] JWT signature verified server-side on every protected request
 - [ ] JWT claims validated: `exp`, `iss`, `aud`
 - [ ] Session tokens rotated on privilege escalation (login, role change)
@@ -49,7 +49,7 @@ Quick-reference security checklist. Use before merging auth changes, payment int
 
 ## Secrets Management (A02: Cryptographic Failures)
 
-- [ ] Secrets loaded from environment variables or a secrets manager — never from source files
+- [ ] Secrets loaded from environment variables or a secrets manager -- never from source files
 - [ ] TLS 1.2+ enforced; no SSL 3.0 or TLS 1.0
 - [ ] Sensitive data encrypted at rest (PII, payment data, health records)
 - [ ] Encryption keys rotated on a defined schedule
@@ -70,7 +70,7 @@ Quick-reference security checklist. Use before merging auth changes, payment int
 
 All responses should include:
 
-- [ ] `Content-Security-Policy` — restrict script/style sources
+- [ ] `Content-Security-Policy` -- restrict script/style sources
 - [ ] `X-Content-Type-Options: nosniff`
 - [ ] `X-Frame-Options: DENY` (or `SAMEORIGIN`)
 - [ ] `Strict-Transport-Security: max-age=31536000; includeSubDomains`
@@ -82,7 +82,7 @@ All responses should include:
 ## Error Handling (A05: Security Misconfiguration)
 
 - [ ] Stack traces, file paths, and database errors never returned to clients
-- [ ] Consistent error response shape — no information disclosure via different error formats
+- [ ] Consistent error response shape -- no information disclosure via different error formats
 - [ ] 404 and 403 responses return the same shape (don't confirm resource existence)
 - [ ] Debug mode disabled in production (`DEBUG=False`, `NODE_ENV=production`)
 

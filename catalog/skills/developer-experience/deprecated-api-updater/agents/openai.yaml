@@ -1,4 +1,4 @@
 interface:
   display_name: Deprecated API Updater
   short_description: Detect and automatically update deprecated API calls across codebases with migration mappings, automated rewriting, and validation. Use when upgrading frameworks, updating deprecated
-    method calls, mig
+    method calls, migrating between library versions, or cleaning up deprecation warnings.

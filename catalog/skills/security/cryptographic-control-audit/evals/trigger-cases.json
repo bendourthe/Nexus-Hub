@@ -1,0 +1,48 @@
+{
+  "skill": "cryptographic-control-audit",
+  "purpose": "Route as-is crypto audits here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "crypto audit of this service",
+      "should_trigger": true,
+      "assert": "routes to cryptographic-control-audit first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "nonce reuse hunt",
+      "should_trigger": true,
+      "assert": "routes to cryptographic-control-audit first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "find 3DES and RC4 in configs",
+      "should_trigger": true,
+      "assert": "routes to cryptographic-control-audit first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "PQC roadmap",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "JWT alg none exploit writeup",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "HSM purchase",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

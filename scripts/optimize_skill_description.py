@@ -29,6 +29,12 @@ Usage:
         --cli claude \\
         --dry-run
 
+    python scripts/optimize_skill_description.py \\
+        --evals my-skill-workspace/evals/evals.json \\
+        --cli claude \\
+        --run-raw-memory \\
+        --iteration-dir my-skill-workspace/iteration-1
+
 `--dry-run` prints the train/test split, the baseline description, and the
 candidate-generation prompt template, then exits 0 without invoking any CLI.
 The pytest at catalog/hooks/tests/test_eval_loop.py::TestOptimizerDryRun
@@ -176,7 +182,94 @@ def _run_subprocess(cmd: list[str]) -> dict[str, Any]:
         "stderr": proc.stderr,
         "exit_code": proc.returncode,
         "duration_ms": int((finished - started).total_seconds() * 1000),
+        "started_at": started.isoformat().replace("+00:00", "Z"),
+        "finished_at": finished.isoformat().replace("+00:00", "Z"),
     }
+
+
+def resolve_raw_memory_path(evals_path: Path, eval_entry: dict[str, Any]) -> Path | None:
+    """Resolve a readable raw-memory source relative to the eval-set file."""
+    declared = eval_entry.get("raw_memory")
+    if not isinstance(declared, str) or not declared.strip():
+        return None
+    candidate = evals_path.parent / declared
+    return candidate if candidate.is_file() else None
+
+
+def build_raw_memory_prompt(eval_entry: dict[str, Any], raw_memory: str) -> str:
+    """Append prior notes verbatim to the eval query without a skill overlay."""
+    query = eval_entry.get("query")
+    if not isinstance(query, str) or not query:
+        turns = eval_entry.get("turns")
+        if not isinstance(turns, list) or not turns or not all(isinstance(turn, str) for turn in turns):
+            raise ValueError(f"{eval_entry.get('id', '<unknown>')}: expected a query or string turns")
+        query = "\n\n".join(turns)
+    return f"{query}\n\nPrior notes follow verbatim:\n{raw_memory}"
+
+
+def run_raw_memory_condition(
+    cli: str,
+    evals_path: Path,
+    eval_entry: dict[str, Any],
+    iteration_dir: Path,
+    model: str | None = None,
+) -> Path | None:
+    """Run one declared raw-memory arm and write response-compatible artifacts."""
+    source = resolve_raw_memory_path(evals_path, eval_entry)
+    if source is None:
+        return None
+
+    eval_id = eval_entry.get("id")
+    if not isinstance(eval_id, str) or not eval_id:
+        raise ValueError("raw-memory eval entry requires a non-empty id")
+
+    try:
+        raw_memory = source.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return None
+    prompt = build_raw_memory_prompt(eval_entry, raw_memory)
+    selected_model = eval_entry.get("model") or model
+    result = invoke_cli(cli, prompt, None, selected_model)
+
+    outputs_dir = iteration_dir / eval_id / "raw_memory" / "outputs"
+    outputs_dir.mkdir(parents=True, exist_ok=True)
+    response = str(result.get("stdout", ""))
+    (outputs_dir / "response.txt").write_text(response, encoding="utf-8")
+    metadata = {
+        "cli": cli,
+        "skill_loaded": False,
+        "memory_injected": True,
+        "started_at": result.get("started_at"),
+        "finished_at": result.get("finished_at"),
+        "duration_ms": result.get("duration_ms", 0),
+        "total_tokens": round((len(prompt) + len(response)) / 4),
+        "tokens_estimated": True,
+        "exit_code": result.get("exit_code", 1),
+    }
+    (outputs_dir / "run_metadata.json").write_text(
+        json.dumps(metadata, indent=2) + "\n", encoding="utf-8"
+    )
+    return outputs_dir.parent
+
+
+def run_declared_raw_memory_evals(
+    cli: str,
+    evals_path: Path,
+    evals: list[dict[str, Any]],
+    iteration_dir: Path,
+    model: str | None = None,
+) -> dict[str, Any]:
+    """Run every readable optional arm and report skipped entries as not_run."""
+    report: dict[str, Any] = {"mode": "raw-memory", "run": [], "not_run": []}
+    for eval_entry in evals:
+        eval_id = str(eval_entry.get("id", "<unknown>"))
+        run_dir = run_raw_memory_condition(cli, evals_path, eval_entry, iteration_dir, model)
+        if run_dir is None:
+            report["not_run"].append(eval_id)
+            continue
+        metadata = json.loads((run_dir / "outputs" / "run_metadata.json").read_text(encoding="utf-8"))
+        report["run"].append({"id": eval_id, "run_dir": str(run_dir), "exit_code": metadata["exit_code"]})
+    return report
 
 
 # ── Trigger detection ─────────────────────────────────────────────────────────
@@ -576,7 +669,7 @@ def render_dry_run(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
-    parser.add_argument("--skill", type=Path, required=True, help="Path to the SKILL.md")
+    parser.add_argument("--skill", type=Path, default=None, help="Path to the SKILL.md")
     parser.add_argument("--evals", type=Path, required=True, help="Path to evals.json")
     parser.add_argument(
         "--cli",
@@ -596,17 +689,40 @@ def main() -> int:
         "a per-eval `model` field overrides it. Default: the CLI's default model.",
     )
     parser.add_argument("--dry-run", action="store_true", help="Print plan and exit; no CLI calls")
+    parser.add_argument(
+        "--run-raw-memory",
+        action="store_true",
+        help="Run readable eval-entry raw_memory arms through the existing dispatcher",
+    )
+    parser.add_argument(
+        "--iteration-dir",
+        type=Path,
+        default=None,
+        help="Iteration directory for --run-raw-memory response artifacts",
+    )
     args = parser.parse_args()
 
-    if not args.skill.exists():
-        print(f"Error: skill not found: {args.skill}", file=sys.stderr)
-        return 1
     if not args.evals.exists():
         print(f"Error: evals not found: {args.evals}", file=sys.stderr)
         return 1
 
-    description = parse_skill_description(args.skill)
     evals = load_evals(args.evals)
+
+    if args.run_raw_memory:
+        if args.dry_run or args.iteration_dir is None:
+            print("Error: --run-raw-memory requires --iteration-dir and cannot be combined with --dry-run", file=sys.stderr)
+            return 1
+        report = run_declared_raw_memory_evals(
+            args.cli, args.evals, evals, args.iteration_dir, args.model
+        )
+        print(json.dumps(report, indent=2))
+        return 0 if all(item["exit_code"] == 0 for item in report["run"]) else 1
+
+    if args.skill is None or not args.skill.exists():
+        print(f"Error: skill not found: {args.skill}", file=sys.stderr)
+        return 1
+
+    description = parse_skill_description(args.skill)
     train, test = split_train_test(evals, args.train_fraction, args.seed)
 
     if args.dry_run:

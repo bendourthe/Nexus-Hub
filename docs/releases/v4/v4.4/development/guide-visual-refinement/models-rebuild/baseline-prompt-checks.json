@@ -1,0 +1,22 @@
+[
+  {
+    "test": "test_static_document_never_addresses_the_reader",
+    "status": "fail",
+    "error": "['you']"
+  },
+  {
+    "test": "test_the_flaws_sit_under_the_vague_prompt_in_a_grid",
+    "status": "fail",
+    "error": "('No query', ['No request: nothing says what looking at it should produce', 'No context: which contract, and which parts of it', 'No goal: nothing the answer can be checked against', 'No format: any shape is arguably correct, so none is wrong'])"
+  },
+  {
+    "test": "test_the_engineered_prompt_uses_the_whole_diagram",
+    "status": "fail",
+    "error": "['request', 'context', 'goal', 'format']"
+  },
+  {
+    "test": "test_the_active_marker_is_quiet",
+    "status": "fail",
+    "error": "the marker should underline rather than ring: none"
+  }
+]

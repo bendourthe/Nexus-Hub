@@ -219,3 +219,296 @@ def test_nested_example_fence_does_not_invert_state() -> None:
     assert len(errs) == 1, errs
     assert "leakedvalue123" not in " ".join(errs)  # message names pattern, not value
     assert any("Generic secret assignment" in e for e in errs)
+
+
+# ---------------------------------------------------------------------------
+# Unfilled-placeholder lint (v3.15.2 Phase 2)
+# ---------------------------------------------------------------------------
+
+_FAKE_SKILL_FILE = Path("catalog/skills/x/some-skill/SKILL.md")
+
+
+def _skill_with_body(name: str, description: str, body: str) -> str:
+    """A structurally-complete SKILL.md with a caller-controlled body."""
+    return (
+        "---\n"
+        f"name: {name}\n"
+        f"description: {description}\n"
+        "summary_l0: A short summary.\n"
+        "overview_l1: A short overview.\n"
+        "---\n\n"
+        f"{body}\n"
+    )
+
+
+def _placeholders(description: str = "A clean, filled-in description.", body: str = "Body.") -> list[str]:
+    content = _skill_with_body("some-skill", description, body)
+    fm = validate_skills.parse_frontmatter(content) or {}
+    return validate_skills.validate_placeholders(_FAKE_SKILL_FILE, content, fm)
+
+
+def test_placeholder_in_description_is_flagged() -> None:
+    errs = _placeholders(description="<one sentence describing this skill>")
+    assert any("description contains an unfilled template placeholder" in e for e in errs)
+
+
+def test_placeholder_in_body_is_flagged() -> None:
+    errs = _placeholders(body="This skill does <what this skill does> for you.")
+    assert any("body contains an unfilled template placeholder" in e for e in errs)
+
+
+def test_cli_notation_single_word_not_flagged() -> None:
+    assert _placeholders(description="Save output to <path> for <name>.", body="Reads <category> input.") == []
+
+
+def test_html_tags_not_flagged() -> None:
+    body = 'Use <div> and <br/> and <a href="x"> and <img src="y" alt="z"> here.'
+    assert _placeholders(body=body) == []
+
+
+def test_uppercase_template_var_not_flagged() -> None:
+    # docs/v<MAJOR>/ style version tokens are uppercase and single-token.
+    assert _placeholders(description="Reorganize docs into a docs/v<MAJOR>/ layout.", body="See <MAJOR> here.") == []
+
+
+def test_comparison_operators_not_flagged() -> None:
+    assert _placeholders(body="Fire the check when x < y and y > z in the pipeline.") == []
+
+
+def test_placeholder_in_fenced_code_not_flagged() -> None:
+    body = "Example scaffold:\n\n```\n<what this does>\n```\n\nDone."
+    assert _placeholders(body=body) == []
+
+
+def test_placeholder_in_inline_code_not_flagged() -> None:
+    assert _placeholders(body="Write a description like `<one sentence here>` in the file.") == []
+
+
+def test_description_placeholder_in_backticks_is_exempt() -> None:
+    assert _placeholders(description="Author a form such as `<multi word example>` inline.") == []
+
+
+def test_nested_fence_does_not_leak_placeholder() -> None:
+    # Mirrors the secret-scan nested-fence guard. A markdown code block that
+    # itself shows a ```bash example must use a LONGER outer fence (CommonMark:
+    # fences do not nest; a shorter inner fence cannot close a longer outer one),
+    # so the inner ``` markers stay content and only the prose placeholder
+    # outside every fence is flagged.
+    body = (
+        "````markdown\n"
+        "Inside the md example:\n"
+        "```bash\n"
+        "echo <do a thing>\n"
+        "```\n"
+        "end of example.\n"
+        "````\n\n"
+        "Now in prose: fill in <the actual placeholder here> please.\n"
+    )
+    errs = _placeholders(body=body)
+    assert len(errs) == 1, errs
+    assert "the actual placeholder here" in errs[0]
+
+
+def test_body_after_frontmatter_excludes_frontmatter() -> None:
+    content = _skill_with_body("some-skill", "desc", "# Title\n\nHello body.")
+    body = validate_skills._body_after_frontmatter(content)
+    assert "Hello body." in body
+    assert "name: some-skill" not in body
+
+
+def test_body_after_frontmatter_without_frontmatter_returns_all() -> None:
+    # No leading `---`: the whole content is treated as body (defensive fallback).
+    assert validate_skills._body_after_frontmatter("no frontmatter here") == "no frontmatter here"
+
+
+def test_bundles_only_flags_placeholder_via_cli(tmp_path: Path) -> None:
+    skill_dir = tmp_path / "scaffold-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text(
+        _skill_with_body("scaffold-skill", "A clean description.", "It does <what it does> now."),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), "--bundles-only", "--path", str(tmp_path)],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=REPO_ROOT,
+    )
+    assert result.returncode == 1, result.stdout
+    assert "unfilled template placeholder" in result.stdout
+
+
+def test_bundles_only_clean_skill_passes_via_cli(tmp_path: Path) -> None:
+    skill_dir = tmp_path / "clean-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text(
+        _skill_with_body("clean-skill", "A clean, filled-in description.", "Reads <path> and writes output."),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), "--bundles-only", "--path", str(tmp_path)],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=REPO_ROOT,
+    )
+    assert result.returncode == 0, result.stdout
+
+
+# ---------------------------------------------------------------------------
+# Malformed skill directories (v3.15.9 Phase 7)
+#
+# `find_skill_dirs` locates skills BY their SKILL.md, so a `<category>/<name>/`
+# folder without one is invisible to every per-skill check -- silently skipped
+# here while the installers used to silently ship it. The two gates disagreed
+# about what a skill directory is. These tests pin the agreement: the validator
+# reports it, and it stays a WARNING so a work-in-progress branch still passes.
+# ---------------------------------------------------------------------------
+
+
+def _catalog_with_scaffold(root: Path) -> Path:
+    """One valid skill plus one scaffold that never got a SKILL.md."""
+    skills = root / "skills"
+    good = skills / "workflow" / "good-skill"
+    good.mkdir(parents=True)
+    (good / "SKILL.md").write_text(
+        _skill_with_body(
+            "good-skill", "A clean, filled-in description.", "Reads <path>."
+        ),
+        encoding="utf-8",
+    )
+    (skills / "workflow" / "abandoned-scaffold").mkdir(parents=True)
+    return skills
+
+
+def test_find_malformed_skill_dirs_flags_missing_skill_md(tmp_path: Path):
+    validator = _load_validator()
+    skills = _catalog_with_scaffold(tmp_path)
+
+    found = [p.name for p in validator.find_malformed_skill_dirs(skills)]
+
+    assert found == ["abandoned-scaffold"]
+
+
+def test_find_malformed_skill_dirs_ignores_bundle_subdirs_of_a_single_skill(
+    tmp_path: Path,
+):
+    """Pointing --path at one skill folder must not flag its bundled subdirs.
+
+    `scripts/`, `references/`, `assets/`, and `evals/` are bundle directories,
+    not skills; treating them as skills would emit noise for every skill that
+    ships resources.
+    """
+    validator = _load_validator()
+    skill = tmp_path / "solo-skill"
+    (skill / "scripts").mkdir(parents=True)
+    (skill / "references").mkdir()
+    (skill / "SKILL.md").write_text(
+        _skill_with_body(
+            "solo-skill", "A clean, filled-in description.", "Reads <path>."
+        ),
+        encoding="utf-8",
+    )
+
+    assert validator.find_malformed_skill_dirs(skill) == []
+
+
+def test_malformed_skill_dir_warns_but_does_not_fail_the_gate(tmp_path: Path):
+    """The CLI surface reports it and still exits 0 (WIP branches must pass)."""
+    skills = _catalog_with_scaffold(tmp_path)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(VALIDATOR),
+            "--bundles-only",
+            "--verbose",
+            "--path",
+            str(skills),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=REPO_ROOT,
+    )
+
+    assert result.returncode == 0, result.stdout
+    assert "abandoned-scaffold" in result.stdout
+    assert "has no SKILL.md" in result.stdout
+
+
+def _padded_skill(name: str, body_lines: int) -> str:
+    """SKILL.md whose body (after frontmatter) is exactly `body_lines` lines."""
+    lines = [f"# {name}", "", "Body."]
+    while len(lines) < body_lines:
+        lines.append("padding")
+    lines = lines[:body_lines]
+    return (
+        "---\n"
+        f"name: {name}\n"
+        "description: A concise single-line description.\n"
+        'summary_l0: "short summary"\n'
+        'overview_l1: "short overview"\n'
+        "---\n"
+        + "\n".join(lines)
+        + "\n"
+    )
+
+
+def test_count_body_lines_excludes_frontmatter() -> None:
+    content = _padded_skill("size-skill", 10)
+    # Frontmatter is 6 lines plus fences; body must still report 10.
+    assert validate_skills.count_body_lines(content) == 10
+
+
+def test_body_at_hard_cap_is_ok(tmp_path: Path) -> None:
+    skill = tmp_path / "cap-skill"
+    skill.mkdir()
+    content = _padded_skill("cap-skill", 800)
+    (skill / "SKILL.md").write_text(content, encoding="utf-8")
+    errors, warnings = validate_skills.validate_body_size(skill / "SKILL.md", content)
+    assert errors == []
+    # 800 is still over the 500 warning tier; that is a grandfathered warning, not an error.
+    assert any("800 lines" in w for w in warnings)
+
+
+def test_body_over_soft_cap_warns(tmp_path: Path) -> None:
+    skill = tmp_path / "warn-skill"
+    skill.mkdir()
+    content = _padded_skill("warn-skill", 501)
+    (skill / "SKILL.md").write_text(content, encoding="utf-8")
+    errors, warnings = validate_skills.validate_body_size(skill / "SKILL.md", content)
+    assert errors == []
+    assert any("501 lines" in w and "soft cap 500" in w for w in warnings)
+
+
+def test_body_over_hard_cap_is_error(tmp_path: Path) -> None:
+    skill = tmp_path / "over-skill"
+    skill.mkdir()
+    content = _padded_skill("over-skill", 801)
+    (skill / "SKILL.md").write_text(content, encoding="utf-8")
+    errors, warnings = validate_skills.validate_body_size(skill / "SKILL.md", content)
+    assert any("801 lines" in e and "hard cap 800" in e for e in errors)
+
+
+def test_bundles_only_fails_when_body_exceeds_hard_cap(tmp_path: Path) -> None:
+    skills = tmp_path / "catalog"
+    skill = skills / "over-skill"
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_text(_padded_skill("over-skill", 801), encoding="utf-8")
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(VALIDATOR),
+            "--bundles-only",
+            "--path",
+            str(skills),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=REPO_ROOT,
+    )
+    assert result.returncode == 1, result.stdout
+    assert "hard cap 800" in result.stdout

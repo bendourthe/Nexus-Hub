@@ -1,4 +1,4 @@
 interface:
   display_name: Technical Documentation
-  short_description: Generate architecture documentation, ADRs (Architecture Decision Records), design documents, and technical specifications. Use when documenting system design, architectural decisions,
-    technical workfl
+  short_description: Generate architecture docs, design documents, and technical specifications for system design, technical workflows, or developer onboarding. SKIP a single ADR (use architecture-decision-record)
+    or a project constitution (use project-constitution).

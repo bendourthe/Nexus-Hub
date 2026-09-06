@@ -1,4 +1,4 @@
 interface:
   display_name: Edge Case Test Generator
   short_description: Systematically generate edge case tests for boundary conditions, empty inputs, overflow, null values, concurrency edges, and type coercion. Use when hardening code against unexpected
-    inputs, finding b
+    inputs, finding boundary bugs, testing defensive programming, validating error handling, or stress-testing input validation.

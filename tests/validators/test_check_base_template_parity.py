@@ -98,6 +98,75 @@ def test_invariant_block_divergence_fails(tmp_path: Path, runner) -> None:
     assert "MCP Registry Policy" in result.stderr
 
 
+def test_communication_contract_divergence_fails(tmp_path: Path, runner) -> None:
+    # v4.0.0: the Communication Contract body is an invariant block. A one-word
+    # reword in a single template must fail, naming the file and the section.
+    seed_lockstep_tree(tmp_path)
+    mutate(
+        tmp_path,
+        "base-cursor.md",
+        "- Close tasks with Completed / Verified / Open / Next.",
+        "- Close tasks with Completed / Verified / Open / Later.",
+    )
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 1
+    assert "base-cursor.md" in result.stderr
+    assert "Communication Contract" in result.stderr
+
+
+def test_documentation_layout_divergence_fails(tmp_path: Path, runner) -> None:
+    # The Documentation Layout body is an invariant block. A one-word change
+    # in one template must fail and name both the file and section.
+    seed_lockstep_tree(tmp_path)
+    mutate(
+        tmp_path,
+        "base-gemini.md",
+        "Use lifespan as the single placement axis for project documentation.",
+        "Use topic as the single placement axis for project documentation.",
+    )
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 1
+    assert "base-gemini.md" in result.stderr
+    assert "Documentation Layout" in result.stderr
+
+
+def test_missing_communication_contract_heading_fails(tmp_path: Path, runner) -> None:
+    # The heading is also in REQUIRED_HEADINGS, so dropping the section
+    # entirely from one template is a distinct, separately-reported failure.
+    seed_lockstep_tree(tmp_path)
+    mutate(tmp_path, "base-codex.md", "## Communication Contract\n", "")
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 1
+    assert "base-codex.md" in result.stderr
+
+
+def test_writing_discipline_divergence_fails(tmp_path: Path, runner) -> None:
+    # v4.5.0: the Writing Discipline body is an invariant block. A one-word
+    # reword in a single template must fail, naming the file and the section.
+    seed_lockstep_tree(tmp_path)
+    mutate(
+        tmp_path,
+        "base-gemini.md",
+        "Chatbot leftovers are defects, not style:",
+        "Chatbot leftovers are quirks, not style:",
+    )
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 1
+    assert "base-gemini.md" in result.stderr
+    assert "Writing Discipline" in result.stderr
+
+
+def test_missing_writing_discipline_heading_fails(tmp_path: Path, runner) -> None:
+    # v4.5.0: dropping the whole block from one lockstep file must fail on the
+    # required-heading check, so a platform cannot silently lose the rule.
+    seed_lockstep_tree(tmp_path)
+    mutate(tmp_path, "base-codex.md", "## Writing Discipline", "## Writing Habits")
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 1
+    assert "base-codex.md" in result.stderr
+    assert "Writing Discipline" in result.stderr
+
+
 def test_allowed_per_platform_line_still_passes(tmp_path: Path, runner) -> None:
     # Change only an allowed per-platform install path (Context References is
     # neither a required heading/placeholder nor an invariant block) -> the
@@ -154,3 +223,19 @@ def test_json_output_reports_findings(tmp_path: Path, runner) -> None:
     assert payload["in_parity"] is False
     assert any(f["file"] == "base-opencode.md" for f in payload["findings"])
     assert any(f["category"] == "block-divergence" for f in payload["findings"])
+
+
+def test_autonomy_block_body_drift_fails(tmp_path: Path, runner) -> None:
+    # v4.7.0: the Autonomous Operation body is an invariant block. Rewording one
+    # lockstep file must fail the guard and name both the file and the block.
+    seed_lockstep_tree(tmp_path)
+    mutate(
+        tmp_path,
+        "base-cursor.md",
+        "You are operating autonomously",
+        "You are operating on your own",
+    )
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 1
+    assert "base-cursor.md" in result.stderr
+    assert "Autonomous Operation" in result.stderr

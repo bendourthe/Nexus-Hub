@@ -1,9 +1,10 @@
-"""Cross-platform skill-flattening sweep (v3.12.0 Phase 4).
+"""Cross-platform skill-flattening sweep (v3.12.0 Phase 4; Cursor added v3.15.0 Phase 2).
 
 Every SKILL.md-open-standard platform that ships a skills folder discovers skills
-one level deep (skills/<name>/SKILL.md). This suite asserts that the five
-generic-mirror platforms flatten the catalog's <category>/<name>/ layer and add a
-skill per command, and that Cursor (which has no skills surface) is unaffected.
+one level deep (skills/<name>/SKILL.md). This suite asserts that the generic-mirror
+platforms AND Cursor flatten the catalog's <category>/<name>/ layer and add a skill
+per command. Cursor gained its native skills surface in v3.15.0 Phase 2 (Cursor
+parity), so it is now part of the sweep rather than the no-skills exception it was.
 """
 
 from __future__ import annotations
@@ -23,6 +24,8 @@ _FLATTENED = [
     ("opencode", ".opencode/skills"),
     # nexus-ai isolates the catalog under a catalog/ subtree (v3.11.4).
     ("nexus-ai", ".nexus-ai/catalog/skills"),
+    # Cursor gained a native flattened skills surface in v3.15.0 Phase 2.
+    ("cursor", ".cursor/skills"),
 ]
 
 
@@ -52,17 +55,24 @@ def test_platform_adds_command_skills(install_ctx: InstallContext, key: str, ski
     integ.install(install_ctx)
     skill_md = install_ctx.target_root / skills_rel / "presentify" / "SKILL.md"
     assert skill_md.exists(), f"{key}: command-skill missing at {skill_md}"
-    assert "name: presentify" in skill_md.read_text(encoding="utf-8")
+    text = skill_md.read_text(encoding="utf-8")
+    assert "name: presentify" in text
+    assert "disable-model-invocation: true" in text, (
+        f"{key}: command-skill must not be model-auto-invoked"
+    )
 
 
-def test_cursor_has_no_skills_surface(install_ctx: InstallContext):
-    """Regression guard: Cursor has no skills folder (rules only), and the flatten
-    change must not introduce one. Cursor's .mdc rules must still be produced.
+def test_cursor_flattens_skills_and_keeps_rules(install_ctx: InstallContext):
+    """v3.15.0 Phase 2: Cursor now writes a flattened skills surface AND still
+    produces its .mdc rules (the two coexist; skills did not displace rules).
     """
     integ = get("cursor")
     integ.install(install_ctx)
-    assert not (install_ctx.target_root / ".cursor" / "skills").exists(), (
-        "Cursor must not gain a skills/ surface"
-    )
+    skills_dir = install_ctx.target_root / ".cursor" / "skills"
+    assert skills_dir.is_dir(), "Cursor must now write a .cursor/skills surface (Phase 2)"
+    for category in _CATEGORY_NAMES:
+        assert not (skills_dir / category).is_dir(), (
+            f"category folder {category!r} leaked into .cursor/skills -- not flattened"
+        )
     mdc = list((install_ctx.target_root / ".cursor" / "rules").glob("*.mdc"))
-    assert mdc, "Cursor .mdc rules must still be produced"
+    assert mdc, "Cursor .mdc rules must still be produced alongside skills"

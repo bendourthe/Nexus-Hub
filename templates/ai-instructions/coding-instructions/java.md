@@ -105,17 +105,17 @@ Apply these rules to **ALL** outputs, regardless of the domain:
 **Standard Maven/Gradle Layout**:
 ```
 project-name/
-â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ main/
-â”‚   â”‚   â”œâ”€â”€ java/
-â”‚   â”‚   â”‚   â””â”€â”€ com/example/app/   # Source code
-â”‚   â”‚   â””â”€â”€ resources/             # Config files/properties
-â”‚   â””â”€â”€ test/
-â”‚       â”œâ”€â”€ java/                  # Tests
-â”‚       â””â”€â”€ resources/             # Test resources
-â”œâ”€â”€ pom.xml                        # Maven build
-â”œâ”€â”€ build.gradle                   # Gradle build
-â””â”€â”€ README.md
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/example/app/   # Source code
+│   │   └── resources/             # Config files/properties
+│   └── test/
+│       ├── java/                  # Tests
+│       └── resources/             # Test resources
+├── pom.xml                        # Maven build
+├── build.gradle                   # Gradle build
+└── README.md
 ```
 
 **Tooling**:

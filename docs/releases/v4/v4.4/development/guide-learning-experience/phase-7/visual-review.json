@@ -1,0 +1,1394 @@
+{
+  "guide_sha256": "6848938156266c2806c734575c963a64ba71a84bf3b357e912e0583b730324fd",
+  "reviewed_count": 84,
+  "unreviewed_count": 0,
+  "method": "Parent opened all 84 Phase 7 images using view_image. The previously truncated four-image tool result was not counted; those four were reopened in smaller calls.",
+  "images": [
+    {
+      "file": "graph-complete.png",
+      "sha256": "88121045ecc8ae41b000ac99b32caccde1eae7eef1f9537fa1e2fa818953ad33",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Complete graph join output matches launch moved; human approval stays pending.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "interactions/no-js-mobile.png",
+      "sha256": "9dc34edbd8cc1a73bac5749bcbf5e1028e9a60ea076d9e5186ff5ea845405907",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/cheatsheets-dark-1440-full.png",
+      "sha256": "7117d0c557ba422cb9d8f1fc2623f1e8a9eae70fce4b92e31f7e0ef39caccb60",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/cheatsheets-dark-1440-top.png",
+      "sha256": "9c50d1fde5891b1f89cbc80b2fa5054ec99cc0ec64e44c1e6dc28fe1e67aafe3",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/cheatsheets-dark-420-full.png",
+      "sha256": "b9dc538f7539b008ea98d69efabdb63c020036de019670f52ac2d3dfed9134bf",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/cheatsheets-dark-420-top.png",
+      "sha256": "bfbb59c84d6f5d444abd65492c92f8c7e795be5aa1fd813ca013b9eaf091e77e",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/cheatsheets-light-1440-full.png",
+      "sha256": "ec91a34b3d8d8a6d08520a08a0d40529461647cd8dfa5fe9f4f922ea1d94514c",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/cheatsheets-light-1440-top.png",
+      "sha256": "c19ec59dff86ac9705acbca103dca2654b51cf011adde5e934eec7bcd4810e4c",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/cheatsheets-light-420-full.png",
+      "sha256": "9d84daf9c6e079272f2a0a2f37953c0726327034177ac33f281f3f288bf472d1",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/cheatsheets-light-420-top.png",
+      "sha256": "5bc45aac25d0752acec42f9c577e6fc478e87d7b7887fc4ba42ec79abe0fac91",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-1440-full.png",
+      "sha256": "fdf691a2b52489ffea367b12535be07e0cf421daa863be66fcd48d32041622ec",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-1440-fx-context.png",
+      "sha256": "ddabf97c1c1e508efa818b33b90bd08042f98cc6460d833c02211cca50ecbfa9",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-1440-fx-graph.png",
+      "sha256": "e4a323cfeba71756f87426e67b0805cde20ba09af4170a3bc5e591ac86d7bbfd",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-1440-fx-harness.png",
+      "sha256": "fe933814fde1ead417d24943ab4de74910531bf79a3c681be8e1f61bb18c0fb7",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-1440-fx-loop.png",
+      "sha256": "e90cc46293cce1afb6fb259b2a859fb8ce1124c51d9787ae4a739ca7ed8f87b1",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-1440-fx-model-lifecycle-bottom.png",
+      "sha256": "15da44e9bda7197ef0c6f98376bb1f646366769f4973e192619280f032c1b16a",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-1440-fx-model-lifecycle.png",
+      "sha256": "eec9a5d90abaa27a1b0ce432bcabc15813a827a7a8b7c8a4c6ea6e48e38d1649",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-1440-fx-prompts.png",
+      "sha256": "8ad3109a96808be0e9e96dbffdfd13c9790760cbfd2143c87f1171efe3a4b1ed",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-1440-fx-tokens.png",
+      "sha256": "4c68ec88360ed0331b377b3008bb733f64a4da8d924c60d4f6bf61064f2845ee",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-1440-top.png",
+      "sha256": "17975b11e8638a444e4bcdd7b9a50b8cc9d73a2dd120fc2ec57630aedd7c9581",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-full.png",
+      "sha256": "737663326274852d7ac585a9fcce88bcf5caf1349dec7b964533a0658b34b49f",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-context-bottom.png",
+      "sha256": "d4ca745c497e8687643f5a932ba21e531448c2ac2d18a6d25d4e28f8af7ed4d9",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-context.png",
+      "sha256": "43b0f9a4732fecebf0f5b7a73e9719d751863adc7d5e7b1bdd2e8e55e606ae63",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-graph-bottom.png",
+      "sha256": "98b05f4b2aebd029d2db06964c05bd8ae0417af3de4e70bacff849baa82973ec",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-graph.png",
+      "sha256": "d4be9b44697af05f7aa3c2868f4f09c8957a9141a69c47d9e3919f5e461cbc67",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-harness-bottom.png",
+      "sha256": "2697db151b838b66f7102cc13016a8c4479f9d5352c8bd638751c5259b7e2f72",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-harness.png",
+      "sha256": "310a9a086988a04ee1d0f700a2ecd07dcdcde431cd1a999c54da8d9e797dbdbc",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-loop-bottom.png",
+      "sha256": "86f9012564e78e192df145eb8376db5254e7ac4be00264be221443265ebf3811",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-loop.png",
+      "sha256": "fb48a6293012ad92ec2fe032ec270a9a42e3034198fc4d2c95537ab8029e427a",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-model-lifecycle-bottom.png",
+      "sha256": "c2522e782b79d155e636572082f77432b44ef15de10cc1c16da8a5890c1789f0",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-model-lifecycle.png",
+      "sha256": "bcabfef09624f5244d2e7859779efbcef1a1526b5b808b7749c2a8b55434a8c0",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-prompts-bottom.png",
+      "sha256": "2d546c7f7b5a9a6b020f2021de74d3f0842db629271b88972a860fcdf29b8b2b",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-prompts.png",
+      "sha256": "d63d79ec42d9f168fa735b9caa3c3b88d4c4ade52e554e29c6b4636f69c37779",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-tokens-bottom.png",
+      "sha256": "62c66755b513b6c19ad39011081d9a0542ebd2022b8ee355f2f976cf632009b3",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-fx-tokens.png",
+      "sha256": "418ddd563b2ac77b17e75a2c0d079433d449debe351c772038ecf60f5eb6ae96",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-dark-420-top.png",
+      "sha256": "6819e93cc5b44e7d0fb8a25d5cf0fc980453fc45c71dcf275c264078ac7fb54e",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-1440-full.png",
+      "sha256": "f837ce9e0c55b8d969dc919b5efe263b72f033436607f21fb99a9ac77bb3b319",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-1440-fx-context.png",
+      "sha256": "df8ebd10a04f824a6ffc795b5834de8a45efe7f65fb49517ee986e7ae84d234f",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-1440-fx-graph.png",
+      "sha256": "fb6b30ca8c6ed9befe3fa7972354fd27bbc86ed80dcd8ebfcf9f176fb85d7bec",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-1440-fx-harness.png",
+      "sha256": "b73992b77bef39bec040a6e2e63ea6be7caab51522787a510416dc9e07426bee",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-1440-fx-loop.png",
+      "sha256": "8e859ce404d44e55d4841ac769cd1c8df2110a97964ed83e60f69fbb0545d80e",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-1440-fx-model-lifecycle-bottom.png",
+      "sha256": "77c012f6603678a2aeed7bb5e6b6b36a84ff7ed9a6199f2664a070dae52cfb1c",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-1440-fx-model-lifecycle.png",
+      "sha256": "22e66796f1916f1397923137c8e09d3319fa8b0becde1985fbfb996d8426469d",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-1440-fx-prompts.png",
+      "sha256": "d0af479c9b575b1ab048b8a891e5b8ee67be66fc42893838fffacfc22dd34054",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-1440-fx-tokens.png",
+      "sha256": "0f0f007857cd5233a1890f7224f1f02823f0f7a67726a7da72e7f23ae58c8723",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-1440-top.png",
+      "sha256": "5925bec7adbe20fde1f1d5e4e03018928e2f25ba1fffb0d1c20e7a61f70420d9",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-full.png",
+      "sha256": "b63c7255ea797f340e92253061343a1f86fbc8dd25d0a62ec98b98bfcf65ccd7",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-context-bottom.png",
+      "sha256": "17e07e4f84bd357df511457cebaba50989276f2b8fd7d3fd454ec6ac8cba0437",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-context.png",
+      "sha256": "e5892b25e335ed6f4ba4c2f07a5bc7d6eee8e07c57758cba3e81c1628276e4a1",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-graph-bottom.png",
+      "sha256": "801efda0eac6041d2fad7a07ca770fd0180c7cba5248e80469a4e3ddbc573c11",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-graph.png",
+      "sha256": "05d7f062a3720ace7d0939cf7c103d71e6578663204f004532706cc6a8cce506",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-harness-bottom.png",
+      "sha256": "ce711a5403251df3645a4d1202de08c836b47c1ee7fed65689634d50efee269e",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-harness.png",
+      "sha256": "065b069c79e17490c1dd64f99d73283d09ba72dcc1dcb41ae26aa810be287ec6",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-loop-bottom.png",
+      "sha256": "5fdfb56fc9c42722a0c4d93cb7536d1b4b4c9ade0b94c9b7c85228f6ca52b2d3",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-loop.png",
+      "sha256": "5be118e01e335a64e533527dae9ad8b3bbdb7eb06c75be1e90c9e561eea1d0e3",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-model-lifecycle-bottom.png",
+      "sha256": "e7827e3734f0c73cd8c7817b2988644994e336729a5458b7866e07a4fe4fb294",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-model-lifecycle.png",
+      "sha256": "9fd71efc22cfa52698a3c02ed7a55dda7104bcf676fdf955067aa083ba5597fb",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-prompts-bottom.png",
+      "sha256": "fe15d4ef7ba57daa283f863b47ccdee215da06b06327e9cccf4a13f3a758ed21",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-prompts.png",
+      "sha256": "db9a1a25af6d7af8ab4d51f44deb69dd995f20fbe01eda52db4113f6d1ebeac1",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-tokens-bottom.png",
+      "sha256": "a7dd2dc3c8f3d46badf4948960556f7482023d46b90e631cf04d78a48ff7e47a",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-fx-tokens.png",
+      "sha256": "17b2fecdde2e4134292af37dc294e12e42226b542555524fc96b5ff6be334824",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/foundations-light-420-top.png",
+      "sha256": "fc13707d8aec8b09374fe4861601db6fe8f9f1657c0720e63e39f6b099a49851",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/home-dark-1440-full.png",
+      "sha256": "1aa631323af424c2171ce47c8804c7c89f84d7291288d36397dfcd7950b19b1b",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/home-dark-1440-nhg-why.png",
+      "sha256": "7d97dbc3468c7a2609534e3a06dd5b7bc97bac21b8dd10d38998aa5841ff4841",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/home-dark-1440-top.png",
+      "sha256": "4fd66eec91aae8c115b19004d71fabb205177806ff01e6d4577726ce0849cf13",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/home-dark-420-full.png",
+      "sha256": "1a4ff1a2bf8170d3ef0338b3554d699cfa2a8279579a11117e54b6ec0e476fae",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/home-dark-420-nhg-why-bottom.png",
+      "sha256": "5b2f09dfcdd86658bf30ebe6dacde9c9400f9180e98b735adb58b0bd7c5a18f8",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/home-dark-420-nhg-why.png",
+      "sha256": "6bb22d2edbe087a59aced7fa65f0201bb074d7b2736ca368ea45aa9542fed68d",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/home-dark-420-top.png",
+      "sha256": "402b85ab99453b2f2b13a66d989a3269dd2be23c8e1d491ab8d257a54a06a4e3",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/home-light-1440-full.png",
+      "sha256": "3ae0d6ddc411a618c8edb062827c563ab16e85c7db7f7f35c83c779a274b597d",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/home-light-1440-nhg-why.png",
+      "sha256": "73e2d765291b71505ad1c8d36d4b19a289e70a3a4ba78edebe484105d1234a82",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/home-light-1440-top.png",
+      "sha256": "cd068bfa9b5eaa3ad52574f482d7275f66a569b20cbee2c242e3652a7c11b441",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/home-light-420-full.png",
+      "sha256": "85701252d67eb2d407069486cb9cf546036de040074729035b975195fd3911a3",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/home-light-420-nhg-why-bottom.png",
+      "sha256": "f649e617fa36768b1bb404c1098ac647dc4c22e5be3aaa649ca6e89ed6f75bce",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/home-light-420-nhg-why.png",
+      "sha256": "fb131efd485992ee9287e9ec321afe035d9a693b99c6485dbf39e5159a809112",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/home-light-420-top.png",
+      "sha256": "07cb55913f2b9e529cdf7731e73ca1496cc6bce1d7812972f93651e4ec8424c4",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Visible examples and labels support their section; no new contradiction observed.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/training-dark-1440-full.png",
+      "sha256": "937d61d9a21c173f4f3fbbfed3ad69d1bc88aeacf01f1583eda3765d93fb865b",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Pending Training gate and expected artifact remain distinct from completed output.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/training-dark-1440-top.png",
+      "sha256": "67596d8ace8d9b0ee114ed0b6c2b6bb7fa05cd5044aa4ffb26411c914ec712c7",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Pending Training gate and expected artifact remain distinct from completed output.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/training-dark-420-full.png",
+      "sha256": "9d32ecc5fdd335de5685a191c1a45e7e92a0498c009172856c8e9d223b1bf94b",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "FAIL BG-46: Training introduction ends with isolated it at 420px.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Pending Training gate and expected artifact remain distinct from completed output.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "partial: BG-46",
+      "findings": [
+        "BG-46"
+      ],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/training-dark-420-top.png",
+      "sha256": "ce3943ab517d0cb24087a2b11da3106832402b2b2c692e5805b52f5fb50564c8",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "FAIL BG-46: Training introduction ends with isolated it at 420px.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Pending Training gate and expected artifact remain distinct from completed output.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "partial: BG-46",
+      "findings": [
+        "BG-46"
+      ],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/training-light-1440-full.png",
+      "sha256": "5869b15c726d0b0b08c1cb9347d89448a86caf2743d0d19bb435f5eeb9dc52a9",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "Overall containment visible; individual line wrapping is not certified in the downscaled overview.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Pending Training gate and expected artifact remain distinct from completed output.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for overall structure only",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/training-light-1440-top.png",
+      "sha256": "a87c4562ffdd8a8f0a0811ec4e416ef817f669f848546c5449c5316e9719bd14",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "No new awkward heading tails, clipped labels or collisions in the visible viewport.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Pending Training gate and expected artifact remain distinct from completed output.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "pass for visible static content",
+      "findings": [],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    },
+    {
+      "file": "visual/training-light-420-full.png",
+      "sha256": "5b7b005a51c7ef328bd01c66c54564bc3048ce420e5ae5c00427de43f9ae7bc5",
+      "actually_viewed": true,
+      "typography": "Structure only in downscaled overview; paired viewport captures establish visible reading size.",
+      "wrapping": "FAIL BG-46: Training introduction ends with isolated it at 420px.",
+      "spacing": "Overall sections are grouped without blank sequence placeholders; short previews need not expand to match the game.",
+      "semantics": "Pending Training gate and expected artifact remain distinct from completed output.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "partial: BG-46",
+      "findings": [
+        "BG-46"
+      ],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image.",
+        "Downscaled overview does not certify every line of text."
+      ]
+    },
+    {
+      "file": "visual/training-light-420-top.png",
+      "sha256": "3a42e4e2ca8ef3cb822819c369de1293ac2cf42ea9b5af366676e094044446c4",
+      "actually_viewed": true,
+      "typography": "Visible instructional text, headings and controls remain readable.",
+      "wrapping": "FAIL BG-46: Training introduction ends with isolated it at 420px.",
+      "spacing": "Visible section spacing and illustration alignment are coherent.",
+      "semantics": "Pending Training gate and expected artifact remain distinct from completed output.",
+      "contrast": "Theme text and control boundaries are visually distinguishable; numerical contrast is established by separate tests.",
+      "motion_state": "Static screenshot certifies only the displayed state; timing and cancellation are covered by separate interaction tests.",
+      "verdict": "partial: BG-46",
+      "findings": [
+        "BG-46"
+      ],
+      "limitations": [
+        "No motion, native zoom, OS occlusion, keyboard, or numerical contrast inference from this still image."
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "BG-46",
+      "description": "Mobile Training intro has an isolated it heading tail.",
+      "status": "open; separately previewed correction awaits bounded-pass decision"
+    },
+    {
+      "id": "BG-47",
+      "description": "Earlier Phase 6 fullscreen captures show excessive idle terminal whitespace; selector remains in final guide.",
+      "status": "open; separately previewed correction awaits bounded-pass decision"
+    }
+  ],
+  "related_reviews": [
+    "phase-6-image-verdicts.json",
+    "earlier-image-verdicts.json"
+  ],
+  "limits": "All retained Phase 2-7 images reviewed, including 212 independent and 84 parent images. Retrospective review is not proof that every intermediate phase originally met its visual exit gate. Native zoom, Linux browser and reader checks remain open."
+}

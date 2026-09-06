@@ -1,4 +1,4 @@
 interface:
   display_name: Task Coordinator
   short_description: Coordinate complex multi-step tasks by breaking them down into manageable subtasks with dependency tracking. Covers multi-agent architectural patterns (supervisor, swarm, hierarchical),
-    token economic
+    token economics, and handoff protocols.

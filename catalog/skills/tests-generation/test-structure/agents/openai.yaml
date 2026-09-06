@@ -1,4 +1,4 @@
 interface:
   display_name: Test Structure Setup
   short_description: Set up testing infrastructure including framework selection, directory organization, configuration files, and initial test scaffolding. Use when starting a new project, adding tests
-    to an existing cod
+    to an existing codebase, restructuring test organization, or setting up pytest, Jest, JUnit, xUnit, or Go testing for Python, JavaScript, Java, C#, Go, C, or C++.

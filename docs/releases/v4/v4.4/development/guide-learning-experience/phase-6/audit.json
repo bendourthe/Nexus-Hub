@@ -1,0 +1,261 @@
+{
+  "sha256": "d5673b540efc9313ce1e83bd5424d443c2107317595cfe675183c13433db9635",
+  "bytes": 352924,
+  "machine": "Windows-11-10.0.26200-SP0",
+  "cases": [
+    {
+      "theme": "light",
+      "width": 320,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 3211,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 2860,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 719,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 2432,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 720,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 2432,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 721,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 2435,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 2435,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 1860,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 1829,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 1829,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 3211,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 2860,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 719,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 2432,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 720,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 2432,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 721,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 2435,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 2435,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 1860,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 1829,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "page": "training",
+      "words": {
+        "main": 321,
+        "total": 321
+      },
+      "height": 1829,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    }
+  ],
+  "performance": [],
+  "browser": "151.0.7922.34"
+}

@@ -1,0 +1,5 @@
+{
+  "fixtureStatus": 401,
+  "message": "Requires authentication",
+  "documentation_url": "https://docs.github.com/rest/billing/usage"
+}

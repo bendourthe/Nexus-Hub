@@ -1,0 +1,196 @@
+{
+  "name": "codex-usage-monitor",
+  "displayName": "Codex Usage Monitor",
+  "description": "Monitor your Codex (ChatGPT) usage limits in the status bar with smart throttle and pacing recommendations",
+  "version": "0.2.11",
+  "publisher": "nexus-hub",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bendourthe/Nexus-Hub.git",
+    "directory": "extensions/codex-usage-monitor"
+  },
+  "homepage": "https://github.com/bendourthe/Nexus-Hub/tree/main/extensions/codex-usage-monitor#readme",
+  "bugs": {
+    "url": "https://github.com/bendourthe/Nexus-Hub/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0",
+    "node": ">=22.0.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "codex-usage.dashboard",
+        "title": "Codex Usage: Dashboard",
+        "category": "Codex Usage"
+      },
+      {
+        "command": "codex-usage.refresh",
+        "title": "Codex Usage: Refresh",
+        "category": "Codex Usage"
+      },
+      {
+        "command": "codex-usage.recommend",
+        "title": "Codex Usage: Recommend",
+        "category": "Codex Usage"
+      },
+      {
+        "command": "codex-usage.reset",
+        "title": "Codex Usage: Clear Data",
+        "category": "Codex Usage"
+      },
+      {
+        "command": "codex-usage.settings",
+        "title": "Codex Usage: Settings",
+        "category": "Codex Usage"
+      }
+    ],
+    "icons": {
+      "codex-icon": {
+        "description": "Codex icon",
+        "default": {
+          "fontPath": "./fonts/codex-icons.woff2",
+          "fontCharacter": "\\E101"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "codexUsageWarning",
+          "title": "Codex Usage Warning",
+          "icon": "icons/warning.svg"
+        }
+      ]
+    },
+    "views": {
+      "codexUsageWarning": [
+        {
+          "id": "codexUsageWarningView",
+          "name": "Usage Warning",
+          "type": "webview",
+          "when": "codexUsage.warningActive"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Codex Usage Monitor",
+      "properties": {
+        "codexUsage.authPath": {
+          "type": "string",
+          "default": "",
+          "description": "Optional path to the Codex app credential file (the JSON holding your ChatGPT access token and account id). Leave empty to use CODEX_HOME/auth.json when CODEX_HOME is set, otherwise ~/.codex/auth.json. Set this if your Codex app stores credentials elsewhere."
+        },
+        "codexUsage.autoFetch": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically fetch usage data from the Codex usage endpoint on startup and at regular intervals"
+        },
+        "codexUsage.refreshInterval": {
+          "type": "number",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 120,
+          "description": "How often (in minutes) to fetch usage data from the endpoint"
+        },
+        "codexUsage.showInStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Codex usage in the status bar"
+        },
+        "codexUsage.compactStatusBar": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use a compact status-bar label: '<icon> X% (current) Y% (week)' instead of '<icon> Codex Usage: X% (current) Y% (week)'."
+        },
+        "codexUsage.thresholds.moderate": {
+          "type": "number",
+          "default": 50,
+          "minimum": 1,
+          "maximum": 99,
+          "description": "Usage percentage at which the Moderate urgency level is triggered"
+        },
+        "codexUsage.thresholds.high": {
+          "type": "number",
+          "default": 75,
+          "minimum": 1,
+          "maximum": 99,
+          "description": "Usage percentage at which the High urgency level is triggered"
+        },
+        "codexUsage.thresholds.critical": {
+          "type": "number",
+          "default": 95,
+          "minimum": 1,
+          "maximum": 99,
+          "description": "Usage percentage at which the Critical urgency level is triggered"
+        },
+        "codexUsage.notificationTimeoutSeconds": {
+          "type": "number",
+          "default": 12,
+          "minimum": 3,
+          "maximum": 60,
+          "description": "How long (in seconds) Codex Usage notifications stay on screen before auto-dismissing. Set this so notifications never stack while VS Code is in the background. Manual dismiss via the X button is always available."
+        },
+        "codexUsage.colors.moderate": {
+          "type": "string",
+          "default": "#cca700",
+          "description": "Status bar background color when usage is at the Moderate level. Use a hex color (e.g. #cca700) or 'none' to disable highlighting."
+        },
+        "codexUsage.colors.high": {
+          "type": "string",
+          "default": "#f0643c",
+          "description": "Status bar background color when usage is at the High level. Use a hex color (e.g. #f0643c) or 'none' to disable highlighting."
+        },
+        "codexUsage.colors.critical": {
+          "type": "string",
+          "default": "#e05555",
+          "description": "Status bar background color when usage is at the Critical level. Use a hex color (e.g. #e05555) or 'none' to disable highlighting."
+        },
+        "codexUsage.thresholdMetric": {
+          "type": "string",
+          "default": "highest",
+          "enum": [
+            "highest",
+            "session",
+            "weekly"
+          ],
+          "enumDescriptions": [
+            "Automatically evaluate thresholds against whichever metric is currently highest",
+            "Evaluate thresholds against the Current Session usage",
+            "Evaluate thresholds against the Weekly usage"
+          ],
+          "description": "Which usage metric the urgency thresholds and notifications are evaluated against"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.41",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "fantasticon": "^4.1.0",
+    "svg2ttf": "^6.1.0",
+    "svgpath": "^2.6.0",
+    "ttf2woff2": "^8.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^4.1.11"
+  }
+}

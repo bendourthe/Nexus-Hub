@@ -1,0 +1,13 @@
+{
+  "baseline": "83fdfa35",
+  "outside_models_unchanged": true,
+  "bytes": 499320,
+  "sha256": "692b155e4cd241457f910a2d3bd20bef0b757caa52f139a11b4c3f6b6fab6ffc",
+  "syntax_checks": [
+    true,
+    true,
+    true,
+    true,
+    true
+  ]
+}

@@ -18,6 +18,7 @@ from pathlib import Path
 from scripts.lib.integrations.base import InstallContext
 from scripts.lib.integrations.manifest import InstallManifest
 from scripts.lib.integrations._catalog_adapters import (
+    catalog_skill_names,
     commands_to_skills,
     commands_to_slash,
     flatten_skills,
@@ -113,6 +114,9 @@ def test_commands_to_skills_synthesizes_skill_md(tmp_path: Path):
     assert "name: demo" in text
     assert "/demo" in text, "description should carry the slash-command lead-in"
     assert "Do the thing" in text, "description should carry the source command description"
+    assert "disable-model-invocation: true" in text, (
+        "command-skills must be user-invoked; the installer emits the flag"
+    )
     assert "Body line." in text, "command body should become the skill body"
 
 
@@ -190,3 +194,51 @@ def test_commands_to_slash_idempotent(tmp_path: Path):
     assert {a.action for a in second} == {"unchanged"}, (
         f"second run should be all-unchanged; got {[a.action for a in second]}"
     )
+
+
+# ---------------------------------------------------------------------------
+# A skill directory is DEFINED by its SKILL.md (v3.15.9 Phase 7)
+#
+# An in-progress or abandoned scaffold (a `<category>/<name>/` folder with no
+# SKILL.md) must never be published. Every platform discovers skills by reading
+# `<skills>/<name>/SKILL.md` one level deep, so copying the bare directory
+# delivers a skill nothing can load and breaks the depth-1 platform contract.
+# Git cannot track an empty directory, so these appear only in a working tree --
+# which is exactly why they need a test rather than reviewer vigilance.
+# ---------------------------------------------------------------------------
+
+
+def test_flatten_skills_skips_directory_without_skill_md(tmp_path: Path):
+    skills, _ = _make_catalog(tmp_path)
+    # An abandoned scaffold, and one that got as far as a bundled subdir.
+    (skills / "cat-a" / "scaffold-empty").mkdir(parents=True)
+    (skills / "cat-b" / "scaffold-partial" / "scripts").mkdir(parents=True)
+    dst = tmp_path / "out" / "skills"
+    ctx = _ctx(tmp_path)
+
+    flatten_skills(ctx, "hermes", skills, dst)
+
+    assert not (dst / "scaffold-empty").exists(), (
+        "scaffold with no SKILL.md was published"
+    )
+    assert not (dst / "scaffold-partial").exists(), "partial scaffold was published"
+    # The real skills still arrive, so the guard is a filter and not a blanket stop.
+    assert (dst / "skill-one" / "SKILL.md").is_file()
+    assert (dst / "skill-two" / "SKILL.md").is_file()
+    # Every delivered directory satisfies the depth-1 contract the platforms assert.
+    for child in (p for p in dst.iterdir() if p.is_dir()):
+        assert (child / "SKILL.md").is_file(), (
+            f"{child.name} has no SKILL.md at depth 1"
+        )
+
+
+def test_catalog_skill_names_ignores_directory_without_skill_md(tmp_path: Path):
+    skills, _ = _make_catalog(tmp_path)
+    (skills / "cat-a" / "scaffold-empty").mkdir(parents=True)
+
+    names = catalog_skill_names(skills)
+
+    assert names == {"skill-one", "skill-two"}
+    # A nameless scaffold must not reserve a name, or it would suppress a
+    # legitimate command wrapper that happens to share it.
+    assert "scaffold-empty" not in names

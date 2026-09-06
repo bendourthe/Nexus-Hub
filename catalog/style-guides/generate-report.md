@@ -15,7 +15,7 @@ For a report synthesized from 3-7 source files covering a substantial topic:
 | Table rows per table | 3-12 | Never exceed 15 |
 | Table columns | 2-5 | Never exceed 6 |
 | Bullet points (total) | 80-200 | Minimum 50 |
-| Prose paragraphs | 60-120 | — |
+| Prose paragraphs | 60-120 | -- |
 | Total lines | 800-1200 | Never exceed 1500 |
 | Figures | 5-8 | Minimum 4 for substantial reports |
 

@@ -13,8 +13,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+import json  # noqa: E402
+
 from scripts.verify_platform_contracts import (  # noqa: E402
     CONTRACT_DOC,
+    CONTRACT_JSON,
+    EXPECTATIONS,
     INSTALLER_PS1,
     INSTALLER_SH,
     check,
@@ -48,3 +52,16 @@ def test_flags_dropped_installer_delivery():
     fake_installer = "should_install codex claude gemini gemini-cli opencode antigravity2"
     problems = check(doc, fake_installer, fake_installer)
     assert any("nexus-ai" in p and "not referenced" in p for p in problems)
+
+
+def test_expectations_are_loaded_from_the_json_single_source():
+    """DRY guard (v3.14.5 Phase 6): the verifier's EXPECTATIONS must come from the
+    JSON's contract_checks block, not a hardcoded dict, so the runtime verify path
+    and the freshness gate share exactly one source of expected paths."""
+    assert EXPECTATIONS, "EXPECTATIONS must be non-empty (loaded from the contract JSON)"
+    checks = json.loads(CONTRACT_JSON.read_text(encoding="utf-8"))["contract_checks"]
+    assert set(EXPECTATIONS) == set(checks), "EXPECTATIONS keys must match contract_checks keys"
+    # Every entry must carry the three fields check() reads, so a malformed JSON
+    # row surfaces as a test failure rather than a silent skip.
+    for key, exp in EXPECTATIONS.items():
+        assert {"config", "flatten", "doc_mentions"} <= set(exp), f"{key} missing required fields"

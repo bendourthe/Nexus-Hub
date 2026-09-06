@@ -30,6 +30,7 @@ Provides token optimization capabilities including:
 
 - **Usage Auditing**: Measuring baseline token consumption to identify waste
 - **Programmatic Tool Calling (PTC)**: Replacing sequential tool calls with scripted orchestration
+- **Functions over data**: Computing over large structured context with scripts and queries instead of reading it token by token
 - **Dynamic Filtering**: Removing irrelevant content before it enters the context window
 - **Tool Search Deferral**: Loading tool definitions on demand instead of upfront
 - **Tool Definition Tuning**: Adding examples to tool definitions to improve accuracy per token spent
@@ -122,6 +123,12 @@ print(json.dumps(results, indent=2))
 ```
 
 **Typical savings**: 30-40% token reduction for exploration-heavy tasks.
+
+### Functions over data
+
+When context is large and structured (logs, JSONL, a repository tree, a table, a trace dump), compute over it programmatically -- scripts, queries, filters -- instead of reading it token by token. PTC (this step) is the tool-call form of the same idea; functions-over-data is the payload form. A `jq` filter, a SQL query, a grep that returns counts and exceptions, or a Python one-liner that emits a summary is the substitution. Published harness benchmarks show higher scores at lower token spend from exactly this swap: the model reasons over a computed slice, not over the raw blob.
+
+Reach for this before compaction and before optical/image-token tricks. Byte-exact identifiers still stay as text (see the optical-compression section below). Cross-link [[context-optimization]] for the compressor that enforces filtering at the tool boundary.
 
 ### Step 3: Implement Dynamic Filtering
 
@@ -250,6 +257,7 @@ After applying optimizations, re-run the same representative tasks and compare.
 
 ### Techniques Applied
 - [ ] Programmatic Tool Calling
+- [ ] Functions over data (script/query over the blob, not a full read)
 - [ ] Dynamic Filtering
 - [ ] Tool Search Deferral
 - [ ] Tool Definition Examples
@@ -296,12 +304,14 @@ So at any resolution where the code stays legible, the image costs roughly 1.5x 
 | "I will optimize the prompt that feels longest." | Intuition picks the wrong target. Without a baseline token audit you often shave a 200-token prompt while a tool-definition block silently eats 8,000 tokens per turn. Measure first, then optimize the actual bottleneck. |
 | "Compacting harder always saves more, so more is better." | Past a point, aggressive compaction strips the context the model needs and quality drops, forcing re-work that costs more tokens than it saved. Token reduction that degrades output is a net loss, not a win. |
 | "Programmatic tool calling is overkill; I will just call the tools one at a time." | For an exploration-heavy workflow, sequential tool calls re-pay the round-trip token cost on every step. A single script that batches the calls and returns only the relevant slice is where the 24-85% reduction comes from. |
+| "I need to read the whole log so I do not miss anything." | That spends the window on the blob instead of the question. Functions-over-data (a script or query that returns counts, exceptions, and the matching slice) scores higher at lower token spend than a token-by-token read. |
 | "Rendering the big files as images will cut my token bill with no downside." | It is lossy by construction: exact strings are silently confabulated (published tests report 0% 12-character hex recall on Opus-class models), so a wrong hash or version pin passes lint and review undetected. And on the high-resolution image tier that strong models use, a legible page costs more tokens than the text it replaces. Use lossless prompt caching and context pruning, and keep byte-exact content as text. |
 
 ## Verification
 
 - [ ] A baseline token audit was captured before any optimization
-- [ ] The chosen technique targets the measured bottleneck (PTC, filtering, or tool deferral)
+- [ ] The chosen technique targets the measured bottleneck (PTC, functions-over-data, filtering, or tool deferral)
+- [ ] Large structured inputs were computed over (script, query, filter) rather than read token by token when a slice would answer the question
 - [ ] Post-optimization token consumption is measured and compared to baseline
 - [ ] Output quality was checked to confirm compaction did not strip critical context
 - [ ] The savings (percent reduction) are documented for the task

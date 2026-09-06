@@ -1,4 +1,4 @@
 interface:
   display_name: Dependency Manager
   short_description: Manage and upgrade project dependencies safely. Use when upgrading packages, handling breaking changes, managing lock files, patching vulnerabilities, or auditing dependency health
-    across your project
+    across your projects.

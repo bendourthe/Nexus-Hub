@@ -1,0 +1,12 @@
+{
+  "skill": "interface-review",
+  "purpose": "Route holistic multi-domain UI reviews here; leave single-domain craft and general code review to their owners.",
+  "cases": [
+    {"id": "pos-holistic", "prompt": "run a holistic multi-domain interface review of this screen and give one consolidated verdict", "should_trigger": true, "assert": "routes to interface-review first", "lexical": true},
+    {"id": "pos-ux-pass", "prompt": "coordinate a multi-domain UX pass across accessibility layout copy typography color and polish", "should_trigger": true, "assert": "routes to interface-review first", "lexical": true},
+    {"id": "pos-consolidated", "prompt": "I need a consolidated interface review spanning those domains, not a single-domain audit", "should_trigger": true, "assert": "routes to interface-review first", "lexical": true},
+    {"id": "neg-a11y", "prompt": "ship accessible UI with keyboard navigation, ARIA names, and WCAG focus", "should_trigger": false, "assert": "routes to accessibility-engineering, not here", "lexical": true},
+    {"id": "neg-oklch", "prompt": "build an OKLCH palette with even lightness steps and measure contrast pairs", "should_trigger": false, "assert": "routes to color-systems, not here", "lexical": true},
+    {"id": "neg-pr", "prompt": "review this PR with multi-agent-code-review before I merge the diff", "should_trigger": false, "assert": "routes to multi-agent-code-review, not here", "lexical": true}
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "outsideContextAndPreviewsUnchanged": true,
+  "sectionOrderUnchanged": true,
+  "originalIdsPreserved": true,
+  "addedIds": [
+    "cx-checkout",
+    "cx-preview",
+    "cx-preview-title",
+    "cx-preview-image",
+    "cx-preview-pdf",
+    "cx-preview-folder"
+  ],
+  "guideBytes": 399465
+}

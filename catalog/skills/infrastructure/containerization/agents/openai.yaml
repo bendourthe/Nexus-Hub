@@ -1,4 +1,4 @@
 interface:
   display_name: Containerization
   short_description: Container best practices including Dockerfile optimization, multi-stage builds, image security scanning, and Docker Compose patterns. Use when containerizing applications, optimizing
-    image size, or se
+    image size, or setting up local development environments.

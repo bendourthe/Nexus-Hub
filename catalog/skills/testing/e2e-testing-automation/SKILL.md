@@ -677,6 +677,7 @@ test.describe('Accessibility', () => {
 
 ## Related Skills
 
+- [[functional-verification]] -- owns proportionate real-boundary exercise and its evidence record; this skill owns durable automated browser-flow regression suites.
 - [[unit-tests]] -- unit testing for individual functions and components
 - [[test-cases]] -- integration and API testing patterns
 - [[cicd-architect]] -- CI/CD pipeline design for test automation

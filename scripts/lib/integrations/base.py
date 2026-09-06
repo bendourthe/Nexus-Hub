@@ -76,6 +76,67 @@ class InstallContext:
     # `safe_folder_copy` block and only needs the registry to render the
     # marker-merged instruction file (the DF-001 legacy-block replacement path).
     instruction_only: bool = False
+    # v3.17.4 Phase 3 -- diagnostic detail is opt-in so an absent organization
+    # connection remains silent during installer --quiet runs.
+    verbose: bool = False
+    # v3.16.1 Phase 5.4 -- the resolved install selection, a
+    # `scripts.lib.installer.selection.SelectionPlan`, or None.
+    #
+    # None means NO FILTERING, i.e. the full catalog. That default is what makes
+    # this additive: every pre-v3.16.1 caller constructs an InstallContext
+    # without this field and keeps its exact current behavior with no edit,
+    # matching how `languages` and `instruction_only` were introduced.
+    #
+    # Typed as Any rather than SelectionPlan on purpose. `base` is the most
+    # widely imported module in the package, and importing the installer package
+    # here would give every integration a hard dependency on the resolver -
+    # including on hosts where the legacy installer path deliberately never
+    # touches it. Phase 6 consumes this field where the copying happens.
+    selection: Optional[Any] = None
+
+    # ------------------------------------------------------------------
+    # v3.16.1 Phase 6.3 -- selection predicates
+    #
+    # Every caller asks the same question ("may I copy this?") and gets True
+    # unconditionally when no selection is present. That is what keeps a full
+    # install on its EXACT pre-v3.16.1 code path: `selection is None` short-
+    # circuits before any set is built, so the byte-equivalence requirement in
+    # the contract is structural rather than something the copy sites have to
+    # reproduce carefully.
+    # ------------------------------------------------------------------
+
+    def _selected(self, surface: str) -> Optional[frozenset]:
+        """Resolved names for one surface, or None when nothing is filtered."""
+        if self.selection is None:
+            return None
+        cache = getattr(self, "_selection_cache", None)
+        if cache is None:
+            plan = self.selection
+            # Accept either a SelectionPlan or the plain dict a manifest holds,
+            # so a repair driven from a recorded manifest needs no re-resolution.
+            payload = plan.to_dict() if hasattr(plan, "to_dict") else dict(plan)
+            resolved = payload.get("resolved", {}) or {}
+            cache = {k: frozenset(v or ()) for k, v in resolved.items()}
+            self._selection_cache = cache
+        return cache.get(surface, frozenset())
+
+    def selects_skill(self, name: str) -> bool:
+        chosen = self._selected("skills")
+        return True if chosen is None else name in chosen
+
+    def selects_command(self, name: str) -> bool:
+        chosen = self._selected("commands")
+        return True if chosen is None else name in chosen
+
+    def selects_agent(self, name: str) -> bool:
+        chosen = self._selected("agents")
+        return True if chosen is None else name in chosen
+
+    @property
+    def is_filtered(self) -> bool:
+        """True when a selection is active. Copy sites branch on this to keep
+        the unfiltered path byte-identical to pre-v3.16.1 behavior."""
+        return self.selection is not None
 
 
 class IntegrationBase:
@@ -115,6 +176,31 @@ class IntegrationBase:
             # Cleanups happened before the install, so prepend them so the
             # rendered output reads top-to-bottom in execution order.
             result.files = list(cleanup_actions) + list(result.files)
+        if result.detected is not False:
+            # v3.16.0 Phase 3: seed the platform's declared install-time
+            # behavioral defaults. Deliberately hooked here rather than in
+            # install_global, because subclasses override that and a subclass
+            # that forgot to call super() would silently skip its defaults.
+            # The dispatcher runs for every integration, so this cannot be
+            # missed. Import locally to keep the module import graph flat.
+            #
+            # Gated on `result.detected is not False`, NOT on truthiness:
+            # `detected` is Optional[bool] where None means "this platform is
+            # not detection-gated at all" (codex, cursor, claude). Only an
+            # explicit False means "the tool was not found". Seeding an
+            # undetected platform would create a config file for software the
+            # user does not have installed, which is worse than shipping no
+            # default at all.
+            from .org_knowledge import seed_org_knowledge
+            from .platform_defaults import seed_platform_defaults
+
+            result.files.extend(seed_platform_defaults(self.key, ctx))
+            # Organization knowledge belongs at this same dispatcher seam, not
+            # in install_global/install_workspace overrides. Unlike platform
+            # defaults, its helper intentionally handles both scopes so
+            # workspace-only instruction surfaces such as Cursor and Aider are
+            # materialized without inventing global files.
+            result.files.extend(seed_org_knowledge(self.key, ctx))
         return result
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
@@ -148,7 +234,9 @@ class IntegrationBase:
         """Remove every file/directory previously logged in the manifest for
         this integration. Safe to call multiple times.
         """
-        result = WriteResult()
+        from .org_knowledge import remove_org_knowledge
+
+        result = WriteResult(files=remove_org_knowledge(self.key, ctx))
         for path_str in list(ctx.manifest.files_for(self.key)):
             path = Path(path_str)
             if path.is_file():
@@ -712,6 +800,17 @@ class SkillsIntegration(IntegrationBase):
                         catalog_skill_names(src_skills),
                     )
                 )
+            elif ctx.is_filtered:
+                # v3.16.1 Phase 6.3 -- nested layout under a selection. Only
+                # reached when a selection is active; the unfiltered branch
+                # below keeps its single whole-tree copy untouched.
+                from ._catalog_adapters import nested_skills_selected
+
+                actions.extend(
+                    nested_skills_selected(
+                        ctx, self.key, ctx.repo_root / "catalog" / "skills", skills_dst
+                    )
+                )
             else:
                 actions.append(
                     self._copy_tree(ctx.repo_root / "catalog" / "skills", skills_dst, ctx, self.key)
@@ -726,6 +825,30 @@ class SkillsIntegration(IntegrationBase):
         ):
             subdir = self.config.get(cfg_key)
             if not subdir:
+                continue
+            # Hook installation is gated on the declared capability so a
+            # platform's hook support lives in exactly one place
+            # (`hooks_supported`). Every integration that declares
+            # `hooks_subdir` today also sets `hooks_supported: True`, so this is
+            # byte-identical to the prior unconditional copy; the gate prevents a
+            # future `hooks_subdir` declaration from silently shipping hooks to a
+            # platform that cannot run them.
+            if cfg_key == "hooks_subdir" and not self.config.get("hooks_supported"):
+                continue
+            # v3.16.1 Phase 6.3 -- commands and agents are selectable surfaces;
+            # rules and hooks are policy infrastructure and are NEVER filtered.
+            # A user narrowing their capability set is not asking for weaker
+            # guardrails, so a focused install must not be less safe than the
+            # default one.
+            surface = {"commands_subdir": "command", "agents_subdir": "agent"}.get(cfg_key)
+            if surface and ctx.is_filtered:
+                from ._catalog_adapters import flat_md_selected
+
+                actions.extend(
+                    flat_md_selected(
+                        ctx, self.key, ctx.repo_root / src_rel, parent_dir / subdir, surface
+                    )
+                )
                 continue
             actions.append(
                 self._copy_tree(ctx.repo_root / src_rel, parent_dir / subdir, ctx, self.key)

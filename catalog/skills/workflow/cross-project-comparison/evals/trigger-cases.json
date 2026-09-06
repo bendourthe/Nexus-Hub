@@ -1,0 +1,8 @@
+{
+  "skill": "cross-project-comparison",
+  "purpose": "Route project comparison and adoption-report placement.",
+  "cases": [
+    {"id": "pos-compare", "prompt": "compare the current project with an external knowledge source and produce a structured gap analysis and adoption plan", "should_trigger": true, "assert": "routes to cross-project-comparison first", "lexical": true},
+    {"id": "neg-weather", "prompt": "show the weather forecast for tomorrow", "should_trigger": false, "assert": "does not route to cross-project-comparison", "lexical": true}
+  ]
+}

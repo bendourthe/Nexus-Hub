@@ -1,4 +1,4 @@
 interface:
   display_name: Cross-Model Orchestrator
   short_description: Orchestrate multiple AI coding assistants (Claude Code, Codex CLI, Gemini CLI, Copilot) in coordinated workflows with QA gates between models. Use when you want to leverage different
-    model strengths f
+    model strengths for planning, implementation, review, and verification phases.

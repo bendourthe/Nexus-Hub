@@ -1,0 +1,63 @@
+{
+  "allowlist": "<workspace>\\tests\\guides\\fixtures\\learning-visual-allowlist.json",
+  "file": "<workspace>\\guides\\website\\nexus-hub-guide.html",
+  "findings": [],
+  "font_floor_px": 12.0,
+  "fragment": "training",
+  "gate_findings": 0,
+  "minimum_text_box_px": {
+    "height": 12.0,
+    "width": 16.0
+  },
+  "page_pass": true,
+  "status": "pass",
+  "suppressed_findings": 11,
+  "theme": "light",
+  "tolerance_px": 1.0,
+  "viewports": [
+    {
+      "height": 900,
+      "width": 320
+    },
+    {
+      "height": 900,
+      "width": 420
+    },
+    {
+      "height": 900,
+      "width": 719
+    },
+    {
+      "height": 900,
+      "width": 720
+    },
+    {
+      "height": 900,
+      "width": 721
+    },
+    {
+      "height": 900,
+      "width": 768
+    },
+    {
+      "height": 900,
+      "width": 1023
+    },
+    {
+      "height": 900,
+      "width": 1024
+    },
+    {
+      "height": 900,
+      "width": 1025
+    },
+    {
+      "height": 900,
+      "width": 1440
+    },
+    {
+      "height": 900,
+      "width": 1920
+    }
+  ]
+}

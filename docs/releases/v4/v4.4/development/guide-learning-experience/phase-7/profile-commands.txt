@@ -1,0 +1,85 @@
+profile: fast   platform: windows
+  catalog-parse  [scope: always] (blocking)
+    - skills.json parses
+    - bundles.json parses
+    - workflows.json parses
+    - templates.json parses
+  hygiene  [scope: always]
+    - validate_unicode_safety
+    - validate_no_personal_paths
+    - check_docs_conventions
+    - validate_doc_budgets
+    - check_memory_integration_budget
+  interpreters  [scope: always]
+    - check_interpreter_resolution
+  workflows  [scope: workflows]
+    - validate_workflow_security
+    - check_required_check_coverage
+  version  [scope: always]
+    - check_version_sync
+profile: full   platform: windows
+  catalog-parse  [scope: always] (blocking)
+    - skills.json parses
+    - bundles.json parses
+    - workflows.json parses
+    - templates.json parses
+  hygiene  [scope: always]
+    - validate_unicode_safety
+    - validate_no_personal_paths
+    - check_docs_conventions
+    - validate_doc_budgets
+    - check_memory_integration_budget
+  interpreters  [scope: always]
+    - check_interpreter_resolution
+  catalog  [scope: catalog]
+    - validate_skills
+    - check_agentskills_conformance
+    - build_framework_coverage
+    - run_trigger_evals
+    - check_registry_entries
+    - scan_skill_security
+  security  [scope: always]
+    - scan_supply_chain_iocs
+    - validate_permission_baseline
+    - check_no_outbound
+  workflows  [scope: workflows]
+    - validate_workflow_security
+    - check_required_check_coverage
+  platform-contracts  [scope: platforms]
+    - check_installer_parity
+    - check_base_template_parity
+    - verify_platform_contracts
+    - check_platform_contract_freshness
+    - sync_platform_defaults
+    - verify_model_prompting_profiles
+  docs  [scope: docs]
+    - check_doc_colocation
+    - validate_solution_frontmatter
+    - check_incident_notes
+    - validate_decision_records
+    - stamp_guide_counts
+    - check_memory_provenance
+    - check_docs_retention (advisory)
+  version  [scope: always]
+    - check_version_sync
+  tests  [scope: tests]
+    - hook-tests
+    - repo-tests
+  extension-tests  [scope: extensions]
+    - skill-server
+    - code-search
+    - web-fetch
+    - skill-scanner
+    - context-compressor
+    - memory
+    - compression-accuracy-gate
+profile: platform   platform: windows
+  shell-lint  [scope: always]
+    - shellcheck installers  -- skipped on windows
+  powershell-parse  [scope: always]
+    - powershell AST parse
+  interpreters  [scope: always]
+    - check_interpreter_resolution
+  windows-hooks  [scope: always]
+    - hook-tests (Windows PowerShell 5.1)
+    - installer + validators (Windows)

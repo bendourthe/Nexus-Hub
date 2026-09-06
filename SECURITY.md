@@ -59,9 +59,11 @@ The hooks in `catalog/hooks/` run inside Claude Code sessions with the permissio
 - `large-file-guard.sh` -- PreToolUse, blocks accidental large-file commits.
 - `format-bash-description.py` -- PreToolUse, formats Bash command descriptions consistently.
 
-### OAuth token access (Claude Usage Monitor extension)
+### OAuth token access (usage-monitor extensions)
 
 The VS Code extension `extensions/claude-usage-monitor/` and the `usage-display.sh` hook read your Claude Code OAuth token from `~/.claude/.credentials.json` to query usage data. This token is sent only to `api.anthropic.com`; never to any other destination.
+
+The separate VS Code extension `extensions/codex-usage-monitor/` reads your local Codex-app (ChatGPT) OAuth token from `~/.codex/auth.json` (or a configured path) and sends it only to `chatgpt.com/backend-api/wham/usage` to query your own account usage; never to any other destination. Each extension reads only its own provider's token and calls only that provider's account endpoint.
 
 ### Internal MCP servers
 

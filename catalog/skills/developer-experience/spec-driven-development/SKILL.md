@@ -1,13 +1,15 @@
 ---
 name: spec-driven-development
-description: Writes a structured technical specification before any code is written. Use when starting a new project, feature, or significant change and no written specification exists — especially when requirements are ambiguous, the change touches multiple files, or architectural decisions must be made. Trigger phrases: write a spec, create a specification, spec this out, define the requirements, spec-driven, write the spec before coding.
-summary_l0: "Write a structured specification before coding to prevent rework from misunderstood requirements"
-overview_l1: "This skill produces a written technical specification before implementation begins, following a four-phase gated workflow: Specify → Plan → Tasks → Implement. Use it when requirements are ambiguous, the change spans multiple files or modules, or you are making an architectural decision. Key capabilities include assumption surfacing, success criteria formulation, project structure definition, boundaries (Always/Ask/Never), and task breakdown with per-task acceptance criteria. The spec is committed to the repo as a living document — updated as decisions change, referenced in PRs, and never discarded after implementation begins. Without this skill, implementation risks solving the wrong problem or building an architecture that does not match the team's intent. Trigger phrases: write a spec, spec this out, create a specification, define requirements, spec before coding, what should I build."
+description: "Writes a structured technical specification before any code is written. Use when starting a new project, feature, or significant change and no written specification exists -- especially when requirements are ambiguous, the change touches multiple files, or architectural decisions must be made. Trigger phrases: write a spec, create a specification, spec this out, define the requirements, spec-driven, write the spec before coding. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
+summary_l0: "Write specifications before code and place release-bound artifacts canonically"
+overview_l1: "This skill produces a written technical specification before implementation begins, following a four-phase gated workflow: Specify → Plan → Tasks → Implement. Use it when requirements are ambiguous, the change spans multiple files or modules, or you are making an architectural decision. Key capabilities include assumption surfacing, success criteria formulation, scope bounding through explicit non-goals, spec depth chosen by blast radius, and task breakdown with per-task acceptance criteria. The spec is committed to the repo as a living document -- updated as decisions change, referenced in PRs, and never discarded after implementation begins. Without this skill, implementation risks solving the wrong problem or building an architecture that does not match the team's intent. Trigger phrases: write a spec, spec this out, create a specification, define requirements, spec before coding, what should I build. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # Spec-Driven Development
 
-Write a structured specification before writing any code. The spec is the shared source of truth between you and the human engineer — it defines what we're building, why, and how we'll know it's done. Code without a spec is guessing.
+Write a structured specification before writing any code. The spec is the shared source of truth between you and the human engineer -- it defines what we're building, why, and how we'll know it's done. Code without a spec is guessing.
+
+"Guessing" is the precise word, and it explains why the cost is worse than rework. An agent that reaches an unstated requirement does not stop and ask; it fills the gap with the most plausible interpretation and keeps building on it. In a small codebase those guesses stay visible, because there is not much code for them to hide in. In a large one they land in details nobody inspects, so the consequence surfaces later, somewhere else, in code the author never touched, where it reads as an unrelated bug rather than as a decision that was never made. Guess cost therefore scales with the size of the system, not with the size of the change, which is why a small change to a large codebase deserves more written agreement than its diff suggests. The two mechanisms this skill ships exist for exactly this: the `[NEEDS CLARIFICATION]` marker and the mandatory `## Assumptions` section both convert a silent guess into a recorded decision the reviewer can overturn with one line.
 
 ## Hard Gate: No Implementation Before an Approved Design
 
@@ -21,6 +23,27 @@ This is a hard gate, not a guideline. Until a design has been presented in revie
 The gate applies regardless of how simple the change looks. "Simple" is a judgment about implementation effort; the gate is about whether you and the user agree on *what* to build and *why*. Those are independent: a one-file change built against the wrong assumption is still rework. The cost of presenting a short design for a simple change is a minute; the cost of building the wrong simple thing is the build plus the rebuild plus the conversation about why it was wrong.
 
 What satisfies the gate: a design or spec presented in sections the user can react to (objective, the proposed approach, success criteria, boundaries), followed by an explicit approval ("yes, build that", "approved", a clear go-ahead). Silence is not approval. A thumbs-up on the *problem statement* is not approval of the *design*. If the user says "just build it" before any design exists, present the smallest reviewable design first and ask for the go-ahead - that exchange takes one turn and is the entire point of the gate.
+
+### Spec depth is proportional; the gate is not
+
+The gate governs whether you and the user agree on *what* to build. The depth governs how much document that agreement needs. These are independent axes, and this rule moves only the second one.
+
+Depth is keyed on blast radius, meaning how far a wrong assumption propagates, not on effort, line count, or how long the change takes to write. A three-line change to a public API has a larger blast radius than a three-hundred-line change to a private helper.
+
+| Blast radius | Required spec depth |
+|---|---|
+| One file, internal, with no surface a consumer can observe | Problem Statement, acceptance criteria, and Non-Goals. Short enough to fit in a chat message; it does not need its own file. |
+| Multiple files or multiple modules, still internal | The above, plus User Scenarios with an Independent Test, FR-### items, and Assumptions. |
+| A change to behavior, a public API, a data schema, or a CLI surface | The full canonical template written to `spec.md`, including Invariants. |
+
+The top tier names the same four surfaces as "The Spec as a Merge Gate" below, and that is deliberate: a change that must update its spec before it can merge is a change that needed the full spec before it started. The two rules are one rule seen from each end.
+
+Two boundaries keep the tiering honest:
+
+- **Depth never scales the approval.** A three-bullet spec in a chat message is still a design presented in reviewable sections, and it still requires an explicit go-ahead before any code. Shrinking the artifact does not shrink the gate, shorten it, or make silence count.
+- **The bottom tier is a short spec, not an absent one.** Whether a change needs *no* spec is a different question, answered in "When NOT to use" below, and it covers only a single-line fix or a typo. Everything above that floor gets a written statement of the problem, what done means, and what is out of scope, however brief.
+
+When two tiers both look defensible, take the higher one. Over-specifying costs a paragraph; under-specifying costs the rebuild.
 
 ### One Question at a Time
 
@@ -37,7 +60,11 @@ Use when:
 - You are about to make an architectural decision
 - The task would take more than 30 minutes to implement
 
-**When NOT to use:** Single-line fixes, typo corrections, or changes where requirements are unambiguous and self-contained. If you already have a well-defined spec, move directly to `plan-before-code`.
+**When NOT to use:** A single-line fix, a typo correction, or a change whose requirements are already unambiguous and self-contained needs no spec at all.
+
+This section answers only whether a spec is needed. How much spec is a separate question, answered by the depth rule above. Keeping them apart matters, because "the change is small" is an answer to the second question that reads like an answer to the first: a change that is small but real gets a SHALLOW spec, not no spec. Reach for "no spec" only when there is genuinely nothing to agree on, not when there is little to agree on.
+
+If you already have a well-defined spec, move directly to `plan-before-code`.
 
 ### Marking uncertainty with `[NEEDS CLARIFICATION]`
 
@@ -69,7 +96,7 @@ Cross-link: `[[ambiguity-detector]]` emits markers in this same format when it s
 
 ### Spec template
 
-Use `catalog/templates/spec-template.md` (installed at `~/.nexus-hub/templates/spec-template.md`) as the starting skeleton for every feature spec. The template enforces the convention that downstream tooling depends on - in particular, the `**FR-###**: System MUST <capability>` format for functional requirements and the `**SC-###**: <measurable outcome>` format for success criteria.
+`catalog/templates/spec-template.md` (installed at `~/.nexus-hub/templates/spec-template.md`) is the single canonical spec skeleton. Every feature spec starts from it. There is no second skeleton and no abbreviated variant: if a section does not apply, remove that section rather than substituting a different structure. The template enforces the convention that downstream tooling depends on - in particular, the `**FR-###**: System MUST <capability>` format for functional requirements and the `**SC-###**: <measurable outcome>` format for success criteria.
 
 Why the FR-### / SC-### IDs matter: the `[[cross-artifact-analyzer]]` skill (run via `/analyze-spec`) builds a Coverage Summary table by matching each FR-### and SC-### in the spec against the task descriptions in the plan or tasks.md. A spec written with prose bullets instead of FR-### / SC-### IDs produces an empty coverage matrix and the analyzer cannot flag missing tasks. The IDs are the contract between the spec and the analyzer.
 
@@ -79,7 +106,17 @@ Stability rules for IDs:
 - IDs are stable - once an FR or SC is assigned an ID, do not renumber on edits. Removing a requirement leaves a gap in the sequence; do not backfill.
 - IDs are unique within the spec but not globally across the project - FR-001 in `specs/003-auth/spec.md` is a different requirement from FR-001 in `specs/004-billing/spec.md`.
 
-The template also reserves three additional mandatory blocks: User Scenarios & Testing, Requirements (with FR-### IDs and an optional Key Entities subsection), and Success Criteria (with SC-### IDs). An Assumptions section is mandatory whenever any candidate ambiguity was demoted below the 3-marker hard limit.
+The template's mandatory sections, in document order:
+
+1. **Problem Statement** -- the actor, what fails today, and the observable outcome that marks success. This carries forward the problem statement `[[idea-refine]]` produced; it is not re-derived here.
+2. **User Scenarios & Testing** -- at least one prioritized user story with its Independent Test paragraph and Given/When/Then acceptance scenarios.
+3. **Requirements** -- the FR-### items, plus an optional Key Entities subsection when the feature involves data.
+4. **Success Criteria** -- the SC-### items.
+5. **Non-Goals** -- what the system explicitly will NOT do, one reason per entry.
+
+Two conditional sections complete the set. **Assumptions** is mandatory whenever any candidate ambiguity was demoted below the 3-marker hard limit. **Invariants** is required whenever the change touches existing behavior, and declares the behavior that must not break.
+
+`## Non-Goals` is the section three auditing surfaces check against, so an empty or missing one produces findings downstream: `spec-quality-checklist.md`'s "Scope is clearly bounded" item, the `scope-guardian-reviewer` agent's missing-cut-line lens, and `[[idea-refine]]`'s own "scope is explicitly bounded" gate. It is also where `idea-refine`'s **Out of Scope** block lands, so the hand-off is a copy rather than a rewrite. Keep the Non-Goals / Assumptions boundary straight: an Assumption is a decision the reviewer can overturn with one line, whereas a Non-Goal is scope the reviewer is being asked to confirm is excluded.
 
 ### User stories with priorities
 
@@ -131,35 +168,9 @@ ASSUMPTIONS I'M MAKING:
 → Correct me now or I'll proceed with these.
 ```
 
-Write a spec document covering six core areas:
+Then write the spec from the canonical template. Copy `catalog/templates/spec-template.md` into the feature directory as `spec.md` and fill its mandatory sections in document order: Problem Statement, User Scenarios & Testing, Requirements (FR-###), Success Criteria (SC-###), and Non-Goals, adding Assumptions and Invariants where they apply. Do not substitute an alternative structure; the section-by-section contract is in the "Spec template" section above, and the Verification checklist at the end of this skill is keyed to exactly those sections.
 
-**1. Objective** — What are we building and why? Who is the user? What does success look like in observable terms?
-
-**2. Commands** — Full executable commands, not just tool names:
-```
-Build: npm run build
-Test: npm test -- --coverage
-Lint: npm run lint --fix
-Dev: npm run dev
-```
-
-**3. Project Structure** — Where source code lives, where tests go, where docs belong:
-```
-src/           → Application source code
-src/components → React components
-src/lib        → Shared utilities
-tests/         → Unit and integration tests
-docs/          → Documentation
-```
-
-**4. Code Style** — One real code snippet showing your style beats three paragraphs describing it. Include naming conventions, formatting rules, and examples of expected output.
-
-**5. Testing Strategy** — Framework, test locations, coverage targets, which test levels cover which concerns.
-
-**6. Boundaries** — Three-tier system:
-- **Always do**: Run tests before commits, follow naming conventions, validate inputs
-- **Ask first**: Database schema changes, adding dependencies, changing CI config
-- **Never do**: Commit secrets, edit vendor directories, remove failing tests
+Project-level material (build and test commands, the directory layout, code-style conventions, the tech stack, and the three-tier Always / Ask first / Never boundaries) is deliberately NOT part of a feature spec. It is stable across features, so restating it per feature guarantees drift. See "Project-level context (distinct from a feature spec)" below for where it belongs instead.
 
 **Success Criteria**: Reframe instructions as testable conditions:
 ```
@@ -170,40 +181,6 @@ REFRAMED:
 - Initial data load completes in < 500ms
 - No layout shift during load (CLS < 0.1)
 → Are these the right targets?
-```
-
-**Spec template:**
-```markdown
-# Spec: [Project/Feature Name]
-
-## Objective
-[What we're building, who the user is, success criteria]
-
-## Tech Stack
-[Framework, language, key dependencies with versions]
-
-## Commands
-[Build, test, lint, dev — full commands]
-
-## Project Structure
-[Directory layout with descriptions]
-
-## Code Style
-[Example snippet + key conventions]
-
-## Testing Strategy
-[Framework, test locations, coverage requirements]
-
-## Boundaries
-- Always: [...]
-- Ask first: [...]
-- Never: [...]
-
-## Success Criteria
-[Observable, testable conditions — not aspirations]
-
-## Open Questions
-[Unresolved items that need human input before implementation]
 ```
 
 ### Phase 2: Plan
@@ -224,7 +201,7 @@ Break the plan into discrete, implementable tasks:
 
 ```markdown
 - [ ] Task: [Description]
-  - Acceptance: [What must be true when done — observable]
+  - Acceptance: [What must be true when done -- observable]
   - Verify: [Test command, build command, or manual check]
   - Files: [Which files will be touched]
 ```
@@ -246,26 +223,94 @@ Execute tasks following `incremental-implementation` (one task at a time, test a
 - **Commit the spec**: The spec belongs in version control alongside the code
 - **Reference in PRs**: Link back to the spec section each PR implements
 
+## Normative Spec vs Free-Form Context
+
+Split the specification into two artifacts with different jobs, so the spec cannot promise behavior the code does not implement:
+
+- **The normative spec** holds ONLY testable requirements: the `**FR-###**: System MUST/SHALL <capability>` and `**SC-###**: <measurable outcome>` items, plus the acceptance scenarios that verify them. No rationale, no prose narrative, no "why". Every line is a claim the code and tests can be checked against. Prose in the normative spec is a liability: it reads like a commitment but nothing verifies it, so it drifts silently from the code.
+- **The free-form context** holds everything that explains the spec but is not itself testable: the rationale, the decisions and their alternatives, constraints, known failure modes, and at least one concrete worked example. Context is where "why session cookies, not JWT" lives; the spec only records "the system MUST authenticate via session cookies".
+
+Map this onto Nexus-Hub's EXISTING surfaces - do not introduce a parallel change-folder tree:
+
+- The normative spec is the `spec.md` this skill already produces from `catalog/templates/spec-template.md` (the FR-### / SC-### blocks). `/spec` creates and updates it.
+- The context lives in the surrounding per-version `docs/` tree already in use: the plan, the comparison report, and any decision records under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`. A dedicated `context.md` beside the spec is fine when a feature warrants one, but the default is the docs tree you already keep.
+
+**The external `openspec` CLI is NOT adopted - only the convention is.** The normative/context separation is a convention Nexus-Hub adopts skill-natively; the external `openspec` tool that popularized it is not added as a dependency. Per the AGENTS.md MCP Registry Policy (reverse-engineer-first: prefer an LLM-native / skill-native convention over an external tool dependency), a convention the agent can follow with its own judgment beats a new CLI, and no parallel `openspec/`-style change-folder tree is created. The convention rides on `/spec`, the spec template, and the per-version `docs/` tree.
+
+## Project-level context (distinct from a feature spec)
+
+Five kinds of context are stable across every feature in a repository: the tech stack, the executable commands, the directory layout, the code-style conventions, and the operating boundaries. They are essential for an agent to work in the codebase, and they are NOT feature-spec content. Restating them in each `spec.md` guarantees that N specs eventually disagree about the build command.
+
+Their home is the project's own instruction file (`AGENTS.md`, `CLAUDE.md`, or the platform equivalent) or the `docs/` context tree, written once and referenced from there. A feature spec inherits them silently.
+
+The five, with the shape each should take where it lives:
+
+- **Tech stack**: framework, language, and key dependencies with versions.
+- **Commands**: full executable commands, not tool names. `Build: npm run build`, `Test: npm test -- --coverage`, `Lint: npm run lint --fix`, `Dev: npm run dev`. A bare "we use vitest" is not runnable.
+- **Project structure**: where source, tests, and docs live.
+
+    ```
+    src/            -> Application source code
+    src/components  -> React components
+    src/lib         -> Shared utilities
+    tests/          -> Unit and integration tests
+    docs/           -> Documentation
+    ```
+
+- **Code style**: one real code snippet showing the style beats three paragraphs describing it. Include naming conventions, formatting rules, and an example of expected output.
+- **Testing strategy**: framework, test locations, coverage targets, and which test level covers which concern.
+- **Boundaries**, as a three-tier system:
+    - **Always do**: run tests before commits, follow naming conventions, validate inputs.
+    - **Ask first**: database schema changes, adding dependencies, changing CI config.
+    - **Never do**: commit secrets, edit vendor directories, remove failing tests.
+
+This is the same layering as the normative/context split above, applied one level out: that split separates testable requirements from their rationale within a feature, while this one separates per-feature content from per-project content. A spec that carries project-level context is not merely verbose; it creates a second, staler copy of a fact the instruction file already owns.
+
+## The Spec as a Merge Gate
+
+A change to behavior, a public API, a data schema, or a CLI surface requires the spec to be created or updated BEFORE the code, and the change is not review-ready until the spec, the code, and the tests all agree. This extends the hard gate at the top of this skill (which governs starting new work) to the merge boundary (which governs that a shipped change leaves the spec in sync, not stale).
+
+It composes with tooling Nexus-Hub already has:
+
+- `/spec` creates or updates the normative spec first.
+- `[[cross-artifact-analyzer]]` (via `/analyze-spec`) verifies the FR-### / SC-### coverage between the spec and the plan or tasks - the spec-to-task join.
+- `[[implementation-convergence]]` closes the loop after implementation: it assesses the built code against the plan/spec, classifies gaps, and appends remaining work, so "the code matches the spec" is a checked assertion, not a hope.
+- The merge-readiness contract in `[[quality-gate-definitions]]` treats "spec and code and tests agree" as one condition of a mergeable change, and "a behavior / API / schema / CLI change updated its spec first" is a natural project entry for `[[review-trapdoors]]`.
+
+The rule is scoped on purpose: a typo fix, a refactor with no behavior change, or an internal-only change needs no spec update. It is behavior, API, schema, and CLI surface - the things a consumer can observe - that must not ship ahead of their spec.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "This is simple — I don't need a spec" | Simple tasks don't need long specs, but they still need acceptance criteria. A two-line spec is fine. |
-| "This is too simple to need a design before I code it" | Simplicity of implementation is independent of agreement on intent. The hard gate is not about effort; it is about whether you and the user agree on what to build. A trivial change built against a wrong assumption is still a rebuild. Present the smallest reviewable design and get the go-ahead — it costs one turn. |
+| "This is simple -- I don't need a spec" | Simple tasks don't need long specs, but they still need acceptance criteria. A two-line spec is fine. |
+| "This is too simple to need a design before I code it" | Simplicity of implementation is independent of agreement on intent. The hard gate is not about effort; it is about whether you and the user agree on what to build. A trivial change built against a wrong assumption is still a rebuild. Present the smallest reviewable design and get the go-ahead -- it costs one turn. |
 | "The user said 'just build it', so the gate is satisfied" | "Just build it" before any design exists is a request to skip the design, not approval of one. Present the smallest design in reviewable sections and get an explicit go-ahead first. Approval of the problem is not approval of the design. |
+| "The depth rule says small changes get a short spec, so I can skip the approval step" | The depth rule scales the document, never the agreement. It moves one axis and leaves the other exactly where it was: a one-line spec still requires an explicit go-ahead before code. If reading the tier table made the gate feel negotiable, re-read the gate - it says the approval applies regardless of how simple the change looks, and the tier table is a refinement inside that constraint, not an exception to it. |
+| "The change is small, so it falls under 'When NOT to use'" | "Small" is an answer to how deep the spec should be, not to whether one is needed. "When NOT to use" covers a single-line fix or a typo, where there is nothing to agree on. A small-but-real change gets the bottom tier: problem, acceptance criteria, Non-Goals. Collapsing the two questions is how a shallow spec turns into no spec. |
 | "I'll write the spec after coding" | That's documentation, not specification. The spec's value is forcing clarity *before* code. Writing it after confirms what you built, not what you should have built. |
 | "The spec will slow us down" | A 15-minute spec prevents hours of rework. The spec itself is not the slowdown; vague requirements are. |
-| "Requirements will change anyway" | That's why the spec is a living document. An outdated spec is still better than no spec — it shows the intent at the time. |
+| "Requirements will change anyway" | That's why the spec is a living document. An outdated spec is still better than no spec -- it shows the intent at the time. |
 | "The user knows what they want" | Users know what outcome they want; they rarely know which implementation delivers it. The spec surfaces that gap before code is written. |
 | "I'll just use bullet points instead of FR/SC IDs" | The IDs are not decoration - they are the join key the `[[cross-artifact-analyzer]]` skill uses to build the Coverage Summary table in `/analyze-spec`. A spec written with prose bullets produces an empty matrix and the analyzer cannot flag missing tasks. Use the format from `catalog/templates/spec-template.md`. |
 | "This feature only has one user story" | Still write it as `### User Story 1 - [Title] (Priority: P1)` with the full Independent Test paragraph and Acceptance Scenarios. The single-story case is the most common; `/analyze-spec` and the Phase 6 task discipline both key off the story heading regardless of count. A spec with no `## User Stories` block fails the analyzer's underspecification pass. |
+| "I changed the behavior; I'll sync the spec after" | A behavior / API / schema / CLI change that ships ahead of its spec leaves the spec promising the old contract - the silent drift the spec/context split exists to prevent. Update the normative spec first, then the code and tests, and treat "they disagree" as a merge blocker, not a follow-up. |
+| "I'll put the rationale right in the spec so it's all in one place" | Prose in the normative spec reads like a commitment but nothing verifies it, so it drifts from the code silently. Rationale, decisions, and examples belong in the free-form context (the docs tree or a context.md); the spec holds only testable FR-### / SC-### items. |
 
 ## Verification
 
-- [ ] A spec document exists as a committed file in the repository
-- [ ] The spec covers all six core areas (Objective, Commands, Structure, Style, Testing, Boundaries)
-- [ ] Success criteria are specific and observable — not "it works well" but "test X passes and metric Y is met"
-- [ ] Boundaries (Always/Ask First/Never) are defined and non-empty
+Every item below is checked against the canonical template `catalog/templates/spec-template.md`.
+
+- [ ] A spec document exists as a committed file in the repository, started from `catalog/templates/spec-template.md`
+- [ ] `## Problem Statement` names the actor, what fails today, and the observable outcome that marks success
+- [ ] `## User Scenarios & Testing` has at least one story headed `### User Story N - [Title] (Priority: PN)`, each with an Independent Test paragraph and Given/When/Then acceptance scenarios
+- [ ] `## Requirements` uses `**FR-###**: System MUST <capability>` IDs, sequential and not renumbered
+- [ ] `## Success Criteria` uses `**SC-###**` IDs, and each is measurable, technology-agnostic, and verifiable without asking the author
+- [ ] `## Non-Goals` is present and non-empty, and every entry carries a reason
+- [ ] `## Assumptions` records an informed default for every candidate ambiguity demoted below the 3-marker cap
+- [ ] `## Invariants` is present whenever the change touches existing behavior, and each entry is observable enough to assert in a test
+- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers remain, and each names a specific question
+- [ ] No project-level context (commands, directory layout, code style, tech stack, boundaries) leaked into the spec
 - [ ] The human has reviewed and approved the spec before any implementation begins
 - [ ] Open questions are listed; none are silently assumed away
 
@@ -276,9 +321,12 @@ Execute tasks following `incremental-implementation` (one task at a time, test a
 - [[incremental-implementation]] -- execute the plan one task at a time
 - [[ambiguity-detector]] -- detect gaps in an existing spec before implementation
 - [[cross-artifact-analyzer]] -- verify the FR-### / SC-### IDs in the spec have matching tasks in the plan via the Coverage Summary table emitted by `/analyze-spec`
+- [[implementation-convergence]] -- after implementation, assess the built code against the spec/plan, classify gaps, and append remaining work (the merge-gate's post-build check)
+- [[review-trapdoors]] -- "a behavior / API / schema / CLI change must update its spec first" is a natural project review trapdoor
+- [[quality-gate-definitions]] -- its merge-readiness contract treats "spec, code, and tests agree" as one condition of a mergeable change
 - [[project-constitution]] -- establish the MUST/SHOULD principles that the `Constitution Check` section of every plan validates against
 - `/clarify-spec` (Phase 5 command) -- sequential 5-question loop that resolves spec ambiguities after the template's slots are filled; pairs with the spec-quality-checklist for the final readiness gate before `/generate-plan`
 
 ## Methodology essay
 
-For the broader motivation behind treating the specification as the source of truth that code compiles from, see `docs/archive/v2/v2.1/spec-driven-methodology.md`. The essay covers the power inversion (specs lead, code follows), the seven-station Nexus-Hub SDD workflow, the six core principles, and the pitfalls / anti-patterns (over-specifying the trivial, hiding behind the gate, treating the analyzer as a linter).
+For the broader motivation behind treating the specification as the source of truth that code compiles from, see `docs/archives/v2/v2.1/spec-driven-methodology.md`. The essay covers the power inversion (specs lead, code follows), the seven-station Nexus-Hub SDD workflow, the six core principles, and the pitfalls / anti-patterns (over-specifying the trivial, hiding behind the gate, treating the analyzer as a linter).

@@ -59,7 +59,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 
 **New guides (2)**:
 - [guides/reference/SESSION_LIFECYCLE_DECISIONS.md](../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) - five-branch decision tree (continue / `/rewind` / `/clear` / `/compact` / delegate to subagent).
-- [docs/archive/v0/v0.9/opus-4-7-migration.md](archive/v0/v0.9/opus-4-7-migration.md) - operator migration guide with TL;DR, four must-do items, and a 13-row cross-reference table indexing every Opus 4.6 -> 4.7 behavioral delta.
+- [docs/archives/v0/v0.9/opus-4-7-migration.md](archives/v0/v0.9/opus-4-7-migration.md) - operator migration guide with TL;DR, four must-do items, and a 13-row cross-reference table indexing every Opus 4.6 -> 4.7 behavioral delta.
 
 **New checklists (1)**:
 - [catalog/checklists/file-upload-security.md](../catalog/checklists/file-upload-security.md) - defense checklist against polyglot files, MIME confusion, archive path traversal, zip bombs, and unsafe upload serving.
@@ -77,7 +77,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 - `/run-penetration-test` - optional 6th hunter (Business Logic & Advanced Attacks) gated behind `--depth=deep`; Attack Paths renamed to "Attack Paths / Chains"; new Secure Design Recommendations subsection; WSTG Coverage Matrix expanded with BUSL, cache poisoning, replay, and timing rows; hunter agents use shipped default `high` effort level.
 
 **Configuration change (operator-facing)**:
-- Installer default `effortLevel` reduced from `xhigh` to `high` (`catalog/hooks/settings.json`, `scripts/installer.ps1`). Full details in [CHANGELOG.md](../CHANGELOG.md) and [docs/archive/v0/v0.9/opus-4-7-migration.md](archive/v0/v0.9/opus-4-7-migration.md).
+- Installer default `effortLevel` reduced from `xhigh` to `high` (`catalog/hooks/settings.json`, `scripts/installer.ps1`). Full details in [CHANGELOG.md](../CHANGELOG.md) and [docs/archives/v0/v0.9/opus-4-7-migration.md](archives/v0/v0.9/opus-4-7-migration.md).
 
 ---
 
@@ -111,17 +111,17 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 
 ## Category Coverage
 
-### AI Development (5 skills) — `C` `G` `K` `X`
+### AI Development (5 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Primary Use Case | Platforms |
 |-------|-------------|-----------------|-----------|
 | ai-agent-development | ReAct, planning, memory, orchestration, guardrails, evaluation | Building Python AI agents | C G K X |
-| claude-agent-sdk | TypeScript SDK integration — retry, multi-provider, spending caps, audit logging | Production Claude Agent SDK in Node.js | C G K X |
+| claude-agent-sdk | TypeScript SDK integration -- retry, multi-provider, spending caps, audit logging | Production Claude Agent SDK in Node.js | C G K X |
 | prompt-engineering | System prompts, few-shot, chain-of-thought, temperature, structured output | LLM prompt design | C G K X |
 | rag-implementation | Vector stores, chunking, embedding, retrieval, reranking | Retrieval-augmented generation | C G K X |
 | multi-provider-ai | Provider selection, env config, unified client, fallback routing for Anthropic/Bedrock/Vertex/OpenRouter | Multi-cloud LLM deployment | C G K X |
 
-### Architecture (6 skills) — `C` `G` `K` `X`
+### Architecture (6 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Primary Use Case | Platforms |
 |-------|-------------|-----------------|-----------|
@@ -132,7 +132,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | event-driven-architecture | Event sourcing, CQRS, message brokers, saga patterns | Event-driven systems | C G K X |
 | component-boundary-identifier | Identify cohesion/coupling issues, propose boundary refactors | Legacy system decomposition | C G K X |
 
-### Bug Fixing (5 skills) — `C` `G` `K` `X`
+### Bug Fixing (5 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Primary Use Case | Platforms |
 |-------|-------------|-----------------|-----------|
@@ -142,7 +142,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | bug-reproduction-test-generator | Write a test that captures the bug before fixing | Test-first bug fixing | C G K X |
 | semantic-bug-detector | Identify logic errors that don't surface as syntax errors | Code review augmentation | C G K X |
 
-### Code Cleanup (8 skills) — `C` `G` `K` `X`
+### Code Cleanup (8 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Language | Platforms |
 |-------|-------------|----------|-----------|
@@ -155,7 +155,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | cleanup-python | PEP 8, type hints, dataclasses, pathlib | Python | C G K X |
 | cleanup-typescript | Strict TS, generics, discriminated unions | TypeScript | C G K X |
 
-### Code Review (8 skills) — `C` `G` `K` `X`
+### Code Review (8 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Primary Use Case | Platforms |
 |-------|-------------|-----------------|-----------|
@@ -168,7 +168,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | code-smell-detector | Identify code smell patterns (God class, shotgun surgery, etc.) | Technical debt discovery | C G K X |
 | behavior-preservation-checker | Verify refactoring doesn't change observable behavior | Refactoring safety | C G K X |
 
-### Compliance (9 skills) — `C` `G` `K` `X`
+### Compliance (9 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Regulation | Platforms |
 |-------|-------------|-----------|-----------|
@@ -182,7 +182,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | ai-agent-governance | Autonomous agent access control, audit trails | AI governance | C G K X |
 | traceability-matrix-generator | Requirement-to-implementation-to-test traceability | Compliance audits | C G K X |
 
-### Developer Experience (18 skills) — `C` `G` `K` `X`
+### Developer Experience (18 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Primary Use Case | Platforms |
 |-------|-------------|-----------------|-----------|
@@ -205,7 +205,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | framework-migration-assistant | Guide migration between framework versions | Major upgrades | C G K X |
 | requirement-enhancer | Improve requirement clarity and completeness | Requirements engineering | C G K X |
 
-### Documentation (7 skills) — `C` `G` `K` `X`
+### Documentation (7 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Primary Use Case | Platforms |
 |-------|-------------|-----------------|-----------|
@@ -217,7 +217,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | generate-sbom | Software Bill of Materials (SPDX, CycloneDX) | Supply chain security | C G K X |
 | generate-report | Convert Markdown to Word (.docx) or PowerPoint (.pptx) | Report generation | C G K X |
 
-### Framework Specialists (3 skills) — `C` `G` `K` `X`
+### Framework Specialists (3 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Framework | Platforms |
 |-------|-------------|-----------|-----------|
@@ -225,7 +225,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | nextjs-expert | App Router, SSR/SSG, API routes, deployment | Next.js | C G K X |
 | fastapi-expert | Async routes, Pydantic, dependency injection, OpenAPI | FastAPI | C G K X |
 
-### Infrastructure (13 skills) — `C` `G` `K` `X`
+### Infrastructure (13 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Primary Use Case | Platforms |
 |-------|-------------|-----------------|-----------|
@@ -237,13 +237,13 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | data-pipeline-design | ETL/ELT, streaming, batch processing, lineage | Data engineering | C G K X |
 | observability-setup | Logging, metrics, tracing, alerting | Production monitoring | C G K X |
 | containerization | Docker, image optimization, security hardening | Container setup | C G K X |
-| ai-docker-orchestration | Docker Compose for multi-agent AI systems — Temporal workers, LLM API key injection, health checks | AI system containerization | C G K X |
+| ai-docker-orchestration | Docker Compose for multi-agent AI systems -- Temporal workers, LLM API key injection, health checks | AI system containerization | C G K X |
 | cd-pipeline-generator | Deployment pipeline code generation | CD automation | C G K X |
 | rollback-strategy-advisor | Rollback procedures for deployments and migrations | Incident recovery | C G K X |
 | config-consistency-checker | Validate configuration consistency across environments | Config management | C G K X |
 | temporal-orchestration | Durable workflow orchestration for parallel AI agent pipelines using Temporal | AI agent pipelines | C G K X |
 
-### Language Specialists (3 skills) — `C` `G` `K` `X`
+### Language Specialists (3 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Language | Platforms |
 |-------|-------------|----------|-----------|
@@ -251,7 +251,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | rust-expert | Ownership, lifetimes, traits, async Rust | Rust | C G K X |
 | sql-expert | Query optimization, window functions, indexing, CTEs | SQL | C G K X |
 
-### Orchestration (10 skills) — `C` `G` `K` `X`
+### Orchestration (10 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Primary Use Case | Platforms |
 |-------|-------------|-----------------|-----------|
@@ -266,7 +266,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | quality-gate-definitions | Define measurable quality gates for workflows | Quality assurance | C G K X |
 | ai-billing-safeguards | Spending cap enforcement, hard budget stops, cost attribution for autonomous agents | AI cost management | C G K X |
 
-### Project Initialization (4 skills) — `C` `G` `K` `X`
+### Project Initialization (4 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Language | Platforms |
 |-------|-------------|----------|-----------|
@@ -275,13 +275,13 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | init-javascript-project | Node.js, npm/yarn, ESLint, Prettier setup | JavaScript | C G K X |
 | init-python-project | pyproject.toml, virtual env, tooling setup | Python | C G K X |
 
-### Research (1 skill) — `C` `G` `K` `X`
+### Research (1 skill) -- `C` `G` `K` `X`
 
 | Skill | Description | Primary Use Case | Platforms |
 |-------|-------------|-----------------|-----------|
 | trend-research | Technology trend analysis and synthesis | Technology evaluation | C G K X |
 
-### Security (9 skills) — `C` `G` `K` `X`
+### Security (9 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Primary Use Case | Platforms |
 |-------|-------------|-----------------|-----------|
@@ -295,7 +295,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | business-logic-abuse | Race conditions, TOCTOU, double-spending, workflow bypass, idempotency, check-sequence abuse | Domain-aware deep audits (powers `/run-penetration-test --depth=deep`) | C G K X |
 | advanced-attack-patterns | State desynchronization, cache poisoning, replay attacks, timing side channels | Architecture-level attack classes beyond baseline OWASP | C G K X |
 
-### Testing — Tests Generation (8 skills) — `C` `G` `K` `X`
+### Testing -- Tests Generation (8 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Languages | Platforms |
 |-------|-------------|----------|-----------|
@@ -308,7 +308,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | code-coverage | Coverage analysis and gap identification | Python, JS, TS, Java, C#, Go, C, C++ | C G K X |
 | mutation-testing | Test quality validation via mutation | Python, JS, TS, Java, C#, Go, C, C++ | C G K X |
 
-### Testing — Advanced Testing (17 skills) — `C` `G` `K` `X`
+### Testing -- Advanced Testing (17 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Primary Use Case | Platforms |
 |-------|-------------|-----------------|-----------|
@@ -330,7 +330,7 @@ This matrix maps Nexus-Hub's skill catalog against user roles, AI platforms, and
 | code-coverage | Coverage measurement and improvement | Coverage goals | C G K X |
 | mutation-testing | Test suite quality measurement | Test quality | C G K X |
 
-### Workflow (14 skills) — `C` `G` `K` `X`
+### Workflow (14 skills) -- `C` `G` `K` `X`
 
 | Skill | Description | Primary Use Case | Platforms |
 |-------|-------------|-----------------|-----------|

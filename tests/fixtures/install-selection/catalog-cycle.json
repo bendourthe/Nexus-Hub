@@ -1,0 +1,40 @@
+{
+  "_comment": "Catalog defect fixture: a three-node dependency cycle. No cycle exists in the real catalog today (skill_dependencies is absent entirely), but an unchecked breadth-first closure over one would not terminate, so detection is required rather than optional. Resolution must exit 3 and name the participating skill ids.",
+  "metadata": {
+    "version": "1.4.0",
+    "description": "Fixture catalog with a dependency cycle."
+  },
+  "_available_skills": ["x1", "x2", "x3", "safe"],
+  "_available_commands": [],
+  "_available_agents": [],
+  "profiles": [
+    {
+      "id": "full",
+      "name": "Full",
+      "description": "Everything in the catalog.",
+      "skills": []
+    }
+  ],
+  "modules": [
+    {
+      "id": "mod-cycle",
+      "name": "Cycle",
+      "capability": "test",
+      "description": "Entry point into the cycle.",
+      "skills": ["x1"]
+    },
+    {
+      "id": "mod-safe",
+      "name": "Safe",
+      "capability": "test",
+      "description": "Untouched by the cycle.",
+      "skills": ["safe"]
+    }
+  ],
+  "bundles": [],
+  "skill_dependencies": {
+    "x1": ["x2"],
+    "x2": ["x3"],
+    "x3": ["x1"]
+  }
+}

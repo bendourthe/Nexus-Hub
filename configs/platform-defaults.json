@@ -1,0 +1,352 @@
+{
+  "schema_version": 1,
+  "meta": {
+    "purpose": "Authoritative declaration of per-platform install-time behavioral defaults. Every consuming artifact is DERIVED from this file rather than maintained beside it, so one edit here propagates everywhere on the next generator run.",
+    "authority": "This is the ONLY place a per-platform behavioral default is edited. Do not hand-edit a derived artifact; scripts/sync_platform_defaults.py --check fails the build when one drifts from this source.",
+    "scope": "Behavioral defaults ONLY (reasoning effort, default model pin, approval policy, and equivalents). File-discovery paths and platform capabilities live in docs/policy/platform-read-contracts.json and are deliberately out of scope here.",
+    "do_not_invent": "A platform appears in this file ONLY when a specific official vendor document names the lever, recorded as source_url plus a verified date. Never seed a lever from a blog post, a forum, an aggregator, or an analogy to another platform. The v3.15.0 removal of the fabricated .kimi/agent.yaml companion is why this rule exists.",
+    "platform_id_source": "scripts/lib/integrations/__init__.py::_register_builtins - platform keys below MUST match the integration registry ids exactly, so an entry maps to its integration with no translation table.",
+    "lever_contract": "docs/policy/platform-defaults-levers.md - the per-platform VERIFIED / UNVERIFIED classification with evidence. Populated in v3.16.0 Phase 2; a platform may not appear here without a VERIFIED row there.",
+    "generator": "python scripts/sync_platform_defaults.py --apply   (regenerate derived artifacts)\npython scripts/sync_platform_defaults.py --check   (fail on drift; runs in `make validate` and CI)",
+    "env_precedence_warning": "Where a platform exposes both a scalar setting and an environment-variable counterpart, the env value commonly OUTRANKS the scalar. Declare both together or the scalar becomes decorative while the env value silently wins.",
+    "last_updated": "2026-08-31",
+    "seeding_policy": "Values are seeded with SEED-IF-ABSENT semantics: a key the user has already set is never overwritten on reinstall. Effort scalars are seeded to 'medium' by default; Claude Code is the deliberate exception at 'high' (v4.4.0), justified in its own rationale block. Approval-policy keys are seeded toward the approval-required direction. A model pin is seeded ONLY where the vendor documents a safe self-selecting value; where no such value is documented the key is listed under 'omitted' with the reason, because inventing a provider-scoped model id is the failure this file exists to prevent.",
+    "install_target_note": "install_target names the file the platform's integration writes at install time, distinct from derived_artifacts (repo files generated from this source). mode='write' seeds the file; mode='already-delivered' means an existing installer path already carries the values; mode='not-writable' means the lever is declared for the record but deliberately not written, with the reason stated."
+  },
+  "platforms": {
+    "claude": {
+      "display_name": "Claude Code",
+      "source_url": "https://code.claude.com/docs/en/model-config",
+      "verified": "2026-09-05",
+      "doc_statement": "The Claude Code settings reference documents effortLevel (\"Set a default effort level for models without a saved level of their own\"), model (\"Change the model Claude Code starts with\"), env (environment variables applied to every session and its subprocesses), and a per-model modelSettings key that /effort writes. The model-config page (fetched 2026-09-05) states: \"set effortLevel to low, medium, high, or xhigh as the default for models without one. max isn't accepted in either key\" (effortLevel or modelSettings), and \"max is the deepest reasoning level. Unless you set it through the CLAUDE_CODE_EFFORT_LEVEL environment variable, Claude Code applies max to the current session only\"; CLAUDE_CODE_EFFORT_LEVEL is documented as taking \"a level name or auto\" and as the higher-precedence lever. So the settings keys accept four levels and the environment variable accepts five: the two levers do not share one value set, both accept the seeded value high, and a future change to a value other than high must be checked against both (max is valid only through the environment variable, /effort, or --effort). The 2026-09-04 statement had the two surfaces the other way round and is superseded.",
+      "settings": {
+        "effortLevel": "high",
+        "model": "opus",
+        "env": {
+          "CLAUDE_CODE_EFFORT_LEVEL": "high"
+        }
+      },
+      "rationale": {
+        "effortLevel": "high is a deliberate quality choice adopted in v4.4.0, replacing the v3.15.5 medium default. Nexus-Hub work is plan-driven and multi-step, where a shallow turn costs more in rework than the extra reasoning costs to run. Lower to medium for routine or cost-sensitive use; raise to xhigh for the deepest reasoning.",
+        "model": "opus pins the strongest tier as the default rather than leaving the account default, so a fresh install reasons at full strength unless the user opts down.",
+        "env.CLAUDE_CODE_EFFORT_LEVEL": "Mirrors effortLevel because the environment variable is the higher-precedence lever: it pins the effort past the VS Code effort toggle on every new session. If it disagreed with the scalar it would silently win."
+      },
+      "derived_artifacts": [
+        {
+          "path": "catalog/hooks/settings.json",
+          "format": "json",
+          "strategy": "merge-keys",
+          "keys": [
+            "effortLevel",
+            "model",
+            "env.CLAUDE_CODE_EFFORT_LEVEL"
+          ],
+          "note": "This file is BOTH a declared default and the artifact copied to a user's ~/.claude/settings.json, and it additionally carries the full hook registration chains (SessionStart / PreToolUse / PostToolUse / UserPromptSubmit / Notification / Stop / PreCompact / SessionEnd). The generator therefore updates only the keys listed above in place and leaves every other byte untouched. It is never serialized fresh over the file."
+        },
+        {
+          "path": "scripts/lib/integrations/claude.py",
+          "format": "python",
+          "strategy": "runtime-read",
+          "keys": [
+            "effortLevel",
+            "model",
+            "env.CLAUDE_CODE_EFFORT_LEVEL"
+          ],
+          "fallback_symbol": "_FALLBACK_SETTINGS",
+          "note": "The nexus-hub init project stub reads this file at runtime, so there is nothing to generate. It keeps a hardcoded fallback for installed trees that do not carry configs/; --check verifies that fallback still equals the declared values so it cannot quietly drift into stating something untrue."
+        }
+      ],
+      "install_target": {
+        "mode": "already-delivered",
+        "path": "~/.claude/settings.json",
+        "format": "json",
+        "reason": "The installer already copies the derived catalog/hooks/settings.json to ~/.claude/settings.json. A second writer would race the copy for one file."
+      }
+    },
+    "codex": {
+      "display_name": "Codex (OpenAI)",
+      "source_url": "https://learn.chatgpt.com/docs/config-file/config-reference",
+      "verified": "2026-08-30",
+      "doc_statement": "config.toml documents model_reasoning_effort (minimal | low | medium | high | xhigh), approval_policy (untrusted | on-request | never), and sandbox_mode (read-only | workspace-write | danger-full-access). The docs state approval_policy and sandbox_mode cannot be overridden from a project-scoped config and must be set at user level.",
+      "settings": {
+        "model_reasoning_effort": "medium",
+        "approval_policy": "on-request",
+        "sandbox_mode": "workspace-write"
+      },
+      "rationale": {
+        "model_reasoning_effort": "medium is the v3.15.5 cost choice. Claude Code moved to high in v4.4.0; this platform stays at medium because that change was scoped to Claude Code alone.",
+        "approval_policy": "on-request keeps the human in the loop; 'never' would remove approval entirely.",
+        "sandbox_mode": "workspace-write confines writes to the workspace without the full-access escape hatch."
+      },
+      "install_target": {
+        "mode": "write",
+        "path": "~/.codex/config.toml",
+        "format": "toml",
+        "scope": "global",
+        "merge": "seed-if-absent"
+      },
+      "derived_artifacts": [],
+      "omitted": {
+        "model": "No vendor-documented safe default. A provider-scoped model id the user's account cannot reach would break the CLI."
+      },
+      "notes": "User-level only: the vendor documents that a project-scoped config cannot override these keys."
+    },
+    "qwen": {
+      "display_name": "Qwen Code",
+      "source_url": "https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/",
+      "verified": "2026-08-30",
+      "doc_statement": "settings.json documents model.reasoningEffort ('How hard reasoning-capable models think, applied across all providers'; low | medium | high | xhigh | max) and tools.approvalMode (plan | default | auto-edit | auto | yolo, documented default 'auto').",
+      "settings": {
+        "model": {
+          "reasoningEffort": "medium"
+        },
+        "tools": {
+          "approvalMode": "default"
+        }
+      },
+      "rationale": {
+        "model.reasoningEffort": "medium matches the deliberate v3.15.5 cost choice.",
+        "tools.approvalMode": "Deliberately differs from the vendor default 'auto'. 'default' requires approval before edits execute, which is the conservative direction for a seeded default the user can raise."
+      },
+      "install_target": {
+        "mode": "write",
+        "path": "~/.qwen/settings.json",
+        "format": "json",
+        "scope": "global",
+        "merge": "seed-if-absent"
+      },
+      "derived_artifacts": [],
+      "omitted": {
+        "model.name": "Documented default is undefined; no vendor-documented safe value to pin."
+      }
+    },
+    "kimi": {
+      "display_name": "Kimi Code CLI",
+      "source_url": "https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files.html",
+      "verified": "2026-08-30",
+      "doc_statement": "config.toml documents a [thinking] table with effort ('Thinking effort level (for example low, medium, high, xhigh, max)') and default_permission_mode (manual | yolo | auto).",
+      "settings": {
+        "thinking": {
+          "effort": "medium"
+        },
+        "default_permission_mode": "manual"
+      },
+      "rationale": {
+        "thinking.effort": "medium matches the deliberate v3.15.5 cost choice.",
+        "default_permission_mode": "manual keeps approval with the human; 'yolo' auto-approves every tool call."
+      },
+      "install_target": {
+        "mode": "write",
+        "path": "~/.kimi-code/config.toml",
+        "format": "toml",
+        "scope": "global",
+        "merge": "seed-if-absent"
+      },
+      "derived_artifacts": [],
+      "omitted": {
+        "default_model": "The vendor documents that the value must be an alias already defined in the models table, so a seeded literal would reference a non-existent alias."
+      }
+    },
+    "hermes": {
+      "display_name": "Hermes",
+      "source_url": "https://hermes-agent.nousresearch.com/docs/user-guide/configuration/",
+      "verified": "2026-08-30",
+      "doc_statement": "config.yaml documents agent.reasoning_effort (none | minimal | low | medium | high | xhigh | max | ultra) and the approval gates skills.write_approval, skills.guard_agent_created, and memory.write_approval. Resolution order is CLI arguments, config.yaml, .env, built-in defaults.",
+      "settings": {
+        "agent": {
+          "reasoning_effort": "medium"
+        },
+        "skills": {
+          "write_approval": true
+        },
+        "memory": {
+          "write_approval": true
+        }
+      },
+      "rationale": {
+        "agent.reasoning_effort": "medium matches the deliberate v3.15.5 cost choice.",
+        "skills.write_approval": "Gates agent skill writes behind explicit approval.",
+        "memory.write_approval": "Gates memory writes behind explicit approval."
+      },
+      "install_target": {
+        "mode": "write",
+        "path": "~/.hermes/config.yaml",
+        "format": "yaml",
+        "scope": "global",
+        "merge": "seed-if-absent"
+      },
+      "derived_artifacts": [],
+      "omitted": {
+        "model.default": "Provider-scoped model reference with no vendor-documented safe default."
+      },
+      "notes": "Hermes is registry-registered but NOT in either installer's default platform list, so a seeded default reaches only an explicit --integrations hermes run until it is promoted."
+    },
+    "aider": {
+      "display_name": "Aider",
+      "source_url": "https://aider.chat/docs/config/aider_conf.html",
+      "verified": "2026-08-30",
+      "doc_statement": ".aider.conf.yml documents model, reasoning-effort ('Set the reasoning_effort API parameter'), thinking-tokens, yes-always ('Always say yes to every confirmation'), and auto-commits (default True). The file is searched in the home directory, then the git repo root, then the current directory, with later files taking priority.",
+      "settings": {},
+      "rationale": {},
+      "install_target": {
+        "mode": "not-writable",
+        "reason": "Nexus-Hub's aider integration writes ONLY the project-root CONVENTIONS.md at workspace scope; its install_global is a documented no-op whose own docstring states that ~/.aider.conf.yml is a surface Nexus-Hub does not touch. The integration also performs no Aider detection, so seeding the home-directory config would create configuration for software the user may not have installed. Reclassified from write to not-writable during Phase 3 after the integration test suite caught the contradiction."
+      },
+      "derived_artifacts": [],
+      "omitted": {
+        "reasoning-effort": "Nexus-Hub's aider integration writes ONLY the project-root CONVENTIONS.md at workspace scope; its install_global is a documented no-op whose own docstring states that ~/.aider.conf.yml is a surface Nexus-Hub does not touch. The integration also performs no Aider detection, so seeding the home-directory config would create configuration for software the user may not have installed. Reclassified from write to not-writable during Phase 3 after the integration test suite caught the contradiction.",
+        "yes-always": "Nexus-Hub's aider integration writes ONLY the project-root CONVENTIONS.md at workspace scope; its install_global is a documented no-op whose own docstring states that ~/.aider.conf.yml is a surface Nexus-Hub does not touch. The integration also performs no Aider detection, so seeding the home-directory config would create configuration for software the user may not have installed. Reclassified from write to not-writable during Phase 3 after the integration test suite caught the contradiction.",
+        "model": "No vendor-documented safe default.",
+        "thinking-tokens": "A numeric token budget is model-specific; seeding one value across models would misconfigure most of them.",
+        "auto-commits": "Left at the vendor default (True); changing a user's commit behavior is beyond the scope of a reasoning default."
+      },
+      "notes": "The lever itself is real and VERIFIED (see docs/policy/platform-defaults-levers.md, Surface alignment: Partial). What is missing is a Nexus-Hub surface to write it through, not evidence."
+    },
+    "gemini-cli": {
+      "display_name": "Gemini CLI (Google)",
+      "source_url": "https://geminicli.com/docs/cli/settings/",
+      "verified": "2026-08-30",
+      "doc_statement": "settings.json documents general.defaultApprovalMode (enum 'default' | 'auto_edit' | 'plan', default 'default'; the docs note YOLO mode is command-line only) and model.name (default undefined). A thinking budget exists only nested per model alias.",
+      "settings": {
+        "general": {
+          "defaultApprovalMode": "default"
+        }
+      },
+      "rationale": {
+        "general.defaultApprovalMode": "Seeded to the vendor's own documented default, making the approval posture explicit without changing behavior."
+      },
+      "install_target": {
+        "mode": "write",
+        "path": "~/.gemini/settings.json",
+        "format": "json",
+        "scope": "global",
+        "merge": "seed-if-absent"
+      },
+      "derived_artifacts": [],
+      "omitted": {
+        "model.name": "Documented default is undefined; no vendor-documented safe value to pin.",
+        "thinkingBudget": "Documented only nested per model alias, not as a top-level lever, so it is not cleanly seedable."
+      },
+      "notes": "SOLE OWNER of ~/.gemini/settings.json. The gemini integration shares this home but must never write this file; its verified approval lever belongs to VS Code user settings instead."
+    },
+    "gemini": {
+      "display_name": "Gemini Code Assist",
+      "source_url": "https://docs.cloud.google.com/gemini/docs/codeassist/use-agentic-chat-pair-programmer",
+      "verified": "2026-08-30",
+      "doc_statement": "Gemini Code Assist documents geminicodeassist.agentYoloMode in the VS Code user settings JSON. The setting enables full automatic approval in trusted workspaces but is not documented for project .vscode/settings.json or ~/.gemini/settings.json.",
+      "settings": {},
+      "rationale": {},
+      "install_target": {
+        "mode": "not-writable",
+        "reason": "The verified lever belongs to the VS Code user-settings surface, whose OS-specific location Nexus-Hub does not own for the gemini integration. Writing it through ~/.gemini/settings.json or a project file would invent an unsupported contract."
+      },
+      "derived_artifacts": []
+    },
+    "cursor": {
+      "display_name": "Cursor",
+      "source_url": "https://cursor.com/docs/cli/reference/configuration",
+      "verified": "2026-08-30",
+      "doc_statement": "The CLI configuration reference documents approvalMode ('allowlist' | 'auto-review' | 'unrestricted'), sandbox.mode, and sandbox.networkAccess. Model selection happens through the /model slash command at runtime; the docs state there is no default-model mechanism in the config file. Only permissions are configurable at project level.",
+      "settings": {
+        "approvalMode": "allowlist"
+      },
+      "rationale": {
+        "approvalMode": "allowlist is the most conservative documented value; 'unrestricted' removes approval entirely."
+      },
+      "install_target": {
+        "mode": "write",
+        "path": "~/.cursor/cli-config.json",
+        "format": "json",
+        "scope": "global",
+        "merge": "seed-if-absent"
+      },
+      "derived_artifacts": [],
+      "omitted": {
+        "model": "The vendor documents no config-file default-model mechanism; the model field is a runtime selection record, not a seedable default.",
+        "sandbox.mode": "The documentation names the key but does not enumerate its allowed values, so any seeded value would be invented."
+      },
+      "notes": "Global only: the vendor documents that a project-scoped .cursor/cli.json carries permissions exclusively."
+    },
+    "copilot": {
+      "display_name": "GitHub Copilot (Microsoft)",
+      "source_url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference",
+      "verified": "2026-08-30",
+      "doc_statement": "The Copilot CLI configuration directory reference documents model ('AI model to use. Set to auto to let Copilot pick the best available model automatically'), permissions.disableBypassPermissionsMode, sandbox.enabled, and sandbox.allowBypass at ~/.copilot/settings.json (or $COPILOT_HOME/settings.json).",
+      "settings": {
+        "model": "auto",
+        "permissions": {
+          "disableBypassPermissionsMode": true
+        },
+        "sandbox": {
+          "enabled": true
+        }
+      },
+      "rationale": {
+        "model": "'auto' is the one vendor-documented self-selecting model value in this file: it delegates the choice to Copilot rather than pinning an id that may not exist for the user's account.",
+        "permissions.disableBypassPermissionsMode": "true prevents bypass flags from skipping approval.",
+        "sandbox.enabled": "true restricts shell and tool access to the sandboxed environment."
+      },
+      "install_target": {
+        "mode": "write",
+        "path": "~/.copilot/settings.json",
+        "format": "json",
+        "scope": "global",
+        "merge": "seed-if-absent"
+      },
+      "derived_artifacts": [],
+      "notes": "SURFACE EXPANSION, decided deliberately (known gap NI-2). The Copilot integration now owns personal instructions, agents, and hooks under ~/.copilot, so this seed-if-absent settings write is aligned with the adopted native Copilot CLI surface."
+    },
+    "antigravity2": {
+      "display_name": "Antigravity 2.0 + CLI",
+      "source_url": "https://www.antigravity.google/docs/cli/modes/",
+      "verified": "2026-08-30",
+      "doc_statement": "The CLI modes reference documents agentMode in ~/.gemini/antigravity-cli/settings.json with values default, accept-edits, and plan. The default mode asks for confirmation before tool execution; accept-edits automatically approves edit tools and plan disables tool use.",
+      "settings": {
+        "agentMode": "default"
+      },
+      "rationale": {
+        "agentMode": "The vendor's default mode preserves interactive confirmation before tool execution and does not silently enable automatic edits."
+      },
+      "install_target": {
+        "mode": "write",
+        "path": "~/.gemini/antigravity-cli/settings.json",
+        "format": "json",
+        "scope": "global",
+        "merge": "seed-if-absent"
+      },
+      "derived_artifacts": [],
+      "omitted": {
+        "toolPermission": "The settings reference names the key but does not enumerate a stable value domain.",
+        "artifactReviewPolicy": "The settings reference names the key but does not enumerate a stable value domain.",
+        "enableTerminalSandbox": "The settings reference names the key but does not document a safe cross-platform default.",
+        "allowNonWorkspaceAccess": "The settings reference names the key but does not document a safe value for automatic seeding."
+      }
+    },
+    "opencode": {
+      "display_name": "OpenCode",
+      "source_url": "https://opencode.ai/docs/config/",
+      "verified": "2026-08-30",
+      "doc_statement": "model and small_model are provider-scoped ids with no documented safe default, and the permission key's full schema is not enumerated in the configuration reference (only that it accepts values such as 'ask'). Nothing is seedable without inventing a value.",
+      "settings": {},
+      "rationale": {},
+      "install_target": {
+        "mode": "not-writable",
+        "reason": "model and small_model are provider-scoped ids with no documented safe default, and the permission key's full schema is not enumerated in the configuration reference (only that it accepts values such as 'ask'). Nothing is seedable without inventing a value."
+      },
+      "derived_artifacts": []
+    },
+    "openclaw": {
+      "display_name": "OpenClaw",
+      "source_url": "https://docs.openclaw.ai/gateway/configuration",
+      "verified": "2026-08-30",
+      "doc_statement": "The only documented lever is agents.defaults.model.primary, a provider-scoped model pin with no vendor-documented safe default. There is no documented effort or approval lever.",
+      "settings": {},
+      "rationale": {},
+      "install_target": {
+        "mode": "not-writable",
+        "reason": "The only documented lever is agents.defaults.model.primary, a provider-scoped model pin with no vendor-documented safe default. There is no documented effort or approval lever."
+      },
+      "derived_artifacts": []
+    }
+  }
+}

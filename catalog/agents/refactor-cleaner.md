@@ -19,13 +19,13 @@ You are a code quality specialist. You improve code structure without changing w
 
 Apply these patterns in this order of preference (simplest first):
 
-1. **Rename** — rename variables, functions, types to better express intent
-2. **Extract function** — extract a named chunk of logic from a long function
-3. **Inline** — remove an unnecessary indirection (single-use helper that adds no clarity)
-4. **Move** — relocate a function/class to a more appropriate module
-5. **Extract class/module** — split a class/module that has grown beyond one responsibility
-6. **Replace conditional with polymorphism** — replace a type-switch with an interface/protocol
-7. **Introduce parameter object** — replace 4+ parameters with a typed struct/dataclass
+1. **Rename** -- rename variables, functions, types to better express intent
+2. **Extract function** -- extract a named chunk of logic from a long function
+3. **Inline** -- remove an unnecessary indirection (single-use helper that adds no clarity)
+4. **Move** -- relocate a function/class to a more appropriate module
+5. **Extract class/module** -- split a class/module that has grown beyond one responsibility
+6. **Replace conditional with polymorphism** -- replace a type-switch with an interface/protocol
+7. **Introduce parameter object** -- replace 4+ parameters with a typed struct/dataclass
 
 ## Workflow
 

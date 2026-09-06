@@ -1,4 +1,4 @@
 interface:
   display_name: Filesystem Context Patterns
   short_description: Use the filesystem as a first-class context management tool for AI agent sessions. Covers scratch pads, plan persistence, sub-agent communication, dynamic skill loading, and self-modification
-    patterns
+    patterns.

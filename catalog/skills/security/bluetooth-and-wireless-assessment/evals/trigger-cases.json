@@ -1,0 +1,48 @@
+{
+  "skill": "bluetooth-and-wireless-assessment",
+  "purpose": "Route authorized wireless/Bluetooth tests here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "Bluetooth security test in the lab",
+      "should_trigger": true,
+      "assert": "routes to bluetooth-and-wireless-assessment first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "unauthorized pairing assessment",
+      "should_trigger": true,
+      "assert": "routes to bluetooth-and-wireless-assessment first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "Wi-Fi evil twin lab for our device",
+      "should_trigger": true,
+      "assert": "routes to bluetooth-and-wireless-assessment first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "attack the neighbor's Wi-Fi",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "Modbus IDS",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "BOLA on an API",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

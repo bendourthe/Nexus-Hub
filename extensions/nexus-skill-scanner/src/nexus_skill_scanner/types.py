@@ -2,7 +2,7 @@
 
 A scan produces a ``ScanResult`` carrying a list of ``Finding`` objects, a
 numeric risk score, and a severity ``Band``. Severity points and band
-thresholds follow the design in ``docs/v3/v3.0/comparisons/v3.0.0-comparison-skillspector.md``
+thresholds follow the design in ``docs/releases/v3/v3.0/comparisons/v3.0.0-comparison-skillspector.md``
 Section 3 (scoring) and Section 9.
 """
 

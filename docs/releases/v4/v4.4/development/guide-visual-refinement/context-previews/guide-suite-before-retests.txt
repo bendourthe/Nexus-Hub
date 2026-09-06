@@ -1,0 +1,127 @@
+........................................................................ [ 20%]
+...............................................................s........ [ 41%]
+........................................................................ [ 62%]
+.......................F.......................................F........ [ 83%]
+............F...........................F...............F                [100%]
+================================== FAILURES ===================================
+___________ test_section_titles_share_one_scale_and_never_overflow ____________
+
+playwright_mod = <function sync_playwright at 0x000001D76E63B240>
+
+    def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> None:
+        with playwright_mod() as pw:
+            browser = pw.chromium.launch()
+            try:
+                context, page = _open(browser)
+                sizes = page.evaluate(
+                    "() => [...document.querySelectorAll('.section-title')]"
+                    ".map(e => Math.round(parseFloat(e.getAttribute('data-fit-base'))))"
+                )
+                fitted = page.evaluate(
+                    "() => [...document.querySelectorAll('.page.active .section-title')].map(e => ({"
+                    "  base: parseFloat(e.getAttribute('data-fit-base')),"
+                    "  now: parseFloat(getComputedStyle(e).fontSize),"
+                    "  wrap: e.getAttribute('data-fit-wrap') }))"
+                )
+                training_title = page.evaluate(
+                    "() => Math.round(parseFloat(getComputedStyle(document.querySelector('[data-nht=\"title\"]')).fontSize))"
+                )
+                context.close()
+                overflow = {}
+                for width in (320, 420, 900, 1440):
+                    for route in PAGES:
+                        ctx = browser.new_context(viewport={"width": width, "height": 900})
+                        pg = ctx.new_page()
+                        pg.goto(GUIDE.as_uri() + f"#{route}")
+                        pg.wait_for_function("window.NexusSeq")
+                        pg.wait_for_timeout(150)
+                        overflow[(width, route)] = pg.evaluate(
+                            "() => document.documentElement.scrollWidth - window.innerWidth"
+                        )
+                        ctx.close()
+            finally:
+                browser.close()
+        # v4.4.3 merged the two harness scenes and v4.4.4 merged the chatbot comparison into Agentic
+        # Platforms, so Foundations contributes two titles fewer than it did at v4.4.2.
+>       assert len(sizes) == 22, f"expected 22 section titles across the four pages, found {len(sizes)}"
+E       AssertionError: expected 22 section titles across the four pages, found 20
+E       assert 20 == 22
+E        +  where 20 = len([33, 33, 33, 33, 33, 33, ...])
+
+tests\guides\test_v442_phase1_foundation.py:219: AssertionError
+_______________ test_static_document_never_addresses_the_reader _______________
+
+guide_text = '<!doctype html>\n<html lang="en" class="no-js">\n<head>\n<meta charset="utf-8" />\n<meta name="viewport" content="wid...rainingRoute[1], initialTrainingRoute[2]);\n  } else {\n    render(true);\n  }\n})();\n</script>\n\n</body>\n</html>\n'
+
+    def test_static_document_never_addresses_the_reader(guide_text: str) -> None:
+        body = guide_text[guide_text.index("<body") :]
+        for tag in ("script", "style"):
+            body = re.sub(rf"<{tag}\b.*?</{tag}>", " ", body, flags=re.S)
+        prose = re.sub(r"<[^>]+>", " ", body)
+>       assert not SECOND_PERSON.findall(prose), sorted(set(SECOND_PERSON.findall(prose)))
+E       AssertionError: ['You', 'Your', 'your']
+E       assert not ['You', 'You', 'Your', 'your', 'You']
+E        +  where ['You', 'You', 'Your', 'your', 'You'] = <built-in method findall of re.Pattern object at 0x000001D76B7E7990>(' \n\n \n   \n        NORTHSTAR  Shop / Checkout   Checkout   Delivery address  Alex Morgan  42 Willow Lane  Portland,... the Codicons icon set by Microsoft Corporation, used under  CC BY 4.0 . \n     \n   \n \n\n \n\n \n\n \n\n \n\n \n \n')
+E        +    where <built-in method findall of re.Pattern object at 0x000001D76B7E7990> = re.compile("\\b(you|your|yours|yourself|yourselves|you're|you'll|you've|you'd)\\b", re.IGNORECASE).findall
+
+tests\guides\test_v443_phase1_headings.py:203: AssertionError
+__________________ test_connectors_are_thick_enough_to_read ___________________
+
+playwright_mod = <function sync_playwright at 0x000001D76E63B240>
+guide_text = '<!doctype html>\n<html lang="en" class="no-js">\n<head>\n<meta charset="utf-8" />\n<meta name="viewport" content="wid...rainingRoute[1], initialTrainingRoute[2]);\n  } else {\n    render(true);\n  }\n})();\n</script>\n\n</body>\n</html>\n'
+
+    def test_connectors_are_thick_enough_to_read(playwright_mod, guide_text: str) -> None:
+        stroke = re.search(r"\.fxp \{[^}]*stroke-width:\s*([0-9.]+)", guide_text)
+>       assert stroke and float(stroke.group(1)) >= 2.0, "the base connector is still hairline"
+E       AssertionError: the base connector is still hairline
+E       assert (None)
+
+tests\guides\test_v443_phase5_models.py:135: AssertionError
+_________________ test_one_token_carries_every_block_tag_size _________________
+
+guide_text = '<!doctype html>\n<html lang="en" class="no-js">\n<head>\n<meta charset="utf-8" />\n<meta name="viewport" content="wid...rainingRoute[1], initialTrainingRoute[2]);\n  } else {\n    render(true);\n  }\n})();\n</script>\n\n</body>\n</html>\n'
+
+    def test_one_token_carries_every_block_tag_size(guide_text: str) -> None:
+        """A hand-written px on a block tag is the drift this token exists to prevent."""
+        assert "--fx-tag:" in guide_text, "the tag-size token is missing"
+        for selector in BLOCK_TAGS:
+            rule = re.search(r"^%s \{[^}]*\}$" % re.escape(selector), guide_text, re.M)
+>           assert rule, f"no rule for {selector}"
+E           AssertionError: no rule for .pe-tag
+E           assert None
+
+tests\guides\test_v445_phase2_tags.py:79: AssertionError
+______________ test_neither_rebuilt_scene_overflows_at_any_width ______________
+
+playwright_mod = <function sync_playwright at 0x000001D76E63B240>
+
+    def test_neither_rebuilt_scene_overflows_at_any_width(playwright_mod) -> None:
+        with playwright_mod() as pw:
+            browser = pw.chromium.launch()
+            try:
+                for width in WIDTHS:
+                    ctx, page = _page(browser, width)
+                    page.evaluate(
+                        "() => document.querySelectorAll('#foundations .fx-scene')"
+                        ".forEach(s => s.scrollIntoView())"
+                    )
+                    page.wait_for_timeout(300)
+                    over = page.evaluate(
+                        """() => ['fx-agent-platform', 'fx-harness'].map(id => {
+                            const s = document.getElementById(id);
+                            return [id, Math.round(s.scrollWidth - s.clientWidth)];
+                        }).filter(([, o]) => o > 0)"""
+                    )
+                    ctx.close()
+>                   assert not over, f"{width}: {over}"
+E                   AssertionError: 320: [['fx-agent-platform', 2]]
+E                   assert not [['fx-agent-platform', 2]]
+
+tests\guides\test_v445_phase67_agentic_harness.py:228: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/guides/test_v442_phase1_foundation.py::test_section_titles_share_one_scale_and_never_overflow
+FAILED tests/guides/test_v443_phase1_headings.py::test_static_document_never_addresses_the_reader
+FAILED tests/guides/test_v443_phase5_models.py::test_connectors_are_thick_enough_to_read
+FAILED tests/guides/test_v445_phase2_tags.py::test_one_token_carries_every_block_tag_size
+FAILED tests/guides/test_v445_phase67_agentic_harness.py::test_neither_rebuilt_scene_overflows_at_any_width
+5 failed, 339 passed, 1 skipped in 352.23s (0:05:52)

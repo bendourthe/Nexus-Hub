@@ -1,4 +1,4 @@
 interface:
   display_name: Regression Root Cause Analyzer
   short_description: Identify root causes of regressions using diff analysis, git bisect, test failure correlation, and change impact analysis. Use when a previously passing test fails, CI/CD pipelines
-    break after a deplo
+    break after a deployment, or recent changes introduce unexpected behavior.

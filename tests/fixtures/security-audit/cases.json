@@ -1,0 +1,2179 @@
+{
+  "comment": "Inert schema-v2 (and one schema-v1) review records for the local security-audit closure gate. Command strings are illustrative only and must never be executed.",
+  "cases": [
+    {
+      "id": "applicable-scanner-omitted",
+      "title": "Applicable scanner missing from receipts",
+      "never_execute_commands": true,
+      "expect": {
+        "exit_code": 1,
+        "diffs": {
+          "applicable_scanners_without_successful_run": [
+            "semgrep"
+          ]
+        }
+      },
+      "record": {
+        "schema_version": 2,
+        "components": [
+          {
+            "id": "api",
+            "status": "COVERED",
+            "review_action_ids": [
+              "RA-1"
+            ]
+          },
+          {
+            "id": "generated-client",
+            "status": "OMITTED",
+            "review_action_ids": [],
+            "caveat": "Generated code is outside the declared scope."
+          }
+        ],
+        "review_actions": [
+          {
+            "id": "RA-1",
+            "component_id": "api",
+            "action": "Traced request inputs to authorization checks.",
+            "result": "One surviving finding.",
+            "evidence": "trace:api-auth"
+          }
+        ],
+        "findings": [
+          {
+            "id": "F-confirmed",
+            "disposition": "confirmed",
+            "evidence_fact_ids": [
+              "FACT-1"
+            ]
+          },
+          {
+            "id": "F-pending",
+            "disposition": "needs-live-validation",
+            "pending_validation": {
+              "safe_test": "Send one unauthorized read request.",
+              "expected_vulnerable": "The response returns the target record.",
+              "expected_safe": "The response is 403 or 404.",
+              "potential_severity": "P1 HIGH"
+            }
+          },
+          {
+            "id": "F-corrected",
+            "disposition": "corrected"
+          },
+          {
+            "id": "F-rejected",
+            "disposition": "rejected",
+            "rejection_record": {
+              "counter_hypothesis": "All actual routes enforce ownership.",
+              "actual_input_sources": [
+                "path",
+                "body"
+              ],
+              "routes": [
+                {
+                  "source": "path",
+                  "result": "observed-safe",
+                  "evidence": "test:path-owner-guard"
+                },
+                {
+                  "source": "body",
+                  "result": "observed-blocked",
+                  "evidence": "trace:body-id-ignored"
+                }
+              ],
+              "reachability_claim": false
+            }
+          }
+        ],
+        "facts": [
+          {
+            "id": "FACT-1",
+            "evidence": "artifact:F-confirmed.txt"
+          }
+        ],
+        "report_claims": [
+          {
+            "id": "CLAIM-1",
+            "fact_ids": [
+              "FACT-1"
+            ]
+          }
+        ],
+        "scanner_inventory": [
+          {
+            "id": "semgrep",
+            "applicable": true,
+            "evidence": "Python sources under src/."
+          },
+          {
+            "id": "gitleaks",
+            "applicable": true,
+            "evidence": "Git history is in scope."
+          },
+          {
+            "id": "checkov",
+            "applicable": false,
+            "evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found."
+          }
+        ],
+        "scanner_receipts": [
+          {
+            "id": "SR-gitleaks",
+            "scanner_id": "gitleaks",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for gitleaks.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "gitleaks --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/gitleaks.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-checkov",
+            "scanner_id": "checkov",
+            "state": "NOT_APPLICABLE",
+            "applicability_evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+            "omission_reason": "No supported IaC files in the target."
+          }
+        ],
+        "deterministic_coverage": {
+          "status": "complete"
+        },
+        "remediation_receipts": [],
+        "verifiers": []
+      }
+    },
+    {
+      "id": "unavailable-tool-reported",
+      "title": "Honest UNAVAILABLE with degraded coverage",
+      "never_execute_commands": true,
+      "expect": {
+        "exit_code": 0,
+        "diffs": {}
+      },
+      "record": {
+        "schema_version": 2,
+        "components": [
+          {
+            "id": "api",
+            "status": "COVERED",
+            "review_action_ids": [
+              "RA-1"
+            ]
+          },
+          {
+            "id": "generated-client",
+            "status": "OMITTED",
+            "review_action_ids": [],
+            "caveat": "Generated code is outside the declared scope."
+          }
+        ],
+        "review_actions": [
+          {
+            "id": "RA-1",
+            "component_id": "api",
+            "action": "Traced request inputs to authorization checks.",
+            "result": "One surviving finding.",
+            "evidence": "trace:api-auth"
+          }
+        ],
+        "findings": [
+          {
+            "id": "F-confirmed",
+            "disposition": "confirmed",
+            "evidence_fact_ids": [
+              "FACT-1"
+            ]
+          },
+          {
+            "id": "F-pending",
+            "disposition": "needs-live-validation",
+            "pending_validation": {
+              "safe_test": "Send one unauthorized read request.",
+              "expected_vulnerable": "The response returns the target record.",
+              "expected_safe": "The response is 403 or 404.",
+              "potential_severity": "P1 HIGH"
+            }
+          },
+          {
+            "id": "F-corrected",
+            "disposition": "corrected"
+          },
+          {
+            "id": "F-rejected",
+            "disposition": "rejected",
+            "rejection_record": {
+              "counter_hypothesis": "All actual routes enforce ownership.",
+              "actual_input_sources": [
+                "path",
+                "body"
+              ],
+              "routes": [
+                {
+                  "source": "path",
+                  "result": "observed-safe",
+                  "evidence": "test:path-owner-guard"
+                },
+                {
+                  "source": "body",
+                  "result": "observed-blocked",
+                  "evidence": "trace:body-id-ignored"
+                }
+              ],
+              "reachability_claim": false
+            }
+          }
+        ],
+        "facts": [
+          {
+            "id": "FACT-1",
+            "evidence": "artifact:F-confirmed.txt"
+          }
+        ],
+        "report_claims": [
+          {
+            "id": "CLAIM-1",
+            "fact_ids": [
+              "FACT-1"
+            ]
+          }
+        ],
+        "scanner_inventory": [
+          {
+            "id": "semgrep",
+            "applicable": true,
+            "evidence": "Python sources under src/."
+          },
+          {
+            "id": "gitleaks",
+            "applicable": true,
+            "evidence": "Git history is in scope."
+          },
+          {
+            "id": "checkov",
+            "applicable": false,
+            "evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found."
+          }
+        ],
+        "scanner_receipts": [
+          {
+            "id": "SR-semgrep",
+            "scanner_id": "semgrep",
+            "state": "UNAVAILABLE",
+            "applicability_evidence": "Python sources under src/.",
+            "omission_reason": "semgrep is not installed locally.",
+            "command": "semgrep --json src"
+          },
+          {
+            "id": "SR-gitleaks",
+            "scanner_id": "gitleaks",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for gitleaks.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "gitleaks --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/gitleaks.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-checkov",
+            "scanner_id": "checkov",
+            "state": "NOT_APPLICABLE",
+            "applicability_evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+            "omission_reason": "No supported IaC files in the target."
+          }
+        ],
+        "deterministic_coverage": {
+          "status": "degraded"
+        },
+        "remediation_receipts": [],
+        "verifiers": []
+      }
+    },
+    {
+      "id": "command-failure-reported",
+      "title": "Honest FAILED with degraded coverage",
+      "never_execute_commands": true,
+      "expect": {
+        "exit_code": 0,
+        "diffs": {}
+      },
+      "record": {
+        "schema_version": 2,
+        "components": [
+          {
+            "id": "api",
+            "status": "COVERED",
+            "review_action_ids": [
+              "RA-1"
+            ]
+          },
+          {
+            "id": "generated-client",
+            "status": "OMITTED",
+            "review_action_ids": [],
+            "caveat": "Generated code is outside the declared scope."
+          }
+        ],
+        "review_actions": [
+          {
+            "id": "RA-1",
+            "component_id": "api",
+            "action": "Traced request inputs to authorization checks.",
+            "result": "One surviving finding.",
+            "evidence": "trace:api-auth"
+          }
+        ],
+        "findings": [
+          {
+            "id": "F-confirmed",
+            "disposition": "confirmed",
+            "evidence_fact_ids": [
+              "FACT-1"
+            ]
+          },
+          {
+            "id": "F-pending",
+            "disposition": "needs-live-validation",
+            "pending_validation": {
+              "safe_test": "Send one unauthorized read request.",
+              "expected_vulnerable": "The response returns the target record.",
+              "expected_safe": "The response is 403 or 404.",
+              "potential_severity": "P1 HIGH"
+            }
+          },
+          {
+            "id": "F-corrected",
+            "disposition": "corrected"
+          },
+          {
+            "id": "F-rejected",
+            "disposition": "rejected",
+            "rejection_record": {
+              "counter_hypothesis": "All actual routes enforce ownership.",
+              "actual_input_sources": [
+                "path",
+                "body"
+              ],
+              "routes": [
+                {
+                  "source": "path",
+                  "result": "observed-safe",
+                  "evidence": "test:path-owner-guard"
+                },
+                {
+                  "source": "body",
+                  "result": "observed-blocked",
+                  "evidence": "trace:body-id-ignored"
+                }
+              ],
+              "reachability_claim": false
+            }
+          }
+        ],
+        "facts": [
+          {
+            "id": "FACT-1",
+            "evidence": "artifact:F-confirmed.txt"
+          }
+        ],
+        "report_claims": [
+          {
+            "id": "CLAIM-1",
+            "fact_ids": [
+              "FACT-1"
+            ]
+          }
+        ],
+        "scanner_inventory": [
+          {
+            "id": "semgrep",
+            "applicable": true,
+            "evidence": "Python sources under src/."
+          },
+          {
+            "id": "gitleaks",
+            "applicable": true,
+            "evidence": "Git history is in scope."
+          },
+          {
+            "id": "checkov",
+            "applicable": false,
+            "evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found."
+          }
+        ],
+        "scanner_receipts": [
+          {
+            "id": "SR-semgrep",
+            "scanner_id": "semgrep",
+            "state": "FAILED",
+            "applicability_evidence": "Python sources under src/.",
+            "command": "semgrep --json src",
+            "exit_code": 2,
+            "omission_reason": "Scanner exited before writing an artifact."
+          },
+          {
+            "id": "SR-gitleaks",
+            "scanner_id": "gitleaks",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for gitleaks.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "gitleaks --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/gitleaks.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-checkov",
+            "scanner_id": "checkov",
+            "state": "NOT_APPLICABLE",
+            "applicability_evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+            "omission_reason": "No supported IaC files in the target."
+          }
+        ],
+        "deterministic_coverage": {
+          "status": "degraded"
+        },
+        "remediation_receipts": [],
+        "verifiers": []
+      }
+    },
+    {
+      "id": "declined-scanner-reported",
+      "title": "Honest DECLINED with degraded coverage",
+      "never_execute_commands": true,
+      "expect": {
+        "exit_code": 0,
+        "diffs": {}
+      },
+      "record": {
+        "schema_version": 2,
+        "components": [
+          {
+            "id": "api",
+            "status": "COVERED",
+            "review_action_ids": [
+              "RA-1"
+            ]
+          },
+          {
+            "id": "generated-client",
+            "status": "OMITTED",
+            "review_action_ids": [],
+            "caveat": "Generated code is outside the declared scope."
+          }
+        ],
+        "review_actions": [
+          {
+            "id": "RA-1",
+            "component_id": "api",
+            "action": "Traced request inputs to authorization checks.",
+            "result": "One surviving finding.",
+            "evidence": "trace:api-auth"
+          }
+        ],
+        "findings": [
+          {
+            "id": "F-confirmed",
+            "disposition": "confirmed",
+            "evidence_fact_ids": [
+              "FACT-1"
+            ]
+          },
+          {
+            "id": "F-pending",
+            "disposition": "needs-live-validation",
+            "pending_validation": {
+              "safe_test": "Send one unauthorized read request.",
+              "expected_vulnerable": "The response returns the target record.",
+              "expected_safe": "The response is 403 or 404.",
+              "potential_severity": "P1 HIGH"
+            }
+          },
+          {
+            "id": "F-corrected",
+            "disposition": "corrected"
+          },
+          {
+            "id": "F-rejected",
+            "disposition": "rejected",
+            "rejection_record": {
+              "counter_hypothesis": "All actual routes enforce ownership.",
+              "actual_input_sources": [
+                "path",
+                "body"
+              ],
+              "routes": [
+                {
+                  "source": "path",
+                  "result": "observed-safe",
+                  "evidence": "test:path-owner-guard"
+                },
+                {
+                  "source": "body",
+                  "result": "observed-blocked",
+                  "evidence": "trace:body-id-ignored"
+                }
+              ],
+              "reachability_claim": false
+            }
+          }
+        ],
+        "facts": [
+          {
+            "id": "FACT-1",
+            "evidence": "artifact:F-confirmed.txt"
+          }
+        ],
+        "report_claims": [
+          {
+            "id": "CLAIM-1",
+            "fact_ids": [
+              "FACT-1"
+            ]
+          }
+        ],
+        "scanner_inventory": [
+          {
+            "id": "semgrep",
+            "applicable": true,
+            "evidence": "Python sources under src/."
+          },
+          {
+            "id": "gitleaks",
+            "applicable": true,
+            "evidence": "Git history is in scope."
+          },
+          {
+            "id": "checkov",
+            "applicable": false,
+            "evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found."
+          }
+        ],
+        "scanner_receipts": [
+          {
+            "id": "SR-semgrep",
+            "scanner_id": "semgrep",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for semgrep.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "semgrep --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/semgrep.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-gitleaks",
+            "scanner_id": "gitleaks",
+            "state": "DECLINED",
+            "applicability_evidence": "Git history is in scope.",
+            "omission_reason": "User declined history-wide secret scanning.",
+            "command": "gitleaks detect --report-path artifacts/gitleaks.json"
+          },
+          {
+            "id": "SR-checkov",
+            "scanner_id": "checkov",
+            "state": "NOT_APPLICABLE",
+            "applicability_evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+            "omission_reason": "No supported IaC files in the target."
+          }
+        ],
+        "deterministic_coverage": {
+          "status": "degraded"
+        },
+        "remediation_receipts": [],
+        "verifiers": []
+      }
+    },
+    {
+      "id": "forged-not-applicable",
+      "title": "NOT_APPLICABLE without applicability evidence",
+      "never_execute_commands": true,
+      "expect": {
+        "exit_code": 1,
+        "diffs": {
+          "malformed_or_unsupported_receipt_states": [
+            "SR-checkov"
+          ]
+        }
+      },
+      "record": {
+        "schema_version": 2,
+        "components": [
+          {
+            "id": "api",
+            "status": "COVERED",
+            "review_action_ids": [
+              "RA-1"
+            ]
+          },
+          {
+            "id": "generated-client",
+            "status": "OMITTED",
+            "review_action_ids": [],
+            "caveat": "Generated code is outside the declared scope."
+          }
+        ],
+        "review_actions": [
+          {
+            "id": "RA-1",
+            "component_id": "api",
+            "action": "Traced request inputs to authorization checks.",
+            "result": "One surviving finding.",
+            "evidence": "trace:api-auth"
+          }
+        ],
+        "findings": [
+          {
+            "id": "F-confirmed",
+            "disposition": "confirmed",
+            "evidence_fact_ids": [
+              "FACT-1"
+            ]
+          },
+          {
+            "id": "F-pending",
+            "disposition": "needs-live-validation",
+            "pending_validation": {
+              "safe_test": "Send one unauthorized read request.",
+              "expected_vulnerable": "The response returns the target record.",
+              "expected_safe": "The response is 403 or 404.",
+              "potential_severity": "P1 HIGH"
+            }
+          },
+          {
+            "id": "F-corrected",
+            "disposition": "corrected"
+          },
+          {
+            "id": "F-rejected",
+            "disposition": "rejected",
+            "rejection_record": {
+              "counter_hypothesis": "All actual routes enforce ownership.",
+              "actual_input_sources": [
+                "path",
+                "body"
+              ],
+              "routes": [
+                {
+                  "source": "path",
+                  "result": "observed-safe",
+                  "evidence": "test:path-owner-guard"
+                },
+                {
+                  "source": "body",
+                  "result": "observed-blocked",
+                  "evidence": "trace:body-id-ignored"
+                }
+              ],
+              "reachability_claim": false
+            }
+          }
+        ],
+        "facts": [
+          {
+            "id": "FACT-1",
+            "evidence": "artifact:F-confirmed.txt"
+          }
+        ],
+        "report_claims": [
+          {
+            "id": "CLAIM-1",
+            "fact_ids": [
+              "FACT-1"
+            ]
+          }
+        ],
+        "scanner_inventory": [
+          {
+            "id": "semgrep",
+            "applicable": true,
+            "evidence": "Python sources under src/."
+          },
+          {
+            "id": "gitleaks",
+            "applicable": true,
+            "evidence": "Git history is in scope."
+          },
+          {
+            "id": "checkov",
+            "applicable": false,
+            "evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found."
+          }
+        ],
+        "scanner_receipts": [
+          {
+            "id": "SR-semgrep",
+            "scanner_id": "semgrep",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for semgrep.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "semgrep --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/semgrep.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-gitleaks",
+            "scanner_id": "gitleaks",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for gitleaks.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "gitleaks --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/gitleaks.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-checkov",
+            "scanner_id": "checkov",
+            "state": "NOT_APPLICABLE",
+            "applicability_evidence": "",
+            "omission_reason": "No supported IaC files in the target."
+          }
+        ],
+        "deterministic_coverage": {
+          "status": "complete"
+        },
+        "remediation_receipts": [],
+        "verifiers": []
+      }
+    },
+    {
+      "id": "before-after-target-mismatch",
+      "title": "Re-scan target fingerprint differs",
+      "never_execute_commands": true,
+      "expect": {
+        "exit_code": 1,
+        "diffs": {
+          "mismatched_detector_config_or_scope": [
+            "F-corrected"
+          ]
+        }
+      },
+      "record": {
+        "schema_version": 2,
+        "components": [
+          {
+            "id": "api",
+            "status": "COVERED",
+            "review_action_ids": [
+              "RA-1"
+            ]
+          },
+          {
+            "id": "generated-client",
+            "status": "OMITTED",
+            "review_action_ids": [],
+            "caveat": "Generated code is outside the declared scope."
+          }
+        ],
+        "review_actions": [
+          {
+            "id": "RA-1",
+            "component_id": "api",
+            "action": "Traced request inputs to authorization checks.",
+            "result": "One surviving finding.",
+            "evidence": "trace:api-auth"
+          }
+        ],
+        "findings": [
+          {
+            "id": "F-confirmed",
+            "disposition": "confirmed",
+            "evidence_fact_ids": [
+              "FACT-1"
+            ]
+          },
+          {
+            "id": "F-pending",
+            "disposition": "needs-live-validation",
+            "pending_validation": {
+              "safe_test": "Send one unauthorized read request.",
+              "expected_vulnerable": "The response returns the target record.",
+              "expected_safe": "The response is 403 or 404.",
+              "potential_severity": "P1 HIGH"
+            }
+          },
+          {
+            "id": "F-corrected",
+            "disposition": "corrected",
+            "source_scanner_id": "semgrep"
+          },
+          {
+            "id": "F-rejected",
+            "disposition": "rejected",
+            "rejection_record": {
+              "counter_hypothesis": "All actual routes enforce ownership.",
+              "actual_input_sources": [
+                "path",
+                "body"
+              ],
+              "routes": [
+                {
+                  "source": "path",
+                  "result": "observed-safe",
+                  "evidence": "test:path-owner-guard"
+                },
+                {
+                  "source": "body",
+                  "result": "observed-blocked",
+                  "evidence": "trace:body-id-ignored"
+                }
+              ],
+              "reachability_claim": false
+            }
+          }
+        ],
+        "facts": [
+          {
+            "id": "FACT-1",
+            "evidence": "artifact:F-confirmed.txt"
+          }
+        ],
+        "report_claims": [
+          {
+            "id": "CLAIM-1",
+            "fact_ids": [
+              "FACT-1"
+            ]
+          }
+        ],
+        "scanner_inventory": [
+          {
+            "id": "semgrep",
+            "applicable": true,
+            "evidence": "Python sources under src/."
+          },
+          {
+            "id": "gitleaks",
+            "applicable": true,
+            "evidence": "Git history is in scope."
+          },
+          {
+            "id": "checkov",
+            "applicable": false,
+            "evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found."
+          }
+        ],
+        "scanner_receipts": [
+          {
+            "id": "SR-semgrep",
+            "scanner_id": "semgrep",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for semgrep.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "semgrep --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/semgrep.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-gitleaks",
+            "scanner_id": "gitleaks",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for gitleaks.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "gitleaks --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/gitleaks.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-checkov",
+            "scanner_id": "checkov",
+            "state": "NOT_APPLICABLE",
+            "applicability_evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+            "omission_reason": "No supported IaC files in the target."
+          },
+          {
+            "id": "SR-semgrep-after",
+            "scanner_id": "semgrep",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for semgrep.",
+            "target_scope": {
+              "paths": [
+                "tests"
+              ],
+              "fingerprint": "scope-tests"
+            },
+            "config_fingerprint": "config-default",
+            "command": "semgrep --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:10:00Z",
+            "finished_at": "2026-08-28T00:10:01Z",
+            "artifact_path": "artifacts/semgrep-after.json",
+            "observed_finding_ids": []
+          }
+        ],
+        "deterministic_coverage": {
+          "status": "complete"
+        },
+        "remediation_receipts": [
+          {
+            "id": "RR-1",
+            "finding_ids": [
+              "F-corrected"
+            ],
+            "fixer_identity": "agent:security-patch-advisor",
+            "before_receipt_id": "SR-semgrep",
+            "after_receipt_id": "SR-semgrep-after",
+            "finding_delta": {
+              "resolved_finding_ids": [
+                "F-corrected"
+              ],
+              "unresolved_finding_ids": [],
+              "new_finding_ids": []
+            }
+          }
+        ],
+        "verifiers": [
+          {
+            "identity": "agent:security-reviewer",
+            "role": "independent-diff-review",
+            "read_only": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "ruleset-drift",
+      "title": "Re-scan config fingerprint differs",
+      "never_execute_commands": true,
+      "expect": {
+        "exit_code": 1,
+        "diffs": {
+          "mismatched_detector_config_or_scope": [
+            "F-corrected"
+          ]
+        }
+      },
+      "record": {
+        "schema_version": 2,
+        "components": [
+          {
+            "id": "api",
+            "status": "COVERED",
+            "review_action_ids": [
+              "RA-1"
+            ]
+          },
+          {
+            "id": "generated-client",
+            "status": "OMITTED",
+            "review_action_ids": [],
+            "caveat": "Generated code is outside the declared scope."
+          }
+        ],
+        "review_actions": [
+          {
+            "id": "RA-1",
+            "component_id": "api",
+            "action": "Traced request inputs to authorization checks.",
+            "result": "One surviving finding.",
+            "evidence": "trace:api-auth"
+          }
+        ],
+        "findings": [
+          {
+            "id": "F-confirmed",
+            "disposition": "confirmed",
+            "evidence_fact_ids": [
+              "FACT-1"
+            ]
+          },
+          {
+            "id": "F-pending",
+            "disposition": "needs-live-validation",
+            "pending_validation": {
+              "safe_test": "Send one unauthorized read request.",
+              "expected_vulnerable": "The response returns the target record.",
+              "expected_safe": "The response is 403 or 404.",
+              "potential_severity": "P1 HIGH"
+            }
+          },
+          {
+            "id": "F-corrected",
+            "disposition": "corrected",
+            "source_scanner_id": "semgrep"
+          },
+          {
+            "id": "F-rejected",
+            "disposition": "rejected",
+            "rejection_record": {
+              "counter_hypothesis": "All actual routes enforce ownership.",
+              "actual_input_sources": [
+                "path",
+                "body"
+              ],
+              "routes": [
+                {
+                  "source": "path",
+                  "result": "observed-safe",
+                  "evidence": "test:path-owner-guard"
+                },
+                {
+                  "source": "body",
+                  "result": "observed-blocked",
+                  "evidence": "trace:body-id-ignored"
+                }
+              ],
+              "reachability_claim": false
+            }
+          }
+        ],
+        "facts": [
+          {
+            "id": "FACT-1",
+            "evidence": "artifact:F-confirmed.txt"
+          }
+        ],
+        "report_claims": [
+          {
+            "id": "CLAIM-1",
+            "fact_ids": [
+              "FACT-1"
+            ]
+          }
+        ],
+        "scanner_inventory": [
+          {
+            "id": "semgrep",
+            "applicable": true,
+            "evidence": "Python sources under src/."
+          },
+          {
+            "id": "gitleaks",
+            "applicable": true,
+            "evidence": "Git history is in scope."
+          },
+          {
+            "id": "checkov",
+            "applicable": false,
+            "evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found."
+          }
+        ],
+        "scanner_receipts": [
+          {
+            "id": "SR-semgrep",
+            "scanner_id": "semgrep",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for semgrep.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "semgrep --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/semgrep.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-gitleaks",
+            "scanner_id": "gitleaks",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for gitleaks.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "gitleaks --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/gitleaks.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-checkov",
+            "scanner_id": "checkov",
+            "state": "NOT_APPLICABLE",
+            "applicability_evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+            "omission_reason": "No supported IaC files in the target."
+          },
+          {
+            "id": "SR-semgrep-after",
+            "scanner_id": "semgrep",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for semgrep.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-other",
+            "command": "semgrep --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:10:00Z",
+            "finished_at": "2026-08-28T00:10:01Z",
+            "artifact_path": "artifacts/semgrep-after.json",
+            "observed_finding_ids": []
+          }
+        ],
+        "deterministic_coverage": {
+          "status": "complete"
+        },
+        "remediation_receipts": [
+          {
+            "id": "RR-1",
+            "finding_ids": [
+              "F-corrected"
+            ],
+            "fixer_identity": "agent:security-patch-advisor",
+            "before_receipt_id": "SR-semgrep",
+            "after_receipt_id": "SR-semgrep-after",
+            "finding_delta": {
+              "resolved_finding_ids": [
+                "F-corrected"
+              ],
+              "unresolved_finding_ids": [],
+              "new_finding_ids": []
+            }
+          }
+        ],
+        "verifiers": [
+          {
+            "identity": "agent:security-reviewer",
+            "role": "independent-diff-review",
+            "read_only": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "fixed-plus-unresolved-new-finding",
+      "title": "Original finding corrected; after-scan finding unresolved",
+      "never_execute_commands": true,
+      "expect": {
+        "exit_code": 1,
+        "diffs": {
+          "unresolved_new_after_scan_findings": [
+            "F-new"
+          ]
+        }
+      },
+      "record": {
+        "schema_version": 2,
+        "components": [
+          {
+            "id": "api",
+            "status": "COVERED",
+            "review_action_ids": [
+              "RA-1"
+            ]
+          },
+          {
+            "id": "generated-client",
+            "status": "OMITTED",
+            "review_action_ids": [],
+            "caveat": "Generated code is outside the declared scope."
+          }
+        ],
+        "review_actions": [
+          {
+            "id": "RA-1",
+            "component_id": "api",
+            "action": "Traced request inputs to authorization checks.",
+            "result": "One surviving finding.",
+            "evidence": "trace:api-auth"
+          }
+        ],
+        "findings": [
+          {
+            "id": "F-confirmed",
+            "disposition": "confirmed",
+            "evidence_fact_ids": [
+              "FACT-1"
+            ]
+          },
+          {
+            "id": "F-pending",
+            "disposition": "needs-live-validation",
+            "pending_validation": {
+              "safe_test": "Send one unauthorized read request.",
+              "expected_vulnerable": "The response returns the target record.",
+              "expected_safe": "The response is 403 or 404.",
+              "potential_severity": "P1 HIGH"
+            }
+          },
+          {
+            "id": "F-corrected",
+            "disposition": "corrected",
+            "source_scanner_id": "semgrep"
+          },
+          {
+            "id": "F-rejected",
+            "disposition": "rejected",
+            "rejection_record": {
+              "counter_hypothesis": "All actual routes enforce ownership.",
+              "actual_input_sources": [
+                "path",
+                "body"
+              ],
+              "routes": [
+                {
+                  "source": "path",
+                  "result": "observed-safe",
+                  "evidence": "test:path-owner-guard"
+                },
+                {
+                  "source": "body",
+                  "result": "observed-blocked",
+                  "evidence": "trace:body-id-ignored"
+                }
+              ],
+              "reachability_claim": false
+            }
+          }
+        ],
+        "facts": [
+          {
+            "id": "FACT-1",
+            "evidence": "artifact:F-confirmed.txt"
+          }
+        ],
+        "report_claims": [
+          {
+            "id": "CLAIM-1",
+            "fact_ids": [
+              "FACT-1"
+            ]
+          }
+        ],
+        "scanner_inventory": [
+          {
+            "id": "semgrep",
+            "applicable": true,
+            "evidence": "Python sources under src/."
+          },
+          {
+            "id": "gitleaks",
+            "applicable": true,
+            "evidence": "Git history is in scope."
+          },
+          {
+            "id": "checkov",
+            "applicable": false,
+            "evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found."
+          }
+        ],
+        "scanner_receipts": [
+          {
+            "id": "SR-semgrep",
+            "scanner_id": "semgrep",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for semgrep.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "semgrep --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/semgrep.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-gitleaks",
+            "scanner_id": "gitleaks",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for gitleaks.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "gitleaks --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/gitleaks.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-checkov",
+            "scanner_id": "checkov",
+            "state": "NOT_APPLICABLE",
+            "applicability_evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+            "omission_reason": "No supported IaC files in the target."
+          },
+          {
+            "id": "SR-semgrep-after",
+            "scanner_id": "semgrep",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for semgrep.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "semgrep --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:10:00Z",
+            "finished_at": "2026-08-28T00:10:01Z",
+            "artifact_path": "artifacts/semgrep-after.json",
+            "observed_finding_ids": [
+              "F-new"
+            ]
+          }
+        ],
+        "deterministic_coverage": {
+          "status": "complete"
+        },
+        "remediation_receipts": [
+          {
+            "id": "RR-1",
+            "finding_ids": [
+              "F-corrected"
+            ],
+            "fixer_identity": "agent:security-patch-advisor",
+            "before_receipt_id": "SR-semgrep",
+            "after_receipt_id": "SR-semgrep-after",
+            "finding_delta": {
+              "resolved_finding_ids": [
+                "F-corrected"
+              ],
+              "unresolved_finding_ids": [],
+              "new_finding_ids": [
+                "F-new"
+              ]
+            }
+          }
+        ],
+        "verifiers": [
+          {
+            "identity": "agent:security-reviewer",
+            "role": "independent-diff-review",
+            "read_only": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "same-fixer-verifier",
+      "title": "Fixer is the only verifier",
+      "never_execute_commands": true,
+      "expect": {
+        "exit_code": 1,
+        "diffs": {
+          "fixer_is_sole_verifier": [
+            "verifiers"
+          ]
+        }
+      },
+      "record": {
+        "schema_version": 2,
+        "components": [
+          {
+            "id": "api",
+            "status": "COVERED",
+            "review_action_ids": [
+              "RA-1"
+            ]
+          },
+          {
+            "id": "generated-client",
+            "status": "OMITTED",
+            "review_action_ids": [],
+            "caveat": "Generated code is outside the declared scope."
+          }
+        ],
+        "review_actions": [
+          {
+            "id": "RA-1",
+            "component_id": "api",
+            "action": "Traced request inputs to authorization checks.",
+            "result": "One surviving finding.",
+            "evidence": "trace:api-auth"
+          }
+        ],
+        "findings": [
+          {
+            "id": "F-confirmed",
+            "disposition": "confirmed",
+            "evidence_fact_ids": [
+              "FACT-1"
+            ]
+          },
+          {
+            "id": "F-pending",
+            "disposition": "needs-live-validation",
+            "pending_validation": {
+              "safe_test": "Send one unauthorized read request.",
+              "expected_vulnerable": "The response returns the target record.",
+              "expected_safe": "The response is 403 or 404.",
+              "potential_severity": "P1 HIGH"
+            }
+          },
+          {
+            "id": "F-corrected",
+            "disposition": "corrected",
+            "source_scanner_id": "semgrep"
+          },
+          {
+            "id": "F-rejected",
+            "disposition": "rejected",
+            "rejection_record": {
+              "counter_hypothesis": "All actual routes enforce ownership.",
+              "actual_input_sources": [
+                "path",
+                "body"
+              ],
+              "routes": [
+                {
+                  "source": "path",
+                  "result": "observed-safe",
+                  "evidence": "test:path-owner-guard"
+                },
+                {
+                  "source": "body",
+                  "result": "observed-blocked",
+                  "evidence": "trace:body-id-ignored"
+                }
+              ],
+              "reachability_claim": false
+            }
+          }
+        ],
+        "facts": [
+          {
+            "id": "FACT-1",
+            "evidence": "artifact:F-confirmed.txt"
+          }
+        ],
+        "report_claims": [
+          {
+            "id": "CLAIM-1",
+            "fact_ids": [
+              "FACT-1"
+            ]
+          }
+        ],
+        "scanner_inventory": [
+          {
+            "id": "semgrep",
+            "applicable": true,
+            "evidence": "Python sources under src/."
+          },
+          {
+            "id": "gitleaks",
+            "applicable": true,
+            "evidence": "Git history is in scope."
+          },
+          {
+            "id": "checkov",
+            "applicable": false,
+            "evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found."
+          }
+        ],
+        "scanner_receipts": [
+          {
+            "id": "SR-semgrep",
+            "scanner_id": "semgrep",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for semgrep.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "semgrep --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/semgrep.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-gitleaks",
+            "scanner_id": "gitleaks",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for gitleaks.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "gitleaks --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/gitleaks.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-checkov",
+            "scanner_id": "checkov",
+            "state": "NOT_APPLICABLE",
+            "applicability_evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+            "omission_reason": "No supported IaC files in the target."
+          },
+          {
+            "id": "SR-semgrep-after",
+            "scanner_id": "semgrep",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for semgrep.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "semgrep --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:10:00Z",
+            "finished_at": "2026-08-28T00:10:01Z",
+            "artifact_path": "artifacts/semgrep-after.json",
+            "observed_finding_ids": []
+          }
+        ],
+        "deterministic_coverage": {
+          "status": "complete"
+        },
+        "remediation_receipts": [
+          {
+            "id": "RR-1",
+            "finding_ids": [
+              "F-corrected"
+            ],
+            "fixer_identity": "agent:security-patch-advisor",
+            "before_receipt_id": "SR-semgrep",
+            "after_receipt_id": "SR-semgrep-after",
+            "finding_delta": {
+              "resolved_finding_ids": [
+                "F-corrected"
+              ],
+              "unresolved_finding_ids": [],
+              "new_finding_ids": []
+            }
+          }
+        ],
+        "verifiers": [
+          {
+            "identity": "agent:security-patch-advisor",
+            "role": "fixer-self-check",
+            "read_only": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "independent-clean-verifier",
+      "title": "Clean remediated audit with independent read-only verifier",
+      "never_execute_commands": true,
+      "expect": {
+        "exit_code": 0,
+        "diffs": {}
+      },
+      "record": {
+        "schema_version": 2,
+        "components": [
+          {
+            "id": "api",
+            "status": "COVERED",
+            "review_action_ids": [
+              "RA-1"
+            ]
+          },
+          {
+            "id": "generated-client",
+            "status": "OMITTED",
+            "review_action_ids": [],
+            "caveat": "Generated code is outside the declared scope."
+          }
+        ],
+        "review_actions": [
+          {
+            "id": "RA-1",
+            "component_id": "api",
+            "action": "Traced request inputs to authorization checks.",
+            "result": "One surviving finding.",
+            "evidence": "trace:api-auth"
+          }
+        ],
+        "findings": [
+          {
+            "id": "F-confirmed",
+            "disposition": "confirmed",
+            "evidence_fact_ids": [
+              "FACT-1"
+            ]
+          },
+          {
+            "id": "F-pending",
+            "disposition": "needs-live-validation",
+            "pending_validation": {
+              "safe_test": "Send one unauthorized read request.",
+              "expected_vulnerable": "The response returns the target record.",
+              "expected_safe": "The response is 403 or 404.",
+              "potential_severity": "P1 HIGH"
+            }
+          },
+          {
+            "id": "F-corrected",
+            "disposition": "corrected",
+            "source_scanner_id": "semgrep"
+          },
+          {
+            "id": "F-rejected",
+            "disposition": "rejected",
+            "rejection_record": {
+              "counter_hypothesis": "All actual routes enforce ownership.",
+              "actual_input_sources": [
+                "path",
+                "body"
+              ],
+              "routes": [
+                {
+                  "source": "path",
+                  "result": "observed-safe",
+                  "evidence": "test:path-owner-guard"
+                },
+                {
+                  "source": "body",
+                  "result": "observed-blocked",
+                  "evidence": "trace:body-id-ignored"
+                }
+              ],
+              "reachability_claim": false
+            }
+          }
+        ],
+        "facts": [
+          {
+            "id": "FACT-1",
+            "evidence": "artifact:F-confirmed.txt"
+          }
+        ],
+        "report_claims": [
+          {
+            "id": "CLAIM-1",
+            "fact_ids": [
+              "FACT-1"
+            ]
+          }
+        ],
+        "scanner_inventory": [
+          {
+            "id": "semgrep",
+            "applicable": true,
+            "evidence": "Python sources under src/."
+          },
+          {
+            "id": "gitleaks",
+            "applicable": true,
+            "evidence": "Git history is in scope."
+          },
+          {
+            "id": "checkov",
+            "applicable": false,
+            "evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found."
+          }
+        ],
+        "scanner_receipts": [
+          {
+            "id": "SR-semgrep",
+            "scanner_id": "semgrep",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for semgrep.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "semgrep --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/semgrep.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-gitleaks",
+            "scanner_id": "gitleaks",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for gitleaks.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "gitleaks --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/gitleaks.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-checkov",
+            "scanner_id": "checkov",
+            "state": "NOT_APPLICABLE",
+            "applicability_evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+            "omission_reason": "No supported IaC files in the target."
+          },
+          {
+            "id": "SR-semgrep-after",
+            "scanner_id": "semgrep",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for semgrep.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "semgrep --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:10:00Z",
+            "finished_at": "2026-08-28T00:10:01Z",
+            "artifact_path": "artifacts/semgrep-after.json",
+            "observed_finding_ids": []
+          }
+        ],
+        "deterministic_coverage": {
+          "status": "complete"
+        },
+        "remediation_receipts": [
+          {
+            "id": "RR-1",
+            "finding_ids": [
+              "F-corrected"
+            ],
+            "fixer_identity": "agent:security-patch-advisor",
+            "before_receipt_id": "SR-semgrep",
+            "after_receipt_id": "SR-semgrep-after",
+            "finding_delta": {
+              "resolved_finding_ids": [
+                "F-corrected"
+              ],
+              "unresolved_finding_ids": [],
+              "new_finding_ids": []
+            }
+          }
+        ],
+        "verifiers": [
+          {
+            "identity": "agent:security-reviewer",
+            "role": "independent-diff-review",
+            "read_only": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "clean-no-remediation",
+      "title": "Clean detection-only audit",
+      "never_execute_commands": true,
+      "expect": {
+        "exit_code": 0,
+        "diffs": {}
+      },
+      "record": {
+        "schema_version": 2,
+        "components": [
+          {
+            "id": "api",
+            "status": "COVERED",
+            "review_action_ids": [
+              "RA-1"
+            ]
+          },
+          {
+            "id": "generated-client",
+            "status": "OMITTED",
+            "review_action_ids": [],
+            "caveat": "Generated code is outside the declared scope."
+          }
+        ],
+        "review_actions": [
+          {
+            "id": "RA-1",
+            "component_id": "api",
+            "action": "Traced request inputs to authorization checks.",
+            "result": "One surviving finding.",
+            "evidence": "trace:api-auth"
+          }
+        ],
+        "findings": [
+          {
+            "id": "F-confirmed",
+            "disposition": "confirmed",
+            "evidence_fact_ids": [
+              "FACT-1"
+            ]
+          },
+          {
+            "id": "F-pending",
+            "disposition": "needs-live-validation",
+            "pending_validation": {
+              "safe_test": "Send one unauthorized read request.",
+              "expected_vulnerable": "The response returns the target record.",
+              "expected_safe": "The response is 403 or 404.",
+              "potential_severity": "P1 HIGH"
+            }
+          },
+          {
+            "id": "F-corrected",
+            "disposition": "corrected"
+          },
+          {
+            "id": "F-rejected",
+            "disposition": "rejected",
+            "rejection_record": {
+              "counter_hypothesis": "All actual routes enforce ownership.",
+              "actual_input_sources": [
+                "path",
+                "body"
+              ],
+              "routes": [
+                {
+                  "source": "path",
+                  "result": "observed-safe",
+                  "evidence": "test:path-owner-guard"
+                },
+                {
+                  "source": "body",
+                  "result": "observed-blocked",
+                  "evidence": "trace:body-id-ignored"
+                }
+              ],
+              "reachability_claim": false
+            }
+          }
+        ],
+        "facts": [
+          {
+            "id": "FACT-1",
+            "evidence": "artifact:F-confirmed.txt"
+          }
+        ],
+        "report_claims": [
+          {
+            "id": "CLAIM-1",
+            "fact_ids": [
+              "FACT-1"
+            ]
+          }
+        ],
+        "scanner_inventory": [
+          {
+            "id": "semgrep",
+            "applicable": true,
+            "evidence": "Python sources under src/."
+          },
+          {
+            "id": "gitleaks",
+            "applicable": true,
+            "evidence": "Git history is in scope."
+          },
+          {
+            "id": "checkov",
+            "applicable": false,
+            "evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found."
+          }
+        ],
+        "scanner_receipts": [
+          {
+            "id": "SR-semgrep",
+            "scanner_id": "semgrep",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for semgrep.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "semgrep --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/semgrep.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-gitleaks",
+            "scanner_id": "gitleaks",
+            "scanner_version": "1.0.0-test",
+            "state": "RAN",
+            "applicability_evidence": "Repository contains targets for gitleaks.",
+            "target_scope": {
+              "paths": [
+                "src"
+              ],
+              "fingerprint": "scope-src"
+            },
+            "config_fingerprint": "config-default",
+            "command": "gitleaks --json src",
+            "exit_code": 0,
+            "started_at": "2026-08-28T00:00:00Z",
+            "finished_at": "2026-08-28T00:00:01Z",
+            "artifact_path": "artifacts/gitleaks.json",
+            "observed_finding_ids": [
+              "F-confirmed"
+            ]
+          },
+          {
+            "id": "SR-checkov",
+            "scanner_id": "checkov",
+            "state": "NOT_APPLICABLE",
+            "applicability_evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+            "omission_reason": "No supported IaC files in the target."
+          }
+        ],
+        "deterministic_coverage": {
+          "status": "complete"
+        },
+        "remediation_receipts": [],
+        "verifiers": []
+      }
+    },
+    {
+      "id": "schema-v1-legacy",
+      "title": "Schema v1 record ignores v2 collections",
+      "never_execute_commands": true,
+      "expect": {
+        "exit_code": 0,
+        "diffs": {}
+      },
+      "record": {
+        "schema_version": 1,
+        "components": [
+          {
+            "id": "api",
+            "status": "COVERED",
+            "review_action_ids": [
+              "RA-1"
+            ]
+          },
+          {
+            "id": "generated-client",
+            "status": "OMITTED",
+            "review_action_ids": [],
+            "caveat": "Generated code is outside the declared scope."
+          }
+        ],
+        "review_actions": [
+          {
+            "id": "RA-1",
+            "component_id": "api",
+            "action": "Traced request inputs to authorization checks.",
+            "result": "One surviving finding.",
+            "evidence": "trace:api-auth"
+          }
+        ],
+        "findings": [
+          {
+            "id": "F-confirmed",
+            "disposition": "confirmed",
+            "evidence_fact_ids": [
+              "FACT-1"
+            ]
+          },
+          {
+            "id": "F-pending",
+            "disposition": "needs-live-validation",
+            "pending_validation": {
+              "safe_test": "Send one unauthorized read request.",
+              "expected_vulnerable": "The response returns the target record.",
+              "expected_safe": "The response is 403 or 404.",
+              "potential_severity": "P1 HIGH"
+            }
+          },
+          {
+            "id": "F-corrected",
+            "disposition": "corrected"
+          },
+          {
+            "id": "F-rejected",
+            "disposition": "rejected",
+            "rejection_record": {
+              "counter_hypothesis": "All actual routes enforce ownership.",
+              "actual_input_sources": [
+                "path",
+                "body"
+              ],
+              "routes": [
+                {
+                  "source": "path",
+                  "result": "observed-safe",
+                  "evidence": "test:path-owner-guard"
+                },
+                {
+                  "source": "body",
+                  "result": "observed-blocked",
+                  "evidence": "trace:body-id-ignored"
+                }
+              ],
+              "reachability_claim": false
+            }
+          }
+        ],
+        "facts": [
+          {
+            "id": "FACT-1",
+            "evidence": "artifact:F-confirmed.txt"
+          }
+        ],
+        "report_claims": [
+          {
+            "id": "CLAIM-1",
+            "fact_ids": [
+              "FACT-1"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

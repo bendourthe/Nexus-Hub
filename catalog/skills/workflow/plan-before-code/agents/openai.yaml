@@ -1,4 +1,3 @@
 interface:
   display_name: Plan Before Code
-  short_description: Guide exploration and planning phases before implementation (Anthropic best practice). Includes LLM task suitability assessment, token cost estimation, and pipeline design. Use when
-    starting non-trivi
+  short_description: Guide exploration and planning phases before implementation (Anthropic best practice). Includes LLM task suitability assessment, token cost estimation, and pipeline design.

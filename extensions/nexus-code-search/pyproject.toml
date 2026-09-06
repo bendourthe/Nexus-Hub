@@ -1,7 +1,7 @@
 [project]
 name = "nexus-code-search"
-version = "2.0.0"
-description = "Nexus-Hub local-only code-search MCP server (v2.0 adds tree-sitter AST graph + call-graph + file-watcher; keyword search kept for back-compat)"
+version = "2.1.0"
+description = "Nexus-Hub local-only code-search MCP server (v2.1 adds the compiled context map: framework routes/env/middleware, ORM schema, components, events, hot-file ranking, a git-scoped change map, a token-savings benchmark, a map-health lint, and a knowledge-map extractor; v2.0 tree-sitter AST graph + call-graph + file-watcher; keyword search kept for back-compat)"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [{name = "Benjamin Dourthe"}]
@@ -9,40 +9,39 @@ dependencies = [
     "mcp>=1.0.0",
     "rapidfuzz>=3.5.0",
     "pathspec>=0.12.0",
-    # tree-sitter core + per-language grammars. The <0.26 ceiling guards
-    # against an ABI break: the abandoned `tree-sitter-languages` umbrella
-    # crashes on core >=0.23, so each grammar is pinned as its own package.
-    # Pin re-verified 2026-05-29 (v2.3.0 Phase 8 / WN-5): no 0.26-compatible
-    # release of core (latest 0.25.2), tree-sitter-python (0.25.0), or
-    # tree-sitter-typescript (0.23.2) has shipped, so the ceiling stays.
+    # Dependency-ceiling rationale (<0.26 core family): newer 0.26 behavior is
+    # unknown because no compatible release existed at the last verification;
+    # lifting early could break the shared grammar ABI. Last verified 2026-08-22.
+    # Evidence: PyPI-resolved latest versions remained core 0.25.2, Python
+    # 0.25.0, and TypeScript 0.23.2; no newer-suite run was possible because the
+    # target versions did not exist. Lift only after every grammar installs and
+    # the complete extraction, graph, and context-map suites pass on core 0.26.
     "tree-sitter>=0.24,<0.26",
     "tree-sitter-python>=0.23,<0.26",
     "tree-sitter-typescript>=0.23,<0.26",
-    # Phase 8 / DF-002 extractor batch: Go, Rust, Java, C#. All resolve under
-    # the shared <0.26 ceiling (go 0.25, rust 0.24, java/c-sharp 0.23).
+    # Go, Rust, Java, and C# share the core-family ceiling rationale above.
     "tree-sitter-go>=0.23,<0.26",
     "tree-sitter-rust>=0.23,<0.26",
     "tree-sitter-java>=0.23,<0.26",
     "tree-sitter-c-sharp>=0.23,<0.26",
-    # v2.4.0 / DF-v23-4 extractor batch: Ruby, PHP, C, C++. All resolve under
-    # the shared <0.26 ceiling (ruby 0.23, php 0.24, c 0.24, cpp 0.23).
+    # Ruby, PHP, C, and C++ share the core-family ceiling rationale above.
     "tree-sitter-ruby>=0.23,<0.26",
     "tree-sitter-php>=0.23,<0.26",
     "tree-sitter-c>=0.23,<0.26",
     "tree-sitter-cpp>=0.23,<0.26",
-    # v3.0.0 / DF-v24-7 mobile extractor batch: Swift, Kotlin. These two
-    # grammars version their OWN package independently of the tree-sitter core
-    # (swift at 0.7.x, kotlin at 1.x), so they do not carry a <0.26 marker; the
-    # <0.26 ceiling above guards the CORE ABI, not each grammar's package
-    # version. Both were verified ABI-compatible with core 0.25.2 (parse + node
-    # extraction) on 2026-06-04; their PyPI metadata declares core ~=0.23/~=0.22
-    # only as an optional `[core]` extra, which we do not install.
+    # Dependency-ceiling rationale (Swift <0.8, Kotlin <2): both packages use
+    # independent major lines, and the next-major ABI behavior is unknown. Last
+    # verified 2026-08-22. Evidence: the installed 0.7.x/1.x lines parse and
+    # extract against core 0.25.2; newer-major suites were not run because no
+    # compatible target was selected. Lift each ceiling only after its next
+    # major passes the complete language extraction and graph suites offline.
     "tree-sitter-swift>=0.7,<0.8",
     "tree-sitter-kotlin>=1.1,<2",
     "watchdog>=4.0.0",
 ]
 
 [project.optional-dependencies]
+dense = ["onnxruntime>=1.16", "numpy>=1.21", "tokenizers>=0.15"]
 dev = ["pytest>=7.0", "pytest-asyncio>=0.21"]
 
 [project.scripts]

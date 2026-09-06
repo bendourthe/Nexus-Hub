@@ -1,4 +1,4 @@
 interface:
   display_name: Metamorphic Test Generator
-  short_description: 'Generate metamorphic tests for systems without clear test oracles by defining transformation invariants between inputs and outputs. Use when testing ML models, search engines, numerical
-    computations, '
+  short_description: Generate metamorphic tests for systems without clear test oracles by defining transformation invariants between inputs and outputs. Use when testing ML models, search engines, numerical
+    computations, compilers, data analytics pipelines, or any system where the correct output is hard to specify directly.

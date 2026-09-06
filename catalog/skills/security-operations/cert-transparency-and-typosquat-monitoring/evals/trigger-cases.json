@@ -1,0 +1,48 @@
+{
+  "skill": "cert-transparency-and-typosquat-monitoring",
+  "purpose": "Route CT and typosquat watches here; send pivots and phishing content analysis elsewhere.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "certificate transparency monitoring for our brand",
+      "should_trigger": true,
+      "assert": "routes to cert-transparency-and-typosquat-monitoring first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "typosquat watch on lookalike domains",
+      "should_trigger": true,
+      "assert": "routes to cert-transparency-and-typosquat-monitoring first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "CT log brand watch",
+      "should_trigger": true,
+      "assert": "routes to cert-transparency-and-typosquat-monitoring first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "pivot this C2 graph",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "analyze a phishing email body",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "enrich a malware hash",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

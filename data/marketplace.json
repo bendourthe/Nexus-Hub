@@ -1,8 +1,8 @@
 {
   "plugin": {
     "name": "nexus-hub",
-    "version": "3.12.1",
-    "description": "Enterprise-grade skill library for AI coding assistants with 265 curated skills, 16 commands, 25 hooks, and cross-platform support",
+    "version": "4.7.0",
+    "description": "Enterprise-grade skill library for AI coding assistants with 336 curated skills, 18 commands, 33 hooks, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
     "repository": "https://github.com/bendourthe/Nexus-Hub",
@@ -66,7 +66,7 @@
       "id": "ai-development",
       "name": "AI Development",
       "description": "Build and deploy AI agents, manage billing, route across providers, build MCP servers",
-      "skill_count": 11
+      "skill_count": 14
     },
     {
       "id": "architecture",
@@ -84,19 +84,19 @@
       "id": "business-product",
       "name": "Business & Product",
       "description": "Business analysis, product management, scrum, technical writing, and internal communications",
-      "skill_count": 6
+      "skill_count": 7
     },
     {
       "id": "code-cleanup",
       "name": "Code Cleanup",
       "description": "Code, layout, and docs cleanup: per-language modernization plus repo and docs structural refactoring",
-      "skill_count": 11
+      "skill_count": 12
     },
     {
       "id": "code-review",
       "name": "Code Review",
       "description": "Comprehensive code review with security, performance, and testing focus",
-      "skill_count": 14
+      "skill_count": 16
     },
     {
       "id": "compliance",
@@ -107,8 +107,8 @@
     {
       "id": "developer-experience",
       "name": "Developer Experience",
-      "description": "Code optimization, refactoring, migration, dependency management, web artifact scaffolding, helper-script authoring",
-      "skill_count": 32
+      "description": "Code optimization, refactoring, migration, dependency management, web artifact scaffolding",
+      "skill_count": 42
     },
     {
       "id": "documentation",
@@ -132,7 +132,7 @@
       "id": "language-specialists",
       "name": "Language Specialists",
       "description": "Expert patterns for C++, C#, Go, Java, JavaScript, PowerShell, Python, Rust, SQL, TypeScript",
-      "skill_count": 10
+      "skill_count": 11
     },
     {
       "id": "orchestration",
@@ -150,13 +150,13 @@
       "id": "security",
       "name": "Security",
       "description": "Authentication, AI attack patterns, CVE analysis, dependency audit, licensing, penetration testing and reporting, framework mapping",
-      "skill_count": 15
+      "skill_count": 33
     },
     {
       "id": "security-operations",
       "name": "Security Operations",
-      "description": "Defensive security operations: DFIR, threat hunting, detection engineering, incident response, and cloud/endpoint/identity/phishing detection",
-      "skill_count": 15
+      "description": "Defensive security operations: DFIR, threat hunting, detection engineering, incident response, agentic-endpoint hardening, agent execution isolation, and cloud/endpoint/identity/phishing detection",
+      "skill_count": 29
     },
     {
       "id": "specialized-domains",
@@ -167,8 +167,8 @@
     {
       "id": "testing",
       "name": "Testing",
-      "description": "Domain contract validation, E2E test automation, visual regression testing",
-      "skill_count": 4
+      "description": "Domain contract validation, E2E test automation",
+      "skill_count": 5
     },
     {
       "id": "tests-generation",
@@ -179,14 +179,26 @@
     {
       "id": "workflow",
       "name": "Workflow",
-      "description": "Git workflows, TDD, debugging, session history and session query, context-pack distillation, skill evaluation, version management, project governance and product strategy, issue tracking, agent context modes, local continuous learning, skill quality audit and generation, local PR demo capture, end-of-shift validation",
-      "skill_count": 45
+      "description": "Git workflows, TDD, debugging, session history and session query, context-pack distillation, skill evaluation, version management, project governance and product strategy, issue tracking, agent context modes, local continuous learning, persistent agent memory, skill quality audit and generation, local PR demo capture",
+      "skill_count": 47
     },
     {
       "id": "research",
       "name": "Research",
       "description": "Research recent trends and answer library/API questions from local sources",
       "skill_count": 3
+    },
+    {
+      "id": "ot-security",
+      "name": "OT Security",
+      "description": "Industrial control, SCADA, IEC 62443 zones, and NERC CIP operational-technology security",
+      "skill_count": 5
+    },
+    {
+      "id": "mobile-security",
+      "name": "Mobile Security",
+      "description": "Android and iOS application security, mobile traffic interception, and mobile malware triage",
+      "skill_count": 5
     }
   ],
   "discovery": {

@@ -1,0 +1,16 @@
+{
+  "skill": "agent-communication",
+  "purpose": "Route 'how should the assistant word this live response' here, while keeping the near-neighbours routing to themselves: writing-editing (authoring a standalone document), anti-slop-editing (de-slopping a finished draft), technical-writer (structured documentation), and markdown.md conventions (mechanics of a generated file).",
+  "cases": [
+    {"id": "pos-summarize-plainly", "prompt": "summarize what you did in plain language I can follow", "should_trigger": true, "assert": "routes to agent-communication first", "lexical": true},
+    {"id": "pos-give-me-the-steps", "prompt": "give me the steps to run this, and walk me through it", "should_trigger": true, "assert": "routes to agent-communication first", "lexical": true},
+    {"id": "pos-report-the-results", "prompt": "report the results of that phase in a readable way", "should_trigger": true, "assert": "routes to agent-communication first", "lexical": true},
+    {"id": "pos-explain-simply", "prompt": "explain this to me simply, I am not an engineer", "should_trigger": true, "assert": "routes to agent-communication first", "lexical": true},
+    {"id": "pos-placeholder-commands", "prompt": "your command had a placeholder in it, make the commands copy-paste runnable", "should_trigger": true, "assert": "routes to agent-communication first", "lexical": true},
+    {"id": "neg-write-readme", "prompt": "write a README for this library with an install section", "should_trigger": false, "assert": "routes to writing-editing or user-documentation, not here", "lexical": true},
+    {"id": "neg-deslop-draft", "prompt": "de-slop this draft, it reads as AI-written", "should_trigger": false, "assert": "routes to anti-slop-editing, not here", "lexical": true},
+    {"id": "neg-markdown-mechanics", "prompt": "fix the list spacing and code fence indentation in this generated markdown file", "should_trigger": false, "assert": "routes to the markdown style guide, not here", "lexical": true},
+    {"id": "neg-api-docs", "prompt": "produce an OpenAPI reference for these endpoints", "should_trigger": false, "assert": "routes to api-documentation, not here", "lexical": true},
+    {"id": "neg-internal-announcement", "prompt": "draft a company-wide announcement about the migration", "should_trigger": false, "assert": "routes to internal-comms, not here", "lexical": true}
+  ]
+}

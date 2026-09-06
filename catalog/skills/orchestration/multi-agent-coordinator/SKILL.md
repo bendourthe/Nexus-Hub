@@ -165,6 +165,33 @@ Each subagent must have a clear role, a defined set of files it is allowed to mo
 2. **Read access is universal**: Any agent can read any file. Only writes are scoped.
 3. **Shared files require sequencing**: If two agents must modify the same file (e.g., `package.json`), they must run sequentially, not in parallel.
 4. **Scope declaration is mandatory**: Every agent prompt must explicitly list the files or directories the agent is allowed to modify.
+5. **Persistent-memory write exclusion**: Parallel top-level sessions on one machine are the same identity and may all write persistent agent memory. A spawned subagent must never write, because it cannot judge what is already known and its entries would arrive duplicated and out of context. A spawning agent MUST include this exact line in the subagent prompt: `Do not write to persistent agent memory. You are a spawned subagent; only the parent session may record memory.`
+
+**Communication topology (parent / sibling / child):**
+
+Restrict agent-to-agent messaging to parent, sibling, or child relationships. A message to a cousin, uncle, or unrelated tree is unowned cross-tree coupling: nobody owns the contract, and two trees can contradict each other without a reconcilable wait point. The coordinator (parent) is the only node that may fan out; siblings may share a contract the parent defined; a child reports only to its parent.
+
+**Persistent addressable subagents:**
+
+When a subagent completes, keep its session addressable by id if follow-up steering is likely. Mid-flight steering goes to that id (role + name), not a newly spawned Explore agent that re-derives context cold. Respawning is for a genuinely new slice, not for "also tell that agent one more thing."
+
+**Peer claim and lease arbitration (shared queue only)**:
+
+The write-scope rules above assume the coordinator can partition the work in advance. When it cannot -- when several agents draw from ONE shared work queue whose items are not known until runtime -- use claims and leases instead of a designated leader. Registered agents are peers; claims, leases, task boundaries, and capabilities decide who acts next, so no durable leader identity is required and no agent is a single point of failure.
+
+Distinguish this sharply from role assignment above: **a role says what an agent does; a claim says which agent does this specific item right now.** An agent keeps its role for the whole run and holds a claim only for one item.
+
+A claim carries three fields at minimum:
+
+| Field | Purpose |
+|---|---|
+| `agent_id` | Who holds it, so a second agent skips the item rather than duplicating it |
+| `item` | The specific work item claimed, at the granularity the queue hands out |
+| `expires_at` | When the claim lapses if the holder has neither completed nor renewed it |
+
+**An expired lease that nobody reclaims is the actual failure mode**, and it is the part most designs leave undefined. Decide explicitly what happens when a lease expires without completion: the item returns to the queue for any peer to reclaim, its attempt count increments, and after N attempts it stops being reclaimed and routes to the human queue instead of cycling forever. An item that is perpetually claimed, expired, and reclaimed looks like progress from the outside while making none, which is the same signature as the no-progress stall in [[loop-engineering]].
+
+**When this is warranted is narrower than it sounds.** It applies only when multiple agents genuinely contend for one shared queue. A fan-out with disjoint write scopes -- the common case, and the one the rules above cover -- needs no leases at all: the partition already decides who does what, and adding claims to it buys nothing but a new expiry bug. Reach for this only when the partition cannot be computed in advance.
 
 **Role Assignment Template**:
 
@@ -251,7 +278,7 @@ Use Claude Code's Agent tool to launch subagents. The key patterns are parallel 
 
 **Pattern A: Parallel Launch for Independent Agents**
 
-> **Opus 4.7 behavior - explicit fan-out required.** Unlike Opus 4.6, Opus 4.7 does not volunteer concurrent subagent spawning. If you want N agents to work in parallel, prompt explicitly: `"Spawn 3 subagents in parallel: one to do X, one to do Y, one to do Z. Send them in a single message."` An ambiguous instruction like "explore these areas" will typically sequentialize. For parallel fan-out, de-escalate per-agent `effortLevel` to `high` (from the shipped default `xhigh`) - aggregate cost compounds across the fan-out. See [Effort-Level Strategy](../../ai-development/prompt-engineering/SKILL.md#effort-level-strategy).
+> **Opus 4.7 behavior - explicit fan-out required.** Unlike Opus 4.6, Opus 4.7 does not volunteer concurrent subagent spawning. If you want N agents to work in parallel, prompt explicitly: `"Spawn 3 subagents in parallel: one to do X, one to do Y, one to do Z. Send them in a single message."` An ambiguous instruction like "explore these areas" will typically sequentialize. For parallel fan-out, keep per-agent `effortLevel` at or below the shipped Claude Code default (`high`, declared in `configs/platform-defaults.json`), rather than escalating each agent to `xhigh`, because aggregate cost compounds across the fan-out. See [Effort-Level Strategy](../../ai-development/prompt-engineering/SKILL.md#effort-level-strategy).
 
 **Three concrete fan-out prompt patterns**:
 
@@ -643,11 +670,13 @@ Invoke related skills at the appropriate coordination phase:
 | "Splitting this across agents is cleaner than doing it serially." | Multi-agent coordination adds 5-15x token overhead and a reconciliation burden. For a task one agent can hold in context, it is strictly more expensive and more error-prone. The Do NOT list fences off exactly this case. |
 | "Two agents can both touch the shared module; I will merge their edits afterward." | Overlapping write scopes produce the merge conflicts this skill exists to prevent. If the file sets are not disjoint, parallelism is unsafe and you reconcile by hand instead of by design. Allocate disjoint write scopes first. |
 | "The subagent can figure out the context from the file paths I give it." | A subagent runs in a fresh context with none of the parent session's reasoning. A prompt that lists only file references, not the decisions and constraints, produces an agent that re-derives (and re-litigates) settled choices. |
+| "I will let two trees message each other directly; it is faster than going through the parent." | Cousin or uncle messages are unowned coupling. Restrict edges to parent, sibling, or child. Steer a completed subagent by its persistent id instead of spawning a cold replacement. |
 
 ## Verification
 
 - [ ] Task graph identifies critical path and all parallel opportunities
 - [ ] Every agent has a defined role, disjoint write scope, and output contract
+- [ ] Agent-to-agent messages are parent, sibling, or child only; completed subagents that may be steered later remain addressable by id
 - [ ] Dependencies between agents are explicitly mapped with wait points
 - [ ] Agent prompts include all necessary context (not just file references)
 - [ ] Reconciliation plan exists for merging parallel outputs

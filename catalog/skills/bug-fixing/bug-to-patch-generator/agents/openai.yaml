@@ -1,4 +1,4 @@
 interface:
   display_name: Bug-to-Patch Generator
   short_description: Generate code patches from bug reports, error messages, and failing tests. Use when converting bug descriptions into fixes, creating patches from error output, or automating fix generation
-    from test f
+    from test failures.

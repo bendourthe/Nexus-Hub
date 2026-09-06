@@ -37,7 +37,9 @@ Separately, BEFORE ingesting any source content, the skill runs a MANDATORY sour
 
 ## Output and the /plan chain
 
-The comparison report is written to `docs/v<MAJOR>/v<MAJOR>.<MINOR>/comparisons/v<MAJOR>.<MINOR>.<PATCH>-comparison-<name>.md` (release-prefixed per the `docs-layout-refactor` Version-directory resolution naming convention; create the `comparisons/` subdir if missing). After the report is written, offer to chain into `/plan from-comparison`, which ingests the report's prioritized adoption plan and produces a phased implementation plan with reverse-engineer-first ordering.
+The comparison report is written to `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/comparisons/v<MAJOR>.<MINOR>.<PATCH>-comparison-<name>.md` (create the `comparisons/` subdir if missing). Crucially, the version used for the directory and the filename prefix is the **adoption target** the skill resolves in its Step 6.5 (recorded in the report's `Adoption target: vX.Y.Z` header field), NOT the in-flight authoring cycle. A comparison is forward-looking, so it is placed by the release that will adopt it. Concretely: a comparison authored during cycle vN whose highest-value items will only be adopted in vN+1 is written under `docs/releases/v<MAJOR>/v<N+1-minor>/comparisons/` with the `v<N+1>.0` prefix (e.g. authored in the v3.14 cycle but adopting in v3.15 -> `docs/releases/v3/v3.15/comparisons/v3.15.0-comparison-<name>.md`). Only fall back to the in-flight authoring version when Step 6.5 resolved the in-flight release itself as the target.
+
+After the report is written, offer to chain into `/plan from-comparison`, which ingests the report's prioritized adoption plan and produces a phased implementation plan with reverse-engineer-first ordering. When it chains, the report's `Adoption target:` field is the authority for the generated plan's version directory, so the plan lands co-located with the comparison in the same version tree (see `/plan from-comparison`).
 
 ## Notes
 

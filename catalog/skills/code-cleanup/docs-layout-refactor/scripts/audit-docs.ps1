@@ -13,6 +13,9 @@
 
 .EXAMPLE
     .\audit-docs.ps1 refgraph --root .\docs --repo-root .
+
+.EXAMPLE
+    .\audit-docs.ps1 canonicalize-layout --root .\docs
 #>
 
 $ErrorActionPreference = "Stop"

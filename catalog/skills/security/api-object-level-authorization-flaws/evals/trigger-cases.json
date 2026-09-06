@@ -1,0 +1,48 @@
+{
+  "skill": "api-object-level-authorization-flaws",
+  "purpose": "Route BOLA/BFLA/BOPLA tests here; send JWT crypto bugs elsewhere.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "BOLA test this API",
+      "should_trigger": true,
+      "assert": "routes to api-object-level-authorization-flaws first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "IDOR in this API",
+      "should_trigger": true,
+      "assert": "routes to api-object-level-authorization-flaws first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "BFLA admin function check",
+      "should_trigger": true,
+      "assert": "routes to api-object-level-authorization-flaws first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "JWT alg none attack",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "unscoped test of a vendor API",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "rate-limit bypass only",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

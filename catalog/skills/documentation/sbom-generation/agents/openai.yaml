@@ -1,4 +1,4 @@
 interface:
   display_name: SBOM Generation
   short_description: Generate Software Bill of Materials (SBOM) for compliance with NTIA, EU CRA, and other regulatory requirements. Use when preparing for audits, compliance reporting, supply chain transparency,
-    or secur
+    or security vulnerability tracking.

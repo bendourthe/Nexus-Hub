@@ -1,0 +1,48 @@
+{
+  "skill": "jwt-header-and-key-confusion-attacks",
+  "purpose": "Route JWT verifier attacks here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "JWT alg none test",
+      "should_trigger": true,
+      "assert": "routes to jwt-header-and-key-confusion-attacks first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "RS256 to HS256 confusion",
+      "should_trigger": true,
+      "assert": "routes to jwt-header-and-key-confusion-attacks first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "kid path injection on JWT",
+      "should_trigger": true,
+      "assert": "routes to jwt-header-and-key-confusion-attacks first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "BOLA on /invoices/id",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "TLS certificate expiry",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "unscoped attack on a public IdP",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

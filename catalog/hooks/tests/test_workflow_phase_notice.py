@@ -77,13 +77,13 @@ def _run_hook(payload: dict[str, Any], env_overrides: dict[str, str] | None = No
 
 @_REQUIRES_JQ
 def test_marks_plan_artifact(tmp_path: Path) -> None:
-    """A Write to docs/v9.9.9/plans/foo.md emits a plan-phase marker."""
-    stdout, stderr, code = _run_hook(_make_payload("docs/v9.9.9/plans/adoption-foo.md"))
+    """A Write to docs/releases/v9/v9.9/plans/foo.md emits a plan-phase marker."""
+    stdout, stderr, code = _run_hook(_make_payload("docs/releases/v9/v9.9/plans/adoption-foo.md"))
 
     assert code == 0, f"advisory hook must never block (got exit {code}, stderr={stderr})"
     assert "workflow-phase-notice" in stderr
     assert "plan-phase" in stderr
-    assert "docs/v9.9.9/plans/adoption-foo.md" in stderr
+    assert "docs/releases/v9/v9.9/plans/adoption-foo.md" in stderr
 
 
 @_REQUIRES_JQ
@@ -134,11 +134,11 @@ def test_silent_for_bare_plan_md_outside_plans_dir() -> None:
 @_REQUIRES_JQ
 def test_windows_path_separator_is_normalized() -> None:
     """Backslash separators are normalized before pattern matching."""
-    stdout, stderr, code = _run_hook(_make_payload("docs\\v9.9.9\\plans\\foo.md"))
+    stdout, stderr, code = _run_hook(_make_payload("docs\\releases\\v9\\v9.9\\plans\\foo.md"))
 
     assert code == 0
     assert "plan-phase" in stderr
-    assert "docs/v9.9.9/plans/foo.md" in stderr
+    assert "docs/releases/v9/v9.9/plans/foo.md" in stderr
 
 
 def test_disabled_via_env() -> None:

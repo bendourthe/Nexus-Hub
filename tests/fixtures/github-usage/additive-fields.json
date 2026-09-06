@@ -1,0 +1,19 @@
+{
+  "timePeriod": {"year": 2026, "month": 8, "futureBoundary": "ignored"},
+  "user": "fixture-user",
+  "futureEnvelope": {"schemaVersion": 2},
+  "usageItems": [
+    {
+      "product": "Actions",
+      "sku": "actions_linux",
+      "unitType": "minutes",
+      "grossQuantity": 12,
+      "grossAmount": 0.096,
+      "discountQuantity": 12,
+      "discountAmount": 0.096,
+      "netQuantity": 0,
+      "netAmount": 0,
+      "futureItemField": {"ignored": true}
+    }
+  ]
+}

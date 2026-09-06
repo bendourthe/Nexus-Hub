@@ -78,7 +78,6 @@ class NexusAiIntegration(MarkdownIntegration, SkillsIntegration):
         "rules_subdir": "rules",
         "hooks_subdir": "hooks",
         "hooks_supported": True,
-        "permissions_file": "configs/permissions/claude-permissions.json",
     }
 
     def _read_catalog_version(self, ctx: InstallContext) -> str:

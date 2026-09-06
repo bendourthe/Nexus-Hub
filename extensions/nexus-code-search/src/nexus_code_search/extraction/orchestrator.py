@@ -17,7 +17,7 @@ from nexus_code_search.config import CodeSearchConfig
 from nexus_code_search.db.schema import open_database
 from nexus_code_search.extraction.languages import LANGUAGE_EXTRACTORS
 from nexus_code_search.extraction.parse_worker import parse_file
-from nexus_code_search.frameworks import FRAMEWORK_RESOLVERS
+from nexus_code_search.frameworks import CONTEXT_PROVIDERS, FRAMEWORK_RESOLVERS
 from nexus_code_search.indexer import hash_file, walk_files
 from nexus_code_search.types import Edge, EdgeKind, Node, NodeKind
 
@@ -93,6 +93,7 @@ class ExtractionOrchestrator:
             p
             for p in walk_files(self.repo_root, self.config)
             if p.suffix.lower() in LANGUAGE_EXTRACTORS
+            or any(provider.applies_to(p) for provider in CONTEXT_PROVIDERS)
         ]
         total = len(files)
 
@@ -141,14 +142,21 @@ class ExtractionOrchestrator:
             )
             file_id = cur.lastrowid
 
-            ast_nodes, ast_edges = parse_file(path, source)
+            if path.suffix.lower() in LANGUAGE_EXTRACTORS:
+                ast_nodes, ast_edges = parse_file(path, source)
+            else:
+                ast_nodes, ast_edges = [], []
             framework_nodes, framework_edges = self._run_framework_resolvers(
                 path, source, ast_nodes
             )
+            provider_nodes, provider_edges = self._run_context_providers(
+                Path(rel), source, [*ast_nodes, *framework_nodes]
+            )
             all_nodes = [
-                _node_with_file(n, rel) for n in (*ast_nodes, *framework_nodes)
+                _node_with_file(n, rel)
+                for n in (*ast_nodes, *framework_nodes, *provider_nodes)
             ]
-            all_edges = [*ast_edges, *framework_edges]
+            all_edges = [*ast_edges, *framework_edges, *provider_edges]
             local_to_db = self._insert_nodes(cur, all_nodes, file_id)
             self._insert_file_node(cur, all_nodes, local_to_db, file_id, rel, language)
             self._insert_edges(cur, all_edges, local_to_db)
@@ -195,6 +203,36 @@ class ExtractionOrchestrator:
                 continue
             extra_nodes.extend(r_nodes)
             extra_edges.extend(r_edges)
+        return extra_nodes, extra_edges
+
+    def _run_context_providers(
+        self,
+        path: Path,
+        source: bytes,
+        existing_nodes: list[Node],
+    ) -> tuple[list[Node], list[Edge]]:
+        """Run matching local context providers through the resolver contract."""
+
+        extra_nodes: list[Node] = []
+        extra_edges: list[Edge] = []
+        for provider in CONTEXT_PROVIDERS:
+            if not provider.applies_to(path):
+                continue
+            try:
+                current = [*existing_nodes, *extra_nodes]
+                provider_nodes, provider_edges = provider.resolve(
+                    path, source, current
+                )
+            except Exception:
+                logger.debug(
+                    "Context provider %s failed for %s",
+                    provider.name,
+                    path,
+                    exc_info=True,
+                )
+                continue
+            extra_nodes.extend(provider_nodes)
+            extra_edges.extend(provider_edges)
         return extra_nodes, extra_edges
 
     def _read_bytes(self, path: Path) -> bytes | None:

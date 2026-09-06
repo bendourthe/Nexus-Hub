@@ -24,7 +24,7 @@ priority: high
 ## Functions and Components
 
 - Always declare return types explicitly on exported functions; infer on private helpers where obvious.
-- Avoid `React.FC` — use function declarations with explicit prop types: `function Foo({ bar }: FooProps)`.
+- Avoid `React.FC` -- use function declarations with explicit prop types: `function Foo({ bar }: FooProps)`.
 - Extract complex conditional rendering into named helper functions or sub-components.
 - Keep React components under 150 lines. Extract hooks for stateful logic.
 
@@ -40,4 +40,4 @@ priority: high
 
 - Prefer optional chaining `?.` and nullish coalescing `??` over manual `null`/`undefined` checks.
 - Initialize all class properties in the constructor or with a definite assignment assertion (`!`) only when the initializer is genuinely deferred.
-- Never return `null` from functions that could return `undefined` — be consistent within a project.
+- Never return `null` from functions that could return `undefined` -- be consistent within a project.

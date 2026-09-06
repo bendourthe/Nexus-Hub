@@ -1,4 +1,4 @@
 interface:
   display_name: Initialize JavaScript/TypeScript Project
   short_description: Initialize a complete JavaScript/TypeScript project with package.json, testing framework, bundler configuration, and documentation. Use when starting Node.js apps, React projects, Express
-    APIs, or npm
+    APIs, or npm packages.

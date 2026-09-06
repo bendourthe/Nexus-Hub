@@ -1,0 +1,22 @@
+[
+  {
+    "width": 1440,
+    "theme": "light",
+    "idleGameFramesPerSecond": 61
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "idleGameFramesPerSecond": 61
+  },
+  {
+    "width": 420,
+    "theme": "light",
+    "idleGameFramesPerSecond": 61
+  },
+  {
+    "width": 420,
+    "theme": "dark",
+    "idleGameFramesPerSecond": 61
+  }
+]

@@ -1,13 +1,13 @@
 ---
 name: ai-billing-safeguards
-description: Implement hard spending caps and billing safeguards for autonomous AI agent systems — per-session and per-task budget limits, provider-level quota controls, cost attribution audit trails, and graceful budget-exceeded termination. Use when deploying autonomous agents that run without continuous human oversight.
+description: Implement hard spending caps and billing safeguards for autonomous AI agent systems -- per-session and per-task budget limits, provider-level quota controls, cost attribution audit trails, and graceful budget-exceeded termination. Use when deploying autonomous agents that run without continuous human oversight.
 summary_l0: "Enforce hard spending caps and billing safeguards for autonomous AI agent systems"
 overview_l1: "This skill provides production patterns for enforcing hard budget limits in autonomous AI agent systems, distinct from usage monitoring which only displays cost. Use it when deploying autonomous agents without continuous human oversight, running multi-agent pipelines where cost accumulates across parallel executions, managing production deployments where budget overruns have real financial consequences, or requiring cost attribution per team, project, or workflow. Key capabilities include hard session caps with automatic termination on breach, per-task cost limits, provider-level quota configuration, structured cost attribution audit trails, graceful budget-exceeded termination, and development environment loop protection. The expected output is SDK-layer billing enforcement code that blocks execution when limits are reached, with structured cost logging and clean termination. Trigger phrases: agent spending cap, LLM budget limit, AI cost guardrail, billing safeguard, prevent runaway agents, autonomous agent cost control, per-session budget."
 ---
 
 # AI Billing Safeguards
 
-Production patterns for enforcing hard budget limits in autonomous AI agent systems. Covers per-session spending caps, per-task cost limits, provider-level quota configuration, structured cost attribution, and graceful termination when budgets are exceeded. Distinct from usage monitoring (which displays cost) — billing safeguards actively block execution when limits are reached.
+Production patterns for enforcing hard budget limits in autonomous AI agent systems. Covers per-session spending caps, per-task cost limits, provider-level quota configuration, structured cost attribution, and graceful termination when budgets are exceeded. Distinct from usage monitoring (which displays cost) -- billing safeguards actively block execution when limits are reached.
 
 Grounded in Shannon's approach: billing safeguards are built into the SDK invocation layer so that runaway agent loops terminate cleanly rather than silently draining budget.
 
@@ -23,7 +23,7 @@ Use this skill for:
 
 **Trigger phrases**: "agent spending cap", "LLM budget limit", "AI cost guardrail", "billing safeguard", "prevent runaway agents", "autonomous agent cost control", "per-session budget"
 
-**Distinguish from usage monitoring**: The `check-usage` skill and VS Code Claude Usage Monitor display current usage. This skill implements enforcement — blocking execution when limits are reached.
+**Distinguish from usage monitoring**: The `check-usage` skill and VS Code Claude Usage Monitor display current usage. This skill implements enforcement -- blocking execution when limits are reached.
 
 ## What This Skill Does
 
@@ -192,7 +192,7 @@ export class BudgetGuard {
 
 ### Step 4: Integrate Budget Guards into the Agent Executor
 
-The budget guard must sit inside the agent executor — wrapping every LLM call — not at a higher orchestration level. This ensures that even if orchestration logic has a bug, individual agents cannot overspend.
+The budget guard must sit inside the agent executor -- wrapping every LLM call -- not at a higher orchestration level. This ensures that even if orchestration logic has a bug, individual agents cannot overspend.
 
 ```typescript
 // Integration in agent-executor.ts (see claude-agent-sdk skill for full executor)
@@ -243,11 +243,11 @@ async function runAgentWorkflow(config: WorkflowConfig): Promise<WorkflowResult>
 
   } catch (error) {
     if (error instanceof BudgetExceededError) {
-      // Log clearly — this is expected behavior, not a bug
+      // Log clearly -- this is expected behavior, not a bug
       console.error(`[budget] Workflow terminated: ${error.message}`);
       console.error(`[budget] Partial results: ${results.length} of ${agents.length} agents completed`);
 
-      // Return partial results — don't discard completed work
+      // Return partial results -- don't discard completed work
       return {
         status: "budget_exceeded",
         results,
@@ -472,4 +472,4 @@ class BudgetGuard:
 
 **Version**: 1.0.0
 **Last Updated**: March 2026
-**Reference Implementation**: Shannon (KeygraphHQ) — spending caps integrated at the Claude SDK invocation layer to prevent runaway costs during autonomous security testing (~$50/run)
+**Reference Implementation**: Shannon (KeygraphHQ) -- spending caps integrated at the Claude SDK invocation layer to prevent runaway costs during autonomous security testing (~$50/run)

@@ -1,4 +1,4 @@
 interface:
   display_name: Async Patterns
-  short_description: 'Language-agnostic asynchronous and concurrency patterns including promises, futures, channels, actors, and structured concurrency. Use when implementing concurrent systems, debugging
-    race conditions, '
+  short_description: Language-agnostic asynchronous and concurrency patterns including promises, futures, channels, actors, and structured concurrency. Use when implementing concurrent systems, debugging
+    race conditions, or choosing concurrency models.

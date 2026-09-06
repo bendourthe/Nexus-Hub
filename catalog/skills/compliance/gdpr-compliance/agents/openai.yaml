@@ -1,4 +1,4 @@
 interface:
   display_name: GDPR Compliance
   short_description: Implement GDPR requirements for EU data protection including data subject rights, consent management, and breach notification. Use when handling EU personal data, preparing for GDPR
-    compliance, or imp
+    compliance, or implementing privacy controls.

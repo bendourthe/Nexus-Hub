@@ -117,6 +117,14 @@ Summarize the digest for the user in prose: which prior session(s) or note(s) to
 
 If the recovered context resolves a recurring problem, offer to capture it durably with [[solution-knowledge-base]] so the next person does not have to query for it again.
 
+### 5. Mine unrealized compression savings (optional)
+
+When the user asks what command output is still bloating context, read the local passthrough log rather than loading raw transcripts.
+
+The compressor appends one JSON line to `~/.nexus-hub/compressor-passthrough.jsonl` (or `$NEXUS_CCR_STORE_PATH`'s sibling `passthrough.jsonl`, or `$NEXUS_COMPRESSOR_PASSTHROUGH_LOG`) whenever `compress` kept the original blob. Each line is `ts`, `kind=passthrough`, `tokens`, `bytes`.
+
+Count recent passthroughs, sum `tokens`, and report the largest blobs. For each cluster, propose either a named reformatter (if it is git/pytest/ruff-class output) or a BYO filter file plus `python -m nexus_context_compressor trust <file>`. Do not invent savings numbers that are not in the log. The log is local and read-only for this skill.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -138,6 +146,7 @@ If the recovered context resolves a recurring problem, offer to capture it durab
 - [ ] When `files_matched` is zero, the skill reported "no prior sessions matched" rather than inventing context.
 - [ ] No transcript, note, or export content was sent to any network service; the extractor made zero outbound calls across every source type.
 - [ ] Filters (topic / branch / time window) reflect the user's actual question.
+- [ ] Compression-savings mining, when requested, read the local passthrough JSONL and did not upload session logs.
 
 ## Related Skills
 

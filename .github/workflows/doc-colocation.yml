@@ -1,0 +1,62 @@
+name: Doc Co-location
+
+# v3.14.2 Phase 3 (Fix C): enforce the comparison / adoption-plan co-location
+# invariant - a /compare report and the /plan from-comparison plan it seeds must
+# live in the SAME version directory (docs/v<MAJOR>/v<MAJOR>.<MINOR>/). The logic
+# mirrors the inline bash snippet in
+# catalog/skills/workflow/documentation-consistency/SKILL.md (Step 7.5); it is NOT
+# a scripts/ artifact, so it needs no installer copy-step or .ps1 sibling.
+#
+# v3.17.6 Phase 2: the triggers are deliberately UNFILTERED, and this workflow
+# has NO detector job.
+#
+# `colocation` is a REQUIRED status check on main and develop. It previously
+# triggered on `docs/**` and `catalog/skills/**` only, which meant a code-only PR
+# never started this workflow, so GitHub left the required `colocation` context
+# Pending forever and the PR could not merge without an administrator bypass.
+# That was one of the seven bypasses the v3.17.5 release took.
+#
+# Unlike ci.yml, the fix here is simply to drop the filter rather than to add a
+# `changes` job. The check is a checkout plus one `find` over the current major's
+# docs tree -- a few seconds. A detector job would cost a whole extra runner and
+# more wall-clock than the work it would skip, so gating it would spend minutes to
+# save none. Running it unconditionally is both cheaper and strictly more signal.
+# scripts/check_required_check_coverage.py enforces the unfiltered trigger.
+
+# v4.0.0 event separation: the `push` leg was removed. `colocation` is a required
+# check, and a required check is evaluated on the PULL REQUEST; re-running the
+# same find over the same tree after the merge proves nothing and is billed
+# again. The triggers stay unfiltered, which is the property that keeps the
+# required context from stranding.
+on:
+  pull_request:
+    branches: [main, develop]
+  merge_group:
+  workflow_dispatch:
+
+# v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
+# contents is the complete requirement.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  colocation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: Comparison / adoption-plan co-location check
+        # v3.17.7: the inline bash implementation moved to
+        # scripts/check_doc_colocation.py. It carried three fail-open defects
+        # (only the highest major scanned, a dangling seed passing, and relative
+        # `Seeded from` paths skipped entirely) that could not be unit-tested in
+        # a `run:` block. The script is a repo-internal guard: no installer copy
+        # step, no .ps1 sibling. It also runs in `make validate`, so the check is
+        # now reproducible locally instead of CI-only.
+        run: python scripts/check_doc_colocation.py --verbose

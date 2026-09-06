@@ -1,4 +1,4 @@
 interface:
   display_name: Technical Debt Analyzer
   short_description: Quantify, categorize, and prioritize technical debt using SQALE methodology with interest calculation and remediation planning. Use when assessing code debt, architecture debt, test
-    debt, documentatio
+    debt, documentation debt, or planning debt reduction sprints.

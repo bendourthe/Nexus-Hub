@@ -23,17 +23,32 @@ set -euo pipefail
 INPUT=$(cat)
 
 # --- Extract description field ---
+# The `|| true` on every branch is load-bearing under `set -euo pipefail`, and its
+# absence was a SECURITY defect, not a cosmetic one. A grep that matches nothing
+# returns non-zero, and a failing command substitution in an assignment aborts the
+# script with exit 1. So on a host without jq, a command carrying NO description
+# made the description grep fail and the hook exited 1 before reaching the block
+# below: the gate silently failed to block, which is the opposite of its purpose.
 if command -v jq >/dev/null 2>&1; then
-  DESCRIPTION=$(echo "$INPUT" | jq -r '.tool_input.description // empty' 2>/dev/null)
-  COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)
+  DESCRIPTION=$(echo "$INPUT" | jq -r '.tool_input.description // empty' 2>/dev/null || true)
+  COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null || true)
 else
   # Fallback: basic JSON extraction via grep/sed
-  DESCRIPTION=$(echo "$INPUT" | grep -o '"description"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"description"[[:space:]]*:[[:space:]]*"//;s/"$//')
-  COMMAND=$(echo "$INPUT" | grep -o '"command"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"command"[[:space:]]*:[[:space:]]*"//;s/"$//')
+  DESCRIPTION=$(echo "$INPUT" | grep -o '"description"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"description"[[:space:]]*:[[:space:]]*"//;s/"$//' || true)
+  COMMAND=$(echo "$INPUT" | grep -o '"command"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"command"[[:space:]]*:[[:space:]]*"//;s/"$//' || true)
 fi
 
 # --- Check 1: Non-empty description field ---
 if [ -n "${DESCRIPTION:-}" ]; then
+  exit 0
+fi
+
+# --- Fail open when there is no command to judge ---
+# Mirrors git-guardrails.sh: if no command could be extracted, this is not a Bash
+# tool call we can assess (an empty payload, a malformed one, or a different tool),
+# so allow rather than block. Blocking here would wedge the agent on a harness
+# quirk, and a parse failure is not evidence that a description is missing.
+if [ -z "${COMMAND:-}" ]; then
   exit 0
 fi
 

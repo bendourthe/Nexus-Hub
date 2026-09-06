@@ -1,0 +1,2 @@
+:root { --linked-cap: 640px; }
+.linked-copy { max-width: var(--linked-cap); }

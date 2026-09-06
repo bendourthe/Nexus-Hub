@@ -1,0 +1,39 @@
+:root {
+  --bg: #07141a;
+  --ink: #dce8eb;
+  --accent: #2dd4bf;
+  --surface: #0c1f26;
+  --border: #1e4550;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; color: var(--ink); background: var(--bg);
+  display: grid; place-items: center; padding: 24px;
+}
+.booth {
+  width: min(28rem, 100%); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 28px; padding: 18px;
+  position: relative;
+}
+h1 { margin: 0 0 8px; font-size: 1.4rem; }
+#stage {
+  height: 12rem; border-radius: 20px; margin: 12px 0;
+  display: grid; place-items: center; font-weight: 700;
+  background: radial-gradient(circle at 50% 40%, rgba(45,212,191,.28), #041014);
+}
+#sparkle {
+  position: absolute; top: 4.5rem; right: 1.6rem;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #e2b336; box-shadow: 0 0 16px #e2b336;
+}
+#strip { display: flex; gap: 8px; margin: 12px 0; }
+#strip button, #restart, #shuffle {
+  min-height: 44px; border-radius: 999px; border: 1px solid var(--border);
+  background: #07141a; color: var(--ink); cursor: pointer;
+}
+#strip { flex-wrap: wrap; }
+#strip button { flex: 1; }
+#strip button.is-shot { border-color: var(--accent); color: var(--accent); }
+#meter { font: 700 14px ui-monospace, Consolas, monospace; color: var(--accent); }
+#restart, #shuffle { width: 100%; margin-top: 8px; }

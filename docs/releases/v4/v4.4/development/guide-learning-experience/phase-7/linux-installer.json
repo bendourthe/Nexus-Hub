@@ -1,0 +1,55 @@
+{
+  "host": "linux",
+  "root": "/tmp/nexus-v446-smoke-rqfyp8z_",
+  "results": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "scripts/nexus_hub_cli.py",
+        "org",
+        "connect",
+        "<workspace>/configs/examples/org-bundle-example",
+        "--force"
+      ],
+      "exit": 0,
+      "tail": [
+        "Connected organization bundle: <workspace>/configs/examples/org-bundle-example",
+        "valid: <workspace>/configs/examples/org-bundle-example (0 errors, 0 warnings)"
+      ]
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/installer.sh",
+        "--workspace",
+        "/tmp/nexus-v446-smoke-rqfyp8z_/workspace",
+        "--platforms",
+        "claude",
+        "--yes"
+      ],
+      "exit": 0,
+      "tail": [
+        "",
+        "",
+        "\u001b[0;32m\u2713 Nexus-Hub v4.4.0 installed (Workspace scope).\u001b[0m",
+        "",
+        "\u001b[0;33mRestart any running AI assistant sessions (Claude Code, Cursor, Gemini CLI, Codex, Copilot, OpenCode) so they pick up the new settings, hooks, skills, and rules.\u001b[0m",
+        ""
+      ]
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "scripts/check_installer_smoke.py",
+        "--home",
+        "/tmp/nexus-v446-smoke-rqfyp8z_/home",
+        "--workspace",
+        "/tmp/nexus-v446-smoke-rqfyp8z_/workspace"
+      ],
+      "exit": 0,
+      "tail": [
+        "installer smoke: PASS"
+      ]
+    }
+  ]
+}

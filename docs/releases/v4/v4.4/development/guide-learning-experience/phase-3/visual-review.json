@@ -1,0 +1,37 @@
+{
+  "sha256": "15757019c44eb094d7b2febe47ffbceed7d05ddec5946f463f5e8541e5ec42cc",
+  "reviewed": [
+    {
+      "file": "home-dark-1440-nhg-why.png",
+      "verdict": "PASS: readable hierarchy, natural wraps, intact marks, compact example; no clipped text or unintended gaps."
+    },
+    {
+      "file": "home-dark-1440-top.png",
+      "verdict": "PASS: readable hierarchy, natural wraps, intact marks, compact example; no clipped text or unintended gaps."
+    },
+    {
+      "file": "home-dark-420-nhg-why.png",
+      "verdict": "PASS: readable hierarchy, natural wraps, intact marks, compact example; no clipped text or unintended gaps."
+    },
+    {
+      "file": "home-dark-420-top.png",
+      "verdict": "PASS: readable hierarchy, natural wraps, intact marks, compact example; no clipped text or unintended gaps."
+    },
+    {
+      "file": "home-light-1440-nhg-why.png",
+      "verdict": "PASS: readable hierarchy, natural wraps, intact marks, compact example; no clipped text or unintended gaps."
+    },
+    {
+      "file": "home-light-1440-top.png",
+      "verdict": "PASS: readable hierarchy, natural wraps, intact marks, compact example; no clipped text or unintended gaps."
+    },
+    {
+      "file": "home-light-420-nhg-why.png",
+      "verdict": "PASS: readable hierarchy, natural wraps, intact marks, compact example; no clipped text or unintended gaps."
+    },
+    {
+      "file": "home-light-420-top.png",
+      "verdict": "PASS: readable hierarchy, natural wraps, intact marks, compact example; no clipped text or unintended gaps."
+    }
+  ]
+}

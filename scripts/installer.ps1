@@ -24,6 +24,23 @@ param(
     [string]$Platforms,        # comma-separated integration keys; default = all
     [switch]$Yes,              # non-interactive: never prompt, refresh managed files
     [switch]$Force,            # overwrite existing managed files without asking
+    # v3.15.6 / AC5 -- opt-in hardened permission posture. Absent (the default)
+    # keeps the convenience default (allow-only auto-approve, no prompts) exactly
+    # as it was; present ALSO merges the deny/ask overlay from
+    # configs/permissions/claude-permissions-strict.json.
+    [switch]$StrictPermissions,
+    # v3.16.1 -- install-selection selectors. Contract:
+    # docs/releases/v3/v3.16/development/install-selection-contract.md
+    # Absent (the default) installs the full catalog, exactly as before.
+    # Bound as -Profile for lockstep with the Bash --profile flag, but stored in
+    # $InstallProfile: $Profile is a PowerShell AUTOMATIC variable (the path to
+    # the user's profile script), and a parameter of that name shadows it inside
+    # the script. The alias keeps the user-facing spelling identical across both
+    # installers without the shadowing.
+    [Alias("Profile")]
+    [string]$InstallProfile,   # one profile id
+    [string]$Modules,          # comma-separated capability module ids
+    [string]$Bundles,          # comma-separated role bundle ids
     [Parameter(Position = 0)]
     [string]$Subcommand,
     [Parameter(ValueFromRemainingArguments = $true)]
@@ -34,7 +51,8 @@ if ($Help) {
     @"
 Usage:
   pwsh scripts/installer.ps1 [-Workspace PATH] [-Platforms LIST] [-Yes]
-                             [-Force] [-Enterprise] [-Help]
+                             [-Profile ID] [-Modules LIST] [-Bundles LIST]
+                             [-Force] [-Enterprise] [-StrictPermissions] [-Help]
   pwsh scripts/installer.ps1 init [-Target PATH] [-DryRun]
   pwsh scripts/installer.ps1 -PrintConfig <integration-key>
   pwsh scripts/installer.ps1 -Check
@@ -60,12 +78,30 @@ Read-only modes (no disk writes):
                       would create / update / remove a file. Useful in CI.
 
 Options:
+  -StrictPermissions
+                Install the OPT-IN hardened Claude Code permission posture in
+                addition to the read-only auto-approve list: deny/ask entries for
+                the execution-trigger config surfaces (version-control hooks and
+                config, interpreter paths, harness and editor config) from
+                configs/permissions/claude-permissions-strict.json. Without this
+                switch the install is unchanged (allow-only, no prompts). A
+                deliberate posture split: convenience by default, hardened on
+                request.
   -Workspace <path>  Install into a single project directory instead of the
                 default global (all-projects) scope.
   -Platforms <list>  Install only the given comma-separated integration keys
                 instead of all platforms. Valid keys: claude, codex, gemini,
                 antigravity2, gemini-cli, copilot, cursor, opencode, nexus-ai,
                 aider, windsurf, kimi, qwen, openclaw.
+  -Profile <id> Install one profile instead of the whole catalog: minimal,
+                core, or full. Default (no selector) is full.
+  -Modules <list>  Install the given comma-separated capability modules.
+  -Bundles <list>  Install the given comma-separated role bundles.
+                Selectors combine by union: -Profile core -Modules ai-engineering
+                installs both. -Profile full cannot be combined with others.
+                Hooks, rules, templates, and settings install under EVERY
+                selection; only skills and their dependent commands and agents
+                are filtered. Selectors need Python; a full install does not.
   -Yes          Non-interactive: never prompt, and refresh existing managed
                 files to the latest version (also implied when stdin is not a
                 TTY, e.g. a piped irm|iex install).
@@ -108,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.12.1"
+$script:NexusHubVersion = "4.7.0"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -262,6 +298,9 @@ function Get-ProviderColor {
         "OPENCODE"        { "Cyan" }
         "AIDER"           { "Green" }
         "WINDSURF"        { "DarkGreen" }
+        "KIMI"            { "Red" }
+        "QWEN"            { "DarkRed" }
+        "OPENCLAW"        { "Yellow" }
         "NEXUS"           { "DarkBlue" }
         Default           { "White" }
     }
@@ -283,6 +322,75 @@ function Write-Item {
     )
     $spaces = " " * $Indent
     Write-Host "${spaces}$Message" -ForegroundColor $Color
+}
+
+# --- Per-platform install checklist (v3.14.5 Phase 2) ---
+#
+# The registry runner emits a structured per-surface summary
+# (runner.py --summary-json); the installer renders it as a fixed-order
+# checklist so every platform reads identically, and collects platforms whose
+# tool was not detected into one "NOT DETECTED" group instead of a colored
+# header plus a caveat line per platform.
+
+# Canonical surface order + display labels (matches the bash installer).
+$script:ChecklistSurfaces = @(
+    @{ Key = "instruction"; Label = "Core Files" },
+    @{ Key = "skills";      Label = "Skills" },
+    @{ Key = "commands";    Label = "Commands" },
+    @{ Key = "agents";      Label = "Agents" },
+    @{ Key = "rules";       Label = "Rules" },
+    @{ Key = "hooks";       Label = "Hooks" },
+    @{ Key = "settings";    Label = "Core Settings" }
+)
+
+# Platforms whose tool was not detected on this machine (grouped at run end).
+$script:UndetectedPlatforms = @()
+
+function Reset-UndetectedPlatforms { $script:UndetectedPlatforms = @() }
+
+function Add-UndetectedPlatform {
+    param([string]$Name, [string]$Reason = "not detected")
+    $script:UndetectedPlatforms += [pscustomobject]@{ Name = $Name; Reason = $Reason }
+}
+
+function Write-ChecklistRow {
+    param(
+        [string]$Label,
+        [string]$State,          # "ok" | "warn"
+        [string]$Detail = ""
+    )
+    $mark = if ($State -eq "ok") { [char]0x2713 } else { "!" }
+    $color = if ($State -eq "ok") { "Green" } else { "Yellow" }
+    $col = ("{0}:" -f $Label).PadRight(16)
+    Write-Host ("    [{0}] {1} {2}" -f $mark, $col, $Detail) -ForegroundColor $color
+}
+
+function Write-PlatformChecklist {
+    # Render a registry platform's summary object as the fixed-order checklist.
+    param($PlatformSummary)
+    foreach ($s in $script:ChecklistSurfaces) {
+        $entry = $null
+        if ($PlatformSummary.surfaces -and $PlatformSummary.surfaces.PSObject.Properties[$s.Key]) {
+            $entry = $PlatformSummary.surfaces.($s.Key)
+        }
+        if ($null -eq $entry) { continue }
+        if ($entry.status -eq "installed") {
+            Write-ChecklistRow -Label $s.Label -State "ok" -Detail $entry.path
+        }
+        else {
+            Write-ChecklistRow -Label $s.Label -State "warn" -Detail "install reported an issue"
+        }
+    }
+}
+
+function Write-UndetectedGroup {
+    # Print the single grouped section for platforms not found on this machine.
+    if ($script:UndetectedPlatforms.Count -eq 0) { return }
+    Write-Host ""
+    Write-Host "  > NOT DETECTED (skipped)" -ForegroundColor DarkGray
+    foreach ($p in $script:UndetectedPlatforms) {
+        Write-Host ("    - {0} ({1})" -f $p.Name, $p.Reason) -ForegroundColor DarkGray
+    }
 }
 
 function Read-Prompt {
@@ -381,6 +489,46 @@ function Write-JsonFile {
 #       OverwriteMode "ALL" (refresh)        -> overwrite now
 #       otherwise (interactive "CONFLICT")   -> record conflict + KEEP; the
 #         single end-of-run Resolve-Conflicts prompt decides whether to overwrite
+# Return the uppercase hex SHA-256 of a file, using .NET directly.
+#
+# This deliberately does NOT use Get-FileHash. That cmdlet lives in the
+# Microsoft.PowerShell.Utility module, and on GitHub's windows-latest image a
+# Windows PowerShell 5.1 session running this script raised
+# CommandNotFoundException for it -- while Write-Host and the rest of Utility
+# worked, and while the same script under pwsh 7 on the same image was fine.
+#
+# The trigger is subtle enough to be worth recording: Safe-Copy only hashes when
+# the destination ALREADY exists, so on a fresh install every call short-circuits
+# and the cmdlet is never invoked. The install-smoke job therefore passed for
+# releases while this line was unreachable; it only fired once a job installed
+# twice into the same HOME, which the v3.16.1 parity suite is the first to do.
+#
+# The exact cause of the missing cmdlet was not reproducible off that image
+# (an empty PSModulePath and a simulated pwsh-7 PSModulePath both resolve
+# Get-FileHash correctly on a local 5.1). It does not need to be: this is the
+# SECOND time the cmdlet has failed on a 5.1 runner image in this repo -- see
+# catalog/hooks/provenance-ledger.ps1, where v3.15.6 hit the same thing and
+# reached for the same .NET stream. Two independent sightings make it a property
+# of the environment, not a one-off.
+#
+# Since the dependency buys nothing -- .NET's SHA256 is available in every
+# edition with no module resolution at all -- it is removed rather than tuned
+# around. Do not reintroduce it.
+function Get-FileSha256 {
+    param([string]$Path)
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $stream = [System.IO.File]::OpenRead($Path)
+        try {
+            return [System.BitConverter]::ToString($sha.ComputeHash($stream)).Replace("-", "")
+        } finally {
+            $stream.Dispose()
+        }
+    } finally {
+        $sha.Dispose()
+    }
+}
+
 function Safe-Copy {
     param(
         [string]$Source,
@@ -396,8 +544,8 @@ function Safe-Copy {
     }
 
     if (Test-Path $Destination) {
-        $srcHash = (Get-FileHash -Path $Source).Hash
-        $dstHash = (Get-FileHash -Path $Destination).Hash
+        $srcHash = Get-FileSha256 -Path $Source
+        $dstHash = Get-FileSha256 -Path $Destination
         if ($srcHash -eq $dstHash) {
             # Already current -- nothing to write.
             return
@@ -514,7 +662,170 @@ function Safe-Folder-Copy {
     }
 }
 
+# Install the skills catalog FLATTENED to the one-level layout Claude Code
+# requires. Claude discovers skills exactly one level deep
+# (<dir>\skills\<name>\SKILL.md), so the catalog's <category>\ tier must be
+# dropped (this honors scripts\lib\integrations\claude.py's
+# flatten_skills_layout: True; Codex / Gemini already flatten via the registry
+# adapter). A verbatim category-nested copy leaves every SKILL.md at
+# <dir>\skills\<category>\<name>\, which Claude cannot see. We stage a flattened
+# copy in a temp dir, then hand it to Safe-Folder-Copy, reusing its refresh
+# (robocopy /MIR prune) and merge semantics unchanged - so a prior
+# category-nested layout and any upstream-removed skill are pruned in refresh
+# mode, with strict parity to the bash installer's flatten_skills_into.
+function Flatten-SkillsInto {
+    param(
+        [string]$Source,       # catalog\skills
+        [string]$Destination,  # <claude>\skills
+        [string]$CustomMessage
+    )
+    if (-not (Test-Path $Source)) {
+        Write-Item -Message "Skip: Source folder not found ($(Split-Path $Source -Leaf))" -Color "DarkGray"
+        return
+    }
+    $staging = Join-Path ([System.IO.Path]::GetTempPath()) ("nexus-skills-" + [System.Guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Force -Path $staging | Out-Null
+    try {
+        Get-ChildItem -Path $Source -Directory | ForEach-Object {          # category
+            Get-ChildItem -Path $_.FullName -Directory | ForEach-Object {  # skill
+                Copy-Item -Path $_.FullName -Destination (Join-Path $staging $_.Name) -Recurse -Force
+            }
+        }
+        # Drop any category directories left by a PRIOR category-nested install so
+        # the undiscoverable <dir>\skills\<category>\ layout never lingers. In
+        # refresh mode robocopy /MIR already prunes them; this also covers merge
+        # mode (catalog category names are never skill names).
+        if (Test-Path $Destination) {
+            Get-ChildItem -Path $Source -Directory | ForEach-Object {
+                $stale = Join-Path $Destination $_.Name
+                if (Test-Path $stale) { Remove-Item -Recurse -Force -Path $stale -ErrorAction SilentlyContinue }
+            }
+        }
+        Safe-Folder-Copy -Source $staging -Destination $Destination -CustomMessage $CustomMessage
+    }
+    finally {
+        Remove-Item -Recurse -Force -Path $staging -ErrorAction SilentlyContinue
+    }
+}
+
 # --- Hook Installation ---
+
+function Convert-ClaudeHookCommandsForWindows {
+    param(
+        [string]$SettingsFile,
+        [string]$RepoRoot,
+        [string]$Scope
+    )
+
+    if (-not (Test-Path $SettingsFile)) { return }
+    $python = Resolve-PythonExecutable
+    if (-not $python) { throw "Python is required to migrate Claude hook commands for Cursor compatibility" }
+    $compat = Join-Path $RepoRoot "catalog\hooks\cursor-hook-compat.py"
+    & $python $compat --rewrite-settings $SettingsFile --catalog-hooks-dir (Join-Path $RepoRoot "catalog\hooks") --host windows --scope $Scope.ToLowerInvariant()
+    if ($LASTEXITCODE -ne 0) { throw "Could not migrate Claude hook commands for Windows" }
+}
+
+function Install-ClaudeHookFiles {
+    param(
+        [string]$RepoRoot,
+        [string]$TargetClaudeDir,
+        [string]$Scope
+    )
+
+    $sourceDir = Join-Path $RepoRoot "catalog\hooks"
+    $hooksDir = Join-Path $TargetClaudeDir "hooks"
+    if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
+
+    foreach ($pattern in @("*.ps1", "*.py")) {
+        foreach ($source in @(Get-ChildItem -LiteralPath $sourceDir -Filter $pattern -File)) {
+            Safe-Copy -Source $source.FullName -Destination (Join-Path $hooksDir $source.Name) -Confirm:$true -CustomMessage "✓ $Scope hook installed: $($source.Name)"
+        }
+    }
+}
+
+function Get-ManagedHookStem {
+    param([object]$Hook)
+
+    if ($null -eq $Hook) { return "" }
+    $commandProperty = $Hook.PSObject.Properties["command"]
+    if (-not $commandProperty -or -not $commandProperty.Value) { return "" }
+    $matches = [regex]::Matches(
+        [string]$commandProperty.Value,
+        '(?<stem>[A-Za-z0-9_-]+)\.(?:sh|ps1|py)'
+    )
+    if ($matches.Count -gt 0) {
+        return $matches[$matches.Count - 1].Groups["stem"].Value
+    }
+    return [string]$commandProperty.Value
+}
+
+function Merge-ManagedClaudeHooks {
+    param(
+        [Parameter(Mandatory = $true)][object]$ExistingJson,
+        [Parameter(Mandatory = $true)][object]$TemplateJson
+    )
+
+    $hooksProperty = $ExistingJson.PSObject.Properties["hooks"]
+    if (-not $hooksProperty) {
+        $ExistingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([pscustomobject]@{})
+    }
+    elseif ($null -eq $hooksProperty.Value -or -not ($hooksProperty.Value -is [pscustomobject])) {
+        $hooksProperty.Value = [pscustomobject]@{}
+    }
+
+    foreach ($eventProperty in $TemplateJson.hooks.PSObject.Properties) {
+        $eventName = $eventProperty.Name
+        $existingEventProperty = $ExistingJson.hooks.PSObject.Properties[$eventName]
+        if (-not $existingEventProperty) {
+            $ExistingJson.hooks | Add-Member -NotePropertyName $eventName -NotePropertyValue @($eventProperty.Value)
+            continue
+        }
+
+        $existingEntries = @($existingEventProperty.Value)
+        foreach ($templateEntry in @($eventProperty.Value)) {
+            $templateMatcherProperty = $templateEntry.PSObject.Properties["matcher"]
+            $templateMatcher = if ($templateMatcherProperty) { [string]$templateMatcherProperty.Value } else { "" }
+            foreach ($templateHook in @($templateEntry.hooks)) {
+                $templateTypeProperty = $templateHook.PSObject.Properties["type"]
+                $templateType = if ($templateTypeProperty) { [string]$templateTypeProperty.Value } else { "" }
+                $templateStem = Get-ManagedHookStem -Hook $templateHook
+                $alreadyInstalled = $false
+
+                foreach ($existingEntry in $existingEntries) {
+                    $existingMatcherProperty = $existingEntry.PSObject.Properties["matcher"]
+                    $existingMatcher = if ($existingMatcherProperty) { [string]$existingMatcherProperty.Value } else { "" }
+                    if ($existingMatcher -ne $templateMatcher) { continue }
+                    foreach ($existingHook in @($existingEntry.hooks)) {
+                        $existingTypeProperty = $existingHook.PSObject.Properties["type"]
+                        $existingType = if ($existingTypeProperty) { [string]$existingTypeProperty.Value } else { "" }
+                        if (
+                            $existingType -eq $templateType -and
+                            (Get-ManagedHookStem -Hook $existingHook) -eq $templateStem
+                        ) {
+                            $alreadyInstalled = $true
+                            break
+                        }
+                    }
+                    if ($alreadyInstalled) { break }
+                }
+
+                if (-not $alreadyInstalled) {
+                    $newEntry = [ordered]@{}
+                    foreach ($property in $templateEntry.PSObject.Properties) {
+                        if ($property.Name -ne "hooks") {
+                            $newEntry[$property.Name] = $property.Value
+                        }
+                    }
+                    $newEntry["hooks"] = @($templateHook)
+                    $existingEntries += [pscustomobject]$newEntry
+                }
+            }
+        }
+        $existingEventProperty.Value = $existingEntries
+    }
+
+    return $ExistingJson
+}
 
 function Install-GitGuardrails {
     param(
@@ -523,7 +834,12 @@ function Install-GitGuardrails {
         [string]$Scope  # "Global" or "Workspace"
     )
 
-    # Copy hook script
+    # Copy every PowerShell/Python hook referenced by the full settings template,
+    # including private helper modules sourced by registered hooks.
+    Install-ClaudeHookFiles -RepoRoot $RepoRoot -TargetClaudeDir $TargetClaudeDir -Scope $Scope
+
+    # Preserve the legacy explicit copies for compatibility with narrowly staged
+    # source bundles while the full catalog copy above owns normal installations.
     $hooksDir = Join-Path $TargetClaudeDir "hooks"
     if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
     Safe-Copy -Source "$RepoRoot\catalog\hooks\git-guardrails.sh" -Destination (Join-Path $hooksDir "git-guardrails.sh") -Confirm:$true -CustomMessage "✓ $Scope git guardrails hook installed at: $hooksDir"
@@ -545,8 +861,8 @@ function Install-GitGuardrails {
 
     $templateRaw = Get-Content $templateFile -Raw
 
-    # Windows uses "python" not "python3"; global scope uses ~/.claude/ paths
-    $templateRaw = $templateRaw -replace 'python3 ', 'python '
+    # Global scope uses ~/.claude/ paths. The parsed template is then converted to
+    # PowerShell commands so Cursor and Claude never need Bash on Windows.
     if ($Scope -eq "Global") {
         $templateRaw = $templateRaw -replace '(?<![~/.])\.claude/hooks/', '~/.claude/hooks/'
     }
@@ -556,43 +872,10 @@ function Install-GitGuardrails {
     if (Test-Path $settingsFile) {
         try {
             $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
-
-            # Check if hooks.PreToolUse already has our guardrail
-            $alreadyInstalled = $false
-            if ($existingJson.hooks -and $existingJson.hooks.PreToolUse) {
-                foreach ($hookEntry in $existingJson.hooks.PreToolUse) {
-                    foreach ($h in $hookEntry.hooks) {
-                        if ($h.command -and $h.command -like "*git-guardrails*") {
-                            $alreadyInstalled = $true
-                            break
-                        }
-                    }
-                }
-            }
-
-            if ($alreadyInstalled) {
-                Write-Item -Message "✓ Git guardrails hook already configured in settings.json" -Color "DarkGreen"
-            }
-            else {
-                # Add hooks key if missing
-                if (-not $existingJson.hooks) {
-                    $existingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue $templateJson.hooks
-                }
-                else {
-                    if (-not $existingJson.hooks.PreToolUse) {
-                        $existingJson.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue $templateJson.hooks.PreToolUse
-                    }
-                    else {
-                        # Append our hook entry to existing PreToolUse array
-                        $existingArray = @($existingJson.hooks.PreToolUse)
-                        $existingArray += $templateJson.hooks.PreToolUse
-                        $existingJson.hooks.PreToolUse = $existingArray
-                    }
-                }
-
-                Write-JsonFile -Path $settingsFile -Object $existingJson
-                Write-Item -Message "✓ $Scope settings.json updated with git guardrails hook" -Color "DarkGreen"
-            }
+            $existingJson = Merge-ManagedClaudeHooks -ExistingJson $existingJson -TemplateJson $templateJson
+            Write-JsonFile -Path $settingsFile -Object $existingJson
+            Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
+            Write-Item -Message "✓ $Scope settings.json reconciled with managed hooks" -Color "DarkGreen"
         }
         catch {
             Write-Item -Message "Warning: Could not merge into existing settings.json ($($_.Exception.Message))" -Color "Yellow"
@@ -600,8 +883,10 @@ function Install-GitGuardrails {
         }
     }
     else {
-        # No existing settings.json, copy template
-        Copy-Item -Path $templateFile -Destination $settingsFile -Force
+        # No existing settings.json: write the host-converted template rather than
+        # copying its POSIX commands verbatim.
+        Write-JsonFile -Path $settingsFile -Object $templateJson
+        Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
         Write-Item -Message "✓ $Scope settings.json created with git guardrails hook" -Color "DarkGreen"
     }
 }
@@ -635,8 +920,7 @@ function Install-UsageDisplay {
 
     $templateRaw = Get-Content $templateFile -Raw
 
-    # Windows uses "python" not "python3"; global scope uses ~/.claude/ paths
-    $templateRaw = $templateRaw -replace 'python3 ', 'python '
+    # Global scope uses ~/.claude/ paths; convert the parsed hook commands below.
     if ($Scope -eq "Global") {
         $templateRaw = $templateRaw -replace '(?<![~/.])\.claude/hooks/', '~/.claude/hooks/'
     }
@@ -680,6 +964,7 @@ function Install-UsageDisplay {
             }
 
             Write-JsonFile -Path $settingsFile -Object $existingJson
+            Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
             Write-Item -Message "✓ $Scope settings.json updated with usage display hook" -Color "DarkGreen"
         }
     }
@@ -746,7 +1031,7 @@ function Install-RequireDescription {
                 hooks   = @(
                     [PSCustomObject]@{
                         type    = "command"
-                        command = "bash $hookPath/require-description.sh"
+                        command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$hookPath/require-description.ps1`""
                     }
                 )
             }
@@ -761,7 +1046,7 @@ function Install-RequireDescription {
                 hooks   = @(
                     [PSCustomObject]@{
                         type    = "command"
-                        command = "python3 $hookPath/format-powershell-description.py"
+                        command = "python $hookPath/format-powershell-description.py"
                     }
                 )
             }
@@ -770,7 +1055,7 @@ function Install-RequireDescription {
                 hooks   = @(
                     [PSCustomObject]@{
                         type    = "command"
-                        command = "bash $hookPath/require-powershell-description.sh"
+                        command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$hookPath/require-powershell-description.ps1`""
                     }
                 )
             }
@@ -795,6 +1080,7 @@ function Install-RequireDescription {
             $added = ($entriesToAdd | ForEach-Object { $_.matcher }) -join ", "
             Write-Item -Message "✓ $Scope settings.json updated with description hooks ($added)" -Color "DarkGreen"
         }
+        Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
     }
     catch {
         Write-Item -Message "Warning: Could not merge description hooks into settings.json ($($_.Exception.Message))" -Color "Yellow"
@@ -828,47 +1114,55 @@ function Install-CoreSettings {
         $coreKeys = @("effortLevel", "model")
         $applied = @()
 
+        # Treat the scalar and higher-precedence env lever as one user-owned
+        # pair. If either exists, preserve the pair exactly; only a config with
+        # neither effort key and an absent or object-shaped env receives both
+        # defaults.
+        $hasScalarEffort = [bool]$existingJson.PSObject.Properties["effortLevel"]
+        $hasEnvEffort = (
+            $existingJson.PSObject.Properties["env"] -and
+            $existingJson.env -is [System.Management.Automation.PSCustomObject] -and
+            $existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]
+        )
+        $hasAnyEffort = $hasScalarEffort -or $hasEnvEffort
+
         foreach ($key in $coreKeys) {
             if (-not $templateJson.PSObject.Properties[$key]) { continue }
+            if ($key -eq "effortLevel" -and $hasAnyEffort) { continue }
             $templateValue = $templateJson.$key
-            if ($existingJson.PSObject.Properties[$key] -and $existingJson.$key -eq $templateValue) {
+            if ($existingJson.PSObject.Properties[$key]) {
                 continue
             }
-            if ($existingJson.PSObject.Properties[$key]) {
-                $existingJson.$key = $templateValue
-            } else {
-                $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $templateValue
-            }
+            $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $templateValue
             $applied += "${key}: ${templateValue}"
         }
 
-        # Deep-merge the env effort override, preserving any sibling env vars.
-        if ($templateJson.PSObject.Properties["env"] -and $templateJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
+        # Seed the env effort override with the scalar only when the entire
+        # effort pair is absent. Any existing pair shape remains user-owned.
+        if (-not $hasAnyEffort -and $templateJson.PSObject.Properties["env"] -and $templateJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
             $envEffort = $templateJson.env.CLAUDE_CODE_EFFORT_LEVEL
             if (-not $existingJson.PSObject.Properties["env"]) {
                 $existingJson | Add-Member -NotePropertyName "env" -NotePropertyValue ([PSCustomObject]@{})
             }
-            if ($existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
-                if ($existingJson.env.CLAUDE_CODE_EFFORT_LEVEL -ne $envEffort) {
-                    $existingJson.env.CLAUDE_CODE_EFFORT_LEVEL = $envEffort
-                    $applied += "env.CLAUDE_CODE_EFFORT_LEVEL: $envEffort"
-                }
-            } else {
+            if ($existingJson.env -is [System.Management.Automation.PSCustomObject] -and -not $existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
                 $existingJson.env | Add-Member -NotePropertyName "CLAUDE_CODE_EFFORT_LEVEL" -NotePropertyValue $envEffort
                 $applied += "env.CLAUDE_CODE_EFFORT_LEVEL: $envEffort"
+            }
+            elseif ($existingJson.env -isnot [System.Management.Automation.PSCustomObject]) {
+                Write-Warning "existing env is not an object; preserving it and skipping env.CLAUDE_CODE_EFFORT_LEVEL"
             }
         }
 
         if ($applied.Count -eq 0) {
-            Write-Item -Message "✓ Core settings (effortLevel, model, env effort) already current in settings.json" -Color "DarkGreen"
+            Write-Item -Message "✓ Core settings already present; existing values preserved in settings.json" -Color "DarkGreen"
             return
         }
         Write-JsonFile -Path $settingsFile -Object $existingJson
-        Write-Item -Message "✓ $Scope settings.json updated core settings ($($applied -join ', '))" -Color "DarkGreen"
+        Write-Item -Message "✓ $Scope settings.json seeded absent core settings ($($applied -join ', ')); existing values preserved" -Color "DarkGreen"
     }
     catch {
-        Write-Item -Message "Warning: Could not set core settings ($($_.Exception.Message))" -Color "Yellow"
-        Write-Item -Message "  Manually copy effortLevel/model/env from $templateFile to $settingsFile" -Color "Yellow"
+        Write-Warning "Could not set core settings ($($_.Exception.Message))"
+        Write-Warning "Manually copy effortLevel/model/env from $templateFile to $settingsFile"
     }
 }
 
@@ -925,12 +1219,192 @@ function Ensure-CodexCli {
     }
 }
 
+# v3.15.6 / AC5 -- opt-in hardened deny/ask overlay. Mirrors
+# merge_strict_permissions() in installer.sh.
+#
+# Union-merges the `deny` and `ask` arrays from claude-permissions-strict.json
+# into settings.json. Three deliberate properties:
+#   * ADDITIVE: a user's existing deny/ask entries are never removed.
+#   * NO defaultMode: that key's documented value set is unverified in this repo
+#     (the v3.16.0 autonomy plan schedules confirming it), and "default" is
+#     already Claude Code's behavior, so writing it would be a schema bet on a
+#     user's config file with no benefit.
+#   * SEPARATE from Install-Permissions: that function returns early in its
+#     allow-merge path (nothing new to add, merge failed), so calling this from
+#     inside it would silently skip the overlay in the common "allow list already
+#     up to date" case. It is invoked from the call site instead.
+function Merge-StrictPermissions {
+    param(
+        [string]$SettingsFile,
+        [string]$OverlayFile,
+        [string]$Scope
+    )
+
+    if (-not (Test-Path $OverlayFile)) {
+        Write-Item -Message "Skip: strict permissions overlay not found" -Color "DarkGray"
+        return
+    }
+    if (-not (Test-Path $SettingsFile)) {
+        Write-Item -Message "Skip: settings.json not present, cannot apply the strict overlay" -Color "DarkGray"
+        return
+    }
+
+    try {
+        $overlay = Get-Content $OverlayFile -Raw | ConvertFrom-Json
+        $existing = Get-Content $SettingsFile -Raw | ConvertFrom-Json
+
+        if (-not $existing.permissions) {
+            $existing | Add-Member -NotePropertyName "permissions" -NotePropertyValue ([PSCustomObject]@{})
+        }
+
+        $added = 0
+        foreach ($key in @("deny", "ask")) {
+            $overlayEntries = @($overlay.permissions.$key)
+            if ($overlayEntries.Count -eq 0) { continue }
+
+            if (-not ($existing.permissions.PSObject.Properties.Name -contains $key)) {
+                $existing.permissions | Add-Member -NotePropertyName $key -NotePropertyValue @()
+            }
+            $current = @($existing.permissions.$key)
+            $merged = @($current + $overlayEntries | Select-Object -Unique)
+            $added += ($merged.Count - $current.Count)
+            $existing.permissions.$key = $merged
+        }
+
+        if ($added -eq 0) {
+            Write-Item -Message "[OK] Strict deny/ask entries already up to date (0 new)" -Color "DarkGreen"
+            return
+        }
+
+        $backupPath = "$SettingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        Copy-Item -Path $SettingsFile -Destination $backupPath -Force
+        Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
+
+        Write-JsonFile -Path $SettingsFile -Object $existing
+        Write-Item -Message "[OK] $Scope STRICT permission overlay applied ($added new deny/ask entries)" -Color "DarkGreen"
+        Write-Item -Message "  Denied: version-control hook/config writes, interpreter paths, git execution-indirection commands" -Color "Gray"
+        Write-Item -Message "  Ask: harness settings and hooks, editor task/launch config, editor rules" -Color "Gray"
+    }
+    catch {
+        Write-Item -Message "Warning: Could not merge the strict permission overlay ($($_.Exception.Message))" -Color "Yellow"
+    }
+}
+
+# v3.17.0 Phase 1.2 -- the single permission-merge path for BOTH installers.
+#
+# Delegates to scripts/merge_permissions.py, which installer.sh calls identically.
+# One implementation, two thin callers.
+#
+# PARITY DEBT PAID: this installer previously performed its own native JSON merge.
+# That merge was a pure union, so an entry DELETED from a shipped template was never
+# removed from an existing user's config -- meaning the Phase 1.1 hardening reached
+# macOS and Linux users on upgrade and Windows users never. Porting rather than
+# re-implementing is the only correct fix: removal safety depends on the shipped-entry
+# manifest at ~/.nexus-hub/permissions-manifest.json, and a second implementation of
+# that bookkeeping is precisely the drift this phase exists to eliminate.
+#
+# Returns $true on success, $false when the sync failed.
+function Merge-PermissionsViaHelper {
+    param(
+        [string]$RepoRoot,
+        [string]$TemplateFile,
+        [string]$SettingsFile,
+        [string]$Key,               # permissions.allow | tools.allowed | allowedDomains
+        [string]$Platform,          # manifest key: CLAUDE, GEMINI, ...
+        [string]$SetTrueKey         # set ONE literal boolean key instead (Copilot)
+    )
+
+    $helper = Join-Path $RepoRoot "scripts\merge_permissions.py"
+    if (-not (Test-Path $helper)) {
+        Write-Item -Message "Warning: merge helper not found at $helper" -Color "Yellow"
+        return $false
+    }
+
+    $py = Resolve-PythonExecutable
+    if (-not $py) {
+        Write-Item -Message "Warning: Python not found, cannot sync permissions automatically" -Color "Yellow"
+        return $false
+    }
+
+    $settingsDir = Split-Path -Parent $SettingsFile
+    if ($settingsDir -and -not (Test-Path $settingsDir)) {
+        New-Item -ItemType Directory -Force -Path $settingsDir | Out-Null
+    }
+
+    $helperArgs = @($helper, "--settings", $SettingsFile)
+    if ($SetTrueKey) {
+        $helperArgs += @("--set-true", $SetTrueKey)
+    }
+    else {
+        $manifest = Join-Path (Join-Path $env:USERPROFILE ".nexus-hub") "permissions-manifest.json"
+        $helperArgs += @("--template", $TemplateFile, "--key", $Key,
+                         "--manifest", $manifest, "--platform", $Platform)
+    }
+
+    # Deliberately NO `2>&1` here. In Windows PowerShell 5.1 redirecting a native
+    # command's stderr wraps each line in an ErrorRecord (NativeCommandError) and
+    # sets $? to $false even on a clean exit, which turns a good run into a visible
+    # error. The helper reports BOTH its count and its removals on stdout for exactly
+    # this reason, so there is nothing to redirect; real errors reach the console
+    # on their own.
+    $output = & $py @helperArgs
+    if ($LASTEXITCODE -ne 0) {
+        Write-Item -Message "Warning: could not sync permissions into $SettingsFile" -Color "Yellow"
+        return $false
+    }
+
+    # Report each retired entry rather than removing anything silently from a file
+    # the user may have hand-edited.
+    foreach ($line in $output) {
+        if ($line -like "removed: *" -or $line -like "set: *") {
+            Write-Item -Message "  $line" -Color "DarkGray"
+        }
+    }
+    return $true
+}
+
+# v3.17.0 Phase 1.2: the $Scope parameter is now load-bearing. It was documented as
+# "Global" or "Workspace" since v0.9.x, but every call site passed "Global" and
+# Install-Workspace never called this function at all, so a -Workspace install
+# received no permission baseline on any operating system.
+#
+# Only CLAUDE is wired at workspace scope. The other three skip WITH A NOTE rather
+# than guessing:
+#   * GEMINI / CODEX -- no project-scoped permission path is documented well enough
+#     to write. A guessed path is worse than none: it looks configured and is not.
+#   * COPILOT -- its surface is .vscode\settings.json, which is COMMIT-VISIBLE. The
+#     plan forbids pushing a permission grant into a user's repository history
+#     without an explicit maintainer decision (same reasoning that made the v3.11.0
+#     Copilot .github\skills\ surface opt-in).
 function Install-Permissions {
     param(
         [string]$RepoRoot,
         [string]$Platform,          # "CLAUDE", "GEMINI", "CODEX", "COPILOT"
-        [string]$Scope              # "Global" or "Workspace"
+        [string]$Scope,             # "Global" or "Workspace"
+        [string]$TargetPath         # project root; required when Scope is "Workspace"
     )
+
+    if ($Scope -eq "Workspace") {
+        if (-not $TargetPath -or -not (Test-Path $TargetPath)) {
+            Write-Item -Message "Skip: workspace permissions need a valid target path" -Color "DarkGray"
+            return
+        }
+        switch ($Platform) {
+            "GEMINI" {
+                Write-Item -Message "Skip: Gemini has no documented project-scoped permission path (global scope only)" -Color "DarkGray"
+                return
+            }
+            "CODEX" {
+                Write-Item -Message "Skip: Codex has no documented project-scoped permission path (global scope only)" -Color "DarkGray"
+                return
+            }
+            "COPILOT" {
+                Write-Item -Message "Skip: Copilot's only permission surface is .vscode\settings.json, which is commit-visible" -Color "DarkGray"
+                Write-Item -Message "  A workspace grant there would enter your repository history; use a global install instead." -Color "Gray"
+                return
+            }
+        }
+    }
 
     $permDir = Join-Path $RepoRoot "configs\permissions"
 
@@ -945,62 +1419,43 @@ function Install-Permissions {
                 return
             }
 
-            $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
-            $newEntries = @($templateJson.permissions.allow)
+            if ($Scope -eq "Workspace") {
+                # settings.local.json, NEVER settings.json: the latter is
+                # commit-visible and would push a permission grant into the user's
+                # repository history. Confirmed target (maintainer decision,
+                # v3.17.0 Phase 1.2).
+                $configDir = Join-Path $TargetPath ".claude"
+                $settingsFile = Join-Path $configDir "settings.local.json"
+            }
 
-            if (Test-Path $settingsFile) {
-                # Counting new entries BEFORE merging avoids the stale-sentinel
-                # bug where a single fixed marker (e.g. WebFetch api.github.com)
-                # made the installer think permissions were "already installed"
-                # and skip merging new entries shipped in later versions.
-                try {
-                    $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
-
-                    # Ensure permissions.allow exists
-                    if (-not $existingJson.permissions) {
-                        $existingJson | Add-Member -NotePropertyName "permissions" -NotePropertyValue ([PSCustomObject]@{ allow = @() })
-                    }
-                    elseif (-not $existingJson.permissions.allow) {
-                        $existingJson.permissions | Add-Member -NotePropertyName "allow" -NotePropertyValue @()
-                    }
-
-                    # Union merge (deduplicate). Only write the file (and create
-                    # a backup) if the merge actually adds something new.
-                    $existing = @($existingJson.permissions.allow)
-                    $merged = @($existing + $newEntries | Select-Object -Unique)
-                    $addedCount = $merged.Count - $existing.Count
-
-                    if ($addedCount -eq 0) {
-                        Write-Item -Message "✓ Auto-approve permissions up to date in settings.json (0 new entries)" -Color "DarkGreen"
-                        return
-                    }
-
-                    # Backup before modifying
-                    $backupPath = "$settingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                    Copy-Item -Path $settingsFile -Destination $backupPath -Force
-                    Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
-
-                    $existingJson.permissions.allow = $merged
-                    Write-JsonFile -Path $settingsFile -Object $existingJson
-                    Write-Item -Message "✓ $Scope auto-approve permissions added to settings.json ($addedCount new entries)" -Color "DarkGreen"
-                }
-                catch {
-                    Write-Item -Message "Warning: Could not merge permissions into settings.json ($($_.Exception.Message))" -Color "Yellow"
-                    return
-                }
+            # v3.17.0: one path for create AND merge, shared with installer.sh. The
+            # helper creates the file when absent, unions new entries, retires entries
+            # a prior Nexus-Hub version shipped and this one no longer does (never a
+            # user's own entry), backs up before any change, writes atomically, and
+            # strips the template's `_`-prefixed documentation keys.
+            if (Merge-PermissionsViaHelper -RepoRoot $RepoRoot -TemplateFile $templateFile `
+                    -SettingsFile $settingsFile -Key "permissions.allow" -Platform "CLAUDE") {
+                Write-Item -Message "[OK] $Scope auto-approve permissions synced in settings.json" -Color "DarkGreen"
             }
             else {
-                # No existing settings.json; create with permissions only
-                $newJson = [PSCustomObject]@{ permissions = [PSCustomObject]@{ allow = $newEntries } }
-                if (-not (Test-Path $configDir)) { New-Item -ItemType Directory -Force -Path $configDir | Out-Null }
-                Write-JsonFile -Path $settingsFile -Object $newJson
-                Write-Item -Message "✓ $Scope settings.json created with auto-approve permissions" -Color "DarkGreen"
+                return
             }
 
             Write-Item -Message "  Auto-approved: file reads, search (Glob/Grep), web search, git read-only commands" -Color "Gray"
             Write-Item -Message "  WebFetch: scoped to trusted domains (see $settingsFile to customize)" -Color "Gray"
             Write-Item -Message "  NOT auto-approved: file writes, destructive commands, git mutations, package installs" -Color "Gray"
             Write-Item -Message "  Config: $settingsFile" -Color "Gray"
+
+            # A workspace grant is only private if the file is actually ignored.
+            # settings.local.json is Claude Code's local-only convention, but nothing
+            # guarantees THIS repository ignores it, so check rather than assume.
+            if ($Scope -eq "Workspace" -and (Get-Command git -ErrorAction SilentlyContinue)) {
+                & git -C $TargetPath check-ignore -q $settingsFile
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Item -Message "  Note: $settingsFile is NOT git-ignored in this project." -Color "DarkYellow"
+                    Write-Item -Message "  Add '.claude/settings.local.json' to .gitignore so the grant stays local." -Color "DarkYellow"
+                }
+            }
         }
 
         "GEMINI" {
@@ -1013,57 +1468,30 @@ function Install-Permissions {
                 return
             }
 
-            $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
-            $newTools = @($templateJson.tools.allowed)
-            $newDomains = @($templateJson.allowedDomains)
-
-            if (Test-Path $settingsFile) {
-                $content = Get-Content $settingsFile -Raw
-                if ($content -match '"ReadFileTool"' -and $content -match '"allowedDomains"') {
-                    Write-Item -Message "✓ Auto-approve permissions already configured in settings.json" -Color "DarkGreen"
-                    return
-                }
-
-                try {
-                    $existingJson = $content | ConvertFrom-Json
-
-                    $backupPath = "$settingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                    Copy-Item -Path $settingsFile -Destination $backupPath -Force
-                    Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
-
-                    # Merge tools.allowed
-                    if (-not $existingJson.tools) {
-                        $existingJson | Add-Member -NotePropertyName "tools" -NotePropertyValue ([PSCustomObject]@{ allowed = @() })
-                    }
-                    elseif (-not $existingJson.tools.allowed) {
-                        $existingJson.tools | Add-Member -NotePropertyName "allowed" -NotePropertyValue @()
-                    }
-                    $existingTools = @($existingJson.tools.allowed)
-                    $existingJson.tools.allowed = @($existingTools + $newTools | Select-Object -Unique)
-
-                    # Merge allowedDomains
-                    if (-not $existingJson.allowedDomains) {
-                        $existingJson | Add-Member -NotePropertyName "allowedDomains" -NotePropertyValue @()
-                    }
-                    $existingDomains = @($existingJson.allowedDomains)
-                    $existingJson.allowedDomains = @($existingDomains + $newDomains | Select-Object -Unique)
-
-                    Write-JsonFile -Path $settingsFile -Object $existingJson
-                    Write-Item -Message "✓ $Scope auto-approve permissions added to settings.json" -Color "DarkGreen"
-                }
-                catch {
-                    Write-Item -Message "Warning: Could not merge permissions into Gemini settings.json ($($_.Exception.Message))" -Color "Yellow"
-                    return
-                }
+            # v3.17.0 amendment A3, bug 1: this branch previously gated on fixed
+            # sentinels ('"ReadFileTool"' and '"allowedDomains"') to decide whether
+            # permissions were already configured. That is the identical stale-marker
+            # defect the CLAUDE branch was fixed for, and the bash sibling's
+            # `grep -q 'run_shell_command(docker ps)'` twin: because the sentinel
+            # entries are present in every existing user's settings.json, the branch
+            # returned early forever and those users never received newly-shipped
+            # entries -- including, critically, the v3.17.0 Phase 1.1 hardening. The
+            # sentinel is replaced by the same count-and-sync helper the CLAUDE branch
+            # uses, which is idempotent by construction and needs no marker.
+            $geminiOk = $true
+            if (-not (Merge-PermissionsViaHelper -RepoRoot $RepoRoot -TemplateFile $templateFile `
+                    -SettingsFile $settingsFile -Key "tools.allowed" -Platform "GEMINI")) {
+                $geminiOk = $false
+            }
+            if (-not (Merge-PermissionsViaHelper -RepoRoot $RepoRoot -TemplateFile $templateFile `
+                    -SettingsFile $settingsFile -Key "allowedDomains" -Platform "GEMINI_DOMAINS")) {
+                $geminiOk = $false
+            }
+            if ($geminiOk) {
+                Write-Item -Message "[OK] $Scope auto-approve permissions synced in settings.json" -Color "DarkGreen"
             }
             else {
-                if (-not (Test-Path $configDir)) { New-Item -ItemType Directory -Force -Path $configDir | Out-Null }
-                $newJson = [PSCustomObject]@{
-                    tools = [PSCustomObject]@{ allowed = $newTools }
-                    allowedDomains = $newDomains
-                }
-                Write-JsonFile -Path $settingsFile -Object $newJson
-                Write-Item -Message "✓ $Scope settings.json created with auto-approve permissions" -Color "DarkGreen"
+                return
             }
 
             Write-Item -Message "  Auto-approved: file reads, search, web search, git read-only shell commands" -Color "Gray"
@@ -1174,32 +1602,16 @@ function Install-Permissions {
                 return
             }
 
-            try {
-                $content = Get-Content $vscodeSettingsFile -Raw
-                if ($content -match 'useInstructionFiles.*true') {
-                    Write-Item -Message "✓ Copilot useInstructionFiles already enabled in VS Code settings" -Color "DarkGreen"
-                    return
-                }
-
-                $existingJson = $content | ConvertFrom-Json
-
-                $backupPath = "$vscodeSettingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                Copy-Item -Path $vscodeSettingsFile -Destination $backupPath -Force
-                Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
-
-                $key = "github.copilot.chat.codeGeneration.useInstructionFiles"
-                if (-not ($existingJson.PSObject.Properties.Name -contains $key)) {
-                    $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $true
-                }
-                else {
-                    $existingJson.$key = $true
-                }
-
-                Write-JsonFile -Path $vscodeSettingsFile -Object $existingJson
-                Write-Item -Message "✓ $Scope VS Code settings updated with Copilot instruction file support" -Color "DarkGreen"
+            # v3.17.0: routed through the shared helper so both installers write this
+            # key with one implementation (it takes its own timestamped backup, writes
+            # atomically, and no-ops when the key is already true). The bash sibling
+            # previously required `jq` here and skipped without it, which is what made
+            # its Git-Bash path unreachable.
+            if (Merge-PermissionsViaHelper -RepoRoot $RepoRoot -SettingsFile $vscodeSettingsFile `
+                    -SetTrueKey "github.copilot.chat.codeGeneration.useInstructionFiles") {
+                Write-Item -Message "[OK] $Scope VS Code settings updated with Copilot instruction file support" -Color "DarkGreen"
             }
-            catch {
-                Write-Item -Message "Warning: Could not merge Copilot settings into VS Code settings.json ($($_.Exception.Message))" -Color "Yellow"
+            else {
                 return
             }
 
@@ -1216,16 +1628,16 @@ function Install-Permissions {
 function Install-Global {
     param ($RepoRoot)
     Restore-Title
-    Write-Host ""
-    Write-CenteredBanner -Text "Global Installation" -Color "Cyan"
-    # Write-SubSectionBanner below prepends its own blank line; no explicit Write-Host "" needed.
-
-    Write-SubSectionBanner -Text "Skills & Commands"
+    # Each main section is a "▶ UPPERCASE" banner (Write-CenteredBanner prepends
+    # its own single blank line); there is no separate "Global Installation"
+    # super-header - the scope is already stated in the welcome + farewell lines.
+    Write-CenteredBanner -Text "SKILLS & COMMANDS"
 
     # Scope/platform/overwrite are resolved once at startup (v3.7.0 / Phase 2):
     # $script:OverwriteMode and $script:SelectedPlatforms are already set, so no
     # interactive Overwrite/platform prompts here.
     $platforms = $script:SelectedPlatforms
+    Reset-UndetectedPlatforms
     Write-Host ""
     Write-Host "Checking User Profile ($env:USERPROFILE)..." -ForegroundColor Gray
 
@@ -1238,11 +1650,10 @@ function Install-Global {
     # --- Anthropic -- Claude Code ----------------------------------------
     if ($platforms -contains "CLAUDE") {
         Write-Header -Provider "ANTHROPIC"
-        Write-Item -Message "Claude Code" -Color "Gray"
         $globalClaude = Join-Path $env:USERPROFILE ".claude"
         if (-not (Test-Path $globalClaude)) { New-Item -ItemType Directory -Force -Path $globalClaude | Out-Null }
 
-        # Global CLAUDE.md (new concise template with WHAT/WHY/HOW structure)
+        # Global CLAUDE.md (concise WHAT/WHY/HOW template).
         $script:ProjectName = "Global"
         $script:OSContext = "I am a Windows user. Ensure shell commands are PowerShell-compatible."
         $script:PrimaryLanguage = ""
@@ -1254,144 +1665,169 @@ function Install-Global {
         $script:TestCmd = "# specify test command"
         $script:LintCmd = "# specify lint command"
         $script:NonObviousTooling = "- (configure per project with /setup project)"
-        # DF-001: the registry runner renders CLAUDE.md (marker-merged, full
-        # placeholder substitution). -InstructionOnly leaves the catalog mirror
-        # to the Safe-Folder-Copy block below.
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -InstructionOnly
 
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalClaude "skills")   -CustomMessage "✓ Skills catalog installed at: $(Join-Path $globalClaude "skills")"
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalClaude "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $globalClaude "commands")"
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\agents"   -Destination (Join-Path $globalClaude "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $globalClaude "agents")"
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $globalClaude "rules")    -CustomMessage "✓ Rules installed at: $(Join-Path $globalClaude "rules")"
+        # Claude is the one bespoke (non-registry) install. Each helper below
+        # prints its own progress via Write-Host; run every step quietly
+        # (`6>$null` redirects PowerShell's information stream, which is where
+        # Write-Host writes since PS 5.0, suppressing the "Merging..." lines and
+        # per-step notices) and render ONE unified checklist afterward so Claude
+        # reads identically to the registry platforms. DF-001: the registry
+        # runner renders CLAUDE.md; the Safe-Folder-Copy block does the mirror.
+        # v3.16.1: Get-CatalogSource returns the filtered stage when a selection
+        # is active and the real catalog otherwise, so the no-selector path is
+        # unchanged.
+        Flatten-SkillsInto -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "skills")   -Destination (Join-Path $globalClaude "skills")   6>$null
+        Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "commands") -Destination (Join-Path $globalClaude "commands") 6>$null
+        Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "agents")   -Destination (Join-Path $globalClaude "agents")   6>$null
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $globalClaude "rules")    6>$null
+        # Org rules are seeded by the registry after refresh-mode catalog pruning.
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -InstructionOnly 6>$null
 
         $mcpConfigDest = Join-Path $globalClaude "mcp-configs"
         if (-not (Test-Path $mcpConfigDest)) { New-Item -ItemType Directory -Force -Path $mcpConfigDest | Out-Null }
-        Safe-Copy -Source "$RepoRoot\catalog\mcp-configs\mcp-servers.json" -Destination (Join-Path $mcpConfigDest "mcp-servers.json") -Confirm:$false -CustomMessage "✓ MCP server config installed at: $mcpConfigDest"
+        Safe-Copy -Source "$RepoRoot\catalog\mcp-configs\mcp-servers.json" -Destination (Join-Path $mcpConfigDest "mcp-servers.json") -Confirm:$false 6>$null
 
-        Install-GitGuardrails    -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
-        Install-UsageDisplay     -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
-        Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
-        Install-CoreSettings     -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
+        Install-GitGuardrails      -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
+        Install-UsageDisplay       -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
+        Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
+        Install-CoreSettings       -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
+
+        # Unified checklist, built from the resulting on-disk state.
+        Write-Item -Message "Claude Code" -Color "Gray"
+        if (Test-Path (Join-Path $globalClaude "CLAUDE.md")) { Write-ChecklistRow -Label "Core Files" -State "ok" -Detail (Join-Path $globalClaude "CLAUDE.md") }
+        if (Test-Path (Join-Path $globalClaude "skills"))    { Write-ChecklistRow -Label "Skills" -State "ok" -Detail (Join-Path $globalClaude "skills") }
+        if (Test-Path (Join-Path $globalClaude "commands"))  { Write-ChecklistRow -Label "Commands" -State "ok" -Detail (Join-Path $globalClaude "commands") }
+        if (Test-Path (Join-Path $globalClaude "agents"))    { Write-ChecklistRow -Label "Agents" -State "ok" -Detail (Join-Path $globalClaude "agents") }
+        if (Test-Path (Join-Path $globalClaude "rules"))     { Write-ChecklistRow -Label "Rules" -State "ok" -Detail (Join-Path $globalClaude "rules") }
+        if (Test-Path (Join-Path $globalClaude "settings.json")) {
+            Write-ChecklistRow -Label "Hooks" -State "ok" -Detail "git-guardrails, usage, require-description, compress-output"
+            Write-ChecklistRow -Label "Core Settings" -State "ok" -Detail "settings.json retained; existing values preserved (see warnings above)"
+        }
     }
 
     # --- OpenAI -- Codex --------------------------------------------------
     if ($platforms -contains "CODEX") {
-        Write-Header -Provider "OPENAI"
-        Write-Item -Message "Codex" -Color "Gray"
         $globalCodexDir = Join-Path $env:USERPROFILE ".codex"
         if (-not (Test-Path $globalCodexDir)) { New-Item -ItemType Directory -Force -Path $globalCodexDir | Out-Null }
-
-        # Full registry mirror (v3.12.0): the codex integration flattens skills to
-        # ~/.codex/skills AND ~/.agents/skills (one level, as Codex and the ChatGPT
-        # desktop app scan), emits every catalog command as a skill ($name) plus a
-        # legacy top-level prompt (/prompts:name), and renders ~/.codex/AGENTS.md.
-        # Replaces the prior verbatim copies that buried every SKILL.md under a
-        # category folder Codex could not read. See docs/policy/platform-read-contracts.md.
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands)"
+        # The codex integration flattens skills to ~/.codex/skills AND
+        # ~/.agents/skills, emits every command as a skill plus a legacy prompt,
+        # and renders ~/.codex/AGENTS.md. Since v3.15.8 it also writes
+        # ~/.codex/agents/*.toml (custom agents) and merges ~/.codex/hooks.json +
+        # ~/.codex/hooks/, enabling [features] hooks in ~/.codex/config.toml (see
+        # docs/policy/platform-read-contracts.md). Each hook registration carries
+        # Codex's commandWindows override, so a Windows user runs the .ps1 sibling
+        # of the same guardrail rather than getting no hook at all.
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "codex" -DisplayName "Codex" -Provider "OPENAI"
     }
 
-    # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -----------
-    $googleHas = ($platforms -contains "GEMINI") -or ($platforms -contains "ANTIGRAVITY2") -or ($platforms -contains "GEMINI_CLI")
-    if ($googleHas) {
-        Write-Header -Provider "GOOGLE"
-
-        if ($platforms -contains "GEMINI") {
-            Write-Item -Message "Gemini IDE" -Color "Gray"
-            $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
-            if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
-
-            # Full registry mirror (v3.11.0): renders GEMINI.md AND mirrors the catalog
-            # to ~/.gemini/{skills,workflows,agents,rules} per gemini.py. Replaces the
-            # prior instruction-only call plus the hardcoded skills / global_workflows
-            # copies, fixing the bash/PowerShell parity break (C1) and the never-delivered
-            # agents/rules (C2) from the Phase 7.1 read-contract audit. Antigravity 2.0 is
-            # handled by the antigravity2 block below.
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini" -DisplayName "Gemini IDE (GEMINI.md + catalog mirror)"
+    # --- Google -- Gemini / Antigravity 2.0 / Gemini CLI ----------------
+    # The GOOGLE header is shared by up to three platforms, so it prints eagerly
+    # only when a platform that always renders (Gemini IDE / Antigravity 2.0) is
+    # selected. Gemini CLI (non-enterprise) is a deliberate skip -> the group.
+    $googleRenders = ($platforms -contains "GEMINI") -or ($platforms -contains "ANTIGRAVITY2")
+    if ($googleRenders) { Write-Header -Provider "GOOGLE" }
+    if ($platforms -contains "GEMINI") {
+        $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
+        if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
+        # Renders GEMINI.md and mirrors the catalog to ~/.gemini/{skills,workflows,agents,rules}.
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini" -DisplayName "Gemini IDE"
+    }
+    if ($platforms -contains "ANTIGRAVITY2") {
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "antigravity2" -DisplayName "Antigravity 2.0 + CLI"
+    }
+    if ($platforms -contains "GEMINI_CLI") {
+        if ($Enterprise) {
+            # GEMINI.md + skills + TOML commands + agents + rules + native hooks
+            # merged into ~/.gemini/settings.json (v3.15.8 Phase 6). Gemini CLI has
+            # no commandWindows slot, so running from PowerShell registers the .ps1
+            # siblings and the PowerShell-flavored guardrails; both siblings ship.
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI" -Provider "GOOGLE"
         }
-
-        if ($platforms -contains "ANTIGRAVITY2") {
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "antigravity2" -DisplayName "Antigravity 2.0 + CLI"
-            Write-Item -Message "Antigravity 2.0: global skills -> ~/.gemini/config/skills, slash commands -> ~/.gemini/config/global_workflows, rules -> ~/.gemini/GEMINI.md; the agy CLI reads ~/.gemini/antigravity-cli. Per-project .agents/ is still seeded by 'nexus-hub init' for project-scoped workflows and rules." -Color "Yellow"
-        }
-        if ($platforms -contains "GEMINI_CLI") {
-            if ($Enterprise) {
-                Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI (enterprise)"
-            }
-            else {
-                Write-Item -Message "Gemini CLI: skipped (sunset on 2026-06-18 for free / Google AI Pro / Ultra / GitHub-installed users). Re-run with -Enterprise to install (requires paid Gemini API key); Antigravity CLI above covers the same functionality." -Color "Yellow"
-            }
+        else {
+            Add-UndetectedPlatform -Name "Gemini CLI" -Reason "enterprise-only; re-run with -Enterprise"
         }
     }
 
     # --- Microsoft -- GitHub Copilot -------------------------------------
+    # VS Code user-profile prompt files (slash commands) + custom agents at
+    # ~/.copilot/agents (v3.15.8 Phase 8, verbatim catalog Markdown). Hooks are
+    # NOT written: Copilot's default hook locations include ~/.claude/settings.json,
+    # which the Claude block above already populates, so they are inherited.
     if ($platforms -contains "COPILOT") {
-        Write-Header -Provider "MICROSOFT"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "copilot" -DisplayName "GitHub Copilot (global prompt files)"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "copilot" -DisplayName "GitHub Copilot" -Provider "MICROSOFT"
     }
 
     # --- Anysphere -- Cursor ---------------------------------------------
     if ($platforms -contains "CURSOR") {
-        Write-Header -Provider "ANYSPHERE"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "cursor" -DisplayName "Cursor"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "cursor" -DisplayName "Cursor" -Provider "ANYSPHERE"
     }
 
     # --- OpenCode --------------------------------------------------------
     if ($platforms -contains "OPENCODE") {
-        Write-Header -Provider "OPENCODE"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "opencode" -DisplayName "OpenCode"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "opencode" -DisplayName "OpenCode" -Provider "OPENCODE"
     }
 
     # --- Aider -----------------------------------------------------------
     if ($platforms -contains "AIDER") {
-        Write-Header -Provider "AIDER"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "aider" -DisplayName "Aider (CONVENTIONS.md)"
-        Write-Item -Message "Aider: reads a project-root CONVENTIONS.md; there is no global instruction surface. Run a workspace/project install in your repo to get it." -Color "DarkYellow"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "aider" -DisplayName "Aider" -Provider "AIDER"
     }
 
     # --- Windsurf --------------------------------------------------------
     if ($platforms -contains "WINDSURF") {
-        Write-Header -Provider "WINDSURF"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "windsurf" -DisplayName "Windsurf (global_rules.md)"
-        Write-Item -Message "Windsurf: global rules are written to ~/.codeium/windsurf/memories/global_rules.md only when Windsurf is detected (~/.codeium present); the project-root .windsurfrules installs at workspace scope." -Color "DarkYellow"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "windsurf" -DisplayName "Windsurf" -Provider "WINDSURF"
     }
 
     # --- Kimi ------------------------------------------------------------
+    # AGENTS.md + skills + custom agents (verbatim catalog Markdown) + native
+    # hooks as a marker-managed [[hooks]] block in ~/.kimi-code/config.toml
+    # (v3.15.8 Phase 7). A PowerShell install registers the .ps1 siblings.
     if ($platforms -contains "KIMI") {
-        Write-Header -Provider "KIMI"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "kimi" -DisplayName "Kimi (.kimi/agent.yaml + system.md)"
-        Write-Item -Message "Kimi: global files are written to ~/.kimi/ only when Kimi is detected (~/.kimi present); the project-local .kimi/ pair installs at workspace scope." -Color "DarkYellow"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "kimi" -DisplayName "Kimi Code CLI" -Provider "KIMI"
     }
 
     # --- Qwen ------------------------------------------------------------
+    # QWEN.md + skills + Markdown commands + agents + native hooks merged into
+    # ~/.qwen/settings.json (v3.15.8 Phase 6). A PowerShell install registers the
+    # .ps1 siblings and sets Qwen's own shell field to "powershell" to match.
     if ($platforms -contains "QWEN") {
-        Write-Header -Provider "QWEN"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "qwen" -DisplayName "Qwen Code (QWEN.md)"
-        Write-Item -Message "Qwen: ~/.qwen/QWEN.md is written only when Qwen is detected (~/.qwen present); the project-root QWEN.md installs at workspace scope." -Color "DarkYellow"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "qwen" -DisplayName "Qwen Code" -Provider "QWEN"
     }
 
     # --- OpenClaw --------------------------------------------------------
     if ($platforms -contains "OPENCLAW") {
-        Write-Header -Provider "OPENCLAW"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "openclaw" -DisplayName "OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)"
-        Write-Item -Message "OpenClaw: global files are written to ~/.openclaw/ only when OpenClaw is detected (~/.openclaw present); the project-local .openclaw/ split installs at workspace scope." -Color "DarkYellow"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "openclaw" -DisplayName "OpenClaw" -Provider "OPENCLAW"
     }
 
     # --- Nexus -- Nexus-AI (Local Desktop Studio) ------------------------
     if ($platforms -contains "NEXUS_AI") {
-        Write-Header -Provider "NEXUS"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "nexus-ai" -DisplayName "Nexus-AI (Local Desktop Studio)"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "nexus-ai" -DisplayName "Nexus-AI" -Provider "NEXUS"
     }
+
+    # Platforms whose tool was not detected on this machine (or a scope with no
+    # surface, e.g. Aider at global) were collected above; print them once here.
+    Write-UndetectedGroup
 
     # --- Auto-Approve Permissions sub-section ---
     # Permissions only apply to the legacy 4 (CLAUDE / GEMINI / CODEX /
     # COPILOT); the registry-driven platforms do not ship their own
     # auto-approve configs yet. Mirrored to provider headers for visual
     # consistency with the install-skills section above.
-    Write-SubSectionBanner -Text "Auto-Approve Permissions"
+    Write-CenteredBanner -Text "AUTO-APPROVE PERMISSIONS"
 
     if ($platforms -contains "CLAUDE") {
         Write-Header -Provider "ANTHROPIC"
         Install-Permissions -RepoRoot $RepoRoot -Platform "CLAUDE" -Scope "Global"
+        # v3.15.6 / AC5: opt-in only. Without -StrictPermissions this is a no-op
+        # and the install stays exactly as it was (allow-only, no prompts).
+        # Invoked here rather than inside Install-Permissions because that
+        # function returns early in its allow-merge path; see the note on
+        # Merge-StrictPermissions.
+        if ($StrictPermissions) {
+            Merge-StrictPermissions `
+                -SettingsFile (Join-Path (Join-Path $env:USERPROFILE ".claude") "settings.json") `
+                -OverlayFile (Join-Path (Join-Path $RepoRoot "configs\permissions") "claude-permissions-strict.json") `
+                -Scope "Global"
+        }
     }
     if ($platforms -contains "CODEX") {
         Write-Header -Provider "OPENAI"
@@ -1406,20 +1842,22 @@ function Install-Global {
         Install-Permissions -RepoRoot $RepoRoot -Platform "COPILOT" -Scope "Global"
     }
 
-    # --- Claude Code Utilities sub-section ---
-    Write-SubSectionBanner -Text "Claude Code Utilities"
+    # --- Usage Monitor Extensions section (VS Code + Cursor hosts) ---
+    Write-CenteredBanner -Text "USAGE MONITOR EXTENSIONS"
     Install-VSCodeExtensions -RepoRoot $RepoRoot
 
-    # --- Skill Discovery sub-section ---
-    Write-SubSectionBanner -Text "Skill Discovery (All Platforms)"
+    # --- Cross-Platform Tools: capabilities that apply to every platform, grouped
+    # under one section. Skill discovery + the git hook run here; Install-Templates
+    # (next in the main flow) adds its own "· Report templates" subsection under
+    # this same header.
+    Write-CenteredBanner -Text "CROSS-PLATFORM TOOLS"
+
+    Write-SubSectionBanner -Text "Skill discovery"
     Install-SkillDiscovery -RepoRoot $RepoRoot
 
-    # --- Git Commit-Msg Hook sub-section ---
-    Write-SubSectionBanner -Text "Git Commit-Msg Hook (All Platforms)"
+    Write-SubSectionBanner -Text "Git commit-msg hook"
     Write-Host ""
     Install-GitCommitMsgHook -RepoRoot $RepoRoot
-    # Install-Templates below calls Write-SubSectionBanner which prepends its own blank;
-    # no trailing Write-Host "" needed here.
 }
 
 function Get-LanguageSelection {
@@ -1588,9 +2026,9 @@ function Install-Workspace {
         $RepoRoot,
         $TargetPath  # pre-validated by main (v0.9.7+)
     )
-    Write-Host ""
-    Write-CenteredBanner -Text "Workspace Installation" -Color "Cyan"
-    # Write-SubSectionBanner below prepends its own blank; no explicit Write-Host "" needed here.
+    # Main-section banner; no separate "Workspace Installation" super-header - the
+    # scope is already stated in the welcome + farewell lines.
+    Write-CenteredBanner -Text "SKILLS & COMMANDS"
 
     if ([string]::IsNullOrWhiteSpace($TargetPath) -or -not (Test-Path $TargetPath)) {
         Write-Host "Invalid target path: $TargetPath" -ForegroundColor Red
@@ -1624,12 +2062,12 @@ function Install-Workspace {
             Write-Item -Message "Claude Code" -Color "Gray"
             $claudeDir = Join-Path $targetPath ".claude"
 
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
-
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $claudeDir "skills")   -CustomMessage "✓ Skills catalog installed at: $(Join-Path $claudeDir "skills")"
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $claudeDir "commands")"
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\agents"   -Destination (Join-Path $claudeDir "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $claudeDir "agents")"
+            Flatten-SkillsInto -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "skills")   -Destination (Join-Path $claudeDir "skills")   -CustomMessage "✓ Skills catalog installed (flattened) at: $(Join-Path $claudeDir "skills")"
+            Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "commands") -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $claudeDir "commands")"
+            Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "agents")   -Destination (Join-Path $claudeDir "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $claudeDir "agents")"
             Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $claudeDir "rules")    -CustomMessage "✓ Rules installed at: $(Join-Path $claudeDir "rules")"
+            # Org rules are seeded by the registry after refresh-mode catalog pruning.
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
 
             $mcpConfigDestWs = Join-Path $claudeDir "mcp-configs"
             if (-not (Test-Path $mcpConfigDestWs)) { New-Item -ItemType Directory -Force -Path $mcpConfigDestWs | Out-Null }
@@ -1651,9 +2089,11 @@ function Install-Workspace {
             if (-not (Test-Path $codexDir)) { New-Item -ItemType Directory -Force -Path $codexDir | Out-Null }
 
             # Full registry mirror (v3.12.0): see the global Codex block. Workspace
-            # scope writes .codex/{skills,prompts}, .agents/skills (flattened + command
-            # skills), and a repo-root AGENTS.md.
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands)" -Languages ($languages -join ',')
+            # scope writes .codex/{skills,prompts,agents,hooks}, .codex/hooks.json,
+            # .agents/skills (flattened + command skills), and a repo-root AGENTS.md.
+            # The [features] hooks switch is user-global, so a workspace install
+            # advises rather than editing ~/.codex/config.toml.
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands + agents + hooks)" -Languages ($languages -join ',')
         }
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ------
@@ -1681,6 +2121,8 @@ function Install-Workspace {
             }
             if ($workspacePlatforms -contains "GEMINI_CLI") {
                 if ($Enterprise) {
+                    # Project .gemini/ surfaces plus hooks in .gemini/settings.json;
+                    # commands resolve via $env:GEMINI_PROJECT_DIR on Windows.
                     Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI (enterprise)"
                 }
                 else {
@@ -1725,12 +2167,17 @@ function Install-Workspace {
         }
 
         # --- Kimi -------------------------------------------------------
+        # Project .kimi-code/ AGENTS.md + skills + custom agents. NO hooks at
+        # workspace scope: Kimi's project config is local.toml and documents only
+        # a [workspace] table, so there is no project hook path to write.
         if ($workspacePlatforms -contains "KIMI") {
             Write-Header -Provider "KIMI"
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "kimi" -DisplayName "Kimi (.kimi/agent.yaml + system.md)" -Languages ($languages -join ',')
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "kimi" -DisplayName "Kimi Code CLI (.kimi-code/)" -Languages ($languages -join ',')
         }
 
         # --- Qwen -------------------------------------------------------
+        # Project QWEN.md + .qwen/ surfaces plus hooks in .qwen/settings.json,
+        # resolved via $env:QWEN_PROJECT_DIR on Windows (v3.15.8 Phase 6).
         if ($workspacePlatforms -contains "QWEN") {
             Write-Header -Provider "QWEN"
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "qwen" -DisplayName "Qwen Code (QWEN.md)" -Languages ($languages -join ',')
@@ -1748,6 +2195,32 @@ function Install-Workspace {
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "nexus-ai" -DisplayName "Nexus-AI (Local Desktop Studio)"
         }
 
+        # --- Auto-Approve Permissions sub-section ---
+        # v3.17.0 Phase 1.2: previously absent entirely, so a -Workspace install
+        # received no permission baseline on any operating system while the $Scope
+        # parameter of Install-Permissions sat decorative. Only CLAUDE has a
+        # confirmed project-scoped target (.claude\settings.local.json); the other
+        # three skip with a note stating why. Gated on the same -Platforms subset
+        # as the global block.
+        Write-CenteredBanner -Text "AUTO-APPROVE PERMISSIONS"
+
+        if ($workspacePlatforms -contains "CLAUDE") {
+            Write-Header -Provider "ANTHROPIC"
+            Install-Permissions -RepoRoot $RepoRoot -Platform "CLAUDE" -Scope "Workspace" -TargetPath $targetPath
+        }
+        if ($workspacePlatforms -contains "CODEX") {
+            Write-Header -Provider "OPENAI"
+            Install-Permissions -RepoRoot $RepoRoot -Platform "CODEX" -Scope "Workspace" -TargetPath $targetPath
+        }
+        if ($workspacePlatforms -contains "GEMINI") {
+            Write-Header -Provider "GOOGLE"
+            Install-Permissions -RepoRoot $RepoRoot -Platform "GEMINI" -Scope "Workspace" -TargetPath $targetPath
+        }
+        if ($workspacePlatforms -contains "COPILOT") {
+            Write-Header -Provider "MICROSOFT"
+            Install-Permissions -RepoRoot $RepoRoot -Platform "COPILOT" -Scope "Workspace" -TargetPath $targetPath
+        }
+
         Write-Host ""
 }
 
@@ -1758,15 +2231,147 @@ function Resolve-PythonExecutable {
     return $null
 }
 
+# ---------------------------------------------------------------------------
+# Install selection (v3.16.1 Phase 6.2) -- lockstep with the Bash implementation
+# in scripts/installer.sh.
+#
+# Contract: docs/releases/v3/v3.16/development/install-selection-contract.md
+#
+# Resolution delegates to scripts/lib/installer/selection.py rather than being
+# reimplemented in PowerShell, matching the Bash decision and for the same
+# reason: one tested implementation of a hashed contract beats several. What the
+# plan's "no Python dependency" wording protects is preserved exactly -- these
+# functions are only reached when a selector was supplied, so a no-selector full
+# install still needs neither Python nor jq.
+#
+# Filtering is applied by STAGING: a filtered copy of catalog\skills,
+# catalog\commands, and catalog\agents is built once and every downstream copy
+# reads it via Get-CatalogSource. Only those three surfaces are ever filtered;
+# hooks, rules, context, memory, style-guides, and mcp-configs are policy
+# infrastructure and always install in full.
+# ---------------------------------------------------------------------------
+
+$script:SelectionActive     = $false
+$script:SelectionStage      = $null
+$script:SelectionHash       = ""
+$script:SelectionSkillCount = 0
+$script:SelectionCmdCount   = 0
+$script:SelectionAgentCount = 0
+
+function Test-SelectionRequested {
+    return ($InstallProfile -or $Modules -or $Bundles)
+}
+
+function Get-CatalogSource {
+    param([string]$RepoRoot, [string]$Surface)
+    if ($script:SelectionActive) {
+        $staged = Join-Path $script:SelectionStage $Surface
+        if (Test-Path $staged) { return $staged }
+    }
+    return (Join-Path $RepoRoot "catalog\$Surface")
+}
+
+function Resolve-Selection {
+    param([string]$RepoRoot)
+
+    if (-not (Test-SelectionRequested)) { return }
+
+    $py = Resolve-PythonExecutable
+    if (-not $py) {
+        Write-Host ""
+        Write-Host "ERROR: -Profile / -Modules / -Bundles need Python to resolve." -ForegroundColor Red
+        Write-Host "       Install Python 3, or re-run without a selector for a full install" -ForegroundColor Red
+        Write-Host "       (a full install requires neither Python nor jq)." -ForegroundColor Red
+        exit 2
+    }
+
+    $resolver = Join-Path $RepoRoot "scripts\lib\installer\selection.py"
+    if (-not (Test-Path $resolver)) {
+        Write-Host "ERROR: selection resolver not found at $resolver" -ForegroundColor Red
+        exit 3
+    }
+
+    $resolverArgs = @($resolver, "--repo-root", $RepoRoot, "--emit", "lines")
+    if ($InstallProfile) { $resolverArgs += @("--profile", $InstallProfile) }
+    if ($Modules) { $resolverArgs += @("--modules", $Modules) }
+    if ($Bundles) { $resolverArgs += @("--bundles", $Bundles) }
+
+    # Deliberately NO `2>&1` here. In Windows PowerShell 5.1 redirecting a native
+    # command's stderr wraps each line in an ErrorRecord (NativeCommandError) and
+    # sets $? to $false even on a clean exit, which turns a good run into a
+    # visible error. The resolver's own stderr already reaches the console, so
+    # the user still sees which selector was wrong; we only need the exit code.
+    $output = & $py @resolverArgs
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+
+    $script:SelectionStage = Join-Path ([System.IO.Path]::GetTempPath()) ("nexus-selection-" + [System.Guid]::NewGuid().ToString("N"))
+    foreach ($surface in @("skills", "commands", "agents")) {
+        New-Item -ItemType Directory -Force -Path (Join-Path $script:SelectionStage $surface) | Out-Null
+    }
+
+    foreach ($line in $output) {
+        $text = [string]$line
+        if (-not $text) { continue }
+        $parts = $text -split "`t", 2
+        if ($parts.Count -lt 2) { continue }
+        $kind  = $parts[0].Trim()
+        $value = $parts[1].Trim()
+        switch ($kind) {
+            "HASH" { $script:SelectionHash = $value }
+            "SKILL" {
+                # Skills live under catalog\skills\<category>\<name>; the stage
+                # keeps the category level so a nested-layout copy still works.
+                $src = Get-ChildItem -Path (Join-Path $RepoRoot "catalog\skills") -Directory -Recurse -Depth 1 -ErrorAction SilentlyContinue |
+                       Where-Object { $_.Name -eq $value -and $_.Parent.Parent.Name -eq "skills" } |
+                       Select-Object -First 1
+                if ($src) {
+                    $destCategory = Join-Path (Join-Path $script:SelectionStage "skills") $src.Parent.Name
+                    New-Item -ItemType Directory -Force -Path $destCategory | Out-Null
+                    Copy-Item -Path $src.FullName -Destination $destCategory -Recurse -Force
+                    $script:SelectionSkillCount++
+                }
+            }
+            "COMMAND" {
+                $src = Join-Path $RepoRoot "catalog\commands\$value.md"
+                if (Test-Path $src) {
+                    Copy-Item -Path $src -Destination (Join-Path $script:SelectionStage "commands") -Force
+                    $script:SelectionCmdCount++
+                }
+            }
+            "AGENT" {
+                $src = Join-Path $RepoRoot "catalog\agents\$value.md"
+                if (Test-Path $src) {
+                    Copy-Item -Path $src -Destination (Join-Path $script:SelectionStage "agents") -Force
+                    $script:SelectionAgentCount++
+                }
+            }
+            "WARN" {
+                Write-Host "WARNING: selection resolved to the entire catalog; '-Profile full' says this directly." -ForegroundColor Yellow
+            }
+        }
+    }
+
+    $script:SelectionActive = $true
+}
+
+function Remove-SelectionStage {
+    if ($script:SelectionStage -and (Test-Path $script:SelectionStage)) {
+        Remove-Item -Path $script:SelectionStage -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
 function Invoke-RegistryPlatform {
     param(
         [string]$RepoRoot,
         [string]$Scope,            # "global" or "workspace"
         [string]$TargetPath,       # used for workspace scope only
         [string]$IntegrationKey,   # registry key, e.g. "antigravity2"
-        [string]$DisplayName,      # human-readable label printed as a sub-item
+        [string]$DisplayName,      # product label printed above the checklist
         [string]$Languages = "",   # csv; appends coding-snippet fragments
-        [switch]$InstructionOnly   # render only the instruction file (skip catalog mirror)
+        [switch]$InstructionOnly,  # render only the instruction file (skip catalog mirror)
+        [string]$Provider = ""     # vendor header; printed lazily only when the platform delivers
     )
     $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
     if (-not (Test-Path $runner)) { return }
@@ -1776,13 +2381,20 @@ function Invoke-RegistryPlatform {
         return
     }
 
-    Write-Item -Message "$DisplayName" -Color "Gray"
-    $argsList = @($runner, "install", "--scope", $Scope, "--integrations", $IntegrationKey, "--quiet")
+    $summaryFile = Join-Path ([System.IO.Path]::GetTempPath()) ("nexus-summary-" + [System.Guid]::NewGuid().ToString('N') + ".json")
+    $argsList = @($runner, "install", "--scope", $Scope, "--integrations", $IntegrationKey, "--quiet", "--summary-json", $summaryFile)
     if ($Scope -eq "workspace") {
         $argsList += @("--target", $TargetPath)
     }
     if ($script:OverwriteMode -eq "ALL") { $argsList += "--overwrite" }
     if ($InstructionOnly) { $argsList += "--instruction-only" }
+    # v3.16.1 Phase 6.2: forward the selectors so the registry resolves the same
+    # plan this script did. Appended as discrete array elements, never
+    # interpolated into a command string, so a selector value cannot inject an
+    # argument.
+    if ($InstallProfile) { $argsList += @("--profile", $InstallProfile) }
+    if ($Modules) { $argsList += @("--modules", $Modules) }
+    if ($Bundles) { $argsList += @("--bundles", $Bundles) }
     if ($Languages) { $argsList += @("--languages", $Languages) }
     # Thread the instruction-template placeholders from the detected script
     # globals so the registry renders the same instruction body the legacy
@@ -1800,34 +2412,67 @@ function Invoke-RegistryPlatform {
     $argsList += @("--var", "OS_CONTEXT=$($script:OSContext)")
 
     & $py @argsList
-    if ($LASTEXITCODE -ne 0) {
-        Write-Item -Message "$DisplayName install reported non-zero exit; continuing." -Color "Yellow"
-    } else {
-        Write-Item -Message "✓ Installed ($Scope scope)" -Color "DarkGreen"
+    $exitCode = $LASTEXITCODE
+
+    # Parse the structured per-surface summary the runner just wrote.
+    $platformSummary = $null
+    try {
+        if (Test-Path $summaryFile) {
+            $summary = Get-Content $summaryFile -Raw | ConvertFrom-Json
+            $platformSummary = $summary.platforms | Where-Object { $_.platform -eq $IntegrationKey } | Select-Object -First 1
+        }
     }
+    catch { $platformSummary = $null }
+    Remove-Item $summaryFile -Force -ErrorAction SilentlyContinue
+
+    if ($exitCode -ne 0) {
+        if ($Provider) { Write-Header -Provider $Provider }
+        Write-Item -Message "$DisplayName" -Color "Gray"
+        Write-Item -Message "install reported a non-zero exit; continuing." -Color "Yellow"
+        return
+    }
+
+    # Did the platform actually deliver any surface here?
+    $surfaceCount = 0
+    if ($platformSummary -and $platformSummary.surfaces) {
+        $surfaceCount = @($platformSummary.surfaces.PSObject.Properties).Count
+    }
+    if ($surfaceCount -eq 0) {
+        # Not delivered here (undetected tool, or no surface at this scope).
+        $reason = "not detected"
+        if ($platformSummary -and $platformSummary.notes -and (@($platformSummary.notes).Count -gt 0) -and -not ($platformSummary.detected -eq $false)) {
+            $reason = "no surface at this scope"
+        }
+        if ($Provider) {
+            # Global install: collect into the single grouped section rather than
+            # printing a colored header with nothing under it.
+            Add-UndetectedPlatform -Name $DisplayName -Reason $reason
+        }
+        else {
+            # Workspace / caller-managed header: keep an inline note so nothing vanishes.
+            Write-Item -Message "$DisplayName" -Color "Gray"
+            Write-Item -Message "($reason)" -Color "DarkGray" -Indent 4
+        }
+        return
+    }
+
+    # Delivered: lazy vendor header, product label, then the fixed-order checklist.
+    if ($Provider) { Write-Header -Provider $Provider }
+    Write-Item -Message "$DisplayName" -Color "Gray"
+    Write-PlatformChecklist -PlatformSummary $platformSummary
 }
 
 function Install-VSCodeExtensions {
     param ($RepoRoot)
-    Write-Host ""
-    Write-Host "  > Claude Usage Monitor" -ForegroundColor DarkYellow
-
-    Write-Item -Message "The Claude Usage Monitor is a VS Code extension that displays your Claude" -Color "White"
-    Write-Item -Message "Code usage limits in the status bar and recommends when to switch models" -Color "White"
-    Write-Item -Message "(e.g., Opus to Sonnet) to stay within your session and weekly limits." -Color "White"
+    Write-Item -Message "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub, and" -Color "White"
+    Write-Item -Message "Cursor usage in the status bar. Claude/Codex/GitHub install into VS Code only;" -Color "White"
+    Write-Item -Message "Cursor Usage Monitor installs into Cursor only. Never cross-installed." -Color "White"
     Write-Host ""
 
-    $extensionDir = Join-Path $RepoRoot "extensions\claude-usage-monitor"
-
-    if (-not (Test-Path $extensionDir)) {
-        Write-Item -Message "Extension source not found at: $extensionDir" -Color "Red"
-        return
-    }
-
-    # Check for Node.js
+    # Check for Node.js (shared by every extension)
     $nodeCmd = Get-Command "node" -ErrorAction SilentlyContinue
     if (-not $nodeCmd) {
-        Write-Item -Message "Node.js is not installed (required to build the extension)." -Color "DarkYellow"
+        Write-Item -Message "Node.js is not installed (required to build the extensions)." -Color "DarkYellow"
         # A non-interactive run (the piped one-command bootstrap, -Yes, or CI) installs
         # without asking so every dependency is present in one pass; interactive prompts.
         if ($script:AssumeYes) { $installResp = "y" } else { $installResp = Read-Prompt "Install Node.js LTS via winget? [Y]es / [N]o" }
@@ -1836,7 +2481,7 @@ function Install-VSCodeExtensions {
             $wingetCmd = Get-Command "winget" -ErrorAction SilentlyContinue
             if (-not $wingetCmd) {
                 Write-Item -Message "winget is not available. Please install Node.js manually from https://nodejs.org" -Color "Red"
-                Write-Item -Message "After installing Node.js, re-run this installer to build the extension." -Color "Yellow"
+                Write-Item -Message "After installing Node.js, re-run this installer to build the extensions." -Color "Yellow"
                 return
             }
 
@@ -1861,7 +2506,7 @@ function Install-VSCodeExtensions {
             }
         }
         else {
-            Write-Item -Message "Skipped. Install Node.js from https://nodejs.org and re-run to build the extension." -Color "Gray"
+            Write-Item -Message "Skipped. Install Node.js from https://nodejs.org and re-run to build the extensions." -Color "Gray"
             return
         }
     }
@@ -1870,7 +2515,7 @@ function Install-VSCodeExtensions {
         Write-Item -Message "Found Node.js $nodeVersion" -Color "DarkGreen"
     }
 
-    # Check for npm
+    # Check for npm (shared)
     $npmCmd = Get-Command "npm" -ErrorAction SilentlyContinue
     if (-not $npmCmd) {
         Write-Item -Message "npm not found. Please ensure Node.js is properly installed." -Color "Red"
@@ -1878,16 +2523,92 @@ function Install-VSCodeExtensions {
     }
 
     # Suspend strict error mode for native CLI tools (npm/npx write warnings to stderr
-    # which PowerShell converts to terminating errors under $ErrorActionPreference = "Stop")
+    # which PowerShell converts to terminating errors under $ErrorActionPreference = "Stop").
+    # Shared across every extension build; restored once at the end.
     $savedErrorPref = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
 
+    # Dual-host resolution (v3.15.9 Phase 6): VS Code CLI and Cursor CLI are
+    # discovered independently. Cursor must NEVER be a fallback for the VS Code
+    # monitors, and VS Code must NEVER receive the Cursor monitor.
+    $vscodeCli = $null
+    $vscodeLabel = "VS Code"
+    if (Get-Command "code" -ErrorAction SilentlyContinue) {
+        $vscodeCli = "code"
+    }
+    else {
+        # Empty env vars collapse to non-existent paths that Test-Path rejects safely.
+        $vscodeCandidates = @(
+            "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd",
+            "$env:ProgramFiles\Microsoft VS Code\bin\code.cmd",
+            "${env:ProgramFiles(x86)}\Microsoft VS Code\bin\code.cmd",
+            "$env:LOCALAPPDATA\Programs\Microsoft VS Code Insiders\bin\code-insiders.cmd"
+        )
+        foreach ($candidate in $vscodeCandidates) {
+            if ($candidate -and (Test-Path $candidate)) {
+                $vscodeCli = $candidate
+                break
+            }
+        }
+    }
+
+    $cursorCli = $null
+    $cursorLabel = "Cursor"
+    if (Get-Command "cursor" -ErrorAction SilentlyContinue) {
+        $cursorCli = "cursor"
+    }
+    else {
+        $cursorCandidates = @(
+            "$env:LOCALAPPDATA\Programs\cursor\resources\app\bin\cursor.cmd",
+            "$env:LOCALAPPDATA\Programs\Cursor\resources\app\bin\cursor.cmd"
+        )
+        foreach ($candidate in $cursorCandidates) {
+            if ($candidate -and (Test-Path $candidate)) {
+                $cursorCli = $candidate
+                break
+            }
+        }
+    }
+
+    # Build each extension under its own vendor header. VS Code monitors install
+    # only via $vscodeCli; the Cursor monitor installs only via $cursorCli. The
+    # vendor order (Anthropic, OpenAI, Anysphere) is asserted by the
+    # installer smoke test and must match scripts/installer.sh.
+    Write-Header -Provider "ANTHROPIC"
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\claude-usage-monitor") -ExtensionId "nexus-hub.claude-usage-monitor" -DisplayName "Claude Usage Monitor" -StatusHint "Claude: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
+
+    Write-Header -Provider "OPENAI"
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\codex-usage-monitor") -ExtensionId "nexus-hub.codex-usage-monitor" -DisplayName "Codex Usage Monitor" -StatusHint "Codex: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
+
+    Write-Header -Provider "ANYSPHERE"
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\cursor-usage-monitor") -ExtensionId "nexus-hub.cursor-usage-monitor" -DisplayName "Cursor Usage Monitor" -StatusHint "Cursor: --%" -CodeCli $cursorCli -CodeLabel $cursorLabel
+
+    # Restore strict error mode
+    $ErrorActionPreference = $savedErrorPref
+}
+
+# Build, package, and install one VS Code usage-monitor extension. Shared by
+# Install-VSCodeExtensions so every monitor installs identically.
+function Build-And-Install-One-Extension {
+    # $AlsoCodeCli is an optional SECOND host. One VSIX, installed into two editors:
+    # Cursor is a separate application with its own extension directory, so an
+    # extension installed into VS Code is simply absent there.
+    param ($ExtensionDir, $ExtensionId, $DisplayName, $StatusHint, $CodeCli, $CodeLabel, $AlsoCodeCli, $AlsoCodeLabel)
+
+    Write-Host ""
+    Write-Host "  > $DisplayName" -ForegroundColor DarkYellow
+
+    if (-not (Test-Path $ExtensionDir)) {
+        Write-Item -Message "Extension source not found at: $ExtensionDir" -Color "Red"
+        return
+    }
+
     # Build the extension
-    Write-Item -Message "Building Claude Usage Monitor extension..." -Color "White"
-    Push-Location $extensionDir
+    Write-Item -Message "Building $DisplayName extension..." -Color "White"
+    Push-Location $ExtensionDir
 
     # Clean compiled output so deleted source files don't linger as stale JS
-    $outDir = Join-Path $extensionDir "out"
+    $outDir = Join-Path $ExtensionDir "out"
     if (Test-Path $outDir) {
         Remove-Item -Path $outDir -Recurse -Force
     }
@@ -1895,7 +2616,7 @@ function Install-VSCodeExtensions {
     # A node_modules tree copied in from another OS leaves bin shims the current
     # shell cannot exec, so the build fails with a confusing error. Removing it
     # forces a clean, OS-correct dependency tree (mirrors installer.sh).
-    $nmDir = Join-Path $extensionDir "node_modules"
+    $nmDir = Join-Path $ExtensionDir "node_modules"
     if (Test-Path $nmDir) {
         Remove-Item -Path $nmDir -Recurse -Force
     }
@@ -1907,7 +2628,6 @@ function Install-VSCodeExtensions {
         Write-Item -Message "Build failed: npm install failed" -Color "Red"
         if ($npmOutput) { $npmOutput | Select-Object -Last 20 | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" } }
         Pop-Location
-        $ErrorActionPreference = $savedErrorPref
         return
     }
 
@@ -1918,7 +2638,6 @@ function Install-VSCodeExtensions {
         Write-Item -Message "Build failed: TypeScript compilation failed" -Color "Red"
         if ($compileOutput) { $compileOutput | Select-Object -Last 30 | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" } }
         Pop-Location
-        $ErrorActionPreference = $savedErrorPref
         return
     }
 
@@ -1927,7 +2646,7 @@ function Install-VSCodeExtensions {
 
     # Package as VSIX (uses locally installed @vscode/vsce from devDependencies)
     Write-Item -Message "Packaging extension as VSIX..." -Color "White"
-    Push-Location $extensionDir
+    Push-Location $ExtensionDir
     # Capture stdout + stderr so failures surface the real vsce diagnostic
     # (previously swallowed by 2>$null | Out-Null, leaving operators with no clue).
     # The bundled LICENSE removes vsce's only packaging warning, so it no longer
@@ -1938,7 +2657,7 @@ function Install-VSCodeExtensions {
     $vsixExitCode = $LASTEXITCODE
     Pop-Location
 
-    $vsixFile = Get-ChildItem $extensionDir -Filter "*.vsix" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    $vsixFile = Get-ChildItem $ExtensionDir -Filter "*.vsix" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 
     if (($vsixExitCode -ne 0) -or (-not $vsixFile)) {
         Write-Item -Message "Packaging failed (exit code: $vsixExitCode)." -Color "Red"
@@ -1947,74 +2666,58 @@ function Install-VSCodeExtensions {
             $vsceOutput | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" }
         }
         Write-Item -Message "You can still use the extension in development mode (F5 in VS Code)." -Color "Yellow"
-        $ErrorActionPreference = $savedErrorPref
         return
     }
 
     Write-Item -Message "✓ Packaged: $($vsixFile.Name)" -Color "DarkGreen"
 
-    # Locate a VS Code-family CLI. On a fresh machine `code` is not always on PATH,
-    # so fall back to the standard Windows install locations. This lets the VSIX
-    # auto-install instead of leaving the user to do it by hand (mirrors installer.sh).
-    $codeCli = $null
-    $codeLabel = "VS Code"
-    if (Get-Command "code" -ErrorAction SilentlyContinue) {
-        $codeCli = "code"
-    }
-    else {
-        # Empty env vars collapse to non-existent paths that Test-Path rejects safely.
-        $candidates = @(
-            "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd",
-            "$env:ProgramFiles\Microsoft VS Code\bin\code.cmd",
-            "${env:ProgramFiles(x86)}\Microsoft VS Code\bin\code.cmd",
-            "$env:LOCALAPPDATA\Programs\Microsoft VS Code Insiders\bin\code-insiders.cmd",
-            "$env:LOCALAPPDATA\Programs\cursor\resources\app\bin\cursor.cmd"
-        )
-        foreach ($candidate in $candidates) {
-            if ($candidate -and (Test-Path $candidate)) {
-                $codeCli = $candidate
-                if ($candidate -like "*cursor*") { $codeLabel = "Cursor" }
-                break
-            }
-        }
-    }
-
     # Install into the detected editor
-    if ($codeCli) {
+    if ($CodeCli) {
         # Uninstall any existing version first so the editor does not skip the reinstall
-        & $codeCli --uninstall-extension "nexus-hub.claude-usage-monitor" 2>$null | Out-Null
+        & $CodeCli --uninstall-extension $ExtensionId 2>$null | Out-Null
         Restore-Title
         # --force ensures reinstall even when the version number has not changed
-        & $codeCli --install-extension $vsixFile.FullName --force 2>$null | Out-Null
+        & $CodeCli --install-extension $vsixFile.FullName --force 2>$null | Out-Null
         Restore-Title
         if ($LASTEXITCODE -eq 0) {
-            Write-Item -Message "✓ Claude Usage Monitor extension installed in $codeLabel!" -Color "DarkGreen"
-            Write-Item -Message "  Restart $codeLabel to activate. Look for 'Claude: --%' in the status bar." -Color "White"
+            Write-Item -Message "✓ $DisplayName extension installed in $CodeLabel!" -Color "DarkGreen"
+            Write-Item -Message "  Restart $CodeLabel to activate. Look for '$StatusHint' in the status bar." -Color "White"
         }
         else {
-            Write-Item -Message "$codeLabel install failed. You can install manually:" -Color "Yellow"
-            Write-Item -Message "  `"$codeCli`" --install-extension `"$($vsixFile.FullName)`"" -Color "White"
+            Write-Item -Message "$CodeLabel install failed. You can install manually:" -Color "Yellow"
+            Write-Item -Message "  `"$CodeCli`" --install-extension `"$($vsixFile.FullName)`"" -Color "White"
         }
     }
     else {
-        Write-Item -Message "VS Code CLI ('code') not found in PATH or standard install locations." -Color "Yellow"
+        Write-Item -Message "$CodeLabel CLI not found in PATH or standard install locations." -Color "Yellow"
         Write-Item -Message "VSIX saved at: $($vsixFile.FullName)" -Color "White"
-        Write-Item -Message "Install manually via VS Code: Extensions > ... > Install from VSIX" -Color "Gray"
+        Write-Item -Message "Install manually via ${CodeLabel}: Extensions > ... > Install from VSIX" -Color "Gray"
     }
 
-    # Restore strict error mode
-    $ErrorActionPreference = $savedErrorPref
-
-    Write-Host ""
-    Write-Host "  ✓ Claude Usage Monitor Installation Complete." -ForegroundColor Green
+    # The second host, when one was requested AND detected. Silent when Cursor is
+    # not installed: a missing optional editor is not a failure to report.
+    if ($AlsoCodeCli) {
+        & $AlsoCodeCli --uninstall-extension $ExtensionId 2>$null | Out-Null
+        Restore-Title
+        & $AlsoCodeCli --install-extension $vsixFile.FullName --force 2>$null | Out-Null
+        Restore-Title
+        if ($LASTEXITCODE -eq 0) {
+            Write-Item -Message "OK: $DisplayName extension installed in $AlsoCodeLabel!" -Color "DarkGreen"
+            Write-Item -Message "  Restart $AlsoCodeLabel to activate. Look for '$StatusHint' in the status bar." -Color "White"
+        }
+        else {
+            Write-Item -Message "$AlsoCodeLabel install failed. You can install manually:" -Color "Yellow"
+            Write-Item -Message "  `"$AlsoCodeCli`" --install-extension `"$($vsixFile.FullName)`"" -Color "White"
+        }
+    }
 }
 
 # --- Template & Script Installation ---
 
 function Install-Templates {
     param ($RepoRoot)
-    # Write-SubSectionBanner prepends its own blank line; no leading Write-Host "" needed.
-    Write-SubSectionBanner -Text "Templates & Report Generator Installation"
+    # A "· subsection" under the CROSS-PLATFORM TOOLS section opened in Install-Global.
+    Write-SubSectionBanner -Text "Report templates & generator"
     Write-Host ""
     Write-Item -Message "Nexus-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" -Color "White"
     Write-Item -Message "reports from Markdown files using the /research report command." -Color "White"
@@ -2065,6 +2768,58 @@ function Install-Templates {
     $evalOptimizerSource = Join-Path $RepoRoot "scripts\optimize_skill_description.py"
     if (Test-Path $evalOptimizerSource) {
         Safe-Copy -Source $evalOptimizerSource -Destination (Join-Path $scriptsDest "optimize_skill_description.py") -Confirm:$true -CustomMessage "✓ Skill-description optimizer installed at: $scriptsDest\optimize_skill_description.py"
+    }
+    # Copy the behavioral-eval schema converter (v3.15.2 / A4). Mirror of the bash
+    # block in scripts\installer.sh. Bidirectional, lossless converter between the
+    # eval-loop's internal evals.json and the interoperable behavioral-eval schema.
+    # Stdlib-only single .py (cross-platform, no .ps1 sibling).
+    $evalConvertSource = Join-Path $RepoRoot "scripts\skill_eval_convert.py"
+    if (Test-Path $evalConvertSource) {
+        Safe-Copy -Source $evalConvertSource -Destination (Join-Path $scriptsDest "skill_eval_convert.py") -Confirm:$true -CustomMessage "✓ Eval-loop schema converter installed at: $scriptsDest\skill_eval_convert.py"
+    }
+
+    # Copy the trigger-and-routing eval (v3.15.2 / A1). Mirror of the bash block
+    # in scripts\installer.sh. A stdlib-only, model-free detector that flags
+    # skill-description trigger-vocabulary near-collisions across the whole
+    # catalog, plus its intentional-neighbor allowlist. The runner reads the
+    # allowlist from the file beside it, so both must land together under
+    # scripts\.
+    $triggerEvalsSource = Join-Path $RepoRoot "scripts\run_trigger_evals.py"
+    if (Test-Path $triggerEvalsSource) {
+        Safe-Copy -Source $triggerEvalsSource -Destination (Join-Path $scriptsDest "run_trigger_evals.py") -Confirm:$true -CustomMessage "✓ Trigger-and-routing eval installed at: $scriptsDest\run_trigger_evals.py"
+    }
+    # v3.17.0 Phase 1: permission-baseline tooling. Registered in lockstep with
+    # scripts/installer.sh -- merge_permissions.py is the single merge implementation
+    # BOTH installers call, so a divergence here reintroduces the exact drift that
+    # phase repaired. validate_permission_baseline.py guards the read-only baseline.
+    $mergePermissionsSource = Join-Path $RepoRoot "scripts\merge_permissions.py"
+    if (Test-Path $mergePermissionsSource) {
+        Safe-Copy -Source $mergePermissionsSource -Destination (Join-Path $scriptsDest "merge_permissions.py") -Confirm:$true -CustomMessage "✓ Permission merge helper installed at: $scriptsDest\merge_permissions.py"
+    }
+    $validateBaselineSource = Join-Path $RepoRoot "scripts\validate_permission_baseline.py"
+    if (Test-Path $validateBaselineSource) {
+        Safe-Copy -Source $validateBaselineSource -Destination (Join-Path $scriptsDest "validate_permission_baseline.py") -Confirm:$true -CustomMessage "✓ Permission-baseline validator installed at: $scriptsDest\validate_permission_baseline.py"
+    }
+
+    $triggerEvalsAllowlistSource = Join-Path $RepoRoot "scripts\run_trigger_evals.allowlist.json"
+    if (Test-Path $triggerEvalsAllowlistSource) {
+        Safe-Copy -Source $triggerEvalsAllowlistSource -Destination (Join-Path $scriptsDest "run_trigger_evals.allowlist.json") -Confirm:$true -CustomMessage "✓ Trigger-eval allowlist installed at: $scriptsDest\run_trigger_evals.allowlist.json"
+    }
+
+    # Copy the per-model prompting profile-layer scripts (v3.15.5 Phase 1). Mirror
+    # of the bash block in scripts\installer.sh. The structural schema gate for the
+    # model-prompting-research skill's profile layer, plus the ADVISORY
+    # roster-staleness checker. Both stdlib-only, no outbound call. They must land
+    # together: the freshness checker imports the bundle discovery and the
+    # canonical roster-hash definition from the validator beside it. The skill
+    # bundle itself auto-copies via the recursive skill-folder copy.
+    $profileSchemaSource = Join-Path $RepoRoot "scripts\verify_model_prompting_profiles.py"
+    if (Test-Path $profileSchemaSource) {
+        Safe-Copy -Source $profileSchemaSource -Destination (Join-Path $scriptsDest "verify_model_prompting_profiles.py") -Confirm:$true -CustomMessage "✓ Prompting-profile schema validator installed at: $scriptsDest\verify_model_prompting_profiles.py"
+    }
+    $profileFreshnessSource = Join-Path $RepoRoot "scripts\check_model_prompting_freshness.py"
+    if (Test-Path $profileFreshnessSource) {
+        Safe-Copy -Source $profileFreshnessSource -Destination (Join-Path $scriptsDest "check_model_prompting_freshness.py") -Confirm:$true -CustomMessage "✓ Prompting-profile freshness checker installed at: $scriptsDest\check_model_prompting_freshness.py"
     }
 
     # Copy .skill packager script (v1.2.0-wip / Phase 7 / A16). Produces a
@@ -2127,6 +2882,15 @@ function Install-Templates {
     if (Test-Path $verifySource) {
         Safe-Copy -Source $verifySource -Destination (Join-Path $scriptsDest "verify_install.py") -Confirm:$true -CustomMessage "✓ Install verifier installed at: $scriptsDest\verify_install.py"
     }
+    # setup_media_keys.py powers `nexus-hub setup-media`, the opt-in guided
+    # bring-your-own-key helper for optional stock-media API keys (Pexels, for
+    # stock video). Stdlib-only single .py (NI-v24-1, no .ps1 sibling -- the
+    # nexus-hub.cmd launcher covers Windows via nexus_hub_cli.py, where the
+    # setup-media subcommand is dispatched). Mirror of scripts\installer.sh.
+    $mediaSetupSource = Join-Path $RepoRoot "scripts\setup_media_keys.py"
+    if (Test-Path $mediaSetupSource) {
+        Safe-Copy -Source $mediaSetupSource -Destination (Join-Path $scriptsDest "setup_media_keys.py") -Confirm:$true -CustomMessage "✓ Media-key setup helper installed at: $scriptsDest\setup_media_keys.py"
+    }
     $manifestSource = Join-Path $RepoRoot "MANIFEST.sha256"
     if (Test-Path $manifestSource) {
         Safe-Copy -Source $manifestSource -Destination (Join-Path $nexusHome "MANIFEST.sha256") -Confirm:$true -CustomMessage "✓ Supply-chain manifest installed at: $nexusHome\MANIFEST.sha256"
@@ -2170,6 +2934,19 @@ function Install-Templates {
     $versionSyncSource = Join-Path $RepoRoot "scripts\check_version_sync.py"
     if (Test-Path $versionSyncSource) {
         Safe-Copy -Source $versionSyncSource -Destination (Join-Path $scriptsDest "check_version_sync.py") -Confirm:$true -CustomMessage "✓ Version-sync guard installed at: $scriptsDest\check_version_sync.py"
+    }
+    # check_release_preconditions.py (v3.17.6): release-flow guard. --pre-tag
+    # refuses to tag unless HEAD is the expected release branch AND matches its
+    # remote (the v3.17.5 mis-tag: a checkout failed on a locked directory and
+    # the tag was created on the wrong commit). --branches and --repo-settings
+    # report merged remote branches and delete_branch_on_merge, advisory only,
+    # deleting nothing. Stdlib-only, so it is a single cross-platform .py file
+    # with no .ps1 sibling (NI-v24-1 convention). Distributed because
+    # /update release ships to users and must not describe a check they lack.
+    # Mirror of the bash block in scripts\installer.sh.
+    $releasePrecondSource = Join-Path $RepoRoot "scripts\check_release_preconditions.py"
+    if (Test-Path $releasePrecondSource) {
+        Safe-Copy -Source $releasePrecondSource -Destination (Join-Path $scriptsDest "check_release_preconditions.py") -Confirm:$true -CustomMessage "✓ Release-preconditions guard installed at: $scriptsDest\check_release_preconditions.py"
     }
     # scan_skill_security.py (v3.0.0): thin CLI launcher for the
     # nexus-skill-scanner static skill-security engine (extensions\nexus-skill-scanner).
@@ -2239,10 +3016,14 @@ function Install-Templates {
     # in scripts\installer.sh. Lands the per-platform install hierarchy under
     # ~\.nexus-hub\scripts\lib\integrations\ so users can invoke the runner
     # standalone post-install.
-    $integrationsSrc = Join-Path $RepoRoot "scripts\lib\integrations"
-    $integrationsDest = Join-Path $scriptsDest "lib\integrations"
-    if (Test-Path $integrationsSrc) {
-        Safe-Folder-Copy -Source $integrationsSrc -Destination $integrationsDest -CustomMessage "✓ Integration registry installed at: $integrationsDest"
+    # v3.16.1 (NI-3): copy the WHOLE scripts\lib tree, not just integrations\.
+    # Six integration modules import from scripts\lib\installer\ (three at module
+    # top level), so copying only integrations\ produced an installed tree that
+    # looked importable and was not. Lockstep with the bash block.
+    $libSrc = Join-Path $RepoRoot "scripts\lib"
+    $libDest = Join-Path $scriptsDest "lib"
+    if (Test-Path $libSrc) {
+        Safe-Folder-Copy -Source $libSrc -Destination $libDest -CustomMessage "✓ Integration registry installed at: $(Join-Path $libDest 'integrations')"
     }
     $libInit = Join-Path $scriptsDest "lib\__init__.py"
     if ((Test-Path (Split-Path $libInit -Parent)) -and -not (Test-Path $libInit)) {
@@ -2301,6 +3082,27 @@ function Install-Templates {
         else {
             Write-Item -Message "✓ Python dependencies (python-docx, python-pptx) are available" -Color "DarkGreen"
         }
+
+        # v3.16.0 Phase 3: optional seeding dependencies. Platform install-time
+        # behavioral defaults (configs/platform-defaults.json) are seeded into each
+        # platform's own config. JSON targets use the stdlib; TOML targets need
+        # tomlkit (which round-trips a user's comments and layout rather than
+        # rewriting them) and YAML targets need PyYAML. Both are OPTIONAL: without
+        # them the affected platforms simply skip seeding with a one-line hint, so
+        # a missing library never breaks an install.
+        $savedErrorPref = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        & python -c "import tomlkit; import yaml" 2>$null | Out-Null
+        $seedDepCheck = $LASTEXITCODE
+        $ErrorActionPreference = $savedErrorPref
+
+        if ($seedDepCheck -ne 0) {
+            Write-Item -Message "Note: Install platform-defaults seeding deps with: pip install tomlkit PyYAML" -Color "Yellow"
+            Write-Item -Message "      (without them, TOML/YAML platform defaults are skipped; JSON platforms are unaffected)" -Color "Yellow"
+        }
+        else {
+            Write-Item -Message "✓ Python dependencies (tomlkit, PyYAML) are available" -Color "DarkGreen"
+        }
     }
 
     # v0.9.7: The interactive "Import custom Word/PowerPoint templates?" prompt has been
@@ -2320,7 +3122,7 @@ function Install-Templates {
     else {
         Write-Item -Message "  (none)" -Color "Gray"
     }
-    Write-Host ""
+    # No trailing blank: the next section banner prepends its own single blank.
 }
 
 
@@ -2340,8 +3142,7 @@ function Install-CliLauncher {
     $nexusHome = Join-Path $env:USERPROFILE ".nexus-hub"
     $binDest = Join-Path $nexusHome "bin"
 
-    Write-Host ""
-    Write-SubSectionBanner -Text "nexus-hub CLI"
+    Write-CenteredBanner -Text "NEXUS-HUB CLI"
     Write-Host ""
 
     # Installed-version marker (read by the CLI's --version and upgrade).
@@ -2369,7 +3170,6 @@ function Install-CliLauncher {
         Write-Item -Message "    [Environment]::SetEnvironmentVariable('PATH', `"`$([Environment]::GetEnvironmentVariable('PATH','User'));$binDest`", 'User')" -Color "Cyan"
         Write-Item -Message "  Until then, run it directly: $binDest\nexus-hub.cmd --version" -Color "Gray"
     }
-    Write-Host ""
 }
 
 
@@ -2388,8 +3188,9 @@ function Install-ProjectAutoseed {
     $hooksDest = Join-Path $nexusHome "hooks"
     $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
 
-    Write-Host ""
-    Write-SubSectionBanner -Text "Project auto-seed (Antigravity .agents/, Cursor, Claude)"
+    # A "· subsection" folded under the INSTALL VERIFICATION section: it is the
+    # project-scoped follow-up to any NEEDS-ACTION hints the verify step printed.
+    Write-SubSectionBanner -Text "Project seeding (this repo + other projects)"
     Write-Host ""
 
     # Ship the on-open hook script regardless of scope.
@@ -2565,6 +3366,9 @@ function Install-SkillDiscovery {
     if (Test-Path $codeSearchSrc) {
         if (Test-Path $codeSearchDest) { Remove-Item -Path $codeSearchDest -Recurse -Force }
         Copy-Item -Path $codeSearchSrc -Destination $codeSearchDest -Recurse -Force
+        # Repository-only measurement evidence must not reach user machines.
+        $codeSearchBenchmarks = Join-Path $codeSearchDest "benchmarks"
+        if (Test-Path $codeSearchBenchmarks) { Remove-Item -Path $codeSearchBenchmarks -Recurse -Force }
         if ($hasUv) {
             & uv pip install --python "$venvPath\Scripts\python.exe" -e $codeSearchDest 2>$null | Out-Null
         } else {
@@ -2605,6 +3409,23 @@ function Install-SkillDiscovery {
             & "$venvPath\Scripts\pip.exe" install -q -e "$contextCompressorDest[mcp]" 2>$null | Out-Null
         }
         Write-Item -Message "  nexus-context-compressor installed at $contextCompressorDest" -Color "DarkGreen"
+    }
+
+    # Install nexus-memory into the same venv (v3.19.1+). Local persistent
+    # agent-memory CLI. Stdlib only, zero outbound, not an MCP server. Dest
+    # is $nexusHome\nexus-memory so it does not collide with the default
+    # store root $nexusHome\memory.
+    $memorySrc = Join-Path $RepoRoot "extensions\nexus-memory"
+    $memoryDest = Join-Path $nexusHome "nexus-memory"
+    if (Test-Path $memorySrc) {
+        if (Test-Path $memoryDest) { Remove-Item -Path $memoryDest -Recurse -Force }
+        Copy-Item -Path $memorySrc -Destination $memoryDest -Recurse -Force
+        if ($hasUv) {
+            & uv pip install --python "$venvPath\Scripts\python.exe" -e "$memoryDest" 2>$null | Out-Null
+        } else {
+            & "$venvPath\Scripts\pip.exe" install -q -e "$memoryDest" 2>$null | Out-Null
+        }
+        Write-Item -Message "  nexus-memory installed at $memoryDest" -Color "DarkGreen"
     }
     $ErrorActionPreference = "Stop"
 
@@ -2699,24 +3520,34 @@ function Write-NexusBanner {
 # (and necessary) to re-run on every install, including for users who
 # migrated ~/.devai-hub/ in an earlier installer run.
 function Remove-LegacyVSCodeExtensions {
-    $codeCmd = Get-Command "code" -ErrorAction SilentlyContinue
-    if (-not $codeCmd) { return }
-    $installed = & code --list-extensions 2>$null
-    if ($LASTEXITCODE -ne 0 -or -not $installed) { return }
+    # nexus-hub.github-usage-monitor was WITHDRAWN in v3.18.2. It reconstructed the
+    # included-usage meter from data GitHub does not publish, and could report a
+    # confident 0% against an exhausted allowance. Leaving it installed keeps that
+    # wrong number on a user's status bar forever, so it is actively uninstalled
+    # rather than merely unshipped.
+    $legacyIds = @("devai-hub.claude-usage-monitor", "nexus-hub.github-usage-monitor")
 
-    $legacyIds = @("devai-hub.claude-usage-monitor")
+    # Both hosts, not just VS Code. The GitHub monitor was the one dual-host
+    # monitor, installed to Cursor as well, so a VS Code-only sweep would leave the
+    # Cursor copy running.
     $emitted = $false
-    foreach ($id in $legacyIds) {
-        if ($installed -contains $id) {
-            if (-not $emitted) { Write-Host "" }
-            Write-Host "  Removing legacy VS Code extension: $id" -ForegroundColor Yellow
-            & code --uninstall-extension $id 2>$null | Out-Null
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "  ✓ Removed $id" -ForegroundColor Green
-            } else {
-                Write-Host "  ⚠ Could not auto-remove $id (uninstall it manually from VS Code)" -ForegroundColor Yellow
+    foreach ($cli in @("code", "cursor")) {
+        $cliCmd = Get-Command $cli -ErrorAction SilentlyContinue
+        if (-not $cliCmd) { continue }
+        $installed = & $cli --list-extensions 2>$null
+        if ($LASTEXITCODE -ne 0 -or -not $installed) { continue }
+        foreach ($id in $legacyIds) {
+            if ($installed -contains $id) {
+                if (-not $emitted) { Write-Host "" }
+                Write-Host "  Removing retired extension from ${cli}: $id" -ForegroundColor Yellow
+                & $cli --uninstall-extension $id 2>$null | Out-Null
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "  [OK] Removed $id from $cli" -ForegroundColor Green
+                } else {
+                    Write-Host "  [!] Could not auto-remove $id (uninstall it manually from $cli)" -ForegroundColor Yellow
+                }
+                $emitted = $true
             }
-            $emitted = $true
         }
     }
     if ($emitted) { Write-Host "" }
@@ -2854,6 +3685,184 @@ if ($Branch -and $env:NEXUS_HUB_BRANCH_RESOLVED -ne "1") {
     exit $LASTEXITCODE
 }
 
+# --- nexus-hub doctor (v3.16.2 Phase 5) ---------------------------------
+#
+# Sibling of run_doctor() in installer.sh. Behavior and EXIT CODES must match
+# the Bash version for the same machine state; that parity is asserted by test
+# (tests/installer/test_doctor_parity.py), not assumed from this file existing.
+# Both backfilled incidents in docs/incidents/ are about exactly this class of
+# change, and their durable fixes are requirements here.
+#
+# Native equivalents rather than emulated shell mechanics: ConvertFrom-Json
+# instead of a jq dependency, and [System.IO.File]::ReadAllText for the
+# contains-check. Nothing is written, so the UTF8Encoding/BOM hazard that
+# produced the v3.15.6 divergence cannot arise here -- a read-only command has
+# no encoding surface.
+#
+# NETWORK: none. Do not add one; it is what keeps this `re-full` under the MCP
+# Registry Policy.
+#
+# Exit codes: 0 every detected platform complete, 1 at least one incomplete,
+# 2 the contract could not be read or parsed (never a false CLEAR).
+function Resolve-DoctorContractPath {
+    # NEXUS_DOCTOR_CONTRACT pins the contract explicitly, mirroring the Bash
+    # override. When set it is used even if absent, so the fail-loud path stays
+    # testable.
+    if ($env:NEXUS_DOCTOR_CONTRACT) { return $env:NEXUS_DOCTOR_CONTRACT }
+    $candidates = @(
+        (Join-Path $repoRoot "docs\policy\platform-read-contracts.json"),
+        (Join-Path $HOME ".nexus-hub\src\docs\policy\platform-read-contracts.json"),
+        (Join-Path $HOME ".nexus-hub\docs\policy\platform-read-contracts.json")
+    )
+    foreach ($c in $candidates) {
+        if (Test-Path -LiteralPath $c -PathType Leaf) { return $c }
+    }
+    return $null
+}
+
+function Resolve-DoctorPath {
+    param([string]$Spec, [string]$TargetRoot)
+    if ($Spec.StartsWith("~/")) { return (Join-Path $HOME $Spec.Substring(2)) }
+    if ($Spec.StartsWith("{project}/")) { return (Join-Path $TargetRoot $Spec.Substring(10)) }
+    return $Spec
+}
+
+function Test-DoctorSurface {
+    param([string]$Kind, [string]$Path, [string]$Needle)
+    switch ($Kind) {
+        "nonempty_dir" {
+            if (-not (Test-Path -LiteralPath $Path -PathType Container)) { return $false }
+            # An existing but EMPTY directory is a failed surface: it surfaces
+            # nothing to the platform that reads it.
+            $entries = @(Get-ChildItem -LiteralPath $Path -Force -ErrorAction SilentlyContinue)
+            return ($entries.Count -gt 0)
+        }
+        "is_file" { return (Test-Path -LiteralPath $Path -PathType Leaf) }
+        "file_contains" {
+            if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $false }
+            try { $text = [System.IO.File]::ReadAllText($Path) } catch { return $false }
+            return $text.Contains($Needle)
+        }
+        default {
+            # An unknown kind is a contract this doctor does not understand.
+            # Fail it, so a contract addition cannot silently widen CLEAR.
+            return $false
+        }
+    }
+}
+
+function Invoke-NexusDoctor {
+    param([string[]]$DoctorArgs)
+
+    $targetRoot = (Get-Location).Path
+    $showRepair = $false
+    for ($i = 0; $i -lt $DoctorArgs.Count; $i++) {
+        $a = $DoctorArgs[$i]
+        if ($a -eq "--target") { $targetRoot = $DoctorArgs[$i + 1]; $i++ }
+        elseif ($a -like "--target=*") { $targetRoot = $a.Substring(9) }
+        elseif ($a -eq "--repair") { $showRepair = $true }
+        else {
+            [Console]::Error.WriteLine("doctor: unknown argument: $a")
+            return 2
+        }
+    }
+
+    $json = Resolve-DoctorContractPath
+    if (-not $json) {
+        [Console]::Error.WriteLine("[doctor] FATAL: platform read-contract not found.")
+        [Console]::Error.WriteLine("         Looked in the repo checkout and ~/.nexus-hub/.")
+        [Console]::Error.WriteLine("         Refusing to report a result without the contract.")
+        return 2
+    }
+    if (-not (Test-Path -LiteralPath $json -PathType Leaf)) {
+        [Console]::Error.WriteLine("[doctor] FATAL: could not parse $json")
+        [Console]::Error.WriteLine("         Refusing to report CLEAR on an unreadable contract.")
+        return 2
+    }
+    try {
+        $data = [System.IO.File]::ReadAllText($json) | ConvertFrom-Json
+    } catch {
+        [Console]::Error.WriteLine("[doctor] FATAL: could not parse $json")
+        [Console]::Error.WriteLine("         Refusing to report CLEAR on an unreadable contract.")
+        return 2
+    }
+    $entries = $data.install_verify
+    if (-not $entries -or @($entries).Count -eq 0) {
+        [Console]::Error.WriteLine("[doctor] FATAL: install_verify block is empty or missing in $json")
+        return 2
+    }
+
+    Write-Host "[doctor] contract: $json"
+    Write-Host "[doctor] project:  $targetRoot"
+    Write-Host ""
+
+    $nPass = 0; $nFail = 0; $nSkip = 0
+    $repairLines = @()
+
+    foreach ($entry in @($entries)) {
+        $label = [string]$entry.label
+        $detected = $false
+        foreach ($d in @($entry.detect)) {
+            if (-not $d) { continue }
+            if (Test-Path -LiteralPath (Resolve-DoctorPath -Spec ([string]$d) -TargetRoot $targetRoot)) {
+                $detected = $true
+                break
+            }
+        }
+        if (-not $detected) {
+            Write-Host ("  SKIP  {0,-38} not installed on this machine" -f $label)
+            $nSkip++
+            continue
+        }
+        $parts = @()
+        $anyMissing = $false
+        foreach ($s in @($entry.surfaces)) {
+            $resolved = Resolve-DoctorPath -Spec ([string]$s.path) -TargetRoot $targetRoot
+            $needle = if ($null -ne $s.needle) { [string]$s.needle } else { "" }
+            $ok = Test-DoctorSurface -Kind ([string]$s.kind) -Path $resolved -Needle $needle
+            if ($ok) { $parts += ("{0}:ok" -f $s.label) }
+            else { $parts += ("{0}:MISSING" -f $s.label); $anyMissing = $true }
+        }
+        $detail = ($parts -join ", ")
+        if ($anyMissing) {
+            Write-Host ("  FAIL  {0,-38} {1}" -f $label, $detail)
+            if ($entry.remediation) {
+                Write-Host ("        -> {0}" -f $entry.remediation)
+                $repairLines += ("{0}: {1}" -f $label, $entry.remediation)
+            }
+            $nFail++
+        } else {
+            Write-Host ("  PASS  {0,-38} {1}" -f $label, $detail)
+            $nPass++
+        }
+    }
+
+    Write-Host ""
+    Write-Host "[doctor] $nPass complete, $nFail incomplete, $nSkip not installed."
+
+    if ($nFail -gt 0) {
+        if ($showRepair) {
+            Write-Host ""
+            Write-Host "[doctor] --repair: the following would fix the failures above."
+            Write-Host "[doctor] NOTHING WAS CHANGED. Run these yourself:"
+            foreach ($line in $repairLines) { Write-Host ("         {0}" -f $line) }
+        } else {
+            Write-Host "[doctor] re-run with --repair to print the remediation commands."
+        }
+        return 1
+    }
+    Write-Host "[doctor] every detected platform surfaces the catalog."
+    return 0
+}
+
+# `doctor` is self-contained: it reads the contract and evaluates every surface
+# in this script, so it runs even where the Python runner is unavailable.
+if ($Subcommand -eq "doctor") {
+    $doctorArgs = @()
+    if ($SubcommandArgs) { $doctorArgs = $SubcommandArgs }
+    exit (Invoke-NexusDoctor -DoctorArgs $doctorArgs)
+}
+
 # Read-only subcommand dispatch (init / -PrintConfig / -Check) - bypass the
 # interactive scope menu and proxy to the Python runner so they are pipeable /
 # scriptable.
@@ -2869,6 +3878,24 @@ if ($Subcommand -eq "init" -or $PrintConfig -or $Check) {
         exit 2
     }
     if ($Subcommand -eq "init") {
+        # v3.15.6 / HO-2: declare installer-owned intent for the
+        # escalation-trigger carve-out, which suppresses the sensitive-path
+        # advisory for the project surfaces `init` legitimately writes
+        # (.claude/settings.json, .cursor/rules, .agents/, .github/skills).
+        # Mirrors the bash installer.
+        #
+        # Scope this honestly. Claude Code's PreToolUse Write/Edit hooks observe
+        # the AGENT's tool calls, not this process, so `init`'s own writes never
+        # reach that hook and were never going to warn. What this buys is an
+        # explicit intent marker for any hook chain that DOES wrap the installer,
+        # and lockstep with installer.sh. The carve-out's practical consumer is an
+        # operator setting the same variable for a deliberate setup pass.
+        #
+        # It is NOT a security control: an agent can set this variable itself, so
+        # it is self-asserted. That is acceptable only because the hook is
+        # advisory, so the carve-out suppresses a warning and never grants a
+        # capability. Do not promote it to a boundary.
+        $env:NEXUS_HUB_INIT = "1"
         $passthrough = @("init")
         if ($SubcommandArgs) { $passthrough += $SubcommandArgs }
         & $py $runner @passthrough
@@ -2888,6 +3915,17 @@ $script:TempFiles = @()
 
 # Validate -Platforms into the internal platform-key set (empty/absent = all).
 $script:SelectedPlatforms = Resolve-Platforms -PlatformsArg $Platforms
+
+# --- Resolve the install selection (v3.16.1 Phase 6.2) -------------------
+# Deliberately beside the -Platforms validation above and BEFORE any write: an
+# invalid selector must never leave a half-installed tree. A run with no
+# selector returns immediately and takes the identical path it always did.
+Resolve-Selection -RepoRoot $repoRoot
+if ($script:SelectionActive) {
+    Write-Host ""
+    Write-Host "Selection: $($script:SelectionSkillCount) skills, $($script:SelectionCmdCount) commands, $($script:SelectionAgentCount) agents"
+    Write-Host "           $($script:SelectionHash)"
+}
 
 # Resolve the assume-yes / overwrite decision. -Yes or -Force force it; a
 # non-interactive stdin (piped irm|iex, CI) also implies it. In that case
@@ -2925,6 +3963,12 @@ else {
     Install-Global -RepoRoot $repoRoot
 }
 
+# CROSS-PLATFORM TOOLS: for a global install this header (plus the skill-discovery
+# and git-hook subsections) was already opened inside Install-Global; a workspace
+# install skips those global-only tools, so open the header here so the report
+# templates below still render under a section rather than orphaned.
+if ($scopeLabel -eq "Workspace") { Write-CenteredBanner -Text "CROSS-PLATFORM TOOLS" }
+
 # Bundled report-generator templates + scripts are user-scope and always install silently.
 # Interactive custom-template import moved to /research report at use time (v0.9.7).
 Install-Templates -RepoRoot $repoRoot
@@ -2932,22 +3976,23 @@ Install-Templates -RepoRoot $repoRoot
 # Install the nexus-hub CLI launcher + version marker (v3.7.0 Phase 3).
 Install-CliLauncher -RepoRoot $repoRoot
 
-# Project auto-seed + on-open hook (v3.11.0 Phase 7.3): seed the current repo on a
-# global install run from inside it, ship the opt-in on-open hook, and surface
-# `nexus-hub init` for other projects.
-Install-ProjectAutoseed -RepoRoot $repoRoot -ScopeLabel $scopeLabel
-
+# --- INSTALL VERIFICATION (with project seeding folded in) ---
 # Post-install per-platform verification (v3.11.0 Phase 7.4): report PASS /
 # NEEDS-ACTION per detected platform against its real read-path (advisory).
+Write-CenteredBanner -Text "INSTALL VERIFICATION"
 $verifyRunner = Join-Path $repoRoot "scripts\lib\integrations\runner.py"
 $pyVerify = $null
 foreach ($c in @("python", "py", "python3")) { if (Get-Command $c -ErrorAction SilentlyContinue) { $pyVerify = $c; break } }
 if ($pyVerify -and (Test-Path $verifyRunner)) {
-    Write-Host ""
-    Write-SubSectionBanner -Text "Install verification"
     if ($pyVerify -eq "py") { & $pyVerify -3 $verifyRunner verify --target (Get-Location).Path 2>$null }
     else { & $pyVerify $verifyRunner verify --target (Get-Location).Path 2>$null }
 }
+
+# Project seeding (v3.11.0 Phase 7.3): seed the current repo on a global install
+# run from inside it, ship the opt-in on-open hook, and surface `nexus-hub init`
+# for other projects. Folded under INSTALL VERIFICATION as the project-scoped
+# follow-up to any NEEDS-ACTION hints above.
+Install-ProjectAutoseed -RepoRoot $repoRoot -ScopeLabel $scopeLabel
 
 # Resolve any managed-file conflicts collected during an interactive install
 # (single end-of-run prompt). No-op on the non-interactive / -Yes / -Force path.
@@ -2962,6 +4007,24 @@ Write-Host ""
 Write-Host "✓ Nexus-Hub v$script:NexusHubVersion installed ($scopeLabel scope)." -ForegroundColor Green
 Write-Host ""
 Write-Host "Restart any running AI assistant sessions (Claude Code, Cursor, Gemini CLI, Codex, Copilot, OpenCode) so they pick up the new settings, hooks, skills, and rules." -ForegroundColor Yellow
+
+# v3.16.1: remove the filtered-selection staging tree. Bash does this with
+# `trap cleanup_selection_stage EXIT`; PowerShell has no script-scope equivalent,
+# so it is called on the normal completion path. Without it the stage leaked a
+# full copy of the selected skills into %TEMP% on every focused install.
+#
+# A `Register-EngineEvent PowerShell.Exiting` handler was considered to cover the
+# early-`exit` paths and deliberately NOT shipped: engine-event actions run in a
+# separate scope where the `$script:`-scoped stage path is not reliably visible,
+# and an unverifiable cleanup is worse than a documented gap.
+#
+# The residual is real but bounded, and measured rather than assumed: an `exit`
+# that happens AFTER Resolve-Selection leaves one stage behind. The workspace
+# validation ("Workspace path not found") is one such path, observed leaking a
+# stage during v3.16.1 testing. The stage lives under %TEMP%, which the OS
+# reclaims, and the normal completion path below cleans up (verified: stage
+# count unchanged across a successful focused install).
+Remove-SelectionStage
 
 Show-FarewellBanner
 # Pause is itself a prompt -- skip it on the non-interactive / -Yes / -Force /

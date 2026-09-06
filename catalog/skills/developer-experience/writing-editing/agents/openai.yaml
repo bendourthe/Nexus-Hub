@@ -1,4 +1,4 @@
 interface:
   display_name: Writing & Editing
-  short_description: 'Professional writing and editing principles for clear, concise documentation and prose. Use when asked to write, edit, rewrite, or review documents, README files, reports, blog posts,
-    or any non-code '
+  short_description: Professional writing and editing principles for clear, concise documentation and prose. Use when asked to write, edit, rewrite, or review documents, README files, reports, blog posts,
+    or any non-code text content.

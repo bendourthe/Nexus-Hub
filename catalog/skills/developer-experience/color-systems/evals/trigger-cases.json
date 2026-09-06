@@ -1,0 +1,12 @@
+{
+  "skill": "color-systems",
+  "purpose": "Route palette construction, OKLCH, and contrast measurement here instead of applying supplied brand tokens or grading WCAG severity.",
+  "cases": [
+    {"id": "pos-oklch", "prompt": "build an OKLCH palette with even lightness steps", "should_trigger": true, "assert": "routes to color-systems first", "lexical": true},
+    {"id": "pos-measure", "prompt": "measure this contrast pair and remediate the colors", "should_trigger": true, "assert": "routes to color-systems first", "lexical": true},
+    {"id": "pos-gamut", "prompt": "add sRGB fallbacks for these out-of-gamut OKLCH tokens", "should_trigger": true, "assert": "routes to color-systems first", "lexical": true},
+    {"id": "neg-brand", "prompt": "apply our brand tokens from the company brand kit", "should_trigger": false, "assert": "routes to brand-styling, not here", "lexical": true},
+    {"id": "neg-theme", "prompt": "apply a curated theme-tokens palette to this slide deck", "should_trigger": false, "assert": "routes to theme-tokens, not here", "lexical": true},
+    {"id": "neg-severity", "prompt": "decide whether this contrast miss is a WCAG blocker for screen readers", "should_trigger": false, "assert": "routes to accessibility-engineering, not here", "lexical": true}
+  ]
+}

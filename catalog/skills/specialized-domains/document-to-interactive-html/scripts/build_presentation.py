@@ -26,6 +26,7 @@ Usage:
     python build_presentation.py model.json -o deck.html
     python build_presentation.py model.json -o deck.html --theme my-brand.json
     python build_presentation.py model.json -o deck.html --title "Q3 Review"
+    python build_presentation.py model.json -o deck.html --layout full
 
 All diagnostics go to stderr; the only stdout is none (the artifact is the file).
 Output is deterministic: section order, block order, and chart geometry are a
@@ -35,6 +36,7 @@ pure function of the input model and theme.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html
 import json
 import math
@@ -60,10 +62,33 @@ SUPPORTED_KINDS = {
 THEME_BLOCK_RE = re.compile(
     r"/\* NEXUS_THEME_START.*?\*/.*?/\* NEXUS_THEME_END \*/", re.DOTALL
 )
+ASPECT_BLOCK_RE = re.compile(
+    r"/\* NEXUS_ASPECT_START.*?\*/.*?/\* NEXUS_ASPECT_END \*/", re.DOTALL
+)
 SLIDES_RE = re.compile(
     r"(<!-- NEXUS_SLIDES_START -->).*?(<!-- NEXUS_SLIDES_END -->)", re.DOTALL
 )
-TITLE_RE = re.compile(r"<title>.*?</title>", re.DOTALL)
+# DEVIATION (Phase 1.3): the title content must not contain "<", so this match
+# cannot span from the header comment's literal "<title>" mention across the
+# head to the real </title> (which the prior DOTALL `.*?` did, deleting the
+# comment close, <html>, <head>, and the <meta> tags). [^<]* keeps the match to
+# a single well-formed title element.
+TITLE_RE = re.compile(r"<title>[^<]*</title>")
+HTML_TAG_RE = re.compile(r"<html\b[^>]*>", re.IGNORECASE)
+
+# Output-aspect canvas presets. Each maps a --layout value to the
+# (--page-max, --gutter) pair the builder injects into the template's
+# NEXUS_ASPECT block; the builder also stamps data-aspect on <html>. "standard"
+# reproduces the historical centered column; "full" is a true edge-to-edge
+# canvas (page-max 100% with small gutters, so the widest content band clears
+# ~95% of a 1920px viewport); "portrait" is a narrow reading column. --measure
+# stays scoped to prose only and is never set here or on the slide wrapper.
+ASPECTS: dict[str, tuple[str, str]] = {
+    "full": ("100%", "clamp(1rem, 2vw, 2rem)"),
+    "standard": ("1180px", "clamp(24px, 7vw, 140px)"),
+    "portrait": ("46rem", "clamp(20px, 6vw, 72px)"),
+}
+DEFAULT_LAYOUT = "standard"
 
 # A fetch is a construct that loads a resource off-host. Plain URL text in a
 # slide body is escaped and lives in element content, so it is not a fetch.
@@ -94,12 +119,25 @@ def _esc_attr(text: object) -> str:
     return html.escape(str(text), quote=True)
 
 
+_HEX_COLOR_RE = re.compile(r"#[0-9A-Fa-f]{3,8}\Z")
+
+
+def _safe_color(value: object) -> str | None:
+    """Return `value` only when it is a strict #hex color (3-8 hex digits),
+    else None. Annotation colors flow into a `style="..."` attribute, so a value
+    that is not a plain hex color is dropped rather than interpolated, closing
+    the attribute-context injection path (the model is a general input contract,
+    not only the trusted extractor output)."""
+    text = str(value or "")
+    return text if _HEX_COLOR_RE.fullmatch(text) else None
+
+
 def _fmt_num(value: float) -> str:
     """Format a number without a trailing .0 (3.0 -> '3', 1.25 -> '1.25')."""
     number = float(value)
     if number == int(number):
         return str(int(number))
-    return ("%.2f" % number).rstrip("0").rstrip(".")
+    return f"{number:.2f}".rstrip("0").rstrip(".")
 
 
 # --- theme merge + CSS emission --------------------------------------------
@@ -146,8 +184,22 @@ def theme_to_css(theme: dict) -> str:
     fonts = theme.get("fonts", {})
     spaces = _space_values(theme.get("spacing", {}))
     lines = ["/* NEXUS_THEME_START */"]
-    for slot in ("primary", "secondary", "accent", "background", "foreground", "muted"):
-        lines.append(f"  --color-{slot}: {palette.get(slot, '#1c1c1c')};")
+    # The template CSS references --color-bg / --color-fg (and primary /
+    # secondary / accent / muted), so emit those exact names, mapping the
+    # theme's `background` / `foreground` palette keys to `bg` / `fg`. Emitting
+    # --color-background / --color-foreground left those two vars undefined in
+    # the built output, so the body lost its theme background / foreground
+    # colors (BG-1, resolved in v3.15.4 Phase 7).
+    color_vars = {
+        "primary": "primary",
+        "secondary": "secondary",
+        "accent": "accent",
+        "background": "bg",
+        "foreground": "fg",
+        "muted": "muted",
+    }
+    for slot, var in color_vars.items():
+        lines.append(f"  --color-{var}: {palette.get(slot, '#1c1c1c')};")
     lines.append(f"  --font-heading: {fonts.get('heading', 'Georgia, serif')};")
     lines.append(f"  --font-body: {fonts.get('body', 'system-ui, sans-serif')};")
     lines.append(f"  --font-mono: {fonts.get('mono', 'monospace')};")
@@ -157,6 +209,32 @@ def theme_to_css(theme: dict) -> str:
     lines.append(f"  --shadow: {theme.get('shadow', 'none')};")
     lines.append("  /* NEXUS_THEME_END */")
     return "\n  ".join(lines)
+
+
+def aspect_to_css(layout: str) -> str:
+    """Render the NEXUS_ASPECT custom-property block for the chosen layout."""
+    page_max, gutter = ASPECTS.get(layout, ASPECTS[DEFAULT_LAYOUT])
+    lines = [
+        "/* NEXUS_ASPECT_START */",
+        f"  --page-max: {page_max};",
+        f"  --gutter: {gutter};",
+        "  /* NEXUS_ASPECT_END */",
+    ]
+    return "\n  ".join(lines)
+
+
+def set_aspect_attr(html_text: str, layout: str) -> str:
+    """Stamp data-aspect=<layout> on the root <html> element (first tag only)."""
+
+    def _replace(match: re.Match) -> str:
+        tag = match.group(0)
+        if "data-aspect=" in tag:
+            return re.sub(
+                r'data-aspect="[^"]*"', f'data-aspect="{layout}"', tag, count=1
+            )
+        return tag[:-1] + f' data-aspect="{layout}">'
+
+    return HTML_TAG_RE.sub(_replace, html_text, count=1)
 
 
 def _chart_colors(theme: dict, count: int) -> list[str]:
@@ -273,8 +351,10 @@ def _svg_pie(categories: list, values: list, colors: list, doughnut: bool) -> st
     radius = 132
     total = sum(float(v) for v in values) or 1.0
     parts = [
-        f'<svg viewBox="0 0 {size} {size}" role="img" '
-        f'aria-label="{"Doughnut" if doughnut else "Pie"} chart">'
+        (
+            f'<svg viewBox="0 0 {size} {size}" role="img" '
+            f'aria-label="{"Doughnut" if doughnut else "Pie"} chart">'
+        )
     ]
     if doughnut:
         circumference = 2 * math.pi * radius
@@ -360,8 +440,7 @@ def _render_bullets(items: list) -> str:
     for item in items:
         text = _esc(str(item.get("text", "")).strip())
         depth = max(0, int(item.get("depth", 0) or 0))
-        if depth > prev + 1:
-            depth = prev + 1
+        depth = min(depth, prev + 1)
         if first:
             out.append("<li>" + text)
             first = False
@@ -391,6 +470,64 @@ def _render_table(block: dict) -> str:
     return "".join(parts)
 
 
+def _render_annotated_figure(uri: str, alt: str, annotations: list, caption: str) -> str:
+    """Recreate an annotated figure: the base image plus a registered overlay
+    layer (regions positioned by image-relative percentage coords), a legend,
+    and a CSS-only view-original toggle. Offline, no JS (see the overlay-
+    recreation pattern in references/figure-reconstruction.md part 5)."""
+    toggle_id = "figorig-" + hashlib.md5(
+        json.dumps(annotations, sort_keys=True).encode("utf-8")
+    ).hexdigest()[:10]
+    regions: list[str] = []
+    legend: list[tuple[str, str | None]] = []
+    for annotation in annotations:
+        bbox = list(annotation.get("bbox") or []) + [0.0, 0.0, 0.0, 0.0]
+        x, y, w, h = (float(value) for value in bbox[:4])
+        label = str(annotation.get("text", "") or "")
+        group = str(annotation.get("group", "") or "")
+        fill = _safe_color(annotation.get("fill"))  # dropped unless a strict #hex
+        style = (
+            f"left:{x * 100:.2f}%;top:{y * 100:.2f}%;"
+            f"width:{w * 100:.2f}%;height:{h * 100:.2f}%"
+        )
+        if fill:
+            style += f";--region-color:{fill}"
+        label_html = (
+            f'<span class="fig-region__label">{_esc(label)}</span>' if label else ""
+        )
+        group_attr = f' data-group="{_esc_attr(group)}"' if group else ""
+        regions.append(
+            f'<div class="fig-region" style="{style}" tabindex="0"{group_attr} '
+            f'role="img" aria-label="{_esc_attr(label or "annotated region")}">'
+            f"{label_html}</div>"
+        )
+        key = label or group
+        if key and key not in [item[0] for item in legend]:
+            legend.append((key, fill))
+    legend_html = ""
+    if legend:
+        items = "".join(
+            f'<li><span class="fig-legend__swatch" '
+            f'style="{("background:" + color) if color else ""}"></span>'
+            f"{_esc(key)}</li>"
+            for key, color in legend
+        )
+        legend_html = f'<ul class="fig-legend">{items}</ul>'
+    return (
+        '<figure class="fig-annotated">'
+        f'<input type="checkbox" id="{toggle_id}" class="fig-toggle" hidden>'
+        '<div class="fig-figure">'
+        f'<img src="{_esc_attr(uri)}" alt="{_esc_attr(alt)}">'
+        f'<div class="fig-overlay">{"".join(regions)}</div>'
+        '<span class="fig-provenance">recreated from source figure</span>'
+        "</div>"
+        f"{legend_html}"
+        f'<label class="fig-view-original" for="{toggle_id}">View original</label>'
+        f"{caption}"
+        "</figure>"
+    )
+
+
 def _render_image(block: dict) -> str:
     uri = str(block.get("data_uri", ""))
     if not uri.startswith("data:"):
@@ -399,6 +536,9 @@ def _render_image(block: dict) -> str:
     caption = ""
     if alt and alt != "Image":
         caption = f"<figcaption>{_esc(alt)}</figcaption>"
+    annotations = block.get("annotations") or []
+    if annotations:
+        return _render_annotated_figure(uri, alt, annotations, caption)
     return (
         f'<figure><img src="{_esc_attr(uri)}" alt="{_esc_attr(alt)}">{caption}</figure>'
     )
@@ -440,8 +580,10 @@ def render_section(section: dict, index: int, theme: dict) -> str:
     heading = section.get("heading", "") or ""
     subheading = section.get("subheading")
     parts = [
-        f'<section class="slide slide--{kind}" data-kind="{kind}" '
-        f'aria-roledescription="slide">',
+        (
+            f'<section class="slide slide--{kind}" data-kind="{kind}" '
+            f'aria-roledescription="slide">'
+        ),
         '<div class="slide__body">',
     ]
     if heading:
@@ -499,8 +641,14 @@ def assert_no_external(html_text: str) -> None:
         raise SystemExit(3)
 
 
-def build_html(model: dict, theme: dict, template_text: str, title: str) -> str:
-    """Populate the template's title, theme block, and slides region."""
+def build_html(
+    model: dict,
+    theme: dict,
+    template_text: str,
+    title: str,
+    layout: str = DEFAULT_LAYOUT,
+) -> str:
+    """Populate the template's title, theme block, aspect block, and slides."""
     css = theme_to_css(theme)
     slides = render_slides(model, theme)
     safe_title = _esc(title)
@@ -508,6 +656,8 @@ def build_html(model: dict, theme: dict, template_text: str, title: str) -> str:
         lambda _m: f"<title>{safe_title}</title>", template_text, count=1
     )
     result = THEME_BLOCK_RE.sub(lambda _m: css, result, count=1)
+    result = ASPECT_BLOCK_RE.sub(lambda _m: aspect_to_css(layout), result, count=1)
+    result = set_aspect_attr(result, layout)
     result = SLIDES_RE.sub(
         lambda m: f"{m.group(1)}\n{slides}\n{m.group(2)}", result, count=1
     )
@@ -540,6 +690,14 @@ def main(argv: list | None = None) -> int:
     parser.add_argument(
         "--title", default=None, help="Override the presentation title."
     )
+    parser.add_argument(
+        "--layout",
+        choices=sorted(ASPECTS),
+        default=DEFAULT_LAYOUT,
+        help="Output aspect / canvas: 'full' (edge-to-edge, page-max 100%), "
+        "'standard' (centered column, the default), or 'portrait' (narrow "
+        "reading column). Sets data-aspect and the injected --page-max/--gutter.",
+    )
     args = parser.parse_args(argv)
 
     model_path = Path(args.model)
@@ -566,7 +724,7 @@ def main(argv: list | None = None) -> int:
     theme = load_theme(Path(args.theme) if args.theme else None)
     title = args.title or model.get("title", "Presentation")
 
-    output = build_html(model, theme, template_text, title)
+    output = build_html(model, theme, template_text, title, args.layout)
     assert_no_external(output)
 
     out_path = Path(args.out)

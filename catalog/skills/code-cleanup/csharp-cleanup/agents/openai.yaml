@@ -1,4 +1,4 @@
 interface:
   display_name: C# Code Cleanup
   short_description: Modernize async patterns, optimize LINQ usage, update .NET APIs, and clean up C# codebases. Use when cleaning up C# projects, removing unused using directives, modernizing legacy .NET
-    code, or improvi
+    code, or improving code maintainability.

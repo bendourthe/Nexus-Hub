@@ -1,0 +1,7 @@
+node_modules/
+out/
+coverage/
+*.vsix
+fonts/*.ttf
+fonts/*.svg
+.fantasticonrc.json

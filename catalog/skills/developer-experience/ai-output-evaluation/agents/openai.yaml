@@ -1,4 +1,4 @@
 interface:
   display_name: AI Output Evaluation
   short_description: Evaluate AI-generated output quality using LLM-as-judge techniques, multi-dimensional rubrics, and bias mitigation. Use when building AI-powered features that need quality assurance,
-    evaluating genera
+    evaluating generated code or documentation, or designing automated review pipelines.

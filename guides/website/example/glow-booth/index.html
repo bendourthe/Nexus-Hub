@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Glow Booth</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="booth">
+    <h1>Glow Booth</h1>
+    <p>Tap five poses. A perfect set should fill every stamp.</p>
+    <div id="stage">Tap a pose</div>
+    <div id="strip">
+      <button type="button" data-pose="dawn">Dawn</button>
+      <button type="button" data-pose="neon">Neon</button>
+      <button type="button" data-pose="forest">Forest</button>
+      <button type="button" data-pose="studio">Studio</button>
+      <button type="button" data-pose="spark">Spark</button>
+    </div>
+    <p id="meter">0 / 5 stamps</p>
+    <button type="button" id="restart">Restart</button>
+  </main>
+  <script src="poses.js"></script>
+  <script src="logic.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

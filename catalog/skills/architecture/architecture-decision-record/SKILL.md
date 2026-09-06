@@ -1,8 +1,8 @@
 ---
 name: architecture-decision-record
-description: Produce a single Architecture Decision Record (ADR) capturing one architecturally-significant decision, its context, the options considered, the chosen option, and the consequences. Make sure to use this skill whenever the user mentions ADR, architecture decision record, architecture decision, record this decision, document this decision, MADR, Nygard ADR, decision log, design decision writeup, or asks to capture the rationale behind a choice with long-term architectural impact. SKIP: full architecture design from scratch (use `architecture-design`), general technical documentation (use `technical-documentation`), API contract design narrower than architecture-level (use `api-design`), product or feature requirements (use `business-analyst` or `product-manager`).
-summary_l0: "Author one architecturally-significant decision record with context, options, decision, status, and consequences"
-overview_l1: "This skill produces one Architecture Decision Record -- a short, durable document that captures a single architecturally-significant decision and its rationale. It supports both MADR (Markdown Any Decision Records) and Nygard templates, helps the user pick between them based on team conventions, and enforces a status lifecycle (Proposed -> Accepted -> Deprecated -> Superseded). The output documents the context that forced the decision, at least two alternatives with rejection rationale, the chosen option, the consequences (positive AND negative), the risks, and metadata (date, author, ID). It is for decisions you want a future engineer to be able to look up six months from now -- not for routine implementation choices. Trigger phrases: ADR, architecture decision record, architecture decision, MADR, Nygard ADR, decision log."
+description: "Produce a single Architecture Decision Record (ADR) capturing one architecturally-significant decision, its context, the options considered, the chosen option, and the consequences. Make sure to use this skill whenever the user mentions ADR, architecture decision record, architecture decision, record this decision, document this decision, MADR, Nygard ADR, decision log, design decision writeup, or asks to capture the rationale behind a choice with long-term architectural impact. SKIP: full architecture design from scratch (use `architecture-design`), general technical documentation (use `technical-documentation`), API contract design narrower than architecture-level (use `api-design`), product or feature requirements (use `business-analyst` or `product-manager`). Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
+summary_l0: "Author append-only decisions outside release-scoped documentation"
+overview_l1: "This skill produces one Architecture Decision Record -- a short, durable document that captures a single architecturally-significant decision and its rationale. It supports both MADR (Markdown Any Decision Records) and Nygard templates, helps the user pick between them based on team conventions, and enforces a status lifecycle (Proposed -> Accepted -> Deprecated -> Superseded). The output documents the context that forced the decision, at least two alternatives with rejection rationale, the chosen option, the consequences (positive AND negative), the risks, and metadata (date, author, ID). It is for decisions you want a future engineer to be able to look up six months from now -- not for routine implementation choices. Trigger phrases: ADR, architecture decision record, architecture decision, MADR, Nygard ADR, decision log. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # Architecture Decision Record
@@ -48,6 +48,10 @@ The two dominant ADR templates differ in shape and ceremony. Pick one based on t
 | Tooling | `adr-tools`, `log4brains`, `madr-cli` | `adr-tools` (Nygard-compatible by default) |
 
 The skill states the chosen template in the document's metadata block so future readers can interpret the section structure consistently.
+
+### Repository layout and lifespan
+
+Never release-scope an ADR. A decision can remain in force after its originating release closes, so archiving that release would archive a decision still governing the system. Recognize `docs/decisions/` alongside `docs/adr/`. When the repository mandates the Nexus-Hub decision tree, file records at `docs/decisions/<lifecycle>/<class>/YYYY-MM-DD-<slug>.md`, where lifecycle is `proposed`, `implemented`, or `rejected` and class is `architecture`, `policy`, `process`, or `tooling`; otherwise preserve the repository's existing ADR convention.
 
 ### Status lifecycle
 
@@ -181,7 +185,7 @@ Open Questions captures items the team deliberately deferred. Each is one line; 
 
 ### Step 9: File and Cross-Link the ADR
 
-File the ADR at `docs/adr/<NNNN>-<kebab-title>.md` using the next available 4-digit ID. Update the `docs/adr/README.md` index (or equivalent) with a new row pointing to the new ADR.
+File the ADR in the detected append-only decision tree. Use `docs/decisions/<lifecycle>/<class>/YYYY-MM-DD-<slug>.md` when that governed layout exists; otherwise use `docs/adr/<NNNN>-<kebab-title>.md` with the next available 4-digit ID. Update the owning README index when the chosen convention uses one.
 
 Cross-link from any relevant existing ADR. The Related field is a comma-separated list of ADR IDs with a short context phrase for each.
 
@@ -220,8 +224,9 @@ Before marking the ADR Accepted, walk this binary checklist. Every item must be 
 - [ ] The chosen option is named explicitly and the rationale references the decision drivers from the Context section.
 - [ ] The Consequences section covers both positive and negative outcomes; not only the positives.
 - [ ] If the ADR supersedes an earlier one, the `Supersedes` field is set AND the superseded ADR's `Superseded by` field has been updated reciprocally.
-- [ ] The ADR is filed at `docs/adr/<NNNN>-<kebab-title>.md` with the next available 4-digit ID.
-- [ ] The `docs/adr/README.md` index has been updated with a row for the new ADR.
+- [ ] The ADR is in `docs/decisions/<lifecycle>/<class>/YYYY-MM-DD-<slug>.md` when that governed tree exists, or in the repository's inherited `docs/adr/` convention otherwise.
+- [ ] The ADR is outside `docs/releases/`; archiving a release cannot hide a decision still in force.
+- [ ] The selected lifecycle and class match the decision's status and concern, and the owning index is updated when the repository uses one.
 - [ ] One person is identified as the author (not the team) and the same person is named in the PR.
 
 If any checklist item is false, the ADR is not yet ready for Accepted status. Iterate on Proposed until every box is checked.

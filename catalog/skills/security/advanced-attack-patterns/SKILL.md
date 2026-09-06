@@ -345,8 +345,10 @@ response.headers["Vary"] = "Cookie"  # Cookie includes the session
 
 - [[business-logic-abuse]] -- companion skill; state-desynchronization step-skip and workflow-bypass overlap heavily, and its attacker playbooks pair with the Step 5 injection family
 - [[security-patch-advisor]] -- patch generation for the SSRF / SSTI / XXE / deserialization fixes referenced in remediation
-- [[security-review]] -- baseline OWASP Top 10 pass that this skill extends
+- [[security-review]] -- baseline OWASP Top 10 pass that owns the target denominator, altitude ledger, and proven-dirty sink sweep this deep method must satisfy
 - [[authentication-patterns]] -- token binding, session management, and the JWT/OAuth attack methodology referenced in replay attacks
+- [[jwt-header-and-key-confusion-attacks]] -- header-level JWT forgeries (alg=none, key confusion) that sit beside this skill's replay and token-binding steps
+- [[api-object-level-authorization-flaws]] -- BOLA/IDOR object-level access, which this skill's authorization-bypass family must not re-teach
 - [[pentest-reporting]] -- writes up the findings this skill produces (CVSS, evidence, executive summary, retest)
 - [[exploitability-analyzer]] -- scores and prioritizes the confirmed findings for the report
 - [[fintech-engineer]] -- financial replay and double-spend coverage in payment-specific contexts

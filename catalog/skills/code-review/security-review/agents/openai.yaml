@@ -1,4 +1,4 @@
 interface:
   display_name: Code Review - Security Review
   short_description: Identify security vulnerabilities across 10 domains including OWASP Top 10, race conditions, supply chain risks, and compliance gaps. Use for security audits, penetration test preparation,
-    vulnerabili
+    vulnerability assessment, or as Phase 3 of comprehensive code review.

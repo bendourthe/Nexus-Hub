@@ -15,7 +15,7 @@ priority: high
 
 ## Type Annotations
 
-- Annotate all function signatures — parameters and return types — without exception.
+- Annotate all function signatures -- parameters and return types -- without exception.
 - Use `from __future__ import annotations` at the top of every module to enable postponed evaluation (Python 3.10+ style unions work everywhere).
 - Prefer `X | Y` union syntax over `Optional[X]` or `Union[X, Y]`.
 - Use `TypeVar` and `Generic` for reusable typed containers; avoid `Any` unless wrapping untyped third-party code.
@@ -35,7 +35,7 @@ priority: high
 - One public class per module where possible; private helpers can share the module.
 - Use `@dataclass` or Pydantic `BaseModel` for data-carrying classes instead of dicts.
 - Prefer composition over inheritance. Inherit only from abstract base classes or well-defined protocols.
-- Do not use mutable default arguments (`def f(x=[])` is a bug — use `None` and initialize inside).
+- Do not use mutable default arguments (`def f(x=[])` is a bug -- use `None` and initialize inside).
 
 ## Error Handling
 

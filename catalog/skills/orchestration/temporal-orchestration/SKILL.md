@@ -19,7 +19,7 @@ Use this skill when your AI agent pipeline has one or more of these properties:
 - **Fault-tolerant**: Network failures, API timeouts, or container restarts should not corrupt workflow state
 - **Resumable**: Named workflows should be queryable and resumable by ID
 
-**When NOT to use Temporal**: Single-agent tasks, short-lived scripts (< 30 seconds), or pipelines where a simple `Promise.all()` is sufficient. Temporal has real operational overhead — it requires a Temporal server and worker processes. The payoff is justified by the complexity of the problem.
+**When NOT to use Temporal**: Single-agent tasks, short-lived scripts (< 30 seconds), or pipelines where a simple `Promise.all()` is sufficient. Temporal has real operational overhead -- it requires a Temporal server and worker processes. The payoff is justified by the complexity of the problem.
 
 **Trigger phrases**: "durable agent pipeline", "parallel agent fan-out", "workflow crash recovery", "agent workflow state", "Temporal for AI", "resumable agent pipeline", "multi-phase agent orchestration"
 
@@ -52,7 +52,7 @@ Temporal maps directly onto AI agent pipeline concerns:
 | **Query** | Read workflow state without modifying it | `./shannon query ID=<id>` |
 | **Heartbeat** | Activity liveness signal (prevents timeout) | Shannon's 2-second heartbeat loop |
 
-**Key guarantee**: Temporal persists workflow state to a database after every step. If your worker crashes, Temporal replays the workflow from the last completed activity — with deterministic replay, the workflow picks up exactly where it left off.
+**Key guarantee**: Temporal persists workflow state to a database after every step. If your worker crashes, Temporal replays the workflow from the last completed activity -- with deterministic replay, the workflow picks up exactly where it left off.
 
 ### Step 2: Install the Temporal TypeScript SDK
 
@@ -108,7 +108,7 @@ export interface VulnAnalysisResult {
 
 /**
  * Run a single vulnerability analysis agent.
- * This activity is idempotent — running it twice produces the same result
+ * This activity is idempotent -- running it twice produces the same result
  * because the agent analyzes the same inputs each time.
  */
 export async function runVulnAnalysisActivity(
@@ -116,7 +116,7 @@ export async function runVulnAnalysisActivity(
 ): Promise<VulnAnalysisResult> {
   const agentId = `vuln-${input.vulnType}-agent`;
 
-  // 1. Start heartbeat loop — prevents Temporal from timing out long-running activities
+  // 1. Start heartbeat loop -- prevents Temporal from timing out long-running activities
   const heartbeatInterval = setInterval(() => {
     Context.current().heartbeat({ agentId, status: "analyzing" });
   }, 2_000);
@@ -142,7 +142,7 @@ export async function runVulnAnalysisActivity(
 
 ### Step 4: Design the Workflow (Deterministic Code Only)
 
-Workflows are the orchestration layer. They coordinate activities but must be **deterministic** — no random numbers, no current timestamps, no direct API calls. All non-deterministic code goes in activities.
+Workflows are the orchestration layer. They coordinate activities but must be **deterministic** -- no random numbers, no current timestamps, no direct API calls. All non-deterministic code goes in activities.
 
 ```typescript
 // src/temporal/workflows/pipeline.ts
@@ -164,12 +164,12 @@ const {
     initialInterval: "5s",
     maximumInterval: "30s",
     backoffCoefficient: 2,
-    // BudgetExceededError is non-retryable — propagate immediately
+    // BudgetExceededError is non-retryable -- propagate immediately
     nonRetryableErrorTypes: ["BudgetExceededError", "InvalidConfigError"],
   },
-  // Heartbeat timeout — activity must heartbeat within this window
+  // Heartbeat timeout -- activity must heartbeat within this window
   heartbeatTimeout: "10s",
-  // Schedule-to-close timeout — max total time for the activity including retries
+  // Schedule-to-close timeout -- max total time for the activity including retries
   scheduleToCloseTimeout: "2h",
 });
 
@@ -187,7 +187,7 @@ export interface PipelineOutput {
 }
 
 /**
- * Main pipeline workflow — deterministic orchestration only.
+ * Main pipeline workflow -- deterministic orchestration only.
  * All AI agent execution happens inside activities.
  */
 export async function securityPipelineWorkflow(
@@ -426,9 +426,9 @@ const { runAgentActivity } = proxyActivities<typeof activities>({
     backoffCoefficient: 2,       // Double the wait each retry: 5s → 10s → 20s
     maximumInterval: "30s",      // Cap at 30s
     nonRetryableErrorTypes: [
-      "BudgetExceededError",     // Hard stop — don't retry
-      "AuthenticationError",     // Invalid API key — don't retry
-      "ValidationError",         // Bad input — don't retry
+      "BudgetExceededError",     // Hard stop -- don't retry
+      "AuthenticationError",     // Invalid API key -- don't retry
+      "ValidationError",         // Bad input -- don't retry
     ],
   },
   heartbeatTimeout: "10s",       // Must heartbeat every 10s
@@ -469,4 +469,4 @@ const { runAgentActivity } = proxyActivities<typeof activities>({
 
 **Version**: 1.0.0
 **Last Updated**: March 2026
-**Reference Implementation**: Shannon (KeygraphHQ) — 5-phase, 13-agent autonomous security testing pipeline achieving 96.15% XBEN benchmark success using Temporal for durable, parallel workflow orchestration
+**Reference Implementation**: Shannon (KeygraphHQ) -- 5-phase, 13-agent autonomous security testing pipeline achieving 96.15% XBEN benchmark success using Temporal for durable, parallel workflow orchestration

@@ -1,0 +1,326 @@
+[
+  {
+    "overflow": false,
+    "cards": [
+      {
+        "name": "checkout-layout.png",
+        "right": true,
+        "heightDifference": 0,
+        "height": 50
+      },
+      {
+        "name": "checkout-guidelines.pdf",
+        "right": true,
+        "heightDifference": 0,
+        "height": 50
+      },
+      {
+        "name": "assets/checkout/",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      }
+    ],
+    "clipped": [],
+    "width": 320,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "cards": [
+      {
+        "name": "checkout-layout.png",
+        "right": true,
+        "heightDifference": 0,
+        "height": 50
+      },
+      {
+        "name": "checkout-guidelines.pdf",
+        "right": true,
+        "heightDifference": 0,
+        "height": 50
+      },
+      {
+        "name": "assets/checkout/",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      }
+    ],
+    "clipped": [],
+    "width": 320,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "cards": [
+      {
+        "name": "checkout-layout.png",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "checkout-guidelines.pdf",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "assets/checkout/",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      }
+    ],
+    "clipped": [],
+    "width": 420,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "cards": [
+      {
+        "name": "checkout-layout.png",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "checkout-guidelines.pdf",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "assets/checkout/",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      }
+    ],
+    "clipped": [],
+    "width": 420,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "cards": [
+      {
+        "name": "checkout-layout.png",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "checkout-guidelines.pdf",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "assets/checkout/",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      }
+    ],
+    "clipped": [],
+    "width": 760,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "cards": [
+      {
+        "name": "checkout-layout.png",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "checkout-guidelines.pdf",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "assets/checkout/",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      }
+    ],
+    "clipped": [],
+    "width": 760,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "cards": [
+      {
+        "name": "checkout-layout.png",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "checkout-guidelines.pdf",
+        "right": true,
+        "heightDifference": 0,
+        "height": 50
+      },
+      {
+        "name": "assets/checkout/",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      }
+    ],
+    "clipped": [],
+    "width": 900,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "cards": [
+      {
+        "name": "checkout-layout.png",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "checkout-guidelines.pdf",
+        "right": true,
+        "heightDifference": 0,
+        "height": 50
+      },
+      {
+        "name": "assets/checkout/",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      }
+    ],
+    "clipped": [],
+    "width": 900,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "cards": [
+      {
+        "name": "checkout-layout.png",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "checkout-guidelines.pdf",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "assets/checkout/",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      }
+    ],
+    "clipped": [],
+    "width": 1024,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "cards": [
+      {
+        "name": "checkout-layout.png",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "checkout-guidelines.pdf",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "assets/checkout/",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      }
+    ],
+    "clipped": [],
+    "width": 1024,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "cards": [
+      {
+        "name": "checkout-layout.png",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "checkout-guidelines.pdf",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "assets/checkout/",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      }
+    ],
+    "clipped": [],
+    "width": 1440,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "cards": [
+      {
+        "name": "checkout-layout.png",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "checkout-guidelines.pdf",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      },
+      {
+        "name": "assets/checkout/",
+        "right": true,
+        "heightDifference": 0,
+        "height": 35
+      }
+    ],
+    "clipped": [],
+    "width": 1440,
+    "theme": "light",
+    "errors": []
+  }
+]

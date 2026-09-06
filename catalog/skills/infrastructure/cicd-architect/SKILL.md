@@ -1,768 +1,275 @@
 ---
 name: cicd-architect
-description: CI/CD pipeline expertise for automated build, test, and deployment workflows. Use when setting up GitHub Actions, GitLab CI, Jenkins, or other CI/CD systems, implementing deployment strategies, or optimizing pipeline performance.
-summary_l0: "Design CI/CD pipelines with GitHub Actions, GitLab CI, and deployment strategies"
-overview_l1: "This skill provides specialized expertise in Continuous Integration and Continuous Deployment pipelines, covering workflow automation, deployment strategies, security scanning integration, and operational best practices for reliable software delivery. Use it when setting up GitHub Actions, GitLab CI, Jenkins, or other CI/CD systems, implementing deployment strategies (blue-green, canary, rolling), optimizing pipeline performance, integrating security scanning, or automating release processes. Key capabilities include pipeline design and optimization, multi-platform CI/CD configuration, deployment strategy implementation, security scan integration, artifact management, caching strategies, and pipeline monitoring. The expected output is production-ready CI/CD pipeline configurations with deployment strategies, security gates, and monitoring. Trigger phrases: CI/CD pipeline, GitHub Actions, GitLab CI, Jenkins, deployment strategy, build pipeline, automated deployment."
+description: The canonical, provider-neutral CI/CD lifecycle policy - repository-native fast/full/platform/report/release profiles, event separation, runner selection, stable aggregate required checks, structured reports, and existing-pipeline migration. Use whenever the user mentions CI/CD, a build pipeline, GitHub Actions, GitLab CI, Jenkins, a workflow file, required status checks, action minutes, or runner cost, or says any of "optimize CI cost", "our CI is too expensive", "make pipelines run only at the end of a plan", "move CI logic into repository scripts", "why does our CI pipeline run the whole suite twice", "our pipeline duplicates itself", or "our required check is stuck pending". Also the terminal pipeline reconciliation step in a plan's final phase. SKIP - deployment stages (use cd-pipeline-generator), wiring a test suite and its quality gates (use cicd-integration), post-release verification (use shipping-and-launch), and the release commit/tag/publish flow (use /update release).
+summary_l0: "Own the canonical CI/CD lifecycle: repository-native profiles, event separation, and pipeline migration"
+overview_l1: "The single authoritative CI/CD policy in this catalog. It defines one provider-neutral lifecycle - local phase work and local phase commits, then a single final-phase branch publication, then one comprehensive pull-request gate against the integration merge result, then minimal protected-branch post-merge work, then release - and one execution architecture: definitive validation logic lives in the repository as five named profiles (fast, full, platform, report, release) that a developer can run with no CI provider present, while the pipeline file stays a thin trigger and reporting layer. It also owns runner selection for public and private repositories, the always-resolving aggregate required check, structured reporting (summary, JUnit, coverage, SARIF, environment metadata), least-privilege and immutable-reference security controls, cost controls (caching, concurrency, change scoping), and the six-step existing-pipeline comparison that every plan's final phase runs. GitHub Actions is the primary worked example, not a dependency. Trigger phrases: CI/CD pipeline, optimize CI cost, why does CI run twice, required check stuck pending, migrate our CI, audit our pipeline, action minutes, runner cost."
 ---
 
 # CI/CD Architect
 
-Specialized expertise in Continuous Integration and Continuous Deployment pipelines, providing guidance on workflow automation, deployment strategies, security scanning integration, and operational best practices for reliable software delivery.
+The canonical CI/CD lifecycle policy for this catalog. Every other CI/CD skill conforms to this one instead of defining its own triggers, profiles, or reporting.
+
+Two ideas carry the whole skill:
+
+1. **Definitive validation logic lives in the repository, not in the pipeline file.** Five named profiles run identically on a developer machine and on a runner. The pipeline is a trigger and a reporting surface.
+2. **Remote CI runs once per unit of completed work, against the merge result.** Not once per phase, not again on the merge commit.
 
 ## When to Use This Skill
 
-Use this skill for:
+- Setting up CI/CD for a repository that has none.
+- Auditing or migrating an existing pipeline, on any provider.
+- A pipeline is expensive, slow, or duplicating itself, and it is not obvious why.
+- A required status check is stuck Pending and the branch cannot merge.
+- Deciding between hosted and self-hosted runners.
+- Running the terminal pipeline reconciliation in the final phase of a multi-phase plan. This is the mandatory call site: `[[implementation-plan]]` generates it and `[[implement-phase]]` executes it.
 
-- Setting up CI/CD pipelines (GitHub Actions, GitLab CI, Jenkins)
-- Implementing deployment strategies (blue-green, canary, rolling)
-- Configuring automated testing in pipelines
-- Integrating security scanning (SAST, DAST, dependency scanning)
-- Optimizing pipeline performance and costs
-- Managing artifacts and releases
-- Setting up environment promotions
-- Troubleshooting pipeline failures
+### When NOT to use this skill
 
-**Trigger phrases**: "CI/CD", "pipeline", "github actions", "gitlab ci", "jenkins", "deployment automation", "continuous integration", "continuous deployment", "build pipeline"
+- Writing the deployment stages, promotion order, or rollback mechanics: `[[cd-pipeline-generator]]`.
+- Wiring a test suite, coverage thresholds, and quality gates into a pipeline: `[[cicd-integration]]`.
+- Verifying a production launch after the release shipped: `[[shipping-and-launch]]`.
+- Cutting the release itself (version, changelog, tag, publish): `/update release`.
 
-## What This Skill Does
+## What This Skill Owns
 
-Provides production-ready CI/CD patterns including:
-
-- **Pipeline Design**: Multi-stage workflows, parallel execution, conditional jobs
-- **Testing Integration**: Unit, integration, E2E test automation
-- **Security**: SAST, DAST, secrets scanning, supply chain security
-- **Deployment**: Multiple strategies with rollback capabilities
-- **Artifacts**: Build caching, artifact management, container registries
-- **Monitoring**: Pipeline observability, failure notifications
+| Concern | Owned here | Owned elsewhere |
+|---|---|---|
+| Lifecycle order (phase commit, publication, integration, release) | yes | phase execution: `[[implement-phase]]` |
+| The five repository-native profiles | yes | - |
+| Trigger and event separation | yes | - |
+| Runner selection and cost controls | yes | - |
+| Aggregate required check topology | yes | - |
+| Structured report schema | yes | test-specific report content: `[[cicd-integration]]` |
+| Security controls on the pipeline itself | yes | application security: `[[security-review]]` |
+| Existing-pipeline comparison and migration | yes | - |
+| Deployment stages, environments, rollback | no | `[[cd-pipeline-generator]]` |
+| Test selection, coverage thresholds | no | `[[cicd-integration]]` |
+| Branch model resolution | no | `[[git-branching-workflow]]` |
 
 ## Instructions
 
-### Step 1: Design Pipeline Architecture
+### Step 1: Resolve the lifecycle
 
-**Pipeline Stages (Recommended Order)**:
+Before touching a pipeline file, establish where this work sits in the lifecycle. The canonical order never varies:
 
-```
-┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐
-│  Build  │───▶│  Test   │───▶│  Scan   │───▶│ Package │───▶│ Deploy  │
-└─────────┘    └─────────┘    └─────────┘    └─────────┘    └─────────┘
-     │              │              │              │              │
-     ▼              ▼              ▼              ▼              ▼
-  Compile       Unit Tests      SAST         Container       Staging
-  Lint          Integration     DAST         Registry        Production
-  Format        E2E             Deps         Artifacts       Rollback
-```
-
-### Step 2: Implement GitHub Actions Pipeline
-
-**Complete CI/CD Workflow**:
-
-```yaml
-# .github/workflows/ci-cd.yml
-name: CI/CD Pipeline
-
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
-  release:
-    types: [published]
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
-jobs:
-  # ============================================
-  # BUILD & TEST
-  # ============================================
-  build:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Full history for versioning
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint code
-        run: npm run lint
-
-      - name: Run unit tests
-        run: npm run test:unit -- --coverage
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
-
-      - name: Build application
-        run: npm run build
-
-      - name: Determine version
-        id: version
-        run: |
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            echo "version=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          else
-            echo "version=sha-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: dist/
-          retention-days: 7
-
-  # ============================================
-  # INTEGRATION TESTS
-  # ============================================
-  integration-tests:
-    needs: build
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: testpass
-          POSTGRES_DB: testdb
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run integration tests
-        run: npm run test:integration
-        env:
-          DATABASE_URL: postgres://postgres:testpass@localhost:5432/testdb
-
-  # ============================================
-  # SECURITY SCANNING
-  # ============================================
-  security-scan:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      contents: read
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run SAST scan (CodeQL)
-        uses: github/codeql-action/init@v3
-        with:
-          languages: javascript
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-
-      - name: Run dependency scan
-        uses: snyk/actions/node@master
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
-
-      - name: Run secrets scan
-        uses: trufflesecurity/trufflehog@main
-        with:
-          extra_args: --only-verified
-
-  # ============================================
-  # BUILD & PUSH CONTAINER
-  # ============================================
-  container:
-    needs: [build, integration-tests, security-scan]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-output
-          path: dist/
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=sha,prefix=sha-
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Run container scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload scan results
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'trivy-results.sarif'
-
-  # ============================================
-  # DEPLOY TO STAGING
-  # ============================================
-  deploy-staging:
-    needs: container
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    environment:
-      name: staging
-      url: https://staging.example.com
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Configure kubectl
-        uses: azure/k8s-set-context@v3
-        with:
-          kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
-
-      - name: Deploy to staging
-        run: |
-          kubectl set image deployment/app \
-            app=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }} \
-            -n staging
-
-      - name: Wait for rollout
-        run: |
-          kubectl rollout status deployment/app -n staging --timeout=300s
-
-      - name: Run smoke tests
-        run: |
-          curl -f https://staging.example.com/health || exit 1
-
-  # ============================================
-  # DEPLOY TO PRODUCTION
-  # ============================================
-  deploy-production:
-    needs: deploy-staging
-    runs-on: ubuntu-latest
-    if: github.event_name == 'release'
-    environment:
-      name: production
-      url: https://example.com
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Configure kubectl
-        uses: azure/k8s-set-context@v3
-        with:
-          kubeconfig: ${{ secrets.KUBE_CONFIG_PROD }}
-
-      - name: Deploy canary (10%)
-        run: |
-          kubectl apply -f k8s/canary-deployment.yaml -n production
-          kubectl set image deployment/app-canary \
-            app=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.release.tag_name }} \
-            -n production
-
-      - name: Monitor canary (5 min)
-        run: |
-          sleep 300
-          ERROR_RATE=$(kubectl top pod -l app=app-canary -n production | awk 'NR>1 {print $3}')
-          if (( $(echo "$ERROR_RATE > 1" | bc -l) )); then
-            echo "Canary error rate too high, rolling back"
-            kubectl delete -f k8s/canary-deployment.yaml -n production
-            exit 1
-          fi
-
-      - name: Promote to full deployment
-        run: |
-          kubectl set image deployment/app \
-            app=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.release.tag_name }} \
-            -n production
-          kubectl rollout status deployment/app -n production --timeout=600s
-          kubectl delete -f k8s/canary-deployment.yaml -n production
-
-      - name: Create deployment record
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.repos.createDeployment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: context.sha,
-              environment: 'production',
-              auto_merge: false,
-              required_contexts: []
-            });
+```text
+local phase work -> local phase gate -> local phase commit   (repeat per phase, NO PUSH)
+  -> terminal pipeline reconciliation (final phase only)
+  -> complete local gate -> final phase commit
+  -> ONE branch publication -> integration pull request
+  -> required checks against the MERGE RESULT
+  -> merge to the protected integration branch
+  -> minimal post-merge work
+  -> release
 ```
 
-### Step 3: Implement GitLab CI Pipeline
+Three rules follow, and they are the ones most often broken:
 
-**Complete GitLab CI Configuration**:
+- **A non-final phase never pushes.** It commits locally and stops. Seven pipeline runs on incomplete work cost seven times as much as one run on complete work and produce worse signal, because a red check on known-incomplete work teaches the author to ignore red checks.
+- **A pipeline file changes only when the pipeline is the current phase's explicit deliverable.** Otherwise the phase records its CI impact in prose and changes nothing.
+- **A push event cannot prove a merge.** Merge-only semantics come from branch protection, which is an external repository setting. A branch-filtered `push` workflow means "merge or release" only in a repository that rejects direct pushes to that branch. Say so explicitly whenever you write one.
 
-```yaml
-# .gitlab-ci.yml
-stages:
-  - build
-  - test
-  - security
-  - package
-  - deploy
+### Step 2: Detect the provider
 
-variables:
-  DOCKER_TLS_CERTDIR: "/certs"
-  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+Never assume. Look for, in order:
 
-# ============================================
-# BUILD STAGE
-# ============================================
-build:
-  stage: build
-  image: node:20-alpine
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - node_modules/
-      - .npm/
-  script:
-    - npm ci --cache .npm --prefer-offline
-    - npm run lint
-    - npm run build
-  artifacts:
-    paths:
-      - dist/
-    expire_in: 1 day
+| Provider | Evidence |
+|---|---|
+| GitHub Actions | `.github/workflows/*.yml` |
+| GitLab CI | `.gitlab-ci.yml` |
+| Jenkins | `Jenkinsfile` |
+| CircleCI | `.circleci/config.yml` |
+| Azure Pipelines | `azure-pipelines.yml` |
+| Buildkite | `.buildkite/pipeline.yml` |
+| Woodpecker / Drone | `.woodpecker.yml`, `.drone.yml` |
+| none | none of the above |
 
-# ============================================
-# TEST STAGE
-# ============================================
-unit-tests:
-  stage: test
-  image: node:20-alpine
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - node_modules/
-  script:
-    - npm ci
-    - npm run test:unit -- --coverage
-  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
-  artifacts:
-    reports:
-      junit: junit.xml
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage/cobertura-coverage.xml
+Record "none detected" as a finding rather than defaulting to GitHub Actions. A repository with no pipeline gets the profiles first and a trigger layer second; that order matters, because the profiles are what make the trigger layer thin.
 
-integration-tests:
-  stage: test
-  image: node:20-alpine
-  services:
-    - postgres:15
-  variables:
-    POSTGRES_DB: testdb
-    POSTGRES_PASSWORD: testpass
-    DATABASE_URL: "postgres://postgres:testpass@postgres:5432/testdb"
-  script:
-    - npm ci
-    - npm run test:integration
+Per-provider event mapping, merge-request semantics, merge queues, and the limits of merge-only enforcement on each: [`references/provider-event-models.md`](references/provider-event-models.md).
 
-# ============================================
-# SECURITY STAGE
-# ============================================
-sast:
-  stage: security
-  include:
-    - template: Security/SAST.gitlab-ci.yml
+### Step 3: Build or verify the five repository-native profiles
 
-dependency_scanning:
-  stage: security
-  include:
-    - template: Security/Dependency-Scanning.gitlab-ci.yml
+Every repository gets exactly these five. Do not rename them and do not add a sixth without recording the decision.
 
-secret_detection:
-  stage: security
-  include:
-    - template: Security/Secret-Detection.gitlab-ci.yml
+| Profile | Answers | Duration | Runs on |
+|---|---|---|---|
+| `fast` | Would this fail the cheapest checks? | seconds to ~2 min | developer machine, pre-commit, first CI job |
+| `full` | Is this correct on this host? | minutes | developer machine, integration pull request |
+| `platform` | Does this behave the same on every supported OS and shell? | minutes per host | integration pull request matrix |
+| `report` | What is the evidence? | seconds | after any profile |
+| `release` | Is this packageable and publishable? | minutes | release tag or explicit dispatch |
 
-# ============================================
-# PACKAGE STAGE
-# ============================================
-build-container:
-  stage: package
-  image: docker:24
-  services:
-    - docker:24-dind
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - docker build -t $IMAGE_TAG .
-    - docker push $IMAGE_TAG
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_COMMIT_TAG
+Requirements for each:
 
-container_scanning:
-  stage: package
-  needs: [build-container]
-  include:
-    - template: Security/Container-Scanning.gitlab-ci.yml
+- One documented command, no CI-provider environment variables required.
+- Reuses the repository's existing validators and test commands. A profile that reimplements a validator has created a second source of truth, which is the defect it exists to prevent.
+- Fails fast within a group, aggregates a correct exit status across groups.
+- Concise output by default; credentials redacted.
+- `platform` makes host differences explicit and testable, never implicit.
 
-# ============================================
-# DEPLOY STAGE
-# ============================================
-deploy-staging:
-  stage: deploy
-  image: bitnami/kubectl:latest
-  environment:
-    name: staging
-    url: https://staging.example.com
-  script:
-    - kubectl config set-cluster staging --server=$KUBE_SERVER_STAGING
-    - kubectl set image deployment/app app=$IMAGE_TAG -n staging
-    - kubectl rollout status deployment/app -n staging
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
+Profile inputs and outputs, the report directory schema, retention, pinning, comparison fields, and failure recovery: [`references/repository-native-profiles.md`](references/repository-native-profiles.md).
 
-deploy-production:
-  stage: deploy
-  image: bitnami/kubectl:latest
-  environment:
-    name: production
-    url: https://example.com
-  script:
-    - kubectl config set-cluster prod --server=$KUBE_SERVER_PROD
-    - kubectl set image deployment/app app=$IMAGE_TAG -n production
-    - kubectl rollout status deployment/app -n production
-  rules:
-    - if: $CI_COMMIT_TAG
-  when: manual
-```
+### Step 4: Separate the events
 
-### Step 4: Implement Deployment Strategies
+This is where most pipeline cost hides. Map every trigger to exactly one class.
 
-**Blue-Green Deployment**:
+| Event | Runs | Never runs |
+|---|---|---|
+| Ordinary feature-branch push | nothing | any validation workflow |
+| Integration pull request into a protected branch | `fast`, `full`, `platform`, `report` | deployment, publication |
+| Merge queue entry, where supported | the same gate as the pull request | deployment |
+| Protected integration branch update (a merge) | concise smoke, docs publication, provenance | the complete validation suite |
+| Protected release branch update or release tag | `release` | the complete validation suite |
+| Schedule | drift detection that depends on the outside world | anything reproducible from the tree alone |
 
-```yaml
-# GitHub Actions blue-green deployment
-deploy-blue-green:
-  runs-on: ubuntu-latest
-  steps:
-    - name: Determine active color
-      id: color
-      run: |
-        ACTIVE=$(kubectl get svc app -n production -o jsonpath='{.spec.selector.color}')
-        if [ "$ACTIVE" == "blue" ]; then
-          echo "deploy=green" >> $GITHUB_OUTPUT
-          echo "active=blue" >> $GITHUB_OUTPUT
-        else
-          echo "deploy=green" >> $GITHUB_OUTPUT
-          echo "active=blue" >> $GITHUB_OUTPUT
-        fi
+The rule underneath: **a suite that already proved the merge result must not run again on the merge commit.** A pull request is validated against the synthetic merge, so the merge commit is the same tree. Running it twice buys nothing and is billed twice.
 
-    - name: Deploy to inactive environment
-      run: |
-        kubectl set image deployment/app-${{ steps.color.outputs.deploy }} \
-          app=${{ env.IMAGE }} -n production
-        kubectl rollout status deployment/app-${{ steps.color.outputs.deploy }} -n production
+Two consequences people get wrong:
 
-    - name: Run smoke tests on new version
-      run: |
-        kubectl port-forward svc/app-${{ steps.color.outputs.deploy }} 8080:80 &
-        sleep 5
-        curl -f http://localhost:8080/health
+- **A workflow that fires on both `pull_request` into `develop` and `push` to `develop` is running twice.** Under a pull-request-only merge policy those are the same tree. Drop the push trigger and give the merge event its own minimal workflow.
+- **Expensive platform proof belongs BEFORE the merge, not after.** Gating a Windows or macOS leg to `push` does not save the minutes; it spends them at the moment they can no longer prevent a bad merge. If a leg is worth running at all, run it on the pull request. If it is not, delete it.
 
-    - name: Switch traffic
-      run: |
-        kubectl patch svc app -n production \
-          -p '{"spec":{"selector":{"color":"${{ steps.color.outputs.deploy }}"}}}'
+Scheduled work is the one legitimate re-run: it tests the tree against a world that has changed (new advisories, upstream deprecations, vendor documentation drift).
 
-    - name: Verify switch
-      run: |
-        sleep 10
-        curl -f https://example.com/health
-```
+### Step 5: Make the required check stable
 
-**Canary Deployment**:
+A required status check MUST be produced by a job whose workflow triggers unconditionally.
 
-```yaml
-# Kubernetes canary manifests
-# k8s/canary-deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: app-canary
-spec:
-  replicas: 1  # Small subset
-  selector:
-    matchLabels:
-      app: myapp
-      track: canary
-  template:
-    metadata:
-      labels:
-        app: myapp
-        track: canary
-    spec:
-      containers:
-      - name: app
-        image: app:new-version
----
-# Istio VirtualService for traffic splitting
-apiVersion: networking.istio.io/v1beta1
-kind: VirtualService
-metadata:
-  name: app-vs
-spec:
-  hosts:
-  - app
-  http:
-  - match:
-    - headers:
-        x-canary:
-          exact: "true"
-    route:
-    - destination:
-        host: app-canary
-  - route:
-    - destination:
-        host: app-stable
-      weight: 90
-    - destination:
-        host: app-canary
-      weight: 10
-```
+- Filter at the JOB level with a condition. Never at the workflow level with a path or branch filter.
+- Expose exactly one aggregate required context per validation workflow.
+- The aggregate runs unconditionally so a failed or skipped dependency cannot leave it unreported.
+- Its verdict is an allowlist over dependency results, so an unfamiliar result value fails closed.
+- Never require a per-matrix-leg context. A job condition is evaluated before matrix expansion, so a skipped matrix job publishes only its bare job name and every per-leg context sits Pending forever.
 
-### Step 5: Pipeline Optimization
+Both halves of the dependency guard are load-bearing: a "not cancelled" clause overrides the platform's skip-on-failed-dependency rule, and comparing against the literal string treats a missing output as "run".
 
-**Caching Strategies**:
+Full rationale, the vendor quotation, the fail-closed detector, and the aggregate-job pattern: [`references/required-status-checks.md`](references/required-status-checks.md).
 
-```yaml
-# GitHub Actions - Efficient caching
-- name: Cache dependencies
-  uses: actions/cache@v4
-  with:
-    path: |
-      ~/.npm
-      node_modules
-    key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-    restore-keys: |
-      ${{ runner.os }}-node-
+### Step 6: Choose runners
 
-# Docker layer caching
-- name: Build with cache
-  uses: docker/build-push-action@v5
-  with:
-    cache-from: type=gha
-    cache-to: type=gha,mode=max
-```
+| Repository | Default | Allowed alternative | Hard limit |
+|---|---|---|---|
+| Public | provider-hosted standard runners | none | a persistent self-hosted runner MUST NOT execute untrusted fork code |
+| Private | provider-hosted standard runners | isolated self-hosted runners when hosted-minute cost is material | ephemeral or reset-per-job, no ambient credentials, no shared mutable state |
 
-**Parallel Execution**:
+Cost scoping for expensive host classes (commonly around twice the Linux rate for Windows and around ten times for macOS) is a job-level condition, never a workflow filter. Derive those weights from the provider's live per-unit price rather than hardcoding a ratio; published multipliers have turned out to be price ratios that then changed.
 
-```yaml
-# Run independent jobs in parallel
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - run: npm run lint
+### Step 7: Produce structured reports
 
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - run: npm test
+From the same local execution a developer can reproduce:
 
-  security-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - run: npm audit
+- `reports/summary.md`: overall status, per-group pass/fail/skip counts, coverage, security findings, platform results, duration, tool versions, artifact paths.
+- JUnit XML per test group.
+- Coverage output in the runner's native machine-readable format, where the runner supports it.
+- SARIF, or a SARIF index, for static-analysis and security steps that emit it.
+- `reports/metadata/environment.json`: host, OS, shell, interpreter and tool versions, profile, start and end timestamps.
 
-  # This job waits for all parallel jobs
-  build:
-    needs: [lint, unit-tests, security-scan]
-    runs-on: ubuntu-latest
-    steps:
-      - run: npm run build
-```
+And in the pipeline:
 
-**Matrix Builds**:
+- Append the summary to the provider's native run-summary surface on every result.
+- Upload detailed reports unconditionally, with a short explicit retention period.
+- Never require an external reporting service.
 
-```yaml
-test:
-  strategy:
-    matrix:
-      node-version: [18, 20, 22]
-      os: [ubuntu-latest, windows-latest]
-    fail-fast: false
-  runs-on: ${{ matrix.os }}
-  steps:
-    - uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm test
-```
+A failing command must still produce a readable summary and valid partial metadata. A run that fails and reports nothing is indistinguishable from a run that never started.
 
-## Best Practices
+### Step 8: Apply the security and cost controls
 
-- **Fail fast** - Run quick checks (lint, format) before slow tests
-- **Cache aggressively** - Dependencies, build outputs, Docker layers
-- **Use artifacts** - Pass build outputs between jobs instead of rebuilding
-- **Pin action versions** - Use SHA or major version tags
-- **Separate concerns** - One job per logical task
-- **Use environments** - Protect production with approvals
-- **Implement rollbacks** - Always have a rollback mechanism
-- **Monitor pipelines** - Track duration, failure rates, flakiness
-- **Secure secrets** - Never log secrets, use secret managers
-- **Test the pipeline** - Have pipeline tests in CI
+| Control | Requirement |
+|---|---|
+| Third-party actions and plugins | immutable reference (a full commit SHA for GitHub Actions) with a readable version comment |
+| Permissions | explicit and least-privilege at workflow or job scope; never inherited silently |
+| Caching | keyed to lockfiles or manifests; never contains credentials or mutable state; deliberately absent from jobs that test a cold install |
+| Concurrency | cancel superseded pull-request validation; never cancel an in-flight release or deployment |
+| Untrusted forks | no secret exposure, no privileged trigger variants, no self-hosted execution |
+| Change scoping | a cheap detector job whose classification fails CLOSED, consumed by job-level conditions |
+
+### Step 9: Run the existing-pipeline comparison
+
+This is the terminal duty in every plan's final phase, and the entry point when a user asks to audit or migrate a pipeline. Six steps, in order.
+
+1. **Detect** the provider (Step 2). Record "none detected" rather than assuming.
+2. **Compare** the existing pipeline against every field in Steps 3 through 8: profiles, events, runner selection, required aggregate, permissions, pinning, caching, concurrency, path scoping, artifact retention, reports, deployment boundaries, failure recovery.
+3. **Propose** each difference with its cost, its risk, and the smallest change that closes it.
+4. **Approve.** Obtain explicit approval per change. Silence is not approval.
+5. **Apply** approved changes in the current phase, then re-run the local gate.
+6. **Record** every declined or environment-only difference as a known gap with an owner and a next step. Cross-link `[[known-gaps-tracker]]`.
+
+The comparison concludes PASS only when every required field has observable evidence. "Looks fine" is not evidence, and neither is a green run: a green run on a pipeline that never checks a thing is green for the wrong reason.
+
+The comparison field list and its output shape: [`references/repository-native-profiles.md`](references/repository-native-profiles.md).
+
+### Step 10: Document what the pipeline cannot enforce
+
+Some of this contract lives in repository settings, not in files. Write it down; never mutate it automatically.
+
+- Protected integration branch and protected release branch, both rejecting direct pushes.
+- Pull request required before merge, with the aggregate check required.
+- Administrator bypass disabled where the project's risk tolerance allows.
+- Merge queue enabled where supported, with the same gate.
+- Public-fork workflow restrictions and fork secret exposure rules.
+- Self-hosted runner isolation for private repositories.
+- Artifact retention period.
+- Billing usage review per repository and runner class.
 
 ## Common Patterns
 
-### Pattern 1: Reusable Workflows
+### Pattern 1: The thin trigger layer
 
-```yaml
-# .github/workflows/reusable-deploy.yml
-name: Reusable Deploy
+The pipeline file declares triggers, permissions, concurrency, a change-scope detector, a matrix, and calls to profiles. It contains no validator list. If someone deletes the pipeline file, every check still runs locally; if someone deletes the profiles, the pipeline has nothing to call. That asymmetry is the point.
 
-on:
-  workflow_call:
-    inputs:
-      environment:
-        required: true
-        type: string
-      image-tag:
-        required: true
-        type: string
-    secrets:
-      KUBE_CONFIG:
-        required: true
+### Pattern 2: Cost scoping that still reports
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-    steps:
-      - name: Deploy
-        run: |
-          kubectl set image deployment/app app=${{ inputs.image-tag }}
-```
+Put the scoping in a cheap detector job whose classification fails closed, output a single boolean, and consume it from every gated job's condition. The detector must be unable to exit non-zero, because under a workflow-level filter a detection mistake was loud (Pending forever) and under a job-level condition it is silent (skipped reports Success).
 
-### Pattern 2: Path-Based Triggers
+### Pattern 3: Migration from an existing pipeline
 
-```yaml
-on:
-  push:
-    paths:
-      - 'src/**'
-      - 'package*.json'
-      - 'Dockerfile'
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-```
+Do not rewrite in place. Add the profiles first and prove they reproduce the existing pipeline's result locally. Then replace the pipeline's inline command lists with profile calls one job at a time. Then separate the events. Then delete what is now duplicated. Each step is independently revertible; a wholesale rewrite is not.
 
-### Pattern 3: Conditional Deployments
+### Pattern 4: Reusable pipeline definitions
 
-```yaml
-deploy:
-  if: |
-    github.event_name == 'push' &&
-    github.ref == 'refs/heads/main' &&
-    !contains(github.event.head_commit.message, '[skip deploy]')
-```
+Where a provider supports callable or included pipeline definitions, use them for the trigger layer only. A reusable definition that carries a validator list has moved the duplication rather than removed it.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "Manual deployments are fine for our team size" | Manual deployments introduce human error at the exact moment of highest stress (production incidents); documented post-mortems at GitHub, GitLab, and Cloudflare cite manual deployment steps as contributing factors in outages that automated pipelines would have prevented. |
-| "We'll add rollback capability later when we have an incident" | Rollback procedures that are not tested before an incident are unreliable during an incident; runbooks executed for the first time under pressure have a high failure rate due to untested assumptions and outdated steps. |
-| "Secrets in CI environment variables are secure enough without a vault" | CI environment variables are visible to any job in the same repository (including PRs from forks), are logged in misconfigured pipelines, and are included in debugging artifacts; a secrets manager with scoped access prevents all three failure modes. |
-| "We don't need branch protection because the team is disciplined" | Branch protection rules enforce the same guarantees automatically for all team members including temporary contractors, bots, and accounts with compromised credentials — discipline cannot substitute for policy enforcement. |
-| "Caching makes the pipeline too complex to maintain" | Uncached pipelines that reinstall all dependencies on every run have 3-10x longer cycle times; longer cycle times correlate directly with reduced commit frequency and larger, harder-to-review changesets. |
-| "Approval gates for production are just ceremony" | Automated deployment without a production approval gate has caused mass incidents (Knight Capital 2012, Facebook 2021) where a bad deploy propagated to all regions before any human could intervene. |
+| "Path filters save minutes, so filter at the workflow level" | That makes every required check the workflow produces unsatisfiable: the platform leaves it Pending forever on an excluded change, so the only way to merge is an administrator bypass, and routine bypassing erodes the gate for the cases that matter. A job-level condition saves the same minutes and reports Success. Nexus-Hub shipped one release through six administrator bypasses for exactly this. |
+| "Running the suite again after merge is a safety net" | The pull request already validated the merge result. The merge commit is that same tree, so the second run cannot discover anything the first did not, and it is billed at full price. If you distrust the pull-request gate, fix the gate. |
+| "We gate the expensive OS legs to push, so PRs stay cheap" | The minutes are spent either way. Gating to push spends them after the change is already on a shared branch, where a failure is an incident instead of a review comment. Either the leg is worth running before merge or it should be deleted. |
+| "Pushing every phase keeps CI green" | It keeps CI RUNNING. Seven of eight runs validate work the author already knows is incomplete, which is how a team learns to merge past red checks. One run on complete work is both cheaper and a stronger signal. |
+| "Duplicating the command list in YAML is clearer than a script" | Two lists drift, and the drift is silent. This repository lost a security validator from CI for weeks because a duplicated key overwrote it, while the local list still ran it. One list, called from both places. |
+| "We will add reports later" | Without machine-readable output the only way to read a result is to scroll a log, so nobody reads failures they did not cause. The report is what makes a red run actionable by someone other than its author. |
+| "Self-hosted runners are cheaper, so use them everywhere" | On a public repository a persistent self-hosted runner executes untrusted fork code on a machine with state. That is a remote code execution surface, not a cost optimization. Private repositories, ephemeral runners, no ambient credentials. |
+| "Floating action tags get security fixes automatically" | They also get supply-chain compromises automatically. A moved tag is an unreviewed code change with your credentials. Pin the SHA and update deliberately. |
+| "The pipeline is green, so it conforms" | Green proves the checks that ran passed. It says nothing about the checks that were skipped, never written, or silently dropped. Step 9 requires observable evidence per field, which is a different question. |
 
 ## Verification
 
-- [ ] Pipeline executes on every push to the main branch and on every pull request without manual intervention
-- [ ] Secrets are stored in a dedicated secrets manager (not in repository environment variables or source code)
-- [ ] Rollback mechanism is documented and has been tested by executing it in a staging environment
-- [ ] Branch protection rules are enabled: direct push to main is blocked and at least one status check is required
-- [ ] Dependency caching is configured and verified: consecutive runs with no dependency changes complete faster than the first run
-- [ ] Production deployment requires explicit approval from at least one team member before proceeding
+- [ ] The active CI provider is named, or "none detected" is recorded
+- [ ] All five profiles exist and each runs to completion from one documented command with no CI-provider environment variables set
+- [ ] No profile reimplements a validator the repository already owns: each profile step maps to an existing repository command
+- [ ] No validation workflow fires on both a pull request into a protected branch and a push to that same branch
+- [ ] Every expensive-host leg runs on the integration pull request, not only after merge
+- [ ] Exactly one aggregate required context exists per validation workflow; it runs unconditionally and its verdict is an allowlist
+- [ ] No per-matrix-leg name appears in the required-check list
+- [ ] Open a pull request touching only paths the change detector excludes and confirm every required context reports rather than staying Pending
+- [ ] Every third-party action or plugin reference is an immutable identifier with a version comment
+- [ ] Every workflow declares explicit least-privilege permissions
+- [ ] A deliberately failed profile run still produces `reports/summary.md` and valid `reports/metadata/environment.json`
+- [ ] The run summary and uploaded artifacts appear on a failing run, with an explicit retention period set
+- [ ] Step 9 was run and every field concluded with observable evidence, or the difference is recorded as a known gap with an owner and a next step
+- [ ] The external repository settings of Step 10 are documented in a runbook, and nothing mutated them automatically
 
 ## Related Skills
 
+- [[cd-pipeline-generator]] -- generates the deployment stages that consume this lifecycle's validated release artifact
+- [[cicd-integration]] -- wires test suites, coverage, and quality gates into these profiles
+- [[implementation-plan]] -- generates the phase lifecycle and the mandatory terminal reconciliation that calls Step 9
+- [[implement-phase]] -- executes local phase commits, the single publication, and the integration gate
+- [[git-branching-workflow]] -- resolves the branch model this lifecycle publishes into
+- [[known-gaps-tracker]] -- records declined pipeline differences and environment-only limitations from Step 9
 - [[kubernetes-expert]] -- Kubernetes deployment targets
 - [[terraform-specialist]] -- infrastructure provisioning in pipelines
-- [[security-review]] -- pipeline security assessment
-- [[test-structure]] -- test automation strategies
-
----
-
-**Version**: 1.0.0
-**Last Updated**: January 2026
-**Based on**: awesome-claude-code-subagents patterns, CI/CD best practices
-
-
-### Iterative Refinement Strategy
-This skill is optimized for an iterative approach:
-1. **Execute**: Perform the core steps defined above.
-2. **Review**: Critically analyze the output (coverage, quality, completeness).
-3. **Refine**: If targets aren't met, repeat the specific implementation steps with improved context.
-4. **Loop**: Continue until the definition of done is satisfied.
+- [[security-review]] -- application security assessment, distinct from pipeline security
+- [[test-structure]] -- test automation strategy behind the profiles

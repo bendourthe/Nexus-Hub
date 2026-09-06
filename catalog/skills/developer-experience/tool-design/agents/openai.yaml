@@ -1,4 +1,4 @@
 interface:
   display_name: Tool Design for AI Agents
   short_description: Design effective tools and APIs for AI agent consumption (MCP servers, slash commands, function schemas). Use when building MCP servers, creating custom tools, designing APIs that agents
-    will call, or
+    will call, or optimizing tool descriptions for better agent behavior.

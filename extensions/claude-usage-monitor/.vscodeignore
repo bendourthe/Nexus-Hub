@@ -7,4 +7,6 @@ fonts/*.svg
 scripts/**
 tsconfig.json
 .fantasticonrc.json
+test/**
+vitest.config.ts
 **/*.map

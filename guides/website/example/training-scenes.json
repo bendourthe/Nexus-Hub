@@ -1,0 +1,443 @@
+{
+  "initial": {
+    "game": {
+      "damageMode": "buggy",
+      "verticalMovementEnabled": false,
+      "fixture": "enemy-hit"
+    },
+    "files": [
+      {
+        "path": "src/damage.js",
+        "language": "javascript",
+        "content": "export function applyEnemyHit(ship) {\n  // TODO: lives were added to the design, but this handler predates them.\n  return { ...ship, destroyed: true };\n}\n"
+      },
+      {
+        "path": "src/game.js",
+        "language": "javascript",
+        "content": "import { applyEnemyHit } from './damage.js';\n\nexport function resolveEnemyShot(ship, shot) {\n  if (!overlaps(ship, shot)) return ship;\n  return applyEnemyHit(ship);\n}\n\nfunction overlaps(a, b) {\n  const dx = a.x - b.x;\n  const dy = a.y - b.y;\n  return Math.hypot(dx, dy) <= a.radius + b.radius;\n}\n"
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "id": "describe",
+      "stage": "Understand",
+      "title": "Map the game before changing it",
+      "intent": "You ask the assistant to trace what actually happens when an enemy shot reaches the ship, before touching anything.",
+      "command": "/describe full",
+      "tools": [
+        {
+          "name": "Search",
+          "purpose": "find where enemy hits are resolved"
+        },
+        {
+          "name": "Read",
+          "purpose": "inspect the two source files"
+        }
+      ],
+      "output": [
+        "Read src/damage.js and src/game.js.",
+        "resolveEnemyShot hands every overlap to applyEnemyHit.",
+        "applyEnemyHit sets destroyed: true unconditionally; the lives counter is never consulted.",
+        "The HUD reads 3 lives while the very first hit ends the run.",
+        "Hostile fixture stays text: <img onerror> and </script>.",
+        "Wrote docs/analysis.md."
+      ],
+      "game": {
+        "damageMode": "buggy",
+        "verticalMovementEnabled": false,
+        "fixture": "enemy-hit"
+      },
+      "files": [
+        {
+          "path": "docs/analysis.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Sky Sentinel code map\n\n`src/game.js` detects the overlap between an enemy shot and the ship, then delegates to `applyEnemyHit` in `src/damage.js`. That handler predates the lives system: it returns `destroyed: true` on every call and never reads `ship.lives`.\n\nObserved in play: the HUD shows 3 lives, yet the first enemy shot ends the run instantly.\n\nRisk: any future damage source that reuses this handler inherits the same instant death.\n"
+        }
+      ],
+      "focus_file": "docs/analysis.md",
+      "artifact": {
+        "path": "docs/analysis.md",
+        "summary": "A code map anchored to the real hit-resolution path."
+      },
+      "gate": {
+        "name": "Understanding",
+        "status": "pass",
+        "prompt": "The defect is localized before any edit."
+      },
+      "takeaway": "You now have an evidence-backed map of the damage path, not a guess about the symptom."
+    },
+    {
+      "id": "review",
+      "stage": "Evaluate",
+      "title": "Turn the symptom into a finding",
+      "intent": "You ask for a severity-ranked review that proves why instant death is a defect and not a difficulty choice.",
+      "command": "/review",
+      "tools": [
+        {
+          "name": "Read",
+          "purpose": "verify the damage contract against the HUD"
+        },
+        {
+          "name": "Test",
+          "purpose": "exercise the seeded first-hit fixture"
+        }
+      ],
+      "output": [
+        "Reproduced it: in the enemy-hit fixture the first shot destroys the ship at three lives.",
+        "P1 correctness: applyEnemyHit ignores ship.lives entirely.",
+        "Root cause is an unconditional destroyed: true kept from before lives existed.",
+        "Wrote docs/review.md."
+      ],
+      "game": {
+        "damageMode": "buggy",
+        "verticalMovementEnabled": false,
+        "fixture": "enemy-hit"
+      },
+      "files": [
+        {
+          "path": "docs/review.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Damage review\n\n## P1 - The first enemy hit is always fatal\n\n`applyEnemyHit` returns `destroyed: true` unconditionally. The HUD promises three lives; the handler delivers none. The seeded enemy-hit fixture reproduces it deterministically: one falling shot, one dead ship, lives still reading 3.\n\nFix: consume one life per hit, grant a brief invulnerability window, and destroy only when lives reach zero.\n"
+        }
+      ],
+      "focus_file": "docs/review.md",
+      "artifact": {
+        "path": "docs/review.md",
+        "summary": "One prioritized finding with reproduction and root cause."
+      },
+      "gate": {
+        "name": "Review",
+        "status": "pass",
+        "prompt": "The finding is reproducible and actionable."
+      },
+      "takeaway": "You can tell a real damage defect from hard difficulty, and you can prove the difference."
+    },
+    {
+      "id": "plan",
+      "stage": "Decide",
+      "title": "Make the repair testable",
+      "intent": "You turn the finding into one small phase with an observable in-game exit gate.",
+      "command": "/plan feature",
+      "tools": [
+        {
+          "name": "Read",
+          "purpose": "ground the plan in analysis and review"
+        },
+        {
+          "name": "Write",
+          "purpose": "record ordered work and exit gates"
+        }
+      ],
+      "output": [
+        "Planned one phase: prove the instant death, implement per-hit lives, replay the fixture.",
+        "Exit gate: the seeded first hit leaves the ship alive at two lives.",
+        "Vertical movement stays out of scope until comparison evidence exists.",
+        "Wrote docs/releases/v0.1/plans/fix-damage-handling.md."
+      ],
+      "game": {
+        "damageMode": "buggy",
+        "verticalMovementEnabled": false,
+        "fixture": "enemy-hit"
+      },
+      "files": [
+        {
+          "path": "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Fix damage handling\n\n## Phase 1\n\n1. Add a failing test: one hit on a 3-life ship must leave 2 lives, not a destroyed ship.\n2. Rewrite applyEnemyHit to consume one life, grant a 90-tick invulnerability window, and destroy only at zero.\n3. Keep asteroid contact fatal; it never routes through this handler.\n4. Replay the enemy-hit fixture: the run must survive the first shot.\n\nExit: focused tests pass and the in-browser first hit leaves the HUD at 2. Vertical movement is excluded.\n"
+        }
+      ],
+      "focus_file": "docs/releases/v0.1/plans/fix-damage-handling.md",
+      "artifact": {
+        "path": "docs/releases/v0.1/plans/fix-damage-handling.md",
+        "summary": "A one-phase repair plan with a playable exit gate."
+      },
+      "gate": {
+        "name": "Plan",
+        "status": "pass",
+        "prompt": "Scope is bounded to damage correctness."
+      },
+      "takeaway": "You know exactly what will change, what will not, and how the game will prove it."
+    },
+    {
+      "id": "implement",
+      "stage": "Build",
+      "title": "Make a hit cost one life",
+      "intent": "You run the planned phase and immediately replay the same seeded shot against the repaired handler.",
+      "command": "/implement fix-damage-handling phase-1",
+      "tools": [
+        {
+          "name": "Edit",
+          "purpose": "rewrite the damage handler around lives"
+        },
+        {
+          "name": "Test",
+          "purpose": "run first-hit, third-hit, and invulnerability cases"
+        }
+      ],
+      "output": [
+        "RED: the one-hit-one-life test failed against the unconditional destroy.",
+        "GREEN: applyEnemyHit now consumes a life and grants the 90-tick window.",
+        "Focused tests: 3 passed.",
+        "Playable check: the seeded first hit leaves the HUD at 2 lives.",
+        "Wrote the source change, regression tests, diff, and phase history."
+      ],
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": false,
+        "fixture": "enemy-hit"
+      },
+      "files": [
+        {
+          "path": "src/damage.js",
+          "action": "modify",
+          "language": "javascript",
+          "content": "const INVULN_TICKS = 90;\n\nexport function applyEnemyHit(ship) {\n  if (ship.invulnerableTicks > 0) return ship;\n  const lives = ship.lives - 1;\n  return {\n    ...ship,\n    lives,\n    destroyed: lives <= 0,\n    invulnerableTicks: lives > 0 ? INVULN_TICKS : 0,\n  };\n}\n",
+          "diff": "-export function applyEnemyHit(ship) {\n-  // TODO: lives were added to the design, but this handler predates them.\n-  return { ...ship, destroyed: true };\n-}\n+export function applyEnemyHit(ship) {\n+  if (ship.invulnerableTicks > 0) return ship;\n+  const lives = ship.lives - 1;\n+  return { ...ship, lives, destroyed: lives <= 0,\n+           invulnerableTicks: lives > 0 ? INVULN_TICKS : 0 };\n+}\n"
+        },
+        {
+          "path": "tests/damage.test.js",
+          "action": "create",
+          "language": "javascript",
+          "content": "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { applyEnemyHit } from '../src/damage.js';\n\ntest('one hit costs exactly one life', () => {\n  const ship = applyEnemyHit({ lives: 3, invulnerableTicks: 0 });\n  assert.equal(ship.lives, 2);\n  assert.equal(ship.destroyed, false);\n  assert.equal(ship.invulnerableTicks, 90);\n});\n\ntest('the third hit destroys the ship', () => {\n  const ship = applyEnemyHit({ lives: 1, invulnerableTicks: 0 });\n  assert.equal(ship.lives, 0);\n  assert.equal(ship.destroyed, true);\n});\n\ntest('an invulnerable ship shrugs the hit off', () => {\n  const ship = applyEnemyHit({ lives: 2, invulnerableTicks: 45 });\n  assert.equal(ship.lives, 2);\n});\n"
+        },
+        {
+          "path": "docs/releases/v0.1/evidence/damage.diff",
+          "action": "create",
+          "language": "diff",
+          "content": "-export function applyEnemyHit(ship) {\n-  // TODO: lives were added to the design, but this handler predates them.\n-  return { ...ship, destroyed: true };\n-}\n+export function applyEnemyHit(ship) {\n+  if (ship.invulnerableTicks > 0) return ship;\n+  const lives = ship.lives - 1;\n+  return { ...ship, lives, destroyed: lives <= 0,\n+           invulnerableTicks: lives > 0 ? INVULN_TICKS : 0 };\n+}\n"
+        },
+        {
+          "path": "docs/releases/v0.1/history/phase-1.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Phase 1 history\n\nCompleted: per-hit lives with a 90-tick invulnerability window.\n\nVerified: 3 focused tests passed; the seeded browser hit left 2 lives on the HUD.\n\nOpen: vertical movement is not implemented. No push or remote CI was run.\n"
+        }
+      ],
+      "focus_file": "docs/releases/v0.1/evidence/damage.diff",
+      "artifact": {
+        "path": "docs/releases/v0.1/history/phase-1.md",
+        "summary": "Code, tests, diff, and evidence for the completed repair."
+      },
+      "gate": {
+        "name": "Implementation",
+        "status": "pass",
+        "prompt": "Take a hit now: the HUD must read 2."
+      },
+      "takeaway": "You can play the same seeded situation before and after the change and watch the fix land."
+    },
+    {
+      "id": "compare",
+      "stage": "Extend",
+      "title": "Adopt vertical movement without importing a project",
+      "intent": "You compare a reference behavior, record the useful pattern, and run its follow-on plan and implementation.",
+      "command": "/compare vertical-movement-reference",
+      "tools": [
+        {
+          "name": "Compare",
+          "purpose": "isolate the reference movement behavior"
+        },
+        {
+          "name": "Edit",
+          "purpose": "implement the adopted pattern locally"
+        },
+        {
+          "name": "Test",
+          "purpose": "prove gating and band clamping"
+        }
+      ],
+      "output": [
+        "Adopt: Up and Down move the ship inside a bounded lower play band.",
+        "Reject: the reference renderer, input library, and dependency layout.",
+        "Follow-on /plan and /implement completed inside this comparison step.",
+        "Movement tests: 3 passed.",
+        "The playable game now climbs and dives between y 360 and y 460."
+      ],
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": true,
+        "fixture": "play"
+      },
+      "files": [
+        {
+          "path": "docs/comparison.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Vertical movement comparison\n\nAdopt the behavior contract: while the feature flag is on, Up and Down move the ship at its vertical speed, clamped to the lower play band between y 360 and y 460. While the flag is off, vertical input is read and ignored.\n\nReject the reference renderer, input library, and package structure. Implement through a small pure `applyVerticalInput` seam beside the existing damage seam.\n"
+        },
+        {
+          "path": "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Add vertical movement\n\nOne follow-on phase: implement `applyVerticalInput` behind the feature flag, clamp to the band, and cover off, top-clamp, and bottom-clamp cases. Exit when the playable ship climbs and dives inside the band and never leaves it.\n"
+        },
+        {
+          "path": "src/movement.js",
+          "action": "create",
+          "language": "javascript",
+          "content": "const BAND = { top: 360, bottom: 460 };\n\nexport function applyVerticalInput(ship, input, enabled) {\n  if (!enabled) return ship;\n  let y = ship.y;\n  if (input.up) y -= ship.speedY;\n  if (input.down) y += ship.speedY;\n  return { ...ship, y: Math.min(BAND.bottom, Math.max(BAND.top, y)) };\n}\n"
+        },
+        {
+          "path": "tests/movement.test.js",
+          "action": "create",
+          "language": "javascript",
+          "content": "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { applyVerticalInput } from '../src/movement.js';\n\nconst ship = { y: 440, speedY: 2 };\n\ntest('vertical input is ignored while the feature is off', () => {\n  assert.equal(applyVerticalInput(ship, { up: true }, false).y, 440);\n});\n\ntest('upward travel clamps at the top of the play band', () => {\n  const high = { ...ship, y: 361 };\n  assert.equal(applyVerticalInput(high, { up: true }, true).y, 360);\n});\n\ntest('downward travel clamps at the bottom of the play band', () => {\n  const low = { ...ship, y: 459 };\n  assert.equal(applyVerticalInput(low, { down: true }, true).y, 460);\n});\n"
+        }
+      ],
+      "focus_file": "docs/comparison.md",
+      "artifact": {
+        "path": "docs/comparison.md",
+        "summary": "An adoption decision plus its completed follow-on change."
+      },
+      "gate": {
+        "name": "Comparison",
+        "status": "pass",
+        "prompt": "Only the behavior pattern was adopted."
+      },
+      "takeaway": "You can borrow a useful idea without importing another project's architecture."
+    },
+    {
+      "id": "test",
+      "stage": "Prove",
+      "title": "Exercise both behavior boundaries",
+      "intent": "You run the focused suite and confirm the damage and movement seams cover their boundary cases.",
+      "command": "/test unit",
+      "tools": [
+        {
+          "name": "Test",
+          "purpose": "run damage and movement unit tests"
+        },
+        {
+          "name": "Coverage",
+          "purpose": "confirm both seams and their branches execute"
+        }
+      ],
+      "output": [
+        "Ran damage and movement unit tests.",
+        "6 passed: one-hit, third-hit, invulnerability, gated-off, top clamp, bottom clamp.",
+        "Both pure seams and every branch executed.",
+        "Wrote reports/unit-summary.txt."
+      ],
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": true,
+        "fixture": "play"
+      },
+      "files": [
+        {
+          "path": "reports/unit-summary.txt",
+          "action": "create",
+          "language": "text",
+          "content": "damage.test.js    3 passed\nmovement.test.js  3 passed\nTOTAL             6 passed\nBranches: hit, fatal hit, invulnerable, feature off, top clamp, bottom clamp\n"
+        }
+      ],
+      "focus_file": "reports/unit-summary.txt",
+      "artifact": {
+        "path": "reports/unit-summary.txt",
+        "summary": "A focused test result tied to both behaviors."
+      },
+      "gate": {
+        "name": "Tests",
+        "status": "pass",
+        "prompt": "All six behavior checks pass."
+      },
+      "takeaway": "You have executable proof for the fix and the feature, including their boundary cases."
+    },
+    {
+      "id": "update",
+      "stage": "Record",
+      "title": "Leave the project history current",
+      "intent": "You record what changed and the exact proof a future maintainer can rerun.",
+      "command": "/update changelog",
+      "tools": [
+        {
+          "name": "Diff",
+          "purpose": "derive notes from actual changes"
+        },
+        {
+          "name": "Write",
+          "purpose": "update release history"
+        }
+      ],
+      "output": [
+        "Derived notes from the damage, movement, and test diffs.",
+        "Recorded the per-hit lives fix and the vertical-movement feature.",
+        "Included the 6-test verification result.",
+        "Updated CHANGELOG.md."
+      ],
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": true,
+        "fixture": "play"
+      },
+      "files": [
+        {
+          "path": "CHANGELOG.md",
+          "action": "create",
+          "language": "markdown",
+          "content": "# Changelog\n\n## 0.1.0\n\n### Fixed\n\n- An enemy hit now costs one life instead of destroying the ship outright; destruction happens only at zero lives, after a brief invulnerability window per hit.\n\n### Added\n\n- Vertical movement behind a feature flag, clamped to the lower play band.\n\n### Verified\n\n- Six focused damage and movement tests pass.\n"
+        }
+      ],
+      "focus_file": "CHANGELOG.md",
+      "artifact": {
+        "path": "CHANGELOG.md",
+        "summary": "Release notes derived from the implemented diff and tests."
+      },
+      "gate": {
+        "name": "History",
+        "status": "pass",
+        "prompt": "The durable record matches the code."
+      },
+      "takeaway": "You leave enough evidence for the next person to understand and verify the work."
+    },
+    {
+      "id": "presentify",
+      "stage": "Communicate",
+      "title": "Turn the evidence into a briefing",
+      "intent": "You assemble the analysis, finding, implementation, and proof into an offline walkthrough.",
+      "command": "/presentify docs/analysis.md docs/review.md CHANGELOG.md",
+      "tools": [
+        {
+          "name": "Read",
+          "purpose": "collect the completed evidence trail"
+        },
+        {
+          "name": "Render",
+          "purpose": "build one self-contained briefing"
+        }
+      ],
+      "output": [
+        "Built a four-part briefing: symptom, cause, repair, proof.",
+        "Included the surviving-first-hit result and the band-clamped climb.",
+        "Wrote shooter-briefing.html; offline: yes."
+      ],
+      "game": {
+        "damageMode": "fixed",
+        "verticalMovementEnabled": true,
+        "fixture": "play"
+      },
+      "files": [
+        {
+          "path": "shooter-briefing.html",
+          "action": "create",
+          "language": "html",
+          "content": "<!doctype html>\n<html lang=\"en\">\n<meta charset=\"utf-8\">\n<title>Sky Sentinel repair briefing</title>\n<body>\n  <main>\n    <h1>One damage bug, one playable proof</h1>\n    <p>Before: the first enemy shot destroyed the ship at three lives. After: hits cost one life each, and the ship climbs and dives inside its play band.</p>\n    <p>Evidence: six focused tests pass.</p>\n  </main>\n</body>\n</html>\n"
+        }
+      ],
+      "focus_file": "shooter-briefing.html",
+      "artifact": {
+        "path": "shooter-briefing.html",
+        "summary": "A self-contained briefing built from the accumulated evidence."
+      },
+      "gate": {
+        "name": "Communication",
+        "status": "pass",
+        "prompt": "The result is understandable without the implementation session."
+      },
+      "takeaway": "You finish the loop with a concise story backed by the files and behavior you produced."
+    }
+  ]
+}

@@ -34,7 +34,7 @@ survive automatically, and there is no "did I remember to keep X?" failure mode.
 
 Local-first and deterministic: no outbound call, no network, no clock, no
 randomness. The same source always yields the same skeleton and the same marker
-hashes. Reference behavior: ``docs/v3/v3.2/comparisons/v3.2.0-comparison-headroom.md`` Section 5a
+hashes. Reference behavior: ``docs/releases/v3/v3.2/comparisons/v3.2.0-comparison-headroom.md`` Section 5a
 item 3.
 """
 

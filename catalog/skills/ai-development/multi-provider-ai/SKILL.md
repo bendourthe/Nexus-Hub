@@ -1,6 +1,6 @@
 ---
 name: multi-provider-ai
-description: Configure and route LLM requests across multiple AI providers — Anthropic direct, AWS Bedrock, Google Vertex AI, and OpenRouter. Covers provider selection criteria, environment variable patterns, unified client interfaces, fallback routing, and model ID conventions. Use when building LLM applications that need provider flexibility or enterprise cloud integration.
+description: Configure and route LLM requests across multiple AI providers -- Anthropic direct, AWS Bedrock, Google Vertex AI, and OpenRouter. Covers provider selection criteria, environment variable patterns, unified client interfaces, fallback routing, and model ID conventions. Use when building LLM applications that need provider flexibility or enterprise cloud integration.
 summary_l0: "Route LLM requests across Anthropic, Bedrock, Vertex AI, and OpenRouter providers"
 overview_l1: "This skill provides patterns for building provider-agnostic LLM integrations that route requests across Anthropic, AWS Bedrock, Google Vertex AI, and OpenRouter without changing application code. Use it when choosing between AI providers, setting up credentials and environment variables, implementing a provider-agnostic client interface, designing fallback routing, comparing costs across providers, meeting enterprise cloud-native AI requirements, or avoiding vendor lock-in. Key capabilities include provider selection guides based on compliance, latency, cost, and features, credential and secret management patterns for each provider, unified TypeScript and Python client abstractions, failover routing strategies, cost comparison matrices, and model ID convention mapping. The expected output is a unified LLM client layer with automatic failover, per-provider credential management, and cost-aware routing. Trigger phrases: multi-provider Claude, AWS Bedrock Claude, Google Vertex Claude, OpenRouter setup, provider abstraction, fallback LLM, enterprise AI integration, Bedrock vs Anthropic."
 ---
@@ -81,7 +81,7 @@ AWS_ACCESS_KEY_ID=AKIA...
 AWS_SECRET_ACCESS_KEY=...
 AWS_REGION=us-east-1
 
-# Option B: IAM role (production — preferred for EC2/ECS/Lambda)
+# Option B: IAM role (production -- preferred for EC2/ECS/Lambda)
 # Attach this IAM policy to your role:
 # {
 #   "Effect": "Allow",
@@ -343,7 +343,7 @@ function estimateCostUsd(
 ## Best Practices
 
 - **Start with Anthropic direct**: The simplest path for development. Switch providers only when you have a concrete business requirement (compliance, billing consolidation, regional latency).
-- **Pin model IDs explicitly**: Never use model aliases like `claude-sonnet-latest` in production — they can change under you. Use the full versioned ID.
+- **Pin model IDs explicitly**: Never use model aliases like `claude-sonnet-latest` in production -- they can change under you. Use the full versioned ID.
 - **Use IAM roles in production**: For Bedrock and Vertex, use IAM roles attached to your compute, not long-lived access keys in environment variables.
 - **Test in each provider before switching**: Model behavior can differ slightly across providers due to inference infrastructure differences. Test your prompts with the target provider before go-live.
 - **Failover is for resilience, not cost arbitrage**: Routing to a cheaper provider when the primary is "busy" undermines predictable performance. Use fallback routing for genuine unavailability.
@@ -419,4 +419,4 @@ const client = new Anthropic({
 
 **Version**: 1.0.0
 **Last Updated**: March 2026
-**Reference Implementation**: Shannon (KeygraphHQ) — supports Anthropic, AWS Bedrock, Google Vertex AI, and OpenRouter via unified provider abstraction
+**Reference Implementation**: Shannon (KeygraphHQ) -- supports Anthropic, AWS Bedrock, Google Vertex AI, and OpenRouter via unified provider abstraction

@@ -1,4 +1,4 @@
 interface:
   display_name: CD Pipeline Generator
   short_description: Generates continuous deployment pipelines for GitHub Actions, GitLab CI, Jenkins, and ArgoCD with deployment strategies, environment promotion, and rollback triggers. Use when creating
-    CD pipelines, c
+    CD pipelines, configuring deployment gates, or implementing blue-green and canary deployments.

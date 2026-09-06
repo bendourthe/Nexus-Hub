@@ -1,0 +1,5 @@
+{
+  "routes": ["GET /users/:id", "POST /users"],
+  "env": ["API_KEY", "NODE_ENV"],
+  "middleware": ["cors", "morgan", "rateLimit"]
+}

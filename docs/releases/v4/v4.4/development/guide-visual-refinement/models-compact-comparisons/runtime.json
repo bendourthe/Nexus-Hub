@@ -1,0 +1,73 @@
+{
+  "errors": [],
+  "requests": [],
+  "camera_frames": [
+    {
+      "time": 0,
+      "camera": "0.000,0.000,0.000,68.000"
+    },
+    {
+      "time": 2200,
+      "camera": "0.000,0.000,0.350,58.000"
+    },
+    {
+      "time": 6000,
+      "camera": "-0.330,-0.180,0.350,58.000"
+    },
+    {
+      "time": 12000,
+      "camera": "0.330,0.180,0.350,58.000"
+    }
+  ],
+  "particles": [
+    {
+      "offset": "25.9093%",
+      "state": "running"
+    },
+    {
+      "offset": "27.9329%",
+      "state": "running"
+    },
+    {
+      "offset": "96.9668%",
+      "state": "running"
+    },
+    {
+      "offset": "43.6519%",
+      "state": "running"
+    },
+    {
+      "offset": "14.547%",
+      "state": "running"
+    },
+    {
+      "offset": "16.1373%",
+      "state": "running"
+    },
+    {
+      "offset": "84.6431%",
+      "state": "running"
+    },
+    {
+      "offset": "53.1495%",
+      "state": "running"
+    },
+    {
+      "offset": "59.5111%",
+      "state": "running"
+    },
+    {
+      "offset": "59.3829%",
+      "state": "running"
+    },
+    {
+      "offset": "52.1457%",
+      "state": "running"
+    },
+    {
+      "offset": "1.56537%",
+      "state": "running"
+    }
+  ],
+  "playing_after_exit": 0
+}

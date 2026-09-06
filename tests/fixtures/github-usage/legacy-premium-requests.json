@@ -1,0 +1,19 @@
+{
+  "timePeriod": {"year": 2026, "month": 8},
+  "user": "fixture-user",
+  "usageItems": [
+    {
+      "product": "Copilot",
+      "sku": "Copilot Premium Request",
+      "model": "fixture-model",
+      "unitType": "requests",
+      "pricePerUnit": 0.04,
+      "grossQuantity": 84,
+      "grossAmount": 3.36,
+      "discountQuantity": 84,
+      "discountAmount": 3.36,
+      "netQuantity": 0,
+      "netAmount": 0
+    }
+  ]
+}

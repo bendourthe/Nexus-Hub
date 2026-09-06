@@ -14,7 +14,7 @@ For a document compiled from 2-5 source reports covering a substantial topic:
 | Total tables | 5-15 | Never exceed 20 |
 | Bullet points (total) | 60-150 | Minimum 30 |
 | Total lines in `merged.md` | 700-1300 | Never exceed 1600 |
-| Canonical references | 10-80 | — |
+| Canonical references | 10-80 | -- |
 | Inline citations (per body paragraph average) | 0.5-2.0 | Never exceed 4 per sentence |
 
 If your merged markdown exceeds any hard limit, fix it before calling the generator.
@@ -103,15 +103,15 @@ When the same topic appears in multiple inputs:
 - Paragraphs are 3-5 sentences max. A paragraph that runs past 5 sentences probably has two ideas and needs splitting.
 - Tables: max 15 rows, max 5 columns. Each table is preceded by a context sentence and followed by a takeaway sentence.
 - Bullet lists for enumerable items (features, findings, counterexamples). Numbered lists for sequenced steps.
-- Never put implementation steps in a table — use `### Step N:` sub-headings with objective, sub-steps, and verification.
-- Never include `# Table of Contents` — the generator inserts the TOC.
+- Never put implementation steps in a table -- use `### Step N:` sub-headings with objective, sub-steps, and verification.
+- Never include `# Table of Contents` -- the generator inserts the TOC.
 - Never hand-author `# References` entries with styling; the generator re-emits References from `refs.json`. Your `# References` block in the merged markdown is a hint to the parser only.
 
 ---
 
 ## Metadata Table
 
-The generator inserts the metadata table automatically from the confirmed Author and Date. Your merged markdown should not contain a hand-authored metadata table — but if it does, the generator will render it as a regular table (the auto-emitted one is styled with the borderless-row-rules look derived from the template's style profile).
+The generator inserts the metadata table automatically from the confirmed Author and Date. Your merged markdown should not contain a hand-authored metadata table -- but if it does, the generator will render it as a regular table (the auto-emitted one is styled with the borderless-row-rules look derived from the template's style profile).
 
 ---
 
@@ -126,6 +126,6 @@ Count in your merged markdown before invoking the generator:
 5. **No duplicate headings**: each heading text should appear once.
 6. **Line count**: 700-1300 lines target. Under 600 is thin; over 1600 is content-dumping.
 7. **PRE-TOC markers**: the Document's Purpose section is wrapped in `<!-- PRE-TOC -->...<!-- /PRE-TOC -->`.
-8. **Citation format**: all citations are `[N]` or `[N,M]` — no `[N; M]`, `[N and M]`, or other variants.
+8. **Citation format**: all citations are `[N]` or `[N,M]` -- no `[N; M]`, `[N and M]`, or other variants.
 
 If any check fails, fix the merged markdown before calling the generator.

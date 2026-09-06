@@ -1,43 +1,155 @@
 # Presentify extractor verification (v3.12.0 Phase 6, resolves MT-1).
 #
-# Path-filtered so it costs action minutes ONLY when the presentify skill's
-# bundled scripts (or this suite) change - the extractor is ~1200 lines of
-# parsing logic whose fixture suite (45 checks) and design-entropy suite
-# (10 checks) were previously manual-only. Ubuntu-only, single job, pip
-# cached, concurrency-cancelled: the minimal footprint that still gates the
-# high-risk surface.
+# The workflow itself starts on every protected-branch PR because `verify` is a
+# required status check. A lightweight detector keeps the expensive extractor
+# dependencies and suites path-scoped. Event-level `paths` filters cannot be
+# used for a required check: GitHub leaves the absent context pending forever
+# on unrelated PRs, which makes the protected branch impossible to merge.
 
 name: Presentify extractor
 
 on:
-  push:
-    branches: [main, develop]
-    paths:
-      - 'catalog/skills/specialized-domains/document-to-interactive-html/scripts/**'
-      - 'docs/v3/v3.12/development/fixtures/gen_fixtures.py'
-      - 'docs/v3/v3.12/development/fixtures/verify_phase1.py'
-      - 'docs/v3/v3.12/development/fixtures/enrich_models.py'
-      - 'docs/v3/v3.12/development/fixtures/verify_design_seed.py'
-      - 'docs/v3/v3.13/development/fixtures/verify_universal_ingestion.py'
-      - '.github/workflows/presentify-extractor.yml'
+  # The render job below is gated to this schedule; the fast verify job opts
+  # OUT of the schedule so a cron run does not double-bill it.
+  schedule:
+    - cron: '17 4 * * 1'
   pull_request:
     branches: [main, develop]
-    paths:
-      - 'catalog/skills/specialized-domains/document-to-interactive-html/scripts/**'
-      - 'docs/v3/v3.12/development/fixtures/gen_fixtures.py'
-      - 'docs/v3/v3.12/development/fixtures/verify_phase1.py'
-      - 'docs/v3/v3.12/development/fixtures/enrich_models.py'
-      - 'docs/v3/v3.12/development/fixtures/verify_design_seed.py'
-      - 'docs/v3/v3.13/development/fixtures/verify_universal_ingestion.py'
-      - '.github/workflows/presentify-extractor.yml'
+
+# v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
+# contents is the complete requirement.
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  verify:
+  detect:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      presentify: ${{ steps.paths.outputs.presentify }}
+    steps:
+      - if: github.event_name != 'schedule'
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          fetch-depth: 0
+
+      - if: github.event_name != 'schedule'
+        id: paths
+        name: Detect Presentify changes
+        shell: bash
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          base="$PR_BASE_SHA"
+          head="$PR_HEAD_SHA"
+
+          if [[ "$base" =~ ^0+$ ]] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            base="$(git rev-list --max-parents=0 "$head" | tail -n 1)"
+          fi
+
+          changed_files="$(git diff --name-only "$base" "$head")"
+          if grep -Eq '^(catalog/skills/specialized-domains/document-to-interactive-html/|catalog/commands/presentify\.md$|tests/skills/|tests/fixtures/presentify/|docs/releases/v3/v3\.12/development/fixtures/(gen_fixtures|verify_phase1|enrich_models|verify_design_seed)\.py$|docs/releases/v3/v3\.13/development/fixtures/(verify_universal_ingestion|verify_imagery)\.py$|\.github/workflows/presentify-extractor\.yml$)' <<< "$changed_files"; then
+            echo "presentify=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "presentify=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  verify:
+    # This job must exist on every protected PR because branch protection
+    # requires its `verify` context. Its expensive steps remain path-scoped.
+    needs: detect
+    # `always()` keeps this required context resolvable even when detection
+    # fails. The first step then fails closed instead of leaving the job skipped.
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Require successful path detection
+        if: needs.detect.result != 'success'
+        run: |
+          echo "Presentify path detection ended with: ${{ needs.detect.result }}" >&2
+          exit 1
+
+      - if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: '.github/workflows/presentify-extractor.yml'
+
+      - name: Install extractor + fixture dependencies
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: >
+          pip install python-pptx python-docx openpyxl pdfplumber pypdf
+          pypdfium2 Pillow reportlab rapidocr-onnxruntime ruff==0.16.1 pytest
+
+      - name: Lint the bundled scripts
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: ruff check --ignore RUF100 catalog/skills/specialized-domains/document-to-interactive-html/scripts/
+
+      - name: Run the presentify skills suite (v3.15.4 Phase 1 + 2)
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        # Full-width canvas + image-sizing contract (layout suite) and the
+        # extractor prominence signals (page_fraction + native width/height for
+        # PPTX and PDF). This runner installs the heavy extractor libs, so the
+        # prominence tests run here (they importorskip elsewhere). This job
+        # installs NO browser, so the three browser-dependent checks
+        # skip-with-note here by design; the `render` job below is the one that
+        # installs chromium and enforces them via NEXUS_REQUIRE_RENDER=1
+        # (v3.16.5 Phase 3, closing v3.15 MT-1). Everything else - injected-var,
+        # offline, head-integrity, CSS-heuristic band, image-cap, the four
+        # typography checks, the three SVG checks, and the extractor signals -
+        # runs browser-free.
+        run: python -m pytest tests/skills/ -v
+
+      - name: Generate fixtures
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: python docs/releases/v3/v3.12/development/fixtures/gen_fixtures.py
+
+      - name: Run the extraction-fidelity suite (45 checks)
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: python docs/releases/v3/v3.12/development/fixtures/verify_phase1.py
+
+      - name: Run the protocol round-trip
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: python docs/releases/v3/v3.12/development/fixtures/enrich_models.py
+
+      - name: Run the design-entropy suite (10 checks)
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: python docs/releases/v3/v3.12/development/fixtures/verify_design_seed.py
+
+      - name: Run the v3.13 universal-ingestion suite (28 checks)
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: python docs/releases/v3/v3.13/development/fixtures/verify_universal_ingestion.py
+
+      - name: Run the v3.13 imagery Tier 2/3 suite (offline, no network / GPU)
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: python docs/releases/v3/v3.13/development/fixtures/verify_imagery.py
+
+  render:
+    # The TRUE rendered checks (v3.16.5 Phase 3, closes v3.15 known-gap MT-1,
+    # whose suggested next step was exactly "gate a headless-render job to
+    # merges/schedule so the true rendered-width check runs in CI").
+    #
+    # Gated to the weekly cron, NOT to pull requests or protected-branch pushes:
+    # a browser download plus a real render is the expensive part of this
+    # workflow, and PR feedback is already covered by the browser-free `verify`
+    # job. The schedule supplies regular deep coverage without re-testing every
+    # just-verified merge.
+    needs: detect
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
@@ -47,25 +159,44 @@ jobs:
           cache: 'pip'
           cache-dependency-path: '.github/workflows/presentify-extractor.yml'
 
-      - name: Install extractor + fixture dependencies
+      - name: Install the render + extractor dependencies
         run: >
-          pip install python-pptx python-docx openpyxl pdfplumber pypdf
-          pypdfium2 Pillow reportlab rapidocr-onnxruntime ruff
+          pip install playwright python-pptx python-docx openpyxl pdfplumber
+          pypdf pypdfium2 Pillow reportlab pytest
 
-      - name: Lint the bundled scripts
-        run: ruff check catalog/skills/specialized-domains/document-to-interactive-html/scripts/
+      # The browser download is ~130MB and changes only when Playwright's pinned
+      # revision does, so it is keyed on the resolved playwright version rather
+      # than on the workflow file.
+      - name: Resolve the Playwright version for the cache key
+        id: pw
+        run: echo "version=$(python -c 'import importlib.metadata as m; print(m.version("playwright"))')" >> "$GITHUB_OUTPUT"
 
-      - name: Generate fixtures
-        run: python docs/v3/v3.12/development/fixtures/gen_fixtures.py
+      - name: Cache the Playwright browser download
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-chromium-${{ runner.os }}-${{ steps.pw.outputs.version }}
 
-      - name: Run the extraction-fidelity suite (45 checks)
-        run: python docs/v3/v3.12/development/fixtures/verify_phase1.py
+      - name: Install chromium
+        run: python -m playwright install --with-deps chromium
 
-      - name: Run the protocol round-trip
-        run: python docs/v3/v3.12/development/fixtures/enrich_models.py
+      - name: Probe the render environment (must report READY)
+        run: |
+          python catalog/skills/specialized-domains/document-to-interactive-html/scripts/ensure_render_env.py --json
+          # Exit 0 = READY_PLAYWRIGHT. Anything else means the install above did
+          # not produce a launchable browser, and the rendered checks below would
+          # silently degrade - which is the whole defect this job exists to end.
 
-      - name: Run the design-entropy suite (10 checks)
-        run: python docs/v3/v3.12/development/fixtures/verify_design_seed.py
+      - name: Run the presentify suite with the rendered checks ENFORCED
+        # NEXUS_REQUIRE_RENDER=1 turns the browser-dependent skips into failures.
+        # Without it a broken browser install would present as three quiet skips
+        # inside a green run, which is exactly how MT-1 went unnoticed for four
+        # minor versions.
+        env:
+          NEXUS_REQUIRE_RENDER: '1'
+        run: python -m pytest tests/skills/ -v
 
-      - name: Run the v3.13 universal-ingestion suite (28 checks)
-        run: python docs/v3/v3.13/development/fixtures/verify_universal_ingestion.py
+      - name: Score the calibration fixture (all structural criteria)
+        # The full-width band, image caps, overlay integrity, the four typography
+        # checks, and the three SVG checks, against the standing fixture.
+        run: python catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py tests/fixtures/presentify/nexus-hub-unit-test-workflow.html

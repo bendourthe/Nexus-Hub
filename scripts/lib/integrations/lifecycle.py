@@ -50,6 +50,7 @@ class DoctorFinding:
     diagnostic: str  # one of DIAGNOSTIC_* constants
     recorded_sha256: Optional[str]
     current_sha256: Optional[str]
+    detail: Optional[str] = None
 
 
 @dataclass
@@ -157,6 +158,22 @@ def doctor(
                     current_sha256=current_sha,
                 )
             )
+    from .org_knowledge import diagnose_org_knowledge
+
+    for finding in diagnose_org_knowledge(manifest, requested_keys or None):
+        if finding.integration_key not in report.integrations_checked:
+            report.integrations_checked.append(finding.integration_key)
+        report.findings.append(
+            DoctorFinding(
+                integration_key=finding.integration_key,
+                path=finding.path,
+                recorded_action="org-knowledge",
+                diagnostic=finding.diagnostic,
+                recorded_sha256=None,
+                current_sha256=None,
+                detail=finding.detail,
+            )
+        )
     return report
 
 

@@ -1,4 +1,4 @@
 interface:
   display_name: Behavior Preservation Checker
   short_description: Verify that refactoring preserves existing behavior through before/after comparison, test coverage verification, contract checking, and semantic equivalence analysis. Use when refactoring
-    code, review
+    code, reviewing refactoring PRs, or validating that changes are purely structural.

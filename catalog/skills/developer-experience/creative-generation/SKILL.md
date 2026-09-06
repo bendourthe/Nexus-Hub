@@ -41,10 +41,10 @@ For static-art outputs intended for print or fixed-format distribution (posters,
 
 Before any pixel is rendered, write a short Markdown manifesto (typically 30-80 lines) that fixes the design direction:
 
-- **Color palette** — 3 to 5 named colors with hex values; one accent, one or two neutrals, one or two secondaries. State which color is dominant, which is the punctuation.
-- **Typography** — display face for the headline, body face for supporting copy, optional monospace for tabular or technical content. State the type pairing and at least one reason it matches the brief.
-- **Composition principles** — what occupies which third of the canvas; whether the layout is symmetric or asymmetric; which element is the focal point and how the eye is directed there.
-- **Reference movements** — 1 to 2 design lineages the piece draws from (e.g., Swiss / International style, mid-century modern editorial, Bauhaus geometric, contemporary brutalism). Cite them as a directional anchor, not as imitation targets.
+- **Color palette** -- 3 to 5 named colors with hex values; one accent, one or two neutrals, one or two secondaries. State which color is dominant, which is the punctuation.
+- **Typography** -- display face for the headline, body face for supporting copy, optional monospace for tabular or technical content. State the type pairing and at least one reason it matches the brief.
+- **Composition principles** -- what occupies which third of the canvas; whether the layout is symmetric or asymmetric; which element is the focal point and how the eye is directed there.
+- **Reference movements** -- 1 to 2 design lineages the piece draws from (e.g., Swiss / International style, mid-century modern editorial, Bauhaus geometric, contemporary brutalism). Cite them as a directional anchor, not as imitation targets.
 
 Save the manifesto next to the output (e.g., `poster-philosophy.md` alongside `poster.pdf`). It is the artifact that lets a second iteration converge on the same direction instead of drifting.
 

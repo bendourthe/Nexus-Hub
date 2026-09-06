@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "phases": 7,
+  "tasks": 28,
+  "source_html_unchanged": true,
+  "source_sha256": "68f017bcac2a7c58278ce3ad7642f5860279784707e3ef4ee5fef15c8d39ec7d",
+  "retained_images": 8,
+  "review_browser_cases": 3,
+  "model_routing_phases": 7,
+  "checks": [
+    "unique sequential task IDs",
+    "per-phase verification/tier/exit fields",
+    "ASCII",
+    "heading spacing",
+    "local links",
+    "source hash"
+  ],
+  "errors": []
+}

@@ -1,0 +1,5 @@
+profile: full   platform: windows
+scope:   no --base supplied; running every group
+- docs
+
+PASS: 7 passed, 0 failed, 0 skipped, 0 advisory in 2.3s

@@ -15,15 +15,15 @@ Use when:
 
 - The user asks for a specific posture: "switch to review mode", "enter research mode", "act as a reviewer".
 - The user implicitly pivots phase: "OK, now let's look at the PR" (review), "before we code, what are the options?" (research), "ship the next sub-task" (dev).
-- The current session has been in one mode and the next request would be wrong under that mode (e.g., user is in research mode and asks "go ahead and implement option 2" — switch to dev before writing code).
+- The current session has been in one mode and the next request would be wrong under that mode (e.g., user is in research mode and asks "go ahead and implement option 2" -- switch to dev before writing code).
 - A skill or command names a mode it expects (a plan asks for a "review pass"; a runbook says "in research mode...").
 
 **When NOT to use:**
 
-- One-off tone changes ("be more concise") — that is not a mode switch, just a preference.
-- Persona role-play unrelated to engineering ("pretend you are a pirate") — out of scope.
-- Picking between competing implementation approaches — use [[plan-before-code]] for that.
-- Selecting a category of skill (e.g., choosing between language-specialist skills) — that is skill routing, not mode.
+- One-off tone changes ("be more concise") -- that is not a mode switch, just a preference.
+- Persona role-play unrelated to engineering ("pretend you are a pirate") -- out of scope.
+- Picking between competing implementation approaches -- use [[plan-before-code]] for that.
+- Selecting a category of skill (e.g., choosing between language-specialist skills) -- that is skill routing, not mode.
 
 ## The Three Modes
 
@@ -62,7 +62,7 @@ For the duration of the mode:
 
 - Honor the mode's primary tools and avoid its forbidden actions.
 - Use the mode's exit-criteria language. `dev` stops when sub-task is shipped and tests are green; `review` stops when the diff is fully covered with findings; `research` stops when a written report exists with the alternatives compared.
-- If the user asks for something the mode forbids (e.g., asks for code while in `review`), surface the conflict: "I am in review mode — should I switch to dev to make that change?"
+- If the user asks for something the mode forbids (e.g., asks for code while in `review`), surface the conflict: "I am in review mode -- should I switch to dev to make that change?"
 
 ### 4. Switching modes mid-task
 
@@ -82,10 +82,10 @@ If the user asks the agent to "drop the mode" or signals the session is over, re
 
 | Rationalization | Reality |
 |---|---|
-| "I do not need to announce the mode — the user knows what they asked for" | A silent mode switch hides the agent's posture. The user cannot tell whether the next response will be code, prose, or analysis. One short announcement (`Entering review mode.`) is cheap and prevents misaligned output. |
-| "Modes are arbitrary — I can just blend behaviors as needed" | Blending behaviors is exactly the failure this skill is designed to prevent. Review with editing privileges turns into "I changed it for you", which bypasses the user's review. Research with implicit implementation produces code instead of options. The boundaries are the point. |
-| "Switching modes is too rigid for fluid sessions" | The skill is not rigid about which mode to be in — only that the mode is named when it changes. A session can move dev -> research -> dev in three turns; each switch costs one sentence. |
-| "If I notice the user is in research mode, I should just answer the research question and not bother with the mode framework" | The user may not know they are in research mode. Naming it gives them the chance to redirect ("no, just implement option 2 — skip the comparison"). Silent compliance loses that off-ramp. |
+| "I do not need to announce the mode -- the user knows what they asked for" | A silent mode switch hides the agent's posture. The user cannot tell whether the next response will be code, prose, or analysis. One short announcement (`Entering review mode.`) is cheap and prevents misaligned output. |
+| "Modes are arbitrary -- I can just blend behaviors as needed" | Blending behaviors is exactly the failure this skill is designed to prevent. Review with editing privileges turns into "I changed it for you", which bypasses the user's review. Research with implicit implementation produces code instead of options. The boundaries are the point. |
+| "Switching modes is too rigid for fluid sessions" | The skill is not rigid about which mode to be in -- only that the mode is named when it changes. A session can move dev -> research -> dev in three turns; each switch costs one sentence. |
+| "If I notice the user is in research mode, I should just answer the research question and not bother with the mode framework" | The user may not know they are in research mode. Naming it gives them the chance to redirect ("no, just implement option 2 -- skip the comparison"). Silent compliance loses that off-ramp. |
 
 ## Verification
 
@@ -97,8 +97,8 @@ If the user asks the agent to "drop the mode" or signals the session is over, re
 
 ## Related Skills
 
-- [[context-engineering]] — shapes WHAT is in the context window; this skill shapes the agent's POSTURE inside that context.
-- [[context-optimization]] — reduces token cost; mode switches do not save tokens, they sharpen behavior.
-- [[plan-before-code]] — choosing what to do; modes choose HOW to behave while doing it.
-- [[research-plan-implement]] — a multi-phase workflow that naturally cycles through research -> dev with a review gate in between.
-- [[incremental-implementation]] — pairs with `dev` mode for atomic sub-task shipping.
+- [[context-engineering]] -- shapes WHAT is in the context window; this skill shapes the agent's POSTURE inside that context.
+- [[context-optimization]] -- reduces token cost; mode switches do not save tokens, they sharpen behavior.
+- [[plan-before-code]] -- choosing what to do; modes choose HOW to behave while doing it.
+- [[research-plan-implement]] -- a multi-phase workflow that naturally cycles through research -> dev with a review gate in between.
+- [[incremental-implementation]] -- pairs with `dev` mode for atomic sub-task shipping.

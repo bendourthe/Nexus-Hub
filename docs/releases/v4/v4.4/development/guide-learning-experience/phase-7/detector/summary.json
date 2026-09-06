@@ -1,0 +1,69 @@
+{
+  "sha256": "6848938156266c2806c734575c963a64ba71a84bf3b357e912e0583b730324fd",
+  "results": [
+    {
+      "route": "home",
+      "theme": "light",
+      "exit": 0,
+      "summary": [
+        "PASS visual-defect detector: 0 finding(s), 143 allowlisted"
+      ]
+    },
+    {
+      "route": "foundations",
+      "theme": "light",
+      "exit": 0,
+      "summary": [
+        "PASS visual-defect detector: 0 finding(s), 105 allowlisted"
+      ]
+    },
+    {
+      "route": "training",
+      "theme": "light",
+      "exit": 0,
+      "summary": [
+        "PASS visual-defect detector: 0 finding(s), 11 allowlisted"
+      ]
+    },
+    {
+      "route": "cheatsheets",
+      "theme": "light",
+      "exit": 0,
+      "summary": [
+        "PASS visual-defect detector: 0 finding(s), 11 allowlisted"
+      ]
+    },
+    {
+      "route": "home",
+      "theme": "dark",
+      "exit": 0,
+      "summary": [
+        "PASS visual-defect detector: 0 finding(s), 143 allowlisted"
+      ]
+    },
+    {
+      "route": "foundations",
+      "theme": "dark",
+      "exit": 0,
+      "summary": [
+        "PASS visual-defect detector: 0 finding(s), 105 allowlisted"
+      ]
+    },
+    {
+      "route": "training",
+      "theme": "dark",
+      "exit": 0,
+      "summary": [
+        "PASS visual-defect detector: 0 finding(s), 11 allowlisted"
+      ]
+    },
+    {
+      "route": "cheatsheets",
+      "theme": "dark",
+      "exit": 0,
+      "summary": [
+        "PASS visual-defect detector: 0 finding(s), 11 allowlisted"
+      ]
+    }
+  ]
+}

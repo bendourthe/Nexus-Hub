@@ -1,0 +1,12 @@
+{
+  "skill": "gdpr-compliance",
+  "purpose": "Route EU GDPR data-protection work here, not to the CCPA sibling.",
+  "cases": [
+    {"id": "pos-gdpr-subject", "prompt": "implement gdpr data subject rights and consent management", "should_trigger": true, "assert": "routes to gdpr-compliance first", "lexical": true},
+    {"id": "pos-gdpr-eu", "prompt": "prepare eu data protection for gdpr compliance", "should_trigger": true, "assert": "routes to gdpr-compliance first", "lexical": true},
+    {"id": "pos-gdpr-breach", "prompt": "add a gdpr breach notification process", "should_trigger": true, "assert": "routes to gdpr-compliance first", "lexical": true},
+    {"id": "neg-ccpa", "prompt": "implement ccpa california consumer opt-out rights", "should_trigger": false, "assert": "routes to ccpa-compliance, not gdpr-compliance", "lexical": true},
+    {"id": "neg-react", "prompt": "build a react component with hooks", "should_trigger": false, "assert": "routes to react-expert, not gdpr-compliance", "lexical": true},
+    {"id": "neg-kubernetes", "prompt": "deploy a kubernetes cluster with helm", "should_trigger": false, "assert": "routes to kubernetes-expert, not gdpr-compliance", "lexical": true}
+  ]
+}

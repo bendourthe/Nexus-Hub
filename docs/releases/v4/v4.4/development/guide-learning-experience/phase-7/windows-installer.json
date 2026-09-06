@@ -1,0 +1,59 @@
+{
+  "host": "win32",
+  "root": "<user-home-short>\\AppData\\Local\\Temp\\nexus-v446-smoke-4ok1xlco",
+  "results": [
+    {
+      "command": [
+        "<user-home>\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "scripts/nexus_hub_cli.py",
+        "org",
+        "connect",
+        "<workspace>\\configs\\examples\\org-bundle-example",
+        "--force"
+      ],
+      "exit": 0,
+      "tail": [
+        "Connected organization bundle: <workspace>\\configs\\examples\\org-bundle-example",
+        "valid: <workspace>\\configs\\examples\\org-bundle-example (0 errors, 0 warnings)"
+      ]
+    },
+    {
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/installer.ps1",
+        "-Workspace",
+        "<user-home-short>\\AppData\\Local\\Temp\\nexus-v446-smoke-4ok1xlco\\workspace",
+        "-Platforms",
+        "claude",
+        "-Yes"
+      ],
+      "exit": 0,
+      "tail": [
+        "",
+        "\u2713 Nexus-Hub v4.4.0 installed (Workspace scope).",
+        "",
+        "Restart any running AI assistant sessions (Claude Code, Cursor, Gemini CLI, Codex, Copilot, OpenCode) so they pick up the new settings, hooks, skills, and rules.",
+        "",
+        "\u2713 Nexus-Hub v4.4.0 installed."
+      ]
+    },
+    {
+      "command": [
+        "<user-home>\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "scripts/check_installer_smoke.py",
+        "--home",
+        "<user-home-short>\\AppData\\Local\\Temp\\nexus-v446-smoke-4ok1xlco\\home",
+        "--workspace",
+        "<user-home-short>\\AppData\\Local\\Temp\\nexus-v446-smoke-4ok1xlco\\workspace"
+      ],
+      "exit": 0,
+      "tail": [
+        "installer smoke: PASS"
+      ]
+    }
+  ]
+}

@@ -40,8 +40,10 @@ SHARED_RULES = [
     "Every changed line must trace directly to the user's request",
     # Output minimization
     "Suppress verbose progress bars, banners, and informational logs",
-    # Line-wrap policy (prevents hard-wrapped markdown)
-    "Never hard-wrap paragraph text at a fixed column width",
+    # Line-wrap policy (prevents hard-wrapped markdown). v4.5.0 moved this rule
+    # into the shared `## Writing Discipline` block, which is the phrasing every
+    # template now carries; base-claude.md no longer has the older bullet.
+    "no hard-wrapping of paragraph text",
 ]
 
 # Rules the stale pre-v0.9.7 variant must NOT contain anywhere. Catches

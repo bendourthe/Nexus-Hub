@@ -1,0 +1,578 @@
+[
+  {
+    "overflow": false,
+    "clipped": [],
+    "heightDifference": 10.953125,
+    "topDifference": -1549.40625,
+    "phaseRows": [
+      "Phase 1\tBuild the booking form\tStrong / High",
+      "Phase 2\tAdd availability rules\tFrontier / High",
+      "Phase 3\tReview the experience\tStrong / High"
+    ],
+    "tasks": [
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        true
+      ]
+    ],
+    "noteInCenter": true,
+    "noteCount": 1,
+    "next": "Phase 1 verified and complete\nNext: run /implement Phase 2 of booking-feature-plan.md to continue.",
+    "exampleWeight": "800",
+    "iconAnimation": "none",
+    "iconTransform": "none",
+    "iconAlignment": "center",
+    "filenames": [
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md"
+    ],
+    "width": 320,
+    "theme": "dark",
+    "pageErrors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "heightDifference": 10.953125,
+    "topDifference": -1549.40625,
+    "phaseRows": [
+      "Phase 1\tBuild the booking form\tStrong / High",
+      "Phase 2\tAdd availability rules\tFrontier / High",
+      "Phase 3\tReview the experience\tStrong / High"
+    ],
+    "tasks": [
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        true
+      ]
+    ],
+    "noteInCenter": true,
+    "noteCount": 1,
+    "next": "Phase 1 verified and complete\nNext: run /implement Phase 2 of booking-feature-plan.md to continue.",
+    "exampleWeight": "800",
+    "iconAnimation": "none",
+    "iconTransform": "none",
+    "iconAlignment": "center",
+    "filenames": [
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md"
+    ],
+    "width": 320,
+    "theme": "light",
+    "pageErrors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "heightDifference": 17.71875,
+    "topDifference": -1181.046875,
+    "phaseRows": [
+      "Phase 1\tBuild the booking form\tStrong / High",
+      "Phase 2\tAdd availability rules\tFrontier / High",
+      "Phase 3\tReview the experience\tStrong / High"
+    ],
+    "tasks": [
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        true
+      ]
+    ],
+    "noteInCenter": true,
+    "noteCount": 1,
+    "next": "Phase 1 verified and complete\nNext: run /implement Phase 2 of booking-feature-plan.md to continue.",
+    "exampleWeight": "800",
+    "iconAnimation": "none",
+    "iconTransform": "none",
+    "iconAlignment": "center",
+    "filenames": [
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md"
+    ],
+    "width": 420,
+    "theme": "dark",
+    "pageErrors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "heightDifference": 17.71875,
+    "topDifference": -1181.046875,
+    "phaseRows": [
+      "Phase 1\tBuild the booking form\tStrong / High",
+      "Phase 2\tAdd availability rules\tFrontier / High",
+      "Phase 3\tReview the experience\tStrong / High"
+    ],
+    "tasks": [
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        true
+      ]
+    ],
+    "noteInCenter": true,
+    "noteCount": 1,
+    "next": "Phase 1 verified and complete\nNext: run /implement Phase 2 of booking-feature-plan.md to continue.",
+    "exampleWeight": "800",
+    "iconAnimation": "none",
+    "iconTransform": "none",
+    "iconAlignment": "center",
+    "filenames": [
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md"
+    ],
+    "width": 420,
+    "theme": "light",
+    "pageErrors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "heightDifference": 91.65625,
+    "topDifference": -1049.421875,
+    "phaseRows": [
+      "Phase 1\tBuild the booking form\tStrong / High",
+      "Phase 2\tAdd availability rules\tFrontier / High",
+      "Phase 3\tReview the experience\tStrong / High"
+    ],
+    "tasks": [
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        true
+      ]
+    ],
+    "noteInCenter": true,
+    "noteCount": 1,
+    "next": "Phase 1 verified and complete\nNext: run /implement Phase 2 of booking-feature-plan.md to continue.",
+    "exampleWeight": "800",
+    "iconAnimation": "none",
+    "iconTransform": "none",
+    "iconAlignment": "center",
+    "filenames": [
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md"
+    ],
+    "width": 760,
+    "theme": "dark",
+    "pageErrors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "heightDifference": 91.65625,
+    "topDifference": -1049.421875,
+    "phaseRows": [
+      "Phase 1\tBuild the booking form\tStrong / High",
+      "Phase 2\tAdd availability rules\tFrontier / High",
+      "Phase 3\tReview the experience\tStrong / High"
+    ],
+    "tasks": [
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        true
+      ]
+    ],
+    "noteInCenter": true,
+    "noteCount": 1,
+    "next": "Phase 1 verified and complete\nNext: run /implement Phase 2 of booking-feature-plan.md to continue.",
+    "exampleWeight": "800",
+    "iconAnimation": "none",
+    "iconTransform": "none",
+    "iconAlignment": "center",
+    "filenames": [
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md"
+    ],
+    "width": 760,
+    "theme": "light",
+    "pageErrors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "heightDifference": 0,
+    "topDifference": 0,
+    "phaseRows": [
+      "Phase 1\tBuild the booking form\tStrong / High",
+      "Phase 2\tAdd availability rules\tFrontier / High",
+      "Phase 3\tReview the experience\tStrong / High"
+    ],
+    "tasks": [
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        true
+      ]
+    ],
+    "noteInCenter": true,
+    "noteCount": 1,
+    "next": "Phase 1 verified and complete\nNext: run /implement Phase 2 of booking-feature-plan.md to continue.",
+    "exampleWeight": "800",
+    "iconAnimation": "none",
+    "iconTransform": "none",
+    "iconAlignment": "center",
+    "filenames": [
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md"
+    ],
+    "width": 1000,
+    "theme": "dark",
+    "pageErrors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "heightDifference": 0,
+    "topDifference": 0,
+    "phaseRows": [
+      "Phase 1\tBuild the booking form\tStrong / High",
+      "Phase 2\tAdd availability rules\tFrontier / High",
+      "Phase 3\tReview the experience\tStrong / High"
+    ],
+    "tasks": [
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        true
+      ]
+    ],
+    "noteInCenter": true,
+    "noteCount": 1,
+    "next": "Phase 1 verified and complete\nNext: run /implement Phase 2 of booking-feature-plan.md to continue.",
+    "exampleWeight": "800",
+    "iconAnimation": "none",
+    "iconTransform": "none",
+    "iconAlignment": "center",
+    "filenames": [
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md"
+    ],
+    "width": 1000,
+    "theme": "light",
+    "pageErrors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "heightDifference": 0,
+    "topDifference": 0,
+    "phaseRows": [
+      "Phase 1\tBuild the booking form\tStrong / High",
+      "Phase 2\tAdd availability rules\tFrontier / High",
+      "Phase 3\tReview the experience\tStrong / High"
+    ],
+    "tasks": [
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        true
+      ]
+    ],
+    "noteInCenter": true,
+    "noteCount": 1,
+    "next": "Phase 1 verified and complete\nNext: run /implement Phase 2 of booking-feature-plan.md to continue.",
+    "exampleWeight": "800",
+    "iconAnimation": "none",
+    "iconTransform": "none",
+    "iconAlignment": "center",
+    "filenames": [
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md"
+    ],
+    "width": 1024,
+    "theme": "dark",
+    "pageErrors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "heightDifference": 0,
+    "topDifference": 0,
+    "phaseRows": [
+      "Phase 1\tBuild the booking form\tStrong / High",
+      "Phase 2\tAdd availability rules\tFrontier / High",
+      "Phase 3\tReview the experience\tStrong / High"
+    ],
+    "tasks": [
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        true
+      ]
+    ],
+    "noteInCenter": true,
+    "noteCount": 1,
+    "next": "Phase 1 verified and complete\nNext: run /implement Phase 2 of booking-feature-plan.md to continue.",
+    "exampleWeight": "800",
+    "iconAnimation": "none",
+    "iconTransform": "none",
+    "iconAlignment": "center",
+    "filenames": [
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md"
+    ],
+    "width": 1024,
+    "theme": "light",
+    "pageErrors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "heightDifference": 0,
+    "topDifference": 0,
+    "phaseRows": [
+      "Phase 1\tBuild the booking form\tStrong / High",
+      "Phase 2\tAdd availability rules\tFrontier / High",
+      "Phase 3\tReview the experience\tStrong / High"
+    ],
+    "tasks": [
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        true
+      ]
+    ],
+    "noteInCenter": true,
+    "noteCount": 1,
+    "next": "Phase 1 verified and complete\nNext: run /implement Phase 2 of booking-feature-plan.md to continue.",
+    "exampleWeight": "800",
+    "iconAnimation": "none",
+    "iconTransform": "none",
+    "iconAlignment": "center",
+    "filenames": [
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md"
+    ],
+    "width": 1440,
+    "theme": "dark",
+    "pageErrors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "heightDifference": 0,
+    "topDifference": 0,
+    "phaseRows": [
+      "Phase 1\tBuild the booking form\tStrong / High",
+      "Phase 2\tAdd availability rules\tFrontier / High",
+      "Phase 3\tReview the experience\tStrong / High"
+    ],
+    "tasks": [
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        true
+      ]
+    ],
+    "noteInCenter": true,
+    "noteCount": 1,
+    "next": "Phase 1 verified and complete\nNext: run /implement Phase 2 of booking-feature-plan.md to continue.",
+    "exampleWeight": "800",
+    "iconAnimation": "none",
+    "iconTransform": "none",
+    "iconAlignment": "center",
+    "filenames": [
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md",
+      "booking-feature-plan.md"
+    ],
+    "width": 1440,
+    "theme": "light",
+    "pageErrors": []
+  }
+]

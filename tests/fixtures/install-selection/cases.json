@@ -1,0 +1,311 @@
+{
+  "_comment": "Shared behavior matrix for the v3.16.1 install-selection contract. Phase 5 runs the `resolver`-scope cases against scripts/lib/installer/selection.py; Phase 6 runs the same cases against the Bash and PowerShell implementations and additionally the `install`-scope cases. Expectations are written against tests/fixtures/install-selection/catalog-*.json, never the real catalog, so a catalog edit cannot silently change what these cases assert. Hash equality is expressed as `same_hash_as` rather than a literal digest: the point is that two ways of asking for the same install agree, and a hardcoded digest would only pin the canonicalization format.",
+  "schema": 1,
+  "cases": [
+    {
+      "id": "no-selector-is-full",
+      "scope": "resolver",
+      "why": "The compatibility guarantee. No selector must produce the full catalog, byte-equivalent to the pre-v3.16.1 installer.",
+      "catalog": "catalog-valid.json",
+      "input": {},
+      "expect": {
+        "exit_code": 0,
+        "skills": ["a1", "a2", "a3", "b1", "b2", "c1", "c2", "dep1", "dep2"],
+        "commands": ["cmd-ai", "cmd-free", "cmd-web"],
+        "agents": ["agent-ai", "agent-free"],
+        "warnings": []
+      }
+    },
+    {
+      "id": "explicit-full-equals-no-selector",
+      "scope": "resolver",
+      "why": "Asking for full explicitly and asking for nothing must be the same install.",
+      "catalog": "catalog-valid.json",
+      "input": {"profile": "full"},
+      "expect": {
+        "exit_code": 0,
+        "skills": ["a1", "a2", "a3", "b1", "b2", "c1", "c2", "dep1", "dep2"],
+        "commands": ["cmd-ai", "cmd-free", "cmd-web"],
+        "agents": ["agent-ai", "agent-free"],
+        "warnings": [],
+        "same_hash_as": "no-selector-is-full"
+      }
+    },
+    {
+      "id": "profile-minimal",
+      "scope": "resolver",
+      "why": "The narrowest selection, and the case that proves profiles COMPOSE: minimal declares no skills of its own, only the role-alpha bundle. Everything with an unsatisfied declared requirement drops out; everything undeclared stays.",
+      "catalog": "catalog-valid.json",
+      "input": {"profile": "minimal"},
+      "expect": {
+        "exit_code": 0,
+        "skills": ["a1", "c1"],
+        "commands": ["cmd-free"],
+        "agents": ["agent-free"],
+        "excluded_commands": {
+          "cmd-ai": "excluded:missing-skills:a2,a3",
+          "cmd-web": "excluded:missing-skills:b1"
+        },
+        "excluded_agents": {
+          "agent-ai": "excluded:missing-skills:a3"
+        },
+        "warnings": []
+      }
+    },
+    {
+      "id": "profile-core",
+      "scope": "resolver",
+      "why": "A partially-satisfied command must be excluded (cmd-ai has a2 but not a3), and core exercises all three profile composition keys at once: bundles + modules + extra_skills.",
+      "catalog": "catalog-valid.json",
+      "input": {"profile": "core"},
+      "expect": {
+        "exit_code": 0,
+        "skills": ["a1", "a2", "b1", "b2", "c1"],
+        "commands": ["cmd-free", "cmd-web"],
+        "agents": ["agent-free"],
+        "excluded_commands": {"cmd-ai": "excluded:missing-skills:a3"},
+        "excluded_agents": {"agent-ai": "excluded:missing-skills:a3"},
+        "warnings": []
+      }
+    },
+    {
+      "id": "single-module-pulls-dependency",
+      "scope": "resolver",
+      "why": "a3 depends on a1, so selecting mod-ai must pull a1 in with a dependency reason, not a selector reason.",
+      "catalog": "catalog-valid.json",
+      "input": {"modules": ["mod-ai"]},
+      "expect": {
+        "exit_code": 0,
+        "skills": ["a1", "a2", "a3"],
+        "commands": ["cmd-ai", "cmd-free"],
+        "agents": ["agent-ai", "agent-free"],
+        "reasons": {
+          "a2": "selector:module:mod-ai",
+          "a3": "selector:module:mod-ai",
+          "a1": "dependency:a3"
+        },
+        "warnings": []
+      }
+    },
+    {
+      "id": "single-bundle",
+      "scope": "resolver",
+      "why": "A role bundle with no dependency edges resolves to exactly its declared skills.",
+      "catalog": "catalog-valid.json",
+      "input": {"bundles": ["role-alpha"]},
+      "expect": {
+        "exit_code": 0,
+        "skills": ["a1", "c1"],
+        "commands": ["cmd-free"],
+        "agents": ["agent-free"],
+        "reasons": {"a1": "selector:bundle:role-alpha", "c1": "selector:bundle:role-alpha"},
+        "warnings": []
+      }
+    },
+    {
+      "id": "bundle-transitive-closure",
+      "scope": "resolver",
+      "why": "dep1 pulls dep2. The reason must name the skill that pulled it, so a user can answer 'why is dep2 here'.",
+      "catalog": "catalog-valid.json",
+      "input": {"bundles": ["role-beta"]},
+      "expect": {
+        "exit_code": 0,
+        "skills": ["b2", "c2", "dep1", "dep2"],
+        "commands": ["cmd-free"],
+        "agents": ["agent-free"],
+        "reasons": {"dep1": "selector:bundle:role-beta", "dep2": "dependency:dep1"},
+        "warnings": []
+      }
+    },
+    {
+      "id": "profile-plus-module-union",
+      "scope": "resolver",
+      "why": "Selectors union; they never intersect or subtract.",
+      "catalog": "catalog-valid.json",
+      "input": {"profile": "core", "modules": ["mod-ai"]},
+      "expect": {
+        "exit_code": 0,
+        "skills": ["a1", "a2", "a3", "b1", "b2", "c1"],
+        "commands": ["cmd-ai", "cmd-free", "cmd-web"],
+        "agents": ["agent-ai", "agent-free"],
+        "warnings": []
+      }
+    },
+    {
+      "id": "duplicate-selector-is-idempotent",
+      "scope": "resolver",
+      "why": "Supplying a selector twice must not change the result or the hash.",
+      "catalog": "catalog-valid.json",
+      "input": {"modules": ["mod-ai", "mod-ai"]},
+      "expect": {
+        "exit_code": 0,
+        "skills": ["a1", "a2", "a3"],
+        "warnings": [],
+        "same_hash_as": "single-module-pulls-dependency"
+      }
+    },
+    {
+      "id": "selector-order-ai-then-web",
+      "scope": "resolver",
+      "why": "Union is commutative. This case and the next must produce identical hashes.",
+      "catalog": "catalog-valid.json",
+      "input": {"modules": ["mod-ai", "mod-web"]},
+      "expect": {
+        "exit_code": 0,
+        "skills": ["a1", "a2", "a3", "b1", "b2"],
+        "commands": ["cmd-ai", "cmd-free", "cmd-web"],
+        "agents": ["agent-ai", "agent-free"],
+        "warnings": []
+      }
+    },
+    {
+      "id": "selector-order-web-then-ai",
+      "scope": "resolver",
+      "why": "The reverse order of the previous case. Same install, same hash.",
+      "catalog": "catalog-valid.json",
+      "input": {"modules": ["mod-web", "mod-ai"]},
+      "expect": {
+        "exit_code": 0,
+        "skills": ["a1", "a2", "a3", "b1", "b2"],
+        "warnings": [],
+        "same_hash_as": "selector-order-ai-then-web"
+      }
+    },
+    {
+      "id": "expands-to-full-warns",
+      "scope": "resolver",
+      "why": "A union covering the whole catalog resolves legitimately, so it is a warning, not an error. But an unintended full install is a real outcome and must not be silent. The resolved set equals the full install, so the hash must match it.",
+      "catalog": "catalog-valid.json",
+      "input": {
+        "modules": ["mod-ai", "mod-web"],
+        "bundles": ["role-alpha", "role-beta"]
+      },
+      "expect": {
+        "exit_code": 0,
+        "skills": ["a1", "a2", "a3", "b1", "b2", "c1", "c2", "dep1", "dep2"],
+        "warnings": ["full-catalog"],
+        "same_hash_as": "no-selector-is-full"
+      }
+    },
+    {
+      "id": "unknown-profile",
+      "scope": "resolver",
+      "why": "User input fault. Exit 2 and name the id; never guess at a near match.",
+      "catalog": "catalog-valid.json",
+      "input": {"profile": "nope"},
+      "expect": {"exit_code": 2, "error_contains": ["nope", "profile"]}
+    },
+    {
+      "id": "unknown-module",
+      "scope": "resolver",
+      "why": "Same, for a module id.",
+      "catalog": "catalog-valid.json",
+      "input": {"modules": ["mod-nope"]},
+      "expect": {"exit_code": 2, "error_contains": ["mod-nope", "module"]}
+    },
+    {
+      "id": "unknown-bundle",
+      "scope": "resolver",
+      "why": "Same, for a bundle id.",
+      "catalog": "catalog-valid.json",
+      "input": {"bundles": ["role-nope"]},
+      "expect": {"exit_code": 2, "error_contains": ["role-nope", "bundle"]}
+    },
+    {
+      "id": "full-is-exclusive",
+      "scope": "resolver",
+      "why": "full plus anything means the user misunderstood one of the two. Failing tells them which.",
+      "catalog": "catalog-valid.json",
+      "input": {"profile": "full", "modules": ["mod-ai"]},
+      "expect": {"exit_code": 2, "error_contains": ["full", "mod-ai"]}
+    },
+    {
+      "id": "empty-selector-element",
+      "scope": "resolver",
+      "why": "An empty element in a comma list is a typo, not an item to drop silently.",
+      "catalog": "catalog-valid.json",
+      "input": {"modules_raw": "mod-ai,,mod-web"},
+      "expect": {"exit_code": 2, "error_contains": ["empty"]}
+    },
+    {
+      "id": "duplicate-profile-flag",
+      "scope": "resolver",
+      "why": "At most one profile. Two is ambiguous and must not silently pick one.",
+      "catalog": "catalog-valid.json",
+      "input": {"profiles": ["minimal", "core"]},
+      "expect": {"exit_code": 2, "error_contains": ["profile"]}
+    },
+    {
+      "id": "empty-selection",
+      "scope": "resolver",
+      "why": "An empty install is never what anyone wanted, so unlike a full one it is an error rather than a warning.",
+      "catalog": "catalog-valid.json",
+      "input": {"profile": "empty"},
+      "expect": {"exit_code": 2, "error_contains": ["empty", "no skills"]}
+    },
+    {
+      "id": "catalog-missing-skill",
+      "scope": "resolver",
+      "why": "Catalog fault, not user fault: exit 3. This is the real defect class found in data/bundles.json during Phase 2 (NI-1).",
+      "catalog": "catalog-missing-skill.json",
+      "input": {"bundles": ["role-broken"]},
+      "expect": {"exit_code": 3, "error_contains": ["role-broken", "does-not-exist"]}
+    },
+    {
+      "id": "catalog-dependency-cycle",
+      "scope": "resolver",
+      "why": "An unchecked closure over a cycle would not terminate. Exit 3 and name the participants.",
+      "catalog": "catalog-cycle.json",
+      "input": {"modules": ["mod-cycle"]},
+      "expect": {"exit_code": 3, "error_contains": ["cycle", "x1", "x2", "x3"]}
+    },
+    {
+      "id": "unreachable-cycle-does-not-fail",
+      "scope": "resolver",
+      "why": "Cycle detection is scoped to the traversed subgraph, not a global catalog scan. A defect in a part of the catalog the user did not select must not block their install; failing here would make an unrelated data bug everyone's problem.",
+      "catalog": "catalog-cycle.json",
+      "input": {"modules": ["mod-safe"]},
+      "expect": {"exit_code": 0, "skills": ["safe"], "warnings": []}
+    },
+    {
+      "id": "nested-skill-layout",
+      "scope": "install",
+      "why": "Phase 6.3: a platform reading skills/<category>/<name>/ must receive exactly the resolved set in nested shape.",
+      "catalog": "catalog-valid.json",
+      "input": {"modules": ["mod-ai"]},
+      "expect": {"exit_code": 0, "layout": "nested", "skills": ["a1", "a2", "a3"]}
+    },
+    {
+      "id": "flattened-skill-layout",
+      "scope": "install",
+      "why": "Phase 6.3: the same resolved set in flattened shape, one level deep per the SKILL.md open standard.",
+      "catalog": "catalog-valid.json",
+      "input": {"modules": ["mod-ai"]},
+      "expect": {"exit_code": 0, "layout": "flattened", "skills": ["a1", "a2", "a3"]}
+    },
+    {
+      "id": "upgrade-preserves-selection",
+      "scope": "install",
+      "why": "Phase 6.4: an upgrade with no selector must reuse the recorded selection, never silently widen to full.",
+      "catalog": "catalog-valid.json",
+      "input": {"recorded": {"modules": ["mod-ai"]}, "upgrade_with": {}},
+      "expect": {"exit_code": 0, "skills": ["a1", "a2", "a3"], "same_hash_as": "single-module-pulls-dependency"}
+    },
+    {
+      "id": "explicit-selector-replaces-recorded",
+      "scope": "install",
+      "why": "Phase 6.4: an explicit selector on upgrade replaces the recorded request after showing the delta.",
+      "catalog": "catalog-valid.json",
+      "input": {"recorded": {"modules": ["mod-ai"]}, "upgrade_with": {"bundles": ["role-alpha"]}},
+      "expect": {"exit_code": 0, "skills": ["a1", "c1"], "same_hash_as": "single-bundle"}
+    },
+    {
+      "id": "legacy-manifest-without-selection-is-full",
+      "scope": "install",
+      "why": "Phase 6.4: a manifest written before v3.16.1 has no selection key and must be read as a full install, with no migration.",
+      "catalog": "catalog-valid.json",
+      "input": {"recorded": null, "upgrade_with": {}},
+      "expect": {"exit_code": 0, "same_hash_as": "no-selector-is-full"}
+    }
+  ]
+}

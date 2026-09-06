@@ -1,0 +1,25 @@
+{
+  "baseline": "416da259",
+  "outside_models_unchanged": true,
+  "bytes": 497896,
+  "sha256": "d90d326ba3de8df0ed4f4c37e8c3d9379f474aca3827931576c717e7351c2db4",
+  "syntax_checks": [
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "lab_height_before": {
+    "language": 601.4375,
+    "diffusion": 633.1875,
+    "world": 696.375,
+    "multimodal": 694.671875
+  },
+  "lab_height_after": {
+    "language": 367.4375,
+    "diffusion": 424.375,
+    "world": 413.375,
+    "multimodal": 588.5625
+  }
+}

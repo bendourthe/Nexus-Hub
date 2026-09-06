@@ -1,0 +1,163 @@
+{
+  "duration_s": 8.60999999998603,
+  "finished_at": "2026-09-05T00:14:22Z",
+  "groups": [
+    {
+      "commands": [
+        {
+          "duration_s": 0.125,
+          "exit_code": 0,
+          "group": "catalog-parse",
+          "name": "skills.json parses",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.1720000000204891,
+          "exit_code": 0,
+          "group": "catalog-parse",
+          "name": "bundles.json parses",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.10899999993853271,
+          "exit_code": 0,
+          "group": "catalog-parse",
+          "name": "workflows.json parses",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.1720000000204891,
+          "exit_code": 0,
+          "group": "catalog-parse",
+          "name": "templates.json parses",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "catalog-parse",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 3.452999999979511,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "validate_unicode_safety",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 2.8589999999385327,
+          "exit_code": 1,
+          "group": "hygiene",
+          "name": "validate_no_personal_paths",
+          "output": "docs\\releases\\v4\\v4.9\\analysis\\interactive-handbooks-source-analysis.md:18:27: personal path leak: '<user-home>' (username='BEDOURTHE')\ndocs\\releases\\v4\\v4.9\\analysis\\interactive-handbooks-source-analysis.md:18:25: personal path leak: '<user-home>' (username='BEDOURTHE')\n\nvalidate_no_personal_paths: 2 finding(s) in 2344 scanned file(s).\n",
+          "reason": "exit 1",
+          "status": "fail"
+        },
+        {
+          "duration_s": 0.2970000000204891,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "check_docs_conventions",
+          "output": "OK: docs conventions hold under <workspace>\\docs\\releases\\v4\\v4.4\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.125,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "validate_doc_budgets",
+          "output": "  8 budgeted doc(s) within ceiling\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.31299999996554106,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "check_memory_integration_budget",
+          "output": "OK   <workspace>/docs/policy/memory-integration-prose.md: 222 tokens (tiktoken) / 500\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "hygiene",
+      "skipped_reason": "",
+      "status": "fail"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.26500000001396984,
+          "exit_code": 0,
+          "group": "interpreters",
+          "name": "check_interpreter_resolution",
+          "output": "[interpreters] OK   bash -> C:\\Program Files\\Git\\bin\\bash.EXE\n[interpreters] every hook interpreter can execute a script.\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "interpreters",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.3440000000409782,
+          "exit_code": 0,
+          "group": "workflows",
+          "name": "validate_workflow_security",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.2190000000409782,
+          "exit_code": 0,
+          "group": "workflows",
+          "name": "check_required_check_coverage",
+          "output": "Required-check coverage: OK -- 10 declared context(s) across 2 branch(es), every one produced unconditionally.\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "workflows",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.14099999994505197,
+          "exit_code": 0,
+          "group": "version",
+          "name": "check_version_sync",
+          "output": "canonical version: 4.4.0 (.claude-plugin/plugin.json)\n  [      match] data/marketplace.json: matches 4.4.0\n  [      match] scripts/installer.sh: matches 4.4.0\n  [      match] scripts/installer.ps1: matches 4.4.0\n  [      match] CHANGELOG.md: matches 4.4.0\n  [      match] README.md: matches 4.4.0\n  [      match] AGENTS.md: matches 4.4.0\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "version",
+      "skipped_reason": "",
+      "status": "pass"
+    }
+  ],
+  "platform": "windows",
+  "profile": "fast",
+  "scope_conservative": true,
+  "scope_reason": "no --base supplied; running every group",
+  "started_at": "2026-09-05T00:14:13Z"
+}

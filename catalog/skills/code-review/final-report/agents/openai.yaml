@@ -1,4 +1,4 @@
 interface:
   display_name: Code Review - Final Report
   short_description: Consolidate all review findings into a structured 4-section report with codebase overview, executive summary, dual-view detailed findings (by feature and by priority), and export capability.
-    Phase 6 o
+    Phase 6 of the 6-phase code review methodology.

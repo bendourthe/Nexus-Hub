@@ -29,8 +29,12 @@ INPUT=$(cat)
 
 # --- Extract content ---
 if command -v jq >/dev/null 2>&1; then
-  FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // .tool_input.path // empty' 2>/dev/null)
-  CONTENT=$(echo "$INPUT" | jq -r '.tool_input.content // .tool_input.new_string // empty' 2>/dev/null)
+  if ! FILE_PATH=$(printf '%s' "$INPUT" | jq -r '.tool_input.file_path // .tool_input.path // empty' 2>/dev/null); then
+    exit 0
+  fi
+  if ! CONTENT=$(printf '%s' "$INPUT" | jq -r '.tool_input.content // .tool_input.new_string // empty' 2>/dev/null); then
+    exit 0
+  fi
 else
   # Without jq we cannot reliably extract content; allow the write
   exit 0

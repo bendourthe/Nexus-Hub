@@ -50,6 +50,24 @@ Analyze the search results. apply these "Judge" rules:
 3.  **Identify Consensus**: What are the top 3-5 things everyone agrees on?
 4.  **Ignore Noise**: Discard generic advice that applies to everything (e.g., "be specific"). Focus on topic-unique advice.
 
+### Worked example: quoting from the search results
+
+**Request**: "What are people saying about growing basil under LED panels indoors?"
+
+**Search results** (native search, excerpted in templated form):
+
+```text
+[community thread, 9 days ago] ... moved the panel to 30 cm and the leaf curl stopped within a week ...
+[community thread, 21 days ago] ... 16 hours of light was too much for my setup; 14 fixed the bitter taste ...
+[grower blog, 12 days ago] ... a 30 cm hang height at 14 to 16 hours a day is the sweet spot most growers land on ...
+```
+
+**Response** (the synthesized finding):
+
+> The threads and the blog converge on two settings: a hang height near 30 cm and a light period of 14 to 16 hours. They differ on the upper end of that range. One grower reports that 16 hours produced a bitter crop and that dropping to 14 fixed it, while the blog treats the full range as safe. One thread pins the leaf-curl symptom on the panel sitting too close, describing the fix as moving the panel to 30 cm, after which "the leaf curl stopped within a week".
+
+**Rationale**: the finding is organized around agreement and difference, not source by source; each source is conveyed in the agent's own words in one or two sentences; exactly one short phrase is marked as a quotation and tied to its source; the numbers stay specific (30 cm, 14 to 16 hours, one week) and nothing else is reproduced verbatim.
+
 ## 4. Generate Output
 Based on the `QUERY_TYPE`, generate the final response.
 

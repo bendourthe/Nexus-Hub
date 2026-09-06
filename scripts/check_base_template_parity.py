@@ -24,7 +24,7 @@ cross-platform from a single `.py` file, consistent with the other top-level
 THE PARITY CONTRACT (structural, never raw-byte whole-file)
 
 The five templates are NOT structurally identical today: base-claude.md is the
-"full" template (separate Communication Style + Critical Rules sections, plus
+"full" template (a separate Critical Rules section, plus
 Agent Registry / Spending Controls / Environment Variables / MCP Integration),
 while the other four collapse those into one Working Conventions section and
 omit the optional blocks. The contract is therefore built on what the five
@@ -47,7 +47,7 @@ files actually share, not on a naive equality of the whole file.
     * Platform names and per-platform install paths (`.claude/skills/`,
       `.codex/skills/`, `skills/`, ...).
     * Claude-only optional sections (Agent Registry, Spending Controls,
-      Environment Variables, MCP Integration) and the Communication Style +
+      Environment Variables, MCP Integration) and the
       Critical Rules vs Working Conventions split.
     * Context References (absent in base-gemini.md), the per-platform
       behavioral-rule bullet wording, and Output Minimization's claude-only
@@ -80,8 +80,8 @@ import argparse
 import json
 import re
 import sys
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator, Optional
 
 # The five platform-agnostic templates governed by the AGENTS.md lockstep rule,
 # in canonical order (the first present file is the parity reference).
@@ -104,8 +104,15 @@ REQUIRED_HEADINGS = [
     "Non-Obvious Tooling",
     "{{PRIMARY_LANGUAGE}} Conventions",
     "Branching",
+    "Communication Contract",
+    "Documentation Layout",
     "Run and Verify",
     "Output Minimization",
+    "End-of-Task Summary",
+    "Construction Discipline",
+    "Writing Discipline",
+    "Autonomous Operation",
+    "Consequential Decisions",
     "MCP Registry Policy",
     "Skill Discovery",
 ]
@@ -141,6 +148,47 @@ INVARIANT_SECTIONS = [
     "Tech Stack",
     "Key Commands",
     "Branching",
+    # v4.0.0: the live-response communication contract is platform-agnostic by
+    # intent (it points at one installed style guide rather than restating it),
+    # so it belongs in BOTH lists like End-of-Task Summary below: every lockstep
+    # file must carry the heading, and the body must stay byte-identical so the
+    # contract cannot drift on one platform.
+    "Communication Contract",
+    # v4.0.0 docs-lifespan: placement by lifespan is platform-agnostic and has
+    # no valid per-platform variation. Require the heading and byte-lock the
+    # body across the five lockstep templates.
+    "Documentation Layout",
+    # v3.15.10: the end-of-task summary rule is platform-agnostic by intent and
+    # has no legitimate per-platform variation, unlike Output Minimization above
+    # (base-claude.md carries a 5th bullet the other four do not). It therefore
+    # belongs in BOTH lists: every lockstep file must carry the heading, and the
+    # body must stay byte-identical so the rule cannot drift on one platform.
+    "End-of-Task Summary",
+    # v4.1.2: the pre-write construction ladder is platform-agnostic by intent
+    # and has no legitimate per-platform variation. Require the heading and
+    # byte-lock the body across the five lockstep templates. Coverage of the
+    # other seven substantive templates lives in
+    # tests/validators/test_construction_discipline_rule.py.
+    "Construction Discipline",
+    # v4.5.0: the writing-discipline rule (cliche prohibition, ASCII punctuation,
+    # chatbot-leftover ban, and the self-check that binds live replies) is
+    # platform-agnostic by intent and has no legitimate per-platform variation:
+    # a cliche or an em-dash is a defect on every platform, and the block
+    # governs the agent's own output rather than any platform feature. Require
+    # the heading and byte-lock the body across the five lockstep templates.
+    # Coverage of the other seven substantive templates lives in
+    # tests/validators/test_writing_discipline_rule.py.
+    "Writing Discipline",
+    # v4.7.0: the autonomous-operation block (proceed on covered work, stop
+    # only for destructive or scope-changing actions, report-and-stop on a
+    # question, finish the last paragraph's promises, targeted edits, and the
+    # user-over-skill precedence with disclosed deviation) is platform-agnostic
+    # by intent and names no vendor, model, or API parameter. Require the
+    # heading and byte-lock the body across the five lockstep templates.
+    # Coverage of the other seven substantive templates lives in
+    # tests/validators/test_autonomy_block_rule.py.
+    "Autonomous Operation",
+    "Consequential Decisions",
     "Run and Verify",
     "MCP Registry Policy",
 ]
@@ -178,7 +226,7 @@ def heading_texts(lines: list[str]) -> set[str]:
     return {text for _, text in _iter_headings(lines)}
 
 
-def section_body(lines: list[str], heading_text: str) -> Optional[list[str]]:
+def section_body(lines: list[str], heading_text: str) -> list[str] | None:
     """Return the normalized body lines of a section, or None if it is absent.
 
     The body runs from the line after the matching heading to the line before
@@ -205,7 +253,9 @@ class Finding:
     """One parity violation in one file."""
 
     def __init__(self, category: str, file: str, detail: str) -> None:
-        self.category = category  # "missing-heading" | "missing-placeholder" | "block-divergence"
+        self.category = (
+            category  # "missing-heading" | "missing-placeholder" | "block-divergence"
+        )
         self.file = file
         self.detail = detail
 

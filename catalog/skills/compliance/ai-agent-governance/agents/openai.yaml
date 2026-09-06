@@ -1,4 +1,4 @@
 interface:
   display_name: AI Agent Governance - 4 Pillars Framework
   short_description: Implement the 4 Pillars Framework for AI agent governance (Lifecycle, Risk, Security, Observability). Use when deploying autonomous AI agents, implementing agent guardrails, establishing
-    agent securit
+    agent security controls, or auditing AI agent behavior.

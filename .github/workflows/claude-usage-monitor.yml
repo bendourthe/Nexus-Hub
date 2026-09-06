@@ -1,0 +1,52 @@
+name: claude-usage-monitor
+
+# Path-filtered: runs only when the claude-usage-monitor extension changes, so it
+# costs action minutes only for that surface (mirrors presentify-extractor.yml).
+# The extension is a Node/TypeScript VSIX with a Vitest provider-test suite; the
+# repo-wide ci.yml covers Python only, so this workflow is the extension's gate.
+on:
+  # v4.0.0 event separation: the `push` leg to the same protected branches was
+  # removed. Under a pull-request-only merge policy that push IS the merge commit
+  # of the pull request that just ran, so the tree is identical and the second run
+  # cannot discover anything the first did not. See
+  # docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md section 4.
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'extensions/claude-usage-monitor/**'
+
+# Cancel superseded runs of the same ref (the single largest action-minute saver).
+# v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
+# contents is the complete requirement.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: extensions/claude-usage-monitor
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: extensions/claude-usage-monitor/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile (tsc)
+        run: npm run compile
+
+      - name: Unit tests with coverage (Vitest)
+        run: npm run test:coverage

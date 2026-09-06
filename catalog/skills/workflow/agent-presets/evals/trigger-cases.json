@@ -1,0 +1,14 @@
+{
+  "skill": "agent-presets",
+  "purpose": "Route full local security-audit requests to the security-audit preset, while keeping one-CVE, one-cloud-posture, patch-only, and ordinary review prompts on their focused skills.",
+  "cases": [
+    {"id": "pos-full-security-audit", "prompt": "run a full security audit of this repository", "should_trigger": true, "assert": "routes to agent-presets security-audit", "lexical": true},
+    {"id": "pos-scan-fix-rescan", "prompt": "scan-fix-rescan this codebase and verify the patch independently", "should_trigger": true, "assert": "routes to agent-presets security-audit", "lexical": true},
+    {"id": "pos-dependency-plus-iac", "prompt": "dependency plus IaC audit with scanner receipts before any fix", "should_trigger": true, "assert": "routes to agent-presets security-audit", "lexical": true},
+    {"id": "pos-prerelease-verification", "prompt": "pre-release security verification with re-scan and independent review", "should_trigger": true, "assert": "routes to agent-presets security-audit", "lexical": true},
+    {"id": "neg-one-cve-reachability", "prompt": "is CVE-2024-12345 reachable in this dependency", "should_trigger": false, "assert": "routes to cve-reachability-analyzer, not the full security-audit preset", "lexical": true},
+    {"id": "neg-one-cloud-posture", "prompt": "check whether this AWS account has public S3 buckets", "should_trigger": false, "assert": "routes to cloud-security-posture-detection, not the full security-audit preset", "lexical": true},
+    {"id": "neg-patch-only", "prompt": "write a security patch for this XSS finding only", "should_trigger": false, "assert": "routes to security-patch-advisor, not the full security-audit preset", "lexical": true},
+    {"id": "neg-ordinary-code-review", "prompt": "do an ordinary code review of this pull request", "should_trigger": false, "assert": "routes to code-quality or multi-agent-code-review, not the full security-audit preset", "lexical": true}
+  ]
+}

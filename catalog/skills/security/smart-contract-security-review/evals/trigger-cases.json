@@ -1,0 +1,48 @@
+{
+  "skill": "smart-contract-security-review",
+  "purpose": "Route authorized contract review here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "Solidity security review of our contract",
+      "should_trigger": true,
+      "assert": "routes to smart-contract-security-review first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "reentrancy in our contract",
+      "should_trigger": true,
+      "assert": "routes to smart-contract-security-review first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "oracle manipulation check",
+      "should_trigger": true,
+      "assert": "routes to smart-contract-security-review first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "drain a third-party DeFi pool",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "HTTP BOLA",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "JWT alg none",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

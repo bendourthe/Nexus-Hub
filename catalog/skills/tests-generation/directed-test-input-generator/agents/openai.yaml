@@ -1,4 +1,4 @@
 interface:
   display_name: Directed Test Input Generator
   short_description: Generate targeted test inputs to reach specific code paths using path condition analysis, symbolic execution concepts, constraint solving, and coverage-directed generation. Use when
-    you need to test h
+    you need to test hard-to-reach branches, achieve specific code coverage targets, exercise error handling paths, or generate inputs that satisfy complex preconditions.

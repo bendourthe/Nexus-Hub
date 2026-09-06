@@ -1,4 +1,4 @@
 interface:
   display_name: Microservices Patterns
   short_description: Microservices architecture patterns including service decomposition, inter-service communication, data management, and resilience. Use when designing distributed systems, migrating
-    monoliths, or imple
+    monoliths, or implementing service mesh.

@@ -276,7 +276,7 @@ def load_history(path: Path) -> dict:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(data, dict) or not isinstance(data.get("entries"), list):
-            raise ValueError("unexpected history shape")
+            raise ValueError("unexpected history shape")  # noqa: TRY004 - caught below to degrade safely
         return data
     except (ValueError, OSError) as exc:
         print(
@@ -372,11 +372,89 @@ def pick_brief(rng: random.Random, preset: str, recent: list, count: int) -> dic
     return max(accepted, key=lambda c: distance(c, recent))
 
 
-def build_brief(candidate: dict, preset: str, seed: int) -> dict:
+PALETTE_KEYS = ("base", "surface", "ink", "accent", "accent_2")
+
+
+def load_scheme_hint(raw: str) -> dict:
+    """Parse a `--scheme-hint` value: inline JSON, or a path to a JSON file.
+
+    The hint carries the color scheme the user picked in intake ROUND 2, which is
+    proposed from the extracted content and so cannot come from the sampler's
+    fixed hue-family pool. Accepted keys:
+
+      name          a label for the design record (recommended)
+      base_variant  "light" or "dark" - which end of the scale the scheme sits on
+      hue_family    a pool family name, as a shorthand for its palette
+      base, surface, ink, accent, accent_2   explicit hexes, each optional
+
+    Explicit hexes win over `hue_family`, and any key omitted falls through to the
+    rolled palette - so a scheme may pin only its accents and let the neutrals roll.
+    """
+    raw = raw.strip()
+    if not raw.startswith("{"):
+        path = Path(raw)
+        if not path.is_file():
+            raise ValueError(f"scheme hint is neither JSON nor a readable file: {raw}")
+        raw = path.read_text(encoding="utf-8")
+    hint = json.loads(raw)
+    if not isinstance(hint, dict):
+        raise ValueError(  # noqa: TRY004 - caught in main() to exit 2, not crash
+            "scheme hint must be a JSON object"
+        )
+    variant = hint.get("base_variant")
+    if variant is not None and variant not in ("light", "dark"):
+        raise ValueError("scheme hint base_variant must be 'light' or 'dark'")
+    family = hint.get("hue_family")
+    if family is not None and family not in HUE_FAMILIES:
+        raise ValueError(
+            f"unknown hue_family {family!r}; expected one of {sorted(HUE_FAMILIES)}"
+        )
+    for key in PALETTE_KEYS:
+        value = hint.get(key)
+        if value is not None and not (
+            isinstance(value, str) and value.startswith("#") and len(value) in (4, 7, 9)
+        ):
+            raise ValueError(f"scheme hint {key} must be a hex color, got {value!r}")
+    return hint
+
+
+def apply_scheme_hint(palette: dict, hint: dict, base_variant: str) -> tuple[dict, str]:
+    """Overlay a pinned scheme onto the rolled palette. Returns the palette and
+    the effective base variant."""
+    variant = hint.get("base_variant", base_variant)
+    merged = dict(palette)
+    family_name = hint.get("hue_family")
+    if family_name:
+        family = HUE_FAMILIES[family_name]
+        merged.update(family[variant])
+        merged["accent"] = family["accents"][0]
+        merged["accent_2"] = family["accents"][1]
+    for key in PALETTE_KEYS:
+        if hint.get(key):
+            merged[key] = hint[key]
+    return merged, variant
+
+
+def build_brief(
+    candidate: dict, preset: str, seed: int, scheme_hint: dict | None = None
+) -> dict:
     family = HUE_FAMILIES[candidate["hue_family"]]
-    palette = dict(family[candidate["base_variant"]])
+    base_variant = candidate["base_variant"]
+    palette = dict(family[base_variant])
     palette["accent"] = family["accents"][0]
     palette["accent_2"] = family["accents"][1]
+    # A ROUND 2 scheme pins the palette only. The candidate itself is left exactly
+    # as rolled - including its `hue_family`, which is one of the anti-convergence
+    # axes - so the history and rejection logic keep working unchanged and two runs
+    # on the same pinned palette still differ on type voice, layout, motion, and
+    # the signature move. Uniqueness is preserved WITHIN the palette rather than
+    # traded away for it.
+    palette_source = f"rolled: {candidate['hue_family']} ({base_variant})"
+    if scheme_hint:
+        palette, base_variant = apply_scheme_hint(palette, scheme_hint, base_variant)
+        palette_source = (
+            f"pinned by intake round 2: {scheme_hint.get('name', 'unnamed scheme')}"
+        )
     voice = TYPE_VOICES[candidate["type_voice"]]
     summary = (
         f"{preset}: {candidate['base_variant']} {candidate['hue_family']} / "
@@ -388,8 +466,12 @@ def build_brief(candidate: dict, preset: str, seed: int) -> dict:
         "preset": preset,
         "seed": seed,
         "hue_family": candidate["hue_family"],
-        "base_variant": candidate["base_variant"],
+        "base_variant": base_variant,
         "palette": palette,
+        # Recorded so the design record can say where the colors came from. The
+        # `hue_family` above stays the ROLLED axis even when the palette is
+        # pinned, because that is what the anti-convergence history compares.
+        "palette_source": palette_source,
         "mood": candidate["mood"],
         "neutral_temperature": candidate["neutral_temperature"],
         "type": {
@@ -469,6 +551,14 @@ def main(argv: list | None = None) -> int:
         default=3,
         help="Candidates rolled before the distance pick (default 3).",
     )
+    parser.add_argument(
+        "--scheme-hint",
+        help="Pin the palette to the color scheme chosen in intake ROUND 2: "
+        "inline JSON or a path to a JSON file. Keys: name, base_variant, "
+        "hue_family, and/or explicit base/surface/ink/accent/accent_2 hexes. "
+        "The sampler still rolls type voice, layout, motion, and the signature "
+        "move, and the anti-convergence history is untouched.",
+    )
     parser.add_argument("-o", "--out", help="Output brief JSON path.")
     parser.add_argument(
         "--commit",
@@ -491,8 +581,17 @@ def main(argv: list | None = None) -> int:
     seed = args.seed if args.seed is not None else int.from_bytes(os.urandom(8), "big")
     rng = random.Random(seed)
     recent = load_history(history_path)["entries"][-RECENT_WINDOW:]
+    scheme_hint = None
+    if args.scheme_hint:
+        try:
+            scheme_hint = load_scheme_hint(args.scheme_hint)
+        except (ValueError, OSError) as exc:
+            # A malformed hint is a usage error, not a reason to silently roll an
+            # unpinned palette - that would ship colors the user did not choose.
+            print(f"Error: --scheme-hint: {exc}", file=sys.stderr)
+            return 2
     candidate = pick_brief(rng, args.preset, recent, max(1, args.candidates))
-    brief = build_brief(candidate, args.preset, seed)
+    brief = build_brief(candidate, args.preset, seed, scheme_hint)
 
     out_path = Path(args.out)
     if out_path.parent and not out_path.parent.exists():

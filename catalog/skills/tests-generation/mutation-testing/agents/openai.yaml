@@ -1,4 +1,4 @@
 interface:
   display_name: Mutation Testing
   short_description: Validate test quality through mutation testing to detect weak tests and reward hacking patterns. Use when verifying test suite effectiveness, improving test quality, detecting false-positive
-    tests, or
+    tests, or validating that tests catch real bugs in Python, JavaScript, Java, C#, Go, C, or C++ code.

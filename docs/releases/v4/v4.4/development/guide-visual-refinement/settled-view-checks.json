@@ -1,0 +1,122 @@
+[
+  {
+    "overflow": false,
+    "clipped": [],
+    "width": 420,
+    "theme": "dark",
+    "target": "fx-tokens",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "width": 420,
+    "theme": "dark",
+    "target": "hx-harness",
+    "errors": []
+  },
+  {
+    "width": 420,
+    "theme": "dark",
+    "target": "home",
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "width": 420,
+    "theme": "dark",
+    "target": "training/describe",
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "width": 420,
+    "theme": "light",
+    "target": "fx-tokens",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "width": 420,
+    "theme": "light",
+    "target": "hx-harness",
+    "errors": []
+  },
+  {
+    "width": 420,
+    "theme": "light",
+    "target": "home",
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "width": 420,
+    "theme": "light",
+    "target": "training/describe",
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "width": 1440,
+    "theme": "dark",
+    "target": "fx-tokens",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "width": 1440,
+    "theme": "dark",
+    "target": "hx-harness",
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "target": "home",
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "target": "training/describe",
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "width": 1440,
+    "theme": "light",
+    "target": "fx-tokens",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "clipped": [],
+    "width": 1440,
+    "theme": "light",
+    "target": "hx-harness",
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "target": "home",
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "target": "training/describe",
+    "overflow": false,
+    "errors": []
+  }
+]

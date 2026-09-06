@@ -30,6 +30,9 @@ const URGENCY_COLOR: Record<UrgencyLevel, string> = {
   critical: "#f85149",
 };
 
+const LOGO_DATA_URI =
+  "data:image/png;base64,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";
+
 export class WarningViewProvider implements vscode.WebviewViewProvider {
   private view: vscode.WebviewView | undefined;
   private suggestion: UsageSuggestion | undefined;
@@ -102,6 +105,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     }
 
     const color = URGENCY_COLOR[this.urgency];
+    const label = "Claude";
     const pct = Math.max(0, Math.min(100, Math.round(s.percent)));
 
     // Ring geometry: an SVG circle whose visible arc is `pct` of its circumference.
@@ -118,19 +122,14 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
 
     return this.wrapHtml(webview, `
       <div class="warn">
-        <div class="header">
-          <span class="warn-icon" style="color:${color}">${ICON.warning}</span>
-          <h1>Claude Usage Warning</h1>
-          <button class="close" data-command="cancel" title="Dismiss" aria-label="Dismiss">${ICON.close}</button>
-        </div>
+        <button class="close" data-command="cancel" title="Dismiss" aria-label="Dismiss">${ICON.close}</button>
 
-        <div class="divider"></div>
-
-        <div class="rec-head"><span>Ways to extend your usage</span></div>
-
-        <div class="recs">
-          ${switchRow}
-          <div class="rec">${ICON.gauge}<span>${escapeHtml(s.effortAdvice)}</span></div>
+        <div class="brand">
+          <img class="brand-logo" src="${LOGO_DATA_URI}" alt="" />
+          <div class="brand-title">
+            <div class="brand-name">${escapeHtml(label)}</div>
+            <div class="brand-sub">Usage Monitor</div>
+          </div>
         </div>
 
         <div class="ring-wrap">
@@ -146,6 +145,13 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
           </div>
         </div>
 
+        <div class="rec-head"><span>Ways to extend your usage</span></div>
+
+        <div class="recs">
+          ${switchRow}
+          <div class="rec">${ICON.gauge}<span>${escapeHtml(s.effortAdvice)}</span></div>
+        </div>
+
         <div class="reset-box">
           ${ICON.clock}<span>${escapeHtml(resetSentence)}</span>
         </div>
@@ -153,7 +159,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
         <div class="divider"></div>
 
         <div class="footer">
-          <span class="source">${ICON.chart}<span>Source: Claude Usage Monitor</span></span>
+          <span class="source">${ICON.chart}<span>Source: ${escapeHtml(label)} Usage Monitor</span></span>
           <div class="footer-actions">
             <button class="secondary" data-command="openDashboard">Open Dashboard</button>
             <button class="primary" data-command="cancel">OK</button>
@@ -171,7 +177,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -180,22 +186,40 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
       background: var(--vscode-sideBar-background, var(--vscode-editor-background));
       padding: 12px 14px;
     }
-    .warn { width: 100%; }
+    .warn { width: 100%; position: relative; }
     .empty { opacity: 0.7; font-size: 13px; }
-    .header {
+    /* Centered brand block: real product icon above a two-line "<PRODUCT>" / "Usage Monitor" title. */
+    .brand {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      text-align: center;
+      padding: 2px 0;
     }
-    .header h1 {
-      font-size: 15px;
+    /* The full-color extension icon (data URI), sized down from its native resolution so it
+       stays crisp; no tinting, so it renders in its original brand colors. */
+    .brand-logo { display: block; width: 44px; height: 44px; }
+    .brand-title { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .brand-name {
+      font-size: 22px;
       font-weight: 700;
-      margin: 0;
-      flex: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      line-height: 1.1;
       color: var(--vscode-sideBarTitle-foreground, var(--vscode-foreground));
     }
-    .warn-icon svg { display: block; width: 22px; height: 22px; }
+    .brand-sub {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.1;
+      color: var(--vscode-sideBarTitle-foreground, var(--vscode-foreground));
+    }
+    /* Dismiss control pinned to the top-right corner, clear of the centered brand. */
     .close {
+      position: absolute;
+      top: 0;
+      right: 0;
       background: transparent;
       border: none;
       color: var(--vscode-descriptionForeground, var(--vscode-foreground));
@@ -210,14 +234,14 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
       border-top: 1px solid var(--vscode-widget-border, rgba(128,128,128,0.25));
       margin: 12px 0;
     }
-    /* One-line, centered recommendations heading above the ring (wraps only if the
-       sidebar is dragged very narrow). */
+    /* Small, centered section heading below the ring (previously the large hero heading). */
     .rec-head {
-      font-size: 26px;
-      font-weight: 500;
-      line-height: 1.25;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.3;
       text-align: center;
-      margin: 2px 0 16px;
+      opacity: 0.85;
+      margin: 20px 0 12px;
     }
     .recs {
       display: flex;
@@ -240,7 +264,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     .icon-clock { color: var(--vscode-charts-blue, #4aa5f0); }
     .icon-chart { color: var(--vscode-descriptionForeground, #8b949e); }
     .rec strong { font-weight: 700; }
-    /* Ring centered below the recommendations. */
+    /* Ring centered below the brand block. */
     .ring-wrap { position: relative; width: 132px; height: 132px; margin: 16px auto 0; }
     .ring-track { stroke: rgba(128,128,128,0.25); }
     .ring-center {

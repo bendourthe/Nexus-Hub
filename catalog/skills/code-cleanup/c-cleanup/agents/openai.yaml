@@ -1,4 +1,4 @@
 interface:
   display_name: C Code Cleanup
   short_description: Fix memory leaks, apply MISRA guidelines, remove dead code, and clean up C codebases. Use when cleaning up C projects, embedded systems code, addressing memory safety, or improving
-    code maintainabilit
+    code maintainability.

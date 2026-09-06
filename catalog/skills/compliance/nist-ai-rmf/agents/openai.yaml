@@ -1,4 +1,4 @@
 interface:
   display_name: NIST AI Risk Management Framework
   short_description: Implement NIST AI Risk Management Framework (Govern, Map, Measure, Manage) for AI system risk management. Use when deploying AI in US federal contexts, implementing AI risk controls,
-    or establishing c
+    or establishing comprehensive AI risk management.

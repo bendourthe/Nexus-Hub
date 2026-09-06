@@ -1,4 +1,4 @@
 interface:
   display_name: SOC 2 Type II Compliance
-  short_description: 'Implement SOC 2 Type II controls covering Trust Services Criteria (Security, Availability, Confidentiality, Processing Integrity, Privacy). Use when preparing for SOC 2 audits, implementing
-    controls, '
+  short_description: Implement SOC 2 Type II controls covering Trust Services Criteria (Security, Availability, Confidentiality, Processing Integrity, Privacy). Use when preparing for SOC 2 audits, implementing
+    controls, documenting compliance, or building enterprise SaaS.

@@ -1,0 +1,48 @@
+{
+  "skill": "encryption-at-rest-design",
+  "purpose": "Route at-rest encryption design here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "envelope encryption design",
+      "should_trigger": true,
+      "assert": "routes to encryption-at-rest-design first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "customer-managed keys for the database",
+      "should_trigger": true,
+      "assert": "routes to encryption-at-rest-design first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "field-level encryption plan",
+      "should_trigger": true,
+      "assert": "routes to encryption-at-rest-design first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "TLS cert rotation",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "JWT alg none",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "HSM cluster install",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

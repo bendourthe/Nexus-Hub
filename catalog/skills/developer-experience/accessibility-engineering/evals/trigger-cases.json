@@ -1,0 +1,13 @@
+{
+  "skill": "accessibility-engineering",
+  "purpose": "Route a11y, WCAG, keyboard, ARIA, and screen-reader work here instead of general frontend, visual polish, or iOS keychain-accessibility review.",
+  "cases": [
+    {"id": "pos-a11y", "prompt": "fix a11y so a screen reader can operate this dialog", "should_trigger": true, "assert": "routes to accessibility-engineering first", "lexical": true},
+    {"id": "pos-keyboard", "prompt": "make this dialog work with keyboard navigation and a visible focus ring", "should_trigger": true, "assert": "routes to accessibility-engineering first", "lexical": true},
+    {"id": "pos-wcag", "prompt": "does this form meet WCAG for labels and screen readers", "should_trigger": true, "assert": "routes to accessibility-engineering first", "lexical": true},
+    {"id": "pos-aria", "prompt": "add an ARIA accessible name to these icon buttons", "should_trigger": true, "assert": "routes to accessibility-engineering first", "lexical": true},
+    {"id": "neg-architecture", "prompt": "split this page into presentational and container components", "should_trigger": false, "assert": "routes to frontend-ui-engineering, not here", "lexical": true},
+    {"id": "neg-polish", "prompt": "make this landing page look less AI-generated", "should_trigger": false, "assert": "routes to hallmark-design, not here", "lexical": true},
+    {"id": "neg-state", "prompt": "wire this form to React Query and keep the mutation state in the container", "should_trigger": false, "assert": "routes to frontend-ui-engineering, not here", "lexical": true}
+  ]
+}

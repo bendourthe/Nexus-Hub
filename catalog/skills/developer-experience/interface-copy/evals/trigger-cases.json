@@ -1,0 +1,12 @@
+{
+  "skill": "interface-copy",
+  "purpose": "Route in-product microcopy here instead of docs writing, anti-slop prose editing, or internal comms.",
+  "cases": [
+    {"id": "pos-button", "prompt": "rewrite these button labels and empty-state copy in the product UI", "should_trigger": true, "assert": "routes to interface-copy first", "lexical": true},
+    {"id": "pos-error", "prompt": "write validation messages and error copy for this form", "should_trigger": true, "assert": "routes to interface-copy first", "lexical": true},
+    {"id": "pos-confirm", "prompt": "write confirmation copy and empty-state copy for this delete dialog", "should_trigger": true, "assert": "routes to interface-copy first", "lexical": true},
+    {"id": "neg-readme", "prompt": "write me a README for this library", "should_trigger": false, "assert": "routes to writing-editing, not here", "lexical": true},
+    {"id": "neg-slop", "prompt": "de-slop this paragraph and keep the writer's voice", "should_trigger": false, "assert": "routes to anti-slop-editing, not here", "lexical": true},
+    {"id": "neg-status", "prompt": "write a weekly status report for leadership", "should_trigger": false, "assert": "routes to internal-comms, not here", "lexical": true}
+  ]
+}

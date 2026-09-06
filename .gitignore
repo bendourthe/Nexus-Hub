@@ -93,6 +93,12 @@ data/benchmarks/
 .nexus-hub/install-manifest.json
 .nexus-hub/
 
+# Bring-your-own-key media config written by `nexus-hub setup-media` (v3.14.3).
+# It is always written under ~/.nexus-hub/config/media.env (outside any repo);
+# listed defensively so a stray in-repo copy (e.g. a mis-scoped test run) can
+# never be committed - it holds a Pexels API key.
+media.env
+
 # skill-eval-loop user workspaces (v1.2.0-wip / Phase 5). Users running the
 # eval loop produce <skill-name>-workspace/ directories at the repo root with
 # per-iteration outputs, benchmarks, and feedback. Ignore them so iteration
@@ -105,3 +111,36 @@ data/benchmarks/
 # Anthropic API skill-upload endpoint - they should not land in the catalog
 # tree. Default output path is ./<skill-name>.skill in the current directory.
 *.skill
+
+# Antigravity CLI local runtime dir (created on use; never committed)
+.antigravitycli/
+
+# Atomic-write scratch files from `validate_unicode_safety.py --fix` (v3.16.8
+# Phase 1). The fixer writes `.<filename>.<random>.tmp` beside its target and
+# renames over it, unlinking the temp file on any error, so one survives only an
+# abnormal termination (SIGKILL, power loss). Ignored so a stray leftover can
+# never be swept into a commit by `git add -A`.
+.*.tmp
+
+# Windows PowerShell profile scaffolding created as a side effect of the
+# installer and hook test suites, which invoke powershell.exe with the repo as
+# CWD (v3.18.0 Phase 5). Git does not track empty directories, so this tree is
+# invisible to `git status` while still being real enough to abort a
+# `git stash -u` with "failed to remove ...: Permission denied" on a
+# OneDrive-synced checkout. Ignored so it can never be committed if a run does
+# leave a file in it.
+/Microsoft/
+
+# Looping SKILL.md relocator incident (2026-08-23). Numbered stubs under
+# ai-agent-development/references/ are never catalog content.
+catalog/skills/ai-development/ai-agent-development/references/references.md
+catalog/skills/ai-development/ai-agent-development/references/references-[0-9]*.md
+
+# Repository-native CI engine output (v4.0.0). scripts/ci/run.py writes here on
+# every local run; the artifacts are per-run evidence, never source.
+/reports/
+
+# v4.4.3: the declared browser matrix's screenshots are regenerable evidence and are not committed.
+# The per-run summary JSON beside them IS committed and is the authoritative record. See
+# docs/releases/v4/v4.4/development/guide-illustration-clarity-rebuild/renders/README.md
+docs/releases/v4/v4.4/development/guide-illustration-clarity-rebuild/renders/**/*.png

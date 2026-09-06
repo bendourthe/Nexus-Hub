@@ -1,0 +1,48 @@
+{
+  "skill": "digital-signatures-and-jwt-signing",
+  "purpose": "Route JWT/JWS issuance here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "sign this JWT correctly",
+      "should_trigger": true,
+      "assert": "routes to digital-signatures-and-jwt-signing first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "JWS issuance with pinned alg",
+      "should_trigger": true,
+      "assert": "routes to digital-signatures-and-jwt-signing first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "detached signature verify design",
+      "should_trigger": true,
+      "assert": "routes to digital-signatures-and-jwt-signing first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "JWT alg none attack",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "HSM chassis install",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "envelope encryption",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

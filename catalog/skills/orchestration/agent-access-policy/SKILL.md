@@ -265,6 +265,52 @@ State the default-deny stance on uncertainty: when it is unclear whether an acti
 
 This gate complements, and does not replace, the two neighboring controls. The tool-allowlist containment above bounds what is reachable at all; the approval gate bounds what executes without a human; and the spend caps in `[[ai-billing-safeguards]]` bound cost. An action can be inside the allowlist, under budget, and still warrant a human decision because it is irreversible.
 
+## Typed Capability-Grant Broker
+
+Use `scripts/capability-grant-broker.py` when an agent loop needs a machine-enforced authorization decision between model output and a local executor. The broker is an authorization gate, not a generic execution facility: it returns a least-privilege plan by default and denies the request with a nonzero exit code when any declared capability or resource falls outside the grant. A documentation instruction, model recommendation, or human-readable approval sentence is not an authorization source.
+
+The broker recognizes four typed capabilities:
+
+| Capability | Authorized effect |
+|---|---|
+| `network` | Reach only the exact normalized destinations in `network_destinations` |
+| `write` | Write only absolute paths contained by an entry in `writable_paths` |
+| `use_secret` | Allow the sandboxed worker to use a separately supplied secret |
+| `destructive_test` | Allow a destructive test only inside the sandbox boundary |
+
+Create a JSON request whose `grant` contains a non-empty `authorization_source`, the allowed capability names, absolute writable roots, and exact network destinations. The request states only what this action needs:
+
+```json
+{
+  "command": ["python", "worker.py"],
+  "required_capabilities": ["write", "network"],
+  "requested_write_paths": ["C:/sandbox/reports/result.json"],
+  "requested_network_destinations": ["https://api.example.test"],
+  "grant": {
+    "authorization_source": "approved task grant 42",
+    "capabilities": ["write", "network"],
+    "writable_paths": ["C:/sandbox/reports"],
+    "network_destinations": ["https://api.example.test"]
+  }
+}
+```
+
+Evaluate the request without executing it:
+
+```bash
+python scripts/capability-grant-broker.py --request request.json
+```
+
+Execution is a separate opt-in operation. It requires `--execute` plus a reachable sandbox command prefix supplied as a JSON array, and it always constructs an argument list with `shell=False`:
+
+```bash
+python scripts/capability-grant-broker.py --request request.json --execute --sandbox-prefix-json '["sandbox-runner", "--"]'
+```
+
+The broker refuses execution when the sandbox prefix is absent or unreachable. Exit code `0` means authorized or successfully executed, `2` means malformed usage or data, `3` means denied, and `4` means the sandboxed child failed. Writable scope matching is a lexical plan check; the sandbox remains responsible for enforcing filesystem reality, resolving symbolic links safely, isolating secrets, and restricting network egress.
+
+This layer composes with `[[agentic-endpoint-hardening]]`: its strict permission overlay and provenance hook reduce the host surfaces an agent can reach, while this broker decides whether one model-emitted action carries an explicit typed grant. Neither layer substitutes for the sandbox. Pair it with `[[prompt-injection-defense]]` so untrusted content cannot redefine the grant or turn narrative instructions into authority. The denial-first contract and installer-distribution proof live in `tests/skills/test_capability_grant_broker.py`.
+
 ## Best Practices
 
 - **Default to least privilege**: start with read-only access and add write permissions only for the specific paths the agent needs
@@ -289,6 +335,9 @@ This gate complements, and does not replace, the two neighboring controls. The t
 - [ ] Sensitive paths (auth, payments, infra) are not writable unless the task explicitly requires them
 - [ ] Each allow/deny rule has a comment explaining its rationale
 - [ ] The agent completed the task without hitting an unexpected permission boundary (or the boundary surfaced a mis-scoped task)
+- [ ] Every brokered action declares only the capabilities and resource scopes it needs
+- [ ] An ungranted capability, out-of-scope write, and off-allowlist network destination each return exit code `3`
+- [ ] Execution without a reachable sandbox prefix is denied before the worker command starts
 
 ## Related Skills
 
@@ -296,6 +345,8 @@ This gate complements, and does not replace, the two neighboring controls. The t
 - `escalation-trigger` (hook) - Advisory hook for sensitive path detection
 - [[component-boundary-identifier]] - Identify architectural boundaries for access policy design
 - [[quality-gate-definitions]] - Define gates that check for unauthorized file modifications
+- [[agentic-endpoint-hardening]] - Reduce host trust-transition surfaces around the brokered action
+- [[prompt-injection-defense]] - Keep untrusted instructions from being treated as grant authority
 
 ---
 

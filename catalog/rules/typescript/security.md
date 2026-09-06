@@ -27,7 +27,7 @@ priority: critical
 ## Secrets and Environment
 
 - Load secrets from environment variables via `@t3-oss/env-nextjs` or `zod` schema validation. This prevents missing secrets from surfacing as silent `undefined`.
-- Never log `process.env` contents — they may contain secrets.
+- Never log `process.env` contents -- they may contain secrets.
 - Ensure secrets are not included in client bundles. Next.js: only variables prefixed with `NEXT_PUBLIC_` are exposed to the browser.
 
 ## Dependencies

@@ -1,4 +1,4 @@
 interface:
   display_name: Pre-Commit Security and Quality Checklist
   short_description: Implement automated pre-commit quality checks including linting, formatting, type checking, tests, security scans, and commit message validation. Use when establishing team coding standards,
-    preventin
+    preventing credential leaks, enforcing conventions, or implementing shift-left security.

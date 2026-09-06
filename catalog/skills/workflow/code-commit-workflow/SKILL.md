@@ -1,13 +1,15 @@
 ---
 name: code-commit-workflow
-description: Implement proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use when committing changes, preparing pull requests, or establishing team commit standards.
-summary_l0: "Implement Git commit workflows with conventional commits and atomic changes"
-overview_l1: "This skill implements proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use it when committing changes, preparing pull requests, or establishing team commit standards. Key capabilities include conventional commit message formatting, atomic change grouping, meaningful commit message writing, interactive staging guidance, commit history organization, pull request preparation, branch strategy implementation, and team commit standard enforcement. The expected output is well-structured Git commits with conventional format, atomic scope, and meaningful messages that enable clear project history. Trigger phrases: commit workflow, conventional commits, commit message, atomic commit, pull request, Git workflow, commit standards, meaningful commits."
+description: Implement proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use when committing changes, preparing pull requests, or establishing team commit standards. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.
+summary_l0: "Create atomic conventional commits with canonical documentation paths"
+overview_l1: "This skill implements proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use it when committing changes, preparing pull requests, or establishing team commit standards. Key capabilities include conventional commit message formatting, atomic change grouping, meaningful commit message writing, interactive staging guidance, commit history organization, pull request preparation, branch strategy implementation, and team commit standard enforcement. The expected output is well-structured Git commits with conventional format, atomic scope, and meaningful messages that enable clear project history. Trigger phrases: commit workflow, conventional commits, commit message, atomic commit, pull request, Git workflow, commit standards, meaningful commits. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # Code Commit Workflow
 
 Implement a professional Git commit workflow with conventional commits, atomic changes, and meaningful commit messages that enhance project history and collaboration.
+
+When a commit carries version-bound documentation, stage it from `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`; closed snapshots belong under `docs/archives/`. Treat legacy path changes as migration work and keep them atomic with reference repair.
 
 ## When to Use This Skill
 
@@ -47,6 +49,42 @@ Use this skill when you need to:
 | `chore` | Maintenance | `chore: update dependencies` |
 | `perf` | Performance | `perf: optimize database queries` |
 | `ci` | CI/CD changes | `ci: add GitHub Actions workflow` |
+
+## Plan-Context Mode (invoked by `/implement`)
+
+The Instructions below are the GENERIC one-off commit workflow and are unchanged: stage what belongs together, write a sectioned message, verify before committing. Everything in this section applies ONLY when this skill is invoked from a plan phase by `[[implement-phase]]`. Outside that context, ignore it.
+
+### The commit unit is the phase, not the sub-task
+
+Accumulate changes across the whole phase, validate them together, and create exactly ONE commit at the phase boundary. Do not commit per sub-task.
+
+This is not a relaxation of atomicity; it is a different unit of atomicity. A plan phase is the smallest independently revertible unit the plan defines, because its sub-tasks are written to be completed together and its exit checklist gates on all of them. Committing per sub-task produces a history whose intermediate states never passed the phase gate, so `git revert` on any one of them leaves a tree the plan never validated.
+
+The exception is explicit: when the plan itself defines separate independently revertible units inside a phase, honor that. The plan is the authority on its own granularity.
+
+### Non-final plan commits stay LOCAL
+
+A non-final phase commit is not pushed. No push, no pull request, no remote CI.
+
+The reason is cost and signal together. Pushing per phase starts a full pipeline run for each phase, so a seven-phase plan pays seven times for six runs that validate work the plan itself says is incomplete. Worse, those runs go red for expected reasons, and a team that sees expected red checks stops reading red checks.
+
+A user who explicitly asks to push a non-final phase is making a deliberate exception. State the cost in one line and do what they ask; the default is removed, not their authority.
+
+### The final plan commit is the only one that publishes
+
+The final phase creates its commit, obtains explicit approval, and pushes ONCE. That push is the plan's first remote event and the integration pull request is its first comprehensive validation, run against the merge result rather than the branch tip.
+
+### Correction work after a red required check
+
+A red check REOPENS the final phase. It does not authorize a re-run and it does not authorize a fresh commit stream.
+
+1. Classify the failure.
+2. Reproduce it LOCALLY. A check that cannot be reproduced locally is itself the finding: an environment difference, a missing local dependency, or an interpreter version floor. Nexus-Hub has shipped that exact defect, where a green local run on a newer interpreter proved nothing about the older one that gated the merge.
+3. Apply the narrow fix and re-run the local gate.
+4. Then EITHER amend the final commit (when the branch history should read as one clean phase) OR add ONE narrowly scoped stabilization commit (when the fix is worth its own entry in the history, or when the branch has already been reviewed). Never both, and never a series.
+5. Push again with approval.
+
+Never re-run a red check without a local reproduction. A re-run without one is a guess, and a guess that happens to go green has taught nobody anything.
 
 ## Instructions
 
@@ -158,119 +196,9 @@ git status
 
 ## Commit Message Examples
 
-### Good Examples
+Worked good and bad examples for every commit type: [`references/commit-message-examples.md`](references/commit-message-examples.md).
 
-```
-feat(user): add profile photo upload
-
-Allow users to upload profile photos. Supports JPEG, PNG, and GIF formats up to 5MB. Photos are automatically resized to 200x200px.
-
-Implements user story US-789
-```
-
-```
-fix(cart): prevent duplicate items when adding quickly
-
-Race condition caused duplicate items when users clicked "Add to Cart" rapidly. Added debounce and server-side idempotency check.
-
-Fixes #234
-```
-
-```
-refactor(payment): extract card validation to separate module
-
-Move credit card validation logic from PaymentService to CardValidator class. This improves testability and allows reuse in other contexts.
-
-No functional changes.
-```
-
-```
-test(auth): add integration tests for OAuth flow
-
-Add comprehensive tests covering:
-- Successful OAuth login
-- Token refresh
-- Permission denied scenarios
-- Rate limiting behavior
-
-Coverage increased from 72% to 89%
-```
-
-For multi-component commits, use the sectioned-bullet structure (labeled headers, contiguous bullets, no flowing-paragraph body):
-
-```
-feat(v0.3.0): phase 6 docxtpl report engine and Analyze page
-
-Lands the Phase 6 deliverables: a docxtpl-driven report engine, a desktop Analyze page that picks ingest runs and generates Supira-branded docx files, and a Settings tab for swapping in a custom template.
-
-Reporting package (`src/reporting/`):
-- `snapshot.py`: immutable Pydantic snapshot of confirmed extractions, plus a `build_snapshot` walker over `ingest_runs` / `source_artifacts` / `ingest_units` / `extractions`.
-- `renderer.py`: `ReportRenderer.render(snapshot, template_path)` runs `docxtpl.DocxTemplate.render` against a full context dict, then appends deterministic per-run / per-artifact / per-unit sections via python-docx so reports stay populated even when the template carries no Jinja placeholders.
-
-Packaging and paths:
-- Bundles `assets/report_template_default.docx` (verbatim copy of the branding template).
-- Adds `default_report_template_path` / `user_report_template_path` / `report_template_path` / `reports_dir` / `run_report_dir` helpers in `installer/gui/utils/paths.py`.
-- PyInstaller spec collects `docxtpl` and `docx` and ships the bundled template under `<bundle>/assets/`.
-
-Desktop UI:
-- Replaces the `AnalyzePage` stub with the run-picker plus Generate report flow.
-- Adds `ReportTab` in `installer/gui/settings_qt.py` that browses for a `.docx`, copies it on Save, and offers Reset to bundled default.
-
-Tests:
-- 51 new tests across `tests/reporting/` and `tests/installer/`.
-- Total suite: 495 passed, 4 skipped, coverage 86.99%.
-
-Known gaps (tracked as DF in `docs/v0.3.0/known-gaps.md`):
-- Bundled template ships without `{{ jinja }}` placeholders; renderer falls back to python-docx append pass.
-- `AnalyzePage` not yet wired into `MainWindow`'s engine and run providers (deferred to Phase 8).
-```
-
-### Bad Examples
-
-```
-# Too vague
-fix bug
-
-# Not imperative
-fixed the login issue
-
-# Too long subject
-add new feature to allow users to upload their profile photos in multiple formats
-
-# Missing type
-update user model
-
-# Doesn't explain why
-refactor code
-
-# Hard-wrapped paragraph (every body paragraph and bullet must be a single source line)
-feat(api): add rate limiting middleware
-
-Introduce a token-bucket rate limiter that runs ahead of the auth
-middleware so unauthenticated traffic is throttled before any
-database lookup. Defaults are 60 req/min per IP and 600 req/min per
-authenticated user.
-
-- Added the rate-limit middleware and registered it before the auth
-  middleware so anonymous traffic is throttled cheaply.
-- Exposed `X-RateLimit-Remaining` and `Retry-After` headers on every
-  response so clients can self-throttle.
-
-# Multi-paragraph flowing-prose body for a multi-component commit (use sectioned bullets instead)
-feat(v0.3.0): phase 6 docxtpl report engine and analyze page
-
-Lands the Phase 6 deliverables: a docxtpl-driven report engine, a desktop Analyze page that picks ingest runs and generates Supira-branded docx files, and a Settings tab for swapping in a custom template.
-
-Adds the `src/reporting/` package with `snapshot.py` and `renderer.py`. Output paths follow `%LOCALAPPDATA%\...\reports\<report_id>\YYYYMMDD-HHMMSS.docx`.
-
-Bundles `assets/report_template_default.docx` and adds path helpers in `installer/gui/utils/paths.py`. The PyInstaller spec collects `docxtpl` + `docx`.
-
-Replaces the `AnalyzePage` stub with the run-picker plus Generate report flow and the new `ReportTab` in `installer/gui/settings_qt.py`.
-
-Test suite expansion: 51 new tests across `tests/reporting/` and `tests/installer/`. Total suite: 495 passed, 4 skipped, coverage 86.99%.
-
-Three deviations tracked as DF in `docs/v0.3.0/known-gaps.md`.
-```
+The rule they illustrate, in one line: the subject says WHAT changed in the imperative mood under 72 characters, and the body says WHY it changed and what a reader would otherwise have to reconstruct from the diff.
 
 ## Pre-Commit Checklist
 
@@ -431,7 +359,10 @@ git commit -m "test: add auth integration tests"
 | Rationalization | Reality |
 |---|---|
 | "Commit messages don't matter for a solo project" | Solo project history becomes a multi-developer history the moment the project is open-sourced, onboarded a contractor, or diagnosed six months later by the original author; vague messages like "fix stuff" make git bisect useless. |
-| "Atomic commits slow down development" | Non-atomic commits that bundle unrelated changes make every future revert destructive — reverting a bug fix to unblock deployment also reverts an unrelated migration, causing data loss or schema mismatch. |
+| "Atomic commits slow down development" | Non-atomic commits that bundle unrelated changes make every future revert destructive -- reverting a bug fix to unblock deployment also reverts an unrelated migration, causing data loss or schema mismatch. |
+| "I will commit each sub-task so the history is granular" | In plan context the phase is the revertible unit: its sub-tasks are written to complete together and its exit checklist gates on all of them. Per-sub-task commits produce intermediate states that never passed the phase gate, so reverting one leaves a tree the plan never validated. Honor a finer granularity only when the plan itself defines it. |
+| "Pushing each phase keeps the branch backed up" | A remote branch is a backup; a remote PIPELINE RUN is a bill. If the goal is durability, push a branch with no CI trigger or use a local mirror. Pushing into a validation trigger to get a backup pays for six runs of knowingly incomplete work to solve a problem that is not about CI. |
+| "The remote check failed but a re-run will probably fix it" | Then the check is flaky and that is the finding, or it is real and the re-run wastes a run. Either way, reproduce it locally first. A check that cannot be reproduced locally means the local gate has a hole, which is worth more than the green re-run. |
 | "We'll check for secrets in the PR review" | PR review catches secrets intermittently; pre-commit hooks (`detect-secrets`, `gitleaks`) catch them deterministically before they enter git history, where they persist even after force-push removal and require history rewriting. |
 | "Conventional commit format is rigid and unnecessary" | Automated changelog generation, semantic versioning bumps, and release notes tools (`standard-version`, `semantic-release`) all depend on conventional commit format; without it, every release requires manual changelog curation. |
 | "Breaking changes don't need special marking if reviewers are careful" | API consumers depend on automated tooling that parses `BREAKING CHANGE:` footers to block auto-updates; unmarked breaking changes bypass these safeguards and silently break downstream consumers. |

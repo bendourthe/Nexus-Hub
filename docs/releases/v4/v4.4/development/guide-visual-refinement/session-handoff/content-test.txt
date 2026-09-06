@@ -1,0 +1,12 @@
+.                                                                        [100%]
+============================== warnings summary ===============================
+tests\guides\test_v441_phase2_home.py:273
+  <repo>\tests\guides\test_v441_phase2_home.py:273: SyntaxWarning: invalid escape sequence '\s'
+    const n = sec.innerText.replace(/\s+/g, ' ').trim().split(' ').length;
+
+tests\guides\test_v441_phase2_home.py:282
+  <repo>\tests\guides\test_v441_phase2_home.py:282: SyntaxWarning: invalid escape sequence '\s'
+    return e ? e.innerText.replace(/\s+/g, ' ').trim().split(' ').length : 0; }""",
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 18 deselected, 2 warnings in 1.94s

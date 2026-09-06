@@ -1,0 +1,48 @@
+{
+  "skill": "ztna-broker-deployment",
+  "purpose": "Route ZTNA broker build-out here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "ZTNA broker deployment",
+      "should_trigger": true,
+      "assert": "routes to ztna-broker-deployment first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "identity-aware proxy for private apps",
+      "should_trigger": true,
+      "assert": "routes to ztna-broker-deployment first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "replace VPN with per-app access",
+      "should_trigger": true,
+      "assert": "routes to ztna-broker-deployment first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "CISA maturity heatmap",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "OT vendor jump host",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "Kubernetes mesh",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

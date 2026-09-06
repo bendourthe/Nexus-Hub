@@ -1,0 +1,104 @@
+{
+  "errors": [],
+  "requests": [],
+  "frames": [
+    {
+      "mode": "language",
+      "frame": "0"
+    },
+    {
+      "mode": "language",
+      "frame": "1"
+    },
+    {
+      "mode": "language",
+      "frame": "2"
+    },
+    {
+      "mode": "language",
+      "frame": "3"
+    },
+    {
+      "mode": "language",
+      "frame": "4"
+    },
+    {
+      "mode": "language",
+      "frame": "5"
+    },
+    {
+      "mode": "diffusion",
+      "frame": "0"
+    },
+    {
+      "mode": "diffusion",
+      "frame": "1"
+    },
+    {
+      "mode": "diffusion",
+      "frame": "2"
+    },
+    {
+      "mode": "diffusion",
+      "frame": "3"
+    },
+    {
+      "mode": "diffusion",
+      "frame": "4"
+    },
+    {
+      "mode": "diffusion",
+      "frame": "5"
+    },
+    {
+      "mode": "world",
+      "frame": "0"
+    },
+    {
+      "mode": "world",
+      "frame": "1"
+    },
+    {
+      "mode": "world",
+      "frame": "2"
+    },
+    {
+      "mode": "world",
+      "frame": "3"
+    },
+    {
+      "mode": "world",
+      "frame": "4"
+    },
+    {
+      "mode": "world",
+      "frame": "5"
+    },
+    {
+      "mode": "multimodal",
+      "frame": "0"
+    },
+    {
+      "mode": "multimodal",
+      "frame": "1"
+    },
+    {
+      "mode": "multimodal",
+      "frame": "2"
+    },
+    {
+      "mode": "multimodal",
+      "frame": "3"
+    },
+    {
+      "mode": "multimodal",
+      "frame": "4"
+    },
+    {
+      "mode": "multimodal",
+      "frame": "5"
+    }
+  ],
+  "signal_offset": "52.0804%",
+  "playing_after_exit": 0
+}

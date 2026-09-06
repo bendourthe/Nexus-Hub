@@ -1,0 +1,108 @@
+name: Post-merge
+
+# v4.0.0: the protected-branch merge event, and ONLY the work that depends on
+# the merged state.
+#
+# What this workflow deliberately does NOT do is re-run the validation suite.
+# `ci.yml` already validated the merge RESULT on the pull request, and the merge
+# commit is that same tree, so a second run cannot discover anything the first
+# did not and is billed at full price. Before v4.0.0 every validation workflow
+# fired on both `pull_request` into a protected branch and `push` to that same
+# branch, which is where most of this repository's Actions spend went.
+#
+# IMPORTANT: a `push` event carries no evidence that an update came from a
+# reviewed merge. This workflow means "a merge or a release operation happened"
+# ONLY because branch protection on `main` and `develop` rejects direct pushes.
+# That protection is an external repository setting, is verified by hand, and is
+# never mutated from here. See
+# docs/releases/v4/v4.0/development/github-ci-settings-runbook.md.
+#
+# Triggers are unfiltered by branch beyond main/develop and carry no `paths:`
+# filter, for the same reason as ci.yml: this workflow publishes no required
+# status check today, and keeping the shape consistent means a future required
+# check added here cannot strand itself.
+on:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Post-merge work is not superseded by a later merge the way pull-request
+# validation is: each merge is a distinct state worth smoke-testing. Cancelling
+# in progress would silently drop the smoke for the earlier merge.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    # The cheapest signal that the MERGED tree is coherent. Not a re-validation:
+    # this is the fast profile, which runs parses, hygiene, workflow security,
+    # and version sync in under a minute on one Linux runner.
+    #
+    # Its purpose is to catch a bad MERGE rather than bad code: a semantic
+    # conflict that both sides validated independently and that only exists in
+    # the combined tree. That is a real class the pull-request gate cannot see
+    # when the base branch moved after the last synthetic merge was computed.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install profile dependencies
+        # PyYAML is a HARD requirement of the fast profile, not an optional
+        # extra. check_required_check_coverage.py parses every workflow file and
+        # refuses to pass without PyYAML, deliberately: a silent pass there
+        # re-permits the stranded-required-check defect it exists to catch.
+        #
+        # ci.yml gets PyYAML transitively (its validate job installs pre-commit),
+        # which is exactly why this omission was invisible until post-merge.yml
+        # ran the same profile on its own. An implicit dependency is one that
+        # only the first caller without it discovers.
+        run: pip install PyYAML
+
+      - name: Fast profile against the merged tree
+        run: python scripts/ci/run.py --profile fast --reports-dir reports
+
+      - name: Publish the run summary
+        if: always()
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+  provenance:
+    # Records what the merged state IS, which is only knowable after the merge.
+    # Advisory by construction: it reports and never blocks, because a merge has
+    # already landed and there is nothing here to gate.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Report the merged version and branch state
+        run: |
+          set -uo pipefail
+          echo "### Merged state" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ref: \`${GITHUB_REF}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- sha: \`${GITHUB_SHA}\`" >> "$GITHUB_STEP_SUMMARY"
+          version="$(python -c "import json;print(json.load(open('.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo unknown)"
+          echo "- version: \`${version}\`" >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Report docs due for archival (advisory)
+        # Depends on the merged state and reports drift rather than gating.
+        # Archiving repairs references repo-wide, so it belongs in a reviewed
+        # pass; a hard gate here would stop an unrelated release the moment a
+        # minor version aged out.
+        run: python scripts/check_docs_retention.py || true

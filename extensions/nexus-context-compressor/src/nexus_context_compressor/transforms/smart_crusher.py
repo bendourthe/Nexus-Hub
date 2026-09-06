@@ -24,7 +24,7 @@ Two mechanisms decide what survives:
 2. **Positional anchors** -- the first and last records are always kept so the
    head and tail of the sequence survive even when the middle is collapsed.
 
-Reference behavior: ``docs/v3/v3.2/comparisons/v3.2.0-comparison-headroom.md`` Section 5a item 1.
+Reference behavior: ``docs/releases/v3/v3.2/comparisons/v3.2.0-comparison-headroom.md`` Section 5a item 1.
 """
 
 from __future__ import annotations
@@ -165,7 +165,7 @@ def _distinctiveness_scores(
 
     Contract: ``len(returned) == len(records)``; every score ``>= 0.0``.
 
-    Deferred refinements (see ``docs/v3/v3.2/known-gaps.md``): near-duplicate
+    Deferred refinements (see ``docs/releases/v3/v3.2/known-gaps.md``): near-duplicate
     fingerprinting for fuzzy (not exact) repeat detection, information-theoretic
     auto-sizing of the keep budget, and explicit error/outlier preservation.
     These are intentionally out of scope for the v1 deterministic port.

@@ -1,4 +1,4 @@
 interface:
   display_name: API Design
   short_description: API design principles for REST, GraphQL, and gRPC including versioning, pagination, error handling, and documentation. Use when designing new APIs, reviewing API contracts, or migrating
-    between API st
+    between API styles.

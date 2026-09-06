@@ -62,9 +62,10 @@ HTML artifacts that are saved (a review report, an exported timeline, a persiste
 
 1. Identify the artifact and consult the decision table. If it is an HTML row, proceed; if Markdown, stop and emit Markdown.
 2. Pick the closest reference template and adapt its content. Keep the layout system, accessibility affordances, and self-contained structure.
-3. Run `hallmark-design` (`audit` verb) over the result so it does not read as AI-generated.
-4. If the artifact is persisted, confirm the privacy note above: no secrets embedded, no outbound calls added.
-5. Return the artifact (and, when shared as a file, note the path).
+3. Apply `catalog/rules/html/responsive-layout.md` as the canonical owner for responsive width behavior.
+4. Run `hallmark-design` (`audit` verb) over the result so it does not read as AI-generated.
+5. If the artifact is persisted, confirm the privacy note above: no secrets embedded, no outbound calls added.
+6. Return the artifact (and, when shared as a file, note the path).
 
 ## Common Rationalizations
 

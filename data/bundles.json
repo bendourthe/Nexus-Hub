@@ -1,15 +1,17 @@
 {
   "metadata": {
-    "version": "1.4.0",
-    "generated": "2026-05-28",
-    "description": "Role-based skill bundles, install profiles, and capability modules for targeted installation. Bundles remain the canonical role grouping; profiles select coarse install scope (minimal / core / full); modules group skills by capability tag for fine-grained selection."
+    "version": "1.5.0",
+    "generated": "2026-08-08",
+    "description": "Role-based skill bundles, install profiles, and capability modules for targeted installation. Bundles remain the canonical role grouping; profiles select coarse install scope (minimal / core / full); modules group skills by capability and are CATEGORY-COMPLETE as of schema 1.5.0, so every catalog skill is reachable through at least one module. surface_requirements declares which commands and agents need which skills; a surface not listed there always installs."
   },
   "profiles": [
     {
       "id": "minimal",
       "name": "Minimal",
       "description": "Smallest workable install: core developer fundamentals only. Use when disk space or context size matters more than breadth.",
-      "bundles": ["core-developer"],
+      "bundles": [
+        "core-developer"
+      ],
       "modules": [],
       "extra_skills": []
     },
@@ -17,8 +19,15 @@
       "id": "core",
       "name": "Core",
       "description": "Default for most developers: core developer bundle plus testing, refactoring, and PR review skills.",
-      "bundles": ["core-developer", "qa-engineer", "pr-workflow"],
-      "modules": ["testing", "code-review"],
+      "bundles": [
+        "core-developer",
+        "qa-engineer",
+        "pr-workflow"
+      ],
+      "modules": [
+        "testing",
+        "code-review"
+      ],
       "extra_skills": []
     },
     {
@@ -38,14 +47,31 @@
       "capability": "testing",
       "description": "Unit, integration, E2E, property-based, and mutation testing skills.",
       "skills": [
-        "unit-tests",
-        "integration-test-generator",
-        "e2e-testing-automation",
-        "property-based-test-generator",
-        "mutation-testing",
-        "test-structure",
+        "bdd-acceptance-tests",
+        "browser-testing-with-devtools",
+        "cicd-integration",
         "code-coverage",
-        "mocks-fixtures"
+        "directed-test-input-generator",
+        "domain-contract-validator",
+        "e2e-testing-automation",
+        "edge-case-generator",
+        "false-confidence-test-audit",
+        "flaky-test-detector",
+        "functional-verification",
+        "fuzzing-input-generator",
+        "integration-test-generator",
+        "metamorphic-test-generator",
+        "mocks-fixtures",
+        "mutation-testing",
+        "performance-regression-gate",
+        "performance-testing",
+        "property-based-test-generator",
+        "test-cases",
+        "test-strategy-doc",
+        "test-structure",
+        "test-suite-prioritizer",
+        "unit-tests",
+        "visual-regression-testing"
       ]
     },
     {
@@ -54,12 +80,22 @@
       "capability": "review",
       "description": "Multi-axis code review: quality, intent, testing, security.",
       "skills": [
+        "behavior-preservation-checker",
         "code-quality",
+        "code-smell-detector",
+        "context-analysis",
+        "cross-artifact-analyzer",
+        "final-report",
+        "implementation-convergence",
         "intent-based-review",
-        "testing-review",
-        "security-review",
+        "multi-agent-code-review",
+        "over-engineering-review",
         "performance-review",
-        "final-report"
+        "plan-review",
+        "receiving-code-review",
+        "review-trapdoors",
+        "security-review",
+        "testing-review"
       ]
     },
     {
@@ -68,12 +104,39 @@
       "capability": "security",
       "description": "Defensive security, dependency audits, vulnerability analysis.",
       "skills": [
-        "security-review",
-        "dependency-security-audit",
-        "exploitability-analyzer",
-        "security-patch-advisor",
+        "advanced-attack-patterns",
+        "ai-attack-patterns",
+        "api-inventory-and-undocumented-endpoints",
+        "api-object-level-authorization-flaws",
+        "api-rate-limit-and-abuse-detection",
+        "api-schema-and-gateway-enforcement",
+        "authentication-patterns",
+        "bluetooth-and-wireless-assessment",
+        "business-logic-abuse",
+        "cryptographic-control-audit",
         "cve-reachability-analyzer",
-        "pre-commit-checklist"
+        "dependency-security-audit",
+        "digital-signatures-and-jwt-signing",
+        "egress-redaction",
+        "encryption-at-rest-design",
+        "exploitability-analyzer",
+        "jwt-header-and-key-confusion-attacks",
+        "key-management-and-hsm-integration",
+        "licensing-compliance",
+        "network-microsegmentation-design",
+        "pentest-reporting",
+        "post-quantum-cryptography-migration",
+        "pre-commit-checklist",
+        "prompt-injection-defense",
+        "security-framework-mapping",
+        "security-patch-advisor",
+        "skill-security-scan",
+        "slsa-provenance-and-sigstore-verification",
+        "smart-contract-security-review",
+        "tls-certificate-lifecycle",
+        "vulnerability-prioritization-with-ssvc",
+        "zero-trust-architecture-design",
+        "ztna-broker-deployment"
       ]
     },
     {
@@ -83,10 +146,19 @@
       "description": "Skills for building agents, RAG, prompts, and AI evaluation.",
       "skills": [
         "ai-agent-development",
-        "rag-implementation",
+        "ai-billing-safeguards",
+        "claude-agent-sdk",
+        "code-semantic-search",
+        "context-engineering",
+        "deepseek-harness",
+        "eval-pipeline-audit",
+        "google-antigravity-sdk",
+        "mcp-builder",
+        "model-prompting-research",
+        "model-routing",
+        "multi-provider-ai",
         "prompt-engineering",
-        "tool-design",
-        "ai-output-evaluation"
+        "rag-implementation"
       ]
     },
     {
@@ -95,11 +167,25 @@
       "capability": "infra",
       "description": "Containerization, CI/CD, IaC, deployment.",
       "skills": [
-        "containerization",
-        "kubernetes-expert",
-        "terraform-specialist",
+        "azure-infra-engineer",
+        "cd-pipeline-generator",
         "cicd-architect",
-        "cd-pipeline-generator"
+        "cloud-architect",
+        "config-consistency-checker",
+        "containerization",
+        "data-pipeline-design",
+        "database-design",
+        "incident-postmortem",
+        "kubernetes-expert",
+        "network-engineer",
+        "observability-setup",
+        "oncall-runbook",
+        "platform-engineer",
+        "release-notes-writer",
+        "rollback-strategy-advisor",
+        "runbook-writer",
+        "sre-engineer",
+        "terraform-specialist"
       ]
     },
     {
@@ -108,11 +194,363 @@
       "capability": "docs",
       "description": "Technical writing, READMEs, ADRs, API docs.",
       "skills": [
-        "technical-documentation",
-        "user-documentation",
         "api-documentation",
+        "docstrings",
+        "sbom-generation",
+        "strategic-comments",
+        "technical-documentation",
+        "user-documentation"
+      ]
+    },
+    {
+      "id": "architecture",
+      "name": "Architecture",
+      "capability": "arch",
+      "description": "System design, ADRs, DDD, event-driven and microservice patterns.",
+      "skills": [
+        "api-design",
         "architecture-decision-record",
-        "release-notes-writer"
+        "architecture-design",
+        "component-boundary-identifier",
+        "ddd-strategic-design",
+        "event-driven-architecture",
+        "microservices-patterns"
+      ]
+    },
+    {
+      "id": "bug-fixing",
+      "name": "Bug Fixing",
+      "capability": "debug",
+      "description": "Localization, reproduction, patching, and regression root-cause analysis.",
+      "skills": [
+        "bug-localization",
+        "bug-reproduction-test-generator",
+        "bug-to-patch-generator",
+        "regression-root-cause-analyzer",
+        "semantic-bug-detector"
+      ]
+    },
+    {
+      "id": "business-product",
+      "name": "Business & Product",
+      "capability": "product",
+      "description": "Business analysis, product management, agile facilitation, and technical writing.",
+      "skills": [
+        "business-analyst",
+        "decision-questionnaire",
+        "internal-comms",
+        "product-manager",
+        "product-pulse",
+        "scrum-master",
+        "technical-writer"
+      ]
+    },
+    {
+      "id": "code-cleanup",
+      "name": "Code Cleanup",
+      "capability": "cleanup",
+      "description": "Per-language cleanup, modernization, and project/docs refactoring.",
+      "skills": [
+        "c-cleanup",
+        "code-simplification",
+        "cpp-cleanup",
+        "csharp-cleanup",
+        "docs-layout-refactor",
+        "go-cleanup",
+        "java-cleanup",
+        "javascript-cleanup",
+        "lint-repair-loop",
+        "minimal-construction",
+        "project-refactor",
+        "python-cleanup"
+      ]
+    },
+    {
+      "id": "compliance",
+      "name": "Compliance",
+      "capability": "compliance",
+      "description": "GDPR, SOC 2, ISO, PCI-DSS, NIST, and AI-governance frameworks.",
+      "skills": [
+        "ai-agent-governance",
+        "ccpa-compliance",
+        "gdpr-compliance",
+        "iso27001-compliance",
+        "iso42001-ai-governance",
+        "nist-ai-rmf",
+        "pci-dss-compliance",
+        "soc2-compliance",
+        "traceability-matrix-generator"
+      ]
+    },
+    {
+      "id": "developer-experience",
+      "name": "Developer Experience",
+      "capability": "dx",
+      "description": "Analysis, refactoring, optimization, translation, and authoring aids.",
+      "skills": [
+        "accessibility-engineering",
+        "agent-communication",
+        "ai-output-evaluation",
+        "ambiguity-detector",
+        "analysis-logic",
+        "analyze-codebase",
+        "anti-slop-editing",
+        "async-patterns",
+        "code-optimizer",
+        "code-translation",
+        "color-systems",
+        "context-optimization",
+        "creative-generation",
+        "dead-code-eliminator",
+        "dependency-manager",
+        "deprecated-api-updater",
+        "design-interview",
+        "design-pattern-suggestor",
+        "direct-corpus-interaction",
+        "error-explanation-generator",
+        "framework-migration-assistant",
+        "frontend-ui-engineering",
+        "graphql-development",
+        "hallmark-design",
+        "helper-script-authoring",
+        "html-output-conventions",
+        "idea-refine",
+        "interface-copy",
+        "interface-review",
+        "layout-and-spacing",
+        "legacy-modernizer",
+        "refactoring-expert",
+        "requirement-enhancer",
+        "setup-wizard-generator",
+        "skill-description-authoring",
+        "spec-driven-development",
+        "technical-debt-analyzer",
+        "tool-design",
+        "ui-component-generation",
+        "web-artifacts-builder",
+        "web-typography",
+        "writing-editing"
+      ]
+    },
+    {
+      "id": "framework-specialists",
+      "name": "Framework Specialists",
+      "capability": "frameworks",
+      "description": "React, Next.js, Vue, Svelte, Astro, and FastAPI expertise.",
+      "skills": [
+        "astro-expert",
+        "fastapi-expert",
+        "nextjs-expert",
+        "react-expert",
+        "svelte-expert",
+        "vue-expert"
+      ]
+    },
+    {
+      "id": "language-specialists",
+      "name": "Language Specialists",
+      "capability": "languages",
+      "description": "Idiomatic expertise per language: Python, TypeScript, Go, Rust, and more.",
+      "skills": [
+        "cpp-expert",
+        "csharp-expert",
+        "go-expert",
+        "java-expert",
+        "javascript-expert",
+        "powershell-expert",
+        "python-expert",
+        "rust-expert",
+        "sql-expert",
+        "typed-boundary-hygiene",
+        "typescript-expert"
+      ]
+    },
+    {
+      "id": "orchestration",
+      "name": "Orchestration",
+      "capability": "orchestration",
+      "description": "Multi-agent coordination, context management, and workflow orchestration.",
+      "skills": [
+        "adversarial-verifier",
+        "agent-access-policy",
+        "agent-orchestration-primitives",
+        "competitive-generation",
+        "context-compression",
+        "context-degradation",
+        "context-manager",
+        "cross-model-orchestrator",
+        "error-coordinator",
+        "label-gated-agent-pipelines",
+        "multi-agent-coordinator",
+        "prompt-token-optimization",
+        "quality-gate-definitions",
+        "task-coordinator",
+        "temporal-orchestration",
+        "workflow-orchestrator"
+      ]
+    },
+    {
+      "id": "project-setup",
+      "name": "Project Setup",
+      "capability": "setup",
+      "description": "Bootstrap and scaffold projects per language, plus governance surfaces.",
+      "skills": [
+        "init-csharp-project",
+        "init-java-project",
+        "init-javascript-project",
+        "init-python-project",
+        "setup-project"
+      ]
+    },
+    {
+      "id": "research",
+      "name": "Research",
+      "capability": "research",
+      "description": "Trend research, local documentation lookup, and transcript retrieval.",
+      "skills": [
+        "local-docs-lookup",
+        "trend-research",
+        "youtube-transcript"
+      ]
+    },
+    {
+      "id": "security-operations",
+      "name": "Security Operations",
+      "capability": "secops",
+      "description": "DFIR, threat hunting, detection engineering, and incident response.",
+      "skills": [
+        "adversary-engagement-deception",
+        "agent-execution-isolation",
+        "agentic-endpoint-hardening",
+        "cert-transparency-and-typosquat-monitoring",
+        "cloud-audit-log-detection",
+        "cloud-security-posture-detection",
+        "container-runtime-detection",
+        "disk-artifact-forensics",
+        "endpoint-edr-detection",
+        "firmware-extraction-and-analysis",
+        "honeytoken-placement",
+        "hunting-credential-dumping",
+        "identity-threat-detection",
+        "infrastructure-pivoting-and-attribution",
+        "ioc-enrichment-and-reputation-triage",
+        "lateral-movement-detection",
+        "log-threat-hunting",
+        "malware-triage-analysis",
+        "memory-forensics",
+        "persistence-mechanism-hunting",
+        "phishing-analysis-and-defense",
+        "purple-team-exercise-design",
+        "ransomware-incident-response",
+        "ransomware-leak-site-monitoring",
+        "siem-detection-engineering",
+        "threat-actor-ttp-profiling",
+        "threat-intel-feed-operations",
+        "tpm-measured-boot-attestation",
+        "uefi-secure-boot-integrity"
+      ]
+    },
+    {
+      "id": "specialized-domains",
+      "name": "Specialized Domains",
+      "capability": "domains",
+      "description": "Mobile, document generation, shaders, fintech, and interactive artifacts.",
+      "skills": [
+        "android-development",
+        "brand-styling",
+        "deep-research-compilation",
+        "document-to-interactive-html",
+        "docx-generation",
+        "fintech-engineer",
+        "generative-art",
+        "gif-sticker-maker",
+        "glsl-shader-development",
+        "ios-development",
+        "pdf-document-generation",
+        "pptx-generation",
+        "theme-tokens",
+        "xlsx-generation"
+      ]
+    },
+    {
+      "id": "workflow",
+      "name": "Workflow",
+      "capability": "workflow",
+      "description": "Planning, implementation, review, release, and knowledge-capture workflows.",
+      "skills": [
+        "agent-memory",
+        "agent-presets",
+        "code-commit-workflow",
+        "commit-sweep",
+        "conflict-analyzer",
+        "context-modes",
+        "context-pack-builder",
+        "continuous-learning",
+        "create-custom-command",
+        "cross-project-comparison",
+        "debug-with-logs",
+        "demo-capture",
+        "dev-progress-tracker",
+        "devlog-generation",
+        "doc-coauthoring",
+        "documentation-consistency",
+        "end-of-shift-validation",
+        "filesystem-context-patterns",
+        "git-bisect-assistant",
+        "git-branching-workflow",
+        "implement-phase",
+        "implementation-plan",
+        "incremental-implementation",
+        "known-gaps-tracker",
+        "loop-engineering",
+        "org-standards-authoring",
+        "plan-before-code",
+        "platform-contract-verification",
+        "pr-description-writer",
+        "product-strategy",
+        "project-constitution",
+        "research-plan-implement",
+        "session-history",
+        "session-query",
+        "session-teach-back",
+        "shipping-and-launch",
+        "skill-create",
+        "skill-eval-loop",
+        "skill-stocktake",
+        "solution-knowledge-base",
+        "solution-refresh",
+        "tasks-to-issues",
+        "test-driven-development",
+        "using-git-worktrees",
+        "using-nexus-hub",
+        "verification-before-completion",
+        "version-upgrade"
+      ]
+    },
+    {
+      "id": "ot-security",
+      "name": "OT Security",
+      "capability": "ot-security",
+      "description": "ICS/SCADA detection, IEC 62443 zones, OT IR, and NERC CIP.",
+      "skills": [
+        "ics-protocol-anomaly-detection",
+        "ot-incident-response",
+        "ot-nerc-cip-compliance",
+        "ot-network-segmentation-and-zones",
+        "scada-historian-threat-detection"
+      ]
+    },
+    {
+      "id": "mobile-security",
+      "name": "Mobile Security",
+      "capability": "mobile-security",
+      "description": "Android/iOS app security, pinning-bypass assessment, and mobile malware triage.",
+      "skills": [
+        "android-dynamic-app-analysis",
+        "android-static-app-analysis",
+        "ios-app-security-review",
+        "mobile-malware-family-triage",
+        "mobile-tls-pinning-bypass-assessment"
       ]
     }
   ],
@@ -129,7 +567,7 @@
         "refactoring-expert",
         "unit-tests",
         "code-quality",
-        "add-strategic-comments",
+        "strategic-comments",
         "pre-commit-checklist",
         "research-plan-implement"
       ]
@@ -141,7 +579,7 @@
       "skills": [
         "react-expert",
         "nextjs-expert",
-        "cleanup-javascript",
+        "javascript-cleanup",
         "e2e-testing-automation",
         "api-design",
         "authentication-patterns",
@@ -174,6 +612,7 @@
         "prompt-engineering",
         "tool-design",
         "ai-output-evaluation",
+        "eval-pipeline-audit",
         "data-pipeline-design",
         "async-patterns",
         "cross-model-orchestrator",
@@ -214,28 +653,59 @@
         "config-consistency-checker",
         "observability-setup",
         "cloud-architect",
-        "release-management",
+        "shipping-and-launch",
         "cicd-integration"
       ]
     },
     {
       "id": "security-specialist",
       "name": "Security Specialist",
-      "description": "Skills for application security, authentication, vulnerability analysis, and compliance auditing.",
+      "description": "Skills for application security, authentication, vulnerability analysis, compliance auditing, and the ordered local security-audit preset.",
       "skills": [
-        "security-review",
-        "authentication-patterns",
-        "dependency-security-audit",
-        "exploitability-analyzer",
-        "security-patch-advisor",
-        "cve-reachability-analyzer",
-        "pre-commit-checklist",
-        "licensing-compliance",
-        "soc2-compliance",
-        "gdpr-compliance",
-        "pci-dss-compliance",
         "adversarial-verifier",
-        "domain-contract-validator"
+        "agent-presets",
+        "android-dynamic-app-analysis",
+        "android-static-app-analysis",
+        "api-inventory-and-undocumented-endpoints",
+        "api-object-level-authorization-flaws",
+        "api-rate-limit-and-abuse-detection",
+        "api-schema-and-gateway-enforcement",
+        "authentication-patterns",
+        "bluetooth-and-wireless-assessment",
+        "cloud-security-posture-detection",
+        "cryptographic-control-audit",
+        "cve-reachability-analyzer",
+        "dependency-security-audit",
+        "digital-signatures-and-jwt-signing",
+        "domain-contract-validator",
+        "encryption-at-rest-design",
+        "exploitability-analyzer",
+        "gdpr-compliance",
+        "ics-protocol-anomaly-detection",
+        "ios-app-security-review",
+        "jwt-header-and-key-confusion-attacks",
+        "key-management-and-hsm-integration",
+        "licensing-compliance",
+        "mobile-malware-family-triage",
+        "mobile-tls-pinning-bypass-assessment",
+        "network-microsegmentation-design",
+        "ot-incident-response",
+        "ot-nerc-cip-compliance",
+        "ot-network-segmentation-and-zones",
+        "pci-dss-compliance",
+        "post-quantum-cryptography-migration",
+        "pre-commit-checklist",
+        "scada-historian-threat-detection",
+        "security-patch-advisor",
+        "security-review",
+        "slsa-provenance-and-sigstore-verification",
+        "smart-contract-security-review",
+        "soc2-compliance",
+        "testing-review",
+        "tls-certificate-lifecycle",
+        "vulnerability-prioritization-with-ssvc",
+        "zero-trust-architecture-design",
+        "ztna-broker-deployment"
       ]
     },
     {
@@ -364,7 +834,7 @@
         "testing-review",
         "final-report",
         "technical-documentation",
-        "release-management",
+        "shipping-and-launch",
         "version-upgrade",
         "cross-model-orchestrator",
         "quality-gate-definitions",
@@ -373,5 +843,29 @@
         "agent-access-policy"
       ]
     }
-  ]
+  ],
+  "surface_requirements": {
+    "_comment": "Declared required skills per surface (v3.16.1 Phase 7.1). A surface listed here installs only when EVERY skill it names is in the resolved set; a surface NOT listed always installs. Only commands whose own file states they are a thin pointer over one named skill are declared, because that is the case where the command is genuinely broken without it. Agents declare nothing: 22 of 23 reference no skill at all and none shares a skill name, so they are self-contained.",
+    "commands": {
+      "constitution": [
+        "project-constitution"
+      ],
+      "describe": [
+        "analyze-codebase"
+      ],
+      "implement": [
+        "implement-phase"
+      ],
+      "presentify": [
+        "document-to-interactive-html"
+      ],
+      "route": [
+        "model-routing"
+      ],
+      "tune-prompting": [
+        "model-prompting-research"
+      ]
+    },
+    "agents": {}
+  }
 }

@@ -1,6 +1,6 @@
 """Risk scoring and severity-band derivation.
 
-Scoring model (from ``docs/v3/v3.0/comparisons/v3.0.0-comparison-skillspector.md`` Section 3):
+Scoring model (from ``docs/releases/v3/v3.0/comparisons/v3.0.0-comparison-skillspector.md`` Section 3):
 
     - Per-finding points: CRITICAL +50, HIGH +25, MEDIUM +10, LOW +5.
     - Executable-script multiplier: a finding whose host file is an executable

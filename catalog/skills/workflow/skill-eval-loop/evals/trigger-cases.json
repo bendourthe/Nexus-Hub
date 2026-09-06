@@ -1,0 +1,8 @@
+{
+  "skill": "skill-eval-loop",
+  "purpose": "Route skill iteration and promoted evaluation-record placement.",
+  "cases": [
+    {"id": "pos-eval", "prompt": "iterate on skills and place promoted evaluation records canonically", "should_trigger": true, "assert": "routes to skill-eval-loop first", "lexical": true},
+    {"id": "neg-weather", "prompt": "show the weather forecast for tomorrow", "should_trigger": false, "assert": "does not route to skill-eval-loop", "lexical": true}
+  ]
+}

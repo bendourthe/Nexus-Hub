@@ -1,0 +1,177 @@
+{
+  "sha256": "d5673b540efc9313ce1e83bd5424d443c2107317595cfe675183c13433db9635",
+  "cases": [
+    {
+      "name": "skipped scene button",
+      "observed": {
+        "state": {
+          "sceneId": "test",
+          "sceneIndex": 5,
+          "appliedThrough": -1,
+          "selectedPath": "src/damage.js",
+          "filePaths": [
+            "src/damage.js",
+            "src/game.js"
+          ],
+          "game": {
+            "damageMode": "buggy",
+            "verticalMovementEnabled": false,
+            "fixture": "enemy-hit"
+          },
+          "ran": false,
+          "runState": "blocked",
+          "completedScenes": []
+        },
+        "hint": "Run /describe full first. Later results depend on that work.",
+        "output": ""
+      }
+    },
+    {
+      "name": "skipped scene api",
+      "observed": {
+        "state": {
+          "sceneId": "test",
+          "sceneIndex": 5,
+          "appliedThrough": -1,
+          "selectedPath": "src/damage.js",
+          "filePaths": [
+            "src/damage.js",
+            "src/game.js"
+          ],
+          "game": {
+            "damageMode": "buggy",
+            "verticalMovementEnabled": false,
+            "fixture": "enemy-hit"
+          },
+          "ran": false,
+          "runState": "blocked",
+          "completedScenes": []
+        },
+        "hint": "Run /describe full first. Later results depend on that work.",
+        "output": ""
+      }
+    },
+    {
+      "name": "progress focus",
+      "observed": {
+        "active": "<button type=\"button\" class=\"nht-seg is-now\" aria-current=\"step\" aria-label=\"Understand: /review\"><span class=\"nht-seg-k\">review</span></button>"
+      }
+    },
+    {
+      "name": "outline focus",
+      "observed": {
+        "scene": "plan",
+        "active": "outline"
+      }
+    },
+    {
+      "name": "earlier reset invalidates downstream",
+      "observed": {
+        "afterReset": {
+          "sceneId": "implement",
+          "sceneIndex": 3,
+          "appliedThrough": 2,
+          "selectedPath": "src/damage.js",
+          "filePaths": [
+            "src/damage.js",
+            "src/game.js",
+            "docs/analysis.md",
+            "docs/review.md",
+            "docs/releases/v0.1/plans/fix-damage-handling.md"
+          ],
+          "game": {
+            "damageMode": "buggy",
+            "verticalMovementEnabled": false,
+            "fixture": "enemy-hit"
+          },
+          "ran": false,
+          "runState": "not-run",
+          "completedScenes": [
+            "describe",
+            "review",
+            "plan"
+          ]
+        },
+        "afterTest": {
+          "sceneId": "test",
+          "sceneIndex": 5,
+          "appliedThrough": 2,
+          "selectedPath": "src/damage.js",
+          "filePaths": [
+            "src/damage.js",
+            "src/game.js",
+            "docs/analysis.md",
+            "docs/review.md",
+            "docs/releases/v0.1/plans/fix-damage-handling.md"
+          ],
+          "game": {
+            "damageMode": "buggy",
+            "verticalMovementEnabled": false,
+            "fixture": "enemy-hit"
+          },
+          "ran": false,
+          "runState": "blocked",
+          "completedScenes": [
+            "describe",
+            "review",
+            "plan"
+          ]
+        },
+        "output": ""
+      }
+    },
+    {
+      "name": "headless foreground tab visibility",
+      "observed": {
+        "hidden": false,
+        "visibility": "visible"
+      }
+    },
+    {
+      "name": "visibility cancellation boundary",
+      "observed": {
+        "mode": "injected hidden getter and visibilitychange",
+        "state": {
+          "sceneId": "describe",
+          "sceneIndex": 0,
+          "appliedThrough": -1,
+          "selectedPath": "src/damage.js",
+          "filePaths": [
+            "src/damage.js",
+            "src/game.js"
+          ],
+          "game": {
+            "damageMode": "buggy",
+            "verticalMovementEnabled": false,
+            "fixture": "enemy-hit"
+          },
+          "ran": false,
+          "runState": "not-run",
+          "completedScenes": []
+        }
+      }
+    },
+    {
+      "name": "visibility restore does not resume",
+      "observed": {
+        "sceneId": "describe",
+        "sceneIndex": 0,
+        "appliedThrough": -1,
+        "selectedPath": "src/damage.js",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": []
+      }
+    }
+  ],
+  "pageErrors": []
+}

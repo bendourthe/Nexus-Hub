@@ -1,0 +1,14 @@
+........................................................................ [ 44%]
+.......................................s................................ [ 88%]
+.................F.                                                      [100%]
+================================== FAILURES ===================================
+_______________ test_static_document_never_addresses_the_reader _______________
+tests\guides\test_v443_phase1_headings.py:205: in test_static_document_never_addresses_the_reader
+    assert not SECOND_PERSON.findall(prose), sorted(set(SECOND_PERSON.findall(prose)))
+E   AssertionError: ['you']
+E   assert not ['you']
+E    +  where ['you'] = <built-in method findall of re.Pattern object at 0x0000016A967F6C70>(' \n\n \n   \n        NORTHSTAR  Shop / Checkout   Checkout   Delivery address  Alex Morgan  42 Willow Lane  Portland,...e Codicons icon set by Microsoft Corporation, used under  CC BY 4.0 . \n     \n   \n \n\n \n\n \n\n \n\n \n\n \n \n \n')
+E    +    where <built-in method findall of re.Pattern object at 0x0000016A967F6C70> = re.compile("\\b(you|your|yours|yourself|yourselves|you're|you'll|you've|you'd)\\b", re.IGNORECASE).findall
+=========================== short test summary info ===========================
+FAILED tests/guides/test_v443_phase1_headings.py::test_static_document_never_addresses_the_reader
+1 failed, 161 passed, 1 skipped in 81.61s (0:01:21)

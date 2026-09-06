@@ -57,7 +57,35 @@ Use this skill when you need to:
 
 ## Instructions
 
-### Step 1: Install Security Scanning Tools
+### Step 0: Select local scanners by manifest (never auto-install)
+
+This skill owns dependency scanners for the security-audit workflow. Do not auto-install a scanner and do not fall back to a hosted vulnerability service. If a selected tool is missing, record `UNAVAILABLE` with applicability evidence and continue under the user's stated risk tolerance.
+
+Select tools from observed manifests and lockfiles:
+
+| Scanner | Applicable when present | Receipt `scanner_id` | Transitive scope |
+|---|---|---|---|
+| OSV-Scanner | `osv-scanner.toml`, a lockfile OSV-Scanner supports, or a directory the user named for OSV | `osv-scanner` | The resolved lockfile graph OSV-Scanner reports |
+| npm audit | `package-lock.json`, `npm-shrinkwrap.json`, or `yarn.lock` with an npm-compatible audit | `npm-audit` | Direct plus transitive, as `npm audit --json` reports |
+| pip-audit | `requirements.txt`, `poetry.lock`, `Pipfile.lock`, or `uv.lock` | `pip-audit` | Direct plus transitive, as pip-audit reports |
+| Trivy vulnerability scan | Container image, filesystem root, or lockfile Trivy can scan locally | `trivy-vuln` | The filesystem or image graph Trivy reports |
+
+Record each selected scanner's version, command, target, config/ruleset fingerprint, exit code, artifact path, and whether transitive dependencies were included. Route surviving CVE findings, with the scanner receipt id and finding id, to `[[cve-reachability-analyzer]]`. Do not restate that skill's call-graph procedure here.
+
+Availability check before each invocation:
+
+```bash
+osv-scanner --version
+npm audit --help
+pip-audit --version
+trivy --version
+```
+
+A missing binary is `UNAVAILABLE`, not an install prompt. Package-manager installation is a separate user-authorized change.
+
+### Step 1: Optional user-authorized tool availability
+
+Do not run these install commands unless the user explicitly authorizes a package-manager change. They are recipes for a human-owned environment, not agent actions.
 
 #### Python
 
@@ -617,7 +645,8 @@ npm test
 
 ## Verification
 
-- [ ] Vulnerability scan completed for all package managers in the project with output saved (e.g., `pip-audit-report.json`, `npm-audit.json`)
+- [ ] Each applicable dependency scanner (OSV-Scanner, npm audit, pip-audit, Trivy vuln) has a receipt or is recorded `NOT_APPLICABLE` / `UNAVAILABLE`; no scanner was auto-installed and no hosted vulnerability service was used
+- [ ] Surviving CVE findings were handed to `[[cve-reachability-analyzer]]` with the original scanner receipt id, finding id, and severity
 - [ ] Transitive dependencies scanned (e.g., `dotnet list package --vulnerable --include-transitive`)
 - [ ] All Critical (CVSS >= 9.0) and High (CVSS >= 7.0) findings have a documented remediation action or accepted-risk record
 - [ ] License compliance report generated and reviewed for GPL/AGPL conflicts with the project's license
@@ -630,6 +659,7 @@ npm test
 - [[pre-commit-checklist]] -- pre-commit security checks
 - [[licensing-compliance]] -- license checking
 - [[cve-reachability-analyzer]] -- triages this skill's CVE findings to drop unreachable false positives
+- [[slsa-provenance-and-sigstore-verification]] -- build provenance and Sigstore verification for artifacts this audit already listed as dependencies
 - [[sbom-generation]] -- generates the SBOM artifacts this audit consumes and emits
 
 ## Additional Resources

@@ -1,4 +1,4 @@
 interface:
   display_name: Prompt and Token Optimization
   short_description: Minimize token consumption and maximize effective context window usage through programmatic tool calling, dynamic filtering, tool search deferral, and context hygiene. Use when sessions
-    are hitting co
+    are hitting context limits, costs are too high, or tool-heavy workflows consume excessive tokens.

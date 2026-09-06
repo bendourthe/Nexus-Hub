@@ -51,7 +51,7 @@ After each RED-GREEN-REFACTOR cycle, check coverage:
 ## Coaching Rules
 
 - Never let the developer skip RED. A test written after the implementation is not a TDD test.
-- If the developer wants to write more than 10 lines of GREEN code, stop them. The test scope is too large — split it.
+- If the developer wants to write more than 10 lines of GREEN code, stop them. The test scope is too large -- split it.
 - After 3 RED-GREEN-REFACTOR cycles, ask: "Is there duplication to remove at a higher level?"
 - Celebrate green suites. Momentum matters in TDD.
 

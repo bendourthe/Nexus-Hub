@@ -105,18 +105,18 @@ Apply these rules to **ALL** outputs, regardless of the domain:
 **Standard .NET Solution Layout**:
 ```
 SolutionName/
-â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ ProjectName/
-â”‚   â”‚   â”œâ”€â”€ Controllers/
-â”‚   â”‚   â”œâ”€â”€ Models/
-â”‚   â”‚   â”œâ”€â”€ Services/
-â”‚   â”‚   â”œâ”€â”€ Program.cs
-â”‚   â”‚   â””â”€â”€ ProjectName.csproj
-â”œâ”€â”€ tests/
-â”‚   â”œâ”€â”€ ProjectName.Tests/
-â”‚   â”‚   â””â”€â”€ ProjectName.Tests.csproj
-â”œâ”€â”€ SolutionName.sln
-â””â”€â”€ README.md
+├── src/
+│   ├── ProjectName/
+│   │   ├── Controllers/
+│   │   ├── Models/
+│   │   ├── Services/
+│   │   ├── Program.cs
+│   │   └── ProjectName.csproj
+├── tests/
+│   ├── ProjectName.Tests/
+│   │   └── ProjectName.Tests.csproj
+├── SolutionName.sln
+└── README.md
 ```
 
 **Tooling**:

@@ -1,4 +1,4 @@
 interface:
   display_name: Semantic Bug Detector
   short_description: Detect semantic bugs (logic errors, incorrect assumptions, race conditions) beyond syntactic checks. Use when reviewing code for logic errors, identifying off-by-one mistakes, finding
-    null safety issu
+    null safety issues, detecting race conditions, or verifying invariants.

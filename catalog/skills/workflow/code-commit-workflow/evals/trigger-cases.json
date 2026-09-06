@@ -1,0 +1,8 @@
+{
+  "skill": "code-commit-workflow",
+  "purpose": "Route atomic conventional commit work with canonical documentation paths.",
+  "cases": [
+    {"id": "pos-commit", "prompt": "create atomic conventional commits with canonical documentation paths", "should_trigger": true, "assert": "routes to code-commit-workflow first", "lexical": true},
+    {"id": "neg-weather", "prompt": "show the weather forecast for tomorrow", "should_trigger": false, "assert": "does not route to code-commit-workflow", "lexical": true}
+  ]
+}

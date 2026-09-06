@@ -1,0 +1,48 @@
+{
+  "skill": "slsa-provenance-and-sigstore-verification",
+  "purpose": "Route SLSA/Sigstore verification here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "verify SLSA provenance",
+      "should_trigger": true,
+      "assert": "routes to slsa-provenance-and-sigstore-verification first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "cosign verify in admission",
+      "should_trigger": true,
+      "assert": "routes to slsa-provenance-and-sigstore-verification first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "Sigstore policy for prod",
+      "should_trigger": true,
+      "assert": "routes to slsa-provenance-and-sigstore-verification first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "SSVC ranking",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "envelope encryption",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "JWT alg none",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

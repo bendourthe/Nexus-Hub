@@ -1,4 +1,4 @@
 interface:
   display_name: Test Cases - Integration & E2E Tests
   short_description: Create integration and end-to-end test scenarios covering workflows, API interactions, database operations, and system boundaries. Use when testing component interactions, API endpoints,
-    user journeys
+    user journeys, or full system flows for Python, JavaScript, Java, C#, Go, C, or C++ applications.

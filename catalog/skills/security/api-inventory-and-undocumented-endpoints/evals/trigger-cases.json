@@ -1,0 +1,48 @@
+{
+  "skill": "api-inventory-and-undocumented-endpoints",
+  "purpose": "Route shadow-API inventory here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "find shadow API endpoints",
+      "should_trigger": true,
+      "assert": "routes to api-inventory-and-undocumented-endpoints first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "zombie swagger path hunt",
+      "should_trigger": true,
+      "assert": "routes to api-inventory-and-undocumented-endpoints first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "API attack surface inventory",
+      "should_trigger": true,
+      "assert": "routes to api-inventory-and-undocumented-endpoints first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "BOLA object id swap",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "JWT key confusion",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "scan a third-party SaaS API",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}
