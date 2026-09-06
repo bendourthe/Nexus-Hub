@@ -33,19 +33,22 @@ def browser():
             pytest.fail('NEXUS_REQUIRE_RENDER=1 but playwright is not installed')
         pytest.skip('playwright is not installed')
     sync_playwright, expect = loaded
-    try:
-        pw_ctx = sync_playwright()
-        pw = pw_ctx.__enter__()
-        b = pw.chromium.launch()
-    except Exception as exc:  # pragma: no cover - environment dependent
-        if REQUIRE_RENDER:
-            pytest.fail(f'NEXUS_REQUIRE_RENDER=1 but chromium is unavailable: {exc}')
-        pytest.skip(f'chromium is unavailable: {exc}')
-    try:
-        yield b
-    finally:
-        b.close()
-        pw_ctx.__exit__(None, None, None)
+    # The driver is entered with `with` so it tears down on every exit path, including a launch
+    # failure; the hand-rolled __enter__/__exit__ pair leaked it when the driver started but the
+    # browser did not. `else` keeps the yield off the failure path, so `b` is read only where it
+    # is definitely bound.
+    with sync_playwright() as pw:
+        try:
+            b = pw.chromium.launch()
+        except Exception as exc:  # pragma: no cover - environment dependent
+            if REQUIRE_RENDER:
+                pytest.fail(f'NEXUS_REQUIRE_RENDER=1 but chromium is unavailable: {exc}')
+            pytest.skip(f'chromium is unavailable: {exc}')
+        else:
+            try:
+                yield b
+            finally:
+                b.close()
 
 def open_scene(browser, width=1440, motion='reduce', theme='dark', **options):
     p = browser.new_page(viewport={'width': width, 'height': 1000}, reduced_motion=motion, **options)
