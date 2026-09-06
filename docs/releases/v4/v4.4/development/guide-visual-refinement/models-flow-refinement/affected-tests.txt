@@ -1,0 +1,316 @@
+.....................................................F.......F.......... [ 53%]
+...................s........................................F
+================================== FAILURES ===================================
+_ test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback __
+
+guide_text = '<!doctype html>\n<html lang="en" class="no-js">\n<head>\n<meta charset="utf-8" />\n<meta name="viewport" content="wid...nction(){if(reduce.matches){enabled=false;paint(5);}sync();});paint(5);sync();\n})();\n\n</script>\n</body>\n</html>\n'
+
+    def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
+        guide_text: str,
+    ) -> None:
+        """v4.4.1 Phase 4: the story diagrams are HTML node trees.
+
+        v4.4.3 removed the spinning work-cycle ring from both scenes: it depicted nothing a reader
+        could name, and its own caption had to say so. The shared grammar it provided is still
+        required, now as the one-pass block, and the remaining continuous motion is the hero lockup,
+        which keeps the liveness gate the ring used to carry.
+        """
+        fx = _foundations_markup(guide_text)
+        assert 'class="fx-cycle"' not in fx, "the work-cycle ring must not come back into a scene"
+        assert ".js .hero-lockup.live .hero-lockup-float" in guide_text, (
+            "continuous motion must be gated on liveness, not free-running"
+        )
+        scene_selector = re.search(r'var scenes = document.querySelectorAll\("([^"\n]+)"\)', guide_text)
+        assert scene_selector
+        assert {".fx-scene", ".hero-lockup", ".guard-fig", ".ph"} <= {
+            selector.strip() for selector in scene_selector.group(1).split(",")
+        }
+        assert "IntersectionObserver" in guide_text
+        reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
+        assert ".fx-tokchip" in reduce_block, "token chips need a static reduced-motion state"
+        assert "nhg-lockup-float" in guide_text and ".hero-lockup-float" in reduce_block, (
+            "the lockup float needs a static reduced-motion state"
+        )
+        for retired in ("fx-pulse", "fx-grow", "fx-fade", "offset-path"):
+>           assert retired not in guide_text, (
+                retired + " was retired; a reintroduced consumer must restore its states"
+            )
+E           AssertionError: offset-path was retired; a reintroduced consumer must restore its states
+E           assert 'offset-path' not in '<!doctype h...>\n</html>\n'
+E             'offset-path' is contained here:
+E               ar(--ink);offset-path:path('M10 84 61 49 108 65 150 32 185 89');offset-distance:100%;}
+E             ?           +++++++++++
+E               .ml-run{color:var(--teal-soft);border-color:var(--accent);}.ml-board{min-width:0;min-height:320px;display:flex;flex-direction:column;justify-content:center;gap:var(--sp-2);padding:var(--sp-3);border:1px solid var(--border);border-radius:8px;background:var(--bg-0);--p:1;}
+E               .ml-answer{border-top:1px solid var(--border);padding-top:var(--sp-3);margin-top:var(--sp-2);}.ml-answer .ml-kicker{display:flex;justify-content:space-between;gap:8px;}#ml-p...
+E
+E             ...Full output truncated (3236 lines hidden), use '-vv' to show
+
+tests\guides\test_nexus_hub_guide.py:1017: AssertionError
+____ test_foundations_pulses_are_painted_above_connectors_and_behind_nodes ____
+
+guide_text = '<!doctype html>\n<html lang="en" class="no-js">\n<head>\n<meta charset="utf-8" />\n<meta name="viewport" content="wid...nction(){if(reduce.matches){enabled=false;paint(5);}sync();});paint(5);sync();\n})();\n\n</script>\n</body>\n</html>\n'
+
+    def test_foundations_pulses_are_painted_above_connectors_and_behind_nodes(
+        guide_text: str,
+    ) -> None:
+        """v4.4.1 Phase 4 retired the traveling-pulse primitive with the last SVG story
+        diagram. This guard stays so a reintroduced pulse must also restore its paint-order
+        and reduced-motion contracts rather than riding back in silently."""
+        assert "fx-pulse" not in guide_text
+>       assert "offset-path" not in guide_text
+E       AssertionError: assert 'offset-path' not in '<!doctype h...>\n</html>\n'
+E         'offset-path' is contained here:
+E           ar(--ink);offset-path:path('M10 84 61 49 108 65 150 32 185 89');offset-distance:100%;}
+E         ?           +++++++++++
+E           .ml-run{color:var(--teal-soft);border-color:var(--accent);}.ml-board{min-width:0;min-height:320px;display:flex;flex-direction:column;justify-content:center;gap:var(--sp-2);padding:var(--sp-3);border:1px solid var(--border);border-radius:8px;background:var(--bg-0);--p:1;}
+E           .ml-answer{border-top:1px solid var(--border);padding-top:var(--sp-3);margin-top:var(--sp-2);}.ml-answer .ml-kicker{display:flex;justify-content:space-between;gap:8px;}#ml-p...
+E
+E         ...Full output truncated (3236 lines hidden), use '-vv' to show
+
+tests\guides\test_nexus_hub_guide.py:1172: AssertionError
+______________ test_all_pages_meet_contrast_and_overflow_matrix _______________
+
+render_gate = <function render_gate.<locals>.gate at 0x0000023FCA86A3E0>
+
+    def test_all_pages_meet_contrast_and_overflow_matrix(render_gate: object) -> None:
+        """Measure every rendered text element in a settled reduced-motion layout."""
+        _require_browser(render_gate)
+        from playwright.sync_api import sync_playwright
+
+        guide_url = GUIDE.resolve().as_uri()
+        failures: list[str] = []
+        measurements: dict[str, dict[str, dict[str, object]]] = {
+            theme: {
+                route: {
+                    "elements_by_width": {},
+                    "pseudo_by_width": {},
+                    "scene_elements_by_width": {},
+                    "scene_pseudo_by_width": {},
+                    "style_keys": set(),
+                }
+                for route in PAGES
+            }
+            for theme in THEMES
+        }
+
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=True)
+            try:
+                for theme in THEMES:
+                    for width in WIDTHS:
+                        context = browser.new_context(
+                            viewport={"width": width, "height": 900},
+                            reduced_motion="reduce",
+                        )
+                        context.add_init_script(
+                            f'window.localStorage.setItem("portfolio-theme", "{theme}");'
+                        )
+                        external_requests: list[str] = []
+                        context.route(re.compile(r"^https?://"), lambda route: route.abort())
+                        page = context.new_page()
+                        console_errors, runtime_errors = _page_errors(page)
+                        page.on(
+                            "request",
+                            lambda request, requests=external_requests: requests.append(
+                                request.url
+                            )
+                            if request.url.startswith(("http://", "https://"))
+                            else None,
+                        )
+                        try:
+                            for route in PAGES:
+                                console_errors.clear()
+                                runtime_errors.clear()
+                                external_requests.clear()
+                                case = f"{route}/{theme}/{width}"
+                                page.goto(f"{guide_url}#{route}", wait_until="load")
+                                page.wait_for_function(
+                                    "route => document.body.dataset.page === route",
+                                    arg=route,
+                                )
+                                if route == "training":
+                                    page.wait_for_function(
+                                        "window.NexusTraining && window.NexusShooter"
+                                    )
+                                audit = page.evaluate(PAGE_AUDIT)
+
+                                record = measurements[theme][route]
+                                elements_by_width = record["elements_by_width"]
+                                assert isinstance(elements_by_width, dict)
+                                elements_by_width[str(width)] = audit["sampledElements"]
+                                pseudo_by_width = record["pseudo_by_width"]
+                                assert isinstance(pseudo_by_width, dict)
+                                pseudo_by_width[str(width)] = audit[
+                                    "pseudoSampledElements"
+                                ]
+                                style_keys = record["style_keys"]
+                                assert isinstance(style_keys, set)
+                                style_keys.update(audit["styleKeys"])
+                                _collect_audit_failures(
+                                    failures, audit, case, route, theme
+                                )
+
+                                if route == "training":
+                                    scene_elements_by_width = record[
+                                        "scene_elements_by_width"
+                                    ]
+                                    scene_pseudo_by_width = record[
+                                        "scene_pseudo_by_width"
+                                    ]
+                                    assert isinstance(scene_elements_by_width, dict)
+                                    assert isinstance(scene_pseudo_by_width, dict)
+                                    scene_counts = {
+                                        TRAINING_SCENES[0]: audit["sampledElements"]
+                                    }
+                                    scene_pseudo_counts = {
+                                        TRAINING_SCENES[0]: audit[
+                                            "pseudoSampledElements"
+                                        ]
+                                    }
+                                    for scene in TRAINING_SCENES[1:]:
+                                        page.evaluate(
+                                            "scene => window.NexusTraining.go(scene)",
+                                            scene,
+                                        )
+                                        page.wait_for_function(
+                                            "scene => window.NexusTraining.snapshot().sceneId === scene",
+                                            arg=scene,
+                                        )
+                                        scene_audit = page.evaluate(PAGE_AUDIT)
+                                        scene_case = (
+                                            f"training/{scene}/{theme}/{width}"
+                                        )
+                                        scene_counts[scene] = scene_audit[
+                                            "sampledElements"
+                                        ]
+                                        scene_pseudo_counts[scene] = scene_audit[
+                                            "pseudoSampledElements"
+                                        ]
+                                        style_keys.update(scene_audit["styleKeys"])
+                                        _collect_audit_failures(
+                                            failures,
+                                            scene_audit,
+                                            scene_case,
+                                            route,
+                                            theme,
+                                        )
+                                    scene_elements_by_width[str(width)] = scene_counts
+                                    scene_pseudo_by_width[str(width)] = (
+                                        scene_pseudo_counts
+                                    )
+
+                                if console_errors:
+                                    failures.append(f"{case}: console errors: {console_errors}")
+                                if runtime_errors:
+                                    failures.append(f"{case}: page errors: {runtime_errors}")
+                                if external_requests:
+                                    failures.append(
+                                        f"{case}: external requests: {external_requests}"
+                                    )
+                        finally:
+                            context.close()
+            finally:
+                browser.close()
+
+        printable: dict[str, dict[str, dict[str, object]]] = {}
+        total_style_keys: set[str] = set()
+        base_route_element_samples = 0
+        base_route_pseudo_samples = 0
+        training_additional_scene_samples = 0
+        training_additional_pseudo_samples = 0
+        for theme in THEMES:
+            printable[theme] = {}
+            for route in PAGES:
+                record = measurements[theme][route]
+                style_keys = record["style_keys"]
+                assert isinstance(style_keys, set)
+                total_style_keys.update(f"{theme}|{key}" for key in style_keys)
+                elements_by_width = record["elements_by_width"]
+                pseudo_by_width = record["pseudo_by_width"]
+                assert isinstance(elements_by_width, dict)
+                assert isinstance(pseudo_by_width, dict)
+                base_route_element_samples += sum(elements_by_width.values())
+                base_route_pseudo_samples += sum(pseudo_by_width.values())
+                printable[theme][route] = {
+                    "elements_by_width": elements_by_width,
+                    "pseudo_by_width": pseudo_by_width,
+                    "unique_styles": len(style_keys),
+                }
+                if route == "training":
+                    scene_elements_by_width = record["scene_elements_by_width"]
+                    scene_pseudo_by_width = record["scene_pseudo_by_width"]
+                    assert isinstance(scene_elements_by_width, dict)
+                    assert isinstance(scene_pseudo_by_width, dict)
+                    for scene_counts in scene_elements_by_width.values():
+                        assert isinstance(scene_counts, dict)
+                        training_additional_scene_samples += sum(
+                            count
+                            for scene, count in scene_counts.items()
+                            if scene != TRAINING_SCENES[0]
+                        )
+                    for scene_counts in scene_pseudo_by_width.values():
+                        assert isinstance(scene_counts, dict)
+                        training_additional_pseudo_samples += sum(
+                            count
+                            for scene, count in scene_counts.items()
+                            if scene != TRAINING_SCENES[0]
+                        )
+                    printable[theme][route]["scene_elements_by_width"] = (
+                        scene_elements_by_width
+                    )
+                    printable[theme][route]["scene_pseudo_by_width"] = (
+                        scene_pseudo_by_width
+                    )
+        print(
+            "PHASE6_TEXT_AUDIT "
+            + json.dumps(
+                {
+                    "by_theme_page": printable,
+                    "base_32_route_visible_element_samples": (
+                        base_route_element_samples
+                    ),
+                    "base_32_route_pseudo_text_samples": base_route_pseudo_samples,
+                    "training_additional_scene_samples": (
+                        training_additional_scene_samples
+                    ),
+                    "training_additional_pseudo_text_samples": (
+                        training_additional_pseudo_samples
+                    ),
+                    "total_visible_element_samples": (
+                        base_route_element_samples
+                        + training_additional_scene_samples
+                    ),
+                    "total_pseudo_text_samples": (
+                        base_route_pseudo_samples
+                        + training_additional_pseudo_samples
+                    ),
+                    "unique_styles_both_themes": len(total_style_keys),
+                },
+                sort_keys=True,
+            )
+        )
+        if len(total_style_keys) <= 242:
+            failures.append(
+                "contrast coverage regressed to "
+                f"{len(total_style_keys)} unique computed styles; expected more than the "
+                "v4.2.3 baseline of 242"
+            )
+>       assert not failures, "Phase 6 browser matrix failed:\n- " + "\n- ".join(failures)
+E       AssertionError: Phase 6 browser matrix failed:
+E         - home/light/320: WCAG AA failures: [{'element': 'li', 'text': 'project history', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'exposed passwords', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'oversized files', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'data retention', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'past documents', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'layout checks', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}]
+E         - home/light/420: WCAG AA failures: [{'element': 'li', 'text': 'project history', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'exposed passwords', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'oversized files', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'data retention', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'past documents', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'layout checks', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}]
+E         - home/light/720: WCAG AA failures: [{'element': 'li', 'text': 'project history', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'exposed passwords', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'oversized files', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'data retention', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'past documents', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'layout checks', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}]
+E         - home/light/721: WCAG AA failures: [{'element': 'li', 'text': 'project history', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'exposed passwords', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'oversized files', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'data retention', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'past documents', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'layout checks', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}]
+E         - home/light/900: WCAG AA failures: [{'element': 'li', 'text': 'project history', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'exposed passwords', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'oversized files', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'data retention', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'past documents', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'layout checks', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}]
+E         - home/light/1440: WCAG AA failures: [{'element': 'li', 'text': 'project history', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'exposed passwords', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'oversized files', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'data retention', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'past documents', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}, {'element': 'li', 'text': 'layout checks', 'ratio': 4.462, 'threshold': 4.5, 'fontSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}]
+E       assert not ["home/light/320: WCAG AA failures: [{'element': 'li', 'text': 'project history', 'ratio': 4.462, 'threshold': 4.5, 'f...ntSize': 12, 'fontWeight': 400, 'foreground': '15.00,111.00,102.00,1.00', 'background': '208.54,225.51,219.73,1.00'}]"]
+
+tests\guides\test_phase6_verification_sweep.py:620: AssertionError
+---------------------------- Captured stdout call -----------------------------
+PHASE6_TEXT_AUDIT {"base_32_route_pseudo_text_samples": 594, "base_32_route_visible_element_samples": 14184, "by_theme_page": {"dark": {"cheatsheets": {"elements_by_width": {"1440": 356, "320": 353, "420": 353, "720": 353, "721": 353, "900": 356}, "pseudo_by_width": {"1440": 0, "320": 0, "420": 0, "720": 0, "721": 0, "900": 0}, "unique_styles": 54}, "foundations": {"elements_by_width": {"1440": 404, "320": 401, "420": 401, "720": 401, "721": 401, "900": 404}, "pseudo_by_width": {"1440": 12, "320": 12, "420": 12, "720": 12, "721": 12, "900": 12}, "unique_styles": 167}, "home": {"elements_by_width": {"1440": 322, "320": 345, "420": 345, "720": 345, "721": 319, "900": 322}, "pseudo_by_width": {"1440": 14, "320": 45, "420": 45, "720": 45, "721": 14, "900": 14}, "unique_styles": 152}, "training": {"elements_by_width": {"1440": 95, "320": 92, "420": 92, "720": 92, "721": 92, "900": 95}, "pseudo_by_width": {"1440": 8, "320": 8, "420": 8, "720": 8, "721": 8, "900": 8}, "scene_elements_by_width": {"1440": {"compare": 107, "describe": 95, "implement": 99, "plan": 98, "presentify": 108, "review": 96, "test": 109, "update": 107}, "320": {"compare": 104, "describe": 92, "implement": 96, "plan": 95, "presentify": 105, "review": 93, "test": 106, "update": 104}, "420": {"compare": 104, "describe": 92, "implement": 96, "plan": 95, "presentify": 105, "review": 93, "test": 106, "update": 104}, "720": {"compare": 104, "describe": 92, "implement": 96, "plan": 95, "presentify": 105, "review": 93, "test": 106, "update": 104}, "721": {"compare": 104, "describe": 92, "implement": 96, "plan": 95, "presentify": 105, "review": 93, "test": 106, "update": 104}, "900": {"compare": 107, "describe": 95, "implement": 99, "plan": 98, "presentify": 108, "review": 96, "test": 109, "update": 107}}, "scene_pseudo_by_width": {"1440": {"compare": 8, "describe": 8, "implement": 8, "plan": 8, "presentify": 8, "review": 8, "test": 8, "update": 8}, "320": {"compare": 8, "describe": 8, "implement": 8, "plan": 8, "presentify": 8, "review": 8, "test": 8, "update": 8}, "420": {"compare": 8, "describe": 8, "implement": 8, "plan": 8, "presentify": 8, "review": 8, "test": 8, "update": 8}, "720": {"compare": 8, "describe": 8, "implement": 8, "plan": 8, "presentify": 8, "review": 8, "test": 8, "update": 8}, "721": {"compare": 8, "describe": 8, "implement": 8, "plan": 8, "presentify": 8, "review": 8, "test": 8, "update": 8}, "900": {"compare": 8, "describe": 8, "implement": 8, "plan": 8, "presentify": 8, "review": 8, "test": 8, "update": 8}}, "unique_styles": 58}}, "light": {"cheatsheets": {"elements_by_width": {"1440": 356, "320": 353, "420": 353, "720": 353, "721": 353, "900": 356}, "pseudo_by_width": {"1440": 0, "320": 0, "420": 0, "720": 0, "721": 0, "900": 0}, "unique_styles": 54}, "foundations": {"elements_by_width": {"1440": 404, "320": 401, "420": 401, "720": 401, "721": 401, "900": 404}, "pseudo_by_width": {"1440": 12, "320": 12, "420": 12, "720": 12, "721": 12, "900": 12}, "unique_styles": 167}, "home": {"elements_by_width": {"1440": 322, "320": 345, "420": 345, "720": 345, "721": 319, "900": 322}, "pseudo_by_width": {"1440": 14, "320": 45, "420": 45, "720": 45, "721": 14, "900": 14}, "unique_styles": 149}, "training": {"elements_by_width": {"1440": 95, "320": 92, "420": 92, "720": 92, "721": 92, "900": 95}, "pseudo_by_width": {"1440": 8, "320": 8, "420": 8, "720": 8, "721": 8, "900": 8}, "scene_elements_by_width": {"1440": {"compare": 107, "describe": 95, "implement": 99, "plan": 98, "presentify": 108, "review": 96, "test": 109, "update": 107}, "320": {"compare": 104, "describe": 92, "implement": 96, "plan": 95, "presentify": 105, "review": 93, "test": 106, "update": 104}, "420": {"compare": 104, "describe": 92, "implement": 96, "plan": 95, "presentify": 105, "review": 93, "test": 106, "update": 104}, "720": {"compare": 104, "describe": 92, "implement": 96, "plan": 95, "presentify": 105, "review": 93, "test": 106, "update": 104}, "721": {"compare": 104, "describe": 92, "implement": 96, "plan": 95, "presentify": 105, "review": 93, "test": 106, "update": 104}, "900": {"compare": 107, "describe": 95, "implement": 99, "plan": 98, "presentify": 108, "review": 96, "test": 109, "update": 107}}, "scene_pseudo_by_width": {"1440": {"compare": 8, "describe": 8, "implement": 8, "plan": 8, "presentify": 8, "review": 8, "test": 8, "update": 8}, "320": {"compare": 8, "describe": 8, "implement": 8, "plan": 8, "presentify": 8, "review": 8, "test": 8, "update": 8}, "420": {"compare": 8, "describe": 8, "implement": 8, "plan": 8, "presentify": 8, "review": 8, "test": 8, "update": 8}, "720": {"compare": 8, "describe": 8, "implement": 8, "plan": 8, "presentify": 8, "review": 8, "test": 8, "update": 8}, "721": {"compare": 8, "describe": 8, "implement": 8, "plan": 8, "presentify": 8, "review": 8, "test": 8, "update": 8}, "900": {"compare": 8, "describe": 8, "implement": 8, "plan": 8, "presentify": 8, "review": 8, "test": 8, "update": 8}}, "unique_styles": 57}}}, "total_pseudo_text_samples": 1266, "total_visible_element_samples": 22704, "training_additional_pseudo_text_samples": 672, "training_additional_scene_samples": 8520, "unique_styles_both_themes": 740}
+=========================== short test summary info ===========================
+FAILED tests/guides/test_nexus_hub_guide.py::test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback
+FAILED tests/guides/test_nexus_hub_guide.py::test_foundations_pulses_are_painted_above_connectors_and_behind_nodes
+FAILED tests/guides/test_phase6_verification_sweep.py::test_all_pages_meet_contrast_and_overflow_matrix
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 3 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+3 failed, 129 passed, 1 skipped in 29.26s

@@ -79,7 +79,7 @@ PROBE = """() => {
     }),
     runWidth: Math.round(fig.querySelector('.ph-run').getBoundingClientRect().width),
     innerWidth: Math.round(inner),
-    pulse: getComputedStyle(fig.querySelector('.ph-dot')).animationName,
+    dots: fig.querySelectorAll('.ph-dot').length,
     overflow: Math.round(fig.scrollWidth - fig.clientWidth),
   };
 }"""
@@ -157,8 +157,8 @@ def test_the_mid_task_strip_uses_the_width_it_has(playwright_mod) -> None:
             browser.close()
 
 
-def test_the_pulse_runs_normally_and_stops_under_reduced_motion(playwright_mod) -> None:
-    """Motion replaced a reveal, so silencing it can hide nothing -- and must not."""
+def test_connectors_have_no_dots_with_either_motion_preference(playwright_mod) -> None:
+    """The distribution lines stay static with either motion preference."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
@@ -166,6 +166,6 @@ def test_the_pulse_runs_normally_and_stops_under_reduced_motion(playwright_mod) 
             reduced = _probe(browser, 1440, reduced=True)
         finally:
             browser.close()
-    assert normal["pulse"] != "none", "the connectors carry no flow animation"
-    assert reduced["pulse"] == "none", f"reduced motion still animates: {reduced['pulse']}"
+    assert normal["dots"] == 0
+    assert reduced["dots"] == 0
     assert reduced["faded"] == 0, "reduced motion must not hide a box"

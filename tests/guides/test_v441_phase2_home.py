@@ -256,7 +256,6 @@ EXPECTED_HOME_ORDER = [
     "Raw prompting vs Nexus Hub",
     "Install once, work anywhere",
     "One governed loop, from first look to shipped",
-    "Learn it, then run it on a real project",
 ]
 
 
@@ -356,9 +355,9 @@ def test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count(playw
         assert words <= ceiling, f"{key}: {words} words exceeds the two-thirds ceiling of {ceiling}"
     # The merged comparison replaces v4.1.2's "The difference" and must not exceed ITS ceiling.
     assert merged <= fixture["the-difference"]["v412_words"] * 2 // 3, merged
-    # v4.4.4's portability figure is new content, so it is capped on its own terms rather than
-    # against a v4.1.2 section that never contained it.
-    assert 20 <= portability <= 120, f"the portability figure is {portability} words"
+    # The requested phase table and saved/resumed/completed checklists expand the session example.
+    # Keep their combined illustration bounded while retaining the original section ceilings.
+    assert 20 <= portability <= 320, f"the portability figure is {portability} words"
 
 
 def test_merged_comparison_labels_render_at_twice_the_v441_size(playwright_mod) -> None:
@@ -444,8 +443,8 @@ def test_guardrails_section_names_only_shipped_registered_hooks(playwright_mod) 
         try:
             data = page.evaluate(
                 """() => ({
-                    ports: [...document.querySelectorAll('#nhg-guard-fig .gf-hooks li')].map(e => e.textContent.trim()),
-                    blocked: [...document.querySelectorAll('#nhg-guard-fig .gf-cell--stop b')].map(e => e.textContent.trim()),
+                    ports: [...document.querySelectorAll('#nhg-guard-fig .gf-hooks li')].map(e => e.dataset.hook),
+                    blocked: [...document.querySelectorAll('#nhg-guard-fig .gf-cell--stop b')].map(e => e.dataset.hook),
                     pretooluse: +document.querySelector('#nhg-guardrails [data-count="pretooluse"]').textContent,
                     hooks: +document.querySelector('#nhg-guardrails [data-count="hooks"]').textContent,
                     text: document.getElementById('nhg-guardrails').innerText.toLowerCase(),
@@ -453,7 +452,7 @@ def test_guardrails_section_names_only_shipped_registered_hooks(playwright_mod) 
             )
         finally:
             browser.close()
-    assert len(data["ports"]) == 4
+    assert len(data["ports"]) == 6
     for name in data["ports"]:
         assert (_HOOKS_DIR / f"{name}.sh").is_file(), f"{name}.sh does not ship"
         assert (_HOOKS_DIR / f"{name}.ps1").is_file(), f"{name}.ps1 sibling missing"

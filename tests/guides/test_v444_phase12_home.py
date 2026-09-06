@@ -74,7 +74,8 @@ def test_the_guardrails_segment_is_renamed_and_centred(playwright_mod) -> None:
                       tags: tags.map(t => t.textContent.trim()),
                       notes: notes.map(n => n.textContent.trim()),
                       allCentred: tags.every(centred) && notes.every(centred),
-                      hooksJustify: getComputedStyle(hooks).justifyContent,
+                      hooksAlignment: getComputedStyle(hooks).textAlign,
+                          platforms: [...sec.querySelectorAll(".gf-platforms>span")].map(e => e.textContent.trim()),
                     };
                 }"""
             )
@@ -83,8 +84,9 @@ def test_the_guardrails_segment_is_renamed_and_centred(playwright_mod) -> None:
             browser.close()
     assert data["label"] == "Guardrails & Safety", data["label"]
     assert data["title"] == "Adds an extra layer of security", data["title"]
+    assert data["platforms"] == ["Claude", "ChatGPT", "Cursor", "Gemini"]
     assert data["allCentred"], "both ring headers and their subtexts must be centred"
-    assert data["hooksJustify"] == "center", "the hook chips must be centred"
+    assert data["hooksAlignment"] == "center", "the guardrail descriptions must be centred"
     assert data["tags"] == ["Nexus Hub hooks", "Platform permissions"], data["tags"]
     outer, inner = data["notes"]
     for phrase in ("Block flagged unsafe actions", "even once approved", "explain the refusal"):
@@ -136,9 +138,13 @@ def test_the_segment_carries_both_benefits(playwright_mod) -> None:
                       source: fig.querySelector('.ph-src').textContent.trim(),
                       targets: [...fig.querySelectorAll('.ph-target b')].map(b => b.textContent.trim()),
                       fans: fig.querySelectorAll('.ph-lane').length,
-                      steps: [...fig.querySelectorAll('.ph-step')].map(s => ({
-                        cmd: s.querySelector('code').textContent.trim(),
-                        host: s.querySelector('span').textContent.trim() })),
+                      sessions: [...fig.querySelectorAll('.ph-session')].map(s => ({
+                        host: s.querySelector('.ph-head b').textContent.trim(),
+                        logo: !!s.querySelector(".ph-head .brand-copy svg"),
+                        commands: [...s.querySelectorAll('.ph-msg--user code')].map(e => e.textContent),
+                        tasks: [...s.querySelectorAll(".ph-tasks")].map(list => [...list.querySelectorAll("label")].map(label => ({text: label.textContent, done: label.querySelector("input").checked}))),
+                        phases: [...s.querySelectorAll(".ph-plan tbody tr")].map(row => row.cells.length),
+                        text: s.textContent.toLowerCase() })),
                       cut: fig.querySelector('.ph-cut').textContent.trim().toLowerCase(),
                       note: fig.querySelector('.ph-note').textContent.trim().toLowerCase(),
                       sequenced: fig.hasAttribute('data-seq-root'),
@@ -154,9 +160,24 @@ def test_the_segment_carries_both_benefits(playwright_mod) -> None:
     assert data["targets"] == list(PLATFORMS), data["targets"]
     assert data["fans"] == 4, "one connector per platform"
     assert not data["sequenced"], "the figure must not reveal itself in steps"
-    hosts = [step["host"] for step in data["steps"]]
+    hosts = [session["host"] for session in data["sessions"]]
     assert hosts[0] == "Claude Code" and hosts[-1] == "Codex", hosts
     assert len(set(hosts)) == 2, "the switch must cross exactly two platforms"
+    claude, codex = data["sessions"]
+    assert claude["logo"] and codex["logo"]
+    assert "/plan" in claude["commands"] and "/implement" in claude["commands"]
+    assert "usage limit reached" in claude["text"] and "3 hours" in claude["text"]
+    assert "phase 1 in progress" in claude["text"]
+    assert claude["phases"] == [3, 3, 3]
+    saved, resumed, complete = claude["tasks"][0], *codex["tasks"]
+    assert len(saved) == 4 and saved == resumed
+    assert [task["done"] for task in saved] == [True, True, False, False]
+    assert [task["text"] for task in saved] == [task["text"] for task in complete]
+    assert all(task["done"] for task in complete)
+    assert "/implement" in codex["commands"] and "booking-feature-plan.md" in codex["text"]
+    assert "phase 1 verified and complete" in codex["text"]
+    assert "next: run /implement phase 2" in codex["text"]
+
     assert "usage" in data["cut"], data["cut"]
     assert "files" in data["note"] and "resumes" in data["note"], data["note"]
     # benefit two: the mapping still starts from the generic built-ins

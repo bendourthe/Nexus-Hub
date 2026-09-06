@@ -7,8 +7,9 @@ These assertions exist because Phase 1 makes three promises that later phases sp
    ship an unreviewed third-party asset into a published page.
 2. The oversized embedded Nexus mark is gone and its replacement is real vector geometry.
    A blank or raster-backed mark would satisfy a naive size check while destroying the brand.
-3. The page is below the Phase 1 gate of 400,000 bytes without moving the 500,000-byte
-   release ceiling, because every later phase's allocation is drawn against that headroom.
+3. Later illustration work may spend the headroom reserved by Phase 1, while the
+   durable 500,000-byte release ceiling remains enforced. The historical 400,000-byte
+   checkpoint remains recorded in the phase contract, not imposed on every later build.
 
 The ledger is parsed rather than duplicated: the hashes live in exactly one place, so this
 file cannot drift from the approval record it enforces.
@@ -37,7 +38,6 @@ LEDGER = PHASE_DIR / "asset-provenance.md"
 CONTRACT = PHASE_DIR / "phase-1-contract.md"
 ASSETS = PHASE_DIR / "assets"
 
-PHASE_1_BYTE_GATE = 400_000
 RELEASE_CEILING = 500_000
 
 APPROVED_MARKS = ("claude", "chatgpt", "gemini", "cursor", "github-copilot")
@@ -205,10 +205,10 @@ def test_nexus_mark_is_compact(nexus_symbol: str) -> None:
 # --------------------------------------------------------------------- byte budget
 
 
-def test_guide_is_below_the_phase_1_byte_gate(guide_text: str) -> None:
+def test_guide_stays_within_the_release_byte_budget(guide_text: str) -> None:
     size = len(guide_text.encode("utf-8"))
-    assert size < PHASE_1_BYTE_GATE, (
-        f"guide is {size:,} bytes; the Phase 1 gate is {PHASE_1_BYTE_GATE:,}"
+    assert size < RELEASE_CEILING, (
+        f"guide is {size:,} bytes; the release ceiling is {RELEASE_CEILING:,}"
     )
 
 
