@@ -1,0 +1,12 @@
+{
+  "text": true,
+  "sections": true,
+  "ids": true,
+  "links": true,
+  "textFragments": 1150,
+  "sectionCount": 27,
+  "originalIds": 110,
+  "linksCount": 38,
+  "textSha256": "5ea1cd8087a8ec97b139997a6453376b97823a299910fade7ff5e289644b9b3e",
+  "trainingDataUnchanged": true
+}

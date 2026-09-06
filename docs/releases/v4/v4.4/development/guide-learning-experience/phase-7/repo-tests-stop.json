@@ -1,0 +1,7 @@
+{
+    "process":  "repo-tests",
+    "elapsed_wall_seconds":  4825.3896734,
+    "configured_timeout_seconds":  4500,
+    "stop_reason":  "Still active after 80 minutes; stopped this exact test process after a five-minute grace period. This is an operator-stopped incomplete run, not a pytest terminal verdict.",
+    "stopped_at_utc":  "2026-09-05T00:17:04.8021385Z"
+}

@@ -804,12 +804,12 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                         f"{untabbable_actions}"
                     )
 
-                active_tab = page.locator('[role="tab"][aria-selected="true"]')
+                active_tab = page.locator('.page.active [role="tab"][aria-selected="true"]')
                 assert active_tab.count() == 1
                 active_tab.focus()
                 page.keyboard.press("ArrowRight")
                 selected_tab = page.locator(
-                    '[role="tab"][aria-selected="true"]'
+                    '.page.active [role="tab"][aria-selected="true"]'
                 ).inner_text()
                 if selected_tab != "macOS / Linux":
                     failures.append(
@@ -820,7 +820,7 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                     failures.append("Home install ArrowRight moved focus outside the tablist")
                 tab_contract = page.evaluate(
                     r"""
-                    () => Array.from(document.querySelectorAll('[role="tab"]')).map((tab) => {
+                    () => Array.from(document.querySelectorAll('.page.active [role="tab"]')).map((tab) => {
                       const panelId = tab.getAttribute("aria-controls");
                       const panel = panelId ? document.getElementById(panelId) : null;
                       return {

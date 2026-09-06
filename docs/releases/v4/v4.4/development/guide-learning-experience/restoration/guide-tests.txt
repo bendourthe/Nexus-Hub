@@ -1,0 +1,24 @@
+........................................................................ [ 21%]
+............................................................s........... [ 42%]
+........................................................................ [ 63%]
+........................................................................ [ 84%]
+.....................................................                    [100%]
+============================== warnings summary ===============================
+tests\guides\test_v441_phase2_home.py:274
+  <workspace>\tests\guides\test_v441_phase2_home.py:274: SyntaxWarning: invalid escape sequence '\s'
+    const n = sec.innerText.replace(/\s+/g, ' ').trim().split(' ').length;
+
+tests\guides\test_v441_phase2_home.py:283
+  <workspace>\tests\guides\test_v441_phase2_home.py:283: SyntaxWarning: invalid escape sequence '\s'
+    return e ? e.innerText.replace(/\s+/g, ' ').trim().split(' ').length : 0; }""",
+
+tests\guides\test_v443_phase4_context.py:108
+  <workspace>\tests\guides\test_v443_phase4_context.py:108: SyntaxWarning: invalid escape sequence '\s'
+    return { columns: getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,
+
+tests\guides\test_v443_phase4_context.py:140
+  <workspace>\tests\guides\test_v443_phase4_context.py:140: SyntaxWarning: invalid escape sequence '\s'
+    columns: getComputedStyle(spend).gridTemplateColumns.trim().split(/\s+/).length,
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+340 passed, 1 skipped, 4 warnings in 333.01s (0:05:33)

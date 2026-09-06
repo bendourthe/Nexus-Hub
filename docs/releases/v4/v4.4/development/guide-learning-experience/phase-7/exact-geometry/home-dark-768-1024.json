@@ -1,0 +1,23 @@
+{
+  "allowlist": "<workspace>\\tests\\guides\\fixtures\\learning-visual-allowlist.json",
+  "file": "<workspace>\\guides\\website\\nexus-hub-guide.html",
+  "findings": [],
+  "font_floor_px": 12.0,
+  "fragment": "home",
+  "gate_findings": 0,
+  "minimum_text_box_px": {
+    "height": 12.0,
+    "width": 16.0
+  },
+  "page_pass": true,
+  "status": "pass",
+  "suppressed_findings": 13,
+  "theme": "dark",
+  "tolerance_px": 1.0,
+  "viewports": [
+    {
+      "height": 1024,
+      "width": 768
+    }
+  ]
+}

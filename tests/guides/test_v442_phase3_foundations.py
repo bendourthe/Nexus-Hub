@@ -92,16 +92,7 @@ def test_page_opens_with_a_centred_title_in_the_hero_subtitle_style(playwright_m
 
 
 def test_scene_titles_come_before_their_subtitles(playwright_mod) -> None:
-    """v4.4.4 inverted the pair on the operator's instruction.
-
-    v4.4.2 made the descriptive phrase an uppercase eyebrow ABOVE the scene name, matching Home.
-    The review called that inverted: on Foundations the scene NAME is the title and the phrase is
-    its subtitle. So the assertion flips with it -- the h2 comes first in document order and on
-    screen, the subtitle is smaller than the title, and it is no longer an uppercase label.
-
-    Home is unchanged and still reads eyebrow-above-title; that pattern is asserted in
-    `test_v444_phase12_home.py` and in the heading module.
-    """
+    """Scene names keep their order and share the Home label/subtitle styling."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         _ctx, page = _open(browser)
@@ -115,7 +106,9 @@ def test_scene_titles_come_before_their_subtitles(playwright_mod) -> None:
                       subtitle: sub.textContent.trim(),
                       titleFirstOnScreen: h2.getBoundingClientRect().bottom <= sub.getBoundingClientRect().top + 1,
                       titleFirstInDom: (h2.compareDocumentPosition(sub) & Node.DOCUMENT_POSITION_FOLLOWING) ? true : false,
-                      smaller: parseFloat(cs.fontSize) < parseFloat(hs.fontSize),
+                      labelStyle: ['color','fontWeight','letterSpacing','textTransform','lineHeight'].every(k => hs[k] === getComputedStyle(document.querySelector('#page-home .eyebrow'))[k]),
+                      subtitleStyle: ['color','fontWeight','letterSpacing','textTransform'].every(k => cs[k] === getComputedStyle(document.querySelector('#page-home .section-title'))[k]),
+                      marker: getComputedStyle(h2,'::before').content !== 'none',
                       notALabel: cs.textTransform === 'none',
                       sameLeft: Math.abs(h2.getBoundingClientRect().left - sub.getBoundingClientRect().left) < 2,
                     };
@@ -127,7 +120,7 @@ def test_scene_titles_come_before_their_subtitles(playwright_mod) -> None:
     for row in rows:
         assert row["title"] and row["subtitle"], row
         assert row["titleFirstOnScreen"] and row["titleFirstInDom"], row
-        assert row["smaller"], f"the subtitle must be smaller than its title: {row}"
+        assert row["labelStyle"] and row["subtitleStyle"] and row["marker"], row
         assert row["notALabel"], f"the subtitle must not render as an uppercase label: {row}"
         assert row["sameLeft"], row
 
@@ -237,12 +230,52 @@ def test_annotated_prompt_is_one_text_with_four_labelled_parts(playwright_mod) -
     assert data["oneParagraph"] and data["nested"] == 0
     # v4.4.5 renamed the parts on instruction; "goal" now names the finish line the
     # figure used to call "done". The order is unchanged, the vocabulary is not.
-    assert data["parts"] == ["query", "context", "goal", "format"]
+    assert data["parts"] == ["request", "context", "goal", "format"]
     assert data["joined"].startswith("Summarise this contract and list every deadline. Use the signed PDF")
-    assert data["legend"] == ["Query", "Context", "Goal", "Format"]
+    assert data["legend"] == ["Request", "Context", "Goal", "Format"]
     assert data["colours"] == 4, "each part carries its own colour"
     assert data["weakFirst"], "the vague prompt still reads before the precise one"
-    assert len(ctx_parts) >= 3 and ctx_parts[0] == "request" and set(ctx_parts[1:]) == {"context"}
+    assert ctx_parts == ["request", "attachments", "goal", "context"]
+
+
+@pytest.mark.parametrize("root_id", ["fx-ann-prompt", "fx-ann-context"])
+def test_prompt_highlights_wait_for_the_matching_box(playwright_mod, root_id) -> None:
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        _ctx, page = _open(browser)
+        try:
+            root = page.locator("#" + root_id)
+            root.scroll_into_view_if_needed()
+            page.wait_for_timeout(250)
+            root.evaluate("e => window.NexusSeq.reset(e)")
+            page.wait_for_timeout(400)
+
+            def snapshot():
+                return root.evaluate("""e => [...e.querySelectorAll('.ann')].map(m => ({
+                    active: m.classList.contains('is-on'),
+                    box: e.querySelector('.ann-legend-row[data-part="' + m.dataset.part + '"]').classList.contains('is-on'),
+                    background: getComputedStyle(m).backgroundColor,
+                    decoration: getComputedStyle(m).textDecorationLine,
+                    codePlain: [...m.querySelectorAll('code')].every(c => getComputedStyle(c).backgroundColor === 'rgba(0, 0, 0, 0)'),
+                }))""")
+
+            plain = snapshot()
+            assert all(not m["active"] and not m["box"] for m in plain)
+            assert all(m["background"] == "rgba(0, 0, 0, 0)" and m["decoration"] == "none" and m["codePlain"] for m in plain)
+            root.evaluate("e => window.NexusSeq.play(e)")
+            page.wait_for_timeout(1000)
+            first = snapshot()
+            assert [m["active"] for m in first] == [True, False, False, False], "the first step must last longer than one second"
+            page.wait_for_timeout(1100)
+            second = snapshot()
+            assert [m["active"] for m in second] == [True, True, False, False]
+            for marks in (first, second):
+                for mark in marks:
+                    assert mark["active"] == mark["box"]
+                    assert mark["decoration"] == ("underline" if mark["active"] else "none")
+                    assert (mark["background"] != "rgba(0, 0, 0, 0)") == mark["active"]
+        finally:
+            browser.close()
 
 
 def test_annotated_prompt_reveals_in_document_order_and_all_at_once_under_reduced_motion(playwright_mod) -> None:
@@ -276,7 +309,7 @@ def test_annotated_prompt_reveals_in_document_order_and_all_at_once_under_reduce
             )
         finally:
             browser.close()
-    assert order[-1] == ["query", "context", "goal", "format"], order
+    assert order[-1] == ["request", "context", "goal", "format"], order
     for earlier, later in zip(order, order[1:]):
         assert later[: len(earlier)] == earlier, f"reveal must be cumulative and in order: {order}"
     assert legend_lit == 4

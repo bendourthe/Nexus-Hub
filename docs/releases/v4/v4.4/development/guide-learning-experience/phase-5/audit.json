@@ -1,0 +1,261 @@
+{
+  "sha256": "affec5f95a2f78ac7a935b60e8e6d792faef36b4b916cc77a1121b4bc45c3c32",
+  "bytes": 342072,
+  "machine": "Windows-11-10.0.26200-SP0",
+  "cases": [
+    {
+      "theme": "light",
+      "width": 320,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 10292,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 8640,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 719,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 7162,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 720,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 7162,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 721,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 6096,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 5981,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 5531,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 5485,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 5486,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 10292,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 8640,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 719,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 7162,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 720,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 7162,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 721,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 6096,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 5981,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 5531,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 5485,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "page": "foundations",
+      "words": {
+        "main": 824,
+        "total": 894
+      },
+      "height": 5486,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    }
+  ],
+  "performance": [],
+  "browser": "151.0.7922.34"
+}

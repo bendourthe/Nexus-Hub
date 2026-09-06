@@ -1,0 +1,249 @@
+{
+  "sha256": "6848938156266c2806c734575c963a64ba71a84bf3b357e912e0583b730324fd",
+  "bytes": 353043,
+  "machine": "Windows-11-10.0.26200-SP0",
+  "cases": [],
+  "performance": [
+    {
+      "p95FrameMs": 16.799999999999955,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 23.399999976158142,
+      "medianNavigationMs": 16.700000047683716,
+      "theme": "light",
+      "width": 1440,
+      "run": 0,
+      "warmup": true,
+      "throttle": 1,
+      "metrics": {
+        "LayoutCount": 21,
+        "LayoutDuration": 0.038017,
+        "RecalcStyleCount": 21,
+        "RecalcStyleDuration": 0.031377,
+        "ScriptDuration": 0.02933,
+        "TaskDuration": 0.262507
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000000728,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 18.40000009536743,
+      "medianNavigationMs": 16.5,
+      "theme": "light",
+      "width": 1440,
+      "run": 1,
+      "warmup": false,
+      "throttle": 1,
+      "metrics": {
+        "LayoutCount": 21,
+        "LayoutDuration": 0.042247,
+        "RecalcStyleCount": 21,
+        "RecalcStyleDuration": 0.038403,
+        "ScriptDuration": 0.026721,
+        "TaskDuration": 0.284315
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000000728,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 22.899999976158142,
+      "medianNavigationMs": 16.600000023841858,
+      "theme": "light",
+      "width": 1440,
+      "run": 2,
+      "warmup": false,
+      "throttle": 1,
+      "metrics": {
+        "LayoutCount": 21,
+        "LayoutDuration": 0.030603,
+        "RecalcStyleCount": 21,
+        "RecalcStyleDuration": 0.027683,
+        "ScriptDuration": 0.023964,
+        "TaskDuration": 0.275674
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000004366,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 18.199999928474426,
+      "medianNavigationMs": 16.5,
+      "theme": "light",
+      "width": 1440,
+      "run": 3,
+      "warmup": false,
+      "throttle": 1,
+      "metrics": {
+        "LayoutCount": 21,
+        "LayoutDuration": 0.0327,
+        "RecalcStyleCount": 21,
+        "RecalcStyleDuration": 0.031799,
+        "ScriptDuration": 0.027098,
+        "TaskDuration": 0.281582
+      }
+    },
+    {
+      "p95FrameMs": 16.799999999999272,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 25.700000047683716,
+      "medianNavigationMs": 16.799999952316284,
+      "theme": "dark",
+      "width": 1440,
+      "run": 0,
+      "warmup": true,
+      "throttle": 1,
+      "metrics": {
+        "LayoutCount": 21,
+        "LayoutDuration": 0.039759,
+        "RecalcStyleCount": 38,
+        "RecalcStyleDuration": 0.04057,
+        "ScriptDuration": 0.034849,
+        "TaskDuration": 0.439277
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000000728,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 18,
+      "medianNavigationMs": 17,
+      "theme": "dark",
+      "width": 1440,
+      "run": 1,
+      "warmup": false,
+      "throttle": 1,
+      "metrics": {
+        "LayoutCount": 23,
+        "LayoutDuration": 0.042633,
+        "RecalcStyleCount": 23,
+        "RecalcStyleDuration": 0.037058,
+        "ScriptDuration": 0.027119,
+        "TaskDuration": 0.392315
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000000728,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 19.800000071525574,
+      "medianNavigationMs": 16.699999928474426,
+      "theme": "dark",
+      "width": 1440,
+      "run": 2,
+      "warmup": false,
+      "throttle": 1,
+      "metrics": {
+        "LayoutCount": 21,
+        "LayoutDuration": 0.032092,
+        "RecalcStyleCount": 21,
+        "RecalcStyleDuration": 0.032766,
+        "ScriptDuration": 0.026912,
+        "TaskDuration": 0.431364
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000004366,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 19.800000071525574,
+      "medianNavigationMs": 16.600000023841858,
+      "theme": "dark",
+      "width": 1440,
+      "run": 3,
+      "warmup": false,
+      "throttle": 1,
+      "metrics": {
+        "LayoutCount": 21,
+        "LayoutDuration": 0.035311,
+        "RecalcStyleCount": 21,
+        "RecalcStyleDuration": 0.03066,
+        "ScriptDuration": 0.024058,
+        "TaskDuration": 0.377128
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000000728,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 17.600000023841858,
+      "medianNavigationMs": 16.800000071525574,
+      "theme": "light",
+      "width": 420,
+      "run": 0,
+      "warmup": true,
+      "throttle": 1,
+      "metrics": {
+        "LayoutCount": 22,
+        "LayoutDuration": 0.041225,
+        "RecalcStyleCount": 22,
+        "RecalcStyleDuration": 0.041592,
+        "ScriptDuration": 0.029626,
+        "TaskDuration": 0.287614
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000000728,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 19.600000023841858,
+      "medianNavigationMs": 17,
+      "theme": "light",
+      "width": 420,
+      "run": 1,
+      "warmup": false,
+      "throttle": 1,
+      "metrics": {
+        "LayoutCount": 21,
+        "LayoutDuration": 0.035855,
+        "RecalcStyleCount": 21,
+        "RecalcStyleDuration": 0.031197,
+        "ScriptDuration": 0.02375,
+        "TaskDuration": 0.254305
+      }
+    },
+    {
+      "p95FrameMs": 16.799999999999272,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 18.299999952316284,
+      "medianNavigationMs": 16.600000023841858,
+      "theme": "light",
+      "width": 420,
+      "run": 2,
+      "warmup": false,
+      "throttle": 1,
+      "metrics": {
+        "LayoutCount": 22,
+        "LayoutDuration": 0.041517,
+        "RecalcStyleCount": 22,
+        "RecalcStyleDuration": 0.033299,
+        "ScriptDuration": 0.02807,
+        "TaskDuration": 0.330356
+      }
+    },
+    {
+      "p95FrameMs": 16.799999999995634,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 17.899999976158142,
+      "medianNavigationMs": 16.700000047683716,
+      "theme": "light",
+      "width": 420,
+      "run": 3,
+      "warmup": false,
+      "throttle": 1,
+      "metrics": {
+        "LayoutCount": 21,
+        "LayoutDuration": 0.026649,
+        "RecalcStyleCount": 21,
+        "RecalcStyleDuration": 0.024287,
+        "ScriptDuration": 0.022872,
+        "TaskDuration": 0.245009
+      }
+    }
+  ],
+  "browser": "151.0.7922.34"
+}

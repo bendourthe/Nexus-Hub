@@ -1,0 +1,2150 @@
+{
+  "sha256": "d5673b540efc9313ce1e83bd5424d443c2107317595cfe675183c13433db9635",
+  "scenes": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "scene": "describe",
+      "before": {
+        "sceneId": "describe",
+        "sceneIndex": 0,
+        "appliedThrough": -1,
+        "selectedPath": "src/damage.js",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": []
+      },
+      "after": {
+        "sceneId": "describe",
+        "sceneIndex": 0,
+        "appliedThrough": 0,
+        "selectedPath": "docs/analysis.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "scene": "review",
+      "before": {
+        "sceneId": "review",
+        "sceneIndex": 1,
+        "appliedThrough": 0,
+        "selectedPath": "docs/analysis.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe"
+        ]
+      },
+      "after": {
+        "sceneId": "review",
+        "sceneIndex": 1,
+        "appliedThrough": 1,
+        "selectedPath": "docs/review.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "scene": "plan",
+      "before": {
+        "sceneId": "plan",
+        "sceneIndex": 2,
+        "appliedThrough": 1,
+        "selectedPath": "docs/review.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review"
+        ]
+      },
+      "after": {
+        "sceneId": "plan",
+        "sceneIndex": 2,
+        "appliedThrough": 2,
+        "selectedPath": "docs/releases/v0.1/plans/fix-damage-handling.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "scene": "implement",
+      "before": {
+        "sceneId": "implement",
+        "sceneIndex": 3,
+        "appliedThrough": 2,
+        "selectedPath": "docs/releases/v0.1/plans/fix-damage-handling.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan"
+        ]
+      },
+      "after": {
+        "sceneId": "implement",
+        "sceneIndex": 3,
+        "appliedThrough": 3,
+        "selectedPath": "docs/releases/v0.1/evidence/damage.diff",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "scene": "compare",
+      "before": {
+        "sceneId": "compare",
+        "sceneIndex": 4,
+        "appliedThrough": 3,
+        "selectedPath": "docs/releases/v0.1/evidence/damage.diff",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement"
+        ]
+      },
+      "after": {
+        "sceneId": "compare",
+        "sceneIndex": 4,
+        "appliedThrough": 4,
+        "selectedPath": "docs/comparison.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "scene": "test",
+      "before": {
+        "sceneId": "test",
+        "sceneIndex": 5,
+        "appliedThrough": 4,
+        "selectedPath": "docs/comparison.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare"
+        ]
+      },
+      "after": {
+        "sceneId": "test",
+        "sceneIndex": 5,
+        "appliedThrough": 5,
+        "selectedPath": "reports/unit-summary.txt",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "scene": "update",
+      "before": {
+        "sceneId": "update",
+        "sceneIndex": 6,
+        "appliedThrough": 5,
+        "selectedPath": "reports/unit-summary.txt",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test"
+        ]
+      },
+      "after": {
+        "sceneId": "update",
+        "sceneIndex": 6,
+        "appliedThrough": 6,
+        "selectedPath": "CHANGELOG.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt",
+          "CHANGELOG.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test",
+          "update"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "scene": "presentify",
+      "before": {
+        "sceneId": "presentify",
+        "sceneIndex": 7,
+        "appliedThrough": 6,
+        "selectedPath": "CHANGELOG.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt",
+          "CHANGELOG.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test",
+          "update"
+        ]
+      },
+      "after": {
+        "sceneId": "presentify",
+        "sceneIndex": 7,
+        "appliedThrough": 7,
+        "selectedPath": "shooter-briefing.html",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt",
+          "CHANGELOG.md",
+          "shooter-briefing.html"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test",
+          "update",
+          "presentify"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scene": "describe",
+      "before": {
+        "sceneId": "describe",
+        "sceneIndex": 0,
+        "appliedThrough": -1,
+        "selectedPath": "src/damage.js",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": []
+      },
+      "after": {
+        "sceneId": "describe",
+        "sceneIndex": 0,
+        "appliedThrough": 0,
+        "selectedPath": "docs/analysis.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scene": "review",
+      "before": {
+        "sceneId": "review",
+        "sceneIndex": 1,
+        "appliedThrough": 0,
+        "selectedPath": "docs/analysis.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe"
+        ]
+      },
+      "after": {
+        "sceneId": "review",
+        "sceneIndex": 1,
+        "appliedThrough": 1,
+        "selectedPath": "docs/review.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scene": "plan",
+      "before": {
+        "sceneId": "plan",
+        "sceneIndex": 2,
+        "appliedThrough": 1,
+        "selectedPath": "docs/review.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review"
+        ]
+      },
+      "after": {
+        "sceneId": "plan",
+        "sceneIndex": 2,
+        "appliedThrough": 2,
+        "selectedPath": "docs/releases/v0.1/plans/fix-damage-handling.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scene": "implement",
+      "before": {
+        "sceneId": "implement",
+        "sceneIndex": 3,
+        "appliedThrough": 2,
+        "selectedPath": "docs/releases/v0.1/plans/fix-damage-handling.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan"
+        ]
+      },
+      "after": {
+        "sceneId": "implement",
+        "sceneIndex": 3,
+        "appliedThrough": 3,
+        "selectedPath": "docs/releases/v0.1/evidence/damage.diff",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scene": "compare",
+      "before": {
+        "sceneId": "compare",
+        "sceneIndex": 4,
+        "appliedThrough": 3,
+        "selectedPath": "docs/releases/v0.1/evidence/damage.diff",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement"
+        ]
+      },
+      "after": {
+        "sceneId": "compare",
+        "sceneIndex": 4,
+        "appliedThrough": 4,
+        "selectedPath": "docs/comparison.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scene": "test",
+      "before": {
+        "sceneId": "test",
+        "sceneIndex": 5,
+        "appliedThrough": 4,
+        "selectedPath": "docs/comparison.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare"
+        ]
+      },
+      "after": {
+        "sceneId": "test",
+        "sceneIndex": 5,
+        "appliedThrough": 5,
+        "selectedPath": "reports/unit-summary.txt",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scene": "update",
+      "before": {
+        "sceneId": "update",
+        "sceneIndex": 6,
+        "appliedThrough": 5,
+        "selectedPath": "reports/unit-summary.txt",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test"
+        ]
+      },
+      "after": {
+        "sceneId": "update",
+        "sceneIndex": 6,
+        "appliedThrough": 6,
+        "selectedPath": "CHANGELOG.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt",
+          "CHANGELOG.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test",
+          "update"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scene": "presentify",
+      "before": {
+        "sceneId": "presentify",
+        "sceneIndex": 7,
+        "appliedThrough": 6,
+        "selectedPath": "CHANGELOG.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt",
+          "CHANGELOG.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test",
+          "update"
+        ]
+      },
+      "after": {
+        "sceneId": "presentify",
+        "sceneIndex": 7,
+        "appliedThrough": 7,
+        "selectedPath": "shooter-briefing.html",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt",
+          "CHANGELOG.md",
+          "shooter-briefing.html"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test",
+          "update",
+          "presentify"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "scene": "describe",
+      "before": {
+        "sceneId": "describe",
+        "sceneIndex": 0,
+        "appliedThrough": -1,
+        "selectedPath": "src/damage.js",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": []
+      },
+      "after": {
+        "sceneId": "describe",
+        "sceneIndex": 0,
+        "appliedThrough": 0,
+        "selectedPath": "docs/analysis.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "scene": "review",
+      "before": {
+        "sceneId": "review",
+        "sceneIndex": 1,
+        "appliedThrough": 0,
+        "selectedPath": "docs/analysis.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe"
+        ]
+      },
+      "after": {
+        "sceneId": "review",
+        "sceneIndex": 1,
+        "appliedThrough": 1,
+        "selectedPath": "docs/review.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "scene": "plan",
+      "before": {
+        "sceneId": "plan",
+        "sceneIndex": 2,
+        "appliedThrough": 1,
+        "selectedPath": "docs/review.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review"
+        ]
+      },
+      "after": {
+        "sceneId": "plan",
+        "sceneIndex": 2,
+        "appliedThrough": 2,
+        "selectedPath": "docs/releases/v0.1/plans/fix-damage-handling.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "scene": "implement",
+      "before": {
+        "sceneId": "implement",
+        "sceneIndex": 3,
+        "appliedThrough": 2,
+        "selectedPath": "docs/releases/v0.1/plans/fix-damage-handling.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan"
+        ]
+      },
+      "after": {
+        "sceneId": "implement",
+        "sceneIndex": 3,
+        "appliedThrough": 3,
+        "selectedPath": "docs/releases/v0.1/evidence/damage.diff",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "scene": "compare",
+      "before": {
+        "sceneId": "compare",
+        "sceneIndex": 4,
+        "appliedThrough": 3,
+        "selectedPath": "docs/releases/v0.1/evidence/damage.diff",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement"
+        ]
+      },
+      "after": {
+        "sceneId": "compare",
+        "sceneIndex": 4,
+        "appliedThrough": 4,
+        "selectedPath": "docs/comparison.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "scene": "test",
+      "before": {
+        "sceneId": "test",
+        "sceneIndex": 5,
+        "appliedThrough": 4,
+        "selectedPath": "docs/comparison.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare"
+        ]
+      },
+      "after": {
+        "sceneId": "test",
+        "sceneIndex": 5,
+        "appliedThrough": 5,
+        "selectedPath": "reports/unit-summary.txt",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "scene": "update",
+      "before": {
+        "sceneId": "update",
+        "sceneIndex": 6,
+        "appliedThrough": 5,
+        "selectedPath": "reports/unit-summary.txt",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test"
+        ]
+      },
+      "after": {
+        "sceneId": "update",
+        "sceneIndex": 6,
+        "appliedThrough": 6,
+        "selectedPath": "CHANGELOG.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt",
+          "CHANGELOG.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test",
+          "update"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "scene": "presentify",
+      "before": {
+        "sceneId": "presentify",
+        "sceneIndex": 7,
+        "appliedThrough": 6,
+        "selectedPath": "CHANGELOG.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt",
+          "CHANGELOG.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test",
+          "update"
+        ]
+      },
+      "after": {
+        "sceneId": "presentify",
+        "sceneIndex": 7,
+        "appliedThrough": 7,
+        "selectedPath": "shooter-briefing.html",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt",
+          "CHANGELOG.md",
+          "shooter-briefing.html"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test",
+          "update",
+          "presentify"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "scene": "describe",
+      "before": {
+        "sceneId": "describe",
+        "sceneIndex": 0,
+        "appliedThrough": -1,
+        "selectedPath": "src/damage.js",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": []
+      },
+      "after": {
+        "sceneId": "describe",
+        "sceneIndex": 0,
+        "appliedThrough": 0,
+        "selectedPath": "docs/analysis.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "scene": "review",
+      "before": {
+        "sceneId": "review",
+        "sceneIndex": 1,
+        "appliedThrough": 0,
+        "selectedPath": "docs/analysis.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe"
+        ]
+      },
+      "after": {
+        "sceneId": "review",
+        "sceneIndex": 1,
+        "appliedThrough": 1,
+        "selectedPath": "docs/review.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "scene": "plan",
+      "before": {
+        "sceneId": "plan",
+        "sceneIndex": 2,
+        "appliedThrough": 1,
+        "selectedPath": "docs/review.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review"
+        ]
+      },
+      "after": {
+        "sceneId": "plan",
+        "sceneIndex": 2,
+        "appliedThrough": 2,
+        "selectedPath": "docs/releases/v0.1/plans/fix-damage-handling.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "scene": "implement",
+      "before": {
+        "sceneId": "implement",
+        "sceneIndex": 3,
+        "appliedThrough": 2,
+        "selectedPath": "docs/releases/v0.1/plans/fix-damage-handling.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md"
+        ],
+        "game": {
+          "damageMode": "buggy",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan"
+        ]
+      },
+      "after": {
+        "sceneId": "implement",
+        "sceneIndex": 3,
+        "appliedThrough": 3,
+        "selectedPath": "docs/releases/v0.1/evidence/damage.diff",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "scene": "compare",
+      "before": {
+        "sceneId": "compare",
+        "sceneIndex": 4,
+        "appliedThrough": 3,
+        "selectedPath": "docs/releases/v0.1/evidence/damage.diff",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": false,
+          "fixture": "enemy-hit"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement"
+        ]
+      },
+      "after": {
+        "sceneId": "compare",
+        "sceneIndex": 4,
+        "appliedThrough": 4,
+        "selectedPath": "docs/comparison.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "scene": "test",
+      "before": {
+        "sceneId": "test",
+        "sceneIndex": 5,
+        "appliedThrough": 4,
+        "selectedPath": "docs/comparison.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare"
+        ]
+      },
+      "after": {
+        "sceneId": "test",
+        "sceneIndex": 5,
+        "appliedThrough": 5,
+        "selectedPath": "reports/unit-summary.txt",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "scene": "update",
+      "before": {
+        "sceneId": "update",
+        "sceneIndex": 6,
+        "appliedThrough": 5,
+        "selectedPath": "reports/unit-summary.txt",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test"
+        ]
+      },
+      "after": {
+        "sceneId": "update",
+        "sceneIndex": 6,
+        "appliedThrough": 6,
+        "selectedPath": "CHANGELOG.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt",
+          "CHANGELOG.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test",
+          "update"
+        ]
+      },
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "scene": "presentify",
+      "before": {
+        "sceneId": "presentify",
+        "sceneIndex": 7,
+        "appliedThrough": 6,
+        "selectedPath": "CHANGELOG.md",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt",
+          "CHANGELOG.md"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": false,
+        "runState": "not-run",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test",
+          "update"
+        ]
+      },
+      "after": {
+        "sceneId": "presentify",
+        "sceneIndex": 7,
+        "appliedThrough": 7,
+        "selectedPath": "shooter-briefing.html",
+        "filePaths": [
+          "src/damage.js",
+          "src/game.js",
+          "docs/analysis.md",
+          "docs/review.md",
+          "docs/releases/v0.1/plans/fix-damage-handling.md",
+          "tests/damage.test.js",
+          "docs/releases/v0.1/evidence/damage.diff",
+          "docs/releases/v0.1/history/phase-1.md",
+          "docs/comparison.md",
+          "docs/releases/v0.1/plans/add-vertical-movement.md",
+          "src/movement.js",
+          "tests/movement.test.js",
+          "reports/unit-summary.txt",
+          "CHANGELOG.md",
+          "shooter-briefing.html"
+        ],
+        "game": {
+          "damageMode": "fixed",
+          "verticalMovementEnabled": true,
+          "fixture": "play"
+        },
+        "ran": true,
+        "runState": "complete",
+        "completedScenes": [
+          "describe",
+          "review",
+          "plan",
+          "implement",
+          "compare",
+          "test",
+          "update",
+          "presentify"
+        ]
+      },
+      "overflow": false
+    }
+  ],
+  "fullscreen": [
+    {
+      "width": 1280,
+      "height": 720,
+      "fallback": false,
+      "active": true,
+      "native": true
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "fallback": true,
+      "active": true,
+      "native": false
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "fallback": false,
+      "active": true,
+      "native": true
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "fallback": true,
+      "active": true,
+      "native": false
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "fallback": false,
+      "active": true,
+      "native": true
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "fallback": true,
+      "active": true,
+      "native": false
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "fallback": false,
+      "active": true,
+      "native": true
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "fallback": true,
+      "active": true,
+      "native": false
+    },
+    {
+      "width": 420,
+      "height": 900,
+      "fallback": false,
+      "active": true,
+      "native": true
+    },
+    {
+      "width": 420,
+      "height": 900,
+      "fallback": true,
+      "active": true,
+      "native": false
+    }
+  ],
+  "errors": []
+}
