@@ -1,0 +1,9 @@
+{
+  "windows_automated_browser": "Chromium available; actual guide browser suite executed",
+  "linux_installer": "PASS, actual isolated Ubuntu Bash installer",
+  "linux_browser": "NOT COVERED: no installed browser/Playwright runtime",
+  "native_zoom": "NOT COVERED: CUA createBrowserTab chrome returned Browser is not available; getState returned apps=[] and browsers=[]",
+  "occlusion": "Production handler exercised with instrumented hidden getter; actual OS delivery not proven",
+  "exact_geometry": "24 additional route/theme cases at 768x1024, 1024x768 and 1920x1080 passed; 320x900 already covered",
+  "guide_sha256": "6848938156266c2806c734575c963a64ba71a84bf3b357e912e0583b730324fd"
+}

@@ -110,6 +110,7 @@ REQUIRED_HEADINGS = [
     "End-of-Task Summary",
     "Construction Discipline",
     "Writing Discipline",
+    "Autonomous Operation",
     "Consequential Decisions",
     "MCP Registry Policy",
     "Skill Discovery",
@@ -177,6 +178,15 @@ INVARIANT_SECTIONS = [
     # Coverage of the other seven substantive templates lives in
     # tests/validators/test_writing_discipline_rule.py.
     "Writing Discipline",
+    # v4.7.0: the autonomous-operation block (proceed on covered work, stop
+    # only for destructive or scope-changing actions, report-and-stop on a
+    # question, finish the last paragraph's promises, targeted edits, and the
+    # user-over-skill precedence with disclosed deviation) is platform-agnostic
+    # by intent and names no vendor, model, or API parameter. Require the
+    # heading and byte-lock the body across the five lockstep templates.
+    # Coverage of the other seven substantive templates lives in
+    # tests/validators/test_autonomy_block_rule.py.
+    "Autonomous Operation",
     "Consequential Decisions",
     "MCP Registry Policy",
 ]

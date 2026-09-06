@@ -1,0 +1,45 @@
+................F....................................................... [ 46%]
+..........................................s............................. [ 93%]
+..........                                                               [100%]
+================================== FAILURES ===================================
+___________ test_offscreen_routes_and_live_reduced_motion_stop_work ___________
+
+browser = <Browser type=<BrowserType name=chromium executable_path=<home>\AppData\Local\ms-playwright\chromium-1234\chrome-win64\chrome.exe> version=151.0.7922.34>
+
+    def test_offscreen_routes_and_live_reduced_motion_stop_work(browser):
+        page = open_scene(browser, motion="no-preference")
+        panel = page.locator("#ml-language")
+        page.locator('[data-mode="language"]').click()
+        expect(panel).to_have_class(re.compile("ml-playing"))
+        page.evaluate("window.scrollTo({top:0,behavior:'instant'})")
+        expect(panel).not_to_have_class(re.compile("ml-playing"))
+        frame = panel.get_attribute("data-frame")
+        page.wait_for_timeout(2600)
+        expect(panel).to_have_attribute("data-frame", frame)
+        page.locator('.ml-lab').scroll_into_view_if_needed()
+        expect(panel).to_have_class(re.compile("ml-playing"))
+        page.emulate_media(reduced_motion="reduce")
+>       expect(panel).to_have_attribute("data-frame", "5")
+E       AssertionError: Locator expected to have attribute '5'
+E       Actual value: 0
+E       Call log:
+E         - Expect "to_have_attribute" with timeout 5000ms
+E         - waiting for locator("#ml-language")
+E           14 � locator resolved to <div data-frame="0" role="tabpanel" class="ml-panel" id="ml-language" aria-labelledby="ml-tab-language">�</div>
+E              - unexpected value "0"
+E
+E       Aria snapshot:
+E       - tabpanel "Language":
+E         - heading "Build an answer, one token at a time" [level=4]
+E         - paragraph: An LLM predicts the next token. Whole words are shown here to make each choice easy to follow.
+E         - text: User request
+E         - paragraph: Why does bread rise?
+E         - text: Language model Attention layers Generated response
+E         - paragraph: Yeast
+E         - text: Candidates for the highlighted word Yeast 62% Bubbles 25% Heat 13% Illustrative probabilities.
+E         - status: Each new word becomes context for the next prediction.
+
+tests\guides\test_models_learning_lab.py:136: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/guides/test_models_learning_lab.py::test_offscreen_routes_and_live_reduced_motion_stop_work
+1 failed, 152 passed, 1 skipped in 50.18s

@@ -223,3 +223,19 @@ def test_json_output_reports_findings(tmp_path: Path, runner) -> None:
     assert payload["in_parity"] is False
     assert any(f["file"] == "base-opencode.md" for f in payload["findings"])
     assert any(f["category"] == "block-divergence" for f in payload["findings"])
+
+
+def test_autonomy_block_body_drift_fails(tmp_path: Path, runner) -> None:
+    # v4.7.0: the Autonomous Operation body is an invariant block. Rewording one
+    # lockstep file must fail the guard and name both the file and the block.
+    seed_lockstep_tree(tmp_path)
+    mutate(
+        tmp_path,
+        "base-cursor.md",
+        "You are operating autonomously",
+        "You are operating on your own",
+    )
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 1
+    assert "base-cursor.md" in result.stderr
+    assert "Autonomous Operation" in result.stderr

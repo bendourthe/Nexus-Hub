@@ -17,7 +17,9 @@ import pytest
 _ROOT = Path(__file__).resolve().parents[2]
 GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
-PARTS = ("query", "context", "goal", "format")
+# v4.7.0: the guide renamed the first part from "query" to "request"; the markup and
+# the legend now carry one vocabulary, so the expectation follows the shipped names.
+PARTS = ("request", "context", "goal", "format")
 
 
 def _load_sync_playwright():
@@ -98,7 +100,7 @@ def test_the_flaws_sit_under_the_vague_prompt_in_a_grid(playwright_mod) -> None:
         f"the four flaws must read as a 2x2 grid, not {data['rows']}x{data['cols']}"
     )
     assert data["crossWidth"] >= 8, f"each flaw needs a visible mark: {data}"
-    for expected in ("No query", "No context", "No goal", "No format"):
+    for expected in ("No request", "No context", "No goal", "No format"):
         assert any(t.startswith(expected) for t in data["texts"]), (expected, data["texts"])
 
 
@@ -154,6 +156,7 @@ def test_the_active_marker_is_quiet(playwright_mod) -> None:
                     if (!on) return null;
                     const cs = getComputedStyle(on);
                     return { shadow: cs.boxShadow, hasInset: cs.boxShadow.includes('inset'),
+                             decoration: cs.textDecorationLine,
                              opacity: parseFloat(cs.opacity) };
                 }"""
             )
@@ -161,7 +164,15 @@ def test_the_active_marker_is_quiet(playwright_mod) -> None:
         finally:
             browser.close()
     assert data, "no marker was lit"
-    assert data["hasInset"], f"the marker should underline rather than ring: {data['shadow']}"
+    # v4.7.0: the rule is that a marker reads as a highlight, never as a button. The guide
+    # now draws the underline with text-decoration instead of an inset shadow, so the check
+    # follows the intent rather than the mechanism: an underline by either means is fine, an
+    # OUTSET ring is not.
+    underlined = data["hasInset"] or "underline" in data["decoration"]
+    assert underlined, f"the marker must underline rather than ring: {data}"
+    assert data["shadow"] == "none" or data["hasInset"], (
+        f"an outset ring reads as a button: {data['shadow']}"
+    )
     assert data["opacity"] == 1, "a marker must never signal state by fading its text"
 
 

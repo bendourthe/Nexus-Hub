@@ -1,0 +1,26 @@
+.....................F.................................................. [ 47%]
+.........................................s.............................. [ 94%]
+.........                                                                [100%]
+================================== FAILURES ===================================
+_________ test_teaching_distinguishes_training_prediction_and_effort __________
+
+    def test_teaching_distinguishes_training_prediction_and_effort():
+        html = GUIDE.read_text(encoding="utf-8")
+        scene = re.search(r'<section[^>]+id="fx-model-lifecycle"[\s\S]*?</section>', html).group()
+        text = re.sub(r"<[^>]+>", " ", scene).lower()
+        for concept in ("neural network", "does not retrain", "token", "noise", "scene and an action", "multimodal", "internal tokens", "not a fixed number of loops", "not live ai or private thoughts"):
+            assert concept in text, concept
+        assert 'class="fx-cycle"' not in html
+        assert 'data-grammar="work-cycle"' not in html
+        for mode in MODES:
+            panel = re.search(r'id="ml-' + mode + r'" role="tabpanel"[\s\S]*?(?=<div class="ml-panel"|<p class="ml-small">Illustrated mechanisms)', scene).group()
+            assert 'User prompt' in panel and 'neural network' in panel and 'ml-board' in panel
+>       assert 'omni' not in text and 'picnic' not in text
+E       AssertionError: assert ('omni' not in ' \n   model... �  omni    '
+E         'omni' is contained here:
+E           odels  �  omni    )
+
+tests\guides\test_models_learning_lab.py:210: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/guides/test_models_learning_lab.py::test_teaching_distinguishes_training_prediction_and_effort
+1 failed, 151 passed, 1 skipped in 46.20s

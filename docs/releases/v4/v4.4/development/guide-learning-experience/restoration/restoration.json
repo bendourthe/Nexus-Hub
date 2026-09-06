@@ -1,0 +1,26 @@
+{
+  "baseline_revision": "bdd57cee4eb776304a09e862c1d956534db59e1e",
+  "reason": "User rejected the v4.4.6 content/structure redesign and required restoration of v4.4.5; future changes must preserve all sections and content.",
+  "files": [
+    {
+      "path": "guides/website/nexus-hub-guide.html",
+      "bytes": 396424,
+      "sha256": "68f017bcac2a7c58278ce3ad7642f5860279784707e3ef4ee5fef15c8d39ec7d",
+      "exact_baseline_match": true
+    },
+    {
+      "path": "guides/website/example/training-scenes.json",
+      "bytes": 20638,
+      "sha256": "120526257f9c6175a939c27e73f055e1bc2999a4c26206b141491922c7c58cb9",
+      "exact_baseline_match": true
+    },
+    {
+      "path": "guides/website/README.md",
+      "bytes": 42852,
+      "sha256": "f677d5b0945ea961220043ec71e8de016da40510576f9f513fc45f5e635ef61b",
+      "exact_baseline_match": true
+    }
+  ],
+  "recovery": "<temporary-directory>/nexus-v446-rejected-recovery",
+  "git_history_rewritten": false
+}

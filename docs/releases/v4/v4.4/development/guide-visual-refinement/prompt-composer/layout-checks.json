@@ -1,0 +1,646 @@
+[
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "17.35px",
+        "16.69px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(220, 232, 235)",
+        "rgb(220, 232, 235)"
+      ],
+      [
+        "letterSpacing",
+        "-0.347px",
+        "-0.3338px"
+      ],
+      [
+        "lineHeight",
+        "18.2175px",
+        "17.5245px"
+      ]
+    ],
+    "clipped": [],
+    "width": 320,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "17.35px",
+        "16.69px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(28, 42, 46)",
+        "rgb(28, 42, 46)"
+      ],
+      [
+        "letterSpacing",
+        "-0.347px",
+        "-0.3338px"
+      ],
+      [
+        "lineHeight",
+        "18.2175px",
+        "17.5245px"
+      ]
+    ],
+    "clipped": [],
+    "width": 320,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "23.04px",
+        "22.83px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(220, 232, 235)",
+        "rgb(220, 232, 235)"
+      ],
+      [
+        "letterSpacing",
+        "-0.4608px",
+        "-0.4566px"
+      ],
+      [
+        "lineHeight",
+        "24.192px",
+        "23.9715px"
+      ]
+    ],
+    "clipped": [],
+    "width": 420,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "23.04px",
+        "22.83px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(28, 42, 46)",
+        "rgb(28, 42, 46)"
+      ],
+      [
+        "letterSpacing",
+        "-0.4608px",
+        "-0.4566px"
+      ],
+      [
+        "lineHeight",
+        "24.192px",
+        "23.9715px"
+      ]
+    ],
+    "clipped": [],
+    "width": 420,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "23.04px",
+        "23.04px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(220, 232, 235)",
+        "rgb(220, 232, 235)"
+      ],
+      [
+        "letterSpacing",
+        "-0.4608px",
+        "-0.4608px"
+      ],
+      [
+        "lineHeight",
+        "24.192px",
+        "24.192px"
+      ]
+    ],
+    "clipped": [],
+    "width": 560,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "23.04px",
+        "23.04px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(28, 42, 46)",
+        "rgb(28, 42, 46)"
+      ],
+      [
+        "letterSpacing",
+        "-0.4608px",
+        "-0.4608px"
+      ],
+      [
+        "lineHeight",
+        "24.192px",
+        "24.192px"
+      ]
+    ],
+    "clipped": [],
+    "width": 560,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "23.04px",
+        "23.04px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(220, 232, 235)",
+        "rgb(220, 232, 235)"
+      ],
+      [
+        "letterSpacing",
+        "-0.4608px",
+        "-0.4608px"
+      ],
+      [
+        "lineHeight",
+        "24.192px",
+        "24.192px"
+      ]
+    ],
+    "clipped": [],
+    "width": 760,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "23.04px",
+        "23.04px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(28, 42, 46)",
+        "rgb(28, 42, 46)"
+      ],
+      [
+        "letterSpacing",
+        "-0.4608px",
+        "-0.4608px"
+      ],
+      [
+        "lineHeight",
+        "24.192px",
+        "24.192px"
+      ]
+    ],
+    "clipped": [],
+    "width": 760,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "23.04px",
+        "23.04px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(220, 232, 235)",
+        "rgb(220, 232, 235)"
+      ],
+      [
+        "letterSpacing",
+        "-0.4608px",
+        "-0.4608px"
+      ],
+      [
+        "lineHeight",
+        "24.192px",
+        "24.192px"
+      ]
+    ],
+    "clipped": [],
+    "width": 761,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "23.04px",
+        "23.04px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(28, 42, 46)",
+        "rgb(28, 42, 46)"
+      ],
+      [
+        "letterSpacing",
+        "-0.4608px",
+        "-0.4608px"
+      ],
+      [
+        "lineHeight",
+        "24.192px",
+        "24.192px"
+      ]
+    ],
+    "clipped": [],
+    "width": 761,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "29.49px",
+        "29.49px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(220, 232, 235)",
+        "rgb(220, 232, 235)"
+      ],
+      [
+        "letterSpacing",
+        "-0.5898px",
+        "-0.5898px"
+      ],
+      [
+        "lineHeight",
+        "30.9645px",
+        "30.9645px"
+      ]
+    ],
+    "clipped": [],
+    "width": 1024,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "29.49px",
+        "29.49px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(28, 42, 46)",
+        "rgb(28, 42, 46)"
+      ],
+      [
+        "letterSpacing",
+        "-0.5898px",
+        "-0.5898px"
+      ],
+      [
+        "lineHeight",
+        "30.9645px",
+        "30.9645px"
+      ]
+    ],
+    "clipped": [],
+    "width": 1024,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "32.64px",
+        "32.64px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(220, 232, 235)",
+        "rgb(220, 232, 235)"
+      ],
+      [
+        "letterSpacing",
+        "-0.6528px",
+        "-0.6528px"
+      ],
+      [
+        "lineHeight",
+        "34.272px",
+        "34.272px"
+      ]
+    ],
+    "clipped": [],
+    "width": 1440,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "attachmentsAbove": true,
+    "named": true,
+    "labels": [
+      "Vague Prompt",
+      "Engineered Prompt",
+      "Engineered Prompt"
+    ],
+    "headingStyles": [
+      [
+        "fontSize",
+        "32.64px",
+        "32.64px"
+      ],
+      [
+        "fontWeight",
+        "700",
+        "700"
+      ],
+      [
+        "fontFamily",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif",
+        "\"Segoe UI\", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif"
+      ],
+      [
+        "color",
+        "rgb(28, 42, 46)",
+        "rgb(28, 42, 46)"
+      ],
+      [
+        "letterSpacing",
+        "-0.6528px",
+        "-0.6528px"
+      ],
+      [
+        "lineHeight",
+        "34.272px",
+        "34.272px"
+      ]
+    ],
+    "clipped": [],
+    "width": 1440,
+    "theme": "light",
+    "errors": []
+  }
+]

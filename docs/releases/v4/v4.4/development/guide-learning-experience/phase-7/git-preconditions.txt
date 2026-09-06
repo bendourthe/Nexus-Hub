@@ -1,0 +1,13 @@
+Branch hygiene (merged into origin/develop)
+  3 merged branch(es) are cleanup candidates:
+    - origin/docs/v4.5-v4.7-plans-and-comparisons
+    - origin/feat/v4.4.3-guide-illustration-rebuild
+    - origin/release/v4.4.5
+  (13 branch(es) with an open PR were excluded)
+  1 branch(es) survive a CLOSED, unmerged PR:
+    - origin/backmerge/v3.20.0
+  delete_branch_on_merge does NOT cover these. Review and delete by hand.
+  Reporting only -- nothing was deleted.
+Repository settings
+  OK: delete_branch_on_merge is enabled
+  OK: repository description agrees with README.md
