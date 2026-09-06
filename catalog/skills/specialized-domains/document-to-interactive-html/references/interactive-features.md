@@ -1,5 +1,7 @@
 # Interactive Features and the Enrichment Pass
 
+For dual-view inclusion, brand preservation, theme rhythm, source-count limits, and complete artifact QA, follow [dual-view-handbooks.md](dual-view-handbooks.md).
+
 This document is the design contract for the output. It has two layers: the PRIMARY path - the agent authoring a unique, interactive WEBSITE from the content model, with dynamic charts and a bespoke design - and an OPTIONAL deterministic baseline (`scripts/build_presentation.py` + `assets/presentation-template.html`), whose plain, slide-based features are cataloged further down for when a fast, reproducible draft is wanted.
 
 Everything here holds the two non-negotiable guarantees: the output is a single self-contained file that opens with zero external network requests (see `[[html-output-conventions]]`), and it reads as intentionally designed rather than AI-generated (see `[[hallmark-design]]`). The default output is a navigable website, not a static slide deck.
@@ -128,7 +130,7 @@ The interactivity level is one of the four high-level design choices resolved TO
 
     Cinematic carries a size / cost gate the other levels do not, because its assets are the largest thing this skill embeds and the output must stay one offline file. State clip count, projected base64 size impact, key requirements, and QA-depth cost, then get a go / no-go BEFORE generating or embedding anything. The full protocol - the asset boundary (no hosted generation, ever), the seam rule, the pacing knobs, the stills-only fallback, and the accessibility floor - is `references/scroll-scrub.md`; the engine implementing it is `assets/scroll-scrub-engine.js`.
 
-Mapping summary: RESTRAINED = user-initiated patterns (3, 6, lightbox, anchor nav) with no scroll motion; BALANCED = RESTRAINED plus scroll-triggered patterns (1, 2, 4, 7); RICH = BALANCED plus one or more scrollytelling patterns; CINEMATIC = RICH plus the scroll-scrubbed stage, opt-in and size-gated. The non-interactive fallback picks the level from the content (a deck or data story -> BALANCED; a report -> RESTRAINED) and records it in the design-record comment. In slide mode (`nav=slides`), every scroll-keyed pattern each level ships is re-expressed per the "Slide-mode animation grammar" below; RESTRAINED needs no adaptation.
+Mapping summary: RESTRAINED = user-initiated patterns (3, 6, lightbox, anchor nav) with no scroll motion; BALANCED = RESTRAINED plus scroll-triggered patterns (1, 2, 4, 7); RICH = BALANCED plus one or more scrollytelling patterns; CINEMATIC = RICH plus the scroll-scrubbed stage, opt-in and size-gated. The non-interactive fallback picks the level from the content (a deck or data story -> BALANCED; a report -> RESTRAINED) and records it in the design-record comment. In the included presentation view, every scroll-keyed pattern each level ships is re-expressed per the "Slide-mode animation grammar" below; RESTRAINED needs no adaptation.
 
 ### Scrollytelling pattern catalog (RICH level)
 
@@ -182,9 +184,9 @@ Each pattern is inlined vanilla JS / CSS - no external library, no CDN - and eac
 
     Accessibility: the range input is keyboard-operable (arrow keys move the divider) and labelled; both images carry `alt`; the comparison works without a pointer and needs no motion guard (it is user-driven, not scroll-driven).
 
-### Slide-mode animation grammar (nav=slides)
+### Presentation animation grammar
 
-When the design record says `nav=slides`, there is no scroll, so every scroll-keyed pattern above must be re-expressed. This grammar is the normative mapping. RESTRAINED needs no adaptation in slide mode - it never had scroll-triggered motion, and its user-initiated patterns work identically on a slide. BALANCED, RICH, and CINEMATIC use the three trigger classes below. The slide runtime, fragment contract, and reduced-motion baseline these classes plug into are `references/slide-navigation.md`.
+Within the active fitted presentation view, map scroll-keyed effects to entry or fragment triggers; the reading view retains its own scroll behavior. This grammar is the normative mapping. RESTRAINED needs no adaptation in slide mode - it never had scroll-triggered motion, and its user-initiated patterns work identically on a slide. BALANCED, RICH, and CINEMATIC use the three trigger classes below. The slide runtime, fragment contract, and reduced-motion baseline these classes plug into are `references/slide-navigation.md`.
 
 Three slide-native trigger classes, and only three - an author never invents a fourth:
 
@@ -202,7 +204,7 @@ The mapping table. Every pattern named in this reference has a row; none is left
 | Active-section nav + reading-progress bar (pattern 2) | The progress rail + slide counter ARE the nav; the active rail segment is the active state | (chrome, per the slide-navigation contract - no animation to adapt) |
 | Animated counters (pattern 4) | Count up on first activation; final values on re-entry | Entry-triggered |
 | Hover / focus affordances (pattern 3) | Unchanged - they are user-initiated | (none needed) |
-| Expand / collapse (pattern 6) | Unchanged in trigger, but bounded by the overflow rule: expansion that would overflow the stage becomes a declared scrollable region or splits into a fragment/continuation - never an undeclared inner scrollbar | (none needed; overflow rule applies) |
+| Expand / collapse (pattern 6) | Unchanged in trigger, but bounded by the overflow rule: expansion that would overflow the stage becomes a declared scrollable region or uses an explicitly labeled within-slide detail state, subject to the shared source-count ceiling - never an undeclared inner scrollbar | (none needed; overflow rule applies) |
 | Micro-transitions (pattern 7) | Unchanged - they are user-initiated | (none needed) |
 | Image lightbox (pattern 5 of the budget) | Unchanged | (none needed) |
 | Pinned / sticky graphic with scroll steps (catalog 1) | Each step's graphic state becomes one fragment; the graphic swaps state per keystroke | Fragment-stepped |
@@ -530,7 +532,7 @@ Run these moves, then run the `[[hallmark-design]]` `audit` verb over the result
 2. **Tighten copy to presentation grade.** Source prose is written to be read at length; slide copy is written to be seen. Shorten paragraphs to claims, turn run-on sentences into parallel bullets, and cut restatement. Do not invent facts the source does not contain.
 3. **Pick the right chart per data shape.** Override a `chart_type_hint` when the data wants a different form (a trend that arrived as `bar` should usually be `line`; a five-slice share-of-whole as `pie`). Prefer one clear chart over a dense table when the point is a comparison.
 4. **Add intentional emphasis and motion.** Use the accent sparingly for the one thing that matters per slide. Keep motion purposeful (it already honors reduced-motion). Resist decorative entrance animation on every element.
-5. **Hold the anti-slop gates.** No dead-centered hero, no row of identical cards, no unmotivated gradient, a real type scale, asymmetry where it aids hierarchy, accessible focus and contrast. These are the `[[hallmark-design]]` gates; the template starts compliant, and enrichment must keep it compliant.
+5. **Hold contextual and positive design gates.** Use `[[hallmark-design]]` to inspect hierarchy, purposeful color/motion, brand fidelity, composition variety, focus, and contrast. Do not remove approved gradients, curves, or animations merely to avoid a familiar pattern. Neither the baseline template nor a structural score establishes visual approval.
 
 ## Input-mode Decision Rule
 
