@@ -35,6 +35,8 @@ Use this skill when you need to:
 
 ## Instructions
 
+When updating existing project documentation, hand `docs/handbooks/` refresh to `[[technical-documentation]]` and its `references/handbook-refresh.md`. README/guide edits alone do not complete a full documentation refresh. Preserve approved project branding and presentation settings; the owner handles candidate-aware content and both-view verification.
+
 ### README Template
 
 ```markdown
