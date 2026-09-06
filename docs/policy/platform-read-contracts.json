@@ -602,6 +602,19 @@
         "~/.kimi-code/agents",
         "~/.kimi-code/config.toml"
       ]
+    },
+    "pi": {
+      "config": {
+        "skills_subdir": "skills",
+        "agents_subdir": null,
+        "hooks_supported": false
+      },
+      "flatten": "flag",
+      "doc_mentions": [
+        "~/.pi/agent/skills",
+        "~/.pi/agent/prompts",
+        "~/.pi/agent/AGENTS.md"
+      ]
     }
   },
   "install_verify": [
@@ -1069,6 +1082,31 @@
           "label": "hook scripts",
           "kind": "nonempty_dir",
           "path": "~/.kimi-code/hooks"
+        }
+      ]
+    },
+    {
+      "label": "Pi",
+      "detect": [
+        "~/.pi"
+      ],
+      "remediation": "re-run the installer (Pi block)",
+      "surfaces": [
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "~/.pi/agent/skills"
+        },
+        {
+          "label": "prompts",
+          "kind": "nonempty_dir",
+          "path": "~/.pi/agent/prompts"
+        },
+        {
+          "label": "AGENTS.md SKILL_INDEX",
+          "kind": "file_contains",
+          "path": "~/.pi/agent/AGENTS.md",
+          "needle": "Skill Index"
         }
       ]
     }

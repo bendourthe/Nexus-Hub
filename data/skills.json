@@ -1525,9 +1525,9 @@
       "path": "catalog/skills/code-review/plan-review/",
       "file": "catalog/skills/code-review/plan-review/SKILL.md",
       "size": {
-        "lines": 105,
-        "characters": 10063,
-        "tokens_estimate": 1437
+        "lines": 122,
+        "characters": 12343,
+        "tokens_estimate": 1542
       },
       "downloads": 0,
       "status": "production",
@@ -6001,9 +6001,9 @@
       "path": "catalog/skills/workflow/git-branching-workflow/",
       "file": "catalog/skills/workflow/git-branching-workflow/SKILL.md",
       "size": {
-        "lines": 123,
-        "characters": 9723,
-        "tokens_estimate": 1496
+        "lines": 181,
+        "characters": 17304,
+        "tokens_estimate": 2163
       },
       "downloads": 0,
       "status": "production",
@@ -9146,9 +9146,9 @@
       "path": "catalog/skills/workflow/implementation-plan/",
       "file": "catalog/skills/workflow/implementation-plan/SKILL.md",
       "size": {
-        "lines": 474,
-        "characters": 42676,
-        "tokens_estimate": 6411
+        "lines": 507,
+        "characters": 49160,
+        "tokens_estimate": 7462
       },
       "downloads": 0,
       "status": "production",
@@ -11453,10 +11453,10 @@
     {
       "name": "design-interview",
       "title": "design-interview",
-      "description": "Run a relentless one-question-at-a-time design interview until every branch of the design tree is resolved, and maintain a project domain glossary at CONTEXT.md. Use whenever the user says \"grill me\", \"interview me about this design\", \"ask me questions until this is fully specified\", \"build a domain glossary\", \"shared language\", \"ubiquitous language\", or wants an interview engine that idea-refine, ambiguity-detector, doc-coauthoring, or implementation-plan can invoke. SKIP - turning a vague idea into a problem statement (use idea-refine); reviewing an already-written spec for ambiguity (use ambiguity-detector); upgrading requirement quality and testability (use requirement-enhancer). CONTEXT.md is a sibling of .claude/context/architecture.md, never a replacement.",
-      "long_description": "Reusable interview engine: one question at a time, follow each answer's implications, no hard question cap. Second job: maintain CONTEXT.md at the repo root as a domain glossary (definition, avoid-list, relationships) whenever an interview surfaces new or ambiguous vocabulary. Other skills invoke this engine; they are not replaced. Soft-depends on an existing CONTEXT.md. Trigger phrases: grill me, interview me about this design, ask me questions until this is fully specified, build a domain glossary, shared language.",
-      "summary_l0": "\"Interview until the design tree is resolved and keep a CONTEXT.md glossary\"",
-      "overview_l1": "\"Reusable interview engine: one question at a time, follow each answer's implications, no hard question cap. Second job: maintain CONTEXT.md at the repo root as a domain glossary (definition, avoid-list, relationships) whenever an interview surfaces new or ambiguous vocabulary. Other skills invoke this engine; they are not replaced. Soft-depends on an existing CONTEXT.md. Trigger phrases: grill me, interview me about this design, ask me questions until this is fully specified, build a domain glossary, shared language.\"",
+      "description": "Interview the user in dependency-ordered rounds until every branch of the design tree is resolved, asking the whole settled frontier at once with a recommended answer per question, and maintain a domain glossary at CONTEXT.md. Use whenever the user says \"grill me\", \"grill this plan\", \"challenge my plan\", \"interview me about this design\", \"stress-test my thinking\", \"poke holes in this\", \"ask me questions until this is fully specified\", \"build a domain glossary\", \"shared language\", \"ubiquitous language\", or wants an interview engine that idea-refine, ambiguity-detector, doc-coauthoring, plan-review, or implementation-plan can invoke. SKIP - turning a vague idea into a problem statement (use idea-refine); auditing an already-written spec for ambiguity (use ambiguity-detector); upgrading requirement testability (use requirement-enhancer); autonomous critique of a plan with no user in the loop (use plan-review). CONTEXT.md is a sibling of .claude/context/architecture.md, never a replacement.",
+      "long_description": "Reusable interview engine. Models the work as a design tree and questions it in rounds: the frontier is every decision whose prerequisites are already settled, and a round asks that whole frontier at once, numbered, each question carrying a recommended answer so the user reacts instead of composing. Dependent questions wait for a later round. Finding facts is the agent's job: environment questions go to a sub-agent, and only the branch downstream of that lookup blocks. No hard question cap; natural-language steering is the control surface. Second job: maintain CONTEXT.md at the repo root as a domain glossary (definition, avoid-list, relationships). Other skills invoke this engine; they are not replaced. Trigger phrases: grill me, grill this plan, challenge my plan, interview me about this design, stress-test my thinking, build a domain glossary.",
+      "summary_l0": "\"Interview in dependency-ordered rounds until the design tree is resolved\"",
+      "overview_l1": "\"Reusable interview engine. Models the work as a design tree and questions it in rounds: the frontier is every decision whose prerequisites are already settled, and a round asks that whole frontier at once, numbered, each question carrying a recommended answer so the user reacts instead of composing. Dependent questions wait for a later round. Finding facts is the agent's job: environment questions go to a sub-agent, and only the branch downstream of that lookup blocks. No hard question cap; natural-language steering is the control surface. Second job: maintain CONTEXT.md at the repo root as a domain glossary (definition, avoid-list, relationships). Other skills invoke this engine; they are not replaced. Trigger phrases: grill me, grill this plan, challenge my plan, interview me about this design, stress-test my thinking, build a domain glossary.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "developer-experience",
@@ -11475,9 +11475,9 @@
       "path": "catalog/skills/developer-experience/design-interview/",
       "file": "catalog/skills/developer-experience/design-interview/SKILL.md",
       "size": {
-        "lines": 106,
-        "characters": 8351,
-        "tokens_estimate": 1043
+        "lines": 175,
+        "characters": 14815,
+        "tokens_estimate": 1851
       },
       "downloads": 0,
       "status": "production",

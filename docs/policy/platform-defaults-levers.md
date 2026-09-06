@@ -43,8 +43,9 @@ Classification is about whether a documented lever EXISTS. Whether Nexus-Hub can
 | `opencode` | VERIFIED | `model`, `small_model`, `permission`, `default_agent` | `~/.config/opencode/opencode.json`, `opencode.json` | Exact | [opencode.ai](https://opencode.ai/docs/config/) | 2026-08-30 |
 | `qwen` | VERIFIED | `model.name`, `model.reasoningEffort`, `tools.approvalMode` | `~/.qwen/settings.json`, `.qwen/settings.json` | Exact | [qwenlm.github.io](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/) | 2026-08-30 |
 | `windsurf` | UNVERIFIED | - | - | - | [docs.devin.ai](https://docs.devin.ai/desktop/cascade/modes) | 2026-08-30 |
+| `pi` | VERIFIED | `defaultProvider`, `defaultModel`, `defaultThinkingLevel` | `~/.pi/agent/settings.json`, `.pi/settings.json` | Exact | [github.com/earendil-works/pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/settings.md) | 2026-08-25 |
 
-**Counts**: 13 VERIFIED, 3 UNVERIFIED, 16 total (matching the registry exactly).
+**Counts**: 14 VERIFIED, 3 UNVERIFIED, 17 total (matching the registry exactly).
 
 **Surface alignment** answers "does the documented config file sit where Nexus-Hub already installs for this platform?"
 
@@ -147,6 +148,18 @@ Surface alignment is **Exact**: the adapter reads `~/.openclaw/openclaw.json` to
 `opencode.json` documents `model` (primary model selection), `small_model` ("lightweight model for tasks like title generation"), `permission` (controls approval requirements; accepts values such as `"ask"`), `default_agent`, and `subagent_depth`. Global path `~/.config/opencode/opencode.json`, project path `opencode.json` in the project root, and the documentation states configurations **merge** rather than replace, with project settings overriding global defaults.
 
 Surface alignment is **Exact**: `~/.config/opencode` is precisely the integration's `global_dir`. The documented merge semantics are also the friendliest of any platform in this table for a non-clobbering write.
+
+### pi - VERIFIED
+
+Added to the registry on 2026-08-25 and classified in the same change, so it carries no status from the v3.19.0 pass above.
+
+`~/.pi/agent/settings.json` (global) and `.pi/settings.json` (project) are documented as JSON settings files where "project settings override global settings". The Model & Thinking table documents `defaultProvider` ("Default provider (e.g., `\"anthropic\"`, `\"openai\"`)"), `defaultModel` ("Default model ID"), and `defaultThinkingLevel` with the enumerated values `off | minimal | low | medium | high | xhigh | max`. Also documented: `thinkingBudgets` (per-level token budgets) and `hideThinkingBlock`.
+
+`defaultThinkingLevel` is the closest analogue in the table to Claude's `effortLevel` and Qwen's `model.reasoningEffort`: a first-class top-level effort scalar, in a JSON file at a path the integration already targets, with `medium` among its documented values. Surface alignment is Exact.
+
+Two keys are deliberately NOT seeded. `defaultModel` is a bare model ID with no documented default and no vendor-documented safe self-selecting value, and `defaultProvider` scopes it; pinning either would hand a fresh install a provider and model the user's credentials may not reach. That is precisely the failure the do-not-invent rule exists to prevent, so both are recorded under `omitted` rather than guessed.
+
+One caveat belongs on the record because it changes when a seeded value takes effect: pi gates project-local `.pi` resources behind its own project-trust prompt, and non-interactive runs fall back to the global `defaultProjectTrust`. A value seeded into the GLOBAL settings file is unaffected; a project-scoped one is inert until the user trusts the folder. Nexus-Hub seeds the global file only and never pre-trusts a folder on the user's behalf.
 
 ### qwen - VERIFIED
 

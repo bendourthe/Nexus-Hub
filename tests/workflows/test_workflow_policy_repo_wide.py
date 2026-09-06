@@ -167,14 +167,20 @@ NO_CANCEL = {"release.yml", "post-merge.yml", "supply-chain-watch.yml"}
 #: Workflows scoped by EVENT rather than by path (v4.0.0).
 #:
 #: The cost rule below says a workflow with no required check should scope
-#: itself to its own tree. These two are already scoped as tightly as the
-#: lifecycle allows -- one fires only on a protected-branch merge, the other
-#: only on a release tag -- and both are cheap by construction (post-merge runs
-#: the fast profile; release runs no test suite). Adding a path filter would
-#: make them skip the merge or the tag they exist to observe.
-# v4.7.0: the supply-chain watch is scoped by EVENT too (schedule plus manual
-# dispatch, never a pull request), so a path filter would be meaningless on it.
-LIFECYCLE_EVENT_WORKFLOWS = {"post-merge.yml", "release.yml", "supply-chain-watch.yml"}
+#: itself to its own tree. These are already scoped as tightly as the lifecycle
+#: allows, and adding a path filter would make each skip the very event it
+#: exists to observe.
+#:
+#:   * post-merge.yml fires only on a protected-branch merge, release.yml only on
+#:     a release tag, and both are cheap by construction (post-merge runs the
+#:     fast profile; release runs no test suite).
+#:   * npm-audit.yml and supply-chain-watch.yml are scheduled. A path filter is
+#:     not merely unhelpful there, it is meaningless: `schedule` accepts no
+#:     `paths:` key, and the whole point of both is that a dependency tree
+#:     acquires new advisories WITHOUT changing. Filtering by path would reduce
+#:     them to auditing only trees that just changed, which case review already
+#:     covers.
+LIFECYCLE_EVENT_WORKFLOWS = {"post-merge.yml", "release.yml", "npm-audit.yml", "supply-chain-watch.yml"}
 
 
 @pytest.mark.parametrize("path", ALL)

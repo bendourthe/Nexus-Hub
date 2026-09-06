@@ -1,7 +1,7 @@
 """Tests for the autonomous-operation block's template coverage (v4.7.0 Phase 2).
 
 The block is always-loaded guidance on every platform. `scripts/check_base_template_parity.py`
-byte-locks it across the five LOCKSTEP files; this module covers all twelve substantive
+byte-locks it across the five LOCKSTEP files; this module covers all thirteen substantive
 templates, derives the roster from the templates directory (so a newly added template fails
 until it carries the block), and asserts on stable markers rather than the full prose, so
 a considered per-platform reduction passes while an absent block fails.
@@ -106,7 +106,7 @@ SUBSTANTIVE, SHIMS = _roster()
 
 
 def test_roster_is_the_expected_shape():
-    assert len(SUBSTANTIVE) == 12 and len(SHIMS) == 4, (
+    assert len(SUBSTANTIVE) == 13 and len(SHIMS) == 4, (
         [p.name for p in SUBSTANTIVE],
         [p.name for p in SHIMS],
     )

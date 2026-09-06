@@ -44,6 +44,7 @@ GUARDRAILS = [
 OTHER_SUBSTANTIVE = [
     "base-google-shared.md",
     "generic-instructions.md",
+    "base-pi.md",
 ]
 SUBSTANTIVE = LOCKSTEP + GUARDRAILS + OTHER_SUBSTANTIVE
 
@@ -98,9 +99,9 @@ def test_substantive_template_carries_documentation_layout(name: str) -> None:
     assert DOCS_LAYOUT_SKILL in text, f"{name} is missing the docs-layout-refactor handoff"
 
 
-def test_all_twelve_substantive_templates_are_covered() -> None:
+def test_all_thirteen_substantive_templates_are_covered() -> None:
     """Guard the count itself, so a roster edit cannot quietly shrink coverage."""
-    assert len(SUBSTANTIVE) == 12
+    assert len(SUBSTANTIVE) == 13
 
 
 @pytest.mark.parametrize("name", STUBS)

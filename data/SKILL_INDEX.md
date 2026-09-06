@@ -330,7 +330,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | web-typography | developer-experience | "Load, scale, wrap, and truncate web type without restating heading semantics" | catalog/skills/developer-experience/web-typography/SKILL.md |
 | color-systems | developer-experience | "Construct OKLCH palettes and remediate measured contrast pairs" | catalog/skills/developer-experience/color-systems/SKILL.md |
 | interface-review | developer-experience | "Orchestrate a multi-domain UI review into one capped, honest verdict" | catalog/skills/developer-experience/interface-review/SKILL.md |
-| design-interview | developer-experience | "Interview until the design tree is resolved and keep a CONTEXT.md glossary" | catalog/skills/developer-experience/design-interview/SKILL.md |
+| design-interview | developer-experience | "Interview in dependency-ordered rounds until the design tree is resolved" | catalog/skills/developer-experience/design-interview/SKILL.md |
 | setup-wizard-generator | developer-experience | "Generate a resumable human-only setup wizard with bash and PowerShell templates" | catalog/skills/developer-experience/setup-wizard-generator/SKILL.md |
 | decision-questionnaire | business-product | "Write an async Markdown questionnaire for the one stakeholder who can unblock" | catalog/skills/business-product/decision-questionnaire/SKILL.md |
 | functional-verification | testing | "Exercise built artifacts through real boundaries and record observable behavioral evidence" | catalog/skills/testing/functional-verification/SKILL.md |
