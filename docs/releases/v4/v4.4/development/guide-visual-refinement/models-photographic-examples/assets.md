@@ -19,13 +19,13 @@ Each asset is embedded once in an SVG symbol in the canonical HTML. Repeated roo
 
 Create one photorealistic interior architectural photograph, landscape wide aspect 16:9. A sophisticated sunlit lived-in living room seen straight on from its entrance, wide-angle composition covering the entire room from left wall to right wall. Center: sage green fabric sofa with cream linen and rust cushions, low walnut coffee table with art books and ceramic mug on textured cream rug. Left: floor lamp with linen shade, sideboard with framed photographs, large window with sheer curtains, natural green garden outside. Right: oak bookshelf filled with clearly distinct books, framed abstract painting, leather lounge chair, tall indoor plant. Rich realistic materials, woven upholstery, wood grain, subtle shadows, natural daylight, editorial interiors magazine photography, crisp detail, believable perspective, calm warm palette. No people, no text or watermarks, no collage, no diagram, no vector or painted appearance. Keep furniture within the central 80 percent with generous scene details at both edges. This is a single coherent panorama used for a camera pan and gentle push-in; all objects must have realistic stable geometry.
 
-Original generated PNG: `C:/Users/BEDOURTHE/.codex/generated_images/01a06e2f-e243-7463-8ca5-f0deb66eaca5/exec-36fdf1c9-7c3b-4dac-bfd9-107ff6ac8023.png`.
+Original generated PNG: `<home>/.codex/generated_images/01a06e2f-e243-7463-8ca5-f0deb66eaca5/exec-36fdf1c9-7c3b-4dac-bfd9-107ff6ac8023.png`.
 
 ## Harbor prompt
 
 One photorealistic editorial travel photograph, landscape 16:9. A small elegant red wooden sailboat moored beside a weathered stone quay in a quiet Mediterranean harbor at golden hour, shimmering deep blue and turquoise water, detailed rope rigging and cream sails, terracotta-roofed waterfront buildings climbing a hillside, a few potted olive trees and cafe tables on the quay, distant rugged coastline. Rich realistic wood, sailcloth, stone and water textures, natural cinematic sunlight, photographic depth, believable fine detail. No people close to camera, no readable text, no logos, no watermarks, no border. Not a drawing, not illustration, not 3D low-poly. Intended to demonstrate a diffusion model producing a complex realistic image.
 
-Original generated PNG: `C:/Users/BEDOURTHE/.codex/generated_images/01a06e2f-e243-7463-8ca5-f0deb66eaca5/exec-b44186be-7859-4b63-a114-aff36fe2bd3f.png`.
+Original generated PNG: `<home>/.codex/generated_images/01a06e2f-e243-7463-8ca5-f0deb66eaca5/exec-b44186be-7859-4b63-a114-aff36fe2bd3f.png`.
 
 ## Representation limits
 

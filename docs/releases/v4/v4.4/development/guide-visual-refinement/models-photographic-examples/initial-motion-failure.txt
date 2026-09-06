@@ -4,7 +4,7 @@
 ================================== FAILURES ===================================
 ___________ test_offscreen_routes_and_live_reduced_motion_stop_work ___________
 
-browser = <Browser type=<BrowserType name=chromium executable_path=C:\Users\BEDOURTHE\AppData\Local\ms-playwright\chromium-1234\chrome-win64\chrome.exe> version=151.0.7922.34>
+browser = <Browser type=<BrowserType name=chromium executable_path=<home>\AppData\Local\ms-playwright\chromium-1234\chrome-win64\chrome.exe> version=151.0.7922.34>
 
     def test_offscreen_routes_and_live_reduced_motion_stop_work(browser):
         page = open_scene(browser, motion="no-preference")

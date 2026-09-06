@@ -2,11 +2,11 @@
 .........................................s.............................. [100%]
 ============================== warnings summary ===============================
 tests\guides\test_v443_phase4_context.py:102
-  C:\Users\BEDOURTHE\Documents\Supira\software\Nexus-Hub\tests\guides\test_v443_phase4_context.py:102: SyntaxWarning: invalid escape sequence '\s'
+  <repo>\tests\guides\test_v443_phase4_context.py:102: SyntaxWarning: invalid escape sequence '\s'
     return { columns: getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,
 
 tests\guides\test_v443_phase4_context.py:138
-  C:\Users\BEDOURTHE\Documents\Supira\software\Nexus-Hub\tests\guides\test_v443_phase4_context.py:138: SyntaxWarning: invalid escape sequence '\s'
+  <repo>\tests\guides\test_v443_phase4_context.py:138: SyntaxWarning: invalid escape sequence '\s'
     columns: getComputedStyle(spend).gridTemplateColumns.trim().split(/\s+/).length,
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

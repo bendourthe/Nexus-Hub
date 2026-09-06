@@ -21,8 +21,8 @@ ________________ test_keyboard_and_reduced_motion_are_complete ________________
 tests\guides\test_phase6_verification_sweep.py:808: in test_keyboard_and_reduced_motion_are_complete
     assert active_tab.count() == 1
 E   assert 2 == 1
-E    +  where 2 = <bound method Locator.count of <Locator frame=<Frame name= url='file:///C:/Users/BEDOURTHE/Documents/Supira/software/Nexus-Hub/guides/website/nexus-hub-guide.html#home'> selector='[role="tab"][aria-selected="true"]'>>()
-E    +    where <bound method Locator.count of <Locator frame=<Frame name= url='file:///C:/Users/BEDOURTHE/Documents/Supira/software/Nexus-Hub/guides/website/nexus-hub-guide.html#home'> selector='[role="tab"][aria-selected="true"]'>> = <Locator frame=<Frame name= url='file:///C:/Users/BEDOURTHE/Documents/Supira/software/Nexus-Hub/guides/website/nexus-hub-guide.html#home'> selector='[role="tab"][aria-selected="true"]'>.count
+E    +  where 2 = <bound method Locator.count of <Locator frame=<Frame name= url='file:///<repo>/guides/website/nexus-hub-guide.html#home'> selector='[role="tab"][aria-selected="true"]'>>()
+E    +    where <bound method Locator.count of <Locator frame=<Frame name= url='file:///<repo>/guides/website/nexus-hub-guide.html#home'> selector='[role="tab"][aria-selected="true"]'>> = <Locator frame=<Frame name= url='file:///<repo>/guides/website/nexus-hub-guide.html#home'> selector='[role="tab"][aria-selected="true"]'>.count
 _______________ test_static_document_never_addresses_the_reader _______________
 tests\guides\test_v443_phase1_headings.py:205: in test_static_document_never_addresses_the_reader
     assert not SECOND_PERSON.findall(prose), sorted(set(SECOND_PERSON.findall(prose)))
