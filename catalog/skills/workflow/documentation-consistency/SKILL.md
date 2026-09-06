@@ -37,6 +37,8 @@ Use this skill when you need to:
 
 ## Instructions
 
+During a full documentation or release audit, verify the handbook inventory and freshness evidence produced by `[[technical-documentation]]` through `references/handbook-refresh.md`. Check all eligible HTML, including topic folders, against the actual candidate and the `[[document-to-interactive-html]]` dual-view contract. Require source/slide mapping, final hashes, presentation capability or explicit opt-out, and rendered verification; a fresh timestamp or structural-only pass is insufficient. Report stale, missing, or unverified output as incomplete, and route repairs to the owning skill.
+
 ### Step 1: Identify All Documentation Files
 
 ```bash

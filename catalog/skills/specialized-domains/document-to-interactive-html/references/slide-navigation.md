@@ -1,45 +1,20 @@
-# Slide Navigation Contract (`nav=slides`)
+# Presentation navigation contract
 
-The authoring contract for the slide navigation mode resolved in Step 2's canvas question. When the design record carries `nav=slides`, Step 6 authors the output as a keyboard-advanced deck of viewport-fitted slides instead of a scrolling page, and this file is the contract that authoring builds to. It is self-contained: every rule is stated here with the pattern that satisfies it and the observable criterion a reviewer or the structural scorer applies. A design record with no `nav` field means `nav=scroll`, and none of this file applies.
+Use this contract when presentation is included alongside the scrolling page. `dual-view-handbooks.md` owns inclusion, theme/depth choices, source coverage, slide-count limits, and final acceptance. The legacy `nav=slides` field is a compatibility hint, not permission to replace reading mode. All CSS, JavaScript, fonts, and assets remain in one offline file.
 
-Two boundaries frame everything below. First, the output is still ONE self-contained offline `.html` under every existing guarantee (no CDN, no external requests, base64 assets, reduced-motion guarded); slide mode changes how the reader ADVANCES, not what the file is. Second, the file is authored for exactly ONE mode: there is no runtime scroll / slides toggle, so the runtime in this contract ships only in a `nav=slides` output and a scrolling output carries none of it.
+## 1. Entry, exit, and stage
 
-"Step" throughout means fragment-then-slide: a forward input reveals the active slide's next fragment if one remains hidden, and advances to the next slide otherwise (rule 4).
+- Start in reading view unless an explicit slide deep link is loaded. Title and global top-menu **Presentation Mode** actions always call entry with index zero. **Present chapter** names and opens its specific target. Any resume action is separately labeled.
+- Use a modal dialog or equivalent accessible presentation region. Make the inactive view inert, pause its animation, and keep its filter state independent. Save reading position and opener focus before entry; restore both on exit. Close a nested inspector first on Escape, then the presentation on the next Escape.
+- Keep exactly one active slide, with namespaced classes and unique IDs for duplicated figure/gradient/clip definitions. Size the desktop stage to the available viewport minus header/footer controls and safe areas. Reading canvas width does not dictate deck aspect ratio. Preserve readable text and complete imagery at every supported size.
+- Fullscreen is optional enhancement: request it on a supported element such as `document.documentElement`; handle rejection by keeping the fitted presentation usable. Observe native fullscreen exit and restore consistent reading/focus state. Repeated entry and exit must not leak listeners or leave scrolling locked.
+- Record `presentation.enabled`, resolved theme/depth, stable theme sequence, source-to-slide mapping, initial slide, and supported compact breakpoint in retained authoring inputs. The legacy scorer keys on `data-nav="slides"`, `.slide-stage`, `.slide-rail`, and `.slide-counter` for its old standalone draft contract. Do not claim that it recognizes the new presentation fields; inspect both views in a browser.
 
-## 1. Stage and sizing
+## 2. Fit and source-count ceiling
 
-The document body declares the mode and hosts one stage section per slide:
+Follow the source-count ceiling in `dual-view-handbooks.md`. Do not split a source slide into additional continuation slides to fix overflow. Recompose the layout, remove redundant wording without dropping facts, improve figure allocation, or expose clearly labeled within-slide detail. Do not hide overflow or shrink text below readable floors. An impossible count/coverage/fit combination remains an explicit unresolved constraint, not a success claim.
 
-```html
-<body data-nav="slides">
-  <div class="slide-deck" role="presentation">
-    <section class="slide-stage" id="slide-1" aria-labelledby="slide-1-h">
-      <div class="slide-inner">
-        <h2 id="slide-1-h">Title</h2>
-        ...
-      </div>
-    </section>
-    ...
-  </div>
-</body>
-```
-
-- **Mode marker (BINARY)**: `<body data-nav="slides">` is present exactly when the design record says `nav=slides`. This attribute is the hook the QA loop and the structural scorer key on (Phase 4), so its absence on a slide-mode page, or its presence on a scrolling page, is a defect.
-- **Stage sizing (BINARY)**: each `.slide-stage` is `100svw` wide and `100svh` tall - SMALL-viewport units, because `100vh` overshoots under mobile browser chrome and produces a stage the reader cannot see the bottom of. Exactly one slide is visible at a time.
-- **No page scroll (BINARY)**: the scroll container (`html, body` or the `.slide-deck` wrapper) carries `overflow: hidden`. The page never exposes a document scrollbar. Slides transition by `transform` and/or `opacity` only - never by scrolling a strip into view with `scroll-behavior`, which re-introduces the scroll anchor semantics this mode exists to replace. Under `prefers-reduced-motion: reduce`, transitions are instant cuts (rule 6).
-- **CSS namespacing**: every class this mode introduces carries the `slide-` component prefix (`.slide-deck`, `.slide-stage`, `.slide-inner`, `.slide-counter`, `.slide-rail`, `.slide-hit-prev`, `.slide-hit-next`, `.slide-live`). Never a bare `.stage`, `.deck`, `.rail`, `.counter`, or `.inner` - the skill's namespacing rule exists because a bare generic class once collided across components with zero console errors, and this mode adds a whole family of structural wrappers to a page that already has some.
-- **Safe-area from the resolved aspect**: the Round 1 canvas choice shapes the content box INSIDE the stage. For the default deck option (16:9), `.slide-inner` is a 16:9 content box centered in the stage - `aspect-ratio: 16 / 9` capped by `min(100svw, calc(100svh * 16 / 9))` - so on a non-16:9 screen the composition holds and the surplus becomes letterbox margin painted with the page background, never stretched or cropped content. When Round 1 resolved a different aspect (e.g. `--layout portrait --nav slides`), the same construction uses that ratio.
-- **Typography is the existing contract, unchanged**: the root `clamp()` scale, the fluid macro spacing, and the hard rendered-size floors (16px body / 13px secondary / 12px interactive) from `references/responsive-typography.md` apply INSIDE slides exactly as they do on a scrolling page, checked at all four QA viewports (2560x1300 / 1920x1080 / 1366x768 / 390x844). Slide mode is never a licence to shrink text to make content fit - overflow is resolved by rule 2, not by the font size.
-
-## 2. Overflow: split, never scroll (BINARY)
-
-A slide's content must FIT its stage at the 1366x768 viewport with the root clamp at its minimum. That viewport is the check because it is where the root clamp pins and text is at its largest relative to the stage, so a slide that fits there fits everywhere the floors allow.
-
-- **Content that cannot fit splits into continuation slides during authoring**: "Topic (1/2)", "Topic (2/2)" - the heading repeats with the counter suffix, and the split point falls at a semantic boundary (between list items, between a figure and its discussion), never mid-sentence or mid-figure.
-- **An inner scrollbar is FORBIDDEN**, with one narrow exception: an explicitly-declared scrollable region (a long data table, a code block) inside an otherwise-fitting slide. A declared region must carry a visible scroll affordance (a fade-out edge plus a scroll hint, not a bare cut-off) and a design-record note naming the slide and the reason. An author who cannot split records the exception; silence is the defect.
-- This is the slide-mode analogue of the vertical-density rule: a scrolling page must not float sparse content in dead space, and a deck must not hide overflow behind an undeclared scrollbar. The inverse also holds - a slide carrying one thin point pairs onto a shared slide rather than presenting a mostly-empty stage (Step 6 states this per-slide density rule).
-
-Observable criterion: at 1366x768, no `.slide-inner` has `scrollHeight > clientHeight` unless it contains a declared scrollable region, and every declared region is named in the design record.
+Check every slide across the desktop sizes and breakpoint boundaries in the shared contract. A single passing 1366x768 screenshot does not imply other aspect ratios fit. Compact presentation can deliberately reflow vertically; declare that breakpoint. Large tables or map directories may scroll locally with visible affordances and full keyboard/touch access. Desktop slide content itself must fit without a vertical scrollbar. Keep native scrolling available inside declared controls and theme their scrollbars; do not intercept their arrow keys.
 
 ## 3. Inputs: keyboard, touch, pointer
 
@@ -95,12 +70,9 @@ function applyState(deck, s, f) {           // authoritative; called on every st
 
 ## 7. No-JS and print fallback (BINARY)
 
-The document must remain readable with the runtime absent or broken - a parsing error in the inlined JS must never produce a blank page.
+The complete reading page is visible without JavaScript. Keep the additional presentation region hidden until explicitly opened by a functioning runtime; a missing or broken runtime must neither blank the reading page nor duplicate it with a stacked slide copy. Presentation fragment hiding and scroll locking apply only to an active presentation, never the initial reading view.
 
-- **Author CSS no-JS-first**: the stacked, source-order layout is the stylesheet's default; slide positioning, `overflow: hidden`, and fragment hiding apply only under a class the runtime adds on boot (`document.documentElement.classList.add('slide-js')`). Without JS, every slide renders as a normal stacked section in source order, fragments visible, nothing hidden or inert. Gating visibility on `.slide-js` (rather than removing styles on failure) is the load-bearing detail: a runtime that never boots never hides anything.
-- **Print**: a `@media print` rule renders one slide per page (`.slide-stage { page-break-after: always; break-after: page; }`), fragments visible, chrome (`.slide-rail`, `.slide-counter`, hit zones) hidden.
-
-Observable criterion: opening the file with JavaScript disabled shows every slide's full content, top to bottom, in source order.
+Default print shows the complete reading page once with controls and presentation hidden. If an explicit presentation-print action exists, it prints one logical slide per page with fragments visible and reading content/chrome hidden. Verify both paths that are offered; do not merely inspect stylesheet declarations.
 
 ## 8. Interaction budget in slide mode
 
@@ -112,15 +84,15 @@ The site-wide five-point minimum interaction budget (`references/interactive-fea
 4. **Lightbox on every non-decorative image** -> unchanged (the lightbox opens above the stage; `Escape` closes it first, then returns focus to the deck per rule 3).
 5. **The signature interaction** -> unchanged, or fragment-stepped where its scroll-keyed original maps onto steps (Phase 3's table governs the mapping).
 
-## Design-record fields for slide mode
+## Design-record fields for presentation
 
-Beyond the `nav=slides` value and its provenance (recorded in Step 2), a slide-mode design record names: the slide count, every continuation split ("Topic (1/2)"), every declared scrollable-region exception with its reason (rule 2), and any slide whose content forced a deviation. The QA loop (Phase 4) verifies the record against the page.
+Record the enabled view, theme/depth, source mapping, logical slide count, declared component scroll regions, and compact breakpoint according to `dual-view-handbooks.md`. Keep authoring metadata out of executive-facing slide copy.
 
 ## Verification (binary, per slide-mode output)
 
-- [ ] `<body data-nav="slides">` present; design record says `nav=slides` with provenance.
+- [ ] Reading is the initial view; included presentation and option provenance are recorded, and both global entry controls start slide 1.
 - [ ] Every mode class carries the `slide-` prefix; no bare `.stage` / `.deck` / `.rail` / `.counter` selector exists.
-- [ ] Each `.slide-stage` is `100svw x 100svh`; the scroll container has `overflow: hidden` under `.slide-js`; exactly one slide visible.
+- [ ] Exactly one presentation slide is active; its available stage excludes chrome, and inactive views are inert.
 - [ ] At 1366x768 no `.slide-inner` overflows its stage except declared scrollable regions, each with a visible affordance and a design-record note.
 - [ ] All keyboard, touch, and pointer inputs from the rule 3 table work; deck keys disengage inside interactive charts and re-engage on `Escape`.
 - [ ] A step input mid-transition is neither dropped nor double-applied.
@@ -128,5 +100,5 @@ Beyond the `nav=slides` value and its provenance (recorded in Step 2), a slide-m
 - [ ] The hash tracks `#slide-<n>`; loading with a hash opens that slide with prior fragments resolved; back/forward walk slide history.
 - [ ] Off-screen slides are `inert` + `aria-hidden`; slide changes announce via the polite live region; focus moves to the active heading.
 - [ ] Under `prefers-reduced-motion: reduce`, transitions are instant cuts (verified by emulating the preference, not by reading the code).
-- [ ] With JavaScript disabled, the document reads top-to-bottom as stacked sections; `@media print` yields one slide per page.
+- [ ] With JavaScript disabled, the document reads top-to-bottom as stacked sections; default print includes reading content once; explicit presentation print, if offered, yields one slide per page.
 - [ ] The rendered-size floors (16 / 13 / 12px) hold inside slides at all four QA viewports.
