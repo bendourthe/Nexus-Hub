@@ -26,7 +26,7 @@ set -euo pipefail
 - Use `${VAR:-default}` for default values; `${VAR:?error message}` to require a variable.
 - Use `local` for all variables inside functions to prevent scope leakage.
 - Use `readonly` for constants: `readonly MAX_RETRIES=3`.
-- Prefer `$(command)` over backticks for command substitution — it nests cleanly.
+- Prefer `$(command)` over backticks for command substitution -- it nests cleanly.
 
 ## Functions
 
@@ -50,5 +50,5 @@ set -euo pipefail
 
 - Avoid bash 4+ features (associative arrays, `mapfile`) if the script must run on macOS (bash 3.2).
 - Use `command -v tool >/dev/null 2>&1` to check for a binary before using it.
-- Avoid GNU-only flags (e.g., `sed -i ''` on macOS vs. `sed -i` on Linux) — test on both.
+- Avoid GNU-only flags (e.g., `sed -i ''` on macOS vs. `sed -i` on Linux) -- test on both.
 - Prefer `printf` over `echo` for formatted output; `echo` behaves inconsistently across shells.

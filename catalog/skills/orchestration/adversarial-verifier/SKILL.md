@@ -7,7 +7,7 @@ overview_l1: "This skill acts as a breaker agent that actively tries to break an
 
 # Adversarial Verifier
 
-Act as an adversarial "breaker" agent whose sole purpose is to find ways to break an implementation. Unlike standard code review (which evaluates quality) or standard verification (which checks acceptance criteria), this skill instructs the agent to actively attack the implementation by generating adversarial inputs, exploiting edge cases, probing security boundaries, and violating assumed contracts. Every claimed vulnerability must be backed by a concrete failing test.
+Act as an adversarial "breaker" agent whose sole purpose is to find ways to break an implementation. Unlike standard code review (which evaluates quality) or standard verification (which checks acceptance criteria), this skill instructs the agent to actively attack the implementation by generating adversarial inputs, exploiting edge cases, probing security boundaries, and violating assumed contracts. Every confirmed vulnerability must be backed by a concrete failing test or equivalent observed execution evidence; a candidate blocked only by an unobservable layer remains `needs-live-validation` rather than being rejected.
 
 ## When to Use This Skill
 
@@ -67,7 +67,7 @@ For each entry point, generate inputs across these attack categories:
 
 ### Step 3: Write Proof-of-Failure Tests
 
-For every adversarial finding, write a concrete test that demonstrates the failure. **A finding without a failing test is not a finding.**
+For every runnable adversarial candidate, write a concrete test that demonstrates the failure. **A confirmed finding without a failing test or equivalent observed execution evidence is not confirmed.** When the exact test cannot run because a deciding layer is outside the observable scope, retain the candidate as `needs-live-validation` with the safe validation receipt required by `[[pentest-reporting]]`.
 
 ```python
 # Example: proof-of-failure test for boundary value bug
@@ -98,7 +98,7 @@ test("adversarial: SQL injection in search query", () => {
 
 ### Step 4: Verify the Verifier
 
-Each proof-of-failure test must actually fail when run against the current implementation. If a test passes (meaning the "vulnerability" does not exist), the finding is automatically demoted.
+Each proof-of-failure test must actually fail when run against the current implementation. A passing test makes the candidate eligible for refutation review; it does not automatically prove the vulnerability absent, because the test may cover only one input route or may rely on an unobserved control.
 
 **Verification protocol:**
 
@@ -109,8 +109,40 @@ Each proof-of-failure test must actually fail when run against the current imple
 | Test Result | Finding Classification | Action |
 |------------|----------------------|--------|
 | Test FAILS (as expected) | **Confirmed vulnerability** | Include in report with P0/P1/P2 severity |
-| Test PASSES (vulnerability does not exist) | **False positive** | Demote; include in report as "tested, not vulnerable" |
-| Test ERRORS (cannot run) | **Inconclusive** | Fix the test and re-run; do not include unrunnable tests |
+| Test PASSES | **Refutation candidate** | Apply Steps 4.1 and 4.2; reject only on observed, route-complete evidence |
+| Test ERRORS (cannot run) | **Inconclusive** | Fix and re-run; if an unobservable layer is the blocker, use `needs-live-validation` |
+
+### Step 4.1: Apply the Refutation-Validity Taxonomy
+
+A refutation kills a finding, so it carries the finding's own proof burden. Accept a refutation only when its reason is observable in the artifacts or an authorized run.
+
+| Verdict | Refutation claim | Required basis |
+|---------|------------------|----------------|
+| **VALID** | The cited code does not perform the behavior claimed | Point to the actual instruction, branch, or data flow that contradicts the claim |
+| **VALID** | The entry point is not attacker-reachable | Show the observable build and default-configuration evidence that excludes the path |
+| **VALID** | A mitigating check blocks the behavior | Point to the check in code or runtime evidence the verifier can inspect |
+| **VALID** | The behavior is designed under the established trust model | Cite the established trust-boundary artifact and show the implementation conforms to it |
+| **INVALID** | "The framework probably handles it", "authorization is presumably upstream", or "a real server would validate this" | An unobserved layer is an assumption, not a refutation; the test exists because that layer might be insecure |
+| **INVALID** | "The component is not loaded", "it requires non-default configuration", or "it is behind a flag" without checking | Reachability and gating claims require build and default-configuration evidence before they can kill a finding |
+
+Assuming an unobserved layer is secure is the single most common false negative in adversarial review. When that layer is the only remaining barrier, assign `needs-live-validation`, never `rejected` or an understated Low rating, and use `[[pentest-reporting]]` for the required safe test, vulnerable response, safe response, and potential severity.
+
+A capability that ships enabled by default is in scope even when its packaging makes it look optional. A reachability claim must inspect what the observable default build loads, not infer behavior from a module name or directory layout.
+
+Hold both error directions in view. This procedure is tuned to challenge false positives, but once a verifier enters refute mode, dismissing a real high-impact finding as theoretical becomes the easier failure. A panel may move a candidate to `needs-live-validation` without consensus; rejection requires a majority whose votes each point to an observed reason.
+
+### Step 4.2: Satisfy the Rejection Proof Burden
+
+Before assigning `rejected`, enumerate the sink's actual input sources and prove the counter-hypothesis across every applicable route. Check URL path, query string, request body, cookie, header, decoded blob, and any additional source visible in the implementation. A mitigation that blocks one delivery route does not establish that the sink is safe through the others, so a single-route non-reproduction is not a refutation.
+
+Every rejection record MUST contain:
+
+1. A reason-specific **counter-hypothesis**: the concrete proposition that, if proven, kills the finding.
+2. The sink's **actual input-source inventory**, derived from the implementation rather than copied from a generic checklist.
+3. A **per-route result** for every source: either an executed check with observed evidence or a reasoned `not-applicable` tied to the code path.
+4. When reachability or gating is the counter-hypothesis, the **build and default-configuration evidence** that establishes it.
+
+A bare route list proves only that routes were named; it does not prove any check ran. False rejection is the costliest review error because it silently erases a real bug, while false confirmation stays visible and can be retested.
 
 ### Step 5: Classify Severity
 
@@ -154,11 +186,17 @@ Generate ADVERSARIAL-REPORT.md as an independent artifact:
 ### AF-2: [Title] (P1 - High)
 ...
 
-## False Positives (Tested, Not Vulnerable)
+## Rejected Findings (Observed Refutations)
 
-| # | Attack | Entry Point | Test | Result |
-|---|--------|------------|------|--------|
-| FP-1 | [attack type] | [entry point] | [test name] | PASSES (not vulnerable) |
+| # | Counter-Hypothesis | Actual Input Sources | Per-Route Results | Observed Kill Evidence |
+|---|--------------------|----------------------|-------------------|------------------------|
+| RJ-1 | [reason-specific proposition] | [implementation-derived routes] | [executed result or reasoned N/A per route] | [artifact/build/config/runtime evidence] |
+
+## Needs Live Validation
+
+| # | Unobserved Layer | Minimal Safe Test | Vulnerable vs. Safe Response | Potential Severity |
+|---|------------------|-------------------|------------------------------|--------------------|
+| LV-1 | [deciding layer] | [exact authorized request, command, or test] | [both expected outcomes] | [band and score] |
 
 ## Untested Areas
 
@@ -177,8 +215,8 @@ Generate ADVERSARIAL-REPORT.md as an independent artifact:
 
 - **Run adversarial verification after standard verification**: the breaker agent should attack code that already passes acceptance criteria, not code that is still under development
 - **Use a different model for the breaker**: if the implementation was written by Claude Sonnet, use Claude Opus or Codex as the breaker to reduce blind-spot overlap
-- **Every finding needs a failing test**: opinions without proof are noise; a test that fails against the implementation is the only accepted evidence
-- **Classify false positives explicitly**: documenting what you tested and found safe is as valuable as finding vulnerabilities; it builds confidence in the implementation
+- **Every confirmed finding needs failing evidence**: use a failing test or equivalent observed execution; when a deciding layer cannot be run, keep the candidate pending with a `needs-live-validation` receipt
+- **Reject only with an observed, route-complete record**: a passing test is useful negative evidence for that route, not automatic proof that the whole finding is false
 - **Time-box adversarial verification**: diminishing returns set in quickly; 30-45 minutes is usually sufficient for a single feature's adversarial review
 - **Focus on untrusted inputs first**: start with user-facing entry points and external data sources before testing internal interfaces
 - **Do not fix the code**: the breaker's job is to find and report, not to fix; fixing is a separate step that should be done by the implementer or a different agent
@@ -190,18 +228,25 @@ Generate ADVERSARIAL-REPORT.md as an independent artifact:
 | "It passed code review and the acceptance tests, so it is safe to merge." | Acceptance tests check the happy path the author imagined; a single empty-array or negative-length input the author never considered can still crash production. Adversarial verification exists to find the inputs nobody planned for. |
 | "I will just eyeball the code for edge cases instead of writing failing tests." | An opinion that "this might overflow" is noise without a reproduction. Only a test that actually fails against the current implementation proves the bug and survives the next refactor. |
 | "The same agent that wrote the code can break it." | Authors share their own blind spots; the breaker should be a different model so the assumptions baked into the implementation are not silently re-baked into the attack. |
-| "Documenting the inputs I tested and found safe is wasted effort." | The false-positive log is what lets a reviewer trust the verdict; without it, a PASS is indistinguishable from "I did not look very hard." |
+| "Documenting the inputs I tested and found safe is wasted effort." | The rejection record is what lets a reviewer trust the verdict; without observed per-route evidence, a PASS is indistinguishable from "I did not look very hard." |
+| "The unseen server probably rejects this, so the finding is theoretical." | Probable security is not observed security; when the unseen layer is the only barrier, preserve the candidate as `needs-live-validation` with the exact safe test instead of silently erasing it. |
+| "One route passed, so the sink is safe." | Inputs often reach the same sink through path, query, body, cookie, header, or decoded data; one passing route says nothing about the untested routes, so rejection requires a per-route result. |
 
 ## Verification
 
 - [ ] `ADVERSARIAL-REPORT.md` exists and lists every entry point from the Attack Surface inventory
 - [ ] Each confirmed finding includes a concrete test that fails against the current implementation
-- [ ] Inputs tested and found safe are recorded in the False Positives section
+- [ ] Each rejected finding states a reason-specific counter-hypothesis backed by an observed reason
+- [ ] Each rejected finding inventories the sink's actual input sources and records an executed result or reasoned `not-applicable` for every route
+- [ ] Each reachability or gating rejection cites observable build and default-configuration evidence
+- [ ] Each candidate blocked only by an unobservable layer is `needs-live-validation` with the receipt required by `[[pentest-reporting]]`
+- [ ] A verifier panel rejected no finding without a majority pointing to observed reasons
 - [ ] The report ends with an explicit verdict: PASS, FAIL, or CONDITIONAL PASS
 - [ ] No code was modified by the breaker agent (find-and-report only)
 
 ## Related Skills
 
+- [[functional-verification]] - owns normal real-boundary exercise and its evidence record; this skill owns hostile inputs and adversarial findings.
 - [[cross-model-orchestrator]] - Multi-model workflow where breaker is the fifth role
 - [[intent-based-review]] - Criteria-based review that the breaker complements
 - [[edge-case-generator]] - Generate edge cases (used as a sub-technique by this skill)

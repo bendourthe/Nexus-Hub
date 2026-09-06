@@ -1,0 +1,10 @@
+{
+  "_source": "git show v4.1.2:guides/website/nexus-hub-guide.html, Home page sections, visible words after tag stripping (measured 2026-09-02)",
+  "_rule": "each restored v4.4.2 section must be at most two-thirds of its v4.1.2 word count (plan v4.4.2, Definition of Done, Home)",
+  "sections": {
+    "why-it-matters": {"v412_words": 85, "eyebrow": "Why it matters"},
+    "the-difference": {"v412_words": 256, "eyebrow": "The difference", "merged_into": "Raw prompting vs Nexus Hub"},
+    "favorite-commands": {"v412_words": 399, "eyebrow": "Coming from Claude Code or Codex?"},
+    "how-it-works": {"v412_words": 175, "eyebrow": "How it works"}
+  }
+}

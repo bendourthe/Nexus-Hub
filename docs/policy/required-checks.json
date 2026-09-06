@@ -1,0 +1,31 @@
+{
+  "_comment": "Declared required status-check contexts per protected branch. This file is the local, zero-outbound source of truth for scripts/check_required_check_coverage.py, which asserts that every context listed here is produced by a workflow that triggers UNCONDITIONALLY on a pull request into that branch. Refresh it by hand from `python scripts/check_required_check_coverage.py --sync`, which prints the live state via the user's own `gh` CLI and never writes. v3.17.6 sub-task 2.2 replaced ci.yml's nine per-job contexts with the `ci-required` aggregate: GitHub evaluates a job-level `if:` before matrix expansion, so a skipped matrix job publishes only its bare job name and a per-leg context such as `installer-smoke (ubuntu-latest)` can sit Pending forever. NEVER add a `job (leg)` context here; tests/validators/test_ci_required_gate.py enforces that. `validate` and `shellcheck` are ALSO required, deliberately redundant with the aggregate: both always run and can never be skipped, so they cost nothing and still gate a PR if the aggregate itself were ever wrong.",
+  "meta": {
+    "repository": "bendourthe/Nexus-Hub",
+    "verified": "2026-08-20",
+    "verified_for_version": "v3.17.6",
+    "source": "gh api repos/bendourthe/Nexus-Hub/branches/<branch>/protection"
+  },
+  "branches": {
+    "main": {
+      "strict": true,
+      "contexts": [
+        "validate",
+        "shellcheck",
+        "ci-required",
+        "colocation",
+        "verify"
+      ]
+    },
+    "develop": {
+      "strict": true,
+      "contexts": [
+        "validate",
+        "shellcheck",
+        "ci-required",
+        "colocation",
+        "verify"
+      ]
+    }
+  }
+}

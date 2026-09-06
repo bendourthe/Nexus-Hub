@@ -1,0 +1,1207 @@
+{
+  "meta": {
+    "last_verified": "2026-09-06",
+    "verified_for_version": "4.7.0",
+    "verified_for_version_note": "Re-stamped for the v4.7.0 cut on 2026-09-06. No live first-party re-fetch was performed this cycle; the most recent one is the 2026-09-04 sweep recorded under verification_method, which classified twelve of thirteen platforms MATCH with zero discovery-path drift. That result is carried forward because nothing in the v4.5.0..v4.7.0 range can invalidate it: no file under scripts/lib/integrations/ changed (discovery paths live there), and neither scripts/installer.sh nor scripts/installer.ps1 changed, so no per-platform copy destination moved. The bootstrap entry points install.sh and install.ps1 and the nexus_hub_cli upgrade path did change, but they govern how the source tree is fetched and verified before the core installer runs, not where any platform reads from. scripts/verify_platform_contracts.py reports OK for all 13 platforms against this document. A live sweep is due at the next release that touches an adapter, an installer destination, or whose date puts real distance from 2026-09-04.",
+    "description": "Machine-readable single source for the platform read-contract guards. The human-readable surface table, formats, and source URLs live alongside in platform-read-contracts.md. Consumed by: scripts/verify_platform_contracts.py (contract_checks, code-vs-contract), scripts/lib/integrations/runner.py _verify_checks (install_verify, install-vs-reality), and scripts/check_platform_contract_freshness.py (meta, the release freshness gate). Re-verified against each platform's current docs and re-stamped (last_verified + verified_for_version) at every /update release by the platform-contract-verification skill.",
+    "path_tokens": "In install_verify paths, '~/' resolves to the user home, '{project}/' resolves to the workspace/target root, and '{openclaw_workspace}/' resolves through agents.defaults.workspace, OPENCLAW_WORKSPACE_DIR, or the active state directory's documented workspace default, in that order.",
+    "verification_method": "v4.4.5 pass: RE-VERIFICATION of the live discovery contract, no correction required. Twelve of thirteen platforms re-fetched from first-party vendor documentation on 2026-09-04 and classified MATCH; nexus-ai UNVERIFIED (private source). scripts/verify_platform_contracts.py reported OK for all 13 platforms against this JSON. No redirect to a new host was observed on any page fetched this cycle. The same visit found a LEVER drift for claude (effortLevel now documents max; CLAUDE_CODE_EFFORT_LEVEL does not; new modelSettings key), recorded in docs/policy/platform-defaults-levers.md and configs/platform-defaults.json per the lever lockstep."
+  },
+  "parity_verification_v3_15_0": {
+    "_comment": "Phase 1.2 of the v3.15.0 platform-parity release. Web re-verified (2026-07-20) the additive surfaces the 2026-07-19 (v3.14.5) re-verification log deferred to v3.15.0. This block is a findings record only; it is NOT consumed by any guard. contract_checks / install_verify rows and the verified_for_version re-stamp to 3.15.0 are added per phase AS the integration code that satisfies them lands (adding a contract_checks row before its integration writes the surface would fail verify_platform_contracts.py). The gemini_cli_class + decision fields for qwen and kimi are the Phase 4 reclassification go/no-go gate (sub-task 1.3).",
+    "verified": "2026-07-20",
+    "platforms": {
+      "cursor": {
+        "classification": "DRIFT",
+        "note": "Cursor 2.4 gained Skills, Subagents, and Hooks; Rules unchanged. Skills discovery is RECURSIVE (nested and flattened both work). Subagent files are plain .md with frontmatter, NOT .agent.md. The global ~/.cursor/commands/ path (baseline) is UNVERIFIED against reachable docs; project .cursor/commands/<name>.md is confirmed.",
+        "surfaces": {
+          "skills": {
+            "verdict": "DRIFT",
+            "global": [
+              "~/.cursor/skills",
+              "~/.agents/skills",
+              "~/.claude/skills"
+            ],
+            "project": [
+              ".cursor/skills",
+              ".agents/skills",
+              ".claude/skills"
+            ],
+            "format": "folder-per-skill SKILL.md, recursive",
+            "source": "https://cursor.com/docs/skills"
+          },
+          "agents": {
+            "verdict": "DRIFT",
+            "global": [
+              "~/.cursor/agents"
+            ],
+            "project": [
+              ".cursor/agents",
+              ".claude/agents"
+            ],
+            "format": ".md + YAML frontmatter (not .agent.md)",
+            "source": "https://cursor.com/docs/subagents"
+          },
+          "hooks": {
+            "verdict": "DRIFT",
+            "global": [
+              "~/.cursor/hooks.json"
+            ],
+            "project": [
+              ".cursor/hooks.json"
+            ],
+            "format": "hooks.json: {version:1, hooks:{<event>:[{command}]}}; events incl beforeShellExecution/afterShellExecution/afterFileEdit/preToolUse/postToolUse/sessionStart/stop; exit 0 ok, 2 block, other fail-open; matcher supported",
+            "source": "https://cursor.com/docs/hooks",
+            "phase2_resolved": "2026-07-21 (Phase 2): cursor.com/docs/hooks confirms {version:1, hooks:{<event>:[{command}]}}; type/timeout/loop_limit/failClosed/matcher are all OPTIONAL (defaults type=command, failClosed=false, loop_limit=5). The minimal git-guardrails writer (beforeShellExecution -> {command}, exit 2 blocks) is schema-valid and needs no change. DF-1(b) resolved."
+          },
+          "commands": {
+            "verdict": "PARTIAL",
+            "project": [
+              ".cursor/commands/<name>.md"
+            ],
+            "global_unverified": "~/.cursor/commands",
+            "source": "https://cursor.com/docs/customize-cursor",
+            "phase2_note": "2026-07-21 (Phase 2): project .cursor/commands/<name>.md re-confirmed (documented since Cursor 1.6); global ~/.cursor/commands remains UNVERIFIED (no official doc reachable; forum.cursor.com reports it as an open feature-request, not a built-in). Global write retained per plan 2.3 (harmless if unread; negative-only evidence); tracked as known-gap DF-1 residual. Project .cursor/commands/ now also seeded by nexus-hub init (wire_project_surfaces)."
+          },
+          "rules": {
+            "verdict": "MATCH",
+            "project": [
+              ".cursor/rules/*.mdc"
+            ],
+            "source": "https://cursor.com/docs/rules"
+          }
+        }
+      },
+      "opencode": {
+        "classification": "DRIFT",
+        "note": "Agents folder is new; a plugins/hooks mechanism exists but is a JS/TS (Bun) runtime that Nexus-Hub's shell/python hook scripts cannot drop into. Skills, commands, rules unchanged.",
+        "surfaces": {
+          "agents": {
+            "verdict": "DRIFT",
+            "global": [
+              "~/.config/opencode/agents"
+            ],
+            "project": [
+              ".opencode/agents"
+            ],
+            "format": ".md + YAML frontmatter",
+            "source": "https://opencode.ai/docs/agents/",
+            "phase3_delivered": "2026-07-21: shipped via the agents_subdir config; the base _mirror_catalog copies catalog/agents/*.md verbatim to both scopes. OpenCode reads .md + frontmatter with mode defaulting to all, and ignores the non-native name/tools keys, so the catalog personas load as-is."
+          },
+          "plugins_hooks": {
+            "verdict": "DRIFT-INCOMPATIBLE",
+            "global": [
+              "~/.config/opencode/plugins"
+            ],
+            "project": [
+              ".opencode/plugins"
+            ],
+            "format": "JS/TS module (Bun); event API, not shell/py hooks",
+            "phase3_decision": "OUT-OF-SCOPE (Phase 3.2, 2026-07-21): re-confirmed plugins are JS/TS Bun modules exporting event hooks; a .sh/.py hook cannot be dropped in and run. hooks_supported stays False; DF-4 resolved as a documented non-gap.",
+            "source": "https://opencode.ai/docs/plugins/"
+          },
+          "skills": {
+            "verdict": "MATCH",
+            "source": "https://opencode.ai/docs/skills/"
+          },
+          "commands": {
+            "verdict": "MATCH",
+            "source": "https://opencode.ai/docs/commands/"
+          },
+          "rules": {
+            "verdict": "MATCH",
+            "note": "No rules/ folder; AGENTS.md + instructions[] array",
+            "source": "https://opencode.ai/docs/rules/"
+          }
+        }
+      },
+      "qwen": {
+        "gemini_cli_class": "YES",
+        "decision": "GO",
+        "note": "Qwen Code is an open-source Gemini CLI fork; reproduces skills + commands + agents under ~/.qwen / .qwen. Reclassify in Phase 4. Caveat: open issue #2343 reports project-scoped skills may not auto-load on some builds; a live smoke test is prudent before shipping.",
+        "phase4_delivered": "2026-07-21 (Phase 4): reclassified to SkillsIntegration. Delivers flattened skills + agents + MARKDOWN commands (TOML is deprecated per the docs, so NOT used) at ~/.qwen/{skills,agents,commands} (global, detection-gated) and .qwen/{skills,agents,commands} (project), preserving the QWEN.md write. Skills delivered to BOTH scopes to mitigate DF-2 (#2343 project auto-load); docs confirm a restart loads them.",
+        "surfaces": {
+          "skills": {
+            "verdict": "GAINED",
+            "global": [
+              "~/.qwen/skills/<name>/SKILL.md"
+            ],
+            "project": [
+              ".qwen/skills/<name>/SKILL.md"
+            ],
+            "format": "folder-per-skill SKILL.md, one level, name+description frontmatter",
+            "source": "https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/"
+          },
+          "commands": {
+            "verdict": "GAINED",
+            "global": [
+              "~/.qwen/commands/<name>.{md,toml}"
+            ],
+            "project": [
+              ".qwen/commands/<name>.{md,toml}"
+            ],
+            "format": "Markdown primary; TOML (description+prompt) deprecated-but-supported, matches Gemini CLI",
+            "source": "https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/"
+          },
+          "agents": {
+            "verdict": "GAINED",
+            "global": [
+              "~/.qwen/agents/<name>.md"
+            ],
+            "source": "https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/"
+          },
+          "rules": {
+            "verdict": "MATCH",
+            "note": "QWEN.md context file; no rules/ folder",
+            "source": "https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/"
+          }
+        }
+      },
+      "kimi": {
+        "gemini_cli_class": "YES",
+        "decision": "GO",
+        "note": "CRITICAL: the current product is Kimi Code CLI (MoonshotAI/kimi-code, data root ~/.kimi-code/), NOT the deprecated old Kimi CLI (~/.kimi/) the baseline targets. Kimi Code CLI reads a folder-per-skill SKILL.md tree and exposes skills as slash commands; there is NO separate command file format (commands == skills; commands.html 404s) and NO user-definable agents surface. Drop the baseline .kimi/agent.yaml (unsupported in the new product). Phase 4 should resolve old ~/.kimi/ vs new ~/.kimi-code/ vs the cross-tool .agents/skills/.",
+        "phase4_delivered": "2026-07-21 (Phase 4): reclassified to SkillsIntegration and FULLY MIGRATED to Kimi Code CLI (~/.kimi-code) per the maintainer decision. Delivers AGENTS.md + flattened skills (incl. command-skills, which reach Kimi as /skill:<name>) at ~/.kimi-code/ (global, detection-gated) and .kimi-code/ (project). Writes only the NATIVE ~/.kimi-code/skills (not the shared ~/.agents/skills, to avoid a teardown conflict with codex). The old ~/.kimi/ writes and the .kimi/agent.yaml companion are DROPPED (neither is read by the current product). No agents surface (Kimi has only built-ins); hooks are config.toml [[hooks]] (out of scope).",
+        "surfaces": {
+          "skills": {
+            "verdict": "GAINED",
+            "global": [
+              "~/.kimi-code/skills",
+              "~/.agents/skills"
+            ],
+            "project": [
+              ".kimi-code/skills",
+              ".agents/skills"
+            ],
+            "format": "folder-per-skill SKILL.md (or flat <name>.md), one level; does NOT scan ~/.claude/skills in the new product",
+            "source": "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html"
+          },
+          "commands": {
+            "verdict": "GAINED-AS-SKILLS",
+            "note": "No standalone command format; each skill auto-registers as /skill:<name>",
+            "source": "https://www.kimi.com/code/docs/en/kimi-code-cli/reference/slash-commands.html"
+          },
+          "agents": {
+            "verdict": "NONE",
+            "note": "Only 3 fixed built-in subagents; no user-definable agent files",
+            "source": "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/agents.html"
+          },
+          "hooks": {
+            "verdict": "CONFIG-ONLY",
+            "note": "[[hooks]] TOML array in ~/.kimi-code/config.toml; config-merge, not folder-copy",
+            "source": "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html"
+          },
+          "instruction": {
+            "verdict": "DRIFT",
+            "note": "~/.kimi-code/AGENTS.md (global), .kimi-code/AGENTS.md or AGENTS.md (project); baseline's ~/.kimi/ is the deprecated product",
+            "source": "https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/data-locations.html"
+          }
+        }
+      },
+      "copilot": {
+        "classification": "DRIFT",
+        "note": "Skills are now a native, default-on surface (VS Code confirmed; GitHub docs do not contradict); the .github/skills path MATCHES baseline but the opt-in/env-gated/off-by-default framing is stale. Custom agents and hooks (Preview) are new. Phase 5: .github/skills commit-visibility remains a Nexus-Hub policy consideration (keep never-overwrite), even though Copilot no longer technically requires opt-in.",
+        "phase5_delivered": "2026-07-21 (Phase 5): the .github/skills seeding was widened from a bare on/off toggle to a SELECTOR - NEXUS_HUB_COPILOT_SKILLS now accepts a bundle id (any of data/bundles.json) or 'all' (full catalog), with bare-truthy still meaning the default core-developer bundle. Kept OFF by default and never-overwrite (the .github/skills path is commit-visible - a Nexus-Hub policy choice, not a Copilot requirement, since Copilot reads skills natively default-on). The stale opt-in FRAMING is corrected in copilot.py's docstring. DF-5 resolved.",
+        "surfaces": {
+          "skills": {
+            "verdict": "DRIFT",
+            "global": [
+              "~/.copilot/skills",
+              "~/.agents/skills",
+              "~/.claude/skills"
+            ],
+            "project": [
+              ".github/skills",
+              ".claude/skills",
+              ".agents/skills"
+            ],
+            "format": "folder-per-skill SKILL.md, one level; default-on",
+            "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills"
+          },
+          "agents": {
+            "verdict": "DRIFT",
+            "global": [
+              "~/.copilot/agents"
+            ],
+            "project": [
+              ".github/agents/*.agent.md"
+            ],
+            "source": "https://docs.github.com/en/copilot/reference/custom-agents-configuration"
+          },
+          "hooks": {
+            "verdict": "DRIFT-PREVIEW",
+            "project": [
+              ".github/hooks/*.json"
+            ],
+            "note": "Preview; Claude-compat .claude/settings.json also read",
+            "source": "https://code.visualstudio.com/docs/agent-customization/hooks"
+          },
+          "instruction": {
+            "verdict": "MATCH",
+            "project": [
+              ".github/copilot-instructions.md"
+            ],
+            "note": "AGENTS.md/CLAUDE.md additively supported behind settings",
+            "source": "https://code.visualstudio.com/docs/agent-customization/custom-instructions"
+          },
+          "prompts": {
+            "verdict": "MATCH",
+            "project": [
+              ".github/prompts/*.prompt.md"
+            ],
+            "source": "https://code.visualstudio.com/docs/copilot/customization/prompt-files"
+          }
+        }
+      }
+    }
+  },
+  "release_verification_v3_15_7": {
+    "_comment": "Release-time findings only. This block is NOT consumed by any guard. contract_checks and install_verify continue to describe delivered behavior and must change only when matching adapter and test changes land.",
+    "verified": "2026-08-02",
+    "decision": "RELEASE_WITH_DOCUMENTED_DRIFT",
+    "deferred_to": "3.15.8",
+    "platforms": {
+      "claude": {
+        "classification": "MATCH",
+        "note": "Instruction, skill, command, agent, rule, and hook surfaces remain aligned with current Claude Code documentation.",
+        "sources": [
+          "https://code.claude.com/docs/en/features-overview",
+          "https://code.claude.com/docs/en/memory",
+          "https://code.claude.com/docs/en/hooks",
+          "https://code.claude.com/docs/en/configuration"
+        ]
+      },
+      "codex": {
+        "classification": "DRIFT-ADDITIVE",
+        "note": "AGENTS.md and both skill roots remain functional. Codex now documents custom TOML agents and native hooks; Nexus-Hub does not yet deliver those surfaces.",
+        "resolved_in": "3.15.8 Phase 5. Re-verified 2026-08-02 against the official subagents and hooks references: custom agents are standalone TOML (name, description, developer_instructions required) at ~/.codex/agents and .codex/agents, and hooks.json sits beside an active config layer with the same event names Nexus-Hub already uses. Both are now delivered, so this DRIFT-ADDITIVE finding is closed.",
+        "sources": [
+          "https://learn.chatgpt.com/docs/agent-configuration/agents-md",
+          "https://learn.chatgpt.com/docs/build-skills",
+          "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+          "https://learn.chatgpt.com/docs/hooks",
+          "https://developers.openai.com/codex/subagents",
+          "https://developers.openai.com/codex/hooks"
+        ]
+      },
+      "antigravity2": {
+        "classification": "PARTIAL-UNVERIFIED",
+        "note": "Official codelabs re-confirm skills and workflows. Exact global hook and agy CLI workflow paths remain unverified, so existing best-effort paths are retained.",
+        "sources": [
+          "https://codelabs.developers.google.com/getting-started-with-antigravity-skills",
+          "https://codelabs.developers.google.com/autonomous-ai-developer-pipelines-antigravity?hl=en"
+        ]
+      },
+      "gemini": {
+        "classification": "UNVERIFIED",
+        "note": "Gemini IDE-specific skill discovery remains unverified independently of Gemini CLI.",
+        "sources": [
+          "https://geminicli.com/docs/cli/using-agent-skills/"
+        ]
+      },
+      "gemini_cli": {
+        "classification": "DRIFT-ADDITIVE",
+        "note": "Instruction, commands, skills, and agents remain functional. Native hooks are now documented but are not delivered by the current adapter.",
+        "resolved_in": "3.15.8 Phase 6. Re-verified 2026-08-02 against the upstream hooks reference: hooks live under a `hooks` key in settings.json across four precedence layers, every lifecycle event was RENAMED relative to the Claude-style names Nexus-Hub uses (PreToolUse -> BeforeTool, Stop -> AfterAgent, PreCompact -> PreCompress), tool matchers are REGEX over Gemini tool ids, and there is no commandWindows equivalent. Delivered as an ownership-scoped structured merge at both scopes, so this DRIFT-ADDITIVE finding is closed. Extension-packaged hooks (~/.gemini/extensions/<name>/hooks/hooks.json) are a documented second read path recorded as a follow-on rather than used, because only `gemini extensions install` is documented for populating it.",
+        "sources": [
+          "https://geminicli.com/docs/cli/using-agent-skills/",
+          "https://geminicli.com/docs/cli/gemini-md/",
+          "https://geminicli.com/docs/cli/commands/",
+          "https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/index.md",
+          "https://github.com/google-gemini/gemini-cli/blob/main/docs/extensions/reference.md"
+        ]
+      },
+      "copilot": {
+        "classification": "KNOWN-DRIFT",
+        "note": "Native skills remain delivered through the opt-in selector. Custom agents and hooks are documented upstream but remain deferred adapter surfaces.",
+        "resolved_in": "3.15.8 Phase 8. Re-verified 2026-08-03: Copilot reads Claude-format customization files BY DEFAULT, so most of this surface was already delivered. Its default chat.hookFilesLocations is {'.github/hooks': true, '.claude/settings.local.json': true, '.claude/settings.json': true, '~/.claude/settings.json': true} and it 'uses the same hook format as Claude Code and Copilot CLI for compatibility', so the hooks Nexus-Hub already merges into ~/.claude/settings.json and .claude/settings.json run in Copilot at both scopes; no .github/hooks copy is written because it would be a redundant commit-visible duplicate. Its default workspace agent locations include .claude/agents, already populated by the claude integration, and agent files dedup across levels by filename with the lowest level winning, so no .github/agents copy is written either. The one real gap was GLOBAL agents: ~/.copilot/agents is Copilot's documented user-profile agent path (~/.claude/agents is NOT), so catalog agents are now written there verbatim as <name>.agent.md, validated against Copilot's required description field and its 30,000-character prompt cap. The NEXUS_HUB_COPILOT_SKILLS selector is unchanged.",
+        "sources": [
+          "https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/add-skills",
+          "https://docs.github.com/en/copilot/concepts/agents/copilot-cli/about-custom-agents",
+          "https://docs.github.com/en/copilot/concepts/agents/hooks",
+          "https://docs.github.com/en/copilot/reference/custom-agents-configuration",
+          "https://code.visualstudio.com/docs/copilot/customization/custom-agents",
+          "https://code.visualstudio.com/docs/agent-customization/hooks"
+        ]
+      },
+      "cursor": {
+        "classification": "MATCH",
+        "note": "Delivered instruction, project command, skill, agent, rule, and hook surfaces remain aligned. The retained global commands path remains separately unverified.",
+        "sources": [
+          "https://docs.cursor.com/context/rules",
+          "https://docs.cursor.com/en/agent/chat/commands",
+          "https://docs.cursor.com/en/cli/using"
+        ]
+      },
+      "opencode": {
+        "classification": "MATCH-WITH-INCOMPATIBLE-HOOKS",
+        "note": "Skills, commands, agents, and AGENTS.md delivery remain aligned. Plugin hooks still require JS or TS modules and are not compatible with direct shell or Python hook copying.",
+        "sources": [
+          "https://opencode.ai/docs/skills/",
+          "https://opencode.ai/docs/commands/",
+          "https://opencode.ai/docs/agents"
+        ]
+      },
+      "aider": {
+        "classification": "MATCH",
+        "note": "The CONVENTIONS.md delivery remains aligned with Aider's conventions-file mechanism.",
+        "sources": [
+          "https://aider.chat/docs/usage/conventions.html"
+        ]
+      },
+      "windsurf": {
+        "classification": "UNVERIFIED",
+        "note": "No current authoritative discovery-format source was reachable during this cycle; existing detection-gated behavior is retained without a MATCH claim.",
+        "sources": []
+      },
+      "kimi": {
+        "classification": "DRIFT-ADDITIVE",
+        "note": "AGENTS.md and native skill delivery remain functional. Current Kimi Code CLI documents custom agents and TOML hooks, superseding the earlier fixed-built-ins-only finding; both adapter surfaces are deferred.",
+        "resolved_in": "3.15.8 Phase 7. Re-verified 2026-08-02. Custom agents are Markdown with YAML frontmatter at ~/.kimi-code/agents and .kimi-code/agents, and Kimi explicitly accepts the Claude Code shape (description required, name falls back to the filename, comma-separated tools supported, unknown fields ignored), so the catalog agents are copied VERBATIM with no transform. Hooks are a [[hooks]] array in ~/.kimi-code/config.toml permitting ONLY event/matcher/command/timeout -- extra fields make the config fail to load, so there is no name slot for ownership and a marker-delimited managed block is used instead. Kimi's built-in tool names match Claude's for Bash/Write/Edit, so matchers are near-identity (MultiEdit folds into Edit; PowerShell is dropped because Kimi routes every shell call through Bash). GLOBAL SCOPE ONLY: the project config is .kimi-code/local.toml and documents only a [workspace] table, so the workspace hook row stays finding-only rather than inventing a path.",
+        "sources": [
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html",
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/agents.html",
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html",
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/reference/slash-commands.html",
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/reference/tools.html",
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files"
+        ]
+      },
+      "qwen": {
+        "classification": "DRIFT-ADDITIVE",
+        "note": "Instruction, skills, Markdown commands, and agents remain functional. Native hooks are now documented but are not delivered by the current adapter.",
+        "resolved_in": "3.15.8 Phase 6. Re-verified 2026-08-02 against the Qwen Code hooks documentation: hooks live under a `hooks` key in settings.json, Qwen KEPT the Claude-style event names (PreToolUse, PostToolUse, UserPromptSubmit, SessionStart, SessionEnd, Stop, PreCompact), matchers are REGEX over Qwen tool ids (run_shell_command, write_file, replace), and handlers accept `shell` (bash|powershell) and `statusMessage` fields Gemini CLI lacks. Enabled by default with a top-level `disableAllHooks` kill switch. Delivered as an ownership-scoped structured merge at both scopes, so this DRIFT-ADDITIVE finding is closed.",
+        "sources": [
+          "https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/",
+          "https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/",
+          "https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/"
+        ]
+      },
+      "openclaw": {
+        "classification": "UNVERIFIED",
+        "note": "No current authoritative discovery-format source was reachable during this cycle; existing workspace delivery is retained without a MATCH claim.",
+        "sources": []
+      },
+      "nexus_ai": {
+        "classification": "MATCH-LOCAL",
+        "note": "The sibling product contract remains aligned with the local Nexus-Hub adapter and version manifest.",
+        "sources": []
+      },
+      "hermes": {
+        "classification": "MATCH-FUNCTIONAL-FORMAT-EXPANSION",
+        "note": "Hermes now documents category-nested skill directories. Its recursive discovery still accepts Nexus-Hub's flattened child folders, so current delivery remains functional and no release blocker exists.",
+        "resolved_in": "3.15.8 Phase 8. Re-verified 2026-08-03 and the ambiguity resolves the OPPOSITE way from what a category-nested upstream example implied: the docs state 'Hermes discovers skills by listing every subdirectory of the tap path and probing each for SKILL.md', so the flattened one-level layout Nexus-Hub already writes is REQUIRED, not merely tolerated -- a category layer would put every SKILL.md at depth 2 where Hermes never probes. The earlier 'recursive discovery' premise in the note above is therefore wrong; discovery is one level. No migration performed; a regression test asserts every direct child of the skills root has a SKILL.md and that none exists below depth 1. That test caught a pre-existing catalog defect (category-level catalog/skills/code-review/references/ shipping as a bogus skill on all nine flattened platforms), fixed by relocating the checklists into each citing skill.",
+        "sources": [
+          "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills"
+        ]
+      }
+    }
+  },
+  "release_verification_v3_17_2": {
+    "_comment": "Release-time findings only. This block is NOT consumed by any guard. contract_checks and install_verify continue to describe delivered behavior and must change only when matching adapter and test changes land.",
+    "verified": "2026-08-15",
+    "decision": "RELEASE_WITH_DOCUMENTED_NON_BREAKING_DRIFT",
+    "read_paths": {
+      "match": [
+        "claude",
+        "antigravity2",
+        "cursor",
+        "gemini",
+        "gemini-cli",
+        "kimi",
+        "opencode",
+        "qwen"
+      ],
+      "drift_non_breaking": {
+        "codex": "Current documentation confirms the .agents/skills discovery ladder and omits ~/.codex/skills. Nexus-Hub writes the confirmed ~/.agents/skills path, so delivery remains functional."
+      },
+      "unverified": {
+        "nexus-ai": "The private repository exposes no publicly auditable read-path contract."
+      }
+    },
+    "defaults_levers": {
+      "verified": 13,
+      "unverified": 3,
+      "additive_drift": [
+        "Codex documents granular approval-policy subkeys in addition to the existing approval_policy values.",
+        "Cursor documents approvalMode values allowlist, auto-review, and unrestricted in ~/.cursor/cli-config.json.",
+        "Antigravity CLI documents toolPermission and artifactReviewPolicy in ~/.gemini/antigravity-cli/settings.json.",
+        "Hermes documents approvals.mode values smart, manual, and off while retaining HERMES_YOLO_MODE=true as an equivalent.",
+        "Copilot CLI separates editable ~/.copilot/settings.json from saved per-project approvals in ~/.copilot/permissions-config.json."
+      ]
+    },
+    "delivery_decision": "No adapter or installer path changes. The release removes Nexus-Hub's provider-override controller and restores recorded legacy state without seeding any provider's approval mode."
+  },
+  "contract_checks": {
+    "codex": {
+      "config": {
+        "global_dir": "~/.codex",
+        "agents_subdir": "agents",
+        "hooks_subdir": "hooks",
+        "hooks_supported": true
+      },
+      "flatten": "override",
+      "doc_mentions": [
+        "~/.agents/skills",
+        "~/.codex/prompts",
+        "~/.codex/AGENTS.md",
+        "~/.codex/agents",
+        "~/.codex/hooks.json"
+      ]
+    },
+    "antigravity2": {
+      "config": {
+        "global_dir": "~/.gemini/config",
+        "cli_global_dir": "~/.gemini/antigravity-cli",
+        "workspace_dir": ".agents",
+        "agents_subdir": "agents"
+      },
+      "flatten": "override",
+      "doc_mentions": [
+        "~/.gemini/config/skills",
+        "~/.gemini/config/global_workflows",
+        "~/.gemini/config/agents",
+        "~/.gemini/GEMINI.md",
+        "~/.gemini/antigravity-cli/skills",
+        ".agents/agents"
+      ]
+    },
+    "claude": {
+      "config": {
+        "global_dir": "~/.claude"
+      },
+      "flatten": "flag",
+      "doc_mentions": [
+        "~/.claude/skills"
+      ]
+    },
+    "gemini": {
+      "config": {
+        "global_dir": "~/.gemini"
+      },
+      "flatten": "none",
+      "doc_mentions": [
+        "~/.gemini/GEMINI.md"
+      ]
+    },
+    "gemini-cli": {
+      "config": {
+        "global_dir": "~/.gemini",
+        "hooks_supported": true
+      },
+      "flatten": "flag",
+      "doc_mentions": [
+        "~/.gemini/skills",
+        "~/.gemini/settings.json"
+      ]
+    },
+    "opencode": {
+      "config": {
+        "global_dir": "~/.config/opencode",
+        "instruction_workspace_dir": ""
+      },
+      "flatten": "flag",
+      "doc_mentions": [
+        "~/.config/opencode/skills",
+        "~/.config/opencode/agents",
+        "<project>/AGENTS.md"
+      ]
+    },
+    "nexus-ai": {
+      "config": {
+        "global_dir": "~/.nexus-ai/catalog"
+      },
+      "flatten": "flag",
+      "doc_mentions": [
+        "~/.nexus-ai/catalog/skills"
+      ]
+    },
+    "cursor": {
+      "config": {
+        "skills_subdir": "skills",
+        "agents_subdir": "agents",
+        "hooks_supported": true
+      },
+      "flatten": "flag",
+      "doc_mentions": [
+        "~/.cursor/skills",
+        "~/.cursor/agents",
+        "~/.cursor/hooks.json"
+      ]
+    },
+    "copilot": {
+      "config": {
+        "workspace_dir": ".github",
+        "agents_subdir": "agents",
+        "hooks_subdir": "hooks",
+        "hooks_supported": true
+      },
+      "flatten": "none",
+      "doc_mentions": [
+        "~/.copilot/copilot-instructions.md",
+        "~/.copilot/agents",
+        "~/.copilot/hooks",
+        ".github/agents",
+        ".github/hooks"
+      ]
+    },
+    "windsurf": {
+      "config": {
+        "workspace_dir": ".windsurf",
+        "instruction_workspace_dir": "",
+        "global_commands_subdir": "global_workflows",
+        "hooks_supported": true
+      },
+      "flatten": "override",
+      "doc_mentions": [
+        "~/.codeium/windsurf/skills",
+        "~/.codeium/windsurf/global_workflows",
+        "~/.codeium/windsurf/hooks.json",
+        ".windsurf/skills",
+        ".windsurf/workflows",
+        ".windsurf/hooks.json"
+      ]
+    },
+    "openclaw": {
+      "config": {
+        "workspace_dir": "",
+        "instruction_workspace_dir": "",
+        "skills_subdir": "skills",
+        "hooks_supported": false
+      },
+      "flatten": "flag",
+      "doc_mentions": [
+        "agents.defaults.workspace",
+        "<workspace>/AGENTS.md",
+        "<workspace>/skills",
+        "typed plugin"
+      ]
+    },
+    "qwen": {
+      "config": {
+        "skills_subdir": "skills",
+        "agents_subdir": "agents",
+        "hooks_supported": true
+      },
+      "flatten": "flag",
+      "doc_mentions": [
+        "~/.qwen/skills",
+        "~/.qwen/commands",
+        "~/.qwen/settings.json"
+      ]
+    },
+    "kimi": {
+      "_comment": "agents_subdir is intentionally absent from config: Kimi writes catalog/agents itself (validated, manifest-owned) rather than through the base tree copy, so declaring the key would double-write every agent. The read path is asserted via doc_mentions and install_verify instead.",
+      "config": {
+        "skills_subdir": "skills",
+        "hooks_supported": true
+      },
+      "flatten": "flag",
+      "doc_mentions": [
+        "~/.kimi-code/skills",
+        "~/.kimi-code/agents",
+        "~/.kimi-code/config.toml"
+      ]
+    }
+  },
+  "install_verify": [
+    {
+      "label": "Claude",
+      "detect": [
+        "~/.claude"
+      ],
+      "remediation": "re-run the installer (Claude block)",
+      "surfaces": [
+        {
+          "label": "commands",
+          "kind": "nonempty_dir",
+          "path": "~/.claude/commands"
+        },
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "~/.claude/skills"
+        },
+        {
+          "label": "CLAUDE.md SKILL_INDEX",
+          "kind": "file_contains",
+          "path": "~/.claude/CLAUDE.md",
+          "needle": "Skill Index"
+        }
+      ]
+    },
+    {
+      "label": "Codex / ChatGPT",
+      "detect": [
+        "~/.codex"
+      ],
+      "remediation": "re-run the installer with --platforms codex",
+      "surfaces": [
+        {
+          "label": "~/.agents/skills",
+          "kind": "nonempty_dir",
+          "path": "~/.agents/skills"
+        },
+        {
+          "label": "prompts",
+          "kind": "nonempty_dir",
+          "path": "~/.codex/prompts"
+        },
+        {
+          "label": "AGENTS.md SKILL_INDEX",
+          "kind": "file_contains",
+          "path": "~/.codex/AGENTS.md",
+          "needle": "Skill Index"
+        },
+        {
+          "label": "custom agents",
+          "kind": "nonempty_dir",
+          "path": "~/.codex/agents"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "~/.codex/hooks.json",
+          "needle": "Nexus-Hub"
+        }
+      ]
+    },
+    {
+      "label": "Gemini IDE",
+      "detect": [
+        "~/.gemini"
+      ],
+      "remediation": "re-run the installer with --platforms gemini",
+      "surfaces": [
+        {
+          "label": "GEMINI.md",
+          "kind": "is_file",
+          "path": "~/.gemini/GEMINI.md"
+        }
+      ]
+    },
+    {
+      "label": "Antigravity 2.0 IDE (global)",
+      "detect": [
+        "~/.gemini/config",
+        "~/.gemini/antigravity-cli"
+      ],
+      "remediation": "re-run the installer with --platforms antigravity2",
+      "surfaces": [
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "~/.gemini/config/skills"
+        },
+        {
+          "label": "global_workflows",
+          "kind": "nonempty_dir",
+          "path": "~/.gemini/config/global_workflows"
+        },
+        {
+          "label": "agents",
+          "kind": "nonempty_dir",
+          "path": "~/.gemini/config/agents"
+        },
+        {
+          "label": "GEMINI.md",
+          "kind": "is_file",
+          "path": "~/.gemini/GEMINI.md"
+        }
+      ]
+    },
+    {
+      "label": "Antigravity 2.0 CLI (agy)",
+      "detect": [
+        "~/.gemini/config",
+        "~/.gemini/antigravity-cli"
+      ],
+      "remediation": "re-run the installer with --platforms antigravity2",
+      "surfaces": [
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "~/.gemini/antigravity-cli/skills"
+        },
+        {
+          "label": "agentMode",
+          "kind": "file_contains",
+          "path": "~/.gemini/antigravity-cli/settings.json",
+          "needle": "agentMode"
+        }
+      ]
+    },
+    {
+      "label": "Antigravity 2.0 (this project .agents/)",
+      "detect": [
+        "~/.gemini/config",
+        "~/.gemini/antigravity-cli"
+      ],
+      "remediation": "run `nexus-hub init` in this project for project-scoped .agents/ workflows",
+      "surfaces": [
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "{project}/.agents/skills"
+        },
+        {
+          "label": "workflows",
+          "kind": "nonempty_dir",
+          "path": "{project}/.agents/workflows"
+        },
+        {
+          "label": "agents",
+          "kind": "nonempty_dir",
+          "path": "{project}/.agents/agents"
+        }
+      ]
+    },
+    {
+      "label": "Cursor",
+      "detect": [
+        "~/.cursor"
+      ],
+      "remediation": "re-run the installer with --platforms cursor",
+      "surfaces": [
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "~/.cursor/skills"
+        },
+        {
+          "label": "agents",
+          "kind": "nonempty_dir",
+          "path": "~/.cursor/agents"
+        },
+        {
+          "label": "hooks.json",
+          "kind": "is_file",
+          "path": "~/.cursor/hooks.json"
+        }
+      ]
+    },
+    {
+      "label": "GitHub Copilot",
+      "detect": [
+        "~/.copilot"
+      ],
+      "remediation": "re-run the installer with --platforms copilot",
+      "surfaces": [
+        {
+          "label": "personal instructions",
+          "kind": "is_file",
+          "path": "~/.copilot/copilot-instructions.md"
+        },
+        {
+          "label": "custom agents",
+          "kind": "nonempty_dir",
+          "path": "~/.copilot/agents"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "~/.copilot/hooks/nexus-hub.json",
+          "needle": "\"version\": 1"
+        },
+        {
+          "label": "hook scripts",
+          "kind": "nonempty_dir",
+          "path": "~/.copilot/hooks/nexus-hub-scripts"
+        }
+      ]
+    },
+    {
+      "label": "GitHub Copilot (this project)",
+      "detect": [
+        "{project}/.github/copilot-instructions.md"
+      ],
+      "remediation": "re-run the workspace installer with --platforms copilot",
+      "surfaces": [
+        {
+          "label": "repository instructions",
+          "kind": "is_file",
+          "path": "{project}/.github/copilot-instructions.md"
+        },
+        {
+          "label": "custom agents",
+          "kind": "nonempty_dir",
+          "path": "{project}/.github/agents"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "{project}/.github/hooks/nexus-hub.json",
+          "needle": "\"version\": 1"
+        }
+      ]
+    },
+    {
+      "label": "Devin Desktop / Windsurf",
+      "detect": [
+        "~/.codeium"
+      ],
+      "remediation": "re-run the installer with --platforms windsurf",
+      "surfaces": [
+        {
+          "label": "global rules",
+          "kind": "is_file",
+          "path": "~/.codeium/windsurf/memories/global_rules.md"
+        },
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "~/.codeium/windsurf/skills"
+        },
+        {
+          "label": "global workflows",
+          "kind": "nonempty_dir",
+          "path": "~/.codeium/windsurf/global_workflows"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "~/.codeium/windsurf/hooks.json",
+          "needle": "pre_run_command"
+        },
+        {
+          "label": "hook scripts",
+          "kind": "nonempty_dir",
+          "path": "~/.codeium/windsurf/hooks"
+        }
+      ]
+    },
+    {
+      "label": "Devin Desktop / Windsurf (this project)",
+      "detect": [
+        "{project}/.windsurf"
+      ],
+      "remediation": "re-run the workspace installer with --platforms windsurf",
+      "surfaces": [
+        {
+          "label": "AGENTS.md",
+          "kind": "is_file",
+          "path": "{project}/AGENTS.md"
+        },
+        {
+          "label": "legacy .windsurfrules",
+          "kind": "is_file",
+          "path": "{project}/.windsurfrules"
+        },
+        {
+          "label": "always-on rule",
+          "kind": "is_file",
+          "path": "{project}/.devin/rules/nexus-hub.md"
+        },
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "{project}/.windsurf/skills"
+        },
+        {
+          "label": "workflows",
+          "kind": "nonempty_dir",
+          "path": "{project}/.windsurf/workflows"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "{project}/.windsurf/hooks.json",
+          "needle": "pre_run_command"
+        }
+      ]
+    },
+    {
+      "label": "OpenClaw",
+      "detect": [
+        "~/.openclaw"
+      ],
+      "remediation": "re-run the installer with --platforms openclaw",
+      "surfaces": [
+        {
+          "label": "AGENTS.md",
+          "kind": "is_file",
+          "path": "{openclaw_workspace}/AGENTS.md"
+        },
+        {
+          "label": "SOUL.md",
+          "kind": "is_file",
+          "path": "{openclaw_workspace}/SOUL.md"
+        },
+        {
+          "label": "IDENTITY.md",
+          "kind": "is_file",
+          "path": "{openclaw_workspace}/IDENTITY.md"
+        },
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "{openclaw_workspace}/skills"
+        }
+      ]
+    },
+    {
+      "label": "Hermes",
+      "detect": [
+        "~/.hermes"
+      ],
+      "remediation": "run the integration installer with --integrations hermes",
+      "surfaces": [
+        {
+          "label": "native skills",
+          "kind": "nonempty_dir",
+          "path": "~/.hermes/skills"
+        }
+      ]
+    },
+    {
+      "label": "OpenCode",
+      "detect": [
+        "~/.config/opencode",
+        "~/.opencode"
+      ],
+      "remediation": "re-run the installer with --platforms opencode",
+      "surfaces": [
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "~/.config/opencode/skills"
+        },
+        {
+          "label": "agents",
+          "kind": "nonempty_dir",
+          "path": "~/.config/opencode/agents"
+        },
+        {
+          "label": "AGENTS.md",
+          "kind": "is_file",
+          "path": "~/.config/opencode/AGENTS.md"
+        }
+      ]
+    },
+    {
+      "label": "OpenCode (this project)",
+      "detect": [
+        "{project}/.opencode"
+      ],
+      "remediation": "re-run the workspace installer with --platforms opencode",
+      "surfaces": [
+        {
+          "label": "AGENTS.md",
+          "kind": "is_file",
+          "path": "{project}/AGENTS.md"
+        },
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "{project}/.opencode/skills"
+        },
+        {
+          "label": "agents",
+          "kind": "nonempty_dir",
+          "path": "{project}/.opencode/agents"
+        }
+      ]
+    },
+    {
+      "label": "Qwen Code",
+      "detect": [
+        "~/.qwen"
+      ],
+      "remediation": "re-run the installer with --platforms qwen",
+      "surfaces": [
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "~/.qwen/skills"
+        },
+        {
+          "label": "commands",
+          "kind": "nonempty_dir",
+          "path": "~/.qwen/commands"
+        },
+        {
+          "label": "QWEN.md",
+          "kind": "is_file",
+          "path": "~/.qwen/QWEN.md"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "~/.qwen/settings.json",
+          "needle": "nexus-hub:"
+        },
+        {
+          "label": "hook scripts",
+          "kind": "nonempty_dir",
+          "path": "~/.qwen/hooks"
+        }
+      ]
+    },
+    {
+      "label": "Kimi Code CLI",
+      "detect": [
+        "~/.kimi-code"
+      ],
+      "remediation": "re-run the installer with --platforms kimi",
+      "surfaces": [
+        {
+          "label": "skills",
+          "kind": "nonempty_dir",
+          "path": "~/.kimi-code/skills"
+        },
+        {
+          "label": "AGENTS.md",
+          "kind": "is_file",
+          "path": "~/.kimi-code/AGENTS.md"
+        },
+        {
+          "label": "custom agents",
+          "kind": "nonempty_dir",
+          "path": "~/.kimi-code/agents"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "~/.kimi-code/config.toml",
+          "needle": "NEXUS_HUB_HOOKS_START"
+        },
+        {
+          "label": "hook scripts",
+          "kind": "nonempty_dir",
+          "path": "~/.kimi-code/hooks"
+        }
+      ]
+    }
+  ],
+  "notification_verification_v3_15_10": {
+    "_comment": "v3.15.10 Phase 3. Findings record only; NOT consumed by any guard. Establishes, per platform, whether the two end-of-task notification triggers can be expressed at all. Trigger A = 'the agent is blocked on the human' (permission request or idle waiting for input). Trigger B = 'the agent finished responding'. A trigger is delivered ONLY when its event name is verified against first-party documentation: an unverified name ships a hook that is registered, executable, and permanently inert, which escalation-trigger.sh already did for four minor versions.",
+    "verified": "2026-08-04",
+    "platforms": {
+      "claude": {
+        "trigger_a": {
+          "verdict": "SUPPORTED",
+          "event": "Notification",
+          "delivered": true
+        },
+        "trigger_b": {
+          "verdict": "SUPPORTED",
+          "event": "Stop",
+          "delivered": true
+        },
+        "forbidden": [
+          "SubagentStop",
+          "PostToolUse"
+        ],
+        "source": "guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md + catalog/hooks/settings.json",
+        "note": "Delivered in Phase 1. Notification fires on permission requests and on idle-waiting-for-input."
+      },
+      "cursor": {
+        "trigger_a": {
+          "verdict": "NOT_SUPPORTED",
+          "event": null,
+          "delivered": false
+        },
+        "trigger_b": {
+          "verdict": "SUPPORTED",
+          "event": "stop",
+          "delivered": true
+        },
+        "forbidden": [
+          "subagentStop",
+          "beforeShellExecution"
+        ],
+        "source": "https://cursor.com/docs/agent/hooks",
+        "note": "Fetched first-party 2026-08-04. The documented set is 21 events across agent, Tab, and app-lifecycle groups. `stop` is documented as 'Handle agent completion' and carries trigger B. NOTHING in the set means 'blocked on the human': `beforeShellExecution` can return an 'ask' permission status but fires before EVERY shell command, so a notifier there would recreate the per-turn storm this release removed. Trigger A is therefore omitted rather than approximated. `subagentStop` exists in Cursor and is deliberately not wired."
+      },
+      "qwen": {
+        "trigger_a": {
+          "verdict": "NOT_SUPPORTED",
+          "event": null,
+          "delivered": false
+        },
+        "trigger_b": {
+          "verdict": "SUPPORTED",
+          "event": "Stop",
+          "delivered": false
+        },
+        "source": "v3.15.8 Phase 6 first-party verification of the Qwen Code hooks documentation",
+        "note": "Qwen KEPT the Claude-style event names and the verified list is explicit and closed: PreToolUse, PostToolUse, UserPromptSubmit, SessionStart, SessionEnd, Stop, PreCompact. No Notification equivalent, so trigger A is unavailable. Trigger B is expressible via Stop but NOT delivered in v3.15.10: deferred rather than rushed, because Qwen's hooks merge into its own settings.json and that writer needs its own test surface. Tracked as a v3.15.11 candidate."
+      },
+      "gemini-cli": {
+        "trigger_a": {
+          "verdict": "NOT_SUPPORTED",
+          "event": null,
+          "delivered": false
+        },
+        "trigger_b": {
+          "verdict": "SUPPORTED",
+          "event": "AfterAgent",
+          "delivered": false
+        },
+        "source": "v3.15.8 Phase 6 first-party verification of the upstream hooks reference",
+        "note": "Gemini CLI RENAMED every lifecycle event relative to the Claude-style set: PreToolUse -> BeforeTool, Stop -> AfterAgent, PreCompact -> PreCompress. So trigger B is `AfterAgent`, and writing `Stop` here would be exactly the inert-hook defect this phase exists to prevent. No notification-equivalent event is documented. NOT delivered: Gemini CLI is enterprise-only opt-in post-2026-06-18 (--enterprise flag), so it is the lowest-value target of the set."
+      },
+      "codex": {
+        "trigger_a": {
+          "verdict": "SUPPORTED",
+          "event": "PermissionRequest",
+          "delivered": true
+        },
+        "trigger_b": {
+          "verdict": "SUPPORTED",
+          "event": "Stop",
+          "delivered": true
+        },
+        "source": "openai/codex implementation: codex-rs/hooks/src/events/permission_request.rs + serde wire names in codex-rs/hooks/src/lib.rs",
+        "note": "SETTLED 2026-08-04 (v3.15.11), upgrading the v3.15.10 UNVERIFIED verdict. openai/codex ships no docs/hooks.md, so the event set was verified against the IMPLEMENTATION instead of prose: codex-rs/hooks/src/events/ contains a dedicated permission_request.rs module, and the serde wire names in codex-rs/hooks/src/lib.rs enumerate the full set as PermissionRequest, PostCompact, PostToolUse, PreCompact, PreToolUse, SessionEnd, SessionStart, Stop, SubagentStart, SubagentStop, UserPromptSubmit. PermissionRequest is Codex's 'blocked on the human' event, which makes Codex the ONLY platform besides Claude Code able to express trigger A. Both triggers are now delivered: Nexus-Hub's Notification chain is aliased onto PermissionRequest via CODEX_EVENT_ALIASES, and Stop carries the completion hook. Two v3.15.10 defects were found and fixed while settling this. (1) The Notification chain was being dropped as 'no Codex event of that name' because no alias existed. (2) notify-on-complete WAS reaching Codex but _notify_common.sh was NOT: the module is deliberately unregistered in settings.json, so the settings-driven script collection never saw it, and the hook sourced nothing and exited silently on every run. Both were the same shape as the inert-hook failure this verification discipline exists to prevent, and both are now asserted by test.",
+        "forbidden": [
+          "SubagentStop",
+          "SubagentStart",
+          "PostToolUse"
+        ]
+      },
+      "kimi": {
+        "trigger_a": {
+          "verdict": "UNVERIFIED",
+          "event": null,
+          "delivered": false
+        },
+        "trigger_b": {
+          "verdict": "UNVERIFIED",
+          "event": null,
+          "delivered": false
+        },
+        "source": "v3.15.8 Phase 7 first-party verification",
+        "note": "The v3.15.8 verification established Kimi's hook SCHEMA (a [[hooks]] array in ~/.kimi-code/config.toml permitting ONLY event/matcher/command/timeout, where extra fields make the config fail to load) and its tool-matcher mapping, but did NOT enumerate the event names. Global scope only. Nothing delivered until the event set is verified."
+      },
+      "copilot": {
+        "trigger_a": {
+          "verdict": "IMPOSSIBLE",
+          "event": null,
+          "delivered": false
+        },
+        "trigger_b": {
+          "verdict": "IMPOSSIBLE",
+          "event": null,
+          "delivered": false
+        },
+        "note": "PERMANENT NON-COVERAGE for notifications. Copilot exposes no hook surface of its own; it receives instruction text plus an opt-in skills wrapper set. It IS fully covered by the v3.15.10 end-of-task summary rule, which needs only an instruction surface. Do not re-litigate."
+      },
+      "opencode": {
+        "trigger_a": {
+          "verdict": "IMPOSSIBLE",
+          "event": null,
+          "delivered": false
+        },
+        "trigger_b": {
+          "verdict": "IMPOSSIBLE",
+          "event": null,
+          "delivered": false
+        },
+        "note": "PERMANENT NON-COVERAGE for notifications. OpenCode's plugins/ is a JS/TS Bun module runtime exporting an event API; a .sh or .py hook cannot be dropped in and run (documented non-gap DF-4, hooks_supported stays False). Delivering these triggers would mean authoring and maintaining a Bun plugin, which is out of scope. OpenCode IS fully covered by the end-of-task summary rule. Do not re-litigate."
+      }
+    },
+    "summary": "Trigger A is expressible on exactly TWO verified platforms (Claude Code via Notification, Codex via PermissionRequest). Trigger B is verified on four (Claude Code, Cursor, Qwen, and Codex) and renamed-but-verified on a fifth (Gemini CLI's AfterAgent). As of v3.15.11 both triggers are delivered to Claude Code and Codex, and trigger B to Cursor. Qwen and Gemini CLI remain expressible-but-undelivered; Kimi's event set is still unenumerated. Copilot and OpenCode are permanently out of reach for notifications and are fully covered by the end-of-task summary rule.",
+    "df1_settlement": "DF-1 SETTLED 2026-08-04 against first-party Cursor documentation, and the v3.15.9 finding is OVERTURNED. cursor.com/docs/skills documents FOUR skills read-paths, two of them user-level: '.agents/skills/', '.cursor/skills/', '~/.agents/skills/' (global), and '~/.cursor/skills/' (global), plus backward-compatible '.claude/skills/' and '.codex/skills/'. Discovery walks the root RECURSIVELY. So the global ~/.cursor/skills write is CORRECT and load-bearing, and the v3.15.9 release note that extended DF-1 to that path on secondary evidence was wrong; that extension is withdrawn. The COMMANDS half is different: Cursor's own docs no longer document a commands directory at all, Cursor 2.4 ships a /migrate-to-skills skill that converts both user-level and workspace-level commands into skills with disable-model-invocation:true, and a community bug report titled 'Commands are not detected in the global cursor directory' reports the global path does not work. Nexus-Hub already delivers every command as a command-skill through the verified skills path, so the global ~/.cursor/commands write is REDUNDANT rather than load-bearing. It is RETAINED unchanged for now (writing a directory Cursor ignores is harmless; removing one it does read would silently drop coverage), and flagged for deliberate removal in a later release."
+  }
+}

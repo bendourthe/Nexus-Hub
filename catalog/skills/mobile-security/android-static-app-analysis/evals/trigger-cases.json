@@ -1,0 +1,48 @@
+{
+  "skill": "android-static-app-analysis",
+  "purpose": "Route Android static review here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "APK static analysis",
+      "should_trigger": true,
+      "assert": "routes to android-static-app-analysis first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "exported Activity review",
+      "should_trigger": true,
+      "assert": "routes to android-static-app-analysis first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "secrets in strings.xml",
+      "should_trigger": true,
+      "assert": "routes to android-static-app-analysis first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "Frida on a running app",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "iOS IPA review",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "pinning bypass",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

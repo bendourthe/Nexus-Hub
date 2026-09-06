@@ -1,0 +1,48 @@
+{
+  "skill": "threat-intel-feed-operations",
+  "purpose": "Route feed-pipeline work here; send one-off lookups elsewhere.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "build an intel feed pipeline",
+      "should_trigger": true,
+      "assert": "routes to threat-intel-feed-operations first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "STIX TAXII ingest hygiene",
+      "should_trigger": true,
+      "assert": "routes to threat-intel-feed-operations first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "expire stale indicators in our blocklist",
+      "should_trigger": true,
+      "assert": "routes to threat-intel-feed-operations first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "enrich this one hash",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "profile FIN7 TTPs",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "scrape a leak site",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

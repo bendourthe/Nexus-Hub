@@ -1,4 +1,4 @@
 interface:
   display_name: Component Boundary Identifier
   short_description: Identify natural module and component boundaries for microservice extraction, modularization, or monolith decomposition using coupling analysis, cohesion metrics, dependency graphs,
-    and bounded contex
+    and bounded context identification. Use when planning service extraction, reducing monolith complexity, or designing module boundaries.

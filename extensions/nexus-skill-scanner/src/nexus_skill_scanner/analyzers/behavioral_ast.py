@@ -23,9 +23,47 @@ with a literal argument list) does not trip the catalog gate.
 from __future__ import annotations
 
 import ast
+import re
 
 from ..types import Finding, Severity
 from .base import FileUnit, make_finding
+
+# --- Class-2 refinement: self-authenticating API client vs. exfiltration ------
+# "env read + network egress" is only credential exfiltration when the credential
+# could leave to a host that is NOT its own service. A legitimate API client
+# reads its OWN key (e.g. PEXELS_API_KEY) and calls THAT service (api.pexels.com):
+# the credential's service token appears in an egress host it calls. We detect
+# that positive signal and emit the class-2 finding at MEDIUM (still reported and
+# visible to review, just below the HIGH gate) instead of HIGH. With no such
+# correlation - the classic "read a credential, send it to an unrelated host" -
+# the finding stays HIGH. Downgrading to MEDIUM (not suppressing) keeps the
+# construct on the radar for the skill-security-scan adjudication skill.
+_URL_HOST_RE = re.compile(r"https?://([A-Za-z0-9.\-]+)")
+
+# Tokens carried by many credential names AND hostnames that do NOT identify a
+# specific service, so they must never create a spurious credential<->host match.
+_GENERIC_SERVICE_TOKENS = frozenset({
+    "api", "key", "keys", "token", "tokens", "secret", "secrets", "auth",
+    "access", "id", "client", "app", "apikey", "www", "com", "org", "net",
+    "io", "co", "dev", "cloud", "http", "https", "gov", "edu", "backend",
+    "service", "services", "user", "pass", "password", "url", "endpoint",
+})
+
+
+def _service_tokens(raw: str) -> set[str]:
+    """Distinctive lowercase service tokens from a credential name or a hostname.
+
+    Splits on non-alphanumeric boundaries, drops generic/structural tokens and
+    very short or purely-numeric fragments, so e.g. ``PEXELS_API_KEY`` ->
+    ``{"pexels"}`` and ``api.pexels.com`` -> ``{"pexels"}`` (they correlate),
+    while ``AWS_SECRET_ACCESS_KEY`` -> ``{"aws"}`` and ``evil.com`` -> ``set()``
+    (they do not).
+    """
+    parts = re.split(r"[^A-Za-z0-9]+", raw.lower())
+    return {
+        p for p in parts
+        if len(p) >= 3 and not p.isdigit() and p not in _GENERIC_SERVICE_TOKENS
+    }
 
 # Bare builtin calls that execute dynamically-constructed code. These are the
 # strongest static signal of malicious behavior in a skill script.
@@ -93,6 +131,11 @@ class _Collector(ast.NodeVisitor):
         # (canonical_name, node) for every Call.
         self.calls: list[tuple[str, ast.Call]] = []
         self.env_reads: list[ast.AST] = []
+        # Literal names of the env vars read (e.g. "PEXELS_API_KEY"), used to
+        # decide whether a credential is a self-authenticating API key. Empty
+        # when a read uses a non-literal / dynamic key (kept conservative: an
+        # unresolved credential name cannot be shown to be self-authenticating).
+        self.env_names: list[str] = []
         self.shell_true: list[ast.Call] = []
         # name -> kind for tainted assignments (module-scoped heuristic).
         self.tainted: dict[str, str] = {}
@@ -131,6 +174,11 @@ class _Collector(ast.NodeVisitor):
         name = self._resolve(node.func)
         if name:
             self.calls.append((name, node))
+            # Capture the literal env-var name for os.getenv("X") / os.environ.get("X").
+            if name in {"os.getenv", "os.getenvb", "os.environ.get"} and node.args:
+                first = node.args[0]
+                if isinstance(first, ast.Constant) and isinstance(first.value, str):
+                    self.env_names.append(first.value)
         for kw in node.keywords:
             if kw.arg == "shell" and isinstance(kw.value, ast.Constant) and kw.value.value is True:
                 self.shell_true.append(node)
@@ -146,6 +194,10 @@ class _Collector(ast.NodeVisitor):
         chain = _attr_chain(node.value)
         if chain == "os.environ":
             self.env_reads.append(node)
+            # Capture the literal key for os.environ["X"].
+            key = node.slice
+            if isinstance(key, ast.Constant) and isinstance(key.value, str):
+                self.env_names.append(key.value)
         self.generic_visit(node)
 
     def visit_Assign(self, node: ast.Assign) -> None:
@@ -266,17 +318,46 @@ class BehavioralASTAnalyzer:
             ))
 
         # Class 2 (executable): credential exfiltration = environment/credential
-        # read + a network egress call in the same script. This is the strong,
-        # gate-relevant signal -- HIGH severity.
+        # read + a network egress call in the same script. HIGH by default -- the
+        # classic credential-harvesting-and-exfiltration signal. Refinement: a
+        # legitimate API client reads its OWN key and calls THAT service, so when
+        # every read credential's service token matches an egress host the script
+        # calls, this is a self-authenticating API client, not exfiltration to an
+        # unrelated host -- report it at MEDIUM (still visible, below the HIGH
+        # gate) rather than HIGH. Any unmatched (or non-literal) credential keeps
+        # the finding at HIGH.
         if has_network and collector.env_reads:
             env_node = collector.env_reads[0]
             line = getattr(env_node, "lineno", 0)
-            findings.append(make_finding(
-                detection_class=2, severity=Severity.HIGH,
-                title="Credential exfiltration (env read + network egress)",
-                message="The script reads environment variables / credentials and also makes an outbound network call -- the classic credential-harvesting-and-exfiltration pattern.",
-                unit=unit, line=line, snippet=snippet_for(env_node), analyzer=self.name,
-            ))
+            host_tokens: set[str] = set()
+            for host in _URL_HOST_RE.findall(unit.text):
+                host_tokens |= _service_tokens(host)
+            cred_token_sets = [_service_tokens(n) for n in collector.env_names]
+            self_authenticating = (
+                bool(cred_token_sets)
+                and all(bool(ts & host_tokens) for ts in cred_token_sets)
+            )
+            if self_authenticating:
+                matched = sorted({t for ts in cred_token_sets for t in (ts & host_tokens)})
+                findings.append(make_finding(
+                    detection_class=2, severity=Severity.MEDIUM,
+                    title="Credential read + network egress (self-authenticating API client)",
+                    message=(
+                        "The script reads an environment credential and makes a network call, but the "
+                        f"credential's service ({', '.join(matched)}) matches an egress host the script "
+                        "calls -- it looks like an API client sending its own key to its own service, "
+                        "not credential exfiltration to an unrelated host. Verify the key is used only "
+                        "as authentication to that service."
+                    ),
+                    unit=unit, line=line, snippet=snippet_for(env_node), analyzer=self.name,
+                ))
+            else:
+                findings.append(make_finding(
+                    detection_class=2, severity=Severity.HIGH,
+                    title="Credential exfiltration (env read + network egress)",
+                    message="The script reads environment variables / credentials and also makes an outbound network call -- the classic credential-harvesting-and-exfiltration pattern.",
+                    unit=unit, line=line, snippet=snippet_for(env_node), analyzer=self.name,
+                ))
 
         # Class 13 (taint): a tainted source flowing into a dangerous sink.
         if collector.tainted:

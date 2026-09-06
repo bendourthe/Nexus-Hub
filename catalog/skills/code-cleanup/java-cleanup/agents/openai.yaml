@@ -1,4 +1,4 @@
 interface:
   display_name: Java Code Cleanup
   short_description: Remove dead code, update deprecated APIs, apply modern Java patterns, and clean up Java codebases. Use when cleaning up Java projects, removing unused imports, modernizing legacy Java
-    code, or improvi
+    code, or improving code maintainability.

@@ -1,265 +1,192 @@
 ---
 name: devlog-generation
-description: Generate comprehensive development logs from git history, documentation, and code artifacts. Use when creating project history, onboarding to unfamiliar codebases, recovering lost development context, or establishing a troubleshooting knowledge base.
-summary_l0: "Generate development logs from git history, docs, and code artifacts"
-overview_l1: "This skill generates comprehensive development logs from git history, documentation, and code artifacts. Use it when creating project history, onboarding to unfamiliar codebases, recovering lost development context, or establishing a troubleshooting knowledge base. Key capabilities include git history analysis and summarization, documentation artifact extraction, development timeline reconstruction, decision context recovery, troubleshooting knowledge base creation, onboarding context generation, and version-by-version development narrative construction. The expected output is a structured development log (DEVLOG.md) with chronological entries covering key decisions, changes, and context. Trigger phrases: devlog, development log, project history, git history summary, onboarding context, development timeline, DEVLOG, recover context."
+description: Maintain docs/DEVLOG.md as a bounded per-release INDEX - one line per release with a date, version, one-sentence summary, and links to that release's plan, development/history/ directory, and known-gaps file. Use this skill whenever the user says "update the devlog", "sync the devlog", "add a release to the devlog", "regenerate the devlog", "regenerate the development log", "the devlog is out of date", "the devlog index is missing a version", or when /update runs at devlog or release scope. It never writes narrative prose into DEVLOG; the rich per-phase story goes to the per-version development/history/ file instead. SKIP - a single working session's story (use session-history); the authoritative record of what changed in a release (use release-notes-writer); the reasoning behind a design choice (use architecture-decision-record); unfinished or carried-over items (use known-gaps-tracker). Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.
+summary_l0: "Maintain a release index without writing evidence into living subtrees"
+overview_l1: "This skill owns docs/DEVLOG.md, which is an INDEX and not a log: a short header plus one line per release, newest first, carrying the release date, version, a one-sentence summary, and repo-relative links to that release's plan file, development/history/ directory, and known-gaps file. Use it when the user asks to update, sync, generate, or regenerate the devlog, and when /update runs at devlog or release scope. Its discovery logic is unchanged (git tags, CHANGELOG headings, the per-version docs tree) but its destination differs: the index gets one line, and any narrative found is routed to the per-version development/history/ file via session-history. It updates an existing version line in place rather than duplicating it, omits links whose targets do not exist, and never restates CHANGELOG. Trigger phrases: devlog, development log, DEVLOG, update the devlog, sync the devlog, devlog index, add a release to the devlog. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # DevLog Generation
 
-Synthesize a complete, structured development log from a repository's git history, documentation, and code artifacts to serve as a durable knowledge base for developers and AI assistants.
+`docs/DEVLOG.md` is a **navigation index**, not a log. It answers one question at a glance: what has this project released, and where is each release's detail? It never answers "what changed" (that is `CHANGELOG.md`) or "how did this phase go" (that is the per-version `development/history/` file).
+
+The index never writes release evidence into a living subtree. Keep `docs/handbooks/` at the docs root, regenerate its generated output from source, and snapshot it at release close to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/`, named for the version the copied content describes. Narrative remains in the release-bound `development/history/` tree owned by `[[session-history]]`.
+
+This skill maintains that index. Its discovery work is the same work a narrative devlog generator does; only the destination differs.
 
 ## When to Use This Skill
 
-Use this skill when you need to:
+Use this skill when:
 
--   Generate a full development history for a project that lacks one
--   Onboard to an unfamiliar codebase by reconstructing its evolution
--   Recover development context after a lost or corrupted devlog
--   Create a troubleshooting knowledge base from historical commits
--   Audit project decisions and their rationale retroactively
--   Prepare a project handoff with full context
+- A release has just been cut and the index needs its line (the common case, driven by `/update release`).
+- The user asks to update, sync, or regenerate the devlog.
+- `docs/DEVLOG.md` does not exist yet in a project and needs to be created in the index format.
+- An existing narrative DEVLOG needs converting to the index format (archive the body first; see the conversion procedure below).
+- An index line is stale, wrong, or missing links whose targets now exist.
 
-**Trigger phrases**: "generate devlog", "create development log", "reconstruct project history", "build devlog from git", "development history", "project timeline"
+**Do NOT use this skill for:**
 
-## What This Skill Does
+- **A session's narrative** (what was tried, what failed, what was decided). That is `[[session-history]]`, written to `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`.
+- **The record of what changed in a release.** That is `CHANGELOG.md`, and it is authoritative. The index summary is a pointer, never a substitute, and must not restate the changelog.
+- **Design reasoning and rejected alternatives.** That is `[[architecture-decision-record]]`.
+- **Open, deferred, or broken work.** That is `[[known-gaps-tracker]]`.
 
-### Core Capabilities
+**Trigger phrases**: "update the devlog", "sync the devlog", "add a release to the devlog", "regenerate the devlog", "the devlog is out of date". Note that "add a devlog entry" describes the format this skill replaced; an index gains a line, not an entry.
 
-1.  **Source Material Collection**: Gather git commits, tags, branches, documentation, code comments, and (optionally) PR/MR data
-2.  **Timeline Synthesis**: Cluster commits into logical units of work aligned with features, releases, and milestones
-3.  **Entry Generation**: Produce rich entries covering what changed, why, decisions made, troubleshooting trails, and downstream impact
-4.  **Cross-Referencing**: Correlate CHANGELOG entries, PR descriptions, and inline comments with commit clusters for maximum context density
+## The Output Contract
 
-### Entry Structure
+The whole file is a header plus one table. Nothing else belongs in it.
 
-Each devlog entry contains five sections:
+### Header
 
-| Section | Purpose | Required |
-|---------|---------|----------|
-| What Changed | Concise summary of modifications | Always |
-| Why It Changed | Motivation, triggers, requirements | Always |
-| Decisions Made | Trade-offs, alternatives, rationale | When design choices were made |
-| Troubleshooting Trail | Failed attempts, errors, solutions | When debugging occurred |
-| Impact & Context | Affected modules, downstream effects | When cross-cutting changes |
+Five lines, stated once, never per release:
+
+```markdown
+# Development Log
+
+This is an **index**, not a log. One line per release, newest first, linking to that release's plan, per-phase history, and known gaps. It is a navigation surface only: [`CHANGELOG.md`](../CHANGELOG.md) remains the authoritative record of what changed in each release.
+
+| Date | Version | Summary | Plan | History | Gaps |
+|---|---|---|---|---|---|
+```
+
+When a prior narrative body was archived, the header also links the archive and the decision record that authorized the conversion.
+
+### One line per release
+
+```markdown
+| 2026-08-20 | v3.17.6 | CI gate hygiene: required checks made satisfiable from any PR shape | [ci-gate-and-branch-hygiene](v3/v3.17/plans/v3.17.6-ci-gate-and-branch-hygiene.md) | [history](v3/v3.17/development/history/) | [gaps](v3/v3.17/known-gaps.md) |
+```
+
+| Column | Source | Rule |
+|---|---|---|
+| Date | The release's `CHANGELOG.md` heading, or the tag date | `YYYY-MM-DD`, no time component |
+| Version | The release | `vX.Y.Z`, matching the tag |
+| Summary | Authored, from the plan slug plus the CHANGELOG lead | **One sentence.** No trailing period needed. Never a restatement of the changelog entry |
+| Plan | `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<X.Y.Z>-<slug>.md` | Link the file, labelled by its slug |
+| History | `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/` | Link the directory, labelled `history` |
+| Gaps | `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` | Link the file, labelled `gaps` |
+
+Links are **relative to `docs/DEVLOG.md`**, so they resolve both on the forge and in an editor. A root-relative `/docs/...` link does not resolve on GitHub and must not be used.
+
+**Newest first.** A new release's line goes directly under the table header.
 
 ## Instructions
 
-### Step 1: Analyze the Git Timeline
+### Step 1: Determine the target release
 
-Establish the project's full chronological history:
+Read the version being indexed from the release context: the `CHANGELOG.md` heading being finalized, the tag about to be cut, or the version the user named. If no release is in flight, there is nothing to add. Say so and stop rather than inventing a line for unreleased work.
 
-```bash
-# Full commit timeline (oldest first for analysis)
-git log --format="%H|%ai|%an|%s" --reverse
+An index line is added for a **release**, not for a phase, a commit, or a session. Mid-release work produces a `development/history/` file and nothing in the index.
 
-# Tag/release milestones
-git tag -l --sort=version:refname
+### Step 2: Resolve the links before writing them
 
-# Branch topology
-git log --all --oneline --graph --decorate --first-parent
-
-# Identify large/significant commits
-git log --shortstat --format="%H %s" | head -100
-```
-
-Key analysis tasks:
--   Identify the natural "chapters" of the project (initial setup, major features, releases)
--   Note merge commits as boundaries between logical units
--   Flag commits with keywords: "fix", "revert", "workaround", "hack", "breaking"
-
-### Step 2: Gather Supporting Documentation
-
-Read all available documentation sources in the repository:
-
--   **Primary sources**:
-    -   `README.md`
-    -   `CHANGELOG.md`
-    -   `docs/DEVLOG.md` (existing, if any)
-    -   `tasks/todo.md`, `tasks/lessons.md`
--   **Secondary sources**:
-    -   `docs/` or `guides/` directories
-    -   ADR files (Architecture Decision Records)
-    -   `.github/PULL_REQUEST_TEMPLATE.md` (for PR context patterns)
-
-For each source, extract:
--   **CHANGELOG.md**: Version-tagged change summaries (map to git tags)
--   **README.md**: Project purpose evolution (compare across git history with `git log -p README.md`)
--   **tasks/lessons.md**: Captured failure patterns and solutions
--   **Inline comments**: Search for `TODO`, `FIXME`, `HACK`, `WORKAROUND`, `XXX` comments across the codebase
-
-### Step 3: Gather PR/MR Context (Optional)
-
-If the repository is hosted on GitHub and the `gh` CLI is available:
+For version `X.Y.Z`, probe the filesystem:
 
 ```bash
-# Merged PRs with descriptions
-gh pr list --state merged --limit 100 --json number,title,body,mergedAt,headRefName
-
-# PR review comments (for significant PRs)
-gh pr view <number> --json reviews,comments
+ls docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<X.Y.Z>-*.md      # plan file(s)
+ls -d docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/   # history dir
+ls docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md             # gaps file
 ```
 
-Map each PR to its commit range using the branch name or merge commit. If the `gh` CLI is not available, note this as a gap and proceed with git-only sources.
+Emit a link only when its target exists. Three fallbacks, in order:
 
-### Step 4: Cluster Commits into Logical Units
+1. **Multiple version-prefixed plan files**: link all of them, space-separated, each labelled by its slug. A release can ship more than one plan.
+2. **No version-prefixed plan file**, because the project's plan filenames predate a version-prefixed convention: link the minor version's `plans/` directory instead. Do **not** guess which slug-named plan belongs to this patch release; a resolving link to the wrong plan is worse than a link to the directory.
+3. **Target genuinely absent**: put a literal `-` in the cell. Never emit a link to a path that does not exist, and never leave the cell empty.
 
-Rules for clustering:
+### Step 3: Write the summary
 
-1.  **Release boundaries**: Every tagged release starts a new cluster
-2.  **Feature branches**: Commits from the same feature branch form one cluster
-3.  **Time proximity**: Consecutive commits on the same day by the same author touching the same files form one cluster
-4.  **Semantic grouping**: Commits with the same conventional commit scope (e.g., `feat(auth)`) form one cluster
-5.  **Standalone significance**: Any commit with 10+ files changed, a revert, or a hotfix gets its own cluster
+One sentence, authored. Derive it from the plan slug and the release's own framing, not by copying the CHANGELOG lead verbatim.
 
-For each cluster, determine:
--   **Date**: Use the date of the last commit in the cluster
--   **Title**: Derive from the most descriptive commit message or the PR title
--   **Category**: `[feature]`, `[bugfix]`, `[refactor]`, `[decision]`, `[infra]`
+Mechanical extraction does not work and should not be attempted: a changelog's first bolded item is frequently a section label rather than a summary. Read enough of the release to say what it did in one clause.
 
-### Step 5: Generate Entries
+If the release is a patch with a single narrow fix, say the fix. If it is a multi-phase feature release, say the theme, not the phase list.
 
-For each cluster (newest first), produce an entry using this template:
+### Step 4: Insert or update, never append blindly
 
-```markdown
-## [YYYY-MM-DD HH:MM] — [Short Descriptive Title] [category-tag]
+Check whether a line for this version already exists:
 
-### What Changed
-Concise summary of changes: features, fixes, refactors, dependency updates.
-
-*   Modified `path/to/file`: Brief description
-*   Added `path/to/new-file`: Purpose
-*   Deleted `path/to/old-file`: Reason
-
-### Why It Changed
-Motivation, triggering issue, or requirement. Reference issue numbers or user reports.
-
-### Decisions Made
-*   **Chose X over Y**: Reasoning
-*   **Rejected Z**: Reasoning
-
-### Troubleshooting Trail *(if applicable)*
-
-<details>
-<summary>Expand troubleshooting details</summary>
-
-*   **Attempt 1**: What was tried
-    *   *Result*: Failed
-    *   *Error*: `error message`
-    *   *Analysis*: Why it failed
-*   **Attempt 2 (Solution)**: What worked
-    *   *Key Insight*: What made the difference
-
-</details>
-
-### Impact & Context
-*   **Affected**: `module-a`, `module-b`
-*   **Downstream**: Effects on other parts of the system
+```bash
+grep -n "| v<X.Y.Z> |" docs/DEVLOG.md
 ```
 
-**Category tags**: `[feature]`, `[bugfix]`, `[refactor]`, `[decision]`, `[infra]`
+- **Exists**: update that line in place. Re-running this skill on the same release must be idempotent; a second line for the same version is a defect.
+- **Does not exist**: insert directly below the table header row (`|---|---|...`), because the table is newest-first.
 
-**Guidance for each section**:
--   **What Changed**: Map directly to git diffs. List specific files where possible.
--   **Why It Changed**: Capture intent that is often lost in commit messages. Reference issues, user reports, or architectural goals.
--   **Decisions Made**: Serve as lightweight ADR (Architecture Decision Record) entries. Include rejected alternatives with reasoning to prevent future developers from re-evaluating settled decisions.
--   **Troubleshooting Trail**: Use collapsible `<details>` to avoid cluttering the file while preserving critical debugging context. This is the highest-value section for AI assistants trying to avoid repeated dead ends.
--   **Impact & Context**: Help readers scope the blast radius of changes without reading diffs.
+### Step 5: Route the narrative elsewhere
 
-### Step 6: Assemble the DevLog File
+Any rich material the discovery surfaced (decision trails, failed attempts, troubleshooting, impact analysis) does **not** go in the index. Hand it to `[[session-history]]`, which writes `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/<date>_<slug>.md`.
 
-1.  Start with the file header:
+If that file already exists for the phase in question, the narrative belongs appended there, not duplicated into a new file.
 
-    ```markdown
-    # Development Log
+### Step 6: Verify the file is still bounded
 
-    > A comprehensive record of this project's development history.
-    > For AI assistants: use this file to understand what has been tried, what worked, what failed, and why.
-    > Generated by the `generate-devlog` command. Maintained incrementally via `update-devlog`.
-    ```
+The index grows by exactly one line per release. If it grew by more, or if any cell now contains prose spanning multiple sentences, the format has regressed and must be corrected before finishing.
 
-2.  Append all entries in **reverse chronological order** (newest first).
+## Creating the index in a project that has no DEVLOG
 
-3.  Use consistent `## [YYYY-MM-DD HH:MM]` heading format. For entries where exact time is unknown, use `00:00` as placeholder.
+Write the header from the template in **The Output Contract** above, then one line per existing release discovered from `git tag --sort=-v:refname` and the `CHANGELOG.md` headings. Resolve every link per Step 2, so a project with no per-version docs tree simply gets `-` in those three columns.
 
-4.  If `docs/DEVLOG.md` already exists, **warn the user** before overwriting. Offer to create a backup as `docs/DEVLOG.backup.md`.
+This is a valid and common end state: the index is useful with the date, version, and summary columns alone.
 
-### Step 7: Validate and Report
+## Converting an existing narrative DEVLOG to the index
 
-After generation, verify:
+The conversion is destructive to the file, so it is never done implicitly:
 
--   Every tagged release has a corresponding entry
--   Entries are in strict reverse chronological order
--   No duplicate entries for the same logical unit
--   Category tags are consistently applied
--   File paths referenced in entries actually exist (or existed at that point in history)
+1. **Archive first.** Move the entire current body to `docs/archives/DEVLOG-<range>.md` under a short provenance header naming the archive date and the authorizing decision record.
+2. **Prove content preservation.** Hash the original and the archived body and compare. Do not report the archive as verified on the strength of a successful copy; a copy can silently rewrite line endings.
+3. **Record the decision.** The conversion changes a documentation policy, so it needs a decision record with its rejected alternatives (see `[[architecture-decision-record]]`).
+4. **Rewrite** `docs/DEVLOG.md` per the contract, deriving lines from the archived body's entry headings and the release set.
+5. **Bound the pre-canonical era.** Releases that predate the project's per-version docs layout have no plan, history, or gaps file to link. Collapse them into one line per **minor** version pointing at the archive, rather than one line per release. This is what keeps a line-count ceiling holding as the project ages instead of merely satisfied on the day it is set.
+6. **Fix the references.** Grep the repo for anything describing DEVLOG as a narrative log and correct it. Leave historical records alone: past session histories, plans, and changelog entries recorded what was true when written and must not be retconned.
 
-Report summary in chat:
+## Failure Modes
 
-```
-Generated DEVLOG.md: X entries, spanning [earliest date] to [latest date].
-Sources: git history (Y commits), CHANGELOG.md, [other sources].
-Coverage: Z releases, W feature branches.
-```
-
-## Handling Edge Cases
-
-### Very Large Repositories (1000+ commits)
--   Focus on tagged releases and merge commits as primary entry sources
--   Batch analysis in chunks of 100 commits
--   Prioritize entries for tags, merges, and high-impact commits
--   Group maintenance commits (dependency updates, formatting) into monthly summaries
-
-### Repositories Without Tags
--   Use date-based grouping (weekly or bi-weekly clusters)
--   Identify "milestone" commits by diff size or message keywords
-
-### Missing Context (No CHANGELOG, No PRs)
--   Rely on commit messages and diffs as primary source
--   Flag entries with low confidence: `*(Inferred from commit messages only)*`
--   Recommend the user review and enrich flagged entries
-
-### Squash-Merged Repositories
--   Each squash-merge commit becomes one entry
--   Use the squash commit message (typically contains the PR description) as the primary source
+| Situation | Correct behavior |
+|---|---|
+| The release has no plan file yet | Emit the line with `-` in the Plan column, and note the omission to the user. Never a broken link. |
+| The release has no `development/history/` directory | Same: `-` in that column. A patch release with no phases legitimately has none. |
+| `docs/DEVLOG.md` does not exist | Create it from the header template, then add the line. Do not fail. |
+| A line for this version already exists | Update it in place. Never append a duplicate. |
+| The project has no `docs/v*` tree at all | Emit date, version, and summary; put `-` in all three link columns. |
+| An existing DEVLOG is narrative, not an index | Stop and run the conversion procedure above, with the user's confirmation. Never silently overwrite a narrative body. |
+| The user asks to record a phase, not a release | Route to `[[session-history]]` and add nothing to the index. |
 
 ## Verification
 
-- [ ] All tagged releases have corresponding entries
-- [ ] Entries are in strict reverse chronological order
-- [ ] Each entry has at minimum "What Changed" and "Why It Changed" sections
-- [ ] Decisions sections include rejected alternatives with reasoning
-- [ ] Troubleshooting trails use collapsible `<details>` sections
-- [ ] Category tags are consistently applied to all entries
-- [ ] File paths use backtick formatting
-- [ ] Date format is consistent (`[YYYY-MM-DD HH:MM]`)
-- [ ] File header includes purpose statement and maintenance guidance
-- [ ] User was warned before overwriting any existing DEVLOG.md
+- [ ] `docs/DEVLOG.md` contains exactly one line per release, and no line for an unreleased version
+- [ ] The target version appears exactly once: `grep -c "| v<X.Y.Z> |" docs/DEVLOG.md` returns `1`
+- [ ] Every link in the file resolves to an existing path (resolve each relative to `docs/`)
+- [ ] No cell in the table contains more than one sentence
+- [ ] The table is in descending version order, newest first
+- [ ] No narrative section, per-release heading, or `<details>` block exists anywhere in the file
+- [ ] The narrative that would have gone into a devlog entry exists in `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`
+- [ ] No devlog or release-evidence write targeted a living subtree; handbook snapshots, when present, use the described version under `docs/archives/`
+- [ ] The file grew by exactly the number of releases added
+- [ ] Markdown conventions hold per `catalog/style-guides/markdown.md` (blank line before and after the table, one H1, ASCII-only in English docs)
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "The git log already is the devlog" | Raw `git log` lists what changed but never why; a reader six months later cannot reconstruct the decision or the rejected alternatives that the DEVLOG captures. |
-| "I can infer the 'why' confidently from the diff" | Inferring intent from code alone produces confident-sounding fiction; entries built only from commit messages must be flagged low-confidence so the user enriches them, not presented as fact. |
-| "I will just overwrite the existing DEVLOG.md to regenerate it cleanly" | Silently overwriting destroys hand-written context the user added; the user must be warned before any existing DEVLOG.md is replaced. |
+| "This release deserves more than one line, it was a big one" | The one-line rule is what keeps the file loadable; the exception is how a 99-line index becomes a 5,615-line file nobody can read. A big release earns a richer `development/history/` file, not a longer index cell. |
+| "I will append the new line at the bottom, it is faster" | The table is newest-first, so a bottom append puts the newest release below releases from years earlier and silently breaks the ordering readers depend on to find recent work. |
+| "The plan file does not exist yet, I will link where it will be" | A link to a path that does not exist reads as a resolving link until someone clicks it, and link checkers flag it as breakage in a file that is supposed to be pure navigation. Use `-` and say so. |
+| "I will copy the CHANGELOG lead as the summary, it is already written" | Changelog leads are frequently section labels rather than summaries, so this yields cells reading "Activation:" or "None." The summary must be authored from the release's actual theme. |
+| "The version line already exists but re-adding is harmless" | Two lines for one version means a reader cannot tell which is current, and the duplicate survives every future edit because nothing looks obviously wrong. Update in place. |
+| "The narrative context is valuable, I will keep it in DEVLOG as well as the history file" | Duplicated narrative diverges the moment one copy is edited, and the index is exactly where nobody will look for it. One home per fact. |
+| "This project has no docs/v* tree, so the skill does not apply" | The index is still useful with date, version, and summary; the link columns take `-`. Refusing to write anything leaves the project with no chronology at all. |
 
 ## Related Skills
 
-- [[code-commit-workflow]] -- commit message conventions that feed into devlog generation
-- [[technical-documentation]] -- broader documentation practices the devlog complements
-- [[context-manager]] -- maintaining context across large codebases when reconstructing history
-- [[session-history]] -- captures a single session in detail; the devlog aggregates across many sessions and releases
+- [[session-history]] -- owns the per-phase narrative this skill deliberately does not write; the index links its directory
+- [[known-gaps-tracker]] -- owns the per-version open-work file the index links
+- [[release-notes-writer]] -- owns `CHANGELOG.md`, the authoritative change record the index must never restate
+- [[architecture-decision-record]] -- where design reasoning and rejected alternatives go, including the decision to convert a DEVLOG
+- [[docs-layout-refactor]] -- owns the per-version docs tree and archive conventions the index's links depend on
+- [[code-commit-workflow]] -- commit conventions that feed the release discovery this skill reads
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: February 2026
-
-
-### Iterative Refinement Strategy
-This skill is optimized for an iterative approach:
-1.  **Execute**: Perform the core steps defined above.
-2.  **Review**: Critically analyze the output (coverage, quality, completeness).
-3.  **Refine**: If targets aren't met, repeat the specific implementation steps with improved context.
-4.  **Loop**: Continue until the definition of done is satisfied.
+**Version**: 2.0.0
+**Last Updated**: August 2026

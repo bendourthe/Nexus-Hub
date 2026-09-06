@@ -1,0 +1,48 @@
+{
+  "skill": "ot-incident-response",
+  "purpose": "Route plant IR here; send enterprise ransomware elsewhere.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "OT incident response for a PLC event",
+      "should_trigger": true,
+      "assert": "routes to ot-incident-response first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "plant cyber event playbook",
+      "should_trigger": true,
+      "assert": "routes to ot-incident-response first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "do not trip the turbine during IR",
+      "should_trigger": true,
+      "assert": "routes to ot-incident-response first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "enterprise ransomware IR",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "Modbus signature writing",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "IT disk imaging of a laptop",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

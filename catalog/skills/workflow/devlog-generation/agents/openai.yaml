@@ -1,4 +1,4 @@
 interface:
   display_name: DevLog Generation
-  short_description: Generate comprehensive development logs from git history, documentation, and code artifacts. Use when creating project history, onboarding to unfamiliar codebases, recovering lost development
-    context,
+  short_description: Maintain docs/DEVLOG.md as a bounded per-release index - one line per release with a date, version, one-sentence summary, and links to that release's plan, development history,
+    and known-gaps file. Narrative goes to the per-version history file, not the index.

@@ -422,10 +422,10 @@ Produce a structured report summarizing the verification results.
 
 | Rationalization | Reality |
 |---|---|
-| "The code looks the same functionally, so no formal verification is needed" | The PaymentProcessor audit example in this skill demonstrates that a syntactically similar refactoring can silently drop an audit log side effect — a behavioral change invisible to casual reading. |
+| "The code looks the same functionally, so no formal verification is needed" | The PaymentProcessor audit example in this skill demonstrates that a syntactically similar refactoring can silently drop an audit log side effect -- a behavioral change invisible to casual reading. |
 | "All unit tests pass, so behavior is preserved" | Unit tests only cover paths they were written for; if the original code had no test for null inputs and the refactored version handles null differently, the behavioral change is undetected until a production null value triggers it. |
 | "We used an automated IDE refactoring tool, so it's safe" | IDE tools are correct for simple renames and extractions but fail with reflection, dynamic dispatch, metaprogramming, and complex generics; automated tools produce incorrect results in these cases and must still be verified. |
-| "Refactoring and bug fixing can be done in the same commit" | Mixing behavioral changes with structural changes makes preservation verification impossible — you cannot isolate which delta introduced the behavioral difference. Industry practice (e.g., Fowler's refactoring discipline) requires separate commits. |
+| "Refactoring and bug fixing can be done in the same commit" | Mixing behavioral changes with structural changes makes preservation verification impossible -- you cannot isolate which delta introduced the behavioral difference. Industry practice (e.g., Fowler's refactoring discipline) requires separate commits. |
 | "We don't have time to write characterization tests before refactoring" | Characterization tests are written once and serve as the golden master for all future refactoring of the same code; the investment is amortized across every subsequent change. Skipping them means each refactoring starts from zero. |
 
 ## Verification

@@ -1,0 +1,6 @@
+{
+  "baseline": "bdd57cee",
+  "files_checked": 59,
+  "differences": [],
+  "normalization": "Git text checkout line endings only; three production files separately prove byte-identical content."
+}

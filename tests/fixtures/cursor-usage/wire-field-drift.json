@@ -1,0 +1,32 @@
+{
+  "fixtureContract": {
+    "source": "credential-api",
+    "sanitized": true,
+    "provenance": "negative-case",
+    "verified": false,
+    "note": "Represents the undocumented route changing under us: the included-usage pools are renamed and reported in requests rather than tokens. The transport MUST reject this rather than coerce it, because a silently mis-mapped pool would render a wrong number as if it were live."
+  },
+  "billingCycle": {
+    "start": "2026-08-01T00:00:00Z",
+    "end": "2026-09-01T00:00:00Z"
+  },
+  "includedUsage": {
+    "premiumModels": {
+      "usedRequests": 120,
+      "limitRequests": 500,
+      "percentUsed": 24
+    },
+    "otherModels": {
+      "usedRequests": 40,
+      "limitRequests": 500,
+      "percentUsed": 8
+    }
+  },
+  "onDemand": {
+    "enabled": false,
+    "spendCents": 0,
+    "spendLimitCents": 0,
+    "currency": "USD",
+    "dynamicLimit": false
+  }
+}

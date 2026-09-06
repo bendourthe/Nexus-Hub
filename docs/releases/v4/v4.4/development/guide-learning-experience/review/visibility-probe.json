@@ -1,0 +1,33 @@
+{
+  "events": [
+    {
+      "ratio": 0,
+      "intersects": false
+    }
+  ],
+  "state": {
+    "step": 0,
+    "total": 5,
+    "running": false,
+    "reduced": false,
+    "loop": true
+  },
+  "nodes": [
+    {
+      "selector": "#fx-harness",
+      "classes": "fx-scene fx-wide fx-stack reveal in live",
+      "top": -1249.265625,
+      "bottom": 1798.75,
+      "height": 3048.015625,
+      "opacity": "1"
+    },
+    {
+      "selector": "#hx-harness",
+      "classes": "hx",
+      "top": -842.671875,
+      "bottom": 1704.25,
+      "height": 2546.921875,
+      "opacity": "1"
+    }
+  ]
+}

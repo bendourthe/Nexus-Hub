@@ -1,8 +1,8 @@
 ---
 name: session-history
-description: Generate a comprehensive, standalone session history document at the end of a development session capturing chronological steps, troubleshooting, assumptions, testing results, and next steps. Use when finishing a coding session, documenting a development phase, or creating handoff context for the next session.
-summary_l0: "Generate standalone session history documents capturing steps, troubleshooting, and next steps"
-overview_l1: "This skill generates comprehensive session history documents at the end of a development session or retrospectively from archived sources. Use it when finishing a coding session, documenting a completed phase, creating handoff context for the next session, or reconstructing history from git and past session files. Key capabilities: conversation context mining, git delta analysis, plan cross-referencing with TODO tracking, troubleshooting trails with actual error messages, assumption tracking, verification gate tables, plan discrepancy detection, and next-steps generation. It operates in session mode (mines the live conversation) and retrospective mode (reconstructs from archived session files, git, DEVLOG, and plans). Output is a standalone Markdown file with 9 sections: Starting State, Chronological Steps, Verification Gate, Known Issues, Plan Discrepancies, Assumptions Made, Testing Summary, TODO Tracker, and Summary and Next Steps. Trigger phrases: session history, document session, session recap, end of session, session summary, session log, generate session history."
+description: Generate a comprehensive, standalone session history document at the end of a development session capturing chronological steps, troubleshooting, assumptions, testing results, decisions, error timelines, command outcomes, verification evidence, unresolved blockers, and next steps. Use when finishing a coding session, documenting a development phase, creating handoff context for the next session, writing a troubleshooting narrative, or recording a chronological work log. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.
+summary_l0: "Write standalone session histories only in release-scoped evidence trees"
+overview_l1: "This skill generates comprehensive session history documents at the end of a development session or retrospectively from archived sources. Use it when finishing a coding session, documenting a completed phase, creating handoff context for the next session, or reconstructing history from git and past session files. Key capabilities: conversation context mining, git delta analysis, plan cross-referencing with TODO tracking, troubleshooting trails with actual error messages, assumption tracking, verification gate tables, plan discrepancy detection, and next-steps generation. It operates in session mode (mines the live conversation) and retrospective mode (reconstructs from archived session files, git, DEVLOG, and plans). Output is a standalone Markdown file with 9 sections: Starting State, Chronological Steps, Verification Gate, Known Issues, Plan Discrepancies, Assumptions Made, Testing Summary, TODO Tracker, and Summary and Next Steps. Trigger phrases: session history, document session, session recap, end of session, session summary, session log, generate session history. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # Session History
@@ -37,13 +37,15 @@ Use this skill when you need to:
 | Troubleshooting Documentation | Capture failed attempts, actual error messages, root causes, and resolutions |
 | Assumption Tracking | Record both explicit assumptions ("I'm assuming X") and implicit ones (library choices, skipped checks) |
 | Verification Gate | Structured pass/fail table for every check performed during the session |
-| Testing Summary | Aggregate automated test results and generate manual testing suggestions |
+| Testing Summary | Aggregate automated test results. Emit manual testing suggestions only when the session is the plan's last phase, or when there is no plan. Non-final phase histories record automated results only and may say "human QA is deferred to the last phase". |
 | TODO Tracking | Show done, remaining, and deferred items aligned with the implementation plan |
 | Next-Steps Generation | Prioritized list of what the next session should tackle first |
 
 ### Operating Modes
 
 **Session mode** (default): Run at the end of the current chat session. The live conversation is the primary and richest source of information, supplemented by git changes since the session started. Produces one file for the current session.
+
+**Output path**: resolve `<version_dir>` through `[[docs-layout-refactor]]`, then write `<version_dir>/development/history/<YYYY-MM-DD>_<slug>.md`. Session histories are frozen-at-close release evidence: never write them into a living subtree such as `docs/handbooks/` or an append-only subtree such as `docs/decisions/`.
 
 **Retrospective mode**: Reconstruct history from archived AI session files (Claude Code, Codex, Gemini, Copilot), git history, DEVLOG.md, CHANGELOG.md, and planning documents. Can produce one file per phase. Use this when the session has already ended and the conversation context is no longer available.
 
@@ -183,10 +185,10 @@ Context: [2-3 sentences on what motivated this session's work]
 - [Suite name]: X passed, Y failed, Z skipped
 
 ### Manual Testing Performed
-- [What was manually verified and result]
+- [Last phase or no plan: what was manually verified and result. Non-final phase: "None; human QA is deferred to the last phase."]
 
 ### Manual Testing Still Needed
-- [ ] [Scenario requiring manual verification]
+- [Last phase or no plan: checklist of scenarios requiring manual verification. Non-final phase: write "human QA is deferred to the last phase" and do not list scenarios.]
 
 ---
 
@@ -219,20 +221,20 @@ These rules govern how information is extracted and assembled into the output fi
 
 ### Source Priority (Session Mode)
 
-1.  **Live conversation context** — primary source for troubleshooting, assumptions, decisions, and error messages
-2.  **Git commits and diffs** — authoritative for file changes, timestamps, and branch/PR state
-3.  **Implementation plan** — authoritative for subtask names, acceptance criteria, and TODO alignment
-4.  **DEVLOG.md / prior session files** — provide starting state context and continuity
-5.  **Code annotations** (TODO, FIXME, HACK) — signal incomplete work or workarounds introduced this session
+1.  **Live conversation context** -- primary source for troubleshooting, assumptions, decisions, and error messages
+2.  **Git commits and diffs** -- authoritative for file changes, timestamps, and branch/PR state
+3.  **Implementation plan** -- authoritative for subtask names, acceptance criteria, and TODO alignment
+4.  **DEVLOG.md / prior session files** -- provide starting state context and continuity
+5.  **Code annotations** (TODO, FIXME, HACK) -- signal incomplete work or workarounds introduced this session
 
 ### Source Priority (Retrospective Mode)
 
-1.  **Archived AI session files** — richest source when available (Claude Code JSONL, Codex logs, Gemini logs, Copilot chat history)
-2.  **Git history** — authoritative timeline; cross-reference with session timestamps
-3.  **DEVLOG.md / CHANGELOG.md** — version boundaries and troubleshooting context
-4.  **Implementation plan** — phase structure and subtask definitions
-5.  **ADR files and documentation** — decision rationale
-6.  **Code annotations** — dead-end signals and workaround markers
+1.  **Archived AI session files** -- richest source when available (Claude Code JSONL, Codex logs, Gemini logs, Copilot chat history)
+2.  **Git history** -- authoritative timeline; cross-reference with session timestamps
+3.  **DEVLOG.md / CHANGELOG.md** -- version boundaries and troubleshooting context
+4.  **Implementation plan** -- phase structure and subtask definitions
+5.  **ADR files and documentation** -- decision rationale
+6.  **Code annotations** -- dead-end signals and workaround markers
 
 ### Content Rules
 
@@ -240,7 +242,7 @@ These rules govern how information is extracted and assembled into the output fi
 -   **Flag thin evidence**. When a section is populated from a single, low-detail source, add an inline note: *(Inferred from git commit messages only)* or *(No session data available for this step)*.
 -   **Include actual errors**. Troubleshooting entries must contain the real error message, stack trace fragment, or failing test output. "There was an error" is never sufficient.
 -   **Capture implicit assumptions**. These include: choosing a library version not specified in the plan, skipping a test because of an environment constraint, assuming a service is running, and treating a requirement as out of scope.
--   **Manual testing suggestions** should prioritize: user-facing workflows that automated tests cannot cover, external service integrations, edge cases requiring specific data or environment conditions, and scenarios where the fix might have introduced regressions.
+-   **Manual testing suggestions** are last-phase (or no-plan) only. When the session is a non-final plan phase, record automated test results only and write "human QA is deferred to the last phase". When the session is the plan's last phase, or there is no plan, prioritize user-facing workflows that automated tests cannot cover, external service integrations, edge cases requiring specific data or environment conditions, and scenarios where the fix might have introduced regressions.
 -   **TODO tracker alignment**. In session mode with a plan, every subtask in the plan's current phase should appear in the TODO Tracker as completed, remaining, or deferred. If no plan exists, derive TODOs from conversation topics and git commit subjects.
 -   **Cross-reference timestamps**. Every entry in Chronological Steps should correspond to at least one git commit. If a step produced no commits (e.g., research or manual testing), note "No commits; manual/exploratory work".
 -   **Source attribution** (retrospective mode). Each section should note its evidence source: *(from git)*, *(from Claude Code session)*, *(from DEVLOG)*, etc.
@@ -262,7 +264,7 @@ Conversation context is available within the VS Code chat panel. Git operations 
 ## Handling Edge Cases
 
 ### No Implementation Plan Available
-Derive structure from conversation topics and git commits. Use "Ad-hoc Development Session" as the session title. The TODO Tracker section uses conversation-derived items instead of plan subtasks. Plan Discrepancies section shows "N/A — no plan file referenced".
+Derive structure from conversation topics and git commits. Use "Ad-hoc Development Session" as the session title. The TODO Tracker section uses conversation-derived items instead of plan subtasks. Plan Discrepancies section shows "N/A -- no plan file referenced".
 
 ### No Git Repository
 Document the session from conversation context only. Flag all sections that would normally use git data: "*(No git repository; based on conversation context only)*". Chronological Steps uses conversation flow instead of commit timestamps.
@@ -287,6 +289,7 @@ Document research, planning, or investigation sessions. Note "No code changes we
 | Rationalization | Reality |
 |---|---|
 | "I remember the session well enough to summarize it from memory" | Memory compresses away the failed attempts and exact error strings that make a handoff useful; the next session repeats the same dead ends because the trail was never recorded. |
+| "Ask the user to click through the feature after Phase 1" | The feature is incomplete. Non-final session histories record automated results only and say "human QA is deferred to the last phase"; manual testing suggestions wait until the last phase. |
 | "An empty section can just be dropped" | Dropping a section hides whether it was empty by design or forgotten; emit all 9 sections with "None" or "N/A" so a reader can trust the document is complete. |
 | "I can describe the error in my own words instead of pasting it" | Paraphrased errors are unsearchable and lossy; the actual error message is what the next developer greps for, so capture it verbatim. |
 
@@ -299,6 +302,8 @@ Before finalizing the output file, verify:
 - [ ] Assumptions section captures both explicit and implicit assumptions
 - [ ] TODO Tracker aligns with the plan's subtask list (if a plan exists)
 - [ ] Verification Gate has a result for every check that was performed
+- [ ] Testing Summary records automated results; manual testing suggestions appear only on the last phase of a plan (or when there is no plan); non-final phases say "human QA is deferred to the last phase"
+- [ ] The file exists at `<version_dir>/development/history/<YYYY-MM-DD>_<slug>.md` and no session history was written into a living or append-only subtree
 - [ ] No fabricated content; thin sections are explicitly flagged
 - [ ] The file is standalone -- readable without access to the conversation
 - [ ] All 9 sections are present (with "None" or "N/A" for empty sections)
@@ -311,9 +316,10 @@ Before finalizing the output file, verify:
 -   [[plan-before-code]] -- creating the implementation plan that this skill cross-references
 -   [[research-plan-implement]] -- RPI workflow with artifact generation and quality gates
 -   [[code-commit-workflow]] -- commit conventions that feed into session history timestamps
+-   `docs/policy/docs-retention.md` -- the lifecycle of the files this skill writes: they stay in place at release with the DEVLOG index line as their entry point, and the `development/` subtree is archived once its minor version falls two or more behind current
 -   [[documentation-consistency]] -- verifying documentation stays in sync with code changes
 -   [[session-teach-back]] -- this skill writes the session record; session-teach-back quizzes you on what that session produced to confirm you understood it
--   See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) — the "summarize from here" handoff pattern and when to pair session-history output with `/rewind` or `/clear`
+-   See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) -- the "summarize from here" handoff pattern and when to pair session-history output with `/rewind` or `/clear`
 
 ---
 

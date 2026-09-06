@@ -1,8 +1,8 @@
 ---
 name: browser-testing-with-devtools
-description: Uses browser DevTools to test, debug, and verify frontend behavior during development — covering network inspection, console debugging, performance profiling, accessibility auditing, and storage inspection. Use when debugging a frontend issue, verifying that a change has the expected browser-level effect, or testing without a full E2E framework. Trigger phrases: check in the browser, use DevTools, browser debugging, inspect network, check console errors, browser testing, verify in browser.
+description: "Uses browser DevTools to test, debug, and verify frontend behavior during development -- covering network inspection, console debugging, performance profiling, accessibility auditing, and storage inspection. Use when debugging a frontend issue, verifying that a change has the expected browser-level effect, or testing without a full E2E framework. Trigger phrases: check in the browser, use DevTools, browser debugging, inspect network, check console errors, browser testing, verify in browser."
 summary_l0: "Test and debug frontend behavior using browser DevTools for network, console, performance, and accessibility"
-overview_l1: "This skill covers systematic browser DevTools usage for frontend testing and debugging — distinct from E2E automation frameworks. Use it when investigating a bug that only reproduces in the browser, verifying network requests and responses, checking for console errors or warnings, profiling render performance, auditing accessibility, or inspecting storage state. Key capabilities include Network panel analysis, Console log interpretation, Elements inspector for DOM/CSS debugging, Lighthouse auditing, Application panel for cookies/localStorage, and Performance panel for flame charts. The expected output is a confirmed diagnosis or verified behavior change observable in the browser, not just passing unit tests. Trigger phrases: check in the browser, use Chrome DevTools, browser debugging, inspect the request, check console, verify it works in the browser."
+overview_l1: "This skill covers systematic browser DevTools usage for frontend testing and debugging -- distinct from E2E automation frameworks. Use it when investigating a bug that only reproduces in the browser, verifying network requests and responses, checking for console errors or warnings, profiling render performance, auditing accessibility, or inspecting storage state. Key capabilities include Network panel analysis, Console log interpretation, Elements inspector for DOM/CSS debugging, Lighthouse auditing, Application panel for cookies/localStorage, and Performance panel for flame charts. The expected output is a confirmed diagnosis or verified behavior change observable in the browser, not just passing unit tests. Trigger phrases: check in the browser, use Chrome DevTools, browser debugging, inspect the request, check console, verify it works in the browser."
 ---
 
 # Browser Testing with DevTools
@@ -47,19 +47,19 @@ Use to confirm requests are made, responses are correct, and errors are surfaced
 - [ ] Check for CORS errors: preflight OPTIONS request failing → check server CORS headers
 
 **Common issues to look for:**
-- `401 Unauthorized` — auth token not sent or expired
-- `CORS error` — missing or wrong `Access-Control-Allow-Origin` header
-- `400 Bad Request` — request body schema mismatch; check Payload tab vs. API spec
-- `ERR_BLOCKED_BY_CLIENT` — adblocker or privacy extension blocking the request
+- `401 Unauthorized` -- auth token not sent or expired
+- `CORS error` -- missing or wrong `Access-Control-Allow-Origin` header
+- `400 Bad Request` -- request body schema mismatch; check Payload tab vs. API spec
+- `ERR_BLOCKED_BY_CLIENT` -- adblocker or privacy extension blocking the request
 
 ---
 
 ## Console Panel: Catch Errors and Warnings
 
 **Checklist:**
-- [ ] Filter to `Errors` first — these are breaking issues
-- [ ] Filter to `Warnings` — these are often deprecations, missing keys, or a11y violations
-- [ ] Check for unhandled Promise rejections — they appear as errors with no stack boundary
+- [ ] Filter to `Errors` first -- these are breaking issues
+- [ ] Filter to `Warnings` -- these are often deprecations, missing keys, or a11y violations
+- [ ] Check for unhandled Promise rejections -- they appear as errors with no stack boundary
 - [ ] Check for React/Vue/Svelte component warnings: missing props, key warnings, invalid DOM nesting
 - [ ] Run `console.clear()` before reproducing the bug to isolate relevant messages
 
@@ -129,10 +129,10 @@ Use when a page or interaction feels slow.
 2. Reproduce the slow interaction
 3. Stop recording
 4. Look for:
-   - **Long tasks** (red triangles, > 50ms on main thread) — these block interactivity
-   - **Layout shifts** (purple bars) — elements moving after initial render (CLS)
-   - **Scripting time** (yellow) — JS execution taking too long
-   - **Rendering time** (purple) — style recalculation or layout thrashing
+   - **Long tasks** (red triangles, > 50ms on main thread) -- these block interactivity
+   - **Layout shifts** (purple bars) -- elements moving after initial render (CLS)
+   - **Scripting time** (yellow) -- JS execution taking too long
+   - **Rendering time** (purple) -- style recalculation or layout thrashing
 
 **Quick fixes for common findings:**
 - Long tasks from JS: code-split, defer non-critical scripts
@@ -160,6 +160,7 @@ Use when a page or interaction feels slow.
 
 ## Related Skills
 
+- [[functional-verification]] -- owns artifact-level exercise and its evidence record; this skill supplies browser observations and diagnostics.
 - [[frontend-ui-engineering]] -- accessibility and responsive design practices
 - [[e2e-testing-automation]] -- automate browser flows with Playwright or Cypress
 - [[performance-review]] -- systematic performance bottleneck identification

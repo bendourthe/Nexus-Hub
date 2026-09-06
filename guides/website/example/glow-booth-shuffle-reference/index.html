@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Glow Booth (shuffle reference)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="booth">
+    <h1>Glow Booth</h1>
+    <p>Perfect set fills every stamp. Shuffle the poses. Sparkle when the meter is full.</p>
+    <div id="stage">Tap a pose</div>
+    <i id="sparkle" hidden aria-hidden="true"></i>
+    <div id="strip"></div>
+    <p id="meter">0 / 5 stamps</p>
+    <button type="button" id="shuffle">Shuffle poses</button>
+    <button type="button" id="restart">Restart</button>
+  </main>
+  <script src="poses.js"></script>
+  <script src="logic.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
 interface:
   display_name: Code Coverage Analysis
   short_description: Analyze test coverage, identify gaps, and implement strategies for achieving 80%+ coverage targets. Use when measuring test effectiveness, identifying untested code paths, meeting coverage
-    requirement
+    requirements, or improving overall test quality for Python, JavaScript, Java, C#, Go, C, or C++ codebases.

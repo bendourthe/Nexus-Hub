@@ -1,0 +1,607 @@
+[
+  {
+    "test": "test_v442_phase1_foundation.py::test_section_titles_share_one_scale_and_never_overflow",
+    "reason": "Explicit replay replaces autoplay; CSS wrapping replaces runtime shrinking.",
+    "replacement": "test_learning_experience.py::test_sequence_replay_pause_and_motion_preference and test_headings_keep_css_sizes_and_reading_page_is_idle; audit geometry matrix"
+  },
+  {
+    "test": "test_v442_phase1_foundation.py::test_sequencer_pauses_on_a_hidden_tab",
+    "reason": "Explicit replay replaces autoplay; CSS wrapping replaces runtime shrinking.",
+    "replacement": "test_learning_experience.py::test_sequence_replay_pause_and_motion_preference and test_headings_keep_css_sizes_and_reading_page_is_idle; audit geometry matrix"
+  },
+  {
+    "test": "test_v442_phase1_foundation.py::test_sequencer_pauses_offscreen_and_resumes_from_the_same_step",
+    "reason": "Explicit replay replaces autoplay; CSS wrapping replaces runtime shrinking.",
+    "replacement": "test_learning_experience.py::test_sequence_replay_pause_and_motion_preference and test_headings_keep_css_sizes_and_reading_page_is_idle; audit geometry matrix"
+  },
+  {
+    "test": "test_v442_phase1_foundation.py::test_sequencer_advances_steps_in_document_order",
+    "reason": "Explicit replay replaces autoplay; CSS wrapping replaces runtime shrinking.",
+    "replacement": "test_learning_experience.py::test_sequence_replay_pause_and_motion_preference and test_headings_keep_css_sizes_and_reading_page_is_idle; audit geometry matrix"
+  },
+  {
+    "test": "test_v443_phase1_headings.py::test_label_is_tripled_and_title_is_halved",
+    "reason": "Explicit replay replaces autoplay; CSS wrapping replaces runtime shrinking.",
+    "replacement": "test_learning_experience.py::test_sequence_replay_pause_and_motion_preference and test_headings_keep_css_sizes_and_reading_page_is_idle; audit geometry matrix"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_no_hardcoded_text_width_caps_remain",
+    "reason": "The approved design uses a reading measure and allows natural heading wrapping.",
+    "replacement": "test_learning_experience.py::test_headings_keep_css_sizes_and_reading_page_is_idle and retained test_no_heading_spills_past_its_container"
+  },
+  {
+    "test": "test_v443_phase1_headings.py::test_no_heading_wraps_from_720_upward",
+    "reason": "The approved design uses a reading measure and allows natural heading wrapping.",
+    "replacement": "test_learning_experience.py::test_headings_keep_css_sizes_and_reading_page_is_idle and retained test_no_heading_spills_past_its_container"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_full_lockup_floats_as_one_unit",
+    "reason": "Continuous decorative motion removed by the approved design.",
+    "replacement": "test_v441_phase2_home.py::test_full_lockup_stays_aligned_at_rest"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_annotated_prompt_reveals_in_document_order_and_all_at_once_under_reduced_motion",
+    "reason": "Autoplay changed to explicit replay; ordering, structure, and completion assertions retained.",
+    "replacement": "test_v442_phase3_foundations.py::test_annotated_prompt_reveals_in_document_order_and_all_at_once_under_reduced_motion"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_harness_diagram_is_layered_and_choreographed",
+    "reason": "Autoplay changed to explicit replay; ordering, structure, and completion assertions retained.",
+    "replacement": "test_v442_phase4_media.py::test_harness_diagram_is_layered_and_choreographed"
+  },
+  {
+    "test": "test_v443_phase7_comparison.py::test_the_split_is_choreographed_and_complete_without_motion",
+    "reason": "Explicit replay replaces autoplay; visual completion assertions retained.",
+    "replacement": "test_v443_phase7_comparison.py::test_the_split_is_choreographed_and_complete_without_motion"
+  },
+  {
+    "test": "test_v444_phase4_prompts.py::test_the_active_marker_is_quiet",
+    "reason": "Explicit replay replaces autoplay; visual completion assertions retained.",
+    "replacement": "test_v444_phase4_prompts.py::test_the_active_marker_is_quiet"
+  },
+  {
+    "test": "test_v445_phase1_portability.py::test_the_pulse_runs_normally_and_stops_under_reduced_motion",
+    "reason": "Decorative pulses removed; static visibility retained.",
+    "replacement": "test_v445_phase1_portability.py::test_connectors_are_static_and_content_stays_visible"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_home_comparison_is_animated_not_a_table",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_home_definitions_are_structured_and_link_to_foundations",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_home_comparison_has_centered_explicit_sides",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_home_hero_restores_the_v412_subtitle_and_lead",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_guardrails_choreography_reaches_a_fully_blocked_end_state",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_guardrails_section_names_only_shipped_registered_hooks",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_migration_table_stacks_into_labelled_cards_below_720px",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_merged_comparison_labels_render_at_twice_the_v441_size",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_home_sections_render_in_the_agreed_order",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_home_hero_statement_is_centred_and_exact",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v441_phase2_home.py::test_workflow_pills_are_readable_two_line_pills",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase1_headings.py::test_migration_table_headers_carry_the_comparison_grade",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase2_guardrails.py::test_every_attempt_shows_both_rings_and_a_result",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase2_guardrails.py::test_the_figure_carries_no_svg_text",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase2_guardrails.py::test_no_guardrails_label_escapes_its_box",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase3_loop.py::test_the_loop_stacks_and_rotates_its_heads_when_narrow",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase3_loop.py::test_the_heads_are_triangles_not_glyphs",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase3_loop.py::test_the_loop_fills_its_column_with_legible_boxes",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v444_phase12_home.py::test_the_segment_carries_both_benefits",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v444_phase12_home.py::test_the_command_segment_is_renamed",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v444_phase12_home.py::test_the_guardrails_segment_is_renamed_and_centred",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v445_phase1_portability.py::test_connectors_are_static_and_content_stays_visible",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v445_phase1_portability.py::test_the_mid_task_strip_uses_the_width_it_has",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v445_phase1_portability.py::test_each_triangle_sits_on_the_centre_of_its_own_box",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v445_phase1_portability.py::test_every_platform_carries_its_mark",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v445_phase1_portability.py::test_no_box_is_ever_hidden_and_nothing_overflows",
+    "reason": "Phase 3 replaces repeated Home benefits, comparison, portability, and command-strip compositions with one responsibility map and one checked-artifact example.",
+    "replacement": "test_learning_experience.py Home explanation/example/budget/bounds contracts; retained approved platform asset, platform-rail geometry, install-copy, and footer tests"
+  },
+  {
+    "test": "test_v443_phase1_headings.py::test_static_document_never_addresses_the_reader",
+    "reason": "Approved teaching design uses concise direct address; a pronoun ban does not establish clarity.",
+    "replacement": "test_learning_experience.py::test_home_copy_is_shorter_without_hiding_it and reviewed example screenshots"
+  },
+  {
+    "test": "test_v442_phase1_foundation.py::test_reduced_motion_shows_complete_sequences",
+    "reason": "Removed Home choreography replaced by a three-step checked-brief example.",
+    "replacement": "Reduced-motion test retained against home-example; shared replay and lifecycle tests retained"
+  },
+  {
+    "test": "test_v443_phase5_models.py::test_no_work_cycle_ring_survives_anywhere_in_a_scene",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase5_models.py::test_the_video_output_plays_without_being_asked",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase5_models.py::test_the_worked_example_runs_the_length_of_the_scene",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase5_models.py::test_connectors_are_thick_enough_to_read",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase6_models.py::test_one_model_family_per_provider_and_no_version_numbers",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase6_models.py::test_the_answer_is_shown_one_token_at_a_time",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase6_models.py::test_base_and_reasoning_differ_by_the_self_prompt_loop",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase6_models.py::test_three_modality_tiers_and_no_audio",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v445_phase5_models.py::test_the_eight_stages_read_in_order",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v445_phase5_models.py::test_nothing_in_the_scene_waits_to_be_operated",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v445_phase5_models.py::test_all_three_modality_tiers_are_visible_at_once",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v445_phase5_models.py::test_no_reasoning_pass_overlaps_another",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v445_phase5_models.py::test_the_prediction_panel_shows_scored_candidates_with_a_caveat",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v445_phase5_models.py::test_the_scene_does_not_overflow_at_any_width",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase4_prompts.py::test_the_flaws_sit_under_the_vague_prompt_in_a_grid",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase4_prompts.py::test_the_engineered_prompt_uses_the_whole_diagram",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase4_prompts.py::test_the_active_marker_is_quiet",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v444_phase4_prompts.py::test_the_downward_connector_stops_under_reduced_motion",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase4_context.py::test_every_legend_row_is_swatch_and_label_over_description",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase4_context.py::test_attachable_material_is_a_two_by_two_grid_of_examples",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase4_context.py::test_dumping_everything_names_its_cost",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase4_context.py::test_the_budget_comparison_reads_without_a_legend",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v443_phase4_context.py::test_the_worked_example_is_an_agentic_project_task",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_page_opens_with_a_centred_title_in_the_hero_subtitle_style",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_scene_titles_come_before_their_subtitles",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_no_scene_has_an_empty_column_at_1440",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_every_scene_child_stays_inside_its_scene_box",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_tokens_figure_and_image_top_align_side_by_side",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_annotated_prompt_is_one_text_with_four_labelled_parts",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v442_phase3_foundations.py::test_annotated_prompt_reveals_in_document_order_and_all_at_once_under_reduced_motion",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v441_phase4_foundations.py::test_embedded_image_matches_the_approved_asset",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v441_phase4_foundations.py::test_embedded_gif_and_poster_match_the_approved_assets",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v441_phase4_foundations.py::test_moving_image_plays_unaided_and_stills_under_reduced_motion",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_v441_phase4_foundations.py::test_inside_the_model_is_complete_under_reduced_motion",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_phase3_has_eight_title_subtitle_scenes",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_context_makes_budget_competition_and_full_behavior_visible",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_model_lifecycle_is_chronological_and_responsive",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_tokens_use_a_reproducible_nonuniversal_example",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_prompt_engineering_uses_one_non_coding_job",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_comparisons_show_both_states_without_a_toggle",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_orders_unaided_state_first",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_arrowheads_are_filled_not_half_chevrons",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_loop_labels_have_hierarchy",
+    "reason": "Replaced model spine, image token grid, or dated prompt/context composition with four concise lessons; actual tokenizer fixture retained.",
+    "replacement": "test_learning_experience.py: token_selection, foundation_lesson_text, lessons_keep_evidence, lesson_links, teaching_content, sequence_replay; phase-4 screenshots"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_is_project_generic",
+    "reason": "The shared meeting-notes example replaces the generic attachment inventory.",
+    "replacement": "Same non-coding guard retained with concrete notes, summary, and brief."
+  },
+  {
+    "test": "test_v441_phase4_foundations.py::test_the_agentic_scene_carries_the_comparison_and_the_boundary",
+    "reason": "The Models entry motif was replaced; platform boundary assertions remain until Phase 5.",
+    "replacement": "test_lessons_keep_evidence_and_model_boundaries_explicit plus retained platform boundary check"
+  },
+  {
+    "test": "test_v443_phase8_harness.py::test_there_is_exactly_one_harness_scene",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase8_harness.py::test_the_flow_carries_the_analogy_and_the_platform_limits",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase8_harness.py::test_every_class_used_in_foundations_has_a_style_rule",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase7_comparison.py::test_both_lanes_show_the_same_two_zones",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase7_comparison.py::test_only_the_reach_differs_between_the_lanes",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase7_comparison.py::test_the_unreached_zone_keeps_full_text_contrast",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase7_comparison.py::test_the_split_is_choreographed_and_complete_without_motion",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_the_equation_names_what_agentic_means",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_all_three_boundary_settings_are_visible_with_their_outcomes",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_the_anatomy_names_six_parts_without_importing_the_map",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_every_harness_layer_states_a_limit_or_a_guarantee",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_the_work_sequence_shows_five_steps_with_nothing_to_run",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_the_artifact_chain_is_shown_rather_than_claimed",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v445_phase67_agentic_harness.py::test_neither_rebuilt_scene_overflows_at_any_width",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase6_platforms.py::test_the_scene_is_plural",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase6_platforms.py::test_four_platforms_are_named_with_ledger_approved_marks",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase6_platforms.py::test_the_copy_is_shorter_and_keeps_its_conditional_language",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v443_phase6_platforms.py::test_every_stage_is_visible_without_motion",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_flow_connectors_never_cross_a_card",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_the_entry_motif_is_singular_after_the_merge",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_modality_tier_labels",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_harness_diagram_is_layered_and_choreographed",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_harness_choreography_end_state_under_reduced_motion",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v442_phase4_media.py::test_harness_text_stays_inside_its_own_box",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_foundations_harness_layers_are_honest_and_repository_anchored",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_v441_phase4_foundations.py::test_the_agentic_scene_carries_the_comparison_and_the_boundary",
+    "reason": "The two legacy platform/harness scenes became distinct harness, bounded loop, and fork/join lessons. No universal host guarantee or tool-free-chat assumption remains.",
+    "replacement": "test_learning_experience.py: loop_stops, graph_joins, harness_cannot_bypass, compact_seven_lesson_path, lesson_text_bounds, shared lifecycle; phase-5 visual audit"
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_training_scene_schema_is_strict_and_cumulative (intent clause only)",
+    "reason": "Verbose pronoun-based intent replaced by concise imperative copy and three learning stages.",
+    "replacement": "At most 20 words per intent; Understand/Change/Verify membership; unchanged strict scene schema and JSON parity."
+  },
+  {
+    "test": "test_render_guide_tool.py::test_foundations_phase2_diagrams_are_legible_at_release_and_breakpoint_widths",
+    "reason": "Legacy token SVG replaced by exact selectable token chips.",
+    "replacement": "test_learning_experience token fixture/selection/keyboard and lesson text bounds at seven widths; final visual detector."
+  },
+  {
+    "test": "test_v445_phase2_tags.py::test_the_block_tags_render_at_the_doubled_size",
+    "reason": "Deleted mockup tag selectors and arbitrary doubled-size requirement are superseded by the shared readable lesson hierarchy.",
+    "replacement": "test_learning_experience shared headings, label floor, and lesson bounds; cross-page contrast sweep."
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_present_mode_fills_the_viewport",
+    "reason": "A new compact-header media query split the old source substring before its terminal scroll rule.",
+    "replacement": "Same assertions with correct block boundary; 21 real fullscreen tests retained."
+  },
+  {
+    "test": "test_render_guide_tool.py::test_home_runtime_contract_across_themes_and_widths",
+    "reason": "Two comparison captions became three explicit model/platform/Nexus responsibilities.",
+    "replacement": "Preserve rendering, offline, marks, and contrast checks using the three current responsibility labels."
+  },
+  {
+    "test": "test_render_guide_tool.py::test_training_cold_deep_link_accepts_and_discards_legacy_beat",
+    "reason": "Cold deep links must display planned success, not a completed takeaway.",
+    "replacement": "Retain route normalization and title assertions; require the pending takeaway."
+  }
+]

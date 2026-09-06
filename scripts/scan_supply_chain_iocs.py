@@ -39,6 +39,10 @@ DEFAULT_TARGETS: tuple[str, ...] = (
 
 EXEMPT_DIR_PARTS: frozenset[str] = frozenset({
     "archive",
+    # v4.0.0 renamed the frozen container to the plural form; both spellings
+    # are listed so the exemption survives the rename and still applies to a
+    # consuming repo on the legacy singular tree.
+    "archives",
     ".git",
     "__pycache__",
     "node_modules",

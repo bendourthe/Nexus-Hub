@@ -25,6 +25,7 @@ Use when:
 - A whole-codebase health review - use the `/review full` orchestrator.
 - A security-only deep dive - use `/review security` (remediation loop) or `/review pentest` (parallel security hunters).
 - A trivial one-file glance where fanning out N agents is wasteful - read it directly.
+- An over-engineering delete-list - use [[over-engineering-review]] as an optional lens, not a mandatory extra report in this pipeline.
 
 ## Modes
 
@@ -98,6 +99,12 @@ Assign reviewer model tiers to spend budget where stakes are highest:
 
 Then emit per the active mode (table above). The headline list is the gate survivors, ranked by severity then confidence; the appendix holds the suppressed tier. In autofix mode, route `autofix_class: safe` findings to the `refactor-cleaner` agent to apply, propose `assisted`, and never auto-apply `manual`.
 
+These two conventions are additive and do not change the confidence-gating pipeline above.
+
+**Depth modes and finding cap.** When the user asks for a quick look, a skim, or a compact pass, treat that as **quick** depth: cover the primary changed path only, report P0/P1 survivors only, and stop at 5 headline findings. The default thorough review is **full** depth: cover the whole resolved scope, report every confidence-gate survivor, and stop at 20 headline findings. Overflow goes to the appendix, ranked, never deleted. Never pad to reach the cap. A short review or a clean result (zero findings plus a non-empty Considered-but-Rejected table) is a valid outcome. The cap exists so a low-signal review cannot bury the finding that mattered under cosmetic padding.
+
+**Considered but Rejected.** Every emitted review MUST include a table of candidates that were inspected and deliberately not reported. Each row names the candidate, the location, and the reason, using one of: the owning rule permits the current implementation; evidence was insufficient; the project convention is intentional; the change would add complexity without user benefit. Rows MUST be real candidates encountered during this review, never invented filler. A genuinely thin scope reports the few that exist and says so. Without this table, a thorough review that found little is indistinguishable from a shallow one.
+
 ### Running the fanout as a Dynamic Workflow (optional)
 
 Stages 3-6 are the canonical *dimensions -> find -> adversarially-verify* fanout: personas are the dimensions, Stage 4 is the find, Stage 6 is the refutation. When the harness has the Dynamic Workflows runtime, [scripts/review-fanout-workflow.js](scripts/review-fanout-workflow.js) is a ready-to-adapt scaffold that runs that shape deterministically (parallel persona review, a barrier merge that does the cross-reviewer promotion, per-finding refutation, then the late confidence gate). It binds to the skill's own contracts -- `FINDINGS_SCHEMA` mirrors [findings-schema](references/findings-schema.md) and `VERDICT_SCHEMA` mirrors [validator-template](references/validator-template.md).
@@ -142,6 +149,8 @@ See [[loop-engineering]] for the broader loop-control discipline this round-hist
 | "Select every persona every time - more lenses, more coverage" | Irrelevant personas produce noise (a performance reviewer on a docs-only diff invents findings to look useful) and waste the subagent budget. Per-diff selection keeps signal high; record what was skipped so coverage is auditable. |
 | "Demote advisory findings in interactive mode to keep it short" | Demotion is a triage tool for when no human is present. With a human in the loop, let them decide - demoting hides P2/P3 findings they might have wanted. |
 | "Auto-apply the manual-class fixes, they look fine" | `manual` means the fix needs design judgement the pipeline does not have. Auto-applying it is how a review tool introduces the bug it was supposed to catch. Only `safe` is auto-applied. |
+| "Skip Considered-but-Rejected; there is nothing interesting to list" | An empty rejected table is how a shallow review hides. If the pass was thin, say so with the few real candidates; inventing filler is the other failure. |
+| "Pad to the cap so the review looks complete" | The cap is a ceiling, not a quota. Padding with cosmetic findings is the exact failure the cap exists to stop. |
 
 ## Verification
 
@@ -152,6 +161,8 @@ See [[loop-engineering]] for the broader loop-control discipline this round-hist
 - [ ] The scoring pipeline ran in the fixed order: dedup -> promotion -> demotion -> gate (gate last).
 - [ ] In autofix / report-only / headless modes, an independent validation pass ran for `requires_verification` findings; in interactive mode it was correctly skipped.
 - [ ] Suppressed findings are retained in a verbose/appendix tier, not deleted.
+- [ ] The emitted report includes a Considered-but-Rejected table of real inspected candidates (or an explicit "thin scope, N candidates" note), not invented filler.
+- [ ] Depth mode is recorded (quick or full) and the headline list respects that mode's severity filter and finding cap; the list was not padded to reach the cap.
 - [ ] No outbound network call or new credential was introduced.
 
 ## Related Skills
@@ -162,3 +173,4 @@ See [[loop-engineering]] for the broader loop-control discipline this round-hist
 - `/review full` - whole-codebase deep review (8-phase); use that for breadth, this for a specific diff.
 - `/review pentest` - parallel security hunters with the same confidence-gated synthesis; security-only.
 - [[tool-design]] - defines the agent-native review lens the `agent-native-reviewer` persona applies.
+- [[over-engineering-review]] - optional tagged delete-list for extra machinery; not an always-on persona in this pipeline.

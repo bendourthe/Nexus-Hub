@@ -25,14 +25,30 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from pathlib import Path
 
 from . import __version__, compress_output
 from .ccr import NOT_FOUND, CCRStore, retrieve
+from .filters import (
+    global_filter_path,
+    is_trusted,
+    project_filter_path,
+    run_inline_tests,
+    trust,
+    untrust,
+)
+from .rewrite import decide, load_host_permissions
 from .tokens import count_tokens, using_accurate_counter
 from .transforms.content_router import RouteResult
 
 
-def compress_output_safe(text: str, *, persist: bool = True) -> RouteResult:
+def compress_output_safe(
+    text: str,
+    *,
+    persist: bool = True,
+    max_lines: int | None = None,
+    max_bytes: int | None = None,
+) -> RouteResult:
     """Compress ``text``, never raising; on failure return an identity result.
 
     The single fail-open core for the ``compress`` subcommand. The hook that
@@ -42,15 +58,45 @@ def compress_output_safe(text: str, *, persist: bool = True) -> RouteResult:
     report an identity transform).
     """
     try:
-        return compress_output(text, persist=persist)
+        return compress_output(
+            text,
+            persist=persist,
+            max_lines=max_lines,
+            max_bytes=max_bytes,
+        )
     except Exception:  # noqa: BLE001 - fail-open: never lose the user's output
         n = count_tokens(text) if text else 0
         return RouteResult(text=text, segments=[], tokens_before=n, tokens_after=n)
 
 
-def run_compress(text: str, *, persist: bool = True) -> str:
+def run_compress(
+    text: str,
+    *,
+    persist: bool = True,
+    max_lines: int | None = None,
+    max_bytes: int | None = None,
+) -> str:
     """Compress ``text`` and return the compressed string (original on failure)."""
-    return compress_output_safe(text, persist=persist).text
+    return compress_output_safe(
+        text, persist=persist, max_lines=max_lines, max_bytes=max_bytes
+    ).text
+
+
+def run_rewrite(command: str, *, host_settings: str | None = None) -> tuple[int, str]:
+    """Decide a rewrite. Returns ``(exit_code, stdout)``."""
+    from pathlib import Path
+
+    perms = load_host_permissions(Path(host_settings) if host_settings else None)
+    return decide(command, perms)
+
+
+def _cmd_rewrite(args: argparse.Namespace) -> int:
+    code, stdout = run_rewrite(args.cmd, host_settings=args.host_settings)
+    if stdout:
+        sys.stdout.write(stdout)
+        if not stdout.endswith("\n"):
+            sys.stdout.write("\n")
+    return code
 
 
 def run_retrieve(marker: str) -> tuple[bool, str]:
@@ -70,7 +116,12 @@ def run_retrieve(marker: str) -> tuple[bool, str]:
 
 
 def _cmd_compress(args: argparse.Namespace) -> int:
-    result = compress_output_safe(sys.stdin.read(), persist=not args.no_persist)
+    result = compress_output_safe(
+        sys.stdin.read(),
+        persist=not args.no_persist,
+        max_lines=args.max_lines,
+        max_bytes=args.max_bytes,
+    )
     sys.stdout.write(result.text)
     if result.tokens_before:
         sys.stderr.write(
@@ -78,6 +129,47 @@ def _cmd_compress(args: argparse.Namespace) -> int:
             f"{result.tokens_after} tokens (ratio {result.ratio:.3f})\n"
         )
     return 0
+
+
+def _cmd_trust(args: argparse.Namespace) -> int:
+    digest = trust(Path(args.path))
+    print(f"trusted {args.path} sha256={digest}")
+    return 0
+
+
+def _cmd_untrust(args: argparse.Namespace) -> int:
+    untrust(Path(args.path))
+    print(f"untrusted {args.path}")
+    return 0
+
+
+def _cmd_verify(args: argparse.Namespace) -> int:
+    if args.path:
+        paths = [Path(args.path)]
+    else:
+        paths = [project_filter_path(), global_filter_path()]
+    ran = 0
+    failed = 0
+    for path in paths:
+        if not path.is_file():
+            continue
+        rows = run_inline_tests(path)
+        trusted = is_trusted(path)
+        status = "trusted" if trusted else "untrusted (compress will skip)"
+        print(f"{path} [{status}]")
+        if not rows:
+            print("  (no inline tests)")
+            continue
+        for name, passed, detail in rows:
+            ran += 1
+            mark = "PASS" if passed else "FAIL"
+            if not passed:
+                failed += 1
+            print(f"  {mark} {name}: {detail}")
+    if ran == 0 and failed == 0:
+        print("no filter files to verify")
+        return 0
+    return 1 if failed else 0
 
 
 def _cmd_retrieve(args: argparse.Namespace) -> int:
@@ -129,6 +221,18 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="do not write dropped spans to the CCR store (pure compression)",
     )
+    p_compress.add_argument(
+        "--max-lines",
+        type=int,
+        default=None,
+        help="tee the full blob and keep only this many lines (recoverable)",
+    )
+    p_compress.add_argument(
+        "--max-bytes",
+        type=int,
+        default=None,
+        help="tee the full blob and keep only this many UTF-8 bytes (recoverable)",
+    )
     p_compress.set_defaults(func=_cmd_compress)
 
     p_retrieve = sub.add_parser(
@@ -139,6 +243,44 @@ def main(argv: list[str] | None = None) -> int:
 
     p_serve = sub.add_parser("serve", help="launch the internal MCP server (needs the 'mcp' extra)")
     p_serve.set_defaults(func=_cmd_serve)
+
+    p_rewrite = sub.add_parser(
+        "rewrite",
+        help="decide whether a command rewrite may auto-apply (exit 0/1/2/3)",
+    )
+    p_rewrite.add_argument("--cmd", required=True, help="the shell command under review")
+    p_rewrite.add_argument(
+        "--host-settings",
+        default=None,
+        help="optional JSON file with permissions.deny/ask/allow prefix lists",
+    )
+    p_rewrite.set_defaults(func=_cmd_rewrite)
+
+    p_trust = sub.add_parser(
+        "trust",
+        help="record the SHA-256 of a filter file so compress will apply it",
+    )
+    p_trust.add_argument("path", help="path to a compressor-filters.json file")
+    p_trust.set_defaults(func=_cmd_trust)
+
+    p_untrust = sub.add_parser(
+        "untrust",
+        help="remove a filter file from the SHA-256 trust store",
+    )
+    p_untrust.add_argument("path", help="path previously passed to trust")
+    p_untrust.set_defaults(func=_cmd_untrust)
+
+    p_verify = sub.add_parser(
+        "verify",
+        help="run inline filter tests (name/input/expected); does not require trust",
+    )
+    p_verify.add_argument(
+        "path",
+        nargs="?",
+        default=None,
+        help="filter file; default is the project file then the user-global file",
+    )
+    p_verify.set_defaults(func=_cmd_verify)
 
     args = parser.parse_args(argv)
     if getattr(args, "func", None) is None:

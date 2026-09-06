@@ -13,10 +13,16 @@ Added in v2.2.0 Phase 2 (T008). Covers:
 
 from __future__ import annotations
 
+import io
 import json
+import sys
 from pathlib import Path
 
+import pytest
+
+from scripts.lib.integrations import _cascade_hook_compat as hook_compat
 from scripts.lib.integrations import get
+from scripts.lib.integrations._hooks_common import is_windows_host
 from scripts.lib.integrations.base import InstallContext
 
 
@@ -31,10 +37,11 @@ def test_antigravity_10_install_workspace_lays_files(install_ctx: InstallContext
 def test_antigravity_20_install_workspace_lays_files(install_ctx: InstallContext):
     integ = get("antigravity2")
     result = integ.install(install_ctx)
-    assert (install_ctx.target_root / ".agents" / "AGENTS.md").exists()
+    assert (install_ctx.target_root / "AGENTS.md").exists()
+    assert not (install_ctx.target_root / ".agents" / "AGENTS.md").exists()
     assert (install_ctx.target_root / ".agents" / "skills").exists()
     assert (install_ctx.target_root / ".agents" / "workflows").exists()
-    assert (install_ctx.target_root / ".agents" / "subagents").exists()
+    assert (install_ctx.target_root / ".agents" / "agents").exists()
     assert result.files, "WriteResult should record at least one FileAction"
 
 
@@ -118,21 +125,183 @@ def test_antigravity_20_installs_hooks_and_registration(install_ctx: InstallCont
     integ.install(install_ctx)
     agents = install_ctx.target_root / ".agents"
 
-    for script in ("secret-scan.sh", "large-file-guard.sh", "git-guardrails.sh", "compress-output.sh"):
+    for script in ("secret-scan.sh", "large-file-guard.sh", "git-guardrails.sh"):
         assert (agents / "hooks" / script).exists(), f"hook script {script} not installed"
+    assert (agents / "hooks" / "antigravity-hook-compat.py").is_file()
+    assert not (agents / "hooks" / "compress-output.sh").exists()
 
     hooks_json = agents / "hooks.json"
     assert hooks_json.exists(), "hooks.json registration not written"
     data = json.loads(hooks_json.read_text(encoding="utf-8"))
-    assert "nexus-hub-guardrails" in data and "nexus-hub-context-compressor" in data
+    assert "nexus-hub-guardrails" in data
+    assert "nexus-hub-context-compressor" not in data
     guardrails = data["nexus-hub-guardrails"]
     assert guardrails["enabled"] is True
     commands = [h["command"] for entry in guardrails["PreToolUse"] for h in entry["hooks"]]
-    assert any(".agents/hooks/secret-scan.sh" in c for c in commands), (
+    hook_suffix = ".ps1" if is_windows_host() else ".sh"
+    assert any(f".agents/hooks/secret-scan{hook_suffix}" in c for c in commands), (
         f"workspace hooks.json should reference the project-relative hook path; got {commands}"
     )
+    assert all("antigravity-hook-compat.py" in command for command in commands)
     matchers = {entry["matcher"] for entry in guardrails["PreToolUse"]}
-    assert "run_command" in matchers, "git-guardrails must match the run_command tool"
+    assert matchers == {
+        "write_to_file|replace_file_content|multi_replace_file_content",
+        "run_command",
+    }
+    assert "" not in matchers, "unrelated tools must not invoke file-content guards"
+
+
+def test_antigravity_hook_bridge_translates_host_payload_to_guard_contract():
+    translated = hook_compat.translate_antigravity_payload(
+        {
+            "toolCall": {
+                "name": "run_command",
+                "args": {
+                    "CommandLine": "git reset --hard",
+                    "Cwd": "/repo",
+                },
+            },
+            "conversationId": "conversation-123",
+            "transcriptPath": "/tmp/transcript.jsonl",
+        },
+        "PreToolUse",
+    )
+
+    assert translated["hook_event_name"] == "PreToolUse"
+    assert translated["session_id"] == "conversation-123"
+    assert translated["transcript_path"] == "/tmp/transcript.jsonl"
+    assert translated["tool_name"] == "run_command"
+    assert translated["tool_input"]["command"] == "git reset --hard"
+    assert translated["tool_input"]["cwd"] == "/repo"
+
+
+@pytest.mark.parametrize(
+    ("tool_name", "tool_args", "expected_content", "expected_edit_count"),
+    [
+        (
+            "write_to_file",
+            {
+                "TargetFile": "/repo/secrets.txt",
+                "CodeContent": "token = 'ghp_abcdefghijklmnopqrstuvwxyz1234567890'",
+            },
+            "token = 'ghp_abcdefghijklmnopqrstuvwxyz1234567890'",
+            0,
+        ),
+        (
+            "replace_file_content",
+            {
+                "TargetFile": "/repo/secrets.txt",
+                "ReplacementContent": "token = 'ghp_abcdefghijklmnopqrstuvwxyz1234567890'",
+            },
+            "token = 'ghp_abcdefghijklmnopqrstuvwxyz1234567890'",
+            0,
+        ),
+        (
+            "multi_replace_file_content",
+            {
+                "TargetFile": "/repo/secrets.txt",
+                "ReplacementChunks": [
+                    {
+                        "StartLine": 1,
+                        "EndLine": 1,
+                        "ReplacementContent": "token = 'ghp_abcdefghijklmnopqrstuvwxyz1234567890'",
+                    },
+                    {
+                        "StartLine": 3,
+                        "EndLine": 3,
+                        "ReplacementContent": "safe = true",
+                    },
+                ],
+            },
+            "token = 'ghp_abcdefghijklmnopqrstuvwxyz1234567890'\nsafe = true",
+            2,
+        ),
+    ],
+)
+def test_antigravity_hook_bridge_exposes_native_file_content_to_guards(
+    monkeypatch,
+    capsys,
+    tool_name,
+    tool_args,
+    expected_content,
+    expected_edit_count,
+):
+    payload = {"toolCall": {"name": tool_name, "args": tool_args}}
+    child = (
+        "import json,sys; "
+        "payload=json.load(sys.stdin); "
+        f"assert payload['tool_input']['content']=={expected_content!r}; "
+        f"assert len(payload['tool_input'].get('edits',[]))=={expected_edit_count}; "
+        "sys.exit(2 if 'ghp_' in payload['tool_input']['content'] else 0)"
+    )
+    monkeypatch.setattr(sys, "stdin", io.StringIO(json.dumps(payload)))
+
+    wrapper_exit = hook_compat.main(
+        ["antigravity", "PreToolUse", "--", sys.executable, "-c", child]
+    )
+    captured = capsys.readouterr()
+
+    assert wrapper_exit == 0
+    assert json.loads(captured.out)["decision"] == "deny"
+
+
+def test_antigravity_hook_bridge_emits_documented_deny_for_guard_exit_two():
+    output, wrapper_exit = hook_compat.translate_child_result(
+        "antigravity",
+        "PreToolUse",
+        stdout="",
+        stderr="BLOCKED: destructive git command",
+        returncode=2,
+    )
+
+    assert wrapper_exit == 0
+    assert output == {
+        "decision": "deny",
+        "reason": "BLOCKED: destructive git command",
+    }
+
+
+def test_antigravity_hook_bridge_end_to_end_denies_native_command(
+    monkeypatch, capsys
+):
+    payload = {
+        "toolCall": {
+            "name": "run_command",
+            "args": {"CommandLine": "git reset --hard", "Cwd": "/repo"},
+        }
+    }
+    child = (
+        "import json,sys; "
+        "payload=json.load(sys.stdin); "
+        "assert payload['tool_input']['command']=='git reset --hard'; "
+        "print('BLOCKED: destructive git command',file=sys.stderr); "
+        "sys.exit(2)"
+    )
+    monkeypatch.setattr(sys, "stdin", io.StringIO(json.dumps(payload)))
+
+    wrapper_exit = hook_compat.main(
+        ["antigravity", "PreToolUse", "--", sys.executable, "-c", child]
+    )
+    captured = capsys.readouterr()
+
+    assert wrapper_exit == 0
+    assert json.loads(captured.out) == {
+        "decision": "deny",
+        "reason": "BLOCKED: destructive git command",
+    }
+
+
+def test_antigravity_hook_bridge_does_not_auto_approve_clean_guard_result():
+    output, wrapper_exit = hook_compat.translate_child_result(
+        "antigravity",
+        "PreToolUse",
+        stdout="",
+        stderr="",
+        returncode=0,
+    )
+
+    assert wrapper_exit == 0
+    assert output["decision"] == "ask"
 
 
 def test_antigravity_20_global_targets_corrected_ide_and_cli_paths(install_ctx: InstallContext):
@@ -154,6 +323,10 @@ def test_antigravity_20_global_targets_corrected_ide_and_cli_paths(install_ctx: 
     )
     assert "/.gemini/GEMINI.md" in joined, "IDE global rules must land in ~/.gemini/GEMINI.md"
     assert "/.gemini/antigravity-cli/skills/" in joined, "CLI skills must land in ~/.gemini/antigravity-cli"
+    assert "/.gemini/antigravity-cli/AGENTS.md" not in joined
+    assert "/.gemini/antigravity-cli/workflows/" not in joined
+    assert "/.gemini/antigravity-cli/hooks" not in joined
+    assert "/.gemini/config/agents" in joined
     # Regression guard: the old (unread) IDE root must be gone.
     assert "/.gemini/antigravity/" not in joined, (
         "global install must NOT write to the old ~/.gemini/antigravity/ root"
@@ -170,4 +343,6 @@ def test_antigravity_20_commands_are_also_skills(install_ctx: InstallContext):
     assert (agents / "workflows" / "presentify.md").exists(), "slash workflow missing"
     skill_md = agents / "skills" / "presentify" / "SKILL.md"
     assert skill_md.exists(), "command-skill missing"
-    assert "name: presentify" in skill_md.read_text(encoding="utf-8")
+    text = skill_md.read_text(encoding="utf-8")
+    assert "name: presentify" in text
+    assert "disable-model-invocation: true" in text

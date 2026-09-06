@@ -1,0 +1,115 @@
+name: cursor-usage-monitor
+
+# Path-filtered: runs only when the cursor-usage-monitor extension changes, so it
+# costs action minutes only for that surface.
+# The extension is a Node/TypeScript VSIX with a Vitest suite; the repo-wide
+# ci.yml covers Python only, so this workflow is the extension's gate.
+#
+# scripts/installer.{sh,ps1} are deliberately NOT trigger paths even though both
+# install this extension. ci.yml runs on every non-docs change and already runs
+# catalog/hooks/tests/test_installer_smoke.py, which asserts dual-host targeting
+# and vendor order. Adding the installers here would spin up a Node runner to
+# rebuild an unchanged VSIX on every installer edit.
+on:
+  # v4.0.0 event separation: the `push` leg to the same protected branches was
+  # removed. Under a pull-request-only merge policy that push IS the merge commit
+  # of the pull request that just ran, so the tree is identical and the second run
+  # cannot discover anything the first did not. See
+  # docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md section 4.
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'extensions/cursor-usage-monitor/**'
+      - 'tests/fixtures/cursor-usage/**'
+      - '.github/workflows/cursor-usage-monitor.yml'
+
+# Read-only: the job builds and tests, and publishes nothing.
+permissions:
+  contents: read
+
+# Cancel superseded runs of the same ref (the single largest action-minute saver).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: extensions/cursor-usage-monitor
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: extensions/cursor-usage-monitor/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile (tsc)
+        run: npm run compile
+
+      - name: Unit tests with V8 coverage (Vitest)
+        # vitest.config.mts carries the coverage thresholds, so a coverage
+        # regression fails this step rather than being reported and ignored.
+        run: npm run test:coverage
+
+      - name: Package VSIX
+        run: npm run package
+
+      - name: Verify packaged contents
+        # Required runtime assets present; coverage reports, sources, tests, and
+        # credential-shaped files absent.
+        run: npm run verify:package
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: cursor-usage-monitor-vsix
+          path: extensions/cursor-usage-monitor/*.vsix
+          if-no-files-found: error
+          retention-days: 7
+
+  e2e-cursor-profile:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - name: Download VSIX artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: cursor-usage-monitor-vsix
+          path: packed-vsix
+
+      - name: Install into throwaway Cursor profile or skip-with-note
+        # GitHub-hosted ubuntu-latest runners do not ship the Cursor CLI.
+        # When `cursor` is absent, document the degrade and require the local
+        # live-smoke checklist instead of failing the workflow. When present
+        # (self-hosted or future images), install into an isolated user-data
+        # directory and assert the extension id is listed.
+        run: |
+          set -euo pipefail
+          VSIX="$(ls -1 packed-vsix/*.vsix | head -n 1)"
+          echo "Packaged VSIX: ${VSIX}"
+          if ! command -v cursor >/dev/null 2>&1; then
+            echo "::notice::Cursor CLI not available on this runner; skipping profile install E2E."
+            echo "Required local verification: docs/releases/v3/v3.15/development/cursor-usage-live-smoke.md"
+            exit 0
+          fi
+          PROFILE_DIR="${RUNNER_TEMP}/cursor-nexus-e2e-profile"
+          mkdir -p "${PROFILE_DIR}"
+          cursor --user-data-dir "${PROFILE_DIR}" --install-extension "${VSIX}" --force
+          cursor --user-data-dir "${PROFILE_DIR}" --list-extensions | tee "${RUNNER_TEMP}/cursor-extensions.txt"
+          grep -qx 'nexus-hub.cursor-usage-monitor' "${RUNNER_TEMP}/cursor-extensions.txt"
+          if cursor --user-data-dir "${PROFILE_DIR}" --list-extensions | grep -E 'nexus-hub\.(claude|codex|github)-usage-monitor'; then
+            echo "VS Code-only monitors must not appear in the Cursor profile" >&2
+            exit 1
+          fi
+          echo "Cursor profile E2E install verified."

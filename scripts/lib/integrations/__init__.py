@@ -36,6 +36,7 @@ def _register_builtins() -> None:
     from .cursor import CursorIntegration
     from .gemini import GeminiIntegration
     from .gemini_cli import GeminiCliIntegration
+    from .hermes import HermesIntegration
     from .kimi import KimiIntegration
     from .nexus_ai import NexusAiIntegration
     from .openclaw import OpenClawIntegration
@@ -52,6 +53,7 @@ def _register_builtins() -> None:
     _register(CursorIntegration())
     _register(GeminiIntegration())
     _register(GeminiCliIntegration())
+    _register(HermesIntegration())
     _register(KimiIntegration())
     _register(NexusAiIntegration())
     _register(OpenClawIntegration())

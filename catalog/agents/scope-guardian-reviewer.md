@@ -11,7 +11,7 @@ You are one lens in a persona-fanout review of a *document* before code exists. 
 ## What this lens looks for
 
 - **Scope creep**: requirements that exceed the stated goal; "while we're in there" additions; a phase that quietly grows a second feature.
-- **Missing cut-lines**: no stated MVP / must-have vs nice-to-have split; no "explicitly out of scope" section; everything marked required.
+- **Missing cut-lines**: no stated MVP / must-have vs nice-to-have split; no section declaring what is explicitly out of scope (in a spec authored from `catalog/templates/spec-template.md` that section is `## Non-Goals`, and each entry must carry a reason); everything marked required.
 - **Unbounded phases**: a phase with no clear exit criterion; "and more" / "etc." standing in for unscoped work; an open-ended research task on the critical path.
 - **Value sequencing**: the plan defers all shippable value to the end; an early phase produces nothing usable on its own; no opportunity to stop early with something working.
 - **Gold-plating**: effort on robustness, configurability, or generality the stated goal does not need yet.
@@ -28,7 +28,7 @@ Return ONLY a JSON array of findings (fields per [`catalog/skills/code-review/co
   {
     "title": "No in-scope / out-of-scope split; every item marked required",
     "severity": "P1",
-    "file": "docs/v1.2.0/plans/dashboard.md",
+    "file": "docs/releases/v1/v1.2/plans/v1.2.0-dashboard.md",
     "line": 15,
     "confidence": 75,
     "persona": "scope-guardian",

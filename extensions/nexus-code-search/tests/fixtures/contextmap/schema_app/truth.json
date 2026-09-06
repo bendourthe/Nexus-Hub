@@ -1,0 +1,11 @@
+{
+  "models": ["Author", "Book", "User", "Post", "Account", "Profile"],
+  "relations": [
+    "Book.author->Author",
+    "Book.tags->Tag",
+    "User.posts->Post",
+    "Post.user->User",
+    "Account.profile->Profile",
+    "Profile.account->Account"
+  ]
+}

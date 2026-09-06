@@ -1,0 +1,292 @@
+{
+  "_comment": "Intentional near-neighbor allowlist for run_trigger_evals.py (v3.15.2 Phase 1 / A1). Each entry is a pair of skills whose descriptions legitimately share trigger vocabulary because the two skills are parallel-by-design within one category and are routed apart by a domain noun (a language, framework, file format, mobile platform, or regulation) that IS the user's trigger, or are a matched pair that already carries mutual SKIP clauses. These are downgraded from FAIL to informational lines; they are NOT silenced (run with --verbose to list them). The allowlist is minimal - every entry is a deliberate exception. The one genuine collision found in the first-run triage (the broad technical-documentation skill lacked a SKIP clause carving out the single-artifact architecture-decision-record and project-constitution skills) was FIXED in place by sharpening technical-documentation's description; both residual pairs are allowlisted below because technical-documentation is intentionally the broad multi-document skill that now explicitly defers to the two specific ones. Do not add an entry without a one-line reason; a new un-allowlisted collision is a routing-safety signal, not noise.",
+  "allow": [
+    {
+      "pair": [
+        "cpp-cleanup",
+        "java-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "go-cleanup",
+        "java-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "csharp-cleanup",
+        "java-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "javascript-cleanup",
+        "python-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "cpp-cleanup",
+        "csharp-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "java-cleanup",
+        "javascript-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "java-cleanup",
+        "python-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "cpp-cleanup",
+        "javascript-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "go-cleanup",
+        "python-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "csharp-cleanup",
+        "javascript-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "c-cleanup",
+        "java-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "c-cleanup",
+        "javascript-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "c-cleanup",
+        "python-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "cpp-cleanup",
+        "go-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "cpp-cleanup",
+        "python-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "csharp-cleanup",
+        "go-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "csharp-cleanup",
+        "python-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "go-cleanup",
+        "javascript-cleanup"
+      ],
+      "reason": "parallel <lang>-cleanup siblings (code-cleanup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "csharp-expert",
+        "java-expert"
+      ],
+      "reason": "parallel <lang>-expert siblings (language-specialists); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "go-expert",
+        "python-expert"
+      ],
+      "reason": "parallel <lang>-expert siblings (language-specialists); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "csharp-expert",
+        "javascript-expert"
+      ],
+      "reason": "parallel <lang>-expert siblings (language-specialists); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "cpp-expert",
+        "go-expert"
+      ],
+      "reason": "parallel <lang>-expert siblings (language-specialists); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "go-expert",
+        "rust-expert"
+      ],
+      "reason": "parallel <lang>-expert siblings (language-specialists); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "cpp-expert",
+        "javascript-expert"
+      ],
+      "reason": "parallel <lang>-expert siblings (language-specialists); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "go-expert",
+        "typescript-expert"
+      ],
+      "reason": "parallel <lang>-expert siblings (language-specialists); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "python-expert",
+        "rust-expert"
+      ],
+      "reason": "parallel <lang>-expert siblings (language-specialists); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "init-csharp-project",
+        "init-java-project"
+      ],
+      "reason": "parallel init-<lang>-project siblings (project-setup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "init-java-project",
+        "init-python-project"
+      ],
+      "reason": "parallel init-<lang>-project siblings (project-setup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "init-csharp-project",
+        "init-python-project"
+      ],
+      "reason": "parallel init-<lang>-project siblings (project-setup); routed apart by the language noun"
+    },
+    {
+      "pair": [
+        "react-expert",
+        "vue-expert"
+      ],
+      "reason": "parallel framework-expert siblings (framework-specialists); routed apart by the framework noun"
+    },
+    {
+      "pair": [
+        "nextjs-expert",
+        "svelte-expert"
+      ],
+      "reason": "parallel framework-expert siblings (framework-specialists); routed apart by the framework noun"
+    },
+    {
+      "pair": [
+        "docx-generation",
+        "pptx-generation"
+      ],
+      "reason": "parallel document-generation siblings (specialized-domains); routed apart by the file format"
+    },
+    {
+      "pair": [
+        "docx-generation",
+        "xlsx-generation"
+      ],
+      "reason": "parallel document-generation siblings (specialized-domains); routed apart by the file format"
+    },
+    {
+      "pair": [
+        "android-development",
+        "ios-development"
+      ],
+      "reason": "parallel mobile-platform siblings (specialized-domains); routed apart by the platform noun"
+    },
+    {
+      "pair": [
+        "ccpa-compliance",
+        "gdpr-compliance"
+      ],
+      "reason": "parallel privacy-regulation siblings (compliance); routed apart by the regulation name"
+    },
+    {
+      "pair": [
+        "oncall-runbook",
+        "runbook-writer"
+      ],
+      "reason": "matched runbook pair (infrastructure); already carry mutual SKIP clauses (per-alert on-call vs general operational)"
+    },
+    {
+      "pair": [
+        "docs-layout-refactor",
+        "project-refactor"
+      ],
+      "reason": "matched refactor pair (code-cleanup); already carry mutual SKIP clauses (docs/ tree vs repo project artifacts)"
+    },
+    {
+      "pair": [
+        "architecture-decision-record",
+        "technical-documentation"
+      ],
+      "reason": "broad-vs-specific doc pair; technical-documentation is the multi-document skill and now defers to architecture-decision-record via an explicit SKIP clause"
+    },
+    {
+      "pair": [
+        "project-constitution",
+        "technical-documentation"
+      ],
+      "reason": "broad-vs-specific doc pair; technical-documentation is the multi-document skill and now defers to project-constitution via an explicit SKIP clause"
+    },
+    {
+      "pair": [
+        "agentic-endpoint-hardening",
+        "ai-agent-governance"
+      ],
+      "reason": "broad-vs-specific agent-security pair; the overlap is created BY agentic-endpoint-hardening's SKIP clause, which names the deployed-service governance territory in order to defer to ai-agent-governance (local coding-agent endpoint seam vs deployed autonomous service lifecycle/RBAC/observability). Routing is verified in both directions by agentic-endpoint-hardening's trigger-cases.json: neg-service-governance routes away, and all six positives beat every competitor including ai-agent-governance"
+    },
+    {
+      "pair": [
+        "multi-agent-code-review",
+        "pr-description-writer"
+      ],
+      "reason": "both key on the same object (a pull request / code change) with different verbs: one reviews the diff, the other writes the description. Surfaced at exactly the 50% threshold only after v3.18.0 stopped tokenizing SKIP clauses, which shrank both token sets and therefore the ratio's denominator. Routing is unaffected (0 failures)."
+    }
+  ]
+}

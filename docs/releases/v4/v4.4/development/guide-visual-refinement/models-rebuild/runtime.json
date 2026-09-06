@@ -1,0 +1,68 @@
+{
+  "javascript_syntax": "pass",
+  "frames": [
+    {
+      "mode": "language",
+      "frame": 0,
+      "status": "Reading the request."
+    },
+    {
+      "mode": "language",
+      "frame": 2,
+      "status": "The answer so far becomes context."
+    },
+    {
+      "mode": "language",
+      "frame": 5,
+      "status": "Complete. Each token built on the previous context."
+    },
+    {
+      "mode": "diffusion",
+      "frame": 0,
+      "status": "Start with fresh random noise."
+    },
+    {
+      "mode": "diffusion",
+      "frame": 2,
+      "status": "Shapes become more recognizable."
+    },
+    {
+      "mode": "diffusion",
+      "frame": 5,
+      "status": "A new image has been generated."
+    },
+    {
+      "mode": "world",
+      "frame": 0,
+      "status": "Read the scene and the action."
+    },
+    {
+      "mode": "world",
+      "frame": 2,
+      "status": "Nearby objects grow as you advance."
+    },
+    {
+      "mode": "world",
+      "frame": 5,
+      "status": "A possible next view after moving forward."
+    },
+    {
+      "mode": "omni",
+      "frame": 0,
+      "status": "Receive text, photo and voice together."
+    },
+    {
+      "mode": "omni",
+      "frame": 2,
+      "status": "Relate the photo to the request."
+    },
+    {
+      "mode": "omni",
+      "frame": 5,
+      "status": "Illustrated reply in text and speech."
+    }
+  ],
+  "errors": [],
+  "external_requests": [],
+  "idle_after_completion": true
+}

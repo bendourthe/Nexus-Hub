@@ -1,4 +1,4 @@
 interface:
   display_name: JavaScript/TypeScript Code Cleanup
   short_description: Remove unused exports, fix ESLint issues, modernize to ES6+, and clean up JavaScript/TypeScript codebases. Use when cleaning up JS/TS projects, removing dead code, modernizing legacy
-    JavaScript, or im
+    JavaScript, or improving code maintainability.

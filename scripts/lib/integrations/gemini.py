@@ -2,8 +2,10 @@
 extension flow that consumes GEMINI.md plus a .gemini/ workspace.
 
 Note: this is distinct from the Gemini CLI (see gemini_cli.py) and from
-Antigravity 1.0 / 2.0 (see antigravity.py). The three share the .gemini/ root
-but write to different subdirectories.
+Antigravity 1.0 / 2.0 (see antigravity.py). The IDE instruction surface is
+verified at GEMINI.md. The extra .gemini skills, workflows, agents, and rules
+mirrors are compatibility writes whose IDE discovery remains UNVERIFIED; do not
+use their presence as release evidence.
 """
 
 from __future__ import annotations
@@ -35,5 +37,4 @@ class GeminiIntegration(MarkdownIntegration, SkillsIntegration):
         "agents_subdir": "agents",
         "rules_subdir": "rules",
         "hooks_supported": False,
-        "permissions_file": "configs/permissions/gemini-permissions.json",
     }

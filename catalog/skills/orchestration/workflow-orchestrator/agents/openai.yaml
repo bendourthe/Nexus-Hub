@@ -1,4 +1,4 @@
 interface:
   display_name: Workflow Orchestrator
   short_description: Design and execute end-to-end workflows by chaining multiple skills and managing quality gates between phases. Use for complete feature implementations, full testing cycles, comprehensive
-    code reviews
+    code reviews, or any multi-phase development process.

@@ -80,6 +80,8 @@ For each gate, specify four categories of criteria.
 | O2 | [criterion] | Auto/Manual | [command or process] |
 ```
 
+**Safety-critical guards gate on `pass^k`.** For any criterion that guards a safety-critical behavior (a hook that must block a destructive command, a redaction that must fire, an allowlist that must reject), the gate reports GO only on a `pass^k` result over the k recorded trials, per the definition owned by `[[ai-output-evaluation]]`; a single green run is a `pass@1` sample, not evidence the guard holds. Nexus-Hub's own hook guards are exactly this class. Record the k trial results with the gate outcome; do not restate the metric definitions here.
+
 ### Step 3: Configure Gate Behavior
 
 Define what happens when a gate passes, fails, or partially passes.
@@ -308,6 +310,33 @@ Return to planning phase with specific feedback on what needs revision.
 Profile and optimize. If the budget cannot be met, escalate for budget revision with justification.
 ```
 
+#### Gate: merge-ready
+
+```markdown
+## Gate: merge-ready
+**Type**: Deployment Gate (final gate before merge)
+**Automation**: Mostly automatic (the collaborator-rule criteria are policy/manual)
+
+### Required Criteria
+| # | Criterion | How to Verify |
+|---|-----------|---------------|
+| R1 | CI is green on the current head | `gh pr checks` / the status-check rollup for the head commit |
+| R2 | Cross-model / multi-agent review is clean, or every finding is addressed | reviewDecision APPROVED + zero unresolved threads (see multi-agent-code-review, cross-model-orchestrator) |
+| R3 | The PR is one concern wide | Diff scope matches a single stated intent (no drive-by changes) |
+| R4 | An issue is linked, or partiality is stated | `Fixes #N` / `Closes #N` in the body, or an explicit "partial: ..." note |
+| R5 | Evidence discipline satisfied | Every gate above verified against LIVE current-head GitHub state, not local history (see verification-before-completion) |
+| R6 | Project review trapdoors checked | The project's recurring-blocker list was applied (see review-trapdoors) |
+
+### Optional Criteria (configurable collaborator rules; see the merge-readiness-contract style guide)
+| # | Criterion | How to Verify |
+|---|-----------|---------------|
+| O1 | No self-merge (a second person approves) | Reviewer is not the author, unless the bus-factor escape hatch applies |
+| O2 | Diff within the net-lines / one-concern ceiling | Diff stat under the project's configured cap |
+
+### On Fail
+Any required criterion failing blocks the merge. Fix the cause (green CI, address findings, split the PR, link the issue) and re-run. The collaborator rules are policy, not code: configure them per the style guide.
+```
+
 ### Step 5: Track Gate Results
 
 Record every gate execution for auditability. This is especially valuable for teams and for post-mortems.
@@ -349,6 +378,18 @@ Record every gate execution for auditability. This is especially valuable for te
 | lint-passes | O1 (zero warnings) | 2 cosmetic warnings | [name] |
 ```
 
+## Merge-Readiness Contract
+
+The `merge-ready` gate above is a named, machine-checkable contract: a change is mergeable only when its required criteria all hold. Unlike the single-purpose gates (tests, lint, coverage), it is a COMPOSITE that binds the others plus PR hygiene into one verifiable statement, so "ready to merge" stops being a feeling and becomes a checklist backed by evidence.
+
+The contract composes disciplines already in the catalog:
+
+- **CI + review gates** (tests-pass, lint-passes, coverage-threshold, no-security-vulns above) supply R1-R2.
+- **The evidence discipline** in [[verification-before-completion]] supplies R5: each gate is verified against the PR's live current-head state (the status rollup, the latest review submissions, `mergeable`), never a stale top-level comment or a remembered green check. A usage-limit or missing-review result is MISSING EVIDENCE, not approval.
+- **The project's review trapdoors** ([[review-trapdoors]]) supply R6: the curated recurring-blocker list is applied before the change is called mergeable.
+
+The collaborator rules (O1/O2) are deliberately CONFIGURABLE convention, not mandate: a solo maintainer cannot honor a no-self-merge rule, and a hotfix may need a time-boxed self-merge escape hatch. The options (no-self-merge by default, a net-lines / one-concern ceiling, a bus-factor self-merge escape hatch) are documented in the [merge-readiness-contract style guide](../../../style-guides/merge-readiness-contract.md) (installed at `~/.nexus-hub/style-guides/merge-readiness-contract.md`); a project adopts the subset that fits its team size and risk. See [[git-branching-workflow]] for how the merge fits the branching model, [[pr-description-writer]] for the issue-linkage and one-concern hygiene the contract checks, and [[shipping-and-launch]] for the release step the contract gates.
+
 ## Best Practices
 
 - **Start with fewer gates** and add more as your workflow matures; over-gating slows velocity without proportional quality gains
@@ -378,11 +419,18 @@ Record every gate execution for auditability. This is especially valuable for te
 
 ## Related Skills
 
+- [[functional-verification]] - owns the procedure that produces functional evidence; this skill defines the criterion, threshold, and GO/NO-GO outcome that consume it.
 - [[workflow-orchestrator]] - Orchestrating multi-phase workflows that use these gates
 - [[task-coordinator]] - Coordinating tasks within gated phases
 - [[plan-before-code]] - Planning phase that feeds into the plan-approved gate
 - [[cross-model-orchestrator]] - Multi-model workflows that use gates at model transitions
 - [[research-plan-implement]] - RPI workflow that uses gates between research, plan, and implement phases
+- [[verification-before-completion]] - supplies the merge-readiness contract's evidence discipline (verify each gate against live current-head state)
+- [[review-trapdoors]] - the project-specific recurring-blocker check the merge-readiness contract requires
+- [[multi-agent-code-review]] - the review pass whose clean result the merge-readiness contract composes
+- [[shipping-and-launch]] - the release step the merge-readiness contract gates
+- [[git-branching-workflow]] - how the gated merge fits the project's branching model
+- [[pr-description-writer]] - the issue-linkage and one-concern PR hygiene the contract checks
 
 ---
 

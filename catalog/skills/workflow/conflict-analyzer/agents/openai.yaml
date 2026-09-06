@@ -1,4 +1,4 @@
 interface:
   display_name: Conflict Analyzer
   short_description: Analyze and resolve merge conflicts systematically using three-way merge analysis, conflict classification, resolution strategies, and prevention techniques. Use when encountering merge
-    conflicts, pla
+    conflicts, planning branch integration, or establishing merge workflow policies.

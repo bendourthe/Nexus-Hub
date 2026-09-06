@@ -31,16 +31,33 @@ from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
 from nexus_code_search.config import CodeSearchConfig, index_dir_for, resolve_config
+from nexus_code_search.contextmap import generate_context_map
+from nexus_code_search.contextmap.knowledge import generate_knowledge_map
+from nexus_code_search.contextmap.maphealth import lint_context_map
 from nexus_code_search.db.schema import open_database
 from nexus_code_search.extraction import ExtractionOrchestrator
 from nexus_code_search.graph import GraphQueryManager, affected_tests
+from nexus_code_search.graph.safety import evaluate_safety
 from nexus_code_search.indexer import index_codebase
+from nexus_code_search.response_codec import (
+    DEFAULT_MIN_SAVINGS_PCT,
+    RESPONSE_FORMATS,
+    encode_response,
+)
+from nexus_code_search.search_dense import DenseSearchConfig, hybrid_search
 from nexus_code_search.search_keyword import KeywordIndex
 from nexus_code_search.store import clear_index as store_clear_index
 from nexus_code_search.store import index_lock, load_index
+from nexus_code_search.tool_profiles import (
+    TOOL_MINIMUM_PROFILE,
+    definition_token_count,
+    tools_for_profile,
+)
 from nexus_code_search.types import IndexState, IndexStatus
 
 logger = logging.getLogger("nexus-code-search")
+
+__all__ = ["TOOL_MINIMUM_PROFILE"]
 
 SERVER_INSTRUCTIONS = """\
 nexus-code-search: AST-aware semantic search over a local codebase.
@@ -55,6 +72,11 @@ Tools (what / when):
   get_indexing_status   Report current state (IDLE / RUNNING) and counts.
   index_graph           v2.0: build the tree-sitter AST graph (nodes / edges
                         / FTS5) for Python + TypeScript source files.
+  generate_context_map  Compile a committed .nexus/CONTEXT-MAP.md + a
+                        .nexus/context/ article set from the graph. A cheap
+                        cold-start map the AI reads once; deterministic,
+                        local-only, writes only under .nexus/. Run index_graph
+                        first; force=True bypasses the unchanged-graph no-op.
   code_search           v2.0: full-text search over graph node names
                         (name-scoped by default; all_fields=true also matches
                         qualified_name + docstring); returns symbol records.
@@ -66,6 +88,12 @@ Tools (what / when):
   code_node             v2.0: resolve a symbol by name or qualified_name.
   code_context          v2.0: one-shot node + callers + callees + siblings.
   code_explore          v2.0: combined search + traversal in a single call.
+  code_edit_safety      Read-only mutation preflight: regression risk and the
+                        behavior or contract an edit must preserve.
+  code_delete_safety    Read-only mutation preflight: indexed dependents that
+                        must move before a symbol can be removed.
+  code_rename_safety    Read-only mutation preflight: indexed callers,
+                        importers, and references that must rename together.
   watch_for_changes     v2.0: start a debounced file watcher in a background
                         thread that re-indexes changed files.
   code_affected_tests   v2.0: given a list of changed files, return every
@@ -92,40 +120,13 @@ async def run_server() -> None:
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:
-        return _all_tools()
+        return _tools_for_profile(config.tool_profile)
 
     @server.call_tool()
     async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         try:
-            if name == "index_codebase":
-                return _handle_index(arguments, config)
-            if name == "search_code":
-                return _handle_search(arguments, config)
-            if name == "clear_index":
-                return _handle_clear(arguments, config)
-            if name == "get_indexing_status":
-                return _handle_status(arguments, config)
-            if name == "index_graph":
-                return _handle_index_graph(arguments, config)
-            if name in (
-                "code_search",
-                "code_callers",
-                "code_callees",
-                "code_impact",
-                "code_node",
-                "code_context",
-                "code_explore",
-            ):
-                return _handle_graph_query(name, arguments, config)
-            if name == "watch_for_changes":
-                return _handle_watch(arguments, config)
-            if name == "code_affected_tests":
-                return _handle_affected_tests(arguments, config)
-            return [
-                TextContent(
-                    type="text", text=json.dumps({"error": f"Unknown tool: {name}"})
-                )
-            ]
+            result = _dispatch_tool(name, arguments, config)
+            return _format_tool_response(result, arguments)
         except Exception as exc:  # noqa: BLE001
             logger.exception("Tool %s failed", name)
             return [TextContent(type="text", text=json.dumps({"error": str(exc)}))]
@@ -136,6 +137,129 @@ async def run_server() -> None:
             update={"instructions": SERVER_INSTRUCTIONS}
         )
         await server.run(read_stream, write_stream, init_options)
+
+
+def _dispatch_tool(
+    name: str, arguments: dict, config: CodeSearchConfig
+) -> list[TextContent]:
+    if name == "index_codebase":
+        return _handle_index(arguments, config)
+    if name == "search_code":
+        return _handle_search(arguments, config)
+    if name == "clear_index":
+        return _handle_clear(arguments, config)
+    if name == "get_indexing_status":
+        return _handle_status(arguments, config)
+    if name == "index_graph":
+        return _handle_index_graph(arguments, config)
+    if name == "generate_context_map":
+        return _handle_generate_context_map(arguments, config)
+    if name == "map_health":
+        return _handle_map_health(arguments, config)
+    if name == "generate_knowledge_map":
+        return _handle_generate_knowledge_map(arguments)
+    if name in (
+        "code_search",
+        "code_callers",
+        "code_callees",
+        "code_impact",
+        "code_node",
+        "code_context",
+        "code_explore",
+    ):
+        return _handle_graph_query(name, arguments, config)
+    if name == "watch_for_changes":
+        return _handle_watch(arguments, config)
+    if name == "code_affected_tests":
+        return _handle_affected_tests(arguments, config)
+    if name in ("code_edit_safety", "code_delete_safety", "code_rename_safety"):
+        return _handle_safety_check(name, arguments, config)
+    return [
+        TextContent(type="text", text=json.dumps({"error": f"Unknown tool: {name}"}))
+    ]
+
+
+def _format_tool_response(
+    contents: list[TextContent], arguments: dict
+) -> list[TextContent]:
+    response_format = arguments.get("response_format", "json")
+    if response_format == "json":
+        return contents
+    threshold = arguments.get(
+        "compact_min_savings_pct", DEFAULT_MIN_SAVINGS_PCT
+    )
+    formatted: list[TextContent] = []
+    for content in contents:
+        try:
+            payload = json.loads(content.text)
+            text = encode_response(
+                payload,
+                response_format=response_format,
+                min_savings_pct=threshold,
+            )
+        except Exception:  # noqa: BLE001 - preserve the valid handler response
+            text = content.text
+        formatted.append(TextContent(type="text", text=text))
+    return formatted
+
+
+def _response_format_properties() -> dict[str, dict]:
+    return {
+        "response_format": {
+            "type": "string",
+            "enum": list(RESPONSE_FORMATS),
+            "default": "json",
+            "description": (
+                "Response encoding: json preserves compatibility, compact forces "
+                "Nexus Compact Wire, and auto uses it only when byte savings meet "
+                "compact_min_savings_pct."
+            ),
+        },
+        "compact_min_savings_pct": {
+            "type": "number",
+            "default": DEFAULT_MIN_SAVINGS_PCT,
+            "minimum": 0.0,
+            "maximum": 100.0,
+            "description": "Minimum UTF-8 byte savings required by auto mode.",
+        },
+    }
+
+
+def _tool_input_schema(tool: Tool) -> dict:
+    """Return the MCP tool schema across SDK 1.x and 2.x field names."""
+    schema = getattr(tool, "inputSchema", None)
+    if schema is not None:
+        return schema
+    return tool.input_schema
+
+
+def _safety_tool_definitions(symbol_arg: dict) -> list[Tool]:
+    definitions = (
+        (
+            "code_edit_safety",
+            "Return one read-only verdict for modifying a symbol, the contract to preserve, and concrete local graph evidence.",
+        ),
+        (
+            "code_delete_safety",
+            "Return one read-only verdict for deleting a symbol, who would break, and concrete local graph evidence.",
+        ),
+        (
+            "code_rename_safety",
+            "Return one read-only verdict for renaming a symbol, what must move together, and concrete local graph evidence.",
+        ),
+    )
+    return [
+        Tool(
+            name=name,
+            description=f"{description} Local-only; never mutates the index or tree.",
+            inputSchema={
+                "type": "object",
+                "properties": dict(symbol_arg),
+                "required": ["root", "symbol"],
+            },
+        )
+        for name, description in definitions
+    ]
 
 
 def _all_tools() -> list[Tool]:
@@ -152,7 +276,7 @@ def _all_tools() -> list[Tool]:
             "description": "Symbol name or qualified_name (e.g. `helper` or `module.Class.method`).",
         },
     }
-    return [
+    tools = [
         Tool(
             name="index_codebase",
             description=(
@@ -171,7 +295,10 @@ def _all_tools() -> list[Tool]:
         ),
         Tool(
             name="search_code",
-            description="Keyword search over the indexed chunk corpus.",
+            description=(
+                "Keyword search over the indexed chunk corpus, with an optional "
+                "offline hybrid mode that loads only pre-placed local weights."
+            ),
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -179,7 +306,7 @@ def _all_tools() -> list[Tool]:
                     "query": {"type": "string"},
                     "mode": {
                         "type": "string",
-                        "enum": ["keyword"],
+                        "enum": ["keyword", "hybrid"],
                         "default": "keyword",
                     },
                     "limit": {
@@ -221,6 +348,60 @@ def _all_tools() -> list[Tool]:
                 "properties": {
                     **root_arg,
                     "force": {"type": "boolean", "default": False},
+                },
+                "required": ["root"],
+            },
+        ),
+        Tool(
+            name="generate_context_map",
+            description=(
+                "Compile a committed .nexus/CONTEXT-MAP.md (plus a .nexus/context/ "
+                "article set) from the AST graph so an AI reads the codebase map "
+                "once at session start instead of re-exploring files. Deterministic "
+                "and local-only; writes only under <root>/.nexus/ (never CLAUDE.md / "
+                "AGENTS.md). Unchanged graphs are a no-op unless force=True. Run "
+                "index_graph first."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    **root_arg,
+                    "force": {"type": "boolean", "default": False},
+                },
+                "required": ["root"],
+            },
+        ),
+        Tool(
+            name="map_health",
+            description=(
+                "Lint the compiled context map under <root>/.nexus/: orphan "
+                "articles (not linked from the index), missing backlinks, and "
+                "staleness (source changed since the map was generated). "
+                "Deterministic and local-only; returns a health report."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": root_arg,
+                "required": ["root"],
+            },
+        ),
+        Tool(
+            name="generate_knowledge_map",
+            description=(
+                "Compile a committed <root>/.nexus/KNOWLEDGE.md from the Markdown "
+                "notes under `notes_path` (default: root): key decisions, open "
+                "questions, and a categorized note index (decision / meeting / "
+                "retro / spec / research). Deterministic, local-only, graph-"
+                "independent; writes only under <root>/.nexus/."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    **root_arg,
+                    "notes_path": {
+                        "type": "string",
+                        "description": "Folder of Markdown notes (default: root).",
+                    },
                 },
                 "required": ["root"],
             },
@@ -381,6 +562,24 @@ def _all_tools() -> list[Tool]:
             },
         ),
     ]
+    tools.extend(_safety_tool_definitions(symbol_arg))
+    for tool in tools:
+        _tool_input_schema(tool)["properties"].update(_response_format_properties())
+    return tools
+
+
+def _tools_for_profile(profile: str) -> list[Tool]:
+    """Return the tool definitions exposed by ``profile``.
+
+    Unknown profiles fail open to the full surface. Profile selection is a
+    token-cost control, not an authorization boundary.
+    """
+    return tools_for_profile(profile, _all_tools())
+
+
+def tool_definition_token_count(profile: str) -> int:
+    """Estimate tokens for the serialized MCP definitions in ``profile``."""
+    return definition_token_count(_tools_for_profile(profile))
 
 
 def _resolve_root(arguments: dict) -> Path:
@@ -429,10 +628,10 @@ def _handle_search(arguments: dict, config: CodeSearchConfig) -> list[TextConten
     mode = arguments.get("mode", "keyword")
     limit = int(arguments.get("limit", 10))
 
-    if mode != "keyword":
+    if mode not in ("keyword", "hybrid"):
         raise NotImplementedError(
-            "search_code currently supports mode='keyword' only. Use code_search for "
-            "the v2.0 AST graph full-text surface."
+            "search_code supports mode='keyword' or mode='hybrid'. Use code_search "
+            "for the AST graph full-text surface."
         )
 
     index_dir = index_dir_for(root, config)
@@ -450,8 +649,26 @@ def _handle_search(arguments: dict, config: CodeSearchConfig) -> list[TextConten
             )
         ]
 
-    idx = KeywordIndex.build(chunks)
-    results = idx.search(query, limit=limit)
+    requested_mode = mode
+    degraded = False
+    hint = None
+    if mode == "hybrid":
+        outcome = hybrid_search(
+            chunks,
+            query,
+            limit=limit,
+            config=DenseSearchConfig(
+                enabled=config.dense_enabled,
+                model_dir=config.dense_model_dir,
+            ),
+        )
+        results = outcome.results
+        mode = outcome.mode
+        degraded = outcome.degraded
+        hint = outcome.hint
+    else:
+        idx = KeywordIndex.build(chunks)
+        results = idx.search(query, limit=limit)
     payload = {
         "root": str(root),
         "query": query,
@@ -469,6 +686,14 @@ def _handle_search(arguments: dict, config: CodeSearchConfig) -> list[TextConten
             for r in results
         ],
     }
+    if requested_mode == "hybrid":
+        payload.update(
+            {
+                "requested_mode": requested_mode,
+                "degraded": degraded,
+                "hint": hint,
+            }
+        )
     return [TextContent(type="text", text=json.dumps(payload))]
 
 
@@ -516,6 +741,37 @@ def _handle_index_graph(arguments: dict, config: CodeSearchConfig) -> list[TextC
         stats = orch.run(force=force)
     payload = {"root": str(root), **stats.to_dict()}
     return [TextContent(type="text", text=json.dumps(payload))]
+
+
+def _handle_generate_context_map(
+    arguments: dict, config: CodeSearchConfig
+) -> list[TextContent]:
+    root = _resolve_root(arguments)
+    if not root.exists() or not root.is_dir():
+        raise ValueError(f"root path does not exist or is not a directory: {root}")
+    force = bool(arguments.get("force", False))
+    index_dir = index_dir_for(root, config)
+    result = generate_context_map(root, index_dir, force=force)
+    return [TextContent(type="text", text=json.dumps(result.to_dict()))]
+
+
+def _handle_generate_knowledge_map(arguments: dict) -> list[TextContent]:
+    root = _resolve_root(arguments)
+    if not root.exists() or not root.is_dir():
+        raise ValueError(f"root path does not exist or is not a directory: {root}")
+    notes_raw = arguments.get("notes_path")
+    notes_path = Path(notes_raw).expanduser().resolve() if notes_raw else None
+    result = generate_knowledge_map(root, notes_path)
+    return [TextContent(type="text", text=json.dumps(result.to_dict()))]
+
+
+def _handle_map_health(arguments: dict, config: CodeSearchConfig) -> list[TextContent]:
+    root = _resolve_root(arguments)
+    if not root.exists() or not root.is_dir():
+        raise ValueError(f"root path does not exist or is not a directory: {root}")
+    index_dir = index_dir_for(root, config)
+    report = lint_context_map(root, index_dir)
+    return [TextContent(type="text", text=json.dumps(report.to_dict()))]
 
 
 def _handle_graph_query(
@@ -610,6 +866,26 @@ def _handle_affected_tests(
         "test_glob": test_glob,
         "affected_tests": results,
     }
+    return [TextContent(type="text", text=json.dumps(payload))]
+
+
+def _handle_safety_check(
+    name: str, arguments: dict, config: CodeSearchConfig
+) -> list[TextContent]:
+    operations = {
+        "code_edit_safety": "edit",
+        "code_delete_safety": "delete",
+        "code_rename_safety": "rename",
+    }
+    operation = operations.get(name)
+    if operation is None:
+        raise ValueError(f"unknown safety tool: {name}")
+    root = _resolve_root(arguments)
+    symbol = arguments.get("symbol", "")
+    if not symbol:
+        raise ValueError("`symbol` argument is required")
+    db_path = index_dir_for(root, config) / "codegraph.db"
+    payload = evaluate_safety(db_path, symbol, operation)
     return [TextContent(type="text", text=json.dumps(payload))]
 
 

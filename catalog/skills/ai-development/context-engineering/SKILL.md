@@ -1,13 +1,13 @@
 ---
 name: context-engineering
-description: Designs and manages the information loaded into an AI session to maximize task effectiveness. Use when an AI agent is producing poor results due to missing context, when tasks require many files and the context window is filling with noise, or when designing prompts for production AI systems. Distinct from token optimization (which reduces cost) — this skill shapes what information is present and in what form. Trigger phrases: context engineering, load the right context, improve AI context, shape the context window, context management for agents.
+description: "Designs and manages the information loaded into an AI session to maximize task effectiveness. Use when an AI agent is producing poor results due to missing context, when tasks require many files and the context window is filling with noise, or when designing prompts for production AI systems. Distinct from token optimization (which reduces cost) -- this skill shapes what information is present and in what form. Trigger phrases: context engineering, load the right context, improve AI context, shape the context window, context management for agents."
 summary_l0: "Shape AI session context deliberately to maximize task effectiveness, not just reduce token count"
-overview_l1: "This skill teaches deliberate, structured context shaping for AI coding sessions — distinct from token cost reduction. Use it when AI agent output quality is limited by what information is available in the context window, when a task requires many files and relevant information is being crowded out, or when building production AI systems that must handle complex multi-step tasks. Key capabilities include progressive context loading (load what is needed for the current step only), information hierarchy design (most important facts first), task-scoped context pruning, and context refresh between session phases. The expected output is an AI session that produces higher-quality results because the right information is present at the right time — not because more tokens are consumed. Trigger phrases: context engineering, context window management, load the right context, agent context design, improve AI quality through context."
+overview_l1: "This skill teaches deliberate, structured context shaping for AI coding sessions -- distinct from token cost reduction. Use it when AI agent output quality is limited by what information is available in the context window, when a task requires many files and relevant information is being crowded out, or when building production AI systems that must handle complex multi-step tasks. Key capabilities include progressive context loading (load what is needed for the current step only), information hierarchy design (most important facts first), task-scoped context pruning, and context refresh between session phases. The expected output is an AI session that produces higher-quality results because the right information is present at the right time -- not because more tokens are consumed. Trigger phrases: context engineering, context window management, load the right context, agent context design, improve AI quality through context."
 ---
 
 # Context Engineering
 
-Shape what information is present in an AI session so the agent produces the best possible output for the current task — not just fewer tokens, but the *right* tokens.
+Shape what information is present in an AI session so the agent produces the best possible output for the current task -- not just fewer tokens, but the *right* tokens.
 
 ## When to Use This Skill
 
@@ -37,7 +37,7 @@ Bad context  = relevant signal buried in noise
 
 Before loading any files, answer these three questions:
 
-1. **What is the AI trying to accomplish right now?** (Not the whole feature — the current step)
+1. **What is the AI trying to accomplish right now?** (Not the whole feature -- the current step)
 2. **What does it need to know to do that?** (Minimum information set)
 3. **What would distract it?** (Everything else)
 
@@ -55,7 +55,7 @@ Use a context budget table:
 Do not front-load all context at the start of a session. Load context in layers matching the task phases:
 
 **Layer 1: Orientation** (session start)
-- Project identity: name, purpose, tech stack (from README or CLAUDE.md — not full docs)
+- Project identity: name, purpose, tech stack (from README or CLAUDE.md -- not full docs)
 - Current task goal: one paragraph
 - The specific files that will be changed
 
@@ -126,7 +126,7 @@ Information at the bottom of the context window has less influence on output tha
 
 | Rationalization | Reality |
 |---|---|
-| "Load everything — the model will figure out what's relevant" | Models weight recent and prominent context more than buried context. Noise degrades signal. Curated context outperforms complete context. |
+| "Load everything -- the model will figure out what's relevant" | Models weight recent and prominent context more than buried context. Noise degrades signal. Curated context outperforms complete context. |
 | "More context is always better" | More relevant context is better. More total context is not. Information about unrelated services, old decisions, and irrelevant tests competes with the signal you need. |
 | "Context management is overhead" | Poor context management causes re-work cycles, hallucinated function signatures, and missed constraints. The overhead is in the rework, not the engineering. |
 | "Just summarize everything at the start" | Summaries lose specificity. Load specific, relevant files for specific tasks rather than summaries of everything. |
@@ -134,7 +134,7 @@ Information at the bottom of the context window has less influence on output tha
 ## Verification
 
 - [ ] A context plan exists for the task (even if informal): what is loaded, what is not, and why
-- [ ] Context loads are scoped to the current step — not the entire feature at once
+- [ ] Context loads are scoped to the current step -- not the entire feature at once
 - [ ] Large documents are represented by summaries with explicit "load if needed" pointers
 - [ ] Context is refreshed between significantly different task phases (planning → implementation → testing)
 - [ ] The AI's output for the current step does not contain hallucinated details about unloaded context

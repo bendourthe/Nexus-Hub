@@ -1,0 +1,22 @@
+{
+  "guide_sha256": "6848938156266c2806c734575c963a64ba71a84bf3b357e912e0583b730324fd",
+  "checks": {
+    "strict_unicode": "pass, exit 0",
+    "v4_4_personal_paths": "pass, exit 0",
+    "git_diff_check": "pass, exit 0",
+    "markdown_links": "314 checked, no issues",
+    "retained_image_hashes": "296 checked, no mismatches"
+  },
+  "phase_commits": [
+    "5bdb3587",
+    "72b6b93b",
+    "238ed5f0",
+    "a84256e5",
+    "374e0b34",
+    "8bd5ed5b"
+  ],
+  "phase_7": "incomplete, uncommitted; three prepared corrections await bounded-pass decision, repository test timeout and manual gates remain open",
+  "running_checks": 0,
+  "publication": "not performed",
+  "unrelated_work": "v4.7-v4.9 drafts and image.png preserved; no files staged in this closeout"
+}

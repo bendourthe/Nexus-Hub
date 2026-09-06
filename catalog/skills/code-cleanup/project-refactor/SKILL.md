@@ -1,8 +1,8 @@
 ---
 name: project-refactor
-description: Audit and refactor a repository's project artifacts (root files, scripts, configs, CI/CD, source layout) to follow standard conventions. Moves misplaced files, fixes all references, archives outdated artifacts tied to prior major versions, and verifies nothing breaks. Use whenever the user says "refactor project layout", "refactor repo layout", "clean up root directory", "too many files in root", "organize project structure", "apply layout rules", "move files to correct directories", "root is cluttered", "layout conventions", "project structure refactor", "archive prior version artifacts", "clean up scripts folder", "organize CI/CD configs", "find empty directories", "remove duplicate files", "find orphaned files", "flatten overcomplicated structure", "consolidate single-child directories", or before a major release. SKIP for docs/ tree reorganization (use docs-layout-refactor), content accuracy fixes (use update-documentation), or CHANGELOG generation (use generate-changelog).
-summary_l0: "Refactor project artifacts and detect empty/duplicate/orphan/overcomplicated structure, archiving prior-version files with reference repair"
-overview_l1: "This skill systematically reorganizes a repository's project artifacts (everything outside the docs/ tree) to follow declared conventions, with impact analysis and reference repair before any file is moved. Scope includes root files, scripts, configs, CI/CD pipelines, and top-level source layout. It also detects prior-major-version artifacts (release notes, deploy checklists, generated reports, snapshot bundles, version-scoped CI workflows) and archives them under archive/versions/v<MAJOR>/v<SEMVER>/ when --archive-prior-versions is set. It also flags empty directories (respecting .gitkeep), duplicate/redundant files, unreferenced orphans, and overcomplicated structure for prune or consolidation, propose-only. Use it when cleaning up a cluttered project root, applying a standard layout ruleset to an existing project, migrating a repo after adopting new conventions, preparing a project for public release, archiving artifacts from a prior major version, or auditing whether a repo matches its declared layout rules. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Trigger phrases: refactor project layout, clean up root directory, organize project structure, apply layout rules, archive prior version artifacts, organize CI/CD configs."
+description: Audit and refactor repository project artifacts (root files, scripts, configs, CI/CD, and source layout) to follow declared conventions. Move misplaced files, repair references, archive outdated prior-version artifacts, and verify behavior. Use when the user says "refactor project layout", "clean up root directory", "organize project structure", "apply layout rules", "archive prior version artifacts", "clean up scripts", "organize CI/CD configs", "find empty directories", "remove duplicate files", "find orphaned files", or "consolidate directories". Version-bound project documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/ and closed snapshots use docs/archives/. SKIP for docs/ tree reorganization (use docs-layout-refactor), content accuracy fixes (use update-documentation), or CHANGELOG generation (use generate-changelog).
+summary_l0: "Refactor project artifacts with detection, archive placement, and reference repair"
+overview_l1: "This skill systematically reorganizes a repository's project artifacts (everything outside the docs/ tree) to follow declared conventions, with impact analysis and reference repair before any file is moved. Scope includes root files, scripts, configs, CI/CD pipelines, and top-level source layout. It also detects prior-major-version artifacts (release notes, deploy checklists, generated reports, snapshot bundles, version-scoped CI workflows) and archives them under archive/versions/v<MAJOR>/v<SEMVER>/ when --archive-prior-versions is set. It also flags empty directories (respecting .gitkeep), duplicate/redundant files, unreferenced orphans, and overcomplicated structure for prune or consolidation, propose-only. Use it when cleaning up a cluttered project root, applying a standard layout ruleset to an existing project, migrating a repo after adopting new conventions, preparing a project for public release, archiving artifacts from a prior major version, or auditing whether a repo matches its declared layout rules. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Trigger phrases: refactor project layout, clean up root directory, organize project structure, apply layout rules, archive prior version artifacts, organize CI/CD configs. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # Project Refactor
@@ -53,25 +53,25 @@ Reference this skill by name in the prompt: "Using the project-refactor skill, a
 
 This skill operates on:
 
-1. **Root files** — `README.md`, `CHANGELOG.md`, `SECURITY.md`, AI instruction files, installer entry points, lockfiles, ignore files, any unclassified file at the repo root.
-2. **Scripts and automation** — `scripts/`, build helpers, generators.
-3. **Configs** — `package.json`, `pyproject.toml`, `tsconfig.json`, `.eslintrc`, `ruff.toml`, `Makefile`, `Dockerfile`, lint/format/test runner configs.
-4. **CI/CD** — `.github/workflows/`, `Jenkinsfile`, `.gitlab-ci.yml`, `azure-pipelines.yml`, `circleci/`.
-5. **Source layout** — top-level shape of `src/`, `lib/`, `app/`, `extensions/`, monorepo package directories.
-6. **Archivable artifacts** — release notes, deploy checklists, generated reports, snapshot bundles, version-scoped CI workflows.
+1. **Root files** -- `README.md`, `CHANGELOG.md`, `SECURITY.md`, AI instruction files, installer entry points, lockfiles, ignore files, any unclassified file at the repo root.
+2. **Scripts and automation** -- `scripts/`, build helpers, generators.
+3. **Configs** -- `package.json`, `pyproject.toml`, `tsconfig.json`, `.eslintrc`, `ruff.toml`, `Makefile`, `Dockerfile`, lint/format/test runner configs.
+4. **CI/CD** -- `.github/workflows/`, `Jenkinsfile`, `.gitlab-ci.yml`, `azure-pipelines.yml`, `circleci/`.
+5. **Source layout** -- top-level shape of `src/`, `lib/`, `app/`, `extensions/`, monorepo package directories.
+6. **Archivable artifacts** -- release notes, deploy checklists, generated reports, snapshot bundles, version-scoped CI workflows.
 
 **Out of scope**: anything under `docs/` (owned by `docs-layout-refactor`).
 
 ## What This Skill Does
 
-1. **Rule Loading** — reads layout rules from `CLAUDE.md` / `AGENTS.md` / `GEMINI.md` / project config; falls back to Nexus-Hub defaults.
-2. **Active-version Detection** — resolves the active version from `--active-version`, `CHANGELOG.md`, latest git tag, or the `docs/v*/` version tree. The active major is the cut-off for prior-version archival.
-3. **Inventory and Classification** — every in-scope file and directory is classified Stay / Move / Archive / Prune / Consolidate / Ambiguous against the loaded rules, the prior-version heuristics, and the cleanliness detectors: empty directories, redundant/duplicate files and dirs, non-version orphans (zero inbound references), and overcomplicated structure (deep nesting, single-child chains, over-fragmentation). See "Detecting Empty and Redundant Artifacts" and "Structure-Complexity Heuristics" below.
-4. **Impact Analysis** — finds every reference to each file that will move or be archived, across all file types, before touching anything. CI/CD references are flagged HIGH risk.
-5. **Confirmation Gate** — propose-only by default; never moves a file without explicit user approval at the gate.
-6. **Safe Move Protocol** — copy + verify + delete (never deletes without confirming the copy succeeded; verifies size + sha256 prefix for files > 1 KB).
-7. **Reference Repair** — updates all auto-fixable path references in `.md`, `.py`, `.sh`, `.ps1`, `.bat`, `.json`, `.yaml`, `.toml`, and source files.
-8. **Verification** — re-scans for stale references, runs a CI/CD sanity pass, and confirms structural compliance after the refactor.
+1. **Rule Loading** -- reads layout rules from `CLAUDE.md` / `AGENTS.md` / `GEMINI.md` / project config; falls back to Nexus-Hub defaults.
+2. **Active-version Detection** -- resolves the active version from `--active-version`, `CHANGELOG.md`, latest git tag, or the `docs/v*/` version tree. The active major is the cut-off for prior-version archival.
+3. **Inventory and Classification** -- every in-scope file and directory is classified Stay / Move / Archive / Prune / Consolidate / Ambiguous against the loaded rules, the prior-version heuristics, and the cleanliness detectors: empty directories, redundant/duplicate files and dirs, non-version orphans (zero inbound references), and overcomplicated structure (deep nesting, single-child chains, over-fragmentation). See "Detecting Empty and Redundant Artifacts" and "Structure-Complexity Heuristics" below.
+4. **Impact Analysis** -- finds every reference to each file that will move or be archived, across all file types, before touching anything. CI/CD references are flagged HIGH risk.
+5. **Confirmation Gate** -- propose-only by default; follow the active instruction template's `Consequential Decisions` rule before requesting approval, and never move a file without explicit user approval at the gate.
+6. **Safe Move Protocol** -- copy + verify + delete (never deletes without confirming the copy succeeded; verifies size + sha256 prefix for files > 1 KB).
+7. **Reference Repair** -- updates all auto-fixable path references in `.md`, `.py`, `.sh`, `.ps1`, `.bat`, `.json`, `.yaml`, `.toml`, and source files.
+8. **Verification** -- re-scans for stale references, runs a CI/CD sanity pass, and confirms structural compliance after the refactor.
 
 ## Standard Layout Rules Reference
 
@@ -101,7 +101,7 @@ A file is **prior-version** when any of these signals apply:
 
 **Never auto-classify as Archive**:
 
-- Root community files (README, CHANGELOG, SECURITY, etc.) — these stay at root regardless of age.
+- Root community files (README, CHANGELOG, SECURITY, etc.) -- these stay at root regardless of age.
 - Active-version CI/CD workflows.
 - Files explicitly listed in a "Stay" rule.
 
@@ -204,7 +204,7 @@ grep -rn "DEVLOG\.md" --include="*.json" --include="*.yaml" --include="*.yml" --
 grep -rn "DEVLOG\.md" --include="*.yml" .github/workflows/ Jenkinsfile azure-pipelines.yml .gitlab-ci.yml .circleci/ 2>/dev/null
 ```
 
-CI/CD hits are always **HIGH priority** for manual review — automated pipeline failures are hard to diagnose remotely.
+CI/CD hits are always **HIGH priority** for manual review -- automated pipeline failures are hard to diagnose remotely.
 
 **Tip**: Use `\.` to escape the dot in regex patterns so it matches a literal period.
 
@@ -231,7 +231,13 @@ Never move a file without following these steps in order. Skipping any step risk
    └─ Continue with next file (do not abort entire refactor)
 ```
 
-**Never use a rename/move operation as an atomic action** when operating across directories — on networked drives or certain filesystems, a move can fail silently. Copy + verify + delete is always safe.
+### .gitignore pre-flight
+
+Before the first move, inspect every destination with `git check-ignore -v <new-path>`. A bare directory pattern such as `test-results/` or `data/` matches that directory name at any depth. Existing files beneath the source stay tracked because git ignores only untracked files, but a rename makes the destination untracked: `git add -A` can then skip the new path while staging the old path as a deletion, producing a clean-looking change that silently drops content.
+
+After staging, pair every deletion with its expected addition or rename. For any staged deletion without a paired addition, run `git check-ignore -v` against the intended new path and stop if it matches. Fix the ignore rule by re-including the directory before its contents; git cannot re-include a file while its parent directory remains excluded.
+
+**Never use a rename/move operation as an atomic action** when operating across directories -- on networked drives or certain filesystems, a move can fail silently. Copy + verify + delete is always safe.
 
 ## Reference Fix Patterns
 
@@ -334,7 +340,8 @@ CI/CD substitutions ALWAYS require Manual review before applying.
 | "DEVLOG.md is huge, let me archive it" | `DEVLOG.md` is a root community-adjacent file; this skill never archives it. Use `docs-layout-refactor` Edge Case 1 (split by version) instead. |
 | "These prior-version release notes still get traffic, leave them" | Archive is reversible. Archived files keep their full content readable under `archive/versions/v<M>/`. Surfacing them in the active tree just adds noise. |
 | "I'll skip CI/CD reference repair, it's just YAML" | Workflow paths fail silently on the next CI run, which is the worst time to discover them. CI/CD refs are HIGH risk on purpose. |
-| "Let me just bulk-archive everything that mentions v0" | Filename match is necessary but not sufficient. Verify the body banner or path segment too — otherwise you archive files that reference the prior version without being scoped to it. |
+| "Let me just bulk-archive everything that mentions v0" | Filename match is necessary but not sufficient. Verify the body banner or path segment too -- otherwise you archive files that reference the prior version without being scoped to it. |
+| "The destination files will stay tracked because their sources are tracked" | A move makes each destination untracked before staging, so a bare directory ignore can omit the additions while staging only deletions. This fired three times in one release and would have deleted three validation records; run the `.gitignore` pre-flight and pair every deletion with an addition. |
 
 ## Verification
 
@@ -343,10 +350,11 @@ Run after Phase 7. Each check is binary; FAIL on any item loops back up to 3 tim
 - [ ] **All files moved/archived exist at their new path** and no longer exist at their old path.
 - [ ] **Stale reference scan returns zero hits** against the old paths.
 - [ ] **`archive/README.md` exists and lists every archived path** (when any archive operation ran).
-- [ ] **CI/CD references re-read and confirmed substituted** — every workflow/pipeline file touched is read post-edit.
-- [ ] **`git status --porcelain` count matches the planned mutations** — surprise mutations halt with a diff dump for user review.
-- [ ] **Active-version artifacts untouched** — diff against pre-refactor state for the active version is empty (no incidental edits).
+- [ ] **CI/CD references re-read and confirmed substituted** -- every workflow/pipeline file touched is read post-edit.
+- [ ] **`git status --porcelain` count matches the planned mutations** -- surprise mutations halt with a diff dump for user review.
+- [ ] **Active-version artifacts untouched** -- diff against pre-refactor state for the active version is empty (no incidental edits).
 - [ ] **Manual-review items documented** and handed off to the user.
+- [ ] **No move destination is ignored** -- `git check-ignore -v` is clean for every intended new path, and every staged deletion has a paired addition or an explicit approved deletion disposition.
 - [ ] **Empty directories detected and proposed for prune** (respecting `.gitkeep` / `.keep`); none auto-deleted without the second confirmation.
 - [ ] **Duplicate and redundant files flagged** (byte-identical duplicates plus name/purpose overlaps), callers surfaced; none auto-merged or auto-removed.
 - [ ] **Orphans (zero inbound references) flagged as Ambiguous**, allowlist honored (LICENSE / README / CHANGELOG / entry points never flagged); none auto-archived.

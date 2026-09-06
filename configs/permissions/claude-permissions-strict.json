@@ -1,0 +1,59 @@
+{
+  "_description": "OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.",
+
+  "_posture_split": "Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.",
+
+  "_scope_note": "These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.",
+
+  "_source": "Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.",
+
+  "_deny_vs_ask_rationale": "deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.",
+
+  "_group_b_note": "The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.",
+
+  "permissions": {
+    "deny": [
+      "Write(.git/hooks/**)",
+      "Edit(.git/hooks/**)",
+      "Write(.git/config)",
+      "Edit(.git/config)",
+
+      "Write(.venv/**)",
+      "Edit(.venv/**)",
+      "Write(venv/**)",
+      "Edit(venv/**)",
+      "Write(pyvenv.cfg)",
+      "Edit(pyvenv.cfg)",
+      "Write(**/pyvenv.cfg)",
+      "Edit(**/pyvenv.cfg)",
+
+      "Bash(git -c core.hooksPath=*)",
+      "Bash(git -c core.fsmonitor=*)",
+      "Bash(git config core.hooksPath*)",
+      "Bash(git config core.fsmonitor*)",
+      "Bash(git config --local core.hooksPath*)",
+      "Bash(git config --local core.fsmonitor*)",
+      "Bash(git config --global core.hooksPath*)",
+      "Bash(git config --global core.fsmonitor*)",
+      "Bash(git config --add core.hooksPath*)",
+      "Bash(git config --add core.fsmonitor*)"
+    ],
+
+    "ask": [
+      "Write(.claude/settings.json)",
+      "Edit(.claude/settings.json)",
+      "Write(.claude/settings.local.json)",
+      "Edit(.claude/settings.local.json)",
+      "Write(.claude/hooks/**)",
+      "Edit(.claude/hooks/**)",
+
+      "Write(.vscode/tasks.json)",
+      "Edit(.vscode/tasks.json)",
+      "Write(.vscode/launch.json)",
+      "Edit(.vscode/launch.json)",
+
+      "Write(.cursor/**)",
+      "Edit(.cursor/**)"
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+PASS visual-defect detector: 0 finding(s), 105 allowlisted

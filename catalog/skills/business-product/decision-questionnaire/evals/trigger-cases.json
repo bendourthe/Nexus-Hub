@@ -1,0 +1,13 @@
+{
+  "skill": "decision-questionnaire",
+  "purpose": "Route async stakeholder questionnaires here, not in-session design interviews or spec review.",
+  "cases": [
+    {"id": "pos-stakeholder", "prompt": "I need to ask my stakeholder a questionnaire so we can unblock", "should_trigger": true, "assert": "routes to decision-questionnaire first", "lexical": true},
+    {"id": "pos-make-questionnaire", "prompt": "make a questionnaire for the client with enumerated options", "should_trigger": true, "assert": "routes to decision-questionnaire first", "lexical": true},
+    {"id": "pos-security-team", "prompt": "prepare questions for the security team as an async decision", "should_trigger": true, "assert": "routes to decision-questionnaire first", "lexical": true},
+    {"id": "pos-pm", "prompt": "prepare questions for the PM and send a Markdown questionnaire", "should_trigger": true, "assert": "routes to decision-questionnaire first", "lexical": true},
+    {"id": "neg-grill", "prompt": "interview me about this design until it is fully specified", "should_trigger": false, "assert": "routes to design-interview, not decision-questionnaire", "lexical": true},
+    {"id": "neg-ambiguity", "prompt": "review this written spec for ambiguous requirements", "should_trigger": false, "assert": "routes to ambiguity-detector, not decision-questionnaire", "lexical": true},
+    {"id": "neg-internal-comms", "prompt": "draft a status update using the internal comms templates", "should_trigger": false, "assert": "routes to internal-comms, not decision-questionnaire", "lexical": true}
+  ]
+}

@@ -125,13 +125,13 @@ Permissions control which tools Claude Code can use and what operations it can p
 
 | Level | Behavior | Use Case |
 |-------|----------|----------|
-| `xhigh` | Extended reasoning with adaptive thinking (Nexus-Hub shipped default) | Most interactive coding work, balanced intelligence and cost |
-| `high` | Strong reasoning at lower aggregate cost than `xhigh` | Multi-agent fan-out, cost-sensitive concurrent runs, long-running loops |
+| `xhigh` | Extended reasoning with adaptive thinking | Most interactive coding work, balanced intelligence and cost |
+| `high` | Strong reasoning at lower aggregate cost than `xhigh` (Nexus-Hub shipped default) | Plan-driven multi-step work, multi-agent fan-out, and long-running loops |
 | `max` | Deepest reasoning at highest cost | One-shot hard problems, off-peak analysis - never on loops |
-| `medium` | Balanced speed and quality | Tightly scoped tasks, general development |
+| `medium` | Balanced speed and quality | Tightly scoped or cost-sensitive tasks, general development |
 | `low` | Fastest responses | Simple edits, formatting, latency-sensitive interactive work |
 
-The Nexus-Hub installer writes `effortLevel: xhigh` by default (see `catalog/hooks/settings.json`). Override via the `/effort` command (interactive slider or direct set, e.g. `/effort high`), the `/model` command, the `--effort` CLI flag for a single session, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable. For the full decision guidance, see the **Effort-Level Strategy** section of [catalog/skills/ai-development/prompt-engineering/SKILL.md](../../catalog/skills/ai-development/prompt-engineering/SKILL.md).
+The Nexus-Hub installer writes `effortLevel: high` by default, and pins the matching `env.CLAUDE_CODE_EFFORT_LEVEL` alongside it. Both values are **declared** in [`configs/platform-defaults.json`](../../configs/platform-defaults.json), the single source for per-platform install defaults; `catalog/hooks/settings.json` is generated from it and must not be hand-edited (a drift check fails the build if it is). If the value quoted here ever disagrees with that file, the file is right. Because the environment variable is the highest-precedence lever, changing the effort for a single session via the `/effort` command (interactive slider or direct set, e.g. `/effort xhigh`) or the `--effort` CLI flag holds only for that session; edit both keys in your `settings.json` to move your standing default. For the full decision guidance, see the **Effort-Level Strategy** section of [catalog/skills/ai-development/prompt-engineering/SKILL.md](../../catalog/skills/ai-development/prompt-engineering/SKILL.md).
 
 ---
 
@@ -247,6 +247,30 @@ A runnable example ships as `catalog/hooks/workflow-phase-notice.sh` (tested in 
 Because it is advisory only (exit 0, never blocks a phase), it is safe to leave on. Disable it for a session with `export NEXUS_DISABLED_HOOKS=workflow-phase-notice`, or skip all advisory hooks with `export NEXUS_HOOK_PROFILE=minimal`.
 
 This adopts the *discipline* (phase-boundary automation on Nexus-Hub's own hook surface) without adopting Spec Kit's per-command hook *machinery*. See the "lifecycle-hook scope creep" risk note in the v3.6.0 Spec Kit comparison (Section 9) for why the line is drawn here.
+
+### Code-search routing guard
+
+`code-search-routing` is a `PreToolUse` advisory hook for `Grep`, `Glob`, and conservative Bash search patterns. It recommends the local `nexus-code-search` MCP tools before native repository discovery bypasses the index. The Bash matcher covers direct or piped `grep` / `rg`, plus non-destructive `find` commands with name or path predicates; `cat` is treated as search only when its pipeline contains `grep` or `rg`. It never intercepts `Read`, because a prior read is part of the edit-safety contract.
+
+The default is soft: the hook writes the indexed equivalent to stderr and exits 0. Set `NEXUS_CODE_SEARCH_ROUTING=block` to make a matched redirect exit 2, or `NEXUS_CODE_SEARCH_ROUTING_DEBUG=1` to log local matcher decisions. Disable only this hook with `NEXUS_DISABLED_HOOKS=code-search-routing`, or skip it with every advisory hook under `NEXUS_HOOK_PROFILE=minimal`. None of these controls grants access to an index or repository path; they change routing advice only, and native search remains necessary when no index exists or raw filesystem semantics matter.
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Grep|Glob|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/code-search-routing.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
 ---
 

@@ -1,4 +1,4 @@
 interface:
   display_name: Initialize Java Project
-  short_description: 'Initialize a complete Java project with Maven/Gradle build, testing framework, and standard structure. Use when starting Spring Boot applications, Maven libraries, Gradle projects,
-    or enterprise Java '
+  short_description: Initialize a complete Java project with Maven/Gradle build, testing framework, and standard structure. Use when starting Spring Boot applications, Maven libraries, Gradle projects,
+    or enterprise Java applications.

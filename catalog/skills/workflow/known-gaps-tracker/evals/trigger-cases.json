@@ -1,0 +1,8 @@
+{
+  "skill": "known-gaps-tracker",
+  "purpose": "Route release-scoped unfinished work and derived-count tracking.",
+  "cases": [
+    {"id": "pos-gaps", "prompt": "track known gaps deferred work unresolved bugs missing coverage phase leftovers and next-plan carry-forward", "should_trigger": true, "assert": "routes to known-gaps-tracker first", "lexical": true},
+    {"id": "neg-weather", "prompt": "show the weather forecast for tomorrow", "should_trigger": false, "assert": "does not route to known-gaps-tracker", "lexical": true}
+  ]
+}

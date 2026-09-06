@@ -1,0 +1,898 @@
+[
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": false,
+        "topDifference": -445.21875,
+        "bottomDifference": -268.53125
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": false,
+        "topDifference": -422.515625,
+        "bottomDifference": -331.59375
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 20.61,
+        "subtitleFont": 18.77
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 18.33,
+        "subtitleFont": 15.02
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 17.68,
+        "subtitleFont": 16.69
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 15
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 19.65,
+        "subtitleFont": 15
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 15
+      }
+    ],
+    "width": 320,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": false,
+        "topDifference": -445.21875,
+        "bottomDifference": -268.53125
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": false,
+        "topDifference": -422.515625,
+        "bottomDifference": -331.59375
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 20.61,
+        "subtitleFont": 18.77
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 18.33,
+        "subtitleFont": 15.02
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 17.68,
+        "subtitleFont": 16.69
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 15
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 19.65,
+        "subtitleFont": 15
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 15
+      }
+    ],
+    "width": 320,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": false,
+        "topDifference": -353.375,
+        "bottomDifference": -297.359375
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": false,
+        "topDifference": -326.234375,
+        "bottomDifference": -210.796875
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 29.21,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 25.97,
+        "subtitleFont": 20.54
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 25.03,
+        "subtitleFont": 22.83
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 18.77
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 27.85,
+        "subtitleFont": 15.35
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 17.66
+      }
+    ],
+    "width": 420,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": false,
+        "topDifference": -353.37493896484375,
+        "bottomDifference": -297.359375
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": false,
+        "topDifference": -326.234375,
+        "bottomDifference": -210.796875
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 29.21,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 25.97,
+        "subtitleFont": 20.54
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 25.03,
+        "subtitleFont": 22.83
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 18.77
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 27.85,
+        "subtitleFont": 15.35
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 17.66
+      }
+    ],
+    "width": 420,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": false,
+        "topDifference": -306.53125,
+        "bottomDifference": -317.5
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": false,
+        "topDifference": -289.4375,
+        "bottomDifference": -180.796875
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 21.13
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      }
+    ],
+    "width": 560,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": false,
+        "topDifference": -306.53125,
+        "bottomDifference": -317.49993896484375
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": false,
+        "topDifference": -289.4375,
+        "bottomDifference": -180.796875
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 21.13
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      }
+    ],
+    "width": 560,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": false,
+        "topDifference": -197.453125,
+        "bottomDifference": -180.796875
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      }
+    ],
+    "width": 760,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": false,
+        "topDifference": -197.453125,
+        "bottomDifference": -180.796875
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      }
+    ],
+    "width": 760,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      }
+    ],
+    "width": 761,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 23.04
+      }
+    ],
+    "width": 761,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 29.49
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 29.49
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 29.49
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 29.49
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 29.49
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 29.49
+      }
+    ],
+    "width": 1024,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 29.49
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 29.49
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 29.49
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 29.49
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 29.49
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 29.49
+      }
+    ],
+    "width": 1024,
+    "theme": "light",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 32.64
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 32.64
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 32.64
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 32.64
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 32.64
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 32.64
+      }
+    ],
+    "width": 1440,
+    "theme": "dark",
+    "errors": []
+  },
+  {
+    "overflow": false,
+    "pairs": [
+      {
+        "selector": ".fx-duo",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      },
+      {
+        "selector": ".fx-ctx-row.cx-row",
+        "sideBySide": true,
+        "topDifference": 0,
+        "bottomDifference": 0
+      }
+    ],
+    "headings": [
+      {
+        "title": "Tokens Definition",
+        "subtitle": "The units a model actually reads",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 32.64
+      },
+      {
+        "title": "Prompt Engineering",
+        "subtitle": "Stating the job so the result is checkable",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 32.64
+      },
+      {
+        "title": "Context Engineering",
+        "subtitle": "Choosing the material the job needs",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 32.64
+      },
+      {
+        "title": "Models",
+        "subtitle": "Trained patterns, used one request at a time",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 32.64
+      },
+      {
+        "title": "Agentic Platforms",
+        "subtitle": "Where a chatbot answers, an agentic platform can act",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 32.64
+      },
+      {
+        "title": "Harnesses",
+        "subtitle": "The built-in loop, and the one Nexus Hub adds",
+        "overlap": false,
+        "titleFont": 33,
+        "subtitleFont": 32.64
+      }
+    ],
+    "width": 1440,
+    "theme": "light",
+    "errors": []
+  }
+]

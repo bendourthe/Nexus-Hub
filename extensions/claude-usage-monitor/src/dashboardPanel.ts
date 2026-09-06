@@ -1,17 +1,25 @@
 import * as vscode from "vscode";
 import { UsageData, formatModelName } from "./types";
 import { formatResetLabel, nextMonthlyResetLabel } from "./usageStore";
-import { FetchError, UsageFetcher } from "./usageFetcher";
+import { ProviderFetchError, describeProviderError } from "./providers";
 import {
   getRecommendation,
   pickTriggerMetric,
   buildUsageSuggestion,
 } from "./recommendations";
+import {
+  DraftState,
+  currentSettings,
+  saveSettings,
+  resetSettings,
+  settingsStylesCss,
+  settingsSectionHtml,
+  settingsScriptJs,
+} from "./settingsPanel";
 
 export interface DashboardCallbacks {
   onRefresh: () => void;
   onOpenUsagePage: () => void;
-  onOpenSettings: () => void;
 }
 
 export class DashboardPanel {
@@ -23,7 +31,7 @@ export class DashboardPanel {
     panel: vscode.WebviewPanel,
     private data: UsageData | undefined,
     private timeSince: string,
-    private fetchError: FetchError | undefined,
+    private fetchError: ProviderFetchError | undefined,
     private callbacks: DashboardCallbacks,
   ) {
     this.panel = panel;
@@ -31,7 +39,7 @@ export class DashboardPanel {
     this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
 
     this.panel.webview.onDidReceiveMessage(
-      (message: { command: string }) => {
+      async (message: { command: string; draft?: DraftState }) => {
         switch (message.command) {
           case "refresh":
             this.panel.webview.postMessage({ command: "setLoading" });
@@ -40,9 +48,19 @@ export class DashboardPanel {
           case "openUsagePage":
             this.callbacks.onOpenUsagePage();
             break;
-          case "openSettings":
-            this.callbacks.onOpenSettings();
+          case "save": {
+            // Persist the inline settings form. The extension's config watcher
+            // re-renders this dashboard; we also echo the stored values back so
+            // the form reflects them immediately.
+            const persisted = await saveSettings(message.draft as DraftState);
+            this.panel.webview.postMessage({ command: "loadSettings", settings: persisted });
             break;
+          }
+          case "reset": {
+            const persisted = await resetSettings();
+            this.panel.webview.postMessage({ command: "loadSettings", settings: persisted });
+            break;
+          }
         }
       },
       null,
@@ -55,7 +73,7 @@ export class DashboardPanel {
   static show(
     data: UsageData | undefined,
     timeSince: string,
-    fetchError: FetchError | undefined,
+    fetchError: ProviderFetchError | undefined,
     callbacks: DashboardCallbacks,
     extensionUri?: vscode.Uri,
   ): DashboardPanel {
@@ -94,7 +112,7 @@ export class DashboardPanel {
     return DashboardPanel.currentPanel;
   }
 
-  update(data: UsageData | undefined, timeSince: string, fetchError?: FetchError): void {
+  update(data: UsageData | undefined, timeSince: string, fetchError?: ProviderFetchError): void {
     this.data = data;
     this.timeSince = timeSince;
     if (fetchError !== undefined) {
@@ -106,7 +124,7 @@ export class DashboardPanel {
   static updateIfOpen(
     data: UsageData | undefined,
     timeSince: string,
-    fetchError: FetchError | undefined,
+    fetchError: ProviderFetchError | undefined,
   ): void {
     if (!DashboardPanel.currentPanel) {
       return;
@@ -115,6 +133,11 @@ export class DashboardPanel {
     DashboardPanel.currentPanel.timeSince = timeSince;
     DashboardPanel.currentPanel.fetchError = fetchError;
     DashboardPanel.currentPanel.panel.webview.html = DashboardPanel.currentPanel.getHtml();
+  }
+
+  /** Reveal the inline settings section (used by the palette "Settings" command). */
+  static revealSettings(): void {
+    DashboardPanel.currentPanel?.panel.webview.postMessage({ command: "openSettings" });
   }
 
   private getHtml(): string {
@@ -129,7 +152,7 @@ export class DashboardPanel {
     const errorBanner = showErrorBanner
       ? `<div class="error-banner">
           <span class="error-icon">&#9888;</span>
-          <span>${escapeHtml(UsageFetcher.getErrorMessage(this.fetchError!))}</span>
+          <span>${escapeHtml(describeProviderError(this.fetchError!))}</span>
           <button onclick="send('refresh')" class="retry-btn">Retry</button>
         </div>`
       : "";
@@ -199,12 +222,14 @@ export class DashboardPanel {
       </div>
       ` : ""}
 
+      ${settingsSectionHtml(currentSettings())}
+
       <div class="divider"></div>
 
       <div class="actions">
         <button id="refreshBtn" onclick="send('refresh')">Refresh Now</button>
         <button onclick="send('openUsagePage')" class="secondary">Open Usage Page</button>
-        <button onclick="send('openSettings')" class="icon-btn" title="Claude Usage: Settings" aria-label="Claude Usage Settings">
+        <button onclick="toggleSettings()" class="icon-btn" title="Settings" aria-label="Settings">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
             <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.687.706-1.99 1.99l.169.31a1.464 1.464 0 0 1-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.697 1.283.707 2.687 1.99 1.99l.311-.17a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.687-.706 1.99-1.99l-.169-.31a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.697-1.283-.707-2.687-1.99-1.99l-.311.17a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
           </svg>
@@ -424,6 +449,7 @@ export class DashboardPanel {
     .empty-state .actions {
       justify-content: center;
     }
+    ${settingsStylesCss()}
   </style>
 </head>
 <body>
@@ -433,6 +459,7 @@ export class DashboardPanel {
     function send(command) {
       vscode.postMessage({ command });
     }
+    ${settingsScriptJs(currentSettings())}
     // Live countdown: recompute the reset labels from embedded epoch timestamps.
     // Mirrors formatResetTime + formatResetLabel in usageStore.ts: "Resets in 2h 20m"
     // under 24h; "Resets on Tuesday July 7th at 7:00 AM (3d 11h 28m)" for 24h+.
@@ -461,11 +488,21 @@ export class DashboardPanel {
         if (epoch) { el.textContent = fmtCountdown(epoch); }
       });
     }, 60000);
-    // Loading state: disable Refresh button when a fetch is in progress
+    // Loading state + inline-settings messages from the extension.
     window.addEventListener("message", function(event) {
-      if (event.data.command === "setLoading") {
+      const msg = event.data;
+      if (msg.command === "setLoading") {
         const btn = document.getElementById("refreshBtn");
         if (btn) { btn.textContent = "Refreshing\u2026"; btn.disabled = true; }
+      } else if (msg.command === "loadSettings") {
+        applySettings(msg.settings);
+      } else if (msg.command === "openSettings") {
+        const s = document.getElementById("settings-section");
+        if (s) {
+          s.removeAttribute("hidden");
+          s.scrollIntoView({ behavior: "smooth", block: "start" });
+          try { const st = vscode.getState() || {}; st.settingsOpen = true; vscode.setState(st); } catch (e) {}
+        }
       }
     });
   </script>

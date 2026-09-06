@@ -16,6 +16,22 @@ Section conventions:
 
 ---
 
+## Problem Statement *(mandatory)*
+
+<!--
+This section carries forward the problem statement produced by the `idea-refine` stage. Copy and tighten that output; do not restate the problem from scratch, or the spec and the refined problem drift apart immediately.
+
+Keep it technology-agnostic like the rest of the spec. Name the actor, the failure, and the observable outcome; never the framework, library, or service that will fix it.
+-->
+
+**Actor**: [Who has this problem? Name the role or user type rather than "the user".]
+
+**Problem**: [What fails today, in plain language a non-technical stakeholder understands. State the current behavior and why it is inadequate.]
+
+**Observable outcome that marks success**: [What a reader can observe once this is solved, in one sentence. This is the plain-language ancestor of the SC-### items below, not a restatement of them.]
+
+---
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
@@ -113,6 +129,36 @@ Anti-patterns to avoid:
 - **SC-001**: [Measurable outcome with explicit threshold or boolean condition. Example: "95% of `/search` requests return in under 200 ms at p95 over a 24-hour window."]
 - **SC-002**: [Measurable outcome.]
 - **SC-003**: [Measurable outcome.]
+
+---
+
+## Non-Goals *(mandatory)*
+
+<!--
+Each entry declares something the system explicitly will NOT do, and every entry MUST carry a reason. Accepted reasons: deferred to a later release, a separate initiative, not yet validated with users, too expensive for the value it would add. A Non-Goal without a reason invites the reviewer to assume you forgot the item rather than excluded it deliberately.
+
+Boundary against Assumptions: an Assumption records a decision the reviewer can override with one line ("actually, use JWT"). A Non-Goal records scope the reviewer is being asked to confirm is excluded. If overriding the entry would change WHAT gets built rather than HOW, it belongs here. The A1 example under Assumptions below ("JWT is out of scope for this feature") is a Non-Goal wearing an Assumption's clothing; statements of that shape belong in this section.
+
+This section is what `spec-quality-checklist.md`'s "Scope is clearly bounded" item and the `scope-guardian-reviewer` agent check against, and it is where the `idea-refine` stage's **Out of Scope** block lands.
+-->
+
+- **[Thing this feature will not do]**. Reason: [deferred to a later release, a separate initiative, not yet validated, or too expensive for the value, with the specific detail. Example: "deferred to v2; the mobile client that needs it is not yet scheduled."]
+- **[Thing this feature will not do]**. Reason: [...]
+
+---
+
+## Invariants *(include if the change touches existing behavior)*
+
+<!--
+Each entry declares existing behavior this change must NOT break. These entries become the regression tests for the change.
+
+Boundary against Non-Goals: a Non-Goal is something that will not be built; an Invariant is something that must not break. "We are not adding SSO" is a Non-Goal. "Existing password logins keep working" is an Invariant.
+
+Remove this section entirely when the feature is purely additive and touches no existing behavior.
+-->
+
+- **[Existing behavior that must continue to hold]**, stated observably enough that a test can assert it.
+- **[Existing behavior that must continue to hold]**, [...]
 
 ---
 

@@ -140,7 +140,7 @@ Available profiles:
 ## Session-Level Practices
 
 1. **Start focused.** Open sessions with a specific goal statement. Broad exploratory prompts generate long, expensive reasoning chains.
-2. **Use `/continue-session` between sessions.** Reconstructing context from scratch is expensive. The command restores the prior session state from DEVLOG and recent git history.
+2. **Use `/continue-session` between sessions.** Reconstructing context from scratch is expensive. The command restores the prior session state from the version's `development/history/` files and recent git history.
 3. **Scope file reads tightly.** Ask for "lines 42-80 of auth.py" rather than the whole file when you already know where to look.
 4. **Prefer targeted skills over open-ended prompts.** Skills in `.claude/skills/` include pre-scoped instructions that reduce back-and-forth clarification rounds.
 5. **Check usage before long tasks.** Run `/check-usage` before starting a large refactor to confirm you have sufficient weekly budget.

@@ -1,13 +1,13 @@
 ---
 name: shipping-and-launch
-description: Confirms launch readiness and executes a safe, monitored deployment to production. Use at the end of any feature cycle, before any production deployment, or when coordinating a release across multiple services. Covers go/no-go decisions, pre-flight checks, deployment execution, and post-deployment verification. Trigger phrases: ready to ship, deploy to production, launch checklist, go/no-go, release this feature, time to deploy.
+description: "Confirms launch readiness and executes a safe, monitored deployment to production. Use at the end of any feature cycle, before any production deployment, or when coordinating a release across multiple services. Covers go/no-go decisions, pre-flight checks, deployment execution, and post-deployment verification. Trigger phrases: ready to ship, deploy to production, launch checklist, go/no-go, release this feature, time to deploy."
 summary_l0: "Execute safe production deployments with pre-flight checks, go/no-go decisions, and post-launch verification"
-overview_l1: "This skill provides a structured launch process covering pre-flight readiness checks, explicit go/no-go decision criteria, deployment execution steps, and post-deployment verification. Use it for any production deployment — from a single service update to a coordinated multi-service release. Key capabilities include launch readiness assessment, staged rollout guidance, feature flag strategy, rollback planning, and post-launch monitoring setup. The expected output is a deployment that either reaches full production safely or rolls back cleanly with zero data loss. This skill is distinct from CI/CD pipeline design (infrastructure) — it is the human+AI protocol for safely executing a deployment. Trigger phrases: ship this, deploy to production, launch checklist, go/no-go decision, release this feature, time to deploy."
+overview_l1: "This skill provides a structured launch process covering pre-flight readiness checks, explicit go/no-go decision criteria, deployment execution steps, and post-deployment verification. Use it for any production deployment -- from a single service update to a coordinated multi-service release. Key capabilities include launch readiness assessment, staged rollout guidance, feature flag strategy, rollback planning, and post-launch monitoring setup. The expected output is a deployment that either reaches full production safely or rolls back cleanly with zero data loss. This skill is distinct from CI/CD pipeline design (infrastructure) -- it is the human+AI protocol for safely executing a deployment. Trigger phrases: ship this, deploy to production, launch checklist, go/no-go decision, release this feature, time to deploy."
 ---
 
 # Shipping and Launch
 
-Deploying to production is not the end of the feature — it is the beginning of feedback. Ship deliberately, verify fast, and have a rollback plan before you deploy.
+Deploying to production is not the end of the feature -- it is the beginning of feedback. Ship deliberately, verify fast, and have a rollback plan before you deploy.
 
 ## When to Use This Skill
 
@@ -73,14 +73,14 @@ Complete every item. If any item fails, do not deploy until it is resolved.
 
 Make the go/no-go decision explicitly. Do not drift into deployment because things "seem fine."
 
-**GO criteria — all must be true:**
+**GO criteria -- all must be true:**
 - All pre-flight checks passed
 - Staging environment verification complete
 - Rollback plan documented and fast (< 15 minutes to revert)
 - No active incidents on dependent services
 - Deployment window is low-traffic (weekday, off-peak hours if possible)
 
-**NO-GO triggers — any one stops the deployment:**
+**NO-GO triggers -- any one stops the deployment:**
 - A failing test is skipped to make CI pass
 - Rollback would require manual data migration
 - Dependent service is degraded
@@ -103,7 +103,7 @@ If any NO-GO trigger is present, document it, schedule the deployment for a late
 **If deploying directly:**
 1. Announce in the team channel: "Deploying [feature] to [environment] now"
 2. Execute the deployment command
-3. Watch the deploy logs in real time — do not step away
+3. Watch the deploy logs in real time -- do not step away
 4. Confirm the deployment reached all nodes/containers (no partial deploys)
 5. Immediately run post-deployment verification (Phase 4)
 
@@ -130,7 +130,7 @@ Do not close the deployment window until all of these pass:
 ### Phase 5: Rollback
 
 If any post-deployment check fails:
-1. Declare an incident immediately — do not wait to see if it recovers
+1. Declare an incident immediately -- do not wait to see if it recovers
 2. Execute the pre-defined rollback plan (revert deployment, disable feature flag, or database rollback)
 3. Confirm the rollback is complete: health checks pass, error rates return to baseline
 4. Write a brief incident summary while it is fresh
@@ -141,7 +141,7 @@ If any post-deployment check fails:
 Minimum communication checklist:
 - [ ] Pre-deploy announcement in team/ops channel (who, what, when)
 - [ ] Post-deploy status update (success or in-progress issue)
-- [ ] Rollback announcement if triggered (no blame — just facts)
+- [ ] Rollback announcement if triggered (no blame -- just facts)
 - [ ] Brief follow-up for external users if the change is customer-visible
 
 ## Common Rationalizations
@@ -150,7 +150,7 @@ Minimum communication checklist:
 |---|---|
 | "It passed in staging, it'll be fine" | Staging is not production. Traffic patterns, data shapes, and integration behavior differ. The verification steps exist because staging lies. |
 | "I'll add monitoring after it's out" | Monitoring added after deploy gives you no pre-deploy baseline. You cannot tell what changed if you don't know where you started. |
-| "Rollback is easy — I'll just redeploy the old version" | Rollback requires a tested, fast procedure. "I'll figure it out if it breaks" is not a rollback plan. |
+| "Rollback is easy -- I'll just redeploy the old version" | Rollback requires a tested, fast procedure. "I'll figure it out if it breaks" is not a rollback plan. |
 | "It's a small change, the checklist is overkill" | Small changes cause incidents. The checklist is calibrated for frequency of failure, not size of change. |
 | "We don't have time for a staged rollout" | You have time for the incident if it breaks. A 30-minute canary is faster than a 4-hour incident response. |
 
@@ -158,7 +158,7 @@ Minimum communication checklist:
 
 - [ ] All pre-flight checks completed and documented before deployment began
 - [ ] Go/no-go decision was made explicitly (not "let's just try it")
-- [ ] Rollback plan was defined before deploying — not during an incident
+- [ ] Rollback plan was defined before deploying -- not during an incident
 - [ ] Post-deployment smoke tests passed within 5 minutes of deploy
 - [ ] Monitoring window completed without incidents or anomalies
 - [ ] Team notified of deployment outcome (success or rollback)

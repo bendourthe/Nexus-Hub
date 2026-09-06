@@ -54,7 +54,7 @@ After each iteration, report:
 Stop immediately if:
 - The acceptance condition is met
 - The max iteration count is reached (report remaining issues to the user)
-- The same error recurs 3 times without progress (something external is blocking — report to user)
+- The same error recurs 3 times without progress (something external is blocking -- report to user)
 - A change would require user input (e.g., a migration that drops data)
 
 ## After Completion

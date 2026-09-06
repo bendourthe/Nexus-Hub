@@ -1,8 +1,8 @@
 ---
 name: using-nexus-hub
-description: Orient an AI session to Nexus-Hub's skill catalog, commands, and hooks in under 2 minutes. Use whenever a session starts in a Nexus-Hub repo, when a user asks "how do I find a skill?" or "what can you do here?", when orienting a new agent platform (Claude Code, OpenAI Codex, Gemini, GitHub Copilot, Cursor, GitHub CLI) to the catalog, or when the SessionStart hook fires. Loaded automatically by SessionStart but also worth triggering on demand whenever an agent appears unaware of the local skill set. SKIP: external skill marketplaces unrelated to this repo, generic "how do I use AI?" questions, or onboarding to a different catalog.
+description: "Orient an AI session to Nexus-Hub's skill catalog, commands, and hooks in under 2 minutes. Use whenever a session starts in a Nexus-Hub repo, when a user asks \"how do I find a skill?\" or \"what can you do here?\", when orienting a new agent platform (Claude Code, OpenAI Codex, Gemini, GitHub Copilot, Cursor, GitHub CLI) to the catalog, or when the SessionStart hook fires. Loaded automatically by SessionStart but also worth triggering on demand whenever an agent appears unaware of the local skill set. SKIP: external skill marketplaces unrelated to this repo, generic \"how do I use AI?\" questions, or onboarding to a different catalog."
 summary_l0: "Orient an AI session to Nexus-Hub's skill catalog, commands, and hooks in under 2 minutes"
-overview_l1: "This meta-skill orients an AI coding session to Nexus-Hub — explaining how 182 skills are organized, how to find the right skill, how 32 commands work, and what the hook system does. It is loaded automatically at session start via the SessionStart hook so every new session begins with catalog awareness. Use it manually when a session lacks context about the catalog, when onboarding a new AI assistant to the project, or when the agent needs a quick reminder of available capabilities. This skill does not teach how to use individual skills — it teaches how to navigate the catalog and trigger the right skill for the task at hand."
+overview_l1: "This meta-skill orients an AI coding session to Nexus-Hub -- explaining how 182 skills are organized, how to find the right skill, how 32 commands work, and what the hook system does. It is loaded automatically at session start via the SessionStart hook so every new session begins with catalog awareness. Use it manually when a session lacks context about the catalog, when onboarding a new AI assistant to the project, or when the agent needs a quick reminder of available capabilities. This skill does not teach how to use individual skills -- it teaches how to navigate the catalog and trigger the right skill for the task at hand."
 ---
 
 # Using Nexus Hub
@@ -11,7 +11,7 @@ Nexus-Hub provides 182 curated skills, 32 commands, and 13 hooks for your AI cod
 
 ## What Is a Skill?
 
-A **skill** is a structured instruction file (SKILL.md) that activates domain-specific expertise in the AI. Skills are not tools or scripts — they are high-quality prompts that guide the AI through a specific engineering task with best practices, step-by-step instructions, and quality gates.
+A **skill** is a structured instruction file (SKILL.md) that activates domain-specific expertise in the AI. Skills are not tools or scripts -- they are high-quality prompts that guide the AI through a specific engineering task with best practices, step-by-step instructions, and quality gates.
 
 Skills are invoked implicitly (the AI recognizes the task type) or explicitly (you reference the skill by name or use a command).
 
@@ -44,21 +44,21 @@ Skills are grouped into 22 domain categories:
 
 ## How to Find the Right Skill
 
-**Option 1 — Use a command:**
+**Option 1 -- Use a command:**
 ```
 /skills search <keyword>
 ```
 Searches the full skill catalog by keyword and returns the top matches with summaries.
 
-**Option 2 — Browse the index:**
+**Option 2 -- Browse the index:**
 The full skill list is at `data/SKILL_INDEX.md`. Each row shows: skill name, category, and a one-line summary.
 
-**Option 3 — Describe the task:**
+**Option 3 -- Describe the task:**
 If you describe what you want to accomplish, the AI will match it to the appropriate skill automatically. The skill descriptions include trigger phrases designed for this purpose.
 
 ## How Commands Work
 
-Commands are slash commands (`.claude/commands/*.md`) that you invoke with a `/` prefix. They are distinct from skills — commands are workflows that often invoke one or more skills behind the scenes.
+Commands are slash commands (`.claude/commands/*.md`) that you invoke with a `/` prefix. They are distinct from skills -- commands are workflows that often invoke one or more skills behind the scenes.
 
 Key commands:
 
@@ -95,7 +95,7 @@ Nexus-Hub installs 13 hooks that run automatically around tool calls:
 | Session end | `session-summary.sh` | Session summary |
 | Session end | `auto-devlog.sh` | Updates DEVLOG.md |
 
-You do not need to interact with hooks directly — they run in the background.
+You do not need to interact with hooks directly -- they run in the background.
 
 ## Recommended Starting Points by Task Type
 

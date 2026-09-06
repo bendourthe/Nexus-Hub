@@ -1,15 +1,17 @@
 ---
 name: model-routing
-description: Detect the current agentic platform, enumerate its available models live, score a task's complexity, and recommend (then help apply) the cheapest model and reasoning effort that carries the work with zero quality loss. Use whenever the user says "route this to the right model", "which model should I use", "pick the cheapest model that can do this", "is this an Opus task or a Sonnet task", "save tokens on this phase", or "what reasoning effort for this". SKIP: checking current usage against limits -> use /usage; setting hard spend caps for autonomous agents -> ai-billing-safeguards; choosing an API PROVIDER rather than a model tier -> multi-provider-ai.
-summary_l0: "Detect the platform, enumerate models live, and route a task to the cheapest capable model"
-overview_l1: "This skill routes a task to the right model and reasoning effort for the platform you are running, so the easy majority of work runs cheaper and faster while the hard minority never downshifts. Use it when deciding which model or effort level a task, plan phase, or session needs, when a user asks to save tokens without losing quality, or when wiring routing into a planning or implementation loop. It detects the platform from environment cues, enumerates the live model set from that platform's own surface (no hardcoded list), scores the task on a five-signal complexity rubric, maps the score to a model plus effort with a conservative strong-tier default on any uncertainty, and describes how to switch per the platform's capabilities. It adds no outbound call, dependency, or credential. SKIP for usage-limit checks, hard spend caps, or provider selection."
+description: "Score work to a portable model tier and effort, refresh the Anthropic/OpenAI/Google/Cursor model map for plans, and resolve that intent to a live host model for implementation or switching. Use whenever the user says \"route this to the right model\", \"which model should I use\", \"pick the cheapest model\", \"save tokens on this phase\", \"what reasoning effort\", or when /plan or /implement needs model routing. SKIP: checking usage limits -> /usage; hard spend caps -> ai-billing-safeguards; choosing an API provider -> multi-provider-ai."
+summary_l0: "Score portable routing intent, refresh provider maps, and resolve it on the active platform"
+overview_l1: "Routes work without locking a plan to its authoring host. Planning scores five signals to frontier/strong/standard/fast plus low/medium/high/max, then validates a websearch-refreshed Anthropic/OpenAI/Google/Cursor map or emits a visibly dated offline fallback. Implementation re-confirms that generic intent and resolves the selected provider cell without downshifting. Direct /route use still detects the host, enumerates its live models, and applies platform-native switch mechanics. SKIP for usage-limit checks, hard spend caps, or provider selection."
 ---
 
 # Model Routing
 
-Route a task to the cheapest model and reasoning effort that can carry it with no loss in output quality. The premise: most implementation work does not need the strongest model, but a minority genuinely does, and guessing wrong on the minority is expensive. This skill downshifts the easy majority on a high-confidence reading and defaults to the strongest available tier whenever the reading is uncertain or any signal is high. To the user it looks like the best model was used for everything, while the easy 70 percent costs less.
+Route a task to the cheapest capability tier and reasoning effort that can carry it with no loss in output quality. Long-lived plans record portable intent, not a product name: `frontier` / `strong` / `standard` / `fast` plus `low` / `medium` / `high` / `max`. Concrete model ids live in one dated provider map and are resolved against the implementation platform later.
 
-The skill is platform-agnostic by a small capability abstraction (a routing profile per platform), not by a per-model special case. It introduces no new outbound call, dependency, or credential: every enumeration and switch surface it uses belongs to the platform the user is already running. The one optional network call (the Anthropic `GET /v1/models` enumeration) is best-effort and used only when an `ANTHROPIC_API_KEY` is already present; otherwise the skill falls back to the platform's model picker.
+The skill has two deliberately separate paths. `/plan` uses public web search and official provider documentation to refresh all four provider columns; `/implement` re-confirms the generic intent and selected provider cell; direct `/route` remains host-native and enumerates only models the active platform can actually switch to. Public documentation lookup is best-effort and needs no credential. Direct routing introduces no new credential; its one optional network call is Anthropic `GET /v1/models`, made only when `ANTHROPIC_API_KEY` already exists.
+
+> **Planning contract vs. direct switching.** `/plan` records generic tier and effort in each phase and keeps concrete ids in `## Current model map`. The map is refreshed from public Anthropic, OpenAI, Google, and Cursor documentation and may use the visibly dated `last-known-model-map.json` fallback. Direct `/route` validates the selected host model before switching. A plan map never grants cross-provider switching capability.
 
 > **Model choice is the reliable cost lever; some context tricks are not.** Some token-cost techniques are vision-encoder-specific rather than universal: rendering static context as images to save tokens works only on encoders that tolerate dense rendering, and it inverts on the high-resolution image-billing tier that strong reasoning models use (Opus-class, Sonnet 5, Fable 5), where a legible page costs more tokens than the equivalent text while exact strings are silently corrupted. Choosing the cheapest capable model for a task is the more reliable, lossless cost lever than lossily compressing context to fit an expensive one. See [[prompt-token-optimization]] for the full treatment of image-token / optical compression.
 
@@ -31,37 +33,19 @@ Use this skill for:
 
 ## Instructions
 
-Run the steps in order. Steps 1-2 gather the live facts; steps 3-4 decide; steps 5-6 present and apply.
+Run the steps in order. First select the operating mode, then score portable intent. Refresh or resolve concrete models only where that mode needs them.
 
-### Step 1: Detect the platform
+### Step 1: Select the routing mode
 
-Identify which agentic platform is running before assuming any model names or switch mechanics. Run the bundled helper rather than guessing:
+Choose exactly one mode:
 
-```bash
-bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/detect-platform.sh
-```
+- **Planning** (`/plan`): score every phase to generic tier + effort and produce a fresh four-provider map before writing the plan.
+- **Implementation** (`/implement`): read the phase's generic tier + effort, refresh or revalidate the map, and resolve the user's selected provider cell against that provider's live surface.
+- **Direct switching** (`/route`): detect the current host, enumerate its live models, score the target, and recommend or switch only within that host.
 
-```powershell
-~/.nexus-hub/skills/ai-development/model-routing/scripts/detect-platform.ps1
-```
+Historical plans with `**Recommended model**` or `Rec. model / effort` remain valid inputs. Treat their concrete id as legacy evidence, re-score the phase, and do not copy the old host lock into a new plan.
 
-The helper prints a single normalized platform id (`claude-code`, `codex`, `antigravity`, `gemini-cli`, `cursor`, `copilot`, `opencode`, or `unknown`) from environment cues that are already present (the `CLAUDECODE` / `CLAUDE_CODE_*` env vars, the `codex` / `agy` / `gemini` binaries on PATH and their config dirs, Cursor / Copilot markers). It makes no network call and requires no credential.
-
-### Step 2: Enumerate available models live
-
-Never assume a fixed catalog -- model lists go stale within weeks. Enumerate from the detected platform's own surface:
-
-```bash
-bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/enumerate-models.sh <platform-id>
-```
-
-```powershell
-~/.nexus-hub/skills/ai-development/model-routing/scripts/enumerate-models.ps1 <platform-id>
-```
-
-The helper prints the available models as JSON by calling that platform's enumeration command (see the routing profiles below). For Claude Code it issues the optional `GET /v1/models` call only when `ANTHROPIC_API_KEY` is set; otherwise it prints a sentinel telling you to read the model set from the `/model` picker. Cache the result for the session so you enumerate once, not per task.
-
-### Step 3: Score the task on the complexity rubric
+### Step 2: Score the five complexity signals
 
 Score the task on five signals. Each signal is `low`, `medium`, or `high`. Be honest: under-scoring is the failure mode that breaks the quality guarantee.
 
@@ -73,31 +57,78 @@ Score the task on five signals. Each signal is `low`, `medium`, or `high`. Be ho
 | **Risk / blast radius** | throwaway, tests, docs | internal feature code | production, security, data, migration |
 | **Reasoning type** | rename, format, lookup | compose known pieces | design, debug, optimize, prove |
 
-### Step 4: Map the score to a model and effort (strong-tier default)
+### Step 3: Map the score to generic tier and effort
 
-Apply this rule, in order:
+Use the deterministic mapping below. Any `high` signal pins `frontier`; uncertainty never resolves downward.
 
-1. **If the assessment is uncertain, OR any single signal is `high`** -> pin the **strongest available** model in the enumerated set and a **high** reasoning effort. This is the no-degradation guarantee. Do not downshift on a hard or unclear task.
-2. **If all signals are `low`** -> route to the **cheapest** capable model and a **low** effort. This is where the savings come from.
-3. **Otherwise (a mix of `low` and `medium`, no `high`, not uncertain)** -> route to a **mid** tier and a **medium** effort.
-
-| Aggregate reading | Model tier | Reasoning effort |
+| Aggregate reading | Generic tier | Effort |
 |---|---|---|
-| Any `high`, or uncertain | strongest available | high / max |
-| All `low` | cheapest available | low |
-| Mixed low/medium, no high | mid tier | medium |
+| Uncertain, or two or more `high` signals | `frontier` | `max` |
+| Exactly one `high` signal | `frontier` | `high` |
+| No `high`; three or more `medium` signals | `strong` | `high` |
+| No `high`; one or two `medium` signals | `standard` | `medium` |
+| All five signals `low` | `fast` | `low` |
 
-The tier names map to whatever the live enumeration returned -- "strongest available" is the top model in the set, not a hardcoded `opus`. Effort levels map to the platform's effort knob (see the profiles): Claude Code uses `/effort` (`low` / `medium` / `high` / `xhigh` / `max`); Codex uses `model_reasoning_effort`; manual platforms have no effort knob, so the recommendation is model-only.
+For reproducible scoring, use `model-map.py` through the matching platform wrapper:
 
-### Step 5: Assemble the recommendation
+```bash
+bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.sh score low medium medium low low
+```
 
-Present the recommendation with its reasoning, never a bare model name:
+```powershell
+~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.ps1 score low medium medium low low
+```
 
-- The chosen model id (which MUST appear in the step-2 enumerated set) and the effort level.
-- The per-signal rubric reading that produced it (so the user can challenge a score).
-- Best-effort citations (model docs, pricing pages) ONLY when the harness already has web access; never block on the network. If offline, say so and proceed.
+The wrappers call the standard-library `model-map.py` implementation and print JSON. Add `--uncertain` when the evidence is incomplete.
 
-### Step 6: Apply the switch per the platform's tier
+### Step 4: Build or refresh the Current model map
+
+Planning mode MUST attempt public web search on every full `/plan` invocation:
+
+1. Search current official model catalogs, release notes, and platform model-picker documentation for Anthropic, OpenAI, Google, and Cursor.
+2. Select one concrete model id for each `frontier`, `strong`, `standard`, and `fast` cell. Record at least one official source URL per provider.
+3. Put the candidate in the same JSON shape as `last-known-model-map.json`.
+4. Validate it before writing the plan:
+
+```bash
+bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.sh validate <candidate.json>
+bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.sh render <candidate.json> --status fresh --as-of <YYYY-MM-DD>
+```
+
+```powershell
+~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.ps1 validate <candidate.json>
+~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.ps1 render <candidate.json> --status fresh --as-of <YYYY-MM-DD>
+```
+
+The helper validates the 4x4 schema, non-empty cells, date, and official-source URL shape. It does not fetch the web: the harness performs research, then the helper deterministically validates and renders the result.
+
+If web search or official docs are unavailable, render the bundled snapshot with `model-map.sh fallback` or `model-map.ps1 fallback`. This emits `offline fallback; stale as of <snapshot-date>` from `last-known-model-map.json`. If the snapshot is missing or fails validation, run the `unavailable` command and use `assess at implementation time` in all 16 cells. Never silently reuse an undated map, invent an id, or collapse the table to the current host.
+
+### Two verification rules the map depends on
+
+**Effort levels are not comparable across models.** An effort name such as `high` does not buy the same amount of thinking on two different models, so an effort sweep measured on one model does not transfer: when the mapped model for a tier changes, re-run the sweep on the new model before trusting the old level. The vendor guidance is to start at the documented default effort and test the other levels against local evals, and the mid and low levels belong in that sweep, because a stronger model at lower effort can beat a weaker model at higher effort on both quality and cost.
+
+**A recognized name is not a known name.** When a query centers on a name the agent does not confidently recognize, or recognizes from a fast-moving area such as AI models and developer tools, the name itself is the thing to verify: search before answering and include the name exactly as the user wrote it in at least one query. Partial background is what makes an out-of-date answer sound authoritative, so familiarity is not a reason to skip the search. This skill's own `references/last-known-model-map.json` exists because these names go stale within months, which is the concrete case for the rule.
+
+### Step 5: Resolve the active provider
+
+For implementation or direct switching, detect the active platform before assuming switch mechanics:
+
+```bash
+bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/detect-platform.sh
+bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/enumerate-models.sh <platform-id>
+```
+
+```powershell
+~/.nexus-hub/skills/ai-development/model-routing/scripts/detect-platform.ps1
+~/.nexus-hub/skills/ai-development/model-routing/scripts/enumerate-models.ps1 <platform-id>
+```
+
+For `/implement`, start with the plan's selected-provider map cell and verify it against the live platform surface. If unavailable, select the nearest model at the same or stronger generic tier and surface the delta. For `/route`, resolve the scored tier directly against the enumerated host set. A picker sentinel is valid evidence that switching is manual; it is not permission to guess a concrete id.
+
+Present the generic tier, effort, concrete model when verified, all five signal readings, map freshness, and best-effort official citations. A plan's phase fields remain generic even when the current implementation recommendation names a concrete model.
+
+### Step 6: Apply the switch per the platform profile
 
 Switching is a three-tier spectrum, not uniform automation (see the routing profiles). The posture is **confirm, then auto-execute**: present the recommendation, get approval, then act per the platform's `can_script_switch`:
 
@@ -139,20 +170,24 @@ Each platform is a small profile. Adding a platform is adding a row, not rewriti
 
 | Rationalization | Reality |
 |---|---|
-| "This phase looks simple, so the cheap model is fine." | "Looks simple" is exactly the under-scoring failure. If the change touches production, security, or data (high blast radius), a wrong cheap-model output costs far more than the tokens saved. Any single high signal pins the strong tier -- scope alone does not earn a downshift. |
-| "I'll just hardcode the current model names so I don't have to enumerate." | Model catalogs change within weeks; a new, cheaper, or stronger model ships and the hardcoded list silently routes to a stale option. The whole skill is built on live enumeration precisely so the recommendation survives a model release. |
+| "This phase looks simple, so the cheap model is fine." | "Looks simple" is not a rubric result. One hidden high-risk signal must pin `frontier`; otherwise production or migration work can be under-tiered and reworked. |
+| "The host model list is enough for the plan." | A host-only map makes the plan unusable on another provider and recreates the defect this contract fixes. Planning requires all four provider columns. |
+| "Yesterday's map is probably still current." | Model catalogs change quickly. `/plan` must attempt official-source refresh every invocation; only an explicitly dated fallback may be reused offline. |
 | "Auto-switching works everywhere, so I'll script it on every platform." | The Claude Code main loop cannot switch its own model mid-session, and Cursor / Copilot / OpenCode expose no scriptable switch at all. Scripting a switch on a manual platform either no-ops silently or errors; the posture must branch on `can_script_switch`. |
-| "When unsure, I'll pick the mid tier as a safe middle ground." | Uncertainty is a high-risk signal, not a neutral one. The guarantee is to default UP to the strongest tier when the reading is unclear, because the cost of an under-tiered hard task (rework, wrong output shipped) dwarfs the marginal token cost of one strong-tier run. |
+| "When unsure, I'll pick `strong` as a safe middle ground." | Uncertainty maps to `frontier` + `max`. A middle tier silently weakens the no-degradation guarantee. |
 
 ## Verification
 
-- [ ] The recommended model id appears verbatim in the step-2 live-enumerated set (or the model-picker sentinel was returned and the recommendation is tier-named).
-- [ ] The recommendation states the per-signal rubric reading, not just a model name.
-- [ ] Any task scored `high` on at least one signal, or scored as uncertain, resolves to the strongest available tier and a high/max effort.
+- [ ] Every new plan phase contains only an allowed generic tier and effort; no host-only concrete id is authoritative.
+- [ ] The recommendation states all five signal readings; any `high` maps to `frontier`, and uncertainty maps to `frontier` + `max`.
+- [ ] `model-map.py validate <candidate.json>` passes before a fresh map is written, and all 16 provider cells are non-empty.
+- [ ] A fresh map cites official sources for Anthropic, OpenAI, Google, and Cursor; an offline map visibly uses the date from `last-known-model-map.json`.
+- [ ] When a tier's mapped model changed, the effort sweep was re-run on the new model rather than carried over, and any unfamiliar or fast-moving model name in the request was searched as written before it was used.
+- [ ] `/implement` preserves or upshifts the plan's generic tier when the selected provider model is unavailable.
+- [ ] A direct `/route` model appears in the live-enumerated set, or the picker sentinel leaves the recommendation tier-named and manual.
 - [ ] The switch instruction matches the detected platform's `switch_mechanism` (scriptable execute / Claude Code keystroke / picker instruction) and never scripts a switch on a manual-only platform.
-- [ ] No hardcoded model list is used; the model set came from `enumerate-models`.
 - [ ] A mid-task escalation (Step 7) only ever upshifts the tier or effort; the router never auto-downshifts a model mid-phase while a task is failing.
-- [ ] No new outbound call, dependency, or credential was introduced; the only optional network call (`GET /v1/models`) ran only because a key was already present.
+- [ ] No new credential or dependency was introduced; public plan research uses existing web access, and optional Anthropic enumeration runs only with an existing key.
 
 ## Related Skills
 
@@ -160,9 +195,10 @@ Each platform is a small profile. Adding a platform is adding a row, not rewriti
 - [[prompt-engineering]] -- operationalizes its task-complexity routing table and effort-level strategy; this skill is the platform-aware, live-enumerated extension of that section.
 - [[ai-billing-safeguards]] -- hard spend caps the router respects; routing recommends a tier, billing-safeguards block at a budget.
 - [[agent-orchestration-primitives]] -- decides whether to fan out at all; routing then picks the tier each agent runs on.
+- [[implementation-plan]] -- scores plan phases to generic tier/effort and owns the dated four-provider Current model map.
 - `/usage` (the `check-usage` skill) -- the consumption-time counterpart that reports usage against limits; this skill is the planning/task-time counterpart and does not duplicate it.
 
 ---
 
-**Version**: 1.1.0
-**Last Updated**: June 2026
+**Version**: 1.2.0
+**Last Updated**: August 2026

@@ -1,0 +1,15 @@
+{
+  "_comment": "Token-savings benchmark baseline (v3.15.0 adoption-codesight Phase 5). Each 'min_reduction_ratio' is a floor a safety margin below the measured map-vs-manual token reduction; the gate fails if the map stops saving that much. The manual-exploration cost model + constants live in benchmark.py. Re-baseline with 'python -m nexus_code_search.contextmap.benchmark --update-baseline' and review the diff.",
+  "repos": {
+    "blog_ts": {
+      "min_reduction_ratio": 0.5
+    },
+    "shop_api": {
+      "min_reduction_ratio": 0.43
+    },
+    "tasks_py": {
+      "min_reduction_ratio": 0.39
+    }
+  },
+  "min_aggregate_reduction": 0.44
+}

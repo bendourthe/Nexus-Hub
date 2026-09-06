@@ -9,7 +9,7 @@
 #      when not in a repo) so the next SessionStart can read it back.
 #
 # The digest is the local-only reverse-engineered subset of ECC's
-# memory-persistence pattern (see docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md
+# memory-persistence pattern (legacy migration source: docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md
 # T007). It contains:
 #   - Timestamp + project name + duration
 #   - Active branch and short git status

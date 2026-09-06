@@ -26,13 +26,23 @@ The module is stdlib-only on purpose: this helper runs under the same Python
 
 from __future__ import annotations
 
+import os
+import tempfile
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from scripts.lib.integrations.result import FileAction
+if TYPE_CHECKING:
+    from scripts.lib.integrations.result import Action, FileAction
 
 DEFAULT_START_MARKER = "<!-- NEXUS_HUB_START -->"
 DEFAULT_END_MARKER = "<!-- NEXUS_HUB_END -->"
+
+
+def _file_action(file_path: Path, action: Action) -> FileAction:
+    """Create a result without importing the integration registry at load time."""
+    from scripts.lib.integrations.result import FileAction
+
+    return FileAction(path=str(file_path), action=action)
 
 
 def _build_block(body: str, start_marker: str, end_marker: str) -> str:
@@ -42,6 +52,27 @@ def _build_block(body: str, start_marker: str, end_marker: str) -> str:
     canonical (one newline between marker and body on each side).
     """
     return f"{start_marker}\n{body.strip()}\n{end_marker}\n"
+
+
+def _atomic_replace_bytes(file_path: Path, content: bytes) -> None:
+    """Replace one existing file atomically with bytes staged beside it."""
+
+    mode = file_path.stat().st_mode
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="wb", dir=file_path.parent, prefix=f".{file_path.name}.", delete=False
+        ) as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+            temporary = Path(handle.name)
+        os.chmod(temporary, mode)
+        os.replace(temporary, file_path)
+        temporary = None
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def merge_marker_section(
@@ -88,12 +119,14 @@ def merge_marker_section(
         if not dry_run:
             file_path.parent.mkdir(parents=True, exist_ok=True)
             file_path.write_bytes(new_bytes)
-        return FileAction(path=str(file_path), action="created")
+        return _file_action(file_path, "created")
 
     existing = file_path.read_text(encoding="utf-8")
 
     if start_marker in existing and end_marker in existing:
-        new_text = _replace_between_markers(existing, new_block, start_marker, end_marker)
+        new_text = _replace_between_markers(
+            existing, new_block, start_marker, end_marker
+        )
     elif legacy_header and legacy_header in existing:
         new_text = _migrate_legacy_header(existing, legacy_header, new_block)
     else:
@@ -102,10 +135,10 @@ def merge_marker_section(
     new_bytes = new_text.encode("utf-8")
     existing_bytes = existing.encode("utf-8")
     if existing_bytes == new_bytes:
-        return FileAction(path=str(file_path), action="unchanged")
+        return _file_action(file_path, "unchanged")
     if not dry_run:
         file_path.write_bytes(new_bytes)
-    return FileAction(path=str(file_path), action="updated")
+    return _file_action(file_path, "updated")
 
 
 def remove_marker_section(
@@ -127,21 +160,21 @@ def remove_marker_section(
                               block was already a no-op).
     """
     if not file_path.exists():
-        return FileAction(path=str(file_path), action="not-found")
+        return _file_action(file_path, "not-found")
     existing = file_path.read_text(encoding="utf-8")
     if start_marker not in existing or end_marker not in existing:
-        return FileAction(path=str(file_path), action="kept")
+        return _file_action(file_path, "kept")
     new_text = _strip_between_markers(existing, start_marker, end_marker)
     new_bytes = new_text.encode("utf-8")
     if existing.encode("utf-8") == new_bytes:
-        return FileAction(path=str(file_path), action="unchanged")
+        return _file_action(file_path, "unchanged")
     if not new_text.strip():
         if not dry_run:
             file_path.unlink(missing_ok=True)
-        return FileAction(path=str(file_path), action="removed")
+        return _file_action(file_path, "removed")
     if not dry_run:
-        file_path.write_bytes(new_bytes)
-    return FileAction(path=str(file_path), action="removed")
+        _atomic_replace_bytes(file_path, new_bytes)
+    return _file_action(file_path, "removed")
 
 
 def _replace_between_markers(
@@ -163,7 +196,7 @@ def _replace_between_markers(
     elif rest.startswith("\n"):
         trailing = "\n"
     head = text[:start]
-    tail = text[end + len(trailing):]
+    tail = text[end + len(trailing) :]
     # `new_block` already ends with \n; preserve the trailing newline that was
     # there before so the file does not grow / shrink an extra blank line.
     block = new_block if new_block.endswith("\n") else new_block + "\n"

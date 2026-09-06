@@ -106,21 +106,21 @@ Apply these rules to **ALL** outputs, regardless of the domain:
 **Standard Python Application Structure**:
 ```
 project_name/
-â”œâ”€â”€ .venv/                         # Virtual environment
-â”œâ”€â”€ src/                           # Main application source
-â”‚   â”œâ”€â”€ main.py                    # Entry point
-â”‚   â””â”€â”€ core/                      # Core logic
-â”‚       â”œâ”€â”€ __init__.py
-â”‚       â”œâ”€â”€ [feature_modules].py
-â”‚       â””â”€â”€ utils/                 # Utilities
-â”œâ”€â”€ tests/                         # Testing suite
-â”‚   â”œâ”€â”€ run_all_tests.py           # Master test runner
-â”‚   â”œâ”€â”€ common.py                  # Shared utilities
-â”‚   â”œâ”€â”€ test_config.py             # Configuration
-â”‚   â””â”€â”€ [feature_tests]/           # Test modules
-â”œâ”€â”€ docs/                          # Documentation
-â”œâ”€â”€ pyproject.toml                 # Configuration
-â””â”€â”€ README.md                      # Project documentation
+├── .venv/                         # Virtual environment
+├── src/                           # Main application source
+│   ├── main.py                    # Entry point
+│   └── core/                      # Core logic
+│       ├── __init__.py
+│       ├── [feature_modules].py
+│       └── utils/                 # Utilities
+├── tests/                         # Testing suite
+│   ├── run_all_tests.py           # Master test runner
+│   ├── common.py                  # Shared utilities
+│   ├── test_config.py             # Configuration
+│   └── [feature_tests]/           # Test modules
+├── docs/                          # Documentation
+├── pyproject.toml                 # Configuration
+└── README.md                      # Project documentation
 ```
 
 **Modern Toolchain (2025)**:
@@ -155,7 +155,7 @@ project_name/
 - `test_config.py`: Pass/fail criteria.
 
 **Output Format**:
-- CRITICAL: Use specific formatting with separators (`â•`, `â”€`), icons (âœ…, âŒ), and summary tables.
+- CRITICAL: Use specific formatting with separators (`═`, `─`), icons (✅, ❌), and summary tables.
 - Reporting must be comprehensive (metrics, dot padding).
 
 ### 2. Writing & Editing (Generic)

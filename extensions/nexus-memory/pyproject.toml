@@ -1,0 +1,26 @@
+[project]
+name = "nexus-memory"
+version = "3.19.1"
+description = "Nexus-Hub persistent agent-memory store (append-only fixed-width log, agent-performed compression, zero outbound)"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Benjamin Dourthe"}]
+# Python standard library only. Compression is performed by the calling
+# agent, never by this package. No third-party runtime dependency.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+nexus-memory = "nexus_memory.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nexus_memory"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,8 +1,25 @@
 name: CodeQL Security Scan
 
+# v4.0.0 event separation. Two changes:
+#
+# 1. Analysis moved to the integration PULL REQUEST. It previously ran on `push`
+#    to `main` only, so a pull request into `develop` got no CodeQL signal and
+#    the analysis landed two merges after the code did. A finding that arrives
+#    after the merge is an incident; before the merge it is a review comment.
+# 2. The push-to-main leg is gone. It was a third analysis of a tree the pull
+#    request and the merge had already covered.
+#
+# The weekly schedule STAYS, and is the one legitimate re-analysis of an
+# unchanged tree: CodeQL query packs are updated on GitHub's clock, so a
+# scheduled run tests the same code against a world that has changed. That is
+# the exception the lifecycle contract carves out for scheduled work.
+#
+# This workflow publishes NO required status check, so the path filters below
+# cannot strand one. They are kept because CodeQL is slow and genuinely
+# irrelevant to a change that touches no analyzed language.
 on:
-  push:
-    branches: [main]
+  pull_request:
+    branches: [main, develop]
     paths:
       - 'scripts/**/*.py'
       - 'infrastructure/**/*.py'
@@ -11,6 +28,13 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Weekly on Sunday at midnight UTC
   workflow_dispatch:
+
+# v4.0.0: explicit workflow-level default. The `analyze` job already narrowed
+# itself to `security-events: write`, so the effective permission was already
+# bounded -- but a job added later would have inherited the repository default
+# silently. Least privilege has to be the default, not an override.
+permissions:
+  contents: read
 
 # v3.11.0 Phase 8.4: cancel superseded runs of the same ref so rapid pushes to
 # main do not stack redundant (and slow) CodeQL analyses.
@@ -22,6 +46,7 @@ jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     permissions:
       security-events: write
     strategy:
@@ -33,7 +58,7 @@ jobs:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4
+        uses: github/codeql-action/init@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
@@ -42,6 +67,6 @@ jobs:
         uses: github/codeql-action/autobuild@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4
+        uses: github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
         with:
           category: "/language:${{ matrix.language }}"

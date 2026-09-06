@@ -20,6 +20,8 @@ Render and read EVERY `image` block in the content model (decode its `data_uri`;
 
 Record the classification back into the model JSON (the block's `classification` field). Blocks with `origin: "scanned-page"` are NOT classified here - they take part 7. Use the block's `caption`, `page`, and surrounding section text as context, but classify from the pixels: a caption saying "Figure 3" does not make a photo a chart.
 
+**Annotated figures (the `annotated` signal).** Beyond the base classification, a `map`, `diagram`, `photo`, or `screenshot` may carry AUTHOR-ADDED overlays: region rectangles or shaded zones, callout labels, leader lines, pins, or color-coded groupings drawn on top of a base image. Record this with an `annotated: true` signal alongside the base `classification` (for example, a specialist-coverage map is `classification: "map"` with `annotated: true`). An annotated figure routes to the OVERLAY-RECREATION path in part 5 (keep the base image, recreate the annotations as an interactive layer), NOT to a full SVG rebuild or a flat enhanced-original. When the extractor supplied structured annotation metadata (an `annotations` array on the image block, from PPTX overlay shapes with image-relative boxes, text, and colors; see `content-model.md`), that metadata is the ground truth for the overlay; for a flattened source (a PDF page image, or a PPTX whose annotations are baked into one picture) read the annotations from the rendered image directly, under the part-4 confidence gate.
+
 Classification is complete when NO image block has an empty `classification` (scanned pages excepted). An unclassifiable image (corrupt, blank) is classified `decorative` with a skip reason stating why.
 
 ## 2. Read-the-figure worksheet (charts and table-images)
@@ -68,15 +70,38 @@ Assign each worksheet a confidence tier and act on it. The tier is recorded on t
 - **`medium`** - readable overall, but some values are interpolated between sparse gridlines or a label is partially obscured; cross-checks pass. Build the same reconstruction PLUS: a visible caption line stating that values are read from the figure to the stated precision, and the original image displayed by default alongside (not only behind the toggle).
 - **`low`** - illegible ticks, too-dense series, ambiguous encoding, broken/dual axes that cannot be confidently separated, or repeated cross-check failures. Do NOT reconstruct. Present the original image in the enhanced viewer (pan/zoom lightbox, caption preserved, the highest-resolution render available - re-render the region at higher scale when the source was a `rasterized-region`), with one line stating why no reconstruction was built. No `chart` block is emitted; the image block's `classification` stays `chart` so coverage reconciliation can see the decision.
 
+**Annotated-figure overlays follow the same tiers.**
+
+- **`high` / `medium`** - every region boundary, label, and grouping is legible and placeable. Recreate the interactive overlay per part 5, with `provenance: "reconstructed-from-image"` (or a parallel `annotation-overlay` provenance), a `confidence` tier, `source_image` set to the base image for the view-original toggle, and a worksheet-style comment recording each annotation (each entry: region label, normalized bbox, group/color, and any leader target). At `medium`, add a caption line stating the annotations are placed from the source figure.
+- **`low`** - ambiguous boundaries, unreadable labels, or freeform dense annotation. Do NOT fabricate an overlay: ship the enhanced-original viewer with one line stating why, plus the textual complement (part 5). A guessed region is as much a fidelity failure as a guessed data point; the no-fabrication and label-lossy-redraw prohibitions apply unchanged.
+
 Tier decisions are per-figure, not per-document. When in doubt between two tiers, take the LOWER one - an honest image beats a doubtful chart.
 
-## 5. Maps and diagrams
+## 5. Maps and diagrams (three decision paths)
 
-Rebuild a `map` or `diagram` as interactive inline SVG ONLY when the rebuild preserves every label, region, node, edge, and relationship in the original - typically simple structures: a handful of labeled regions with markers, a small flowchart, a linear timeline. The SVG rebuild may add hover highlights, labeled tooltips, and pan/zoom, and it must carry the same provenance badge and view-original toggle as a reconstructed chart.
+A `map` or `diagram` (and any figure carrying an `annotated: true` signal from part 1) resolves to exactly ONE of three paths. Prefer the path that preserves the most of the source faithfully.
 
-When ANY label is unreadable or the structure is dense (detailed geography, many nodes, freeform annotation), use the enhanced-original viewer instead (pan/zoom lightbox, caption). A lossy redraw that drops or approximates labels is a fidelity failure, not a nice try.
+1. **Full SVG rebuild.** Rebuild the whole figure as interactive inline SVG ONLY when the rebuild preserves every label, region, node, edge, and relationship in the original: typically simple all-vector structures (a handful of labeled regions with markers, a small flowchart, a linear timeline). The SVG rebuild may add hover highlights, labeled tooltips, and pan/zoom, and it carries the same provenance badge and view-original toggle as a reconstructed chart.
 
-`photo` and `screenshot` images always render as originals (lightbox-enabled, caption preserved). `decorative` images may be omitted from the output ONLY with a skip entry the coverage reconciliation can read (e.g. an HTML comment `decorative-skip: <alt> (page N) - repeated logo`).
+2. **Overlay recreation (annotated figures).** When the figure is a BASE IMAGE (a map, diagram, photo, or screenshot) carrying author-added overlays that cannot be losslessly rebuilt as full SVG, keep the base image and recreate ONLY its annotations as a registered overlay layer:
+    - **Keep the extracted base image as the bottom layer** at native resolution (the same asset that powers the lightbox and the view-original toggle).
+    - **Recreate each annotation in a registered overlay layer** (inline SVG, or absolutely-positioned HTML) whose coordinate space is normalized to the base image (use PERCENTAGE coordinates so the overlay scales with the image). Region boxes, zone fills, labels, and leader lines land where they do in the source. When the extractor supplied `annotations` on the image block (PPTX overlay shapes, with image-relative boxes, text, and fill/line colors; see `content-model.md`), place each element straight from that metadata; for a flattened source, read the annotations from the rendered image under the part-4 confidence gate and place them against the base image by eye.
+    - **Make the overlay interactive** per the site-wide interaction layer: hover (and keyboard focus) highlights a region and its label; a click-toggle legend lists the groupings; every region is keyboard-focusable; the pan/zoom lightbox moves the base image and the overlay together.
+    - **Carry the same provenance badge and view-original toggle** as a reconstructed chart (`provenance` set, a `confidence` tier, `source_image` = the base image), so the reader can always swap in the untouched original.
+
+3. **Enhanced original.** When ANY label is unreadable, the structure is dense (detailed geography, many nodes), or the annotations are freeform and un-placeable, use the enhanced-original viewer (pan/zoom lightbox, caption preserved). A lossy redraw that drops or approximates labels, and a guessed overlay, are both fidelity failures, not a nice try.
+
+**2b. Geo-pin overlay (location maps whose labels are loose text).** A common slide pattern defeats path 2 directly: a geographic base map whose site/location labels were loose TEXT BOXES on the slide, so extraction recovers the label STRINGS (they land in the text layer) but not their positions. When the labeled things are real, geocodable places (hospitals, offices, cities), rebuild the overlay from GEOGRAPHY instead of from the lost layout:
+    - **Coordinates**: assign each place its public city coordinates (lat/lon). These are facts about the world, not guesses about the slide - which is what makes this path honest where "place the labels by eye" would be fabrication.
+    - **Projection, fitted to the map image itself**: map lat/lon to image percent-coordinates through a transform calibrated against landmarks READ OFF THE BASE IMAGE (lake centers, coastline notches, border corners - 10+ anchors spread across the extent). Expect a plain affine fit to FAIL on country-scale maps (most are conic projections: a linear fit puts Pacific-coast cities in the ocean); a quadratic in (lon, lat) fitted by least squares over the anchors converges where affine and guessed standard-parallel conic fits do not. `scripts/fit_map_projection.py` runs this fit and prints coefficients, per-anchor residuals, and a paste-ready JS `projPct()`.
+    - **Verify by render loop, not by residuals**: render the pins and grade them against the map's own geography (a pin in the ocean is a defect regardless of the fit's numbers); correct individual outliers with small per-site nudges recorded in the code.
+    - **De-cluster for interaction**: dense metros stack pins that intercept each other's hover - run a collision-relaxation pass (push pairs apart to a minimum separation of about one pin diameter) so every pin stays individually hoverable and focusable.
+    - **Namespace the pin classes** (`.map-pin`, never `.pin`) per the component-namespacing rule in `interactive-features.md`.
+    - **Disclose the provenance in the visible caption**: pin positions are computed from city coordinates, NOT recovered from the source layout. Sync the pins with the same filter control as the accompanying directory/list, and keep the enhanced-original lightbox on the base image.
+
+**The side-text description is an ACCESSIBLE COMPLEMENT, never the REPLACEMENT.** A textual list of the regions and their labels (as `alt`, a caption, or a `<details>` list) accompanies the visual overlay for screen-reader and no-JS access; it never STANDS IN for the overlay. Demoting an annotated map to a flat base image beside a bulleted list of its regions (dropping the visual overlay) is the exact defect the overlay-recreation path prevents.
+
+`photo` and `screenshot` images with NO author annotations always render as originals (lightbox-enabled, caption preserved). `decorative` images may be omitted from the output ONLY with a skip entry the coverage reconciliation can read (e.g. an HTML comment `decorative-skip: <alt> (page N) - repeated logo`).
 
 ## 6. Model round-trip
 
@@ -85,6 +110,7 @@ The protocol UPDATES the model JSON so downstream stages (design, authoring, and
 1. Every image block gains its `classification`.
 2. Every accepted reconstruction adds a new `chart` block (provenance `reconstructed-from-image`, `confidence`, `source_image`, `axis`, `caption` from the figure caption) placed immediately after its source image block; the image block stays in the model (it powers the view-original toggle and the audit).
 3. Every `low`-tier decision and every `decorative` drop is recorded where reconciliation can find it (the skip-comment convention above, or a note appended to the model's coverage `skip_reasons`).
+4. For an accepted annotated-figure overlay (part 5, path 2), the base image block STAYS in the model and records the overlay decision: the recreated annotations (from the extractor's `annotations` metadata, or read from the image) plus `provenance`, `confidence`, and `source_image`, with the per-annotation worksheet comment adjacent in the output. A `low`-tier annotated figure records its enhanced-original decision the same way a `low` chart does.
 
 Nothing is deleted from the model. The reconciliation rule stays: every visual the coverage manifest counts must end up rendered, reconstructed, or explicitly skipped with a reason.
 
@@ -102,7 +128,7 @@ A scanned page is complete when its text, tables, and figures are all either ver
 
 ## Coverage reconciliation (output format)
 
-The verification stage closes the loop between what extraction FOUND and what the output SHOWS. Compare the model's `coverage` manifest against the authored `.html` and produce a one-line-per-item accounting, embedded as an HTML comment at the end of the output and summarized to the user. Every visual the manifest counts must resolve to exactly one of `rendered`, `reconstructed`, or `skipped` (with a reason); OCR-provenance content additionally resolves to `verified-ocr` or `agent-read`.
+The verification stage closes the loop between what extraction FOUND and what the output SHOWS. Compare the model's `coverage` manifest against the authored `.html` and produce a one-line-per-item accounting, embedded as an HTML comment at the end of the output and summarized to the user. Every visual the manifest counts must resolve to exactly one of `rendered`, `reconstructed`, `overlay-reconstructed` (an annotated figure whose base image is kept and whose annotations are recreated as an interactive overlay, high/medium confidence), or `skipped` (with a reason); a `low`-confidence annotated figure resolves to `rendered` (enhanced original) with a one-line reason. OCR-provenance content additionally resolves to `verified-ocr` or `agent-read`.
 
 ```text
 COVERAGE RECONCILIATION - <source path>
@@ -112,6 +138,9 @@ manifest: images found F / kept K / skipped S; native charts C;
 - [rendered]      image page 4 "photo" (lightbox)
 - [reconstructed] chart from image page 2 "Figure 1: ..." (confidence medium,
                   worksheet comment adjacent, view-original toggle)
+- [overlay-reconstructed] map page 3 "Specialist coverage" (annotated; 5 regions
+                  recreated as an interactive overlay over the base image,
+                  confidence high, view-original toggle)
 - [skipped]       image page 1 "logo" - decorative (repeated asset)
 - [verified-ocr]  table page 1 (numeric values confirmed against the page image)
 - [agent-read]    paragraph page 1 (transcribed; OCR had merged two paragraphs)

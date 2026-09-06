@@ -15,7 +15,8 @@ A list of eval entries. Each entry:
     {"text": "Output references at least one Stage 1 question"},
     {"text": "Output does not exceed 250 lines"}
   ],
-  "tags": ["happy-path", "trigger-positive"]
+  "tags": ["happy-path", "trigger-positive"],
+  "raw_memory": "raw_memory.md"
 }
 ```
 
@@ -29,10 +30,11 @@ Fields:
 - `turns` (array of strings, optional) - an ordered list of conversation turns for a multi-turn trigger test. When present, `evaluate_multi_turn()` replays the turns in order and asserts the skill triggers at the designated turn (the deep-in-conversation failure mode). See `references/trigger-testing.md`.
 - `trigger_turn` (number, optional) - the 1-based turn index at which the skill is expected to FIRST trigger in a multi-turn flow. Defaults to the last turn. Triggering earlier or never both fail the multi-turn assertion.
 - `model` (string, optional) - run THIS eval against a specific (typically cheaper/faster) model to surface descriptions that only trigger on stronger models. Overrides the harness-level `--model` flag for this entry. See `references/trigger-testing.md`.
+- `raw_memory` (string, optional) - path, relative to `evals.json`, to raw logs or notes containing the same prior experience distilled into the target skill. When present and readable, `python scripts/optimize_skill_description.py --evals <evals.json> --cli <cli> --run-raw-memory --iteration-dir <iteration-N>` creates `raw_memory/` through the existing dispatcher and injects the file verbatim after the unchanged query. When absent or unreadable, the runner does not invent a substitute and the benchmark records `raw_memory: "not_run"`.
 
 Both `turns`/`trigger_turn` and `model` are opt-in: a plain single-turn eval omits them and is unaffected.
 
-## `iteration-N/eval-XXX/{with_skill,without_skill}/outputs/run_metadata.json`
+## `iteration-N/eval-XXX/{with_skill,without_skill,raw_memory}/outputs/run_metadata.json`
 
 Captured per-run metadata:
 
@@ -52,11 +54,12 @@ Captured per-run metadata:
 Fields:
 
 - `cli` (string, required) - one of `claude` / `gemini` / `codex` / `opencode`. Must match across paired runs in the same eval.
-- `skill_loaded` (bool, required) - `true` for `with_skill/`, `false` for `without_skill/`. The aggregator uses this to compute the with-vs-without delta without filename inference.
+- `skill_loaded` (bool, required) - `true` for `with_skill/`; `false` for `without_skill/` and `raw_memory/`. The aggregator uses this to compute the with-vs-without delta without filename inference.
+- `memory_injected` (bool, required for `raw_memory/`) - `true` confirms that the eval's declared raw-memory file was appended verbatim to the prompt. Omit it for the two standard arms.
 - `duration_ms`, `total_tokens` (number, required) - if the CLI does not report tokens directly, estimate via `len(prompt + response) / 4` and set `tokens_estimated: true`.
-- `exit_code` (number, required) - `0` for success; the aggregator excludes non-zero runs from the pass-rate denominator.
+- `exit_code` (number, required) - `0` for success; the aggregator marks a non-zero raw-memory run invalid and excludes it from aggregate metrics.
 
-## `iteration-N/eval-XXX/{with_skill,without_skill}/grading.json`
+## `iteration-N/eval-XXX/{with_skill,without_skill,raw_memory}/grading.json`
 
 Produced by the grader sub-agent per the prompt in `agents/grader.md`:
 
@@ -100,7 +103,8 @@ Produced by `scripts/aggregate_benchmark.py`:
       "with_skill": {"pass_rate": 0.8, "duration_ms_mean": 18000, "duration_ms_stddev": 1200, "tokens_mean": 4100, "tokens_stddev": 250, "premature_action": false},
       "without_skill": {"pass_rate": 0.2, "duration_ms_mean": 9500, "duration_ms_stddev": 800, "tokens_mean": 2200, "tokens_stddev": 150, "premature_action": false},
       "delta": {"pass_rate": 0.6, "duration_ms": 8500, "tokens": 1900},
-      "premature_action": false
+      "premature_action": false,
+      "raw_memory": "not_run"
     }
   },
   "overall": {
@@ -110,10 +114,15 @@ Produced by `scripts/aggregate_benchmark.py`:
     "with_skill_duration_ms_mean": 18000,
     "without_skill_duration_ms_mean": 9500,
     "with_skill_tokens_mean": 4100,
-    "without_skill_tokens_mean": 2200
+    "without_skill_tokens_mean": 2200,
+    "raw_memory": "not_run"
   }
 }
 ```
+
+When an eval contains a contract-valid completed `raw_memory/` directory, its `raw_memory` value is the same metrics object as the other run conditions plus `status: "run"`. Validity requires parseable metadata and grading, `skill_loaded: false`, `memory_injected: true`, numeric timing and token fields, `exit_code: 0`, a numeric grading pass rate, and one CLI identity shared by all three conditions. A present but invalid arm records `status: "invalid"` with an `errors` list and never enters aggregate metrics.
+
+When at least one eval has a valid arm, `overall.raw_memory` is an object with `status: "run"` or `status: "partial"`, `n_evals`, `pass_rate`, `duration_ms_mean`, and `tokens_mean`; `partial` also lists `invalid_evals`. If directories exist but none are valid, the overall object has `status: "invalid"`, `n_evals: 0`, and `invalid_evals`. When no optional directory exists, both per-eval and overall values are the literal string `"not_run"`. Existing with-vs-without deltas never include the optional arm.
 
 `benchmark.md` is the same data as a Markdown table for human review; the analyzer sub-agent reads `benchmark.json` (the structured form) for its non-discriminating-assertion detection.
 
@@ -171,3 +180,43 @@ Produced by `scripts/optimize_skill_description.py` at `<workspace>/optimizer/it
 ```
 
 The `best_description` is selected by `test_trigger_rate` (held-out test), never by `train_trigger_rate`. The full optimizer reasoning is at `references/description-optimizer.md`.
+
+## Interoperable behavioral-eval schema (interop)
+
+For interoperability with external skill-eval tooling, the eval set can be exported to and imported from a portable behavioral-eval schema:
+
+```json
+{
+  "skill_name": "my-skill",
+  "evals": [
+    {
+      "id": "eval-001",
+      "prompt": "User-facing prompt (maps to the internal `query`)",
+      "expected_output": "optional golden output; empty for assertion-only evals",
+      "expectations": ["Output references at least one Stage 1 question", "Output does not exceed 250 lines"]
+    }
+  ]
+}
+```
+
+Field mapping to the internal `evals.json` above:
+
+- internal `query` <-> interop `prompt`
+- internal `assertions[].text` <-> interop `expectations[]` (flattened to plain strings)
+- interop `expected_output` has no internal equivalent (the internal format is assertion-based, not golden-output-based); it is preserved verbatim across a round-trip.
+
+**Decision (align vs adapter)**: the internal format is the source of truth and an ADAPTER is shipped, rather than natively adopting the interoperable schema. Rationale: the internal format is a strict superset - it carries `should_trigger` (the optimizer's trigger-rate metric), `turns` / `trigger_turn` (multi-turn triggering), `model` (cheap-model fragility), and `tags`, none of which the interoperable schema can express. Adopting the interoperable schema natively would drop those capabilities and force a rewrite of the grader / aggregator / optimizer / viewer; a converter keeps every capability and changes nothing in the grading path (behavior preserved by construction).
+
+**Lossless round-trip**: the converter (`scripts/skill_eval_convert.py`) stashes every internal-only field (and any assertion keys beyond `text`) under an `x_nexus` extension key on each interop eval. External tools ignore the unknown key; the converter reads it back, so both directions are lossless:
+
+- `internal -> interop -> internal == internal`
+- `interop -> internal -> interop == interop`
+
+Usage:
+
+```bash
+python scripts/skill_eval_convert.py --to-interop evals.json --skill-name my-skill -o interop.json
+python scripts/skill_eval_convert.py --to-internal interop.json -o evals.json
+```
+
+The converter is stdlib-only (no third-party import, no outbound call, no new dependency) and is installer-distributed to `~/.nexus-hub/scripts/` alongside the other eval-loop scripts.

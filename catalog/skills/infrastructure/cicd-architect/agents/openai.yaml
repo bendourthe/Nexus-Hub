@@ -1,4 +1,4 @@
 interface:
   display_name: CI/CD Architect
-  short_description: CI/CD pipeline expertise for automated build, test, and deployment workflows. Use when setting up GitHub Actions, GitLab CI, Jenkins, or other CI/CD systems, implementing deployment
-    strategies, or opt
+  short_description: The canonical, provider-neutral CI/CD lifecycle policy. Use when setting up, auditing, migrating, or cost-optimizing a pipeline on GitHub Actions, GitLab CI, Jenkins, or
+    another provider; when a required status check is stuck pending; or as the terminal pipeline reconciliation step in a plan's final phase.

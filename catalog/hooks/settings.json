@@ -1,8 +1,8 @@
 {
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "model": "opus",
   "env": {
-    "CLAUDE_CODE_EFFORT_LEVEL": "xhigh"
+    "CLAUDE_CODE_EFFORT_LEVEL": "high"
   },
   "hooks": {
     "SessionStart": [
@@ -58,6 +58,18 @@
         "hooks": [
           {
             "type": "command",
+            "command": "bash .claude/hooks/rewrite-command.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Grep|Glob|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/code-search-routing.sh"
+          },{
+            "type": "command",
             "command": "bash .claude/hooks/lint-autofix.sh"
           }
         ]
@@ -89,6 +101,10 @@
           },
           {
             "type": "command",
+            "command": "bash .claude/hooks/html-responsive-guard.sh"
+          },
+          {
+            "type": "command",
             "command": "bash .claude/hooks/large-file-guard.sh"
           },
           {
@@ -110,11 +126,33 @@
           },
           {
             "type": "command",
+            "command": "bash .claude/hooks/html-responsive-guard.sh"
+          },
+          {
+            "type": "command",
             "command": "bash .claude/hooks/escalation-trigger.sh"
           },
           {
             "type": "command",
             "command": "bash .claude/hooks/old-version-docs-guard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/skill-guard.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/memory-store-guard.sh"
           }
         ]
       }
@@ -147,6 +185,15 @@
         ]
       },
       {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/provenance-ledger.sh"
+          }
+        ]
+      },
+      {
         "matcher": "Write|Edit",
         "hooks": [
           {
@@ -162,6 +209,15 @@
             "command": "bash .claude/hooks/dependency-staleness-notice.sh"
           }
         ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/skill-tracker.py"
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -171,6 +227,21 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/learning-capture.sh"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/skill-activation-suggest.py"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/notify-attention-required.sh"
           }
         ]
       }

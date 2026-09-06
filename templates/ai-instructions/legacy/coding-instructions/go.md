@@ -105,15 +105,15 @@ Apply these rules to **ALL** outputs, regardless of the domain:
 **Standard Go Project Layout**:
 ```
 project-name/
-â”œâ”€â”€ cmd/                           # Main applications
-â”‚   â””â”€â”€ app/
-â”‚       â””â”€â”€ main.go
-â”œâ”€â”€ internal/                      # Private application and library code
-â”‚   â””â”€â”€ [package]/
-â”œâ”€â”€ pkg/                           # Library code okay to use by external apps
-â”œâ”€â”€ go.mod                         # Module definition
-â”œâ”€â”€ go.sum                         # Checksums
-â””â”€â”€ README.md
+├── cmd/                           # Main applications
+│   └── app/
+│       └── main.go
+├── internal/                      # Private application and library code
+│   └── [package]/
+├── pkg/                           # Library code okay to use by external apps
+├── go.mod                         # Module definition
+├── go.sum                         # Checksums
+└── README.md
 ```
 
 **Tooling**:

@@ -220,9 +220,45 @@ Understanding the relationship between token usage and output quality helps allo
 - Budget for re-evaluation (20% of items flagged): + 20%
 ```
 
+## Evaluating Output vs Validating the Evaluator
+
+Steps 1 through 5 above score output: given a rubric, how good is this artifact. A separate question is whether the scorer itself is right. An unvalidated judge that gates a release has not removed human judgment from the loop; it has replaced it with an unmeasured one.
+
+Two Tier-3 references own the deeper methods. Read them when the work goes past scoring a batch:
+
+| You need to ... | Read | It covers |
+|---|---|---|
+| Turn failing outputs into quantified categories and permanent coverage | `references/error-analysis.md` | Trace sampling and what each method can and cannot support, non-overlapping taxonomies with exclusion criteria, multi-label conventions, severity x frequency ranking, root-cause hypotheses with refuting evidence, promotion to regression cases |
+| Prove a judge agrees with labeled evidence before it gates anything | `references/evaluator-validation.md` | Train / development / held-out separation, blind annotation and adjudication, the confusion matrix, precision / recall / specificity, threshold tuning on development data only, confidence intervals, prevalence effects, recalibration triggers |
+| Build an evaluation set that covers what it claims to cover | `references/synthetic-data.md` | Dimensions and allowed values, constraints, pairwise coverage targets, batched generation against named cells, duplicate and source-leakage filters, difficulty validation, human spot checks, and keeping synthetic cases out of the held-out split |
+| Collect human labels whose bias you can reason about | `references/review-interface.md` | Annotation schema, blind review, randomized ordering, keyboard-first and accessible controls, confidence and abstention, adjudication, append-only history, local autosave and resume, deterministic export with no implicit upload |
+
+Two rules from those references are load-bearing enough to state here:
+
+- **Thresholds are tuned on development data and measured once on held-out data.** Re-tuning against the held-out split and reporting the improved number converts a test set into a training set, and the reported figure into optimism.
+- **Precision is not a property of the judge.** Hold recall and specificity fixed and change only how often failures actually occur, and precision moves enormously - in the worked example, from 0.60 at a 30 percent failure rate to 0.16 at 5 percent. Always re-check precision at the prevalence the evaluator will actually meet.
+- **Coverage is verified after generation, not assumed from the plan.** Declaring a pairwise target and generating against it does not mean the target was hit. Recompute achieved coverage from the promoted cases and report the uncovered cells; those are the next batch's plan.
+- **Abstention is a signal, never an imputed label.** A reviewer forced to choose on an item the rubric does not cover produces a fabricated label indistinguishable from a real one. Report abstention rate alongside every label distribution.
+
 ## Reproducible Receipts
 
 When an evaluation produces a headline score (an LLM-as-judge rate, a rubric average, a pass/fail proportion), back it with a reproducible receipt rather than reporting the bare number. Attach three things: a committed artifact from which the score recomputes (the per-item results file the dimensional scores roll up from), a single documented recompute step so a reader can verify the headline without rerunning the judge, and a confidence interval - or, when the sample is too small for a meaningful interval, an explicit "preliminary / small-sample" label instead of a bare percentage. A score with no committed source and no interval is an opinion wearing a number. This is the same discipline `[[skill-eval-loop]]` applies to skill benchmarks; see it for the fuller treatment (committed `benchmark.json`, a single aggregate step, and a Wilson interval per rate).
+
+### Step 6: Report Reliability as pass@k and pass^k
+
+A single pass or fail is one sample of a distribution. Agent reliability is a measured metric across repeated independent trials, and this skill owns the two definitions every other skill references:
+
+- **pass@k**: the eval passes in at least one of k independent trials. Use it for capability ("can the agent do this at all").
+- **pass^k**: the eval passes in all k independent trials. Use it for safety-critical behavior, where one failure in k is the finding.
+
+Rules that make the numbers honest:
+
+1. Record every individual trial result (pass, fail, errored, incomplete), not only the aggregate; the aggregate must recompute from the recorded trials.
+2. An errored or incomplete trial is recorded as such and counts as a non-pass in both metrics. It is never dropped, because dropping it inflates the figure.
+3. A retried trial is not an independent trial. Record the retry as a new trial alongside the one it repeats; it does not replace it.
+4. Report k and the individual results next to the figure, and attach the receipt-and-interval discipline from the eval loop (a committed artifact, one recompute step, an interval or an honest small-N label).
+
+**Rule ownership**: `ai-output-evaluation` owns these definitions and the counting rules. `skill-eval-loop` runs the trials and reports with them; `quality-gate-definitions` consumes them in its gates. Neither restates the definitions.
 
 ## Best Practices
 
@@ -273,14 +309,25 @@ When an evaluation produces a headline score (an LLM-as-judge rate, a rubric ave
 | "I trust the LLM judge's score, no need for evidence" | Without an evidence quote per dimension, judges default to generous scores; an unjustified 0.9 hides the missing boundary check on line 72. |
 | "One evaluation pass is enough for this comparison" | Position bias favors the first option; a single pairwise pass can flip verdict when the order is swapped, so high-stakes calls need a swapped re-run. |
 | "We can skip token budgeting for the eval pipeline" | Evaluation costs ~2,500 tokens per item plus 20% re-eval; skipping the estimate means the pipeline silently blows its budget partway through a batch. |
+| "The judge agrees with my spot-checks, so it can gate releases" | Spot-checks confirm agreement on the cases you chose to look at, which are rarely the ambiguous ones. A gate needs precision and recall measured against held-out labels; without them the judge's failure mode is unknown, and at production prevalence its precision can be a quarter of what the validation set showed. |
+| "The judge is 95% accurate, so it is ready" | Accuracy alone hides the imbalance: when 95% of items pass, a judge that passes everything scores 0.95 accuracy with 0.0 recall and catches nothing. Report precision, recall, and specificity together or the headline is meaningless. |
+| "We fixed the three failures we looked at, so error analysis is done" | Fixing sampled failures produces no reusable knowledge. Without a taxonomy, frequencies, and regression cases, the same patterns return and are rediscovered from scratch each time. |
+| "I'll just generate 200 test cases and we'll have good coverage" | Unbounded generation clusters around whatever the generating model finds salient and almost never produces unanswerable queries, which is usually where a system behaves worst. Declaring dimensions first is what surfaces the cells nobody would have thought to ask for. |
+| "The reviewers can see the model's verdict, it just speeds them up" | It speeds them up by turning checking into confirming. The resulting agreement number measures whether the human read the judge's answer, so it cannot be used to validate that judge. |
 
 ## Verification
 
+- [ ] Any reliability figure is reported as `pass@k` or `pass^k` with k stated, every individual trial recorded (errored and incomplete trials included as non-passes), and no retry counted as an independent trial.
 - [ ] A weighted rubric exists with explicit dimensions and a documented pass threshold
 - [ ] Every LLM-as-judge score is accompanied by at least one evidence quote from the output
 - [ ] Pairwise comparisons were run in both orderings and any >0.2 score divergence was flagged
 - [ ] End-state checks ran: the output compiles/parses and existing tests still pass
 - [ ] A 10-20% human spot-check of scores was performed for calibration
+- [ ] Any evaluator used as a release gate has held-out evidence: precision, recall, and specificity measured once on a split never used for tuning, each with a confidence interval
+- [ ] Any evaluator used as a release gate has a documented disagreement review: blind annotation, adjudicated conflicts, and rubric defects recorded as such
+- [ ] Confirmed failure patterns were promoted to regression cases with minimized inputs and binary assertions (see `references/error-analysis.md`)
+- [ ] Any generated evaluation cases declare their coverage dimensions, were filtered for duplicates and source leakage, were human spot-checked, and are absent from the held-out split (see `references/synthetic-data.md`)
+- [ ] Any human review was blind, randomized, and captured confidence and abstention, with disagreements adjudicated and exported deterministically to a confirmed local path (see `references/review-interface.md`)
 
 ## Related Skills
 
@@ -288,6 +335,9 @@ When an evaluation produces a headline score (an LLM-as-judge rate, a rubric ave
 - [[testing-review]] -- the test-quality assessment methodology used when evaluating generated test suites
 - [[final-report]] -- consolidates the dimensional scores and verdicts into an actionable review report
 - [[context-manager]] -- ensures the judge has sufficient context, the dominant driver of evaluation quality
+- [[eval-pipeline-audit]] -- audits a whole evaluation process and routes gaps here; this skill owns the methods it routes to
+- [[rag-implementation]] -- owns retrieval measurement, which must be read before any generation metric in a RAG system
+- [[egress-redaction]] -- governs any authorized export of traces, annotations, or labeled items produced by these workflows
 
 ---
 

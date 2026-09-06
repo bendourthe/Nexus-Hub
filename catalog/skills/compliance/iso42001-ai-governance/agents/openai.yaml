@@ -1,4 +1,4 @@
 interface:
   display_name: ISO 42001:2023 AI Management System
   short_description: Implement ISO 42001:2023 AI Management System requirements for responsible AI development and deployment. Use when governing AI systems, implementing AI ethics, preparing for AI-specific
-    audits, or es
+    audits, or establishing AI risk management.

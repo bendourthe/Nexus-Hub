@@ -1,0 +1,15 @@
+{
+  "skill": "eval-pipeline-audit",
+  "purpose": "Route 'is our evaluation process trustworthy' here, while keeping the four near-neighbours routing to themselves: unit-tests (ordinary code tests), prompt-engineering (one judge prompt), rag-implementation (building or measuring the RAG system itself), and ai-output-evaluation (scoring one batch against a rubric).",
+  "cases": [
+    {"id": "pos-audit-evals", "prompt": "audit our evaluation pipeline end to end", "should_trigger": true, "assert": "routes to eval-pipeline-audit first", "lexical": true},
+    {"id": "pos-review-setup", "prompt": "review our eval setup and tell me what is missing", "should_trigger": true, "assert": "routes to eval-pipeline-audit first", "lexical": true},
+    {"id": "pos-unreliable", "prompt": "why is our LLM evaluation process unreliable", "should_trigger": true, "assert": "routes to eval-pipeline-audit first", "lexical": true},
+    {"id": "pos-green-but-broken", "prompt": "our eval suite is green but users still complain, what is wrong with the evaluation", "should_trigger": true, "assert": "routes to eval-pipeline-audit first", "lexical": true},
+    {"id": "neg-unit-tests", "prompt": "write unit tests for this payment module", "should_trigger": false, "assert": "routes to unit-tests, not here", "lexical": true},
+    {"id": "neg-judge-prompt", "prompt": "rewrite this judge prompt so it returns cleaner JSON", "should_trigger": false, "assert": "routes to prompt-engineering, not here", "lexical": true},
+    {"id": "neg-build-rag", "prompt": "build a RAG pipeline with hybrid search and reranking", "should_trigger": false, "assert": "routes to rag-implementation, not here", "lexical": true},
+    {"id": "neg-score-batch", "prompt": "score these generated docs against a quality rubric", "should_trigger": false, "assert": "routes to ai-output-evaluation, not here", "lexical": true},
+    {"id": "neg-skill-benchmark", "prompt": "benchmark this skill against a no-skill baseline", "should_trigger": false, "assert": "routes to skill-eval-loop, not here", "lexical": true}
+  ]
+}

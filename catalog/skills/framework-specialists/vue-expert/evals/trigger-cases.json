@@ -1,0 +1,12 @@
+{
+  "skill": "vue-expert",
+  "purpose": "Route Vue 3 Composition API / Pinia / composable work here, not to sibling framework experts.",
+  "cases": [
+    {"id": "pos-vue-composition", "prompt": "build a vue app with the composition api", "should_trigger": true, "assert": "routes to vue-expert first", "lexical": true},
+    {"id": "pos-vue-pinia", "prompt": "manage vue state with pinia and vue router", "should_trigger": true, "assert": "routes to vue-expert first", "lexical": true},
+    {"id": "pos-vue-composable", "prompt": "design a reusable vue composable", "should_trigger": true, "assert": "routes to vue-expert first", "lexical": true},
+    {"id": "neg-react", "prompt": "optimize react rendering with hooks", "should_trigger": false, "assert": "routes to react-expert, not vue-expert", "lexical": true},
+    {"id": "neg-kubernetes", "prompt": "deploy to kubernetes with helm charts", "should_trigger": false, "assert": "routes to kubernetes-expert, not vue-expert", "lexical": true},
+    {"id": "neg-docx", "prompt": "generate a word document from a template", "should_trigger": false, "assert": "routes to docx-generation, not vue-expert", "lexical": true}
+  ]
+}

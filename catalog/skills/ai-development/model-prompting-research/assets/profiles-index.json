@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.1.0",
+  "meta": {
+    "last_verified": "2026-07-27",
+    "platform": "claude-code",
+    "roster_source": "picker",
+    "roster": [
+      "claude-fable-5",
+      "claude-haiku-4-5-20251001",
+      "claude-opus-5",
+      "claude-sonnet-5"
+    ],
+    "roster_hash": "4ec5238a4f167426b7b69ff8846595f236231ead224e6f0d082d47ca65e869eb",
+    "platforms": [
+      {
+        "platform": "codex",
+        "roster_source": "api",
+        "roster": [
+          "codex-auto-review",
+          "gpt-5.2",
+          "gpt-5.3-codex",
+          "gpt-5.4",
+          "gpt-5.4-mini",
+          "gpt-5.5",
+          "gpt-6-astra"
+        ],
+        "roster_hash": "25b87778fc377ad18adb957371515a93ad294d3ea683d94190ca072977c0d004",
+        "last_verified": "2026-09-05"
+      }
+    ]
+  },
+  "models": {
+    "claude-opus-5": {
+      "platform": "claude-code",
+      "last_verified": "2026-07-27",
+      "claims": [
+        {
+          "claim": "State the task, the desired output shape, and any hard constraints explicitly rather than relying on implicit convention.",
+          "source_url": "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview",
+          "confidence": "unverified",
+          "scope": "model-specific",
+          "note": "TODO(first-verified-run): re-fetch the primary source, confirm the URL resolves, run the adversarial-verify pass, and re-tag confidence. This is a hand-seeded contract example, not research output, so the planner correctly still lists this model as needing research. Seeded at scope model-specific per the ambiguous-defaults-to-model-specific rule, so it cannot reach a shared body until a verified run re-scopes it."
+        }
+      ]
+    },
+    "gpt-6-astra": {
+      "platform": "codex",
+      "last_verified": "2026-09-05",
+      "claims": [
+        {
+          "claim": "Callers that used the none or minimal reasoning effort should start with low and compare results; GPT-6 Astra does not support the none reasoning effort.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Confirmed verbatim on the guide and in the 2026-09-03 changelog entry on the second, refutation-oriented fetch."
+        },
+        {
+          "claim": "When an application changes reasoning effort between responses in a standard single-agent request, use configuration_update items rather than a new conversation.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Guide: 'If your application changes effort between responses, use configuration_update items in standard, single-agent requests.' The changelog adds that effort can change mid-conversation while preserving cached prompt prefixes."
+        },
+        {
+          "claim": "Chat Completions is supported, but tool calling requires the Responses API.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Guide: 'GPT-6 Astra supports Chat Completions, but tool calling requires Responses.' Changelog: 'Tool calling requires the Responses API.'"
+        },
+        {
+          "claim": "Async tools are enabled by setting async: true on a function or custom tool and returning the result when ready using the original call_id.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Confirmed on the guide; the changelog lists async tool calling among the long-running-work controls."
+        },
+        {
+          "claim": "Remove temperature, top_p, and top_logprobs from requests; the model does not accept custom sampling parameters or log probabilities.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Guide: 'Remove temperature, top_p, and top_logprobs.' Changelog: no custom temperature or top_p values or log probabilities."
+        },
+        {
+          "claim": "Fast mode carries no latency SLA, and service_tier fast is not supported with EU data residency.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Guide: 'Fast mode for GPT-6 Astra does not include a latency SLA' and does not support service_tier fast with EU data residency."
+        },
+        {
+          "claim": "Replace prompt_cache_retention with prompt_cache_options.ttl set to 30m.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Confirmed verbatim on the guide."
+        },
+        {
+          "claim": "Treat a user prompt that requests action, such as one phrased 'can you...', as an instruction to do the work rather than a question about capability.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "The platform-agnostic form of this rule landed in the v4.7.0 Autonomous Operation block with this page cited as a second source; this claim records the vendor's own statement for this model."
+        },
+        {
+          "claim": "The user's instructions take precedence over guidelines provided in a skill.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Adopted platform-agnostically in the v4.7.0 Autonomous Operation block; recorded here as the vendor statement for this model."
+        },
+        {
+          "claim": "Do not write tests for reversible, low-impact changes that mirror the implementation.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Adopted platform-agnostically as the test-scope restraint rule owned by minimal-construction; recorded here as the vendor statement for this model."
+        },
+        {
+          "claim": "The vendor instructs the model to parallelize work by delegating tasks to another agent whenever it can.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Recorded and deliberately NOT adopted into any shared body: the catalog's agent-orchestration-primitives overrides it with the named-problem escalation gate."
+        },
+        {
+          "claim": "Released September 3, 2026 as the vendor's most capable model for the hardest end-to-end work; the models catalog lists it among the flagship models with no access gate on 2026-09-05.",
+          "source_url": "https://developers.openai.com/api/docs/models",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "Changelog 2026-09-03: 'Released GPT-6 Astra, our most capable model, built for the hardest end-to-end work.' The Codex CLI's live enumeration (codex debug models) did not list this id on 2026-09-05; see the v4.7 known-gaps ledger. Changelog: https://developers.openai.com/api/docs/changelog"
+        }
+      ]
+    }
+  }
+}

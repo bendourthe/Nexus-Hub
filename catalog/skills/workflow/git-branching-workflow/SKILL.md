@@ -1,6 +1,6 @@
 ---
 name: git-branching-workflow
-description: Follow a project's declared branching model when creating branches, committing, merging, and releasing. Make sure to use this skill whenever the user or task involves "create a branch", "which branch should I use", "feature branch", "branch off develop", "merge to develop", "merge to main", "cut a release", "protected branch", "develop vs main", "git flow", "github flow", "trunk-based", or you are about to commit/merge work and need to confirm the correct branch and flow first. The skill is CONFIG-DRIVEN -- it reads the project's declared branching strategy and follows THAT, rather than imposing one. SKIP, do NOT use for: writing the commit message itself (use code-commit-workflow), resolving merge conflicts (use conflict-analyzer), or bumping version numbers across files (use version-upgrade).
+description: "Follow a project's declared branching model when creating branches, committing, merging, and releasing. Make sure to use this skill whenever the user or task involves \"create a branch\", \"which branch should I use\", \"feature branch\", \"branch off develop\", \"merge to develop\", \"merge to main\", \"cut a release\", \"protected branch\", \"develop vs main\", \"git flow\", \"github flow\", \"trunk-based\", or you are about to commit/merge work and need to confirm the correct branch and flow first. The skill is CONFIG-DRIVEN -- it reads the project's declared branching strategy and follows THAT, rather than imposing one. SKIP, do NOT use for: writing the commit message itself (use code-commit-workflow), resolving merge conflicts (use conflict-analyzer), or bumping version numbers across files (use version-upgrade)."
 summary_l0: "Follow a project's declared branching model for branches, merges, and releases"
 overview_l1: "This skill keeps branch, merge, and release actions aligned with the project's DECLARED branching model instead of imposing a fixed one. It first resolves the model (an explicit declaration in AGENTS.md / CLAUDE.md / a config file, else inferred from repo state, else GitHub Flow), then applies the matching discipline: which branch is protected (release-only), which is the integration target, how feature branches are named and based, when and how to merge, and how a release is cut and tagged. It supports develop+main, GitHub Flow, trunk-based, and git-flow. The core invariant across every model: never commit feature or version work directly to the protected branch -- branch off the integration branch and integrate through it. Use whenever creating a branch, deciding where work goes, merging a finished unit, or cutting a release."
 ---
@@ -76,6 +76,29 @@ git checkout -b feat/<slug>      # or fix/, refactor/, ci/, docs/, chore/, test/
 
 Use `feat/<slug>` for features and `fix/<slug>` for fixes; the fuller work-branch prefix set is `refactor/`, `ci/`, `docs/`, `chore/`, and `test/` (matching the conventional-commit types), all branched off and integrated through the integration branch. Keep `<slug>` short, lowercase, hyphenated, and aligned with any plan/spec slug (e.g. `feat/adoption-claude-red`, `refactor/docs-layout`). For GitHub Flow and trunk-based, the integration branch IS the default branch -- you still branch off it rather than committing to it directly (trunk-based keeps the branch very short-lived).
 
+### Step 4b: Publication timing for plan-driven work
+
+Creating a branch and PUBLISHING it are separate decisions, and for multi-phase plan work they happen at different times.
+
+- Create the feature branch from the integration branch at the start of the plan, as Step 4 describes.
+- Keep phase commits LOCAL. A non-final phase commits and stops: no push, no pull request, no remote CI. A pipeline run per phase bills to validate work the plan itself calls incomplete, and a red check on incomplete work teaches the reader to ignore red checks.
+- Push ONCE, in the plan's final phase, after the complete local gate and with explicit approval.
+- Integrate only through a reviewed pull request against the INTEGRATION branch, never the protected release branch. That pull request is the plan's first remote validation, and it tests the merge result rather than the branch tip.
+
+This applies to plan-driven work. A one-off fix on a short-lived branch is published whenever it is ready; the rule exists because a multi-phase plan multiplies the cost, not because pushing is bad. See `[[cicd-architect]]` for the pipeline half and `[[implement-phase]]` for the execution half.
+
+### Step 4c: What a protected branch buys you
+
+A push event carries no evidence that an update came from a reviewed merge. "This workflow runs on merges" is only true in a repository whose branch protection REJECTS direct pushes to that branch.
+
+So the protected-branch settings are load-bearing for more than discipline: they are what makes a branch-filtered `push` workflow mean "a merge or a release happened". Configure them, verify them by hand, and never assume them. They cannot be set from a pipeline file, and Nexus-Hub deliberately does not mutate them on a user's repository.
+
+Required, at minimum, on both the integration and the protected release branch:
+
+- Direct pushes rejected.
+- A pull request required before merge, with the aggregate status check required.
+- Administrator bypass disabled where the project's risk tolerance allows.
+
 ### Step 5: Work, validate, then integrate
 
 1. Do the work on the feature branch; commit there (use [[code-commit-workflow]] for messages).
@@ -90,6 +113,8 @@ Use `feat/<slug>` for features and `fix/<slug>` for fixes; the fuller work-branc
 4. If the integration branch advanced while you worked (e.g. a shared prerequisite landed), bring it into your branch first (`git merge <integration-branch>` or rebase) and re-validate before merging up.
 
 ### Step 6: Cut a release
+
+A release starts only after the integration branch is GREEN: the plan's integration pull request passed every required check and merged, and the post-merge work (if any) succeeded. Releasing from an unvalidated integration branch ships a tree nothing proved.
 
 For models with a protected branch (develop+main, git-flow), a release is the only time the protected branch is touched:
 
@@ -114,6 +139,8 @@ This discipline is advisory on platforms without enforcement hooks. When working
 | "I do not know the model, so I will assume develop+main." | Resolve the model from Step 1 first and state it. You MAY *bootstrap* develop+main (Step 3) for an undeclared / greenfield / inherited project - that is the `/setup` path, and it requires user confirmation - but never auto-create `develop` in a project that has DECLARED trunk-based. Silently assuming the wrong model can block a legitimate commit or impose a branch a trunk-based project rejects. |
 | "I will commit on the feature branch and push it straight to main to save a step." | That defeats the integration branch. Merge into the integration target; the protected branch only receives release merges. |
 | "Fast-forward merges are cleaner, I will skip --no-ff." | Fast-forward erases the boundary of the unit you merged, making it hard to revert one feature without others. `--no-ff` keeps each unit atomic in history. |
+| "I will push each phase so the branch is backed up remotely." | A remote branch is a backup; a remote PIPELINE RUN is a bill. If durability is the goal, push a branch that triggers no validation, or keep a local mirror. Pushing into a validation trigger to get a backup pays for a full run per phase to solve a problem that is not about CI. |
+| "The workflow only runs on merges because it is filtered to develop." | Only if branch protection rejects direct pushes to develop. Without that setting the same filter fires on any developer push, and every post-merge assumption (the tree was reviewed, the gate was green) is false. The protection is what makes the filter mean what you think it means. |
 | "There is no hook on this platform, so the rule does not apply here." | The rule is the project's, not the platform's. Hooks only add a backstop where they run; on Cursor/OpenCode/Copilot the discipline is yours to keep. |
 
 ## Verification
@@ -132,3 +159,4 @@ This discipline is advisory on platforms without enforcement hooks. When working
 - [[conflict-analyzer]] - resolves merge conflicts that arise when integrating branches.
 - [[version-upgrade]] - bumps version-carrying files before a release tag is cut.
 - [[pre-commit-checklist]] - the pre-commit validation gate to run before integrating.
+- [[cicd-architect]] - owns the pipeline half of the lifecycle this skill's publication timing serves.

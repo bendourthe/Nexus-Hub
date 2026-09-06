@@ -1,0 +1,171 @@
+name: Release
+
+# v4.0.0: the release event, and only the release profile.
+#
+# Before v4.0.0 a `vX.Y.Z` tag ran the ENTIRE ci.yml validation suite, including
+# its matrix legs. That is a third full run of a tree the pull request and the
+# merge had already validated, on the one event where a failure can no longer
+# prevent anything: the tag exists, and by convention it is not moved.
+#
+# What genuinely depends on the tag is packaging and publication readiness, so
+# that is all this workflow runs.
+#
+# The tag is created and pushed by `/update release`, which owns its own
+# confirmation gates and starts only after the integration result is green and
+# merged. This workflow never creates a tag and never creates a Release; it
+# reports whether the tagged tree is fit to publish and (v4.7.0) attaches the
+# verifiable artifact set to the Release that `/update release` publishes.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Tag or ref to check (defaults to the triggering ref)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+# Deliberately NO cancel-in-progress. Cancelling pull-request validation is
+# correct because a later commit supersedes an earlier one; cancelling a release
+# operation is not, because each tag is a distinct artifact and there is no
+# later run that covers the earlier tag. The group is per-ref so two tags never
+# serialize behind each other.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          # Full history: the branch and repository-settings report in the
+          # release profile compares refs, which a shallow clone cannot do.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Release profile
+        # Version sync across every version-carrying surface, platform
+        # read-contract freshness for the version being cut, and an advisory
+        # branch and repository-settings report. NOT a validation re-run: the
+        # profile contains no test suite, and tests/ci asserts that it does not.
+        run: python scripts/ci/run.py --profile release --reports-dir reports
+
+      - name: Publish the run summary
+        if: always()
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Report the tagged version
+        if: always()
+        run: |
+          set -uo pipefail
+          version="$(python -c "import json;print(json.load(open('.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo unknown)"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Tagged release" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ref: \`${GITHUB_REF}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- plugin.json version: \`${version}\`" >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+  publish-artifact:
+    # v4.7.0 Phase 6: produce the artifact the install bootstrap verifies against.
+    #
+    # The GitHub-generated source tarball is not something the project publishes;
+    # its bytes are GitHub's. This job builds the project's OWN tarball from the
+    # tagged tree with `git archive` (LF line endings pinned, so the bytes do not
+    # depend on the runner's core.autocrlf), writes a GNU-format SHA256SUMS, and
+    # attaches both to the GitHub Release for the tag. It then records a
+    # GitHub-native build-provenance attestation for the tarball using the
+    # repository's own token; no package registry, no new secret.
+    #
+    # Idempotent and backfillable: `--clobber` replaces an existing asset, the
+    # attestation step tolerates re-runs, and `workflow_dispatch` with `ref`
+    # backfills a tag whose artifacts are missing. The Release object itself is
+    # created by `/update release` seconds after the tag push, so the job waits
+    # for it (bounded) rather than creating a competing Release.
+    needs: release-readiness
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Resolve tag and version
+        id: meta
+        run: |
+          set -euo pipefail
+          ref="${{ inputs.ref || github.ref }}"
+          tag="${ref#refs/tags/}"
+          case "$tag" in
+            v[0-9]*) ;;
+            *) echo "ref '$tag' is not a release tag (vX.Y.Z); nothing to publish" >&2; exit 1 ;;
+          esac
+          version="${tag#v}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build the deterministic tarball and SHA256SUMS
+        run: |
+          set -euo pipefail
+          tag="${{ steps.meta.outputs.tag }}"
+          version="${{ steps.meta.outputs.version }}"
+          mkdir -p dist
+          git -c core.autocrlf=false -c core.eol=lf archive --format=tar.gz \
+            --prefix="Nexus-Hub-${version}/" -o "dist/Nexus-Hub-${version}.tar.gz" "$tag"
+          ( cd dist && sha256sum "Nexus-Hub-${version}.tar.gz" > SHA256SUMS )
+          cat dist/SHA256SUMS
+
+      - name: Wait for the Release object published by /update release
+        run: |
+          set -uo pipefail
+          tag="${{ steps.meta.outputs.tag }}"
+          for attempt in $(seq 1 40); do
+            if gh release view "$tag" >/dev/null 2>&1; then
+              echo "Release $tag exists (attempt $attempt)."
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "No GitHub Release exists for $tag after 10 minutes. Publish it (/update release), then backfill with: gh workflow run release.yml -f ref=$tag" >&2
+          exit 1
+
+      - name: Attach the artifact set to the Release (idempotent)
+        run: |
+          set -euo pipefail
+          tag="${{ steps.meta.outputs.tag }}"
+          version="${{ steps.meta.outputs.version }}"
+          gh release upload "$tag" "dist/Nexus-Hub-${version}.tar.gz" dist/SHA256SUMS --clobber
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        with:
+          subject-path: dist/Nexus-Hub-${{ steps.meta.outputs.version }}.tar.gz
+
+      - name: Report
+        if: always()
+        run: |
+          {
+            echo ""
+            echo "### Verifiable artifact"
+            echo ""
+            echo "- tag: \`${{ steps.meta.outputs.tag }}\`"
+            echo "- asset: \`Nexus-Hub-${{ steps.meta.outputs.version }}.tar.gz\` plus \`SHA256SUMS\`"
+            echo "- verify: \`gh attestation verify Nexus-Hub-${{ steps.meta.outputs.version }}.tar.gz -R ${{ github.repository }}\`"
+          } >> "$GITHUB_STEP_SUMMARY" || true

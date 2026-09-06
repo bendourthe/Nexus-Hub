@@ -1,7 +1,8 @@
 {
   "name": "nexus-hub",
-  "description": "Enterprise-grade skill harness for AI coding assistants -- the upstream catalog for the Nexus desktop app and every major agent (Claude Code, OpenAI Codex, Antigravity, GitHub Copilot, Cursor, GitHub CLI). 265 curated skills, 16 commands, 25 hooks, cross-platform.",
-  "version": "3.12.1",
+  "displayName": "Nexus Hub",
+  "description": "Enterprise-grade skill harness for AI coding assistants -- the upstream catalog for the Nexus desktop app and every major agent (Claude Code, OpenAI Codex, Antigravity, GitHub Copilot, Cursor, GitHub CLI). 336 curated skills, 18 commands, 23 agents. This plugin is the Claude Code subscribe path; the installer remains the primary multi-platform path and the only path that installs hooks.",
+  "version": "4.7.0",
   "author": {
     "name": "Benjamin Dourthe",
     "url": "https://github.com/bendourthe"
@@ -9,6 +10,39 @@
   "homepage": "https://github.com/bendourthe/Nexus-Hub",
   "repository": "https://github.com/bendourthe/Nexus-Hub",
   "license": "MIT",
-  "commands": "./.claude/commands",
-  "skills": "./catalog/skills"
+  "keywords": [
+    "ai-skills",
+    "claude-code",
+    "developer-tools",
+    "code-review",
+    "testing",
+    "security"
+  ],
+  "commands": "./catalog/commands",
+  "agents": "./catalog/agents",
+  "skills": [
+    "./catalog/skills/ai-development",
+    "./catalog/skills/architecture",
+    "./catalog/skills/bug-fixing",
+    "./catalog/skills/business-product",
+    "./catalog/skills/code-cleanup",
+    "./catalog/skills/code-review",
+    "./catalog/skills/compliance",
+    "./catalog/skills/developer-experience",
+    "./catalog/skills/documentation",
+    "./catalog/skills/framework-specialists",
+    "./catalog/skills/infrastructure",
+    "./catalog/skills/language-specialists",
+    "./catalog/skills/mobile-security",
+    "./catalog/skills/orchestration",
+    "./catalog/skills/ot-security",
+    "./catalog/skills/project-setup",
+    "./catalog/skills/research",
+    "./catalog/skills/security",
+    "./catalog/skills/security-operations",
+    "./catalog/skills/specialized-domains",
+    "./catalog/skills/testing",
+    "./catalog/skills/tests-generation",
+    "./catalog/skills/workflow"
+  ]
 }

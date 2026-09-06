@@ -1,4 +1,4 @@
 interface:
   display_name: Create Custom Commands
   short_description: Create custom slash commands for Claude Code to automate repetitive tasks. Use when establishing team workflows, automating code reviews, creating project-specific commands, or standardizing
-    developme
+    development processes.

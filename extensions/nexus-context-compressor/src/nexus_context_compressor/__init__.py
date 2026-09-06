@@ -28,9 +28,42 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from .filters import apply_trusted_filters
+from .reformatters import try_reformat
+from .savings import record_passthrough
 from .tokens import count_tokens
-from .transforms.content_router import RouteResult, RouterConfig, route
+from .transforms.content_router import RouterConfig, RouteResult, route
+from .truncate import truncate_text
 from .types import CompressResult
+
+_NEXUS_COMPACT_WIRE_PREFIX = "NEXUS-CW/1\n"
+
+
+def _finish_output(
+    result: RouteResult,
+    *,
+    persist: bool,
+    max_lines: int | None,
+    max_bytes: int | None,
+    allow_truncate: bool = True,
+) -> RouteResult:
+    if persist and result.tokens_after >= result.tokens_before:
+        record_passthrough(
+            tokens=result.tokens_before,
+            bytes_in=len(result.text.encode("utf-8")),
+        )
+    if not allow_truncate or (max_lines is None and max_bytes is None):
+        return result
+    trunc = truncate_text(result.text, max_lines=max_lines, max_bytes=max_bytes)
+    if not trunc.truncated:
+        return result
+    return RouteResult(
+        text=trunc.text,
+        segments=result.segments,
+        tokens_before=result.tokens_before,
+        tokens_after=count_tokens(trunc.text),
+    )
+
 
 if TYPE_CHECKING:
     from .ccr.store import CCRWriter
@@ -89,6 +122,8 @@ def compress_output(
     persist: bool = True,
     store: "CCRWriter | None" = None,
     config: RouterConfig | None = None,
+    max_lines: int | None = None,
+    max_bytes: int | None = None,
 ) -> RouteResult:
     """Compress a single raw output blob -- the runtime seam.
 
@@ -108,6 +143,9 @@ def compress_output(
         store: an explicit CCR write seam. Takes precedence over ``persist``; a
             long-lived consumer (the MCP server) may pass a shared store.
         config: router tunables; defaults to :class:`RouterConfig`.
+        max_lines: optional line cap applied after compression. The full blob is
+            teed to a spool file and the kept prefix carries a recovery pointer.
+        max_bytes: optional UTF-8 byte cap, same recovery contract as ``max_lines``.
 
     Returns:
         A :class:`RouteResult` with the compressed text, per-segment metrics, and
@@ -128,6 +166,43 @@ def compress_output(
     elif not isinstance(text, str):
         text = str(text)
 
+    # Producer-side nexus-code-search responses are already schema-compacted.
+    # Preserve their versioned wire bytes so a consumer never double-compresses
+    # the payload or changes delimiter framing before the reference decoder runs.
+    if text.startswith(_NEXUS_COMPACT_WIRE_PREFIX):
+        tokens = count_tokens(text)
+        return _finish_output(
+            RouteResult(
+                text=text,
+                segments=[],
+                tokens_before=tokens,
+                tokens_after=tokens,
+            ),
+            persist=persist,
+            max_lines=max_lines,
+            max_bytes=max_bytes,
+            allow_truncate=False,
+        )
+
+    text = apply_trusted_filters(text)
+
+    reformatted = try_reformat(text)
+    if reformatted is not None:
+        before = count_tokens(text)
+        after = count_tokens(reformatted)
+        if after < before:
+            return _finish_output(
+                RouteResult(
+                    text=reformatted,
+                    segments=[],
+                    tokens_before=before,
+                    tokens_after=after,
+                ),
+                persist=persist,
+                max_lines=max_lines,
+                max_bytes=max_bytes,
+            )
+
     own_store = None
     if store is None and persist:
         try:
@@ -146,13 +221,18 @@ def compress_output(
     # the original verbatim. Any span already persisted is harmless (idempotent,
     # content-addressed, pruned later); the output simply omits the marker.
     if result.tokens_after >= result.tokens_before:
-        return RouteResult(
+        result = RouteResult(
             text=text,
             segments=result.segments,
             tokens_before=result.tokens_before,
             tokens_after=result.tokens_before,
         )
-    return result
+    return _finish_output(
+        result,
+        persist=persist,
+        max_lines=max_lines,
+        max_bytes=max_bytes,
+    )
 
 
 def compress(

@@ -1,0 +1,210 @@
+{
+  "name": "cursor-usage-monitor",
+  "displayName": "Cursor Usage Monitor",
+  "description": "Independent Nexus-Hub monitor for personal Cursor included usage and on-demand spend without storing credentials in settings",
+  "version": "0.1.0",
+  "publisher": "nexus-hub",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bendourthe/Nexus-Hub.git",
+    "directory": "extensions/cursor-usage-monitor"
+  },
+  "homepage": "https://github.com/bendourthe/Nexus-Hub/tree/main/extensions/cursor-usage-monitor#readme",
+  "bugs": {
+    "url": "https://github.com/bendourthe/Nexus-Hub/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0",
+    "node": ">=22.0.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "cursor-usage.connectLive",
+        "title": "Cursor Usage: Connect Live Usage Tracking",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.dashboard",
+        "title": "Cursor Usage: Dashboard",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.refresh",
+        "title": "Cursor Usage: Refresh",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.recommend",
+        "title": "Cursor Usage: Recommendation",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.settings",
+        "title": "Cursor Usage: Settings",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.manualEntry",
+        "title": "Cursor Usage: Enter Usage Manually",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.clearData",
+        "title": "Cursor Usage: Clear Data",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.revokeConsent",
+        "title": "Cursor Usage: Revoke Live Usage Access",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.openNativeSettings",
+        "title": "Cursor Usage: Open Native Settings",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.openUsagePage",
+        "title": "Cursor Usage: Open Cursor Usage Page",
+        "category": "Cursor Usage"
+      }
+    ],
+    "icons": {
+      "cursor-icon": {
+        "description": "Cursor icon",
+        "default": {
+          "fontPath": "./fonts/cursor-icons.woff2",
+          "fontCharacter": "\\E103"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "cursorUsageWarning",
+          "title": "Cursor Usage Warning",
+          "icon": "icons/warning.svg"
+        }
+      ]
+    },
+    "views": {
+      "cursorUsageWarning": [
+        {
+          "id": "cursorUsageWarningView",
+          "name": "Usage Warning",
+          "type": "webview",
+          "when": "cursorUsage.warningActive"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Cursor Usage Monitor",
+      "properties": {
+        "cursorUsage.autoFetch": {
+          "type": "boolean",
+          "default": true,
+          "description": "Fetch usage on startup and at regular intervals once live usage access has been allowed. Has no effect while access is declined or unavailable."
+        },
+        "cursorUsage.refreshInterval": {
+          "type": "number",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 120,
+          "description": "Minutes between automatic usage refreshes"
+        },
+        "cursorUsage.showInStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show personal Cursor usage in the status bar"
+        },
+        "cursorUsage.compactStatusBar": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use compact C/O labels in the status bar"
+        },
+        "cursorUsage.alertMetric": {
+          "type": "string",
+          "default": "highest",
+          "enum": [
+            "highest",
+            "cursorModels",
+            "otherModels"
+          ],
+          "enumDescriptions": [
+            "Evaluate whichever personal included-usage pool is highest",
+            "Evaluate Cursor Models included usage",
+            "Evaluate Other Models included usage"
+          ],
+          "description": "Personal included-usage meter evaluated by warning thresholds"
+        },
+        "cursorUsage.thresholds.moderate": {
+          "type": "number",
+          "default": 50,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Percentage that activates a Moderate usage warning"
+        },
+        "cursorUsage.thresholds.high": {
+          "type": "number",
+          "default": 75,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Percentage that activates a High usage warning"
+        },
+        "cursorUsage.thresholds.critical": {
+          "type": "number",
+          "default": 95,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Percentage that activates a Critical usage warning"
+        },
+        "cursorUsage.staleAfterMinutes": {
+          "type": "number",
+          "default": 30,
+          "minimum": 1,
+          "maximum": 1440,
+          "description": "Age after which cached usage is labeled stale"
+        },
+        "cursorUsage.stateDbPath": {
+          "type": "string",
+          "default": "",
+          "description": "Explicit path to Cursor's application state database, for portable, Insiders, or custom profile installs. Leave empty to use the default location for your platform. Opened read-only, for one allowlisted key, and only after you allow live usage access."
+        },
+        "cursorUsage.showStatusBarLabel": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the 'Cursor Usage: ' prefix in the status bar. Turn it off to keep the icon and figures without the words. Ignored when compactStatusBar is on, which already hides it."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "package": "vsce package --no-dependencies",
+    "verify:package": "node scripts/verify-package-contents.js",
+    "generate:icons": "node scripts/generate-icon-font.js && node scripts/generate-package-icon.js"
+  },
+  "//generate:icons": "The asset generators use sharp, svgpath, svg2ttf, and ttf2woff2 only on demand. Keep them out of package.json and package-lock.json; regenerate with `npm install --no-save --package-lock=false sharp svgpath svg2ttf ttf2woff2 && npm run generate:icons`.",
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "@types/vscode": "^1.85.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "@vscode/vsce": "^3.9.2",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  }
+}
