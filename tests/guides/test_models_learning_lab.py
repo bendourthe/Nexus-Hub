@@ -1,19 +1,51 @@
 """Behavioral gates for the compact Models demonstrations and comparisons."""
 from pathlib import Path
 import hashlib
+import os
 import re
 import pytest
-from playwright.sync_api import expect, sync_playwright
+
+# Playwright is loaded in the fixture, never at module scope. The repo-tests group runs
+# without it installed, and a module-level import turns a skippable module into a
+# COLLECTION error, which aborts the whole tests/guides run instead of skipping this one
+# file. Every test here takes the browser fixture, so the fixture is the only gate needed.
+REQUIRE_RENDER = os.environ.get('NEXUS_REQUIRE_RENDER') == '1'
+expect = None  # bound by the browser fixture; bare-name lookups need a real global
+
+
+def _load_playwright():
+    """Return (sync_playwright, expect), or None when the package is absent."""
+    try:
+        from playwright.sync_api import expect as _expect, sync_playwright
+    except ImportError:  # pragma: no cover - environment dependent
+        return None
+    return sync_playwright, _expect
 
 GUIDE = Path(__file__).resolve().parents[2] / 'guides/website/nexus-hub-guide.html'
 MODES = ('language', 'diffusion', 'world', 'multimodal')
 
 @pytest.fixture(scope='module')
 def browser():
-    with sync_playwright() as pw:
+    global expect
+    loaded = _load_playwright()
+    if loaded is None:  # pragma: no cover - environment dependent
+        if REQUIRE_RENDER:
+            pytest.fail('NEXUS_REQUIRE_RENDER=1 but playwright is not installed')
+        pytest.skip('playwright is not installed')
+    sync_playwright, expect = loaded
+    try:
+        pw_ctx = sync_playwright()
+        pw = pw_ctx.__enter__()
         b = pw.chromium.launch()
+    except Exception as exc:  # pragma: no cover - environment dependent
+        if REQUIRE_RENDER:
+            pytest.fail(f'NEXUS_REQUIRE_RENDER=1 but chromium is unavailable: {exc}')
+        pytest.skip(f'chromium is unavailable: {exc}')
+    try:
         yield b
+    finally:
         b.close()
+        pw_ctx.__exit__(None, None, None)
 
 def open_scene(browser, width=1440, motion='reduce', theme='dark', **options):
     p = browser.new_page(viewport={'width': width, 'height': 1000}, reduced_motion=motion, **options)

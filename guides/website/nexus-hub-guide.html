@@ -1189,6 +1189,12 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
 .cx-png{display:block;width:100%;height:auto;}
 .ml-room-camera{transform-box:fill-box;transform-origin:center;}
 .ml-capability:focus-visible,.ml-reasoning:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px;}
+/* The tokens diagram scales with its container, so its two role labels shrink with it.
+   At 340px and below the label renders about 11px tall on a Linux font stack, under the
+   11.5px legibility floor the render gate enforces; a Windows stack clears it at the same
+   declared size, which is why this only shows on CI. Raise the declared size for that
+   narrow band alone so the rendered label stays legible; every wider viewport is unchanged. */
+@media (max-width:340px){.fx-svg[data-phase2-diagram] .fxt--role{font-size:16px;}}
 </style>
 </head>
 <body>
