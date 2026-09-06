@@ -116,11 +116,17 @@ function TextInput(): React.ReactElement {
   return <input ref={inputRef} />;
 }
 
-// Custom hook with typed return
-function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T) => void] {
+// Custom hook with typed return and an explicit runtime parser
+function useLocalStorage<T>(
+  key: string,
+  initialValue: T,
+  parse: (value: unknown) => T | undefined,
+): [T, (value: T) => void] {
   const [stored, setStored] = React.useState<T>(() => {
     const item = window.localStorage.getItem(key);
-    return item !== null ? (JSON.parse(item) as T) : initialValue;
+    if (item === null) return initialValue;
+    const decoded: unknown = JSON.parse(item);
+    return parse(decoded) ?? initialValue;
   });
 
   function setValue(value: T): void {

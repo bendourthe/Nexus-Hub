@@ -102,14 +102,20 @@ type OrderId = Brand<string, "OrderId">;
 
 // Constructor functions that brand raw values
 function usd(amount: number): USD {
+  if (!Number.isFinite(amount) || amount < 0) throw new RangeError("USD amount must be finite and non-negative");
+  // SAFETY: the constructor checked the currency domain invariant before applying the USD brand.
   return amount as USD;
 }
 
 function eur(amount: number): EUR {
+  if (!Number.isFinite(amount) || amount < 0) throw new RangeError("EUR amount must be finite and non-negative");
+  // SAFETY: the constructor checked the currency domain invariant before applying the EUR brand.
   return amount as EUR;
 }
 
 function userId(id: string): UserId {
+  if (id.trim() === "") throw new TypeError("UserId must not be empty");
+  // SAFETY: the constructor checked the non-empty identifier invariant before applying the UserId brand.
   return id as UserId;
 }
 

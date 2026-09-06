@@ -11,10 +11,10 @@ This style applies to every Markdown artifact produced by Nexus-Hub commands and
 - `README.md`, `README_zh.md`, and any subdirectory READMEs
 - `CHANGELOG.md`, `DEVLOG.md`
 - `RELEASE_NOTES.md`
-- Plans (`docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/*.md`)
-- Comparison reports (`docs/v<MAJOR>/v<MAJOR>.<MINOR>/comparisons/v<MAJOR>.<MINOR>.<PATCH>-comparison-*.md`)
+- Plans (`docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/*.md`)
+- Comparison reports (`docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/comparisons/v<MAJOR>.<MINOR>.<PATCH>-comparison-*.md`)
 - Pen test reports (`docs/security/penetration-test-*.md`)
-- Session histories (`docs/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/*.md`)
+- Session histories (`docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/*.md`)
 - Skill files (`catalog/skills/<cat>/<name>/SKILL.md`)
 - Command files (`catalog/commands/*.md`)
 - Style guides (`catalog/style-guides/*.md`)

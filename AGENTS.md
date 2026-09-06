@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.21.0 -->
+<!-- nexus-hub-version: 4.7.0 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **325 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 33 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **329 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 34 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -23,8 +23,8 @@ Nexus-Hub/
 │   │   └── tests/            # pytest suite for hook scripts
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
-│   ├── rules/                # Code style/security rules (4 languages)
-|   `-- skills/               # 325 skills across 23 categories
+│   ├── rules/                # Language, security, and artifact rules
+|   `-- skills/               # 329 skills across 23 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -40,6 +40,8 @@ Nexus-Hub/
 ├── scripts/                  # Installer scripts (installer.sh, installer.ps1)
 └── templates/                # AI instruction templates for multi-IDE support
 ```
+
+The responsive HTML rule family lives under `catalog/rules/html/`. Repository-level detector coverage and its visual fixtures live under `tests/verification/`.
 
 ## Adding a New Skill
 
@@ -102,6 +104,8 @@ Practical implications for SKILL.md authoring:
 - Resist the urge to inline everything into the body. If a piece of content is needed only some of the time, push it to a reference file.
 - If a step is deterministic and could be a 50-line shell script instead of 200 lines of body prose, ship the script under `scripts/` and let the agent execute it.
 - Keep Tier 1 fields tight (especially `description` and `summary_l0`); they cost tokens on every catalog read across every session. Tier 2 / Tier 3 budgets are per-trigger, not per-session.
+
+Treat every SKILL.md body as an operational runbook: actions, decision rules, artifacts, gates, and observable verification that an agent can execute. It is not a fact tutorial; supporting knowledge belongs in Tier-3 `references/` and loads only when the runbook needs it. An external study found procedural anchoring accounts for most successful skill cases.
 
 Cross-links: the body-size targets sit in the size-norm rule immediately below. The bundled-subdir convention is summarized in the "Per-skill Bundled Resources" subsection further down and documented in full in [`guides/reference/SKILL_BUNDLED_RESOURCES.md`](guides/reference/SKILL_BUNDLED_RESOURCES.md).
 
@@ -305,7 +309,7 @@ File naming: `kebab-case.md`. Commands use the same SKILL.md conventions for ins
 
 After adding a command, update `data/marketplace.json` `"total_commands"` if that field is present.
 
-**On a rename or deprecation**, decide whether to keep the old command name working through a deprecation shim at `catalog/commands/<old-name>.md` -- a `DEPRECATED (removed in vX.Y.Z). Forwarding to /NEW.` frontmatter `description` plus a short body that prints the notice and delegates to the new command -- or to remove it outright with a CHANGELOG `Removed` note. (The 40 v3.0.0-era shims followed the shim pattern and were removed in v3.2.0; see the v3.2.0 CHANGELOG and `docs/v3/v3.0/command-migration.md`.)
+**On a rename or deprecation**, decide whether to keep the old command name working through a deprecation shim at `catalog/commands/<old-name>.md` -- a `DEPRECATED (removed in vX.Y.Z). Forwarding to /NEW.` frontmatter `description` plus a short body that prints the notice and delegates to the new command -- or to remove it outright with a CHANGELOG `Removed` note. (The 40 v3.0.0-era shims followed the shim pattern and were removed in v3.2.0; see the v3.2.0 CHANGELOG and `docs/releases/v3/v3.0/command-migration.md`.)
 
 **Do not maintain a static command list anywhere.** `/skills list` derives the command cheatsheet -- the active commands, what each does, the deprecated name each one replaces, and common multi-command workflows -- at runtime from the command files themselves (see `catalog/style-guides/commands-cheatsheet.md`). Adding, renaming, refactoring, or deprecating a command therefore updates the cheatsheet automatically on the next `/skills list`; there is no table to hand-edit. The only command artifacts to touch on a change are the command file(s) and (on a rename) the deprecation shim.
 
@@ -335,7 +339,7 @@ The hook registration template is `catalog/hooks/settings.json`. Supported event
 Two of those are easy to misuse, so pick deliberately:
 
 - **`Notification`** fires when the agent needs permission for a tool, or has been idle waiting for input. It is the only event meaning "blocked on the human", which is why v3.15.10's `notify-attention-required` hook rides it.
-- **`Stop`** fires when the agent finishes responding, which is the end of EVERY turn, not the end of a task. A hook registered here runs constantly in a session driven by background work. Do not treat it as "task complete" without saying so honestly, and never register a notifier on `SubagentStop` (a sub-task milestone is not a reason to interrupt a human). See `docs/v3/v3.15/development/end-of-task-notification-contract.md`.
+- **`Stop`** fires when the agent finishes responding, which is the end of EVERY turn, not the end of a task. A hook registered here runs constantly in a session driven by background work. Do not treat it as "task complete" without saying so honestly, and never register a notifier on `SubagentStop` (a sub-task milestone is not a reason to interrupt a human). See `docs/releases/v3/v3.15/development/end-of-task-notification-contract.md`.
 
 *(This list previously named only four events while the template already registered six; corrected in v3.15.10 along with the addition of `Notification`.)*
 
@@ -410,9 +414,9 @@ Nexus-Hub is a **template repository**. Nothing you add is "live" until a user r
 | `catalog/style-guides/<name>.md` (companion reference for a command, NOT a slash command) | No -- folder auto-copied to `~/.nexus-hub/style-guides/` by `install_templates` | All platforms (shared). Located outside `catalog/commands/` so the file does not surface in the slash menu. |
 | `catalog/agents/<name>.md` | No -- folder auto-copied | Claude, Gemini, Codex |
 | `catalog/hooks/<name>.{sh,py}` | No for the file; **you must register it** in `catalog/hooks/settings.json` | Platforms that honor Claude-style hooks |
-| `catalog/rules/<lang>/<name>.md` | No -- folder auto-copied | Claude, Gemini, Codex |
+| `catalog/rules/<category>/<name>.md` (including `catalog/rules/html/`) | No -- folder auto-copied | Claude, Gemini, Codex |
 | `templates/documentation/<name>.{docx,pptx,xlsx,...}` | No -- folder auto-copied to `~/.nexus-hub/templates/documentation/` | All platforms (shared) |
-| `templates/ai-instructions/base-*.md` | **Yes -- edit all 5 lockstep files** (claude, codex, cursor, gemini, opencode). **But 5 is not the full set**: 16 template files exist and 12 are substantive. A behavioral rule meant for every agent must also reach `base-google-shared.md` (which covers Antigravity 1.0, Antigravity 2.0, and Gemini CLI by `@`-include, and Antigravity CLI transitively via `@base-antigravity-20.md`), the guardrails-only `base-{aider,kimi,openclaw,qwen,windsurf}.md`, and `generic-instructions.md`. Only the lockstep five are machine-guarded; the other seven are not, so they are the ones a change silently misses. | The respective platform |
+| `templates/ai-instructions/base-*.md` | **Yes -- edit all 5 lockstep files** (claude, codex, cursor, gemini, opencode). **But 5 is not the full set**: 17 template files exist and 13 are substantive. A behavioral rule meant for every agent must also reach `base-google-shared.md` (which covers Antigravity 1.0, Antigravity 2.0, and Gemini CLI by `@`-include, and Antigravity CLI transitively via `@base-antigravity-20.md`), the guardrails-only `base-{aider,kimi,openclaw,qwen,windsurf}.md`, `base-pi.md`, and `generic-instructions.md`. Only the lockstep five are machine-guarded; the other eight are not, so they are the ones a change silently misses. `## Writing Discipline` (v4.5.0) is a lockstep block: byte-identical across the five and asserted present and identical on all thirteen by a companion validator. `## Autonomous Operation` (v4.7.0) follows the same pattern, with its validator deriving the thirteen-template roster from the directory so a new template fails until it carries the block. | The respective platform |
 | `scripts/<name>.py` or `scripts/<name>.js` | **Yes -- MUST add a copy step** in BOTH `scripts/installer.sh` AND `scripts/installer.ps1`, modeled after the existing `generate_report.py` entry. The installer copies scripts by **explicit name**, never by folder. | All platforms (shared under `~/.nexus-hub/scripts/`) |
 | `configs/platform-defaults.json` (v3.16.0+) | No -- **repo-internal source, NOT a distributed artifact**. It is the single place a per-platform install-time behavioral default is declared. Its effect reaches users two ways: the derived core keys of `catalog/hooks/settings.json` (which the installer already copies), and install-time seeding into each platform's own config by `scripts/lib/integrations/platform_defaults.py`. Never hand-edit a derived artifact. | All platforms with a VERIFIED lever (see below) |
 | `scripts/sync_platform_defaults.py` (v3.16.0+) | No -- **repo-internal guard, needs NO installer copy step**. Listed in `DEV_ONLY_SCRIPTS` in `catalog/hooks/tests/test_installer_smoke.py` alongside the other three repo-only guards. `--check` runs in `make validate` and CI; `--apply` regenerates the derived artifacts. | None (maintainer tooling) |
@@ -428,7 +432,7 @@ Walk this checklist before proposing a PR:
 1. **Is your change inside a folder already copied recursively by the installer?** (`catalog/skills/`, `catalog/commands/`, `catalog/agents/`, `catalog/rules/`, `catalog/hooks/`, `templates/documentation/`.) If yes, no installer edit needed.
 2. **Is your change a standalone script in `scripts/`?** If yes, add a copy line in `scripts/installer.sh` (next to the existing `generate_report.py` block, around line 1395) AND a `Safe-Copy` line in `scripts/installer.ps1` (around line 1656). Both must reference the same destination under `~/.nexus-hub/scripts/`.
 3. **Does your change introduce a new Python or Node dependency?** Prefer a lazy import with a clear `pip install <pkg>` hint on failure (e.g., `try: import X; except ImportError: print("Error: X not installed. Please run: pip install X")`, as used in `scripts/generate_report.py`). If a hard requirement is unavoidable, add a dependency check in both installers next to the existing `python-docx`/`python-pptx` check.
-4. **Does your change touch a platform-specific instruction template?** If you edit any of `templates/ai-instructions/base-*.md`, apply the same change to all five (claude/codex/cursor/gemini/opencode). This is the "platform-agnostic" constraint. It is machine-enforced: `scripts/check_base_template_parity.py` (run by `make validate` and in CI) fails when a shared section heading, a shared placeholder token, or an invariant block (Tech Stack, Key Commands, Branching, End-of-Task Summary, MCP Registry Policy) diverges across the five, while tolerating intentional per-platform lines (platform names, install paths). Note that `Output Minimization` is deliberately NOT an invariant block, because `base-claude.md` carries a legitimate extra bullet; `End-of-Task Summary` (added v3.15.10) IS one, because the rule is platform-agnostic by intent and has no valid per-platform variation. It is a repo-internal guard like `check_version_sync.py`, so it needs no `.ps1` sibling and no installer copy step.
+4. **Does your change touch a platform-specific instruction template?** If you edit any of `templates/ai-instructions/base-*.md`, apply the same change to all five (claude/codex/cursor/gemini/opencode). This is the "platform-agnostic" constraint. It is machine-enforced: `scripts/check_base_template_parity.py` (run by `make validate` and in CI) fails when a shared section heading, a shared placeholder token, or an invariant block (Tech Stack, Key Commands, Branching, End-of-Task Summary, Construction Discipline, Writing Discipline, Autonomous Operation, MCP Registry Policy) diverges across the five, while tolerating intentional per-platform lines (platform names, install paths). Note that `Output Minimization` is deliberately NOT an invariant block, because `base-claude.md` carries a legitimate extra bullet; `End-of-Task Summary` (added v3.15.10) IS one, because the rule is platform-agnostic by intent and has no valid per-platform variation; `Writing Discipline` (added v4.5.0) IS one for the same reason, since a cliche or an em-dash is a defect on every platform and the block binds the agent's own replies rather than a platform feature. It is a repo-internal guard like `check_version_sync.py`, so it needs no `.ps1` sibling and no installer copy step.
 5. **Validate**: run `make validate` (JSON integrity) and `make lint` (ShellCheck) after edits. For new hooks, run `make test`. For installer changes, do a dry-run install into a throwaway directory and confirm the new artifact lands at the expected path.
 6. **Document**: add an entry under `## [Unreleased]` in `CHANGELOG.md`.
 
@@ -477,7 +481,7 @@ Nexus-Hub uses a lightweight **`develop` + `main`** model (adopted 2026-06-04). 
 
 Rationale: Nexus-Hub is a catalog consumed directly from the repo by an installer across every supported AI platform, so `main` is effectively a release artifact. Isolating in-progress, multi-phase versions on `develop` protects downstream installer users from half-applied phases.
 
-**Plan lifecycle (v4.0.0).** This repository follows the same lifecycle it distributes. Every plan phase verifies locally and ends with ONE local commit; unrelated dirty-worktree changes are left untouched and only files tracing to the plan are staged. No non-final phase pushes, opens a pull request, or starts remote CI, because a pipeline run per phase bills to validate work the plan itself calls incomplete. A phase records its CI impact and edits `.github/workflows/` only when CI/CD is that phase's stated deliverable. The FINAL phase reconciles the pipeline against the canonical contract via `[[cicd-architect]]`, completes the local gate, then pushes ONCE and opens the integration pull request to `develop` -- the plan's first remote validation, run against the merge result. A red required check reopens that phase and is reproduced locally before any re-push. Post-merge work stays minimal, and `/update release` starts only after the `develop` result is green and merged. A `push`-filtered workflow means "a merge or a release happened" ONLY because `main` and `develop` reject direct pushes; that protection is an external repository setting, verified by hand and never mutated automatically. Contract: [`docs/v4/v4.0/development/ci-cd-lifecycle-contract.md`](docs/v4/v4.0/development/ci-cd-lifecycle-contract.md).
+**Plan lifecycle (v4.0.0).** This repository follows the same lifecycle it distributes. Every plan phase verifies locally and ends with ONE local commit; unrelated dirty-worktree changes are left untouched and only files tracing to the plan are staged. No non-final phase pushes, opens a pull request, or starts remote CI, because a pipeline run per phase bills to validate work the plan itself calls incomplete. A phase records its CI impact and edits `.github/workflows/` only when CI/CD is that phase's stated deliverable. The FINAL phase reconciles the pipeline against the canonical contract via `[[cicd-architect]]`, completes the local gate, then pushes ONCE and opens the integration pull request to `develop` -- the plan's first remote validation, run against the merge result. A red required check reopens that phase and is reproduced locally before any re-push. Post-merge work stays minimal, and `/update release` starts only after the `develop` result is green and merged. A `push`-filtered workflow means "a merge or a release happened" ONLY because `main` and `develop` reject direct pushes; that protection is an external repository setting, verified by hand and never mutated automatically. Contract: [`docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md`](docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md).
 
 **Capability usage gate (release notes).** A release that introduces or materially changes an OPT-IN capability, installer flag, managed skill, or host surface must document five things per surface in its release notes: the exact activation mechanism, a runnable validation command, the exact disable / rollback path, the authority or privacy boundary that activation does NOT grant, and a canonical documentation link. Nexus-Hub ships an unusually high density of such surfaces (`NEXUS_HUB_COPILOT_SKILLS`, `--enterprise` / `-Enterprise`, `NEXUS_DISABLED_HOOKS`, `NEXUS_HOOK_PROFILE=minimal`), and the fourth element is both the most-skipped and the only one that fails silently rather than loudly. The gate applies ONLY to opt-in surfaces; a release with none satisfies it with a single explicit no-change declaration. Full definition and worked examples: governance step 6 in [`catalog/commands/update.md`](catalog/commands/update.md).
 

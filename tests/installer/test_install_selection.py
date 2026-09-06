@@ -101,6 +101,7 @@ def _plans_by_id() -> dict:
 # The fixture matrix
 # --------------------------------------------------------------------------- #
 
+
 @pytest.mark.parametrize("case", RESOLVER_CASES, ids=lambda c: c["id"])
 def test_case_exit_code(case: dict) -> None:
     expected = case["expect"]["exit_code"]
@@ -141,8 +142,7 @@ def test_case_resolves_expected_skills(case: dict) -> None:
         pytest.skip("failure case")
     plan = _run(case)
     assert plan.skills == case["expect"]["skills"], (
-        f"{case['id']}: resolved skill set differs. Why this case exists: "
-        f"{case['why']}"
+        f"{case['id']}: resolved skill set differs. Why this case exists: {case['why']}"
     )
 
 
@@ -175,7 +175,11 @@ def test_case_records_dependency_reasons(case: dict) -> None:
 
 @pytest.mark.parametrize(
     "case",
-    [c for c in RESOLVER_CASES if c["expect"].get("excluded_commands") or c["expect"].get("excluded_agents")],
+    [
+        c
+        for c in RESOLVER_CASES
+        if c["expect"].get("excluded_commands") or c["expect"].get("excluded_agents")
+    ],
     ids=lambda c: c["id"],
 )
 def test_case_records_exclusion_reasons(case: dict) -> None:
@@ -241,6 +245,7 @@ def test_install_scope_cases_are_declared_for_phase6() -> None:
 # Contract properties beyond the case table
 # --------------------------------------------------------------------------- #
 
+
 def test_resolution_never_writes(tmp_path: Path) -> None:
     """Fail-before-write, made mechanical.
 
@@ -269,8 +274,12 @@ def test_selector_forms_are_equivalent() -> None:
     """`--modules a,b` and `--modules a --modules b` must be indistinguishable."""
     catalog = load_catalog(_FIXTURES / "catalog-valid.json")
     available = available_from_catalog(catalog)
-    csv = resolve(catalog, SelectionRequest.from_args(modules=["mod-ai,mod-web"]), available)
-    repeated = resolve(catalog, SelectionRequest.from_args(modules=["mod-ai", "mod-web"]), available)
+    csv = resolve(
+        catalog, SelectionRequest.from_args(modules=["mod-ai,mod-web"]), available
+    )
+    repeated = resolve(
+        catalog, SelectionRequest.from_args(modules=["mod-ai", "mod-web"]), available
+    )
     assert csv.hash() == repeated.hash()
     assert csv.skills == repeated.skills
 
@@ -278,8 +287,12 @@ def test_selector_forms_are_equivalent() -> None:
 def test_whitespace_around_elements_is_stripped() -> None:
     catalog = load_catalog(_FIXTURES / "catalog-valid.json")
     available = available_from_catalog(catalog)
-    padded = resolve(catalog, SelectionRequest.from_args(modules=[" mod-ai , mod-web "]), available)
-    clean = resolve(catalog, SelectionRequest.from_args(modules=["mod-ai,mod-web"]), available)
+    padded = resolve(
+        catalog, SelectionRequest.from_args(modules=[" mod-ai , mod-web "]), available
+    )
+    clean = resolve(
+        catalog, SelectionRequest.from_args(modules=["mod-ai,mod-web"]), available
+    )
     assert padded.hash() == clean.hash()
 
 
@@ -342,7 +355,9 @@ def test_related_skills_links_are_not_dependencies() -> None:
     """
     catalog = load_catalog(_FIXTURES / "catalog-valid.json")
     available = available_from_catalog(catalog)
-    plan = resolve(catalog, SelectionRequest.from_args(bundles=["role-alpha"]), available)
+    plan = resolve(
+        catalog, SelectionRequest.from_args(bundles=["role-alpha"]), available
+    )
     assert plan.skills == ["a1", "c1"], (
         "role-alpha declares exactly a1 and c1 and no dependency edges, so "
         f"nothing else may enter the plan. Got {plan.skills}."
@@ -385,7 +400,9 @@ def test_resolver_works_against_the_real_catalog() -> None:
     assert len(full.skills) == len(available.skills)
     assert full.warnings == []
 
-    focused = resolve(catalog, SelectionRequest.from_args(modules=["ai-engineering"]), available)
+    focused = resolve(
+        catalog, SelectionRequest.from_args(modules=["ai-engineering"]), available
+    )
     assert "eval-pipeline-audit" in focused.skills, (
         "Phase 2 added eval-pipeline-audit to the ai-engineering module, so a "
         "focused AI install must resolve it."
@@ -402,7 +419,11 @@ def test_every_real_bundle_resolves() -> None:
     catalog = load_catalog(_ROOT / "data" / "bundles.json")
     available = available_from_catalog(catalog, repo_root=_ROOT)
     failures = []
-    for kind, key in (("profile", "profiles"), ("module", "modules"), ("bundle", "bundles")):
+    for kind, key in (
+        ("profile", "profiles"),
+        ("module", "modules"),
+        ("bundle", "bundles"),
+    ):
         for entry in catalog.get(key, []):
             if entry["id"] == "full":
                 continue
@@ -417,6 +438,7 @@ def test_every_real_bundle_resolves() -> None:
 # --------------------------------------------------------------------------- #
 # Manifest compatibility
 # --------------------------------------------------------------------------- #
+
 
 def test_manifest_without_selection_loads_as_full() -> None:
     """A pre-v3.16.1 manifest must load cleanly and mean 'full'."""
@@ -479,3 +501,45 @@ def test_install_context_defaults_to_no_selection() -> None:
         "pre-v3.16.1 caller that constructs a context without it keeps its exact "
         "current behavior."
     )
+
+
+_SECURITY_AUDIT_OWNERS = (
+    "security-review",
+    "dependency-security-audit",
+    "cve-reachability-analyzer",
+    "cloud-security-posture-detection",
+    "security-patch-advisor",
+    "testing-review",
+    "adversarial-verifier",
+    "agent-presets",
+)
+
+
+def test_security_specialist_closes_security_audit_owners() -> None:
+    """A focused security install must include every security-audit capability owner."""
+    catalog = load_catalog(_ROOT / "data" / "bundles.json")
+    available = available_from_catalog(catalog, repo_root=_ROOT)
+    plan = resolve(
+        catalog,
+        SelectionRequest.from_args(bundles=["security-specialist"]),
+        available,
+    )
+    missing = [name for name in _SECURITY_AUDIT_OWNERS if name not in plan.skills]
+    assert not missing, f"security-specialist is missing audit owners: {missing}"
+
+
+def test_security_audit_workflow_manifest_is_catalog_data() -> None:
+    """workflows.json stays with the other always-parsed catalog indexes.
+
+    Recursive skill copy does not carry data/ files. The installer already copies
+    catalog indexes as a shared surface; this test freezes that the security-audit
+    object remains in the source catalog rather than adding a new copy line.
+    """
+    workflows = json.loads(
+        (_ROOT / "data" / "workflows.json").read_text(encoding="utf-8")
+    )
+    matches = [
+        item for item in workflows["workflows"] if item["id"] == "security-audit"
+    ]
+    assert len(matches) == 1
+    assert "indexes" in ALWAYS_PRESENT

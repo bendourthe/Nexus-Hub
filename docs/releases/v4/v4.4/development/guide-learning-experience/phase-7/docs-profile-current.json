@@ -1,0 +1,81 @@
+{
+  "duration_s": 1.047000000020489,
+  "finished_at": "2026-09-05T00:14:23Z",
+  "groups": [
+    {
+      "commands": [
+        {
+          "duration_s": 0.14000000001396984,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "check_doc_colocation",
+          "output": "No docs/v<N> tree found; nothing to check.\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.125,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "validate_solution_frontmatter",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.15700000000651926,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "check_incident_notes",
+          "output": "  OK powershell-sibling-parse-error-20260709.md\n  OK provenance-ledger-sibling-divergence-20260722.md\n  2 incident note(s) OK\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.15600000007543713,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "validate_decision_records",
+          "output": "  30 decision record(s) OK\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.1559999999590218,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "stamp_guide_counts",
+          "output": "stamp_guide_counts: OK -- 1 marker(s) match the catalog (skills=329, hooks=30, pretooluse=15, commands=18)\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.125,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "check_memory_provenance",
+          "output": "OK: memory provenance contract holds under <workspace>\\catalog\\memory\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.18799999996554106,
+          "exit_code": 0,
+          "group": "docs",
+          "name": "check_docs_retention",
+          "output": "  docs retention: nothing due for archival (current v4.4, threshold 2 minors)\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "docs",
+      "skipped_reason": "",
+      "status": "pass"
+    }
+  ],
+  "platform": "windows",
+  "profile": "full",
+  "scope_conservative": true,
+  "scope_reason": "no --base supplied; running every group",
+  "started_at": "2026-09-05T00:14:22Z"
+}

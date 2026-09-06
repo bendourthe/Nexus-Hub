@@ -19,6 +19,7 @@ Two rules govern what may appear here:
 
 from __future__ import annotations
 
+import os
 import shutil
 import sys
 from dataclasses import dataclass, field
@@ -98,6 +99,11 @@ def _py(name: str, *args: str, **kw) -> Command:
 
 def _pytest(name: str, target: str, *extra: str, cwd: str = ".", **kw) -> Command:
     return Command(name=name, argv=[PY, "-m", "pytest", target, "-q", *extra], cwd=cwd, **kw)
+
+
+def _local_src_env(*paths: str) -> dict[str, str]:
+    """Build an isolated, host-correct import path for a src-layout command."""
+    return {"PYTHONPATH": os.pathsep.join(paths)}
 
 
 # ---------------------------------------------------------------------------
@@ -194,6 +200,9 @@ DOCS = Group(
         _py("validate_solution_frontmatter", timeout=120),
         _py("check_incident_notes", timeout=120),
         _py("validate_decision_records", timeout=120),
+        # v4.4.2: the guide may not carry a hand-typed catalog count; every count is a
+        # data-count marker stamped from data/ and catalog/, and this is the drift gate.
+        _py("stamp_guide_counts", "--check", timeout=120),
         _py("check_memory_provenance", timeout=120),
         # Advisory by design: archiving repairs references repo-wide, so it
         # belongs in a reviewed pass. A hard gate here would stop an unrelated
@@ -212,7 +221,10 @@ TESTS = Group(
     scope_key="tests",
     commands=(
         _pytest("hook-tests", "catalog/hooks/tests", timeout=1800),
-        _pytest("repo-tests", "tests", timeout=3600),
+        # The Windows suite has a measured 3341.7s passing baseline. A 3600s
+        # limit left only 7.7% variance and timed out a subsequent green-path
+        # run, so retain enough host/filesystem headroom to report assertions.
+        _pytest("repo-tests", "tests", timeout=4500),
     ),
 )
 
@@ -228,17 +240,54 @@ EXTENSION_TESTS = Group(
     # pytest and was fine; this profile passed `.` and was not, so the two
     # looked equivalent and were not. Naming the configured path keeps them so.
     commands=(
-        _pytest("skill-server", "tests", cwd="extensions/nexus-skill-server", timeout=900),
-        _pytest("code-search", "tests", cwd="extensions/nexus-code-search", timeout=900),
-        _pytest("web-fetch", "tests", cwd="extensions/nexus-web-fetch", timeout=900),
-        _pytest("skill-scanner", "tests", cwd="extensions/nexus-skill-scanner", timeout=900),
-        _pytest("context-compressor", "tests", cwd="extensions/nexus-context-compressor", timeout=900),
-        _pytest("memory", "tests", cwd="extensions/nexus-memory", timeout=900),
+        _pytest(
+            "skill-server",
+            "tests",
+            cwd="extensions/nexus-skill-server",
+            timeout=900,
+            env=_local_src_env("src"),
+        ),
+        _pytest(
+            "code-search",
+            "tests",
+            cwd="extensions/nexus-code-search",
+            timeout=900,
+            env=_local_src_env("src"),
+        ),
+        _pytest(
+            "web-fetch",
+            "tests",
+            cwd="extensions/nexus-web-fetch",
+            timeout=900,
+            env=_local_src_env("src"),
+        ),
+        _pytest(
+            "skill-scanner",
+            "tests",
+            cwd="extensions/nexus-skill-scanner",
+            timeout=900,
+            env=_local_src_env("src"),
+        ),
+        _pytest(
+            "context-compressor",
+            "tests",
+            cwd="extensions/nexus-context-compressor",
+            timeout=900,
+            env=_local_src_env("src", "../nexus-code-search/src"),
+        ),
+        _pytest(
+            "memory",
+            "tests",
+            cwd="extensions/nexus-memory",
+            timeout=900,
+            env=_local_src_env("src"),
+        ),
         Command(
             name="compression-accuracy-gate",
             argv=[PY, "-m", "evals", "--check"],
             cwd="extensions/nexus-context-compressor",
             timeout=900,
+            env=_local_src_env("src", "../nexus-code-search/src"),
         ),
     ),
 )
@@ -336,13 +385,28 @@ RELEASE_CHECKS = Group(
 # Profiles
 # ---------------------------------------------------------------------------
 
+INTERPRETERS = Group(
+    name="interpreters",
+    commands=(
+        # Nexus-Hub registers hooks as `bash <script>` and the HOST performs that
+        # launch, so a host whose `bash` cannot execute a script leaves every hook
+        # silently inert. No other group can see this: they all run Python
+        # directly rather than through the interpreter the hooks actually use.
+        # v4.3.0 Phase 5 went red twice on a Windows runner for this reason while
+        # the full local suite was green.
+        _py("check_interpreter_resolution", "--gate", timeout=300),
+    ),
+)
+
+
 PROFILES: dict[str, tuple[Group, ...]] = {
     # Cheapest useful signal. No test suite, no install, no network.
-    "fast": (CATALOG_PARSE, HYGIENE, WORKFLOWS, VERSION),
+    "fast": (CATALOG_PARSE, HYGIENE, INTERPRETERS, WORKFLOWS, VERSION),
     # Everything provable on this host.
     "full": (
         CATALOG_PARSE,
         HYGIENE,
+        INTERPRETERS,
         CATALOG,
         SECURITY,
         WORKFLOWS,
@@ -354,7 +418,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.
-    "platform": (SHELL_LINT, POWERSHELL_PARSE, WINDOWS_HOOKS),
+    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS),
     # Aggregation only. Reads what the other profiles wrote; never re-runs a
     # check, which is what makes it safe to call after a failure.
     "report": (),

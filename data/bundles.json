@@ -56,6 +56,7 @@
         "e2e-testing-automation",
         "edge-case-generator",
         "flaky-test-detector",
+        "functional-verification",
         "fuzzing-input-generator",
         "integration-test-generator",
         "metamorphic-test-generator",
@@ -85,6 +86,7 @@
         "implementation-convergence",
         "intent-based-review",
         "multi-agent-code-review",
+        "over-engineering-review",
         "performance-review",
         "plan-review",
         "receiving-code-review",
@@ -254,6 +256,7 @@
         "go-cleanup",
         "java-cleanup",
         "javascript-cleanup",
+        "minimal-construction",
         "project-refactor",
         "python-cleanup"
       ]
@@ -353,6 +356,7 @@
         "python-expert",
         "rust-expert",
         "sql-expert",
+        "typed-boundary-hygiene",
         "typescript-expert"
       ]
     },
@@ -649,9 +653,10 @@
     {
       "id": "security-specialist",
       "name": "Security Specialist",
-      "description": "Skills for application security, authentication, vulnerability analysis, and compliance auditing.",
+      "description": "Skills for application security, authentication, vulnerability analysis, compliance auditing, and the ordered local security-audit preset.",
       "skills": [
         "adversarial-verifier",
+        "agent-presets",
         "android-dynamic-app-analysis",
         "android-static-app-analysis",
         "api-inventory-and-undocumented-endpoints",
@@ -660,6 +665,7 @@
         "api-schema-and-gateway-enforcement",
         "authentication-patterns",
         "bluetooth-and-wireless-assessment",
+        "cloud-security-posture-detection",
         "cryptographic-control-audit",
         "cve-reachability-analyzer",
         "dependency-security-audit",
@@ -688,6 +694,7 @@
         "slsa-provenance-and-sigstore-verification",
         "smart-contract-security-review",
         "soc2-compliance",
+        "testing-review",
         "tls-certificate-lifecycle",
         "vulnerability-prioritization-with-ssvc",
         "zero-trust-architecture-design",

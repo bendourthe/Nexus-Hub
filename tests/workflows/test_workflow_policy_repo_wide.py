@@ -160,7 +160,9 @@ def test_every_action_is_pinned_to_a_full_sha(path: Path) -> None:
 #: artifact and each merge a distinct state, so there is no later run that
 #: covers the earlier one -- cancelling would silently drop the only signal that
 #: state will ever get.
-NO_CANCEL = {"release.yml", "post-merge.yml"}
+# v4.7.0: the scheduled supply-chain watch is a distinct audit per run; a manual
+# dispatch must never cancel a scheduled run or the reverse.
+NO_CANCEL = {"release.yml", "post-merge.yml", "supply-chain-watch.yml"}
 
 #: Workflows scoped by EVENT rather than by path (v4.0.0).
 #:
@@ -172,12 +174,13 @@ NO_CANCEL = {"release.yml", "post-merge.yml"}
 #:   * post-merge.yml fires only on a protected-branch merge, release.yml only on
 #:     a release tag, and both are cheap by construction (post-merge runs the
 #:     fast profile; release runs no test suite).
-#:   * npm-audit.yml is scheduled. A path filter is not merely unhelpful there,
-#:     it is meaningless: `schedule` accepts no `paths:` key, and the whole point
-#:     of the workflow is that a dependency tree acquires new advisories WITHOUT
-#:     changing. Filtering by path would reduce it to auditing only trees that
-#:     just changed, which is the case review already covers.
-LIFECYCLE_EVENT_WORKFLOWS = {"post-merge.yml", "release.yml", "npm-audit.yml"}
+#:   * npm-audit.yml and supply-chain-watch.yml are scheduled. A path filter is
+#:     not merely unhelpful there, it is meaningless: `schedule` accepts no
+#:     `paths:` key, and the whole point of both is that a dependency tree
+#:     acquires new advisories WITHOUT changing. Filtering by path would reduce
+#:     them to auditing only trees that just changed, which case review already
+#:     covers.
+LIFECYCLE_EVENT_WORKFLOWS = {"post-merge.yml", "release.yml", "npm-audit.yml", "supply-chain-watch.yml"}
 
 
 @pytest.mark.parametrize("path", ALL)

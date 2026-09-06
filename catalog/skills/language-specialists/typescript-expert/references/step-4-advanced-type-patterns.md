@@ -66,6 +66,7 @@ function zip<A extends unknown[], B extends unknown[]>(
   a: [...A],
   b: [...B],
 ): { [K in keyof A]: [A[K], K extends keyof B ? B[K] : undefined] } {
+  // SAFETY: map preserves the length and numeric index order of tuple `a`; absent indices in `b` produce undefined.
   return a.map((val, i) => [val, b[i]]) as never;
 }
 
@@ -79,6 +80,7 @@ function pipe<T, Fns extends ((arg: never) => unknown)[]>(
   initial: T,
   ...fns: Fns
 ): ReturnType<Last<Fns> extends (...args: never[]) => infer R ? () => R : never> {
+  // SAFETY: callers provide an ordered function tuple whose adjacent input and output types compose.
   return fns.reduce((acc, fn) => fn(acc), initial) as never;
 }
 ```
@@ -133,7 +135,8 @@ enum Color {
 
 namespace Color {
   export function parse(str: string): Color | undefined {
-    return Object.values(Color).find((c) => c === str) as Color | undefined;
+    const values = [Color.Red, Color.Blue] as const;
+    return values.find((color) => color === str);
   }
 }
 

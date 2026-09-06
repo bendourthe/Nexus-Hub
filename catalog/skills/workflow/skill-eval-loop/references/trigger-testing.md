@@ -2,7 +2,7 @@
 
 The optimizer (`scripts/optimize_skill_description.py`) measures whether a skill's `description` triggers on a single prompt. That catches the most common failure (a description too narrow to fire at all) but misses three others that only show up under more realistic conditions: the agent that acts before loading the skill, the skill that triggers on a cold prompt but not deep in a conversation, and the description that triggers on a strong model but not a cheaper one. This reference documents the three techniques that cover those gaps, what each one catches, how to author an eval that exercises it, and how to read the resulting output fields.
 
-These techniques are reverse-engineered (form, not verbatim) from the superpowers trigger harness (`tests/skill-triggering/run-test.sh`, `tests/explicit-skill-requests/run-test.sh`, and `run-haiku-test.sh`); see `docs/archive/v2/v2.3/comparison-superpowers.md` Section 8 for provenance. They reuse the same CLI dispatcher as the rest of the loop: no new outbound calls, no new dependency, no new credential.
+These techniques are reverse-engineered (form, not verbatim) from the superpowers trigger harness (`tests/skill-triggering/run-test.sh`, `tests/explicit-skill-requests/run-test.sh`, and `run-haiku-test.sh`); see the legacy migration-source path `docs/archive/v2/v2.3/comparison-superpowers.md` Section 8 for provenance. They reuse the same CLI dispatcher as the rest of the loop: no new outbound calls, no new dependency, no new credential.
 
 ## 1. Premature-action detection
 

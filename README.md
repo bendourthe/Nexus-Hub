@@ -4,19 +4,19 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.21.0 -->
+<!-- nexus-hub-version: 4.7.0 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 325 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 329 skills, 18 commands, 34 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
-**New to Nexus-Hub? [Open the interactive guide](guides/website/nexus-hub-guide.html).** It is a self-contained, click-through walkthrough of the entire workflow -- install, onboard an unfamiliar codebase, plan, implement, harden, and ship -- with simulated VS Code / terminal sessions and the artifact each command produces. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality presentation.
+**New to Nexus-Hub? [Open the interactive guide](guides/website/nexus-hub-guide.html).** It is a self-contained, offline HTML file: a concise Home with the install commands, eight Foundations scenes that build a practical mental model from tokens through harnesses, a playable Asteroids Training loop with a cumulative file explorer, and one Cheatsheets tab for the loop plus command arguments. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality workshop.
 
 - **File:** [`guides/website/nexus-hub-guide.html`](guides/website/nexus-hub-guide.html) -- one HTML file, fully offline, no server or install required.
 - **To view it:** GitHub does not render HTML inline. Open the file above and click **Download raw file** (top-right of the file view), then open the downloaded `.html` in any browser. Or clone the repo and double-click it.
 - **To share it:** send that single file to anyone on the team. See [guides/website/README.md](guides/website/README.md) for maintainer notes.
 
-> **Renamed from DevAI-Hub at v2.0.0** to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill feed. Existing `~/.devai-hub/` installs are migrated in place by the v2.0.0 installer on first run; see [docs/archive/v2/v2.0/RELEASE_NOTES.md](docs/archive/v2/v2.0/RELEASE_NOTES.md) for the full migration story.
+> **Renamed from DevAI-Hub at v2.0.0** to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill feed. Existing `~/.devai-hub/` installs are migrated in place by the v2.0.0 installer on first run; see [docs/archives/v2/v2.0/RELEASE_NOTES.md](docs/archives/v2/v2.0/RELEASE_NOTES.md) for the full migration story.
 
 ---
 
@@ -30,16 +30,134 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 325 skills, 18
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 324 curated skills, 18 commands, 33 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 329 curated skills, 18 commands, 34 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
 
-## What's New in v3.21.0
+## What's New in v4.7.0
 
-**Fail-closed last phase, implement drivers, and living handbooks.** `/plan` and `/implement` last-phase runs must write `last-phase-evidence.md` with Goal-vs-codebase review; a heading is not done work. `/implement <slug> in-full` (alias `full`) and `phase-by-phase` encode the multi-phase loop; bare `/implement` stays one-phase. Living `docs/handbooks/` and `docs/decisions/` are required on the current path scheme; v4.0 will snapshot them, not decline them.
+**Releases now ship a verifiable artifact, and installs can be pinned and rolled back.** Every GitHub Release carries `Nexus-Hub-<version>.tar.gz`, a `SHA256SUMS` file, and a build-provenance attestation. Both bootstrap installers verify that download fail-closed for a tagged ref: a checksum mismatch, a missing checksum file, or an unresolvable tag aborts with a distinct message and never installs unverified, while a network failure is reported as a network failure rather than tampering. Pin with `--ref v4.7.0`, move with `nexus-hub upgrade --latest`, and roll back with `nexus-hub upgrade --ref <older tag>`. No package registry and no new secret.
+
+**Every platform carries an always-loaded `## Autonomous Operation` block.** All twelve substantive instruction templates state that the agent proceeds on reversible work the request already covers and stops only for destructive actions and genuine scope changes. It also settles precedence: your instructions outrank a skill's guidelines, routine skill lookup stays silent, and a skill instruction that would block, narrow, or alter your request is disclosed by name with the line quoted. The communication contract gains its progress-narration half and a rule that formatting follows the reader.
+
+**The interactive guide teaches by showing.** The Models section is rebuilt as a visual learning lab whose language, diffusion, world, and multimodal demos run on a shared clock, pause on hover and focus, and stop under reduced motion. Home is simplified around one checked brief example, and its platform handoff is an illustrative Claude Code to Codex conversation resuming a plan interrupted by a usage limit. The token, prompt, and context lessons are rebuilt, with attachment and context previews that open as native dialogs and stay embedded and offline.
+
+**Routing data re-verified and `gpt-6-astra` mapped.** Every cell of the bundled model map was re-fetched from vendor pages, `gpt-6-astra` enters at frontier, and the prompting profile layer now holds more than one platform with its first OpenAI profile. A scheduled supply-chain watch audits the extension packages and optional extras weekly, producing no required status check by construction.
+
+Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. Two opt-in surfaces are new, the pinned install and the upgrade flags; both are documented above with their activation, validation, rollback, and the authority they do not grant.
+
+---
+
+## What's New in v4.5.0
+
+**Every platform now carries an always-loaded writing rule.** A short `## Writing Discipline` block sits in all twelve substantive instruction templates: a prohibition list of the highest-frequency AI-cliche moves, the ASCII punctuation rule that was previously Claude-only, a ban on chatbot leftovers, and a self-check that binds the agent's live chat replies as well as the files it writes. The lockstep parity guard byte-compares it and a twelve-template validator asserts it, so removing it from any one template fails a test. The decision and its alternatives are recorded in `docs/decisions/implemented/policy/2026-09-04-writing-discipline-binds-chat-replies.md`.
+
+**`anti-slop-editing` learns the reflective register and ships a detector.** Nineteen named patterns across seven clusters, each with a before and after pair and a stated class, join the catalog, and `Robotic rhythm` becomes three countable rules. A stdlib-only offline detector reports each finding with line, column, span, and class, exits zero by default, and gates only on request; the skill runs it as a floor before and after editing.
+
+**Agent security closes the boundary gaps the 2026 incidents exposed.** `agent-execution-isolation` gains a host layer beneath the sandbox designed for the case where the virtual machine fails, a transitive-reachability control that treats each allowlisted destination as a node with its own reach, a correction that per-session containers isolate processes and not sessions (with a required enumeration of shared writable services and a remediation ladder), and boundary-interface minimization. `agentic-endpoint-hardening` keeps its advisory default and adds a narrow deterministic response class for violations no legitimate operation produces, guidance only. `purple-team-exercise-design` owns cross-domain attack chaining.
+
+Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. This release changes no opt-in capability, installer flag, or host surface; the Writing Discipline block changes distributed instruction text for every platform, is not opt-in, grants no authority, and is overridden by a project's own instruction file.
+
+---
+
+## What's New in v4.4.5
+
+**Five patch cycles of guide work ship as one tag.** v4.4.1 through v4.4.5 were authored in sequence and held back while the operator reviewed Home and Foundations between rounds. Together they take the guide from the rebuilt structure of v4.4.0 to a product that reads correctly on first look, teaches each idea in the operator's words and order, and integrates the reviewed mockups. The range is 44 commits across 63 files, all inside `guides/website/`, `tests/guides/`, and the v4.4 release docs.
+
+**Every illustration reads correctly on first look.** The guardrails figure was rebuilt so no label can escape its box, Context Engineering reads without a legend, the two harness scenes merged into one figure that cannot overlap, the work-cycle ring was replaced and the video plays itself, and section headings follow one stated size rule. The guide no longer addresses the reader in the second person.
+
+**Each segment teaches its one idea.** Models is rebuilt on the eight-stage spine and teaches how a model works instead of listing what it outputs. One prompt is followed through both harnesses with the operator's analogy: the model is a powerful brain, the platform harness is a graduate degree, the Nexus Hub harness is decades of practical experience. The vague prompt is shown beside the reasons it fails, and the cost of dumping everything into the context is named. Every harness layer now states something and shows the chain.
+
+**Training runs on a deterministic arcade shooter.** It replaces Asteroids with the requested lives bug, asteroid hazard, and vertical-movement feature, adds pointer play and dense varied spawning, and its fullscreen presentation fills the whole window at every desktop size with three panes and an overlaid Outline.
+
+Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. This release changes no opt-in capability, installer flag, or host surface. The release-time platform re-verification found one documentation drift on the Claude Code effort lever and corrected the recorded statement; the seeded value is unchanged.
+
+---
+
+## What's New in v4.4.0
+
+**The guide now teaches and demonstrates instead of describing.** Home opens on a centred animated mark and wordmark that never wraps, a tagline that sells an outcome rather than listing contents, six honest platform compatibility treatments, and an Installation section where the install command dominates rather than the verification step. Three of those six platforms use labelled text treatments rather than invented trademark geometry, because their vendors publish no distributable standalone product mark; that limit is recorded as a known gap rather than papered over.
+
+**Foundations teaches a non-technical reader what the words actually mean.** The model diagram was corrected to the real sequence (trained, then integrated into a platform, then a request arrives carrying context, then internal reasoning, then output), and five missing concepts were added: tokens for text and images, prompt engineering with worked examples, chatbot versus agentic platform, context engineering and the context window, and harness and loop engineering. The last section ends on an honest account of what Nexus-Hub adds above a platform's own built-in harness.
+
+**Training dropped the download for a game you actually play.** A real in-page Asteroids ships with a seeded wrap-boundary collision bug. The learner plays it, observes the defect, then drives the eight-command loop through a simulated terminal to fix the bug and add asteroid splitting, with an explorable cumulative file tree showing what each command wrote. Everything stays in one self-contained offline HTML file at 480.5 KB against a 500 KB budget, with zero runtime network calls.
+
+**This release is also the first real test of the v4.3.0 verification discipline, and the discipline earned its place.** Every phase ran under the fail-closed ladder, and the Tier 3 deep pass found seven defects that a passing test suite had not: non-integer numeric Training navigation corrupting exported state, presentation mode painting the game over later regions, focus escaping the presentation dialog, a denied-fullscreen fallback surviving route changes and leaving the destination inert, a presentation dialog with no visible close control, and harness claim chips missing from the rendered label-containment inventory. Each was reproduced, fixed, and re-proved in a real browser on Windows and Ubuntu. Browser-backed guide verification is now enforced in CI by a scoped `guide-render` job wired into the `ci-required` aggregate, closing the last gap that let visual defects ship unexercised.
+
+### Capability usage - Claude Code reasoning-effort seeding (changed default)
+
+This release raises the reasoning effort that a Claude Code install seeds, which writes into a file you own, so its operation is documented in full.
+
+| Element | Detail |
+|---|---|
+| **Activation** | No flag or opt-in. `nexus-hub upgrade` (or a fresh install) seeds `effortLevel: "high"` and `env.CLAUDE_CODE_EFFORT_LEVEL: "high"` into `~/.claude/settings.json`. Seeding is absent-only: an existing value of either key is never overwritten, and the pair is treated as one upgrade unit, so a config already carrying either key receives neither. |
+| **Validation** | `python -c "import json;d=json.load(open('$HOME/.claude/settings.json'));print(d.get('effortLevel'), d.get('env',{}).get('CLAUDE_CODE_EFFORT_LEVEL'))"` prints `high high` when both were seeded, and your own prior values when they were preserved. |
+| **Rollback** | Set both keys to `"medium"` in `~/.claude/settings.json`. Re-running the installer will not raise them again, because seeding only fills an absent key. Nothing else is written and no file is removed. |
+| **Authority** | Raising effort does NOT grant Claude Code any new permission, tool, file access, or network capability, and does NOT change what the hooks allow or block. It only changes how much reasoning the model spends per turn, which raises token cost. This change is scoped to Claude Code alone: Codex, Qwen, Kimi, and Hermes stay at `medium`. A malformed user-owned `env` is preserved and receives no nested key, so a reinstall cannot add an env pin that bypasses the VS Code effort toggle. |
+| **Docs** | [`configs/README.md`](configs/README.md) and [`guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`](guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md) |
+
+Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. This release has no breaking change and adds no installer flag and no opt-in host surface; the one changed default-on surface is documented above.
+
+## Previously, in v4.3.0
+
+**The harness verifies behaviour, not just artifacts.** The phase gate previously checked four things - tests pass, coverage holds, lint is clean, build succeeds - and every one can be true of a feature that has never been run once. A page whose text spills outside its container satisfies all four. A tiered verification ladder now ships in the catalog and every consuming project inherits it on install: a cheap proportional functional smoke at every phase gate, a recorded plan-delta note so the plan is questioned as it is executed rather than trusted to the end, and a fail-closed deep pass before release that dynamically exercises every feature the plan produced, checks rendered output with a real visual-defect detector, runs an adversarial pass, and audits whether the plan itself was complete. Depth scales with blast radius from objective diff-evidenced triggers, and ambiguous classification escalates rather than skips.
+
+**The instruments exist, not just the instructions.** One skill (`functional-verification`) owns the procedure, a renderer-backed detector finds visual defects in real pages, a responsive-layout rule lands in the new `catalog/rules/html/` family, and a paired `html-responsive-guard` hook enforces it at write time on both Bash and PowerShell.
+
+**The interactive guide was rebuilt, and rebuilding it is what exposed the gap above.** The guide is now a dual-theme site with a compact Home, five animated scrollytelling Foundations scenes, an interactive Training walkthrough, and per-scope Cheatsheets, verified to WCAG AA across both themes. The v4.3.0 discipline was built after that rebuild precisely so the guide's successor is not produced by the process that produced its defects.
+
+**A silent Windows failure was found and fixed on the way out.** On a host whose PATH `bash` is the WSL launcher stub, every guarded tool call was denied with no actionable diagnostic, because the stub prints to stdout and exits non-zero without touching stderr. Hook children now resolve a real interpreter, `nexus-hub doctor` reports an unusable one as NEEDS-ACTION, and a new `interpreters` gate group catches the whole class locally instead of on a CI runner.
+
+### Capability usage - `html-responsive-guard` (new default-on hook)
+
+This release adds a hook that can BLOCK a write, so its operation is documented in full rather than left to discovery.
+
+| Element | Detail |
+|---|---|
+| **Activation** | Installed and registered automatically as a `PreToolUse` hook by `nexus-hub upgrade` (or a fresh install). No flag or env var enables it; it is on once installed. |
+| **Validation** | `printf '{"tool_name":"Write","tool_input":{"file_path":"x.html","content":"<style>p{max-width:600px}</style>"}}' \| bash ~/.claude/hooks/html-responsive-guard.sh; echo $?` prints the rule violation and exits `2`. Malformed or unrelated input exits `0`. |
+| **Rollback** | `NEXUS_DISABLED_HOOKS=html-responsive-guard` disables just this hook for the session; `NEXUS_HOOK_PROFILE=minimal` disables the advisory set. Neither removes installed files; re-running the installer restores registration. |
+| **Authority** | Disabling the hook does NOT make a fixed text cap correct - it only removes write-time enforcement, and the rendered-output detector and the `catalog/rules/html/responsive-layout.md` rule still apply. The hook reads only the write payload it is handed: it makes no outbound call, does not scan your project, and never rewrites your file. It blocks or permits; it does not edit. |
+| **Docs** | [`catalog/rules/html/responsive-layout.md`](catalog/rules/html/responsive-layout.md) and [`catalog/skills/testing/functional-verification/SKILL.md`](catalog/skills/testing/functional-verification/SKILL.md) |
+
+Catalog counts are **329 skills** (+1), **18 commands**, **34 hooks** (+1), and **23 agents**. This release has no breaking change. It adds one default-on hook, documented above; it adds no installer flag and no opt-in host surface.
+
+## Previously, in v4.1.2
+
+**Agents stop at the first sufficient construction before writing code.** All 12 substantive instruction templates now carry a compact always-on ladder: skip, reuse this codebase, stdlib, native feature, installed dependency, one line, then minimum. Include-only shims inherit it and do not duplicate the heading.
+
+**Two skills own intensity and delete-lists.** `minimal-construction` walks the seven rungs with lite/full/ultra as a skill argument (no env var or config file). `over-engineering-review` emits a tagged delete-list or `Lean already. Ship.` and does not apply fixes. Deferred ceilings use a generic `construction-debt:` marker.
+
+Catalog counts are **328 skills** (+2), **18 commands**, **33 hooks**, and **23 agents**. This release has no breaking change and changes no opt-in capability, installer flag, or host surface.
+
+## Previously, in v4.1.1
+
+**Local security audits now prove which scanners ran.** A full security-audit run emits a schema-v2 closure record with a receipt for every applicable optional local scanner (`RAN`, `NOT_APPLICABLE`, `UNAVAILABLE`, `FAILED`, or `DECLINED`). Schema-v1 records keep their previous fields. Missing tools stay visible instead of looking complete.
+
+**Detection, fix, and verification stay separate.** The ordered `security-audit` preset re-scans with the same detector after a user-approved patch, and the fixer cannot be the only post-fix verifier. Cloud posture remains read-only.
+
+**Optional scanners stay local.** Semgrep, gitleaks, OSV-Scanner, npm audit, pip-audit, Trivy, and Checkov are recipes on existing skills. None is auto-installed or replaced by a hosted service. See [`guides/reference/SECURITY_AUDIT.md`](guides/reference/SECURITY_AUDIT.md).
+
+Catalog counts remain **326 skills**, **18 commands**, **33 hooks**, and **23 agents**. This release has no breaking change and changes no opt-in capability, installer flag, or host surface.
+
+## Previously, in v4.1.0
+
+**Skill guidance now starts from evidence and ends in action.** Skill authors write executable procedural runbooks, label successful and failed observations before distillation, and pair domain language with an observable trigger.
+
+**Typed-boundary hygiene is a first-class skill.** The `typed-boundary-hygiene` runbook replaces low-evidence TypeScript assertions with named types and checked seams.
+
+**Skill evaluation can add an optional raw-memory comparison** beside the existing with-skill and without-skill benchmark. See the v4.1.0 changelog for Activation, Validation, Rollback, Authority, and Docs.
+
+## Previously, in v4.0.0
+
+**Documentation is placed by lifespan, and the migration proves itself.** Release-bound work lives under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`, frozen snapshots live under `docs/archives/`, and living material stays at stable roots such as `docs/handbooks/` and `docs/decisions/`. Existing legacy layouts remain honored in place until an explicitly approved migration.
+
+## Previously, in v3.21.0
+
+**Fail-closed last phase, implement drivers, and living handbooks.** `/plan` and `/implement` last-phase runs must write `last-phase-evidence.md` with Goal-vs-codebase review; a heading is not done work. `/implement <slug> full` (alias `in-full`) and `phase-by-phase` encode the multi-phase loop; bare `/implement` stays one-phase. Living `docs/handbooks/` and `docs/decisions/` are required on the current path scheme; v4.0 will snapshot them, not decline them.
 
 This release changes no opt-in capability, installer flag, or host surface.
 
@@ -188,7 +306,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 325 skills, 18 commands, 33 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 329 skills, 18 commands, 34 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
@@ -204,7 +322,7 @@ The installer above is the primary path: every platform, hooks, and `nexus-hub u
 
 This is not a replacement for the installer. It does not install hooks, other platforms, or the `nexus-hub` CLI.
 
-If Anthropic later lists Nexus-Hub in `claude-plugins-official`, that listing is pinned to a git SHA that can lag tagged releases. Marketplace users may trail `main`. Prefer the installer, or this repo's marketplace added from a release tag, when you need the current release. The maintainer submission draft is [`docs/v3/v3.20/development/claude-marketplace-submission.md`](docs/v3/v3.20/development/claude-marketplace-submission.md).
+If Anthropic later lists Nexus-Hub in `claude-plugins-official`, that listing is pinned to a git SHA that can lag tagged releases. Marketplace users may trail `main`. Prefer the installer, or this repo's marketplace added from a release tag, when you need the current release. The maintainer submission draft is [`docs/releases/v3/v3.20/development/claude-marketplace-submission.md`](docs/releases/v3/v3.20/development/claude-marketplace-submission.md).
 
 ### Installing a subset (selective installation)
 
@@ -240,6 +358,20 @@ Selectors need Python to resolve. A full install does not.
 ### Keeping it current
 
 Run `nexus-hub upgrade` -- it reports your installed version against the latest, shows a short what's-new summary, and updates in place on confirmation. Re-running the install command above works too; the installer is idempotent.
+
+### Pinning a version, verifying the download, rolling back
+
+The one-line install above follows the `main` branch, which has no publishable checksum because every commit changes the archive. To install a specific release instead, pin a tag; a pinned install downloads the tarball the project published for that release and verifies it before anything runs.
+
+| Element | Detail |
+|---|---|
+| **Activation** | macOS / Linux: `curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh \| bash -s -- --ref v4.7.0`. Windows: `&([scriptblock]::Create((irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1))) -Ref v4.7.0`. The `NEXUS_HUB_REF` environment variable does the same. |
+| **Validation** | The bootstrap prints `checksum OK (<sha256>)` before extracting; `nexus-hub --version` reports the installed version; `~/.nexus-hub/PINNED_REF` holds the pinned tag. `gh attestation verify Nexus-Hub-4.7.0.tar.gz -R bendourthe/Nexus-Hub` checks the build-provenance attestation of the published tarball. |
+| **Rollback** | `nexus-hub upgrade --ref v4.6.0` installs an older tag (any tag that carries the published artifact set, v4.7.0 and later); `nexus-hub upgrade --latest` moves a pinned install to the newest release; installing `main` again removes the pin. |
+| **Authority** | Verification proves the download is byte-for-byte what the release workflow published for that tag. It does not audit the catalog's content, grant any platform permission, or protect the host; a pinned install receives no updates until you move it. Tags published before v4.7.0 carry no artifact set and fail closed. |
+| **Docs** | `docs/decisions/implemented/policy/2026-09-05-verifiable-pinnable-installs.md`; the bootstrap headers in `install.sh` and `install.ps1`. |
+
+`nexus-hub upgrade` on a pinned install refuses to move and prints those options, so an upgrade never quietly unpins you.
 
 ### Verifying your install
 
@@ -413,7 +545,7 @@ make ci-platform   # shell lint, PowerShell AST parse, Windows PowerShell 5.1 le
 
 Each target is a one-line delegation to `python scripts/ci/run.py --profile <name>`, which needs no CI provider and no network. Add `--list` to print what a profile would run without running it, or `--base origin/develop` to scope the run to what changed. Reports land in `reports/` (gitignored): a readable `summary.md`, plus JUnit, `summary.json`, and environment metadata.
 
-Full guide, including how to add a check: [`docs/v4/v4.0/development/ci-cd-profile-guide.md`](docs/v4/v4.0/development/ci-cd-profile-guide.md).
+Full guide, including how to add a check: [`docs/releases/v4/v4.0/development/ci-cd-profile-guide.md`](docs/releases/v4/v4.0/development/ci-cd-profile-guide.md).
 
 ---
 
@@ -489,12 +621,12 @@ Nexus-Hub evolves in versioned slices. Each upcoming line item below traces to a
 
 | Focus | Target | Status | Source |
 |-------|--------|--------|--------|
-| Rename DevAI-Hub to Nexus-Hub, modernize installer with ASCII banner, integrate Nexus brand linkage | v2.0.0 | In progress | [docs/archive/v2/v2.0/plans/nexus-hub-rename.md](docs/archive/v2/v2.0/plans/nexus-hub-rename.md) |
-| Cross-OS CI matrix for installer smoke tests (closes the cumulative DF-003 / DF-005 / DF-006 / DF-007 / DF-008 cluster from v1.1.5 known-gaps) | v2.1.0 | Planned | [docs/archive/v1/v1.1/](docs/archive/v1/v1.1/) known-gaps cluster |
+| Rename DevAI-Hub to Nexus-Hub, modernize installer with ASCII banner, integrate Nexus brand linkage | v2.0.0 | In progress | [docs/archives/v2/v2.0/plans/nexus-hub-rename.md](docs/archives/v2/v2.0/plans/nexus-hub-rename.md) |
+| Cross-OS CI matrix for installer smoke tests (closes the cumulative DF-003 / DF-005 / DF-006 / DF-007 / DF-008 cluster from v1.1.5 known-gaps) | v2.1.0 | Planned | [docs/archives/v1/v1.1/](docs/archives/v1/v1.1/) known-gaps cluster |
 | Skill-eval-loop integration into pre-commit (assertion-graded regression guard for high-traffic skills before they ship) | v2.1.0 | Planned | [catalog/skills/workflow/skill-eval-loop/SKILL.md](catalog/skills/workflow/skill-eval-loop/SKILL.md) |
 | MCP registry expansion under the existing 5-step policy (reverse-engineer-first; hard-no on search / embeddings / scraping / generation as a service) | continuous | In progress | [docs/policy/mcp-reverse-engineering-matrix.md](docs/policy/mcp-reverse-engineering-matrix.md) |
 
-For a per-release navigation index linking each release to its plan, per-phase history, and known gaps, see [docs/DEVLOG.md](docs/DEVLOG.md); the pre-conversion narrative body is archived at [docs/archive/DEVLOG-v0-v3.17.md](docs/archive/DEVLOG-v0-v3.17.md). For the authoritative Keep-a-Changelog record of what changed in every release, see [CHANGELOG.md](CHANGELOG.md). For the per-version unfinished-work tracker that the next plan reads to decide what carries forward, see `docs/<version>/known-gaps.md`.
+For a per-release navigation index linking each release to its plan, per-phase history, and known gaps, see [docs/DEVLOG.md](docs/DEVLOG.md); the pre-conversion narrative body is archived at [docs/archives/DEVLOG-v0-v3.17.md](docs/archives/DEVLOG-v0-v3.17.md). For the authoritative Keep-a-Changelog record of what changed in every release, see [CHANGELOG.md](CHANGELOG.md). For the per-version unfinished-work tracker that the next plan reads to decide what carries forward, see `docs/<version>/known-gaps.md`.
 
 ---
 

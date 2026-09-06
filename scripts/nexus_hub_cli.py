@@ -12,6 +12,8 @@ Subcommands:
 
     nexus-hub --version        Print the installed Nexus-Hub version.
     nexus-hub upgrade          Compare the installed version against the latest
+                               (a pinned install refuses to move unless --latest
+                               or --ref <tag> is given; see Pinned installs below)
                                on the project's own GitHub, show what's new, and
                                offer to upgrade in place by re-running the
                                install bootstrap.
@@ -46,6 +48,8 @@ Internal testing affordances (environment variables):
     NEXUS_HUB_HOME            install root to read VERSION from   (default: ~/.nexus-hub)
     NEXUS_HUB_REPO            owner/name slug        (default: bendourthe/Nexus-Hub)
     NEXUS_HUB_REF             git ref to check against            (default: main)
+                              The install bootstrap reads the same variable, and
+                              `upgrade --ref` / `--latest` set it for the re-run.
     NEXUS_HUB_RAW_BASE        override the raw.githubusercontent base (a URL or a
                               local/`file://` dir holding plugin.json + CHANGELOG.md)
     NEXUS_HUB_INSTALL_BASE    override the install.sh/.ps1 base URL the upgrade re-runs
@@ -363,17 +367,43 @@ def _bootstrap_command() -> list[str]:
     return ["bash", "-c", sh_cmd]
 
 
-def run_bootstrap() -> int:
-    """Re-run the install bootstrap to upgrade in place. Honors the dry-run seam."""
+PINNED_REF_FILE = "PINNED_REF"
+
+
+def pinned_ref() -> str | None:
+    """The tag the install bootstrap pinned this install to, or None when unpinned.
+
+    The bootstrap writes `~/.nexus-hub/PINNED_REF` when it installs a release tag
+    (v4.7.0) and removes it when it installs a branch, so `upgrade` can tell a
+    deliberately pinned install from one that follows tip-of-branch.
+    """
+    try:
+        value = (install_home() / PINNED_REF_FILE).read_text(encoding="utf-8").strip()
+    except OSError:
+        return None
+    return value or None
+
+
+def run_bootstrap(ref: str | None = None) -> int:
+    """Re-run the install bootstrap to upgrade in place. Honors the dry-run seam.
+
+    `ref` (a tag such as `v4.7.0`, or a branch) is handed to the bootstrap through
+    NEXUS_HUB_REF, the same variable a first install accepts, so a pinned upgrade
+    and a first pinned install take one code path.
+    """
     command = _bootstrap_command()
+    env = dict(os.environ)
+    if ref:
+        env["NEXUS_HUB_REF"] = ref
     if os.environ.get("NEXUS_HUB_UPGRADE_DRY_RUN") == "1":
         # Show the exact command rather than executing it (used by the tests and
         # by anyone who wants to inspect the re-run before trusting it).
         printable = command[-1] if command and command[0] in {"bash", "powershell"} else " ".join(command)
         print(f"[dry-run] would upgrade by running: {printable}")
+        print(f"[dry-run] NEXUS_HUB_REF={env.get('NEXUS_HUB_REF', 'main')}")
         return 0
     _eprint("Upgrading by re-running the install bootstrap...")
-    return subprocess.run(command).returncode
+    return subprocess.run(command, env=env, check=False).returncode
 
 
 # --- Subcommands ------------------------------------------------------------
@@ -412,10 +442,27 @@ def _confirm_upgrade(assume_yes: bool) -> bool:
     return answer in {"y", "yes"}
 
 
-def cmd_upgrade(assume_yes: bool) -> int:
-    """Compare installed vs latest; show what's new; offer the in-place upgrade."""
+def cmd_upgrade(assume_yes: bool, to_ref: str | None = None, to_latest: bool = False) -> int:
+    """Compare installed vs latest; show what's new; offer the in-place upgrade.
+
+    Pinned installs (v4.7.0): when the bootstrap pinned this install to a tag,
+    `upgrade` REFUSES to move it unless told where. `--latest` re-pins to the
+    newest release tag (`v<latest>`, so the download stays verifiable), `--ref`
+    moves to the named tag or branch (which is also the rollback path). Moving
+    silently to tip-of-branch was rejected: a user who asked to pin and was
+    quietly unpinned by `upgrade` is worse off than one who received a refusal.
+    """
     installed = read_installed_version()
     installed_label = installed or "unknown"
+    pinned = pinned_ref()
+
+    if to_ref:
+        print(f"Installed: {installed_label}" + (f" (pinned to {pinned})" if pinned else ""))
+        print(f"Target:    {to_ref}")
+        if not _confirm_upgrade(assume_yes):
+            print("\nUpgrade skipped.")
+            return 0
+        return run_bootstrap(to_ref)
 
     try:
         latest = fetch_latest_version()
@@ -426,8 +473,17 @@ def cmd_upgrade(assume_yes: bool) -> int:
         _eprint("Check your network connection and try again.")
         return 2
 
-    print(f"Installed: {installed_label}")
+    print(f"Installed: {installed_label}" + (f" (pinned to {pinned})" if pinned else ""))
     print(f"Latest:    {latest}")
+
+    if pinned and not to_latest:
+        _eprint(
+            f"nexus-hub upgrade: this install is pinned to {pinned}. Nothing was changed.\n"
+            f"  To move to the latest release:   nexus-hub upgrade --latest\n"
+            f"  To move to another version:      nexus-hub upgrade --ref v{latest}\n"
+            f"  To roll back:                    nexus-hub upgrade --ref <older tag>"
+        )
+        return 3
 
     if installed and compare_semver(installed, latest) >= 0:
         print("\nYou are already on the latest version. Nothing to do.")
@@ -449,7 +505,9 @@ def cmd_upgrade(assume_yes: bool) -> int:
         print("\nUpgrade skipped.")
         return 0
 
-    return run_bootstrap()
+    # A pinned install moves to the newest RELEASE TAG, never to tip-of-branch,
+    # so the re-run stays on the verifiable artifact path.
+    return run_bootstrap(f"v{latest}" if pinned else None)
 
 
 def cmd_verify(argv: list[str]) -> int:
@@ -1023,6 +1081,15 @@ def build_parser() -> argparse.ArgumentParser:
     up.add_argument(
         "-y", "--yes", action="store_true", help="Upgrade without prompting."
     )
+    up.add_argument(
+        "--ref",
+        help="Install this tag or branch (also the rollback path, e.g. --ref v4.6.0). Required on a pinned install unless --latest is given.",
+    )
+    up.add_argument(
+        "--latest",
+        action="store_true",
+        help="On a pinned install, move to the newest release tag (verifiable artifact). Unpinned installs already follow the latest.",
+    )
     # Registered only so `nexus-hub --help` lists it; `verify` is intercepted in
     # main() before parsing and its args are forwarded verbatim to the verifier
     # (argparse.REMAINDER mishandles a leading `--flag`, so we slice argv instead).
@@ -1087,7 +1154,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.version or args.command == "version":
         return cmd_version()
     if args.command == "upgrade":
-        return cmd_upgrade(assume_yes=args.yes)
+        return cmd_upgrade(assume_yes=args.yes, to_ref=args.ref, to_latest=args.latest)
 
     parser.print_help()
     return 0

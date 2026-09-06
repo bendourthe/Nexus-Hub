@@ -68,6 +68,11 @@ HASH_RE = re.compile(r"^[0-9a-f]{64}$")
 
 TOP_LEVEL_KEYS = {"schema_version", "meta", "models"}
 META_KEYS = {"last_verified", "platform", "roster_source", "roster", "roster_hash"}
+# v4.7.0 (schema 1.1.0): an OPTIONAL per-platform roster array beside the legacy
+# single-platform keys, so an OpenAI model can be profiled without rewriting the
+# Claude roster. Each entry carries its own roster and hash, validated the same way.
+META_OPTIONAL_KEYS = {"platforms"}
+PLATFORM_ENTRY_KEYS = {"platform", "roster_source", "roster", "roster_hash", "last_verified"}
 MODEL_KEYS = {"platform", "last_verified", "claims"}
 CLAIM_REQUIRED_KEYS = {"claim", "source_url", "confidence", "scope"}
 CLAIM_OPTIONAL_KEYS = {"note"}
@@ -104,11 +109,13 @@ def _validate_meta(meta: object) -> list[str]:
     if not isinstance(meta, dict):
         return [f"meta must be an object, got {type(meta).__name__}"]
 
-    unknown = set(meta) - META_KEYS
+    unknown = set(meta) - META_KEYS - META_OPTIONAL_KEYS
     if unknown:
         errors.append(f"meta has unknown key(s): {', '.join(sorted(unknown))}")
     for key in sorted(META_KEYS - set(meta)):
         errors.append(f"meta is missing required key '{key}'")
+    if "platforms" in meta:
+        errors.extend(_validate_platforms(meta["platforms"]))
 
     last_verified = meta.get("last_verified")
     if "last_verified" in meta and (
@@ -154,6 +161,71 @@ def _validate_meta(meta: object) -> list[str]:
                     f"(recorded {recorded_hash}, expected {expected}); re-stamp it after "
                     f"editing the roster"
                 )
+    return errors
+
+
+def _validate_roster_block(where: str, block: dict) -> list[str]:
+    """Roster rules shared by the legacy meta block and each per-platform entry."""
+    errors: list[str] = []
+    roster = block.get("roster")
+    roster_ok = False
+    if "roster" in block:
+        if not isinstance(roster, list) or not roster:
+            errors.append(f"{where}.roster must be a non-empty array of model ids")
+        elif not all(isinstance(entry, str) and entry.strip() for entry in roster):
+            errors.append(f"{where}.roster entries must all be non-empty strings")
+        else:
+            roster_ok = True
+            if roster != sorted(roster):
+                errors.append(f"{where}.roster must be sorted ascending")
+            if len(set(roster)) != len(roster):
+                errors.append(f"{where}.roster must not contain duplicate model ids")
+    recorded_hash = block.get("roster_hash")
+    if "roster_hash" in block:
+        if not isinstance(recorded_hash, str) or not HASH_RE.match(recorded_hash):
+            errors.append(f"{where}.roster_hash must be 64 lowercase hex characters, got {recorded_hash!r}")
+        elif roster_ok:
+            expected = roster_hash(roster)  # type: ignore[arg-type]
+            if recorded_hash != expected:
+                errors.append(
+                    f"{where}.roster_hash does not match {where}.roster "
+                    f"(recorded {recorded_hash}, expected {expected}); re-stamp it after editing the roster"
+                )
+    return errors
+
+
+def _validate_platforms(platforms: object) -> list[str]:
+    """Validate the optional schema-1.1.0 `meta.platforms` array."""
+    if not isinstance(platforms, list) or not platforms:
+        return ["meta.platforms must be a non-empty array when present"]
+    errors: list[str] = []
+    seen: set[str] = set()
+    for position, entry in enumerate(platforms):
+        where = f"meta.platforms[{position}]"
+        if not isinstance(entry, dict):
+            errors.append(f"{where} must be an object, got {type(entry).__name__}")
+            continue
+        unknown = set(entry) - PLATFORM_ENTRY_KEYS
+        if unknown:
+            errors.append(f"{where} has unknown key(s): {', '.join(sorted(unknown))}")
+        for key in sorted(PLATFORM_ENTRY_KEYS - set(entry)):
+            errors.append(f"{where} is missing required key '{key}'")
+        platform = entry.get("platform")
+        if "platform" in entry:
+            if not isinstance(platform, str) or not platform.strip():
+                errors.append(f"{where}.platform must be a non-empty string, got {platform!r}")
+            elif platform in seen:
+                errors.append(f"{where}.platform {platform!r} appears more than once")
+            else:
+                seen.add(platform)
+        if "roster_source" in entry and entry.get("roster_source") not in ALLOWED_ROSTER_SOURCES:
+            errors.append(
+                f"{where}.roster_source must be one of {sorted(ALLOWED_ROSTER_SOURCES)}, got {entry.get('roster_source')!r}"
+            )
+        last_verified = entry.get("last_verified")
+        if "last_verified" in entry and (not isinstance(last_verified, str) or not DATE_RE.match(last_verified)):
+            errors.append(f"{where}.last_verified must be a YYYY-MM-DD string, got {last_verified!r}")
+        errors.extend(_validate_roster_block(where, entry))
     return errors
 
 

@@ -5,14 +5,14 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | Skill | Category | Summary | File |
 |-------|----------|---------|------|
 | analysis-logic | developer-experience | "Apply structured analytical reasoning with decision matrices and data presentation" | catalog/skills/developer-experience/analysis-logic/SKILL.md |
-| analyze-codebase | developer-experience | "Describe any project's structure, deps, architecture, and health with a /setup handoff offer" | catalog/skills/developer-experience/analyze-codebase/SKILL.md |
+| analyze-codebase | developer-experience | "Describe project architecture and report canonical release-docs health" | catalog/skills/developer-experience/analyze-codebase/SKILL.md |
 | creative-generation | developer-experience | "Generate image prompts, slide decks, and creative ideation with structured direction" | catalog/skills/developer-experience/creative-generation/SKILL.md |
 | writing-editing | developer-experience | "Write and edit professional documentation with clarity, structure, and concision" | catalog/skills/developer-experience/writing-editing/SKILL.md |
 | ui-component-generation | developer-experience | "Generate UI components directly with the agent's LLM, not external generation services" | catalog/skills/developer-experience/ui-component-generation/SKILL.md |
 | trend-research | research | "Research recent trends across Reddit, X, and the web with prompt generation" | catalog/skills/research/trend-research/SKILL.md |
 | local-docs-lookup | research | "Answer library and API questions from local documentation instead of a third-party service" | catalog/skills/research/local-docs-lookup/SKILL.md |
 | youtube-transcript | research | "Fetch a YouTube video transcript locally via yt-dlp and save clean text" | catalog/skills/research/youtube-transcript/SKILL.md |
-| cross-project-comparison | workflow | "Compare projects with external sources to produce gap analysis and adoption plans" | catalog/skills/workflow/cross-project-comparison/SKILL.md |
+| cross-project-comparison | workflow | "Compare projects and place adoption reports under their target release" | catalog/skills/workflow/cross-project-comparison/SKILL.md |
 | ai-agent-development | ai-development | "Build AI agents with tool use, memory, planning loops, and multi-agent orchestration" | catalog/skills/ai-development/ai-agent-development/SKILL.md |
 | ai-billing-safeguards | ai-development | "Enforce hard spending caps and billing safeguards for autonomous AI agent systems" | catalog/skills/ai-development/ai-billing-safeguards/SKILL.md |
 | claude-agent-sdk | ai-development | "Integrate Claude Agent SDK in TypeScript with provider routing, spending caps, and audit logging" | catalog/skills/ai-development/claude-agent-sdk/SKILL.md |
@@ -26,7 +26,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | model-prompting-research | ai-development | "Research and verify current per-model prompting guidance, then tune the catalog to it" | catalog/skills/ai-development/model-prompting-research/SKILL.md |
 | eval-pipeline-audit | ai-development | "Audit an evaluation pipeline end to end and route each gap to its owning skill" | catalog/skills/ai-development/eval-pipeline-audit/SKILL.md |
 | api-design | architecture | "Design REST, GraphQL, and gRPC APIs with versioning, pagination, and error handling" | catalog/skills/architecture/api-design/SKILL.md |
-| architecture-decision-record | architecture | "Author one architecturally-significant decision record with context, options, decision, status, and consequences" | catalog/skills/architecture/architecture-decision-record/SKILL.md |
+| architecture-decision-record | architecture | "Author append-only decisions outside release-scoped documentation" | catalog/skills/architecture/architecture-decision-record/SKILL.md |
 | architecture-design | architecture | "Design software architectures with trade-off analysis, ADRs, and C4 decomposition" | catalog/skills/architecture/architecture-design/SKILL.md |
 | component-boundary-identifier | architecture | "Identify module boundaries for service extraction using coupling and cohesion analysis" | catalog/skills/architecture/component-boundary-identifier/SKILL.md |
 | ddd-strategic-design | architecture | "Model complex domains with bounded contexts, aggregates, and domain events" | catalog/skills/architecture/ddd-strategic-design/SKILL.md |
@@ -47,7 +47,8 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | go-cleanup | code-cleanup | "Clean up Go codebases with gofmt, idiomatic patterns, and improved error handling" | catalog/skills/code-cleanup/go-cleanup/SKILL.md |
 | java-cleanup | code-cleanup | "Clean up Java codebases with modern patterns, deprecated API updates, and dead code removal" | catalog/skills/code-cleanup/java-cleanup/SKILL.md |
 | javascript-cleanup | code-cleanup | "Clean up JavaScript/TypeScript with ES6+ modernization, ESLint fixes, and dead code removal" | catalog/skills/code-cleanup/javascript-cleanup/SKILL.md |
-| project-refactor | code-cleanup | "Refactor project artifacts and detect empty/duplicate/orphan/overcomplicated structure, archiving prior-version files with reference repair" | catalog/skills/code-cleanup/project-refactor/SKILL.md |
+| minimal-construction | code-cleanup | "Stop at the first sufficient pre-write rung instead of adding machinery" | catalog/skills/code-cleanup/minimal-construction/SKILL.md |
+| project-refactor | code-cleanup | "Refactor project artifacts with detection, archive placement, and reference repair" | catalog/skills/code-cleanup/project-refactor/SKILL.md |
 | docs-layout-refactor | code-cleanup | "Audit, categorize, and reorganize docs/ folders with a propose-then-apply workflow and a versioned archive subtree" | catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md |
 | python-cleanup | code-cleanup | "Clean up Python codebases with PEP 8 fixes, type hints, and dead code removal" | catalog/skills/code-cleanup/python-cleanup/SKILL.md |
 | behavior-preservation-checker | code-review | "Verify refactoring preserves behavior with before/after and contract analysis" | catalog/skills/code-review/behavior-preservation-checker/SKILL.md |
@@ -57,6 +58,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | final-report | code-review | "Consolidate review findings into structured reports with executive summary and action plan" | catalog/skills/code-review/final-report/SKILL.md |
 | intent-based-review | code-review | "Review AI-generated code by verifying acceptance criteria instead of line-by-line inspection" | catalog/skills/code-review/intent-based-review/SKILL.md |
 | multi-agent-code-review | code-review | "Review a diff with parallel reviewer personas and a confidence-gated findings pipeline" | catalog/skills/code-review/multi-agent-code-review/SKILL.md |
+| over-engineering-review | code-review | "Emit a tagged over-engineering delete-list without applying fixes" | catalog/skills/code-review/over-engineering-review/SKILL.md |
 | performance-review | code-review | "Detect performance bottlenecks, resource issues, and caching optimization opportunities" | catalog/skills/code-review/performance-review/SKILL.md |
 | plan-review | code-review | "Review a plan or requirements doc with parallel persona lenses before coding" | catalog/skills/code-review/plan-review/SKILL.md |
 | security-review | code-review | "Identify security vulnerabilities across OWASP Top 10 and supply chain domains" | catalog/skills/code-review/security-review/SKILL.md |
@@ -130,6 +132,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | python-expert | language-specialists | "Write production Python with async patterns, type hints, and packaging best practices" | catalog/skills/language-specialists/python-expert/SKILL.md |
 | rust-expert | language-specialists | "Write Rust with ownership, borrowing, traits, async/await, and lifetime management" | catalog/skills/language-specialists/rust-expert/SKILL.md |
 | sql-expert | language-specialists | "Write optimized SQL queries with execution plan analysis and schema design" | catalog/skills/language-specialists/sql-expert/SKILL.md |
+| typed-boundary-hygiene | language-specialists | "Replace low-evidence TypeScript contracts with named, checked types" | catalog/skills/language-specialists/typed-boundary-hygiene/SKILL.md |
 | typescript-expert | language-specialists | "Write type-safe TypeScript with generics, discriminated unions, and strict configuration" | catalog/skills/language-specialists/typescript-expert/SKILL.md |
 | adversarial-verifier | orchestration | "Stress-test implementations with adversarial inputs, edge cases, and attack vectors" | catalog/skills/orchestration/adversarial-verifier/SKILL.md |
 | agent-access-policy | orchestration | "Configure least-privilege file access controls for AI coding agents" | catalog/skills/orchestration/agent-access-policy/SKILL.md |
@@ -149,7 +152,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | init-java-project | project-setup | "Initialize Java projects with Maven/Gradle, Spring Boot, and testing frameworks" | catalog/skills/project-setup/init-java-project/SKILL.md |
 | init-javascript-project | project-setup | "Initialize JavaScript/TypeScript projects with package.json, bundler, and testing" | catalog/skills/project-setup/init-javascript-project/SKILL.md |
 | init-python-project | project-setup | "Initialize Python projects with pyproject.toml, pytest, and standard structure" | catalog/skills/project-setup/init-python-project/SKILL.md |
-| setup-project | project-setup | "Detect and bootstrap a project's git, version, branch model, docs tree, and README/CHANGELOG/DEVLOG" | catalog/skills/project-setup/setup-project/SKILL.md |
+| setup-project | project-setup | "Bootstrap git, versioning, branches, release docs, and core project documentation" | catalog/skills/project-setup/setup-project/SKILL.md |
 | authentication-patterns | security | "Implement authentication with OAuth 2.0, JWT, session management, MFA, and passkeys" | catalog/skills/security/authentication-patterns/SKILL.md |
 | cve-reachability-analyzer | security | "Trace call paths to determine if dependency CVEs actually affect your application" | catalog/skills/security/cve-reachability-analyzer/SKILL.md |
 | dependency-security-audit | security | "Audit dependencies for CVEs, license issues, and outdated packages with SBOM" | catalog/skills/security/dependency-security-audit/SKILL.md |
@@ -189,52 +192,52 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | test-structure | tests-generation | "Set up testing infrastructure with framework selection, structure, and configuration" | catalog/skills/tests-generation/test-structure/SKILL.md |
 | test-suite-prioritizer | tests-generation | "Prioritize test suites for faster CI feedback with failure history and risk analysis" | catalog/skills/tests-generation/test-suite-prioritizer/SKILL.md |
 | unit-tests | tests-generation | "Generate unit tests following FIRST principles and AAA pattern across languages" | catalog/skills/tests-generation/unit-tests/SKILL.md |
-| code-commit-workflow | workflow | "Implement Git commit workflows with conventional commits and atomic changes" | catalog/skills/workflow/code-commit-workflow/SKILL.md |
+| code-commit-workflow | workflow | "Create atomic conventional commits with canonical documentation paths" | catalog/skills/workflow/code-commit-workflow/SKILL.md |
 | git-branching-workflow | workflow | "Follow a project's declared branching model for branches, merges, and releases" | catalog/skills/workflow/git-branching-workflow/SKILL.md |
 | conflict-analyzer | workflow | "Analyze and resolve merge conflicts with three-way analysis and resolution strategies" | catalog/skills/workflow/conflict-analyzer/SKILL.md |
 | create-custom-command | workflow | "Create custom slash commands for Claude Code to automate repetitive workflows" | catalog/skills/workflow/create-custom-command/SKILL.md |
 | debug-with-logs | workflow | "Add strategic logging and use log analysis to debug production issues" | catalog/skills/workflow/debug-with-logs/SKILL.md |
-| devlog-generation | workflow | "Maintain DEVLOG.md as a bounded one-line-per-release index, not a narrative log" | catalog/skills/workflow/devlog-generation/SKILL.md |
-| documentation-consistency | workflow | "Verify documentation consistency with link checking, staleness detection, and sync audits" | catalog/skills/workflow/documentation-consistency/SKILL.md |
+| devlog-generation | workflow | "Maintain a release index without writing evidence into living subtrees" | catalog/skills/workflow/devlog-generation/SKILL.md |
+| documentation-consistency | workflow | "Verify documentation links, lifespan placement, staleness, and cross-file consistency" | catalog/skills/workflow/documentation-consistency/SKILL.md |
 | filesystem-context-patterns | workflow | "Use the filesystem for context management, scratch pads, and inter-agent communication" | catalog/skills/workflow/filesystem-context-patterns/SKILL.md |
 | git-bisect-assistant | workflow | "Find regression-introducing commits with git bisect and automated test scripts" | catalog/skills/workflow/git-bisect-assistant/SKILL.md |
-| implementation-plan | workflow | "Generate a phased plan through guided discovery, saved to docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md" | catalog/skills/workflow/implementation-plan/SKILL.md |
-| implement-phase | workflow | "Implement one plan phase end-to-end with tests, gates, post-phase docs, commit, and final-phase release-readiness" | catalog/skills/workflow/implement-phase/SKILL.md |
+| implementation-plan | workflow | "Generate phased plans in the canonical release documentation tree" | catalog/skills/workflow/implementation-plan/SKILL.md |
+| implement-phase | workflow | "Implement one release-plan phase with tests, evidence, documentation, and commit gates" | catalog/skills/workflow/implement-phase/SKILL.md |
 | incremental-implementation | workflow | "Implement features one tested step at a time to prevent scope creep and undebuggable diffs" | catalog/skills/workflow/incremental-implementation/SKILL.md |
 | plan-before-code | workflow | "Plan before coding with exploration, task assessment, and implementation design" | catalog/skills/workflow/plan-before-code/SKILL.md |
 | pr-description-writer | workflow | "Author reviewer-friendly PR descriptions with summary, how-to-test, risk, and reviewer notes" | catalog/skills/workflow/pr-description-writer/SKILL.md |
 | research-plan-implement | workflow | "Execute Research-Plan-Implement workflows with GO/NO-GO gates and artifact tracking" | catalog/skills/workflow/research-plan-implement/SKILL.md |
-| session-history | workflow | "Generate standalone session history documents capturing steps, troubleshooting, and next steps" | catalog/skills/workflow/session-history/SKILL.md |
+| session-history | workflow | "Write standalone session histories only in release-scoped evidence trees" | catalog/skills/workflow/session-history/SKILL.md |
 | shipping-and-launch | workflow | "Execute safe production deployments with pre-flight checks, go/no-go decisions, and post-launch verification" | catalog/skills/workflow/shipping-and-launch/SKILL.md |
 | using-nexus-hub | workflow | "Orient an AI session to Nexus-Hub's skill catalog, commands, and hooks in under 2 minutes" | catalog/skills/workflow/using-nexus-hub/SKILL.md |
 | test-driven-development | workflow | "Implement TDD workflow with red-green-refactor cycle and test-first development" | catalog/skills/workflow/test-driven-development/SKILL.md |
 | version-upgrade | workflow | "Automate version upgrades with changelog generation and cross-file version bumps" | catalog/skills/workflow/version-upgrade/SKILL.md |
 | dev-progress-tracker | workflow | "Maintain docs/todos.md as a living project progress tracker across sessions" | catalog/skills/workflow/dev-progress-tracker/SKILL.md |
 | idea-refine | developer-experience | "Refine vague ideas into concrete problem statements with clear success criteria" | catalog/skills/developer-experience/idea-refine/SKILL.md |
-| spec-driven-development | developer-experience | "Write a structured specification before coding to prevent rework from misunderstood requirements" | catalog/skills/developer-experience/spec-driven-development/SKILL.md |
+| spec-driven-development | developer-experience | "Write specifications before code and place release-bound artifacts canonically" | catalog/skills/developer-experience/spec-driven-development/SKILL.md |
 | frontend-ui-engineering | developer-experience | "Build accessible, responsive frontend UIs with clean component architecture and maintainable state" | catalog/skills/developer-experience/frontend-ui-engineering/SKILL.md |
 | context-engineering | ai-development | "Shape AI session context deliberately to maximize task effectiveness, not just reduce token count" | catalog/skills/ai-development/context-engineering/SKILL.md |
 | browser-testing-with-devtools | testing | "Test and debug frontend behavior using browser DevTools for network, console, performance, and accessibility" | catalog/skills/testing/browser-testing-with-devtools/SKILL.md |
 | code-simplification | code-cleanup | "Reduce structural complexity by eliminating over-abstraction and dead code without changing behavior" | catalog/skills/code-cleanup/code-simplification/SKILL.md |
 | platform-contract-verification | workflow | "Re-verify each AI platform's discovery format and default lever before release; fix installer drift" | catalog/skills/workflow/platform-contract-verification/SKILL.md |
-| known-gaps-tracker | workflow | "Track per-version unfinished work, deferred items, bugs, and coverage gaps for the next plan" | catalog/skills/workflow/known-gaps-tracker/SKILL.md |
+| known-gaps-tracker | workflow | "Track release-scoped unfinished work with derived counts for the next plan" | catalog/skills/workflow/known-gaps-tracker/SKILL.md |
 | loop-engineering | workflow | "Assemble goal-terminated agentic loops from Nexus-Hub primitives" | catalog/skills/workflow/loop-engineering/SKILL.md |
 | doc-coauthoring | workflow | "Guide users through a 3-stage workflow for co-authoring documentation" | catalog/skills/workflow/doc-coauthoring/SKILL.md |
 | generative-art | specialized-domains | "Produce p5.js generative art with a philosophy manifesto, parameter-driven sketch, and HTML viewer" | catalog/skills/specialized-domains/generative-art/SKILL.md |
 | theme-tokens | specialized-domains | "Apply curated theme tokens (palette, fonts, spacing) to slides, docs, PDFs, and web artifacts" | catalog/skills/specialized-domains/theme-tokens/SKILL.md |
 | internal-comms | business-product | "Draft internal comms using six structured templates (3P, status, leadership, FAQ, incident, project)" | catalog/skills/business-product/internal-comms/SKILL.md |
 | web-artifacts-builder | developer-experience | "Scaffold Vite + React + TypeScript + Tailwind v4 + shadcn/ui multi-component web artifacts" | catalog/skills/developer-experience/web-artifacts-builder/SKILL.md |
-| skill-eval-loop | workflow | "Iterate on any skill via paired with-skill/baseline runs, assertion-graded outputs, and a browser-reviewed benchmark loop" | catalog/skills/workflow/skill-eval-loop/SKILL.md |
+| skill-eval-loop | workflow | "Iterate on skills and place promoted evaluation records canonically" | catalog/skills/workflow/skill-eval-loop/SKILL.md |
 | brand-styling | specialized-domains | "Apply user-supplied brand tokens (palette, fonts, logo) to generated artifacts via a per-brand token JSON" | catalog/skills/specialized-domains/brand-styling/SKILL.md |
 | mcp-builder | ai-development | "Build local MCP servers (FastMCP Python or MCP SDK Node/TS) with cross-platform scaffolding scripts" | catalog/skills/ai-development/mcp-builder/SKILL.md |
 | project-constitution | workflow | "Author and maintain a versioned constitution declaring MUST / SHOULD principles for every artifact" | catalog/skills/workflow/project-constitution/SKILL.md |
-| org-standards-authoring | workflow | "Guide organizations from existing standards to a validated, distributable knowledge bundle" | catalog/skills/workflow/org-standards-authoring/SKILL.md |
+| org-standards-authoring | workflow | "Build distributable organization standards with canonical release records" | catalog/skills/workflow/org-standards-authoring/SKILL.md |
 | cross-artifact-analyzer | code-review | "Read-only cross-artifact analyzer for feature directories; emits severity-tagged findings, coverage matrix, and constitution-alignment verdicts" | catalog/skills/code-review/cross-artifact-analyzer/SKILL.md |
 | implementation-convergence | code-review | "Assess code against a plan post-implementation, classify gaps, and append remaining work as new tasks" | catalog/skills/code-review/implementation-convergence/SKILL.md |
-| tasks-to-issues | workflow | "Convert strict-format tasks.md / plan.md task lines into linked GitHub issues via gh CLI" | catalog/skills/workflow/tasks-to-issues/SKILL.md |
+| tasks-to-issues | workflow | "Convert canonical release-plan tasks into linked GitHub issues" | catalog/skills/workflow/tasks-to-issues/SKILL.md |
 | context-modes | workflow | "Switch the agent's working posture (dev, review, research) with explicit entry, exit, and reset rules" | catalog/skills/workflow/context-modes/SKILL.md |
 | security-framework-mapping | security | "Map security artifacts across ATT&CK, ATLAS, D3FEND, F3, CSF, and AI RMF" | catalog/skills/security/security-framework-mapping/SKILL.md |
-| continuous-learning | workflow | "Capture observations, mint local YAML instincts, evolve clusters into draft skills - zero outbound" | catalog/skills/workflow/continuous-learning/SKILL.md |
+| continuous-learning | workflow | "Capture local instincts with canonical release and archive provenance" | catalog/skills/workflow/continuous-learning/SKILL.md |
 | skill-stocktake | workflow | "Holistic skill-quality audit with a cached results file and quick-diff re-scoring over changed skills" | catalog/skills/workflow/skill-stocktake/SKILL.md |
 | skill-create | workflow | "Draft a conformant SKILL.md by mining local git history for a recurring, automatable pattern" | catalog/skills/workflow/skill-create/SKILL.md |
 | memory-forensics | security-operations | "Triage a RAM image for injected code, hidden processes, and credential artifacts" | catalog/skills/security-operations/memory-forensics/SKILL.md |
@@ -274,7 +277,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | session-teach-back | workflow | "Socratic teach-back loop that quizzes the human on a session until every concept is confirmed" | catalog/skills/workflow/session-teach-back/SKILL.md |
 | context-pack-builder | workflow | "Distill prior-session digests and solutions into a reusable, deduped, topic-organized context pack" | catalog/skills/workflow/context-pack-builder/SKILL.md |
 | direct-corpus-interaction | developer-experience | "Search code with a hypothesis-refine-anchor-verify discipline over hybrid retrieval plus direct corpus tools" | catalog/skills/developer-experience/direct-corpus-interaction/SKILL.md |
-| agent-presets | workflow | "Ready-made agent presets that compose existing skills and slash commands into one-invocation bundles" | catalog/skills/workflow/agent-presets/SKILL.md |
+| agent-presets | workflow | "Ready-made agent presets that compose existing skills into one-invocation bundles" | catalog/skills/workflow/agent-presets/SKILL.md |
 | document-to-interactive-html | specialized-domains | "Turn documents, code, data, or repositories into a unique interactive self-contained website with verified visuals" | catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md |
 | egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
@@ -330,4 +333,5 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | design-interview | developer-experience | "Interview in dependency-ordered rounds until the design tree is resolved" | catalog/skills/developer-experience/design-interview/SKILL.md |
 | setup-wizard-generator | developer-experience | "Generate a resumable human-only setup wizard with bash and PowerShell templates" | catalog/skills/developer-experience/setup-wizard-generator/SKILL.md |
 | decision-questionnaire | business-product | "Write an async Markdown questionnaire for the one stakeholder who can unblock" | catalog/skills/business-product/decision-questionnaire/SKILL.md |
-**Total: 325 skills across 23 categories**
+| functional-verification | testing | "Exercise built artifacts through real boundaries and record observable behavioral evidence" | catalog/skills/testing/functional-verification/SKILL.md |
+**Total: 329 skills across 23 categories**

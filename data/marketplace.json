@@ -1,8 +1,8 @@
 {
   "plugin": {
     "name": "nexus-hub",
-    "version": "3.21.0",
-    "description": "Enterprise-grade skill library for AI coding assistants with 325 curated skills, 18 commands, 33 hooks, and cross-platform support",
+    "version": "4.7.0",
+    "description": "Enterprise-grade skill library for AI coding assistants with 329 curated skills, 18 commands, 33 hooks, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
     "repository": "https://github.com/bendourthe/Nexus-Hub",
@@ -90,13 +90,13 @@
       "id": "code-cleanup",
       "name": "Code Cleanup",
       "description": "Code, layout, and docs cleanup: per-language modernization plus repo and docs structural refactoring",
-      "skill_count": 10
+      "skill_count": 11
     },
     {
       "id": "code-review",
       "name": "Code Review",
       "description": "Comprehensive code review with security, performance, and testing focus",
-      "skill_count": 15
+      "skill_count": 16
     },
     {
       "id": "compliance",
@@ -132,7 +132,7 @@
       "id": "language-specialists",
       "name": "Language Specialists",
       "description": "Expert patterns for C++, C#, Go, Java, JavaScript, PowerShell, Python, Rust, SQL, TypeScript",
-      "skill_count": 10
+      "skill_count": 11
     },
     {
       "id": "orchestration",
@@ -168,7 +168,7 @@
       "id": "testing",
       "name": "Testing",
       "description": "Domain contract validation, E2E test automation",
-      "skill_count": 3
+      "skill_count": 4
     },
     {
       "id": "tests-generation",

@@ -244,6 +244,22 @@ Two rules from those references are load-bearing enough to state here:
 
 When an evaluation produces a headline score (an LLM-as-judge rate, a rubric average, a pass/fail proportion), back it with a reproducible receipt rather than reporting the bare number. Attach three things: a committed artifact from which the score recomputes (the per-item results file the dimensional scores roll up from), a single documented recompute step so a reader can verify the headline without rerunning the judge, and a confidence interval - or, when the sample is too small for a meaningful interval, an explicit "preliminary / small-sample" label instead of a bare percentage. A score with no committed source and no interval is an opinion wearing a number. This is the same discipline `[[skill-eval-loop]]` applies to skill benchmarks; see it for the fuller treatment (committed `benchmark.json`, a single aggregate step, and a Wilson interval per rate).
 
+### Step 6: Report Reliability as pass@k and pass^k
+
+A single pass or fail is one sample of a distribution. Agent reliability is a measured metric across repeated independent trials, and this skill owns the two definitions every other skill references:
+
+- **pass@k**: the eval passes in at least one of k independent trials. Use it for capability ("can the agent do this at all").
+- **pass^k**: the eval passes in all k independent trials. Use it for safety-critical behavior, where one failure in k is the finding.
+
+Rules that make the numbers honest:
+
+1. Record every individual trial result (pass, fail, errored, incomplete), not only the aggregate; the aggregate must recompute from the recorded trials.
+2. An errored or incomplete trial is recorded as such and counts as a non-pass in both metrics. It is never dropped, because dropping it inflates the figure.
+3. A retried trial is not an independent trial. Record the retry as a new trial alongside the one it repeats; it does not replace it.
+4. Report k and the individual results next to the figure, and attach the receipt-and-interval discipline from the eval loop (a committed artifact, one recompute step, an interval or an honest small-N label).
+
+**Rule ownership**: `ai-output-evaluation` owns these definitions and the counting rules. `skill-eval-loop` runs the trials and reports with them; `quality-gate-definitions` consumes them in its gates. Neither restates the definitions.
+
 ## Best Practices
 
 - **Define rubrics before generating output**: Knowing evaluation criteria shapes better prompts
@@ -301,6 +317,7 @@ When an evaluation produces a headline score (an LLM-as-judge rate, a rubric ave
 
 ## Verification
 
+- [ ] Any reliability figure is reported as `pass@k` or `pass^k` with k stated, every individual trial recorded (errored and incomplete trials included as non-passes), and no retry counted as an independent trial.
 - [ ] A weighted rubric exists with explicit dimensions and a documented pass threshold
 - [ ] Every LLM-as-judge score is accompanied by at least one evidence quote from the output
 - [ ] Pairwise comparisons were run in both orderings and any >0.2 score divergence was flagged

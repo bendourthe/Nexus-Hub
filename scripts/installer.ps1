@@ -30,7 +30,7 @@ param(
     # configs/permissions/claude-permissions-strict.json.
     [switch]$StrictPermissions,
     # v3.16.1 -- install-selection selectors. Contract:
-    # docs/v3/v3.16/development/install-selection-contract.md
+    # docs/releases/v3/v3.16/development/install-selection-contract.md
     # Absent (the default) installs the full catalog, exactly as before.
     # Bound as -Profile for lockstep with the Bash --profile flag, but stored in
     # $InstallProfile: $Profile is a PowerShell AUTOMATIC variable (the path to
@@ -144,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.21.0"
+$script:NexusHubVersion = "4.7.0"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -743,6 +743,90 @@ function Install-ClaudeHookFiles {
     }
 }
 
+function Get-ManagedHookStem {
+    param([object]$Hook)
+
+    if ($null -eq $Hook) { return "" }
+    $commandProperty = $Hook.PSObject.Properties["command"]
+    if (-not $commandProperty -or -not $commandProperty.Value) { return "" }
+    $matches = [regex]::Matches(
+        [string]$commandProperty.Value,
+        '(?<stem>[A-Za-z0-9_-]+)\.(?:sh|ps1|py)'
+    )
+    if ($matches.Count -gt 0) {
+        return $matches[$matches.Count - 1].Groups["stem"].Value
+    }
+    return [string]$commandProperty.Value
+}
+
+function Merge-ManagedClaudeHooks {
+    param(
+        [Parameter(Mandatory = $true)][object]$ExistingJson,
+        [Parameter(Mandatory = $true)][object]$TemplateJson
+    )
+
+    $hooksProperty = $ExistingJson.PSObject.Properties["hooks"]
+    if (-not $hooksProperty) {
+        $ExistingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([pscustomobject]@{})
+    }
+    elseif ($null -eq $hooksProperty.Value -or -not ($hooksProperty.Value -is [pscustomobject])) {
+        $hooksProperty.Value = [pscustomobject]@{}
+    }
+
+    foreach ($eventProperty in $TemplateJson.hooks.PSObject.Properties) {
+        $eventName = $eventProperty.Name
+        $existingEventProperty = $ExistingJson.hooks.PSObject.Properties[$eventName]
+        if (-not $existingEventProperty) {
+            $ExistingJson.hooks | Add-Member -NotePropertyName $eventName -NotePropertyValue @($eventProperty.Value)
+            continue
+        }
+
+        $existingEntries = @($existingEventProperty.Value)
+        foreach ($templateEntry in @($eventProperty.Value)) {
+            $templateMatcherProperty = $templateEntry.PSObject.Properties["matcher"]
+            $templateMatcher = if ($templateMatcherProperty) { [string]$templateMatcherProperty.Value } else { "" }
+            foreach ($templateHook in @($templateEntry.hooks)) {
+                $templateTypeProperty = $templateHook.PSObject.Properties["type"]
+                $templateType = if ($templateTypeProperty) { [string]$templateTypeProperty.Value } else { "" }
+                $templateStem = Get-ManagedHookStem -Hook $templateHook
+                $alreadyInstalled = $false
+
+                foreach ($existingEntry in $existingEntries) {
+                    $existingMatcherProperty = $existingEntry.PSObject.Properties["matcher"]
+                    $existingMatcher = if ($existingMatcherProperty) { [string]$existingMatcherProperty.Value } else { "" }
+                    if ($existingMatcher -ne $templateMatcher) { continue }
+                    foreach ($existingHook in @($existingEntry.hooks)) {
+                        $existingTypeProperty = $existingHook.PSObject.Properties["type"]
+                        $existingType = if ($existingTypeProperty) { [string]$existingTypeProperty.Value } else { "" }
+                        if (
+                            $existingType -eq $templateType -and
+                            (Get-ManagedHookStem -Hook $existingHook) -eq $templateStem
+                        ) {
+                            $alreadyInstalled = $true
+                            break
+                        }
+                    }
+                    if ($alreadyInstalled) { break }
+                }
+
+                if (-not $alreadyInstalled) {
+                    $newEntry = [ordered]@{}
+                    foreach ($property in $templateEntry.PSObject.Properties) {
+                        if ($property.Name -ne "hooks") {
+                            $newEntry[$property.Name] = $property.Value
+                        }
+                    }
+                    $newEntry["hooks"] = @($templateHook)
+                    $existingEntries += [pscustomobject]$newEntry
+                }
+            }
+        }
+        $existingEventProperty.Value = $existingEntries
+    }
+
+    return $ExistingJson
+}
+
 function Install-GitGuardrails {
     param(
         [string]$RepoRoot,
@@ -788,45 +872,10 @@ function Install-GitGuardrails {
     if (Test-Path $settingsFile) {
         try {
             $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
-
-            # Check if hooks.PreToolUse already has our guardrail
-            $alreadyInstalled = $false
-            if ($existingJson.hooks -and $existingJson.hooks.PreToolUse) {
-                foreach ($hookEntry in $existingJson.hooks.PreToolUse) {
-                    foreach ($h in $hookEntry.hooks) {
-                        if ($h.command -and $h.command -like "*git-guardrails*") {
-                            $alreadyInstalled = $true
-                            break
-                        }
-                    }
-                }
-            }
-
-            if ($alreadyInstalled) {
-                Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
-                Write-Item -Message "✓ Git guardrails hook already configured in settings.json" -Color "DarkGreen"
-            }
-            else {
-                # Add hooks key if missing
-                if (-not $existingJson.hooks) {
-                    $existingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue $templateJson.hooks
-                }
-                else {
-                    if (-not $existingJson.hooks.PreToolUse) {
-                        $existingJson.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue $templateJson.hooks.PreToolUse
-                    }
-                    else {
-                        # Append our hook entry to existing PreToolUse array
-                        $existingArray = @($existingJson.hooks.PreToolUse)
-                        $existingArray += $templateJson.hooks.PreToolUse
-                        $existingJson.hooks.PreToolUse = $existingArray
-                    }
-                }
-
-                Write-JsonFile -Path $settingsFile -Object $existingJson
-                Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
-                Write-Item -Message "✓ $Scope settings.json updated with git guardrails hook" -Color "DarkGreen"
-            }
+            $existingJson = Merge-ManagedClaudeHooks -ExistingJson $existingJson -TemplateJson $templateJson
+            Write-JsonFile -Path $settingsFile -Object $existingJson
+            Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
+            Write-Item -Message "✓ $Scope settings.json reconciled with managed hooks" -Color "DarkGreen"
         }
         catch {
             Write-Item -Message "Warning: Could not merge into existing settings.json ($($_.Exception.Message))" -Color "Yellow"
@@ -1065,47 +1114,55 @@ function Install-CoreSettings {
         $coreKeys = @("effortLevel", "model")
         $applied = @()
 
+        # Treat the scalar and higher-precedence env lever as one user-owned
+        # pair. If either exists, preserve the pair exactly; only a config with
+        # neither effort key and an absent or object-shaped env receives both
+        # defaults.
+        $hasScalarEffort = [bool]$existingJson.PSObject.Properties["effortLevel"]
+        $hasEnvEffort = (
+            $existingJson.PSObject.Properties["env"] -and
+            $existingJson.env -is [System.Management.Automation.PSCustomObject] -and
+            $existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]
+        )
+        $hasAnyEffort = $hasScalarEffort -or $hasEnvEffort
+
         foreach ($key in $coreKeys) {
             if (-not $templateJson.PSObject.Properties[$key]) { continue }
+            if ($key -eq "effortLevel" -and $hasAnyEffort) { continue }
             $templateValue = $templateJson.$key
-            if ($existingJson.PSObject.Properties[$key] -and $existingJson.$key -eq $templateValue) {
+            if ($existingJson.PSObject.Properties[$key]) {
                 continue
             }
-            if ($existingJson.PSObject.Properties[$key]) {
-                $existingJson.$key = $templateValue
-            } else {
-                $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $templateValue
-            }
+            $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $templateValue
             $applied += "${key}: ${templateValue}"
         }
 
-        # Deep-merge the env effort override, preserving any sibling env vars.
-        if ($templateJson.PSObject.Properties["env"] -and $templateJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
+        # Seed the env effort override with the scalar only when the entire
+        # effort pair is absent. Any existing pair shape remains user-owned.
+        if (-not $hasAnyEffort -and $templateJson.PSObject.Properties["env"] -and $templateJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
             $envEffort = $templateJson.env.CLAUDE_CODE_EFFORT_LEVEL
             if (-not $existingJson.PSObject.Properties["env"]) {
                 $existingJson | Add-Member -NotePropertyName "env" -NotePropertyValue ([PSCustomObject]@{})
             }
-            if ($existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
-                if ($existingJson.env.CLAUDE_CODE_EFFORT_LEVEL -ne $envEffort) {
-                    $existingJson.env.CLAUDE_CODE_EFFORT_LEVEL = $envEffort
-                    $applied += "env.CLAUDE_CODE_EFFORT_LEVEL: $envEffort"
-                }
-            } else {
+            if ($existingJson.env -is [System.Management.Automation.PSCustomObject] -and -not $existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
                 $existingJson.env | Add-Member -NotePropertyName "CLAUDE_CODE_EFFORT_LEVEL" -NotePropertyValue $envEffort
                 $applied += "env.CLAUDE_CODE_EFFORT_LEVEL: $envEffort"
+            }
+            elseif ($existingJson.env -isnot [System.Management.Automation.PSCustomObject]) {
+                Write-Warning "existing env is not an object; preserving it and skipping env.CLAUDE_CODE_EFFORT_LEVEL"
             }
         }
 
         if ($applied.Count -eq 0) {
-            Write-Item -Message "✓ Core settings (effortLevel, model, env effort) already current in settings.json" -Color "DarkGreen"
+            Write-Item -Message "✓ Core settings already present; existing values preserved in settings.json" -Color "DarkGreen"
             return
         }
         Write-JsonFile -Path $settingsFile -Object $existingJson
-        Write-Item -Message "✓ $Scope settings.json updated core settings ($($applied -join ', '))" -Color "DarkGreen"
+        Write-Item -Message "✓ $Scope settings.json seeded absent core settings ($($applied -join ', ')); existing values preserved" -Color "DarkGreen"
     }
     catch {
-        Write-Item -Message "Warning: Could not set core settings ($($_.Exception.Message))" -Color "Yellow"
-        Write-Item -Message "  Manually copy effortLevel/model/env from $templateFile to $settingsFile" -Color "Yellow"
+        Write-Warning "Could not set core settings ($($_.Exception.Message))"
+        Write-Warning "Manually copy effortLevel/model/env from $templateFile to $settingsFile"
     }
 }
 
@@ -1644,7 +1701,7 @@ function Install-Global {
         if (Test-Path (Join-Path $globalClaude "rules"))     { Write-ChecklistRow -Label "Rules" -State "ok" -Detail (Join-Path $globalClaude "rules") }
         if (Test-Path (Join-Path $globalClaude "settings.json")) {
             Write-ChecklistRow -Label "Hooks" -State "ok" -Detail "git-guardrails, usage, require-description, compress-output"
-            Write-ChecklistRow -Label "Core Settings" -State "ok" -Detail "effortLevel, model, env (settings.json)"
+            Write-ChecklistRow -Label "Core Settings" -State "ok" -Detail "settings.json retained; existing values preserved (see warnings above)"
         }
     }
 
@@ -2178,7 +2235,7 @@ function Resolve-PythonExecutable {
 # Install selection (v3.16.1 Phase 6.2) -- lockstep with the Bash implementation
 # in scripts/installer.sh.
 #
-# Contract: docs/v3/v3.16/development/install-selection-contract.md
+# Contract: docs/releases/v3/v3.16/development/install-selection-contract.md
 #
 # Resolution delegates to scripts/lib/installer/selection.py rather than being
 # reimplemented in PowerShell, matching the Bash decision and for the same

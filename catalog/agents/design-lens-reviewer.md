@@ -28,7 +28,7 @@ Return ONLY a JSON array of findings (fields per [`catalog/skills/code-review/co
   {
     "title": "Order and inventory share one table, coupling two lifecycles",
     "severity": "P1",
-    "file": "docs/v1.2.0/plans/orders.md",
+    "file": "docs/releases/v1/v1.2/plans/v1.2.0-orders.md",
     "line": 64,
     "confidence": 75,
     "persona": "design-lens",

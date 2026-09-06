@@ -14,6 +14,24 @@ NEXUS_START_MARKER = "<!-- NEXUS_HUB_START -->"
 NEXUS_END_MARKER = "<!-- NEXUS_HUB_END -->"
 ORG_START_MARKER = "<!-- NEXUS_HUB_ORG_START -->"
 ORG_END_MARKER = "<!-- NEXUS_HUB_ORG_END -->"
+FUNCTIONAL_VERIFICATION_ARTIFACTS = (
+    Path(".claude") / "skills" / "functional-verification" / "SKILL.md",
+    Path(".claude")
+    / "skills"
+    / "functional-verification"
+    / "scripts"
+    / "detect_visual_defects.py",
+    Path(".claude")
+    / "skills"
+    / "functional-verification"
+    / "references"
+    / "deep-pass.md",
+    Path(".claude") / "rules" / "html" / "responsive-layout.md",
+)
+
+
+def _host_hook_suffix() -> str:
+    return ".ps1" if smoke.os.name == "nt" else ".sh"
 
 
 def _seed(home: Path, workspace: Path, *, metadata: bool = False) -> None:
@@ -38,6 +56,34 @@ def _seed(home: Path, workspace: Path, *, metadata: bool = False) -> None:
     org_rule = workspace / ".claude" / "rules" / "org" / "python" / "code-style.md"
     org_rule.parent.mkdir(parents=True)
     org_rule.write_text("# Organization Python Style\n", encoding="utf-8")
+    for relative_path in FUNCTIONAL_VERIFICATION_ARTIFACTS:
+        artifact = workspace / relative_path
+        artifact.parent.mkdir(parents=True, exist_ok=True)
+        artifact.write_text("# fixture\n", encoding="utf-8")
+    hook_name = f"html-responsive-guard{_host_hook_suffix()}"
+    installed_hook = workspace / ".claude" / "hooks" / hook_name
+    installed_hook.parent.mkdir(parents=True, exist_ok=True)
+    installed_hook.write_text("# fixture\n", encoding="utf-8")
+    settings = {
+        "customUserSetting": {"preserve": True},
+        "hooks": {
+            "PreToolUse": [
+                {
+                    "matcher": matcher,
+                    "hooks": [
+                        {
+                            "type": "command",
+                            "command": f"run .claude/hooks/{hook_name}",
+                        }
+                    ],
+                }
+                for matcher in ("Write", "Edit")
+            ]
+        },
+    }
+    (workspace / ".claude" / "settings.json").write_text(
+        json.dumps(settings), encoding="utf-8"
+    )
 
 
 def test_complete_install_has_no_findings(tmp_path: Path) -> None:
@@ -54,6 +100,73 @@ def test_missing_script_is_reported(tmp_path: Path) -> None:
     (home / ".nexus-hub" / "scripts" / EXPECTED_SCRIPTS[0]).unlink()
     assert any(
         EXPECTED_SCRIPTS[0] in finding for finding in collect_findings(home, workspace)
+    )
+
+
+@pytest.mark.parametrize("relative_path", FUNCTIONAL_VERIFICATION_ARTIFACTS)
+def test_missing_functional_verification_artifact_is_reported(
+    tmp_path: Path, relative_path: Path
+) -> None:
+    home = tmp_path / "home"
+    workspace = tmp_path / "workspace"
+    _seed(home, workspace)
+    (workspace / relative_path).unlink()
+
+    assert any(str(relative_path) in finding for finding in collect_findings(home, workspace))
+
+
+def test_missing_host_hook_is_reported(tmp_path: Path) -> None:
+    home = tmp_path / "home"
+    workspace = tmp_path / "workspace"
+    _seed(home, workspace)
+    relative_path = Path(".claude") / "hooks" / f"html-responsive-guard{_host_hook_suffix()}"
+    (workspace / relative_path).unlink()
+
+    assert any(str(relative_path) in finding for finding in collect_findings(home, workspace))
+
+
+def test_duplicate_html_hook_registration_is_reported(tmp_path: Path) -> None:
+    home = tmp_path / "home"
+    workspace = tmp_path / "workspace"
+    _seed(home, workspace)
+    settings_path = workspace / ".claude" / "settings.json"
+    settings = json.loads(settings_path.read_text(encoding="utf-8"))
+    settings["hooks"]["PreToolUse"].append(settings["hooks"]["PreToolUse"][0])
+    settings_path.write_text(json.dumps(settings), encoding="utf-8")
+
+    assert any("exactly one Write registration" in finding for finding in collect_findings(home, workspace))
+
+
+def test_wrong_host_html_hook_registration_is_reported(tmp_path: Path) -> None:
+    home = tmp_path / "home"
+    workspace = tmp_path / "workspace"
+    _seed(home, workspace)
+    settings_path = workspace / ".claude" / "settings.json"
+    settings = json.loads(settings_path.read_text(encoding="utf-8"))
+    wrong_suffix = ".sh" if _host_hook_suffix() == ".ps1" else ".ps1"
+    for entry in settings["hooks"]["PreToolUse"]:
+        entry["hooks"][0]["command"] = (
+            f"run .claude/hooks/html-responsive-guard{wrong_suffix}"
+        )
+    settings_path.write_text(json.dumps(settings), encoding="utf-8")
+
+    assert any("host-correct registration" in finding for finding in collect_findings(home, workspace))
+
+
+@pytest.mark.parametrize("invalid_hooks", [None, []])
+def test_non_object_hooks_are_reported_without_crashing(
+    tmp_path: Path, invalid_hooks: object
+) -> None:
+    home = tmp_path / "home"
+    workspace = tmp_path / "workspace"
+    _seed(home, workspace)
+    settings_path = workspace / ".claude" / "settings.json"
+    settings = json.loads(settings_path.read_text(encoding="utf-8"))
+    settings["hooks"] = invalid_hooks
+    settings_path.write_text(json.dumps(settings), encoding="utf-8")
+
+    assert any(
+        "hooks to be an object" in finding for finding in collect_findings(home, workspace)
     )
 
 

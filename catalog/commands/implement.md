@@ -18,10 +18,10 @@ This is a thin dispatcher over the retained `implement-phase` skill. The full pe
 - `/implement <slug> phase-N` or `/implement <slug> "Phase Name"` - implement that specific phase.
 - `/implement <slug> next` - implement the first phase not yet marked complete.
 - A bare `vX.Y.Z` first argument selects the plan(s) under that version (legacy-compatible).
-- `/implement <slug-or-path> in-full` (alias `full`) - implement every incomplete phase in order. Commit at each successful boundary (commit-only on non-final phases; no push). Run the fail-closed last phase, which publishes and integrates, then hand off to `/update release` with that command's confirmation gates once integration is green.
+- `/implement <slug-or-path> full` (alias `in-full`) - implement every incomplete phase in order. Commit at each successful boundary (commit-only on non-final phases; no push). Run the fail-closed last phase, which publishes and integrates, then hand off to `/update release` with that command's confirmation gates once integration is green.
 - `/implement <slug-or-path> phase-by-phase` - the same loop, but after each non-final phase wait with: (1) commit and continue; (2) commit and pause; (3) other. There is no push option: a non-final phase is commit-only.
 
-Driver modes are a later positional token, never the first argument. Match whole tokens `in-full`, `full`, and `phase-by-phase` only - a slug that contains "full" as a substring is not a driver mode. An unknown later token prints usage and does not start a phase. Bare `/implement` and the one-phase forms above stay one-phase. Preserve the per-phase model-routing pre-flight; Cursor, OpenCode, and Copilot have no scriptable model switch.
+Driver modes are a later positional token, never the first argument. Match whole tokens `full`, `in-full`, and `phase-by-phase` only - a slug that contains "full" as a substring is not a driver mode. An unknown later token prints usage and does not start a phase. Bare `/implement` and the one-phase forms above stay one-phase. Preserve the per-phase model-routing pre-flight; Cursor, OpenCode, and Copilot have no scriptable model switch.
 
 Pass every resolved value (plan path, phase identifier, driver mode, remaining args) through to the `implement-phase` skill unchanged. The driver loop lives in that skill; do not inline it here.
 
@@ -71,4 +71,4 @@ For a phase that is itself a large fan-out task (the plan's prompt recommends dy
 ## Notes
 
 - This command replaces `/implement-phase` (removed in v3.2.0).
-- Keep this dispatcher thin. The end-to-end phase workflow and the `in-full` / `phase-by-phase` loop live entirely in the `implement-phase` skill. Never tag or push a release from the driver.
+- Keep this dispatcher thin. The end-to-end phase workflow and the `full` / `phase-by-phase` loop live entirely in the `implement-phase` skill. Never tag or push a release from the driver.

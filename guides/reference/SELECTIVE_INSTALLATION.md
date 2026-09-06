@@ -2,7 +2,7 @@
 
 How to install a subset of the Nexus-Hub catalog, what each selector means, and what to do when one does not behave as expected.
 
-The normative rules live in [`docs/v3/v3.16/development/install-selection-contract.md`](../../docs/v3/v3.16/development/install-selection-contract.md). This guide is the user-facing view of them.
+The normative rules live in [`docs/releases/v3/v3.16/development/install-selection-contract.md`](../../docs/releases/v3/v3.16/development/install-selection-contract.md). This guide is the user-facing view of them.
 
 ## The short version
 
@@ -117,6 +117,7 @@ Exit codes are consistent across all three install paths: **2** means your selec
 
 ## Related
 
-- [`install-selection-contract.md`](../../docs/v3/v3.16/development/install-selection-contract.md) - the normative rules
-- [`selective-install-baseline.md`](../../docs/v3/v3.16/development/selective-install-baseline.md) - which install path owns which surface
+- [`install-selection-contract.md`](../../docs/releases/v3/v3.16/development/install-selection-contract.md) - the normative rules
+- [`selective-install-baseline.md`](../../docs/releases/v3/v3.16/development/selective-install-baseline.md) - which install path owns which surface
 - [`data/bundles.json`](../../data/bundles.json) - profiles, modules, bundles, and `surface_requirements`
+- [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md) - local security-audit procedure for a `security-specialist` (or equivalent) install

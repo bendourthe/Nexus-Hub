@@ -55,6 +55,16 @@ def test_planning_contract_requires_real_os_smoke_with_shared_postconditions() -
     assert "identical postconditions" in plan
 
 
+def test_plan_and_implementation_terminal_contracts_require_the_same_deep_pass_evidence() -> None:
+    plan = _read(PLAN_FINAL_PHASE)
+    implement = _read(IMPLEMENT) + _read(RUNBOOK)
+    for label, body in (("implementation plan", plan), ("implement phase", implement)):
+        assert "[[functional-verification]]" in body, label
+        assert "references/deep-pass.md" in body, label
+        assert "<version_dir>/development/last-phase-evidence.md" in body, label
+        assert "`## Tier 3 deep pass`" in body, label
+
+
 def test_parity_checker_is_wired_into_local_and_remote_validation() -> None:
     assert "python scripts/check_installer_parity.py" in _read(MAKEFILE), "Makefile"
     assert_wired_into_ci("check_installer_parity.py")

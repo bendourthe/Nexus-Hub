@@ -9,10 +9,8 @@
 name: Presentify extractor
 
 on:
-  push:
-    branches: [main, develop]
-  # The render job below is gated to merges + this schedule; the fast verify
-  # job opts OUT of the schedule so a cron run does not double-bill it.
+  # The render job below is gated to this schedule; the fast verify job opts
+  # OUT of the schedule so a cron run does not double-bill it.
   schedule:
     - cron: '17 4 * * 1'
   pull_request:
@@ -47,24 +45,17 @@ jobs:
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PUSH_BASE_SHA: ${{ github.event.before }}
-          PUSH_HEAD_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            base="$PR_BASE_SHA"
-            head="$PR_HEAD_SHA"
-          else
-            base="$PUSH_BASE_SHA"
-            head="$PUSH_HEAD_SHA"
-          fi
+          base="$PR_BASE_SHA"
+          head="$PR_HEAD_SHA"
 
           if [[ "$base" =~ ^0+$ ]] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
             base="$(git rev-list --max-parents=0 "$head" | tail -n 1)"
           fi
 
           changed_files="$(git diff --name-only "$base" "$head")"
-          if grep -Eq '^(catalog/skills/specialized-domains/document-to-interactive-html/|catalog/commands/presentify\.md$|tests/skills/|tests/fixtures/presentify/|docs/v3/v3\.12/development/fixtures/(gen_fixtures|verify_phase1|enrich_models|verify_design_seed)\.py$|docs/v3/v3\.13/development/fixtures/(verify_universal_ingestion|verify_imagery)\.py$|\.github/workflows/presentify-extractor\.yml$)' <<< "$changed_files"; then
+          if grep -Eq '^(catalog/skills/specialized-domains/document-to-interactive-html/|catalog/commands/presentify\.md$|tests/skills/|tests/fixtures/presentify/|docs/releases/v3/v3\.12/development/fixtures/(gen_fixtures|verify_phase1|enrich_models|verify_design_seed)\.py$|docs/releases/v3/v3\.13/development/fixtures/(verify_universal_ingestion|verify_imagery)\.py$|\.github/workflows/presentify-extractor\.yml$)' <<< "$changed_files"; then
             echo "presentify=true" >> "$GITHUB_OUTPUT"
           else
             echo "presentify=false" >> "$GITHUB_OUTPUT"
@@ -74,19 +65,22 @@ jobs:
     # This job must exist on every protected PR because branch protection
     # requires its `verify` context. Its expensive steps remain path-scoped.
     needs: detect
-    # v4.0.0: `verify` is a REQUIRED check and belongs to the pull request only.
-    # Under the previous `!= 'schedule'` condition it also ran on every push to a
-    # protected branch, re-verifying the tree the pull request had already
-    # verified. `render` below keeps its push leg because it genuinely depends on
-    # the merged state.
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    # `always()` keeps this required context resolvable even when detection
+    # fails. The first step then fails closed instead of leaving the job skipped.
+    if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - if: needs.detect.outputs.presentify == 'true'
+      - name: Require successful path detection
+        if: needs.detect.result != 'success'
+        run: |
+          echo "Presentify path detection ended with: ${{ needs.detect.result }}" >&2
+          exit 1
+
+      - if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
-      - if: needs.detect.outputs.presentify == 'true'
+      - if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.11'
@@ -94,17 +88,17 @@ jobs:
           cache-dependency-path: '.github/workflows/presentify-extractor.yml'
 
       - name: Install extractor + fixture dependencies
-        if: needs.detect.outputs.presentify == 'true'
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
         run: >
           pip install python-pptx python-docx openpyxl pdfplumber pypdf
           pypdfium2 Pillow reportlab rapidocr-onnxruntime ruff==0.16.1 pytest
 
       - name: Lint the bundled scripts
-        if: needs.detect.outputs.presentify == 'true'
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
         run: ruff check --ignore RUF100 catalog/skills/specialized-domains/document-to-interactive-html/scripts/
 
       - name: Run the presentify skills suite (v3.15.4 Phase 1 + 2)
-        if: needs.detect.outputs.presentify == 'true'
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
         # Full-width canvas + image-sizing contract (layout suite) and the
         # extractor prominence signals (page_fraction + native width/height for
         # PPTX and PDF). This runner installs the heavy extractor libs, so the
@@ -119,41 +113,41 @@ jobs:
         run: python -m pytest tests/skills/ -v
 
       - name: Generate fixtures
-        if: needs.detect.outputs.presentify == 'true'
-        run: python docs/v3/v3.12/development/fixtures/gen_fixtures.py
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: python docs/releases/v3/v3.12/development/fixtures/gen_fixtures.py
 
       - name: Run the extraction-fidelity suite (45 checks)
-        if: needs.detect.outputs.presentify == 'true'
-        run: python docs/v3/v3.12/development/fixtures/verify_phase1.py
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: python docs/releases/v3/v3.12/development/fixtures/verify_phase1.py
 
       - name: Run the protocol round-trip
-        if: needs.detect.outputs.presentify == 'true'
-        run: python docs/v3/v3.12/development/fixtures/enrich_models.py
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: python docs/releases/v3/v3.12/development/fixtures/enrich_models.py
 
       - name: Run the design-entropy suite (10 checks)
-        if: needs.detect.outputs.presentify == 'true'
-        run: python docs/v3/v3.12/development/fixtures/verify_design_seed.py
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: python docs/releases/v3/v3.12/development/fixtures/verify_design_seed.py
 
       - name: Run the v3.13 universal-ingestion suite (28 checks)
-        if: needs.detect.outputs.presentify == 'true'
-        run: python docs/v3/v3.13/development/fixtures/verify_universal_ingestion.py
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: python docs/releases/v3/v3.13/development/fixtures/verify_universal_ingestion.py
 
       - name: Run the v3.13 imagery Tier 2/3 suite (offline, no network / GPU)
-        if: needs.detect.outputs.presentify == 'true'
-        run: python docs/v3/v3.13/development/fixtures/verify_imagery.py
+        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        run: python docs/releases/v3/v3.13/development/fixtures/verify_imagery.py
 
   render:
     # The TRUE rendered checks (v3.16.5 Phase 3, closes v3.15 known-gap MT-1,
     # whose suggested next step was exactly "gate a headless-render job to
     # merges/schedule so the true rendered-width check runs in CI").
     #
-    # Gated to merges and the weekly cron, NOT to pull requests: a browser
-    # download plus a real render is the expensive part of this workflow, and PR
-    # feedback is already covered by the browser-free `verify` job. The point of
-    # the gate is that the rendered checks run REGULARLY and before anything
-    # lands on a protected branch - not on every push to a topic branch.
+    # Gated to the weekly cron, NOT to pull requests or protected-branch pushes:
+    # a browser download plus a real render is the expensive part of this
+    # workflow, and PR feedback is already covered by the browser-free `verify`
+    # job. The schedule supplies regular deep coverage without re-testing every
+    # just-verified merge.
     needs: detect
-    if: github.event_name == 'schedule' || (github.event_name == 'push' && needs.detect.outputs.presentify == 'true' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
+    if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

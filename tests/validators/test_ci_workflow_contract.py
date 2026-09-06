@@ -167,6 +167,30 @@ def test_ci_does_not_re_declare_the_validator_list():
     )
 
 
+def test_ci_enforces_the_guide_browser_contracts():
+    """The browser gate must fail closed instead of quietly skipping MT-1."""
+    jobs = load(CI)["jobs"]
+    assert "guide-render" in jobs, "ci.yml has no dedicated guide browser job"
+
+    job = jobs["guide-render"]
+    assert job["needs"] == "changes"
+    assert job["if"] == "${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}"
+
+    steps = job["steps"]
+    commands = "\n".join(str(step.get("run", "")) for step in steps)
+    assert "pip install pytest playwright" in commands
+    assert "python -m playwright install --with-deps chromium" in commands
+
+    test_step = next(
+        step
+        for step in steps
+        if "tests/verification/test_visual_defect_detector.py" in str(step.get("run", ""))
+    )
+    assert test_step.get("env", {}).get("NEXUS_REQUIRE_RENDER") == "1"
+    assert "tests/guides/" in test_step["run"]
+    assert "guide-render" in jobs["ci-required"]["needs"]
+
+
 def test_every_only_group_named_by_a_workflow_exists():
     """A typo in `--only` must be an error, not an empty selection."""
     import sys

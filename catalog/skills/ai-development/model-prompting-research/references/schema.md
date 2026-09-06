@@ -13,7 +13,7 @@ The index is authoritative because the validator, the staleness checker, the res
 
 Model-specific prompting guidance must never land in a shared catalog body (a `SKILL.md`, a command, a `base-*.md` template). A shared body is distributed verbatim to every platform, so a line naming one model becomes wrong the moment a reader is running a different one, and `scripts/check_base_template_parity.py` fails the build when such a line diverges across the five `base-*.md` templates. This layer is where model-specific guidance lives instead: bundled under the skill, distributed as Tier-3 on-demand reference by the installer's recursive skill-folder copy, and never inlined into a shared body.
 
-## Index schema (version 1.0.0)
+## Index schema (version 1.1.0)
 
 ### Top level
 
@@ -34,6 +34,8 @@ Exactly three keys. Unknown top-level keys are a validation error, because this 
 | `roster_source` | string | One of `api`, `picker`, `config`, `manual`. How the roster was obtained, so a reader can judge its provenance. `picker` means live API enumeration was unavailable and the roster was read from the platform's model picker. |
 | `roster` | array of string | The model ids this layer was last verified against. Sorted ascending, unique, every entry non-empty. This is the full live roster, NOT only the profiled models. |
 | `roster_hash` | string | 64-character lowercase hex. `sha256` of the sorted roster joined by a single newline (`"\n".join(sorted(roster))`), UTF-8 encoded. |
+
+| `platforms` | array of object | OPTIONAL (schema 1.1.0, v4.7.0). One entry per additional platform whose models this layer profiles, each carrying `platform`, `roster_source`, `roster`, `roster_hash`, and `last_verified` with the same rules as the keys above. The legacy single-platform keys stay authoritative for the primary platform, so a Claude roster is never rewritten by research on another vendor's models; a write for a different platform upserts its entry here. `platform` values are unique within the array. Decision: `docs/releases/v4/v4.7/development/profile-index-multi-platform-decision.md`. |
 
 The `roster_hash` is a self-consistency check, not a freshness check: the schema validator recomputes it from `meta.roster` in the same file and fails on a mismatch, which catches a hand-edit that added a model to the list without re-stamping the hash. Comparing the recorded roster against the *live* roster is a separate, advisory concern owned by `scripts/check_model_prompting_freshness.py`.
 
@@ -90,5 +92,6 @@ Both are stdlib-only and make no network call. The freshness checker is handed a
 
 ## Authoring notes for later phases
 
+- Multi-platform reads (schema 1.1.0): `write_model_prompting_profile.py plan --platform <id>` plans against that platform's entry; `check_model_prompting_freshness.py --platform <id> <live ids>` compares that entry's roster. Without `--platform` both read the legacy keys, so every 1.0.0 caller keeps working unchanged.
 - Every file under this bundle's `scripts/`, `references/`, and `assets/` directories must be referenced from `SKILL.md` (or from a `references/*.md` that is itself referenced), or the orphan-bundle audit in `make validate` warns. The `SKILL.md` scaffolded in Phase 2 must therefore reference `references/schema.md`, `assets/profiles-index.json`, and `references/models/claude-opus-5.md`. This file mentions the latter two by name, so a single `SKILL.md` reference to `schema.md` chains through to both.
 - Adding an optional claim field is a minor `schema_version` bump plus a validator update in the same change. The validator rejects unknown keys on purpose, so a typo like `sources_url` fails loudly instead of being silently ignored.

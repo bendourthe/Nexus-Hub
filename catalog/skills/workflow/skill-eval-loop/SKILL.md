@@ -1,13 +1,15 @@
 ---
 name: skill-eval-loop
-description: Drive a structured evaluation iteration loop for any Nexus-Hub skill - capture user intent, write test prompts, run the skill against a baseline (no-skill) control, grade outputs against assertions, aggregate to a benchmark, view in a browser, collect feedback, and improve the skill across iterations until pass-rate stabilizes. Use whenever the user wants to evaluate a skill, benchmark a skill, A/B test a skill, optimize a skill description, run an eval set, score a skill against test prompts, iterate on a skill, or "make this skill actually work" - even if they don't say the word "eval". Use when locking a regression set, setting per-slice eval floors, refusing to lower a threshold to hide a regression, or versioning an eval corpus. Covers workspace layout, eval-prompt authoring, with-skill / without-skill paired runs, grading via assertions, browser-based human review, feedback capture, and the description-optimizer integration. SKIP one-off prompt tests with no comparison, ad-hoc skill drafting that does not need iteration, or simple unit-test runs against deterministic code.
-summary_l0: "Iterate on any skill via paired with-skill/baseline runs, assertion-graded outputs, and a browser-reviewed benchmark loop"
-overview_l1: "This skill drives a closed-loop evaluation workflow for any Nexus-Hub skill. Each iteration writes 2-3 realistic test prompts to evals/evals.json, spawns paired runs (with-skill vs baseline), captures outputs + tokens + duration, grades each output against per-eval assertions, and aggregates a benchmark. A browser viewer presents the runs side-by-side and collects structured feedback. The next iteration consumes the feedback, applies improvement heuristics (pushy descriptions, explain-the-why, repeated-work elimination), and re-runs - producing a measurable pass-rate trajectory rather than a vibes-based revision history. The loop is CLI-agnostic by design: a single dispatcher routes to claude / gemini / codex / opencode with a parity invariant enforced by pytest. Trigger phrases: evaluate a skill, benchmark a skill, A/B test a skill, optimize a skill description, run eval set, score a skill, iterate on a skill, skill regression, prompt eval, with-skill vs without-skill, eval harness, eval workspace, paired runs, eval iteration."
+description: Drive a structured evaluation iteration loop for any Nexus-Hub skill - capture user intent, write test prompts, run the skill against a baseline (no-skill) control, grade outputs against assertions, aggregate to a benchmark, view in a browser, collect feedback, and improve the skill across iterations until pass-rate stabilizes. Use whenever the user wants to evaluate a skill, benchmark a skill, A/B test a skill, optimize a skill description, run an eval set, score a skill against test prompts, iterate on a skill, or "make this skill actually work" - even if they don't say the word "eval". Use when locking a regression set, setting per-slice eval floors, refusing to lower a threshold to hide a regression, or versioning an eval corpus. Covers workspace layout, eval-prompt authoring, with-skill / without-skill paired runs, grading via assertions, browser-based human review, feedback capture, and the description-optimizer integration. SKIP one-off prompt tests with no comparison, ad-hoc skill drafting that does not need iteration, or simple unit-test runs against deterministic code. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.
+summary_l0: "Iterate on skills and place promoted evaluation records canonically"
+overview_l1: "This skill drives a closed-loop evaluation workflow for any Nexus-Hub skill. Each iteration writes 2-3 realistic test prompts to evals/evals.json, spawns paired runs (with-skill vs baseline), captures outputs + tokens + duration, grades each output against per-eval assertions, and aggregates a benchmark. A browser viewer presents the runs side-by-side and collects structured feedback. The next iteration consumes the feedback, applies improvement heuristics (pushy descriptions, explain-the-why, repeated-work elimination), and re-runs - producing a measurable pass-rate trajectory rather than a vibes-based revision history. The loop is CLI-agnostic by design: a single dispatcher routes to claude / gemini / codex / opencode with a parity invariant enforced by pytest. Trigger phrases: evaluate a skill, benchmark a skill, A/B test a skill, optimize a skill description, run eval set, score a skill, iterate on a skill, skill regression, prompt eval, with-skill vs without-skill, eval harness, eval workspace, paired runs, eval iteration. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # Skill Evaluation Iteration Loop
 
 A closed-loop workflow for evolving any Nexus-Hub skill from "draft I think is good" to "skill that measurably outperforms baseline on a stable held-out test set". Each iteration produces a workspace under `<skill-name>-workspace/iteration-N/` with paired runs, assertion-graded outputs, an aggregated `benchmark.json`, and a browser-reviewable viewer. Feedback flows into iteration `N+1` as structured input, not a memory-of-the-conversation. The loop terminates when pass-rate is stable, not when the agent feels done.
+
+Eval workspaces remain local working data. When a release adopts an evaluation report as governed evidence, place that promoted record under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`; closed snapshots use `docs/archives/`.
 
 ## When to Use This Skill
 
@@ -71,9 +73,9 @@ Aim for **2-3 prompts initially** (1 trigger-positive, 1 trigger-negative for sk
 
 ### Per-iteration loop (steps 3-10)
 
-#### 3. Spawn paired runs
+#### 3. Spawn paired runs and an optional raw-memory arm
 
-For each `eval-XXX` in `evals.json`, spawn TWO runs in the same iteration directory:
+For each `eval-XXX` in `evals.json`, spawn the two standard runs in the same iteration directory:
 
 ```
 <workspace>/iteration-N/eval-001/
@@ -88,6 +90,18 @@ For each `eval-XXX` in `evals.json`, spawn TWO runs in the same iteration direct
 ```
 
 Both runs must use the same CLI (the one declared in step 1). The "with_skill" run loads the target skill via the CLI's skill-loading mechanism (Claude Code: `--skill <path>`; Gemini: `--workflow`; Codex: `--prompt`; OpenCode: `--skill` - the dispatcher in `references/cli-adapter.md` documents per-CLI invocations). The "without_skill" run is the same prompt with no skill. Run them **in parallel within the same turn** when the harness supports it; serial is acceptable when it does not.
+
+When the eval entry declares a readable `raw_memory` path, create `raw_memory/` beside those two directories and run a third condition through the same dispatcher, CLI, model, settings, and eval query. Do not load the target skill in this condition; append the declared file verbatim as prior notes and record `skill_loaded: false` plus `memory_injected: true`. The notes must contain the same prior experience distilled into SKILL.md, not a newly authored substitute.
+
+Run every readable optional arm through the existing dispatcher after the paired response runs exist:
+
+```bash
+python scripts/optimize_skill_description.py --evals <workspace>/evals/evals.json --cli <cli> --run-raw-memory --iteration-dir <workspace>/iteration-N
+```
+
+This mode resolves each source relative to `evals.json`, preserves the eval query, appends the source text verbatim, and writes `response.txt` plus `run_metadata.json`. It does not grade the response; step 5 sends all present conditions through the same assertion grader.
+
+If the field is absent or its file cannot be read, do not create `raw_memory/`, do not call another model or hosted judge to reconstruct it, and continue with the standard pair. The aggregator records `raw_memory: "not_run"`. This arm exists to test whether distillation adds value beyond supplying raw experience; the reported 6.06 percentage-point finding motivated the comparison but is not a pass threshold.
 
 #### 4. Capture timing and tokens
 
@@ -122,7 +136,7 @@ Schema documented at `references/schemas.md`.
 
 Run `scripts/skill_eval_viewer.py <workspace>/iteration-N/` (server mode, default) OR `scripts/skill_eval_viewer.py <workspace>/iteration-N/ --static review.html` (static mode for headless / CI environments). The viewer renders two tabs:
 
-- **Outputs**: per-eval, with_skill vs without_skill side-by-side, with assertion-grading badges and a free-form feedback textarea.
+- **Outputs**: per-eval, with_skill vs without_skill side-by-side plus raw_memory when present, with assertion-grading badges and a free-form feedback textarea.
 - **Benchmark**: the `benchmark.json` table plus a "Submit All Reviews" button that writes `<workspace>/iteration-N/feedback.json`.
 
 In server mode the viewer opens `http://localhost:<port>` automatically. In static mode the user clicks "Submit All Reviews" and the JS writes a downloadable `feedback.json` Blob.
@@ -178,6 +192,8 @@ No headline number ships without a reproducible receipt. A pass rate, a win rate
 - **A committed artifact.** The number must be backed by a file committed alongside the report (here the iteration's `benchmark.json`, plus the per-run `grading.json` files it aggregates, under the workspace output directory) from which the metric recomputes exactly. A percentage with no committed source file is a vibe, not a result.
 - **A single recompute step.** There must be one documented command that regenerates the headline from that artifact, so a reader can verify it without rebuilding the run. Here that step is `scripts/aggregate_benchmark.py <workspace>/iteration-N/`, which recomputes `benchmark.json` from the graded runs. State the exact step next to the number.
 - **A confidence interval, or an honest label.** Every rate carries an interval (for a pass@1 rate, a Wilson score interval is a sound default), so "80%" is reported as "80% (95% CI 55-93%, n=10)" rather than a bare point estimate. When the sample is too small for a meaningful interval, label the number preliminary and unproven instead of publishing a bare percentage. A small-N number stated without that caveat is the exact failure mode this rule exists to prevent.
+
+- **Repeated trials report `pass@k` or `pass^k`, never a single pass or fail.** `[[ai-output-evaluation]]` owns the definitions and the counting rules (errored trials count as non-passes; a retry is not an independent trial); this loop runs the k trials, records each result individually in the per-run `grading.json` files, and reports the figure with k stated, so `pass@3` is written as three recorded results and an aggregate, not as one green mark.
 
 This strengthens the benchmark flow above (steps 6-8): the aggregated `benchmark.json` is the receipt, the aggregator is the recompute step, and the interval is what keeps a two-iteration pass-rate comparison honest rather than a coin flip dressed as progress. The same receipt-and-interval discipline, applied to general output scoring, lives in `[[ai-output-evaluation]]`.
 
@@ -275,8 +291,11 @@ Binary checklist - each item must describe an observable artifact or state.
 - [ ] `<workspace>/intent.md` exists and answers all four step-1 questions (target skill path, success criterion, CLI, workspace path).
 - [ ] `<workspace>/evals/evals.json` parses as valid JSON and has at least 2 entries with non-empty `query`, `should_trigger`, and `assertions` fields.
 - [ ] At least one iteration directory exists at `<workspace>/iteration-N/` for `N >= 1`.
-- [ ] Every `<workspace>/iteration-N/eval-XXX/` directory contains BOTH `with_skill/` and `without_skill/` subdirectories.
+- [ ] Every `<workspace>/iteration-N/eval-XXX/` directory contains BOTH `with_skill/` and `without_skill/` subdirectories; `raw_memory/` exists only for an eval with a readable declared source.
 - [ ] Every `with_skill/outputs/run_metadata.json` and `without_skill/outputs/run_metadata.json` parses and contains `total_tokens` and `duration_ms` (estimated values OK if `tokens_estimated: true` is set).
+- [ ] Every present `raw_memory/outputs/run_metadata.json` parses, contains `total_tokens`, `duration_ms`, and `exit_code: 0`, records `skill_loaded: false` plus `memory_injected: true`, and names the same CLI as both paired runs.
+- [ ] Every present `raw_memory/` has a completed `grading.json`; incomplete or failed artifacts appear as `status: "invalid"` and do not enter aggregate metrics.
+- [ ] `benchmark.json` records `raw_memory: "not_run"` when no optional source exists and aggregates only contract-valid third-arm runs when it does.
 - [ ] Every run directory has a `grading.json` produced by the grader sub-agent with the exact field names `text`, `passed`, `evidence`.
 - [ ] `<workspace>/iteration-N/benchmark.json` and `benchmark.md` exist and parse cleanly.
 - [ ] The viewer can be launched in either server mode (`scripts/skill_eval_viewer.py <iter>`) or static mode (`--static <path>`), and the static-mode HTML opens without errors in a browser.

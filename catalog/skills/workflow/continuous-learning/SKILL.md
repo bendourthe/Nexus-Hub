@@ -1,15 +1,15 @@
 ---
 name: continuous-learning
-description: Capture in-session observations, mint confidence-scored "instincts" as local YAML files, and evolve clusters of instincts into draft skills or commands - all local, in-process, with no external observer model. Make sure to use this skill whenever the user says "learn from this session", "what patterns are we seeing", "promote that to an instinct", "should this become a skill", "review our recent corrections", "what should we automate", "draft a skill from these observations", or otherwise asks the agent to look across its own recent behavior for patterns worth promoting into reusable content. Also trigger when the user repeatedly corrects the agent in the same direction and the right response is "let me record this so we stop making the same mistake". SKIP, do NOT use for, single-session todo tracking (use dev-progress-tracker), one-off rule-saving requests that the agent's own memory system already handles, or any flow that proposes wiring an external observer model or sending observations off-device (that is explicitly out of scope per the MCP Registry Policy).
-summary_l0: "Capture observations, mint local YAML instincts, evolve clusters into draft skills - zero outbound"
-overview_l1: "Defines a local-only continuous-learning loop. The learning-capture hook (catalog/hooks/learning-capture.sh / .ps1) records user prompts, tool calls, and corrections to a project-scoped .nexus/observations.jsonl while the session is running. This skill teaches the agent how, on demand, to read that observations file, cluster it into atomic candidate instincts (one finding each, with a confidence score and domain tags), persist each as a local .nexus/instincts/<slug>.yaml file, and - when a cluster of instincts becomes strong - draft a new SKILL.md or command for maintainer review. The hard constraint is that the only observer is the agent itself, in this session: no background model, no upload, no cross-project sharing. Trigger phrases: learn from this session, mint an instinct, promote to skill, what patterns are we seeing, draft a skill from observations, continuous learning."
+description: Capture in-session observations, mint confidence-scored "instincts" as local YAML files, and evolve clusters of instincts into draft skills or commands - all local, in-process, with no external observer model. Make sure to use this skill whenever the user says "learn from this session", "what patterns are we seeing", "promote that to an instinct", "should this become a skill", "review our recent corrections", "what should we automate", "draft a skill from these observations", or otherwise asks the agent to look across its own recent behavior for patterns worth promoting into reusable content. Also trigger when the user repeatedly corrects the agent in the same direction and the right response is "let me record this so we stop making the same mistake". SKIP, do NOT use for, single-session todo tracking (use dev-progress-tracker), one-off rule-saving requests that the agent's own memory system already handles, or any flow that proposes wiring an external observer model or sending observations off-device (that is explicitly out of scope per the MCP Registry Policy). Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.
+summary_l0: "Capture local instincts with canonical release and archive provenance"
+overview_l1: "Defines a local-only continuous-learning loop. The learning-capture hook (catalog/hooks/learning-capture.sh / .ps1) records user prompts, tool calls, and corrections to a project-scoped .nexus/observations.jsonl while the session is running. This skill teaches the agent how, on demand, to read that observations file, cluster it into atomic candidate instincts (one finding each, with a confidence score and domain tags), persist each as a local .nexus/instincts/<slug>.yaml file, and - when a cluster of instincts becomes strong - draft a new SKILL.md or command for maintainer review. The hard constraint is that the only observer is the agent itself, in this session: no background model, no upload, no cross-project sharing. Trigger phrases: learn from this session, mint an instinct, promote to skill, what patterns are we seeing, draft a skill from observations, continuous learning. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # Continuous Learning
 
 Teach the agent to harvest its own session for patterns: capture observations to a local JSONL, mint atomic instincts as YAML, and evolve clusters of instincts into draft skills or commands - all in-session, on demand, with no background process and no outbound network calls.
 
-This is the local-only reverse-engineered subset of ECC's `continuous-learning-v2` pattern. See `docs/archive/v2/v2.2/comparison-ECC.md` Section 11 Bucket B (B4) and Section 13 ("Continuous-learning egress trap") for the policy framing. The capture half is the `learning-capture` hook; this skill is the analysis half.
+This is the local-only reverse-engineered subset of ECC's `continuous-learning-v2` pattern. See `docs/archives/v2/v2.2/comparison-ECC.md` Section 11 Bucket B (B4) and Section 13 ("Continuous-learning egress trap") for the policy framing. The capture half is the `learning-capture` hook; this skill is the analysis half.
 
 ## When to Use This Skill
 
@@ -61,6 +61,18 @@ Report the top 3-5 candidate patterns to the user in one short paragraph each, w
 
 Also scan for **repeated CLI mistakes**: the same failing command, flag, or path appearing in several observations (wrong pytest selector, `git` flags that always get rewritten, a noisy command that never goes through the compressor). For each cluster, propose either a `catalog/hooks` rule or a BYO compressor filter (`pattern` + `drop-line` / `keep-line` / `replace`) saved under `.nexus-hub/compressor-filters.json`, then `python -m nexus_context_compressor verify` and `trust`. Cross-check `~/.nexus-hub/compressor-passthrough.jsonl` for output that entered context uncompressed -- those are filter candidates, not instincts.
 
+### 2.1 Label outcomes before distillation
+
+Before an observation may support an instinct or draft skill, place it in a local review table with an explicit `success` or `failure` label:
+
+| Observation | Outcome | Evidence for the label |
+|---|---|---|
+| Timestamp or stable local id | `success` or `failure` | User confirmation, passing gate, failing gate, revert, or follow-up correction |
+
+Do not infer a label from tone or from the fact that an event was captured. Use in-session agent judgment against observable results, then ask the user to confirm ambiguous labels. Never send the evidence to an outbound LLM-as-judge.
+
+Every evidence item used in a minted instinct or a SKILL.md draft MUST have one of those two labels. When the candidate set mixes successes and failures and any item is unlabeled, emit a hard warning, list each unlabeled item by timestamp or stable id, and refuse to mint or draft until the user labels it or removes it from the evidence set. Dropping a failure means excluding that item, not silently relabeling it as success.
+
 ### 3. Mint an instinct
 
 For each pattern the user confirms, create one atomic YAML file at `.nexus/instincts/<short-slug>.yaml`:
@@ -74,8 +86,8 @@ domains: [testing, workflow]
 trigger: "user asks for tests + edits before"
 behavior: "batch test runs after the last edit in a cluster, not inline per edit"
 evidence:
-  - "2026-05-28T11:02Z: user said 'just run them once at the end'"
-  - "2026-05-28T11:45Z: user said 'why are you re-running pytest after every edit?'"
+  - "success | 2026-05-28T11:02Z: the final batched run passed"
+  - "failure | 2026-05-28T11:45Z: inline reruns repeated the user's rejected workflow"
 notes: |
   Confidence is moderate because the corrections came in one session.
   Re-evaluate after the next test-heavy session.
@@ -88,6 +100,7 @@ Rules:
 - `confidence` is the agent's honest estimate. Bump it on subsequent confirmations; do NOT silently inflate.
 - `domains` are tags from a shared, free-form vocabulary (testing, security, git, planning, ...). Use existing tags when they fit.
 - `evidence` cites concrete observations. No evidence -> the instinct is speculation, not an instinct.
+- Every evidence entry starts with `success |` or `failure |` and traces to the outcome-review table. Unlabeled evidence never enters an instinct.
 
 ### 3.1 Smallest relevant edit, plan/apply split, immutable base
 
@@ -125,11 +138,13 @@ The user prunes manually. This skill offers to mark an instinct `archived: true`
 | "I can promote an instinct to a skill myself without showing the maintainer" | No. The skill's step 4 explicitly says surface the draft and ask. Skills are user-facing artifacts; an instinct that became a skill silently would bypass the curation bar that AGENTS.md defines. Drafts land in the working directory inline, never committed by the agent. |
 | "Observations and instincts should sync across projects so I learn faster" | Cross-project sync is exactly the egress trap. Each project's `.nexus/` is its own. If the maintainer wants to promote a pattern globally, they do it explicitly by editing a real Nexus-Hub skill. |
 | "This trajectory suggests a big rewrite would be better" | Large refinements are unauditable and unrevertable. Mint or patch the smallest id that moves the outcome; chain more ids later. A wholesale rewrite of instincts or of the base instructions hides which change caused the next failure, so rollback by id is impossible. |
+| "The correction obviously failed, so I can label it without asking" | Tone is not an outcome oracle. If no failing gate, revert, follow-up correction, or user confirmation proves the label, the item stays unlabeled and cannot be distilled. Unlabeled mixed traces have been measured to collapse later success. |
 
 ## Verification
 
 - [ ] Reading `.nexus/observations.jsonl` shows one JSON-per-line records with the four required fields (`ts`, `event`, `tool`, `prompt_sample`).
 - [ ] Every minted instinct YAML has `id` (stable, equal to `slug` at mint), `slug`, `created`, `confidence`, `domains`, `trigger`, `behavior`, and `evidence` (with at least one entry).
+- [ ] Every evidence entry used for an instinct or draft is explicitly labeled `success` or `failure`; any mixed set with unlabeled items was listed and refused before minting or drafting.
 - [ ] Proposed instincts were applied only at a turn or session boundary, never mid-flight, and no base instruction file was edited.
 - [ ] `confidence` is a number in `[0.0, 1.0]`.
 - [ ] No background process, daemon, or network call is created or proposed at any step.

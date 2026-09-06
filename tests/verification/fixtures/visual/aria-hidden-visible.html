@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Visible aria-hidden defect</title>
+  <style>
+    html { font-family: Arial, sans-serif; font-size: 16px; }
+    body { margin: 0; padding: 16px; }
+    #aria-hidden-container { width: 240px; }
+    #aria-hidden-visible { width: 480px; }
+  </style>
+</head>
+<body>
+  <div id="aria-hidden-container">
+    <p id="aria-hidden-visible" aria-hidden="true">Accessibility metadata does not hide visible pixels.</p>
+  </div>
+</body>
+</html>

@@ -29,4 +29,4 @@ The Nexus-Hub research did not verify a built-in organization-managed enforcemen
 
 ## Research Basis
 
-This guidance is derived from the verified platform table and constraints in [Nexus-Hub's organization knowledge layer research](https://github.com/bendourthe/Nexus-Hub/blob/main/docs/v3/v3.17/development/org-knowledge-layer-research.md). Re-check the linked official vendor documentation before changing an enforcement design because platform capabilities and precedence can change.
+This guidance is derived from the verified platform table and constraints in [Nexus-Hub's organization knowledge layer research](https://github.com/bendourthe/Nexus-Hub/blob/main/docs/releases/v3/v3.17/development/org-knowledge-layer-research.md). Re-check the linked official vendor documentation before changing an enforcement design because platform capabilities and precedence can change.

@@ -54,9 +54,21 @@ def commit_skill() -> str:
     return COMMIT_SKILL.read_text(encoding="utf-8")
 
 
-def _step_810(runbook: str) -> str:
-    marker = "- **8.10 Commit prompt (REQUIRED, every phase)**"
-    assert marker in runbook, "step 8.10 is missing or was renamed"
+def _phase_7(runbook: str) -> str:
+    marker = "## Phase 7: Quality gate (GO / NO-GO)"
+    assert marker in runbook, "Phase 7 is missing"
+    return runbook.split(marker, 1)[1].split("\n## ", 1)[0]
+
+
+def _step_84(runbook: str) -> str:
+    marker = "- **8.4 Plan-delta note (always written)**"
+    assert marker in runbook, "step 8.4 is missing or was renamed"
+    return runbook.split(marker, 1)[1].split("\n- **8.5", 1)[0]
+
+
+def _step_811(runbook: str) -> str:
+    marker = "- **8.11 Commit prompt (REQUIRED, every phase)**"
+    assert marker in runbook, "step 8.11 is missing or was renamed"
     return runbook.split(marker, 1)[1].split("\n## ", 1)[0]
 
 
@@ -71,13 +83,36 @@ def _phase_9f(runbook: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+def test_phase_gate_keeps_four_static_gates_and_adds_proportional_smoke(runbook: str):
+    gate = _phase_7(runbook)
+    assert "Evaluate five gates" in gate
+    for existing_gate in (
+        "all tests passing (0 failures)",
+        "line coverage >= 80%",
+        "0 lint errors",
+        "build/compile succeeds",
+    ):
+        assert existing_gate in gate, f"the fifth gate replaced: {existing_gate!r}"
+    assert "phase's own feature was exercised and observed" in gate
+    assert "primary real boundary" in gate
+    assert "expected behavior matching observed behavior" in gate
+    assert "[[functional-verification]]" in gate
+    assert "one representative phase-scoped smoke" in gate
+    assert "not the whole-plan deep pass or another full suite" in gate
+
+
+def test_tests_passing_alone_is_not_functional_evidence(skill: str):
+    assert '"The tests pass, so the feature works"' in skill
+    assert "broken layout through four green gates" in skill
+
+
 def test_non_final_phase_is_commit_only_in_every_mode(runbook: str):
-    step = _step_810(runbook)
+    step = _step_811(runbook)
     assert "a NON-FINAL phase is commit-only in every mode" in step
 
 
 def test_one_phase_non_final_offers_no_push_option(runbook: str):
-    step = _step_810(runbook)
+    step = _step_811(runbook)
     ask = step.split("**One-phase (default), non-final:**", 1)[1].split("\n    -", 1)[0]
     assert "1. Commit only" in ask
     assert "2. Amend" in ask
@@ -86,7 +121,7 @@ def test_one_phase_non_final_offers_no_push_option(runbook: str):
 
 
 def test_phase_by_phase_non_final_offers_no_push_option(runbook: str):
-    step = _step_810(runbook)
+    step = _step_811(runbook)
     menu = step.split("**`phase-by-phase`, non-final:**", 1)[1].split("\n    -", 1)[0]
     assert "(1) commit and continue" in menu
     assert "(2) commit and pause" in menu
@@ -94,15 +129,15 @@ def test_phase_by_phase_non_final_offers_no_push_option(runbook: str):
     assert "push" not in menu.lower(), f"a push option survives in the phase-by-phase menu: {menu!r}"
 
 
-def test_in_full_non_final_still_auto_commits_without_pushing(runbook: str):
-    step = _step_810(runbook)
-    assert "**`in-full` non-final:** auto-select commit-only" in step
+def test_full_non_final_still_auto_commits_without_pushing(runbook: str):
+    step = _step_811(runbook)
+    assert "**`full` non-final:** auto-select commit-only" in step
     assert "Do not push." in step
 
 
 def test_the_no_push_default_does_not_override_an_explicit_user_request(runbook: str):
     """A default is not a prohibition. Removing the menu must not remove the authority."""
-    step = _step_810(runbook)
+    step = _step_811(runbook)
     assert "explicitly asks to push a non-final phase" in step
     assert "removes the DEFAULT, not the user's authority" in step
 
@@ -114,6 +149,28 @@ def test_non_final_phase_records_ci_impact_without_touching_a_pipeline(runbook: 
     assert "do NOT change a pipeline file" in body
     assert "unless CI/CD is THIS phase's explicit deliverable" in body
     assert "is a valid outcome and must still be written" in body
+
+
+def test_every_phase_writes_one_plan_delta_in_its_history(runbook: str):
+    step = _step_84(runbook)
+    assert "No delta" in step
+    assert "Wrong" in step
+    assert "Incomplete" in step
+    assert "False assumption" in step
+    assert "exactly one primary disposition" in step
+    assert "`## Plan delta`" in step
+    assert "<version_dir>/development/history/<phase-session-history>.md" in step
+    assert "observed evidence" in step
+    assert "consequence for every remaining phase" in step
+    assert "MUST still be written" in step
+
+
+def test_only_a_blocking_plan_delta_escalates(runbook: str):
+    step = _step_84(runbook)
+    assert "A non-blocking delta stays in session history" in step
+    assert "without plan or gap escalation" in step
+    assert "A blocking delta updates the plan before the driver continues" in step
+    assert "`DF` or `QG` known gap" in step
 
 
 # ---------------------------------------------------------------------------
@@ -207,7 +264,25 @@ def test_no_tag_or_release_is_created_in_the_publication_step(runbook: str):
 
 
 def test_publication_is_a_required_evidence_section(runbook: str):
-    assert "9. Publication and integration" in runbook
+    assert "10. Publication and integration" in runbook
+
+
+def test_tier_3_deep_pass_is_a_required_evidence_section(runbook: str):
+    evidence = runbook.split("Required sections:", 1)[1].split("\n### 9.0", 1)[0]
+    assert "6. Tier 3 deep pass" in evidence
+    gate = runbook.split("### 9.0", 1)[1].split("\n### 9A", 1)[0]
+    assert "[[functional-verification]]" in gate
+    assert "references/deep-pass.md" in gate
+    assert "`## Tier 3 deep pass`" in gate
+    assert "<version_dir>/development/last-phase-evidence.md" in gate
+    assert "ambiguous evidence selects `run`" in gate
+
+
+def test_tier_3_duty_is_fail_closed_and_has_no_silent_skip(runbook: str):
+    gate = runbook.split("### 9.0", 1)[1].split("\n### 9A", 1)[0]
+    assert "This duty is fail-closed" in gate
+    assert "may be omitted only by recording a `QG` or `DF` known gap" in gate
+    assert "A reasoned no-op is completion of the duty, not an omission" in gate
 
 
 # ---------------------------------------------------------------------------
@@ -258,8 +333,46 @@ def test_skill_invariants_state_commit_only_and_terminal_publication(skill: str)
 
 def test_skill_verification_covers_the_new_gates(skill: str):
     assert "recorded CI impact without changing a pipeline file" in skill
+    assert "five-part GO/NO-GO gate" in skill
+    assert "`## Plan delta`" in skill
+    assert "`## Tier 3 deep pass`" in skill
     assert "pushed exactly once after explicit approval" in skill
     assert "a non-green integration blocked `/update release`" in skill
+
+
+def test_tier_one_overview_tracks_the_current_lifecycle(skill: str):
+    frontmatter = skill.split("---", 2)[1]
+    for phrase in (
+        "five-part GO/NO-GO gate",
+        "eleven ordered steps",
+        "always writes the Plan delta",
+        "non-final phase commit-only",
+        "Tier 3 deep pass",
+    ):
+        assert phrase in frontmatter
+    for obsolete in ("four-part GO/NO-GO", "ten-step post-phase", "commit-and-push prompt"):
+        assert obsolete not in frontmatter
+
+
+def test_phase_seven_reopens_and_reruns_a_failed_functional_smoke(runbook: str):
+    phase_7 = _phase_7(runbook)
+    assert "Any failure REOPENS the phase" in phase_7
+    assert "return a fifth-gate mismatch or blocked exercise to Phase 2" in phase_7
+    assert "rerun the proportional smoke and all of Phase 7" in phase_7
+    assert "three-iteration budget" in phase_7
+    assert "explicit `QG` known gap" in phase_7
+
+
+def test_terminal_deep_pass_precedes_fresh_goal_review(runbook: str):
+    evidence = runbook.split("Required sections:", 1)[1].split("\n### 9.0", 1)[0]
+    gate = runbook.split("### 9.0", 1)[1].split("\n### 9A", 1)[0]
+    assert evidence.index("6. Tier 3 deep pass") < evidence.index(
+        "7. Goal-vs-codebase review"
+    )
+    assert gate.index("6. Invoke `[[functional-verification]]`") < gate.index(
+        "7. Independent Goal-vs-codebase review"
+    )
+    assert "after the deep pass reaches its terminal disposition" in gate
 
 
 # ---------------------------------------------------------------------------
@@ -273,7 +386,7 @@ def test_command_states_the_lifecycle_guarantee(command: str):
 
 
 def test_command_does_not_duplicate_the_runbook(command: str):
-    for procedural in ("### 9F.", "- **8.10", "- **8.3", "DETECT"):
+    for procedural in ("### 9F.", "- **8.11", "- **8.4 Plan-delta", "- **8.3", "DETECT"):
         assert procedural not in command, (
             f"the dispatcher copied procedure from the runbook: {procedural!r}"
         )

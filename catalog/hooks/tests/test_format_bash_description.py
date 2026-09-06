@@ -595,7 +595,7 @@ class TestCommandIsAllowed:
     # forms -- find with -exec or -delete, and unquoted globs for write-capable commands.
     # That analysis is strictly better than the glob it replaced. This hook only stops
     # PRE-approving; it never denies, so the platform's own read-only handling still
-    # applies. See docs/v3/v3.17/development/permission-matcher-findings.md, findings 3
+    # applies. See docs/releases/v3/v3.17/development/permission-matcher-findings.md, findings 3
     # and 5. The last test guards the blast radius: the rest of the pipeline vocabulary
     # must survive the find removals.
 

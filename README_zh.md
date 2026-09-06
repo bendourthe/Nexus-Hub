@@ -64,7 +64,7 @@
 
 - **`/generate-implementation-plan` 弃用别名已移除**。请直接使用 `/generate-plan`。
 
-完整计划：[docs/archive/v1/v1.0/plans/security-hardening-v100.md](docs/archive/v1/v1.0/plans/security-hardening-v100.md)。详细发布说明：[docs/archive/v1/v1.0/RELEASE_NOTES.md](docs/archive/v1/v1.0/RELEASE_NOTES.md)。
+完整计划：[docs/archives/v1/v1.0/plans/security-hardening-v100.md](docs/archives/v1/v1.0/plans/security-hardening-v100.md)。详细发布说明：[docs/archives/v1/v1.0/RELEASE_NOTES.md](docs/archives/v1/v1.0/RELEASE_NOTES.md)。
 
 ---
 

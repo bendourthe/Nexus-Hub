@@ -7,7 +7,7 @@ is deferred to v0.9.8 and tracked as a follow-up). Instead it verifies:
    refactor (global-vs-workspace upfront choice, no template-import prompt).
 2. The source artifacts the installer will copy exist at their expected paths
    (new v0.9.7 skills, guides, checklist, templates).
-3. The canonical template (`catalog/hooks/settings.json`) has `effortLevel: medium`
+3. The canonical template (`catalog/hooks/settings.json`) has `effortLevel: high`
    which is what the installer writes into `~/.claude/settings.json` on a fresh
    install.
 4. The installer scripts are syntactically valid (bash -n for .sh; PowerShell
@@ -476,12 +476,12 @@ def _declared_claude_settings() -> dict:
     return data["platforms"]["claude"]["settings"]
 
 
-def test_declared_claude_effort_level_is_medium():
-    """Intent guard for the shipped default `medium`, asserted at the SOURCE.
+def test_declared_claude_effort_level_is_high():
+    """Intent guard for the shipped Claude default `high`, asserted at the source.
 
-    The default was `xhigh` through v3.15.4 and was lowered to `medium` so a
-    fresh install starts at a balanced speed/cost tier that the operator raises
-    deliberately. Both the scalar and the `env` override are pinned, because
+    The default moved from `medium` to `high` in v4.4.0 so a fresh install starts
+    at the deeper reasoning tier expected by plan-driven, multi-step work. Both
+    the scalar and the `env` override are pinned, because
     `env.CLAUDE_CODE_EFFORT_LEVEL` is the higher-precedence lever: leaving the
     two out of step would make the scalar a no-op.
 
@@ -492,12 +492,12 @@ def test_declared_claude_effort_level_is_medium():
     separately by `scripts/sync_platform_defaults.py --check`.
     """
     settings = _declared_claude_settings()
-    assert settings["effortLevel"] == "medium", (
-        f"Expected declared effortLevel='medium', got {settings['effortLevel']!r}. "
+    assert settings["effortLevel"] == "high", (
+        f"Expected declared effortLevel='high', got {settings['effortLevel']!r}. "
         "If this was a deliberate change, update the CHANGELOG + test together."
     )
-    assert settings.get("env", {}).get("CLAUDE_CODE_EFFORT_LEVEL") == "medium", (
-        "env.CLAUDE_CODE_EFFORT_LEVEL must match effortLevel ('medium'); it is "
+    assert settings.get("env", {}).get("CLAUDE_CODE_EFFORT_LEVEL") == "high", (
+        "env.CLAUDE_CODE_EFFORT_LEVEL must match effortLevel ('high'); it is "
         "the higher-precedence lever, so a mismatch silently wins over the scalar."
     )
 
@@ -557,6 +557,13 @@ DEV_ONLY_SCRIPTS = {
     # .github/workflows/doc-colocation.yml so its three fail-open defects
     # could be unit-tested. Runs in CI and make validate; meaningless in an
     # end-user ~/.nexus-hub/scripts/.
+    # Repo-internal host-interpreter gate (v4.3.0): probes that the
+    # interpreters hook registrations are launched with (`bash <script>`)
+    # can actually execute a script on this host. Runs in the fast, full,
+    # and platform profiles. Meaningless in an end-user
+    # ~/.nexus-hub/scripts/; the equivalent user-facing report is the
+    # NEEDS-ACTION line that `runner.py verify` (nexus-hub doctor) emits.
+    "check_interpreter_resolution.py",
     "check_doc_colocation.py",
     # Repo-internal retention reporter (v3.18.0): reports per-version
     # development/ subtrees due for archival per docs/policy/docs-retention.md.
@@ -571,6 +578,10 @@ DEV_ONLY_SCRIPTS = {
     # make validate and CI. An end-user install has no catalog source to
     # check, so it is deliberately not installer-copied.
     "check_agentskills_conformance.py",
+    # Repo-internal guide count stamper (v4.4.2): rewrites <span data-count> markers in
+    # guides/website/nexus-hub-guide.html from data/ and catalog/ so page counts cannot
+    # drift; --check runs in make validate. An end-user install has neither source tree.
+    "stamp_guide_counts.py",
     # One-shot cross-catalog maintenance utility that injects iterative-refinement
     # text into SKILL.md / command .md files. Maintainer tool only.
     "apply_iterative_workflow.py",
@@ -717,11 +728,11 @@ V0_9_7_ARTIFACTS = [
     # command name minus the -style-guide suffix.
     "catalog/style-guides/compile-deep-research.md",
     # New guides (Phase 1 + 4). The v0.9.6 migration note was archived
-    # into docs/archive/v0/ during v2.1.0 post-Phase-10 maintenance
+    # into the legacy migration source docs/archive/v0/ during v2.1.0 post-Phase-10 maintenance
     # (commit 590ea5a). The test continues to assert it exists at its new
     # canonical path so the historical record stays reachable.
     "guides/reference/SESSION_LIFECYCLE_DECISIONS.md",
-    "docs/archive/v0/v0.9/opus-4-7-migration.md",
+    "docs/archives/v0/v0.9/opus-4-7-migration.md",  # Canonical frozen container since the v4.0.0 rename.
     # New checklist (Phase 3)
     "catalog/checklists/file-upload-security.md",
     # Bundled report templates (copied silently by installer)
@@ -760,10 +771,11 @@ def test_installer_sh_bash_syntax_clean():
         print("SKIP: bash not available on PATH", file=sys.stderr)
         return  # Treat as skip rather than fail on Windows without bash
     result = subprocess.run(
-        [bash, "-n", str(INSTALLER_SH)],
+        [bash, "-n", "scripts/installer.sh"],
         capture_output=True,
         text=True,
         timeout=30,
+        cwd=REPO_ROOT,
     )
     assert result.returncode == 0, (
         f"bash -n failed on installer.sh:\n{result.stderr}"
@@ -810,17 +822,17 @@ def _run_all():
         test_installer_ps1_has_nexus_ascii_banner,
         test_installer_sh_migrates_legacy_nexus_hub_dir,
         test_installer_ps1_migrates_legacy_nexus_hub_dir,
-        test_installer_sh_asks_global_vs_workspace_first,
-        test_installer_ps1_asks_global_vs_workspace_first,
+        test_installer_sh_scope_is_no_prompt_default_global,
+        test_installer_ps1_scope_is_no_prompt_default_global,
         test_installers_have_no_phase_labels,
         test_installer_ps1_does_not_clear_host_after_scope_choice,
         test_installer_sh_does_not_clear_after_scope_choice,
         test_installers_use_claude_usage_monitor_banner,
         test_installer_ps1_surfaces_vsce_errors,
-        test_installer_ps1_has_overwrite_request_subsection,
+        test_installer_ps1_uses_conflict_only_overwrite,
         test_installer_sh_removed_template_import_prompt,
         test_installer_ps1_removed_template_import_prompt,
-        test_catalog_hooks_settings_effort_level_is_medium,
+        test_declared_claude_effort_level_is_high,
         test_installer_ps1_fallback_literal_matches_template,
         test_installers_copy_every_scripts_dir_py_file,
         test_all_v0_9_7_source_artifacts_exist,

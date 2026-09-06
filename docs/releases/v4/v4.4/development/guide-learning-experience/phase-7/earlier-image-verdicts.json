@@ -1,0 +1,2339 @@
+{
+  "review": "Independent retrospective inspection of retained Phase 2-5 images",
+  "method": "Each of the 130 listed PNGs was individually opened with view_image, in bounded batches, and visually inspected. No image was approved from geometry alone.",
+  "reviewed_count": 130,
+  "unreviewed_count": 0,
+  "phase_counts": {
+    "phase-2": 32,
+    "phase-3": 12,
+    "phase-4": 34,
+    "phase-5": 52
+  },
+  "scope": "Historical captures. This completes actual inspection of the retained image set, not unshown viewports, expanded disclosures, animation sequences or current final-artifact rendering. Parent owns Phase 7 current-artifact verification.",
+  "findings": [
+    {
+      "id": "E-H1",
+      "status": "superseded historical",
+      "description": "Phase 2 Home and Foundations retain the earlier long, repetitive content and inconsistent presentation; Phase 3 Home and Phase 4-5 Foundations captures show the rebuilt concise sequence."
+    },
+    {
+      "id": "E-H2",
+      "status": "superseded historical",
+      "description": "Phase 2 light Home/Foundation hero emphasis uses bright cyan that is visually weak against the light background; rebuilt headings no longer use that treatment. No numerical ratio inferred."
+    },
+    {
+      "id": "E-H3",
+      "status": "superseded historical",
+      "description": "Phase 2 Training full captures visibly claim Gate pass and Left on disk before a reply/file exists. Independently viewed Phase 6 before/after pairs replace this with expected/pending versus produced/pass semantics."
+    },
+    {
+      "id": "E-H4",
+      "status": "superseded historical",
+      "description": "Phase 4 is an intermediate Foundations state: rebuilt first four lessons coexist with older long platform/harness content. Phase 5 replaces the remainder with concise harness/loop/graph lessons."
+    },
+    {
+      "id": "P6-V1",
+      "status": "existing owned residual, not new",
+      "description": "Phase 2 mobile Training also contains the one-word heading tail observed in Phase 6. Canonical residual evidence is phase-6-image-verdicts.json."
+    }
+  ],
+  "new_current_blockers": [],
+  "considered_but_rejected": [
+    {
+      "candidate": "Whitespace beside shorter Foundations explanatory copy",
+      "reason": "The wider paired illustration carries the interaction while the text column keeps a readable width. No stranded content, forced blank child panel or reading-order failure was observed; treat as the scoped reading-width layout choice, not a new defect."
+    },
+    {
+      "candidate": "Short body lines inside the four mobile Loop cards",
+      "reason": "Two-by-two numbered steps preserve the complete loop together; headings and controls remain readable without overflow. No additional cosmetic finding added."
+    },
+    {
+      "candidate": "Missing Phase 5 completed-graph wording correction receipt",
+      "reason": "These screenshots show waiting branches, not completed output. They cannot prove either the historical completed wording or its correction; parent owns live and final-state evidence."
+    },
+    {
+      "candidate": "Whole-page screenshot proves every text line readable",
+      "reason": "Rejected as a claim: large overview images are downscaled as far as 56px wide for tall mobile pages. Per-image limits preserve this distinction; paired viewport captures cover only visible sections."
+    }
+  ],
+  "images": [
+    {
+      "file": "phase-2/cheatsheets-dark-1440-full.png",
+      "sha256": "7117d0c557ba422cb9d8f1fc2623f1e8a9eae70fce4b92e31f7e0ef39caccb60",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "structure-only overview with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/cheatsheets-dark-1440-top.png",
+      "sha256": "03f00d30a804806c48edab815f50d2a678d1e26b128d0d57074e86001cb735b9",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/cheatsheets-dark-420-full.png",
+      "sha256": "b9dc538f7539b008ea98d69efabdb63c020036de019670f52ac2d3dfed9134bf",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "structure-only overview with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/cheatsheets-dark-420-top.png",
+      "sha256": "e740b4326d560595ba4677c66e8f3264aa29d108d76bb136a16b919713a8150f",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/cheatsheets-light-1440-full.png",
+      "sha256": "ec91a34b3d8d8a6d08520a08a0d40529461647cd8dfa5fe9f4f922ea1d94514c",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "structure-only overview with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/cheatsheets-light-1440-top.png",
+      "sha256": "c19ec59dff86ac9705acbca103dca2654b51cf011adde5e934eec7bcd4810e4c",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/cheatsheets-light-420-full.png",
+      "sha256": "9253ccc3d6620cf5ee0a0fe2def0f859c47297bbc6bffc099fa41754350b30e2",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "structure-only overview with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/cheatsheets-light-420-top.png",
+      "sha256": "5bc45aac25d0752acec42f9c577e6fc478e87d7b7887fc4ba42ec79abe0fac91",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/foundations-dark-1440-full.png",
+      "sha256": "905e65728c6fb13160c34f22020bd072570a7fbe9357c958f805b810849aedec",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/foundations-dark-1440-top.png",
+      "sha256": "11cf49e11e4f6bf041c31334572b1fa0e58fba83d58e66d9a629b0595cf6e03b",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/foundations-dark-420-full.png",
+      "sha256": "85a71f2a74b148e78bc7aee114de046cf0986e0076389f722691080e14613041",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/foundations-dark-420-top.png",
+      "sha256": "85d19c50c6cc45ebc2c8dfd8473faac568a5a2ea821db6f367d96c4413938371",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/foundations-light-1440-full.png",
+      "sha256": "9be84a9b1402c23e8c01fff1046de39f5dfea976e32116565f4f607c480f5623",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Historical bright cyan emphasis is visibly weak against the light page; the later rebuild replaces this heading treatment.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1",
+        "E-H2"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/foundations-light-1440-top.png",
+      "sha256": "4fa57fdb4176e1b4d9c2d00e51d4ff49846ee6261dafc18a54598bd41882516d",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Historical bright cyan emphasis is visibly weak against the light page; the later rebuild replaces this heading treatment.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1",
+        "E-H2"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/foundations-light-420-full.png",
+      "sha256": "e3cfb479494e7036686a896b8b8a2caf2c5739177644653a80d0297548005678",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Historical bright cyan emphasis is visibly weak against the light page; the later rebuild replaces this heading treatment.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1",
+        "E-H2"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/foundations-light-420-top.png",
+      "sha256": "cc1cd5a8024363bf4de5ed13ef04dc5efb200536b3de10c6e7b089d773e3d07e",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Historical bright cyan emphasis is visibly weak against the light page; the later rebuild replaces this heading treatment.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1",
+        "E-H2"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/home-dark-1440-full.png",
+      "sha256": "82fefbe337ec5bb9adcb74fbd4e813474b41f19ecad5b510456dbf3a96184c73",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/home-dark-1440-top.png",
+      "sha256": "8378aea42a7c93fa71ab97b1668fa25bf9e5823e739145f3169f2e5ed18b75dc",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/home-dark-420-full.png",
+      "sha256": "49ab1216fce8683621baf59200bef85bb907765956b82106ea0a8e0b7ba45669",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/home-dark-420-top.png",
+      "sha256": "6eb3126d780cc525ea8ec455f3ce3a5de21e0c1e5941c2589e3de152a10761da",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/home-light-1440-full.png",
+      "sha256": "fdd1d9beed5499d46ee581e404112354fe40d6329743ed39fb42593fafdb881f",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Historical bright cyan emphasis is visibly weak against the light page; the later rebuild replaces this heading treatment.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1",
+        "E-H2"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/home-light-1440-top.png",
+      "sha256": "dffcc36d9f93c076065880a022771f02ab64783f436e1a7bcbdaa3d5f6b5446a",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Historical bright cyan emphasis is visibly weak against the light page; the later rebuild replaces this heading treatment.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1",
+        "E-H2"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/home-light-420-full.png",
+      "sha256": "0f08b2c12223e3715c96519564f27ec4b6db61e50febd1a065f4f01716e6cb27",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Historical bright cyan emphasis is visibly weak against the light page; the later rebuild replaces this heading treatment.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1",
+        "E-H2"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/home-light-420-top.png",
+      "sha256": "08ebebe82b0d6f6eaf4b55259a1817566e5b4c0bc1204cf34a4a19a183060e5f",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical pre-rebuild content: lengthy sales/concept prose and older illustrations; superseded by Phases 3-5.",
+      "contrast": "Historical bright cyan emphasis is visibly weak against the light page; the later rebuild replaces this heading treatment.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H1",
+        "E-H2"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/training-dark-1440-full.png",
+      "sha256": "7fe3e08a8875b28735bc264315312af6b49c80743fc0f26bd43e4c58062a1c51",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Historical empty terminal and file-preview regions are oversized; normal Training layout was rebuilt in Phase 6.",
+      "semantics": "Historical mismatch: empty reply and not-created file coexist with Gate pass / Left on disk / accomplished takeaway. Phase 6 replaces these with pending/expected states.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H3"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/training-dark-1440-top.png",
+      "sha256": "2751a375f7fae9f7a939c221c1e91641f9d56b6ca19f31b640c11db286ff9621",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Historical empty terminal and file-preview regions are oversized; normal Training layout was rebuilt in Phase 6.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/training-dark-420-full.png",
+      "sha256": "398c1e44ea9a9e53716ca033d2454d6de33aa0d5f01932b622c77487fea6f18e",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "Residual: Map the game before changing / it leaves a one-word heading tail, also recorded in phase-6-image-verdicts.json.",
+      "spacing": "Historical empty terminal and file-preview regions are oversized; normal Training layout was rebuilt in Phase 6.",
+      "semantics": "Historical mismatch: empty reply and not-created file coexist with Gate pass / Left on disk / accomplished takeaway. Phase 6 replaces these with pending/expected states.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H3",
+        "P6-V1"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/training-dark-420-top.png",
+      "sha256": "c39f5f2afb8088fb590266f0cd9ff0340d171c07fba63f5d32c71112aba30af1",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "Residual: Map the game before changing / it leaves a one-word heading tail, also recorded in phase-6-image-verdicts.json.",
+      "spacing": "Historical empty terminal and file-preview regions are oversized; normal Training layout was rebuilt in Phase 6.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "P6-V1"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/training-light-1440-full.png",
+      "sha256": "50828c390f639bccc875cddc3d44ebee296976c00d7756bbde28122e27fe5b38",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Historical empty terminal and file-preview regions are oversized; normal Training layout was rebuilt in Phase 6.",
+      "semantics": "Historical mismatch: empty reply and not-created file coexist with Gate pass / Left on disk / accomplished takeaway. Phase 6 replaces these with pending/expected states.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H3"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/training-light-1440-top.png",
+      "sha256": "28768918f4059b3c0a4c0b8c987201adbb4cd760001683adc23fb1cd0504e69f",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Historical empty terminal and file-preview regions are oversized; normal Training layout was rebuilt in Phase 6.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-2/training-light-420-full.png",
+      "sha256": "51fd7c8059e6203ad6e67425b43eedf9ec440906d9b38576943eb34e8c94c33e",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "Residual: Map the game before changing / it leaves a one-word heading tail, also recorded in phase-6-image-verdicts.json.",
+      "spacing": "Historical empty terminal and file-preview regions are oversized; normal Training layout was rebuilt in Phase 6.",
+      "semantics": "Historical mismatch: empty reply and not-created file coexist with Gate pass / Left on disk / accomplished takeaway. Phase 6 replaces these with pending/expected states.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H3",
+        "P6-V1"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-2/training-light-420-top.png",
+      "sha256": "bdcc10d2aa12ff4d773f0f9498f65405630692e4d8a9aa74f74bba29c1d21473",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "Residual: Map the game before changing / it leaves a one-word heading tail, also recorded in phase-6-image-verdicts.json.",
+      "spacing": "Historical empty terminal and file-preview regions are oversized; normal Training layout was rebuilt in Phase 6.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "P6-V1"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-3/home-dark-1440-full.png",
+      "sha256": "c0645dd9ef4dfd278c498518312ff12ed268dbea894818f09804581f93bc7bed",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Three model/platform/Nexus roles and the notes-to-checked-brief example are clear; no follow-up date is invented, and host dependence is explicitly stated.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "structure-only overview with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-3/home-dark-1440-nhg-why.png",
+      "sha256": "9d343da58afce690179cf111b5ceff9bc6ad88085d365c2e9bc22ad1070447f1",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Three model/platform/Nexus roles and the notes-to-checked-brief example are clear; no follow-up date is invented, and host dependence is explicitly stated.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-3/home-dark-1440-top.png",
+      "sha256": "c5d7d4d0f82d7098ddd141e77f645c242b85e6b4530d145e2dba0509a59adc1d",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Three model/platform/Nexus roles and the notes-to-checked-brief example are clear; no follow-up date is invented, and host dependence is explicitly stated.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-3/home-dark-420-full.png",
+      "sha256": "57cbaf6c6eda2a9471b641dae9e1dca147db654dcebbab8cbf26aef88af885f7",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Three model/platform/Nexus roles and the notes-to-checked-brief example are clear; no follow-up date is invented, and host dependence is explicitly stated.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "structure-only overview with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-3/home-dark-420-nhg-why.png",
+      "sha256": "6bb22d2edbe087a59aced7fa65f0201bb074d7b2736ca368ea45aa9542fed68d",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Three model/platform/Nexus roles and the notes-to-checked-brief example are clear; no follow-up date is invented, and host dependence is explicitly stated.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-3/home-dark-420-top.png",
+      "sha256": "cb0dda8b39f3f5905c121b6cf6097f30a4e0cff3214ea3c3a46e886f0bd13353",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Three model/platform/Nexus roles and the notes-to-checked-brief example are clear; no follow-up date is invented, and host dependence is explicitly stated.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-3/home-light-1440-full.png",
+      "sha256": "593cce67d73cc94d2210a7da6f12fff90d1b69899d875876f8155d9c0bd0ddab",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Three model/platform/Nexus roles and the notes-to-checked-brief example are clear; no follow-up date is invented, and host dependence is explicitly stated.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "structure-only overview with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-3/home-light-1440-nhg-why.png",
+      "sha256": "14b0e30342372f28446886fd7e986c434738126899c978cbad4910ce712bc0ff",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Three model/platform/Nexus roles and the notes-to-checked-brief example are clear; no follow-up date is invented, and host dependence is explicitly stated.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-3/home-light-1440-top.png",
+      "sha256": "cd068bfa9b5eaa3ad52574f482d7275f66a569b20cbee2c242e3652a7c11b441",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Three model/platform/Nexus roles and the notes-to-checked-brief example are clear; no follow-up date is invented, and host dependence is explicitly stated.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-3/home-light-420-full.png",
+      "sha256": "c6c15506ba4ece3e2aefa9e41cd14930c0982781664162690143732c79cd0d66",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Three model/platform/Nexus roles and the notes-to-checked-brief example are clear; no follow-up date is invented, and host dependence is explicitly stated.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "structure-only overview with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-3/home-light-420-nhg-why.png",
+      "sha256": "fb131efd485992ee9287e9ec321afe035d9a693b99c6485dbf39e5159a809112",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Three model/platform/Nexus roles and the notes-to-checked-brief example are clear; no follow-up date is invented, and host dependence is explicitly stated.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-3/home-light-420-top.png",
+      "sha256": "07cb55913f2b9e529cdf7731e73ca1496cc6bce1d7812972f93651e4ec8424c4",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Three model/platform/Nexus roles and the notes-to-checked-brief example are clear; no follow-up date is invented, and host dependence is explicitly stated.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-1440-full.png",
+      "sha256": "4d0ff3f8b02d53851c930751791c9058c1872b550b6fc20dd5f5a15d52b15e2d",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical intermediate page: first four rebuilt lessons followed by older long platform/harness sections; Phase 5 completes the seven-lesson sequence.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H4"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-1440-fx-context.png",
+      "sha256": "6594ccb7fc00a69fb2eed41eae406e72d48d358193c86e833f4a8c1306f7debc",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Selected meeting notes and summary feed one current-request budget; evidence trace and excluded material are distinct.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-1440-fx-model-lifecycle-bottom.png",
+      "sha256": "b62f2c0bb7be3721dcd3acd24cfc62d3864ebb70c230cdcf6e21c8ab41ee6bdd",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-1440-fx-model-lifecycle.png",
+      "sha256": "a12b05466ae46ef1845cbc7cb8198ff3a613eaef75f5c7cdb9d454e816796c4b",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-1440-fx-prompts.png",
+      "sha256": "5ecbba14660fb86d60433a5ed1155fa031bb729d382cdea583831401a8c4ab15",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Task, evidence and format are separated; missing owners/dates are explicitly unknown rather than guessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-1440-fx-tokens.png",
+      "sha256": "6a6a813854a2f064d3f6ed5655e2f9f6630b3828b8d476a0610704988b6e2562",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Text-token example names its tokenizer; budget and image sketch caveats visibly avoid universal/exact-count claims. Closed alternate example not assessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-1440-top.png",
+      "sha256": "d23202bf4557c2599a4314e319162c11cd4cb08bff08999e057d96aee09cba84",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-420-full.png",
+      "sha256": "53125ac74cfdb40e31c1d47a84bcd0facf25bfb28b3b26c3de12b765f5b312b3",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical intermediate page: first four rebuilt lessons followed by older long platform/harness sections; Phase 5 completes the seven-lesson sequence.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H4"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-420-fx-context-bottom.png",
+      "sha256": "70fdfcab5f1d1fad817a6c61f48a2ac6aa0a7103edfa782bf7fccf7a01cceeee",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Selected meeting notes and summary feed one current-request budget; evidence trace and excluded material are distinct.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-420-fx-context.png",
+      "sha256": "6c6140b2c9251435c930ab48d40c74331b3b8b14d84465353319098102aaff3b",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Selected meeting notes and summary feed one current-request budget; evidence trace and excluded material are distinct.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-420-fx-model-lifecycle-bottom.png",
+      "sha256": "20496f7188376198bd18e9e463c5ff328fc4cec746b96e92815fc80fbe4a01b5",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-420-fx-model-lifecycle.png",
+      "sha256": "7010140ec300b34a31f043020b766da86be4d18abff015bf1e17a9fad10c5efb",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-420-fx-prompts-bottom.png",
+      "sha256": "f0017d63f2ab0707213cf3196dcd34a969d65d96101e9e3e7d88b90639d71171",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Task, evidence and format are separated; missing owners/dates are explicitly unknown rather than guessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-420-fx-prompts.png",
+      "sha256": "a7e4fbf5959aee5bfba5eb4c78ada013f4e9ecc048338d02b6baf8fa7809b17d",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Task, evidence and format are separated; missing owners/dates are explicitly unknown rather than guessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-420-fx-tokens-bottom.png",
+      "sha256": "e686dfaf61c0fb0f69716f24c168bf3148cc3fea5cb070f60ad3d57342bd473a",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Text-token example names its tokenizer; budget and image sketch caveats visibly avoid universal/exact-count claims. Closed alternate example not assessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-420-fx-tokens.png",
+      "sha256": "40b914ef4e95a9c7e911fa4163d0280077accf2fe49a86958cd61d5fec52e936",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Text-token example names its tokenizer; budget and image sketch caveats visibly avoid universal/exact-count claims. Closed alternate example not assessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-dark-420-top.png",
+      "sha256": "3af134f32f278cea675966aeab21a995e4bcbe0da2dc840d117d1455a7c30b1b",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-1440-full.png",
+      "sha256": "2cd76368f92ffac235f4aac6dd9746d705e9e9cc3e057a4142a99a262885169e",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical intermediate page: first four rebuilt lessons followed by older long platform/harness sections; Phase 5 completes the seven-lesson sequence.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H4"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-1440-fx-context.png",
+      "sha256": "61fe13ca28c1abd0484ca259773341bb4e518e335be741d1d7c5f2de5da37cb4",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Selected meeting notes and summary feed one current-request budget; evidence trace and excluded material are distinct.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-1440-fx-model-lifecycle-bottom.png",
+      "sha256": "efbedca2c11db2d418d8c4e72a8476cf8d34293ad25f47fdf902f8128526782d",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-1440-fx-model-lifecycle.png",
+      "sha256": "08285211579e3c5f69bb38e7976ad0a81b4cc47ac22e5b05f920eef2306ba861",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-1440-fx-prompts.png",
+      "sha256": "29bcd60ea3344ee058ece3fa1dfeac313aff7e8a7f773bd0af737d6eeebe3e6f",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Task, evidence and format are separated; missing owners/dates are explicitly unknown rather than guessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-1440-fx-tokens.png",
+      "sha256": "7471290c3d370b2e9edc26ecf9417bc8e855688d40dc05c49482d9706a24763a",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Text-token example names its tokenizer; budget and image sketch caveats visibly avoid universal/exact-count claims. Closed alternate example not assessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-1440-top.png",
+      "sha256": "5925bec7adbe20fde1f1d5e4e03018928e2f25ba1fffb0d1c20e7a61f70420d9",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-420-full.png",
+      "sha256": "f38d5662fe1f1a0e79476884d720a846f0144a0ac52a75e786382aa084d48a40",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Historical intermediate page: first four rebuilt lessons followed by older long platform/harness sections; Phase 5 completes the seven-lesson sequence.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "historical issue or existing residual recorded",
+      "findings": [
+        "E-H4"
+      ],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-420-fx-context-bottom.png",
+      "sha256": "4476e3e76dbba1a49f8c20d48d9237c29a7ef381aefd910473417275594b5d18",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Selected meeting notes and summary feed one current-request budget; evidence trace and excluded material are distinct.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-420-fx-context.png",
+      "sha256": "762c6c666969db27e21685d1ca325eebf15ed528098a64be38b7e967f699f60c",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Selected meeting notes and summary feed one current-request budget; evidence trace and excluded material are distinct.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-420-fx-model-lifecycle-bottom.png",
+      "sha256": "5eb2bfd1eaf82f625f3629b0b9d94e4109462178a3df36d8b060d0a422aa3a47",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-420-fx-model-lifecycle.png",
+      "sha256": "c01a2dd89fbb12105123a77778479b4b35544ddfa2e5af26278d701c2501b2fa",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-420-fx-prompts-bottom.png",
+      "sha256": "4b15fc14009bb4a3a398064f2f327accf0967d4863b9662044ff2efc3cc8ff57",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Task, evidence and format are separated; missing owners/dates are explicitly unknown rather than guessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-420-fx-prompts.png",
+      "sha256": "0ddfa16b9d56863889a25b0ee97a5a6184836d2be353c1320f32708ba50da603",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Task, evidence and format are separated; missing owners/dates are explicitly unknown rather than guessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-420-fx-tokens-bottom.png",
+      "sha256": "a95083695904f029a09c353fadf8b87641763f1292eb6bf868087c6da8a7decd",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Text-token example names its tokenizer; budget and image sketch caveats visibly avoid universal/exact-count claims. Closed alternate example not assessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-420-fx-tokens.png",
+      "sha256": "96c441d26d46f483a4f231e175347fd3253c194ed51a5928e7a2680ce5dcb523",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Text-token example names its tokenizer; budget and image sketch caveats visibly avoid universal/exact-count claims. Closed alternate example not assessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-4/foundations-light-420-top.png",
+      "sha256": "fc13707d8aec8b09374fe4861601db6fe8f9f1657c0720e63e39f6b099a49851",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-1440-full.png",
+      "sha256": "a0f3aace3ecfb7306c860bc55f56c0585aad812e203829501f1ea748d9adbfae",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "structure-only overview with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-1440-fx-context.png",
+      "sha256": "ddabf97c1c1e508efa818b33b90bd08042f98cc6460d833c02211cca50ecbfa9",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Selected meeting notes and summary feed one current-request budget; evidence trace and excluded material are distinct.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-1440-fx-graph.png",
+      "sha256": "505984e869db62498c6ab7d51ec0c52792085ab2c740b0eaa3ec80abfb12825d",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Shared input feeds separate branch files, then a join waiting for both results and human review; visible initial state is coherent.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible.",
+        "Historical idle graph capture does not show the later corrected completed decision wording; cannot serve as a receipt for that correction."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-1440-fx-harness.png",
+      "sha256": "fe933814fde1ead417d24943ab4de74910531bf79a3c681be8e1f61bb18c0fb7",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Nested Nexus/platform/model illustration distinguishes reusable procedures, host execution and model output; the example permission boundary remains blocked.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-1440-fx-loop.png",
+      "sha256": "e90cc46293cce1afb6fb259b2a859fb8ce1124c51d9787ae4a739ca7ed8f87b1",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Draft/check/revise/stop cards and two-attempt maximum are visible; the ready state does not claim success.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-1440-fx-model-lifecycle-bottom.png",
+      "sha256": "15da44e9bda7197ef0c6f98376bb1f646366769f4973e192619280f032c1b16a",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-1440-fx-model-lifecycle.png",
+      "sha256": "eec9a5d90abaa27a1b0ce432bcabc15813a827a7a8b7c8a4c6ea6e48e38d1649",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-1440-fx-prompts.png",
+      "sha256": "8ad3109a96808be0e9e96dbffdfd13c9790760cbfd2143c87f1171efe3a4b1ed",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Task, evidence and format are separated; missing owners/dates are explicitly unknown rather than guessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-1440-fx-tokens.png",
+      "sha256": "4c68ec88360ed0331b377b3008bb733f64a4da8d924c60d4f6bf61064f2845ee",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Text-token example names its tokenizer; budget and image sketch caveats visibly avoid universal/exact-count claims. Closed alternate example not assessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-1440-top.png",
+      "sha256": "067b9828bc654bc39d23b674999b631aa2b819d7849b187196908400434aa4d5",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-full.png",
+      "sha256": "0c60f9fcd1026bce9722164ebe7ac085f14c441373755d0101c10c1474b14ab3",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "structure-only overview with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-context-bottom.png",
+      "sha256": "fed3ace37bbe8b0847772ce5342f3a0c812586d52088e606eccc43dd7b845695",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Selected meeting notes and summary feed one current-request budget; evidence trace and excluded material are distinct.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-context.png",
+      "sha256": "c01548b1cbd95c157df58a067171b6311721ba0bb5cae5cb40736663be39e389",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Selected meeting notes and summary feed one current-request budget; evidence trace and excluded material are distinct.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-graph-bottom.png",
+      "sha256": "76831ca8b9114d0b4390da4f56fa529fc254209a0b4a3014e565de6a221210ce",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Shared input feeds separate branch files, then a join waiting for both results and human review; visible initial state is coherent.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible.",
+        "Historical idle graph capture does not show the later corrected completed decision wording; cannot serve as a receipt for that correction."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-graph.png",
+      "sha256": "f943d57cc19571a39e81e456960cb04af5fe2fc71f19faf24d584dbed6acccc6",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Shared input feeds separate branch files, then a join waiting for both results and human review; visible initial state is coherent.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible.",
+        "Historical idle graph capture does not show the later corrected completed decision wording; cannot serve as a receipt for that correction."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-harness-bottom.png",
+      "sha256": "1d5073774c8064bbad9fae402b36610b382a190229099223446c5a158d42b529",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Nested Nexus/platform/model illustration distinguishes reusable procedures, host execution and model output; the example permission boundary remains blocked.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-harness.png",
+      "sha256": "049da41d56001952b6eeef4de98ff66870f775560783c3cfcbae5f514fe6ae5c",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Nested Nexus/platform/model illustration distinguishes reusable procedures, host execution and model output; the example permission boundary remains blocked.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-loop-bottom.png",
+      "sha256": "2ca851bf04aaa13aa1c08bfd8fd7f17b81cee3ab568bbdf75fbeba2199895b40",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Draft/check/revise/stop cards and two-attempt maximum are visible; the ready state does not claim success.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-loop.png",
+      "sha256": "502e66b994523ac70d293a7bd9aeb2b58b56164f860df34f9ccde5932fe732b9",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Draft/check/revise/stop cards and two-attempt maximum are visible; the ready state does not claim success.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-model-lifecycle-bottom.png",
+      "sha256": "0354ef861f983b904451ff888c590719ce5a410a3cc79d004d5c3747476ae0b3",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-model-lifecycle.png",
+      "sha256": "7010140ec300b34a31f043020b766da86be4d18abff015bf1e17a9fad10c5efb",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-prompts-bottom.png",
+      "sha256": "7fc6c05cee2e0e0a69dd1181296d26739f95cb65384916bc01a5e00b8e2048d6",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Task, evidence and format are separated; missing owners/dates are explicitly unknown rather than guessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-prompts.png",
+      "sha256": "a7e4fbf5959aee5bfba5eb4c78ada013f4e9ecc048338d02b6baf8fa7809b17d",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Task, evidence and format are separated; missing owners/dates are explicitly unknown rather than guessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-tokens-bottom.png",
+      "sha256": "9264118bddc670b1f23e891ba1cc61b7b74fecfd7c2febd98211a73addf98f9c",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Text-token example names its tokenizer; budget and image sketch caveats visibly avoid universal/exact-count claims. Closed alternate example not assessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-fx-tokens.png",
+      "sha256": "04b652c25003598ce9afd6fa0ad721ed2b3751dbb9bdced29a5c2203848a2c51",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Text-token example names its tokenizer; budget and image sketch caveats visibly avoid universal/exact-count claims. Closed alternate example not assessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-dark-420-top.png",
+      "sha256": "46d05dd42e5bd3e5ff34e91f8d71c270797730aa3ac92b46298b5c51c7f55cb4",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-1440-full.png",
+      "sha256": "8d1c053a2b68831f6186d4934d2bdcf0086553c2d28c24181f97dae7fe3df903",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "structure-only overview with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-1440-fx-context.png",
+      "sha256": "df8ebd10a04f824a6ffc795b5834de8a45efe7f65fb49517ee986e7ae84d234f",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Selected meeting notes and summary feed one current-request budget; evidence trace and excluded material are distinct.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-1440-fx-graph.png",
+      "sha256": "3a679871a658b11c6192faa3563d8ba1f329805cb773058fdfbe917758c379a3",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Shared input feeds separate branch files, then a join waiting for both results and human review; visible initial state is coherent.",
+      "contrast": "Active graph controls are readable; disabled Combine is notably muted in this historical capture, with its contrast later corrected in Phase 7.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible.",
+        "Historical idle graph capture does not show the later corrected completed decision wording; cannot serve as a receipt for that correction."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-1440-fx-harness.png",
+      "sha256": "b73992b77bef39bec040a6e2e63ea6be7caab51522787a510416dc9e07426bee",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Nested Nexus/platform/model illustration distinguishes reusable procedures, host execution and model output; the example permission boundary remains blocked.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-1440-fx-loop.png",
+      "sha256": "8e859ce404d44e55d4841ac769cd1c8df2110a97964ed83e60f69fbb0545d80e",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Draft/check/revise/stop cards and two-attempt maximum are visible; the ready state does not claim success.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-1440-fx-model-lifecycle-bottom.png",
+      "sha256": "77c012f6603678a2aeed7bb5e6b6b36a84ff7ed9a6199f2664a070dae52cfb1c",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-1440-fx-model-lifecycle.png",
+      "sha256": "22e66796f1916f1397923137c8e09d3319fa8b0becde1985fbfb996d8426469d",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-1440-fx-prompts.png",
+      "sha256": "d0af479c9b575b1ab048b8a891e5b8ee67be66fc42893838fffacfc22dd34054",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Task, evidence and format are separated; missing owners/dates are explicitly unknown rather than guessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-1440-fx-tokens.png",
+      "sha256": "0f0f007857cd5233a1890f7224f1f02823f0f7a67726a7da72e7f23ae58c8723",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Text-token example names its tokenizer; budget and image sketch caveats visibly avoid universal/exact-count claims. Closed alternate example not assessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-1440-top.png",
+      "sha256": "5925bec7adbe20fde1f1d5e4e03018928e2f25ba1fffb0d1c20e7a61f70420d9",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-full.png",
+      "sha256": "36895caa98ba3409ef9f0ba9feebcaed4eec7925633ed509f7268ff0f179cef0",
+      "actually_viewed": true,
+      "typography": "Structure-only overview: small downscaled text is not certified.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Static labels and visible example are coherent; no interactive success inferred.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "structure-only overview with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Full-page image was downscaled by view_image. Assessment is page structure and gross layout, not every line of small text. Paired viewport captures establish legibility only for their visible sections; remaining tiny text is not certified."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-context-bottom.png",
+      "sha256": "c50f0f0baf4daefc33c7e669ca8cecd951f2eb4354fa092d15ca754b58eeae19",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Selected meeting notes and summary feed one current-request budget; evidence trace and excluded material are distinct.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-context.png",
+      "sha256": "484272946b4277b12769f1291cb96c47feef4fff126a73d46adeb181aa2f4a3c",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Selected meeting notes and summary feed one current-request budget; evidence trace and excluded material are distinct.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-graph-bottom.png",
+      "sha256": "e0e935c0d287a375abdc1b879ffd47e1b3478ee8dfce4090a7344eec187c29b1",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Shared input feeds separate branch files, then a join waiting for both results and human review; visible initial state is coherent.",
+      "contrast": "Active graph controls are readable; disabled Combine is notably muted in this historical capture, with its contrast later corrected in Phase 7.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible.",
+        "Historical idle graph capture does not show the later corrected completed decision wording; cannot serve as a receipt for that correction."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-graph.png",
+      "sha256": "ab7136a7fd61ac3a8c332520de5a385a8dcd3735581002a3869a968b129b9a3a",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Shared input feeds separate branch files, then a join waiting for both results and human review; visible initial state is coherent.",
+      "contrast": "Active graph controls are readable; disabled Combine is notably muted in this historical capture, with its contrast later corrected in Phase 7.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible.",
+        "Historical idle graph capture does not show the later corrected completed decision wording; cannot serve as a receipt for that correction."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-harness-bottom.png",
+      "sha256": "02665a8eeed0bcd34f882451901f0854744f51c3d07547a601238c40233726c3",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Nested Nexus/platform/model illustration distinguishes reusable procedures, host execution and model output; the example permission boundary remains blocked.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-harness.png",
+      "sha256": "e0618c6f39c1209167a4d597ef72584dc60803483e24e54e8ec648a6ca7fc710",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Nested Nexus/platform/model illustration distinguishes reusable procedures, host execution and model output; the example permission boundary remains blocked.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-loop-bottom.png",
+      "sha256": "7978f0e096d48f141bd5e06dfff1e7f53ab0862f10b2b8bb4eff3cad22b2ef67",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Draft/check/revise/stop cards and two-attempt maximum are visible; the ready state does not claim success.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-loop.png",
+      "sha256": "7061402bf16b7ca25a3c78a20c933fc1da015d886b29624f1419ccfa5837eeb2",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Draft/check/revise/stop cards and two-attempt maximum are visible; the ready state does not claim success.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-model-lifecycle-bottom.png",
+      "sha256": "9d68ca6e78b55777df7c1a4c8cd1d85c26aaa6f7f9c03c0a1ee6b4784b6bff1f",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-model-lifecycle.png",
+      "sha256": "c01a2dd89fbb12105123a77778479b4b35544ddfa2e5af26278d701c2501b2fa",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-prompts-bottom.png",
+      "sha256": "08880c8ecfb7bec1e3231030c392466416bda6e9f7599820a98e7cdb420c8087",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Task, evidence and format are separated; missing owners/dates are explicitly unknown rather than guessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-prompts.png",
+      "sha256": "0ddfa16b9d56863889a25b0ee97a5a6184836d2be353c1320f32708ba50da603",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Task, evidence and format are separated; missing owners/dates are explicitly unknown rather than guessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-tokens-bottom.png",
+      "sha256": "967c3aa86d57f349feb053ab6cf9408b70189c99528059b11c5d3c8a8b2f03c5",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Text-token example names its tokenizer; budget and image sketch caveats visibly avoid universal/exact-count claims. Closed alternate example not assessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-fx-tokens.png",
+      "sha256": "fd915f1b4a4f79077fa7de650fdb5d0ac9d1b14697f949e56b64f71da18bf075",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Text-token example names its tokenizer; budget and image sketch caveats visibly avoid universal/exact-count claims. Closed alternate example not assessed.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    },
+    {
+      "file": "phase-5/foundations-light-420-top.png",
+      "sha256": "fc13707d8aec8b09374fe4861601db6fe8f9f1657c0720e63e39f6b099a49851",
+      "actually_viewed": true,
+      "typography": "Visible headings, prose, controls and diagram labels are readable at viewport scale.",
+      "wrapping": "No consequential wrap or clipping apparent in the visible viewport; overview limits apply.",
+      "spacing": "Visible sections and illustration panels retain coherent grouping; responsive stacking is consistent.",
+      "semantics": "Visible model explanation distinguishes training from current request and warns fluent output may be wrong; illustrative probabilities are labeled in the complete lesson pair.",
+      "contrast": "Visible text and controls are visually distinguishable; numerical conformance not inferred.",
+      "motion_state": "Captured static/default or idle presentation only; visible Replay/Pause controls do not establish animation behavior.",
+      "verdict": "pass for visible static viewport content with limits",
+      "findings": [],
+      "limitations": [
+        "Still-image inspection establishes only visible static presentation; it does not verify keyboard behavior, animation timing/cancellation, actual user comprehension or numerical contrast ratios.",
+        "Content above or below this viewport is not assessed here; bottom captures may begin underneath sticky navigation. Closed disclosures and other interaction states are not visible."
+      ]
+    }
+  ]
+}

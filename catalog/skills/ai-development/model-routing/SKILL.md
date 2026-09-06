@@ -104,6 +104,12 @@ The helper validates the 4x4 schema, non-empty cells, date, and official-source 
 
 If web search or official docs are unavailable, render the bundled snapshot with `model-map.sh fallback` or `model-map.ps1 fallback`. This emits `offline fallback; stale as of <snapshot-date>` from `last-known-model-map.json`. If the snapshot is missing or fails validation, run the `unavailable` command and use `assess at implementation time` in all 16 cells. Never silently reuse an undated map, invent an id, or collapse the table to the current host.
 
+### Two verification rules the map depends on
+
+**Effort levels are not comparable across models.** An effort name such as `high` does not buy the same amount of thinking on two different models, so an effort sweep measured on one model does not transfer: when the mapped model for a tier changes, re-run the sweep on the new model before trusting the old level. The vendor guidance is to start at the documented default effort and test the other levels against local evals, and the mid and low levels belong in that sweep, because a stronger model at lower effort can beat a weaker model at higher effort on both quality and cost.
+
+**A recognized name is not a known name.** When a query centers on a name the agent does not confidently recognize, or recognizes from a fast-moving area such as AI models and developer tools, the name itself is the thing to verify: search before answering and include the name exactly as the user wrote it in at least one query. Partial background is what makes an out-of-date answer sound authoritative, so familiarity is not a reason to skip the search. This skill's own `references/last-known-model-map.json` exists because these names go stale within months, which is the concrete case for the rule.
+
 ### Step 5: Resolve the active provider
 
 For implementation or direct switching, detect the active platform before assuming switch mechanics:
@@ -176,6 +182,7 @@ Each platform is a small profile. Adding a platform is adding a row, not rewriti
 - [ ] The recommendation states all five signal readings; any `high` maps to `frontier`, and uncertainty maps to `frontier` + `max`.
 - [ ] `model-map.py validate <candidate.json>` passes before a fresh map is written, and all 16 provider cells are non-empty.
 - [ ] A fresh map cites official sources for Anthropic, OpenAI, Google, and Cursor; an offline map visibly uses the date from `last-known-model-map.json`.
+- [ ] When a tier's mapped model changed, the effort sweep was re-run on the new model rather than carried over, and any unfamiliar or fast-moving model name in the request was searched as written before it was used.
 - [ ] `/implement` preserves or upshifts the plan's generic tier when the selected provider model is unavailable.
 - [ ] A direct `/route` model appears in the live-enumerated set, or the picker sentinel leaves the recommendation tier-named and manual.
 - [ ] The switch instruction matches the detected platform's `switch_mechanism` (scriptable execute / Claude Code keystroke / picker instruction) and never scripts a switch on a manual-only platform.

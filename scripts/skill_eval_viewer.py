@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Browser-based viewer for one iteration of the skill-eval-loop.
 
-Renders paired with_skill / without_skill outputs side-by-side, plus the
+Renders with_skill / without_skill outputs and optional raw_memory output, plus the
 benchmark table from benchmark.json. Collects user feedback into a structured
 feedback.json that the next iteration consumes.
 
@@ -46,6 +46,7 @@ from typing import Any
 
 
 _RUN_CONDITIONS = ("with_skill", "without_skill")
+_OPTIONAL_RUN_CONDITION = "raw_memory"
 
 
 def _read_text_safe(path: Path) -> str:
@@ -78,6 +79,13 @@ def collect_iteration_data(iteration_dir: Path) -> dict[str, Any]:
                 "metadata": _read_json_safe(run_dir / "outputs" / "run_metadata.json") or {},
                 "grading": _read_json_safe(run_dir / "grading.json") or {},
             }
+        raw_memory_dir = eval_dir / _OPTIONAL_RUN_CONDITION
+        if raw_memory_dir.is_dir():
+            entry[_OPTIONAL_RUN_CONDITION] = {
+                "response": _read_text_safe(raw_memory_dir / "outputs" / "response.txt"),
+                "metadata": _read_json_safe(raw_memory_dir / "outputs" / "run_metadata.json") or {},
+                "grading": _read_json_safe(raw_memory_dir / "grading.json") or {},
+            }
         evals.append(entry)
 
     benchmark = _read_json_safe(iteration_dir / "benchmark.json") or {}
@@ -96,6 +104,11 @@ def _esc(text: str) -> str:
     return _html.escape(text or "", quote=True)
 
 
+def _render_path(text: str) -> str:
+    """Escape a filesystem path and add safe wrap opportunities at separators."""
+    return _esc(text).replace("\\", "\\<wbr>").replace("/", "/<wbr>")
+
+
 def render_html(data: dict[str, Any], static_mode: bool) -> str:
     """Render the viewer page. `static_mode=True` swaps the submit endpoint
     for a JS Blob download instead of a POST to /submit-feedback."""
@@ -108,7 +121,8 @@ def render_html(data: dict[str, Any], static_mode: bool) -> str:
     return _PAGE_TEMPLATE.format(
         iteration_name=_esc(data["iteration_name"]),
         n_evals=n_evals,
-        iteration_dir=_esc(data["iteration_dir"]),
+        iteration_dir=_render_path(data["iteration_dir"]),
+        iteration_dir_title=_esc(data["iteration_dir"]),
         benchmark_table=benchmark_table,
         eval_blocks=eval_blocks,
         submit_handler=submit_handler,
@@ -140,11 +154,30 @@ def _render_benchmark_table(benchmark: dict[str, Any]) -> str:
             f"<td>{ev['without_skill']['duration_ms_mean']:.0f}</td></tr>"
         )
 
-    return (
+    table = (
         "<table><thead><tr><th>Eval</th><th>with_skill pass</th>"
         "<th>without_skill pass</th><th>Delta</th>"
         "<th>with_skill ms</th><th>without_skill ms</th></tr></thead>"
         f"<tbody>{''.join(rows)}</tbody></table>"
+    )
+    raw_memory = overall.get(_OPTIONAL_RUN_CONDITION, "not_run")
+    if raw_memory == "not_run":
+        return table + "<p><strong>raw_memory:</strong> not_run</p>"
+    if raw_memory.get("status") == "invalid":
+        invalid = ", ".join(_esc(eval_id) for eval_id in raw_memory.get("invalid_evals", []))
+        return table + f"<p><strong>raw_memory:</strong> invalid ({invalid})</p>"
+    invalid_note = ""
+    if raw_memory.get("invalid_evals"):
+        invalid = ", ".join(_esc(eval_id) for eval_id in raw_memory["invalid_evals"])
+        invalid_note = f"<p><strong>Invalid raw_memory evals:</strong> {invalid}</p>"
+    return (
+        table
+        + "<h3>Raw memory arm</h3>"
+        + f"<p><strong>Status:</strong> {_esc(raw_memory['status'])}</p>"
+        + invalid_note
+        + "<table><thead><tr><th>Evals run</th><th>Pass rate</th><th>Duration mean (ms)</th><th>Tokens mean</th></tr></thead>"
+        + f"<tbody><tr><td>{raw_memory['n_evals']}</td><td>{raw_memory['pass_rate']:.3f}</td>"
+        + f"<td>{raw_memory['duration_ms_mean']:.0f}</td><td>{raw_memory['tokens_mean']:.0f}</td></tr></tbody></table>"
     )
 
 
@@ -152,6 +185,16 @@ def _render_eval_block(entry: dict[str, Any]) -> str:
     eval_id = entry["id"]
     ws = entry["with_skill"]
     wos = entry["without_skill"]
+    raw_memory = entry.get(_OPTIONAL_RUN_CONDITION)
+    raw_memory_block = ""
+    if raw_memory is not None:
+        raw_memory_block = f"""
+    <div class="run">
+      <h4>raw_memory (prior notes)</h4>
+      {_render_run_meta(raw_memory)}
+      <pre class="response">{_esc(raw_memory['response']) or '<em>(no response.txt)</em>'}</pre>
+      {_render_grading(raw_memory['grading'])}
+    </div>"""
 
     return f"""
 <section class="eval" data-eval-id="{_esc(eval_id)}">
@@ -169,6 +212,7 @@ def _render_eval_block(entry: dict[str, Any]) -> str:
       <pre class="response">{_esc(wos['response']) or '<em>(no response.txt)</em>'}</pre>
       {_render_grading(wos['grading'])}
     </div>
+    {raw_memory_block}
   </div>
   <div class="feedback">
     <label><strong>Verdict:</strong>
@@ -253,19 +297,21 @@ _PAGE_TEMPLATE = """<!doctype html>
 <title>skill-eval-loop viewer - {iteration_name}</title>
 <style>
 body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-       max-width: 1400px; margin: 1.5em auto; padding: 0 1.5em; line-height: 1.4; }}
+       max-width: 1400px; margin: 1.5em auto; padding: 0 1.5em; line-height: 1.4;
+       overflow-wrap: anywhere; }}
 h1 {{ border-bottom: 2px solid #333; padding-bottom: 0.3em; }}
 .tabs {{ display: flex; gap: 0.5em; margin: 1em 0; border-bottom: 1px solid #ccc; }}
 .tab-btn {{ padding: 0.5em 1em; background: #eee; border: none; cursor: pointer; }}
 .tab-btn.active {{ background: #333; color: white; }}
 .tab-content {{ display: none; }}
 .tab-content.active {{ display: block; }}
-.grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1em; }}
+.grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1em; }}
 .run {{ background: #fafafa; padding: 0.8em; border: 1px solid #ddd; border-radius: 4px; }}
 .run h4 {{ margin-top: 0; }}
 .response {{ background: white; padding: 0.6em; border: 1px solid #eee; max-height: 24em; overflow: auto;
              white-space: pre-wrap; word-wrap: break-word; font-size: 0.85em; }}
 .meta {{ color: #666; font-size: 0.85em; margin: 0.3em 0; }}
+.source-path {{ display: block; width: 100%; max-width: 100%; box-sizing: border-box; white-space: normal; overflow-wrap: anywhere; word-break: break-all; }}
 .grading {{ list-style: none; padding-left: 0; margin: 0.5em 0; font-size: 0.85em; }}
 .grading li {{ padding: 0.3em; margin: 0.2em 0; }}
 .grading li.pass {{ background: #e8f5e9; }}
@@ -285,7 +331,8 @@ button.submit {{ padding: 0.6em 1.5em; font-size: 1em; background: #1976d2;
 </head>
 <body>
 <h1>skill-eval-loop viewer</h1>
-<p>Iteration: <strong>{iteration_name}</strong> &middot; Evals: {n_evals} &middot; Source: <code>{iteration_dir}</code></p>
+<p>Iteration: <strong>{iteration_name}</strong> &middot; Evals: {n_evals}</p>
+<p>Source: <code class="source-path" title="{iteration_dir_title}">{iteration_dir}</code></p>
 <div class="tabs">
   <button class="tab-btn active" data-tab="outputs">Outputs</button>
   <button class="tab-btn" data-tab="benchmark">Benchmark</button>

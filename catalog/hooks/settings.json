@@ -1,8 +1,8 @@
 {
-  "effortLevel": "medium",
+  "effortLevel": "high",
   "model": "opus",
   "env": {
-    "CLAUDE_CODE_EFFORT_LEVEL": "medium"
+    "CLAUDE_CODE_EFFORT_LEVEL": "high"
   },
   "hooks": {
     "SessionStart": [
@@ -98,6 +98,10 @@
           },
           {
             "type": "command",
+            "command": "bash .claude/hooks/html-responsive-guard.sh"
+          },
+          {
+            "type": "command",
             "command": "bash .claude/hooks/large-file-guard.sh"
           },
           {
@@ -116,6 +120,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/secret-scan.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/html-responsive-guard.sh"
           },
           {
             "type": "command",

@@ -23,6 +23,7 @@ _SHELL_HOOKS = (
     "compress-output",
     "escalation-trigger",
     "git-guardrails",
+    "html-responsive-guard",
     "large-file-guard",
     "memory-store-guard",
     "old-version-docs-guard",

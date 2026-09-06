@@ -25,12 +25,6 @@
 ## {{PRIMARY_LANGUAGE}} Conventions
 {{LANGUAGE_CONVENTIONS}}
 
-## Communication Style
-- Place punctuation outside quotation marks (logical punctuation)
-- No em-dashes; use parentheses, commas, or separate sentences
-- Professional teaching tone
-- Never hard-wrap paragraph text at a fixed column width; write each paragraph or bullet point as a single continuous line and let the editor or terminal handle visual wrapping
-
 ## Communication Contract
 
 - Outcome first, in language a non-engineer follows; define jargon in place; put detail beyond ~5 lines in a linked docs/ file.
@@ -38,8 +32,34 @@
 - Number steps, prerequisites first, expected results. After an error, re-issue ALL remaining steps renumbered.
 - Close tasks with Completed / Verified / Open / Next.
 - Work still running at turn end: lead with a one-line status banner, cap the update at ~8 lines.
+- Say in one line what you are about to do; on a long tool-calling turn, add brief progress notes. This narration is not tool output, so Output Minimization still applies.
+- Use lists when asked or when content is multifaceted; drop bullets, headers, and bold when the reader wants minimal formatting; keep conversational or emotional exchanges in plain prose.
 
 Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
+
+## Writing Discipline
+
+Do not produce the high-frequency AI-cliche moves: throat-clearing openers; "not just X, but Y" and "it is not X, it is Y" contrasts; importance puffery ("crucial", "it is important to note"); weasel attribution ("experts say", "studies show"); faux-insight setups ("here is the thing"); trailing "-ing" clauses that restate a sentence as analysis; fake-profound closing lines; summary-recap endings; and mannered prose, where metaphor or flourish stands in for a direct statement.
+
+Punctuation is ASCII only: no em-dashes, no clause-joining spaced hyphens, punctuation placed outside quotation marks by logic, and no hard-wrapping of paragraph text. Keep a professional teaching tone.
+
+Chatbot leftovers are defects, not style: never emit "as an AI language model", "here is the revised version", or "I hope this helps".
+
+Self-check: before returning any response or writing any file, scan your own output against this list and fix what you find. This binds live chat replies, not only generated documents.
+
+Full catalog and the Edit / Detect modes: `anti-slop-editing`.
+
+## Documentation Layout
+
+Use lifespan as the single placement axis for project documentation.
+
+- Active release work: `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`.
+- Closed release work: `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/`.
+- Living product documentation: stable purpose-based roots such as `docs/handbooks/`, `docs/guides/`, `docs/reference/`, `docs/standards/`, `docs/runbooks/`, and `docs/decisions/`.
+
+Admission test: "Will this document still change after this release closes?" If yes, use a living root. If no, use the matching active release tree.
+
+Use the `docs-layout-refactor` skill for classification, migration, and link-integrity procedures.
 
 ## Critical Rules
 - Verify work before marking complete
@@ -75,6 +95,13 @@ The walkthrough must explain what the current work is doing without assuming cod
 
 This is context guidance, not a mechanically enforced tool gate. A parity check can verify that the rule ships consistently, but it cannot guarantee that an agent follows it on every turn.
 
+The boundary itself is stated once, in `## Autonomous Operation`: reversible work the request already covers proceeds without asking; destructive actions and genuine scope changes stop here.
+
+## Autonomous Operation
+
+You are operating autonomously: the user may not be watching in real time and cannot answer mid-task, so asking permission for work the original request already covers blocks progress. Proceed on the reversible steps that follow from the request. Stop for destructive actions and genuine scope changes; that is the one boundary, and `## Consequential Decisions` governs how such a stop is presented. When the user is describing a problem, asking a question, or thinking out loud rather than requesting a change, the deliverable is the assessment: report and stop. Before ending a turn, read your last paragraph; if it is a plan, an analysis, or a promise about work not yet done, do that work now instead of announcing it. Prefer a targeted edit over rewriting a whole file when the result is the same, because a rewrite spends output and time for no gain.
+
+The user's instructions take precedence over guidelines in a skill. Routine skill lookup stays unmentioned, but when a skill instruction would block, narrow, or alter what the user asked for, follow the user, name the skill, link its `SKILL.md`, and quote the line you set aside; if the file cannot be found, say so by name rather than inventing a path. When two skills conflict with each other and neither with the user, apply the rule-ownership convention and name both.
 ## Output Minimization
 - Suppress verbose progress bars, banners, and informational logs from commands unless they indicate an error
 - Prefer `--quiet`, `--silent`, or `-q` flags when running package managers, build tools, and test runners
@@ -87,6 +114,11 @@ This is context guidance, not a mechanically enforced tool gate. A parity check 
 - Use the labeled parts **Completed** (what changed), **Verified** (the evidence), **Open** (blocked, skipped, or deferred work; "nothing outstanding" when empty), **Next** (the concrete next step)
 - Keep it scannable and factual: do not restate the conversation or add preamble
 - Output-minimization rules never apply to this summary: suppress verbose logs, never the closing summary
+
+## Construction Discipline
+- After reading the real flow, stop at the first sufficient rung: skip, reuse this codebase, stdlib, native feature, installed dependency, one line, then minimum.
+- Governs what you build, not how you talk. Do not drop trust-boundary, data-loss, security, accessibility, or a proving command owned by `verification-before-completion`.
+- End-of-Task Summary and user-requested explanation are not debt. `minimal-construction` and `over-engineering-review` own intensity and delete-lists. Mark a cut ceiling with `construction-debt:`.
 
 ## Context References
 - Skills: `.claude/skills/` (auto-activated by task context)
@@ -148,6 +180,6 @@ Note: Each parallel agent should have its own Playwright instance to avoid sessi
 -->
 
 ## Skill Discovery
-Before starting any complex task, use the `search_skills` MCP tool to find the most relevant Nexus-Hub skill. Load the top match at L1 to decide if it applies, then at L2 if it does. Do not mention the skill lookup to the user. If the MCP tool is unavailable, refer to the SKILL INDEX section below.
+Before starting any complex task, use the `search_skills` MCP tool to find the most relevant Nexus-Hub skill. Load the top match at L1 to decide if it applies, then at L2 if it does. Do not mention the skill lookup to the user. Disclosure of a skill instruction that blocks, narrows, or alters the request is governed by `## Autonomous Operation`. If the MCP tool is unavailable, refer to the SKILL INDEX section below.
 
 {{SKILL_INDEX}}

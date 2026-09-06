@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -165,5 +166,38 @@ def save_config(root: Path, config: StoreConfig) -> None:
     write_marker(root)
     path = root / CONFIG_NAME
     payload = json.dumps(asdict(config), indent=2, sort_keys=True) + "\n"
-    path.write_text(payload, encoding="utf-8")
+    _atomic_write_text(path, payload)
     restrict_private(path)
+
+
+def _atomic_write_text(path: Path, payload: str) -> None:
+    """Replace *path* with *payload* atomically.
+
+    ``Path.write_text`` truncates before it writes, so a concurrent reader can
+    observe a zero-byte file and fail to parse it. Writing a sibling temp file
+    and replacing means a reader sees either the whole old file or the whole
+    new one, never a partial state. The temp file is a sibling so the replace
+    stays on one filesystem, which is what makes it atomic.
+    """
+    tmp = path.with_name(f"{path.name}.tmp.{os.getpid()}")
+    try:
+        tmp.write_text(payload, encoding="utf-8")
+        restrict_private(tmp)
+        # os.replace is atomic on POSIX and Windows, but on Windows it can
+        # raise PermissionError while another process holds the destination
+        # open for reading. That window is microseconds, so a short bounded
+        # retry closes it without inventing a lock.
+        last: OSError | None = None
+        for attempt in range(10):
+            try:
+                os.replace(tmp, path)
+                return
+            except PermissionError as exc:  # pragma: no cover - Windows-only timing
+                last = exc
+                time.sleep(0.01 * (attempt + 1))
+        raise last if last is not None else OSError(f"could not replace {path}")
+    finally:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
