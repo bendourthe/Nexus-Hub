@@ -36,4 +36,3 @@ the counts were recomputed from the merged catalog in this landing and now sum t
 - **Plan reference**: `docs/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-task 4.2
 - **Reason**: `capture_screenshot.py` drives a headless Chromium-family browser, which is not reliably present in CI or on the dev host, so it is documented and degrades gracefully (exit 3 with an install hint) rather than unit-tested. The perceptual-diff core (`perceptual_diff.py`) IS fully tested (7 cases, Pillow-gated), and `Pillow` was added to the CI tests job so those run.
 - **Suggested next step**: Add a browser-gated smoke test in a CI job that installs a headless browser, or exercise it in the Phase 7 end-of-shift orchestrator's visual-regression step when a browser is available.
-
