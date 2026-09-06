@@ -62,6 +62,7 @@ The `implement-phase` skill auto-detects the final phase of a plan and runs a re
 - Resolve known gaps and deferred work (skill sub-phase 9A) and verify tests + CI/CD readiness (9B) as before.
 - For the documentation cleanup, standard update checks, and the version bump / changelog / tag / push (skill sub-phases 9C-9E), hand off to **`/update release`**, which runs docs + devlog + gitignore + version (via `scripts/check_version_sync.py`) + changelog + refactor, then cleans up, commits, tags, and pushes as one atomic flow.
 - Hand off only after the integration pull request is green and merged. A non-green integration holds the release.
+- Before the final-phase local/publication gate, delegate living handbook refresh to `technical-documentation` and its `references/handbook-refresh.md`; `/update release` rechecks the integrated candidate before version changes.
 - Never create a tag or push automatically; `/update release` keeps its own confirmation gates.
 
 ## Optional fan-out
