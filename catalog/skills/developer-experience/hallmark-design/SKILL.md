@@ -50,9 +50,15 @@ The skill is invoked with one of four verbs. The default (no verb) is `build`.
 
 `audit` must be invokable from the Coding pillar over any rendered surface: pass it the HTML/JSX and it returns the findings table without mutating the source.
 
+## Contextual and positive design gate
+
+Study supplied references and real brand assets before judging patterns. The catalog below diagnoses unmotivated repetition and weak hierarchy; it is not a ban on gradients, rounded corners, centered compositions, curves, color variation, or animation. Record the reader-visible defect and compare with the reference before changing a motif. Purposeful brand-consistent exceptions are valid, with accessibility still required. Do not trade a generic design for an empty, flat, monotonous one.
+
+A positive pass requires reference/brand fidelity, readable hierarchy, useful visual emphasis, content-specific composition, deliberate color and motion, and appropriate use of space. Audit adjacent sections and animated states, not just isolated settled screenshots. Judge repeated card grids, accent borders, oversized eyebrows, decorative bullets, giant blank dividers, and uniform slide layouts in context; do not enforce arbitrary quotas or claim that a style proves AI authorship. Mechanical fit and anti-pattern absence cannot substitute for this positive visual review. These principles also apply when document and slide generators delegate visual review here; interactive HTML specifics belong to `document-to-interactive-html`'s dual-view contract.
+
 ## Anti-Slop Gate Catalog
 
-Every `build` output must pass these gates; `audit` reports each one it fails; `redesign` clears them. Gates are grouped by concern.
+Apply these gates through the contextual and positive review above; report concrete failures, preserving justified brand and content choices. Gates are grouped by concern.
 
 ### Layout
 

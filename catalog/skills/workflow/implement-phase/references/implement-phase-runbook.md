@@ -96,6 +96,8 @@ Used only when the resolved mode is `full` (alias `in-full`) or `phase-by-phase`
 
 ## Phase 9: Final-phase completion workflow (release-readiness)
 
+During living-documentation reconciliation, run `technical-documentation`'s `references/handbook-refresh.md` on the actual final-phase candidate before the local completion/publication gate. Update both handbook views with approved settings and retain freshness, coverage, and browser evidence. The subsequent `/update release` handoff rechecks the integrated candidate before its version bump; it does not defer all handbook work until after publication. Existing CI/integration and release approval gates remain in force.
+
 Runs only when `is_final_phase = true` AND Phase 8 completed cleanly. If `is_final_phase` is false because prior phases are unchecked, do not run Phase 9; say so and stop the release handoff.
 
 Every last-phase duty is fail-closed. Announce the queued sub-phases. A duty is omitted only by writing a known-gap (`QG` or `DF`) with Source phase, Plan reference, Reason, and Suggested next step. If the user asks to skip a duty without that recorded gap, refuse. Every step is idempotent and prompts before it commits, archives, or tags.
