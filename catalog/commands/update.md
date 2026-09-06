@@ -28,7 +28,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
       Reply with a number or a scope name.
 
-- `release` first verifies the integration gate (below), then runs the focused scopes in order - `docs`, then `gitignore`, then `version`, then `changelog`, then `devlog`, then `refactor` - then reconciles the version's known gaps, RE-CHECKS CI/CD conformance, regenerates the supply-chain manifest, cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
+- `release` first verifies the integration gate (below), then runs the focused scopes in order - `docs`, then `gitignore`, then `version`, then `changelog`, then `devlog`, then `refactor` **with `--canonicalize-layout` engaged** - then reconciles the version's known gaps, RE-CHECKS CI/CD conformance, regenerates the supply-chain manifest, cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
     - The CI/CD step is a CONFORMANCE RE-CHECK, not an authoring pass. The plan's final phase already ran the terminal reconciliation via `[[cicd-architect]]` before it published; by release time the pipeline is reconciled and this step confirms it still is. If it finds unreconciled drift, that is a finding against the plan's final phase, and the fix belongs there rather than in a release-time rewrite of the pipeline.
 
 ## Delegation
@@ -43,7 +43,7 @@ Dispatch the resolved scope to the retained skill(s). These targets are skills u
       refactor  -> docs-layout-refactor + project-refactor (per-version docs structure + archive normalization + empty-dir/duplicate/orphan/structure-complexity detectors; see the refactor scope below)
       config    -> update-config (built-in) + config-consistency-checker / nexus-hub doctor (see below)
       commit    -> code-commit-workflow
-      release   -> integration gate (see below) -> docs -> gitignore -> version -> changelog -> devlog -> refactor (docs structure + cleanliness) -> known-gaps reconciliation -> CI/CD conformance re-check -> manifest, then clean up, commit, tag, push, publish GitHub Release (see below)
+      release   -> integration gate (see below) -> docs -> gitignore -> version -> changelog -> devlog -> refactor (docs structure + cleanliness, ALWAYS with --canonicalize-layout) -> known-gaps reconciliation -> CI/CD conformance re-check -> manifest, then clean up, commit, tag, push, publish GitHub Release (see below)
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file owns only scope resolution and the release sequencing.
 
@@ -181,6 +181,9 @@ The `refactor` scope delegates to `[[docs-layout-refactor]]` (the `docs/` tree) 
 - **Whole docs-tree migration (any repo)**: migrate the ENTIRE docs tree - every version directory AND the archive, not just the active version - to the `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/` scheme (with `plans/` and `comparisons/` subdirs). Reshape any flat `docs/<vSEMVER>/` or old three-level `docs/versions/v<MAJOR>/<vSEMVER>/` directory into `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`, merge patch releases into their shared minor dir, relocate stray comparison reports into `comparisons/`, normalize `docs/archives/` to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/`, and repair every internal reference. This generalizes to ANY repo: `/update refactor` (and, at release, `/update release`) canonicalizes that repo's whole docs tree via the `[[docs-layout-refactor]]` `--canonicalize-layout` path, so a project adopting Nexus-Hub gets the same migration with one command.
 - **Living docs canonicalize**: if `docs/handbooks/` or `docs/decisions/` is missing, scaffold the required living tree (detection-first; never overwrite inherited files). Do not invent `docs/testing/` or `docs/validation/`.
 - **Project cleanliness**: run the `project-refactor` cleanliness detectors - empty directories (respecting `.gitkeep`), duplicate/redundant files, non-version orphans, and overcomplicated structure - propose-only, with the skill's confirmation gate.
+
+- **At `release` scope the canonicalize path is ALWAYS engaged** (v4.0.1). `/update release` invokes `[[docs-layout-refactor]]` with `--canonicalize-layout` so a repository still on a legacy layout has the migration DETECTED and PROPOSED as part of the release, rather than receiving only the passive `Continuing in place; run /update refactor to migrate` notice. Without this the flag was never set at release, so Step 8's canonicalize branch could not run and the drift was silently carried into the release. Most projects never think about their docs structure and will never run `/update refactor` on its own; the release is the one moment the check is guaranteed to happen.
+- **Engaging the path does NOT move files.** The skill's confirmation gate is unchanged: the proposal is presented with its link-integrity proof and nothing moves until the user approves. A release therefore always SURFACES structural drift and never silently restructures a repository. Declining at the gate leaves the legacy layout honoured in place and the release continues.
 
 Both delegate skills stay propose-then-apply; this scope surfaces the checks and defers the procedure to them.
 
