@@ -1189,20 +1189,13 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
 .cx-png{display:block;width:100%;height:auto;}
 .ml-room-camera{transform-box:fill-box;transform-origin:center;}
 .ml-capability:focus-visible,.ml-reasoning:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px;}
-/* The tokens diagram scales with its container, so its two role labels shrink with it. At
-   340px and below the label rendered about 11px tall on a Linux font stack, under the 11.5px
-   legibility floor the render gate enforces; a Windows stack clears it at the same declared
-   size, which is why this only ever showed on CI.
-
-   Font size alone cannot fix it. A Linux stack is also about 16 percent WIDER here, and the
-   label already fills most of its stage box, so any size legible on Linux overflowed the box
-   there. Whether the text fits its box is a ratio in SVG user units and so does not change
-   with scale, while rendered height does. Give the diagram more room instead: trimming the
-   container padding in this narrow band widens it from 238px to 262px, which raises the
-   rendered height by a tenth and leaves the fit untouched. The declared size then only has to
-   cover the rest. Every viewport above 340px is unchanged. */
+/* Below 340px this diagram scales down until its role labels stop being legible: CI's Linux
+   font stack draws them near 0.79x the height and 1.16x the width of the Windows one, so the
+   label missed the 11.5px floor there only. Size alone cannot fix it (taller also means wider,
+   and the label already fills its stage box), and widening past the scene box is its own gate.
+   So: trim padding for room, raise the size, and shorten the label to match its sibling. */
 @media (max-width:340px){.fx-duo .fx-tokimg{padding-left:4px;padding-right:4px;}
-.fx-svg[data-phase2-diagram] .fxt--role{font-size:14px;}}
+.fx-svg[data-phase2-diagram] .fxt--role{font-size:16px;}}
 </style>
 </head>
 <body>
@@ -1417,7 +1410,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
             </defs>
             <g data-image-stage="source">
               <rect class="fx-tokcard" x="6" y="8" width="116" height="146" rx="10"/>
-              <text class="fxt fxt--role" x="10" y="28">ONE PICTURE</text>
+              <text class="fxt fxt--role" x="10" y="28">1 PICTURE</text>
               <use href="#nxp-tokimg"/>
               <path class="fx-token-grid" d="M46 40V148 M82 40V148 M10 76H118 M10 112H118" aria-hidden="true"/>
               <rect class="fx-tokcell-edge" x="10" y="40" width="108" height="108" rx="8"/>
