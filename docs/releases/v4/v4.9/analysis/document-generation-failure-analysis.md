@@ -1,5 +1,7 @@
 # Document Generation Failure Analysis
 
+**Historical evidence notice (2026-09-05)**: Observations and verification limits below describe the inspected specimen at the time. Implementation decisions are consolidated in the [master v4.9.0 plan](../plans/v4.9.0-interactive-handbooks-and-presentation-default.md#evidence-reconciliation-and-precedence), whose conflict resolutions supersede earlier recommendations. A reference to a rejected local rebuild below does not describe the subsequently approved artifact or qualify the generic catalog.
+
 **Date**: 2026-09-04
 **Status**: Analysis and implementation requirements; catalog changes not implemented
 **Companion**: [Interactive handbooks plan](../plans/v4.9.0-interactive-handbooks-and-presentation-default.md)

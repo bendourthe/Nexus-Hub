@@ -1,5 +1,7 @@
 # Interactive handbooks: source analysis and adoption decisions
 
+**Historical evidence notice (2026-09-05)**: Observations and verification limits below describe the inspected specimen at the time. Implementation decisions are consolidated in the [master v4.9.0 plan](../plans/v4.9.0-interactive-handbooks-and-presentation-default.md#evidence-reconciliation-and-precedence), whose conflict resolutions supersede earlier recommendations. A reference to a rejected local rebuild below does not describe the subsequently approved artifact or qualify the generic catalog.
+
 **Date**: 2026-09-04
 **Project**: Nexus-Hub
 **Adoption target**: v4.9.0
@@ -15,7 +17,7 @@ The examples are a strong design reference, but they are not a ready-to-distribu
 
 ## Evidence scope and provenance
 
-Inspected source root: the sibling `rd-data-dev` checkout at `../rd-data-dev/docs/handbooks/`. The guide is `authoring-interactive-handbooks.md`; the five outputs are under `algorithms/`. This is a local, work-in-progress snapshot: Git reports staged additions/renames and further unstaged edits, and the authoring guide is untracked. No source repository files were modified by this planning work.
+Inspected source root: `<workspace>/rd-data-dev/docs/handbooks/`. The guide is `authoring-interactive-handbooks.md`; the five outputs are under `algorithms/`. This is a local, work-in-progress snapshot: Git reports staged additions/renames and further unstaged edits, and the authoring guide is untracked. No source repository files were modified by this planning work.
 
 Nexus-Hub inspected HEAD: `5bdb35870311ffc2f24da656e9af9d3a54dfa9ff`, branch `feat/v4.4.3-guide-illustration-rebuild`. Concurrent guide implementation and reserved v4.7/v4.8 documents were present. These observations are a planning baseline, not a claim about later branch state.
 
