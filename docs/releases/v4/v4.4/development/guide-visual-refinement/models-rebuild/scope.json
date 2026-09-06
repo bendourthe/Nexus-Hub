@@ -1,0 +1,12 @@
+{
+  "baseline_commit": "50d92065",
+  "guide_sha256": "7906b1db228ee4f06d952cc3d87ddb26b90bc6e1ffacdea5c722b61f5223eb86",
+  "guide_bytes": 397110,
+  "outside_models_markup_unchanged": true,
+  "retired_models_engines": [
+    "initMotionOutput",
+    "initNexusFlow"
+  ],
+  "new_dependencies": [],
+  "pipeline_files_changed": []
+}

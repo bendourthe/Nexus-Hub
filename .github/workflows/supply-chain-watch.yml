@@ -1,0 +1,88 @@
+name: Supply-chain watch
+
+# v4.7.0 Phase 6. A SCHEDULED advisory audit of the repository's declared Python
+# dependencies (the six extension packages and their optional extras) against
+# known advisories, plus a manual trigger. It exists because a pull request only
+# runs when someone changes something; an advisory lands on the vendor's clock.
+#
+# This workflow MUST NOT produce a required status check and MUST NOT feed the
+# `ci-required` aggregate. A `schedule` trigger never fires on a pull request,
+# and GitHub leaves a required check from an untriggered workflow Pending
+# forever, which is the exact failure that cost six administrator bypasses to
+# ship v3.17.5. tests/workflows/test_supply_chain_watch.py and
+# scripts/check_required_check_coverage.py both assert it stays out of the set.
+#
+# It fails VISIBLY on an unreachable advisory source or a parse failure rather
+# than passing green on no data: a watch that silently reports nothing is worse
+# than no watch. Because it is not required, a red run blocks no merge; it is a
+# signal for the maintainer.
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly on Monday at 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Scheduled and manual runs are distinct audits; never cancel one for another.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install the declared dependency set
+        # Every extension with every optional extra, so the audit covers the
+        # optional runtimes (MCP, ML, tree-sitter) a user may enable, not only
+        # the stdlib-first default install.
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet --upgrade pip pip-audit
+          for ext in extensions/*/pyproject.toml; do
+            dir="$(dirname "$ext")"
+            extras="$(python - "$ext" <<'PY'
+          import sys, tomllib
+          data = tomllib.load(open(sys.argv[1], "rb"))
+          print(",".join(sorted(data.get("project", {}).get("optional-dependencies", {}))))
+          PY
+          )"
+            if [ -n "$extras" ]; then
+              python -m pip install --quiet -e "${dir}[${extras}]"
+            else
+              python -m pip install --quiet -e "${dir}"
+            fi
+          done
+
+      - name: Audit against known advisories
+        # pip-audit exits 1 when a vulnerability is found and non-zero when the
+        # advisory source cannot be reached; both fail the job on purpose. The
+        # JSON report is the structured artifact; the step summary carries the
+        # human-readable table.
+        run: |
+          set -uo pipefail
+          mkdir -p reports
+          python -m pip_audit --progress-spinner off --format json --output reports/pip-audit.json
+          status=$?
+          python -m pip_audit --progress-spinner off --format markdown >> "$GITHUB_STEP_SUMMARY" || true
+          if [ "$status" -ne 0 ]; then
+            echo "pip-audit exited $status: advisories found or the advisory source was unreachable. See reports/pip-audit.json." >&2
+            exit "$status"
+          fi
+
+      - name: Upload the audit report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pip-audit-report
+          path: reports/pip-audit.json
+          retention-days: 30
+          if-no-files-found: warn

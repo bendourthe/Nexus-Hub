@@ -54,7 +54,7 @@ def test_training_runtime_reduces_files_and_game_state_deterministically(
             )
             page.on("pageerror", lambda error: page_errors.append(str(error)))
             page.goto(f"{GUIDE.resolve().as_uri()}#training/describe", wait_until="load")
-            page.wait_for_function("window.NexusTraining && window.NexusAsteroids")
+            page.wait_for_function("window.NexusTraining && window.NexusShooter")
 
             initial = page.evaluate("window.NexusTraining.snapshot()")
             assert initial["sceneId"] == "describe"
@@ -62,11 +62,11 @@ def test_training_runtime_reduces_files_and_game_state_deterministically(
             assert initial["appliedThrough"] == -1
             assert initial["ran"] is False
             assert initial["game"] == {
-                "collisionMode": "buggy",
-                "splittingEnabled": False,
-                "situation": "wrap-boundary",
+                "damageMode": "buggy",
+                "verticalMovementEnabled": False,
+                "fixture": "enemy-hit",
             }
-            assert set(initial["filePaths"]) == {"src/collision.js", "src/game.js"}
+            assert set(initial["filePaths"]) == {"src/damage.js", "src/game.js"}
             assert page.locator('[data-nht="file-body"] img').count() == 0
 
             invalid_numeric_snapshots = page.evaluate(
@@ -98,22 +98,23 @@ def test_training_runtime_reduces_files_and_game_state_deterministically(
                 assert set(before["filePaths"]) == expected_paths
 
                 if scene["id"] == "describe":
-                    missed = page.evaluate(
+                    # Proof of the seeded bug: in buggy mode the very FIRST enemy shot
+                    # is terminal while lives still read 3.
+                    dead = page.evaluate(
                         """
                         () => {
-                          const api = window.NexusAsteroids;
-                          api.pause("training-proof");
-                          api.reset("wrap-boundary");
-                          return api.step(1 / 60);
+                          const api = window.NexusShooter;
+                          api.reset("enemy-hit");
+                          api.start();
+                          let s = api.snapshot(), n = 0;
+                          while (s.lifecycle !== "destroyed" && n++ < 500) s = api.step();
+                          return s;
                         }
                         """
                     )
-                    assert missed["collisionMode"] == "buggy"
-                    assert missed["score"] == 0
-                    assert missed["missedWrapHits"] == 1
-                    assert [rock["id"] for rock in missed["asteroids"]] == [
-                        "edge-rock"
-                    ]
+                    assert dead["damageMode"] == "buggy"
+                    assert dead["lifecycle"] == "destroyed"
+                    assert dead["lives"] == 3, "the bug destroys the ship without spending a life"
 
                 run_button.click()
                 assert run_button.is_enabled(), "Show now must remain clickable"
@@ -145,15 +146,15 @@ def test_training_runtime_reduces_files_and_game_state_deterministically(
                     assert "<img onerror>" in terminal_text
                     assert terminal.locator("img").count() == 0
                     source_item = page.locator(
-                        '[data-nht="file"][data-file-path="src/collision.js"]'
+                        '[data-nht="file"][data-file-path="src/damage.js"]'
                     )
                     source_item.focus()
                     source_item.press("Enter")
                     active_path = page.evaluate(
                         "document.activeElement && document.activeElement.dataset.filePath"
                     )
-                    assert active_path == "src/collision.js"
-                    page.locator('[data-file-path="src/collision.js"]').press(
+                    assert active_path == "src/damage.js"
+                    page.locator('[data-file-path="src/damage.js"]').press(
                         "ArrowDown"
                     )
                     assert page.evaluate(
@@ -164,30 +165,32 @@ def test_training_runtime_reduces_files_and_game_state_deterministically(
                     result = page.evaluate(
                         """
                         () => {
-                          const api = window.NexusAsteroids;
-                          api.pause("training-proof");
-                          return api.step(1 / 60);
+                          const api = window.NexusShooter;
+                          api.reset();
+                          api.start();
+                          let s = api.snapshot(), n = 0;
+                          while (s.lives === 3 && s.lifecycle !== "destroyed" && n++ < 800) {
+                            s = api.step();
+                          }
+                          return s;
                         }
                         """
                     )
-                    assert result["collisionMode"] == "fixed"
-                    assert result["score"] == 100
-                    assert result["missedWrapHits"] == 0
+                    assert result["damageMode"] == "fixed"
                     if scene["id"] == "implement":
-                        assert result["splittingEnabled"] is False
-                        assert result["asteroids"] == []
+                        # Fixed damage: the first hit costs ONE life and play continues.
+                        assert result["lives"] == 2
+                        assert result["lifecycle"] != "destroyed"
+                        assert result["verticalMovementEnabled"] is False
                         assert page.locator(".diff-add").count() > 0
                         assert page.locator(".diff-remove").count() > 0
                         stable = page.evaluate("window.NexusTraining.snapshot()")
                         assert page.evaluate("window.NexusTraining.run()") == stable
                     else:
-                        assert result["splittingEnabled"] is True
-                        assert [rock["id"] for rock in result["asteroids"]] == [
-                            "fragment-10",
-                            "fragment-11",
-                        ]
+                        assert result["verticalMovementEnabled"] is True
+                        assert result["fixture"] == "play"
 
-            assert "asteroids-briefing.html" in expected_paths
+            assert "shooter-briefing.html" in expected_paths
             body = page.locator('[data-nht="file-body"]')
             assert body.locator("img").count() == 0
             assert not console_errors, f"console errors: {console_errors}"
@@ -230,7 +233,7 @@ def test_training_present_mode_keeps_major_regions_separate(
                 context.route(re.compile(r"^https?://"), lambda route: route.abort())
                 page = context.new_page()
                 page.goto(f"{GUIDE.resolve().as_uri()}#training/describe", wait_until="load")
-                page.wait_for_function("window.NexusTraining && window.NexusAsteroids")
+                page.wait_for_function("window.NexusTraining && window.NexusShooter")
                 page.locator("#nhtPresent").click()
                 page.wait_for_function(
                     "document.getElementById('nhTraining').classList.contains('is-present')"
@@ -309,7 +312,7 @@ def test_training_present_fallback_cleans_up_when_route_changes(
             page_errors: list[str] = []
             page.on("pageerror", lambda error: page_errors.append(str(error)))
             page.goto(f"{GUIDE.resolve().as_uri()}#training/describe", wait_until="load")
-            page.wait_for_function("window.NexusTraining && window.NexusAsteroids")
+            page.wait_for_function("window.NexusTraining && window.NexusShooter")
             page.evaluate(
                 """
                 () => Object.defineProperty(

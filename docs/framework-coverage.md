@@ -12,11 +12,11 @@ Scanned `catalog/skills`. Each row links a public framework control ID to the Ne
 
 | Framework | Distinct controls covered | Skill tags |
 |---|---|---|
-| MITRE ATT&CK | 62 | 101 |
+| MITRE ATT&CK | 64 | 103 |
 | MITRE ATLAS | 4 | 6 |
 | MITRE F3 | 1 | 1 |
-| MITRE D3FEND | 17 | 49 |
-| NIST CSF | 18 | 126 |
+| MITRE D3FEND | 20 | 53 |
+| NIST CSF | 19 | 127 |
 | NIST AI RMF | 2 | 4 |
 
 ## MITRE ATT&CK
@@ -47,6 +47,8 @@ Scanned `catalog/skills`. Each row links a public framework control ID to the Ne
 | `T1070` | disk-artifact-forensics |
 | `T1071` | agent-execution-isolation, ioc-enrichment-and-reputation-triage, log-threat-hunting, security-framework-mapping, siem-detection-engineering, threat-intel-feed-operations |
 | `T1078` | api-object-level-authorization-flaws, cloud-audit-log-detection, cloud-security-posture-detection, honeytoken-placement, identity-threat-detection, jwt-header-and-key-confusion-attacks |
+| `T1080` | agent-execution-isolation |
+| `T1090` | agent-execution-isolation |
 | `T1098` | cloud-audit-log-detection |
 | `T1110` | api-rate-limit-and-abuse-detection, identity-threat-detection |
 | `T1190` | api-inventory-and-undocumented-endpoints, api-object-level-authorization-flaws, api-schema-and-gateway-enforcement |
@@ -106,6 +108,7 @@ Scanned `catalog/skills`. Each row links a public framework control ID to the Ne
 | Control ID | Skills |
 |---|---|
 | `D3-CH` | cryptographic-control-audit, digital-signatures-and-jwt-signing |
+| `D3-CR` | agentic-endpoint-hardening |
 | `D3-DE` | honeytoken-placement |
 | `D3-DNRA` | cert-transparency-and-typosquat-monitoring |
 | `D3-FA` | agent-execution-isolation, agentic-endpoint-hardening, disk-artifact-forensics, malware-triage-analysis, phishing-analysis-and-defense, ransomware-incident-response, skill-security-scan |
@@ -114,10 +117,12 @@ Scanned `catalog/skills`. Each row links a public framework control ID to the Ne
 | `D3-IAA` | ioc-enrichment-and-reputation-triage |
 | `D3-ITA` | api-schema-and-gateway-enforcement |
 | `D3-KBPI` | key-management-and-hsm-integration |
-| `D3-NI` | network-microsegmentation-design, ot-network-segmentation-and-zones |
+| `D3-NI` | agent-execution-isolation, network-microsegmentation-design, ot-network-segmentation-and-zones |
 | `D3-NTA` | agent-execution-isolation, ioc-enrichment-and-reputation-triage, lateral-movement-detection, log-threat-hunting, security-framework-mapping, siem-detection-engineering, skill-security-scan, zero-trust-architecture-design |
 | `D3-PA` | agent-execution-isolation, agentic-endpoint-hardening, cloud-audit-log-detection, cloud-security-posture-detection, container-runtime-detection, endpoint-edr-detection, hunting-credential-dumping, identity-threat-detection, lateral-movement-detection, log-threat-hunting, memory-forensics, persistence-mechanism-hunting, siem-detection-engineering |
+| `D3-PH` | agent-execution-isolation |
 | `D3-PSA` | endpoint-edr-detection, hunting-credential-dumping, memory-forensics |
+| `D3-PT` | agentic-endpoint-hardening |
 | `D3-SCI` | slsa-provenance-and-sigstore-verification |
 | `D3-SFA` | disk-artifact-forensics, persistence-mechanism-hunting |
 | `D3-TBPA` | tpm-measured-boot-attestation |
@@ -140,6 +145,7 @@ Scanned `catalog/skills`. Each row links a public framework control ID to the Ne
 | `PR.DS` | agent-execution-isolation, android-dynamic-app-analysis, android-static-app-analysis, api-rate-limit-and-abuse-detection, api-schema-and-gateway-enforcement, cryptographic-control-audit, digital-signatures-and-jwt-signing, encryption-at-rest-design, firmware-extraction-and-analysis, ios-app-security-review, key-management-and-hsm-integration, mobile-tls-pinning-bypass-assessment, post-quantum-cryptography-migration, scada-historian-threat-detection, slsa-provenance-and-sigstore-verification, tls-certificate-lifecycle, tpm-measured-boot-attestation, uefi-secure-boot-integrity |
 | `PR.IR` | network-microsegmentation-design, ot-network-segmentation-and-zones, zero-trust-architecture-design, ztna-broker-deployment |
 | `PR.PS` | agentic-endpoint-hardening |
+| `PR.PT` | agent-execution-isolation |
 | `RC.RP` | ransomware-incident-response |
 | `RS.AN` | cloud-audit-log-detection, disk-artifact-forensics, malware-triage-analysis, mobile-malware-family-triage, phishing-analysis-and-defense, purple-team-exercise-design |
 | `RS.CO` | ot-incident-response, ransomware-leak-site-monitoring |

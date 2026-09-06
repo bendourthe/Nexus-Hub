@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="4.4.0"
+NEXUS_HUB_VERSION="4.7.0"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'

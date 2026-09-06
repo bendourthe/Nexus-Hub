@@ -1,5 +1,7 @@
 # Approved interactive authoring contract update
 
+**Status clarification (2026-09-05)**: This is a historical record of the local artifact and isolated, uncommitted instruction drafts. The user clarified that the requested Nexus-Hub work is consolidation of the [master v4.9.0 plan](../plans/v4.9.0-interactive-handbooks-and-presentation-default.md), not acceptance of these drafts as implemented phases. The draft references named below are candidate files, not the distributed release authority. Reconcile them against the master plan before adoption; all seven implementation phases remain pending.
+
 Date: 2026-09-05. Local branch: `feat/approved-interactive-authoring`, based on `develop` at `68f3d082`. The user approved the rebuilt board artifact and authorized applying its lessons to presentify, documentation updates, and release updates. This is a scoped command/skill implementation, not execution or completion of the seven-phase v4.9 reusable-runtime plan.
 
 ## Completed

@@ -124,6 +124,13 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Exit non-zero on DRIFTED or UNKNOWN. For local operator tooling only, never CI.",
     )
+    parser.add_argument(
+        "--platform",
+        help=(
+            "Compare against the recorded roster of this platform (a schema-1.1.0 meta.platforms "
+            "entry) instead of the legacy meta roster."
+        ),
+    )
     parser.add_argument("--quiet", action="store_true", help="Print only the verdict line.")
     args = parser.parse_args(argv)
 
@@ -149,12 +156,29 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[profile-freshness] UNKNOWN: {index_path.name} has no usable meta block.")
         return finish(True)
 
-    recorded = meta.get("roster")
+    block = meta
+    if args.platform:
+        block = next(
+            (
+                e
+                for e in (meta.get("platforms") or [])
+                if isinstance(e, dict) and e.get("platform") == args.platform
+            ),
+            None,
+        )
+        if block is None:
+            print(
+                f"[profile-freshness] UNKNOWN: {index_path.name} has no meta.platforms entry for "
+                f"{args.platform!r}."
+            )
+            return finish(True)
+    label = f"meta.platforms[{args.platform}]" if args.platform else "meta"
+    recorded = block.get("roster")
     if not isinstance(recorded, list) or not all(isinstance(entry, str) for entry in recorded):
-        print(f"[profile-freshness] UNKNOWN: {index_path.name} meta.roster is missing or malformed.")
+        print(f"[profile-freshness] UNKNOWN: {index_path.name} {label}.roster is missing or malformed.")
         return finish(True)
-    recorded_hash = str(meta.get("roster_hash", ""))
-    last_verified = meta.get("last_verified", "unknown")
+    recorded_hash = str(block.get("roster_hash", ""))
+    last_verified = block.get("last_verified", "unknown")
 
     live = sorted({model.strip() for model in args.models if model.strip()})
     if not live:

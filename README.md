@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.4.0 -->
+<!-- nexus-hub-version: 4.7.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 329 skills, 18 commands, 34 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -34,6 +34,46 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.7.0
+
+**Releases now ship a verifiable artifact, and installs can be pinned and rolled back.** Every GitHub Release carries `Nexus-Hub-<version>.tar.gz`, a `SHA256SUMS` file, and a build-provenance attestation. Both bootstrap installers verify that download fail-closed for a tagged ref: a checksum mismatch, a missing checksum file, or an unresolvable tag aborts with a distinct message and never installs unverified, while a network failure is reported as a network failure rather than tampering. Pin with `--ref v4.7.0`, move with `nexus-hub upgrade --latest`, and roll back with `nexus-hub upgrade --ref <older tag>`. No package registry and no new secret.
+
+**Every platform carries an always-loaded `## Autonomous Operation` block.** All twelve substantive instruction templates state that the agent proceeds on reversible work the request already covers and stops only for destructive actions and genuine scope changes. It also settles precedence: your instructions outrank a skill's guidelines, routine skill lookup stays silent, and a skill instruction that would block, narrow, or alter your request is disclosed by name with the line quoted. The communication contract gains its progress-narration half and a rule that formatting follows the reader.
+
+**The interactive guide teaches by showing.** The Models section is rebuilt as a visual learning lab whose language, diffusion, world, and multimodal demos run on a shared clock, pause on hover and focus, and stop under reduced motion. Home is simplified around one checked brief example, and its platform handoff is an illustrative Claude Code to Codex conversation resuming a plan interrupted by a usage limit. The token, prompt, and context lessons are rebuilt, with attachment and context previews that open as native dialogs and stay embedded and offline.
+
+**Routing data re-verified and `gpt-6-astra` mapped.** Every cell of the bundled model map was re-fetched from vendor pages, `gpt-6-astra` enters at frontier, and the prompting profile layer now holds more than one platform with its first OpenAI profile. A scheduled supply-chain watch audits the extension packages and optional extras weekly, producing no required status check by construction.
+
+Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. Two opt-in surfaces are new, the pinned install and the upgrade flags; both are documented above with their activation, validation, rollback, and the authority they do not grant.
+
+---
+
+## What's New in v4.5.0
+
+**Every platform now carries an always-loaded writing rule.** A short `## Writing Discipline` block sits in all twelve substantive instruction templates: a prohibition list of the highest-frequency AI-cliche moves, the ASCII punctuation rule that was previously Claude-only, a ban on chatbot leftovers, and a self-check that binds the agent's live chat replies as well as the files it writes. The lockstep parity guard byte-compares it and a twelve-template validator asserts it, so removing it from any one template fails a test. The decision and its alternatives are recorded in `docs/decisions/implemented/policy/2026-09-04-writing-discipline-binds-chat-replies.md`.
+
+**`anti-slop-editing` learns the reflective register and ships a detector.** Nineteen named patterns across seven clusters, each with a before and after pair and a stated class, join the catalog, and `Robotic rhythm` becomes three countable rules. A stdlib-only offline detector reports each finding with line, column, span, and class, exits zero by default, and gates only on request; the skill runs it as a floor before and after editing.
+
+**Agent security closes the boundary gaps the 2026 incidents exposed.** `agent-execution-isolation` gains a host layer beneath the sandbox designed for the case where the virtual machine fails, a transitive-reachability control that treats each allowlisted destination as a node with its own reach, a correction that per-session containers isolate processes and not sessions (with a required enumeration of shared writable services and a remediation ladder), and boundary-interface minimization. `agentic-endpoint-hardening` keeps its advisory default and adds a narrow deterministic response class for violations no legitimate operation produces, guidance only. `purple-team-exercise-design` owns cross-domain attack chaining.
+
+Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. This release changes no opt-in capability, installer flag, or host surface; the Writing Discipline block changes distributed instruction text for every platform, is not opt-in, grants no authority, and is overridden by a project's own instruction file.
+
+---
+
+## What's New in v4.4.5
+
+**Five patch cycles of guide work ship as one tag.** v4.4.1 through v4.4.5 were authored in sequence and held back while the operator reviewed Home and Foundations between rounds. Together they take the guide from the rebuilt structure of v4.4.0 to a product that reads correctly on first look, teaches each idea in the operator's words and order, and integrates the reviewed mockups. The range is 44 commits across 63 files, all inside `guides/website/`, `tests/guides/`, and the v4.4 release docs.
+
+**Every illustration reads correctly on first look.** The guardrails figure was rebuilt so no label can escape its box, Context Engineering reads without a legend, the two harness scenes merged into one figure that cannot overlap, the work-cycle ring was replaced and the video plays itself, and section headings follow one stated size rule. The guide no longer addresses the reader in the second person.
+
+**Each segment teaches its one idea.** Models is rebuilt on the eight-stage spine and teaches how a model works instead of listing what it outputs. One prompt is followed through both harnesses with the operator's analogy: the model is a powerful brain, the platform harness is a graduate degree, the Nexus Hub harness is decades of practical experience. The vague prompt is shown beside the reasons it fails, and the cost of dumping everything into the context is named. Every harness layer now states something and shows the chain.
+
+**Training runs on a deterministic arcade shooter.** It replaces Asteroids with the requested lives bug, asteroid hazard, and vertical-movement feature, adds pointer play and dense varied spawning, and its fullscreen presentation fills the whole window at every desktop size with three panes and an overlaid Outline.
+
+Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. This release changes no opt-in capability, installer flag, or host surface. The release-time platform re-verification found one documentation drift on the Claude Code effort lever and corrected the recorded statement; the seeded value is unchanged.
 
 ---
 
@@ -318,6 +358,20 @@ Selectors need Python to resolve. A full install does not.
 ### Keeping it current
 
 Run `nexus-hub upgrade` -- it reports your installed version against the latest, shows a short what's-new summary, and updates in place on confirmation. Re-running the install command above works too; the installer is idempotent.
+
+### Pinning a version, verifying the download, rolling back
+
+The one-line install above follows the `main` branch, which has no publishable checksum because every commit changes the archive. To install a specific release instead, pin a tag; a pinned install downloads the tarball the project published for that release and verifies it before anything runs.
+
+| Element | Detail |
+|---|---|
+| **Activation** | macOS / Linux: `curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh \| bash -s -- --ref v4.7.0`. Windows: `&([scriptblock]::Create((irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1))) -Ref v4.7.0`. The `NEXUS_HUB_REF` environment variable does the same. |
+| **Validation** | The bootstrap prints `checksum OK (<sha256>)` before extracting; `nexus-hub --version` reports the installed version; `~/.nexus-hub/PINNED_REF` holds the pinned tag. `gh attestation verify Nexus-Hub-4.7.0.tar.gz -R bendourthe/Nexus-Hub` checks the build-provenance attestation of the published tarball. |
+| **Rollback** | `nexus-hub upgrade --ref v4.6.0` installs an older tag (any tag that carries the published artifact set, v4.7.0 and later); `nexus-hub upgrade --latest` moves a pinned install to the newest release; installing `main` again removes the pin. |
+| **Authority** | Verification proves the download is byte-for-byte what the release workflow published for that tag. It does not audit the catalog's content, grant any platform permission, or protect the host; a pinned install receives no updates until you move it. Tags published before v4.7.0 carry no artifact set and fail closed. |
+| **Docs** | `docs/decisions/implemented/policy/2026-09-05-verifiable-pinnable-installs.md`; the bootstrap headers in `install.sh` and `install.ps1`. |
+
+`nexus-hub upgrade` on a pinned install refuses to move and prints those options, so an upgrade never quietly unpins you.
 
 ### Verifying your install
 

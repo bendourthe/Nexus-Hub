@@ -1,0 +1,446 @@
+[
+  {
+    "contextColors": {
+      "request": "rgb(45, 212, 191)",
+      "attachments": "rgb(196, 162, 255)",
+      "goal": "rgb(226, 179, 54)",
+      "context": "rgb(56, 189, 248)"
+    },
+    "promptColors": {
+      "request": "rgb(45, 212, 191)",
+      "context": "rgb(56, 189, 248)",
+      "goal": "rgb(226, 179, 54)",
+      "format": "rgb(34, 211, 238)"
+    },
+    "contextLabels": [
+      "Request",
+      "Attachments",
+      "Goal",
+      "Context"
+    ],
+    "promptLabels": [
+      "Request",
+      "Context",
+      "Goal",
+      "Format"
+    ],
+    "attachmentsAbovePrompt": true,
+    "overflow": false,
+    "clipped": [],
+    "png": true,
+    "legendColorsMatch": true,
+    "width": 320,
+    "theme": "dark",
+    "previewsOpened": 3,
+    "keyboardCloseAndFocusReturn": true,
+    "pageErrors": [],
+    "externalRequests": []
+  },
+  {
+    "contextColors": {
+      "request": "rgb(45, 212, 191)",
+      "attachments": "rgb(115, 65, 166)",
+      "goal": "rgb(138, 95, 15)",
+      "context": "rgb(21, 94, 138)"
+    },
+    "promptColors": {
+      "request": "rgb(45, 212, 191)",
+      "context": "rgb(21, 94, 138)",
+      "goal": "rgb(138, 95, 15)",
+      "format": "rgb(34, 211, 238)"
+    },
+    "contextLabels": [
+      "Request",
+      "Attachments",
+      "Goal",
+      "Context"
+    ],
+    "promptLabels": [
+      "Request",
+      "Context",
+      "Goal",
+      "Format"
+    ],
+    "attachmentsAbovePrompt": true,
+    "overflow": false,
+    "clipped": [],
+    "png": true,
+    "legendColorsMatch": true,
+    "width": 320,
+    "theme": "light",
+    "previewsOpened": 3,
+    "keyboardCloseAndFocusReturn": true,
+    "pageErrors": [],
+    "externalRequests": []
+  },
+  {
+    "contextColors": {
+      "request": "rgb(45, 212, 191)",
+      "attachments": "rgb(196, 162, 255)",
+      "goal": "rgb(226, 179, 54)",
+      "context": "rgb(56, 189, 248)"
+    },
+    "promptColors": {
+      "request": "rgb(45, 212, 191)",
+      "context": "rgb(56, 189, 248)",
+      "goal": "rgb(226, 179, 54)",
+      "format": "rgb(34, 211, 238)"
+    },
+    "contextLabels": [
+      "Request",
+      "Attachments",
+      "Goal",
+      "Context"
+    ],
+    "promptLabels": [
+      "Request",
+      "Context",
+      "Goal",
+      "Format"
+    ],
+    "attachmentsAbovePrompt": true,
+    "overflow": false,
+    "clipped": [],
+    "png": true,
+    "legendColorsMatch": true,
+    "width": 420,
+    "theme": "dark",
+    "previewsOpened": 3,
+    "keyboardCloseAndFocusReturn": true,
+    "pageErrors": [],
+    "externalRequests": []
+  },
+  {
+    "contextColors": {
+      "request": "rgb(45, 212, 191)",
+      "attachments": "rgb(115, 65, 166)",
+      "goal": "rgb(138, 95, 15)",
+      "context": "rgb(21, 94, 138)"
+    },
+    "promptColors": {
+      "request": "rgb(45, 212, 191)",
+      "context": "rgb(21, 94, 138)",
+      "goal": "rgb(138, 95, 15)",
+      "format": "rgb(34, 211, 238)"
+    },
+    "contextLabels": [
+      "Request",
+      "Attachments",
+      "Goal",
+      "Context"
+    ],
+    "promptLabels": [
+      "Request",
+      "Context",
+      "Goal",
+      "Format"
+    ],
+    "attachmentsAbovePrompt": true,
+    "overflow": false,
+    "clipped": [],
+    "png": true,
+    "legendColorsMatch": true,
+    "width": 420,
+    "theme": "light",
+    "previewsOpened": 3,
+    "keyboardCloseAndFocusReturn": true,
+    "pageErrors": [],
+    "externalRequests": []
+  },
+  {
+    "contextColors": {
+      "request": "rgb(45, 212, 191)",
+      "attachments": "rgb(196, 162, 255)",
+      "goal": "rgb(226, 179, 54)",
+      "context": "rgb(56, 189, 248)"
+    },
+    "promptColors": {
+      "request": "rgb(45, 212, 191)",
+      "context": "rgb(56, 189, 248)",
+      "goal": "rgb(226, 179, 54)",
+      "format": "rgb(34, 211, 238)"
+    },
+    "contextLabels": [
+      "Request",
+      "Attachments",
+      "Goal",
+      "Context"
+    ],
+    "promptLabels": [
+      "Request",
+      "Context",
+      "Goal",
+      "Format"
+    ],
+    "attachmentsAbovePrompt": true,
+    "overflow": false,
+    "clipped": [],
+    "png": true,
+    "legendColorsMatch": true,
+    "width": 760,
+    "theme": "dark",
+    "previewsOpened": 3,
+    "keyboardCloseAndFocusReturn": true,
+    "pageErrors": [],
+    "externalRequests": []
+  },
+  {
+    "contextColors": {
+      "request": "rgb(45, 212, 191)",
+      "attachments": "rgb(115, 65, 166)",
+      "goal": "rgb(138, 95, 15)",
+      "context": "rgb(21, 94, 138)"
+    },
+    "promptColors": {
+      "request": "rgb(45, 212, 191)",
+      "context": "rgb(21, 94, 138)",
+      "goal": "rgb(138, 95, 15)",
+      "format": "rgb(34, 211, 238)"
+    },
+    "contextLabels": [
+      "Request",
+      "Attachments",
+      "Goal",
+      "Context"
+    ],
+    "promptLabels": [
+      "Request",
+      "Context",
+      "Goal",
+      "Format"
+    ],
+    "attachmentsAbovePrompt": true,
+    "overflow": false,
+    "clipped": [],
+    "png": true,
+    "legendColorsMatch": true,
+    "width": 760,
+    "theme": "light",
+    "previewsOpened": 3,
+    "keyboardCloseAndFocusReturn": true,
+    "pageErrors": [],
+    "externalRequests": []
+  },
+  {
+    "contextColors": {
+      "request": "rgb(45, 212, 191)",
+      "attachments": "rgb(196, 162, 255)",
+      "goal": "rgb(226, 179, 54)",
+      "context": "rgb(56, 189, 248)"
+    },
+    "promptColors": {
+      "request": "rgb(45, 212, 191)",
+      "context": "rgb(56, 189, 248)",
+      "goal": "rgb(226, 179, 54)",
+      "format": "rgb(34, 211, 238)"
+    },
+    "contextLabels": [
+      "Request",
+      "Attachments",
+      "Goal",
+      "Context"
+    ],
+    "promptLabels": [
+      "Request",
+      "Context",
+      "Goal",
+      "Format"
+    ],
+    "attachmentsAbovePrompt": true,
+    "overflow": false,
+    "clipped": [],
+    "png": true,
+    "legendColorsMatch": true,
+    "width": 900,
+    "theme": "dark",
+    "previewsOpened": 3,
+    "keyboardCloseAndFocusReturn": true,
+    "pageErrors": [],
+    "externalRequests": []
+  },
+  {
+    "contextColors": {
+      "request": "rgb(45, 212, 191)",
+      "attachments": "rgb(115, 65, 166)",
+      "goal": "rgb(138, 95, 15)",
+      "context": "rgb(21, 94, 138)"
+    },
+    "promptColors": {
+      "request": "rgb(45, 212, 191)",
+      "context": "rgb(21, 94, 138)",
+      "goal": "rgb(138, 95, 15)",
+      "format": "rgb(34, 211, 238)"
+    },
+    "contextLabels": [
+      "Request",
+      "Attachments",
+      "Goal",
+      "Context"
+    ],
+    "promptLabels": [
+      "Request",
+      "Context",
+      "Goal",
+      "Format"
+    ],
+    "attachmentsAbovePrompt": true,
+    "overflow": false,
+    "clipped": [],
+    "png": true,
+    "legendColorsMatch": true,
+    "width": 900,
+    "theme": "light",
+    "previewsOpened": 3,
+    "keyboardCloseAndFocusReturn": true,
+    "pageErrors": [],
+    "externalRequests": []
+  },
+  {
+    "contextColors": {
+      "request": "rgb(45, 212, 191)",
+      "attachments": "rgb(196, 162, 255)",
+      "goal": "rgb(226, 179, 54)",
+      "context": "rgb(56, 189, 248)"
+    },
+    "promptColors": {
+      "request": "rgb(45, 212, 191)",
+      "context": "rgb(56, 189, 248)",
+      "goal": "rgb(226, 179, 54)",
+      "format": "rgb(34, 211, 238)"
+    },
+    "contextLabels": [
+      "Request",
+      "Attachments",
+      "Goal",
+      "Context"
+    ],
+    "promptLabels": [
+      "Request",
+      "Context",
+      "Goal",
+      "Format"
+    ],
+    "attachmentsAbovePrompt": true,
+    "overflow": false,
+    "clipped": [],
+    "png": true,
+    "legendColorsMatch": true,
+    "width": 1024,
+    "theme": "dark",
+    "previewsOpened": 3,
+    "keyboardCloseAndFocusReturn": true,
+    "pageErrors": [],
+    "externalRequests": []
+  },
+  {
+    "contextColors": {
+      "request": "rgb(45, 212, 191)",
+      "attachments": "rgb(115, 65, 166)",
+      "goal": "rgb(138, 95, 15)",
+      "context": "rgb(21, 94, 138)"
+    },
+    "promptColors": {
+      "request": "rgb(45, 212, 191)",
+      "context": "rgb(21, 94, 138)",
+      "goal": "rgb(138, 95, 15)",
+      "format": "rgb(34, 211, 238)"
+    },
+    "contextLabels": [
+      "Request",
+      "Attachments",
+      "Goal",
+      "Context"
+    ],
+    "promptLabels": [
+      "Request",
+      "Context",
+      "Goal",
+      "Format"
+    ],
+    "attachmentsAbovePrompt": true,
+    "overflow": false,
+    "clipped": [],
+    "png": true,
+    "legendColorsMatch": true,
+    "width": 1024,
+    "theme": "light",
+    "previewsOpened": 3,
+    "keyboardCloseAndFocusReturn": true,
+    "pageErrors": [],
+    "externalRequests": []
+  },
+  {
+    "contextColors": {
+      "request": "rgb(45, 212, 191)",
+      "attachments": "rgb(196, 162, 255)",
+      "goal": "rgb(226, 179, 54)",
+      "context": "rgb(56, 189, 248)"
+    },
+    "promptColors": {
+      "request": "rgb(45, 212, 191)",
+      "context": "rgb(56, 189, 248)",
+      "goal": "rgb(226, 179, 54)",
+      "format": "rgb(34, 211, 238)"
+    },
+    "contextLabels": [
+      "Request",
+      "Attachments",
+      "Goal",
+      "Context"
+    ],
+    "promptLabels": [
+      "Request",
+      "Context",
+      "Goal",
+      "Format"
+    ],
+    "attachmentsAbovePrompt": true,
+    "overflow": false,
+    "clipped": [],
+    "png": true,
+    "legendColorsMatch": true,
+    "width": 1440,
+    "theme": "dark",
+    "previewsOpened": 3,
+    "keyboardCloseAndFocusReturn": true,
+    "pageErrors": [],
+    "externalRequests": []
+  },
+  {
+    "contextColors": {
+      "request": "rgb(45, 212, 191)",
+      "attachments": "rgb(115, 65, 166)",
+      "goal": "rgb(138, 95, 15)",
+      "context": "rgb(21, 94, 138)"
+    },
+    "promptColors": {
+      "request": "rgb(45, 212, 191)",
+      "context": "rgb(21, 94, 138)",
+      "goal": "rgb(138, 95, 15)",
+      "format": "rgb(34, 211, 238)"
+    },
+    "contextLabels": [
+      "Request",
+      "Attachments",
+      "Goal",
+      "Context"
+    ],
+    "promptLabels": [
+      "Request",
+      "Context",
+      "Goal",
+      "Format"
+    ],
+    "attachmentsAbovePrompt": true,
+    "overflow": false,
+    "clipped": [],
+    "png": true,
+    "legendColorsMatch": true,
+    "width": 1440,
+    "theme": "light",
+    "previewsOpened": 3,
+    "keyboardCloseAndFocusReturn": true,
+    "pageErrors": [],
+    "externalRequests": []
+  }
+]

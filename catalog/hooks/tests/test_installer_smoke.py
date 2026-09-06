@@ -578,6 +578,10 @@ DEV_ONLY_SCRIPTS = {
     # make validate and CI. An end-user install has no catalog source to
     # check, so it is deliberately not installer-copied.
     "check_agentskills_conformance.py",
+    # Repo-internal guide count stamper (v4.4.2): rewrites <span data-count> markers in
+    # guides/website/nexus-hub-guide.html from data/ and catalog/ so page counts cannot
+    # drift; --check runs in make validate. An end-user install has neither source tree.
+    "stamp_guide_counts.py",
     # One-shot cross-catalog maintenance utility that injects iterative-refinement
     # text into SKILL.md / command .md files. Maintainer tool only.
     "apply_iterative_workflow.py",

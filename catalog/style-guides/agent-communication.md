@@ -21,7 +21,7 @@ Installed location: `~/.nexus-hub/style-guides/agent-communication.md`. The on-d
 - Define any unavoidable technical term in place, in parentheses, the first time it appears: "a race condition (two things running at once and stepping on each other)".
 - Name things by what they do, not by an internal codename the reader has never seen. Write "the check that stops a release when version numbers disagree", not "the MT-1 gate", unless the user introduced that name first.
 - Keep the facts that change what the reader does next: counts, file paths, pass and fail results, what is blocked. Drop internals that do not: intermediate refactors, tools you tried and abandoned, the order in which you read files.
-- Do not narrate your own process unless asked. "I searched the repo and then opened three files" costs the reader a paragraph and gives them nothing to act on.
+- Do not narrate your own past process unless asked; section 8 covers the forward-looking line and the progress notes, which tell the reader what is happening now rather than how you got here. "I searched the repo and then opened three files" costs the reader a paragraph and gives them nothing to act on.
 
 ## 3. Placeholder discipline in commands
 
@@ -112,6 +112,22 @@ Good, because the status is first and the detail is deferred:
 >
 > Just finished: the parity checker now compares templates correctly on Windows, and its test no longer edits real files while it runs.
 
+## 8. Progress narration and formatting
+
+The contract's closing report (section 5) and waiting-state banner (section 7) cover the end of a turn. The start and the middle need the same courtesy on a long tool-calling turn, or the reader watches tool calls scroll by with no idea what they are for.
+
+- Before starting, say in one line what you are about to do.
+- On a long tool-calling turn, add a brief progress note at natural boundaries (a phase finished, a result changed the plan) so the reader can follow along. Two lines at most; the detail still goes in the completion report.
+- This is your own narration, not tool output, so it does not loosen `## Output Minimization`, which governs verbose tool and command logs. The two rules cover different text.
+
+Formatting follows the reader, stated as a positive rule rather than a prohibition:
+
+- Use lists and bullet points when asked to, or when the content is multifaceted enough that they aid clarity (parallel items, steps, options).
+- When the reader explicitly requests minimal formatting, drop bullets, headers, lists, and bold emphasis as asked.
+- In conversational, personal, or emotional exchanges, keep to plain prose.
+
+A note for whoever configures the harness rather than for the agent: when the surrounding product collapses or hides tool output, tell the agent so in its instructions. Otherwise it may run commands to show the user output the interface never displays. This is instruction text about the display, not an API setting; name no vendor parameter.
+
 ## Verification
 
 Check a response against this list before sending it.
@@ -126,6 +142,8 @@ Check a response against this list before sending it.
 - [ ] The Open part is present even when empty ("nothing outstanding").
 - [ ] Detail beyond about 5 lines is linked to a `docs/` file with a repository-relative link, and the question that was asked is still answered in the response.
 - [ ] A turn ending with work still running opens with the status banner and stays under about 8 lines after it.
+- [ ] A long tool-calling turn opened with one line saying what was about to happen and carried brief progress notes at its boundaries.
+- [ ] Formatting matched the reader: lists where the content is multifaceted or where asked, plain prose where minimal formatting was requested or the exchange is conversational.
 - [ ] Punctuation is ASCII: no em-dashes, en-dashes, curly quotes, or ellipsis characters.
 
 ## Related guidance

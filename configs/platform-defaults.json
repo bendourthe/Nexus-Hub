@@ -16,9 +16,9 @@
   "platforms": {
     "claude": {
       "display_name": "Claude Code",
-      "source_url": "https://code.claude.com/docs/en/settings",
-      "verified": "2026-08-30",
-      "doc_statement": "The Claude Code settings.json reference documents effortLevel (\"Persist the effort level across sessions. Accepts low, medium, high, or xhigh.\"), model (read once at session start), and env (\"Environment variables applied to every session and to subprocesses Claude Code spawns from it.\"). The same page states that CLAUDE_CODE_EFFORT_LEVEL overrides effortLevel for a session, which is why both are declared together here.",
+      "source_url": "https://code.claude.com/docs/en/model-config",
+      "verified": "2026-09-05",
+      "doc_statement": "The Claude Code settings reference documents effortLevel (\"Set a default effort level for models without a saved level of their own\"), model (\"Change the model Claude Code starts with\"), env (environment variables applied to every session and its subprocesses), and a per-model modelSettings key that /effort writes. The model-config page (fetched 2026-09-05) states: \"set effortLevel to low, medium, high, or xhigh as the default for models without one. max isn't accepted in either key\" (effortLevel or modelSettings), and \"max is the deepest reasoning level. Unless you set it through the CLAUDE_CODE_EFFORT_LEVEL environment variable, Claude Code applies max to the current session only\"; CLAUDE_CODE_EFFORT_LEVEL is documented as taking \"a level name or auto\" and as the higher-precedence lever. So the settings keys accept four levels and the environment variable accepts five: the two levers do not share one value set, both accept the seeded value high, and a future change to a value other than high must be checked against both (max is valid only through the environment variable, /effort, or --effort). The 2026-09-04 statement had the two surfaces the other way round and is superseded.",
       "settings": {
         "effortLevel": "high",
         "model": "opus",

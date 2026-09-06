@@ -1,0 +1,55 @@
+{
+  "retired": {
+    "test_v445_phase5_models.py": [
+      "test_the_eight_stages_read_in_order",
+      "test_nothing_in_the_scene_waits_to_be_operated",
+      "test_all_three_modality_tiers_are_visible_at_once",
+      "test_no_reasoning_pass_overlaps_another",
+      "test_the_prediction_panel_shows_scored_candidates_with_a_caveat",
+      "test_the_scene_does_not_overflow_at_any_width"
+    ],
+    "test_v444_phase6_models.py": [
+      "test_one_model_family_per_provider_and_no_version_numbers",
+      "test_the_answer_is_shown_one_token_at_a_time",
+      "test_base_and_reasoning_differ_by_the_self_prompt_loop",
+      "test_three_modality_tiers_and_no_audio"
+    ],
+    "test_v443_phase5_models.py": [
+      "test_no_work_cycle_ring_survives_anywhere_in_a_scene",
+      "test_the_video_output_plays_without_being_asked",
+      "test_the_worked_example_runs_the_length_of_the_scene",
+      "test_connectors_are_thick_enough_to_read"
+    ],
+    "test_v442_phase4_media.py": [
+      "test_flow_connectors_never_cross_a_card",
+      "test_the_entry_motif_is_singular_after_the_merge",
+      "test_modality_tier_labels"
+    ],
+    "test_v441_phase4_foundations.py": [
+      "test_embedded_image_matches_the_approved_asset",
+      "test_embedded_gif_and_poster_match_the_approved_assets",
+      "test_the_audio_asset_left_the_page_with_its_teaching",
+      "test_media_ledger_records_every_embedded_payload",
+      "test_moving_image_plays_unaided_and_stills_under_reduced_motion",
+      "test_inside_the_model_is_complete_under_reduced_motion"
+    ],
+    "test_nexus_hub_guide.py": [
+      "test_foundations_model_lifecycle_is_chronological_and_responsive"
+    ]
+  },
+  "replacement": "tests/guides/test_models_learning_lab.py",
+  "reason": "User explicitly requested a Models-only rebuild. Replace eight-stage, fixed family inventory, forced autoplay GIF, no-controls, no-audio and self-prompt-loop assertions with current conceptual and interaction contracts. Retain agentic comparison and harness tests. Historical media ledger remains unchanged.",
+  "shared_contract_updates": {
+    "test_nexus_hub_guide.py": [
+      "Remove the retired one-pass motif requirement",
+      "Permit Models capability/effort selectors while retaining visible neighboring comparisons",
+      "Retire the Models-only region label selector"
+    ],
+    "test_phase6_verification_sweep.py": [
+      "Scope Home install-tab checks to the active page; hidden Foundations tabs are independent widgets"
+    ],
+    "test_v442_phase4_media.py": [
+      "Harness waits for its actual sequence engine, not the retired Models connector engine"
+    ]
+  }
+}

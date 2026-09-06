@@ -80,6 +80,8 @@ For each gate, specify four categories of criteria.
 | O2 | [criterion] | Auto/Manual | [command or process] |
 ```
 
+**Safety-critical guards gate on `pass^k`.** For any criterion that guards a safety-critical behavior (a hook that must block a destructive command, a redaction that must fire, an allowlist that must reject), the gate reports GO only on a `pass^k` result over the k recorded trials, per the definition owned by `[[ai-output-evaluation]]`; a single green run is a `pass@1` sample, not evidence the guard holds. Nexus-Hub's own hook guards are exactly this class. Record the k trial results with the gate outcome; do not restate the metric definitions here.
+
 ### Step 3: Configure Gate Behavior
 
 Define what happens when a gate passes, fails, or partially passes.

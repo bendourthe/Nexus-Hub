@@ -1,0 +1,1234 @@
+{
+  "sha256": "148089232b9dfeac8af90a932c2e6af5c54914cb3c063d29111a4b2195dba3a4",
+  "bytes": 404762,
+  "machine": "Windows-11-10.0.26200-SP0",
+  "cases": [
+    {
+      "theme": "light",
+      "width": 320,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 11779,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 18745,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 3676,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 12754,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 10279,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 15360,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 3352,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 10735,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 719,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 8336,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 719,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 11554,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 719,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2842,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 719,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8053,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 720,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 8336,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 720,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 11554,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 720,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2842,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 720,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8053,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 721,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 7035,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 721,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 11280,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 721,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2861,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 721,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8140,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 6734,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 10679,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2840,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8090,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 5393,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 8942,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2226,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8030,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 5443,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 8677,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2181,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8107,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 5446,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 8680,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2181,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8110,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 11779,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 18741,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 3676,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 12754,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 10279,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 15358,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 3352,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 10735,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 719,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 8336,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 719,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 11552,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 719,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2842,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 719,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8053,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 720,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 8336,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 720,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 11552,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 720,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2842,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 720,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8053,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 721,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 7035,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 721,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 11276,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 721,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2861,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 721,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8140,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 6734,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 10675,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2840,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8090,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 5393,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 8940,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2226,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8030,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 5443,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 8675,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2181,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8107,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "page": "home",
+      "words": {
+        "main": 1036,
+        "total": 1150
+      },
+      "height": 5446,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "page": "foundations",
+      "words": {
+        "main": 2459,
+        "total": 2459
+      },
+      "height": 8678,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "page": "training",
+      "words": {
+        "main": 416,
+        "total": 416
+      },
+      "height": 2181,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "page": "cheatsheets",
+      "words": {
+        "main": 1213,
+        "total": 1213
+      },
+      "height": 8110,
+      "overflow": false,
+      "hiddenEssentials": 0,
+      "errors": [],
+      "externalRequests": []
+    }
+  ],
+  "performance": [
+    {
+      "p95FrameMs": 16.700000000000728,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 23.5,
+      "theme": "light",
+      "width": 1440,
+      "run": 0,
+      "warmup": true,
+      "metrics": {
+        "LayoutCount": 113,
+        "LayoutDuration": 0.10769,
+        "RecalcStyleCount": 140,
+        "RecalcStyleDuration": 0.093295,
+        "ScriptDuration": 0.038867,
+        "TaskDuration": 0.623172
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000000728,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 24.19999998807907,
+      "theme": "light",
+      "width": 1440,
+      "run": 1,
+      "warmup": false,
+      "metrics": {
+        "LayoutCount": 75,
+        "LayoutDuration": 0.058081,
+        "RecalcStyleCount": 67,
+        "RecalcStyleDuration": 0.049871,
+        "ScriptDuration": 0.021198,
+        "TaskDuration": 0.376521
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000000728,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 43.10000002384186,
+      "theme": "light",
+      "width": 1440,
+      "run": 2,
+      "warmup": false,
+      "metrics": {
+        "LayoutCount": 75,
+        "LayoutDuration": 0.12709,
+        "RecalcStyleCount": 67,
+        "RecalcStyleDuration": 0.102464,
+        "ScriptDuration": 0.031474,
+        "TaskDuration": 0.601059
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000004366,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 28.80000001192093,
+      "theme": "light",
+      "width": 1440,
+      "run": 3,
+      "warmup": false,
+      "metrics": {
+        "LayoutCount": 75,
+        "LayoutDuration": 0.081725,
+        "RecalcStyleCount": 68,
+        "RecalcStyleDuration": 0.070912,
+        "ScriptDuration": 0.024886,
+        "TaskDuration": 0.494742
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000000728,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 35,
+      "theme": "dark",
+      "width": 1440,
+      "run": 0,
+      "warmup": true,
+      "metrics": {
+        "LayoutCount": 113,
+        "LayoutDuration": 0.139227,
+        "RecalcStyleCount": 141,
+        "RecalcStyleDuration": 0.109022,
+        "ScriptDuration": 0.03842,
+        "TaskDuration": 1.078561
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000000728,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 33,
+      "theme": "dark",
+      "width": 1440,
+      "run": 1,
+      "warmup": false,
+      "metrics": {
+        "LayoutCount": 75,
+        "LayoutDuration": 0.134479,
+        "RecalcStyleCount": 63,
+        "RecalcStyleDuration": 0.095024,
+        "ScriptDuration": 0.036929,
+        "TaskDuration": 1.090565
+      }
+    },
+    {
+      "p95FrameMs": 16.799999999999272,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 24.899999976158142,
+      "theme": "dark",
+      "width": 1440,
+      "run": 2,
+      "warmup": false,
+      "metrics": {
+        "LayoutCount": 75,
+        "LayoutDuration": 0.114364,
+        "RecalcStyleCount": 65,
+        "RecalcStyleDuration": 0.081037,
+        "ScriptDuration": 0.035326,
+        "TaskDuration": 1.05915
+      }
+    },
+    {
+      "p95FrameMs": 16.799999999995634,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 39.69999998807907,
+      "theme": "dark",
+      "width": 1440,
+      "run": 3,
+      "warmup": false,
+      "metrics": {
+        "LayoutCount": 74,
+        "LayoutDuration": 0.169364,
+        "RecalcStyleCount": 64,
+        "RecalcStyleDuration": 0.110913,
+        "ScriptDuration": 0.043233,
+        "TaskDuration": 1.11055
+      }
+    },
+    {
+      "p95FrameMs": 16.799999999999272,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 21.69999998807907,
+      "theme": "light",
+      "width": 420,
+      "run": 0,
+      "warmup": true,
+      "metrics": {
+        "LayoutCount": 113,
+        "LayoutDuration": 0.089009,
+        "RecalcStyleCount": 135,
+        "RecalcStyleDuration": 0.079073,
+        "ScriptDuration": 0.029671,
+        "TaskDuration": 0.573291
+      }
+    },
+    {
+      "p95FrameMs": 16.799999999999272,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 32.09999996423721,
+      "theme": "light",
+      "width": 420,
+      "run": 1,
+      "warmup": false,
+      "metrics": {
+        "LayoutCount": 75,
+        "LayoutDuration": 0.156583,
+        "RecalcStyleCount": 65,
+        "RecalcStyleDuration": 0.104449,
+        "ScriptDuration": 0.037995,
+        "TaskDuration": 0.691372
+      }
+    },
+    {
+      "p95FrameMs": 16.799999999999272,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 47.39999997615814,
+      "theme": "light",
+      "width": 420,
+      "run": 2,
+      "warmup": false,
+      "metrics": {
+        "LayoutCount": 75,
+        "LayoutDuration": 0.171847,
+        "RecalcStyleCount": 64,
+        "RecalcStyleDuration": 0.11467,
+        "ScriptDuration": 0.038962,
+        "TaskDuration": 0.726989
+      }
+    },
+    {
+      "p95FrameMs": 16.700000000004366,
+      "maxLongTaskMs": 0,
+      "longTaskCount": 0,
+      "maxNavigationMs": 36.80000001192093,
+      "theme": "light",
+      "width": 420,
+      "run": 3,
+      "warmup": false,
+      "metrics": {
+        "LayoutCount": 75,
+        "LayoutDuration": 0.175545,
+        "RecalcStyleCount": 64,
+        "RecalcStyleDuration": 0.136521,
+        "ScriptDuration": 0.039856,
+        "TaskDuration": 0.762921
+      }
+    }
+  ],
+  "browser": "151.0.7922.34"
+}
