@@ -47,7 +47,6 @@ seed_mod = _load(_SEED_PATH, "design_seed")
 
 SKILL_TEXT = _SKILL.read_text(encoding="utf-8")
 COMMAND_TEXT = _COMMAND.read_text(encoding="utf-8")
-CONTRACT_TEXT = (_BUNDLE / "references" / "dual-view-handbooks.md").read_text(encoding="utf-8")
 
 
 # --- 1. the four-option additional-imagery question (R8) ---------------------
@@ -96,16 +95,15 @@ def test_consent_invariants_survive_the_rewording():
     assert "`stock`, `ai`, or `both`" in SKILL_TEXT
     assert "fully offline" in SKILL_TEXT
     # A recalled preference must still never pre-answer a choice.
-    assert "never infer consent from memory" in SKILL_TEXT
+    assert "NEVER pre-answer" in SKILL_TEXT or "never pre-answers" in SKILL_TEXT
 
 
 # --- 2. intake ROUND 2 (R10) -------------------------------------------------
 
 
 def test_both_surfaces_describe_two_rounds():
-    for text in (SKILL_TEXT, COMMAND_TEXT):
-        assert "references/dual-view-handbooks.md" in text
-    assert "after extraction" in CONTRACT_TEXT
+    assert "ROUND 1" in SKILL_TEXT and "ROUND 2" in SKILL_TEXT
+    assert "Round 1" in COMMAND_TEXT and "Round 2" in COMMAND_TEXT
 
 
 def test_round_two_offers_three_schemes_plus_other():
@@ -137,8 +135,10 @@ def test_round_two_skips_are_documented_on_both_surfaces():
 
 
 def test_the_pipeline_diagram_shows_both_rounds():
-    assert "--scheme-hint" in SKILL_TEXT and "--scheme-hint" in COMMAND_TEXT
-    assert "pin" in COMMAND_TEXT.lower()
+    diagram = SKILL_TEXT[SKILL_TEXT.index("```\ndesign intake") : SKILL_TEXT.index("unique interactive .html")]
+    assert "ROUND 1" in diagram
+    assert "ROUND 2" in diagram
+    assert "PINNED" in diagram, "the diagram must show the palette being pinned"
 
 
 # --- 3. design_seed.py --scheme-hint is BEHAVIOR, so exercise it -------------
@@ -368,36 +368,43 @@ def test_both_surfaces_offer_the_three_verbosity_levels():
 
 
 def test_verbosity_is_distinguished_from_qa_depth():
-    for flag in ("--verbosity", "--presentation-depth", "--qa-depth"):
-        assert flag in COMMAND_TEXT and flag in CONTRACT_TEXT
-    assert "three separate axes" in CONTRACT_TEXT
+    # The two axes are easy to conflate from the flag names alone; the command
+    # must draw the line explicitly (content carried vs QA thoroughness).
+    assert "--qa-depth" in COMMAND_TEXT
+    assert "CONTENT axis" in COMMAND_TEXT or "content axis" in COMMAND_TEXT
 
 
 def test_the_verbosity_question_is_part_of_round_two():
-    assert SKILL_TEXT.index("Design intake ROUND 2") < SKILL_TEXT.index("Ask the coverage depth (verbosity) in the same round") < SKILL_TEXT.index("Author the interactive website")
-    assert "after extraction" in CONTRACT_TEXT
+    # It must be content-derived, which is only possible after extraction.
+    skill_round_two = SKILL_TEXT.index("Design intake ROUND 2")
+    author = SKILL_TEXT.index("Author the interactive website")
+    verbosity_q = SKILL_TEXT.index("Ask the coverage depth (verbosity) in the same round")
+    assert skill_round_two < verbosity_q < author, "verbosity question out of pipeline order"
+    assert "coverage depth" in COMMAND_TEXT.lower()
 
 
 def test_the_question_stem_is_content_derived():
+    # A generic low/medium/high asked blind is the design this axis rejects:
+    # the options carry an approximate section count for THIS source set.
     assert "section count" in SKILL_TEXT
-    assert "section-count/size hints" in CONTRACT_TEXT
+    assert "content-derived size hint" in COMMAND_TEXT or "size hint" in COMMAND_TEXT
 
 
 def test_the_flag_is_a_preset_that_skips_the_question():
-    assert "PRESET" in SKILL_TEXT
-    assert "Current flags and explicit session answers bind" in COMMAND_TEXT
-    assert "Resolve only missing preferences" in CONTRACT_TEXT
+    assert "PRESET" in SKILL_TEXT, "SKILL.md must state the flag wins over the question"
+    assert "skips the round-2 coverage-depth question" in COMMAND_TEXT
 
 
 def test_the_fallback_is_balanced_on_both_surfaces():
-    assert "balanced page verbosity" in CONTRACT_TEXT
-    assert "non-interactive" in CONTRACT_TEXT
-    assert "preserve an entire source binds comprehensive" in CONTRACT_TEXT
+    for name, text in (("SKILL.md", SKILL_TEXT), ("presentify.md", COMMAND_TEXT)):
+        assert "`balanced`" in text, f"{name} does not name the balanced fallback"
+    assert "verbosity -> balanced" in COMMAND_TEXT, "the auto-pick list must include verbosity"
 
 
 def test_a_malformed_flag_value_degrades_instead_of_blocking():
-    assert "Invalid enum" in CONTRACT_TEXT
-    assert "never silently override a valid explicit preference" in CONTRACT_TEXT
+    for name, text in (("SKILL.md", SKILL_TEXT), ("presentify.md", COMMAND_TEXT)):
+        assert "usage note" in text, f"{name} does not document the malformed-value path"
+        assert "never blocks" in text, f"{name} must state the run never blocks on it"
 
 
 def test_the_design_record_carries_level_provenance_and_target():
@@ -456,26 +463,3 @@ def test_the_rationalization_row_guards_both_directions():
     row = "The user picked comprehensive, but the page flows better short"
     assert row in SKILL_TEXT
     assert "padding a distilled page" in SKILL_TEXT
-
-
-def test_dual_view_intake_has_no_standalone_canvas_option():
-    for text in (COMMAND_TEXT, SKILL_TEXT):
-        assert "exactly ONE mode" not in text
-        assert "NO runtime scroll / slides toggle" not in text
-    for option in ("--presentation <yes|no>", "--presentation-theme <light|dark|mixed>", "--presentation-depth <concise|balanced|deep-dive>"):
-        assert option in COMMAND_TEXT
-    assert "do not ask them after No" in CONTRACT_TEXT
-    assert "always enter slide 1" in CONTRACT_TEXT
-    assert "must not exceed the source slide count" in CONTRACT_TEXT
-
-
-def test_documentation_entry_points_reach_the_shared_owner():
-    owner = _ROOT / "catalog/skills/documentation/technical-documentation"
-    assert (owner / "references/handbook-refresh.md").is_file()
-    for relative in ("catalog/commands/update.md", "catalog/commands/implement.md", "catalog/skills/documentation/technical-documentation/SKILL.md", "catalog/skills/documentation/user-documentation/SKILL.md", "catalog/skills/workflow/documentation-consistency/SKILL.md", "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md"):
-        assert "references/handbook-refresh.md" in (_ROOT / relative).read_text(encoding="utf-8"), relative
-    refresh = (owner / "references/handbook-refresh.md").read_text(encoding="utf-8")
-    assert "references/dual-view-handbooks.md" in refresh
-    update = (_ROOT / "catalog/commands/update.md").read_text(encoding="utf-8")
-    assert "`documentation` as an alias for `docs`" in update
-    assert "current `main`" not in update

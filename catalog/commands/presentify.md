@@ -119,7 +119,7 @@ Resolve the skill directory once at the start of a run and derive every helper p
 
 ## Output
 
-A single `.html` at `--out` (or alongside the inputs) - a navigable interactive website, not a slide deck. It is fully self-contained: all CSS and JS inline, images as base64, the source's real figures as interactive (zoom / pan / filter) charts built from inlined JS, and no external network requests. Confirm the output location with the user when it is ambiguous (for example, multiple input folders). State any source ambiguity you could not resolve and any browser behavior you did not verify; never claim a flawless first pass or that the authorship is undetectable.
+A single `.html` at `--out` (or alongside the inputs) - a navigable interactive website, not a slide deck. It is fully self-contained: all CSS and JS inline, images as base64, the source's real figures as interactive (zoom / pan / filter) charts built from inlined JS, and no external network requests. Confirm the output location with the user when it is ambiguous (for example, multiple input folders).
 
 ## Notes
 
