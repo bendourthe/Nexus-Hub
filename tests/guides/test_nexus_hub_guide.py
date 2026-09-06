@@ -1165,9 +1165,11 @@ def test_foundations_loop_labels_have_hierarchy(guide_text: str) -> None:
 def test_models_network_signal_has_a_static_fallback_and_node_layer(guide_text: str) -> None:
     """The requested Models traversal restores motion with a readable node layer."""
     assert "fx-pulse" not in guide_text
-    assert ".ml-network>svg:not(.ml-signal){position:relative;z-index:1;}" in guide_text
-    assert ".ml-network .ml-signal{position:absolute;z-index:0;" in guide_text
-    assert ".ml-playing .ml-signal circle{animation:ml-travel" in guide_text
+    assert 'class="ml-graph" data-graph="language"' in guide_text
+    assert '<use href="#ml-network"/>' in guide_text
+    assert '.ml-node{stroke:var(--bg-0);' in guide_text
+    assert 'animation-play-state:paused;' in guide_text
+    assert '.ml-playing .ml-spark{animation-play-state:running;}' in guide_text
     assert "#fx-model-lifecycle *,#fx-model-lifecycle *::before{animation:none!important" in guide_text
 
 

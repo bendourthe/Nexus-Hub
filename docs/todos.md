@@ -23,12 +23,14 @@ Refreshing this file to the active plan (rather than appending another version's
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 499,320 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 497,896 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
 
 ## Current work - v4.4.5 visual refinement
+
+- [x] Compact all Models demos, enrich the animated networks, add perspective room navigation and a new game redesign, sweep provider-labeled capability tiers, and compare four reasoning allowances simultaneously; 154 focused guide checks, 24 final Models tests and 40 layout cases pass, with one optional portfolio check skipped. See [verification](releases/v4/v4.4/development/guide-visual-refinement/models-compact-comparisons/verification.md).
 
 - [x] Refine Models with training icons and reinforcement learning, a simpler language response, faster photographic diffusion, consistent room framing, voice-plus-UI multimodal input and four distinct architecture illustrations; 153 focused tests and 40 layout cases pass, with one optional portfolio check skipped. See [verification](releases/v4/v4.4/development/guide-visual-refinement/models-photographic-examples/verification.md).
 
