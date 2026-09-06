@@ -108,6 +108,7 @@ Detailed guidance lives in [common-patterns.md](references/common-patterns.md) (
 | "We'll just iterate on prompts manually until they feel right" | Manual iteration without scoring produces prompts optimized for the last test case seen; regression rates above 20% on previously working cases are common when iterating without systematic evals. |
 | "Few-shot examples aren't necessary if the instruction is clear" | For tasks with subtle output format requirements (JSON with specific fields, code in a specific style), few-shot examples reduce format errors by 40-60% compared to instruction-only prompts, as documented in multiple prompting studies. |
 | "Prompt injection is only a concern for chat applications" | Any prompt that incorporates user-supplied text -- including RAG retrieved content, tool outputs, or API responses -- is a prompt injection surface; a malicious document in a retrieved corpus can override system instructions. |
+| "A persona belongs in product UI, so there is nothing to do until Chat settings grow a field" | A persona card in the system role or as the first kept user message is enough for a stable identity today. Waiting on a settings field delays the prompting half that already works. |
 | "We don't need to version prompts because they're just strings" | Unversioned prompts make A/B testing impossible, incident root-cause analysis unreliable, and rollback manual; prompt version control is as critical as code version control for reproducibility. |
 | "Token optimization is premature until cost is a problem" | At scale, a 30% token reduction compounds across millions of calls; prompts that include unnecessary context also degrade model performance by diluting signal with noise, not just by increasing cost. |
 
@@ -127,6 +128,7 @@ Detailed guidance lives in [common-patterns.md](references/common-patterns.md) (
 - [[tool-design]] -- writing tool descriptions (a specialized form of prompting)
 - [[ai-output-evaluation]] -- evaluating and scoring LLM outputs
 - [[model-routing]] -- platform-aware, live-enumerated extension of the model-routing and effort-level guidance in this skill
+- [[creative-generation]] -- companion/persona voice when the card is a character, not a task role
 
 ---
 
