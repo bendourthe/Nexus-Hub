@@ -578,5 +578,30 @@
     "test": "test_nexus_hub_guide.py::test_training_scene_schema_is_strict_and_cumulative (intent clause only)",
     "reason": "Verbose pronoun-based intent replaced by concise imperative copy and three learning stages.",
     "replacement": "At most 20 words per intent; Understand/Change/Verify membership; unchanged strict scene schema and JSON parity."
+  },
+  {
+    "test": "test_render_guide_tool.py::test_foundations_phase2_diagrams_are_legible_at_release_and_breakpoint_widths",
+    "reason": "Legacy token SVG replaced by exact selectable token chips.",
+    "replacement": "test_learning_experience token fixture/selection/keyboard and lesson text bounds at seven widths; final visual detector."
+  },
+  {
+    "test": "test_v445_phase2_tags.py::test_the_block_tags_render_at_the_doubled_size",
+    "reason": "Deleted mockup tag selectors and arbitrary doubled-size requirement are superseded by the shared readable lesson hierarchy.",
+    "replacement": "test_learning_experience shared headings, label floor, and lesson bounds; cross-page contrast sweep."
+  },
+  {
+    "test": "test_nexus_hub_guide.py::test_present_mode_fills_the_viewport",
+    "reason": "A new compact-header media query split the old source substring before its terminal scroll rule.",
+    "replacement": "Same assertions with correct block boundary; 21 real fullscreen tests retained."
+  },
+  {
+    "test": "test_render_guide_tool.py::test_home_runtime_contract_across_themes_and_widths",
+    "reason": "Two comparison captions became three explicit model/platform/Nexus responsibilities.",
+    "replacement": "Preserve rendering, offline, marks, and contrast checks using the three current responsibility labels."
+  },
+  {
+    "test": "test_render_guide_tool.py::test_training_cold_deep_link_accepts_and_discards_legacy_beat",
+    "reason": "Cold deep links must display planned success, not a completed takeaway.",
+    "replacement": "Retain route normalization and title assertions; require the pending takeaway."
   }
 ]

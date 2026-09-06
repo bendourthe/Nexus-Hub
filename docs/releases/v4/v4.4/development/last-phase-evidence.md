@@ -1086,6 +1086,73 @@ No P0 and no P1. Every task in the plan is measured. Three items are the operato
 
 <!-- END v4.4.5-guide-mockup-integration -->
 
+
+## v4.4.6 final record - 2026-09-04
+
+This append-only record belongs to [v4.4.6 guide-learning-experience](../plans/v4.4.6-guide-learning-experience.md). Earlier v4.4.0-v4.4.5 records above remain historical evidence. Current status: six phases committed; final local evidence prepared, with the full repository result, reader review, and publication gates open. The [phase history](guide-learning-experience/phase-7/verification.md) is the detailed receipt.
+
+## Architecture refactor
+
+> Scan: 4,286 tracked files; 12 empty marker files; 97 deep paths; one guide duplicate group; 1,545 documentation inventory records; 735 lifespan candidates.
+
+The [repository audit](guide-learning-experience/phase-7/repository-audit.json) records the inputs and dispositions. The duplicate is the intentionally retained pair of Glow Booth pose fixtures. Empty package markers and supported skill paths remain intentional. Lifespan candidates require review against patch-release ownership, not automatic deletion or a claim of 735 defects. No current guide artifact needs moving, and no unrelated refactor was applied.
+
+## Known-gaps reconciliation
+
+> Discovery: 33 canonical and legacy known-gap files, each with a source hash and status observation. Current guide ledger: nine open items (three bugs, three coverage gaps, two warnings, one quality-gate gap) and seven resolved defects.
+
+The [current ledger](../known-gaps.md#v446---guide-learning-experience) carries technical/non-technical review, native zoom/occlusion observation, retained CI reports, the historical CodeQL rescan, and the timed-out full-suite result. Fresh isolated Windows/Linux installer proof addresses the available part of HT-2; retired illustration issues are superseded. Other release owners and their history are preserved. Counts describe this release's current section, not all historical open rows.
+
+## Living docs architecture
+
+> Present: docs/handbooks/markdown, docs/handbooks/html, docs/decisions, docs/README.md, docs/DEVLOG.md, docs/todos.md.
+
+The handbook README declares no authored handbook pages, so there is no existing atlas or generated counterpart to reconcile. Building new handbooks is outside this guide plan. The guide maintainer README now describes the actual seven lessons, explicit motion, safe inline data, and current audit commands. DEVLOG and the dashboard point to this plan and its evidence. No docs/testing or docs/validation tree was invented.
+
+## Git-tree hygiene
+
+> Report-only branch scan: three merged-branch cleanup candidates, one closed-unmerged candidate, and thirteen open-PR branches excluded. delete_branch_on_merge is enabled; repository description agrees with README.
+
+The [raw preconditions](guide-learning-experience/phase-7/git-preconditions.txt) are retained. Nothing was deleted. The plan uses the existing feature branch, with origin pointing to bendourthe/Nexus-Hub and develop as the integration target. Unrelated v4.7-v4.9 planning work and image.png remain excluded from this phase's commit.
+
+## CI/CD coverage
+
+> Provider: GitHub Actions. Required-check coverage: ten declared contexts across two branches, all unconditionally produced. Installer parity PASS; thirteen platform contracts match. Real isolated Windows PowerShell and Ubuntu Bash installer smoke: PASS on both.
+
+The [field comparison](guide-learning-experience/phase-7/ci-comparison.md) covers native profiles, events, runners, aggregate status, permissions, pinning, caching, concurrency, path scoping, reports, deployment boundaries, and recovery. The existing report-retention difference is WN-446-1 with a minimal proposal, owner, and next step. No pipeline change was applied. The comparison is partial with an owned gap, not blanket conformance. Real installers ran with identical postconditions; the user's existing installation was not modified or certified.
+
+## Tier 3 deep pass
+
+> Bounded result: three product correction cycles completed. Final guide suite: 258 passed, one optional portfolio-mirror skip. Render audit: 72 cases, zero overflow/errors/requests/hidden essentials. Offline reflow audit: 88 cases. Detector: eight route/theme runs across eleven widths, zero unallowlisted findings. Sequential performance comparison: final budgets met, including the separate 4x CPU run.
+
+The [entry](guide-learning-experience/phase-7/deep-pass-start.md), [history](guide-learning-experience/phase-7/verification.md), [performance report](guide-learning-experience/phase-7/performance.md), and [visual receipt](guide-learning-experience/phase-7/visual-review.json) retain scope, exact artifact hash, measurements, and actually inspected captures. The independent adversarial review exercised real Training/lesson boundaries and verified the prerequisite/focus corrections. Expanded review of all 296 Phase 2-7 images found two residual Training layout defects, BG-46/BG-47. D06/D12 remain partial; a separately tested candidate awaits the additional bounded-pass decision. Linux installer proof does not establish Linux browser coverage. Remaining environment, reader, and broad-suite gaps are owned in the ledger; they are not converted into a clean overall release gate.
+
+## Goal-vs-codebase review
+
+> Goal: technical and non-technical readers understand seven AI concepts, distinguish Nexus from its platform, and follow action to evidence through a concise, illustrated, responsive guide. Independent review found the requested product artifacts present; human comprehension remains unverified.
+
+The [independent goal review](guide-learning-experience/phase-7/goal-review.md) maps D01-D13, identifies the corrected graph-output contradiction, and records the remaining gates. Home uses a responsibility map and one brief example; Foundations has seven concrete lessons; Training demonstrates truthful state and deterministic evidence. Meeting the implementation criteria does not prove D13.
+
+## Human/manual testing suggestions
+
+> Pending: one technical and one non-technical unassisted response set, final visual feedback, and native browser/OS observations.
+
+The [reader exercise](guide-learning-experience/phase-7/manual-review.md) asks six transfer questions and names the browser behaviors automation cannot establish. The user has been asked for feedback. No answer or approval has been inferred from silence. T026 remains open until evidence arrives and any feedback is addressed.
+
+## Full-suite testing and stabilization
+
+> Complete guide suite: 258 passed, one optional skip in 174.24s. Full native repository profile: 40 passing commands, three failures, one timeout; no complete local green gate is claimed.
+
+The [guide log](guide-learning-experience/phase-7/guide-suite.txt) is terminal evidence. The native command is `python scripts/ci/run.py --profile full --base bdd57cee --reports-dir <temporary-report-directory> --quiet`. The [terminal disposition](guide-learning-experience/phase-7/full-profile-disposition.md) retains native output, the explicit stop record, corrected encoding, and separate environment/scope findings. Historical QG-1 is not re-confirmed by the absent repository-test terminal output. T027 remains open.
+
+## Publication and integration
+
+> Not executed. Branch: feat/v4.4.3-guide-illustration-rebuild. Remote: origin, git@github-bendourthe:bendourthe/Nexus-Hub.git. Integration target: develop. Merge base: bdd57cee4eb776304a09e862c1d956534db59e1e.
+
+The final phase remains uncommitted while its required gates are not green; the six completed phase commits are preserved. T028 requires explicit approval before the first push, then fresh PR required-check evidence and separate merge approval. Release/tag/back-merge and any portfolio copy remain separate gates. NEXUS_HUB_PORTFOLIO_ROOT is unset, so no external mirror is inferred or written. No remote CI, push, PR, merge, or release is claimed by this record.
+
+Late content finding: BG-48 records the hostile-input fixture visible in the describe reply. The bounded follow-up must remove production test text while retaining test-local escape coverage. The complete guide has not been declared approved or released.
+
 ## User-directed v4.4.5 restoration
 
 The user rejected the v4.4.6 removal and restructuring of Home and Foundations content. The guide, canonical Training data, README, and guide tests were restored from bdd57cee. The [restoration record](guide-learning-experience/restoration/verification.md) supersedes the v4.4.6 implementation and pending three-fix proposal as the current product disposition. Further changes must preserve the v4.4.5 sections, order, and substantive content and focus on selected existing visuals and animations. Previous records remain historical; they are not approval of the rejected guide.

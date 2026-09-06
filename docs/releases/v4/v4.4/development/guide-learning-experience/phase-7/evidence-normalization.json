@@ -1,0 +1,17 @@
+{
+  "changes": [
+    "phase-6/ADVERSARIAL-REPORT.md",
+    "phase-6/focus-retest.txt",
+    "phase-7\\linux-installer.json",
+    "phase-7\\windows-installer.json",
+    "phase-7\\detector\\cheatsheets-dark.json",
+    "phase-7\\detector\\cheatsheets-light.json",
+    "phase-7\\detector\\foundations-dark.json",
+    "phase-7\\detector\\foundations-light.json",
+    "phase-7\\detector\\home-dark.json",
+    "phase-7\\detector\\home-light.json",
+    "phase-7\\detector\\training-dark.json",
+    "phase-7\\detector\\training-light.json"
+  ],
+  "purpose": "Normalize evidence to UTF-8 without BOM and replace local workspace/home prefixes with portable placeholders. Exit codes, measurements, artifact SHA values and substantive output are unchanged."
+}

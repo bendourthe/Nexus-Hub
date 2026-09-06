@@ -1,0 +1,741 @@
+{
+  "sha256": "6848938156266c2806c734575c963a64ba71a84bf3b357e912e0583b730324fd",
+  "reflow": [
+    {
+      "theme": "light",
+      "width": 320,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 400,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 400,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 400,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 400,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 420,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 640,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 640,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 640,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 640,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 720,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 720,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 720,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 720,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 960,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 960,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 960,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 960,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1023,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1023,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1023,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1023,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1025,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1025,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1025,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1025,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 400,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 400,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 400,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 400,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 420,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 640,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 640,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 640,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 640,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 720,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 720,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 720,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 720,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 960,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 960,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 960,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 960,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1023,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1023,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1023,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1023,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1025,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1025,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1025,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1025,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "route": "home",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "route": "foundations",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "route": "training",
+      "offline": true,
+      "overflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "route": "cheatsheets",
+      "offline": true,
+      "overflow": false
+    }
+  ],
+  "interactions": [
+    {
+      "cpu_rate": 1,
+      "training_feedback": [
+        {
+          "ms": 6.5,
+          "state": "running"
+        },
+        {
+          "ms": 6.799999952316284,
+          "state": "running"
+        },
+        {
+          "ms": 7.599999904632568,
+          "state": "running"
+        },
+        {
+          "ms": 15.299999952316284,
+          "state": "running"
+        },
+        {
+          "ms": 14,
+          "state": "running"
+        },
+        {
+          "ms": 14.600000023841858,
+          "state": "running"
+        },
+        {
+          "ms": 16.100000023841858,
+          "state": "running"
+        },
+        {
+          "ms": 14.799999952316284,
+          "state": "running"
+        }
+      ],
+      "resize_first_frame_ms": [
+        37.5,
+        13.299999952316284,
+        14.200000047683716,
+        11.299999952316284,
+        11.400000095367432,
+        13.0,
+        13.200000047683716,
+        11.299999952316284,
+        12.199999928474426,
+        13.0,
+        12.800000071525574,
+        12.300000071525574,
+        26.5,
+        15.399999976158142,
+        13.399999976158142,
+        11.099999904632568,
+        12.299999952316284,
+        13.300000071525574
+      ]
+    },
+    {
+      "cpu_rate": 4,
+      "training_feedback": [
+        {
+          "ms": 16.200000047683716,
+          "state": "running"
+        },
+        {
+          "ms": 15,
+          "state": "running"
+        },
+        {
+          "ms": 16.899999976158142,
+          "state": "running"
+        },
+        {
+          "ms": 19.700000047683716,
+          "state": "running"
+        },
+        {
+          "ms": 22.899999976158142,
+          "state": "running"
+        },
+        {
+          "ms": 21,
+          "state": "running"
+        },
+        {
+          "ms": 24.100000023841858,
+          "state": "running"
+        },
+        {
+          "ms": 16.899999976158142,
+          "state": "running"
+        }
+      ],
+      "resize_first_frame_ms": [
+        102.70000004768372,
+        54.10000002384186,
+        46.39999997615814,
+        55.60000002384186,
+        49.700000047683716,
+        49.5,
+        51.799999952316284,
+        42.39999997615814,
+        44.300000071525574,
+        47.10000002384186,
+        44.5,
+        49.5,
+        56.300000071525574,
+        50.699999928474426,
+        54.0,
+        52.799999952316284,
+        54.199999928474426,
+        51.89999997615814
+      ]
+    }
+  ],
+  "no_js": {
+    "visible_pages": 4,
+    "visible_lessons": 7
+  }
+}

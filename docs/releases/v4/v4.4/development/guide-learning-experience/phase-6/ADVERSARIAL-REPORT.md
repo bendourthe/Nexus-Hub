@@ -1,4 +1,4 @@
-﻿# Adversarial Verification Report
+# Adversarial Verification Report
 
 Date: 2026-09-04. Scope: current Nexus-Hub v4.4.6 guide, embedded Training scenes, and browser interaction boundaries. Audit is read-only; only TEMP evidence was written. Observed guide SHA-256: 381007724d5d5ca6256fbabcefc05ca9a04beb794cc1a79cf7edb54de5435f38. The parent is actively correcting findings, so this is a pre-correction record, not final-tree approval.
 

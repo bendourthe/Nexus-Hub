@@ -330,26 +330,47 @@
 
 Current disposition: SUPERSEDED BY USER. The v4.4.6 redesign and temporary follow-up are rejected; the exact v4.4.5 guide is restored. The rows below describe the rejected artifact and remain historical. Existing v4.4.5 visual/animation issues must be assessed under the [corrected scope](development/guide-learning-experience/restoration/verification.md), preserving all sections and content.
 
+Status: local implementation complete through Phase 6; final verification and external gates remain in Phase 7. Historical sections above are preserved. The current disposition below supersedes carried guide items only where fresh evidence exists.
+
 ### Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 0 | 4 |
-| Warnings (WN) | 0 | 0 |
-| Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 0 | 0 |
+| Bugs / regressions (BG) | 3 | 7 |
+| Warnings (WN) | 2 | 0 |
+| Missing tests / coverage gaps (MT) | 3 | 0 |
+| Quality-gate gaps (QG) | 1 | 0 |
 
 ### Open Items
 
-No confirmed defect remains from Phases 1-6. Final cross-page stabilization and human review remain tracked in the active plan.
+| ID | Gap and gate impact | Owner | Next step |
+|---|---|---|---|
+| BG-46 | Mobile Training introduction leaves an isolated it on the second heading line; D06/D12 are partial | Guide implementer | Apply the previewed shorter heading only after the additional bounded correction pass is authorized, then verify 320/420px in both themes. |
+| BG-47 | Fullscreen idle terminal reserves excessive blank space before its reply placeholder; D06/D12 are partial | Guide implementer | Apply the previewed idle-only sizing correction after the bounded-pass decision; verify before/after Run at all four fullscreen sizes and narrow fallback. |
+| MT-446-3 | Linux browser verification is unavailable: Ubuntu has no installed browser or Playwright runtime; installer success is separate evidence | Guide owner on Linux | Run the guide browser checks in an available Linux environment and retain engine/version/results. Do not infer Linux browser coverage from the two installer smokes. |
+| BG-48 | A hostile-input test fixture appears in the shipped describe reply and distracts from the teaching example | Guide implementer | Remove the fixture from production scene data and retain escaping coverage with test-local input; source/inline parity and the describe exercise must pass. Include in the bounded follow-up disposition. |
+| MT-446-1 | Technical and non-technical comprehension plus final user visual review are unverified; D13 and T026 remain open | Guide owner and two readers | Complete the [unassisted exercise](development/guide-learning-experience/phase-7/manual-review.md), retain actual responses, and address unclear concepts before publication. Carries HT-4. |
+| MT-446-2 | Native 200% browser zoom and OS occlusion delivery are not proven by effective-width reflow or an instrumented hidden-state test | Guide owner on the target browser/OS | Perform the environment exercise; retain browser, OS, observations, and any affected correction. Native/fallback fullscreen and reduced-motion handlers have automated proof. |
+| WN-446-1 | Existing primary guide-render CI lacks retained structured browser/JUnit artifacts; comparison is partial | CI maintainer | Review the minimal report/upload change with seven-day retention in [ci-comparison.md](development/guide-learning-experience/phase-7/ci-comparison.md), approve the pipeline change, then implement and verify it. No pipeline change was made in this guide plan. |
+| WN-446-2 | Historical CodeQL CQ-1 has no fresh remote rescan; removal of the flagged construct alone does not close the alert | Security/CI maintainer | Re-evaluate the current head on the next authorized remote scan and record the result. |
+| QG-446-1 | Full native profile: 40 command passes, three failures and one repository-test timeout. Encoding is now fixed; default Bash resolution and the unrelated v4.9 path scan remain separately classified. Complete local green gate is not established | Implementer / repository maintainer | Use [terminal disposition](development/guide-learning-experience/phase-7/full-profile-disposition.md) to isolate the repository-test stall and close remaining environment/scope findings. Do not infer the historical QG-1 assertion failures from absent current output. T027 remains open. |
 
 ### Resolved
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
-| BG-39 | Essential teaching nodes depended on animation visibility | Phase 2 | Nodes and connectors remain visible at rest, on ordinary scrolling, and under reduced motion. No-script reading fallback added. The tall-scene observer is no longer a content gate. |
-| BG-40 | Hidden Training canvas repainted on every animation frame | Phase 2 | The original frame function unconditionally scheduled its successor and painted even when idle or offscreen. Lifecycle-owned scheduling now stops idle/hidden/inactive work and resumes a running game. All four idle-page checks, route resume, and the deterministic game suite pass. |
+| BG-39 | Essential teaching nodes depended on animation visibility | Phase 2 | Nodes and connectors remain visible at rest, on ordinary scrolling, and under reduced motion. No-script reading fallback added. |
+| BG-40 | Hidden Training canvas repainted on every animation frame | Phase 2 | Scheduling now belongs to the running lifecycle. Idle-page, route-resume, and deterministic game checks pass. |
 | BG-41 | Training claimed success before matching completed work | Phase 6 | Pending/blocked/running/complete/failed states, prerequisite checks, and dependent reset invalidation align game, files, and evidence. |
-| BG-42 | Keyboard command selection lost focus | Phase 6 | Progress and Outline restore focus after rebuilding the scene. Independent failing proof now passes. |
+| BG-42 | Keyboard command selection lost focus | Phase 6 | Progress and Outline restore focus after rebuilding the scene; independent failing proof now passes. |
+| BG-43 | Disabled graph join control had insufficient contrast | Phase 7, cycle 1 | Readable text and dashed boundary replace opacity reduction; final contrast checks pass. |
+| BG-44 | Rotated mobile model arrow inherited a stretched container | Phase 7, cycle 2 | Centered intrinsic geometry removes the parent escape; final detector and inspected mobile capture agree. |
+| BG-45 | Graph extraction claimed launch approval unsupported by its input | Phase 7, cycle 3 | Output now says the launch moved, matching the meeting note; human approval remains pending. |
+
+### Carried-item and repository disposition
+
+The [repository audit](development/guide-learning-experience/phase-7/repository-audit.json) discovered 33 canonical and legacy known-gap files and retained their hashes/status observations. Other release owners and frozen history remain unchanged; this guide request does not authorize their implementation. The 735 lifespan scan candidates are archive-review candidates, not 735 confirmed defects. No files or branches were deleted or moved.
+
+HT-2 now has fresh isolated Windows PowerShell and Ubuntu Bash installer proof with identical postconditions; this does not certify or repair the user's existing installation. RV-1 through RV-5 describe retired model-family, heading, and tag compositions and are superseded by the new lessons and measured typography. GA-1's broad dead-selector sweep remains outside this guide plan; no global cleanup was performed. QG-1 and CQ-1 require their own terminal evidence as recorded above. Publication, merge, and release approvals are lifecycle gates in T028, not silently completed implementation.
