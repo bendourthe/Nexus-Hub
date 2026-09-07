@@ -144,6 +144,10 @@ PLATFORM_POSTURES: dict[str, PlatformPosture] = {
     "nexus-ai": _UNCLASSIFIED_POSTURE,
     "openclaw": _UNCLASSIFIED_POSTURE,
     "opencode": _UNCLASSIFIED_POSTURE,
+    "pi": PlatformPosture(
+        "default",
+        "AGENTS.md participates in pi's documented general-to-specific walk: the global file, then parent directories, then the working directory.",
+    ),
     "qwen": _UNCLASSIFIED_POSTURE,
     "windsurf": _UNCLASSIFIED_POSTURE,
 }

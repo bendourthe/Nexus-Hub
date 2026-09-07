@@ -1,0 +1,73 @@
+name: npm-audit
+
+# Scheduled supply-chain audit of the three VS Code extension npm surfaces.
+#
+# Why scheduled rather than per-pull-request: a dependency does not need to change
+# for a CVE to be published against it. A per-PR audit only ever re-checks trees
+# that just changed, which is precisely the case already covered by review, while
+# the tree that has sat untouched for two months is the one most likely to have
+# acquired an advisory nobody has read.
+#
+# This workflow is deliberately NOT a required status check. Required checks must
+# be produced by a workflow that triggers unconditionally (see
+# docs/policy/required-checks.json and the "Required Status Checks" section of
+# AGENTS.md); a scheduled workflow produces no check on a pull request at all, so
+# registering it as required would leave every PR Pending forever. It reports, and
+# a human acts on the report.
+on:
+  schedule:
+    # Mondays 06:17 UTC. Off the hour so the run is not queued behind the
+    # top-of-hour spike that every default cron shares.
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+# Read-only: this workflow audits and reports. It never writes to the repository,
+# opens an issue, or publishes anything.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      # fail-fast off: one extension's advisory must not hide another's.
+      fail-fast: false
+      matrix:
+        extension:
+          - claude-usage-monitor
+          - codex-usage-monitor
+          - cursor-usage-monitor
+    defaults:
+      run:
+        working-directory: extensions/${{ matrix.extension }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: extensions/${{ matrix.extension }}/package-lock.json
+
+      # --ignore-scripts is safe HERE specifically because nothing is built: the
+      # audit reads the dependency tree and its signatures. The extension build
+      # workflows deliberately do NOT carry this flag, because at least one
+      # dependency is a native module whose install step is load-bearing.
+      - name: Install dependencies (no lifecycle scripts)
+        run: npm ci --ignore-scripts
+
+      - name: Audit for known advisories
+        run: npm audit --audit-level=high
+
+      # Verifies that the registry's signatures for the installed versions match,
+      # which catches a tampered or re-published artifact that `npm audit` alone
+      # does not. Tolerated as advisory: signature coverage is still incomplete
+      # across the registry, so a missing signature is not evidence of compromise.
+      - name: Verify registry signatures (advisory)
+        continue-on-error: true
+        run: npm audit signatures

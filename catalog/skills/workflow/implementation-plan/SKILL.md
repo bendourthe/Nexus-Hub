@@ -407,13 +407,33 @@ Report what was cleaned in one line. The command prints `FIXED <path>: N unsafe 
 - Treat a non-zero exit AFTER the fix pass as a blocker to resolve before presenting the plan. Exit 1 means a finding survived automatic repair (a character with no mechanical ASCII replacement); exit 2 means the file could not be found, read, or decoded.
 - Run the pass again on the final file whenever Step 5 rewrites the plan. The guarantee is about the file the user receives, not about the first draft.
 
+### Step 4.5: Critique and Grill the Draft (mandatory)
+
+A first draft is a hypothesis. This step is what turns it into a plan, and it is not optional: a plan that reaches Step 5 unchallenged reaches implementation unchallenged, and the cheapest moment to find a wrong phase ordering or an undecided branch has already passed by then.
+
+Two stages run in order, and both run automatically. Do not ask whether to run them.
+
+**Stage 1 (autonomous): critique the draft.** Invoke `[[plan-review]]` on the just-written plan file. Its lenses read the document in parallel and return severity-tagged findings covering coherence, feasibility, product fit, design soundness, scope and cut-lines, and the five lifecycle checks. No user input is required for this stage, so it completes even on an unattended run.
+
+**Stage 2 (interactive): grill the open decisions.** Invoke `[[design-interview]]` with the findings from stage 1 passed in as the **seeded first round**. Every finding that needs a human choice becomes a numbered question with a recommended answer; findings the draft already answers do not become questions. Do not re-derive a first round from scratch, and do not restate the interview mechanics here: the frontier rule, the round format, the recommendation requirement, and the sub-agent fact-finding rule are all owned by `[[design-interview]]`.
+
+Seeding matters more than it looks. An unseeded grill asks what the agent imagines might be missing; a seeded grill asks about gaps seven independent lenses actually found in this document. The second produces questions the user can answer from knowledge they already have.
+
+**What this costs the reader, stated plainly.** Stage 2 waits for answers, so a plan generated while nobody is at the keyboard **stops here** until someone returns. That is the intended trade: the alternative is a plan that reaches Step 5 with its open decisions still open. Stage 1 has already completed and its findings are on record, so nothing is lost by the pause. Ordinary interview steering still applies inside stage 2 ("enough on this branch", "park that", "that is decided"), which is how a user shortens the grill without skipping the gate.
+
+**Fold the results back before Step 5.** Apply every resolved decision to the plan file: correct the phase that a finding contradicted, add the sub-task an answer created, tighten a cut-line, or record a parked branch in `## Complexity Tracking` with its reason. A finding that the user decides not to act on is recorded as a known gap rather than dropped silently. Then re-run the Step 4 closing sanitize pass on the rewritten file.
+
+**Missing-delegate honesty.** If `[[plan-review]]` is unavailable, say so, run stage 2 with a frontier derived from the draft, and mark the critique portion uncovered in the output. If `[[design-interview]]` is unavailable, say so, present the stage 1 findings directly, and mark the interview portion uncovered. Never reconstruct a missing delegate's rules from memory, and never report a stage as covered when it did not run.
+
 ### Step 5: Review and Confirm
 
 Follow the active instruction template's `Consequential Decisions` rule before asking for approval of the phase breakdown.
 
-Show the user the phases-at-a-glance table and ask:
+Show the user the phases-at-a-glance table, state in one line what Step 4.5 changed (how many findings the lenses raised, how many decisions the grill resolved, and what was parked), and ask:
 - "Does this phase breakdown look right?"
 - "Are there any features missing or phases you would reorder?"
+
+This is a confirmation of an already-critiqued and already-grilled plan, not a first look at a raw draft. If Step 4.5 was skipped or a stage was uncovered, say so here rather than letting the table imply a scrutiny the plan did not receive.
 
 Incorporate feedback, then write the final file and re-run the Step 4 closing sanitize pass on it.
 
@@ -423,6 +443,10 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 
 | Rationalization | Reality |
 |---|---|
+| "The draft looks solid, so the critique-and-grill step is ceremony" | A draft always looks solid to the agent that wrote it, because its blind spots and the draft's are the same blind spots. That is precisely what independent lenses are for, and it is why Step 4.5 is not conditioned on how good the draft seems. |
+| "The user is not responding, so I will skip the grill and present the plan" | Then the plan's open decisions are still open and nobody knows it. Stage 1 findings are already on record; wait, or present the plan with the interview portion explicitly marked uncovered. Presenting it silently is the one option that misleads. |
+| "I will ask the grill questions I think matter rather than the ones the lenses found" | The seeded frontier is the whole point. An imagined gap wastes a round; a lens finding is evidence the user can act on. Seed from stage 1, then extend. |
+| "plan-review ran and found nothing serious, so I can skip stage 2" | Findings and open decisions are different things. A plan can be internally coherent and still leave the vendor, the failure mode, or the cut-line undecided. An empty findings table shortens the first round; it does not remove the frontier. |
 | "The user already knows what they want, I can skip the discovery questions" | Skipping discovery produces a plan built on the agent's assumptions; the unasked question is exactly the requirement that gets missed and forces a rewrite mid-implementation. |
 | "I will add the install and packaging step at the end" | Deferring packaging to the end means the build is unrunnable for the whole middle of the plan; the install step must land before the halfway point so each phase produces something executable. |
 | "A phase does not need its own testing sub-task if I test at the end" | Batching all automated testing into a final phase hides which phase introduced a defect; every phase must end with an automated testing and stabilization sub-task so failures are localized. Human/manual testing still waits until the last phase. |
@@ -455,6 +479,9 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 - [ ] `## Complexity Tracking` section present near the end of the file (empty table when no FAIL bullets; populated row per FAIL otherwise)
 - [ ] File written to the resolved `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` (canonical `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)
 - [ ] For From-comparison mode: the plan's target version, `<version_dir>`, `**Version**`, `**Filename**`, and `**Seeded from**` all derive from the comparison's `Adoption target:` field so the plan is co-located with its comparison; for a legacy comparison lacking the field, the fallback resolution ran and the one-line note was emitted
+- [ ] Step 4.5 ran on the draft: `[[plan-review]]` returned findings, and `[[design-interview]]` ran with those findings as its seeded first round
+- [ ] Every stage-1 finding was resolved, applied to the plan, or recorded as a parked branch or known gap with a reason; none was dropped silently
+- [ ] Any uncovered Step 4.5 stage is named in the output rather than implied to have run
 - [ ] User confirmed the phase breakdown before final generation
 - [ ] Blocking questions are titled `decision:` and scheduled before the implementation sub-tasks they unblock
 - [ ] The closing sanitize pass ran on the FINAL plan file (`--strict --fix --root . --path <plan-file>`) and exited 0, with what it cleaned reported in one line
@@ -465,7 +492,8 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 - `[[solution-knowledge-base]]` - writes the `docs/solutions/` store that Phase B.5 grounding reads; closes the capture -> plan half of the compound loop
 - `[[product-strategy]]` - authors the `STRATEGY.md` anchor that Phase B.5 grounding checks the plan against (problem / persona / metrics)
 - `[[model-routing]]` - scores each phase to generic tier and effort, refreshes the four-provider Current model map for `/plan`, and preserves host-native enumeration for direct `/route` switching
-- `[[design-interview]]` - interview engine for unresolved discovery branches and the CONTEXT.md glossary; invoke it, do not restate its questioning rules
+- `[[design-interview]]` - interview engine for unresolved discovery branches, the Step 4.5 grill, and the CONTEXT.md glossary; invoke it, do not restate its questioning rules
+- `[[plan-review]]` - autonomous multi-persona critique of the written draft; supplies the findings that seed the Step 4.5 grill
 - `[[tasks-to-issues]]` - files plan tasks as GitHub issues; `decision:` titles become `decision`-labeled issues that must be resolved before blocked implementation issues
 - `plan-before-code` - Lightweight planning for individual features within a phase
 - `research-plan-implement` - Structured RPI workflow for a single complex feature
