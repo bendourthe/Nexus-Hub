@@ -33,7 +33,7 @@ the counts were recomputed from the merged catalog in this landing and now sum t
 #### WN-1 - New pushy skill descriptions exceed the 250-char full-mode length check
 
 - **Source phase**: Phase 1 (1.1, 1.2), Phase 2 (2.1)
-- **Plan reference**: `docs/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-tasks 1.1-1.2, 2.1
+- **Plan reference**: `docs/releases/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-tasks 1.1-1.2, 2.1
 - **Reason**: `false-confidence-test-audit`, `commit-sweep`, and `lint-repair-loop` carry pushy descriptions (verbatim trigger phrases plus a SKIP clause) well over 250 characters, so `validate_skills.py` FULL mode would flag them. This is the known catalog-wide pushy-description-vs-250-char tension (the WN-v3121 family); `make validate` does not run full mode and is clean. Intentional per the AGENTS.md description-style rule (combat under-triggering).
 - **Suggested next step**: None required. Track with the catalog-wide description-length decision; do not shorten at the cost of trigger coverage.
 
@@ -49,6 +49,6 @@ the counts were recomputed from the merged catalog in this landing and now sum t
 #### MT-1 - capture_screenshot.py is not unit-tested
 
 - **Source phase**: Phase 4 (4.2)
-- **Plan reference**: `docs/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-task 4.2
+- **Plan reference**: `docs/releases/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-task 4.2
 - **Reason**: `capture_screenshot.py` drives a headless Chromium-family browser, which is not reliably present in CI or on the dev host, so it is documented and degrades gracefully (exit 3 with an install hint) rather than unit-tested. The perceptual-diff core (`perceptual_diff.py`) IS fully tested (7 cases, Pillow-gated), and `Pillow` was added to the CI tests job so those run.
 - **Suggested next step**: Add a browser-gated smoke test in a CI job that installs a headless browser, or exercise it in the Phase 7 end-of-shift orchestrator's visual-regression step when a browser is available.
