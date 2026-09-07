@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: open; seeded when the agentic-setup work landed on develop after the v4.7.0 release
-**Last updated**: 2026-09-06
+**Last updated**: 2026-09-07
 
 ## Open Items - found 2026-09-06 while verifying this session's work
 
@@ -30,6 +30,20 @@
 - **Cause**: it used `Path.stat().st_size`, the size on disk. With `core.autocrlf=true` a Windows checkout holds CRLF while the committed blob and every served copy hold LF, so the working-tree file is one byte per line larger: 504222 on disk against a 499799 blob, a difference of 4423, exactly the file's 4423 line count. `git status` reported the file clean throughout, which is what made the failure read as a real budget breach.
 - **Resolution**: the test now normalizes CRLF to LF before measuring, so the number is platform-independent and equals what a browser downloads. Verified to equal the committed blob byte for byte, and negative-controlled against a simulated over-budget artifact.
 - **Class**: the same defect as v3.15 BG-16, a test whose verdict depended on the environment that launched it rather than on the product. Worth remembering as a pattern: any assertion over `st_size`, line counts, or file bytes in this repository must normalize line endings first, or it is a coin flip on the contributor's platform.
+
+## Open Items - found 2026-09-07 during the v4.8.0 adoption plan
+
+### Warnings (WN)
+
+#### WN-D - The `make` binary is absent on the development host, so the documented gate commands cannot be invoked as written
+
+- **Source phase**: v4.8.0 Phase 1 (loop intake and run contract).
+- **Plan reference**: Phase 1 Stability Gate and sub-task 1.4 both instruct `make validate`; every phase of this plan repeats it.
+- **What was observed**: `make validate` fails with `bash: line 5: make: command not found`. `AGENTS.md`, `CLAUDE.md`, and every plan phase name `make validate`, `make lint`, and `make test` as the repository's gate commands, and none of the three can be invoked on this Windows workstation.
+- **Why it is not the same as WN-C**: `WN-C` is about a missing editable-install prerequisite that makes three extension suites fail *once `make test` runs*. This is one level earlier: the task runner itself is not present, so no target runs at all.
+- **What was done instead**: all 30 steps of the `validate` target were extracted from the `Makefile` and executed directly as `python scripts/<name>.py`, each checked for a zero exit. This is faithful but manual, and it silently drops any future step a maintainer adds to the target.
+- **Suggested next step**: ship a `scripts/gate.py` (or a `nexus-hub gate` subcommand) that runs the same ordered step list the `Makefile` targets run, and have the `Makefile` delegate to it. That makes one list authoritative for both a Unix host with `make` and a Windows host without it, instead of a contributor transcribing targets by hand. A thinner alternative is to document `winget install GnuWin32.Make` as a prerequisite, which fixes the host but leaves the two lists able to drift.
+- **Not changed here**: adding a task-runner shim is repository tooling, well outside a doctrine phase's scope, and choosing between the two options above changes what every contributor runs.
 
 ## Ledger condition measured for T023, 2026-09-06
 

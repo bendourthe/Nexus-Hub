@@ -19,6 +19,8 @@ Use this skill when:
 - You are composing host `/loop`, `/goal`, or `/schedule` behavior with Nexus-Hub worktrees, skills, agents, connectors, and memory files.
 - You need to explain where loop cost, human-review bandwidth, and termination risk enter the design.
 
+Score the candidate against [references/loop-readiness-scorecard.md](references/loop-readiness-scorecard.md) BEFORE a loop is assembled: a loop is admitted on its seven-dimension total and its five when-not-to-loop anti-fits, not on how well it would suit iteration.
+
 When NOT to use this skill:
 
 - The task is a one-shot change with no iteration. Implement it directly.
@@ -62,6 +64,8 @@ Use the owned surface for each loop piece. Do not introduce a new service, depen
 ### Step 2: Start from the local schema
 
 Read [references/loop-schema.md](references/loop-schema.md) before writing or running a loop definition. Every loop must declare `name`, `goal`, `iteration_cap`, `check_command`, `exit_condition`, `driver`, `maturity`, `agents`, and `tags`.
+
+Record the readiness total from [references/loop-readiness-scorecard.md](references/loop-readiness-scorecard.md) in the loop's instance state, so a resumed or inherited run can see which dimensions the loop was admitted on and which two were weakest.
 
 The two non-negotiable safety fields are `iteration_cap` and `exit_condition`. Without a cap, the loop can burn tokens indefinitely. Without an observable exit, the maker agent can declare victory because the output feels plausible.
 
@@ -160,6 +164,8 @@ The optional `progress_check` field is backed by a worked design: a robust loop 
 - **Permission-denial.** The agent is repeatedly denied a tool it needs. That is a misconfigured allowlist, not a code problem: halt with the explicit remedy "narrow or repair the allowed-tools list, then resume", and route to the human inbox after N denials rather than burning the `iteration_cap`. Cross-link [[agent-access-policy]].
 
 A tripped detector should pause with a cooldown and may auto-recover to a monitoring state if progress resumes, rather than hard-aborting on the first stall. Cross-link [[agent-orchestration-primitives]] for the cheapest-primitive and independent-evaluator discipline.
+
+Stalling is one of ten loop failure modes. For all ten -- the stuck cycle above plus runaway spend, premature convergence, metric gaming, self-rubber-stamping, context rot, tool thrashing, state poisoning, side-effect drift, and cascading error -- [references/failure-mode-ownership.md](references/failure-mode-ownership.md) names exactly one owning skill per mode, so a review reports each root cause once.
 
 A fourth pattern looks like a stall but is not a fault: the loop is waiting on a human-owned action (an approval, a merge, an external sign-off). Do not spend iterations busy-polling for it. A loop that re-runs waiting for a human is a no-progress signature, and the [[shipping-and-launch]] gate ends at exactly such a boundary. Hand control back with a crisp summary of what is ready and what decision is requested, and treat the human action as an external resume signal rather than a condition to spin on.
 
