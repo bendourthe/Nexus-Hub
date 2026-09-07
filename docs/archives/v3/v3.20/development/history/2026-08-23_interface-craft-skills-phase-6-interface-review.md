@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.20.2-interface-craft-skills`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../plans/v3.20.2-interface-craft-skills.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../../../../releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md)
 **Phase**: 6 - interface-review coordinator (A8)
 **Environment**: Windows 11, PowerShell, Python 3
 **Outcome**: Coordinator registered. Catalog 320 -> 321 (net +6 from 315). Routing evals passed lexically against delegates and code-review. Dry-run on a real fixture produced one consolidated report. Ready for Phase 7.

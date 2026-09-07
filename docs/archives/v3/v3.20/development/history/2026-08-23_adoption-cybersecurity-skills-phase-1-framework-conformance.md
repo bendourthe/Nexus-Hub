@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.20.1-adoption-cybersecurity-skills`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md`](../../plans/v3.20.1-adoption-cybersecurity-skills.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md`](../../../../../releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md)
 **Phase**: 1 - Framework and conformance tooling
 **Environment**: Windows 11, PowerShell, Python 3, pytest
 **Outcome**: `mitre_f3` is a validated sixth optional framework field; Navigator layer export is deterministic; agentskills.io conformance is a `make validate` / CI hard gate. Ready for Phase 2.

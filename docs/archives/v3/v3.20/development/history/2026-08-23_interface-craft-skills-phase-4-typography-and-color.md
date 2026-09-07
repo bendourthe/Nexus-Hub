@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.20.2-interface-craft-skills`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../plans/v3.20.2-interface-craft-skills.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../../../../releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md)
 **Phase**: 4 - web-typography and color-systems (A2, A3)
 **Environment**: Windows 11, PowerShell, Python 3
 **Outcome**: Remaining domain pair registered. Catalog 318 -> 320. Five-skill ownership matrix checked; contrast thresholds and heading ranks stay on `accessibility-engineering`. Ready for Phase 5.

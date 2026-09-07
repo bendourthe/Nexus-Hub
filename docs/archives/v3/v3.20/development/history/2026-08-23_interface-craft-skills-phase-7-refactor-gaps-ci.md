@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.20.2-interface-craft-skills`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../plans/v3.20.2-interface-craft-skills.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../../../../releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md)
 **Phase**: 7 - Architecture refactor, known-gaps, CI/CD (final phase)
 **Environment**: Windows 11, PowerShell, Python 3
 **Outcome**: No layout moves. D1 re-measured and resolved. Catalog-count drift deferred to `/update release`. CI left on the existing unfiltered-trigger workflow. Ready to hand off.

@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.20.2-interface-craft-skills`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../plans/v3.20.2-interface-craft-skills.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../../../../releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md)
 **Phase**: 3 - layout-and-spacing and interface-copy (A5, A4)
 **Outcome**: Two more cluster skills registered. Catalog 316 -> 318. Ownership handoffs to accessibility-engineering, web-typography, frontend-ui-engineering, writing-editing, anti-slop-editing, and internal-comms are named, not restated. Ready for Phase 4.
 

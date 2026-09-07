@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-24
 **Branch**: `feat/v3.20.3-skills-craft-and-prime-agent`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../plans/v3.20.3-skills-craft-and-prime-agent.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../../../../releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md)
 **Phase**: 1 - Agent-writing craft and out-of-scope register (A4, A2)
 **Environment**: Windows 11, PowerShell, Python 3, pytest
 **Outcome**: Authoring skills carry the six agent-writing concepts; `docs/policy/out-of-scope/` exists with two seeded entries; trigger evals green. Ready for Phase 2.

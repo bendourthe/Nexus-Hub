@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.20.2-interface-craft-skills`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../plans/v3.20.2-interface-craft-skills.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../../../../releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md)
 **Phase**: 2 - accessibility-engineering (A1)
 **Environment**: Windows 11, PowerShell, Python 3
 **Outcome**: First cluster skill shipped with a five-file `references/` bundle, hand-registered, skill-native matrix row, and passing trigger cases. Catalog 315 -> 316. Ready for Phase 3.

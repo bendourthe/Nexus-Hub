@@ -14,7 +14,7 @@
 - **Starting tag/commit**: `24d194e7` (Phase 2 three new skills)
 - **Environment**: Windows 11, PowerShell, Python 3
 - **Prior session reference**: [`2026-08-24_skills-craft-phase-2-new-skills.md`](2026-08-24_skills-craft-phase-2-new-skills.md)
-- **Plan reference**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../plans/v3.20.3-skills-craft-and-prime-agent.md)
+- **Plan reference**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../../../../releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md)
 
 Context: Phase 2 shipped three skills. Phase 3 is independent of those skills and only enriches existing catalog files. Plan recommended strong/medium; this Cursor session stayed on Grok 4.6 (frontier). No downshift.
 

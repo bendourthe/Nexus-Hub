@@ -14,7 +14,7 @@
 - **Starting tag/commit**: `3792663a` (`feat(skills): add agent-writing discipline and out-of-scope register`)
 - **Environment**: Windows 11, PowerShell, Python 3, WSL `bash.exe` at `C:\windows\system32\bash.EXE` (not Git Bash)
 - **Prior session reference**: [`2026-08-24_skills-craft-phase-1-agent-writing-and-out-of-scope.md`](2026-08-24_skills-craft-phase-1-agent-writing-and-out-of-scope.md)
-- **Plan reference**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../plans/v3.20.3-skills-craft-and-prime-agent.md)
+- **Plan reference**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../../../../releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md)
 
 Context: Phase 1 landed the agent-writing discipline and the out-of-scope register. Phase 2 authors three skill-native capabilities under that discipline, without installer edits (skill trees copy recursively).
 
