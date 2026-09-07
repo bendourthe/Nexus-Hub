@@ -40,6 +40,7 @@ def _register_builtins() -> None:
     from .kimi import KimiIntegration
     from .nexus_ai import NexusAiIntegration
     from .openclaw import OpenClawIntegration
+    from .pi import PiIntegration
     from .opencode import OpenCodeIntegration
     from .qwen import QwenIntegration
     from .windsurf import WindsurfIntegration
@@ -57,6 +58,7 @@ def _register_builtins() -> None:
     _register(KimiIntegration())
     _register(NexusAiIntegration())
     _register(OpenClawIntegration())
+    _register(PiIntegration())
     _register(OpenCodeIntegration())
     _register(QwenIntegration())
     _register(WindsurfIntegration())

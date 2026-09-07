@@ -10,11 +10,12 @@ This is a thin dispatcher over the retained planning skills, following the contr
 
 ## Scope resolution
 
-Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scopes: `goals`, `new`, `feature`, `refactor`, `from-comparison`, `todos`, `issues`.
+Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scopes: `goals`, `new`, `feature`, `refactor`, `from-comparison`, `grill`, `todos`, `issues`.
 
 - If `$ARGUMENTS` names a recognized scope, set SCOPE and skip the menu.
 - `/plan goals <one-liner>` accepts an inline goal (Codex `/plan <inline>` style): return a crisp goal statement + definition-of-done, no full plan.
 - `/plan from-comparison <path>` or a bare `*.md` comparison-report path routes to `from-comparison` and pre-seeds from the report's Adoption Plan. The generated plan is written into the SAME version directory as its seeding comparison, driven by the comparison's `Adoption target: vX.Y.Z` field (not a freshly-resolved in-flight version), so a comparison and the plan it seeds always live together; the `[[implementation-plan]]` skill owns the resolution and its legacy-comparison fallback.
+- `/plan grill [path]` re-runs the post-draft critique-and-grill gate on an existing plan without regenerating it. Use it after a plan has been edited, or on a plan that predates the gate. Bare `/grill` is the equivalent single-word entry point for any artifact, including one that did not come from `/plan`.
 - Otherwise, present this menu and wait for a selection:
 
       What scope?
@@ -23,8 +24,9 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
         3. new            - greenfield v0.1.0 build (full discovery interview)
         4. refactor       - plan a refactor or cleanup campaign
         5. from-comparison - seed a plan from a /compare adoption report (RE-first ordering)
-        6. todos          - bootstrap docs/todos.md as a living progress tracker
-        7. issues         - fan a plan's / tasks.md task lines out to GitHub issues
+        6. grill          - re-run the critique-and-grill gate on an existing plan
+        7. todos          - bootstrap docs/todos.md as a living progress tracker
+        8. issues         - fan a plan's / tasks.md task lines out to GitHub issues
 
       Reply with a number or a scope name.
 
@@ -53,6 +55,17 @@ After the phase breakdown is designed and before the plan file is written, `/pla
 - **Degrade visibly.** When web access is unavailable, run the helper's `fallback` command, which validates and renders the dated bundled `last-known-model-map.json` snapshot as `offline fallback; stale as of YYYY-MM-DD.`. If that snapshot is absent or invalid, run `unavailable`, fill every map cell with `assess at implementation time`, and mark the map unavailable. The plan remains valid, but never hides staleness.
 
 Web search uses public documentation and adds no new credential or dependency. The retained planning skill owns the exact table and fallback grammar; `[[model-routing]]` owns scoring plus map validation/rendering; `/implement` re-confirms the generic tier and effort against a refreshed map and the selected provider's live platform surface.
+
+## Post-draft critique and grill (guarantee, planning scopes)
+
+Every plan this command generates is challenged before it is presented. The gate runs automatically after the draft is written and before the confirmation step; it is not offered and not opt-in.
+
+- **The draft is critiqued autonomously first.** `[[plan-review]]` reads the written plan through its parallel persona lenses and returns severity-tagged findings, including the five lifecycle checks. This stage needs no user input.
+- **Then the open decisions are grilled.** `[[design-interview]]` runs with those findings as its **seeded first round**, so every question is backed by something a lens actually found rather than by speculation. Questions come in dependency-ordered rounds, each carrying a recommended answer, and facts the agent can look up are never asked of the user.
+- **Results are folded back into the plan** before the phase breakdown is presented for confirmation. A decision the user declines is recorded as a parked branch or a known gap, never dropped.
+- **Honest cost**: the grill waits for answers, so a plan generated unattended stops at this gate until someone returns. The critique has already completed by then, so nothing is lost by the pause. Ordinary steering ("enough on this branch", "park that") shortens a grill without skipping the gate.
+
+`/plan grill` re-runs this gate on an existing plan. The duties live in `[[implementation-plan]]` Step 4.5, the critique in `[[plan-review]]`, and the interview mechanics in `[[design-interview]]`; this dispatcher states the guarantee and stops there.
 
 ## Mandatory final phase (planning scopes)
 
