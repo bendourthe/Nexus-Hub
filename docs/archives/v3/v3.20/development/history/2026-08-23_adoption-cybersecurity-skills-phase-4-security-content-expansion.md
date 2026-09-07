@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.20.1-adoption-cybersecurity-skills`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md`](../../plans/v3.20.1-adoption-cybersecurity-skills.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md`](../../../../../releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md)
 **Phase**: 4 - Security content expansion
 **Environment**: Windows 11, PowerShell, Python 3, pytest
 **Outcome**: 40 independently authored MIT security skills; catalog 275 to 315; `ot-security` and `mobile-security` added. Ready for Phase 5.

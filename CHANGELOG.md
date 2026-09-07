@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Archived the v3 line's remaining session history**, the first archive pass run against a working retention checker. `v3.20` (22 files) and `v3.21` (5 files) moved to `docs/archives/v3/`, completing per-version retention for all 22 v3 minors. `plans/`, `comparisons/`, `known-gaps.md`, and the non-history `development/` content stayed in the active tree exactly as the policy requires. The move broke 20 `../../plans/` links inside the moved files, because `plans/` deliberately does not follow history into the archive; all 20 were retargeted across the two trees and verified to resolve, and the five `docs/DEVLOG.md` history links were repointed. `docs/archives/README.md` was corrected too: it claimed the archive held v3.0 through v3.17 (282 files) when it holds v3.0 through v3.21 (355 files), still called v3 the current major, and documented the retired singular `docs/archive/` path.
 - `docs/policy/docs-retention.md` now names the canonical `docs/releases/` source and `docs/archives/` destination. It had documented the retired `docs/v<MAJOR>/` and singular `docs/archive/` paths since the refactor.
 
 ### Added

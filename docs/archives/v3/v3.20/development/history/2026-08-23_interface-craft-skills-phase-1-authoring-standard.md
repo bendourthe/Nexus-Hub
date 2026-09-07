@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.20.2-interface-craft-skills`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../plans/v3.20.2-interface-craft-skills.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../../../../releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md)
 **Phase**: 1 - Authoring-standard foundation (A7, A10, A9, A11)
 **Environment**: Windows 11, PowerShell, Python 3, pytest
 **Outcome**: Rule-ownership, missing-delegate honesty, Considered-but-Rejected, and mode-based finding cap are in `AGENTS.md`; `multi-agent-code-review` is the canonical review-output contract. No cluster skill was written. Ready for Phase 2.

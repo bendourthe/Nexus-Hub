@@ -14,7 +14,7 @@
 - **Starting tag/commit**: `80056b4a` (Phase 5 Claude plugin package)
 - **Environment**: Windows 11, PowerShell
 - **Prior session reference**: [`2026-08-24_skills-craft-phase-5-claude-plugin-marketplace.md`](2026-08-24_skills-craft-phase-5-claude-plugin-marketplace.md)
-- **Plan reference**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../plans/v3.20.3-skills-craft-and-prime-agent.md)
+- **Plan reference**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../../../../releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md)
 
 Context: Phases 1-5 are committed. This is the final plan phase (`is_final_phase` true). Plan recommended frontier/max; session stayed on Grok 4.6. No downshift. User already authorized push after this phase and `/update release` once CI is green.
 

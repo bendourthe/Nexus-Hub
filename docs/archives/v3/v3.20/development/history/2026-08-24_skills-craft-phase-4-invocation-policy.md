@@ -14,7 +14,7 @@
 - **Starting tag/commit**: `97c97ee9` (Phase 3 loop disciplines)
 - **Environment**: Windows 11, PowerShell, Python 3 (no `make`; OneDrive host)
 - **Prior session reference**: [`2026-08-24_skills-craft-phase-3-loop-disciplines.md`](2026-08-24_skills-craft-phase-3-loop-disciplines.md)
-- **Plan reference**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../plans/v3.20.3-skills-craft-and-prime-agent.md)
+- **Plan reference**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../../../../releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md)
 
 Context: Phases 1-3 landed catalog skills and loop-discipline enrichments. Phase 4 is the cross-cutting installer/emission build. Plan recommended frontier/high; this Cursor session stayed on Grok 4.6 (frontier). No downshift. The user authorized installer-scope work in the original implement request.
 

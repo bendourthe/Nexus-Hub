@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.20.1-adoption-cybersecurity-skills`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md`](../../plans/v3.20.1-adoption-cybersecurity-skills.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md`](../../../../../releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md)
 **Phase**: 3 - Size-norm remediation
 **Environment**: Windows 11, PowerShell, Python 3, pytest
 **Outcome**: Zero SKILL.md bodies over 800 lines; the cap is a `--bundles-only` hard error. Ready for Phase 4.

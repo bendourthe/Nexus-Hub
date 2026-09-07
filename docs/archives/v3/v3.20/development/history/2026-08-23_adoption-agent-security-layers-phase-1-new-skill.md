@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.20.0-adoption-agent-security-layers`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.0-adoption-agent-security-layers.md`](../../plans/v3.20.0-adoption-agent-security-layers.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.0-adoption-agent-security-layers.md`](../../../../../releases/v3/v3.20/plans/v3.20.0-adoption-agent-security-layers.md)
 **Phase**: 1 - New skill: agent-execution-isolation
 **Environment**: Windows 11, PowerShell, Python 3, pytest
 **Outcome**: Shipped `agent-execution-isolation` under security-operations with OS-sandbox and egress-boundary references, trigger evals, three-file registry plus bundles.json membership, and a one-sentence `/review security` hook. Catalog count 274 to 275. Ready for Phase 2.

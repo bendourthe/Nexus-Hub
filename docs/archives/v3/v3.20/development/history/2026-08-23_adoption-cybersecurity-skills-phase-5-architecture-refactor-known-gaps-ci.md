@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.20.1-adoption-cybersecurity-skills`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md`](../../plans/v3.20.1-adoption-cybersecurity-skills.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md`](../../../../../releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md)
 **Phase**: 5 - Architecture refactor, known-gaps reconciliation, and CI/CD (final phase)
 **Environment**: Windows 11, PowerShell, Python 3
 **Outcome**: Categories documented, scripts de-duplicated by role, five decision records, known-gaps reconciled, CI reused the existing `validate` job. Ready for `/update release`.

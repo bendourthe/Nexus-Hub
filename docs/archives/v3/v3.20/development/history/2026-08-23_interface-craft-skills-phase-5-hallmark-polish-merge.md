@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.20.2-interface-craft-skills`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../plans/v3.20.2-interface-craft-skills.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md`](../../../../../releases/v3/v3.20/plans/v3.20.2-interface-craft-skills.md)
 **Phase**: 5 - UI-polish merge into hallmark-design
 **Environment**: Windows 11, PowerShell, Python 3
 **Outcome**: Recipe-level surfaces, radius, icons, and motion landed in the existing skill. Catalog stayed at 320. No seventh skill directory. Ready for Phase 6.

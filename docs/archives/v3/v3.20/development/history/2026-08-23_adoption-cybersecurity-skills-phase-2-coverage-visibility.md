@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.20.1-adoption-cybersecurity-skills`
-**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md`](../../plans/v3.20.1-adoption-cybersecurity-skills.md)
+**Plan**: [`docs/releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md`](../../../../../releases/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md)
 **Phase**: 2 - Coverage visibility
 **Environment**: Windows 11, PowerShell, Python 3, pytest
 **Outcome**: Committed coverage map is freshness-gated; every framework-declaring skill has `references/standards.md`. Ready for Phase 3.

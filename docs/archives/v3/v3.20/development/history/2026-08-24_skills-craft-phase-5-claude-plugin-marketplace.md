@@ -14,7 +14,7 @@
 - **Starting tag/commit**: `4383ed9b` (Phase 4 invocation policy)
 - **Environment**: Windows 11, PowerShell, Claude Code CLI 2.1.156
 - **Prior session reference**: [`2026-08-24_skills-craft-phase-4-invocation-policy.md`](2026-08-24_skills-craft-phase-4-invocation-policy.md)
-- **Plan reference**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../plans/v3.20.3-skills-craft-and-prime-agent.md)
+- **Plan reference**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../../../../releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md)
 
 Context: Phase 4 shipped command-skill invocation policy. Phase 5 is the vendor-intrinsic marketplace listing (A7). Plan recommended standard/medium; this session stayed on Grok 4.6 (frontier). No downshift.
 

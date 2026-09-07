@@ -14,7 +14,7 @@
 - **Starting tag/commit**: `4d416a83` (Phase 6)
 - **Environment**: Windows 11, PowerShell
 - **Prior session reference**: [`2026-08-24_skills-craft-phase-6-refactor-gaps-ci.md`](2026-08-24_skills-craft-phase-6-refactor-gaps-ci.md)
-- **Plan reference**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../plans/v3.20.3-skills-craft-and-prime-agent.md)
+- **Plan reference**: [`docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md`](../../../../../releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md)
 - **PR**: https://github.com/bendourthe/Nexus-Hub/pull/113
 
 Context: Phases 1-6 were committed and pushed. PR `validate` failed on `scripts/validate_doc_budgets.py`: `OVER AGENTS.md: 8382 words exceeds the 8150 ceiling by 232`. Cause was the Phase 4 invocation-policy section plus the Phase 5 plugin.json category sentence.
