@@ -136,6 +136,7 @@ Security and compliance skills MAY declare optional framework-mapping fields. Ab
 | `nist_csf` | NIST Cybersecurity Framework categories | `[DE.CM, RS.AN]` |
 | `nist_ai_rmf` | NIST AI Risk Management Framework controls | `[MEASURE-2.6, GOVERN-1.1]` |
 | `mitre_f3` | MITRE Fight Fraud Framework (F3) | `[F1005.006, F1010]` |
+| `owasp_agentic` | OWASP Top 10 for Agentic Applications (2026) | `[ASI01, ASI06]` |
 
 Example frontmatter for a defensive security skill:
 
@@ -152,6 +153,8 @@ nist_csf: [DE.CM, DE.AE]
 ```
 
 Companion file: when a skill declares any of these fields, it SHOULD ship a `references/standards.md` that documents the mapping (what each ID means, why it applies to this skill, and the public source URL for the framework definition). The orphan-bundle audit will warn if `references/standards.md` exists but is not referenced from `SKILL.md`; otherwise the file is purely additive.
+
+`owasp_agentic` is the one field whose identifier space is validated for MEMBERSHIP as well as list shape, because it is a closed set of ten (`ASI01` to `ASI10`). The other six draw on catalogs that grow between releases, where a membership check would reject a newly published identifier and turn a vendor's release into a broken build; here the opposite risk dominates, since a shape-only check accepts `ASI99` and a plausible-looking identifier in a compliance-facing matrix reads as verified coverage. `owasp_agentic` identifiers are rendered in `docs/framework-coverage.md` only and are never written into `docs/attack-navigator-layer.json`, which stays ATT&CK-only. Rationale and alternatives: [`docs/decisions/implemented/policy/2026-09-07-owasp-agentic-top-10-as-seventh-framework-field.md`](docs/decisions/implemented/policy/2026-09-07-owasp-agentic-top-10-as-seventh-framework-field.md).
 
 These fields exist so a downstream generator (e.g. `scripts/build_framework_coverage.py`) can emit a coverage matrix across Nexus-Hub's security skills. The committed matrix is `docs/framework-coverage.md` (Navigator layer: `docs/attack-navigator-layer.json`); `build_framework_coverage.py --check` fails `make validate` when either file is stale. They are NOT a substitute for the skill body -- the body must still teach the agent what to do, with binary Verification and Common Rationalizations.
 

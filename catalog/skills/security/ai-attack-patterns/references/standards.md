@@ -39,6 +39,32 @@ Framework mappings for the `ai-attack-patterns` skill. Each section gives the fr
 
 ---
 
+---
+
+## OWASP Top 10 for Agentic Applications (2026)
+
+Identifiers verified 2026-09-07 against the OWASP source. The full ten-entry set with official titles lives in `catalog/skills/security/security-framework-mapping/references/standards.md`; only the identifiers this skill is tagged with are explained below.
+
+### ASI01 -- Agent Goal Hijack
+
+- Framework: OWASP Top 10 for Agentic Applications, 2026 edition.
+- Why this skill maps to it: Covers direct and indirect prompt injection from the attacker's side under authorization, which is the offensive form of the same risk, and requires every finding to be translated into a concrete defense.
+- Source: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+### ASI02 -- Tool Misuse
+
+- Framework: OWASP Top 10 for Agentic Applications, 2026 edition.
+- Why this skill maps to it: Covers tool and function-call abuse in agentic systems as a named attack surface: bending a legitimate tool the agent already holds into an unintended effect.
+- Source: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+### ASI06 -- Memory & Context Poisoning
+
+- Framework: OWASP Top 10 for Agentic Applications, 2026 edition.
+- Why this skill maps to it: Covers RAG and knowledge-base poisoning, which is context poisoning through the retrieval path rather than through the prompt.
+- Source: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+---
+
 ## Attribution
 
 These short titles are quoted from each framework's public catalog; full prose belongs at the public source URL. Nexus-Hub does not redistribute framework text. Framework taxonomies are maintained by MITRE Corporation (ATLAS) and the National Institute of Standards and Technology (NIST AI RMF).

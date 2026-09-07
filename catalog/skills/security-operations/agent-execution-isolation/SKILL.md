@@ -6,6 +6,7 @@ overview_l1: "This skill teaches a four-layer model for running AI agents inside
 mitre_attack: [T1611, T1552, T1071, T1090, T1080]
 d3fend_techniques: [D3-NTA, D3-PA, D3-FA, D3-NI, D3-PH]
 nist_csf: [PR.AC, PR.DS, PR.PT, DE.CM]
+owasp_agentic: [ASI02, ASI03, ASI05, ASI07]
 ---
 
 # Agent Execution Isolation

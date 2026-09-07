@@ -3,6 +3,7 @@ name: loop-engineering
 description: 'Assemble named, goal-terminated agentic loops from Nexus-Hub primitives. Use whenever the user says "run this in a loop", "loop until tests pass", "set up an agentic loop", "iterate until green", "build a loop that ships PRs", "what loop should I use", or asks for continuous agent work with a stopping rule. SKIP: a one-shot task with no iteration; choosing between single-agent / subagents / workflows -- use agent-orchestration-primitives; the host /loop or /goal command mechanics themselves.'
 summary_l0: "Assemble goal-terminated agentic loops from Nexus-Hub primitives"
 overview_l1: "This skill turns Nexus-Hub's existing agentic primitives into named, goal-terminated loops. Use it to choose or author a loop definition with a falsifiable goal, iteration cap, check command, checker-evaluated exit condition, host driver, maturity flag, agents, and tags. It maps automations, worktrees, skills, plugins/connectors, sub-agents, and external memory to owned catalog surfaces, then points operators to a local loop schema and seeded loop library. The loop driver remains the host platform's /loop or /goal command; Nexus-Hub references those commands and never reimplements them."
+owasp_agentic: [ASI10]
 ---
 
 # Loop Engineering
@@ -236,6 +237,10 @@ The posture behind this -- deny host execution unless the task needs it, prefer 
 - [ ] Any gate, resume, or continue-on-error step is implemented as a loop-body instruction over the memory layer (or the harness's Dynamic Workflows), not a new runtime; every gate names its `on_reject` policy (abort / skip / retry).
 - [ ] Every declared gate names its `type` (owner / safety / publication / private-data) and asks ONE concrete answerable question, and no gate trips on a step already inside the loop's authority.
 - [ ] A loop that spans sessions has a gitignored instance record, and any long-horizon loop's evidence carries a freshness window the checker re-validates.
+
+## Standards Mapping
+
+This skill is tagged against the OWASP Top 10 for Agentic Applications (2026) in its frontmatter. [references/standards.md](references/standards.md) records each identifier, the control in this body that maps to it, and the public source URL, so the tag can be checked rather than trusted.
 
 ## Related Skills
 

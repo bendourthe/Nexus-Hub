@@ -11,6 +11,20 @@ Framework mapping for the `prompt-injection-defense` skill. The section below gi
 
 ---
 
+---
+
+## OWASP Top 10 for Agentic Applications (2026)
+
+Identifiers verified 2026-09-07 against the OWASP source. The full ten-entry set with official titles lives in `catalog/skills/security/security-framework-mapping/references/standards.md`; only the identifiers this skill is tagged with are explained below.
+
+### ASI01 -- Agent Goal Hijack
+
+- Framework: OWASP Top 10 for Agentic Applications, 2026 edition.
+- Why this skill maps to it: The skill's whole posture is instruction-origin discipline: instructions come only from the user and the system, and everything read while working (a fetched page, a file, a tool result, another agent's handoff) is untrusted data rather than a principal that can issue commands. A goal hijack is precisely an injected instruction being obeyed as if it came from a principal, so this discipline is the direct control.
+- Source: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+---
+
 ## Attribution
 
 The short title above is quoted from the framework's public catalog; full prose belongs at the public source URL. Nexus-Hub does not redistribute framework text. The ATLAS taxonomy is maintained by MITRE Corporation.

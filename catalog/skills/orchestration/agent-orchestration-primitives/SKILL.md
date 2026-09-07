@@ -3,6 +3,7 @@ name: agent-orchestration-primitives
 description: Decide which agent-orchestration primitive a task actually needs -- a single agent, isolated subagents, persistent agent teams, or Dynamic Workflows -- and when to escalate between them. Make sure to use this skill whenever the user asks "should I use subagents or agent teams", "subagents vs agent teams", "should I parallelize this", "how many agents should I spawn", "fan this out", "should I use a Dynamic Workflow", "turn on ultracode", "orchestrate multiple agents", or otherwise weighs single-agent vs multi-agent execution, even when they do not name a specific primitive. SKIP, do NOT use for, designing the detailed write-scope and role plan once multi-agent is already chosen (use multi-agent-coordinator), picking the best of N parallel attempts at one task (use competitive-generation), stress-testing a single implementation (use adversarial-verifier), or any plainly single-agent task.
 summary_l0: "Choose between single agent, subagents, agent teams, and Dynamic Workflows for a task"
 overview_l1: "This skill is a decision guide for picking the right agent-orchestration primitive and knowing when to escalate. It names the four primitives -- a single well-prompted agent, isolated fire-and-forget subagents (parallelism plus context compression, no peer communication), persistent agent teams (peers that message each other and share a blockedBy task list, but get messy past about five members), and Dynamic Workflows (a JavaScript orchestration script that fans out to up to 16 concurrent and 1,000 total subagents, keeps intermediates off the context window, supports adversarial convergence, and is crash-safe and resumable). It teaches a start-single, escalate-only-on-a-measured-problem gate, the three orchestration failure modes (vague tasks cause duplicated work, verifiers declare victory without verifying, token costs compound), and the rule against parallelizing code-writing. The five orchestration patterns live in references/five-patterns.md. Trigger phrases: subagents vs agent teams, should I parallelize, how many agents, fan out, Dynamic Workflows, ultracode, orchestrate agents."
+owasp_agentic: [ASI07, ASI08]
 ---
 
 # Agent Orchestration Primitives
@@ -177,6 +178,10 @@ Two step-type vocabulary notes round out the orchestration surface, distinct fro
 - [ ] Each agent has an explicit disjoint scope and a falsifiable output contract (defends failure modes 1 and 2).
 - [ ] Per-role model tiering is specified for any fan-out (defends failure mode 3).
 - [ ] If multi-agent was chosen, the design is handed off to [[multi-agent-coordinator]] for the detailed write-scope / role / reconciliation plan.
+
+## Standards Mapping
+
+This skill is tagged against the OWASP Top 10 for Agentic Applications (2026) in its frontmatter. [references/standards.md](references/standards.md) records each identifier, the control in this body that maps to it, and the public source URL, so the tag can be checked rather than trusted.
 
 ## Related Skills
 

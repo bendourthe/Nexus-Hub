@@ -45,6 +45,24 @@
 - **Suggested next step**: ship a `scripts/gate.py` (or a `nexus-hub gate` subcommand) that runs the same ordered step list the `Makefile` targets run, and have the `Makefile` delegate to it. That makes one list authoritative for both a Unix host with `make` and a Windows host without it, instead of a contributor transcribing targets by hand. A thinner alternative is to document `winget install GnuWin32.Make` as a prerequisite, which fixes the host but leaves the two lists able to drift.
 - **Not changed here**: adding a task-runner shim is repository tooling, well outside a doctrine phase's scope, and choosing between the two options above changes what every contributor runs.
 
+#### WN-E - Phase 4 ran a tier below the plan's recommendation, surfaced rather than absorbed
+
+- **Source phase**: v4.8.0 Phase 4 (OWASP agentic framework mapping).
+- **Plan reference**: Phase 4 `**Recommended model tier**: frontier`, `**Recommended effort level**: high`.
+- **What was observed**: the session ran `claude-opus-5`, which the plan's own model map places at `strong`, not `frontier` (`claude-fable-5-1`). Claude Code exposes no scriptable model switch, so the pre-flight surfaced the exact keystrokes (`/model claude-fable-5-1`, then `/effort high`) at the phase boundary and proceeded at strong under the `full` driver, which by contract never blocks implementation.
+- **Why it is recorded rather than treated as a failure**: the no-degradation rule forbids SILENTLY substituting a lower tier, not proceeding after surfacing the delta. This is the same condition v4.7.0 recorded as its own `WN-1`, and the same handling.
+- **What actually mitigated the phase's risk**: not the tier. The phase's named risk was a mistranscribed framework identifier misleading a compliance reader, and the control was executing the plan's re-fetch instruction rather than transcribing from the plan's text. That caught two wrong official titles (ASI03 and ASI06 use ampersands) and one source URL that does not enumerate the ten entries.
+- **Suggested next step**: nothing for this release. If a future plan phase's risk genuinely depends on tier rather than on procedure, consider making the `full` driver pause once at that phase boundary instead of surfacing and continuing. That is a change to `implement-phase`, not to this plan.
+
+#### WN-F - Nothing detects a framework tag whose supporting sentence is later deleted
+
+- **Source phase**: v4.8.0 Phase 4.
+- **Plan reference**: sub-task 4.4 ("tag only IDs whose control the body actually teaches; a tag with no supporting sentence is a mistranscription, not coverage").
+- **What was observed**: the test suite asserts that every declared `owasp_agentic` identifier is EXPLAINED in that skill's `references/standards.md`. It does not and cannot assert that the skill's body still teaches the control the explanation describes. An editor who removes the taught control from a `SKILL.md` body leaves the tag, the standards paragraph, and the coverage-matrix row all intact and all now false.
+- **Why it is not fixable by a stronger regex**: the mapping is a judgment, and this is the same class as the `agent-execution-isolation` ASI02 near-miss recorded in the Phase 4 history, where a keyword grep found no evidence that a careful reading found immediately. A body-content check would produce false rejections on exactly the skills whose vocabulary differs from the framework's.
+- **Suggested next step**: treat framework-tag re-verification as periodic human work owned by [[platform-contract-verification]], which already re-verifies external contracts before a release, rather than as a gate. The same step covers the related exposure that OWASP will version the framework and can renumber or retitle an entry, making every tag stale at once with no local signal.
+- **Recorded in**: the decision record's `## Consequences` section states this residual gap; this entry is its ledger counterpart so the next plan ingests it.
+
 ## Ledger condition measured for T023, 2026-09-06
 
 T023 of `v4.8.0-adoption-visa-vulnerability-agentic-harness.md` reconciles every reachable open
