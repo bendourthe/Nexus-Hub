@@ -103,12 +103,6 @@ strip_heredoc_bodies() {
   local hd_re='<<-?[[:space:]]*["'"'"']?([A-Za-z_][A-Za-z0-9_]*)["'"'"']?'
   local line trimmed delim="" inbody=0 out=""
   while IFS= read -r line || [ -n "$line" ]; do
-    # Strip a trailing CR before anything compares this line. A payload can arrive
-    # CRLF-terminated (a Windows jq.exe piped from Git Bash does exactly that), and
-    # then the closing delimiter reads as "EOF", never equals "EOF", the body never
-    # ends, and every later line is swallowed as heredoc text. That fails OPEN: a
-    # destructive command after the heredoc stops being scanned at all.
-    line=${line%$''}
     if [ "$inbody" -eq 1 ]; then
       trimmed="${line#"${line%%[![:space:]]*}"}"
       if [ "$trimmed" = "$delim" ]; then
