@@ -331,3 +331,38 @@ def test_local_corpus_reports_zero_urls_with_a_reason(path: Path) -> None:
     section = section.split("\n## ", 1)[0]
     assert "local corpus, no web sources" in section
     assert "0 of 0" in section
+
+
+# --- DF-1: the Goal's REVIEW half, closed after the v4.8.0 Goal review --------
+
+MULTI_AGENT_REVIEW = CATALOG / "skills" / "code-review" / "multi-agent-code-review" / "SKILL.md"
+
+
+def test_review_cluster_names_the_verifier_class_per_finding() -> None:
+    """The Goal said "every REVIEW and research deliverable names the verifier
+    class that grades it". The research half shipped in v4.8.0; this is the
+    review half, closed against DF-1."""
+    text = MULTI_AGENT_REVIEW.read_text(encoding="utf-8")
+    assert "Name the verifier class per finding" in text
+    for cls in ("deterministic", "evidence-based", "model-based", "human"):
+        assert cls in text, f"the rule omits the {cls} class"
+
+
+def test_review_cluster_link_to_the_taxonomy_resolves() -> None:
+    text = MULTI_AGENT_REVIEW.read_text(encoding="utf-8")
+    rel = re.search(r"\]\((\.\./[^)]*verifier-taxonomy\.md)\)", text)
+    assert rel, "the review cluster does not link the taxonomy"
+    assert (MULTI_AGENT_REVIEW.parent / rel.group(1)).resolve().is_file()
+
+
+def test_single_lens_personas_do_not_restate_the_rule() -> None:
+    """Rule ownership: the coordinating skill owns it, the personas inherit it.
+    Restating it in each persona is the duplication the ownership discipline
+    exists to prevent."""
+    restaters = [
+        p.parent.name
+        for p in (CATALOG / "skills" / "code-review").glob("*/SKILL.md")
+        if p != MULTI_AGENT_REVIEW
+        and "Name the verifier class per finding" in p.read_text(encoding="utf-8")
+    ]
+    assert not restaters, f"these skills restate an owned rule: {restaters}"
