@@ -1,6 +1,6 @@
 # Platform Read-Contracts (living)
 
-This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
+This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/releases/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
 **Last verified**: 2026-09-04, stamped for v4.5.0 (re-stamp for a release that changes no adapter, installer, or discovery path; the live re-fetch is the same-day v4.4.5 pass below, and `verify_platform_contracts.py` reports OK for all 13 platforms at the release tree). Previous: 2026-09-04, stamped for v4.4.5 (re-verification pass, no correction required: 12 of 13 platforms re-fetched from live first-party vendor docs and classified MATCH with zero discovery-path drift; Nexus-AI remains UNVERIFIED because its source is private; the same visit found a Claude Code LEVER drift recorded in the lever contract). Previous: 2026-09-01, stamped for v4.4.0 (re-verification pass, no correction required: 11 of 13 platforms re-fetched from live first-party vendor docs and classified MATCH with zero drift; gemini carried forward with its `~/.gemini/` root independently corroborated; Nexus-AI remains UNVERIFIED because its source is private. Several platforms have added cross-agent `~/.agents/skills` alias roots alongside the declared native paths -- additional surfaces, not drift, so no adapter changed).
 
@@ -363,7 +363,7 @@ v3.14.6 is a usage-monitor + installer-log fix release: it changed no platform r
 
 ### 2026-07-19 (v3.14.5 release)
 
-A full web re-verification of all supported platforms against current official docs. Dead-path bugs (our installer wrote where the platform no longer reads) were fixed in this release; additive drift (platforms that GAINED skills/agents/hooks surfaces we do not yet use) is deferred to v3.15.0 (platform parity), tracked in `docs/v3/v3.14/known-gaps.md`.
+A full web re-verification of all supported platforms against current official docs. Dead-path bugs (our installer wrote where the platform no longer reads) were fixed in this release; additive drift (platforms that GAINED skills/agents/hooks surfaces we do not yet use) is deferred to v3.15.0 (platform parity), tracked in `docs/releases/v3/v3.14/known-gaps.md`.
 
 **Fixed in v3.14.5:**
 
