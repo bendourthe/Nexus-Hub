@@ -26,6 +26,12 @@ The phase's other deliverables are catalog content (`catalog/skills/**`), not pr
 
 One documentation file added, at its canonical path: `docs/releases/v4/v4.8/development/history/2026-09-07_...phase-2-autonomy-ladder-and-graph-gate.md`. No scratch or draft document was created, and no reference needed repair. The phase's other deliverables are catalog content, outside this audit's scope and covered by the bundle audit, which reported 0 errors with no orphan warning for the affected skill.
 
+## Phase 3 (verifier taxonomy, research finish line, and skill lifecycle)
+
+**Finding: clean. Nothing to propose.**
+
+One documentation file added, at its canonical path: `.../development/history/2026-09-07_...phase-3-verifier-taxonomy-research-finish-line-and-skill-lifecycle.md`. No scratch or draft document was created. This phase also changed a file outside `docs/` and outside `catalog/skills/` for the first time in the plan (`catalog/commands/research.md`); that is catalog content governed by the commands convention in `AGENTS.md`, not project documentation, so it is outside this audit's scope and needs no registry update (a command change requires none).
+
 ## Standing note
 
 `scripts/check_docs_retention.py` (advisory, never fails) reported no v4.8 subtree due for archival, which is expected: v4.8 is the active minor.

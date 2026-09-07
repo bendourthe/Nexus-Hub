@@ -39,6 +39,8 @@ Provides AI output evaluation capabilities including:
 
 Every evaluation needs explicit dimensions. Without defined criteria, evaluation devolves into subjective "looks good" assessments.
 
+Name the verifier class that will grade each dimension before writing the rubric: [references/verifier-taxonomy.md](references/verifier-taxonomy.md) classifies the four classes, gives the natural deterministic and evidence-based checks for common knowledge-work deliverables, and states the rule that at least two classes must be combined because no one class covers every failure mode.
+
 **Multi-Dimensional Rubric Template**:
 
 ```markdown
