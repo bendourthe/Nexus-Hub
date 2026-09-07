@@ -281,6 +281,13 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | document-to-interactive-html | specialized-domains | "Turn documents, code, data, or repositories into a unique interactive self-contained website with verified visuals" | catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md |
 | egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
+| false-confidence-test-audit | tests-generation | "Audit existing tests for false confidence: tests that pass regardless of correctness" | catalog/skills/tests-generation/false-confidence-test-audit/SKILL.md |
+| commit-sweep | workflow | "Sweep recent commits for cross-commit problems a per-diff review misses" | catalog/skills/workflow/commit-sweep/SKILL.md |
+| lint-repair-loop | code-cleanup | "Run linters and repair what they flag in a bounded loop, not just report it" | catalog/skills/code-cleanup/lint-repair-loop/SKILL.md |
+| performance-regression-gate | tests-generation | "Commit a benchmark baseline and fail CI when a metric regresses beyond a threshold" | catalog/skills/tests-generation/performance-regression-gate/SKILL.md |
+| visual-regression-testing | testing | "Baseline screenshots, perceptual diff, and an agent visual-review gate for UI drift" | catalog/skills/testing/visual-regression-testing/SKILL.md |
+| helper-script-authoring | developer-experience | "Author and grow project helper scripts so the agent stops re-typing incantations" | catalog/skills/developer-experience/helper-script-authoring/SKILL.md |
+| end-of-shift-validation | workflow | "Compose tests, perf, visual, sweep, audit, review, and repair into one end-of-shift pass" | catalog/skills/workflow/end-of-shift-validation/SKILL.md |
 | agent-execution-isolation | security-operations | "Run agents in OS-level isolation with ephemeral containers and an egress boundary" | catalog/skills/security-operations/agent-execution-isolation/SKILL.md |
 | agentic-endpoint-hardening | security-operations | "Harden the coding-agent endpoint against config-write-then-executed sandbox escapes at the trust seam" | catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md |
 
@@ -334,4 +341,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | setup-wizard-generator | developer-experience | "Generate a resumable human-only setup wizard with bash and PowerShell templates" | catalog/skills/developer-experience/setup-wizard-generator/SKILL.md |
 | decision-questionnaire | business-product | "Write an async Markdown questionnaire for the one stakeholder who can unblock" | catalog/skills/business-product/decision-questionnaire/SKILL.md |
 | functional-verification | testing | "Exercise built artifacts through real boundaries and record observable behavioral evidence" | catalog/skills/testing/functional-verification/SKILL.md |
-**Total: 329 skills across 23 categories**
+**Total: 336 skills across 23 categories**

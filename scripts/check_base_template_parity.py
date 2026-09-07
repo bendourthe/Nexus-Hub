@@ -106,6 +106,7 @@ REQUIRED_HEADINGS = [
     "Branching",
     "Communication Contract",
     "Documentation Layout",
+    "Run and Verify",
     "Output Minimization",
     "End-of-Task Summary",
     "Construction Discipline",
@@ -188,6 +189,7 @@ INVARIANT_SECTIONS = [
     # tests/validators/test_autonomy_block_rule.py.
     "Autonomous Operation",
     "Consequential Decisions",
+    "Run and Verify",
     "MCP Registry Policy",
 ]
 

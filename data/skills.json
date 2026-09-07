@@ -6,16 +6,16 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 329,
+    "total_skills": 336,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
       "bug-fixing": 5,
       "business-product": 7,
-      "code-cleanup": 11,
+      "code-cleanup": 12,
       "code-review": 16,
       "compliance": 9,
-      "developer-experience": 41,
+      "developer-experience": 42,
       "documentation": 6,
       "framework-specialists": 6,
       "infrastructure": 19,
@@ -25,9 +25,9 @@
       "research": 3,
       "security": 33,
       "specialized-domains": 14,
-      "testing": 4,
-      "tests-generation": 18,
-      "workflow": 45,
+      "testing": 5,
+      "tests-generation": 20,
+      "workflow": 47,
       "security-operations": 29,
       "ot-security": 5,
       "mobile-security": 5
@@ -36,7 +36,7 @@
       "MEDIUM": 275,
       "HIGH": 6
     },
-    "total_lines": 136172,
+    "total_lines": 137120,
     "total_tokens_estimate": 740960,
     "average_lines_per_skill": 417,
     "languages_supported": [
@@ -2072,6 +2072,37 @@
         "lines": 509,
         "characters": 22385,
         "tokens_estimate": 2852
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "helper-script-authoring",
+      "title": "helper-script-authoring",
+      "description": "Author and grow small, well-documented helper scripts in a project tools/ or bin/ folder so the agent stops re-typing fragile multi-step incantations. Make sure to use this skill whenever the user says \"write a helper script\", \"make a bin script for this\", \"automate this repetitive command\", \"build a CLI wrapper for the agent\", \"I keep running the same commands\", or when the agent notices it is repeating a multi-command sequence it could encapsulate. SKIP, do NOT use for, authoring a slash command (use create-custom-command), building an MCP server (use mcp-builder), or a genuinely one-off command that will not recur.",
+      "long_description": "Identify a recurring multi-step incantation and encapsulate it as a small, robust, well-documented helper script in a project tools/ or bin/ folder, then keep growing that collection over time. Covers when a helper is worth writing, how to make it robust and discoverable, and the discipline of building the collection out.",
+      "summary_l0": "\"Author and grow project helper scripts so the agent stops re-typing incantations\"",
+      "overview_l1": "\"This skill teaches the agent to identify a recurring multi-step incantation and encapsulate it as a small, robust, well-documented helper script in a project tools/ or bin/ folder, then keep growing that collection over time. It covers when a helper is worth writing (a sequence run more than a few times, or one whose exact flags are easy to get wrong), how to make it robust (safety flags, argument validation, clear errors, per the bash / python code-style rules), how to make it DISCOVERABLE so future sessions find and reuse it (a header comment, a --help, and a one-line entry in a tools README), and the discipline of building the collection out continuously rather than re-deriving commands each session. The worked example is an agent_review-style wrapper that kicks off cross-agent reviews without the agent memorizing each tool's flags. Trigger phrases: write a helper script, automate this repetitive command, build a CLI wrapper for the agent, I keep running the same commands.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/developer-experience/helper-script-authoring/",
+      "file": "catalog/skills/developer-experience/helper-script-authoring/SKILL.md",
+      "size": {
+        "lines": 65,
+        "characters": 6552,
+        "tokens_estimate": 1048
       },
       "downloads": 0,
       "status": "production",
@@ -5720,6 +5751,37 @@
       }
     },
     {
+      "name": "false-confidence-test-audit",
+      "title": "false-confidence-test-audit",
+      "description": "Audit an existing test suite for FALSE-CONFIDENCE tests - tests that pass regardless of whether the code under test is correct, so a green suite hides real defects. Make sure to use this skill whenever the user says \"audit my tests\", \"are these tests actually testing anything\", \"do these tests give false confidence\", \"tautological tests\", \"the tests pass but the code is broken\", \"check test quality\", \"these tests look fake\", or otherwise suspects the safety net is hollow, even if they never say \"false confidence\". SKIP, do NOT use for, generating new tests (use unit-tests / test-cases), running a compute-heavy mutation pass to prove weakness (use mutation-testing), or measuring line coverage (use code-coverage).",
+      "long_description": "Find the tests that pass no matter what the code does. A suite can be green with high line coverage and still catch nothing because the assertions are tautological, aimed at a mock, or absent; this skill audits an existing suite for that failure and repairs it.",
+      "summary_l0": "\"Audit existing tests for false confidence: tests that pass regardless of correctness\"",
+      "overview_l1": "\"This skill audits an existing test suite for false-confidence tests - tests that stay green whether or not the code under test is correct, so a passing run gives a false sense of safety. It teaches a fast, read-the-assertions audit distinct from the compute-heavy mutation pass: enumerate the suite, identify each test's real subject and the behavior its name claims, then classify every test REAL, WEAK, or FALSE-CONFIDENCE against a concrete anti-pattern catalog (tautological assertions, asserting on a mock instead of the subject, the subject fully mocked away, no assertion at all, catch-and-pass on any exception, rubber-stamped snapshots). For each false-confidence test it proposes the corrected assertion or a real subject invocation, and optionally verifies the fix by mutating the subject and confirming the test now fails. The output is a classified report plus concrete repairs. Trigger phrases: audit my tests, false confidence, tautological tests, tests pass but code is broken, fake tests, test quality audit.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "tests-generation",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/tests-generation/false-confidence-test-audit/",
+      "file": "catalog/skills/tests-generation/false-confidence-test-audit/SKILL.md",
+      "size": {
+        "lines": 92,
+        "characters": 9979,
+        "tokens_estimate": 1590
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "performance-testing",
       "title": "performance-testing",
       "description": "Implement load testing, stress testing, benchmarking, and performance validation. Use when validating system performance, identifying bottlenecks, establishing performance baselines, or testing under high load for Python, JavaScript, Java, C#, Go, C, or C++ applications.",
@@ -5742,6 +5804,37 @@
         "lines": 330,
         "characters": 10488,
         "tokens_estimate": 1180
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "performance-regression-gate",
+      "title": "performance-regression-gate",
+      "description": "Catch performance regressions automatically by committing a benchmark baseline and failing when a metric degrades beyond a threshold. Make sure to use this skill whenever the user says \"catch performance regressions\", \"benchmark gate\", \"fail the build if it got slower\", \"performance baseline\", \"perf CI check\", \"alert when latency or throughput or bundle size degrades\", or wants automated detection of performance drift over time rather than a one-off measurement. SKIP, do NOT use for, one-off profiling or optimizing a specific function (use code-optimizer), writing the benchmarks themselves or load/stress testing (use performance-testing), or correctness testing (use unit-tests / integration-test-generator).",
+      "long_description": "The CI-facing half of performance testing: commit a benchmark baseline and fail when a metric degrades beyond a threshold, so performance drift is caught automatically instead of noticed in production. A bundled stdlib-only script records and checks the baseline with a per-metric direction and threshold.",
+      "summary_l0": "\"Commit a benchmark baseline and fail CI when a metric regresses beyond a threshold\"",
+      "overview_l1": "\"This skill adds the CI-facing half of performance testing: commit a benchmark BASELINE and fail (or flag) when a metric degrades beyond a threshold, so performance drift is caught automatically instead of noticed in production. It teaches which hot-path metrics to gate (latency, throughput, allocations, bundle size), how to capture and commit a baseline, how to compare current-vs-baseline with a per-metric direction (lower-is-better for latency and size, higher-is-better for throughput) and a noise-tolerant threshold, how to wire the check into CI, and when to deliberately re-baseline. The bundled scripts/perf_baseline.py records and checks the baseline deterministically (stdlib-only, zero-network) and exits non-zero on a regression. It complements performance-testing (which writes the benchmarks) and code-optimizer (one-off profiling). Trigger phrases: catch performance regressions, benchmark gate, fail the build if it got slower, performance baseline, perf CI check.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "tests-generation",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/tests-generation/performance-regression-gate/",
+      "file": "catalog/skills/tests-generation/performance-regression-gate/SKILL.md",
+      "size": {
+        "lines": 82,
+        "characters": 7007,
+        "tokens_estimate": 1033
       },
       "downloads": 0,
       "status": "production",
@@ -6294,6 +6387,68 @@
       }
     },
     {
+      "name": "commit-sweep",
+      "title": "commit-sweep",
+      "description": "Sweep a window of recent commits at a higher altitude than per-diff review, surfacing problems that no single commit review would catch - partial or abandoned refactors spread across commits, convention drift, accumulated TODO/FIXME debt, undocumented dependency changes, and cross-cutting inconsistencies. Make sure to use this skill whenever the user says \"sweep the recent commits\", \"review the last N commits\", \"cross-commit review\", \"what did we miss across these commits\", \"look over the recent work at a high level\", \"periodic commit audit\", or wants a periodic higher-level pass over recent history, even if they do not say \"sweep\". SKIP, do NOT use for, reviewing a single diff or PR (use /review diff), finding which commit introduced a specific bug (use git-bisect-assistant), or explaining one known regression (use regression-root-cause-analyzer).",
+      "long_description": "Review a window of recent commits from above. Per-commit and per-PR review each judge one change in isolation, blind to problems that only exist in the aggregate: an abandoned refactor, drifted conventions, TODOs left open, a dependency bumped without a lockfile or doc update. This skill sweeps the last N commits for those cross-commit problems, read-only, and turns findings into follow-ups.",
+      "summary_l0": "\"Sweep recent commits for cross-commit problems a per-diff review misses\"",
+      "overview_l1": "\"This skill sweeps a window of recent commits (default the last 10, configurable) at a higher altitude than per-diff review, surfacing problems that emerge only across commits and that no single-commit review would flag: partial or abandoned refactors, convention drift, TODO/FIXME debt introduced and never resolved, security-relevant deltas, dependency changes without lockfile or doc updates, and cross-cutting inconsistencies. It is read-only over history: read the window via git log and a range diff, cluster the changes by subsystem, evaluate each cluster for what emerged across the commits, then emit a severity-tagged findings list with commit references and offer to open follow-ups. It complements per-diff review, bisect, and regression analysis rather than replacing them. Trigger phrases: sweep recent commits, review the last N commits, cross-commit review, what did we miss across these commits, periodic commit audit, high-level review of recent work.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/workflow/commit-sweep/",
+      "file": "catalog/skills/workflow/commit-sweep/SKILL.md",
+      "size": {
+        "lines": 85,
+        "characters": 8735,
+        "tokens_estimate": 1371
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "end-of-shift-validation",
+      "title": "end-of-shift-validation",
+      "description": "Run one composed, autonomous full-validation pass at the end of an autonomous or night-shift session - tests, performance-regression gate, visual regression, commit sweep, false-confidence test audit, multi-agent review, and lint repair - so the work is as pristine as possible when you return. Make sure to use this skill whenever the user says \"end of shift validation\", \"full validation pass\", \"run everything before I'm back\", \"night shift wrap-up\", \"make it all pristine\", \"validate the whole session before I return\", or wants a single comprehensive pre-return sweep rather than one isolated check. SKIP, do NOT use for, cutting a release (use /update release), a single review or a single test run (use /review or /test), or a one-off check of one dimension (invoke that dimension's skill directly).",
+      "long_description": "One composed autonomous validation pass for the end of a night-shift or unattended session: tests + coverage, performance-regression gate, visual regression, commit sweep, false-confidence test audit, multi-agent review, and lint repair, ending in a single GO / work-remaining verdict with a prioritized follow-up backlog. Explicitly not a release.",
+      "summary_l0": "\"Compose tests, perf, visual, sweep, audit, review, and repair into one end-of-shift pass\"",
+      "overview_l1": "\"This skill runs one composed, autonomous full-validation pass at the end of an autonomous or night-shift session so the work is as pristine as possible when the human returns. In a defined order it chains: the full test suite with coverage, the performance-regression gate, visual regression, a commit sweep over the session's commits, a false-confidence test audit of new or changed tests, a multi-agent code review of the session diff, and a lint-repair loop for residual lint - then emits a single consolidated report with a GO / work-remaining verdict and a prioritized follow-up list. It is explicitly NOT a release: it never bumps versions, merges, tags, or pushes (that is /update release). It cross-links the autonomous-run budget controls (hard caps, scope-first) because a full sweep carries a real token cost. Trigger phrases: end of shift validation, full validation pass, run everything before I'm back, night shift wrap-up, make it all pristine.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/workflow/end-of-shift-validation/",
+      "file": "catalog/skills/workflow/end-of-shift-validation/SKILL.md",
+      "size": {
+        "lines": 84,
+        "characters": 8229,
+        "tokens_estimate": 1257
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "plan-before-code",
       "title": "plan-before-code",
       "description": "Guide exploration and planning phases before implementation (Anthropic best practice). Includes LLM task suitability assessment, token cost estimation, and pipeline design. Use when starting non-trivial features, fixing bugs that need root cause analysis, refactoring code, or working in unfamiliar codebases.",
@@ -6693,6 +6848,37 @@
       }
     },
     {
+      "name": "visual-regression-testing",
+      "title": "visual-regression-testing",
+      "description": "Catch unintended UI changes by capturing baseline screenshots, diffing current renders against them, and gating on the difference with an agent visual review. Make sure to use this skill whenever the user says \"visual regression\", \"screenshot tests\", \"did the UI change\", \"pixel diff\", \"catch unintended UI changes\", \"visual review of the render\", \"baseline screenshots\", or wants to detect visual drift in a rendered UI over time rather than testing behavior. SKIP, do NOT use for, functional or end-to-end behavior testing (use e2e-testing-automation), one-off demo or PR screenshot capture (use demo-capture), or non-visual regressions (use commit-sweep / regression-root-cause-analyzer).",
+      "long_description": "Layer a regression discipline on top of screenshot capture: baseline screenshots, a perceptual diff against them, and an agent visual-review gate, so unintended UI changes are caught before they ship. Ships a Pillow-based perceptual-diff script and a best-effort headless-browser capture helper.",
+      "summary_l0": "\"Baseline screenshots, perceptual diff, and an agent visual-review gate for UI drift\"",
+      "overview_l1": "\"This skill catches unintended UI changes by layering a regression discipline on top of screenshot capture: capture BASELINE screenshots of key views at defined viewports, store them (git-lfs when available, otherwise attach baseline + current + diff to the PR), diff current renders against the baseline with a perceptual metric, and GATE on the difference - below threshold passes silently, above threshold triggers an agent visual review that reads the before / after / diff images and decides whether the change is intended, and only a reviewed-and-approved change re-baselines. The bundled scripts/perceptual_diff.py computes the diff and exits non-zero on regression (a size change is treated as a regression); scripts/capture_screenshot.py is a best-effort headless-browser capture that degrades gracefully when no browser is present. It builds on browser-testing-with-devtools and demo-capture (which capture) and adds the missing baseline + diff + review gate. Trigger phrases: visual regression, screenshot tests, did the UI change, pixel diff, catch unintended UI changes.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "testing",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/testing/visual-regression-testing/",
+      "file": "catalog/skills/testing/visual-regression-testing/SKILL.md",
+      "size": {
+        "lines": 74,
+        "characters": 7386,
+        "tokens_estimate": 1133
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "code-simplification",
       "title": "code-simplification",
       "description": "\"Reduces code complexity by removing unnecessary abstraction, dead code, and over-engineering -- without changing behavior. Use when code has grown hard to understand, when a component is over-abstracted for its actual use cases, or when simplification is the goal rather than feature addition. Different from language-specific cleanup skills (python-cleanup, javascript-cleanup) -- this skill addresses structural complexity across any codebase. Trigger phrases: simplify this, this is too complex, over-engineered, reduce complexity, make it simpler, clean up the design.\"",
@@ -6722,6 +6908,37 @@
         "lines": 140,
         "characters": 6200,
         "tokens_estimate": 620
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "lint-repair-loop",
+      "title": "lint-repair-loop",
+      "description": "Run the project's linters, formatters, and type-checkers and REPAIR what they flag - not just report it - in a bounded loop that ends with a clean run and a reviewable diff. Make sure to use this skill whenever the user says \"fix the lint errors\", \"clean up the linter output\", \"make lint pass\", \"repair the type errors\", \"auto-fix and fix the rest\", \"the linter is complaining\", or wants flagged issues actually resolved rather than listed. Any judgment repairs beyond the formatters' native --fix are performed by the agent's OWN session model; this skill never shells out to an external repair model. SKIP, do NOT use for, designing or choosing the lint/type config itself, large behavioral refactors (use refactoring-expert), or reducing structural complexity / over-abstraction (use code-simplification).",
+      "long_description": "Make the linter, formatter, and type-checker pass by actually fixing what they flag, not by printing the errors and stopping. A bounded repair loop: cheap deterministic autofix first, the agent's own judgment for the rest, a clean run at the end, and a reviewable diff.",
+      "summary_l0": "\"Run linters and repair what they flag in a bounded loop, not just report it\"",
+      "overview_l1": "\"This skill runs the project's linters, formatters, and type-checkers and REPAIRS what they flag in a bounded loop, rather than only reporting problems. The loop is: run the tools; apply their native --fix / --write autofix first (deterministic and cheapest); re-run; for residual failures the autofixers cannot handle, the agent reads each failure and edits the code to satisfy it, using its OWN session model - never an external repair service; re-run until clean or a max-iteration cap is hit, then stop and surface what remains rather than looping forever. It always leaves a reviewable diff and never force-pushes or bypasses hooks. Per the MCP Registry Policy (hard-no on generation-as-service; reverse-engineer-first), the LLM-judgment half runs on the session model, and only the deterministic native-formatter pass may be automated by the opt-in lint-autofix precommit hook. Trigger phrases: fix the lint errors, make lint pass, repair type errors, auto-fix and fix the rest, clean up the linter output.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "code-cleanup",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/code-cleanup/lint-repair-loop/",
+      "file": "catalog/skills/code-cleanup/lint-repair-loop/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 7334,
+        "tokens_estimate": 1203
       },
       "downloads": 0,
       "status": "production",

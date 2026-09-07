@@ -2,7 +2,7 @@
   "plugin": {
     "name": "nexus-hub",
     "version": "4.7.0",
-    "description": "Enterprise-grade skill library for AI coding assistants with 329 curated skills, 18 commands, 33 hooks, and cross-platform support",
+    "description": "Enterprise-grade skill library for AI coding assistants with 336 curated skills, 18 commands, 33 hooks, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
     "repository": "https://github.com/bendourthe/Nexus-Hub",
@@ -90,7 +90,7 @@
       "id": "code-cleanup",
       "name": "Code Cleanup",
       "description": "Code, layout, and docs cleanup: per-language modernization plus repo and docs structural refactoring",
-      "skill_count": 11
+      "skill_count": 12
     },
     {
       "id": "code-review",
@@ -108,7 +108,7 @@
       "id": "developer-experience",
       "name": "Developer Experience",
       "description": "Code optimization, refactoring, migration, dependency management, web artifact scaffolding",
-      "skill_count": 41
+      "skill_count": 42
     },
     {
       "id": "documentation",
@@ -168,19 +168,19 @@
       "id": "testing",
       "name": "Testing",
       "description": "Domain contract validation, E2E test automation",
-      "skill_count": 4
+      "skill_count": 5
     },
     {
       "id": "tests-generation",
       "name": "Test Generation",
       "description": "Unit, integration, E2E, property-based, mutation, fuzz, and BDD test generation",
-      "skill_count": 18
+      "skill_count": 20
     },
     {
       "id": "workflow",
       "name": "Workflow",
       "description": "Git workflows, TDD, debugging, session history and session query, context-pack distillation, skill evaluation, version management, project governance and product strategy, issue tracking, agent context modes, local continuous learning, persistent agent memory, skill quality audit and generation, local PR demo capture",
-      "skill_count": 45
+      "skill_count": 47
     },
     {
       "id": "research",
