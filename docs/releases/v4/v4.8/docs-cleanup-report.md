@@ -42,6 +42,16 @@ Two documentation files added, both at canonical paths: the Phase 4 session hist
 
 No scratch or draft document was created. The one scratch skill used to exercise the validator's negative case was written outside the repository tree and removed, so it never entered the catalog or this audit's scope.
 
+## Phase 5 (architecture refactor, known-gaps reconciliation, and CI/CD)
+
+**Finding: clean. Nothing proposed, nothing applied.**
+
+This phase ran the audit as a last-phase DUTY rather than as a per-phase pass, so its full output (empty directories, root tracked-status table, retention result) is quoted under `## Architecture refactor` in [`development/last-phase-evidence.md`](development/last-phase-evidence.md) rather than duplicated here. Summary: no empty tracked directory, no duplicate, no non-version orphan, no structure to simplify; one advisory (`image.png` is untracked and unignored, pre-existing and the maintainer's) reported and deliberately not acted on.
+
+Documentation files added by this phase, all canonical: `development/last-phase-evidence.md` (the release-blocking artifact) and the Phase 5 session history under `development/history/`. `known-gaps.md` gained seven entries across phases 1, 4, and 5. The plan file's completed task and exit-checklist lines were marked, with three lines deliberately left unchecked because they describe remote work that has not happened.
+
+`docs/handbooks/` was checked and correctly holds no generated HTML: `markdown/` has no authored pages, and `handbooks/README.md` states that an atlas and per-component companions are deliberately not invented for a catalog repository. That is a self-gate holding, not an omission.
+
 ## Standing note
 
 `scripts/check_docs_retention.py` (advisory, never fails) reported no v4.8 subtree due for archival, which is expected: v4.8 is the active minor.

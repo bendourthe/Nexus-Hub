@@ -1,7 +1,7 @@
 # Known Gaps - v4.8
 
 **Project**: Nexus-Hub
-**Status**: open; seeded when the agentic-setup work landed on develop after the v4.7.0 release
+**Status**: open; seeded when the agentic-setup work landed on develop after the v4.7.0 release. The v4.8.0 adoption plan (agentic loops) is complete locally on `feat/v4.8.0-agentic-loops`, four commits, awaiting the approved single push and integration PR into `develop`
 **Last updated**: 2026-09-07
 
 ## Open Items - found 2026-09-06 while verifying this session's work
@@ -41,7 +41,7 @@
 - **Plan reference**: Phase 1 Stability Gate and sub-task 1.4 both instruct `make validate`; every phase of this plan repeats it.
 - **What was observed**: `make validate` fails with `bash: line 5: make: command not found`. `AGENTS.md`, `CLAUDE.md`, and every plan phase name `make validate`, `make lint`, and `make test` as the repository's gate commands, and none of the three can be invoked on this Windows workstation.
 - **Why it is not the same as WN-C**: `WN-C` is about a missing editable-install prerequisite that makes three extension suites fail *once `make test` runs*. This is one level earlier: the task runner itself is not present, so no target runs at all.
-- **What was done instead**: all 30 steps of the `validate` target were extracted from the `Makefile` and executed directly as `python scripts/<name>.py`, each checked for a zero exit. This is faithful but manual, and it silently drops any future step a maintainer adds to the target.
+- **What was done instead**: every step of the `validate` target was extracted from the `Makefile` and executed directly, each checked for a zero exit: 28 `python scripts/<name>.py` guards, the 4 inline JSON parse checks, and the `nexus-context-compressor` accuracy-regression gate (33 in total). This is faithful but manual, and it silently drops any future step a maintainer adds to the target.
 - **Suggested next step**: ship a `scripts/gate.py` (or a `nexus-hub gate` subcommand) that runs the same ordered step list the `Makefile` targets run, and have the `Makefile` delegate to it. That makes one list authoritative for both a Unix host with `make` and a Windows host without it, instead of a contributor transcribing targets by hand. A thinner alternative is to document `winget install GnuWin32.Make` as a prerequisite, which fixes the host but leaves the two lists able to drift.
 - **Not changed here**: adding a task-runner shim is repository tooling, well outside a doctrine phase's scope, and choosing between the two options above changes what every contributor runs.
 
@@ -62,6 +62,42 @@
 - **Why it is not fixable by a stronger regex**: the mapping is a judgment, and this is the same class as the `agent-execution-isolation` ASI02 near-miss recorded in the Phase 4 history, where a keyword grep found no evidence that a careful reading found immediately. A body-content check would produce false rejections on exactly the skills whose vocabulary differs from the framework's.
 - **Suggested next step**: treat framework-tag re-verification as periodic human work owned by [[platform-contract-verification]], which already re-verifies external contracts before a release, rather than as a gate. The same step covers the related exposure that OWASP will version the framework and can renumber or retitle an entry, making every tag stale at once with no local signal.
 - **Recorded in**: the decision record's `## Consequences` section states this residual gap; this entry is its ledger counterpart so the next plan ingests it.
+
+### Deferred (DF)
+
+#### DF-1 - The Goal's "every review deliverable names its verifier class" reached the evaluation skill but no review skill
+
+- **Source phase**: v4.8.0 Phase 5 (independent Goal-vs-codebase review).
+- **Plan reference**: plan header Goal, clause 3: "every review and research deliverable names the verifier class that grades it".
+- **What was observed**: `references/verifier-taxonomy.md` exists and is cited from Step 1 of `ai-output-evaluation`, and the research half of the clause landed on both research surfaces. The REVIEW half did not: no task line (T011 to T017) wired the taxonomy into `multi-agent-code-review`, `plan-review`, `code-quality`, `testing-review`, or any other review skill, so a review deliverable still does not name the class of verifier that graded it. A reader of the Goal would expect it to.
+- **Why it was not fixed inside the phase**: the Goal clause is broader than every task line the plan wrote for it. Wiring a citation into the review pipeline touches skills no phase declared in scope, and choosing WHICH review surfaces should carry it (the orchestrating skill only, or each persona) is a design decision, not a mechanical edit. Fixing it silently here would expand the plan's scope after its review.
+- **Suggested next step**: add one sentence to `multi-agent-code-review` (the coordinating skill for the review cluster) requiring each finding's grading class to be named from the taxonomy, and let the single-lens personas inherit it rather than restating it. That keeps the rule-ownership discipline the same cluster already follows. One task line, next plan.
+- **Not a pass**: recorded as a Goal miss rather than reported as delivered.
+
+### Warnings (WN), continued
+
+#### WN-G - The coverage builder's frontmatter parser mis-parses a trailing comment on any framework field
+
+- **Source phase**: v4.8.0 Phase 5 (Tier 3 deep pass, adversarial finding AF-6).
+- **What was observed**: `scripts/build_framework_coverage.py::parse_id_list` does not strip a trailing YAML comment. Given `owasp_agentic: [ASI01] # fine`, it yields the single identifier `'[ASI01] # fine'`, which would appear verbatim as a control row in `docs/framework-coverage.md`. `validate_skills.py` parses the same line correctly, so the validator passes and the generated document is wrong.
+- **Scope**: PRE-EXISTING and applies to all seven framework fields, not only the one added in v4.8.0. No shipped skill carries a comment on a framework line, so the committed matrix is correct today.
+- **Why it was not fixed here**: the fix is one line in a parser shared by all seven fields, and a change to shared parsing behavior should land with a test matrix covering all seven rather than riding along in a mapping phase. The v4.8.0 field's own bypass routes (AF-1, AF-2) WERE fixed, because those defeated the membership guarantee this release introduced.
+- **Suggested next step**: strip `#` and everything after it in `parse_id_list`, and add one parametrized test over all seven field names asserting a trailing comment is ignored.
+
+#### WN-H - The coverage builder silently ignores a framework field written as a YAML block sequence
+
+- **Source phase**: v4.8.0 Phase 5 (Tier 3 deep pass, adversarial finding AF-7).
+- **What was observed**: `parse_id_list` reads only the text after the colon, so a block-sequence tag (`owasp_agentic:` followed by indented `- ASI02` lines) yields nothing and the skill is absent from the coverage matrix. `validate_skills.py` accepts that shape as valid, and `AGENTS.md` documents block sequences as an accepted shape, so a maintainer can write a tag that validates cleanly and never appears in the matrix. This is silent UNDER-coverage, which is harder to notice than an error.
+- **Scope**: PRE-EXISTING and applies to all seven fields. All 15 skills tagged in v4.8.0 use the flow-list form, so the committed matrix is complete today; verified by the matrix showing all ten identifiers covered.
+- **Suggested next step**: teach `parse_id_list`'s caller to read a following block sequence, exactly as `validate_skills.py::_owasp_agentic_values` already does, and add a parametrized test over all seven fields asserting both YAML shapes reach the matrix. Until then, prefer the flow-list form when tagging.
+
+#### WN-I - `test_org_cli.py::test_disconnect_requires_confirmation_and_yes_removes_state_and_cache` is flaky
+
+- **Source phase**: v4.8.0 Phase 5 (full local gate).
+- **What was observed**: `python -m pytest tests/workflows tests/installer tests/ci -q` reported `1 failed, 670 passed, 60 skipped`, failing at `tests/installer/test_org_cli.py:300`. The identical command on the identical tree then reported `671 passed, 60 skipped`. The test also passes alone and passes with its whole file. Not reproducible; nothing in the v4.8.0 diff touches the org CLI, `nexus-hub org disconnect`, or its state and cache handling.
+- **One observation worth keeping**: the failing traceback resolved its repository root through `C:\Users\BEDOURTHE\OneDrive - Supira\Documents\...` while the passing runs resolve through `C:\Users\BEDOURTHE\Documents\...`. This host has OneDrive folder redirection, so the same logical path can present under two roots. A test that removes state and cache directories and then asserts their absence is exactly the shape that a redirected or lazily-synced path can break intermittently, and `WN-B` in this same ledger already records one Windows path-semantics defect (CRLF versus LF) of the same family.
+- **Suggested next step**: run the file under `pytest -p no:randomly` and with `--basetemp` pinned outside the OneDrive tree to confirm or eliminate the redirection hypothesis, then apply the `flaky-test-detector` procedure. Do NOT mark it skipped: a flake that removes and re-checks filesystem state is a candidate real defect on a redirected home, which is a configuration many Windows users have.
+- **Why it did not block this phase**: the definitive full-suite run for this release is recorded in the last-phase evidence file, and this test passed in it.
 
 ## Ledger condition measured for T023, 2026-09-06
 
