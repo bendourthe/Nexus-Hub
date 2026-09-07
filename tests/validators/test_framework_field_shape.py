@@ -199,3 +199,64 @@ def test_every_owasp_identifier_in_the_closed_set_is_accepted(tmp_path: Path) ->
     write_skill(tmp_path, "owasp-all-ten", f"owasp_agentic: [{ids}]")
     result = run(tmp_path)
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+# --- Adversarial findings from the v4.8.0 Tier 3 deep pass ------------------
+#
+# The membership check is bypassable if the validator's parser is NARROWER than
+# the coverage builder's. build_framework_coverage.py matches the key with
+# `line.strip()` (so it reads an indented key) and keeps the LAST occurrence
+# (so a duplicate wins). Both inputs below put ASI99 into
+# docs/framework-coverage.md while the validator reported PASS. The validator
+# now scans every occurrence, indented ones included, and fails closed.
+
+
+def test_adversarial_nested_owasp_key_is_still_validated(tmp_path: Path) -> None:
+    """AF-1: the coverage builder reads an indented key that YAML would treat
+    as nested. Skipping it here let an unverified identifier reach a
+    compliance-facing document."""
+    write_skill(tmp_path, "owasp-nested", "something:\n  owasp_agentic: [ASI99]")
+    result = run(tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ASI99" in result.stdout
+
+
+def test_adversarial_nested_bare_scalar_is_still_validated(tmp_path: Path) -> None:
+    """AF-1b: the second bypass route. The shape check skips indented lines, so
+    a nested bare scalar reached the builder unchecked by either gate."""
+    write_skill(tmp_path, "owasp-nested-scalar", "something:\n  owasp_agentic: ASI99")
+    result = run(tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ASI99" in result.stdout
+
+
+def test_adversarial_duplicate_key_validates_the_union(tmp_path: Path) -> None:
+    """AF-2: the validator read the first occurrence, the builder rendered the
+    last. Validating the union closes it in both orderings."""
+    write_skill(
+        tmp_path, "owasp-dupe-key", "owasp_agentic: [ASI01]\nowasp_agentic: [ASI99]"
+    )
+    result = run(tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ASI99" in result.stdout
+
+
+def test_adversarial_duplicate_key_bad_first_also_fails(tmp_path: Path) -> None:
+    """The reverse ordering, so the fix cannot be an off-by-one that happens to
+    catch only the common case."""
+    write_skill(
+        tmp_path, "owasp-dupe-first", "owasp_agentic: [ASI99]\nowasp_agentic: [ASI01]"
+    )
+    result = run(tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "ASI99" in result.stdout
+
+
+def test_block_sequence_followed_by_another_key_does_not_leak(tmp_path: Path) -> None:
+    """Regression on the widened scan: a block sequence must stop at the next
+    key at the same indent, not swallow the following field's values."""
+    write_skill(
+        tmp_path, "owasp-block-then-key", "owasp_agentic:\n  - ASI03\nnist_csf: [DE.CM]"
+    )
+    result = run(tmp_path)
+    assert result.returncode == 0, result.stdout + result.stderr

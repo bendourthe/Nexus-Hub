@@ -426,31 +426,65 @@ def _owasp_agentic_values(block: str) -> list[str] | None:
 
     Handles both YAML shapes the other framework fields accept: a flow list on
     the key's own line, and a block sequence on the following indented lines.
+
+    Deliberately scans EVERY occurrence of the key, indented ones included, and
+    returns the union. That is broader than YAML's own semantics, and it is
+    broader on purpose: `scripts/build_framework_coverage.py` matches the key
+    with `line.strip()` and keeps the LAST occurrence, so a key this validator
+    skipped (because it was nested) or ignored (because an earlier one won)
+    would still be rendered into `docs/framework-coverage.md`. Two hostile
+    inputs exploited exactly that gap and put `ASI99` in the matrix while the
+    validator reported PASS:
+
+        something:                     # nested: validator skipped, builder read it
+          owasp_agentic: [ASI99]
+
+        owasp_agentic: [ASI01]         # duplicate: validator read the first,
+        owasp_agentic: [ASI99]         # builder rendered the last
+
+    Validating the union fails closed against both. A false positive here costs
+    a maintainer one clear error message; a false negative puts an unverified
+    identifier in a compliance-facing document, which is the failure this whole
+    field exists to prevent.
     """
     lines = block.splitlines()
+    found = False
+    values: list[str] = []
     for index, line in enumerate(lines):
-        if not line or line[0].isspace() or ":" not in line:
+        if ":" not in line:
             continue
         key, _, value = line.partition(":")
         if key.strip() != OWASP_AGENTIC_FIELD:
             continue
+        found = True
         raw = value.split("#", 1)[0].strip()
         if raw.startswith("[") and raw.endswith("]"):
             inner = raw[1:-1]
-            return [v.strip().strip("'\"") for v in inner.split(",") if v.strip()]
+            values.extend(v.strip().strip("'\"") for v in inner.split(",") if v.strip())
+            continue
+        base_indent = len(line) - len(line.lstrip())
         if raw:
-            # A bare scalar. The shape check above already reports it; return an
-            # empty list so membership does not report the same defect twice.
-            return []
-        values: list[str] = []
+            # A bare scalar. At top level the shape check already reports it, so
+            # adding it here would produce two messages for one defect. Nested,
+            # the shape check never sees it (it skips indented lines) while the
+            # builder still reads it, so it must be validated here or it is a
+            # second bypass route.
+            if base_indent > 0:
+                values.append(raw.strip("'\""))
+            continue
         look_ahead = index + 1
-        while look_ahead < len(lines) and lines[look_ahead][:1].isspace():
-            item = lines[look_ahead].strip()
+        while look_ahead < len(lines):
+            nxt = lines[look_ahead]
+            if not nxt.strip():
+                look_ahead += 1
+                continue
+            if len(nxt) - len(nxt.lstrip()) <= base_indent:
+                break
+            item = nxt.strip()
             if item.startswith("- "):
                 values.append(item[2:].split("#", 1)[0].strip().strip("'\""))
             look_ahead += 1
-        return values
-    return None
+    return values if found else None
 
 
 def validate_owasp_agentic_membership(
