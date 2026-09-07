@@ -438,6 +438,55 @@ python scripts/ci/run.py --profile fast        ->  PASS: 13 passed, 0 failed
 
 **Stabilization**: ONE narrowly scoped commit, not an amend. The final commit was already published and the pull request open, so amending would rewrite shared history; `[[code-commit-workflow]]` selects the added commit in that situation. Not a series.
 
+### Second remote validation: GREEN
+
+After pushing `dc3bcfa4`, every check reached a terminal state and every required context passed:
+
+```
+validate:      pass      shellcheck:    pass      ci-required:   pass
+colocation:    pass      verify:        pass
+tests:         pass      tests-windows: pass      guide-render:  pass
+changes:       pass      detect:        pass      CodeQL:        pass
+Analyze (javascript-typescript): pass    Analyze (python): pass
+bootstrap (macos-latest / ubuntu-latest): pass     bootstrap-windows: pass
+install-smoke (macos / ubuntu / windows-latest): pass
+installer-smoke (macos / ubuntu / windows-latest): pass
+render:        skipping
+```
+
+All five required contexts from `docs/policy/required-checks.json` are green. `render` skipped legitimately, which the `ci-required` allowlist accepts as a non-failure by design (`success|skipped`); that it now PASSES rather than failing closed, on the same topology that failed closed one run earlier, is the aggregate observed working in both directions.
+
+The 22 passing contexts include the six PowerShell cases that flaked locally under load (`tests-windows: pass`), which is the corroboration for treating them as a host-load artifact rather than a defect.
+
+### Scope disclosure before the merge decision
+
+The approval gate reported "5 commits ahead of develop, 66 files, +2977/-99". GitHub reported the pull request as **252 files, +4309/-466**. Both were correct and they measured different things: the gate used `git diff develop..HEAD` against the LOCAL branch, and local `develop` was 12 commits ahead of `origin/develop`. PR #183 therefore contained **18 commits**: this plan's 6 and 12 pre-existing unpublished `develop` commits (docs archival, two documentation-gate repairs, the v4.10.0 plan, the T023 ledger measurement).
+
+Those 12 could not be unbundled. `gh api repos/.../branches/develop/protection` reports `required_pull_request_reviews` set and `enforce_admins: true`, so a direct push to `develop` is rejected and a pull request is their only route to the remote.
+
+Handled by disclosure, not by silence: the pull-request description was amended with the full 12-commit list, a statement that they are not part of this plan, and the command that isolates the v4.8.0 work (`git diff a243c178..HEAD`). The maintainer then approved the merge with that scope in view. The gate defect itself is recorded as `WN-J`, because a branch cut from a local branch ahead of its remote is the ordinary case in this repository and the gate wording will mislead again.
+
 ### Merge
 
-Pending. `/update release` remains held until every required check is green AND the merge to `develop` has landed.
+**Merged 2026-09-07T21:19:04Z. Merge commit `191e536adc676c9bb5fe915f468c9503a1e40a95`.** Pull request state `MERGED`, base `develop`, merged with explicit maintainer approval after every required check was green.
+
+### Post-merge behavior verified
+
+Only `Post-merge` was triggered by the push to `develop`. **`CI` did NOT re-run**, which is the v4.0.0 event-separation design working: a push to `develop` under a pull-request-only merge policy is the merge commit of the pull request that just ran, so the tree is identical and a second full run would be billed for nothing.
+
+Run `34162694329`, two jobs, neither of them the complete suite:
+
+| Job | What it runs |
+|---|---|
+| `smoke` | `python scripts/ci/run.py --profile fast --reports-dir reports`, then appends `reports/summary.md` to the run summary. 13 checks, not 44. |
+| `provenance` | Reports the merged version and branch state; runs `check_docs_retention.py` advisory-only (`|| true`). |
+
+`provenance` completed successfully; `smoke` was in progress at the time of writing and runs the same 13-check fast profile that passes locally in 7 seconds.
+
+**No finding against the reconciliation recorded under `## CI/CD coverage`.** A duplicate post-merge suite would have been one; the workflow is scoped to a smoke and a provenance report, and its `concurrency` block sets `cancel-in-progress: false`, which is correct for a post-merge publication path.
+
+### Release handoff
+
+The hold condition is satisfied: the evidence file is complete with every required section, no Goal-review or deep-pass finding is unresolved without a recorded gap, and the integration result is green AND merged.
+
+`/update release` is now unblocked. It owns the version bump, changelog, tag, push, and GitHub Release behind its own confirmation gates, and nothing in this phase created a tag or a release.
