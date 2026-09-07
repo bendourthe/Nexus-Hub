@@ -4,6 +4,22 @@
 **Status**: open; seeded when the agentic-setup work landed on develop after the v4.7.0 release
 **Last updated**: 2026-09-06
 
+## Carried in from v4.6.0, which was never cut
+
+The `v4.6.0-adoption-visa-vulnerability-agentic-harness` plan was approved on 2026-09-01 and never
+implemented: 0 of its 31 sub-tasks, no session history, no `last-phase-evidence.md`, no tag, and no
+CHANGELOG entry. The v4.7.0 changelog recorded the situation at the time ("v4.6.0 was never cut; its
+plan is unimplemented and carries forward").
+
+It cannot ship under its original number. v4.7.0 is tagged and published and `plugin.json` reads
+`4.7.0`, so a `v4.6.0` tag would sort behind the current release and be invisible to anything
+resolving latest. On 2026-09-06 the plan and its comparison were retargeted into this version as
+`v4.8.0-adoption-visa-vulnerability-agentic-harness.md`, and `docs/releases/v4/v4.6/` no longer
+exists. The plan's own `**Retargeted**` header line carries the same statement.
+
+The Release Sequencing Gate that plan declares is satisfied: v4.5.0 is complete, tagged, merged, and
+back-merged. Its remaining scope is therefore ordinary v4.8.0 implementation work, not a blocked item.
+
 ## Carried in from the v3.14 agentic-setup adoption
 
 That branch shipped its own v3.14 ledger, written 2026-07-13 while the release was still held. It is
