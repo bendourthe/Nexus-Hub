@@ -1,7 +1,7 @@
 # Known Gaps - v4.8
 
 **Project**: Nexus-Hub
-**Status**: open; seeded when the agentic-setup work landed on develop after the v4.7.0 release. The v4.8.0 adoption plan (agentic loops) is complete locally on `feat/v4.8.0-agentic-loops`, four commits, awaiting the approved single push and integration PR into `develop`
+**Status**: open; seeded when the agentic-setup work landed on develop after the v4.7.0 release. The v4.8.0 adoption plan (agentic loops) is COMPLETE and MERGED: PR #183 into `develop`, merge commit `191e536a`, 2026-09-07, every required check green. Release work is handed to `/update release`
 **Last updated**: 2026-09-07
 
 ## Open Items - found 2026-09-06 while verifying this session's work
@@ -102,6 +102,15 @@
 - **Suggested next step for the family**: treat `WN-I` as covering flaky Windows tests that spawn subprocesses or manipulate filesystem state under load, not just the one org-CLI test. A per-case PowerShell subprocess with no explicit timeout is the shared shape. Apply `flaky-test-detector` to both sites together rather than separately.
 
 
+
+#### WN-J - The publication pre-flight compared against LOCAL develop, so the pull request silently carried 12 unrelated commits
+
+- **Source phase**: v4.8.0 Phase 5 (publication and integration).
+- **What was observed**: the approval gate reported "5 commits ahead of develop, 66 files, +2977/-99", measured with `git diff develop..HEAD` against the LOCAL branch. GitHub reported the opened pull request as **252 files, +4309/-466**. The difference is real: local `develop` was 12 commits ahead of `origin/develop`, so the branch point carried 12 pre-existing, unpublished commits (docs archival, documentation-gate repairs, the v4.10.0 plan) into the pull request's range.
+- **Why it matters**: the maintainer approved publishing the v4.8.0 work and was shown a 66-file figure. Merging the pull request also merges 12 commits that no part of the approval described. Nothing was wrong with those commits, and they were destined for `develop` anyway, but the approval gate presented a scope smaller than the action.
+- **Why it could not simply be unbundled**: `develop` has `required_pull_request_reviews` set and `enforce_admins: true`, so a direct push is rejected. Those 12 commits can reach the remote ONLY through a pull request; this one is the path they were waiting for.
+- **What was done**: the pull-request description was amended with a scope disclosure listing all 12 commits, stating that they are not part of this plan, and giving the command that isolates the v4.8.0 work (`git diff a243c178..HEAD`). Disclosed rather than quietly merged.
+- **Suggested next step**: the publication approval gate in `[[implement-phase]]` step 9F.2 should measure against the REMOTE integration branch (`git fetch` then `git log --oneline origin/<base>..HEAD`), not the local one, and state the commit count as well as the file count. A branch cut from a local branch that is ahead of its remote is the ordinary case in this repository, not an edge case, so the current wording will mislead again.
 
 ## Ledger condition measured for T023, 2026-09-06
 
