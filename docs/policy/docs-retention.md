@@ -1,6 +1,6 @@
 # Documentation Retention Policy
 
-`docs/v3/` holds 440 Markdown files across 21 minor-version directories and has no rule for when any of them stop being current. Every release adds plans, per-phase session histories, comparisons, and a known-gaps file, and nothing has ever moved out. The growth is not a disk problem; it is a retrieval problem. An agent needs recent history hot and old history findable, and an undifferentiated tree of 440 files gives it neither.
+`docs/releases/v3/` holds 440 Markdown files across 21 minor-version directories and has no rule for when any of them stop being current. Every release adds plans, per-phase session histories, comparisons, and a known-gaps file, and nothing has ever moved out. The growth is not a disk problem; it is a retrieval problem. An agent needs recent history hot and old history findable, and an undifferentiated tree of 440 files gives it neither.
 
 This policy defines a lifecycle for per-version documentation. It moves files; it never deletes them.
 
@@ -8,7 +8,7 @@ This policy defines a lifecycle for per-version documentation. It moves files; i
 
 ### 1. ACTIVE - the current minor version
 
-`docs/v<MAJOR>/v<MAJOR>.<MINOR>/` for the current minor version is unrestricted. Add plans, histories, comparisons, and notes freely. This is the working directory of the project and applying retention pressure to it would be counterproductive.
+`docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/` for the current minor version is unrestricted. Add plans, histories, comparisons, and notes freely. This is the working directory of the project and applying retention pressure to it would be counterproductive.
 
 ### 2. CONSOLIDATE at release
 
@@ -18,13 +18,13 @@ Nothing is rewritten, merged, or summarized at this step. "Consolidate" means co
 
 ### 3. ARCHIVE at two minors behind
 
-When a minor version falls **two or more minors behind the current one**, its `development/history/` subtree moves to:
+When a minor version falls **two or more minors behind the current one**, its `development/history/` subtree moves from `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/` to:
 
 ```text
-docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/
+docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/
 ```
 
-This is the canonical archive layout that [`docs-layout-refactor`](../../catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md) already owns and that `docs/archive/v0/`, `docs/archive/v1/`, and `docs/archive/v2/` already use. Files move, references are repaired, and **nothing is deleted**.
+This is the canonical archive layout that [`docs-layout-refactor`](../../catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md) already owns and that `docs/archives/v0/`, `docs/archives/v1/`, and `docs/archives/v2/` already use. Files move, references are repaired, and **nothing is deleted**.
 
 Two minors is the threshold because it keeps the previous release's history reachable without a directory change while the current one is still stabilizing. At v3.17, that makes v3.15 and older archivable and leaves v3.16 and v3.17 in place.
 

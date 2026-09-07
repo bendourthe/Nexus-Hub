@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Fixed
+
+- **Two documentation gates were silently passing against a scan root that no longer existed.** `check_docs_retention.py` globbed `docs/v*` and `check_doc_colocation.py` scanned `docs/v<N>/`, but the docs layout refactor had moved the active tree to `docs/releases/v<N>/`. A glob that matches nothing is indistinguishable from a tree with nothing due, so both gates reported clean on every run - retention printed "nothing due for archival" and co-location printed "No docs/v<N> tree found; nothing to check." Neither had enforced anything since the refactor. Both now read `docs/releases/` (canonical) and name `docs/archives/` as the destination; co-location also still honors the legacy `docs/v<N>/` layout in place, as `docs-layout-refactor` specifies. This is the fourth fail-open defect recorded in the co-location checker's docstring and is of the same character as the three that moved it out of inline YAML.
+- **An empty scan is now a WARNING in both gates, never a clean result.** The root cause of the silence was not the wrong path but the fact that the wrong path was indistinguishable from success. Both scripts still exit 0 - a project with no version tree is a legitimate state and neither gate should block a release - but the operator can now tell "checked and clean" from "checked nothing".
+- **Thirteen `**Seeded from**` citations in adoption plans pointed at pre-refactor comparison paths.** The co-location gate exists to catch exactly this and could not, because it was blind. Twelve were plain layout retargets; one also had its comparison relocated into the plan's own version directory. All thirteen now resolve, and the gate passes.
+- Retention now reports the real backlog it had been hiding: 148 files across eight version directories (v3.20, v3.21, and v4.0 through v4.5) are two or more minors behind v4.7 and due for archival.
+
+### Changed
+
+- `docs/policy/docs-retention.md` now names the canonical `docs/releases/` source and `docs/archives/` destination. It had documented the retired `docs/v<MAJOR>/` and singular `docs/archive/` paths since the refactor.
+
+### Added
+
+- Layout-drift regression guards in both test suites. Every pre-existing test built its fixtures from the same constant the checker used, so the suites validated the bug rather than catching it. The new guards assert against the **real repository**, and specifically that the configured prefix yields a non-empty set of version directories - existence alone is insufficient, because `docs/` existed for the entire period both gates were reading nothing. Reverting either constant to its historical value now fails the suite.
+
 ## [4.7.0] - 2026-09-06
 
 Three tracks land together. Distribution integrity comes first: every Release now carries a checksummed, attested tarball, both bootstraps verify it fail-closed, and an install can be pinned to a tag and rolled back. Model behavior is second: an always-loaded `## Autonomous Operation` block on all twelve substantive templates settles when an agent proceeds and when it stops, and states that the user's instructions outrank a skill's guidelines. Third, the interactive guide is rebuilt to teach by demonstration rather than assertion. Routing data was re-verified against vendor pages and `gpt-6-astra` mapped. Derived from the `v4.5.0..develop` range: 51 commits, 995 files, PR #167 and #169. v4.6.0 was never cut; its plan is unimplemented and carries forward.

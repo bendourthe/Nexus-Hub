@@ -2,9 +2,16 @@
 """Report per-version documentation that is due for archival. Advisory only.
 
 `docs/policy/docs-retention.md` says a minor version's `development/history/`
-subtree moves to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`
-once that minor is two or more minors behind the current one. This reports drift
-against that rule and names the destination.
+subtree moves from `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`
+to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/` once that minor
+is two or more minors behind the current one. This reports drift against that
+rule and names the destination.
+
+A path-based checker whose scan root has been renamed reports "nothing due"
+forever, which is how this check went unenforced from the docs layout refactor
+until v4.8.0. So an absent scan root is reported as a WARN, not as a clean
+result: silence must mean "checked and clean", never "looked in the wrong
+place".
 
 Only `history/` ages out. See the AGING_SUBDIR comment below for why the rest of
 `development/` does not.
@@ -52,6 +59,14 @@ ARCHIVE_AFTER_MINORS = 2
 # read forward by the next plan, so none of the three ages out.
 AGING_SUBDIR = "development/history"
 
+# The canonical two-level layout owned by `docs-layout-refactor`: active release
+# documentation under `docs/releases/`, frozen history under `docs/archives/`.
+# Both are PLURAL. The pre-refactor layout was `docs/v<MAJOR>/` with a singular
+# `docs/archive/`; this checker kept scanning that after the migration and so
+# reported clean against a tree that no longer existed.
+RELEASES_ROOT = "docs/releases"
+ARCHIVES_ROOT = "docs/archives"
+
 _VERSION_DIR = re.compile(r"^v(?P<major>\d+)\.(?P<minor>\d+)$")
 
 
@@ -80,7 +95,7 @@ def find_candidates(root: Path, current: tuple[int, int]) -> list[tuple[Path, st
     current_major, current_minor = current
     out: list[tuple[Path, str, str]] = []
 
-    for major_dir in sorted(root.glob("docs/v*")):
+    for major_dir in sorted((root / RELEASES_ROOT).glob("v*")):
         if not major_dir.is_dir():
             continue
         major_name = major_dir.name
@@ -119,7 +134,7 @@ def find_candidates(root: Path, current: tuple[int, int]) -> list[tuple[Path, st
             if not source.is_dir():
                 continue
 
-            destination = f"docs/archive/{major_name}/{minor_dir.name}/{AGING_SUBDIR}/"
+            destination = f"{ARCHIVES_ROOT}/{major_name}/{minor_dir.name}/{AGING_SUBDIR}/"
             if (root / destination).is_dir():
                 continue  # already archived
 
@@ -142,6 +157,23 @@ def render_report(root: Path, quiet: bool) -> str:
     if current is None:
         if not quiet:
             buf.write("  canonical version unreadable; retention check skipped (advisory)\n")
+        return buf.getvalue()
+
+    # Loud on purpose, and keyed on the GLOB rather than on the directory.
+    # `docs/` existing proves nothing: the pre-fix code globbed `docs/v*`,
+    # and `docs/` was present the whole time the check was reading a tree
+    # that no longer held any version directory. An empty match set and a
+    # tree with nothing due are indistinguishable in the output, so the
+    # empty match set has to announce itself.
+    version_dirs = [p for p in (root / RELEASES_ROOT).glob('v*') if p.is_dir()]
+    if not version_dirs:
+        buf.write(
+            f"  WARN: docs/ exists but {RELEASES_ROOT}/v* matched no version "
+            f"directory; retention check read nothing. Either the release tree "
+            f"moved (update RELEASES_ROOT in scripts/check_docs_retention.py) or "
+            f"no release has been documented yet. See docs/policy/docs-retention.md"
+            + chr(10)
+        )
         return buf.getvalue()
 
     candidates = find_candidates(root, current)
