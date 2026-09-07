@@ -4,6 +4,24 @@
 **Status**: open; seeded when the agentic-setup work landed on develop after the v4.7.0 release
 **Last updated**: 2026-09-06
 
+## Open Items - found 2026-09-06 while verifying this session's work
+
+### Warnings (WN)
+
+#### WN-A - The interactive guide has 201 bytes of headroom under its size budget
+
+- **Source**: found running the full suite to verify the documentation-gate repairs.
+- **What was observed**: `tests/guides/test_nexus_hub_guide.py::test_file_size_budget` asserts the guide is under 500000 bytes. The artifact measures 499799, leaving **201 bytes**, or 0.04 percent. The next content addition of any size breaks the build.
+- **Why it is not just a number to raise**: the budget exists because the guide is a single self-contained offline HTML document that a browser downloads in full. Raising the ceiling to clear a red test would spend the constraint rather than honor it. The v4.4.x guide cycle already fought for bytes (`docs/releases/v4/v4.4/` history), so the compaction levers are documented.
+- **Suggested next step**: decide deliberately, ahead of the next guide edit, between compacting existing content and raising the budget with a recorded rationale. Do not decide it inside a phase that merely needs the test green.
+
+#### WN-B - `test_file_size_budget` measured the checkout, not the artifact (fixed here)
+
+- **Source**: same run. The test failed on this Windows workstation and passed in CI.
+- **Cause**: it used `Path.stat().st_size`, the size on disk. With `core.autocrlf=true` a Windows checkout holds CRLF while the committed blob and every served copy hold LF, so the working-tree file is one byte per line larger: 504222 on disk against a 499799 blob, a difference of 4423, exactly the file's 4423 line count. `git status` reported the file clean throughout, which is what made the failure read as a real budget breach.
+- **Resolution**: the test now normalizes CRLF to LF before measuring, so the number is platform-independent and equals what a browser downloads. Verified to equal the committed blob byte for byte, and negative-controlled against a simulated over-budget artifact.
+- **Class**: the same defect as v3.15 BG-16, a test whose verdict depended on the environment that launched it rather than on the product. Worth remembering as a pattern: any assertion over `st_size`, line counts, or file bytes in this repository must normalize line endings first, or it is a coin flip on the contributor's platform.
+
 ## Ledger condition measured for T023, 2026-09-06
 
 T023 of `v4.8.0-adoption-visa-vulnerability-agentic-harness.md` reconciles every reachable open
