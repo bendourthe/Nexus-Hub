@@ -111,6 +111,20 @@ Stages 3-6 are the canonical *dimensions -> find -> adversarially-verify* fanout
 
 It is a **template to adapt, not a script to run verbatim**, and it must **degrade gracefully**: Dynamic Workflows is a plan-gated research-preview capability that may be absent, so fall back to dispatching the personas as isolated subagents (Stage 4 by hand), or a single sequential reviewer. Because a persona fanout plus per-finding verification carries a 5-15x token multiplier, keep the **scope-first** discipline: calibrate on one module first, review the resolved persona set and diff base on the first trigger, and confirm before reviewing the whole change. For whether a fanout is warranted at all and the hard budget controls, see [[agent-orchestration-primitives]] and [[ai-billing-safeguards]] -- this template does not duplicate that guidance.
 
+## Persona-Owned Docs
+
+Each reviewer persona OWNS a doc area and keeps it current as a side effect of reviewing: it reads its own checklist/conventions doc as the standard to judge the diff against, and when a review exposes that the doc is stale or missing a rule the review relied on, it updates that doc in the same pass. Suggested ownership:
+
+- maintainability -> the naming / structure conventions doc
+- security -> the security-review checklist (OWASP + supply-chain notes)
+- performance -> the performance-budget / hot-path notes
+- reliability -> the error-handling and retry/timeout conventions
+- testing -> the test-strategy and coverage-expectations doc
+- api-contract -> the API versioning / compatibility rules
+- project-standards -> AGENTS.md / CLAUDE.md and the project constitution
+
+This binds review to living documentation: the standard a persona enforces and the doc it maintains are the same artifact, so the conventions never drift from what review actually checks. Keep it lightweight - a persona updates its doc only when a review exposes a gap, not as a mandatory per-review edit.
+
 ## Round-History Hygiene (Multi-Round Review)
 
 When a review runs more than once over the same change (a re-review after a fix pass, or a later follow-up), carry a sanitized history of which findings were surfaced in earlier passes and which ones the user chose to leave unaddressed. On a follow-up pass, do NOT re-report a finding the user already ignored, unless the code now presents a materially different issue at that location.

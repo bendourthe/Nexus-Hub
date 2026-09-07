@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **329 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 34 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **336 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 35 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Language, security, and artifact rules
-|   `-- skills/               # 329 skills across 23 categories
+|   `-- skills/               # 336 skills across 23 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -281,6 +281,8 @@ When reverse-engineering an external pattern into Nexus-Hub content (a skill, a 
 ## Markdown Style for Generated Documentation
 
 Every Markdown file Nexus-Hub generates or modifies (READMEs, CHANGELOG, DEVLOG, RELEASE_NOTES, plans, comparison reports, pen test reports, session histories, skills, commands, generated `/research report` and `/research compile` outputs) must follow the conventions in [`catalog/style-guides/markdown.md`](catalog/style-guides/markdown.md). The guide is also installed at `~/.nexus-hub/style-guides/markdown.md` for global reference.
+
+System docs additionally follow the doc-header summary convention in [`catalog/style-guides/doc-headers.md`](catalog/style-guides/doc-headers.md) (also installed at `~/.nexus-hub/style-guides/doc-headers.md`): open every durable system doc (architecture, policy, reference, runbook) with a dense, greppable summary in its first few lines - what it covers, who reads it and when, and its key topics - analogous to a SKILL.md's `summary_l0` / `overview_l1`, and keep that summary in sync when the system it describes changes.
 
 The most common rendering bugs that the style guide prevents:
 
