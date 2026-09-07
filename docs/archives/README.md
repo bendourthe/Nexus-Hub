@@ -25,7 +25,7 @@ This mirrors the active version layout. Archived content is **frozen history**: 
 | **v1** | v1.0.0, v1.1.5, v1.3.0 | 24 | Skills-catalog maturation: bundled-resources convention, skill-eval-loop, security hardening |
 | **v2** | v2.0.0, v2.1.0, v2.2.0, v2.3.0, v2.4.0 | 112 | Nexus-Hub rename, spec-driven methodology, integration registry, code-graph, antigravity transition, compound-engineering / persona-review pipeline |
 | **v3** *(prior major, partial)* | `development/history/` subtrees only, v3.0 through v3.21 | 355 | Per-version session histories aged out under the retention policy, completed for the whole v3 line on 2026-09-06. The v3 line is NOT whole-major archived - its plans, comparisons, and known-gaps stay in the active tree. |
-| **v4** *(current major, snapshot)* | v4.1 handbook snapshot | 1 | Living handbook source captured as shipped with v4.1.0; active release evidence remains under `docs/releases/v4/v4.1/`. |
+| **v4** *(current major, partial)* | `development/history/` subtrees v4.0 through v4.5, plus the v4.1 handbook snapshot | 122 | Per-version session histories aged out under the retention policy on 2026-09-06, in the same pass that completed v3. v4.6 and v4.7 stay in the active tree (inside the two-minor threshold). Plans, comparisons, known-gaps, and the non-history `development/` content - CI contracts, guide-rebuild artifacts, last-phase evidence - all remain under `docs/releases/v4/`. |
 
 ## Archival policy
 
