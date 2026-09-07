@@ -15,6 +15,15 @@
 - **Why it is not just a number to raise**: the budget exists because the guide is a single self-contained offline HTML document that a browser downloads in full. Raising the ceiling to clear a red test would spend the constraint rather than honor it. The v4.4.x guide cycle already fought for bytes (`docs/releases/v4/v4.4/` history), so the compaction levers are documented.
 - **Suggested next step**: decide deliberately, ahead of the next guide edit, between compacting existing content and raising the budget with a recorded rationale. Do not decide it inside a phase that merely needs the test green.
 
+#### WN-C - `make test` has an undocumented prerequisite, so three extension suites fail on a fresh clone
+
+- **Source**: found running the six extension suites to verify this session's work.
+- **What was observed**: `make test` runs `cd extensions/<name> && python -m pytest` for six extensions with no install step. On a workstation that has not editable-installed them, three of the six cannot pass: `nexus-code-search` dies at conftest import (`ModuleNotFoundError: No module named 'nexus_code_search.config'`, because the package uses a `src/` layout), `nexus-web-fetch` reports 3 collection errors, and `nexus-context-compressor` reports 3 failures asserting `'regex' == 'ast'`.
+- **None of these is a product defect.** CI runs `pip install -e "extensions/<name>/[dev]"` for all six (`.github/workflows/ci.yml` lines 245-250), and `nexus-code-search` carries `tree-sitter` in its core dependencies, which is what makes the context-compressor's AST path available. The compressor's own docstring states that the regex path is used "when the AST infra is absent (sibling not installed, tree-sitter missing)", so the fallback is behaving as designed and the three tests are simply asserting the AST path they cannot reach.
+- **Why it is worth recording**: the prerequisite is named only in the individual extension READMEs, and there is no `make install` or `make dev` target. A contributor running the repository's own documented test command on a fresh clone gets three broken suites and three unrelated-looking error shapes, none of which points at the missing install.
+- **Suggested next step**: either add a `make dev` target that performs the six editable installs and reference it from the `test` target's help text, or have those three suites skip with an explanatory reason when their package or the AST backend is not importable (`pytest.importorskip`). The second option keeps `make test` honest on any machine; the first keeps coverage. They are not exclusive.
+- **Not changed here**: the tests are correct given the documented install, so silencing them would trade a confusing failure for silent non-coverage. This is a deliberate design choice for a maintainer, not a repair.
+
 #### WN-B - `test_file_size_budget` measured the checkout, not the artifact (fixed here)
 
 - **Source**: same run. The test failed on this Windows workstation and passed in CI.
