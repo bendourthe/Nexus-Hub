@@ -3,9 +3,9 @@
   "AGENTS.md": 9100,
   "CLAUDE.md": 270,
   "catalog/style-guides/markdown.md": 1660,
-  "templates/ai-instructions/base-claude.md": 2080,
-  "templates/ai-instructions/base-codex.md": 1770,
-  "templates/ai-instructions/base-cursor.md": 1740,
-  "templates/ai-instructions/base-gemini.md": 1760,
-  "templates/ai-instructions/base-opencode.md": 1740
+  "templates/ai-instructions/base-claude.md": 2148,
+  "templates/ai-instructions/base-codex.md": 1851,
+  "templates/ai-instructions/base-cursor.md": 1820,
+  "templates/ai-instructions/base-gemini.md": 1841,
+  "templates/ai-instructions/base-opencode.md": 1820
 }

@@ -79,6 +79,15 @@ profile_function(process_large_dataset, dataset)
 
 **Key rule**: the profile output tells you where the time is actually spent. Optimize the top entries, not what you assume is slow.
 
+#### Bundled profiling harness
+
+Two Tier-3 scripts ship with this skill so you can capture and compare profiles deterministically without reading their source into context:
+
+- `scripts/profile_run.py <target.py> --out before.json --top 30` runs a Python target under `cProfile` and writes a structured JSON profile (per-function `ncalls` / `tottime` / `cumtime`, top-N by cumulative time). Capture a before profile, apply an optimization, then capture an after profile. Args for the target go after `--`.
+- `scripts/profile_compare.py before.json after.json --top 20` diffs two profiles and reports which functions got faster or slower (by cumulative time), plus functions new to or gone from the after profile, sorted by the magnitude of the delta - so you can prove where the time moved.
+
+For non-Python targets, profile with the language's native profiler (the table above) and compare its output manually; the bundled scripts target the Python `cProfile` format. Use these to gather the evidence for the before/after benchmark in Step 7; the pass/fail regression gate is the separate `[[performance-regression-gate]]` skill.
+
 ### Step 2: Optimize Algorithms and Data Structures
 
 The highest-impact optimization is reducing algorithmic complexity.

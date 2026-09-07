@@ -55,6 +55,7 @@
         "domain-contract-validator",
         "e2e-testing-automation",
         "edge-case-generator",
+        "false-confidence-test-audit",
         "flaky-test-detector",
         "functional-verification",
         "fuzzing-input-generator",
@@ -62,13 +63,15 @@
         "metamorphic-test-generator",
         "mocks-fixtures",
         "mutation-testing",
+        "performance-regression-gate",
         "performance-testing",
         "property-based-test-generator",
         "test-cases",
         "test-strategy-doc",
         "test-structure",
         "test-suite-prioritizer",
-        "unit-tests"
+        "unit-tests",
+        "visual-regression-testing"
       ]
     },
     {
@@ -256,6 +259,7 @@
         "go-cleanup",
         "java-cleanup",
         "javascript-cleanup",
+        "lint-repair-loop",
         "minimal-construction",
         "project-refactor",
         "python-cleanup"
@@ -308,6 +312,7 @@
         "frontend-ui-engineering",
         "graphql-development",
         "hallmark-design",
+        "helper-script-authoring",
         "html-output-conventions",
         "idea-refine",
         "interface-copy",
@@ -476,6 +481,7 @@
         "agent-memory",
         "agent-presets",
         "code-commit-workflow",
+        "commit-sweep",
         "conflict-analyzer",
         "context-modes",
         "context-pack-builder",
@@ -488,6 +494,7 @@
         "devlog-generation",
         "doc-coauthoring",
         "documentation-consistency",
+        "end-of-shift-validation",
         "filesystem-context-patterns",
         "git-bisect-assistant",
         "git-branching-workflow",
