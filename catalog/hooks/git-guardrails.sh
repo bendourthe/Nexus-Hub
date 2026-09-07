@@ -67,8 +67,15 @@ else
   #
   # An escaped backslash is parked on \x01 first, so a literal backslash sitting
   # before an n is never turned into a newline.
-  COMMAND=$(printf '%s' "$COMMAND" | sed -e 's/\\\\/\x01/g' -e 's/\\n/\n/g' -e 's/\\t/\t/g' -e 's/\\"/"/g' -e 's/\x01/\\/g')
+  COMMAND=$(printf '%s' "$COMMAND" | sed -e 's/\\\\/\x01/g' -e 's/\\n/\n/g' -e 's/\\t/\t/g' -e 's/\\"/"/g' -e 's/\\r//g' -e 's/\x01/\\/g')
 fi
+
+# Drop carriage returns however they arrived. jq on Windows can hand back CRLF
+# lines, and the fallback above sees them escaped. Either way a trailing CR makes
+# the closing heredoc delimiter stop matching, the body never ends, and every
+# later line is swallowed unscanned - the guard fails OPEN on a destructive
+# command placed after a heredoc. A CR carries no meaning in a command line.
+COMMAND=${COMMAND//$(printf '\r')/}
 
 # If we couldn't extract a command, allow (don't block non-Bash tools)
 if [ -z "${COMMAND:-}" ]; then
@@ -96,6 +103,12 @@ strip_heredoc_bodies() {
   local hd_re='<<-?[[:space:]]*["'"'"']?([A-Za-z_][A-Za-z0-9_]*)["'"'"']?'
   local line trimmed delim="" inbody=0 out=""
   while IFS= read -r line || [ -n "$line" ]; do
+    # Strip a trailing CR before anything compares this line. A payload can arrive
+    # CRLF-terminated (a Windows jq.exe piped from Git Bash does exactly that), and
+    # then the closing delimiter reads as "EOF", never equals "EOF", the body never
+    # ends, and every later line is swallowed as heredoc text. That fails OPEN: a
+    # destructive command after the heredoc stops being scanned at all.
+    line=${line%$''}
     if [ "$inbody" -eq 1 ]; then
       trimmed="${line#"${line%%[![:space:]]*}"}"
       if [ "$trimmed" = "$delim" ]; then

@@ -267,6 +267,7 @@ def test_no_command_is_allowed(run, repo: Path, payload_cmd: str) -> None:
 _RESET = "git " + "reset " + "--hard"
 _CFG_WRITE = "git " + "config core." + "hooksPath=/tmp/x"
 _NL = chr(10)
+_CRNL = chr(13) + chr(10)
 _TAB = chr(9)
 
 
@@ -291,6 +292,20 @@ def test_pattern_inside_heredoc_body_still_warns(run, repo):
     proc = run(cmd, repo)
     assert proc.returncode == _ALLOW
     assert "written file content" in proc.stderr
+
+
+def test_crlf_heredoc_still_blocks_the_command_after_it(run, repo):
+    """A CRLF payload must not swallow the rest of the script.
+
+    Regression: the guard FAILED OPEN here. With CRLF the closing delimiter arrives
+    as "EOF" plus a carriage return, never equals "EOF", so the body never ends and
+    every later line goes unscanned - including a destructive command placed after
+    the heredoc. It reached CI's Windows leg only: that runner has jq and returns
+    real carriage returns, while a host without jq took the fallback, which decoded
+    \n but not \r. Both paths now drop them.
+    """
+    cmd = "cat > d.md <<'EOF'" + _CRNL + "notes" + _CRNL + "EOF" + _CRNL + _RESET
+    assert run(cmd, repo).returncode == _BLOCK
 
 
 def test_real_command_after_a_heredoc_still_blocks(run, repo):
