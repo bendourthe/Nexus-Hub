@@ -4,6 +4,54 @@
 **Status**: open; seeded when the agentic-setup work landed on develop after the v4.7.0 release
 **Last updated**: 2026-09-06
 
+## Ledger condition measured for T023, 2026-09-06
+
+T023 of `v4.8.0-adoption-visa-vulnerability-agentic-harness.md` reconciles every reachable open
+known-gap ledger. This section records what that task will find, measured rather than estimated, so
+it starts from a number instead of re-deriving one.
+
+**Three counts of the same thing disagree.**
+
+| Count | Value |
+|---|---|
+| Summary-table `Open` column, summed across all 20 ledgers | 175 |
+| Entries physically under an `Open Items` heading | 157 |
+| Of those, entries whose own heading says `RESOLVED` | 16 |
+| Remainder not self-declared resolved | 141 |
+
+By category the remainder is 77 Deferred, 28 Warnings, 22 Missing-tests, 6 Quality-gate, 5
+Not-implemented, and 3 Bugs.
+
+**The true figure is below 141, because some remaining entries are resolved in the tree without
+saying so.** Two were spot-verified on 2026-09-06:
+
+- `docs/releases/v3/v3.14/known-gaps.md` **BG-1** (`verify_platform_contracts.py` registered in
+  neither installer) carries its own `Resolution (Phase 6.3): RESOLVED` line while sitting under
+  `Open Items`. Confirmed: the script is in `DEV_ONLY_SCRIPTS` in
+  `catalog/hooks/tests/test_installer_smoke.py`.
+- `docs/releases/v3/v3.15/known-gaps.md` **BG-16** (a bootstrap test whose verdict depended on the
+  launching shell, because GNU `tar` from Git Bash shadowed `System32	ar.exe`) still reads
+  `Status: Open`. It is fixed: `install.ps1` has a `Resolve-TarExe` helper that prefers
+  `System32	ar.exe` explicitly, added in commit `69924673` ("fix: close every open v3.18 known
+  gap"). The named test was re-run from Git Bash on 2026-09-06 and passed.
+
+`docs/releases/v4/v4.0/known-gaps.md` shows the disagreement structurally: its
+`docs-lifespan-tree-and-enforcement` summary reports `BG: Open 0, Resolved 5`, and all five of those
+entries sit under `### Open Items` with `RESOLVED` in their headings. The table is right and the
+placement is stale. One entry in the same block, `BG-2`, is genuinely open and still carries a
+`Suggested next step`, so the block cannot be swept wholesale.
+
+**Why this was not reconciled ahead of T023.** It is T023's stated job, scheduled for that plan's
+final phase, and a reconciliation run before the implementation it reconciles would be redone. What
+is recorded here is the measurement, not the fix.
+
+**How to reconcile, given the above.** Do not trust the Summary tables; they are derived and drift
+silently, which is the same defect class as the plan exit-checklists (see
+`docs/decisions/implemented/process/2026-09-06-plan-checkboxes-are-not-completion-evidence.md`) and
+as the two documentation gates that scanned a retired root. Read each entry's own annotation, verify
+its claim against the tree, then move the settled ones into that ledger's `Resolved Items` section
+and recompute the Summary from the entries rather than editing it by hand.
+
 ## Carried in from v4.6.0, which was never cut
 
 The `v4.6.0-adoption-visa-vulnerability-agentic-harness` plan was approved on 2026-09-01 and never
