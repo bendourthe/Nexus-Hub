@@ -20,6 +20,12 @@ No scratch, draft, or working document was created outside those paths, so there
 
 The phase's other deliverables are catalog content (`catalog/skills/**`), not project documentation, and are outside this audit's scope: their placement is governed by the skill-bundle convention in `AGENTS.md` and is enforced by `validate_skills.py --bundles-only`, which reported `0 errors` with no orphan-bundle warning for the affected skill.
 
+## Phase 2 (autonomy ladder and graph gate)
+
+**Finding: clean. Nothing to propose.**
+
+One documentation file added, at its canonical path: `docs/releases/v4/v4.8/development/history/2026-09-07_...phase-2-autonomy-ladder-and-graph-gate.md`. No scratch or draft document was created, and no reference needed repair. The phase's other deliverables are catalog content, outside this audit's scope and covered by the bundle audit, which reported 0 errors with no orphan warning for the affected skill.
+
 ## Standing note
 
 `scripts/check_docs_retention.py` (advisory, never fails) reported no v4.8 subtree due for archival, which is expected: v4.8 is the active minor.

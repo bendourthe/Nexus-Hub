@@ -46,6 +46,29 @@ Each primitive trades coordination power for cost and complexity. They form a la
 
 ## Instructions
 
+### Step 0: Choose the autonomy level
+
+Before choosing a structure, name how much autonomy the task has earned. Structure answers "how many agents"; autonomy answers "how much of the finish line the agent holds". Six rungs, lowest first:
+
+| Rung | Fits when | Who holds the finish line |
+|---|---|---|
+| Prompt or chat | The work is short, exploratory, or judgement-dense. | The human, who orchestrates and evaluates every turn. |
+| Deterministic workflow | The path is known and only bounded steps need a model. | Code, which controls the path; the model fills in the steps. |
+| Delegated chunk | One bounded task can be handed off whole. | The human, who reviews the result rather than the process. |
+| Single goal loop | An explicit verifier and budgets exist, so iteration can be trusted. | The loop's run contract, evaluated by a checker the maker does not control. |
+| Persistent loop | Work spans sessions and needs durable state and scheduled or event-driven triggers. | The run contract plus the persisted state, across wakes. |
+| Graph | A single loop has a MEASURED limitation that multiple bounded nodes fix. | Explicit per-node contracts, with human authority at named gates. |
+
+Select by three inputs, in this order:
+
+1. **The readiness score** from [loop-engineering's readiness scorecard](../../workflow/loop-engineering/references/loop-readiness-scorecard.md). A task that cannot score for looping cannot earn a loop rung, however convenient the structure looks.
+2. **The blast radius of the worst action the rung permits** -- not the typical action, the worst one.
+3. **Reversibility.** A rung whose worst action cannot be undone needs a gate, a sandbox, or a lower rung.
+
+**Minimum sufficient autonomy.** Grant only the autonomy the evaluated task needs. If a deterministic step can replace an agentic decision without reducing quality, prefer the deterministic step. If one agent passes the evaluation, do not add three. Autonomy is not a reward for a task being important; it is a response to a task being verifiable.
+
+This is a decision the operator RECORDS, alongside the readiness score and the chosen primitive -- it is not a platform setting, and nothing in the harness reads it. The v3.17.0 autonomy toggle was a lever on agent behavior and was retired; it is unrelated to this ladder, and neither one implies the other. Cross-link [[loop-engineering]] for the run contract a loop rung requires, and [[context-modes]] for working posture, which is orthogonal: any posture can sit at any rung.
+
 ### Step 1: Start with a single agent
 
 The default is always one well-prompted agent. Multi-agent orchestration adds a 5-15x token multiplier and a coordination burden that itself produces bugs (handoff loss, duplicated work, merge conflicts). Do not escalate on a hunch that "more agents would be faster". Escalate only when Step 2 names a concrete, measured problem.
@@ -84,6 +107,8 @@ Before committing to the chosen primitive, confirm all three:
 3. **The token cost is justified and bounded.** Cross-link [[ai-billing-safeguards]] and apply the scope-first discipline: for any large fan-out, calibrate on a single folder first, review the execution plan on first trigger, and confirm before going full-scale. Workflows are token-heavy; some environments default them off.
 
 If any of the three fails, drop down a rung.
+
+When the chosen primitive is a graph, the gate is passed only once [references/graph-readiness-checklist.md](references/graph-readiness-checklist.md) is complete: all eight items true, with the first one (a measured single-loop failure mode) answered rather than predicted.
 
 ### Step 5: Guard against the four failure modes
 
