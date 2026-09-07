@@ -5,6 +5,7 @@ summary_l0: "Adversarial AI-security methodology: prompt injection, jailbreaking
 overview_l1: "This skill primes the agent with the attacker's perspective on LLM-backed systems so it can red-team them under authorization and translate every finding into a concrete defense. It covers direct and indirect prompt injection, jailbreak technique families, RAG and knowledge-base poisoning, tool / function-call abuse in agentic systems, and unsafe-output handling. It is framed to feed defensive work -- hardening prompts, designing detection rules, and strengthening the skill-security scanner's rationale -- not standalone offensive engagement. Every assessment starts from documented scope and rules of engagement, captures reproducible evidence, and ends with a defense recommendation. Trigger phrases: test an LLM for prompt injection, red-team a RAG pipeline, jailbreak resistance testing, AI red team, LLM security testing, indirect prompt injection, RAG poisoning, agent tool abuse."
 atlas_techniques: [AML.T0051, AML.T0054, AML.T0020]
 nist_ai_rmf: [MEASURE-2.6, MEASURE-2.7]
+owasp_agentic: [ASI01, ASI02, ASI06]
 ---
 
 # AI Attack Patterns

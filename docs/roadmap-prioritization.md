@@ -28,7 +28,7 @@ Each of these is the same root cause: **priority lives in filenames, and filenam
 
 **The ranking table below remains the single authority on sequence.** What changed on 2026-08-21 is the naming rule that sat alongside it.
 
-The 2026-08-20 pass froze existing filenames and named new plans by slug alone, on the estimate that renaming would cost "thirteen files plus every cross-reference to them". That estimate was wrong. The measured cost was **14 files and 22 references, of which only 6 needed repair**. The other 16 sit in frozen historical records that the repository's own precedent leaves untouched (stated at `docs/v3/v3.16/docs-cleanup-report.md` and `docs/v3/v3.16/known-gaps.md`: live references are repaired, a record of what was true at the time is not).
+The 2026-08-20 pass froze existing filenames and named new plans by slug alone, on the estimate that renaming would cost "thirteen files plus every cross-reference to them". That estimate was wrong. The measured cost was **14 files and 22 references, of which only 6 needed repair**. The other 16 sit in frozen historical records that the repository's own precedent leaves untouched (stated at `docs/releases/v3/v3.16/docs-cleanup-report.md` and `docs/releases/v3/v3.16/known-gaps.md`: live references are repaired, a record of what was true at the time is not).
 
 The frozen-filename rule also failed its first contact with a reader. Within a day of being written it produced exactly the confusion it was meant to prevent, because a filename reading `v3.17.8` while the plan targets something else is not a neutral historical identifier; it is a wrong answer sitting in the most visible place.
 

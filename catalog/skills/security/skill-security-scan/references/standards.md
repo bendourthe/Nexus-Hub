@@ -81,6 +81,20 @@ Framework mappings for the `skill-security-scan` skill. Each section gives the f
 
 ---
 
+---
+
+## OWASP Top 10 for Agentic Applications (2026)
+
+Identifiers verified 2026-09-07 against the OWASP source. The full ten-entry set with official titles lives in `catalog/skills/security/security-framework-mapping/references/standards.md`; only the identifiers this skill is tagged with are explained below.
+
+### ASI04 -- Agentic Supply Chain Vulnerabilities
+
+- Framework: OWASP Top 10 for Agentic Applications, 2026 edition.
+- Why this skill maps to it: A skill installed from outside the project is a supply-chain artifact that will run inside the agent's own instruction context. This skill adjudicates a deterministic scanner's findings across sixteen vulnerability classes and assigns an install verdict, which is admission control on that artifact.
+- Source: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+---
+
 ## Attribution
 
 These short titles are quoted from each framework's public catalog; full prose belongs at the public source URL. Nexus-Hub does not redistribute framework text. Framework taxonomies are maintained by MITRE Corporation (ATT&CK, ATLAS, D3FEND) and the National Institute of Standards and Technology (NIST CSF and AI RMF).

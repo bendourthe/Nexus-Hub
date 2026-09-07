@@ -47,7 +47,7 @@ def _make_repo(tmp_path: Path, version: str, minors: list[str]) -> Path:
     )
     for minor in minors:
         major = minor.split(".")[0]
-        history = root / "docs" / major / minor / "development" / "history"
+        history = root / "docs" / "releases" / major / minor / "development" / "history"
         history.mkdir(parents=True)
         (history / "note.md").write_text("# note\n", encoding="utf-8")
     return root
@@ -60,8 +60,8 @@ def test_old_version_is_reported(tmp_path: Path) -> None:
 
     assert proc.returncode == 0, proc.stderr
     assert "WARN" in proc.stdout, proc.stdout
-    assert "docs/v3/v3.15/development/history" in proc.stdout
-    assert "docs/archive/v3/v3.15/development/history/" in proc.stdout, (
+    assert "docs/releases/v3/v3.15/development/history" in proc.stdout
+    assert "docs/archives/v3/v3.15/development/history/" in proc.stdout, (
         "the report must name the exact destination, or the reader has to derive it"
     )
 
@@ -90,7 +90,7 @@ def test_threshold_boundary_is_exactly_two_minors(tmp_path: Path) -> None:
 def test_already_archived_version_is_not_reported(tmp_path: Path) -> None:
     """The report is about work outstanding, not about history that exists."""
     root = _make_repo(tmp_path, "3.17.6", ["v3.15"])
-    (root / "docs" / "archive" / "v3" / "v3.15" / "development" / "history").mkdir(parents=True)
+    (root / "docs" / "archives" / "v3" / "v3.15" / "development" / "history").mkdir(parents=True)
 
     proc = _run(root)
 
@@ -104,8 +104,8 @@ def test_older_major_is_reported_entirely(tmp_path: Path) -> None:
 
     proc = _run(root)
 
-    assert "docs/v2/v2.4/development/history" in proc.stdout
-    assert "docs/archive/v2/v2.4/development/history/" in proc.stdout
+    assert "docs/releases/v2/v2.4/development/history" in proc.stdout
+    assert "docs/archives/v2/v2.4/development/history/" in proc.stdout
 
 
 def test_future_version_directory_is_not_reported(tmp_path: Path) -> None:
@@ -121,10 +121,10 @@ def test_future_version_directory_is_not_reported(tmp_path: Path) -> None:
 def test_version_without_a_development_subtree_is_skipped(tmp_path: Path) -> None:
     """Only development/ ages out; plans/ and known-gaps.md never do."""
     root = _make_repo(tmp_path, "3.17.6", [])
-    plans = root / "docs" / "v3" / "v3.10" / "plans"
+    plans = root / "docs" / "releases" / "v3" / "v3.10" / "plans"
     plans.mkdir(parents=True)
     (plans / "v3.10.0-thing.md").write_text("# plan\n", encoding="utf-8")
-    (root / "docs" / "v3" / "v3.10" / "known-gaps.md").write_text("# gaps\n", encoding="utf-8")
+    (root / "docs" / "releases" / "v3" / "v3.10" / "known-gaps.md").write_text("# gaps\n", encoding="utf-8")
 
     proc = _run(root)
 
@@ -151,7 +151,7 @@ def test_absent_docs_tree_exits_zero(tmp_path: Path) -> None:
 def test_unreadable_canonical_version_exits_zero(tmp_path: Path) -> None:
     """Advisory means advisory: a missing version source degrades, never fails."""
     root = tmp_path / "noversion"
-    (root / "docs" / "v3" / "v3.1" / "development").mkdir(parents=True)
+    (root / "docs" / "releases" / "v3" / "v3.1" / "development").mkdir(parents=True)
 
     proc = _run(root)
 
@@ -163,7 +163,7 @@ def test_malformed_plugin_json_exits_zero(tmp_path: Path) -> None:
     root = tmp_path / "broken"
     (root / ".claude-plugin").mkdir(parents=True)
     (root / ".claude-plugin" / "plugin.json").write_text("{not json", encoding="utf-8")
-    (root / "docs" / "v3" / "v3.1" / "development").mkdir(parents=True)
+    (root / "docs" / "releases" / "v3" / "v3.1" / "development").mkdir(parents=True)
 
     proc = _run(root)
 
@@ -208,10 +208,10 @@ def test_non_history_development_content_is_never_reported(tmp_path: Path) -> No
     """
     root = _make_repo(tmp_path, "3.17.6", [])
     for sub in ("fixtures", "worked-example"):
-        d = root / "docs" / "v3" / "v3.12" / "development" / sub
+        d = root / "docs" / "releases" / "v3" / "v3.12" / "development" / sub
         d.mkdir(parents=True)
         (d / "gen_fixtures.py").write_text("print('ci runs me')\n", encoding="utf-8")
-    (root / "docs" / "v3" / "v3.12" / "development" / "a-contract.md").write_text(
+    (root / "docs" / "releases" / "v3" / "v3.12" / "development" / "a-contract.md").write_text(
         "# contract\n", encoding="utf-8"
     )
 
@@ -221,4 +221,75 @@ def test_non_history_development_content_is_never_reported(tmp_path: Path) -> No
     assert "WARN" not in proc.stdout, (
         "only development/history/ ages out; fixtures, worked examples, and "
         "contract docs are live content"
+    )
+
+
+# --- Layout-drift guards (v4.8.0) -------------------------------------------
+#
+# Every test above builds its own fixture tree, so all of them passed while the
+# checker scanned `docs/v*` and the repository had already moved to
+# `docs/releases/v*`. The suite validated the checker against the layout the
+# checker believed in. These two tests close that hole from opposite sides: one
+# ties the constant to the real repository, the other asserts the checker is
+# loud when its scan root is missing.
+
+
+def test_scan_root_exists_in_this_repository() -> None:
+    """The constant must name a tree that actually exists here.
+
+    This is the test whose absence let the check go unenforced from the docs
+    layout refactor until v4.8.0. A fixture-only suite cannot catch a renamed
+    scan root, because the fixture is built from the same wrong constant.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("cdr", _SCRIPT)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    repo = _SCRIPT.resolve().parents[1]
+    for name in ("RELEASES_ROOT", "ARCHIVES_ROOT"):
+        rel = getattr(module, name)
+        assert (repo / rel).is_dir(), (
+            f"{name} = {rel!r} does not exist in this repository. If the docs "
+            f"layout moved, update the constant; a glob over a missing root "
+            f"reports 'nothing due' forever."
+        )
+
+    # Existence is NOT sufficient, and this is the crux of the original defect:
+    # the pre-fix code globbed `docs/v*`, and `docs/` existed the entire time
+    # the check was silently reading nothing. Only a non-empty match set proves
+    # the constant still points at real version directories.
+    matched = [p.name for p in (repo / module.RELEASES_ROOT).glob("v*") if p.is_dir()]
+    assert matched, (
+        f"{module.RELEASES_ROOT}/v* matched no version directory. The parent "
+        f"exists, so an existence check passes while the checker reads nothing "
+        f"- exactly how this went unenforced across the docs layout refactor."
+    )
+
+
+def test_missing_releases_root_warns_instead_of_reporting_clean(tmp_path: Path) -> None:
+    """docs/ present but no release tree is a WARN, never a clean result.
+
+    Silence has to mean 'checked and clean'. If it can also mean 'looked in the
+    wrong place', the report is worthless precisely when it matters.
+    """
+    root = tmp_path / "renamed"
+    (root / ".claude-plugin").mkdir(parents=True)
+    (root / ".claude-plugin" / "plugin.json").write_text(
+        json.dumps({"version": "4.7.0"}), encoding="utf-8"
+    )
+    # A documented project whose release tree lives somewhere this check does
+    # not read - the exact shape of the v3.18-to-v4.8 drift.
+    (root / "docs" / "somewhere-else" / "v4" / "v4.0" / "development" / "history").mkdir(
+        parents=True
+    )
+
+    proc = _run(root)
+
+    assert proc.returncode == 0, proc.stderr
+    assert "WARN" in proc.stdout, proc.stdout
+    assert "nothing due for archival" not in proc.stdout, (
+        "a missing scan root must never be reported as a clean tree"
     )

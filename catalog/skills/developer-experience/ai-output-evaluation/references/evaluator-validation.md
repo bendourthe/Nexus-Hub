@@ -18,6 +18,8 @@ Record the division as a `split_manifest`: `split_method` (`random_seeded`, `str
 
 `holdout_touched_count` is the honesty mechanism. Every evaluation against the held-out split increments it. At 1, the reported number means what it says. By 10, the threshold has been fitted to the test set through your own decisions, and the number is optimism. When the count gets away from you, the fix is a fresh held-out split, not a smaller number.
 
+**Graduation never touches the held-out split.** When a capability case graduates into a regression set after N consecutive passes (see [[skill-eval-loop]]), it graduates within the train or development pool it already belonged to. Promoting a case INTO the held-out split converts a case the tuning loop has already seen into a supposedly unseen measurement, and the resulting number is optimism wearing a test set's name.
+
 **Stratify when classes are unbalanced.** If 8 percent of items fail, a random 50-item test split may contain 2 failures, and recall computed on 2 items is noise.
 
 ## Step 2: Establish ground truth

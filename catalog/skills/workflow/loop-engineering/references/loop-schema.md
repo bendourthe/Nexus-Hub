@@ -16,13 +16,20 @@ This schema is the local, service-free structure for reusable loop definitions. 
 | `agents` | Platforms or harnesses the loop is known to run on. Include fallback notes when the host lacks a driver. | `Claude Code, Codex manual fallback` |
 | `tags` | Discovery labels for library search and plan selection. | `ci`, `pr`, `checks` |
 | `per_iteration_budget` | Optional. Hard cost ceiling for a single iteration (wall-clock, tokens, or tool calls), orthogonal to `iteration_cap`, which bounds the number of iterations rather than the cost of each one. | `5 min wall-clock per iteration` |
-| `trace_log` | Optional. Path or sink where each iteration's reasoning, tool calls, and outcome are recorded, so a production loop's decisions can be debugged after the fact. Prefer a JSON Lines sink: one object appended per iteration carrying `loop_number` (int), `success` (bool), `duration` (seconds), `calls` (LLM/API calls this iteration), `tokens` (optional), `exit_reason` (one of `in_progress`, `completed`, `stalled`, `repeated_error`, `permission_denied`, `cap_reached` -- matching the Stall and Fault Detection classes and the Exit-Signal Protocol), and `timestamp` (ISO-8601). JSONL keeps the trace append-only and trivially aggregatable (total iterations, success rate, average duration, total calls). | `docs/loops/<name>-trace.jsonl` |
+| `trace_log` | Optional. Path or sink where each iteration's reasoning, tool calls, and outcome are recorded, so a production loop's decisions can be debugged after the fact. Prefer a JSON Lines sink: one object appended per iteration carrying `loop_number` (int), `success` (bool), `duration` (seconds), `calls` (LLM/API calls this iteration), `tokens` (optional), `exit_reason` (one of `in_progress`, `completed`, `stalled`, `repeated_error`, `permission_denied`, `cap_reached` -- matching the Stall and Fault Detection classes and the Exit-Signal Protocol), `score` (optional, a number or null: the check metric this iteration, null when the check is binary or did not run), and `timestamp` (ISO-8601). JSONL keeps the trace append-only and trivially aggregatable (total iterations, success rate, average duration, total calls). | `docs/loops/<name>-trace.jsonl` |
 | `progress_check` | Optional. Stall-detection rule that terminates the loop early when the last N iterations show no measurable progress on `check_command`, distinct from `iteration_cap`, which is a hard count limit. Detects distinct fault classes -- no-progress (no measurable change across N iterations) and repeated-error (the same error recurs even when files change) -- rather than one generic "stuck" check. | `stop if val metric has not improved for 3 iterations` |
 | `handoff` | Optional. Human-review destination for items the loop cannot resolve - the inbox, queue, or assigned issue that post-cap failures route to. | `docs/todos.md needs-human section` |
 | `gates` | Optional. Typed, blocking, MID-loop pauses that stop the loop to ask a human one concrete question, then resume on the answer. Distinct from `handoff`, which is only a post-cap destination for work the loop could not finish: a gate interrupts a running loop that is otherwise succeeding. Each gate declares its `type` (`owner`, `safety`, `publication`, or `private-data`), the exact `question`, what `unblocks_on` it, and what the loop does `while_waiting`. See "Human-Judgment Gates" below. | `type: publication, question: "Approve this PR body before push?"` |
+| `scope` | Optional. The included and excluded topics, paths, systems, and actions, so a loop cannot drift toward a path it was never given. Write both halves: an inclusion list alone leaves every unlisted path ambiguous. | `include: src/api/**; exclude: infra/**, any migration` |
+| `permissions` | Optional. Read and write boundaries, network destinations, secrets, and which actions require approval. When `permissions` and a `gates` entry conflict -- a write path allowed by `permissions` but gated -- the GATE wins, because a gate is the narrower and the later declaration. | `read: repo; write: src/**; network: none; approval: any push` |
+| `budgets` | Optional. A map with any of `cost`, `tool_calls`, `subagents`, `retries`, and `wall_time`. Orthogonal to both `iteration_cap` (which bounds how many iterations) and `per_iteration_budget` (which bounds one iteration): these bound the whole run. A dimension the driver cannot measure is recorded as `unmeasured` in the trace -- never silently dropped, and never treated as satisfied. | `budgets: {tool_calls: 200, wall_time: 2h}` |
+| `state_contract` | Optional. The compact canonical state persisted after each cycle and handed to the next run: objective, plan, completed work, open issues, evidence, decisions, budgets consumed, and next actions. This is what makes the resume-from-checkpoint pattern in `SKILL.md` a contract rather than a hope, and it is the definition-side counterpart of the Instance State section below. | `objective, plan, done, open, evidence, decisions, budgets_used, next` |
+| `audit_evidence` | Optional. The artifacts every run MUST leave behind: trace, tool-call log, test results, citations, diffs, and the final verification record. Declaring it is what turns "every run ends with an exit reason and an audit record" from an aspiration into a field a checker can confirm. | `trace jsonl, gh pr checks output, final diff` |
 | `evidence_freshness` | Optional. How long a piece of evidence stays authoritative, and what re-validates it once the window expires. Applies only to long-horizon loops, where a check that passed twenty iterations ago may no longer be true. See "Evidence Freshness" below. | `gh pr checks result: 30 min, revalidate with check_command` |
 
-The first nine fields are required for every loop definition. Any field whose Purpose begins with "Optional" (such as `per_iteration_budget`, `trace_log`, `progress_check`, `handoff`, `gates`, or `evidence_freshness`) is additive: existing loop definitions stay valid without it.
+The first nine fields are required for every loop definition. Any field whose Purpose begins with "Optional" (`per_iteration_budget`, `trace_log`, `progress_check`, `handoff`, `gates`, `scope`, `permissions`, `budgets`, `state_contract`, `audit_evidence`, or `evidence_freshness`) is additive: existing loop definitions stay valid without it, and a definition that omits every one of them is still a valid definition.
+
+Aggregation rule for `score`: aggregate it against the `duration` and `tokens` of the same trace line to read quality per second and quality per token across a run, and compare those ratios between runs rather than comparing raw scores, because a higher score bought with ten times the compute is not an improvement.
 
 ## Worked Example
 
@@ -42,12 +49,25 @@ tags:
   - ci
   - pr
   - checks
+scope:
+  include: the files this pull request already touches, and its CI configuration
+  exclude: unrelated packages, release tags, and any branch other than this PR's head
+budgets:
+  tool_calls: 200
+  wall_time: 2h
+  cost: unmeasured
+audit_evidence:
+  - the JSONL trace, one line per iteration
+  - the gh pr checks output for the terminating iteration
+  - the final diff against the PR base
 gates:
   - type: safety
     question: The base branch moved. Approve a force-push that rewrites this PR's history?
     unblocks_on: An explicit approve or reject from the PR owner.
     while_waiting: Hold the rebase unpushed and idle. Does not consume iteration_cap.
 ```
+
+The `cost: unmeasured` value is the honest form, not a placeholder: this loop's host exposes no token accounting, so the budget is declared and recorded as unmeasured rather than omitted (which would hide the gap) or set to a number nobody reads (which would look satisfied).
 
 Note what this gate does NOT do: it does not fire on the ordinary fix-and-push each iteration, which is already inside the loop's authority and would make the loop manual if gated. It fires only on the rare step that rewrites shared history. A gate that trips every iteration is a sign the loop's authority was drawn too narrowly, not a sign the loop is being careful.
 

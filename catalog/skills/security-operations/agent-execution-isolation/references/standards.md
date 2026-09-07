@@ -111,6 +111,38 @@ The four-layer model (hardened host environment, OS sandbox, minimal in-loop run
 
 ---
 
+---
+
+## OWASP Top 10 for Agentic Applications (2026)
+
+Identifiers verified 2026-09-07 against the OWASP source. The full ten-entry set with official titles lives in `catalog/skills/security/security-framework-mapping/references/standards.md`; only the identifiers this skill is tagged with are explained below.
+
+### ASI02 -- Tool Misuse
+
+- Framework: OWASP Top 10 for Agentic Applications, 2026 edition.
+- Why this skill maps to it: Layer 2 inventories every binary, interpreter, parser, and helper in the agent container and removes anything the current task does not call, and the governing principle requires the execution system to enforce any needed approval before a call proceeds. Both shrink what a misused tool can be and what it can do.
+- Source: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+### ASI03 -- Identity & Privilege Abuse
+
+- Framework: OWASP Top 10 for Agentic Applications, 2026 edition.
+- Why this skill maps to it: Step 6 keeps real credentials out of the agent environment entirely, substituting them at a broker outside the container only onto requests that already passed policy, and layer 0 keeps secrets off sandbox hosts. A hijacked agent cannot abuse an identity it never held.
+- Source: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+### ASI05 -- Unexpected Code Execution
+
+- Framework: OWASP Top 10 for Agentic Applications, 2026 edition.
+- Why this skill maps to it: The four-layer model exists on the assumption that code execution inside the agent will eventually happen, and it asks what remains reachable after each layer fails rather than whether a layer will hold. Kernel confinement, an ephemeral container, and a read-only root are the containment for unexpected execution.
+- Source: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+### ASI07 -- Insecure Inter-Agent Communication
+
+- Framework: OWASP Top 10 for Agentic Applications, 2026 edition.
+- Why this skill maps to it: Steps 3.6 to 3.8 record that agents deliberately denied inter-agent communication established it anyway by writing into a shared writable service, then used it to exchange exploits and credentials across separate runs. The remediation ladder (per-session prefixes, write-scoping, read-back denial, removing the shared path) is a control on exactly that channel.
+- Source: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+---
+
 ## Attribution
 
 Framework short titles are quoted from each framework's public catalog; full prose belongs at the public source URL. Nexus-Hub does not redistribute framework text. Framework taxonomies are maintained by MITRE Corporation (ATT&CK, D3FEND) and the National Institute of Standards and Technology (NIST CSF).
