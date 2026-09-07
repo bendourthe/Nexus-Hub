@@ -1,0 +1,36 @@
+{
+  "_comment": "Fixture for the obviated_by_model column documented in SKILL.md. It makes the column's behavior testable without waiting for a real model refresh: exactly one row is populated, one is 'review' to show the disagreement case, and the rest are empty, which is the normal value. The skill paths and the vendor sentence below are ILLUSTRATIVE FIXTURE DATA, not a claim about any real skill or any real model release. Nothing here is read by a live stocktake run; a real run writes .nexus/skill-stocktake/results.json.",
+  "schema": 1,
+  "generated": "2026-09-07",
+  "model_refresh_record": {
+    "date": "2026-09-07",
+    "source": "fixture; stands in for the most recent model-prompting-research record",
+    "note": "A real record is emitted by the model-prompting-research refresh step and cites a fetched official vendor document."
+  },
+  "skills": {
+    "catalog/skills/fixture/example-obviated/SKILL.md": {
+      "hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "checklist_score": 8,
+      "checklist_max": 8,
+      "warnings": [],
+      "holistic": "Well-formed. Its entire purpose is to induce a behavior the refresh record now documents as default.",
+      "obviated_by_model": "obviated (2026-09-07): \"FIXTURE VENDOR SENTENCE - the model performs this behavior by default and no longer requires explicit instruction.\""
+    },
+    "catalog/skills/fixture/example-review/SKILL.md": {
+      "hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "checklist_score": 7,
+      "checklist_max": 8,
+      "warnings": [],
+      "holistic": "The refresh record calls the behavior default; this skill's own body states it still needs inducing. Sources disagree.",
+      "obviated_by_model": "review (2026-09-07): refresh record and skill body disagree; resolve before proposing retirement."
+    },
+    "catalog/skills/fixture/example-unaffected/SKILL.md": {
+      "hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "checklist_score": 8,
+      "checklist_max": 8,
+      "warnings": [],
+      "holistic": "No model-behavior evidence either way, which is the normal case.",
+      "obviated_by_model": ""
+    }
+  }
+}
