@@ -102,6 +102,26 @@ The first row is the reason this skill exists in this catalog specifically: the 
 
 ---
 
+---
+
+## OWASP Top 10 for Agentic Applications (2026)
+
+Identifiers verified 2026-09-07 against the OWASP source. The full ten-entry set with official titles lives in `catalog/skills/security/security-framework-mapping/references/standards.md`; only the identifiers this skill is tagged with are explained below.
+
+### ASI02 -- Tool Misuse
+
+- Framework: OWASP Top 10 for Agentic Applications, 2026 edition.
+- Why this skill maps to it: The canonical execution-trigger surfaces are legitimate tools (formatters, task runners, editors, hooks) that read a workspace file as their own configuration. The escape works by bending a trusted tool rather than by breaking the sandbox.
+- Source: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+### ASI05 -- Unexpected Code Execution
+
+- Framework: OWASP Top 10 for Agentic Applications, 2026 edition.
+- Why this skill maps to it: The config-write-then-executed pattern IS unexpected code execution: the agent writes a legal in-scope file, a trusted component outside the sandbox later reads it as configuration, and executes it at host privilege.
+- Source: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+
+---
+
 ## Attribution
 
 Framework short titles are quoted from each framework's public catalog; full prose belongs at the public source URL. Nexus-Hub does not redistribute framework text. Framework taxonomies are maintained by MITRE Corporation (ATT&CK, D3FEND) and the National Institute of Standards and Technology (NIST CSF). Advisory identifiers are maintained by their respective CVE and GitHub Security Advisory registries.

@@ -27,8 +27,19 @@ The three defects, all of which reported a clean gate while checking nothing:
    references above survived. Relative paths are now resolved against the
    plan's own directory and checked like any other.
 
-Grandfathering that is deliberately KEPT: `docs/archive/**` is out of scope (it
-is not under a `docs/v<N>/` root), a plan with no `Seeded from` field is not a
+4. **The scan root was the pre-refactor layout.** `majors()` looked for
+   `docs/v<N>/` directly under `docs/`, but the docs layout refactor moved the
+   active tree to `docs/releases/v<N>/`. From that commit until v4.8.0 this
+   gate printed "No docs/v<N> tree found; nothing to check." and exited 0 on
+   every run - the fourth fail-open defect of the same character as the three
+   above, and found while repairing the identical bug in
+   `check_docs_retention.py`. Both the canonical `docs/releases/v<N>/` and the
+   legacy `docs/v<N>/` layout are now scanned, and an empty scan is reported as
+   a WARNING rather than as a clean gate.
+
+Grandfathering that is deliberately KEPT: `docs/archives/**` and the legacy
+singular `docs/archive/**` are out of scope (neither is under a version root a
+`majors()` scan reaches), a plan with no `Seeded from` field is not a
 from-comparison plan and is skipped, and a comparison with no `Adoption target`
 field is a legacy report reported as a non-fatal note.
 
@@ -44,8 +55,10 @@ import re
 import sys
 from pathlib import Path
 
-# `docs/v3/v3.17/plans/x.md` -> `docs/v3/v3.17`
-VERSION_DIR_RE = re.compile(r"^(docs/v\d+/v\d+\.\d+)/")
+# `docs/releases/v3/v3.17/plans/x.md` -> `docs/releases/v3/v3.17`, and the
+# legacy `docs/v3/v3.17/plans/x.md` -> `docs/v3/v3.17`. The `releases/` segment
+# is optional so both layouts resolve; see defect 4 in the module docstring.
+VERSION_DIR_RE = re.compile(r"^(docs/(?:releases/)?v\d+/v\d+\.\d+)/")
 # A `**Seeded from**:` line's path token, relative or repo-rooted, optionally
 # wrapped in a Markdown link or backticks.
 SEEDED_LINE_RE = re.compile(r"^\s*\*\*Seeded from\*\*:")
@@ -89,24 +102,41 @@ def resolve_seed(plan_rel: str, token: str) -> str:
     return "/".join(parts)
 
 
-def majors(root: Path) -> list[str]:
-    """Every `docs/v<MAJOR>` tree, ascending. All are scanned (defect 1)."""
-    found: set[int] = set()
-    docs = root / "docs"
-    if not docs.is_dir():
-        return []
-    for child in docs.iterdir():
-        m = re.fullmatch(r"v(\d+)", child.name)
-        if m and child.is_dir():
-            found.add(int(m.group(1)))
-    return [str(n) for n in sorted(found)]
+# Version-tree containers, canonical first. `docs/releases/` is the layout the
+# docs refactor established; bare `docs/` is the pre-refactor layout, still
+# honored in place exactly as `docs-layout-refactor` specifies. Scanning both
+# means this gate survives the next rename instead of going quiet (defect 4).
+TREE_PREFIXES = ("docs/releases", "docs")
 
 
-def check_plans(root: Path, major: str) -> tuple[list[Mismatch], list[str]]:
+def version_roots(root: Path) -> list[tuple[str, str]]:
+    """Every version tree as (prefix, major), ascending, canonical layout first.
+
+    Returns e.g. `[("docs/releases", "3"), ("docs/releases", "4")]`. All majors
+    are scanned, not just the highest (defect 1), and both layouts are reached
+    (defect 4). A prefix contributing no major is simply absent from the result,
+    which is what lets `main` distinguish "scanned nothing" from "found nothing
+    wrong".
+    """
+    out: list[tuple[str, str]] = []
+    for prefix in TREE_PREFIXES:
+        base = root / prefix
+        if not base.is_dir():
+            continue
+        found: set[int] = set()
+        for child in base.iterdir():
+            m = re.fullmatch(r"v(\d+)", child.name)
+            if m and child.is_dir():
+                found.add(int(m.group(1)))
+        out.extend((prefix, str(n)) for n in sorted(found))
+    return out
+
+
+def check_plans(root: Path, prefix: str, major: str) -> tuple[list[Mismatch], list[str]]:
     """Direction 1: a plan must be co-located with the comparison it cites."""
     problems: list[Mismatch] = []
     notes: list[str] = []
-    for plan in sorted((root / "docs" / f"v{major}").rglob("*.md")):
+    for plan in sorted((root / prefix / f"v{major}").rglob("*.md")):
         rel = plan.relative_to(root).as_posix()
         if "/plans/" not in rel:
             continue
@@ -148,11 +178,13 @@ def check_plans(root: Path, major: str) -> tuple[list[Mismatch], list[str]]:
     return problems, notes
 
 
-def check_comparisons(root: Path, major: str) -> tuple[list[Mismatch], list[str]]:
+def check_comparisons(
+    root: Path, prefix: str, major: str
+) -> tuple[list[Mismatch], list[str]]:
     """Direction 2: a comparison must sit in its declared target's directory."""
     problems: list[Mismatch] = []
     notes: list[str] = []
-    for cmp_path in sorted((root / "docs" / f"v{major}").rglob("*.md")):
+    for cmp_path in sorted((root / prefix / f"v{major}").rglob("*.md")):
         rel = cmp_path.relative_to(root).as_posix()
         if "/comparisons/" not in rel:
             continue
@@ -167,7 +199,7 @@ def check_comparisons(root: Path, major: str) -> tuple[list[Mismatch], list[str]
         if sem is None:
             notes.append(f"NOTE: Adoption target present but unparseable: {rel}")
             continue
-        expected = f"docs/v{sem.group(1)}/v{sem.group(1)}.{sem.group(2)}"
+        expected = f"{prefix}/v{sem.group(1)}/v{sem.group(1)}.{sem.group(2)}"
         cdir = version_dir(rel)
         if cdir != expected:
             problems.append(
@@ -195,19 +227,31 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     root = Path(args.root).resolve()
 
-    found = majors(root)
+    found = version_roots(root)
     if not found:
-        print("No docs/v<N> tree found; nothing to check.")
+        # A WARNING, not a clean gate. Printing a reassuring line here while
+        # checking nothing is defect 4, and it hid this gate for a whole major
+        # version. Still exit 0: a project with no version tree is a legitimate
+        # state, but it must never read as "checked and clean".
+        print(
+            "WARNING: no version tree found under any of "
+            f"{', '.join(p + '/v<N>' for p in TREE_PREFIXES)}; "
+            "co-location gate checked NOTHING. If the docs layout moved, add the "
+            "new container to TREE_PREFIXES in scripts/check_doc_colocation.py."
+        )
         return 0
 
-    trees = ", ".join(f"docs/v{m}" for m in found)
-    print(f"Enforcing co-location under every major: {trees} (docs/archive/** grandfathered)")
+    trees = ", ".join(f"{prefix}/v{m}" for prefix, m in found)
+    print(
+        f"Enforcing co-location under every major: {trees} "
+        "(docs/archives/** and docs/archive/** grandfathered)"
+    )
 
     problems: list[Mismatch] = []
     notes: list[str] = []
-    for major in found:
-        p1, n1 = check_plans(root, major)
-        p2, n2 = check_comparisons(root, major)
+    for prefix, major in found:
+        p1, n1 = check_plans(root, prefix, major)
+        p2, n2 = check_comparisons(root, prefix, major)
         problems += p1 + p2
         notes += n1 + n2
 

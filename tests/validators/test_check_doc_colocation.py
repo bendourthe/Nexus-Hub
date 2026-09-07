@@ -50,10 +50,21 @@ def run(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
 # --------------------------------------------------------------------------
 
 
-def test_no_docs_tree_is_clean(tmp_path: Path) -> None:
+def test_no_version_tree_warns_and_never_reads_as_clean(tmp_path: Path) -> None:
+    """An empty scan exits 0 but must NOT look like a passing gate (defect 4).
+
+    This assertion is inverted from the pre-v4.8.0 behavior on purpose. The old
+    script printed "No docs/v<N> tree found; nothing to check." and that is
+    precisely the line it printed for a whole major version after the docs
+    layout refactor moved the tree to `docs/releases/`. Exit 0 is still correct
+    - a project with no version tree is a legitimate state - but the operator
+    has to be able to tell "checked and clean" from "checked nothing".
+    """
     r = run(tmp_path)
     assert r.returncode == 0
-    assert "nothing to check" in r.stdout
+    assert "WARNING" in r.stdout, r.stdout
+    assert "checked NOTHING" in r.stdout, r.stdout
+    assert "OK:" not in r.stdout, "an empty scan must never print the clean-gate line"
 
 
 def test_colocated_pair_passes(tmp_path: Path) -> None:
@@ -249,3 +260,103 @@ def test_workflow_invokes_the_script_and_is_unfiltered() -> None:
     wf = (REPO_ROOT / ".github/workflows/doc-colocation.yml").read_text(encoding="utf-8")
     assert "scripts/check_doc_colocation.py" in wf
     assert "paths:" not in wf, "workflow-level path filtering leaves the required check Pending forever"
+
+
+# --------------------------------------------------------------------------
+# Defect 4: the scan root was the pre-refactor layout (v4.8.0)
+# --------------------------------------------------------------------------
+#
+# Every test above builds its fixtures under the legacy `docs/v<N>/` layout, so
+# the whole suite stayed green while the repository moved to `docs/releases/` and
+# this gate silently checked zero files. These tests cover the canonical layout
+# and tie the constant to the real repository, closing the hole from both sides.
+
+
+def test_defect_4_canonical_releases_layout_is_scanned(tmp_path: Path) -> None:
+    """A mismatch under `docs/releases/` must be caught, not skipped."""
+    write(
+        tmp_path / "docs/releases/v4/v4.7/plans/p.md",
+        PLAN.format(
+            target="v4.7.0",
+            seed="docs/releases/v4/v4.6/comparisons/c.md",
+        ),
+    )
+    write(
+        tmp_path / "docs/releases/v4/v4.6/comparisons/c.md",
+        COMPARISON.format(target="v4.6.0"),
+    )
+
+    r = run(tmp_path)
+
+    assert r.returncode == 1, (
+        "a plan under docs/releases/ seeded from another version's comparison is "
+        "a mismatch; returning 0 means the canonical tree was never scanned"
+    )
+    assert "docs/releases/v4" in r.stdout, r.stdout
+
+
+def test_defect_4_canonical_colocated_pair_passes(tmp_path: Path) -> None:
+    """The happy path under the canonical layout stays clean."""
+    write(
+        tmp_path / "docs/releases/v4/v4.7/plans/p.md",
+        PLAN.format(
+            target="v4.7.0",
+            seed="docs/releases/v4/v4.7/comparisons/c.md",
+        ),
+    )
+    write(
+        tmp_path / "docs/releases/v4/v4.7/comparisons/c.md",
+        COMPARISON.format(target="v4.7.0"),
+    )
+
+    r = run(tmp_path)
+
+    assert r.returncode == 0, r.stdout
+    assert "OK:" in r.stdout
+
+
+def test_defect_4_legacy_layout_is_still_honored(tmp_path: Path) -> None:
+    """Both layouts are scanned; the fix must not drop the legacy tree.
+
+    `docs-layout-refactor` honors a legacy layout in place rather than forcing a
+    migration, so dropping legacy support here would silently stop checking any
+    project that has not run the canonicalize pass.
+    """
+    write(
+        tmp_path / "docs/v3/v3.19/plans/p.md",
+        PLAN.format(target="v3.19.0", seed="docs/v3/v3.18/comparisons/c.md"),
+    )
+    write(
+        tmp_path / "docs/v3/v3.18/comparisons/c.md",
+        COMPARISON.format(target="v3.18.0"),
+    )
+
+    r = run(tmp_path)
+
+    assert r.returncode == 1, "the legacy docs/v<N>/ tree must still be scanned"
+    assert "docs/v3" in r.stdout
+
+
+def test_defect_4_scan_prefixes_exist_in_this_repository() -> None:
+    """At least one configured prefix must hold a real version directory here.
+
+    Existence of the parent proves nothing - `docs/` existed the entire time
+    this gate was reading nothing. Only a non-empty match set proves the
+    constant still points at the tree this repository actually uses.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("cdc", SCRIPT)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    roots = module.version_roots(REPO_ROOT)
+    assert roots, (
+        f"none of {module.TREE_PREFIXES} holds a v<N> directory in this "
+        f"repository, so the co-location gate would check nothing"
+    )
+    assert any(prefix == "docs/releases" for prefix, _ in roots), (
+        "this repository uses the canonical docs/releases/ layout; if that is "
+        "no longer true the constant and the docs policy have diverged"
+    )

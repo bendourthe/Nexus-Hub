@@ -8,6 +8,7 @@ atlas_techniques: [AML.T0051]
 d3fend_techniques: [D3-FA, D3-NTA]
 nist_csf: [DE.CM, ID.RA]
 nist_ai_rmf: [MEASURE-2.6]
+owasp_agentic: [ASI04]
 ---
 
 # Skill Security Scan

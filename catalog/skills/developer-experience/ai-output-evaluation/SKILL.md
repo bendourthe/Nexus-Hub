@@ -39,6 +39,8 @@ Provides AI output evaluation capabilities including:
 
 Every evaluation needs explicit dimensions. Without defined criteria, evaluation devolves into subjective "looks good" assessments.
 
+Name the verifier class that will grade each dimension before writing the rubric: [references/verifier-taxonomy.md](references/verifier-taxonomy.md) classifies the four classes, gives the natural deterministic and evidence-based checks for common knowledge-work deliverables, and states the rule that at least two classes must be combined because no one class covers every failure mode.
+
 **Multi-Dimensional Rubric Template**:
 
 ```markdown
@@ -238,6 +240,7 @@ Two rules from those references are load-bearing enough to state here:
 - **Thresholds are tuned on development data and measured once on held-out data.** Re-tuning against the held-out split and reporting the improved number converts a test set into a training set, and the reported figure into optimism.
 - **Precision is not a property of the judge.** Hold recall and specificity fixed and change only how often failures actually occur, and precision moves enormously - in the worked example, from 0.60 at a 30 percent failure rate to 0.16 at 5 percent. Always re-check precision at the prevalence the evaluator will actually meet.
 - **Coverage is verified after generation, not assumed from the plan.** Declaring a pairwise target and generating against it does not mean the target was hit. Recompute achieved coverage from the promoted cases and report the uncovered cells; those are the next batch's plan.
+- **A grader an optimizing loop can read is a grader it will game.** When a loop optimizes against a score, keep a held-out grading set the loop never sees and re-measure on it before accepting an improvement, because a metric gain that appears only on the visible grader is evidence of gaming rather than of quality.
 - **Abstention is a signal, never an imputed label.** A reviewer forced to choose on an item the rubric does not cover produces a fabricated label indistinguishable from a real one. Report abstention rate alongside every label distribution.
 
 ## Reproducible Receipts

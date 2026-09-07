@@ -151,6 +151,22 @@ Detailed guidance lives in [step-8-validate-iterate.md](references/step-8-valida
 - **Save the generator script.** `<cache_dir>/generate.py` is kept so the user can re-run or tweak it without invoking the command.
 - **Separate final outputs from intermediates.** Final outputs live in `<final_dir>` (`docs/compiled/`). Intermediate artifacts live in `<cache_dir>` (`.cache/compile-deep-research/<ReportTitle>/`). Never put intermediates in `docs/`.
 
+## Completion evidence (ADVISORY in this release)
+
+Append this block to the closing summary of every compile run, computed from the finished deliverable. It is the counterpart of the same block in `catalog/commands/research.md`, and it exists so a compilation ends on measured evidence rather than on the compiler's confidence that the merge went well.
+
+- **Citation coverage**: factual claims with at least one source, over all factual claims. An uncited claim is counted as uncovered and listed, never removed from the denominator.
+- **Duplicate sources**: distinct URLs or works cited more than once under different labels. This matters more in a compilation than in a single research run, because merging several source documents is exactly how one work arrives twice under two citation styles and reads as independent corroboration.
+- **URL resolution**: cited URLs that resolved during the run, unresolved ones listed by reason (timeout, non-200, paywall). Counts only what the run already fetched during the grounded-citation verification above; it introduces no new fetch, script, or dependency.
+- **Required sections present**: the requested template's sections, each present or missing.
+- **Source freshness**: oldest and newest source dates across the merged corpus.
+
+An unresolvable URL is recorded as unresolved with its reason, never as resolved and never as a hard failure. Where these metrics conflict with the user's explicit scope, report the numbers and state the conflict. And when the corpus is entirely LOCAL (supplied documents, a repository), URL resolution is reported as `0 of 0` WITH the reason "local corpus, no web sources", since a bare zero beside four healthy metrics reads as a broken run; coverage and freshness then resolve against the local documents and their dates. A compile run meets this case often, because merging documents the user handed over is its primary shape.
+
+**Advisory in v4.8.0: it reports and never blocks.** No measured baseline yet exists to set a threshold from, and a threshold chosen without one would either pass everything or fail honest work; a blocking threshold is a later release's decision. Note the boundary against the fact-checking pass above, which DOES block: that pass gates on whether a quoted claim is supported, while this block reports on how much of the deliverable carries evidence at all.
+
+Verifier classes for these checks are defined in [`ai-output-evaluation/references/verifier-taxonomy.md`](../../developer-experience/ai-output-evaluation/references/verifier-taxonomy.md).
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

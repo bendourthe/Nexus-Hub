@@ -42,6 +42,8 @@ Run this sequence before any completion claim. Do not reorder it and do not skip
 
 If step 5 fails, you do not have a completion. Return to the work, fix the cause, and re-enter the gate from step 1.
 
+Completion criteria are MULTI-DIMENSIONAL: a single passing dimension is where premature convergence comes from, so name every dimension the claim spans (tests AND lint AND the behavior a user would observe) and require evidence for each, because an iterating agent will otherwise stop at the first green signal it can produce.
+
 ## Claim-to-Evidence Table
 
 Every completion claim maps to a specific proving artifact. Never make the claim in the left column without the artifact in the right column gathered this turn.
