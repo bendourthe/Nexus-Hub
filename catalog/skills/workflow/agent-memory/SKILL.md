@@ -60,6 +60,7 @@ If `record` prints a merge request, go to step 3. Otherwise continue working.
 - Mutations append to `changelog.log`. Supersede a fact by recording a new row that points at the old index. Never delete or rewrite the old row.
 - Preview archival first: `python -m nexus_memory maintain`. Apply with `--apply`, which copies a backup and then appends `archived` changelog rows. Session-tier entries stay readable.
 - File-backed notes use `catalog/memory/record.md`. ADRs in `catalog/memory/decisions.md` require a **Source** field and the same append-only changelog rule.
+- State poisoning (a wrong fact written once and then trusted by every later run) is recovered through this provenance chain: locate the bad row by its `source`, supersede it, and roll the affected facts back to the last good changelog index -- which is why the append-only rule is a recovery mechanism and not merely an audit nicety.
 
 ### 3. Answer one merge at a time
 

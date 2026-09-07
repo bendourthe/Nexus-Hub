@@ -85,13 +85,14 @@ Before committing to the chosen primitive, confirm all three:
 
 If any of the three fails, drop down a rung.
 
-### Step 5: Guard against the three failure modes
+### Step 5: Guard against the four failure modes
 
 Every multi-agent design must actively defend against these. They are the reasons orchestration fails in practice:
 
 1. **Vague task descriptions cause duplicated work.** Two agents handed fuzzy scopes re-derive the same thing or make incompatible assumptions. Mitigation: give every agent an explicit, disjoint scope and a precise output contract (the [[multi-agent-coordinator]] write-scope discipline).
 2. **Verification agents declare victory without verifying.** A reviewer agent will happily report "looks good" without running anything. Mitigation: give the verifier a concrete, falsifiable instruction -- "run the full test suite; do not mark complete until each test passes; paste the passing output" -- not "check that it works".
 3. **Token costs compound.** Aggregate cost grows with every agent in the fan-out. Mitigation: tier models to the cognitive demand of each role (cheap model for mechanical work, capable model for design and spec-compliance judgment) and add budget controls. Cross-link [[ai-billing-safeguards]] and [[prompt-token-optimization]].
+4. **One bad upstream result cascades through the whole fan-out.** Every downstream agent inherits an unverified premise and multiplies the error instead of catching it. Mitigation: verify the upstream result BEFORE fanning out on it, and version any shared state the peers read so a corrupted revision can be identified and rolled back rather than silently consumed.
 
 ### Step 6: Do not parallelize code-writing
 
