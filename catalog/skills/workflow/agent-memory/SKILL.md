@@ -3,6 +3,7 @@ name: agent-memory
 description: "Read and record lasting facts in the local persistent agent-memory store (nexus-memory) so every session starts from a chronological substrate. Make sure to use this skill whenever the user says \"read persistent agent memory\", \"wake persistent memory\", \"record this lasting fact\", \"remember this decision in nexus-memory\", \"search the memory store\", \"merge the pending memory range\", \"source provenance\", \"memory changelog\", \"supersede a memory\", or otherwise wants an always-on chronological store that is read at session start and written as work happens. SKIP, do NOT use for: searching past session logs or exported chats (use session-query); distilling digests into topic packs (use context-pack-builder); minting behavioral instincts (use continuous-learning); capturing one solved problem (use solution-knowledge-base); or designing an agent architecture's memory system (use ai-agent-development)."
 summary_l0: "Read and record lasting facts in the local persistent agent-memory store"
 overview_l1: "Teaches the agent to treat nexus-memory as the durable cross-platform substrate for lasting facts, decisions, and events. Every write must name a source; mutations append to a changelog; superseded rows are marked, never deleted. At session start the agent reads the store within the caller line budget. While working it records only what should survive the session. When the tool emits a merge request the agent summarizes the supplied content, invents nothing, and returns the result with the printed command. The store never calls a model, starts no background process, and lives under a user-scoped root. Spawned subagents are told not to write. Distinct from session-query, context-pack-builder, continuous-learning, and solution-knowledge-base, which stay on-demand and topic-scoped."
+owasp_agentic: [ASI06]
 ---
 
 # Agent Memory
@@ -105,6 +106,10 @@ Memory content must be redacted before it enters a shared artifact; see [[egress
 - [ ] No background process was started to watch or compress the store.
 - [ ] Every spawned subagent prompt contains the exact write-exclusion line.
 - [ ] `python scripts/check_memory_integration_budget.py` still reports the always-loaded prose under 500 tokens.
+
+## Standards Mapping
+
+This skill is tagged against the OWASP Top 10 for Agentic Applications (2026) in its frontmatter. [references/standards.md](references/standards.md) records each identifier, the control in this body that maps to it, and the public source URL, so the tag can be checked rather than trusted.
 
 ## Related Skills
 

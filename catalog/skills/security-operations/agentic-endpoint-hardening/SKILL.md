@@ -6,6 +6,7 @@ overview_l1: "This skill models and hardens the trust seam where a local coding 
 mitre_attack: [T1546, T1059, T1611]
 d3fend_techniques: [D3-FA, D3-FH, D3-PA, D3-CR, D3-PT]
 nist_csf: [PR.PS, DE.CM]
+owasp_agentic: [ASI02, ASI05]
 ---
 
 # Agentic Endpoint Hardening

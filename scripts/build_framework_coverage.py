@@ -11,14 +11,18 @@ Security and Compliance Framework Mapping") across `catalog/skills/`:
     d3fend_techniques  MITRE D3FEND countermeasure IDs   e.g. [D3-NTA, D3-PA]
     nist_csf           NIST CSF category IDs             e.g. [DE.CM, RS.AN]
     nist_ai_rmf        NIST AI RMF control IDs           e.g. [MEASURE-2.6]
+    owasp_agentic      OWASP Agentic Top 10 (2026) IDs   e.g. [ASI01, ASI06]
 
 and emits a coverage matrix (Markdown by default, JSON with --format json)
 showing which Nexus-Hub skills cover which framework controls. Pass
 `--navigator-layer <path>` to also write a MITRE ATT&CK Navigator layer JSON
-derived solely from `mitre_attack` values already on disk.
+derived solely from `mitre_attack` values already on disk. OWASP Agentic
+(`owasp_agentic`) identifiers are rendered in the Markdown matrix only and
+are never written into that layer: an ASI identifier is not an ATT&CK
+technique, so the Navigator would drop it or render it unresolvable.
 
 The script is read-only of the catalog (it only reads SKILL.md files) and
-makes zero outbound calls. Skills that declare none of the six fields are
+makes zero outbound calls. Skills that declare none of the seven fields are
 simply absent from the matrix; the tool never fails on an untagged catalog.
 
 Usage:
@@ -53,6 +57,13 @@ FRAMEWORKS: list[tuple[str, str]] = [
     ("d3fend_techniques", "MITRE D3FEND"),
     ("nist_csf", "NIST CSF"),
     ("nist_ai_rmf", "NIST AI RMF"),
+    # Seventh framework, v4.8.0. Deliberately absent from the Navigator layer:
+    # `render_navigator_layer` reads only `mitre_attack`, because an ASI
+    # identifier is not an ATT&CK technique and the Navigator would either drop
+    # it or render it unresolvable. See the decision record at
+    # docs/decisions/implemented/policy/
+    # 2026-09-07-owasp-agentic-top-10-as-seventh-framework-field.md.
+    ("owasp_agentic", "OWASP Agentic"),
 ]
 
 # ATT&CK Navigator layer format v4.5. `layer` and `navigator` are required by
