@@ -335,6 +335,22 @@ Growth attributable to this plan: **+157 tests** (4246 at `a243c178`, 4403 now),
 
 33 steps in total. An earlier claim in this file said 28 and was corrected: the first pass had run only the `scripts/` guards, and the four JSON checks plus the compressor gate had not been executed when the claim was written.
 
+**This local gate was insufficient, and the integration pull request proved it.** See `## Publication and integration` below. The steps above were each run and each passed, but they were run at DIFFERENT revisions across five phases, and never all at once against the final tree. `validate_no_personal_paths` was last executed during Phase 4, before Phase 5's documentation existed, and Phase 5 then wrote a personal filesystem path into a gap entry. Every individual claim above was true; the composite claim a reader would draw from them was not.
+
+**Corrected gate, run as one command at the final revision**, which is the entry point CI's `validate` job actually invokes:
+
+```
+python scripts/ci/run.py --profile fast
+PASS: 13 passed, 0 failed, 0 skipped, 0 advisory in 7.3s
+
+python scripts/ci/run.py --profile full
+FAIL: 43 passed, 1 failed, 0 skipped, 0 advisory in 4500.8s
+```
+
+The single `full` failure is its `repo-tests` step reporting `6 failed, 4397 passed`, all six in `tests/installer/test_core_settings_seeding.py` on the `powershell` parametrization. They do not reproduce (`470 passed, 43 skipped` for `tests/installer` entire; `12 passed, 10 skipped` for the file alone) and both CI test jobs passed them on the same commit. Recorded as a second instance under `WN-I` with the load hypothesis; not a defect this plan introduced, and not present in the file this plan touched.
+
+**The durable lesson**: run `scripts/ci/run.py --profile full` as the local gate, not a hand-transcribed `Makefile` target. The profile IS the definitive list, which is the whole point of the repository-native-profiles design; transcribing the target reintroduced by hand exactly the two-list drift the profiles exist to prevent.
+
 **Lint**: `shellcheck` is not installed on this host and the `lint` target skips with a note. No shell script was touched by any phase of this plan, so the gate is not applicable rather than bypassed.
 
 This gate is LOCAL by construction and passed before the branch was published, so nothing in it depends on a remote result.
@@ -363,4 +379,65 @@ The resolved publication parameters, for approval:
 - **Required checks expected** (from `docs/policy/required-checks.json`): `validate`, `shellcheck`, `ci-required`, `colocation`, `verify`. Listed so a MISSING check is distinguishable from a FAILING one.
 - **First remote validation**: this pull request, run against the synthetic merge result.
 
-This section will be completed with the required-check results and the merge SHA once approval is given and the push happens. `/update release` is held until the integration result is green and merged.
+### Publication (approved 2026-09-07)
+
+Approval was obtained explicitly at the gate. The branch was pushed ONCE:
+
+```
+git push -u origin feat/v4.8.0-agentic-loops
+ * [new branch]  feat/v4.8.0-agentic-loops -> feat/v4.8.0-agentic-loops
+```
+
+Integration pull request opened against `develop`: **https://github.com/bendourthe/Nexus-Hub/pull/183**.
+
+### First remote validation: RED, phase reopened
+
+Run `34154935270`. Every check reached a terminal state. 21 of 23 contexts passed; `render` skipped legitimately.
+
+```
+validate:      fail
+ci-required:   fail
+shellcheck:    pass      colocation:    pass      verify:        pass
+tests:         pass      tests-windows: pass      guide-render:  pass
+changes:       pass      detect:        pass      CodeQL:        pass
+Analyze (javascript-typescript): pass    Analyze (python): pass
+bootstrap (macos-latest / ubuntu-latest): pass     bootstrap-windows: pass
+install-smoke (macos / ubuntu / windows-latest): pass
+installer-smoke (macos / ubuntu / windows-latest): pass
+render:        skipping
+```
+
+`ci-required` failed CORRECTLY and for the right reason: it is an allowlist aggregate over its dependencies, and its log shows `R_validate: failure` producing `FAIL: a needed job did not succeed or skip -- validate=failure`. That is the fail-closed behavior the required-check contract specifies, observed working rather than assumed.
+
+**Root cause**, from the job log:
+
+```
+validate  Repository-native validation profile  [FAIL] validate_no_personal_paths (0.9s)
+validate  Repository-native validation profile  FAIL: 33 passed, 1 failed, 0 skipped, 0 advisory in 7.6s
+```
+
+**Reproduced locally before any fix**, per the never-re-run-a-red-check-without-a-local-reproduction rule:
+
+```
+python scripts/validate_no_personal_paths.py
+docs\releases\v4\v4.8\known-gaps.md:98:98:  personal path leak: 'C:\\Users\\<user>' (username='<user>')
+docs\releases\v4\v4.8\known-gaps.md:98:190: personal path leak: 'C:\\Users\\<user>' (username='<user>')
+validate_no_personal_paths: 2 finding(s) in 2438 scanned file(s).
+```
+
+The leak was in `WN-I`, the flaky-test gap written during this phase, which quoted two absolute profile paths as evidence for its OneDrive-redirection hypothesis. The hypothesis is worth keeping; the absolute paths are not. Both were generalized to `<user-profile>/OneDrive - <tenant>/Documents/...` and `<user-profile>/Documents/...`, which preserves the finding and removes the leak.
+
+**Why the local gate missed it**: `validate_no_personal_paths` last ran in Phase 4, before the Phase 5 text that broke it existed. See the correction under `## Full-suite testing and stabilization`.
+
+**Verification after the fix**, at the final revision:
+
+```
+python scripts/validate_no_personal_paths.py   ->  0 findings
+python scripts/ci/run.py --profile fast        ->  PASS: 13 passed, 0 failed
+```
+
+**Stabilization**: ONE narrowly scoped commit, not an amend. The final commit was already published and the pull request open, so amending would rewrite shared history; `[[code-commit-workflow]]` selects the added commit in that situation. Not a series.
+
+### Merge
+
+Pending. `/update release` remains held until every required check is green AND the merge to `develop` has landed.
