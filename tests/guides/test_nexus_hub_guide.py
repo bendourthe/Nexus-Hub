@@ -243,8 +243,27 @@ def test_one_html_document(parsed: GuideParser, guide_text: str) -> None:
 
 
 def test_file_size_budget() -> None:
-    size = GUIDE.stat().st_size
-    assert size < SIZE_BUDGET_BYTES, f"guide is {size} bytes; budget {SIZE_BUDGET_BYTES}"
+    """Budget the ARTIFACT, not the checkout.
+
+    `stat().st_size` measures bytes on the developer's disk, which is not the
+    quantity the budget is about. With `core.autocrlf=true` a Windows checkout
+    stores CRLF while the committed blob and every served copy hold LF, so the
+    working-tree file is one byte per line larger. Measured 2026-09-06: 504222
+    bytes on disk against a 499799-byte blob, a difference of 4423, which is
+    exactly the file's 4423 lines. The test therefore FAILED on every Windows
+    checkout and passed in CI, while `git status` reported the file clean --
+    the same defect class as the v3.15 BG-16 bootstrap test whose verdict
+    depended on the shell that launched it rather than on the product.
+
+    Normalizing line endings before measuring makes the number
+    platform-independent and equal to what a browser actually downloads.
+    """
+    raw = GUIDE.read_bytes()
+    size = len(raw.replace(b"\r\n", b"\n"))
+    assert size < SIZE_BUDGET_BYTES, (
+        f"guide is {size} normalized bytes; budget {SIZE_BUDGET_BYTES} "
+        f"(on-disk size {len(raw)}; the difference is CRLF and is not budgeted)"
+    )
 
 
 def test_each_page_has_a_primary_heading(parsed: GuideParser) -> None:

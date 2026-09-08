@@ -268,6 +268,8 @@ Eval numbers that can be quietly lowered are not a gate. Three rules, all load-b
 
 A compressor eval that only checks mean character reduction is the exact failure these rules exist to prevent: one fixture can stop compressing while the other three still carry the average.
 
+**Graduation: capability case to regression case.** An eval case is a CAPABILITY case for as long as the skill fails it -- it describes something the skill cannot yet do, and its failure is information rather than a defect. Once it passes on N consecutive runs (N is a parameter; default 3), it GRADUATES into the regression set, and from that point a failure is a regression that fails the gate. One consecutive-pass count is not graduation, because a single pass does not distinguish a fixed capability from a lucky sample. A graduated case is never edited to keep it passing: if it no longer reflects intended behavior, it is RETIRED with a recorded reason, which is a visible decision, whereas rewriting the case to match new output is how a regression set stops testing anything. Retirement follows rule 1 above (append-only at the example level, with a corpus version bump), and graduation must not touch the held-out split -- see [`ai-output-evaluation/references/evaluator-validation.md`](../../developer-experience/ai-output-evaluation/references/evaluator-validation.md) for that hygiene.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

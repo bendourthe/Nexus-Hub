@@ -54,6 +54,7 @@ INHERITED_TEMPLATES = (
     "base-qwen.md",
     "base-windsurf.md",
     "generic-instructions.md",
+    "base-pi.md",
 )
 
 CI_WORKFLOW = _ROOT / ".github" / "workflows" / "ci.yml"
@@ -331,9 +332,9 @@ def test_template_roster_matches_the_directory():
     )
 
 
-def test_all_twelve_substantive_templates_are_covered():
+def test_all_thirteen_substantive_templates_are_covered():
     """Guard the count, so a roster edit cannot quietly shrink coverage."""
-    assert len(SUBSTANTIVE) == 12
+    assert len(SUBSTANTIVE) == 13
 
 
 @pytest.mark.parametrize("name", STUBS)
@@ -343,7 +344,7 @@ def test_surface_note_stubs_do_not_carry_the_lifecycle_block(name: str):
     )
 
 
-def test_lifecycle_block_body_is_identical_across_all_twelve():
+def test_lifecycle_block_body_is_identical_across_all_thirteen():
     """Stronger than the parity gate, which reaches only the lockstep five.
 
     The block has no valid per-platform variation, so any wording drift is a

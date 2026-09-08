@@ -260,7 +260,20 @@ FRAMEWORK_FIELDS = (
     "nist_csf",
     "nist_ai_rmf",
     "mitre_f3",
+    "owasp_agentic",
 )
+
+# `owasp_agentic` is the one framework field whose identifier space is a CLOSED
+# set of ten, so membership is checked as well as shape. The other six draw on
+# catalogs that grow between releases, where a membership check would reject a
+# newly published identifier and turn a vendor's release into a broken build.
+# Here the opposite risk dominates: a shape-only check accepts `ASI99`, and a
+# plausible-looking identifier in a compliance-facing coverage matrix reads as
+# verified coverage. Titles and source URLs live in the decision record at
+# docs/decisions/implemented/policy/
+# 2026-09-07-owasp-agentic-top-10-as-seventh-framework-field.md.
+OWASP_AGENTIC_FIELD = "owasp_agentic"
+OWASP_AGENTIC_PATTERN = re.compile(r"^ASI(0[1-9]|10)$")
 
 
 # The only two literals accepted. Deliberately NOT YAML-parsed: a YAML load
@@ -404,6 +417,107 @@ def validate_framework_fields(skill_file: Path, block: str | None) -> list[str]:
             f"(e.g. [ID1, ID2]), got {raw!r}"
         )
         index += 1
+    errors.extend(validate_owasp_agentic_membership(skill_file, block))
+    return errors
+
+
+def _owasp_agentic_values(block: str) -> list[str] | None:
+    """Extract the `owasp_agentic` identifiers, or None when the field is absent.
+
+    Handles both YAML shapes the other framework fields accept: a flow list on
+    the key's own line, and a block sequence on the following indented lines.
+
+    Deliberately scans EVERY occurrence of the key, indented ones included, and
+    returns the union. That is broader than YAML's own semantics, and it is
+    broader on purpose: `scripts/build_framework_coverage.py` matches the key
+    with `line.strip()` and keeps the LAST occurrence, so a key this validator
+    skipped (because it was nested) or ignored (because an earlier one won)
+    would still be rendered into `docs/framework-coverage.md`. Two hostile
+    inputs exploited exactly that gap and put `ASI99` in the matrix while the
+    validator reported PASS:
+
+        something:                     # nested: validator skipped, builder read it
+          owasp_agentic: [ASI99]
+
+        owasp_agentic: [ASI01]         # duplicate: validator read the first,
+        owasp_agentic: [ASI99]         # builder rendered the last
+
+    Validating the union fails closed against both. A false positive here costs
+    a maintainer one clear error message; a false negative puts an unverified
+    identifier in a compliance-facing document, which is the failure this whole
+    field exists to prevent.
+    """
+    lines = block.splitlines()
+    found = False
+    values: list[str] = []
+    for index, line in enumerate(lines):
+        if ":" not in line:
+            continue
+        key, _, value = line.partition(":")
+        if key.strip() != OWASP_AGENTIC_FIELD:
+            continue
+        found = True
+        raw = value.split("#", 1)[0].strip()
+        if raw.startswith("[") and raw.endswith("]"):
+            inner = raw[1:-1]
+            values.extend(v.strip().strip("'\"") for v in inner.split(",") if v.strip())
+            continue
+        base_indent = len(line) - len(line.lstrip())
+        if raw:
+            # A bare scalar. At top level the shape check already reports it, so
+            # adding it here would produce two messages for one defect. Nested,
+            # the shape check never sees it (it skips indented lines) while the
+            # builder still reads it, so it must be validated here or it is a
+            # second bypass route.
+            if base_indent > 0:
+                values.append(raw.strip("'\""))
+            continue
+        look_ahead = index + 1
+        while look_ahead < len(lines):
+            nxt = lines[look_ahead]
+            if not nxt.strip():
+                look_ahead += 1
+                continue
+            if len(nxt) - len(nxt.lstrip()) <= base_indent:
+                break
+            item = nxt.strip()
+            if item.startswith("- "):
+                values.append(item[2:].split("#", 1)[0].strip().strip("'\""))
+            look_ahead += 1
+    return values if found else None
+
+
+def validate_owasp_agentic_membership(
+    skill_file: Path, block: str | None
+) -> list[str]:
+    """Check `owasp_agentic` values against the closed ASI01-ASI10 set.
+
+    Absence is never an error. A value outside the set, or a duplicate within
+    one list, is a hard error naming the skill file and the field, matching the
+    existing framework-field error format.
+    """
+    if block is None:
+        return []
+    values = _owasp_agentic_values(block)
+    if values is None:
+        return []
+
+    errors: list[str] = []
+    for value in values:
+        if not OWASP_AGENTIC_PATTERN.match(value):
+            errors.append(
+                f"{skill_file}: frontmatter '{OWASP_AGENTIC_FIELD}' has unknown "
+                f"identifier {value!r}; expected one of ASI01 through ASI10 "
+                f"(OWASP Top 10 for Agentic Applications 2026)"
+            )
+    seen: set[str] = set()
+    for value in values:
+        if value in seen:
+            errors.append(
+                f"{skill_file}: frontmatter '{OWASP_AGENTIC_FIELD}' lists "
+                f"{value!r} more than once"
+            )
+        seen.add(value)
     return errors
 
 

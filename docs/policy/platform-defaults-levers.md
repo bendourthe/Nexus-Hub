@@ -43,8 +43,9 @@ Classification is about whether a documented lever EXISTS. Whether Nexus-Hub can
 | `opencode` | VERIFIED | `model`, `small_model`, `permission`, `default_agent` | `~/.config/opencode/opencode.json`, `opencode.json` | Exact | [opencode.ai](https://opencode.ai/docs/config/) | 2026-08-30 |
 | `qwen` | VERIFIED | `model.name`, `model.reasoningEffort`, `tools.approvalMode` | `~/.qwen/settings.json`, `.qwen/settings.json` | Exact | [qwenlm.github.io](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/) | 2026-08-30 |
 | `windsurf` | UNVERIFIED | - | - | - | [docs.devin.ai](https://docs.devin.ai/desktop/cascade/modes) | 2026-08-30 |
+| `pi` | VERIFIED | `defaultProvider`, `defaultModel`, `defaultThinkingLevel` | `~/.pi/agent/settings.json`, `.pi/settings.json` | Exact | [github.com/earendil-works/pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/settings.md) | 2026-08-25 |
 
-**Counts**: 13 VERIFIED, 3 UNVERIFIED, 16 total (matching the registry exactly).
+**Counts**: 14 VERIFIED, 3 UNVERIFIED, 17 total (matching the registry exactly).
 
 **Surface alignment** answers "does the documented config file sit where Nexus-Hub already installs for this platform?"
 
@@ -148,6 +149,18 @@ Surface alignment is **Exact**: the adapter reads `~/.openclaw/openclaw.json` to
 
 Surface alignment is **Exact**: `~/.config/opencode` is precisely the integration's `global_dir`. The documented merge semantics are also the friendliest of any platform in this table for a non-clobbering write.
 
+### pi - VERIFIED
+
+Added to the registry on 2026-08-25 and classified in the same change, so it carries no status from the v3.19.0 pass above.
+
+`~/.pi/agent/settings.json` (global) and `.pi/settings.json` (project) are documented as JSON settings files where "project settings override global settings". The Model & Thinking table documents `defaultProvider` ("Default provider (e.g., `\"anthropic\"`, `\"openai\"`)"), `defaultModel` ("Default model ID"), and `defaultThinkingLevel` with the enumerated values `off | minimal | low | medium | high | xhigh | max`. Also documented: `thinkingBudgets` (per-level token budgets) and `hideThinkingBlock`.
+
+`defaultThinkingLevel` is the closest analogue in the table to Claude's `effortLevel` and Qwen's `model.reasoningEffort`: a first-class top-level effort scalar, in a JSON file at a path the integration already targets, with `medium` among its documented values. Surface alignment is Exact.
+
+Two keys are deliberately NOT seeded. `defaultModel` is a bare model ID with no documented default and no vendor-documented safe self-selecting value, and `defaultProvider` scopes it; pinning either would hand a fresh install a provider and model the user's credentials may not reach. That is precisely the failure the do-not-invent rule exists to prevent, so both are recorded under `omitted` rather than guessed.
+
+One caveat belongs on the record because it changes when a seeded value takes effect: pi gates project-local `.pi` resources behind its own project-trust prompt, and non-interactive runs fall back to the global `defaultProjectTrust`. A value seeded into the GLOBAL settings file is unaffected; a project-scoped one is inert until the user trusts the folder. Nexus-Hub seeds the global file only and never pre-trusts a folder on the user's behalf.
+
 ### qwen - VERIFIED
 
 `~/.qwen/settings.json` (user) and `.qwen/settings.json` (project) document `model.name` ("The Qwen model to use for conversations"), `model.reasoningEffort` ("How hard reasoning-capable models think, applied across all providers", values `low | medium | high | xhigh | max`), and `tools.approvalMode` (`plan | default | auto-edit | auto | yolo`, documented default `"auto"`). Also documented: `model.maxToolCalls`, `model.maxWallTimeSeconds`, and `fastModel`.
@@ -196,5 +209,7 @@ Lever re-verification rides along with the existing `platform-contract-verificat
 | 2026-08-22 | v3.18.3 | Ride-along on the DELTA read-contract pass (claude, opencode, kimi re-fetched) | No BEHAVIORAL-lever drift signal on the three vendor pages visited: no key rename, no config-path move, no new cross-host redirect. SCOPE LIMIT, stated plainly: this pass targeted read-paths for three platforms, so the other thirteen integrations were NOT re-fetched and carry no status claim from this cycle - their rows are carried forward from the 2026-08-21 full pass. Separately and NOT to be confused with this table: four platforms (opencode, kimi, hermes, nexus-ai) were surveyed this cycle for INVOCATION-POLICY levers, a different contract living in skill-invocation-policy-levers.md, closing v3.17 DF-1. That survey says nothing about the behavioral defaults this table tracks. No installer default changed. |
 | 2026-09-04 | v4.4.5 | Ride-along on the FULL read-contract pass (13 platforms enumerated, 12 re-fetched); Claude lever pages fetched directly (settings, settings-reference, model-config) | DRIFT on claude: `effortLevel` now documents `max` and the definition moved to `settings-reference` / `model-config`; `CLAUDE_CODE_EFFORT_LEVEL` does NOT accept `max`; new `modelSettings` per-model key. Seeded `high` values remain valid on both keys, so `configs/platform-defaults.json` changes only its `doc_statement`, `source_url`, and `verified` date. No other vendor page visited showed a key rename, config-path move, or host redirect. |
 | 2026-09-05 | v4.7.0 | Targeted re-fetch of the Claude Code model-config and settings pages for the effort-level contract (Phase 1 sub-task 1.1); other platforms not re-fetched this pass | CORRECTED a recorded-statement inversion: the settings keys (`effortLevel`, `modelSettings`) accept `low`, `medium`, `high`, `xhigh` and reject `max`; `CLAUDE_CODE_EFFORT_LEVEL` accepts a level name or `auto` and is the persistent path to `max`. Seeded value `high` is valid on both, so no seeded value changed. `sync_platform_defaults.py --check` clean after `--apply`. |
+
+| 2026-09-08 | v4.8.0 | Ride-along on the PARTIAL read-contract pass (claude, codex, pi re-fetched) | No BEHAVIORAL-lever drift signal on the three vendor pages visited: no key rename, no config-path move, and no new cross-host redirect (docs.claude.com still 301s to code.claude.com, which the contract already records post-redirect). SCOPE LIMIT, stated plainly: this pass targeted read-paths for three platforms, so the other eleven integrations were NOT re-fetched and carry no status claim from this cycle; their rows are carried forward from the 2026-09-04 full pass. `pi` was the priority because its adapter is new in this range, and it documents no behavioral-default lever, which remains a valid and expected result rather than a gap. No installer default changed; `sync_platform_defaults.py --check` clean. |
 
 When re-verifying, check three things per platform: that the documented key names are unchanged, that the config file path is unchanged, and that the source URL still resolves without a redirect to a new host. A redirect is not cosmetic; it is the earliest signal that a vendor has reorganized or renamed a product.

@@ -48,6 +48,7 @@ _UNGUARDED = [
     "base-qwen.md",
     "base-windsurf.md",
     "generic-instructions.md",
+    "base-pi.md",
 ]
 
 _SUBSTANTIVE = _LOCKSTEP + _UNGUARDED

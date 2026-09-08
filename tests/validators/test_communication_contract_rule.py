@@ -2,7 +2,7 @@
 
 The roster is derived from the templates directory (the same approach as
 ``test_autonomy_block_rule.py``), so a new template fails until it carries the contract
-additions. Body identity across the twelve is owned by
+additions. Body identity across the thirteen is owned by
 ``test_communication_contract_rollout.py`` and is not restated here.
 """
 
@@ -54,8 +54,8 @@ def _substantive() -> list[Path]:
 SUBSTANTIVE = _substantive()
 
 
-def test_roster_has_twelve_substantive_templates():
-    assert len(SUBSTANTIVE) == 12, [p.name for p in SUBSTANTIVE]
+def test_roster_has_thirteen_substantive_templates():
+    assert len(SUBSTANTIVE) == 13, [p.name for p in SUBSTANTIVE]
 
 
 @pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)

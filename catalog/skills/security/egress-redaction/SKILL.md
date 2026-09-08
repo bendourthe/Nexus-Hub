@@ -3,6 +3,7 @@ name: egress-redaction
 description: Detect sensitive data and apply a typed per-policy action (block, redact, hash, or pass) before any artifact crosses a trust boundary. Make sure to use this skill whenever the user wants to "redact sensitive data before sending", "PII detection", "scrub secrets from a prompt", "decide what can leave the trust boundary", or "redact before handing off to another model / agent / log", even if they only say "make sure we are not leaking anything". SKIP, do NOT use for, encrypting data at rest, network-layer DLP appliances, or compliance program design (use the compliance skills).
 summary_l0: "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress"
 overview_l1: "This skill teaches the agent to recognize sensitive data and apply a per-category policy action before any artifact leaves a trust boundary. It provides a typed taxonomy of sensitive-data categories with one-line recognition cues, four policy actions (BLOCK, REDACT, HASH, PASS), a conservative-by-default policy table, and the core rule that a redaction decision is made per egress event, not per value: the same value may pass internally yet be redacted on a cross-model handoff, a context pack, a log line, or an external send. It generalizes the handoff egress-hygiene step from cross-model orchestration into a reusable posture. This is detection-and-policy guidance for the agent's own judgment, not a guarantee; high-assurance flows still need a programmatic DLP layer. Trigger phrases: redact sensitive data before sending, PII detection, scrub secrets from a prompt, what can leave the trust boundary, redact before handoff."
+owasp_agentic: [ASI03]
 ---
 
 # Egress Redaction
@@ -132,6 +133,10 @@ A local DLP library that the agent process loads is still in-loop. Treat it as d
 - [ ] No secret, credential, government ID, or payment identifier was sent in cleartext across any external boundary
 - [ ] A recipient treated as exempt was confirmed to be fully local before its handoff was skipped
 - [ ] High-stakes or untrusted-tool egress is named as content-policy-only or as out-of-process-enforced; if the latter, [[agent-execution-isolation]] `references/egress-boundary.md` is the architecture, not a second copy of this taxonomy
+
+## Standards Mapping
+
+This skill is tagged against the OWASP Top 10 for Agentic Applications (2026) in its frontmatter. [references/standards.md](references/standards.md) records each identifier, the control in this body that maps to it, and the public source URL, so the tag can be checked rather than trusted.
 
 ## Related Skills
 

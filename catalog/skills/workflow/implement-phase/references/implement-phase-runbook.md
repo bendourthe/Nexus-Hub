@@ -96,6 +96,8 @@ Used only when the resolved mode is `full` (alias `in-full`) or `phase-by-phase`
 
 ## Phase 9: Final-phase completion workflow (release-readiness)
 
+During living-documentation reconciliation, run `technical-documentation`'s `references/handbook-refresh.md` on the actual final-phase candidate before the local completion/publication gate. Update both handbook views with approved settings and retain freshness, coverage, and browser evidence. The subsequent `/update release` handoff rechecks the integrated candidate before its version bump; it does not defer all handbook work until after publication. Existing CI/integration and release approval gates remain in force.
+
 Runs only when `is_final_phase = true` AND Phase 8 completed cleanly. If `is_final_phase` is false because prior phases are unchecked, do not run Phase 9; say so and stop the release handoff.
 
 Every last-phase duty is fail-closed. Announce the queued sub-phases. A duty is omitted only by writing a known-gap (`QG` or `DF`) with Source phase, Plan reference, Reason, and Suggested next step. If the user asks to skip a duty without that recorded gap, refuse. Every step is idempotent and prompts before it commits, archives, or tags.
@@ -149,6 +151,10 @@ Runs after 9.0, 9A, and 9B are complete and the evidence file has every required
 
 1. **Final commit.** Generate the message via 8.10 and create the final local phase commit. Stage only this plan's changes; verify the staged diff first.
 2. **Approval gate.** Present the resolved branching model (via `[[git-branching-workflow]]`), the remote, the branch name, and the pull-request target. Follow the active instruction template's `Consequential Decisions` rule. Obtain EXPLICIT approval before the plan's first branch push. Silence is not approval.
+
+    **Measure the scope against the REMOTE integration branch, never the local one.** Run `git fetch` first, then state BOTH a commit count and a file count from `git log --oneline origin/<base>..HEAD` and `git diff --stat origin/<base>..HEAD`. A branch cut from a local integration branch that is ahead of its remote carries those extra commits into the pull request, and `git diff <base>..HEAD` cannot see them: it compares against the local branch, which already contains them. This is the ordinary case, not an edge case, because local integration branches accumulate unpushed work.
+
+    When the remote count exceeds this plan's own commits, say so BEFORE asking for approval, list the extra commits, and give the command that isolates this plan's work (`git diff <branch-point>..HEAD`). Then check whether they can be unbundled: if the integration branch requires a pull request, they cannot, and the honest move is disclosure in the pull-request description rather than silence. Approval obtained against an understated scope is not approval for what actually merges.
 3. **Push once.** Publish the branch. Report the result.
 4. **Open the integration pull request** against the integration branch (not the protected release branch). Report the exact required checks expected, so the user can tell a missing check from a failing one.
 5. **Wait for a terminal state** on every required check. This is the plan's first and only comprehensive remote validation, and it runs against the synthetic MERGE RESULT rather than the branch tip.

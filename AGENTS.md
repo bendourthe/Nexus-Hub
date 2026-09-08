@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 4.7.0 -->
+<!-- nexus-hub-version: 4.8.0 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **329 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 34 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **336 skills** across 23 categories, 19 commands (plus 3 permanent aliases), 35 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Language, security, and artifact rules
-|   `-- skills/               # 329 skills across 23 categories
+|   `-- skills/               # 336 skills across 23 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -136,6 +136,7 @@ Security and compliance skills MAY declare optional framework-mapping fields. Ab
 | `nist_csf` | NIST Cybersecurity Framework categories | `[DE.CM, RS.AN]` |
 | `nist_ai_rmf` | NIST AI Risk Management Framework controls | `[MEASURE-2.6, GOVERN-1.1]` |
 | `mitre_f3` | MITRE Fight Fraud Framework (F3) | `[F1005.006, F1010]` |
+| `owasp_agentic` | OWASP Top 10 for Agentic Applications (2026) | `[ASI01, ASI06]` |
 
 Example frontmatter for a defensive security skill:
 
@@ -152,6 +153,8 @@ nist_csf: [DE.CM, DE.AE]
 ```
 
 Companion file: when a skill declares any of these fields, it SHOULD ship a `references/standards.md` that documents the mapping (what each ID means, why it applies to this skill, and the public source URL for the framework definition). The orphan-bundle audit will warn if `references/standards.md` exists but is not referenced from `SKILL.md`; otherwise the file is purely additive.
+
+`owasp_agentic` is the one field whose identifier space is validated for MEMBERSHIP as well as list shape, because it is a closed set of ten (`ASI01` to `ASI10`). The other six draw on catalogs that grow between releases, where a membership check would reject a newly published identifier and turn a vendor's release into a broken build; here the opposite risk dominates, since a shape-only check accepts `ASI99` and a plausible-looking identifier in a compliance-facing matrix reads as verified coverage. `owasp_agentic` identifiers are rendered in `docs/framework-coverage.md` only and are never written into `docs/attack-navigator-layer.json`, which stays ATT&CK-only. Rationale and alternatives: [`docs/decisions/implemented/policy/2026-09-07-owasp-agentic-top-10-as-seventh-framework-field.md`](docs/decisions/implemented/policy/2026-09-07-owasp-agentic-top-10-as-seventh-framework-field.md).
 
 These fields exist so a downstream generator (e.g. `scripts/build_framework_coverage.py`) can emit a coverage matrix across Nexus-Hub's security skills. The committed matrix is `docs/framework-coverage.md` (Navigator layer: `docs/attack-navigator-layer.json`); `build_framework_coverage.py --check` fails `make validate` when either file is stale. They are NOT a substitute for the skill body -- the body must still teach the agent what to do, with binary Verification and Common Rationalizations.
 
@@ -281,6 +284,8 @@ When reverse-engineering an external pattern into Nexus-Hub content (a skill, a 
 ## Markdown Style for Generated Documentation
 
 Every Markdown file Nexus-Hub generates or modifies (READMEs, CHANGELOG, DEVLOG, RELEASE_NOTES, plans, comparison reports, pen test reports, session histories, skills, commands, generated `/research report` and `/research compile` outputs) must follow the conventions in [`catalog/style-guides/markdown.md`](catalog/style-guides/markdown.md). The guide is also installed at `~/.nexus-hub/style-guides/markdown.md` for global reference.
+
+System docs additionally follow the doc-header summary convention in [`catalog/style-guides/doc-headers.md`](catalog/style-guides/doc-headers.md) (also installed at `~/.nexus-hub/style-guides/doc-headers.md`): open every durable system doc (architecture, policy, reference, runbook) with a dense, greppable summary in its first few lines - what it covers, who reads it and when, and its key topics - analogous to a SKILL.md's `summary_l0` / `overview_l1`, and keep that summary in sync when the system it describes changes.
 
 The most common rendering bugs that the style guide prevents:
 
@@ -416,7 +421,7 @@ Nexus-Hub is a **template repository**. Nothing you add is "live" until a user r
 | `catalog/hooks/<name>.{sh,py}` | No for the file; **you must register it** in `catalog/hooks/settings.json` | Platforms that honor Claude-style hooks |
 | `catalog/rules/<category>/<name>.md` (including `catalog/rules/html/`) | No -- folder auto-copied | Claude, Gemini, Codex |
 | `templates/documentation/<name>.{docx,pptx,xlsx,...}` | No -- folder auto-copied to `~/.nexus-hub/templates/documentation/` | All platforms (shared) |
-| `templates/ai-instructions/base-*.md` | **Yes -- edit all 5 lockstep files** (claude, codex, cursor, gemini, opencode). **But 5 is not the full set**: 16 template files exist and 12 are substantive. A behavioral rule meant for every agent must also reach `base-google-shared.md` (which covers Antigravity 1.0, Antigravity 2.0, and Gemini CLI by `@`-include, and Antigravity CLI transitively via `@base-antigravity-20.md`), the guardrails-only `base-{aider,kimi,openclaw,qwen,windsurf}.md`, and `generic-instructions.md`. Only the lockstep five are machine-guarded; the other seven are not, so they are the ones a change silently misses. `## Writing Discipline` (v4.5.0) is a lockstep block: byte-identical across the five and asserted present and identical on all twelve by a companion validator. `## Autonomous Operation` (v4.7.0) follows the same pattern, with its validator deriving the twelve-template roster from the directory so a new template fails until it carries the block. | The respective platform |
+| `templates/ai-instructions/base-*.md` | **Yes -- edit all 5 lockstep files** (claude, codex, cursor, gemini, opencode). **But 5 is not the full set**: 17 template files exist and 13 are substantive. A behavioral rule meant for every agent must also reach `base-google-shared.md` (which covers Antigravity 1.0, Antigravity 2.0, and Gemini CLI by `@`-include, and Antigravity CLI transitively via `@base-antigravity-20.md`), the guardrails-only `base-{aider,kimi,openclaw,qwen,windsurf}.md`, `base-pi.md`, and `generic-instructions.md`. Only the lockstep five are machine-guarded; the other eight are not, so they are the ones a change silently misses. `## Writing Discipline` (v4.5.0) is a lockstep block: byte-identical across the five and asserted present and identical on all thirteen by a companion validator. `## Autonomous Operation` (v4.7.0) follows the same pattern, with its validator deriving the thirteen-template roster from the directory so a new template fails until it carries the block. | The respective platform |
 | `scripts/<name>.py` or `scripts/<name>.js` | **Yes -- MUST add a copy step** in BOTH `scripts/installer.sh` AND `scripts/installer.ps1`, modeled after the existing `generate_report.py` entry. The installer copies scripts by **explicit name**, never by folder. | All platforms (shared under `~/.nexus-hub/scripts/`) |
 | `configs/platform-defaults.json` (v3.16.0+) | No -- **repo-internal source, NOT a distributed artifact**. It is the single place a per-platform install-time behavioral default is declared. Its effect reaches users two ways: the derived core keys of `catalog/hooks/settings.json` (which the installer already copies), and install-time seeding into each platform's own config by `scripts/lib/integrations/platform_defaults.py`. Never hand-edit a derived artifact. | All platforms with a VERIFIED lever (see below) |
 | `scripts/sync_platform_defaults.py` (v3.16.0+) | No -- **repo-internal guard, needs NO installer copy step**. Listed in `DEV_ONLY_SCRIPTS` in `catalog/hooks/tests/test_installer_smoke.py` alongside the other three repo-only guards. `--check` runs in `make validate` and CI; `--apply` regenerates the derived artifacts. | None (maintainer tooling) |
@@ -470,6 +475,16 @@ make lint        # ShellCheck on all hook scripts
 make test        # pytest hook test suite
 make build-catalog  # Rebuild data/ from catalog/
 ```
+
+**The repository-native profiles are the canonical gate, and they need no `make`.** CI does not invoke the `Makefile`: `.github/workflows/ci.yml` calls `scripts/ci/run.py`, whose step list in `scripts/ci/profiles.py` is the definitive one. Run the same thing locally, on any host:
+
+```bash
+python scripts/ci/run.py --profile fast    # ~8s; the pre-commit gate
+python scripts/ci/run.py --profile full    # the complete gate CI's `validate` job runs
+python scripts/ci/run.py --profile fast --list   # show the steps without running them
+```
+
+Prefer these over transcribing a `Makefile` target by hand. `make` is not present on every supported development host (notably a stock Windows workstation), and the `validate` target maintains a hand-kept step list that the profile already contains as a superset. During v4.8.0 a contributor without `make` ran the target's steps individually, each passed, and the pull request still failed `validate` on a step that had last run several phases earlier: the composite claim was never true at one revision. One command against one list is what prevents that. See `WN-D` and the `## Full-suite testing and stabilization` section of `docs/releases/v4/v4.8/development/last-phase-evidence.md`.
 
 ## Branching and Release Workflow
 

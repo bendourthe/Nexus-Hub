@@ -83,6 +83,12 @@ Use this skill when you need to:
 **Next concrete step**: <one sentence - the exact next action>
 ```
 
+## Mid-Task Handoff Worksheet and Git Tags
+
+Beyond the retrospective history, keep a live HANDOFF WORKSHEET when a task may span sessions or be handed to another agent: a committed artifact detailed enough that a DIFFERENT agent could resume mid-task if this one fails partway. Structure it as Goal, Plan reference, State/progress so far, Next concrete action, Open questions, and Verification status. Commit it with the work (not as a scratch file) so the trail stays connected and referenceable later.
+
+Git-tag convention: tag the commit that carries a worksheet with a predictable name - `worksheet/<slug>` - so a specific in-progress state is retrievable by name (`git tag --list 'worksheet/*'`, then `git show worksheet/<slug>`), which is exactly what a resuming agent needs. Keep it advisory and lightweight: a one-paragraph worksheet beats none, and not every session needs one.
+
 ## Output Template
 
 Each session history file follows this structure. All 9 sections must be present; sections with no content should state "None identified" or "N/A" rather than being omitted.

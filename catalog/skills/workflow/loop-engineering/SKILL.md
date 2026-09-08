@@ -3,6 +3,7 @@ name: loop-engineering
 description: 'Assemble named, goal-terminated agentic loops from Nexus-Hub primitives. Use whenever the user says "run this in a loop", "loop until tests pass", "set up an agentic loop", "iterate until green", "build a loop that ships PRs", "what loop should I use", or asks for continuous agent work with a stopping rule. SKIP: a one-shot task with no iteration; choosing between single-agent / subagents / workflows -- use agent-orchestration-primitives; the host /loop or /goal command mechanics themselves.'
 summary_l0: "Assemble goal-terminated agentic loops from Nexus-Hub primitives"
 overview_l1: "This skill turns Nexus-Hub's existing agentic primitives into named, goal-terminated loops. Use it to choose or author a loop definition with a falsifiable goal, iteration cap, check command, checker-evaluated exit condition, host driver, maturity flag, agents, and tags. It maps automations, worktrees, skills, plugins/connectors, sub-agents, and external memory to owned catalog surfaces, then points operators to a local loop schema and seeded loop library. The loop driver remains the host platform's /loop or /goal command; Nexus-Hub references those commands and never reimplements them."
+owasp_agentic: [ASI10]
 ---
 
 # Loop Engineering
@@ -18,6 +19,8 @@ Use this skill when:
 - You need to choose from a local loop library or write a new loop definition that another agent can run later.
 - You are composing host `/loop`, `/goal`, or `/schedule` behavior with Nexus-Hub worktrees, skills, agents, connectors, and memory files.
 - You need to explain where loop cost, human-review bandwidth, and termination risk enter the design.
+
+Score the candidate against [references/loop-readiness-scorecard.md](references/loop-readiness-scorecard.md) BEFORE a loop is assembled: a loop is admitted on its seven-dimension total and its five when-not-to-loop anti-fits, not on how well it would suit iteration.
 
 When NOT to use this skill:
 
@@ -62,6 +65,8 @@ Use the owned surface for each loop piece. Do not introduce a new service, depen
 ### Step 2: Start from the local schema
 
 Read [references/loop-schema.md](references/loop-schema.md) before writing or running a loop definition. Every loop must declare `name`, `goal`, `iteration_cap`, `check_command`, `exit_condition`, `driver`, `maturity`, `agents`, and `tags`.
+
+Record the readiness total from [references/loop-readiness-scorecard.md](references/loop-readiness-scorecard.md) in the loop's instance state, so a resumed or inherited run can see which dimensions the loop was admitted on and which two were weakest.
 
 The two non-negotiable safety fields are `iteration_cap` and `exit_condition`. Without a cap, the loop can burn tokens indefinitely. Without an observable exit, the maker agent can declare victory because the output feels plausible.
 
@@ -161,6 +166,8 @@ The optional `progress_check` field is backed by a worked design: a robust loop 
 
 A tripped detector should pause with a cooldown and may auto-recover to a monitoring state if progress resumes, rather than hard-aborting on the first stall. Cross-link [[agent-orchestration-primitives]] for the cheapest-primitive and independent-evaluator discipline.
 
+Stalling is one of ten loop failure modes. For all ten -- the stuck cycle above plus runaway spend, premature convergence, metric gaming, self-rubber-stamping, context rot, tool thrashing, state poisoning, side-effect drift, and cascading error -- [references/failure-mode-ownership.md](references/failure-mode-ownership.md) names exactly one owning skill per mode, so a review reports each root cause once.
+
 A fourth pattern looks like a stall but is not a fault: the loop is waiting on a human-owned action (an approval, a merge, an external sign-off). Do not spend iterations busy-polling for it. A loop that re-runs waiting for a human is a no-progress signature, and the [[shipping-and-launch]] gate ends at exactly such a boundary. Hand control back with a crisp summary of what is ready and what decision is requested, and treat the human action as an external resume signal rather than a condition to spin on.
 
 ## Workflow-Control Patterns: Gate, Resume, Continue-on-Error, Bounded Fan-Out
@@ -230,6 +237,10 @@ The posture behind this -- deny host execution unless the task needs it, prefer 
 - [ ] Any gate, resume, or continue-on-error step is implemented as a loop-body instruction over the memory layer (or the harness's Dynamic Workflows), not a new runtime; every gate names its `on_reject` policy (abort / skip / retry).
 - [ ] Every declared gate names its `type` (owner / safety / publication / private-data) and asks ONE concrete answerable question, and no gate trips on a step already inside the loop's authority.
 - [ ] A loop that spans sessions has a gitignored instance record, and any long-horizon loop's evidence carries a freshness window the checker re-validates.
+
+## Standards Mapping
+
+This skill is tagged against the OWASP Top 10 for Agentic Applications (2026) in its frontmatter. [references/standards.md](references/standards.md) records each identifier, the control in this body that maps to it, and the public source URL, so the tag can be checked rather than trusted.
 
 ## Related Skills
 

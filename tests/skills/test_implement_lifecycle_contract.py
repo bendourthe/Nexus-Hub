@@ -435,3 +435,43 @@ def test_commit_skill_explains_remote_correction_work(commit_skill: str):
     body = commit_skill.split("## Plan-Context Mode", 1)[1].split("## Instructions", 1)[0]
     assert "Correction work after a red required check" in body
     assert "Never both, and never a series." in body
+
+
+# --- WN-J: the approval gate must measure against the REMOTE base ------------
+#
+# The v4.8.0 publication gate reported "5 commits, 66 files" from
+# `git diff develop..HEAD`. The pull request GitHub opened carried 18 commits
+# and 252 files, because local `develop` was 12 commits ahead of its remote and
+# a local-only diff cannot see those. Approval obtained against an understated
+# scope is not approval for what actually merges.
+
+
+def test_approval_gate_measures_against_the_remote_base(runbook: str) -> None:
+    gate = runbook.split("2. **Approval gate.**", 1)[1].split("\n3. ", 1)[0]
+    assert "origin/<base>..HEAD" in gate, (
+        "the gate must diff against the remote integration branch, not the local one"
+    )
+    assert "git fetch" in gate, "a stale remote ref reproduces the same understatement"
+
+
+def test_approval_gate_states_a_commit_count_not_only_files(runbook: str) -> None:
+    """A file count alone hid the 12 extra commits; the commit count is what
+    made the discrepancy visible."""
+    gate = runbook.split("2. **Approval gate.**", 1)[1].split("\n3. ", 1)[0]
+    assert "commit count" in gate and "file count" in gate
+
+
+def test_approval_gate_requires_disclosure_when_scope_exceeds_the_plan(
+    runbook: str,
+) -> None:
+    gate = runbook.split("2. **Approval gate.**", 1)[1].split("\n3. ", 1)[0]
+    assert "BEFORE asking for approval" in gate
+    assert "disclosure" in gate, (
+        "when extra commits cannot be unbundled, disclosure is the required move"
+    )
+
+
+def test_skill_body_carries_the_same_remote_measurement_rule(skill: str) -> None:
+    """SKILL.md is Tier 2 and is read on trigger; the runbook is Tier 3 and is
+    read on demand. A rule that exists only in the runbook can be missed."""
+    assert "origin/<base>..HEAD" in skill
