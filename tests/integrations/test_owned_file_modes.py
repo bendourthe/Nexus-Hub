@@ -40,9 +40,18 @@ def spy(monkeypatch):
     calls: dict[str, list[int]] = {"open": [], "chmod": []}
     real_open, real_chmod = os.open, os.chmod
 
-    def spy_open(path, flags, mode=0o777, *a, **kw):
-        calls["open"].append(mode)
-        return real_open(path, flags, mode, *a, **kw)
+    # The mode is forwarded untouched rather than re-defaulted here. A
+    # `mode=0o777` default reads to CodeQL (py/overly-permissive-file) as a
+    # world-writable open, and it would be right: that constant would be the
+    # spy's own, not the one the code under test chose. Recording only an
+    # explicitly supplied mode also keeps unrelated os.open traffic out of the
+    # assertions instead of logging it as 0o777.
+    def spy_open(path, flags, *a, **kw):
+        if a:
+            calls["open"].append(a[0])
+        elif "mode" in kw:
+            calls["open"].append(kw["mode"])
+        return real_open(path, flags, *a, **kw)
 
     def spy_chmod(path, mode, *a, **kw):
         calls["chmod"].append(mode)
