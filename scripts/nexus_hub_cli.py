@@ -772,6 +772,36 @@ def _remove_owned_path(path: Path) -> None:
         path.unlink()
 
 
+#: Bounded retry for a directory rename that another process is transiently
+#: blocking. On Windows `os.replace` on a DIRECTORY fails with PermissionError
+#: (WinError 5) while any process holds a handle to a file inside it, and the
+#: identical call succeeds once released. A lingering `git.exe` child from the
+#: clone or fetch, an on-access scanner, or a desktop indexer is enough. This
+#: surfaced as an intermittent test failure that moved between tests and never
+#: reproduced in isolation (v4.9 BG-1); it is invisible on POSIX, where rename
+#: ignores open handles.
+#:
+#: The retry is BOUNDED on purpose. A permanent permission problem is a real
+#: failure the caller must see, so the last attempt re-raises rather than
+#: swallowing it or spinning. The module already accepts this class of Windows
+#: behavior for deletion, in `_remove_owned_path`'s chmod-and-retry handler.
+_RENAME_RETRY_DELAYS = (0.05, 0.15, 0.3, 0.5)
+
+
+def _replace_path_with_retry(src: Path, dst: Path) -> None:
+    """`os.replace`, retrying a transiently-blocked rename a bounded number of times."""
+
+    for delay in _RENAME_RETRY_DELAYS:
+        try:
+            os.replace(src, dst)
+            return
+        except PermissionError:
+            time.sleep(delay)
+    # Final attempt outside the loop, so a still-blocked rename raises the real
+    # error to the caller instead of a synthesized one.
+    os.replace(src, dst)
+
+
 def _replace_org_repo(candidate: Path) -> None:
     """Replace the cached clone while restoring the old cache on rename failure."""
 
@@ -779,12 +809,20 @@ def _replace_org_repo(candidate: Path) -> None:
     backup = _org_root() / f".repo-backup-{uuid.uuid4().hex}"
     had_destination = destination.exists() or destination.is_symlink()
     if had_destination:
-        os.replace(destination, backup)
+        _replace_path_with_retry(destination, backup)
     try:
-        os.replace(candidate, destination)
+        _replace_path_with_retry(candidate, destination)
     except BaseException:
         if had_destination and backup.exists():
-            os.replace(backup, destination)
+            try:
+                _replace_path_with_retry(backup, destination)
+            except OSError:
+                # Best-effort restore, deliberately swallowed. The caller is
+                # already unwinding a failure, and raising from here would
+                # replace the original error with a less informative one. The
+                # old cache staying at the backup path is the worst case, and
+                # it is strictly better than losing the original diagnosis.
+                pass
         raise
     if backup.exists() or backup.is_symlink():
         _remove_owned_path(backup)
