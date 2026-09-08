@@ -10,6 +10,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 # v4.0.0: `ci.yml` calls scripts/ci/run.py rather than naming each guard in its
 # own `run:` step, so CI reachability is resolved through the profile
 # definitions. See tests/validators/_ci_reachability.py for why greping the
@@ -255,3 +257,116 @@ def test_check_wired_into_makefile_and_ci() -> None:
     makefile = (REPO_ROOT / "Makefile").read_text(encoding="utf-8")
     assert "python scripts/build_framework_coverage.py --check" in makefile
     assert_wired_into_ci("build_framework_coverage.py")
+
+
+# --- v4.8.0 WN-G / WN-H: parser defects found by the Tier 3 adversarial pass --
+#
+# Both were PRE-EXISTING and applied to all seven framework fields, so both are
+# covered by a matrix over the whole field set rather than by a case for the one
+# field that exposed them. WN-G: a trailing YAML comment was parsed as part of
+# the identifier. WN-H: a block-sequence value produced nothing, so the skill
+# was silently ABSENT from the matrix while validate_skills.py accepted the same
+# shape. Silent under-coverage is the worse of the two, because nothing reports
+# it.
+
+import importlib.util as _importlib_util
+
+_spec = _importlib_util.spec_from_file_location(
+    "_bfc", Path(__file__).resolve().parents[2] / "scripts" / "build_framework_coverage.py"
+)
+_bfc = _importlib_util.module_from_spec(_spec)
+_spec.loader.exec_module(_bfc)
+
+FRAMEWORK_FIELD_SAMPLES = [
+    ("mitre_attack", "T1071", "T1003.001"),
+    ("atlas_techniques", "AML.T0047", "AML.T0049"),
+    ("mitre_f3", "F1005.006", "F1010"),
+    ("d3fend_techniques", "D3-NTA", "D3-PA"),
+    ("nist_csf", "DE.CM", "RS.AN"),
+    ("nist_ai_rmf", "MEASURE-2.6", "GOVERN-1.1"),
+    ("owasp_agentic", "ASI01", "ASI06"),
+]
+
+
+def _frontmatter(body: str) -> str:
+    return (
+        "---\n"
+        "name: fixture-skill\n"
+        "description: A fixture used to exercise the framework-tag parser.\n"
+        f"{body}"
+        "---\n\n# Fixture\n"
+    )
+
+
+@pytest.mark.parametrize(
+    "field,first,second", FRAMEWORK_FIELD_SAMPLES, ids=lambda v: v if isinstance(v, str) else ""
+)
+def test_trailing_comment_is_not_part_of_the_identifier(
+    field: str, first: str, second: str
+) -> None:
+    """WN-G. A comment is legal YAML and an obvious place to record a
+    verification date."""
+    tags = _bfc.parse_framework_tags(
+        _frontmatter(f"{field}: [{first}] # verified 2026-09-07\n")
+    )
+    assert tags[field] == [first], f"{field} absorbed the comment: {tags.get(field)}"
+
+
+@pytest.mark.parametrize(
+    "field,first,second", FRAMEWORK_FIELD_SAMPLES, ids=lambda v: v if isinstance(v, str) else ""
+)
+def test_block_sequence_reaches_the_matrix(field: str, first: str, second: str) -> None:
+    """WN-H. validate_skills.py accepts this shape and AGENTS.md documents it,
+    so the matrix must not silently drop it."""
+    tags = _bfc.parse_framework_tags(
+        _frontmatter(f"{field}:\n  - {first}\n  - {second}\n")
+    )
+    assert tags[field] == [first, second], f"{field} block sequence lost: {tags.get(field)}"
+
+
+@pytest.mark.parametrize(
+    "field,first,second", FRAMEWORK_FIELD_SAMPLES, ids=lambda v: v if isinstance(v, str) else ""
+)
+def test_block_sequence_stops_at_the_next_key(
+    field: str, first: str, second: str
+) -> None:
+    """The look-ahead must not absorb the following field's values."""
+    other = "nist_csf" if field != "nist_csf" else "mitre_attack"
+    other_id = "DE.CM" if field != "nist_csf" else "T1071"
+    tags = _bfc.parse_framework_tags(
+        _frontmatter(f"{field}:\n  - {first}\n{other}: [{other_id}]\n")
+    )
+    assert tags[field] == [first]
+    assert tags[other] == [other_id]
+
+
+@pytest.mark.parametrize(
+    "field,first,second", FRAMEWORK_FIELD_SAMPLES, ids=lambda v: v if isinstance(v, str) else ""
+)
+def test_block_sequence_item_comment_is_stripped(
+    field: str, first: str, second: str
+) -> None:
+    tags = _bfc.parse_framework_tags(
+        _frontmatter(f"{field}:\n  - {first}  # why this one\n")
+    )
+    assert tags[field] == [first]
+
+
+@pytest.mark.parametrize(
+    "field,first,second", FRAMEWORK_FIELD_SAMPLES, ids=lambda v: v if isinstance(v, str) else ""
+)
+def test_flow_list_still_parses(field: str, first: str, second: str) -> None:
+    """Regression guard: the common shape every shipped skill uses."""
+    tags = _bfc.parse_framework_tags(_frontmatter(f"{field}: [{first}, {second}]\n"))
+    assert tags[field] == [first, second]
+
+
+def test_hash_inside_a_flow_list_is_not_treated_as_a_comment() -> None:
+    """Splitting on a bracketed `#` would truncate the list instead of the
+    comment. No framework uses `#` today, so this pins the intent rather than a
+    current need."""
+    assert _bfc.strip_comment("[A#1, B] # note").strip() == "[A#1, B]"
+
+
+def test_absent_field_stays_absent() -> None:
+    assert _bfc.parse_framework_tags(_frontmatter("")) == {}

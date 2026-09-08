@@ -100,15 +100,39 @@ def extract_frontmatter_block(content: str) -> str | None:
     return content[3:end]
 
 
+def strip_comment(raw_value: str) -> str:
+    """Drop a trailing YAML comment from a field's value.
+
+    Without this, `owasp_agentic: [ASI01] # verified 2026-09-07` parsed as the
+    single identifier `'[ASI01] # verified 2026-09-07'`, which then appeared
+    verbatim as a control row in the generated matrix while the skill validator
+    parsed the same line correctly. A comment is legal YAML and an obvious
+    place to record a verification date, so the generated document was wrong
+    for input a maintainer had every reason to write.
+
+    Only an unbracketed `#` starts a comment here. A `#` inside the flow list
+    is left alone, because splitting there would truncate the list instead.
+    """
+    depth = 0
+    for index, char in enumerate(raw_value):
+        if char == "[":
+            depth += 1
+        elif char == "]":
+            depth = max(0, depth - 1)
+        elif char == "#" and depth == 0:
+            return raw_value[:index]
+    return raw_value
+
+
 def parse_id_list(raw_value: str) -> list[str]:
     """Parse a frontmatter list value into a clean list of framework IDs.
 
     Handles inline-flow lists (`[T1071, T1003.001]`), single-item lists
-    (`[T1071]`), and bare scalars (`T1071`). Quotes and surrounding
-    whitespace are stripped; empty entries are dropped. The relative order
-    in the source is preserved.
+    (`[T1071]`), and bare scalars (`T1071`). A trailing comment is dropped,
+    quotes and surrounding whitespace are stripped, and empty entries are
+    discarded. The relative order in the source is preserved.
     """
-    value = raw_value.strip()
+    value = strip_comment(raw_value).strip()
     if not value:
         return []
     # Strip a single pair of surrounding brackets if present.
@@ -132,7 +156,8 @@ def parse_framework_tags(content: str) -> dict[str, list[str]]:
     if block is None:
         return {}
     tags: dict[str, list[str]] = {}
-    for line in block.splitlines():
+    lines = block.splitlines()
+    for index, line in enumerate(lines):
         stripped = line.strip()
         if ":" not in stripped:
             continue
@@ -141,9 +166,39 @@ def parse_framework_tags(content: str) -> dict[str, list[str]]:
         if key not in FRAMEWORK_FIELDS:
             continue
         ids = parse_id_list(value)
+        if not ids and not strip_comment(value).strip():
+            # A block sequence: the identifiers are on the following indented
+            # `- ID` lines, not after the colon. Reading only the value meant a
+            # block-sequence tag produced nothing and the skill was silently
+            # ABSENT from the matrix, even though `validate_skills.py` accepts
+            # that shape and AGENTS.md documents it. Silent under-coverage is
+            # worse than a parse error, because nothing reports it.
+            ids = collect_block_sequence(lines, index)
         if ids:
             tags[key] = ids
     return tags
+
+
+def collect_block_sequence(lines: list[str], key_index: int) -> list[str]:
+    """Collect `- ID` items indented under the key at `key_index`.
+
+    Stops at the first non-blank line indented no further than the key, so a
+    following field's values are never absorbed into this one.
+    """
+    key_line = lines[key_index]
+    key_indent = len(key_line) - len(key_line.lstrip())
+    ids: list[str] = []
+    for line in lines[key_index + 1 :]:
+        if not line.strip():
+            continue
+        if len(line) - len(line.lstrip()) <= key_indent:
+            break
+        item = line.strip()
+        if item.startswith("- "):
+            token = strip_comment(item[2:]).strip().strip('"').strip("'").strip()
+            if token:
+                ids.append(token)
+    return ids
 
 
 def skill_name(content: str, skill_dir: Path) -> str:
