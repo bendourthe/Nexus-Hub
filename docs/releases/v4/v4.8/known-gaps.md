@@ -1,7 +1,7 @@
 # Known Gaps - v4.8
 
 **Project**: Nexus-Hub
-**Status**: open; seeded when the agentic-setup work landed on develop after the v4.7.0 release. The v4.8.0 adoption plan (agentic loops) is COMPLETE and MERGED: PR #183 into `develop`, merge commit `191e536a`, 2026-09-07, every required check green. Release work is handed to `/update release`
+**Status**: FINALIZED for the v4.8.0 release. The adoption plan merged as PR #183 (`191e536a`) and the post-merge gap sweep as PR #184 (`49d408e7`), both green on every required check. Of the seven items this cycle opened, six are resolved and one is open: the org-CLI half of `WN-I`, an intermittent Windows failure with four causes ruled out and its next diagnostic step recorded. Carried forward unchanged: `WN-A` (guide byte headroom), `WN-C` (`make test` install prerequisite), and the eight v4.4 items, each given an explicit touched-or-not verdict in `development/last-phase-evidence.md`.
 **Last updated**: 2026-09-07
 
 ## Open Items - found 2026-09-06 while verifying this session's work
