@@ -42,6 +42,8 @@ A degraded audit is still a valid audit. It is not a complete scanner pass. The 
 
 ## When remediation needs user approval
 
+Application-audit summary mode separately computes overall health. A failed scanner makes that health `failed`; unavailable or declined work and self-attested host execution limit it to `degraded`. This does not change the older scanner-coverage vocabulary above. Use `closure-gate.py RECORD --summary` for the normalized output. Explicit artifact observations can verify bytes but cannot prove which tool or model ran. See the [summary contract](../../catalog/skills/code-review/security-review/references/closure-gate-review-record.md#normalized-summary-contract).
+
 Detection and triage run before any patch. A no-fix audit may stop after triage and still close with scanner coverage reported.
 
 Remediation runs only after detection and only with user approval, through `security-patch-advisor`. The context that writes the patch is not the verifier.

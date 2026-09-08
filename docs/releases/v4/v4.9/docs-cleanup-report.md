@@ -29,3 +29,7 @@ The inventory helper completed with ten existing release files before the Phase 
 ## Phase 3 audit update
 
 Graph-seeding guidance and its pure helper remain under security-review. Capability probes and historical/repaired evidence remain under active v4.9 development; no paths moved or living release records were added. The blocked history is preserved and superseded by the Phase 3 completion history. Link, ASCII, and diff checks run before the phase commit.
+
+## Phase 4 audit update
+
+The inventory completed for 16 existing release files before adding Phase 4 history. The normalized-envelope contract and helper remain with security-review; golden inputs/outputs remain test fixtures. The user guide remains living documentation. No files moved or sibling-plan records changed. New relative links and ASCII are checked before the phase commit; no scratch deletion is proposed.
