@@ -504,8 +504,11 @@ def test_post_ledger_substitution_rejected(prepared, case):
     if case == "entry":
         next((directory / "ledger/entries").iterdir()).write_text("{}")
     if case == "fork":
-        path = next((directory / "ledger/entries").iterdir())
-        shutil.copyfile(path, path.with_name(path.name.replace("0000", "0001")))
+        path = next(
+            entry for entry in (directory / "ledger/entries").iterdir()
+            if entry.name.startswith("0000-")
+        )
+        shutil.copyfile(path, path.with_name("0001" + path.name[4:]))
     if case == "missing":
         (first / "outcome.json").unlink()
     if case == "extra":

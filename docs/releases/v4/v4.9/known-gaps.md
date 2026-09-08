@@ -83,6 +83,8 @@ Phase 7 cycle 1 resolved two non-deferrable graph-evidence findings instead of d
 
 #### QG-1 - The Windows CI job does not yet select the new filesystem tests
 
+The first PR run selected the new tests and passed every Linux/macOS/Windows bootstrap and installer smoke job. Its Linux jobs exposed two test-fixture assumptions; Windows additionally exposed golden-fixture CRLF conversion. All three causes were reproduced locally and corrected in the single cycle-3 stabilization commit. Affected suites pass 97 tests with seven platform skips and 152 tests against real Git checkout bytes. These failures are repaired rather than deferred; the corrected head still requires terminal hosted proof before this item closes. See [publication and integration](development/last-phase-evidence.md#publication-and-integration).
+
 - **Source phase**: Phase 1, T003 CI impact record.
 - **Plan reference**: Phase 7 terminal pipeline reconciliation and T002 Windows/POSIX coverage.
 - **Current state**: locally wired; hosted proof pending. The full repository test profile includes tests/skills on Linux. Phase 7 now selects ten audit files plus the repaired Unicode validator regression in the Windows job, enables Git long paths before Windows checkouts and includes the existing interpreter gate before merge. The presented proposal and direct failure repair were authorized by the user's instruction to finish Phase 7 and integration; independent review approves the final eleven-file selection.

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import stat
 import sys
 from pathlib import Path
 
@@ -289,7 +290,12 @@ def test_a_post_open_swap_is_detected(tree: Path, monkeypatch) -> None:
                 return self._base.st_ino + 1
             return getattr(self._base, name)
 
-    monkeypatch.setattr(os, "fstat", lambda fd: _Swapped(real_fstat(fd)))
+    def swapped_file_fstat(fd):
+        info = real_fstat(fd)
+        # POSIX also stats directory guards; only the leaf is being swapped.
+        return _Swapped(info) if stat.S_ISREG(info.st_mode) else info
+
+    monkeypatch.setattr(os, "fstat", swapped_file_fstat)
     with pytest.raises(safe.UnsafeArtifactError) as exc:
         safe.open_contained_bytes(tree, target)
     assert exc.value.code == "post_open_swap"
