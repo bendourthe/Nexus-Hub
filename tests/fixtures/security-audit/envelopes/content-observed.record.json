@@ -38,7 +38,7 @@
     ],
     "observed_artifacts": [
       {
-        "digest": "3333333333333333333333333333333333333333333333333333333333333333",
+        "digest": "1c933582ce9ff8c283b5aa09364fe56e7916d0f44811ef93bd5ce9d0ecc66e5d",
         "id": "A-envelope",
         "provenance": "content_observed",
         "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",

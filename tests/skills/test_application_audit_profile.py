@@ -586,6 +586,13 @@ def test_observed_manifests_determine_change_relevance(record: dict, tmp_path: P
     for receipt in profile["graph_receipts"]:
         receipt["target_root_fingerprint"] = profile["target_root_fingerprint"]
         receipt["scope_fingerprint"] = profile["scope_fingerprint"]
+    import _audit_envelope
+
+    for receipt in [*profile["stages"], *record["scanner_receipts"], *record["remediation_receipts"], *record["verifiers"]]:
+        receipt["binding"] = _audit_envelope.binding(profile)
+    for receipt in record["scanner_receipts"]:
+        if receipt["state"] == "RAN":
+            receipt["target_scope"]["fingerprint"] = profile["scope_fingerprint"]
     result = gate.evaluate_review_record(record, observed_manifests=(before, after))
     assert result["computed_health"] == expected_health
     assert bool(result["diffs"]["mutable_target_change_unproven"]) == (expected_health == "failed")

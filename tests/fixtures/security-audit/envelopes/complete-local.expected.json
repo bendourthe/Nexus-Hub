@@ -1,0 +1,77 @@
+{
+  "artifacts": [
+    {
+      "digest": "1c933582ce9ff8c283b5aa09364fe56e7916d0f44811ef93bd5ce9d0ecc66e5d",
+      "id": "sha256:4fadbed509d7746c670f9c5be7804fb92ed291cb69f68049f9e287ca8ea400ef",
+      "provenance": "content_observed",
+      "stage_id": "sha256:5a544a92fef34829f66050d13dc85902b3eefd5d4bf481906e735973ad576cae"
+    }
+  ],
+  "computed_health": "complete",
+  "decoder": "nexus.strict-json/v1",
+  "disposition_counts": {
+    "confirmed": 0,
+    "corrected": 0,
+    "needs-live-validation": 0,
+    "rejected": 0
+  },
+  "evaluation_scope": "deterministic-local",
+  "evaluator": {
+    "id": "closure-gate",
+    "provenance": "content_observed",
+    "state": "complete"
+  },
+  "findings": [],
+  "graph_quality": [],
+  "input_run_fingerprint": "ab51f0501803e4390fbb1869ba3726638306c5e2f822ae340eff7d1e3dc4da82",
+  "provenance": {
+    "execution": "self_attested",
+    "limitations": [
+      "PROCESS_NOT_ATTESTED",
+      "HOST_SETTINGS_SELF_ATTESTED",
+      "RETRIES_NOT_ATTESTED",
+      "ANSWER_ACCESS_NOT_ATTESTED"
+    ]
+  },
+  "reason_codes": [],
+  "receipts": [],
+  "remediation": {
+    "closure_state": "not-requested",
+    "receipt_count": 0,
+    "verifier_count": 0,
+    "verifier_state": "not-requested"
+  },
+  "routing": {
+    "required_stage_ids": [],
+    "surface_receipts": [
+      {
+        "evidence_digest": "2222222222222222222222222222222222222222222222222222222222222222",
+        "result": "matched",
+        "surface_id": "sha256:4980eac1829e2c525ef9e27aac13a0851369c8b48981282dd689761fff9a973f"
+      },
+      {
+        "evidence_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+        "result": "negative_checked",
+        "surface_id": "sha256:c31956a790d0c8ec0a7305b4d5d6146576f2861ce010aa4ee42dde3390a2768c"
+      },
+      {
+        "evidence_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "result": "matched",
+        "surface_id": "sha256:c484357701fb43dbe42783c7f582316ede22afee0acbef0d090d6960910b8988"
+      }
+    ]
+  },
+  "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "run_fingerprint": "ab4b623ca518bf7def9614c777d3906acbf1dd5a915ab591b8ada43560e29013",
+  "run_id": "sha256:aa40a7292ab58fb49d508d294c7db8a0b087db95cc88ac0939c6e0bab6e7dc38",
+  "schema": "nexus.application-audit-envelope/v1",
+  "schema_version": 1,
+  "target": {
+    "change_reason": "UNCHANGED",
+    "content_manifest_after": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "content_manifest_before": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "revision": "0000000000000000000000000000000000000000",
+    "root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  }
+}

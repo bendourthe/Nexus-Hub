@@ -154,10 +154,11 @@ Scoped command/skill update: 3/3 items complete; see [implementation and verific
 
 ## Current work - v4.9.0 application-security audit
 
-**Plan**: [Application-security audit pipeline](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md). Driver: full. Verified phases complete: 3/7; verified tasks: 10/31. Phases 1-2 are committed as `202eff9e` and `7d79b161`; Phase 3 implements approved A1 and closes BG-1 with its scoped commit. Existing guide and handbook work above retains its separate owner.
+**Plan**: [Application-security audit pipeline](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md). Driver: full. Verified phases complete: 4/7; verified tasks: 13/31. Phases 1-2 are committed as `202eff9e` and `7d79b161`; Phase 3 implements approved A1 and closes BG-1 with its scoped commit. Existing guide and handbook work above retains its separate owner.
 
 - [x] Complete and verify Phase 1 contract, input safety, target identity, and compatibility; reconcile the draft's premature completion claims.
 - [x] Complete Phase 2 bounded inventory, pure routing, current review dispatch, and independent correction checks: 395 tests pass, 25 skip, 87.07% coverage.
 - [x] Complete Phase 3 graph seeding and approved A1 repair: 341 tests pass, eight platform skips, 87.72% coverage, all seven extension groups pass, public MCP probe passes.
-- [ ] Implement Phases 4-6 in order with one local commit at each successful boundary.
+- [x] Complete Phase 4 normalized envelopes and health enforcement: 447 tests pass, eight platform skips, 87.93% coverage; both bounded reviewers approve.
+- [ ] Implement Phases 5-6 in order with one local commit at each successful boundary.
 - [ ] Complete Phase 7 local evidence, then request approval for concrete publication inputs.

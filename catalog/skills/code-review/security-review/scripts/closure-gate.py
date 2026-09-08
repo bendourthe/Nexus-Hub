@@ -19,7 +19,9 @@ if str(_HERE) not in sys.path:
     # file by location, which does not put the file's directory on sys.path.
     sys.path.insert(0, str(_HERE))
 
+import _audit_envelope
 import _graph_receipt
+import _safe_artifact
 import _strict_json
 
 EXIT_CLEAN = 0
@@ -74,6 +76,7 @@ APPLICATION_AUDIT_DIFF_NAMES = (
     "mutable_target_change_unproven",
     "approval_receipts_without_trusted_origin",
     "provenance_insufficient_for_claimed_health",
+    "host_receipt_metadata_invalid",
 )
 
 PROFILE_VERSION = 1
@@ -566,12 +569,17 @@ def profile_fingerprint(profile: dict[str, Any]) -> str:
     """Bind the declared identity without trusting a producer's fingerprint."""
     keys = [field for field in REQUIRED_IDENTITY_FIELDS if field != "run_fingerprint"]
     identity = {key: profile.get(key) for key in [*keys, "profile_version", "target_identity"]}
+    if "evaluation_scope" in profile:
+        identity["evaluation_scope"] = profile["evaluation_scope"]
     return hashlib.sha256(json.dumps(identity, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
 
 
 def _evaluate_application_audit(
     profile: dict[str, Any], diffs: dict[str, list[str]],
     observed_manifests: tuple[dict[str, Any], dict[str, Any]] | None = None,
+    observed_artifact_digests: dict[str, str] | None = None,
+    metadata_valid: bool = True,
+    additional_failed: bool = False,
 ) -> str:
     """Populate the profile diffs and return the evaluator-owned health value.
 
@@ -583,7 +591,10 @@ def _evaluate_application_audit(
         diffs[name] = []
 
     identity = _profile_identity(profile)
+    if not metadata_valid:
+        diffs["host_receipt_metadata_invalid"].append("metadata")
     run_id = profile["run_id"].strip()
+    local_only = profile.get("evaluation_scope") == "deterministic-local"
 
     if not _identity_is_complete(identity):
         diffs["application_audit_identity_incomplete"].append(run_id)
@@ -595,10 +606,12 @@ def _evaluate_application_audit(
 
     # --- stages -----------------------------------------------------------
     stages = _index_records(_require_list(profile, "stages"), "stages")
-    if not stages:
+    if not stages and not local_only:
+        diffs["stages_without_terminal_receipt"].append("required_baseline")
+    if not local_only and not any(s.get("required") is True for s in stages.values()):
         diffs["stages_without_terminal_receipt"].append("required_baseline")
     seen_stage_keys: dict[tuple[str, str], str] = {}
-    required_failed = False
+    required_failed = additional_failed
     self_attested_required_run = False
     non_run_applicable = False
 
@@ -636,7 +649,7 @@ def _evaluate_application_audit(
             non_run_applicable = True
         # Every execution assertion arriving in a record is self-attested.
         # Producer-written content_observed never certifies process execution.
-        if state == "RAN" and required:
+        if required:
             self_attested_required_run = True
         if state != "RAN" and not _is_text(stage.get("reason_code")):
             # A terminal state says what happened; the reason code says why, and
@@ -695,7 +708,7 @@ def _evaluate_application_audit(
     graph_quality_degraded = False
     graph_results = {}
     graph = _index_records(_require_list(profile, "graph_receipts"), "graph_receipts")
-    if not graph:
+    if not graph and not local_only:
         diffs["graph_receipts_without_qualified_identity"].append("missing_graph_receipt")
     for entry in graph.values():
         receipt = _require_object(entry, "graph_receipts entry")
@@ -749,12 +762,13 @@ def _evaluate_application_audit(
         if artifact.get("run_fingerprint") != profile["run_fingerprint"]:
             diffs["artifacts_without_bound_digest"].append(artifact_id)
         stage_id = artifact.get("stage_id")
-        if not isinstance(stage_id, str) or stage_id not in stages:
+        if not isinstance(stage_id, str) or (stage_id not in stages and not (local_only and stage_id == "closure-gate/evaluate")):
             diffs["artifacts_without_bound_digest"].append(artifact_id)
         if not isinstance(artifact.get("provenance"), str) or artifact["provenance"] not in PROVENANCE_ASSURANCES:
             diffs["artifacts_without_bound_digest"].append(artifact_id)
         # The record alone supplies no evaluator-owned content observation.
-        artifacts_all_observed = False
+        if (observed_artifact_digests or {}).get(artifact_id) != artifact.get("digest"):
+            artifacts_all_observed = False
 
     # --- mutable target ---------------------------------------------------
     out_of_scope_change = False
@@ -809,7 +823,7 @@ def _evaluate_application_audit(
                 diffs["approval_receipts_without_trusted_origin"].append(run_id)
 
     # --- health -----------------------------------------------------------
-    if required_failed or boundary_contradiction or any(diffs[name] for name in APPLICATION_AUDIT_DIFF_NAMES):
+    if required_failed or boundary_contradiction or any(diffs.values()):
         health = "failed"
     else:
         degraded = (
@@ -818,7 +832,7 @@ def _evaluate_application_audit(
             or graph_quality_degraded
             or not artifacts_all_observed
             or out_of_scope_change
-            or not authorized
+            or (not authorized and not local_only)
             or bool(diffs["application_audit_identity_incomplete"])
             or any(diffs[name] for name in APPLICATION_AUDIT_DIFF_NAMES)
         )
@@ -897,11 +911,12 @@ def _outside_change_proven(
 def evaluate_review_record(
     raw_record: object, *,
     observed_manifests: tuple[dict[str, Any], dict[str, Any]] | None = None,
+    observed_artifact_digests: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """Evaluate records without publishing input-controlled profile identifiers."""
     is_profile = isinstance(raw_record, dict) and "application_audit" in raw_record
     try:
-        result = _evaluate_review_record(raw_record, observed_manifests=observed_manifests)
+        result = _evaluate_review_record(raw_record, observed_manifests=observed_manifests, observed_artifact_digests=observed_artifact_digests)
     except (RecordError, TypeError, KeyError, ValueError) as exc:
         if is_profile:
             raise RecordError("application_audit_malformed") from exc
@@ -916,6 +931,7 @@ def evaluate_review_record(
 def _evaluate_review_record(
     raw_record: object, *,
     observed_manifests: tuple[dict[str, Any], dict[str, Any]] | None = None,
+    observed_artifact_digests: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """Return the deterministic closure diff for a validated review record."""
     record = _require_object(raw_record, "review record")
@@ -974,8 +990,23 @@ def _evaluate_review_record(
         if schema_version != SCHEMA_VERSION_V2:
             raise RecordError("application_audit requires schema_version 2")
         try:
+            profile = _require_object(profile, "application_audit")
+            if profile.get("evaluation_scope") == "deterministic-local":
+                if any(record[k] for k in ("components", "review_actions", "findings", "facts", "report_claims", "scanner_inventory", "scanner_receipts", "remediation_receipts", "verifiers")) or profile["stages"] or profile["graph_receipts"]:
+                    raise RecordError("deterministic_local_cannot_claim_host_work")
+                boundary = profile["execution_boundary"]
+                if boundary["outbound_destinations"] or boundary["transmitted_data_classes"] or boundary["credential_source"] != "none" or boundary["credential_privilege"] != "none":
+                    raise RecordError("deterministic_local_cannot_claim_host_work")
+            elif profile.get("evaluation_scope", "host-audit") != "host-audit":
+                raise RecordError("unsupported_evaluation_scope")
+            try:
+                _audit_envelope.validate_metadata(record)
+                metadata_valid = True
+            except (ValueError, TypeError, KeyError):
+                metadata_valid = False
+            additional_failed = any(r.get("state") == "FAILED" for k in ("scanner_receipts", "remediation_receipts", "verifiers") for r in record[k])
             computed_health = _evaluate_application_audit(
-                _require_object(profile, "application_audit"), diffs, observed_manifests
+                _require_object(profile, "application_audit"), diffs, observed_manifests, observed_artifact_digests, metadata_valid, additional_failed
             )
         except (RecordError, TypeError, KeyError, ValueError) as exc:
             raise RecordError("application_audit_malformed") from exc
@@ -1018,22 +1049,72 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "record", type=Path, help="path to the local review-record JSON"
     )
+    parser.add_argument("--summary", action="store_true", help="emit the normalized application-audit envelope")
+    parser.add_argument("--artifact-root", type=Path)
+    parser.add_argument("--observe-artifact", action="append", default=[], metavar="RECEIPT_ID=PATH")
     return parser
+
+
+def observe_artifacts(record: dict, root: Path | None, selections: list[str]) -> dict[str, str]:
+    """Hash only explicit caller selections through the shared contained reader."""
+    if selections and root is None:
+        raise RecordError("artifact_root_required")
+    declared = _audit_envelope.index(record["application_audit"]["observed_artifacts"])
+    observed = {}
+    if root is not None:
+        root = root.absolute()
+    for selection in selections:
+        receipt_id, separator, path = selection.partition("=")
+        if not separator or not path or receipt_id not in declared or receipt_id in observed:
+            raise RecordError("artifact_selection_invalid")
+        target = Path(path)
+        if not target.is_absolute():
+            target = root / target
+        value, _ = _safe_artifact.digest_contained_file(root, target)
+        if value != declared[receipt_id]["digest"]:
+            raise RecordError("artifact_digest_mismatch")
+        observed[receipt_id] = value
+    return observed
+
+
+def summarize_review_record(record: dict, *, observed_artifact_digests: dict[str, str] | None = None, observed_manifests: tuple[dict, dict] | None = None, secrets: list[str] | None = None) -> dict:
+    """Validate all bindings before producing a single, indivisible envelope."""
+    record = _require_object(record, "review record")
+    if record.get("schema_version") != 2 or "application_audit" not in record:
+        raise RecordError("application_audit_summary_required")
+    observed = observed_artifact_digests or {}
+    profile = record["application_audit"]
+    _audit_envelope.validate_metadata(record)
+    declared = _audit_envelope.index(profile["observed_artifacts"])
+    if any(key not in declared or declared[key]["digest"] != value for key, value in observed.items()):
+        raise RecordError("artifact_digest_mismatch")
+    evaluation = evaluate_review_record(record, observed_manifests=observed_manifests, observed_artifact_digests=observed)
+    fatal = ("application_audit_identity_incomplete", "contradictory_or_duplicate_receipts", "mutable_target_change_unproven", "artifacts_without_bound_digest", "approval_receipts_without_trusted_origin")
+    if any(evaluation["diffs"].get(key) for key in fatal):
+        raise RecordError("audit_binding_or_target_invalid")
+    return _audit_envelope.normalize(record, evaluation, observed, secrets)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
-        result = evaluate_review_record(_load_record(args.record))
-    except RecordError as exc:
+        if not args.summary and (args.artifact_root is not None or args.observe_artifact):
+            raise RecordError("artifact_options_require_summary")
+        record = _require_object(_load_record(args.record), "review record")
+        if args.summary:
+            observed = observe_artifacts(record, args.artifact_root, args.observe_artifact)
+            result = summarize_review_record(record, observed_artifact_digests=observed)
+        else:
+            result = evaluate_review_record(record)
+    except (RecordError, _audit_envelope.EnvelopeError, _safe_artifact.UnsafeArtifactError, ValueError, TypeError, KeyError, OSError) as exc:
         print(
-            json.dumps({"status": "usage-error", "error": str(exc)}, sort_keys=True),
+            json.dumps({"status": "usage-error", "error": "audit_summary_invalid" if args.summary else str(exc)}, sort_keys=True),
             file=sys.stderr,
         )
         return EXIT_USAGE_ERROR
 
     print(json.dumps(result, indent=2, sort_keys=True))
-    if result["failure_count"]:
+    if result.get("failure_count") or result.get("computed_health") == "failed":
         return EXIT_CLOSURE_FAILURE
     return EXIT_CLEAN
 

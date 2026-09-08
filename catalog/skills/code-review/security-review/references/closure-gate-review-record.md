@@ -252,6 +252,7 @@ These diff names are present only when `application_audit` is present.
 - `mutable_target_change_unproven`
 - `approval_receipts_without_trusted_origin`
 - `provenance_insufficient_for_claimed_health`
+- `host_receipt_metadata_invalid`
 
 ### Out of scope for this profile
 
@@ -274,3 +275,23 @@ The target manifest rejects recognizable embedded credential values, token forma
 ### Application-audit graph receipts
 
 The metadata-only graph shape is validated by [`_graph_receipt.py`](../scripts/_graph_receipt.py); the [seeding procedure](code-search-seeding.md) owns its public API and fallback rules. Each requested operation binds the run, target revision/root, content-bound run fingerprint, scope and routing identities, parameters, result and optional observed index digests. Keep qualified symbol IDs, canonical relative regions, duration, terminal reason, ambiguity/truncation, and fallback only. A RAN receipt proves a returned output, not graph freshness; current public responses project to unknown quality unless partial or ambiguous. FAILED or conflicting results fail closure; unavailable, partial, ambiguous, unknown, and direct-corpus fallback remain visibly degraded. No source-derived scalar or nested arbitrary property is permitted in a graph receipt.
+
+### Normalized summary contract
+
+`closure-gate.py RECORD --summary` emits one `nexus.application-audit-envelope/v1` object. `_audit_envelope.py` owns its pure projection; closure owns health. SARIF and benchmark consumers must accept this envelope rather than reinterpret raw schema-v2 records. Output uses sorted keys, stable receipt/finding ordering, and a final newline. Exit 0 means valid closure (possibly degraded), exit 1 means failed closure, and exit 2 means invalid input with no envelope. Binding conflicts, another-run artifacts, affected changes, and relevance-unknown changes never emit partial output.
+
+Host, scanner, remediation and verifier receipts carry `binding` with the profile's run, target revision/root, scope, routing, and target-manifest digests. They also carry `tool_version`, `config_digest`, UTC `started_at` and `finished_at`, integral `duration_ms`, `artifact_ids`, and `reason_code`. Host, remediation and verifier receipts additionally carry `tool_identity` and `execution_context` with host/model identities, settings digest, and boundary status. Scanner RAN metadata must agree with its detector version, configuration fingerprint and target-scope fingerprint. `required_stage_identities` names exactly the required host stages. Graph receipts retain their qualified public-query contract above. Duplicate IDs across collections are invalid.
+
+To observe artifact bytes, supply the physical root and each path explicitly:
+
+```bash
+python scripts/closure-gate.py review-record.json --summary --artifact-root artifacts --observe-artifact A-envelope=report.json
+```
+
+The receipt ID must exist and its declared digest must equal the contained file's recomputed digest. Repeated IDs, links, escaped paths and substituted bytes are rejected. A path or command stored inside the record is inert. No scanner, host, model, retry, upload or record-directed read occurs. Only the observed artifact becomes `content_observed`; every host execution assertion stays `self_attested`.
+
+`input_run_fingerprint` preserves the declared profile identity. The envelope's separate `run_fingerprint` hashes its entire canonical JSON object before that final field is added, including normalized receipts, each raw receipt's opaque source digest, routing evidence, artifact observations, findings and computed health. It is a deterministic integrity binding, not a signature or process attestation.
+
+Findings require a canonical vulnerability kind (or a namespaced custom rule), severity, boolean `release_blocking`, finite confidence from 0 to 1, one existing disposition, nonempty bound evidence IDs, and either a canonical relative region or `{"locationless": true}`. High and critical findings cannot disable release blocking. Benchmark-scored records require Python or TypeScript language. Titles use fixed rule labels, custom rule IDs are namespaced opaque hashes, and arbitrary producer properties are omitted. Source-to-sink endpoints contain opaque qualified symbols and IDs from the actual RAN graph/scanner collections that observed them; host stages and verifiers cannot impersonate those collections. Corrected findings require equivalent before/after RAN receipts showing removal and a distinct read-only RAN verifier.
+
+Only `evaluation_scope: deterministic-local` can reach complete health without host execution: all host/scanner/remediation/verifier work and findings must be empty, every explicit local artifact must be observed, and ordinary identity, surface and mutation checks still apply. Its local artifact stage is `closure-gate/evaluate`. This narrow scope describes artifact evaluation, not a completed application audit. Host audits always retain their execution-assurance limitations and explicit degradation reasons.

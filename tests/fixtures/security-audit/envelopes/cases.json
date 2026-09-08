@@ -1,0 +1,52 @@
+[
+  {
+    "name": "complete-local",
+    "exit_code": 0,
+    "observe": true
+  },
+  {
+    "name": "degraded",
+    "exit_code": 0,
+    "observe": false
+  },
+  {
+    "name": "failed",
+    "exit_code": 1,
+    "observe": false
+  },
+  {
+    "name": "self-attested",
+    "exit_code": 0,
+    "observe": false
+  },
+  {
+    "name": "content-observed",
+    "exit_code": 0,
+    "observe": true
+  },
+  {
+    "name": "mutable-target",
+    "exit_code": 2,
+    "observe": false
+  },
+  {
+    "name": "substituted",
+    "exit_code": 2,
+    "observe": false
+  },
+  {
+    "name": "conflicting",
+    "exit_code": 2,
+    "observe": false
+  },
+  {
+    "name": "declined",
+    "exit_code": 0,
+    "observe": false
+  },
+  {
+    "name": "timed-out",
+    "exit_code": 0,
+    "observe": false
+  }
+]

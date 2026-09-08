@@ -42,7 +42,7 @@
         "id": "A-envelope",
         "provenance": "content_observed",
         "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
-        "run_id": "run-2026-09-08-appsec-0001",
+        "run_id": "another-run",
         "stage_id": "S-scope"
       }
     ],
