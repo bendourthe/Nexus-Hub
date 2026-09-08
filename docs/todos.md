@@ -25,7 +25,7 @@ Refreshing this file to the active plan (rather than appending another version's
 | v4.4.2 local phase commits | 8 | 8 | 0 |
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
-| Catalog skills | 329 | 329 | 0 |
+| Catalog skills | 336 | 336 | 0 |
 | Canonical guide bytes (strict ceiling 500,000) | 497,896 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
@@ -154,7 +154,7 @@ Scoped command/skill update: 3/3 items complete; see [implementation and verific
 
 ## Current work - v4.9.0 application-security audit
 
-**Plan**: [Application-security audit pipeline](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md). Driver: full. Verified phases complete: 6/7; verified tasks: 21/31. Phases 1-5 are locally committed; Phase 6 has fresh verification and its scoped commit boundary. Existing guide and handbook work above retains its separate owner.
+**Plan**: [Application-security audit pipeline](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md). Driver: full. Verified phases complete: 6/7; verified tasks: 30/31. All local Phase 7 duties pass in [final-phase evidence](releases/v4/v4.9/development/last-phase-evidence.md), including cycle-2 Windows long-path correction, approved CI wiring and explicit manual-test limits. T031 remains open until exact-SHA hosted checks and integration are verified in the external handoff. Existing guide and handbook work above retains its separate owner.
 
 - [x] Complete and verify Phase 1 contract, input safety, target identity, and compatibility; reconcile the draft's premature completion claims.
 - [x] Complete Phase 2 bounded inventory, pure routing, current review dispatch, and independent correction checks: 395 tests pass, 25 skip, 87.07% coverage.

@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: open; seeded 2026-09-08 from post-v4.8.0 work. The v4.8 ledger is finalized, so findings after that release land here rather than reopening it.
-**Last updated**: 2026-09-08 (v4.9.0 Phase 1)
+**Last updated**: 2026-09-08 (v4.9.0 Phase 7 qualification in progress)
 
 ## Open Items - found 2026-09-08 during post-v4.8.0 follow-up
 
@@ -49,7 +49,7 @@ Phase 1 local verification passed: 230 tests, 8 platform-dependent skips, 87.30 
 | NI | 0 | 0 |
 | DF | 0 | 4 |
 | BG | 0 | 1 |
-| WN | 0 | 0 |
+| WN | 1 | 0 |
 | MT | 1 | 0 |
 | QG | 1 | 0 |
 
@@ -63,19 +63,36 @@ Phase 5 adds no deferred implementation gap. Its final gate passes 105 tests wit
 
 Phase 6 adds no deferred deterministic gap. The fresh benchmark suite passes 78 tests with 98.63% coverage and the integration/contract group passes 119 tests. Both declared host attempts are informationally unavailable because no code-search tools are registered; retained outcomes and limitations appear in [the benchmark report](development/security-audit-benchmark.md). The additional POSIX descriptor-swap test extends MT-2; the full scope now has nine platform-specific skips on this Windows workstation, including seven in the safe-artifact file alone. QG-1 still requires terminal pipeline approval and remote proof.
 
+Phase 7 cycle 1 resolved two non-deferrable graph-evidence findings instead of deferring them: absent query seeds and contradictory zero-match/location receipts now reject at their actual boundaries. Independent retest passes 131 cases and final implementation convergence reports zero feature gaps. The current candidate is `bd37a8b8e91ba5c28001d068445a6b3e65a97fada223e5c7b1441ab6bdb3506c`; both newly retained attempts remain informationally unavailable. [Final-phase evidence](development/last-phase-evidence.md) preserves all 37 reachable ledger dispositions, the current v4.5 prerequisite and actual Windows installation. Cycle 2 repaired the full-profile Unicode long-path failure, selected working Git Bash for local validation, and applied the presented CI changes under the user's instruction to finish Phase 7 and integration. All three initially failing profile groups pass their current-tree rerun; no failure is waived. Required hosted checks still precede integration.
+
+#### WN-1 - Private independent verification-harness cleanup was policy-blocked
+
+- **Source phase**: Phase 7, T027 independent adversarial verification.
+- **Plan reference**: Tier 3 ancillary local harness cleanup; this is separate from benchmark projection and retained-attempt cleanup.
+- **Severity and bounded impact**: P3. A private synthetic test-workspace residue remains ignored locally after standard-library cleanup hit a Windows long path. It contains repository fixture/runtime copies and synthetic records only; no real target or credentials were ingested. Declared benchmark roots and the real MCP probe's disposable copy completed their own cleanup.
+- **Reason**: automatic approval review rejected the explicitly checked cleanup action with `blocked by policy`. No alternate deletion or retry was attempted. The residue is excluded from staging, distributed payloads and promoted evidence.
+- **Owner and target**: local workspace maintainer; next authorized maintenance session, independent of the v4.9 artifact. This is not an application runtime or release-gate deferral.
+- **Suggested next step**: inspect and remove the retained private harness directory manually under the workstation's policy, then record observable absence. Do not erase candidate evidence or answer archives as part of that cleanup.
+
 #### MT-2 - Platform-specific filesystem cases need their matching host
 
 - **Source phase**: Phase 1, T003.
 - **Plan reference**: T002 Windows/POSIX containment and path-identity verification.
-- **Reason**: eight tests skip on this Windows workstation: six symlink-creation cases require a capability unavailable here, one case-collision fixture collapses on the host filesystem, and one POSIX mode-bit test is inapplicable. Native Windows junction, directory-lock, hard-link, ownership, and cleanup cases execute locally. No POSIX execution is claimed from Windows results.
+- **Reason**: nine tests skip on this Windows workstation: six symlink-creation cases require a capability unavailable here, one case-collision fixture collapses on the host filesystem, and the POSIX mode-bit and descriptor-swap cases are inapplicable. Native Windows junction, directory-lock, hard-link, ownership, and cleanup cases execute locally. No POSIX execution is claimed from Windows results.
 - **Suggested next step**: execute the matching platform cases during Phase 7 qualification and verify their first permitted remote CI run; retain explicit skip accounting.
 
 #### QG-1 - The Windows CI job does not yet select the new filesystem tests
 
 - **Source phase**: Phase 1, T003 CI impact record.
 - **Plan reference**: Phase 7 terminal pipeline reconciliation and T002 Windows/POSIX coverage.
-- **Reason**: the full repository test profile includes tests/skills on Linux; the existing Windows job selects windows-hooks and specific delivery integration files, omitting these new Windows API tests. Local Windows tests pass, but this does not prove remote Windows coverage. No gate bypass or pipeline change has been approved or performed.
-- **Suggested next step**: at Phase 7, propose the smallest Windows test-selection change with its cost and obtain the required pipeline approval before applying it.
+- **Current state**: locally wired; hosted proof pending. The full repository test profile includes tests/skills on Linux. Phase 7 now selects ten audit files plus the repaired Unicode validator regression in the Windows job, enables Git long paths before Windows checkouts and includes the existing interpreter gate before merge. The presented proposal and direct failure repair were authorized by the user's instruction to finish Phase 7 and integration; independent review approves the final eleven-file selection.
+- **Suggested next step**: retain the first PR's exact Windows/installer success results and close this item in the SHA-bound integration handoff. Local results alone do not establish hosted coverage; no gate bypass is permitted.
+
+### Independent maintenance handoffs
+
+The repository-wide [platform review](development/qualification/v4.9-platform-verification.md) confirms two pre-existing discrepancies outside this audit's native skill-delivery path: Copilot's bypass-permission seed type and Antigravity's compatibility workflow directory. The existing platform-default and platform-read-contract owners retain them for a separately scoped maintenance/release handoff. This plan changes neither those settings nor installer destinations and does not claim those surfaces were live-tested. The complete CI comparison likewise retains the existing v4.3 profile/cache/reporting owners. These findings are not silently closed or counted as audit feature gaps.
+
+The advisory model-prompting check used the native Codex CLI's current enumeration and reports roster drift relative to its stored September 5 roster. That CLI omitted recorded `gpt-6-astra`; this does not assert global model availability. Existing model-prompting maintenance owns a future source-backed refresh. No profile, freshness marker or shared prompting rule was changed.
 
 ### Resolved
 

@@ -48,6 +48,30 @@ def test_absence_and_ambiguity_never_prove_freshness(record,count,quality):
     assert receipt["quality"] == quality
 
 
+@pytest.mark.parametrize("seed", ["", None, "   "])
+def test_absent_query_identity_is_not_qualified(record, seed):
+    with pytest.raises(ValueError, match="GRAPH_RECEIPT_INVALID"):
+        graph.project(
+            {"matches": 1, "results": [{"node": node()}]},
+            operation="code_context", qualified_symbol=seed,
+            parameters={"symbol": seed}, identity=record["application_audit"],
+            receipt_id="G-empty", duration_ms=1,
+        )
+
+
+def test_zero_match_projection_cannot_preserve_a_location(record):
+    with pytest.raises(ValueError, match="GRAPH_RECEIPT_INVALID"):
+        project({"matches": 0, "results": [{"node": node()}]}, record["application_audit"])
+
+
+def test_zero_match_receipt_is_rejected_at_closure(record):
+    receipt = project({"matches": 1, "results": [{"node": node()}]}, record["application_audit"])
+    record["application_audit"]["graph_receipts"] = [receipt]
+    assert receipt["locations"]
+    receipt.update(result_count=0, reason_code="GRAPH_NO_RESULT", quality="unknown")
+    assert gate.evaluate_review_record(record)["computed_health"] == "failed"
+
+
 def test_bounded_projection_marks_partial(record):
     receipt = project({"matches": [node("m.a"),node("m.b"),node("m.c")]},record["application_audit"],limit=1)
     assert receipt["truncated"] and receipt["quality"] == "partial" and len(receipt["locations"]) == 1
