@@ -22,6 +22,7 @@ catalog/skills/workflow/agent-presets/scripts/resolve-security-audit-routing.py 
 extensions/nexus-code-search/src/** text eol=lf
 extensions/nexus-code-search/pyproject.toml text eol=lf
 tests/fixtures/security-audit-appsec/** text eol=lf
+tests/fixtures/security-audit/** text eol=lf
 docs/releases/v4/v4.9/development/repro/record-benchmark-unavailability.py text eol=lf
 docs/releases/v4/v4.9/development/security-audit-benchmark/** text eol=lf
 docs/releases/v4/v4.9/development/security-audit-benchmark-reports/** text eol=lf
