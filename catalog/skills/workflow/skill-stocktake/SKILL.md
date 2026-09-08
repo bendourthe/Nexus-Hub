@@ -56,11 +56,32 @@ The cache is project-scoped and local. Nothing leaves the machine.
       "checklist_score": 7,
       "checklist_max": 8,
       "warnings": ["quality: missing '## Common Rationalizations' section"],
-      "holistic": "Verification is binary and observable; rationalizations are concrete. Body slightly thin on the evolve step."
+      "holistic": "Verification is binary and observable; rationalizations are concrete. Body slightly thin on the evolve step.",
+      "obviated_by_model": ""
     }
   }
 }
 ```
+
+### The `obviated_by_model` column
+
+A skill that exists to induce a behavior the current frontier model now does by default is carrying maintenance cost for nothing. This column surfaces that candidate; it never acts on it.
+
+A row is populated ONLY when the most recent [[model-prompting-research]] record states that the behavior the skill exists to induce is now the documented default of the current frontier model. The populated value is that record's date plus the quoted vendor sentence, so the claim can be checked rather than taken on trust. Three permitted values:
+
+| Value | Means |
+|---|---|
+| `obviated` | The refresh record and the skill's own body agree that the behavior is now default. |
+| `review` | The sources DISAGREE: the refresh record says default, the skill's body says otherwise (or vice versa). |
+| `""` (empty) | No evidence either way. This is the normal value for almost every skill. |
+
+Three rules keep the column honest:
+
+- **When no model-behavior refresh record exists, the column is emitted EMPTY with a note saying so.** It is never omitted, because an absent column reads as "checked and nothing found" when the truth is "not checked".
+- **Disagreement is `review`, never `obviated`.** A skill flagged from one side of a contradiction would be retired on half the evidence.
+- **Two skills flagged for the same behavior are listed SEPARATELY.** The flag never merges them and never deletes either one; which of two overlapping skills should survive is a curation judgment, not a diff.
+
+Cross-link [[model-prompting-research]], whose refresh step emits the record this column reads. A fixture producing one populated row lives at [`assets/obviated-fixture.json`](assets/obviated-fixture.json), so the behavior is testable without waiting for a real model refresh.
 
 ## Instructions
 
@@ -167,6 +188,7 @@ Both the grade and the diff are advisory by default: they print and exit 0 regar
 | "Directive density would be more objective as an imperative-verb ratio" | A ratio is tunable, and prose optimized toward it gets worse: the first casualty is the "Reality" column of the Common Rationalizations table, which is explanatory by design and is the most valuable prose in the schema. Step 4b asks a binary per-section question precisely so there is no number to game. |
 | "This section is mostly explanation, so it should be cut to raise directive density" | Explanation that names a concrete failure mode is what makes an instruction followable; AGENTS.md requires it. The target state is one sentence of why paired with an observable instruction, not instructions with the why stripped out. Cutting rationale to raise a signal that was never a gate is the failure mode 4b's non-goals exist to prevent. |
 | "The safest confusability audit compares every skill with every other skill" | A global all-pairs pass makes routine stocktakes unusable as the catalog grows. The noun index narrows comparisons to changed or low-scoring same-category candidates, while the named cross-category watchlist preserves known vernacular collisions. |
+| "An `obviated_by_model` row means the skill can be removed" | The flag PROPOSES retirement for maintainer approval and never deletes, exactly as the checklist score does not authorize deletion. AGENTS.md is explicit: "Never do: Delete existing skills without maintainer approval". A vendor documenting a behavior as default is also not proof it holds on every platform the catalog installs into, at every effort level, or for the specific phrasing the skill induces; the row is a prompt to go and check, not a verdict. |
 | "Confusable skills should be merged or deleted" | Overlap is evidence for a clearer ownership fence, not deletion authority. The report proposes a description or `SKIP` repair; only a maintainer can approve a skill removal. |
 
 ## Verification

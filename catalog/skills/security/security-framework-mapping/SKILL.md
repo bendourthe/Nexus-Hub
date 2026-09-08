@@ -2,7 +2,7 @@
 name: security-framework-mapping
 description: Map a security skill, finding, detection, or control to identifiers across MITRE ATT&CK, ATLAS, D3FEND, F3 (Fight Fraud Framework), NIST CSF, and NIST AI RMF, then tag optional frontmatter so a coverage matrix can be generated. Use whenever the user asks "what ATT&CK technique is this", "tag this skill with the framework", "which NIST control covers X", "map this finding to ATT&CK / D3FEND / ATLAS / F3", "build a framework coverage matrix", "what AI RMF measure applies here", "Fight Fraud Framework", "cyber-enabled financial fraud TTPs", or wants to align a security artifact with a published taxonomy even if the framework name is implied. SKIP, do NOT use for, end-to-end threat modeling (use architecture-design), running a security audit (use run-security-audit), or regulation-specific compliance evidence (use gdpr-compliance, soc2-compliance, iso27001-compliance).
 summary_l0: "Map security artifacts across ATT&CK, ATLAS, D3FEND, F3, CSF, and AI RMF"
-overview_l1: "Cross-maps a security artifact to identifiers from six public taxonomies: MITRE ATT&CK, ATLAS, D3FEND, F3 (Fight Fraud Framework v1.1, 2026-04-09, cyber-enabled financial fraud TTPs after initial compromise), NIST CSF, and NIST AI RMF. Covers which framework fits, how to find the identifier, how to record it in optional frontmatter (mitre_attack, atlas_techniques, d3fend_techniques, mitre_f3, nist_csf, nist_ai_rmf) plus references/standards.md, and how those tags feed the coverage-matrix generator. Trigger phrases: ATT&CK technique, D3FEND countermeasure, NIST CSF mapping, AI RMF measure, ATLAS technique, Fight Fraud Framework, F3, framework coverage matrix."
+overview_l1: "Cross-maps a security artifact to identifiers from seven public taxonomies: MITRE ATT&CK, ATLAS, D3FEND, F3 (Fight Fraud Framework v1.1, 2026-04-09, cyber-enabled financial fraud TTPs after initial compromise), NIST CSF, NIST AI RMF, and the OWASP Top 10 for Agentic Applications (2026, identifiers ASI01 to ASI10). Covers which framework fits, how to find the identifier, how to record it in optional frontmatter (mitre_attack, atlas_techniques, d3fend_techniques, mitre_f3, nist_csf, nist_ai_rmf, owasp_agentic) plus references/standards.md, and how those tags feed the coverage-matrix generator. Trigger phrases: ATT&CK technique, D3FEND countermeasure, NIST CSF mapping, AI RMF measure, ATLAS technique, Fight Fraud Framework, F3, framework coverage matrix, OWASP Agentic Top 10, ASI01, agent goal hijack, rogue agents, agentic risk mapping."
 mitre_attack: [T1003.001, T1071]
 atlas_techniques: [AML.T0047]
 d3fend_techniques: [D3-NTA]
@@ -12,7 +12,7 @@ nist_ai_rmf: [MEASURE-2.6]
 
 # Security Framework Mapping
 
-Cross-map a security artifact to its identifiers across six public taxonomies so downstream consumers (auditors, coverage matrices, traceability tools) can locate the artifact by control ID instead of by free-text search.
+Cross-map a security artifact to its identifiers across seven public taxonomies so downstream consumers (auditors, coverage matrices, traceability tools) can locate the artifact by control ID instead of by free-text search.
 
 The frameworks this skill covers are all public domain or freely re-distributable from their authoring institutions (MITRE, NIST). This skill never copies framework text into the artifact -- it cites the framework's canonical identifier and links to the public source.
 
@@ -32,7 +32,7 @@ Use when:
 - Generating evidence for a specific regulation (GDPR, SOC 2, ISO 27001) -- those have dedicated skills: [[gdpr-compliance]], [[soc2-compliance]], [[iso27001-compliance]].
 - Picking between security skills for a task -- that is skill routing, not mapping.
 
-## The Six Frameworks
+## The Seven Frameworks
 
 | Framework | Scope | When it fits | Public source |
 |---|---|---|---|
@@ -42,8 +42,9 @@ Use when:
 | MITRE D3FEND | Defensive countermeasures, organized as a knowledge graph of "Detect / Isolate / Deceive / Evict / Restore / Harden / Model" actions. | The artifact concerns what defenders do (detection logic, hardening, response). | https://d3fend.mitre.org/ |
 | NIST CSF | Five high-level functions (ID / PR / DE / RS / RC) decomposed into categories and subcategories. | The artifact is a control or capability framed in defender language, especially in a US-federal-regulated context. | https://www.nist.gov/cyberframework |
 | NIST AI RMF | AI-specific Govern / Map / Measure / Manage functions and subcategories. | The artifact concerns an AI system's risk posture or governance. | https://www.nist.gov/itl/ai-risk-management-framework |
+| OWASP Agentic Top 10 | The ten most critical security risks specific to autonomous and agentic AI systems (OWASP Top 10 for Agentic Applications 2026). Identifiers are `ASI01` to `ASI10`; the field validates membership of that closed set, unlike the six above. | The artifact teaches an agent-runtime control: prompt-injection resistance, tool and permission scoping, memory provenance, inter-agent trust, cascading-failure containment, or human-gate design. | https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/ |
 
-ATT&CK and D3FEND are paired: every defensive countermeasure in D3FEND maps to one or more ATT&CK techniques it counters. ATLAS is ATT&CK's sister catalog for ML systems. F3 is ATT&CK's sister catalog for cyber-enabled fraud. AI RMF is the governance lens NIST CSF lacks for AI-specific risk.
+ATT&CK and D3FEND are paired: every defensive countermeasure in D3FEND maps to one or more ATT&CK techniques it counters. ATLAS is ATT&CK's sister catalog for ML systems. F3 is ATT&CK's sister catalog for cyber-enabled fraud. AI RMF is the governance lens NIST CSF lacks for AI-specific risk. The OWASP Agentic Top 10 is the only one of the seven written about agents as actors rather than about systems being attacked, which is why an agent goal hijack or a rogue agent has no natural home in the other six.
 
 ## Instructions
 
@@ -109,6 +110,7 @@ Skill: `analyzing-network-traffic-of-malware`
 | `d3fend_techniques` | `[D3-NTA]` | The defender activity the skill teaches is D3FEND "Network Traffic Analysis". |
 | `nist_csf` | `[DE.CM]` | The skill enables continuous monitoring for malicious activity -- NIST CSF "Detect / Continuous Monitoring" category. |
 | `nist_ai_rmf` | `[MEASURE-2.6]` | If the analysis is part of an AI system's safety evaluation, AI RMF measure 2.6 (regular safety evaluation) applies. |
+| `owasp_agentic` | (none) | Left EMPTY deliberately: this skill analyzes malware traffic, not an agent runtime, so no ASI identifier applies. A tag whose control the body does not teach is a mistranscription presented as coverage. |
 
 The `references/standards.md` companion would list each ID, the framework's own short title for it, the rationale ("this skill teaches X, which the framework defines as Y"), and a deep link.
 

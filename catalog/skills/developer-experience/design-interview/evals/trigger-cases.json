@@ -1,13 +1,16 @@
 {
   "skill": "design-interview",
-  "purpose": "Route grilling and domain-glossary work here, not idea-refine, spec audit, or requirement quality.",
+  "purpose": "Route grilling and domain-glossary work here, not idea-refine, spec audit, requirement quality, or autonomous plan critique.",
   "cases": [
     {"id": "pos-grill", "prompt": "grill me about this design until every branch is specified", "should_trigger": true, "assert": "routes to design-interview first", "lexical": true},
+    {"id": "pos-grill-plan", "prompt": "grill this plan and challenge my assumptions", "should_trigger": true, "assert": "routes to design-interview first", "lexical": true},
+    {"id": "pos-stress-test", "prompt": "stress-test my thinking on this approach", "should_trigger": true, "assert": "routes to design-interview first", "lexical": true},
     {"id": "pos-interview-design", "prompt": "interview me about this design", "should_trigger": true, "assert": "routes to design-interview first", "lexical": true},
     {"id": "pos-until-specified", "prompt": "ask me questions until this is fully specified", "should_trigger": true, "assert": "routes to design-interview first", "lexical": true},
     {"id": "pos-glossary", "prompt": "build a domain glossary and shared language in CONTEXT.md", "should_trigger": true, "assert": "routes to design-interview first", "lexical": true},
     {"id": "neg-idea-refine", "prompt": "refine this vague idea into a concrete problem statement", "should_trigger": false, "assert": "routes to idea-refine, not design-interview", "lexical": true},
     {"id": "neg-ambiguity", "prompt": "review this written spec for ambiguous and contradictory requirements", "should_trigger": false, "assert": "routes to ambiguity-detector, not design-interview", "lexical": true},
-    {"id": "neg-requirements", "prompt": "enhance these requirements with testable acceptance criteria", "should_trigger": false, "assert": "routes to requirement-enhancer, not design-interview", "lexical": true}
+    {"id": "neg-requirements", "prompt": "enhance these requirements with testable acceptance criteria", "should_trigger": false, "assert": "routes to requirement-enhancer, not design-interview", "lexical": true},
+    {"id": "neg-plan-review", "prompt": "run a multi-persona review of this plan without asking me anything", "should_trigger": false, "assert": "routes to plan-review, not design-interview", "lexical": true}
   ]
 }

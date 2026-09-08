@@ -34,6 +34,26 @@ Dispatch the resolved scope to the retained skill:
 
 Pass any remaining arguments (the research question, source list, target format, template name) through unchanged. Heavy logic stays in the retained skills; this file only resolves scope and delegates.
 
+## Completion evidence (ADVISORY in this release)
+
+Every research and compile run appends this block to its closing summary, computed from the deliverable itself. It gives the run a finish line other than the producer's own confidence.
+
+Report each item as a count and, where it is a proportion, as a fraction:
+
+- **Citation coverage**: factual claims carrying at least one source, over all factual claims. A claim with no citation is COUNTED AS UNCOVERED and listed; it is never dropped from the denominator to improve the fraction.
+- **Duplicate sources**: distinct URLs or works cited more than once under different labels, which is how one source silently becomes two corroborating ones.
+- **URL resolution**: cited URLs that resolved during the run, with every unresolved one listed by reason (timeout, non-200, paywall). Only URLs the run already fetched are counted; this block adds no new fetch, no script, and no dependency.
+- **Required sections present**: the requested template's sections, each marked present or missing.
+- **Source freshness**: the oldest and newest source dates in the deliverable.
+
+Two rules make the numbers honest rather than flattering. An unresolvable URL is recorded as unresolved with its reason, never as resolved and never as a hard failure of the run. And when these metrics conflict with the user's explicit scope (they asked for a paywalled corpus, say), the block still reports the numbers AND states the conflict.
+
+A third rule keeps a zero from reading as a failure. When the corpus is entirely LOCAL (files, a repository, documents the user supplied), URL resolution is reported as `0 of 0` WITH the reason "local corpus, no web sources", because a bare zero next to four healthy metrics reads as a broken run. Citation coverage and freshness still apply in that case; they resolve against the local documents and their dates rather than against URLs.
+
+**This block is advisory in v4.8.0: it reports and never blocks.** The reason is specific, not timidity: no measured baseline exists yet for what citation coverage a good deliverable of each type actually reaches, and a threshold picked without one would either pass everything or fail honest work. Setting a blocking threshold is a later release's decision, to be made from the numbers this block starts collecting.
+
+The verifier classes involved here (deterministic for sections, duplicates, and resolution; evidence-based for coverage and freshness) are defined in [`ai-output-evaluation/references/verifier-taxonomy.md`](../skills/developer-experience/ai-output-evaluation/references/verifier-taxonomy.md), whose natural-verifier table lists these same checks under deep research and report generation.
+
 ## Notes
 
 - This command replaces `/compile-deep-research` and `/generate-report` (removed in v3.2.0), and surfaces the `deep-research` skill as a first-class `/research deep` scope.

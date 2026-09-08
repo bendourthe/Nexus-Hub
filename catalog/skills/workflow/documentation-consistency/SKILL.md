@@ -37,6 +37,8 @@ Use this skill when you need to:
 
 ## Instructions
 
+During a full documentation or release audit, verify the handbook inventory and freshness evidence produced by `[[technical-documentation]]` through `references/handbook-refresh.md`. Check all eligible HTML, including topic folders, against the actual candidate and the `[[document-to-interactive-html]]` dual-view contract. Require source/slide mapping, final hashes, presentation capability or explicit opt-out, and rendered verification; a fresh timestamp or structural-only pass is insufficient. Report stale, missing, or unverified output as incomplete, and route repairs to the owning skill.
+
 ### Step 1: Identify All Documentation Files
 
 ```bash
@@ -277,6 +279,10 @@ Create a summary of all issues found:
 2. **Medium Priority**: Update version references
 3. **Low Priority**: Review stale content in docs/
 ```
+
+### Step 9: Check Doc-Header Summaries (System Docs)
+
+Verify that every SYSTEM doc (architecture, policy, reference, runbook - not point-in-time artifacts like session histories, comparison reports, CHANGELOG, or plans) opens with a greppable summary header per `catalog/style-guides/doc-headers.md`: a title plus a 3-7 line summary (what it covers, who reads it and when, key topics) above the first `##`. Flag any system doc missing the header. Apply the SELF-HEALING rule: flag any doc whose header no longer matches the system it describes (drift), propose the corrected summary, and update the doc in the same change that alters the system.
 
 ## Common Documentation Issues
 

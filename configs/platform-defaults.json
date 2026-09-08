@@ -9,7 +9,7 @@
     "lever_contract": "docs/policy/platform-defaults-levers.md - the per-platform VERIFIED / UNVERIFIED classification with evidence. Populated in v3.16.0 Phase 2; a platform may not appear here without a VERIFIED row there.",
     "generator": "python scripts/sync_platform_defaults.py --apply   (regenerate derived artifacts)\npython scripts/sync_platform_defaults.py --check   (fail on drift; runs in `make validate` and CI)",
     "env_precedence_warning": "Where a platform exposes both a scalar setting and an environment-variable counterpart, the env value commonly OUTRANKS the scalar. Declare both together or the scalar becomes decorative while the env value silently wins.",
-    "last_updated": "2026-08-31",
+    "last_updated": "2026-09-06",
     "seeding_policy": "Values are seeded with SEED-IF-ABSENT semantics: a key the user has already set is never overwritten on reinstall. Effort scalars are seeded to 'medium' by default; Claude Code is the deliberate exception at 'high' (v4.4.0), justified in its own rationale block. Approval-policy keys are seeded toward the approval-required direction. A model pin is seeded ONLY where the vendor documents a safe self-selecting value; where no such value is documented the key is listed under 'omitted' with the reason, because inventing a provider-scoped model id is the failure this file exists to prevent.",
     "install_target_note": "install_target names the file the platform's integration writes at install time, distinct from derived_artifacts (repo files generated from this source). mode='write' seeds the file; mode='already-delivered' means an existing installer path already carries the values; mode='not-writable' means the lever is declared for the record but deliberately not written, with the reason stated."
   },
@@ -347,6 +347,31 @@
         "reason": "The only documented lever is agents.defaults.model.primary, a provider-scoped model pin with no vendor-documented safe default. There is no documented effort or approval lever."
       },
       "derived_artifacts": []
+    },
+    "pi": {
+      "display_name": "Pi",
+      "source_url": "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/settings.md",
+      "verified": "2026-08-25",
+      "doc_statement": "The pi settings reference documents JSON settings at ~/.pi/agent/settings.json (global) and .pi/settings.json (project), with project settings overriding global. Its Model & Thinking table documents defaultThinkingLevel with the enumerated values off | minimal | low | medium | high | xhigh | max, alongside defaultProvider ('Default provider') and defaultModel ('Default model ID').",
+      "settings": {
+        "defaultThinkingLevel": "medium"
+      },
+      "rationale": {
+        "defaultThinkingLevel": "medium matches the deliberate v3.15.5 cost choice already applied to Claude effortLevel and Qwen model.reasoningEffort, and is one of pi's own documented values. Raise to high or xhigh for deeper reasoning."
+      },
+      "install_target": {
+        "mode": "write",
+        "path": "~/.pi/agent/settings.json",
+        "format": "json",
+        "scope": "global",
+        "merge": "seed-if-absent",
+        "note": "Global scope only. Pi gates project-local .pi resources behind its own project-trust prompt, so a project-scoped seed would be inert until the user trusts the folder; the global file is not trust-gated."
+      },
+      "derived_artifacts": [],
+      "omitted": {
+        "defaultModel": "A bare model ID with no documented default and no vendor-documented safe self-selecting value. Pinning one would hand a fresh install a model the user's credentials may not reach.",
+        "defaultProvider": "Scopes defaultModel; seeding it without a model is meaningless and seeding both would invent a provider choice the vendor does not document a default for."
+      }
     }
   }
 }

@@ -138,3 +138,10 @@ Phase 5 complete. `window.NexusShooter` replaces the Asteroids engine: a mulberr
 ## Maintaining this file
 
 One rule: this dashboard describes the current branch and the active plan. When a plan ships, replace its section rather than appending the next one. History belongs in the per-version known-gaps files and the changelog, both of which are already authoritative and neither of which this file should duplicate. See the `dev-progress-tracker` skill.
+
+## Approved interactive authoring follow-up
+
+Scoped command/skill update: 3/3 items complete; see [implementation and verification](releases/v4/v4.9/development/approved-authoring-contract.md). Work is isolated on `feat/approved-interactive-authoring`. The historical guide dashboard above is inherited from the integration base and is not modified by this task.
+
+- [ ] Review and integrate the scoped authoring-contract changes through the normal branch workflow.
+- [ ] Complete the separately queued v4.9 reusable runtime, assembler, and cross-project qualification phases; this contract update does not complete those phases.

@@ -6,6 +6,7 @@ overview_l1: "This skill plants tripwire secrets and files that page on use, wit
 mitre_attack: [T1552, T1078]
 d3fend_techniques: [D3-DE]
 nist_csf: [DE.CM, DE.AE]
+owasp_agentic: [ASI10]
 ---
 
 # Honeytoken Placement

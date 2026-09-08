@@ -3,6 +3,7 @@ name: agent-orchestration-primitives
 description: Decide which agent-orchestration primitive a task actually needs -- a single agent, isolated subagents, persistent agent teams, or Dynamic Workflows -- and when to escalate between them. Make sure to use this skill whenever the user asks "should I use subagents or agent teams", "subagents vs agent teams", "should I parallelize this", "how many agents should I spawn", "fan this out", "should I use a Dynamic Workflow", "turn on ultracode", "orchestrate multiple agents", or otherwise weighs single-agent vs multi-agent execution, even when they do not name a specific primitive. SKIP, do NOT use for, designing the detailed write-scope and role plan once multi-agent is already chosen (use multi-agent-coordinator), picking the best of N parallel attempts at one task (use competitive-generation), stress-testing a single implementation (use adversarial-verifier), or any plainly single-agent task.
 summary_l0: "Choose between single agent, subagents, agent teams, and Dynamic Workflows for a task"
 overview_l1: "This skill is a decision guide for picking the right agent-orchestration primitive and knowing when to escalate. It names the four primitives -- a single well-prompted agent, isolated fire-and-forget subagents (parallelism plus context compression, no peer communication), persistent agent teams (peers that message each other and share a blockedBy task list, but get messy past about five members), and Dynamic Workflows (a JavaScript orchestration script that fans out to up to 16 concurrent and 1,000 total subagents, keeps intermediates off the context window, supports adversarial convergence, and is crash-safe and resumable). It teaches a start-single, escalate-only-on-a-measured-problem gate, the three orchestration failure modes (vague tasks cause duplicated work, verifiers declare victory without verifying, token costs compound), and the rule against parallelizing code-writing. The five orchestration patterns live in references/five-patterns.md. Trigger phrases: subagents vs agent teams, should I parallelize, how many agents, fan out, Dynamic Workflows, ultracode, orchestrate agents."
+owasp_agentic: [ASI07, ASI08]
 ---
 
 # Agent Orchestration Primitives
@@ -46,6 +47,29 @@ Each primitive trades coordination power for cost and complexity. They form a la
 
 ## Instructions
 
+### Step 0: Choose the autonomy level
+
+Before choosing a structure, name how much autonomy the task has earned. Structure answers "how many agents"; autonomy answers "how much of the finish line the agent holds". Six rungs, lowest first:
+
+| Rung | Fits when | Who holds the finish line |
+|---|---|---|
+| Prompt or chat | The work is short, exploratory, or judgement-dense. | The human, who orchestrates and evaluates every turn. |
+| Deterministic workflow | The path is known and only bounded steps need a model. | Code, which controls the path; the model fills in the steps. |
+| Delegated chunk | One bounded task can be handed off whole. | The human, who reviews the result rather than the process. |
+| Single goal loop | An explicit verifier and budgets exist, so iteration can be trusted. | The loop's run contract, evaluated by a checker the maker does not control. |
+| Persistent loop | Work spans sessions and needs durable state and scheduled or event-driven triggers. | The run contract plus the persisted state, across wakes. |
+| Graph | A single loop has a MEASURED limitation that multiple bounded nodes fix. | Explicit per-node contracts, with human authority at named gates. |
+
+Select by three inputs, in this order:
+
+1. **The readiness score** from [loop-engineering's readiness scorecard](../../workflow/loop-engineering/references/loop-readiness-scorecard.md). A task that cannot score for looping cannot earn a loop rung, however convenient the structure looks.
+2. **The blast radius of the worst action the rung permits** -- not the typical action, the worst one.
+3. **Reversibility.** A rung whose worst action cannot be undone needs a gate, a sandbox, or a lower rung.
+
+**Minimum sufficient autonomy.** Grant only the autonomy the evaluated task needs. If a deterministic step can replace an agentic decision without reducing quality, prefer the deterministic step. If one agent passes the evaluation, do not add three. Autonomy is not a reward for a task being important; it is a response to a task being verifiable.
+
+This is a decision the operator RECORDS, alongside the readiness score and the chosen primitive -- it is not a platform setting, and nothing in the harness reads it. The v3.17.0 autonomy toggle was a lever on agent behavior and was retired; it is unrelated to this ladder, and neither one implies the other. Cross-link [[loop-engineering]] for the run contract a loop rung requires, and [[context-modes]] for working posture, which is orthogonal: any posture can sit at any rung.
+
 ### Step 1: Start with a single agent
 
 The default is always one well-prompted agent. Multi-agent orchestration adds a 5-15x token multiplier and a coordination burden that itself produces bugs (handoff loss, duplicated work, merge conflicts). Do not escalate on a hunch that "more agents would be faster". Escalate only when Step 2 names a concrete, measured problem.
@@ -85,13 +109,16 @@ Before committing to the chosen primitive, confirm all three:
 
 If any of the three fails, drop down a rung.
 
-### Step 5: Guard against the three failure modes
+When the chosen primitive is a graph, the gate is passed only once [references/graph-readiness-checklist.md](references/graph-readiness-checklist.md) is complete: all eight items true, with the first one (a measured single-loop failure mode) answered rather than predicted.
+
+### Step 5: Guard against the four failure modes
 
 Every multi-agent design must actively defend against these. They are the reasons orchestration fails in practice:
 
 1. **Vague task descriptions cause duplicated work.** Two agents handed fuzzy scopes re-derive the same thing or make incompatible assumptions. Mitigation: give every agent an explicit, disjoint scope and a precise output contract (the [[multi-agent-coordinator]] write-scope discipline).
 2. **Verification agents declare victory without verifying.** A reviewer agent will happily report "looks good" without running anything. Mitigation: give the verifier a concrete, falsifiable instruction -- "run the full test suite; do not mark complete until each test passes; paste the passing output" -- not "check that it works".
 3. **Token costs compound.** Aggregate cost grows with every agent in the fan-out. Mitigation: tier models to the cognitive demand of each role (cheap model for mechanical work, capable model for design and spec-compliance judgment) and add budget controls. Cross-link [[ai-billing-safeguards]] and [[prompt-token-optimization]].
+4. **One bad upstream result cascades through the whole fan-out.** Every downstream agent inherits an unverified premise and multiplies the error instead of catching it. Mitigation: verify the upstream result BEFORE fanning out on it, and version any shared state the peers read so a corrupted revision can be identified and rolled back rather than silently consumed.
 
 ### Step 6: Do not parallelize code-writing
 
@@ -151,6 +178,10 @@ Two step-type vocabulary notes round out the orchestration surface, distinct fro
 - [ ] Each agent has an explicit disjoint scope and a falsifiable output contract (defends failure modes 1 and 2).
 - [ ] Per-role model tiering is specified for any fan-out (defends failure mode 3).
 - [ ] If multi-agent was chosen, the design is handed off to [[multi-agent-coordinator]] for the detailed write-scope / role / reconciliation plan.
+
+## Standards Mapping
+
+This skill is tagged against the OWASP Top 10 for Agentic Applications (2026) in its frontmatter. [references/standards.md](references/standards.md) records each identifier, the control in this body that maps to it, and the public source URL, so the tag can be checked rather than trusted.
 
 ## Related Skills
 

@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.7.0 -->
+<!-- nexus-hub-version: 4.8.0 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 329 skills, 18 commands, 34 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 336 skills, 19 commands, 35 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,10 +30,26 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 329 skills, 18
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 329 curated skills, 18 commands, 34 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 336 curated skills, 19 commands, 35 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.8.0
+
+**A loop is admitted by evidence, not enthusiasm.** `loop-engineering` gains a seven-dimension readiness scorecard with five when-not-to-loop anti-fits, scored before a loop is assembled and recorded into its instance state. Its schema gains five optional run-contract fields (`scope`, `permissions`, `budgets`, `state_contract`, `audit_evidence`) so a loop declares what it may touch, what it may spend, what survives between runs, and what audit evidence it must leave. Ten loop failure modes now have exactly one owning skill each, quoting the section where the rule actually lives, so a multi-skill review reports each root cause once instead of three times.
+
+**Autonomy is a decision you record, before you pick a structure.** `agent-orchestration-primitives` gains a Step 0 ladder of six rungs, selected on the readiness score, the blast radius of the worst action the rung permits, and reversibility, plus a minimum-sufficient-autonomy rule: if one agent passes the evaluation, do not add three. Escalating to a graph now passes a written eight-item checklist whose first item admits a MEASURED single-loop failure and rejects a predicted one.
+
+**Every deliverable can name the verifier that grades it.** A new verifier taxonomy classifies four verifier classes with their weaknesses and gives the natural checks for seven knowledge-work deliverables. Code review now names the class behind each finding, so a reader can tell a failing test from a reviewer's impression. `/research` and the compilation skill end on five computed metrics rather than the producer's confidence, advisory in this release and explicit about why: no measured baseline exists yet to set a threshold from.
+
+**Seven new skills for the end of an autonomous shift.** `lint-repair-loop` repairs what linters flag instead of only reporting it. `visual-regression-testing` gates UI drift on a perceptual diff. `performance-regression-gate` fails CI when a benchmark regresses. `false-confidence-test-audit` finds tests that pass whether or not the code is correct. `commit-sweep` catches problems that exist only across commits. `end-of-shift-validation` composes all of it into one pass. `helper-script-authoring` stops the agent re-typing incantations. `/grill` interrogates a plan in dependency-ordered rounds, and an opt-in `lint-autofix` hook is the deterministic half of the repair loop.
+
+**The catalog can now show an auditor its agentic-risk coverage.** A seventh mapped framework, the OWASP Top 10 for Agentic Applications, is validated for closed-set membership rather than shape alone, rendered as its own coverage column, and applied to 15 agent-security skills across all ten identifiers, each explained in that skill's own standards reference.
+
+Catalog counts are **336 skills** (+7), **19 commands** (+1), **35 hooks** (+1), and **23 agents**. One new opt-in surface: the `lint-autofix` hook, inert unless `NEXUS_ENABLE_LINT_AUTOFIX=1`, disabled by `NEXUS_DISABLED_HOOKS=lint-autofix` or `NEXUS_HOOK_PROFILE=minimal`. Enabling it grants no network access, does not commit or push, makes no LLM call, never touches a file with unstaged changes, and never blocks a commit.
 
 ---
 
@@ -306,7 +322,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 329 skills, 18 commands, 34 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 336 skills, 19 commands, 35 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.

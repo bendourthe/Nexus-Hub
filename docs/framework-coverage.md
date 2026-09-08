@@ -18,6 +18,7 @@ Scanned `catalog/skills`. Each row links a public framework control ID to the Ne
 | MITRE D3FEND | 20 | 53 |
 | NIST CSF | 19 | 127 |
 | NIST AI RMF | 2 | 4 |
+| OWASP Agentic | 10 | 24 |
 
 ## MITRE ATT&CK
 
@@ -158,3 +159,18 @@ Scanned `catalog/skills`. Each row links a public framework control ID to the Ne
 |---|---|
 | `MEASURE-2.6` | ai-attack-patterns, security-framework-mapping, skill-security-scan |
 | `MEASURE-2.7` | ai-attack-patterns |
+
+## OWASP Agentic
+
+| Control ID | Skills |
+|---|---|
+| `ASI01` | ai-attack-patterns, prompt-injection-defense |
+| `ASI02` | agent-access-policy, agent-execution-isolation, agentic-endpoint-hardening, ai-attack-patterns |
+| `ASI03` | agent-access-policy, agent-execution-isolation, egress-redaction |
+| `ASI04` | skill-security-scan, slsa-provenance-and-sigstore-verification |
+| `ASI05` | agent-execution-isolation, agentic-endpoint-hardening |
+| `ASI06` | agent-memory, ai-attack-patterns |
+| `ASI07` | agent-execution-isolation, agent-orchestration-primitives, label-gated-agent-pipelines |
+| `ASI08` | agent-orchestration-primitives |
+| `ASI09` | label-gated-agent-pipelines |
+| `ASI10` | ai-agent-governance, ai-billing-safeguards, honeytoken-placement, loop-engineering |

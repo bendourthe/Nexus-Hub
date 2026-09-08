@@ -103,6 +103,8 @@ These two conventions are additive and do not change the confidence-gating pipel
 
 **Depth modes and finding cap.** When the user asks for a quick look, a skim, or a compact pass, treat that as **quick** depth: cover the primary changed path only, report P0/P1 survivors only, and stop at 5 headline findings. The default thorough review is **full** depth: cover the whole resolved scope, report every confidence-gate survivor, and stop at 20 headline findings. Overflow goes to the appendix, ranked, never deleted. Never pad to reach the cap. A short review or a clean result (zero findings plus a non-empty Considered-but-Rejected table) is a valid outcome. The cap exists so a low-signal review cannot bury the finding that mattered under cosmetic padding.
 
+**Name the verifier class per finding.** Every emitted finding states which class of verifier established it, using the four-class taxonomy in [`ai-output-evaluation/references/verifier-taxonomy.md`](../../developer-experience/ai-output-evaluation/references/verifier-taxonomy.md): deterministic (a failing test, a linter, a schema check), evidence-based (a quoted line, a cited convention, a contract), model-based (a persona's rubric judgment), or human (a maintainer decision). One word per finding is enough. It matters because the four classes carry different weight and different weaknesses, and a reader who cannot tell "a test fails" from "a reviewer thinks this reads poorly" cannot prioritize the list. This also makes the combine-at-least-two-classes rule checkable: a review whose findings are entirely model-based has been graded on one axis. The single-lens persona skills inherit this from here and do not restate it, per the rule-ownership discipline.
+
 **Considered but Rejected.** Every emitted review MUST include a table of candidates that were inspected and deliberately not reported. Each row names the candidate, the location, and the reason, using one of: the owning rule permits the current implementation; evidence was insufficient; the project convention is intentional; the change would add complexity without user benefit. Rows MUST be real candidates encountered during this review, never invented filler. A genuinely thin scope reports the few that exist and says so. Without this table, a thorough review that found little is indistinguishable from a shallow one.
 
 ### Running the fanout as a Dynamic Workflow (optional)
@@ -110,6 +112,20 @@ These two conventions are additive and do not change the confidence-gating pipel
 Stages 3-6 are the canonical *dimensions -> find -> adversarially-verify* fanout: personas are the dimensions, Stage 4 is the find, Stage 6 is the refutation. When the harness has the Dynamic Workflows runtime, [scripts/review-fanout-workflow.js](scripts/review-fanout-workflow.js) is a ready-to-adapt scaffold that runs that shape deterministically (parallel persona review, a barrier merge that does the cross-reviewer promotion, per-finding refutation, then the late confidence gate). It binds to the skill's own contracts -- `FINDINGS_SCHEMA` mirrors [findings-schema](references/findings-schema.md) and `VERDICT_SCHEMA` mirrors [validator-template](references/validator-template.md).
 
 It is a **template to adapt, not a script to run verbatim**, and it must **degrade gracefully**: Dynamic Workflows is a plan-gated research-preview capability that may be absent, so fall back to dispatching the personas as isolated subagents (Stage 4 by hand), or a single sequential reviewer. Because a persona fanout plus per-finding verification carries a 5-15x token multiplier, keep the **scope-first** discipline: calibrate on one module first, review the resolved persona set and diff base on the first trigger, and confirm before reviewing the whole change. For whether a fanout is warranted at all and the hard budget controls, see [[agent-orchestration-primitives]] and [[ai-billing-safeguards]] -- this template does not duplicate that guidance.
+
+## Persona-Owned Docs
+
+Each reviewer persona OWNS a doc area and keeps it current as a side effect of reviewing: it reads its own checklist/conventions doc as the standard to judge the diff against, and when a review exposes that the doc is stale or missing a rule the review relied on, it updates that doc in the same pass. Suggested ownership:
+
+- maintainability -> the naming / structure conventions doc
+- security -> the security-review checklist (OWASP + supply-chain notes)
+- performance -> the performance-budget / hot-path notes
+- reliability -> the error-handling and retry/timeout conventions
+- testing -> the test-strategy and coverage-expectations doc
+- api-contract -> the API versioning / compatibility rules
+- project-standards -> AGENTS.md / CLAUDE.md and the project constitution
+
+This binds review to living documentation: the standard a persona enforces and the doc it maintains are the same artifact, so the conventions never drift from what review actually checks. Keep it lightweight - a persona updates its doc only when a review exposes a gap, not as a mandatory per-review edit.
 
 ## Round-History Hygiene (Multi-Round Review)
 

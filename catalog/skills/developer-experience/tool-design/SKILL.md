@@ -106,6 +106,8 @@ Returns: [Output format description with example]
 
 **The 10-20 Tool Limit**: Research and practice show that agents perform best with 10-20 active tools. Beyond this, selection accuracy degrades as the agent must evaluate more descriptions and distinguish between more options.
 
+**Tool thrashing** is the failure this limit prevents: an agent that repeatedly calls, abandons, and re-calls overlapping tools without advancing is reporting a tool-surface defect (near-duplicate tools, an unclear description boundary, or an error message that does not say what to do next), so fix the surface rather than instructing the agent to try harder.
+
 **Strategies for Larger Tool Sets**:
 
 | Strategy | When to Use | How |

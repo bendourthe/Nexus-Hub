@@ -35,6 +35,8 @@ Use this skill when you need to:
 
 ## Instructions
 
+For any project/codebase documentation update or release preparation, run [the handbook refresh procedure](references/handbook-refresh.md) before claiming completion. It owns recursive discovery, candidate-aware content refresh, migration, retained inputs, and freshness. Delegate interactive HTML authoring to `[[document-to-interactive-html]]` and its dual-view contract; preserve approved project settings.
+
 ### Architecture Overview Template
 
 ```markdown

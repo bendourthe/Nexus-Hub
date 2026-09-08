@@ -5,6 +5,7 @@ summary_l0: "Verify SLSA provenance and Sigstore signatures before admitting art
 overview_l1: "This skill checks that images and binaries carry provenance and signatures you can verify at admit time. Trigger phrases: verify SLSA provenance, cosign verify, Sigstore policy, rebuild the artifact."
 d3fend_techniques: [D3-SCI]
 nist_csf: [PR.DS, ID.SC]
+owasp_agentic: [ASI04]
 ---
 
 # Build Provenance Verification (SLSA/Sigstore)

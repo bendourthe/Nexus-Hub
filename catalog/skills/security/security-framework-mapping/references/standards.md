@@ -53,6 +53,32 @@ Worked mapping for the example used in this skill's body (`analyzing-network-tra
 
 ---
 
+## OWASP Top 10 for Agentic Applications (2026) -- the full identifier set
+
+The `owasp_agentic` field's identifier space is a closed set of ten, so the whole set is listed here once rather than one entry at a time. A skill tags only the identifiers whose control its body actually teaches.
+
+Verified **2026-09-07** by fetching the OWASP sources below. The framework document is dated 2025-12-09.
+
+| ID | Official title |
+|---|---|
+| ASI01 | Agent Goal Hijack |
+| ASI02 | Tool Misuse |
+| ASI03 | Identity & Privilege Abuse |
+| ASI04 | Agentic Supply Chain Vulnerabilities |
+| ASI05 | Unexpected Code Execution |
+| ASI06 | Memory & Context Poisoning |
+| ASI07 | Insecure Inter-Agent Communication |
+| ASI08 | Cascading Failures |
+| ASI09 | Human-Agent Trust Exploitation |
+| ASI10 | Rogue Agents |
+
+- Source (resource page): https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/
+- Source (announcement, which enumerates all ten): https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/
+
+Both are recorded because the resource page describes the framework and links the downloadable document without listing the ten entries inline. Note the ampersands in ASI03 and ASI06: they are part of the official titles, and an earlier transcription that wrote "and" was corrected against the fetched source.
+
+---
+
 ## Attribution
 
-These short titles are quoted from each framework's public catalog; full prose belongs at the public source URL. Nexus-Hub does not redistribute framework text. Framework taxonomies are maintained by MITRE Corporation (ATT&CK, ATLAS, D3FEND) and the National Institute of Standards and Technology (NIST CSF, AI RMF).
+These short titles are quoted from each framework's public catalog; full prose belongs at the public source URL. Nexus-Hub does not redistribute framework text. Framework taxonomies are maintained by MITRE Corporation (ATT&CK, ATLAS, D3FEND), the National Institute of Standards and Technology (NIST CSF, AI RMF), and the OWASP Foundation's Gen AI Security Project (Top 10 for Agentic Applications).

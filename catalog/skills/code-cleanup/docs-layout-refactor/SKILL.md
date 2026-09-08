@@ -98,6 +98,7 @@ Use the kebab-safe form (dots and hyphens only, no parentheses or spaces) to pre
 **Safety rules**:
 
 - Never move or rename existing legacy directories during plan generation or a normal audit. Migration happens only in the explicit apply / `--canonicalize-layout` path (Step 8).
+- `/update release` ALWAYS invokes this skill with `--canonicalize-layout` (v4.0.1), so a release always DETECTS and PROPOSES structural drift. That sets the flag; it does not bypass Step 7. Files still move only after the user approves, and declining leaves the legacy layout honoured in place while the release continues.
 - Never write the same artifact into two layouts. Resolution picks exactly one `<version_dir>`.
 - On a conflicting state (both legacy and canonical present), prefer the canonical path and report the inconsistency in the *Layout Inconsistencies* section of the report.
 
