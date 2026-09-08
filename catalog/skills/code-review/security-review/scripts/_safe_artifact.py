@@ -301,6 +301,7 @@ def _directory_guard(directory: Path) -> Iterator[None]:
 
 def _read_contained_bytes(
     root: Path, target: Path, max_bytes: int, *, digest_only: bool = False,
+    prefix_bytes: int | None = None,
 ) -> bytes | tuple[str, int]:
     if not isinstance(max_bytes, int) or isinstance(max_bytes, bool) or not 0 <= max_bytes <= MAX_ARTIFACT_BYTES:
         _reject("invalid_byte_limit", "invalid byte limit")
@@ -347,7 +348,10 @@ def _read_contained_bytes(
         hasher = hashlib.sha256() if digest_only else None
         total = 0
         while True:
-            chunk = os.read(descriptor, _CHUNK)
+            read_ceiling = min(max_bytes, prefix_bytes) if prefix_bytes is not None else max_bytes
+            if total >= read_ceiling:
+                break
+            chunk = os.read(descriptor, min(_CHUNK, read_ceiling - total))
             if not chunk:
                 break
             total += len(chunk)
@@ -368,6 +372,17 @@ def _read_contained_bytes(
             or after.st_mtime_ns != before.st_mtime_ns or after.st_ctime_ns != before.st_ctime_ns):
         _reject("post_open_swap", f"{contained} was replaced during the read")
     return (hasher.hexdigest(), total) if hasher is not None else b"".join(chunks)
+
+
+def peek_contained_bytes(root: Path, target: Path, max_bytes: int, count: int = 64) -> bytes:
+    """Read only a bounded classification prefix using the regular read guards."""
+    if type(count) is not int or not 0 <= count <= 64:
+        _reject("invalid_prefix_limit", "classification prefix exceeds its limit")
+    require_race_safe_primitives()
+    assert_no_reparse_in_chain(root, root)
+    target_path = target if target.is_absolute() else root / target
+    with _directory_guard(target_path.parent):
+        return _read_contained_bytes(root, target, max_bytes, prefix_bytes=count)
 
 
 def digest_contained_file(

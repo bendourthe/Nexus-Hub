@@ -55,6 +55,8 @@ Phase 1 local verification passed: 230 tests, 8 platform-dependent skips, 87.30 
 
 ### Open Items
 
+Phase 2 adds no deferred implementation gap. Its final gate passes 395 tests with 25 explicit platform skips and 87.07% coverage. MT-2 and QG-1 retain their original ownership; the additional workflow-policy skips do not constitute Windows or remote CI evidence.
+
 #### MT-2 - Platform-specific filesystem cases need their matching host
 
 - **Source phase**: Phase 1, T003.

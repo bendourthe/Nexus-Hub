@@ -430,6 +430,8 @@ Any non-empty diff is a FAILURE, not advice. The report does not ship until ever
 
 ## Related Skills
 
+- [Bounded application-surface collector](scripts/collect-security-audit-inventory.py) -- emits metadata-only inventory for the agent-presets routing authority; it never selects or executes owners.
+
 - [[context-analysis]] -- Context understanding (Phase 1)
 - [[code-quality]] -- Code quality + SOLID review (Phase 2)
 - [[dependency-security-audit]] -- detailed CVE scanning behind Domain 5 (supply chain)
