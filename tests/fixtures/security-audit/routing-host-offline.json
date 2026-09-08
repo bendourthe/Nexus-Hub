@@ -1,0 +1,123 @@
+{
+  "fixture_kind": "self-attested-host-accounting-only",
+  "offline_only": true,
+  "run_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "planned_owners": [
+    "security-review",
+    "authentication-patterns",
+    "dependency-security-audit",
+    "cloud-security-posture-detection",
+    "testing-review"
+  ],
+  "receipts": [
+    {
+      "id": "stage-0",
+      "stage_identity": "security-review",
+      "owner": "security-review",
+      "run_id": "offline-fixture",
+      "run_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "state": "RAN",
+      "kind": "local",
+      "required": true,
+      "reason_code": "HOST_EXECUTION_SELF_ATTESTED",
+      "provenance": "self_attested",
+      "execution_context": {
+        "boundary_status": "offline-only",
+        "credential_source": "none",
+        "credential_privilege": "none",
+        "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "outbound_destinations": [],
+        "transmitted_data_classes": []
+      },
+      "limitation_codes": [
+        "HOST_EXECUTION_SELF_ATTESTED"
+      ]
+    },
+    {
+      "id": "stage-1",
+      "stage_identity": "authentication-patterns",
+      "owner": "authentication-patterns",
+      "run_id": "offline-fixture",
+      "run_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "state": "DECLINED",
+      "kind": "model",
+      "required": true,
+      "reason_code": "OFFLINE_ONLY",
+      "provenance": "self_attested",
+      "execution_context": {
+        "boundary_status": "offline-only",
+        "credential_source": "none",
+        "credential_privilege": "none",
+        "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "outbound_destinations": [],
+        "transmitted_data_classes": []
+      },
+      "limitation_codes": [
+        "HOST_EXECUTION_SELF_ATTESTED"
+      ]
+    },
+    {
+      "id": "stage-2",
+      "stage_identity": "dependency-security-audit",
+      "owner": "dependency-security-audit",
+      "run_id": "offline-fixture",
+      "run_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "state": "DECLINED",
+      "kind": "network",
+      "required": true,
+      "reason_code": "OFFLINE_ONLY",
+      "provenance": "self_attested",
+      "execution_context": {
+        "boundary_status": "offline-only",
+        "credential_source": "none",
+        "credential_privilege": "none",
+        "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "outbound_destinations": [],
+        "transmitted_data_classes": []
+      },
+      "limitation_codes": [
+        "HOST_EXECUTION_SELF_ATTESTED"
+      ]
+    },
+    {
+      "id": "stage-3",
+      "stage_identity": "cloud-security-posture-detection",
+      "owner": "cloud-security-posture-detection",
+      "run_id": "offline-fixture",
+      "run_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "state": "DECLINED",
+      "kind": "cloud",
+      "required": true,
+      "reason_code": "OFFLINE_ONLY",
+      "provenance": "self_attested",
+      "execution_context": {
+        "boundary_status": "offline-only",
+        "credential_source": "none",
+        "credential_privilege": "none",
+        "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "outbound_destinations": [],
+        "transmitted_data_classes": []
+      },
+      "limitation_codes": [
+        "HOST_EXECUTION_SELF_ATTESTED"
+      ]
+    },
+    {
+      "id": "stage-4",
+      "stage_identity": "testing-review",
+      "owner": "testing-review",
+      "run_id": "offline-fixture",
+      "run_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "state": "UNAVAILABLE",
+      "kind": "local",
+      "required": true,
+      "reason_code": "OWNER_UNAVAILABLE",
+      "provenance": "self_attested",
+      "execution_context": null,
+      "limitation_codes": [
+        "HOST_EXECUTION_SELF_ATTESTED",
+        "BOUNDARY_CONTEXT_MISSING"
+      ]
+    }
+  ]
+}

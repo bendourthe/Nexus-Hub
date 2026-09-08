@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: open; seeded 2026-09-08 from post-v4.8.0 work. The v4.8 ledger is finalized, so findings after that release land here rather than reopening it.
-**Last updated**: 2026-09-08
+**Last updated**: 2026-09-08 (v4.9.0 Phase 7 qualification in progress)
 
 ## Open Items - found 2026-09-08 during post-v4.8.0 follow-up
 
@@ -33,6 +33,78 @@
 - **Why they are not actually the same rule**: the vendor claim is about redundant self-re-checks inside a turn ("double-check your answer"), while the skill is about evidence for a claim made to a human. Both can hold at once. But they read as contradictory, and someone reconciling them should read both first.
 - **What was done**: the claim is recorded in the profile layer scoped `model-specific`, so it structurally cannot reach a shared body through that path, with the tension stated in its `note`. No shared-body edit was proposed and the classifier ran with zero proposals.
 - **Suggested next step**: if a future pass wants to reconcile them, that is a decision record about what verification-before-completion means inside a turn versus at a claim boundary, not a prompting edit.
+
+## v4.9.0 - adoption-visa-vulnerability-agentic-harness
+
+**Plan**: [v4.9.0-adoption-visa-vulnerability-agentic-harness.md](plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md)
+**Base**: `develop` at `843c147d` (the PR #188 merge)
+**Retargeted**: from v4.8.0 on 2026-09-08, because v4.8.0 shipped carrying only its sibling plan
+
+### Summary
+
+Phase 1 local verification passed: 230 tests, 8 platform-dependent skips, 87.30 percent affected-script coverage. Earlier draft deferrals DF-1 through DF-4 have been implemented. Counts below apply only to this plan's subsection; unrelated post-v4.8 follow-up items above remain unchanged.
+
+| Category | Open | Resolved |
+|---|---|---|
+| NI | 0 | 0 |
+| DF | 0 | 4 |
+| BG | 0 | 1 |
+| WN | 1 | 0 |
+| MT | 1 | 0 |
+| QG | 1 | 0 |
+
+### Open Items
+
+Phase 2 adds no deferred implementation gap. Its final gate passes 395 tests with 25 explicit platform skips and 87.07% coverage. MT-2 and QG-1 retain their original ownership; the additional workflow-policy skips do not constitute Windows or remote CI evidence.
+
+Phase 4 adds no deferred implementation gap. Its final gate passes 447 tests with eight existing platform skips and 87.93% coverage; both bounded reviewers approved the corrected normalization boundary. MT-2 and QG-1 remain assigned to Phase 7.
+
+Phase 5 adds no deferred implementation gap. Its final gate passes 105 tests without skips and 98.96% coverage across the two new runtime files. Both bounded reviewers approved the serializer boundary; existing platform and CI qualification ownership remains unchanged.
+
+Phase 6 adds no deferred deterministic gap. The fresh benchmark suite passes 78 tests with 98.63% coverage and the integration/contract group passes 119 tests. Both declared host attempts are informationally unavailable because no code-search tools are registered; retained outcomes and limitations appear in [the benchmark report](development/security-audit-benchmark.md). The additional POSIX descriptor-swap test extends MT-2; the full scope now has nine platform-specific skips on this Windows workstation, including seven in the safe-artifact file alone. QG-1 still requires terminal pipeline approval and remote proof.
+
+Phase 7 cycle 1 resolved two non-deferrable graph-evidence findings instead of deferring them: absent query seeds and contradictory zero-match/location receipts now reject at their actual boundaries. Independent retest passes 131 cases and final implementation convergence reports zero feature gaps. The current candidate is `bd37a8b8e91ba5c28001d068445a6b3e65a97fada223e5c7b1441ab6bdb3506c`; both newly retained attempts remain informationally unavailable. [Final-phase evidence](development/last-phase-evidence.md) preserves all 37 reachable ledger dispositions, the current v4.5 prerequisite and actual Windows installation. Cycle 2 repaired the full-profile Unicode long-path failure, selected working Git Bash for local validation, and applied the presented CI changes under the user's instruction to finish Phase 7 and integration. All three initially failing profile groups pass their current-tree rerun; no failure is waived. Required hosted checks still precede integration.
+
+#### WN-1 - Private independent verification-harness cleanup was policy-blocked
+
+- **Source phase**: Phase 7, T027 independent adversarial verification.
+- **Plan reference**: Tier 3 ancillary local harness cleanup; this is separate from benchmark projection and retained-attempt cleanup.
+- **Severity and bounded impact**: P3. A private synthetic test-workspace residue remains ignored locally after standard-library cleanup hit a Windows long path. It contains repository fixture/runtime copies and synthetic records only; no real target or credentials were ingested. Declared benchmark roots and the real MCP probe's disposable copy completed their own cleanup.
+- **Reason**: automatic approval review rejected the explicitly checked cleanup action with `blocked by policy`. No alternate deletion or retry was attempted. The residue is excluded from staging, distributed payloads and promoted evidence.
+- **Owner and target**: local workspace maintainer; next authorized maintenance session, independent of the v4.9 artifact. This is not an application runtime or release-gate deferral.
+- **Suggested next step**: inspect and remove the retained private harness directory manually under the workstation's policy, then record observable absence. Do not erase candidate evidence or answer archives as part of that cleanup.
+
+#### MT-2 - Platform-specific filesystem cases need their matching host
+
+- **Source phase**: Phase 1, T003.
+- **Plan reference**: T002 Windows/POSIX containment and path-identity verification.
+- **Reason**: nine tests skip on this Windows workstation: six symlink-creation cases require a capability unavailable here, one case-collision fixture collapses on the host filesystem, and the POSIX mode-bit and descriptor-swap cases are inapplicable. Native Windows junction, directory-lock, hard-link, ownership, and cleanup cases execute locally. No POSIX execution is claimed from Windows results.
+- **Suggested next step**: execute the matching platform cases during Phase 7 qualification and verify their first permitted remote CI run; retain explicit skip accounting.
+
+#### QG-1 - The Windows CI job does not yet select the new filesystem tests
+
+The first PR run selected the new tests and passed every Linux/macOS/Windows bootstrap and installer smoke job. Its Linux jobs exposed two test-fixture assumptions; Windows additionally exposed golden-fixture CRLF conversion. All three causes were reproduced locally and corrected in the single cycle-3 stabilization commit. Affected suites pass 97 tests with seven platform skips and 152 tests against real Git checkout bytes. These failures are repaired rather than deferred; the corrected head still requires terminal hosted proof before this item closes. See [publication and integration](development/last-phase-evidence.md#publication-and-integration).
+
+- **Source phase**: Phase 1, T003 CI impact record.
+- **Plan reference**: Phase 7 terminal pipeline reconciliation and T002 Windows/POSIX coverage.
+- **Current state**: locally wired; hosted proof pending. The full repository test profile includes tests/skills on Linux. Phase 7 now selects ten audit files plus the repaired Unicode validator regression in the Windows job, enables Git long paths before Windows checkouts and includes the existing interpreter gate before merge. The presented proposal and direct failure repair were authorized by the user's instruction to finish Phase 7 and integration; independent review approves the final eleven-file selection.
+- **Suggested next step**: retain the first PR's exact Windows/installer success results and close this item in the SHA-bound integration handoff. Local results alone do not establish hosted coverage; no gate bypass is permitted.
+
+### Independent maintenance handoffs
+
+The repository-wide [platform review](development/qualification/v4.9-platform-verification.md) confirms two pre-existing discrepancies outside this audit's native skill-delivery path: Copilot's bypass-permission seed type and Antigravity's compatibility workflow directory. The existing platform-default and platform-read-contract owners retain them for a separately scoped maintenance/release handoff. This plan changes neither those settings nor installer destinations and does not claim those surfaces were live-tested. The complete CI comparison likewise retains the existing v4.3 profile/cache/reporting owners. These findings are not silently closed or counted as audit feature gaps.
+
+The advisory model-prompting check used the native Codex CLI's current enumeration and reports roster drift relative to its stored September 5 roster. That CLI omitted recorded `gpt-6-astra`; this does not assert global model availability. Existing model-prompting maintenance owns a future source-backed refresh. No profile, freshness marker or shared prompting rule was changed.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| BG-1 | Public qualified-symbol explore | Phase 3, approved A1 | Existing qualified resolver reused; punctuation and ambiguity regressions pass, with successful real MCP probe. |
+| DF-1 | Sanitized Git metadata | Phase 1 corrective implementation | Index/ref/ignore snapshots use empty config/hooks; invalid target config does not affect classification. |
+| DF-2 | Index identity | Phase 1 corrective implementation | Index bytes and parsed entry digests are bound; index changes invalidate a manifest. |
+| DF-3 | Submodule classification | Phase 1 corrective implementation | Each in-scope gitlink binds child HEAD, dirty and untracked state; incomplete/external metadata fails. |
+| DF-4 | Windows containment primitives | Phase 1 corrective implementation | Native directory handles deny rename during operations, with identity checks before content publication; no process assurance is claimed. |
 
 ## Resolved during this follow-up
 

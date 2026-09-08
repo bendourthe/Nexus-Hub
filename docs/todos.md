@@ -1,8 +1,8 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `feat/v4.4.3-guide-illustration-rebuild`
-**Active work:** [v4.4.5 targeted visual refinement](releases/v4/v4.4/development/guide-visual-refinement/verification.md). The v4.4.6 content redesign is rejected and superseded. Preserve existing sections; Models has an explicitly authorized rebuild.
-**Last refreshed:** 2026-09-05
+**Branch:** `feat/v4.9.0-visa-vulnerability-agentic-harness`
+**Active work:** [v4.9.0 application-security audit](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md), full implementation. The existing guide and handbook work below retains its separate owner.
+**Last refreshed:** 2026-09-08
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -16,6 +16,8 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
+| v4.11.0 comparison and plan prepared | 2 | 2 | 0 |
+| v4.11.0 implementation tasks complete | 0 | 34 | 34 |
 | v4.4.5 baseline guide/test files restored | 59 | 59 | 0 |
 | Exact production-file restorations | 3 | 3 | 0 |
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
@@ -23,11 +25,15 @@ Refreshing this file to the active plan (rather than appending another version's
 | v4.4.2 local phase commits | 8 | 8 | 0 |
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
-| Catalog skills | 329 | 329 | 0 |
+| Catalog skills | 336 | 336 | 0 |
 | Canonical guide bytes (strict ceiling 500,000) | 497,896 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
+
+## Queued work - v4.11.0 evidence-driven agent improvement
+
+- [ ] Qualify an existing native runner for the two-model trigger pilot before starting the seven-phase, 34-task implementation plan: prove observed skill loading, bounded calls/time/spend, and isolated synthetic context. Planning documents are in [PR #189](https://github.com/bendourthe/Nexus-Hub/pull/189); keyword-only evaluators do not satisfy the prerequisite. The v4.9 audit and handbook work retain their existing owners.
 
 ## Current work - v4.4.5 visual refinement
 
@@ -145,3 +151,15 @@ Scoped command/skill update: 3/3 items complete; see [implementation and verific
 
 - [ ] Review and integrate the scoped authoring-contract changes through the normal branch workflow.
 - [ ] Complete the separately queued v4.9 reusable runtime, assembler, and cross-project qualification phases; this contract update does not complete those phases.
+
+## Current work - v4.9.0 application-security audit
+
+**Plan**: [Application-security audit pipeline](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md). Driver: full. Verified phases complete: 6/7; verified tasks: 30/31. All local Phase 7 duties pass in [final-phase evidence](releases/v4/v4.9/development/last-phase-evidence.md), including cycle-2 Windows long-path correction, approved CI wiring and explicit manual-test limits. PR 190 exposed two test setup assumptions and Windows golden-fixture conversion; cycle 3 reproduced and corrected all three causes. Affected suites pass 97 tests with seven platform skips and 152 tests using real Git checkout bytes. T031 remains open until corrected-head hosted checks and integration are verified in the external handoff. Existing guide and handbook work above retains its separate owner.
+
+- [x] Complete and verify Phase 1 contract, input safety, target identity, and compatibility; reconcile the draft's premature completion claims.
+- [x] Complete Phase 2 bounded inventory, pure routing, current review dispatch, and independent correction checks: 395 tests pass, 25 skip, 87.07% coverage.
+- [x] Complete Phase 3 graph seeding and approved A1 repair: 341 tests pass, eight platform skips, 87.72% coverage, all seven extension groups pass, public MCP probe passes.
+- [x] Complete Phase 4 normalized envelopes and health enforcement: 447 tests pass, eight platform skips, 87.93% coverage; both bounded reviewers approve.
+- [x] Complete Phase 5 local SARIF and recursive distribution: 105 tests pass, no skips, 98.96% new-runtime coverage; both bounded reviewers approve.
+- [x] Complete Phase 6 deterministic benchmark: 78 benchmark tests pass with 98.63% coverage, 119 integration/contract checks pass, and both unavailable host attempts retain verified outcomes.
+- [ ] Complete Phase 7 local evidence, then request approval for concrete publication inputs.

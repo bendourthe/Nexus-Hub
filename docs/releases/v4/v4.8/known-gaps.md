@@ -247,3 +247,18 @@ the counts were recomputed from the merged catalog in this landing and now sum t
 - **Plan reference**: `docs/releases/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-task 4.2
 - **Reason**: `capture_screenshot.py` drives a headless Chromium-family browser, which is not reliably present in CI or on the dev host, so it is documented and degrades gracefully (exit 3 with an install hint) rather than unit-tested. The perceptual-diff core (`perceptual_diff.py`) IS fully tested (7 cases, Pillow-gated), and `Pillow` was added to the CI tests job so those run.
 - **Suggested next step**: Add a browser-gated smoke test in a CI job that installs a headless browser, or exercise it in the Phase 7 end-of-shift orchestrator's visual-regression step when a browser is available.
+
+## Plan retarget, 2026-09-08
+
+The visa-vulnerability harness plan referenced above by its v4.8.0 filename retargeted again, to
+`docs/releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md`. v4.8.0 was released on
+2026-09-08 carrying only its sibling plan, so this one could not ship under that number for the same reason it
+could not ship as v4.6.0.
+
+The statements earlier in this file are left exactly as written. They were accurate at the time and this ledger
+is finalized, so the honest record is an appended note rather than an edit that makes the earlier text look like
+it always said v4.9.0. Two consequences for a reader following those references:
+
+- The `T023` ledger-condition measurement above still stands. It measured this repository's open-gap state, which
+  did not change because the plan moved; only the task's numbering context did. T023 now sits in the v4.9.0 plan.
+- The v4.9 ledger at `docs/releases/v4/v4.9/known-gaps.md` is where that plan's own findings land.

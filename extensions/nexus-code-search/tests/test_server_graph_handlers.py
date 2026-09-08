@@ -11,7 +11,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from nexus_code_search.config import CodeSearchConfig
 from nexus_code_search.extraction import ExtractionOrchestrator
 from nexus_code_search.server import (
@@ -134,6 +133,31 @@ def test_handle_graph_query_code_explore(indexed_repo: Path) -> None:
     )
     payload = _payload(res)
     assert payload["matches"] >= 1
+
+
+def test_explore_accepts_identity_returned_by_node(indexed_repo: Path) -> None:
+    cfg = CodeSearchConfig(hub_root=None)
+    node = _payload(_handle_graph_query("code_node", {"root": str(indexed_repo), "symbol": "compute"}, cfg))["matches"][0]
+    result = _payload(_handle_graph_query("code_explore", {"root": str(indexed_repo), "symbol": node["qualified_name"], "depth": 2}, cfg))
+    assert result["matches"] == 1
+    assert result["results"][0]["node"]["qualified_name"] == node["qualified_name"]
+    assert {n["name"] for n in result["results"][0]["callees"]} == {"add", "mul"}
+
+
+@pytest.mark.parametrize("symbol", ["missing.py::compute", "missing.module.compute", '"', "name:compute", "compute OR add", "*", "", "()", "x\\y"])
+def test_explore_missing_or_punctuated_symbol_is_not_query_syntax(indexed_repo: Path, symbol: str) -> None:
+    result = _payload(_handle_graph_query("code_explore", {"root": str(indexed_repo), "symbol": symbol}, CodeSearchConfig(hub_root=None)))
+    assert result["matches"] == 0
+    assert result["results"] == []
+
+
+def test_explore_preserves_ambiguous_plain_names(indexed_repo: Path) -> None:
+    (indexed_repo / "other.py").write_text("def compute():\n    return 0\n", encoding="utf-8")
+    cfg = CodeSearchConfig(hub_root=None)
+    _handle_index_graph({"root": str(indexed_repo)}, cfg)
+    result = _payload(_handle_graph_query("code_explore", {"root": str(indexed_repo), "symbol": "compute"}, cfg))
+    assert result["matches"] == 2
+    assert len({n["node"]["qualified_name"] for n in result["results"]}) == 2
 
 
 def test_handle_clear_removes_graph_db(indexed_repo: Path) -> None:

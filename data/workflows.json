@@ -23,20 +23,34 @@
     {
       "id": "security-audit",
       "name": "Security Audit",
-      "description": "Ordered local security audit: scope and detect with scanner receipts, triage reachability, optionally remediate with user approval, re-scan with the same detector, independently verify, then close. Authentication and licensing remain in the sequence without duplicating their procedures.",
+      "description": "Evidence-derived local security audit: collect surface receipts, plan conditional owners from the versioned routing manifest, triage, optionally remediate with trusted scope-bound approval, re-scan, independently verify, and close. The skills list is discoverability only; missing owners remain explicit unavailable handoffs.",
       "skills": [
         "security-review",
         "authentication-patterns",
+        "jwt-header-and-key-confusion-attacks",
+        "api-inventory-and-undocumented-endpoints",
+        "api-object-level-authorization-flaws",
+        "api-schema-and-gateway-enforcement",
+        "api-rate-limit-and-abuse-detection",
+        "advanced-attack-patterns",
         "dependency-security-audit",
         "cve-reachability-analyzer",
+        "cryptographic-control-audit",
+        "encryption-at-rest-design",
+        "tls-certificate-lifecycle",
+        "key-management-and-hsm-integration",
+        "digital-signatures-and-jwt-signing",
+        "business-logic-abuse",
         "cloud-security-posture-detection",
-        "licensing-compliance",
+        "ai-attack-patterns",
+        "prompt-injection-defense",
         "security-patch-advisor",
         "testing-review",
         "adversarial-verifier"
       ],
       "estimated_time": "30-60 minutes",
-      "trigger": "Before a production release, compliance audit, or after a security incident."
+      "trigger": "Before a production release, compliance audit, or after a security incident.",
+      "routing_manifest": "catalog/skills/workflow/agent-presets/references/security-audit-routing.json"
     },
     {
       "id": "new-project-setup",

@@ -1,0 +1,890 @@
+{
+    "schema":  "nexus.v4.9-local-gates/v1",
+    "runs":  [
+                 {
+                     "profile":  "full",
+                     "platform":  "windows",
+                     "started_at":  "2026-09-08T20:29:16Z",
+                     "finished_at":  "2026-09-08T21:53:17Z",
+                     "duration_s":  5041.3129999999655,
+                     "run":  "final-full",
+                     "groups":  [
+                                    {
+                                        "name":  "catalog-parse",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "skills.json parses",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.1720000000204891,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "bundles.json parses",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.17199999990407377,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "workflows.json parses",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.125,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "templates.json parses",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.15600000007543713,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "hygiene",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "validate_unicode_safety",
+                                                             "status":  "fail",
+                                                             "exit_code":  2,
+                                                             "duration_s":  39.10899999993853,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "validate_no_personal_paths",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  2.7040000000270084,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_docs_conventions",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.2029999999795109,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "validate_doc_budgets",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.125,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_memory_integration_budget",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.625,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "interpreters",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "check_interpreter_resolution",
+                                                             "status":  "fail",
+                                                             "exit_code":  1,
+                                                             "duration_s":  0.5,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "catalog",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "validate_skills",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.9220000000204891,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_agentskills_conformance",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.21799999999348074,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "build_framework_coverage",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.25,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "run_trigger_evals",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.35999999998603016,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_registry_entries",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.26500000001396984,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "scan_skill_security",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  4.98499999998603,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "security",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "scan_supply_chain_iocs",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  11.062000000034459,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "validate_permission_baseline",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.23499999998603016,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_no_outbound",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.23400000005494803,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "workflows",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "validate_workflow_security",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.2809999999590218,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_required_check_coverage",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.23499999998603016,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "platform-contracts",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "check_installer_parity",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.39000000001396984,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_base_template_parity",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.18799999996554106,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "verify_platform_contracts",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.21799999999348074,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_platform_contract_freshness",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.15700000000651926,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "sync_platform_defaults",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.18700000003445894,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "verify_model_prompting_profiles",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.14099999994505197,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "docs",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "check_doc_colocation",
+                                                             "status":  "fail",
+                                                             "exit_code":  1,
+                                                             "duration_s":  0.26500000001396984,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "validate_solution_frontmatter",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.15700000000651926,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_incident_notes",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.125,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "validate_decision_records",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.1720000000204891,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "stamp_guide_counts",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  1.5150000000139698,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_memory_provenance",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.1720000000204891,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_docs_retention",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.1720000000204891,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "version",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "check_version_sync",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.14099999994505197,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "tests",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "hook-tests",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  611.0929999999935,
+                                                             "test_summaries":  [
+                                                                                    "1319 passed, 35 skipped in 605.62s (0:10:05)"
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "repo-tests",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  3938.0320000000065,
+                                                             "test_summaries":  [
+                                                                                    "5007 passed, 77 skipped in 3935.91s (1:05:35)"
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "extension-tests",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "skill-server",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  351.420999999973,
+                                                             "test_summaries":  [
+                                                                                    "43 passed in 4.86s"
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "code-search",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  29.5,
+                                                             "test_summaries":  [
+                                                                                    "379 passed, 1 skipped in 27.22s"
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "web-fetch",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  5.891000000061467,
+                                                             "test_summaries":  [
+                                                                                    "29 passed in 4.52s"
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "skill-scanner",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  5.0,
+                                                             "test_summaries":  [
+                                                                                    "89 passed in 2.92s"
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "context-compressor",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  5.687999999965541,
+                                                             "test_summaries":  [
+                                                                                    "237 passed in 3.98s"
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "memory",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  27.375,
+                                                             "test_summaries":  [
+                                                                                    "53 passed, 1 skipped in 24.42s"
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "compression-accuracy-gate",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.375,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    }
+                                ]
+                 },
+                 {
+                     "profile":  "full",
+                     "platform":  "windows",
+                     "started_at":  "2026-09-08T22:03:25Z",
+                     "finished_at":  "2026-09-08T22:03:50Z",
+                     "duration_s":  24.81299999996554,
+                     "run":  "cycle2-affected",
+                     "groups":  [
+                                    {
+                                        "name":  "hygiene",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "validate_unicode_safety",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  18.5,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "validate_no_personal_paths",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  4.030999999959022,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_docs_conventions",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.18799999996554106,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "validate_doc_budgets",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.15600000007543713,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_memory_integration_budget",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.3589999999385327,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "interpreters",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "check_interpreter_resolution",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.3130000000819564,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "docs",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "check_doc_colocation",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.2969999999040738,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "validate_solution_frontmatter",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.14000000001396984,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_incident_notes",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.15700000000651926,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "validate_decision_records",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.1720000000204891,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "stamp_guide_counts",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.18700000003445894,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_memory_provenance",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.14099999994505197,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_docs_retention",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.1720000000204891,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    }
+                                ]
+                 },
+                 {
+                     "profile":  "full",
+                     "platform":  "windows",
+                     "started_at":  "2026-09-08T22:05:27Z",
+                     "finished_at":  "2026-09-08T22:05:42Z",
+                     "duration_s":  15.202999999979511,
+                     "run":  "cycle2-remaining",
+                     "groups":  [
+                                    {
+                                        "name":  "catalog-parse",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "skills.json parses",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.125,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "bundles.json parses",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.10900000005494803,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "workflows.json parses",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.10899999993853271,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "templates.json parses",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.1720000000204891,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "catalog",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "validate_skills",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.8599999999860302,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_agentskills_conformance",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.21799999999348074,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "build_framework_coverage",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.25,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "run_trigger_evals",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.40700000000651926,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_registry_entries",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.23400000005494803,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "scan_skill_security",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  5.030999999959022,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "security",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "scan_supply_chain_iocs",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  5.25,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "validate_permission_baseline",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.2029999999795109,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_no_outbound",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.31299999996554106,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "workflows",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "validate_workflow_security",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.40600000007543713,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_required_check_coverage",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.25,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "platform-contracts",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "check_installer_parity",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.26599999994505197,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_base_template_parity",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.15600000007543713,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "verify_platform_contracts",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.1869999999180436,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "check_platform_contract_freshness",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.125,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "sync_platform_defaults",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.1559999999590218,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         },
+                                                         {
+                                                             "name":  "verify_model_prompting_profiles",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.17199999990407377,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    },
+                                    {
+                                        "name":  "version",
+                                        "commands":  [
+                                                         {
+                                                             "name":  "check_version_sync",
+                                                             "status":  "pass",
+                                                             "exit_code":  0,
+                                                             "duration_s":  0.1720000000204891,
+                                                             "test_summaries":  [
+
+                                                                                ]
+                                                         }
+                                                     ]
+                                    }
+                                ]
+                 }
+             ],
+    "lint_comparison":  [
+                            {
+                                "path":  "scripts/validate_unicode_safety.py",
+                                "baseline_findings":  1,
+                                "current_findings":  1,
+                                "introduced":  [
+
+                                               ]
+                            },
+                            {
+                                "path":  "tests/validators/test_validate_unicode_safety.py",
+                                "baseline_findings":  1,
+                                "current_findings":  1,
+                                "introduced":  [
+
+                                               ]
+                            },
+                            {
+                                "path":  "scripts/ci/profiles.py",
+                                "baseline_findings":  2,
+                                "current_findings":  2,
+                                "introduced":  [
+
+                                               ]
+                            },
+                            {
+                                "path":  "tests/ci/test_ci_engine.py",
+                                "baseline_findings":  7,
+                                "current_findings":  7,
+                                "introduced":  [
+
+                                               ]
+                            },
+                            {
+                                "path":  "tests/validators/test_ci_workflow_contract.py",
+                                "baseline_findings":  0,
+                                "current_findings":  0,
+                                "introduced":  [
+
+                                               ]
+                            }
+                        ],
+    "overall":  "LOCAL GO: original successful groups plus current affected reruns; Windows audit 420 passed/9 skipped and Unicode 37 passed/1 skipped",
+    "interpretation":  "The original full invocation failed. Current validation is composed from that completed run and fresh affected-scope reruns; no all-green full invocation is claimed."
+}
