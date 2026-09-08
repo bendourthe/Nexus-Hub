@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: open; seeded 2026-09-08 from post-v4.8.0 work. The v4.8 ledger is finalized, so findings after that release land here rather than reopening it.
-**Last updated**: 2026-09-08
+**Last updated**: 2026-09-08 (v4.9.0 Phase 1)
 
 ## Open Items - found 2026-09-08 during post-v4.8.0 follow-up
 
@@ -33,6 +33,50 @@
 - **Why they are not actually the same rule**: the vendor claim is about redundant self-re-checks inside a turn ("double-check your answer"), while the skill is about evidence for a claim made to a human. Both can hold at once. But they read as contradictory, and someone reconciling them should read both first.
 - **What was done**: the claim is recorded in the profile layer scoped `model-specific`, so it structurally cannot reach a shared body through that path, with the tension stated in its `note`. No shared-body edit was proposed and the classifier ran with zero proposals.
 - **Suggested next step**: if a future pass wants to reconcile them, that is a decision record about what verification-before-completion means inside a turn versus at a claim boundary, not a prompting edit.
+
+## v4.9.0 - adoption-visa-vulnerability-agentic-harness
+
+**Plan**: [v4.9.0-adoption-visa-vulnerability-agentic-harness.md](plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md)
+**Base**: `develop` at `843c147d` (the PR #188 merge)
+**Retargeted**: from v4.8.0 on 2026-09-08, because v4.8.0 shipped carrying only its sibling plan
+
+### Summary
+
+Phase 1 local verification passed: 230 tests, 8 platform-dependent skips, 87.30 percent affected-script coverage. Earlier draft deferrals DF-1 through DF-4 have been implemented. Counts below apply only to this plan's subsection; unrelated post-v4.8 follow-up items above remain unchanged.
+
+| Category | Open | Resolved |
+|---|---|---|
+| NI | 0 | 0 |
+| DF | 0 | 4 |
+| BG | 0 | 0 |
+| WN | 0 | 0 |
+| MT | 1 | 0 |
+| QG | 1 | 0 |
+
+### Open Items
+
+#### MT-2 - Platform-specific filesystem cases need their matching host
+
+- **Source phase**: Phase 1, T003.
+- **Plan reference**: T002 Windows/POSIX containment and path-identity verification.
+- **Reason**: eight tests skip on this Windows workstation: six symlink-creation cases require a capability unavailable here, one case-collision fixture collapses on the host filesystem, and one POSIX mode-bit test is inapplicable. Native Windows junction, directory-lock, hard-link, ownership, and cleanup cases execute locally. No POSIX execution is claimed from Windows results.
+- **Suggested next step**: execute the matching platform cases during Phase 7 qualification and verify their first permitted remote CI run; retain explicit skip accounting.
+
+#### QG-1 - The Windows CI job does not yet select the new filesystem tests
+
+- **Source phase**: Phase 1, T003 CI impact record.
+- **Plan reference**: Phase 7 terminal pipeline reconciliation and T002 Windows/POSIX coverage.
+- **Reason**: the full repository test profile includes tests/skills on Linux; the existing Windows job selects windows-hooks and specific delivery integration files, omitting these new Windows API tests. Local Windows tests pass, but this does not prove remote Windows coverage. No gate bypass or pipeline change has been approved or performed.
+- **Suggested next step**: at Phase 7, propose the smallest Windows test-selection change with its cost and obtain the required pipeline approval before applying it.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| DF-1 | Sanitized Git metadata | Phase 1 corrective implementation | Index/ref/ignore snapshots use empty config/hooks; invalid target config does not affect classification. |
+| DF-2 | Index identity | Phase 1 corrective implementation | Index bytes and parsed entry digests are bound; index changes invalidate a manifest. |
+| DF-3 | Submodule classification | Phase 1 corrective implementation | Each in-scope gitlink binds child HEAD, dirty and untracked state; incomplete/external metadata fails. |
+| DF-4 | Windows containment primitives | Phase 1 corrective implementation | Native directory handles deny rename during operations, with identity checks before content publication; no process assurance is claimed. |
 
 ## Resolved during this follow-up
 
