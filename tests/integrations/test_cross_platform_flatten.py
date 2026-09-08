@@ -44,6 +44,9 @@ def test_platform_flattens_skills_one_level(install_ctx: InstallContext, key: st
 
     skill_dirs = [p for p in skills_dir.iterdir() if p.is_dir()]
     assert len(skill_dirs) >= 50, f"{key}: expected the flat catalog; got {len(skill_dirs)}"
+    for relative in ("scripts/emit-sarif.py", "scripts/_normalized_audit.py", "references/application-security-sarif.md"):
+        original = install_ctx.repo_root / "catalog/skills/code-review/security-review" / relative
+        assert (skills_dir / "security-review" / relative).read_bytes() == original.read_bytes()
     for skill in skill_dirs[:10]:
         assert (skill / "SKILL.md").exists(), f"{key}: {skill.name}/ must hold SKILL.md directly"
 
