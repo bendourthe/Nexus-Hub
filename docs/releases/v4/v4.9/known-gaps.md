@@ -48,7 +48,7 @@ Phase 1 local verification passed: 230 tests, 8 platform-dependent skips, 87.30 
 |---|---|---|
 | NI | 0 | 0 |
 | DF | 0 | 4 |
-| BG | 0 | 0 |
+| BG | 0 | 1 |
 | WN | 0 | 0 |
 | MT | 1 | 0 |
 | QG | 1 | 0 |
@@ -75,6 +75,7 @@ Phase 2 adds no deferred implementation gap. Its final gate passes 395 tests wit
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
+| BG-1 | Public qualified-symbol explore | Phase 3, approved A1 | Existing qualified resolver reused; punctuation and ambiguity regressions pass, with successful real MCP probe. |
 | DF-1 | Sanitized Git metadata | Phase 1 corrective implementation | Index/ref/ignore snapshots use empty config/hooks; invalid target config does not affect classification. |
 | DF-2 | Index identity | Phase 1 corrective implementation | Index bytes and parsed entry digests are bound; index changes invalidate a manifest. |
 | DF-3 | Submodule classification | Phase 1 corrective implementation | Each in-scope gitlink binds child HEAD, dirty and untracked state; incomplete/external metadata fails. |

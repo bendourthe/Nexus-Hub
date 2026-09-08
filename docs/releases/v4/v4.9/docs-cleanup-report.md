@@ -25,3 +25,7 @@ No layout contradiction was found among this phase's changed documents. No renam
 ## Phase 2 audit update
 
 The inventory helper completed with ten existing release files before the Phase 2 history was added. New routing policy, explanatory reference, and bundled scripts live beside their owning skills; Phase 2 history remains in development/history. No paths moved, no sibling-plan files changed, and no rename map is needed. Existing inbound-reference evidence remains applicable to unchanged paths; added relative links were checked against their actual targets. No scratch-document deletion is proposed.
+
+## Phase 3 audit update
+
+Graph-seeding guidance and its pure helper remain under security-review. Capability probes and historical/repaired evidence remain under active v4.9 development; no paths moved or living release records were added. The blocked history is preserved and superseded by the Phase 3 completion history. Link, ASCII, and diff checks run before the phase commit.

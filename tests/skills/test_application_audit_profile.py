@@ -287,7 +287,7 @@ def test_an_unqualified_graph_receipt_is_rejected(record: dict) -> None:
 
 
 def test_graph_quality_below_complete_degrades(record: dict) -> None:
-    record["application_audit"]["graph_receipts"][0]["quality"] = "ambiguous"
+    record["application_audit"]["graph_receipts"][0].update(quality="ambiguous", ambiguity="multiple", result_count=2, reason_code="GRAPH_AMBIGUOUS")
     record["application_audit"]["claimed_health"] = "degraded"
     assert _evaluate(record)["computed_health"] == "degraded"
 
@@ -583,6 +583,9 @@ def test_observed_manifests_determine_change_relevance(record: dict, tmp_path: P
     for collection in ("stages", "surface_receipts", "graph_receipts", "observed_artifacts"):
         for receipt in profile[collection]:
             receipt["run_fingerprint"] = profile["run_fingerprint"]
+    for receipt in profile["graph_receipts"]:
+        receipt["target_root_fingerprint"] = profile["target_root_fingerprint"]
+        receipt["scope_fingerprint"] = profile["scope_fingerprint"]
     result = gate.evaluate_review_record(record, observed_manifests=(before, after))
     assert result["computed_health"] == expected_health
     assert bool(result["diffs"]["mutable_target_change_unproven"]) == (expected_health == "failed")

@@ -14,12 +14,26 @@
       {
         "ambiguity": "none",
         "availability": "RAN",
+        "duration_ms": 1,
+        "fallback": "none",
         "id": "G-1",
+        "index_digest": "6666666666666666666666666666666666666666666666666666666666666666",
+        "locations": [],
+        "operation": "code_node",
+        "parameters_digest": "4444444444444444444444444444444444444444444444444444444444444444",
         "qualified": true,
         "quality": "complete",
-        "query_provenance": "nexus-code-search/find_symbol",
+        "query_provenance": "nexus-code-search/code_node",
+        "reason_code": "GRAPH_RETURNED",
+        "result_count": 1,
+        "result_digest": "5555555555555555555555555555555555555555555555555555555555555555",
+        "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
         "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
-        "symbol": "pkg.module.handler"
+        "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "symbol": "sha256:225700a61e66de4482a445449c2853e402e1b2aa4e6c92319e6378f3ba6ec9a6",
+        "target_revision": "0000000000000000000000000000000000000000",
+        "target_root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "truncated": false
       }
     ],
     "observed_artifacts": [

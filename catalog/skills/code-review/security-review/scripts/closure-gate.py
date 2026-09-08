@@ -19,6 +19,7 @@ if str(_HERE) not in sys.path:
     # file by location, which does not put the file's directory on sys.path.
     sys.path.insert(0, str(_HERE))
 
+import _graph_receipt
 import _strict_json
 
 EXIT_CLEAN = 0
@@ -692,12 +693,25 @@ def _evaluate_application_audit(
 
     # --- graph ------------------------------------------------------------
     graph_quality_degraded = False
+    graph_results = {}
     graph = _index_records(_require_list(profile, "graph_receipts"), "graph_receipts")
     if not graph:
         diffs["graph_receipts_without_qualified_identity"].append("missing_graph_receipt")
     for entry in graph.values():
         receipt = _require_object(entry, "graph_receipts entry")
         receipt_id = receipt.get("id") if _is_text(receipt.get("id")) else "<unnamed>"
+        try:
+            _graph_receipt.validate(receipt, profile)
+        except (ValueError, TypeError, KeyError):
+            diffs["graph_receipts_without_qualified_identity"].append(receipt_id)
+        if receipt.get("availability") == "FAILED":
+            diffs["graph_receipts_without_qualified_identity"].append(receipt_id)
+        query_key = tuple(str(receipt.get(k)) for k in ("operation", "parameters_digest", "index_digest"))
+        if receipt.get("availability") == "RAN":
+            observation = (receipt.get("symbol"), receipt.get("result_digest"))
+            if query_key in graph_results and graph_results[query_key] != observation:
+                diffs["contradictory_or_duplicate_receipts"].append(receipt_id)
+            graph_results[query_key] = observation
         if receipt.get("run_fingerprint") != profile["run_fingerprint"]:
             diffs["graph_receipts_without_qualified_identity"].append(receipt_id)
         quality = receipt.get("quality")

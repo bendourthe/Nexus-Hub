@@ -16,6 +16,8 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
+| v4.11.0 comparison and plan prepared | 2 | 2 | 0 |
+| v4.11.0 implementation tasks complete | 0 | 34 | 34 |
 | v4.4.5 baseline guide/test files restored | 59 | 59 | 0 |
 | Exact production-file restorations | 3 | 3 | 0 |
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
@@ -28,6 +30,10 @@ Refreshing this file to the active plan (rather than appending another version's
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
+
+## Queued work - v4.11.0 evidence-driven agent improvement
+
+- [ ] Qualify an existing native runner for the two-model trigger pilot before starting the seven-phase, 34-task implementation plan: prove observed skill loading, bounded calls/time/spend, and isolated synthetic context. Planning documents are in [PR #189](https://github.com/bendourthe/Nexus-Hub/pull/189); keyword-only evaluators do not satisfy the prerequisite. The v4.9 audit and handbook work retain their existing owners.
 
 ## Current work - v4.4.5 visual refinement
 
@@ -148,9 +154,10 @@ Scoped command/skill update: 3/3 items complete; see [implementation and verific
 
 ## Current work - v4.9.0 application-security audit
 
-**Plan**: [Application-security audit pipeline](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md). Driver: full. Verified phases complete: 2/7; verified tasks: 7/31. Phases 1-2 close with scoped local commits; Phase 3 is next. Existing guide and handbook work above retains its separate owner.
+**Plan**: [Application-security audit pipeline](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md). Driver: full. Verified phases complete: 3/7; verified tasks: 10/31. Phases 1-2 are committed as `202eff9e` and `7d79b161`; Phase 3 implements approved A1 and closes BG-1 with its scoped commit. Existing guide and handbook work above retains its separate owner.
 
 - [x] Complete and verify Phase 1 contract, input safety, target identity, and compatibility; reconcile the draft's premature completion claims.
 - [x] Complete Phase 2 bounded inventory, pure routing, current review dispatch, and independent correction checks: 395 tests pass, 25 skip, 87.07% coverage.
-- [ ] Implement Phases 3-6 in order, with one local commit at each successful boundary.
+- [x] Complete Phase 3 graph seeding and approved A1 repair: 341 tests pass, eight platform skips, 87.72% coverage, all seven extension groups pass, public MCP probe passes.
+- [ ] Implement Phases 4-6 in order with one local commit at each successful boundary.
 - [ ] Complete Phase 7 local evidence, then request approval for concrete publication inputs.
