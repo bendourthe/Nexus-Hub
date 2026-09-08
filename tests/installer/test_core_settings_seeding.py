@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import json
 import os
 import re
@@ -74,6 +75,25 @@ def _seed(tmp_path: Path, value: dict[str, object]) -> tuple[Path, bytes]:
     return settings, settings.read_bytes()
 
 
+# Decode child output permissively. `text=True` alone picks an encoding from the
+# environment, and under UTF-8 mode a shell that writes its own console code page
+# is undecodable: the reader thread raises UnicodeDecodeError, subprocess leaves
+# `stdout` as None, and every assertion over the output dies with
+# `TypeError: argument of type 'NoneType' is not iterable` -- which points at the
+# assertion rather than at the encoding, and hides that the installer itself
+# worked correctly.
+#
+# This is not hypothetical. `scripts/ci/run.py` exports PYTHONUTF8=1 and
+# PYTHONIOENCODING=utf-8 for every step, so on a host whose only PowerShell is
+# Windows PowerShell 5.1 (cp1252 output, no pwsh 7) these tests failed inside
+# `--profile full` and passed when run directly. CI never saw it because its
+# Windows runner has pwsh 7, which emits UTF-8.
+#
+# `errors="replace"` is the same choice run.py itself makes. Every assertion here
+# matches ASCII text, so a replaced byte cannot mask a real failure.
+_DECODE = {"encoding": "utf-8", "errors": "replace"}
+
+
 def _run_bash(tmp_path: Path, target: Path) -> subprocess.CompletedProcess[str]:
     harness = tmp_path / "core-settings-harness.sh"
     harness.write_text(_SH_HARNESS, encoding="utf-8", newline="\n")
@@ -84,6 +104,7 @@ def _run_bash(tmp_path: Path, target: Path) -> subprocess.CompletedProcess[str]:
         text=True,
         timeout=120,
         check=False,
+        **_DECODE,
     )
 
 
@@ -105,6 +126,7 @@ def _run_powershell(tmp_path: Path, target: Path) -> subprocess.CompletedProcess
         text=True,
         timeout=120,
         check=False,
+        **_DECODE,
     )
 
 
@@ -364,3 +386,29 @@ def test_existing_scalar_with_non_object_env_preserves_pair_shape(
     assert installed["env"] == invalid_env
     assert installed["customUserSetting"] == "keep"
     assert "existing env is not an object" not in proc.stdout + proc.stderr
+
+
+def test_child_output_is_decoded_permissively() -> None:
+    """Regression guard for WN-I.
+
+    Both runners must pass an explicit encoding AND an error policy. Without
+    them, `text=True` picks an encoding from the environment, and under the
+    UTF-8 mode that `scripts/ci/run.py` exports for every step, a shell writing
+    its own console code page becomes undecodable: subprocess leaves `stdout`
+    as None and every assertion over the output fails with a TypeError that
+    points at the assertion instead of at the encoding.
+
+    Asserted at the source level because the defect is invisible on a host with
+    pwsh 7 (UTF-8 native), which is what CI's Windows runner has. A behavioral
+    test here would pass on CI while the defect was live for anyone whose only
+    PowerShell is Windows PowerShell 5.1.
+    """
+    assert _DECODE == {"encoding": "utf-8", "errors": "replace"}
+    # Inspect the functions rather than the file text: a source-wide string
+    # search would also match this test's own assertions and pass vacuously.
+    for runner in (_run_bash, _run_powershell):
+        body = inspect.getsource(runner)
+        assert "**_DECODE," in body, (
+            f"{runner.__name__} does not decode through _DECODE, so its output "
+            "becomes None under UTF-8 mode when the child writes another code page"
+        )
