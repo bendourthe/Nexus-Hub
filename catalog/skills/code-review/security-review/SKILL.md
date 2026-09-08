@@ -87,6 +87,8 @@ Do not copy the schema field list into this skill. The reference file is the rec
 
 ### Step 1: Dependency Vulnerability Scan
 
+For the application-audit profile, run [code-search seeding](references/code-search-seeding.md) after canonical surface inventory and before deep specialist adjudication. Preserve unavailable, ambiguous, partial, timeout, and unknown-quality obligations. Project observed graph responses through [`_graph_receipt.py`](scripts/_graph_receipt.py) before emission and validate them through closure; raw graph text never enters tracked evidence. Graph evidence cannot approve remediation or replace scanner/verifier ownership.
+
 ```bash
 # Python
 pip-audit
