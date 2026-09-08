@@ -368,6 +368,24 @@ WINDOWS_HOOKS = Group(
             timeout=1800,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
+        # Exercise the native Windows evidence boundaries before merge (QG-1).
+        _pytest(
+            "security-audit evidence (Windows)",
+            "tests/validators/test_validate_unicode_safety.py",
+            "tests/skills/test_safe_artifact.py",
+            "tests/skills/test_target_manifest.py",
+            "tests/skills/test_strict_json.py",
+            "tests/skills/test_security_scanner_contract.py",
+            "tests/skills/test_graph_receipts.py",
+            "tests/skills/test_application_audit_envelope.py",
+            "tests/skills/test_security_review_sarif.py",
+            "tests/skills/test_security_audit_benchmark.py",
+            "tests/skills/test_security_audit_benchmark_lifecycle.py",
+            "tests/skills/test_security_audit_contract_e2e.py",
+            platforms=("windows",),
+            timeout=1200,
+            env={"NEXUS_TEST_POWERSHELL": "powershell"},
+        ),
     ),
 )
 

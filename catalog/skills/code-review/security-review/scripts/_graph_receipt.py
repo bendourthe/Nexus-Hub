@@ -54,6 +54,7 @@ def validate(receipt: dict, identity: dict) -> None:
     require(isinstance(receipt["fallback"], str) and receipt["fallback"] in {"none", "direct-corpus"})
     if receipt["availability"] == "RAN":
         require(receipt["qualified"] and is_digest(receipt["result_digest"]))
+        require(receipt["result_count"] != 0 or not receipt["locations"])
         require(receipt["reason_code"] in {"GRAPH_RETURNED", "GRAPH_NO_RESULT", "GRAPH_PARTIAL", "GRAPH_AMBIGUOUS", "GRAPH_UNKNOWN"})
         if receipt["result_count"] > 1:
             require(receipt["ambiguity"] == "multiple")
@@ -94,7 +95,7 @@ def validate(receipt: dict, identity: dict) -> None:
 
 def project(raw: dict, *, operation: str, qualified_symbol: str, parameters: dict, identity: dict, receipt_id: str, duration_ms: int, index_digest: str | None = None, limit: int = 100) -> dict:
     """Project a bounded caller-observed result; never claim graph freshness."""
-    if not isinstance(raw, dict) or operation not in OPERATIONS or type(limit) is not int or not 1 <= limit <= 100:
+    if not isinstance(raw, dict) or operation not in OPERATIONS or type(limit) is not int or not 1 <= limit <= 100 or not isinstance(qualified_symbol, str) or not qualified_symbol.strip():
         raise ValueError("GRAPH_RECEIPT_INVALID")
     result = {k: identity[k] for k in BINDINGS}
     result.update(id=receipt_id, operation=operation, query_provenance="nexus-code-search/" + operation, availability="RAN", quality="unknown", qualified=True, symbol=symbol_id(qualified_symbol), parameters_digest=digest(parameters), result_digest=digest(raw), index_digest=index_digest, duration_ms=duration_ms, ambiguity="none", truncated=False, locations=[], result_count=0, reason_code="GRAPH_UNKNOWN", fallback="none")
