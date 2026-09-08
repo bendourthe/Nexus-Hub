@@ -814,11 +814,14 @@ def _replace_org_repo(candidate: Path) -> None:
         _replace_path_with_retry(candidate, destination)
     except BaseException:
         if had_destination and backup.exists():
-            # Best-effort restore: the caller is already handling a failure, so a
-            # blocked restore must not mask the original error with a new one.
             try:
                 _replace_path_with_retry(backup, destination)
             except OSError:
+                # Best-effort restore, deliberately swallowed. The caller is
+                # already unwinding a failure, and raising from here would
+                # replace the original error with a less informative one. The
+                # old cache staying at the backup path is the worst case, and
+                # it is strictly better than losing the original diagnosis.
                 pass
         raise
     if backup.exists() or backup.is_symlink():
