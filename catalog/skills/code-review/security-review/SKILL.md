@@ -331,6 +331,14 @@ Build the local review record defined in `references/closure-gate-review-record.
 python scripts/closure-gate.py review-record.json
 ```
 
+The gate imports three bundled helpers from the same `scripts/` directory. They are stdlib-only and ship with this skill, so no install step is added, and they are shared deliberately: each replaces a rule that was otherwise re-derived per caller, which is how two callers end up disagreeing about what is safe.
+
+- `scripts/_strict_json.py` is the one decoder for every input here. `json.loads` keeps the LAST of duplicate object members silently, so a record carrying two `computed_health` values would parse as whichever came second and destroy the evidence that both were claimed. It also rejects `NaN` and `Infinity`, trailing data, invalid Unicode, and unbounded size, nesting, and collection width, all before any semantic check.
+- `scripts/_safe_artifact.py` owns physical containment and lifecycle: root, ancestor, and leaf reparse checks, hard-link refusal, byte ceilings, post-open identity revalidation, exclusive owner-only temporary roots, atomic owner-only writes, and validated cleanup that refuses any directory it did not create. Call `platform_guarantee()` and record what it returns: POSIX gets `prevention` from `O_NOFOLLOW`, while Windows gets `detection` through identity revalidation, and a provenance record that claims the stronger of the two on the weaker platform is wrong.
+- `scripts/_target_manifest.py` generates the content-manifest identity the `application_audit` profile binds to. It records digests and byte counts, never file content, config or source snippets, absolute paths, or symlink target text. Git is resolved from an explicitly trusted absolute path outside the target, verified as a regular non-link executable, and invoked with a minimal environment and a read-only plumbing allowlist, because git configuration is repository-controlled and can specify hooks, filters, external diff commands, and credential helpers that execute programs.
+
+The additive `application_audit` profile in `references/closure-gate-review-record.md` is opt-in: a record without it keeps its previous diffs, output bytes, and exit behavior exactly. A profile record additionally reports `computed_health`, which is evaluator-owned. A producer may emit `claimed_health` and it carries no authority; a disagreement between the two is itself a failure. `tests/fixtures/security-audit/application-audit-complete.json` is the runnable structurally complete example.
+
 The gate computes five schema-v1 diffs, and six additional schema-v2 diffs when `schema_version` is `2`:
 
 - Component inventory minus components with a logged review action or an explicit `OMITTED` / `UNCOVERED` caveat, surfacing components silently implied as covered.
