@@ -21,3 +21,7 @@ This report records the Phase 1 application-security plan's documentation placem
 ## Verification and limits
 
 No layout contradiction was found among this phase's changed documents. No rename map is required because nothing moved. This scoped audit is not a whole-repository archive cleanup; Phase 7 owns that reconciliation. This report and the phase history remain release-bound evidence, not handbook source.
+
+## Phase 2 audit update
+
+The inventory helper completed with ten existing release files before the Phase 2 history was added. New routing policy, explanatory reference, and bundled scripts live beside their owning skills; Phase 2 history remains in development/history. No paths moved, no sibling-plan files changed, and no rename map is needed. Existing inbound-reference evidence remains applicable to unchanged paths; added relative links were checked against their actual targets. No scratch-document deletion is proposed.

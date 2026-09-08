@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Branch:** `feat/v4.9.0-visa-vulnerability-agentic-harness`
-**Active work:** [v4.4.5 targeted visual refinement](releases/v4/v4.4/development/guide-visual-refinement/verification.md). The v4.4.6 content redesign is rejected and superseded. Preserve existing sections; Models has an explicitly authorized rebuild.
+**Active work:** [v4.9.0 application-security audit](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md), full implementation. The existing guide and handbook work below retains its separate owner.
 **Last refreshed:** 2026-09-08
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -148,8 +148,9 @@ Scoped command/skill update: 3/3 items complete; see [implementation and verific
 
 ## Current work - v4.9.0 application-security audit
 
-**Plan**: [Application-security audit pipeline](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md). Driver: full. Verified phases complete: 1/7; verified tasks: 3/31. Phase 1 closes with its scoped local commit; Phase 2 is next. Existing guide and handbook work above retains its separate owner.
+**Plan**: [Application-security audit pipeline](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md). Driver: full. Verified phases complete: 2/7; verified tasks: 7/31. Phases 1-2 close with scoped local commits; Phase 3 is next. Existing guide and handbook work above retains its separate owner.
 
 - [x] Complete and verify Phase 1 contract, input safety, target identity, and compatibility; reconcile the draft's premature completion claims.
-- [ ] Implement Phases 2-6 in order, with one local commit at each successful boundary.
+- [x] Complete Phase 2 bounded inventory, pure routing, current review dispatch, and independent correction checks: 395 tests pass, 25 skip, 87.07% coverage.
+- [ ] Implement Phases 3-6 in order, with one local commit at each successful boundary.
 - [ ] Complete Phase 7 local evidence, then request approval for concrete publication inputs.
