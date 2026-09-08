@@ -1,0 +1,34 @@
+[
+  {
+    "feature": "installed-inventory-routing",
+    "surfaces": 9,
+    "concurrency_cap": 4,
+    "status": "planned",
+    "source_unchanged": true,
+    "owners": [
+      "security-review"
+    ]
+  },
+  {
+    "feature": "closure-to-sarif",
+    "health": "degraded",
+    "active_results": 2,
+    "dispositions": {
+      "confirmed": 1,
+      "corrected": 1,
+      "needs-live-validation": 1,
+      "rejected": 1
+    },
+    "deterministic": true,
+    "source": "synthetic-contract-fixture"
+  },
+  {
+    "feature": "strict-cli-rejection",
+    "exit_code": 2,
+    "stdout_bytes": 0
+  },
+  {
+    "feature": "owned-exercise-cleanup",
+    "complete": true
+  }
+]

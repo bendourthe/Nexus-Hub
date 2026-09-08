@@ -129,3 +129,45 @@ def test_trigger_cases_cover_positives_and_negatives() -> None:
         "neg-ordinary-code-review",
     ):
         assert cases[case_id]["should_trigger"] is False
+
+
+def test_workflow_projection_comes_only_from_routing_authority() -> None:
+    path = _ROOT / "catalog/skills/workflow/agent-presets/references/security-audit-routing.json"
+    authority = json.loads(path.read_text(encoding="utf-8"))
+    expected = {s["owner"] for s in authority["surfaces"]}
+    expected.update(h["owner"] for s in authority["surfaces"] for h in s["handoffs"])
+    expected.update(authority["fixed_stages"])
+    workflow = _security_audit_workflow()
+    assert set(workflow["skills"]) == expected
+    assert len(workflow["skills"]) == len(expected)
+    assert (_ROOT / workflow["routing_manifest"]).resolve() == path.resolve()
+    assert "licensing-compliance" not in expected
+    assert "authentication-patterns" in expected
+
+
+def test_absent_bundle_owners_are_explicit_unavailable_handoffs() -> None:
+    data = json.loads((_ROOT / "data/bundles.json").read_text(encoding="utf-8"))
+    bundle = next(item for item in data["bundles"] if item["id"] == "security-specialist")
+    missing = set(_security_audit_workflow()["skills"]) - set(bundle["skills"])
+    assert missing == {"advanced-attack-patterns", "business-logic-abuse", "ai-attack-patterns", "prompt-injection-defense"}
+    text = _preset_text()
+    assert "missing owners remain explicit `UNAVAILABLE` receipts" in text
+    assert "No automatic installation" in (_PRESET.parent / "references/security-audit-routing.md").read_text(encoding="utf-8")
+
+
+def test_host_receipt_fixture_records_offline_declines_without_health_claims() -> None:
+    payload = json.loads((_ROOT / "tests/fixtures/security-audit/routing-host-offline.json").read_text(encoding="utf-8"))
+    assert payload["offline_only"] is True
+    assert {r["owner"] for r in payload["receipts"]} == set(payload["planned_owners"])
+    assert len(payload["receipts"]) == len(payload["planned_owners"])
+    for receipt in payload["receipts"]:
+        assert receipt["provenance"] == "self_attested"
+        assert receipt["run_fingerprint"] == payload["run_fingerprint"]
+        assert receipt["state"] in {"RAN", "UNAVAILABLE", "FAILED", "DECLINED"}
+        assert "execution_context" in receipt
+        if receipt["kind"] in {"network", "cloud", "model"}:
+            assert receipt["state"] == "DECLINED" and receipt["reason_code"] == "OFFLINE_ONLY"
+        if receipt["execution_context"] is None:
+            assert "BOUNDARY_CONTEXT_MISSING" in receipt["limitation_codes"]
+    assert "computed_health" not in json.dumps(payload)
+    assert "process_observed" not in json.dumps(payload)

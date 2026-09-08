@@ -1,0 +1,89 @@
+{
+  "application_audit": {
+    "claimed_health": "complete",
+    "evaluation_scope": "deterministic-local",
+    "execution_boundary": {
+      "authorized": false,
+      "boundary_status": "offline-only",
+      "credential_privilege": "none",
+      "credential_source": "none",
+      "limitation": "self-attested; proves no process identity, arguments, model, settings, retries, or answer-key non-access",
+      "outbound_destinations": [],
+      "transmitted_data_classes": []
+    },
+    "graph_receipts": [],
+    "observed_artifacts": [
+      {
+        "digest": "1c933582ce9ff8c283b5aa09364fe56e7916d0f44811ef93bd5ce9d0ecc66e5d",
+        "id": "A-envelope",
+        "provenance": "content_observed",
+        "run_fingerprint": "ab51f0501803e4390fbb1869ba3726638306c5e2f822ae340eff7d1e3dc4da82",
+        "run_id": "run-2026-09-08-appsec-0001",
+        "stage_id": "closure-gate/evaluate"
+      }
+    ],
+    "profile_version": 1,
+    "required_stage_identities": [],
+    "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "run_fingerprint": "ab51f0501803e4390fbb1869ba3726638306c5e2f822ae340eff7d1e3dc4da82",
+    "run_id": "run-2026-09-08-appsec-0001",
+    "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "stages": [],
+    "supported_surfaces": [
+      "python-source",
+      "typescript-source",
+      "dependency-manifest"
+    ],
+    "surface_receipts": [
+      {
+        "evidence_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "result": "matched",
+        "run_fingerprint": "ab51f0501803e4390fbb1869ba3726638306c5e2f822ae340eff7d1e3dc4da82",
+        "surface": "python-source"
+      },
+      {
+        "evidence_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+        "result": "negative_checked",
+        "run_fingerprint": "ab51f0501803e4390fbb1869ba3726638306c5e2f822ae340eff7d1e3dc4da82",
+        "surface": "typescript-source"
+      },
+      {
+        "evidence_digest": "2222222222222222222222222222222222222222222222222222222222222222",
+        "result": "matched",
+        "run_fingerprint": "ab51f0501803e4390fbb1869ba3726638306c5e2f822ae340eff7d1e3dc4da82",
+        "surface": "dependency-manifest"
+      }
+    ],
+    "target_identity": {
+      "coverage": [
+        "tracked",
+        "dirty",
+        "untracked",
+        "submodule",
+        "link"
+      ],
+      "kind": "content_manifest",
+      "manifest_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    "target_revalidation": {
+      "after_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "before_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "changed": false
+    },
+    "target_revision": "0000000000000000000000000000000000000000",
+    "target_root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "components": [],
+  "deterministic_coverage": {
+    "status": "complete"
+  },
+  "facts": [],
+  "findings": [],
+  "remediation_receipts": [],
+  "report_claims": [],
+  "review_actions": [],
+  "scanner_inventory": [],
+  "scanner_receipts": [],
+  "schema_version": 2,
+  "verifiers": []
+}

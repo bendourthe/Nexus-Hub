@@ -60,6 +60,34 @@ def test_clean_tree_passes(tmp_path: Path, runner) -> None:
     assert result.returncode == 0, result.stderr
 
 
+def test_long_path_is_scanned_excluded_and_repaired(tmp_path: Path, runner) -> None:
+    """Long ledger paths must be checked, including explicit-path and fix modes."""
+    relative = Path("docs") / ("candidate-" + "a" * 60) / ("attempt-" + "b" * 60)
+    relative /= "terminal-" + "c" * 128 + ".json"
+    target = tmp_path / relative
+    native = Path("\\\\?\\" + str(target)) if os.name == "nt" else target
+    parents = [native.parent.parent.parent, native.parent.parent, native.parent]
+    for parent in parents:
+        parent.mkdir(exist_ok=True)
+    native.write_text('"unsafe' + ZWSP + 'value"\n', encoding="utf-8")
+    try:
+        detected = runner(SCRIPT, tmp_path)
+        assert detected.returncode == 1, detected.stderr
+        assert "U+200B" in detected.stderr
+        assert "IO:" not in detected.stderr
+        excluded = runner(SCRIPT, tmp_path, ["--exclude", str(relative.parent)])
+        assert excluded.returncode == 0, excluded.stderr
+        repaired = runner(SCRIPT, tmp_path, ["--path", str(relative), "--fix"])
+        assert repaired.returncode == 0, repaired.stderr
+        assert native.read_text(encoding="utf-8") == '"unsafevalue"\n'
+        assert runner(SCRIPT, target.parent, ["--path", target.name]).returncode == 0
+        assert runner(SCRIPT, tmp_path, ["--path", str(target)]).returncode == 0
+    finally:
+        native.unlink(missing_ok=True)
+        for parent in reversed(parents):
+            parent.rmdir()
+
+
 def test_rlo_trojan_source_is_flagged(tmp_path: Path, runner) -> None:
     body = "Looks normal " + chr(0x202E) + " backwards\n"
     write(tmp_path / "docs" / "trojan.md", body)

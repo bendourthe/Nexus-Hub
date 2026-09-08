@@ -1,0 +1,273 @@
+{
+  "application_audit": {
+    "approval_receipt": {
+      "origin": "input_supplied",
+      "proposed_patch_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "run_id": "run-2026-09-08-appsec-0001"
+    },
+    "claimed_health": "complete",
+    "execution_boundary": {
+      "authorized": false,
+      "boundary_status": "offline-only",
+      "credential_privilege": "none",
+      "credential_source": "none",
+      "limitation": "self-attested; proves no process identity, arguments, model, settings, retries, or answer-key non-access",
+      "outbound_destinations": [],
+      "transmitted_data_classes": []
+    },
+    "graph_receipts": [
+      {
+        "ambiguity": "none",
+        "availability": "RAN",
+        "id": "G-1",
+        "qualified": true,
+        "quality": "unknown",
+        "query_provenance": "nexus-code-search/find_symbol",
+        "run_fingerprint": "74d1b3012dee62bbc30113ebdc2e3b6d331c8dd93fc49175c5076ee1c377ed87",
+        "symbol": "pkg.module.handler"
+      }
+    ],
+    "observed_artifacts": [
+      {
+        "digest": "3333333333333333333333333333333333333333333333333333333333333333",
+        "id": "A-envelope",
+        "provenance": "content_observed",
+        "run_fingerprint": "74d1b3012dee62bbc30113ebdc2e3b6d331c8dd93fc49175c5076ee1c377ed87",
+        "run_id": "a-different-run",
+        "stage_id": "S-scope"
+      }
+    ],
+    "profile_version": 1,
+    "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "run_fingerprint": "74d1b3012dee62bbc30113ebdc2e3b6d331c8dd93fc49175c5076ee1c377ed87",
+    "run_id": "run-2026-09-08-appsec-0001",
+    "scope_fingerprint": "scope-fp-bbbbbbbbbbbbbbbbbbbbbbbb",
+    "stages": [
+      {
+        "id": "S-scope",
+        "kind": "local",
+        "provenance": "self_attested",
+        "required": true,
+        "run_fingerprint": "74d1b3012dee62bbc30113ebdc2e3b6d331c8dd93fc49175c5076ee1c377ed87",
+        "run_id": "run-2026-09-08-appsec-0001",
+        "stage_identity": "security-review/scope",
+        "state": "RAN"
+      },
+      {
+        "id": "S-graph",
+        "kind": "local",
+        "provenance": "content_observed",
+        "required": true,
+        "run_fingerprint": "74d1b3012dee62bbc30113ebdc2e3b6d331c8dd93fc49175c5076ee1c377ed87",
+        "run_id": "run-2026-09-08-appsec-0001",
+        "stage_identity": "code-search/reachability",
+        "state": "RAN"
+      },
+      {
+        "id": "S-model",
+        "kind": "model",
+        "provenance": "self_attested",
+        "reason_code": "NO_OUTBOUND_AUTHORIZATION",
+        "required": false,
+        "run_fingerprint": "74d1b3012dee62bbc30113ebdc2e3b6d331c8dd93fc49175c5076ee1c377ed87",
+        "run_id": "run-2026-09-08-appsec-0001",
+        "stage_identity": "model/triage",
+        "state": "DECLINED"
+      }
+    ],
+    "supported_surfaces": [
+      "python-source",
+      "typescript-source",
+      "dependency-manifest"
+    ],
+    "surface_receipts": [
+      {
+        "evidence_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "result": "matched",
+        "run_fingerprint": "74d1b3012dee62bbc30113ebdc2e3b6d331c8dd93fc49175c5076ee1c377ed87",
+        "surface": "python-source"
+      },
+      {
+        "evidence_digest": "2222222222222222222222222222222222222222222222222222222222222222",
+        "result": "matched",
+        "run_fingerprint": "74d1b3012dee62bbc30113ebdc2e3b6d331c8dd93fc49175c5076ee1c377ed87",
+        "surface": "dependency-manifest"
+      }
+    ],
+    "target_identity": {
+      "coverage": [
+        "tracked"
+      ],
+      "kind": "content_manifest",
+      "manifest_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    "target_revalidation": {
+      "after_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "before_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "changed": false
+    },
+    "target_revision": "0000000000000000000000000000000000000000",
+    "target_root_fingerprint": "root-fp-aaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "components": [
+    {
+      "id": "api",
+      "review_action_ids": [
+        "RA-1"
+      ],
+      "status": "COVERED"
+    },
+    {
+      "caveat": "Generated code is outside the declared scope.",
+      "id": "generated-client",
+      "review_action_ids": [],
+      "status": "OMITTED"
+    }
+  ],
+  "deterministic_coverage": {
+    "status": "complete"
+  },
+  "facts": [
+    {
+      "evidence": "artifact:F-confirmed.txt",
+      "id": "FACT-1"
+    }
+  ],
+  "findings": [
+    {
+      "disposition": "confirmed",
+      "evidence_fact_ids": [
+        "FACT-1"
+      ],
+      "id": "F-confirmed"
+    },
+    {
+      "disposition": "needs-live-validation",
+      "id": "F-pending",
+      "pending_validation": {
+        "expected_safe": "The response is 403 or 404.",
+        "expected_vulnerable": "The response returns the target record.",
+        "potential_severity": "P1 HIGH",
+        "safe_test": "Send one unauthorized read request."
+      }
+    },
+    {
+      "disposition": "corrected",
+      "id": "F-corrected"
+    },
+    {
+      "disposition": "rejected",
+      "id": "F-rejected",
+      "rejection_record": {
+        "actual_input_sources": [
+          "path",
+          "body"
+        ],
+        "counter_hypothesis": "All actual routes enforce ownership.",
+        "reachability_claim": false,
+        "routes": [
+          {
+            "evidence": "test:path-owner-guard",
+            "result": "observed-safe",
+            "source": "path"
+          },
+          {
+            "evidence": "trace:body-id-ignored",
+            "result": "observed-blocked",
+            "source": "body"
+          }
+        ]
+      }
+    }
+  ],
+  "remediation_receipts": [],
+  "report_claims": [
+    {
+      "fact_ids": [
+        "FACT-1"
+      ],
+      "id": "CLAIM-1"
+    }
+  ],
+  "review_actions": [
+    {
+      "action": "Traced request inputs to authorization checks.",
+      "component_id": "api",
+      "evidence": "trace:api-auth",
+      "id": "RA-1",
+      "result": "One surviving finding."
+    }
+  ],
+  "scanner_inventory": [
+    {
+      "applicable": true,
+      "evidence": "Python sources under src/.",
+      "id": "semgrep"
+    },
+    {
+      "applicable": true,
+      "evidence": "Git history is in scope.",
+      "id": "gitleaks"
+    },
+    {
+      "applicable": false,
+      "evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+      "id": "checkov"
+    }
+  ],
+  "scanner_receipts": [
+    {
+      "applicability_evidence": "Repository contains targets for semgrep.",
+      "artifact_path": "artifacts/semgrep.json",
+      "command": "semgrep --json src",
+      "config_fingerprint": "config-default",
+      "exit_code": 0,
+      "finished_at": "2026-08-28T00:00:01Z",
+      "id": "SR-semgrep",
+      "observed_finding_ids": [
+        "F-confirmed"
+      ],
+      "scanner_id": "semgrep",
+      "scanner_version": "1.0.0-test",
+      "started_at": "2026-08-28T00:00:00Z",
+      "state": "RAN",
+      "target_scope": {
+        "fingerprint": "scope-src",
+        "paths": [
+          "src"
+        ]
+      }
+    },
+    {
+      "applicability_evidence": "Repository contains targets for gitleaks.",
+      "artifact_path": "artifacts/gitleaks.json",
+      "command": "gitleaks --json src",
+      "config_fingerprint": "config-default",
+      "exit_code": 0,
+      "finished_at": "2026-08-28T00:00:01Z",
+      "id": "SR-gitleaks",
+      "observed_finding_ids": [
+        "F-confirmed"
+      ],
+      "scanner_id": "gitleaks",
+      "scanner_version": "1.0.0-test",
+      "started_at": "2026-08-28T00:00:00Z",
+      "state": "RAN",
+      "target_scope": {
+        "fingerprint": "scope-src",
+        "paths": [
+          "src"
+        ]
+      }
+    },
+    {
+      "applicability_evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+      "id": "SR-checkov",
+      "omission_reason": "No supported IaC files in the target.",
+      "scanner_id": "checkov",
+      "state": "NOT_APPLICABLE"
+    }
+  ],
+  "schema_version": 2,
+  "verifiers": []
+}

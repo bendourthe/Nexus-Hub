@@ -1,0 +1,653 @@
+{
+  "ambiguous_index_unchanged_by_query": true,
+  "calls": [
+    {
+      "case": "disposable-copy",
+      "failed": false,
+      "fields": [
+        "edges_inserted",
+        "files_indexed",
+        "files_skipped",
+        "nodes_inserted",
+        "root"
+      ],
+      "input_sha256": "90f9ac19898c627318865fbb78b11708d11dc70de392bfad512c0d638cae3806",
+      "matches": 0,
+      "operation": "index_graph",
+      "output_sha256": "6f8cddfa03cf535fcb8d4a4e71d409c4d375ebdd9a634af53407a1c0e4439947"
+    },
+    {
+      "case": "plain",
+      "failed": false,
+      "fields": [
+        "matches",
+        "root",
+        "symbol"
+      ],
+      "input_sha256": "8954d352537f3e5ad1dbffa89826cb24840de292ba2040ffcd3b670e24851bf5",
+      "matches": 1,
+      "operation": "code_node",
+      "output_sha256": "f515c4f11ca1eebcdbafecf74e22494381a75da8c47ebc8b44eb138608a17e74"
+    },
+    {
+      "case": "qualified",
+      "failed": false,
+      "fields": [
+        "matches",
+        "root",
+        "symbol"
+      ],
+      "input_sha256": "d60b0e8fe767d25f73ddf95aaeb1b70b135e85ea004df010b450c9a7db97a3e9",
+      "matches": 1,
+      "operation": "code_node",
+      "output_sha256": "e7dafb05bb5c652c7abd50d6ed7cbf92df9144af08726236727b7514aa01a4c5"
+    },
+    {
+      "case": "qualified",
+      "failed": false,
+      "fields": [
+        "matches",
+        "results",
+        "root",
+        "symbol"
+      ],
+      "input_sha256": "d60b0e8fe767d25f73ddf95aaeb1b70b135e85ea004df010b450c9a7db97a3e9",
+      "matches": 1,
+      "operation": "code_callers",
+      "output_sha256": "895ce28f081ed5184bc21644991a6ea1ac88a9907bbe961cfca9a752ad9278d0"
+    },
+    {
+      "case": "qualified",
+      "failed": false,
+      "fields": [
+        "matches",
+        "results",
+        "root",
+        "symbol"
+      ],
+      "input_sha256": "d60b0e8fe767d25f73ddf95aaeb1b70b135e85ea004df010b450c9a7db97a3e9",
+      "matches": 1,
+      "operation": "code_callees",
+      "output_sha256": "653e1b3e023e835527b9f0165272b4c249154d5be277793c41f2b5a0e75271b6"
+    },
+    {
+      "case": "qualified",
+      "failed": false,
+      "fields": [
+        "depth",
+        "matches",
+        "results",
+        "root",
+        "symbol"
+      ],
+      "input_sha256": "4b9ff3176d0e26ba831615e3a4f03c5822e2c9d081b9901a125984cd5d235f67",
+      "matches": 1,
+      "operation": "code_impact",
+      "output_sha256": "aaa7f0862d9de62d40032ea5a7150478b66b4fb4f8ac93852dc85b990e71cde6"
+    },
+    {
+      "case": "qualified",
+      "failed": false,
+      "fields": [
+        "matches",
+        "results",
+        "root",
+        "symbol"
+      ],
+      "input_sha256": "d60b0e8fe767d25f73ddf95aaeb1b70b135e85ea004df010b450c9a7db97a3e9",
+      "matches": 1,
+      "operation": "code_context",
+      "output_sha256": "218b17da40591fd80842d0c8860ece1f06fb786d2ece2c50e0764d84b55d5fbc"
+    },
+    {
+      "case": "qualified",
+      "failed": false,
+      "fields": [
+        "depth",
+        "matches",
+        "results",
+        "root",
+        "symbol"
+      ],
+      "input_sha256": "4b9ff3176d0e26ba831615e3a4f03c5822e2c9d081b9901a125984cd5d235f67",
+      "matches": 1,
+      "operation": "code_explore",
+      "output_sha256": "4515d3be9d176c8c3a92f4add0fd793652bc506e4a7881633b46f7839a21f79b"
+    },
+    {
+      "case": "qualified-hop",
+      "failed": false,
+      "fields": [
+        "matches",
+        "results",
+        "root",
+        "symbol"
+      ],
+      "input_sha256": "7c5c9ffdf9f27b1fc13688791de48e000e1f243bfd1f1960bd4dcd4c1d874599",
+      "matches": 1,
+      "operation": "code_callees",
+      "output_sha256": "09dd809eb9e36d6e9baeb4525f50015423b93fe3e24561b0d955beec73f42b12"
+    },
+    {
+      "case": "plain-control",
+      "failed": false,
+      "fields": [
+        "depth",
+        "matches",
+        "results",
+        "root",
+        "symbol"
+      ],
+      "input_sha256": "09b0b2e733f214d75eab4302d982b8198bc3629c5dc02af31534379455f0506f",
+      "matches": 1,
+      "operation": "code_explore",
+      "output_sha256": "1d1afaef4e881b4de84cfa5a769dfa0732ef9b6bd21387a516672fa61eb84500"
+    },
+    {
+      "case": "missing-control",
+      "failed": false,
+      "fields": [
+        "depth",
+        "matches",
+        "results",
+        "root",
+        "symbol"
+      ],
+      "input_sha256": "332c3937f5e0353e0a95277601a0b581718bff9489f62943e6505adec8cec9db",
+      "matches": 0,
+      "operation": "code_explore",
+      "output_sha256": "de7dc9e469610bb8ac04cc5b687e570f2f178c20b3d29903f504b035947a0608"
+    },
+    {
+      "case": "truncation-control",
+      "failed": false,
+      "fields": [
+        "matches",
+        "results",
+        "root",
+        "symbol"
+      ],
+      "input_sha256": "d60b0e8fe767d25f73ddf95aaeb1b70b135e85ea004df010b450c9a7db97a3e9",
+      "matches": 1,
+      "operation": "code_context",
+      "output_sha256": "218b17da40591fd80842d0c8860ece1f06fb786d2ece2c50e0764d84b55d5fbc"
+    },
+    {
+      "case": "ambiguity-copy",
+      "failed": false,
+      "fields": [
+        "edges_inserted",
+        "files_indexed",
+        "files_skipped",
+        "nodes_inserted",
+        "root"
+      ],
+      "input_sha256": "90f9ac19898c627318865fbb78b11708d11dc70de392bfad512c0d638cae3806",
+      "matches": 0,
+      "operation": "index_graph",
+      "output_sha256": "6f8cddfa03cf535fcb8d4a4e71d409c4d375ebdd9a634af53407a1c0e4439947"
+    },
+    {
+      "case": "ambiguity-control",
+      "failed": false,
+      "fields": [
+        "depth",
+        "matches",
+        "results",
+        "root",
+        "symbol"
+      ],
+      "input_sha256": "09b0b2e733f214d75eab4302d982b8198bc3629c5dc02af31534379455f0506f",
+      "matches": 2,
+      "operation": "code_explore",
+      "output_sha256": "f7d840d892012e4087d075f46f62b61ba3af709f0b1b7656821713f0756ebbce"
+    },
+    {
+      "case": "chunk-status-only",
+      "failed": false,
+      "fields": [
+        "error",
+        "files_processed",
+        "last_updated",
+        "root",
+        "state",
+        "total_files"
+      ],
+      "input_sha256": "90f9ac19898c627318865fbb78b11708d11dc70de392bfad512c0d638cae3806",
+      "matches": 0,
+      "operation": "get_indexing_status",
+      "output_sha256": "d13bbafddcc6a1c70e168321403f24284e79ab78b3c662a84ce5d1bcd7ce903d"
+    }
+  ],
+  "capabilities": [
+    {
+      "name": "get_indexing_status",
+      "parameters": [
+        "compact_min_savings_pct",
+        "response_format",
+        "root"
+      ],
+      "required": [
+        "root"
+      ],
+      "schema_sha256": "92659117be2a4e40fdaae5669ae1dbbad1e9378dba1c8c54207e08767fcbf5b8"
+    },
+    {
+      "name": "index_graph",
+      "parameters": [
+        "compact_min_savings_pct",
+        "force",
+        "response_format",
+        "root"
+      ],
+      "required": [
+        "root"
+      ],
+      "schema_sha256": "cafd77c2f8f3d8575e5586d6d624a5f69058f14c365c138164a85a81aef4d10e"
+    },
+    {
+      "name": "code_callers",
+      "parameters": [
+        "compact_min_savings_pct",
+        "response_format",
+        "root",
+        "symbol"
+      ],
+      "required": [
+        "root",
+        "symbol"
+      ],
+      "schema_sha256": "9c2ea08594621130605dac00588bdc86eea4805bb7c6dc3382a1ea5a2c35e73d"
+    },
+    {
+      "name": "code_callees",
+      "parameters": [
+        "compact_min_savings_pct",
+        "response_format",
+        "root",
+        "symbol"
+      ],
+      "required": [
+        "root",
+        "symbol"
+      ],
+      "schema_sha256": "9c2ea08594621130605dac00588bdc86eea4805bb7c6dc3382a1ea5a2c35e73d"
+    },
+    {
+      "name": "code_impact",
+      "parameters": [
+        "compact_min_savings_pct",
+        "depth",
+        "response_format",
+        "root",
+        "symbol"
+      ],
+      "required": [
+        "root",
+        "symbol"
+      ],
+      "schema_sha256": "eced70448a0c603fc53cbc4eba61d0279ff5948b582f19f637c0024b0d038a1b"
+    },
+    {
+      "name": "code_node",
+      "parameters": [
+        "compact_min_savings_pct",
+        "response_format",
+        "root",
+        "symbol"
+      ],
+      "required": [
+        "root",
+        "symbol"
+      ],
+      "schema_sha256": "9c2ea08594621130605dac00588bdc86eea4805bb7c6dc3382a1ea5a2c35e73d"
+    },
+    {
+      "name": "code_context",
+      "parameters": [
+        "compact_min_savings_pct",
+        "response_format",
+        "root",
+        "symbol"
+      ],
+      "required": [
+        "root",
+        "symbol"
+      ],
+      "schema_sha256": "9c2ea08594621130605dac00588bdc86eea4805bb7c6dc3382a1ea5a2c35e73d"
+    },
+    {
+      "name": "code_explore",
+      "parameters": [
+        "compact_min_savings_pct",
+        "depth",
+        "response_format",
+        "root",
+        "symbol"
+      ],
+      "required": [
+        "root",
+        "symbol"
+      ],
+      "schema_sha256": "eced70448a0c603fc53cbc4eba61d0279ff5948b582f19f637c0024b0d038a1b"
+    }
+  ],
+  "chunk_status": {
+    "last_updated_present": false,
+    "state": "idle"
+  },
+  "copy_index_exists": true,
+  "graph_quality": "unknown",
+  "graph_receipts": [
+    {
+      "ambiguity": "none",
+      "availability": "RAN",
+      "duration_ms": 0,
+      "fallback": "none",
+      "id": "G-3",
+      "index_digest": "d013a095a8486db6a7e67c69777d544de9df4b2da68470430455e23402750250",
+      "locations": [
+        {
+          "end_line": 2,
+          "path": "app.py",
+          "start_line": 1,
+          "symbol": "sha256:ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159"
+        }
+      ],
+      "operation": "code_node",
+      "parameters_digest": "85b9a0b8289d61ab60176f7c3c29af1e839aab3d20c9ff03cabea08b11a3658e",
+      "qualified": true,
+      "quality": "unknown",
+      "query_provenance": "nexus-code-search/code_node",
+      "reason_code": "GRAPH_UNKNOWN",
+      "result_count": 1,
+      "result_digest": "e7dafb05bb5c652c7abd50d6ed7cbf92df9144af08726236727b7514aa01a4c5",
+      "routing_manifest_digest": "788d02dc18cdf1e7c66f7e3eb6f7836403e4dd618d700e992a95debf4396adfc",
+      "run_fingerprint": "282e5c56e5be1fb58725b722717070c789260604a3259890e1509692bcc41621",
+      "scope_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "symbol": "sha256:ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159",
+      "target_revision": "0000000000000000000000000000000000000000",
+      "target_root_fingerprint": "c0bbb01369f42f75d7d15242a31943ab1c58d67d915e4324da95d5483753fdbb",
+      "truncated": false
+    },
+    {
+      "ambiguity": "none",
+      "availability": "RAN",
+      "duration_ms": 15,
+      "fallback": "none",
+      "id": "G-4",
+      "index_digest": "d013a095a8486db6a7e67c69777d544de9df4b2da68470430455e23402750250",
+      "locations": [
+        {
+          "end_line": 6,
+          "path": "app.py",
+          "start_line": 5,
+          "symbol": "sha256:80e5f4c99edabeedc54b5733d6cb6b989d17c9ef8d0b245d9056558b30ba8f62"
+        },
+        {
+          "end_line": 2,
+          "path": "app.py",
+          "start_line": 1,
+          "symbol": "sha256:ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159"
+        }
+      ],
+      "operation": "code_callers",
+      "parameters_digest": "85b9a0b8289d61ab60176f7c3c29af1e839aab3d20c9ff03cabea08b11a3658e",
+      "qualified": true,
+      "quality": "unknown",
+      "query_provenance": "nexus-code-search/code_callers",
+      "reason_code": "GRAPH_UNKNOWN",
+      "result_count": 1,
+      "result_digest": "895ce28f081ed5184bc21644991a6ea1ac88a9907bbe961cfca9a752ad9278d0",
+      "routing_manifest_digest": "788d02dc18cdf1e7c66f7e3eb6f7836403e4dd618d700e992a95debf4396adfc",
+      "run_fingerprint": "282e5c56e5be1fb58725b722717070c789260604a3259890e1509692bcc41621",
+      "scope_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "symbol": "sha256:ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159",
+      "target_revision": "0000000000000000000000000000000000000000",
+      "target_root_fingerprint": "c0bbb01369f42f75d7d15242a31943ab1c58d67d915e4324da95d5483753fdbb",
+      "truncated": false
+    },
+    {
+      "ambiguity": "none",
+      "availability": "RAN",
+      "duration_ms": 0,
+      "fallback": "none",
+      "id": "G-5",
+      "index_digest": "d013a095a8486db6a7e67c69777d544de9df4b2da68470430455e23402750250",
+      "locations": [],
+      "operation": "code_callees",
+      "parameters_digest": "85b9a0b8289d61ab60176f7c3c29af1e839aab3d20c9ff03cabea08b11a3658e",
+      "qualified": true,
+      "quality": "unknown",
+      "query_provenance": "nexus-code-search/code_callees",
+      "reason_code": "GRAPH_UNKNOWN",
+      "result_count": 1,
+      "result_digest": "653e1b3e023e835527b9f0165272b4c249154d5be277793c41f2b5a0e75271b6",
+      "routing_manifest_digest": "788d02dc18cdf1e7c66f7e3eb6f7836403e4dd618d700e992a95debf4396adfc",
+      "run_fingerprint": "282e5c56e5be1fb58725b722717070c789260604a3259890e1509692bcc41621",
+      "scope_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "symbol": "sha256:ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159",
+      "target_revision": "0000000000000000000000000000000000000000",
+      "target_root_fingerprint": "c0bbb01369f42f75d7d15242a31943ab1c58d67d915e4324da95d5483753fdbb",
+      "truncated": false
+    },
+    {
+      "ambiguity": "none",
+      "availability": "RAN",
+      "duration_ms": 0,
+      "fallback": "none",
+      "id": "G-6",
+      "index_digest": "d013a095a8486db6a7e67c69777d544de9df4b2da68470430455e23402750250",
+      "locations": [
+        {
+          "end_line": 6,
+          "path": "app.py",
+          "start_line": 5,
+          "symbol": "sha256:80e5f4c99edabeedc54b5733d6cb6b989d17c9ef8d0b245d9056558b30ba8f62"
+        },
+        {
+          "end_line": 2,
+          "path": "app.py",
+          "start_line": 1,
+          "symbol": "sha256:ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159"
+        }
+      ],
+      "operation": "code_impact",
+      "parameters_digest": "4c67663604fa8b0efdf9c8c3388432b8d0b5c813d586bcf8a5c7389136856e39",
+      "qualified": true,
+      "quality": "unknown",
+      "query_provenance": "nexus-code-search/code_impact",
+      "reason_code": "GRAPH_UNKNOWN",
+      "result_count": 1,
+      "result_digest": "aaa7f0862d9de62d40032ea5a7150478b66b4fb4f8ac93852dc85b990e71cde6",
+      "routing_manifest_digest": "788d02dc18cdf1e7c66f7e3eb6f7836403e4dd618d700e992a95debf4396adfc",
+      "run_fingerprint": "282e5c56e5be1fb58725b722717070c789260604a3259890e1509692bcc41621",
+      "scope_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "symbol": "sha256:ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159",
+      "target_revision": "0000000000000000000000000000000000000000",
+      "target_root_fingerprint": "c0bbb01369f42f75d7d15242a31943ab1c58d67d915e4324da95d5483753fdbb",
+      "truncated": false
+    },
+    {
+      "ambiguity": "none",
+      "availability": "RAN",
+      "duration_ms": 16,
+      "fallback": "none",
+      "id": "G-7",
+      "index_digest": "d013a095a8486db6a7e67c69777d544de9df4b2da68470430455e23402750250",
+      "locations": [
+        {
+          "end_line": 6,
+          "path": "app.py",
+          "start_line": 5,
+          "symbol": "sha256:80e5f4c99edabeedc54b5733d6cb6b989d17c9ef8d0b245d9056558b30ba8f62"
+        },
+        {
+          "end_line": 10,
+          "path": "app.py",
+          "start_line": 9,
+          "symbol": "sha256:96bb6220e183da48d01595ddf22ab776a5f9f492351df35d45ad834a5ff5880f"
+        },
+        {
+          "end_line": 2,
+          "path": "app.py",
+          "start_line": 1,
+          "symbol": "sha256:ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159"
+        }
+      ],
+      "operation": "code_context",
+      "parameters_digest": "85b9a0b8289d61ab60176f7c3c29af1e839aab3d20c9ff03cabea08b11a3658e",
+      "qualified": true,
+      "quality": "unknown",
+      "query_provenance": "nexus-code-search/code_context",
+      "reason_code": "GRAPH_UNKNOWN",
+      "result_count": 1,
+      "result_digest": "218b17da40591fd80842d0c8860ece1f06fb786d2ece2c50e0764d84b55d5fbc",
+      "routing_manifest_digest": "788d02dc18cdf1e7c66f7e3eb6f7836403e4dd618d700e992a95debf4396adfc",
+      "run_fingerprint": "282e5c56e5be1fb58725b722717070c789260604a3259890e1509692bcc41621",
+      "scope_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "symbol": "sha256:ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159",
+      "target_revision": "0000000000000000000000000000000000000000",
+      "target_root_fingerprint": "c0bbb01369f42f75d7d15242a31943ab1c58d67d915e4324da95d5483753fdbb",
+      "truncated": false
+    },
+    {
+      "ambiguity": "none",
+      "availability": "RAN",
+      "duration_ms": 0,
+      "fallback": "none",
+      "id": "G-8",
+      "index_digest": "d013a095a8486db6a7e67c69777d544de9df4b2da68470430455e23402750250",
+      "locations": [
+        {
+          "end_line": 6,
+          "path": "app.py",
+          "start_line": 5,
+          "symbol": "sha256:80e5f4c99edabeedc54b5733d6cb6b989d17c9ef8d0b245d9056558b30ba8f62"
+        },
+        {
+          "end_line": 2,
+          "path": "app.py",
+          "start_line": 1,
+          "symbol": "sha256:ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159"
+        }
+      ],
+      "operation": "code_explore",
+      "parameters_digest": "4c67663604fa8b0efdf9c8c3388432b8d0b5c813d586bcf8a5c7389136856e39",
+      "qualified": true,
+      "quality": "unknown",
+      "query_provenance": "nexus-code-search/code_explore",
+      "reason_code": "GRAPH_UNKNOWN",
+      "result_count": 1,
+      "result_digest": "4515d3be9d176c8c3a92f4add0fd793652bc506e4a7881633b46f7839a21f79b",
+      "routing_manifest_digest": "788d02dc18cdf1e7c66f7e3eb6f7836403e4dd618d700e992a95debf4396adfc",
+      "run_fingerprint": "282e5c56e5be1fb58725b722717070c789260604a3259890e1509692bcc41621",
+      "scope_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "symbol": "sha256:ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159",
+      "target_revision": "0000000000000000000000000000000000000000",
+      "target_root_fingerprint": "c0bbb01369f42f75d7d15242a31943ab1c58d67d915e4324da95d5483753fdbb",
+      "truncated": false
+    },
+    {
+      "ambiguity": "none",
+      "availability": "RAN",
+      "duration_ms": 16,
+      "fallback": "none",
+      "id": "G-9",
+      "index_digest": "d013a095a8486db6a7e67c69777d544de9df4b2da68470430455e23402750250",
+      "locations": [
+        {
+          "end_line": 6,
+          "path": "app.py",
+          "start_line": 5,
+          "symbol": "sha256:80e5f4c99edabeedc54b5733d6cb6b989d17c9ef8d0b245d9056558b30ba8f62"
+        },
+        {
+          "end_line": 2,
+          "path": "app.py",
+          "start_line": 1,
+          "symbol": "sha256:ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159"
+        }
+      ],
+      "operation": "code_callees",
+      "parameters_digest": "073ade5b8ac6319b44a9b8036195cfbd438f9b7f5e7e92b1c0f61cfb97c558e3",
+      "qualified": true,
+      "quality": "unknown",
+      "query_provenance": "nexus-code-search/code_callees",
+      "reason_code": "GRAPH_UNKNOWN",
+      "result_count": 1,
+      "result_digest": "09dd809eb9e36d6e9baeb4525f50015423b93fe3e24561b0d955beec73f42b12",
+      "routing_manifest_digest": "788d02dc18cdf1e7c66f7e3eb6f7836403e4dd618d700e992a95debf4396adfc",
+      "run_fingerprint": "282e5c56e5be1fb58725b722717070c789260604a3259890e1509692bcc41621",
+      "scope_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "symbol": "sha256:80e5f4c99edabeedc54b5733d6cb6b989d17c9ef8d0b245d9056558b30ba8f62",
+      "target_revision": "0000000000000000000000000000000000000000",
+      "target_root_fingerprint": "c0bbb01369f42f75d7d15242a31943ab1c58d67d915e4324da95d5483753fdbb",
+      "truncated": false
+    },
+    {
+      "ambiguity": "none",
+      "availability": "RAN",
+      "duration_ms": 15,
+      "fallback": "none",
+      "id": "G-11",
+      "index_digest": "d013a095a8486db6a7e67c69777d544de9df4b2da68470430455e23402750250",
+      "locations": [],
+      "operation": "code_explore",
+      "parameters_digest": "c8135d5d09df9a1c0e4a6fc6568258b7ff9789d4804e601179856e919427427e",
+      "qualified": true,
+      "quality": "unknown",
+      "query_provenance": "nexus-code-search/code_explore",
+      "reason_code": "GRAPH_NO_RESULT",
+      "result_count": 0,
+      "result_digest": "de7dc9e469610bb8ac04cc5b687e570f2f178c20b3d29903f504b035947a0608",
+      "routing_manifest_digest": "788d02dc18cdf1e7c66f7e3eb6f7836403e4dd618d700e992a95debf4396adfc",
+      "run_fingerprint": "282e5c56e5be1fb58725b722717070c789260604a3259890e1509692bcc41621",
+      "scope_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "symbol": "sha256:47ab258aff88182d6023f75e61631ab1fa6fa3173a1ee0c4b00b9cdf3286a49b",
+      "target_revision": "0000000000000000000000000000000000000000",
+      "target_root_fingerprint": "c0bbb01369f42f75d7d15242a31943ab1c58d67d915e4324da95d5483753fdbb",
+      "truncated": false
+    },
+    {
+      "ambiguity": "none",
+      "availability": "RAN",
+      "duration_ms": 0,
+      "fallback": "none",
+      "id": "G-12",
+      "index_digest": "d013a095a8486db6a7e67c69777d544de9df4b2da68470430455e23402750250",
+      "locations": [
+        {
+          "end_line": 10,
+          "path": "app.py",
+          "start_line": 9,
+          "symbol": "sha256:96bb6220e183da48d01595ddf22ab776a5f9f492351df35d45ad834a5ff5880f"
+        }
+      ],
+      "operation": "code_context",
+      "parameters_digest": "85b9a0b8289d61ab60176f7c3c29af1e839aab3d20c9ff03cabea08b11a3658e",
+      "qualified": true,
+      "quality": "partial",
+      "query_provenance": "nexus-code-search/code_context",
+      "reason_code": "GRAPH_PARTIAL",
+      "result_count": 1,
+      "result_digest": "218b17da40591fd80842d0c8860ece1f06fb786d2ece2c50e0764d84b55d5fbc",
+      "routing_manifest_digest": "788d02dc18cdf1e7c66f7e3eb6f7836403e4dd618d700e992a95debf4396adfc",
+      "run_fingerprint": "282e5c56e5be1fb58725b722717070c789260604a3259890e1509692bcc41621",
+      "scope_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "symbol": "sha256:ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159",
+      "target_revision": "0000000000000000000000000000000000000000",
+      "target_root_fingerprint": "c0bbb01369f42f75d7d15242a31943ab1c58d67d915e4324da95d5483753fdbb",
+      "truncated": true
+    }
+  ],
+  "index_unchanged_by_queries": true,
+  "original_after_sha256": "9614b651895143fa026dcdc7de445884fbaaa13e51897474a5040395e1af210d",
+  "original_before_sha256": "9614b651895143fa026dcdc7de445884fbaaa13e51897474a5040395e1af210d",
+  "original_unchanged": true,
+  "owned_copy_cleaned": true,
+  "profile": "standard",
+  "qualified_explore_failed": false,
+  "qualified_symbol_sha256": "ca4aa817bc75818bd6a51cbbfef88b34d5700dcd5ca78f4ce5490b28e5433159",
+  "schema": "nexus.qualified-explore-probe/v1"
+}

@@ -44,6 +44,13 @@ def test_platform_flattens_skills_one_level(install_ctx: InstallContext, key: st
 
     skill_dirs = [p for p in skills_dir.iterdir() if p.is_dir()]
     assert len(skill_dirs) >= 50, f"{key}: expected the flat catalog; got {len(skill_dirs)}"
+    for relative in ("scripts/emit-sarif.py", "scripts/_normalized_audit.py", "references/application-security-sarif.md", "scripts/_benchmark_corpus.py", "scripts/_benchmark_protocol.py", "scripts/_benchmark_scoring.py", "scripts/_benchmark_lifecycle.py", "scripts/build-security-audit-projection.py", "scripts/score-security-audit.py", "scripts/manage-security-audit-benchmark.py", "references/security-audit-benchmark.md"):
+        original = install_ctx.repo_root / "catalog/skills/code-review/security-review" / relative
+        assert (skills_dir / "security-review" / relative).read_bytes() == original.read_bytes()
+    corpus_names = {p.name for p in (install_ctx.repo_root / "tests/fixtures/security-audit-appsec/source").iterdir()}
+    installed_names = {p.name for p in skills_dir.rglob("*")}
+    assert not corpus_names & installed_names
+    assert not {"security-audit-appsec", "answer-projection-map.json", "run-plan.json", "attempt-ledger.jsonl"} & installed_names
     for skill in skill_dirs[:10]:
         assert (skill / "SKILL.md").exists(), f"{key}: {skill.name}/ must hold SKILL.md directly"
 

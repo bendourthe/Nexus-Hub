@@ -405,3 +405,50 @@ def test_every_validator_make_validate_runs_is_reachable_from_ci():
         f"job, so they guard nothing in CI: {missing}. Add each to the right "
         "Group in scripts/ci/profiles.py."
     )
+
+
+def test_windows_checkouts_enable_long_paths_before_reading_the_ledger():
+    """The immutable ledger exceeds MAX_PATH before any Python test can run."""
+    checked = set()
+    for path in ALL_WORKFLOWS:
+        for name, job in load(path).get("jobs", {}).items():
+            runner = job.get("runs-on", "")
+            matrix_os = job.get("strategy", {}).get("matrix", {}).get("os", [])
+            windows = (
+                isinstance(runner, str) and runner.startswith("windows-")
+            ) or ("matrix.os" in str(runner) and any(str(os).startswith("windows-") for os in matrix_os))
+            if not windows:
+                continue
+            steps = job.get("steps", [])
+            checkouts = [i for i, step in enumerate(steps) if str(step.get("uses", "")).startswith("actions/checkout@")]
+            assert checkouts, f"{path.name}/{name} has no inspectable checkout"
+            for checkout in checkouts:
+                assert any(
+                    step.get("run", "").strip() == "git config --global core.longpaths true"
+                    and step.get("if") == "runner.os == 'Windows'"
+                    and step.get("shell") == "pwsh"
+                    for step in steps[:checkout]
+                ), f"{path.name}/{name} can encounter a long path before enabling Git support"
+            checked.add((path.name, name))
+    assert {
+        ("ci.yml", "tests-windows"),
+        ("ci.yml", "bootstrap-windows"),
+        ("ci.yml", "install-smoke"),
+        ("ci.yml", "installer-smoke"),
+        ("nexus-memory.yml", "test-locking-matrix"),
+    } <= checked
+
+
+@pytest.mark.parametrize("job_name", ["validate", "tests-windows"])
+def test_interpreter_gate_is_selected_before_merge(job_name):
+    """A local interpreter gate must not become a post-merge-only check."""
+    steps = load(CI)["jobs"][job_name]["steps"]
+    assert any(
+        "scripts/ci/run.py" in str(step.get("run", ""))
+        and step.get("if") is None
+        and any(
+            "interpreters" in selected.split(",")
+            for selected in re.findall(r"--only\s+([\w,-]+)", str(step.get("run", "")))
+        )
+        for step in steps
+    ), f"{job_name} omits the repository-native interpreter gate"

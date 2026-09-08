@@ -1,0 +1,581 @@
+{
+  "application_audit": {
+    "claimed_health": "degraded",
+    "execution_boundary": {
+      "authorized": false,
+      "boundary_status": "offline-only",
+      "credential_privilege": "none",
+      "credential_source": "none",
+      "limitation": "self-attested; proves no process identity, arguments, model, settings, retries, or answer-key non-access",
+      "outbound_destinations": [],
+      "transmitted_data_classes": []
+    },
+    "graph_receipts": [
+      {
+        "ambiguity": "none",
+        "availability": "RAN",
+        "duration_ms": 1,
+        "fallback": "none",
+        "id": "G-1",
+        "index_digest": "6666666666666666666666666666666666666666666666666666666666666666",
+        "locations": [],
+        "operation": "code_node",
+        "parameters_digest": "4444444444444444444444444444444444444444444444444444444444444444",
+        "qualified": true,
+        "quality": "complete",
+        "query_provenance": "nexus-code-search/code_node",
+        "reason_code": "GRAPH_RETURNED",
+        "result_count": 1,
+        "result_digest": "5555555555555555555555555555555555555555555555555555555555555555",
+        "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "symbol": "sha256:225700a61e66de4482a445449c2853e402e1b2aa4e6c92319e6378f3ba6ec9a6",
+        "target_revision": "0000000000000000000000000000000000000000",
+        "target_root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "truncated": false
+      }
+    ],
+    "observed_artifacts": [
+      {
+        "digest": "3333333333333333333333333333333333333333333333333333333333333333",
+        "id": "A-envelope",
+        "provenance": "content_observed",
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "run_id": "run-2026-09-08-appsec-0001",
+        "stage_id": "S-scope"
+      }
+    ],
+    "profile_version": 1,
+    "required_stage_identities": [
+      "security-review/scope",
+      "code-search/reachability"
+    ],
+    "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+    "run_id": "run-2026-09-08-appsec-0001",
+    "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "stages": [
+      {
+        "artifact_ids": [
+          "A-envelope"
+        ],
+        "binding": {
+          "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+          "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "target_manifest_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "target_revision": "0000000000000000000000000000000000000000",
+          "target_root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "config_digest": "08efe9fc749b017e0b025186571974dc327ab68e937b9bbf27fd223a87b5dc1e",
+        "duration_ms": 1000,
+        "execution_context": {
+          "boundary_status": "offline-only",
+          "host_identity": "fixture-host",
+          "model_identity": "none",
+          "settings_digest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        },
+        "finished_at": "2026-09-08T00:00:01Z",
+        "id": "S-scope",
+        "kind": "local",
+        "provenance": "content_observed",
+        "reason_code": "OFFLINE_ONLY",
+        "required": true,
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "run_id": "run-2026-09-08-appsec-0001",
+        "stage_identity": "security-review/scope",
+        "started_at": "2026-09-08T00:00:00Z",
+        "state": "DECLINED",
+        "tool_identity": "security-review/scope",
+        "tool_version": "fixture-v1"
+      },
+      {
+        "artifact_ids": [
+          "A-envelope"
+        ],
+        "binding": {
+          "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+          "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "target_manifest_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "target_revision": "0000000000000000000000000000000000000000",
+          "target_root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "config_digest": "08efe9fc749b017e0b025186571974dc327ab68e937b9bbf27fd223a87b5dc1e",
+        "duration_ms": 1000,
+        "execution_context": {
+          "boundary_status": "offline-only",
+          "host_identity": "fixture-host",
+          "model_identity": "none",
+          "settings_digest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        },
+        "finished_at": "2026-09-08T00:00:01Z",
+        "id": "S-graph",
+        "kind": "local",
+        "provenance": "content_observed",
+        "reason_code": "RAN",
+        "required": true,
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "run_id": "run-2026-09-08-appsec-0001",
+        "stage_identity": "code-search/reachability",
+        "started_at": "2026-09-08T00:00:00Z",
+        "state": "RAN",
+        "tool_identity": "code-search/reachability",
+        "tool_version": "fixture-v1"
+      },
+      {
+        "artifact_ids": [
+          "A-envelope"
+        ],
+        "binding": {
+          "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+          "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "target_manifest_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "target_revision": "0000000000000000000000000000000000000000",
+          "target_root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "config_digest": "08efe9fc749b017e0b025186571974dc327ab68e937b9bbf27fd223a87b5dc1e",
+        "duration_ms": 1000,
+        "execution_context": {
+          "boundary_status": "offline-only",
+          "host_identity": "fixture-host",
+          "model_identity": "none",
+          "settings_digest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+        },
+        "finished_at": "2026-09-08T00:00:01Z",
+        "id": "S-model",
+        "kind": "model",
+        "provenance": "self_attested",
+        "reason_code": "NO_OUTBOUND_AUTHORIZATION",
+        "required": false,
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "run_id": "run-2026-09-08-appsec-0001",
+        "stage_identity": "model/triage",
+        "started_at": "2026-09-08T00:00:00Z",
+        "state": "DECLINED",
+        "tool_identity": "model/triage",
+        "tool_version": "fixture-v1"
+      }
+    ],
+    "supported_surfaces": [
+      "python-source",
+      "typescript-source",
+      "dependency-manifest"
+    ],
+    "surface_receipts": [
+      {
+        "evidence_digest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "result": "matched",
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "surface": "python-source"
+      },
+      {
+        "evidence_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+        "result": "negative_checked",
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "surface": "typescript-source"
+      },
+      {
+        "evidence_digest": "2222222222222222222222222222222222222222222222222222222222222222",
+        "result": "matched",
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "surface": "dependency-manifest"
+      }
+    ],
+    "target_identity": {
+      "coverage": [
+        "tracked",
+        "dirty",
+        "untracked",
+        "submodule",
+        "link"
+      ],
+      "kind": "content_manifest",
+      "manifest_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    "target_revalidation": {
+      "after_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "before_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "changed": false
+    },
+    "target_revision": "0000000000000000000000000000000000000000",
+    "target_root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "components": [
+    {
+      "id": "api",
+      "review_action_ids": [
+        "RA-1"
+      ],
+      "status": "COVERED"
+    },
+    {
+      "caveat": "Generated code is outside the declared scope.",
+      "id": "generated-client",
+      "review_action_ids": [],
+      "status": "OMITTED"
+    }
+  ],
+  "deterministic_coverage": {
+    "status": "complete"
+  },
+  "facts": [
+    {
+      "evidence": "artifact:F-confirmed.txt",
+      "id": "FACT-1"
+    }
+  ],
+  "findings": [
+    {
+      "confidence": 0.9,
+      "disposition": "confirmed",
+      "evidence_fact_ids": [
+        "FACT-1"
+      ],
+      "evidence_receipt_ids": [
+        "SR-semgrep"
+      ],
+      "id": "F-confirmed",
+      "language": "python",
+      "location": {
+        "end_line": 2,
+        "path": "src/app.py",
+        "start_line": 2
+      },
+      "release_blocking": true,
+      "severity": "high",
+      "title": "Producer title is intentionally not copied",
+      "vulnerability_kind": "sql-injection"
+    },
+    {
+      "confidence": 0.9,
+      "disposition": "needs-live-validation",
+      "evidence_receipt_ids": [
+        "SR-semgrep"
+      ],
+      "id": "F-pending",
+      "language": "python",
+      "location": {
+        "end_line": 3,
+        "path": "src/app.py",
+        "start_line": 3
+      },
+      "pending_validation": {
+        "expected_safe": "The response is 403 or 404.",
+        "expected_vulnerable": "The response returns the target record.",
+        "potential_severity": "P1 HIGH",
+        "safe_test": "Send one unauthorized read request."
+      },
+      "release_blocking": true,
+      "severity": "high",
+      "title": "Producer title is intentionally not copied",
+      "vulnerability_kind": "os-command-injection"
+    },
+    {
+      "confidence": 0.9,
+      "disposition": "corrected",
+      "evidence_receipt_ids": [
+        "SR-semgrep"
+      ],
+      "id": "F-corrected",
+      "language": "python",
+      "location": {
+        "end_line": 4,
+        "path": "src/app.py",
+        "start_line": 4
+      },
+      "release_blocking": false,
+      "severity": "medium",
+      "source_scanner_id": "semgrep",
+      "title": "Producer title is intentionally not copied",
+      "vulnerability_kind": "path-traversal"
+    },
+    {
+      "confidence": 0.9,
+      "disposition": "rejected",
+      "evidence_receipt_ids": [
+        "SR-semgrep"
+      ],
+      "id": "F-rejected",
+      "language": "python",
+      "location": {
+        "end_line": 5,
+        "path": "src/app.py",
+        "start_line": 5
+      },
+      "rejection_record": {
+        "actual_input_sources": [
+          "path",
+          "body"
+        ],
+        "counter_hypothesis": "All actual routes enforce ownership.",
+        "reachability_claim": false,
+        "routes": [
+          {
+            "evidence": "test:path-owner-guard",
+            "result": "observed-safe",
+            "source": "path"
+          },
+          {
+            "evidence": "trace:body-id-ignored",
+            "result": "observed-blocked",
+            "source": "body"
+          }
+        ]
+      },
+      "release_blocking": false,
+      "severity": "medium",
+      "title": "Producer title is intentionally not copied",
+      "vulnerability_kind": "ssrf"
+    }
+  ],
+  "remediation_receipts": [
+    {
+      "after_receipt_id": "SR-semgrep-after",
+      "artifact_ids": [
+        "A-envelope"
+      ],
+      "before_receipt_id": "SR-semgrep",
+      "binding": {
+        "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "target_manifest_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "target_revision": "0000000000000000000000000000000000000000",
+        "target_root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "config_digest": "08efe9fc749b017e0b025186571974dc327ab68e937b9bbf27fd223a87b5dc1e",
+      "duration_ms": 1000,
+      "execution_context": {
+        "boundary_status": "offline-only",
+        "host_identity": "fixture-host",
+        "model_identity": "none",
+        "settings_digest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "finding_delta": {
+        "new_finding_ids": [],
+        "unresolved_finding_ids": []
+      },
+      "finding_ids": [
+        "F-corrected"
+      ],
+      "finished_at": "2026-09-08T00:00:01Z",
+      "fixer_identity": "fixture-fixer",
+      "id": "R-1",
+      "reason_code": "RAN",
+      "stage_identity": "security-patch-advisor",
+      "started_at": "2026-09-08T00:00:00Z",
+      "state": "RAN",
+      "tool_identity": "security-patch-advisor",
+      "tool_version": "fixture-v1"
+    }
+  ],
+  "report_claims": [
+    {
+      "fact_ids": [
+        "FACT-1"
+      ],
+      "id": "CLAIM-1"
+    }
+  ],
+  "review_actions": [
+    {
+      "action": "Traced request inputs to authorization checks.",
+      "component_id": "api",
+      "evidence": "trace:api-auth",
+      "id": "RA-1",
+      "result": "One surviving finding."
+    }
+  ],
+  "scanner_inventory": [
+    {
+      "applicable": true,
+      "evidence": "Python sources under src/.",
+      "id": "semgrep"
+    },
+    {
+      "applicable": true,
+      "evidence": "Git history is in scope.",
+      "id": "gitleaks"
+    },
+    {
+      "applicable": false,
+      "evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+      "id": "checkov"
+    }
+  ],
+  "scanner_receipts": [
+    {
+      "applicability_evidence": "Repository contains targets for semgrep.",
+      "artifact_ids": [
+        "A-envelope"
+      ],
+      "artifact_path": "artifacts/semgrep.json",
+      "binding": {
+        "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "target_manifest_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "target_revision": "0000000000000000000000000000000000000000",
+        "target_root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "command": "semgrep --json src",
+      "config_digest": "82c8d2574a8caa0139942e8ef38b6e610811dd28fbf23157c79c05530140e2ea",
+      "config_fingerprint": "config-default",
+      "duration_ms": 1000,
+      "exit_code": 0,
+      "finished_at": "2026-09-08T00:00:01Z",
+      "id": "SR-semgrep",
+      "observed_finding_ids": [
+        "F-confirmed",
+        "F-corrected"
+      ],
+      "reason_code": "RAN",
+      "scanner_id": "semgrep",
+      "scanner_version": "1.0.0-test",
+      "started_at": "2026-09-08T00:00:00Z",
+      "state": "RAN",
+      "target_scope": {
+        "fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "paths": [
+          "src"
+        ]
+      },
+      "tool_version": "1.0.0-test"
+    },
+    {
+      "applicability_evidence": "Repository contains targets for gitleaks.",
+      "artifact_ids": [
+        "A-envelope"
+      ],
+      "artifact_path": "artifacts/gitleaks.json",
+      "binding": {
+        "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "target_manifest_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "target_revision": "0000000000000000000000000000000000000000",
+        "target_root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "command": "gitleaks --json src",
+      "config_digest": "82c8d2574a8caa0139942e8ef38b6e610811dd28fbf23157c79c05530140e2ea",
+      "config_fingerprint": "config-default",
+      "duration_ms": 1000,
+      "exit_code": 0,
+      "finished_at": "2026-09-08T00:00:01Z",
+      "id": "SR-gitleaks",
+      "observed_finding_ids": [
+        "F-confirmed"
+      ],
+      "reason_code": "RAN",
+      "scanner_id": "gitleaks",
+      "scanner_version": "1.0.0-test",
+      "started_at": "2026-09-08T00:00:00Z",
+      "state": "RAN",
+      "target_scope": {
+        "fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "paths": [
+          "src"
+        ]
+      },
+      "tool_version": "1.0.0-test"
+    },
+    {
+      "applicability_evidence": "No Terraform, Kubernetes, CloudFormation, or ARM files found.",
+      "artifact_ids": [
+        "A-envelope"
+      ],
+      "binding": {
+        "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "target_manifest_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "target_revision": "0000000000000000000000000000000000000000",
+        "target_root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "config_digest": "08efe9fc749b017e0b025186571974dc327ab68e937b9bbf27fd223a87b5dc1e",
+      "duration_ms": 1000,
+      "finished_at": "2026-09-08T00:00:01Z",
+      "id": "SR-checkov",
+      "omission_reason": "No supported IaC files in the target.",
+      "reason_code": "NOT_APPLICABLE",
+      "scanner_id": "checkov",
+      "started_at": "2026-09-08T00:00:00Z",
+      "state": "NOT_APPLICABLE",
+      "tool_version": "fixture-v1"
+    },
+    {
+      "applicability_evidence": "Repository contains targets for semgrep.",
+      "artifact_ids": [
+        "A-envelope"
+      ],
+      "artifact_path": "artifacts/semgrep.json",
+      "binding": {
+        "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "target_manifest_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "target_revision": "0000000000000000000000000000000000000000",
+        "target_root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "command": "semgrep --json src",
+      "config_digest": "82c8d2574a8caa0139942e8ef38b6e610811dd28fbf23157c79c05530140e2ea",
+      "config_fingerprint": "config-default",
+      "duration_ms": 1000,
+      "exit_code": 0,
+      "finished_at": "2026-09-08T00:00:01Z",
+      "id": "SR-semgrep-after",
+      "observed_finding_ids": [
+        "F-confirmed"
+      ],
+      "reason_code": "RAN",
+      "scanner_id": "semgrep",
+      "scanner_version": "1.0.0-test",
+      "started_at": "2026-09-08T00:00:00Z",
+      "state": "RAN",
+      "target_scope": {
+        "fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "paths": [
+          "src"
+        ]
+      },
+      "tool_version": "1.0.0-test"
+    }
+  ],
+  "schema_version": 2,
+  "verifiers": [
+    {
+      "artifact_ids": [
+        "A-envelope"
+      ],
+      "binding": {
+        "routing_manifest_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "run_fingerprint": "b06d020f7946ea2026365a697664833ee74641be0a4585fa7fdf8e9e56e260ab",
+        "scope_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "target_manifest_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "target_revision": "0000000000000000000000000000000000000000",
+        "target_root_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "config_digest": "08efe9fc749b017e0b025186571974dc327ab68e937b9bbf27fd223a87b5dc1e",
+      "duration_ms": 1000,
+      "execution_context": {
+        "boundary_status": "offline-only",
+        "host_identity": "fixture-host",
+        "model_identity": "none",
+        "settings_digest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      "finished_at": "2026-09-08T00:00:01Z",
+      "id": "V-1",
+      "identity": "fixture-independent-reviewer",
+      "read_only": true,
+      "reason_code": "RAN",
+      "stage_identity": "independent-verifier",
+      "started_at": "2026-09-08T00:00:00Z",
+      "state": "RAN",
+      "tool_identity": "independent-verifier",
+      "tool_version": "fixture-v1"
+    }
+  ]
+}
