@@ -507,3 +507,71 @@ def test_absent_identity_primitive_fails_closed(monkeypatch) -> None:
     with pytest.raises(safe.UnsafeArtifactError) as exc:
         safe.require_race_safe_primitives()
     assert exc.value.code == "no_race_safe_primitives"
+
+
+def test_exclusive_publish_never_overwrites(tmp_path):
+    path = tmp_path / "entry.json"
+    safe.atomic_publish_bytes(tmp_path, path, b"original")
+    with pytest.raises(FileExistsError):
+        safe.atomic_publish_bytes(tmp_path, path, b"replacement")
+    assert safe.open_contained_bytes(tmp_path, path) == b"original"
+    assert list(tmp_path.iterdir()) == [path]
+    safe.sync_contained_directory(tmp_path, tmp_path)
+
+
+def test_concurrent_exclusive_publication_has_one_winner(tmp_path):
+    from concurrent.futures import ThreadPoolExecutor
+
+    def publish(value):
+        try:
+            safe.atomic_publish_bytes(tmp_path, tmp_path / "entry", value)
+            return value
+        except FileExistsError:
+            return None
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        values = list(pool.map(publish, [b"one", b"two"]))
+    winners = [v for v in values if v is not None]
+    assert len(winners) == 1 and (tmp_path / "entry").read_bytes() == winners[0]
+    assert len(list(tmp_path.iterdir())) == 1
+
+
+def test_directory_flush_failure_prevents_publication(tmp_path, monkeypatch):
+    from contextlib import contextmanager
+
+    @contextmanager
+    def unavailable(directory, guarded_fd=None):
+        raise safe.UnsafeArtifactError("directory_sync_unavailable", "test")
+        yield
+    monkeypatch.setattr(safe, "_durable_directory", unavailable)
+    with pytest.raises(safe.UnsafeArtifactError):
+        safe.atomic_publish_bytes(tmp_path, tmp_path / "entry", b"bytes")
+    assert not list(tmp_path.iterdir())
+
+
+def test_exclusive_publication_rejects_escape(tmp_path):
+    with pytest.raises(safe.UnsafeArtifactError):
+        safe.atomic_publish_bytes(tmp_path, tmp_path / "../outside", b"bytes")
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX descriptor race")
+def test_publication_uses_verified_directory_after_ancestor_swap(tmp_path, monkeypatch):
+    from contextlib import contextmanager
+
+    original = safe._durable_directory
+    root = tmp_path / "root"
+    outside = tmp_path / "outside"
+    root.mkdir(); outside.mkdir()
+    moved = tmp_path / "moved"
+
+    @contextmanager
+    def swapped(directory, guarded_fd=None):
+        root.rename(moved)
+        root.symlink_to(outside, target_is_directory=True)
+        with original(directory, guarded_fd) as result:
+            yield result
+    monkeypatch.setattr(safe, "_durable_directory", swapped)
+    with pytest.raises(safe.UnsafeArtifactError):
+        safe.atomic_publish_bytes(root, root / "entry", b"content")
+    assert not list(outside.iterdir())
+    assert (moved / "entry").read_bytes() == b"content"
+    assert (moved / "entry").stat().st_nlink == 1

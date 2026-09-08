@@ -36,9 +36,9 @@
       "MEDIUM": 275,
       "HIGH": 6
     },
-    "total_lines": 137120,
-    "total_tokens_estimate": 740960,
-    "average_lines_per_skill": 417,
+    "total_lines": 137312,
+    "total_tokens_estimate": 744275,
+    "average_lines_per_skill": 408,
     "languages_supported": [
       "Python",
       "JavaScript",
@@ -1589,9 +1589,9 @@
       "path": "catalog/skills/code-review/security-review/",
       "file": "catalog/skills/code-review/security-review/SKILL.md",
       "size": {
-        "lines": 276,
-        "characters": 10411,
-        "tokens_estimate": 1470
+        "lines": 468,
+        "characters": 34306,
+        "tokens_estimate": 4785
       },
       "downloads": 0,
       "status": "production",

@@ -242,7 +242,7 @@ def open_contained_bytes(
 
 
 @contextmanager
-def _directory_guard(directory: Path) -> Iterator[None]:
+def _directory_guard(directory: Path) -> Iterator[int | None]:
     """Hold directory identities throughout an operation, refusing reparses.
 
     Windows handles omit delete sharing so ancestors cannot be renamed while
@@ -287,7 +287,7 @@ def _directory_guard(directory: Path) -> Iterator[None]:
         for path, identity in observed:
             if is_link_like(path) or _identity(path.lstat()) != identity:
                 _reject("ancestor_swap", "ancestor identity changed")
-        yield
+        yield None if os.name == "nt" else handles[-1]
         for path, identity in observed:
             if is_link_like(path) or _identity(path.lstat()) != identity:
                 _reject("ancestor_swap", "ancestor identity changed")
@@ -595,3 +595,115 @@ def _atomic_write_bytes(destination: Path, payload: bytes) -> None:
                 os.close(dir_fd)
     finally:
         staging.unlink(missing_ok=True)
+
+
+@contextmanager
+def _durable_directory(directory: Path, guarded_fd: int | None = None) -> Iterator[tuple[object, object]]:
+    """Open and prove a directory flush primitive before publishing evidence."""
+    if os.name == "nt":
+        import ctypes
+        from ctypes import wintypes
+
+        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        create = kernel.CreateFileW
+        create.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+        create.restype = wintypes.HANDLE
+        flush = kernel.FlushFileBuffers
+        flush.argtypes = [wintypes.HANDLE]
+        flush.restype = wintypes.BOOL
+        close = kernel.CloseHandle
+        close.argtypes = [wintypes.HANDLE]
+        handle = create(str(directory), 0xC0000000, 3, None, 3, 0x02200000, None)
+        if handle == ctypes.c_void_p(-1).value:
+            _reject("directory_sync_unavailable", "cannot open writable directory handle")
+        try:
+            def sync() -> None:
+                if not flush(handle):
+                    _reject("directory_sync_unavailable", "directory flush failed")
+            sync()
+            yield None, sync
+        finally:
+            close(handle)
+    else:
+        if guarded_fd is None:
+            _reject("directory_sync_unavailable", "verified directory descriptor required")
+        os.fsync(guarded_fd)
+        yield guarded_fd, lambda: os.fsync(guarded_fd)
+
+
+def _rename_exclusive(directory_fd: int, source: str, destination: str) -> None:
+    """One native rename avoids an interruptible two-link publication state."""
+    import ctypes
+    import errno
+
+    libc = ctypes.CDLL(None, use_errno=True)
+    name, flag = ("renameatx_np", 4) if sys.platform == "darwin" else ("renameat2", 1)
+    rename = getattr(libc, name, None)
+    if rename is None:
+        _reject("exclusive_publish_unavailable", "native no-replace rename unavailable")
+    rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+    rename.restype = ctypes.c_int
+    if rename(directory_fd, os.fsencode(source), directory_fd, os.fsencode(destination), flag):
+        error = ctypes.get_errno()
+        if error == errno.EEXIST:
+            raise FileExistsError("immutable destination exists")
+        _reject("exclusive_publish_failed", "native no-replace publication failed")
+
+
+def sync_contained_directory(root: Path, directory: Path) -> None:
+    """Re-flush an existing identical artifact's parent during safe recovery."""
+    directory = assert_no_reparse_in_chain(root, directory)
+    with _directory_guard(directory) as guarded_fd, _durable_directory(directory, guarded_fd) as (_, sync):
+        sync()
+
+
+def atomic_publish_bytes(root: Path, destination: Path, payload: bytes) -> None:
+    """Durably publish one new file; never replace an existing destination.
+
+    Windows uses native MoveFileExW without REPLACE_EXISTING and a writable
+    directory flush handle. POSIX uses a verified dirfd-anchored native atomic
+    no-replace rename, then fsyncs the directory. Unsupported primitives
+    fail closed. An interrupted final artifact is retained for verified recovery.
+    """
+    require_race_safe_primitives()
+    if not isinstance(payload, bytes) or len(payload) > MAX_ARTIFACT_BYTES:
+        _reject("invalid_payload", "exclusive publication payload exceeds limit")
+    target = assert_no_reparse_in_chain(root, destination)
+    with _directory_guard(target.parent) as guarded_fd, _durable_directory(target.parent, guarded_fd) as (directory_fd, sync):
+        temporary_name = ".nexus-publish-" + uuid.uuid4().hex + ".tmp"
+        temporary = target.parent / temporary_name
+        kwargs = {"dir_fd": directory_fd} if directory_fd is not None else {}
+        descriptor = os.open(temporary_name if directory_fd is not None else temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0), _OWNER_ONLY_FILE, **kwargs)
+        try:
+            if os.name == "nt":
+                _windows_owner_only(temporary)
+            with os.fdopen(descriptor, "wb") as handle:
+                descriptor = None
+                handle.write(payload)
+                handle.flush()
+                os.fsync(handle.fileno())
+            if os.name == "nt":
+                import ctypes
+                from ctypes import wintypes
+
+                move = ctypes.WinDLL("kernel32", use_last_error=True).MoveFileExW
+                move.argtypes = [wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.DWORD]
+                move.restype = wintypes.BOOL
+                if not move(str(temporary), str(target), 8):
+                    error = ctypes.get_last_error()
+                    if error in {80, 183}:
+                        raise FileExistsError("immutable destination exists")
+                    _reject("exclusive_publish_failed", "native no-replace publication failed")
+            else:
+                _rename_exclusive(directory_fd, temporary_name, target.name)
+            sync()
+        finally:
+            if descriptor is not None:
+                os.close(descriptor)
+            if directory_fd is not None:
+                try:
+                    os.unlink(temporary_name, dir_fd=directory_fd)
+                except FileNotFoundError:
+                    pass
+            else:
+                temporary.unlink(missing_ok=True)
