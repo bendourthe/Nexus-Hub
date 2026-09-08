@@ -476,6 +476,16 @@ make test        # pytest hook test suite
 make build-catalog  # Rebuild data/ from catalog/
 ```
 
+**The repository-native profiles are the canonical gate, and they need no `make`.** CI does not invoke the `Makefile`: `.github/workflows/ci.yml` calls `scripts/ci/run.py`, whose step list in `scripts/ci/profiles.py` is the definitive one. Run the same thing locally, on any host:
+
+```bash
+python scripts/ci/run.py --profile fast    # ~8s; the pre-commit gate
+python scripts/ci/run.py --profile full    # the complete gate CI's `validate` job runs
+python scripts/ci/run.py --profile fast --list   # show the steps without running them
+```
+
+Prefer these over transcribing a `Makefile` target by hand. `make` is not present on every supported development host (notably a stock Windows workstation), and the `validate` target maintains a hand-kept step list that the profile already contains as a superset. During v4.8.0 a contributor without `make` ran the target's steps individually, each passed, and the pull request still failed `validate` on a step that had last run several phases earlier: the composite claim was never true at one revision. One command against one list is what prevents that. See `WN-D` and the `## Full-suite testing and stabilization` section of `docs/releases/v4/v4.8/development/last-phase-evidence.md`.
+
 ## Branching and Release Workflow
 
 Nexus-Hub uses a lightweight **`develop` + `main`** model (adopted 2026-06-04). Full-Git-Flow ceremony (`release/*`, `hotfix/*` branches) is intentionally avoided.
