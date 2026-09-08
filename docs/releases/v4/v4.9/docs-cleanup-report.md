@@ -33,3 +33,7 @@ Graph-seeding guidance and its pure helper remain under security-review. Capabil
 ## Phase 4 audit update
 
 The inventory completed for 16 existing release files before adding Phase 4 history. The normalized-envelope contract and helper remain with security-review; golden inputs/outputs remain test fixtures. The user guide remains living documentation. No files moved or sibling-plan records changed. New relative links and ASCII are checked before the phase commit; no scratch deletion is proposed.
+
+## Phase 5 audit update
+
+The SARIF mapping and both runtime files remain bundled with security-review. Golden SARIF outputs stay under tests/fixtures/security-audit and the phase history stays under development/history. The release inventory is refreshed, with no moves, archival changes, sibling-plan edits or proposed scratch deletion. Local links, ASCII and staged diff checks precede the commit.
