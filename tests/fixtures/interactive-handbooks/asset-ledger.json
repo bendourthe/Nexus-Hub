@@ -12,7 +12,7 @@
     },
     {
       "path": "flow.svg",
-      "sha256": "4e9f0ed605e3e824d8426fa13337a38e3f37278286241ba2515310f964934055",
+      "sha256": "22d5fea7ba60e317db472bce00f42776cac89e3f85595b0005bc5d2638f4493f",
       "role": "Directed acquisition-to-review graph",
       "precision": "original vector edges and labels",
       "confidential": false,
@@ -38,6 +38,14 @@
       "path": "wave.svg",
       "sha256": "b12e65ecd4ef39a316f3e78ed9f23cf3e7bd3338ea0aba9267ed1fab15c7a0f4",
       "role": "Edge-extending decorative curve",
+      "precision": "original vector",
+      "confidential": false,
+      "qualification": "fixture source inventory; rendered qualification recorded separately"
+    },
+    {
+      "path": "brand-light.svg",
+      "sha256": "a3c89725ccd3600a2a7618bef618ac8d661979dbb94c278755aeddfdaeafe7d1",
+      "role": "Synthetic supplied lockup variant for light backgrounds; contours and wordmark unchanged",
       "precision": "original vector",
       "confidential": false,
       "qualification": "fixture source inventory; rendered qualification recorded separately"

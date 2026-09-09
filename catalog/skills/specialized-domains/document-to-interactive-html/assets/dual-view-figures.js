@@ -48,6 +48,7 @@
   document.addEventListener('input', event => {
     if (event.target.matches('[data-dv-zoom]')) {
       const svg = event.target.closest('figure').querySelector('[data-dv-zoom-view] > svg');
+      svg.style.maxWidth = 'none';
       svg.style.width = `${Number(event.target.value) * 100}%`;
       svg.style.maxHeight = Number(event.target.value) === 1 ? '' : 'none';
       return;

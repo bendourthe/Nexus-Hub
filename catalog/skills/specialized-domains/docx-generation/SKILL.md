@@ -38,6 +38,8 @@ Provides document generation patterns including:
 
 ## Instructions
 
+For handbook, presentation or cross-format document work, apply `[[hallmark-design]]` and its `references/cross-format-patterns.md` to the composition, and `[[anti-slop-editing]]` to prose. These are the existing design/prose owners; format-specific rendering and verification remain here. Do not transfer app-specific layout bans into every document format.
+
 ### Step 1: Library Selection
 
 Full walkthrough: [step-1-library-selection.md](references/step-1-library-selection.md) (load this step when you reach it).

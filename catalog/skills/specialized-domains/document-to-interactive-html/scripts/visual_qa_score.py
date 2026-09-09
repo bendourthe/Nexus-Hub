@@ -48,6 +48,7 @@ import argparse
 import json
 import re
 import sys
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
@@ -1429,6 +1430,90 @@ def check_slide_chrome(html: str) -> dict[str, Any]:
     )
 
 
+class _DualViewMarkup(HTMLParser):
+    """Read actual markup, never JS strings that happen to contain selectors."""
+
+    def __init__(self, html: str):
+        super().__init__()
+        self.elements: list[dict[str, str | None]] = []
+        self.record_parts: list[str] = []
+        self.in_record = False
+        self.in_runtime = False
+        self.runtime_parts: list[str] = []
+        self.records = 0
+        self.feed(html)
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attributes = dict(attrs)
+        self.elements.append(attributes)
+        if tag == "script" and attributes.get("id") == "handbook-record":
+            self.records += 1
+            self.in_record = True
+        if tag == "script" and attributes.get("type", "") in ("", "module", "text/javascript", "application/javascript"):
+            self.in_runtime = True
+
+    def handle_data(self, data: str) -> None:
+        if self.in_record:
+            self.record_parts.append(data)
+        if self.in_runtime:
+            self.runtime_parts.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "script":
+            self.in_record = False
+            self.in_runtime = False
+
+
+def check_dual_view_contract(html: str) -> dict[str, Any] | None:
+    """Check inclusion/record/DOM agreement; browser fit remains a separate gate."""
+    parsed = _DualViewMarkup(html)
+    elements = parsed.elements
+    decks = [node for node in elements if "data-dv-deck" in node]
+    pages = [node for node in elements if "data-dv-page" in node]
+    if not decks and not pages and not parsed.records:
+        return None
+    errors = []
+    try:
+        record = json.loads("".join(parsed.record_parts))
+        presentation = record["presentation"]
+        if parsed.records != 1 or type(presentation["enabled"]) is not bool:
+            raise ValueError("one record and boolean inclusion required")
+    except (ValueError, TypeError, KeyError):
+        return _finding("dual-view", "fail", "structural", "Missing or malformed retained presentation record", "high")
+    if len(pages) != 1:
+        errors.append("one complete reading-page root required")
+    entries = [node for node in elements if "data-dv-open" in node]
+    slides = [node for node in elements if "data-dv-slide" in node]
+    if not presentation["enabled"]:
+        if decks or slides or entries or "window.NexusDualView" in "".join(parsed.runtime_parts):
+            errors.append("presentation=no contains deck payload or entry controls")
+        return _finding("dual-view", "fail" if errors else "pass", "structural", "; ".join(errors) if errors else "Page-only absence guard passed; other deck checks N/A", "high" if errors else None)
+    if len(decks) != 1 or len(entries) != 2:
+        errors.append("one deck and two global entry controls required")
+    expected = presentation.get("slides", [])
+    if not isinstance(expected, list) or not expected or any(not isinstance(slide, dict) for slide in expected):
+        errors.append("nonempty saved storyboard required")
+    elif [node.get("data-dv-slide") for node in slides] != [slide.get("id") for slide in expected]:
+        errors.append("DOM slides disagree with saved storyboard")
+    elif any(not isinstance(slide.get("id"), str) or not slide["id"] for slide in expected) or len({slide["id"] for slide in expected}) != len(expected):
+        errors.append("saved slide IDs must be unique and nonempty")
+    if [node.get("data-theme") for node in slides] != presentation.get("theme_sequence"):
+        errors.append("DOM themes disagree with saved themes")
+    if presentation.get("depth") not in ("concise", "balanced", "deep-dive"):
+        errors.append("invalid presentation depth")
+    if presentation.get("theme") not in ("light", "dark", "mixed"):
+        errors.append("invalid presentation theme")
+    elif presentation["theme"] != "mixed" and any(node.get("data-theme") != presentation["theme"] for node in slides):
+        errors.append("slide themes contradict single-theme policy")
+    elif presentation["theme"] == "mixed" and len(slides) > 1 and {node.get("data-theme") for node in slides} != {"light", "dark"}:
+        errors.append("mixed policy requires both themes")
+    for key in ("slide_budget", "source_slide_count"):
+        budget = presentation.get(key, presentation.get("slide_budget"))
+        if type(budget) is not int or budget < len(slides):
+            errors.append("missing or exceeded logical-slide ceiling")
+    return _finding("dual-view", "fail" if errors else "pass", "structural", "; ".join(errors) if errors else "Reading page, presentation inclusion, storyboard and themes agree; browser/fidelity/design checks still required", "high" if errors else None)
+
+
 def score_html(
     html: str,
     *,
@@ -1641,15 +1726,19 @@ def score_html(
     #     The record check runs UNGATED - it is what catches a page whose record
     #     says slides while the markup lost data-nav, which would otherwise skip
     #     every check below and score clean.
-    findings.append(check_slide_record_agreement(html))
-    if nav_mode(html) == "slides":
+    dual_view = check_dual_view_contract(html)
+    if dual_view:
+        findings.append(dual_view)
+    else:
+        findings.append(check_slide_record_agreement(html))
+    if not dual_view and nav_mode(html) == "slides":
         findings.append(check_slide_structure(stripped, rules))
         findings.append(check_slide_fit(rules))
         findings.append(check_slide_fragments(stripped))
         findings.append(check_slide_scroll_keyed(stripped))
         findings.append(check_slide_ambient(html))
         findings.append(check_slide_chrome(stripped))
-    else:
+    elif not dual_view:
         findings.append(
             _finding("slide-mode", "n/a", "structural",
                      "scroll mode (data-nav absent or scroll): slide-mode checks skipped")

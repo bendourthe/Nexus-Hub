@@ -447,6 +447,7 @@ def test_svg_instances_rewrite_root_descendants_and_idrefs():
     "source",
     [
         "<svg><script>alert(1)</script></svg>",
+        '<svg><style>@import url("https://example.invalid/blocked-probe.css");</style></svg>',
         '<svg onload="alert(1)"/>',
         "<!DOCTYPE svg><svg/>",
         '<svg><use href="https://example.invalid/x"/></svg>',

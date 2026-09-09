@@ -290,6 +290,10 @@
       "comparisons": "simultaneous"
     },
     "compact_max_width": 760,
-    "brand_asset": "brand.svg"
+    "brand_asset": "brand.svg",
+    "brand_variants": {
+      "light": "brand-light.svg",
+      "dark": "brand.svg"
+    }
   }
 }
