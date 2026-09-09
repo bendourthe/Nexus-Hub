@@ -1,0 +1,558 @@
+{
+  "answer_canary": "ANSWER_ONLY_47078b4a3ebb39f93909267972a536bd23e1c9f7efd5888f",
+  "benign_count": 16,
+  "schema": "nexus.application-audit-answers/v1",
+  "seed_count": 16,
+  "seeds": [
+    {
+      "benign_path": "unit_7ce5069dc3e6a3e9.py",
+      "holdout": false,
+      "id": "seed-01",
+      "language": "python",
+      "owner": "security-review",
+      "path": "unit_956da24ae77469f2.py",
+      "region": {
+        "end_line": 7,
+        "start_line": 7
+      },
+      "release_blocking": true,
+      "remediation_oracle": {
+        "forbidden_text": "return ctx.execute(\"SELECT value FROM records WHERE label = \" + value)",
+        "required_text": "return ctx.query(\"SELECT value FROM records WHERE label = ?\", (value,))",
+        "type": "static-only"
+      },
+      "severity": "high",
+      "source_to_sink": {
+        "sink": "handle",
+        "source": "receive"
+      },
+      "surface": "application",
+      "vulnerability_kind": "sql-injection"
+    },
+    {
+      "benign_path": "unit_6c4a791543d93242.py",
+      "holdout": false,
+      "id": "seed-02",
+      "language": "python",
+      "owner": "security-review",
+      "path": "unit_cf881f464e977027.py",
+      "region": {
+        "end_line": 7,
+        "start_line": 7
+      },
+      "release_blocking": true,
+      "remediation_oracle": {
+        "forbidden_text": "return ctx.process(value, shell=True)",
+        "required_text": "action = ctx.allowed_actions.get(value)",
+        "type": "static-only"
+      },
+      "severity": "high",
+      "source_to_sink": {
+        "sink": "handle",
+        "source": "receive"
+      },
+      "surface": "application",
+      "vulnerability_kind": "os-command-injection"
+    },
+    {
+      "benign_path": "unit_62f51a3dae38c73d.py",
+      "holdout": false,
+      "id": "seed-03",
+      "language": "python",
+      "owner": "advanced-attack-patterns",
+      "path": "unit_857d38fc4d175ba1.py",
+      "region": {
+        "end_line": 7,
+        "start_line": 7
+      },
+      "release_blocking": true,
+      "remediation_oracle": {
+        "forbidden_text": "return ctx.read_text(ctx.root / value)",
+        "required_text": "item = ctx.published_files.get(value)",
+        "type": "static-only"
+      },
+      "severity": "high",
+      "source_to_sink": {
+        "sink": "handle",
+        "source": "receive"
+      },
+      "surface": "advanced-web",
+      "vulnerability_kind": "path-traversal"
+    },
+    {
+      "benign_path": "unit_93a67da6c522ae1a.py",
+      "holdout": true,
+      "id": "seed-04",
+      "language": "python",
+      "owner": "advanced-attack-patterns",
+      "path": "unit_7283e22e946bbcc7.py",
+      "region": {
+        "end_line": 7,
+        "start_line": 7
+      },
+      "release_blocking": true,
+      "remediation_oracle": {
+        "forbidden_text": "return ctx.transport.get(value)",
+        "required_text": "route = ctx.local_service_ids.get(value)",
+        "type": "static-only"
+      },
+      "severity": "high",
+      "source_to_sink": {
+        "sink": "handle",
+        "source": "receive"
+      },
+      "surface": "advanced-web",
+      "vulnerability_kind": "ssrf"
+    },
+    {
+      "benign_path": "unit_a70f20097cda8326.py",
+      "holdout": false,
+      "id": "seed-05",
+      "language": "python",
+      "owner": "advanced-attack-patterns",
+      "path": "unit_f0fbc08098c88f0b.py",
+      "region": {
+        "end_line": 7,
+        "start_line": 7
+      },
+      "release_blocking": true,
+      "remediation_oracle": {
+        "forbidden_text": "return ctx.pickle_adapter.loads(value)",
+        "required_text": "document = ctx.json_codec.decode(value)",
+        "type": "static-only"
+      },
+      "severity": "high",
+      "source_to_sink": {
+        "sink": "handle",
+        "source": "receive"
+      },
+      "surface": "advanced-web",
+      "vulnerability_kind": "unsafe-deserialization"
+    },
+    {
+      "benign_path": "unit_978fb344e9e7d81f.py",
+      "holdout": false,
+      "id": "seed-06",
+      "language": "python",
+      "owner": "api-inventory-and-undocumented-endpoints",
+      "path": "unit_6d6143f5a62f966d.py",
+      "region": {
+        "end_line": 7,
+        "start_line": 7
+      },
+      "release_blocking": true,
+      "remediation_oracle": {
+        "forbidden_text": "return ctx.records.get(value)",
+        "required_text": "record = ctx.records.get(value)",
+        "type": "static-only"
+      },
+      "severity": "high",
+      "source_to_sink": {
+        "sink": "handle",
+        "source": "receive"
+      },
+      "surface": "api",
+      "vulnerability_kind": "broken-object-authorization"
+    },
+    {
+      "benign_path": "unit_3e705851138f1e93.py",
+      "holdout": true,
+      "id": "seed-07",
+      "language": "python",
+      "owner": "authentication-patterns",
+      "path": "unit_d4c04353ac438c8a.py",
+      "region": {
+        "end_line": 7,
+        "start_line": 7
+      },
+      "release_blocking": false,
+      "remediation_oracle": {
+        "forbidden_text": "return {\"value\": value, \"secure\": False, \"httponly\": False, \"samesite\": \"None\"}",
+        "required_text": "return ctx.session_cookie(value, secure=True, httponly=True, samesite=\"Strict\")",
+        "type": "static-only"
+      },
+      "severity": "medium",
+      "source_to_sink": null,
+      "surface": "authentication",
+      "vulnerability_kind": "insecure-session-cookie"
+    },
+    {
+      "benign_path": "unit_a2865c42e575e73e.py",
+      "holdout": false,
+      "id": "seed-08",
+      "language": "python",
+      "owner": "security-review",
+      "path": "unit_1992139ed0629a6a.py",
+      "region": {
+        "end_line": 10,
+        "start_line": 7
+      },
+      "release_blocking": false,
+      "remediation_oracle": {
+        "forbidden_text": "return {\"error\": str(error), \"debug\": True}",
+        "required_text": "try:",
+        "type": "static-only"
+      },
+      "severity": "medium",
+      "source_to_sink": null,
+      "surface": "application",
+      "vulnerability_kind": "verbose-error-disclosure"
+    },
+    {
+      "benign_path": "unit_33e7cbe7d82d251d.ts",
+      "holdout": false,
+      "id": "seed-09",
+      "language": "typescript",
+      "owner": "security-review",
+      "path": "unit_6d62c2d9b992c28f.ts",
+      "region": {
+        "end_line": 8,
+        "start_line": 7
+      },
+      "release_blocking": true,
+      "remediation_oracle": {
+        "forbidden_text": "return ctx.execute(\"SELECT value FROM records WHERE label = \" + value);",
+        "required_text": "return ctx.query({text: \"SELECT value FROM records WHERE label = ?\", values: [value]});",
+        "type": "static-only"
+      },
+      "severity": "high",
+      "source_to_sink": {
+        "sink": "handle",
+        "source": "receive"
+      },
+      "surface": "application",
+      "vulnerability_kind": "sql-injection"
+    },
+    {
+      "benign_path": "unit_54a11acf01f60965.ts",
+      "holdout": false,
+      "id": "seed-10",
+      "language": "typescript",
+      "owner": "security-review",
+      "path": "unit_ad90e7ccd60effa5.ts",
+      "region": {
+        "end_line": 8,
+        "start_line": 7
+      },
+      "release_blocking": true,
+      "remediation_oracle": {
+        "forbidden_text": "return ctx.process(value, {shell: true});",
+        "required_text": "const action = ctx.actions.get(value);",
+        "type": "static-only"
+      },
+      "severity": "high",
+      "source_to_sink": {
+        "sink": "handle",
+        "source": "receive"
+      },
+      "surface": "application",
+      "vulnerability_kind": "os-command-injection"
+    },
+    {
+      "benign_path": "unit_ce550a4aefb3e337.ts",
+      "holdout": false,
+      "id": "seed-11",
+      "language": "typescript",
+      "owner": "advanced-attack-patterns",
+      "path": "unit_325cfeaecc4747e2.ts",
+      "region": {
+        "end_line": 8,
+        "start_line": 7
+      },
+      "release_blocking": true,
+      "remediation_oracle": {
+        "forbidden_text": "return ctx.readText(ctx.join(ctx.root, value));",
+        "required_text": "const item = ctx.catalog.lookup(value);",
+        "type": "static-only"
+      },
+      "severity": "high",
+      "source_to_sink": {
+        "sink": "handle",
+        "source": "receive"
+      },
+      "surface": "advanced-web",
+      "vulnerability_kind": "path-traversal"
+    },
+    {
+      "benign_path": "unit_8266032769dfa32b.ts",
+      "holdout": true,
+      "id": "seed-12",
+      "language": "typescript",
+      "owner": "advanced-attack-patterns",
+      "path": "unit_1300859cb586674e.ts",
+      "region": {
+        "end_line": 8,
+        "start_line": 7
+      },
+      "release_blocking": true,
+      "remediation_oracle": {
+        "forbidden_text": "return ctx.transport.get(value);",
+        "required_text": "const route = ctx.serviceIds.lookup(value);",
+        "type": "static-only"
+      },
+      "severity": "high",
+      "source_to_sink": {
+        "sink": "handle",
+        "source": "receive"
+      },
+      "surface": "advanced-web",
+      "vulnerability_kind": "ssrf"
+    },
+    {
+      "benign_path": "unit_b539b3260e1aa4df.ts",
+      "holdout": false,
+      "id": "seed-13",
+      "language": "typescript",
+      "owner": "advanced-attack-patterns",
+      "path": "unit_41011a5f56a00a42.ts",
+      "region": {
+        "end_line": 8,
+        "start_line": 7
+      },
+      "release_blocking": true,
+      "remediation_oracle": {
+        "forbidden_text": "return ctx.objectRestorer.restore(value, {allowConstructors: true});",
+        "required_text": "const document = ctx.jsonCodec.parse(value);",
+        "type": "static-only"
+      },
+      "severity": "high",
+      "source_to_sink": {
+        "sink": "handle",
+        "source": "receive"
+      },
+      "surface": "advanced-web",
+      "vulnerability_kind": "unsafe-deserialization"
+    },
+    {
+      "benign_path": "unit_10996ceaeb8775ee.ts",
+      "holdout": false,
+      "id": "seed-14",
+      "language": "typescript",
+      "owner": "api-inventory-and-undocumented-endpoints",
+      "path": "unit_3f9a6c11d5c3bc57.ts",
+      "region": {
+        "end_line": 8,
+        "start_line": 7
+      },
+      "release_blocking": true,
+      "remediation_oracle": {
+        "forbidden_text": "return ctx.records.get(value);",
+        "required_text": "const record = ctx.records.get(value);",
+        "type": "static-only"
+      },
+      "severity": "high",
+      "source_to_sink": {
+        "sink": "handle",
+        "source": "receive"
+      },
+      "surface": "api",
+      "vulnerability_kind": "broken-object-authorization"
+    },
+    {
+      "benign_path": "unit_7ea7fd2aeeff96b7.ts",
+      "holdout": true,
+      "id": "seed-15",
+      "language": "typescript",
+      "owner": "authentication-patterns",
+      "path": "unit_50cd1f7ef7a62e0d.ts",
+      "region": {
+        "end_line": 8,
+        "start_line": 7
+      },
+      "release_blocking": false,
+      "remediation_oracle": {
+        "forbidden_text": "return {value, secure: false, httpOnly: false, sameSite: \"None\"};",
+        "required_text": "return ctx.sessionCookie(value, {secure: true, httpOnly: true, sameSite: \"Strict\"});",
+        "type": "static-only"
+      },
+      "severity": "medium",
+      "source_to_sink": null,
+      "surface": "authentication",
+      "vulnerability_kind": "insecure-session-cookie"
+    },
+    {
+      "benign_path": "unit_30e020c7dc201556.ts",
+      "holdout": false,
+      "id": "seed-16",
+      "language": "typescript",
+      "owner": "security-review",
+      "path": "unit_58403239be133166.ts",
+      "region": {
+        "end_line": 9,
+        "start_line": 7
+      },
+      "release_blocking": false,
+      "remediation_oracle": {
+        "forbidden_text": "catch (error) { return {error: String(error), debug: true}; }",
+        "required_text": "try { return ctx.service(value); }",
+        "type": "static-only"
+      },
+      "severity": "medium",
+      "source_to_sink": null,
+      "surface": "application",
+      "vulnerability_kind": "verbose-error-disclosure"
+    }
+  ],
+  "source_manifest": [
+    {
+      "bytes": 288,
+      "digest": "e89f5b0640dbfb9593e3e80a483582185ac424c4b063565de9e14eaa683c64f8",
+      "path": "unit_10996ceaeb8775ee.ts"
+    },
+    {
+      "bytes": 181,
+      "digest": "dc6e89737d5bf69fdfac7e010eb3cf5c7e9b7bd543396e912a189ca91c078aae",
+      "path": "unit_1300859cb586674e.ts"
+    },
+    {
+      "bytes": 225,
+      "digest": "08d4fdcf51cba66823b4edddb1eaa2ccfda4bc945384522bb2bcbd90a31244cf",
+      "path": "unit_1992139ed0629a6a.py"
+    },
+    {
+      "bytes": 247,
+      "digest": "2a263364ae8fd0747a6d85e84a21ead9c1b38b6694da77839392d23992b99a49",
+      "path": "unit_30e020c7dc201556.ts"
+    },
+    {
+      "bytes": 196,
+      "digest": "44ca7a5e1a648e689c297fbf811b4b60f60711647d939f6ad72fc7c91f72988a",
+      "path": "unit_325cfeaecc4747e2.ts"
+    },
+    {
+      "bytes": 236,
+      "digest": "30fa07bd1152c1341e6744ad5bae3aec988b5d6dc29108c6d1add034cd30f1c4",
+      "path": "unit_33e7cbe7d82d251d.ts"
+    },
+    {
+      "bytes": 183,
+      "digest": "052d132cb44745df9fea8a4a02b9e453dfd4d302f66dfe5e0db157ab0dafc8f6",
+      "path": "unit_3e705851138f1e93.py"
+    },
+    {
+      "bytes": 179,
+      "digest": "577ee8019ff5a09400b51ca8fbbd9904991a0e03cbb961e310284b91f47aa014",
+      "path": "unit_3f9a6c11d5c3bc57.ts"
+    },
+    {
+      "bytes": 217,
+      "digest": "968bfb4a045c79631c87dfd8e2f3d65efa8b92810791e040c5f449e527ee0c3a",
+      "path": "unit_41011a5f56a00a42.ts"
+    },
+    {
+      "bytes": 214,
+      "digest": "5fa39d58e530515b156f29005fbe063117f15922c4408c7c57001586eb58dd81",
+      "path": "unit_50cd1f7ef7a62e0d.ts"
+    },
+    {
+      "bytes": 299,
+      "digest": "cfcca0affd31497a640db7299e29e45d2e29c9f3fd5c6f3c440aae68bf31fc50",
+      "path": "unit_54a11acf01f60965.ts"
+    },
+    {
+      "bytes": 249,
+      "digest": "325ef847df5b9cf696f792957058ad37024485c4bc84bf9a3e04d960de79a8ef",
+      "path": "unit_58403239be133166.ts"
+    },
+    {
+      "bytes": 219,
+      "digest": "035b10592c19ec4e1d13caf79622582a178a09f9fa2061596d5a40f2a62f896d",
+      "path": "unit_62f51a3dae38c73d.py"
+    },
+    {
+      "bytes": 262,
+      "digest": "e8c7f9e12068daf890884f464fa7b9e87fcd1a69498ca9b85a256849881f6b5b",
+      "path": "unit_6c4a791543d93242.py"
+    },
+    {
+      "bytes": 133,
+      "digest": "5e3cf43a1dae35dd045580039b23022fe45a87dc74b7908d3a0f76d023be5cf0",
+      "path": "unit_6d6143f5a62f966d.py"
+    },
+    {
+      "bytes": 220,
+      "digest": "f54109f27e2351417d8f7bf3681cd24f67469a16887d957be6fe29b409bd1430",
+      "path": "unit_6d62c2d9b992c28f.ts"
+    },
+    {
+      "bytes": 135,
+      "digest": "dd23cba792560ad22f4eae911048cc85d355a83331671bb881d43115cfc45a8b",
+      "path": "unit_7283e22e946bbcc7.py"
+    },
+    {
+      "bytes": 175,
+      "digest": "f57c6dcc5998b9071101251e9ab818594805bb7846663d6eb7267286311b68e4",
+      "path": "unit_7ce5069dc3e6a3e9.py"
+    },
+    {
+      "bytes": 233,
+      "digest": "6ecd7f53c01a013670a2f5e1d6896a6ca009844751e57f7269fc6e69cd0767dd",
+      "path": "unit_7ea7fd2aeeff96b7.ts"
+    },
+    {
+      "bytes": 308,
+      "digest": "1ffb3310f6c10986cf9b93dc55ca5de2bc19233e9908b7f9c6614958f644d7e7",
+      "path": "unit_8266032769dfa32b.ts"
+    },
+    {
+      "bytes": 142,
+      "digest": "76c527a6fd42c7505b4f607cba05070f5b013923cb7a51b8d0229b8c89f5b606",
+      "path": "unit_857d38fc4d175ba1.py"
+    },
+    {
+      "bytes": 268,
+      "digest": "3cb8b20ed9ea98a963787992b4410b82ef0fffff5316767ec3bf7e039e2028d3",
+      "path": "unit_93a67da6c522ae1a.py"
+    },
+    {
+      "bytes": 174,
+      "digest": "da598fd3c4420945cde12bdfbb2419839bd72c1ee191a40a9bc599692720e50e",
+      "path": "unit_956da24ae77469f2.py"
+    },
+    {
+      "bytes": 247,
+      "digest": "9c9b9480374434c051a88c849f0be811172ffef155799352bdbd475fad60a488",
+      "path": "unit_978fb344e9e7d81f.py"
+    },
+    {
+      "bytes": 223,
+      "digest": "d9f07fc7a60e9c463c48d3bf1e5c1539ee68350701bc0e2af25c46aaad780903",
+      "path": "unit_a2865c42e575e73e.py"
+    },
+    {
+      "bytes": 184,
+      "digest": "0a090e9b6b9cea7685b298f5b4faed80407bc69334124a5bcb0c76d3ad4750b0",
+      "path": "unit_a70f20097cda8326.py"
+    },
+    {
+      "bytes": 190,
+      "digest": "b414095866839e9c48101bb53daab197745c96ab0410a050704954a2076555b0",
+      "path": "unit_ad90e7ccd60effa5.ts"
+    },
+    {
+      "bytes": 232,
+      "digest": "5b8d4e4c1c20516250efdf8526f49365564707fe099c16557fda6b33e9c2d58f",
+      "path": "unit_b539b3260e1aa4df.ts"
+    },
+    {
+      "bytes": 239,
+      "digest": "bb5af20315c9f0284bb4347422c6911c102fea083987695a1cacd40e850c07d1",
+      "path": "unit_ce550a4aefb3e337.ts"
+    },
+    {
+      "bytes": 141,
+      "digest": "076762a90326292f1b2526be2f5e513a31a2ec8bdfbf6534ec5aedf0b91fc85d",
+      "path": "unit_cf881f464e977027.py"
+    },
+    {
+      "bytes": 183,
+      "digest": "3d354d1308fcad64981963a862519767a2c31005c36dcb787955be82c96854d4",
+      "path": "unit_d4c04353ac438c8a.py"
+    },
+    {
+      "bytes": 142,
+      "digest": "3253c884a09a7a9955ffc22c777ed4c9beab8ec3ff0043abbfdb48a3580cced4",
+      "path": "unit_f0fbc08098c88f0b.py"
+    }
+  ]
+}

@@ -71,9 +71,11 @@ class GraphQueryManager:
 
     def explore(self, symbol: str, depth: int = 2) -> dict:
         """Combine search, callers/callees, and impact into one payload."""
-        matches = self.traverser.find_by_name(symbol)
-        if not matches:
-            matches = self.traverser.search_fts(symbol, limit=10)
+        matches = self._resolve_symbol(symbol, None)
+        # This argument is a symbol, not an FTS expression. An unresolved
+        # qualified identity must not drift to an unrelated plain-name match.
+        if not matches and symbol.isidentifier():
+            matches = self.traverser.search_fts(f'"{symbol}"', limit=10)
         results = []
         for n in matches:
             results.append(

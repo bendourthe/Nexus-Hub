@@ -32,7 +32,7 @@ Use when:
 | `morning-briefing` | Orient at the start of a session: what changed, where you left off, what is next. | `/session` resume, [[dev-progress-tracker]], [[session-query]], `git log` review |
 | `research` | Gather multi-source evidence and end with a cited report, gated before any code. | [[context-modes]] (research), [[deep-research-compilation]] / [[trend-research]] / [[local-docs-lookup]], [[research-plan-implement]] |
 | `coding-assistant` | Run a disciplined plan -> implement -> test -> verify -> commit loop. | [[context-modes]] (dev), [[plan-before-code]], [[incremental-implementation]], [[test-driven-development]], [[verification-before-completion]], [[code-commit-workflow]] |
-| `security-audit` | Run a local detection-to-verification security audit with scanner receipts. | [[security-review]], [[dependency-security-audit]], [[cve-reachability-analyzer]], [[cloud-security-posture-detection]], [[security-patch-advisor]], [[testing-review]], [[adversarial-verifier]] |
+| `security-audit` | Run a local detection-to-verification audit using observed surface receipts. | [Versioned routing authority](references/security-audit-routing.json); [[security-review]] owns closure. |
 
 ## Instructions
 
@@ -72,20 +72,22 @@ An implementation loop. Run in order:
 
 ### Preset: security-audit
 
-A local security-audit procedure over existing skills. Announce the preset, the skills it activates, and the current scanner coverage state (`complete` or `degraded`). Introduce no tool, MCP, service, credential, or automatic installation.
+A local security-audit procedure over existing skills. Announce the preset, the planned skills, and current scanner coverage (`complete` or `degraded`); scanner coverage is distinct from aggregate application-audit health. The [routing manifest](references/security-audit-routing.json) is the sole authority for supported surfaces, predicates, owners, fixed stages, priority, handoffs, and concurrency. Its [host contract](references/security-audit-routing.md) explains receipt accounting. The [pure resolver](scripts/resolve-security-audit-routing.py) plans from canonical inventory; it never executes owners. `data/workflows.json` is a discoverability projection, not routing policy. Introduce no tool, MCP, service, credential, or automatic installation.
 
 Run in order:
 
-1. **Scope** -- [[security-review]] Step 0 component denominator and schema-v2 choice. Authentication and licensing stay with [[authentication-patterns]] and [[licensing-compliance]]; do not duplicate those procedures.
-2. **Detect** -- application and secrets via [[security-review]] local-scanner recipes; dependencies via [[dependency-security-audit]] applicability; IaC via [[cloud-security-posture-detection]] when supported files exist. Record every scanner receipt as `RAN`, `NOT_APPLICABLE`, `UNAVAILABLE`, `FAILED`, or `DECLINED`.
+1. **Scope** -- [[security-review]] Step 0 component denominator and schema-v2 choice. Run its bounded inventory collector with the authorized root and the routing manifest, then the pure resolver. Incomplete inventories retain uncovered scope and prohibit clean conclusions. No user-supplied surface claim can override observed receipts.
+2. **Detect** -- [[security-review]] is always on. Attempt every conditional owner in the resolver's complete planned queue, respecting its batch cap and narrower handoff gates. The host checks live availability; missing owners remain explicit `UNAVAILABLE` receipts without substitute rules. Authentication belongs to [[authentication-patterns]], dependency analysis to [[dependency-security-audit]], and IaC to [[cloud-security-posture-detection]] only when routed. Licensing is an independent scope rather than a fixed application-audit stage. Preserve the existing security-specialist bundle; absent conditional owners are unavailable unless already installed through another authorized bundle. Host receipts use `RAN`, `UNAVAILABLE`, `FAILED`, or `DECLINED` with run bindings, reasons, self-attested provenance and execution context. Scanner receipts retain their separate `NOT_APPLICABLE` value.
 3. **Triage** -- [[cve-reachability-analyzer]] on surviving dependency findings, preserving original severity. A no-fix audit may stop after triage and still close with scanner coverage reported.
-4. **Remediate** -- only after detection and only with user approval, through [[security-patch-advisor]]. The fixer context is not the verifier.
+4. **Remediate** -- only after detection and trusted, current approval through [[security-patch-advisor]], bound to the exact run, proposed patch digest, permitted paths, approver, expiry, nonce, and patcher. Input-supplied or self-attested approvals never authorize mutation. The fixer context is not the verifier. `/review` never enters this stage or consumes approval.
 5. **Test** -- [[testing-review]] on the patched scope.
 6. **Re-scan** -- same detector, config fingerprint, and target scope as the before receipt.
 7. **Independent verify** -- a read-only reviewer (`security-reviewer` plus [[adversarial-verifier]]) consumes before/after receipts and the patch diff. It does not apply patches or approve its own prior fixes.
 8. **Close** -- [[security-review]] schema-v2 closure gate, then the report. Do not claim complete scanner coverage while any applicable receipt is not `RAN`.
 
 Trigger evals for this preset live in `evals/trigger-cases.json`.
+
+In offline-only mode every network-, cloud-, or model-backed route is `DECLINED` with `OFFLINE_ONLY`. Missing execution context carries `BOUNDARY_CONTEXT_MISSING`; self-attested execution carries `HOST_EXECUTION_SELF_ATTESTED`. Phase 4's closure owner evaluates aggregate health. These host declarations do not establish process execution, v4.5 boundary enforcement, or complete audit coverage. Record only inventory/receipt digests, counters, and reason codes in session history.
 
 ## Customizing a preset
 

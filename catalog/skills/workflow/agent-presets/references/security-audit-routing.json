@@ -1,0 +1,514 @@
+{
+  "schema_version": 1,
+  "concurrency_cap": 4,
+  "fixed_stages": [
+    "security-review",
+    "security-patch-advisor",
+    "testing-review",
+    "adversarial-verifier"
+  ],
+  "surfaces": [
+    {
+      "id": "application",
+      "owner": "security-review",
+      "priority": -1,
+      "predicates": [
+        {
+          "id": "application-source",
+          "operation": "source",
+          "values": []
+        }
+      ],
+      "handoffs": []
+    },
+    {
+      "id": "authentication",
+      "owner": "authentication-patterns",
+      "priority": 0,
+      "predicates": [
+        {
+          "id": "authentication-symbol",
+          "operation": "token",
+          "values": [
+            "authenticate",
+            "authentication",
+            "session",
+            "oauth",
+            "password",
+            "mfa",
+            "passkey",
+            "login"
+          ]
+        },
+        {
+          "id": "jwt-header-key",
+          "operation": "token",
+          "values": [
+            "jwt",
+            "jwks",
+            "kid"
+          ]
+        }
+      ],
+      "handoffs": [
+        {
+          "owner": "jwt-header-and-key-confusion-attacks",
+          "predicate": "jwt-header-key",
+          "gate": "narrower-evidence"
+        }
+      ]
+    },
+    {
+      "id": "api",
+      "owner": "api-inventory-and-undocumented-endpoints",
+      "priority": 1,
+      "predicates": [
+        {
+          "id": "api-route-schema",
+          "operation": "token",
+          "values": [
+            "route",
+            "routes",
+            "Router",
+            "APIRouter",
+            "FastAPI",
+            "openapi",
+            "graphql",
+            "urlpatterns",
+            "url_patterns",
+            "add_url_rule",
+            "add_route",
+            "app.use",
+            "router.use",
+            "@Get",
+            "@Post",
+            "@Put",
+            "@Patch",
+            "@Delete",
+            "@Controller",
+            "app.get",
+            "app.post",
+            "app.put",
+            "app.patch",
+            "app.delete",
+            "app.head",
+            "app.options",
+            "app.all",
+            "router.get",
+            "router.post",
+            "router.put",
+            "router.patch",
+            "router.delete",
+            "router.head",
+            "router.options",
+            "router.all"
+          ]
+        },
+        {
+          "id": "api-object-access",
+          "operation": "token",
+          "values": [
+            "user_id",
+            "tenant_id",
+            "owner_id",
+            "object_id"
+          ]
+        },
+        {
+          "id": "api-gateway-schema",
+          "operation": "token",
+          "values": [
+            "openapi",
+            "swagger",
+            "gateway",
+            "protobuf"
+          ]
+        },
+        {
+          "id": "api-rate-limit",
+          "operation": "token",
+          "values": [
+            "rate_limit",
+            "rateLimit",
+            "throttle",
+            "quota"
+          ]
+        }
+      ],
+      "handoffs": [
+        {
+          "owner": "api-object-level-authorization-flaws",
+          "predicate": "api-object-access",
+          "gate": "narrower-evidence"
+        },
+        {
+          "owner": "api-schema-and-gateway-enforcement",
+          "predicate": "api-gateway-schema",
+          "gate": "narrower-evidence"
+        },
+        {
+          "owner": "api-rate-limit-and-abuse-detection",
+          "predicate": "api-rate-limit",
+          "gate": "narrower-evidence"
+        }
+      ]
+    },
+    {
+      "id": "advanced-web",
+      "owner": "advanced-attack-patterns",
+      "priority": 2,
+      "predicates": [
+        {
+          "id": "advanced-web-symbol",
+          "operation": "token",
+          "values": [
+            "proxy",
+            "pickle",
+            "deserialize",
+            "deserialization",
+            "ssrf",
+            "xxe",
+            "request-smuggling",
+            "cache",
+            "parser",
+            "requests.get",
+            "fetch"
+          ]
+        }
+      ],
+      "handoffs": []
+    },
+    {
+      "id": "dependency",
+      "owner": "dependency-security-audit",
+      "priority": 3,
+      "predicates": [
+        {
+          "id": "dependency-manifest",
+          "operation": "filename",
+          "values": [
+            "requirements*.txt",
+            "Pipfile*",
+            "poetry.lock",
+            "uv.lock",
+            "pyproject.toml",
+            "package*.json",
+            "pnpm-lock.yaml",
+            "yarn.lock",
+            "Cargo.toml",
+            "Cargo.lock",
+            "go.mod",
+            "go.sum",
+            "pom.xml",
+            "build.gradle*",
+            "*.csproj"
+          ]
+        }
+      ],
+      "handoffs": [
+        {
+          "owner": "cve-reachability-analyzer",
+          "predicate": null,
+          "gate": "surviving-finding"
+        }
+      ]
+    },
+    {
+      "id": "cryptography",
+      "owner": "cryptographic-control-audit",
+      "priority": 4,
+      "predicates": [
+        {
+          "id": "crypto-symbol",
+          "operation": "token",
+          "values": [
+            "crypto",
+            "cryptography",
+            "hashlib",
+            "jwt",
+            "cipher"
+          ]
+        },
+        {
+          "id": "crypto-encryption",
+          "operation": "token",
+          "values": [
+            "encrypt",
+            "AES",
+            "Fernet"
+          ]
+        },
+        {
+          "id": "crypto-tls",
+          "operation": "token",
+          "values": [
+            "tls",
+            "ssl",
+            "certificate"
+          ]
+        },
+        {
+          "id": "crypto-key-management",
+          "operation": "token",
+          "values": [
+            "kms",
+            "hsm",
+            "KeyVault"
+          ]
+        },
+        {
+          "id": "crypto-signing",
+          "operation": "token",
+          "values": [
+            "sign",
+            "signature",
+            "jwt.sign"
+          ]
+        }
+      ],
+      "handoffs": [
+        {
+          "owner": "encryption-at-rest-design",
+          "predicate": "crypto-encryption",
+          "gate": "canonical-owner-confirms-domain"
+        },
+        {
+          "owner": "tls-certificate-lifecycle",
+          "predicate": "crypto-tls",
+          "gate": "canonical-owner-confirms-domain"
+        },
+        {
+          "owner": "key-management-and-hsm-integration",
+          "predicate": "crypto-key-management",
+          "gate": "canonical-owner-confirms-domain"
+        },
+        {
+          "owner": "digital-signatures-and-jwt-signing",
+          "predicate": "crypto-signing",
+          "gate": "canonical-owner-confirms-domain"
+        }
+      ]
+    },
+    {
+      "id": "business-logic",
+      "owner": "business-logic-abuse",
+      "priority": 5,
+      "predicates": [
+        {
+          "id": "business-state-symbol",
+          "operation": "token",
+          "values": [
+            "transaction",
+            "state_machine",
+            "concurrent",
+            "asyncio.gather",
+            "Promise.all",
+            "price",
+            "pricing",
+            "entitlement",
+            "refund",
+            "balance"
+          ]
+        }
+      ],
+      "handoffs": []
+    },
+    {
+      "id": "cloud-iac",
+      "owner": "cloud-security-posture-detection",
+      "priority": 6,
+      "predicates": [
+        {
+          "id": "iac-file",
+          "operation": "filename",
+          "values": [
+            "*.tf",
+            "*.tfvars",
+            "*.bicep",
+            "Dockerfile*",
+            "Containerfile*"
+          ]
+        },
+        {
+          "id": "cloud-config-symbol",
+          "operation": "token",
+          "values": [
+            "AWSTemplateFormatVersion",
+            "aws_iam_policy",
+            "apiVersion",
+            "azure",
+            "google_compute_instance"
+          ]
+        }
+      ],
+      "handoffs": []
+    },
+    {
+      "id": "ai-agent",
+      "owner": "ai-attack-patterns",
+      "priority": 7,
+      "predicates": [
+        {
+          "id": "ai-agent-symbol",
+          "operation": "token",
+          "values": [
+            "prompt",
+            "retrieval",
+            "tool_call",
+            "tool_calls",
+            "agent",
+            "ChatOpenAI",
+            "system_prompt",
+            "vectorstore"
+          ]
+        }
+      ],
+      "handoffs": [
+        {
+          "owner": "prompt-injection-defense",
+          "predicate": "ai-agent-symbol",
+          "gate": "narrower-evidence"
+        }
+      ]
+    }
+  ],
+  "files": {
+    "read_extensions": [
+      ".py",
+      ".pyi",
+      ".js",
+      ".jsx",
+      ".mjs",
+      ".cjs",
+      ".ts",
+      ".tsx",
+      ".json",
+      ".jsonc",
+      ".yaml",
+      ".yml",
+      ".toml",
+      ".ini",
+      ".cfg",
+      ".conf",
+      ".xml",
+      ".tf",
+      ".tfvars",
+      ".bicep"
+    ],
+    "read_names": [
+      "Dockerfile*",
+      "Containerfile*",
+      "requirements*.txt",
+      "Pipfile*",
+      "poetry.lock",
+      "uv.lock",
+      "package*.json",
+      "pnpm-lock.yaml",
+      "yarn.lock",
+      "Cargo.toml",
+      "Cargo.lock",
+      "go.mod",
+      "go.sum",
+      "pom.xml",
+      "build.gradle*",
+      "*.csproj"
+    ],
+    "credential_names": [
+      ".env",
+      ".env.*",
+      "*.env",
+      "credentials*",
+      "*credentials.json",
+      "*secret*.json",
+      "id_rsa*",
+      "id_ed25519*",
+      "*.pem",
+      "*.key",
+      ".npmrc",
+      ".pypirc",
+      ".netrc"
+    ],
+    "source_extensions": [
+      ".c",
+      ".h",
+      ".cpp",
+      ".hpp",
+      ".cc",
+      ".rs",
+      ".go",
+      ".java",
+      ".cs",
+      ".swift",
+      ".kt",
+      ".kts",
+      ".rb",
+      ".php",
+      ".sh",
+      ".bash",
+      ".zsh",
+      ".ps1",
+      ".bat",
+      ".cmd",
+      ".sql",
+      ".r",
+      ".lua",
+      ".pl",
+      ".ex",
+      ".exs",
+      ".erl",
+      ".scala",
+      ".dart",
+      ".vue",
+      ".svelte",
+      ".html",
+      ".htm",
+      ".wasm",
+      ".md",
+      ".rst",
+      ".txt",
+      ".prompt",
+      ".exe",
+      ".dll",
+      ".jar",
+      ".zip"
+    ],
+    "ignored_directories": [
+      ".git",
+      ".nexus",
+      ".hg",
+      ".svn",
+      "node_modules",
+      "vendor",
+      "dist",
+      "build",
+      "target",
+      "out",
+      ".venv",
+      "venv",
+      "__pycache__",
+      ".pytest_cache",
+      ".mypy_cache",
+      ".ruff_cache",
+      "coverage",
+      "htmlcov",
+      ".coverage"
+    ],
+    "inert_assets": []
+  },
+  "budgets": {
+    "depth": 32,
+    "files": 100000,
+    "file_bytes": 2097152,
+    "total_bytes": 536870912,
+    "seconds": 60
+  },
+  "reason_codes": [
+    "INVENTORY_TRUNCATED",
+    "UNSUPPORTED_FILETYPE",
+    "UNCLASSIFIED_FILETYPE",
+    "UNSAFE_ARTIFACT",
+    "INVENTORY_CHANGED",
+    "INVENTORY_INVALID",
+    "UNSUPPORTED_SURFACE"
+  ]
+}

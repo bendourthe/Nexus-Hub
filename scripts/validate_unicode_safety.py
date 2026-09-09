@@ -196,9 +196,20 @@ TEXT_EXTENSIONS: frozenset[str] = frozenset({
 MARKDOWN_EXTENSIONS: frozenset[str] = frozenset({".md"})
 
 
+def filesystem_path(path: Path) -> Path:
+    """Use native Windows long paths without changing POSIX path semantics."""
+    if os.name != "nt":
+        return path
+    absolute = os.path.abspath(path)
+    if absolute.startswith("\\\\?\\"):
+        return Path(absolute)
+    prefix = "\\\\?\\UNC\\" if absolute.startswith("\\\\") else "\\\\?\\"
+    return Path(prefix + absolute.removeprefix("\\\\"))
+
+
 def path_is_excluded(path: Path, root: Path, excludes: tuple[Path, ...]) -> bool:
     try:
-        rel = path.resolve().relative_to(root)
+        rel = filesystem_path(path.resolve()).relative_to(filesystem_path(root))
     except ValueError:
         return False
     for ex in excludes:
@@ -273,7 +284,7 @@ def read_text_for_scan(path: Path) -> FileText:
     an undecodable or unreadable file rather than skipping it silently.
     """
     try:
-        raw = path.read_bytes()
+        raw = filesystem_path(path).read_bytes()
     except OSError as exc:
         return FileText(b"", None, f"cannot read file: {exc.strerror or exc}")
 
@@ -355,6 +366,7 @@ def atomic_write(path: Path, data: bytes) -> None:
     atomic within one filesystem), so a crash or a concurrent --fix run leaves
     either the original or one run's complete output, never a partial file.
     """
+    path = filesystem_path(path)
     fd, tmp_name = tempfile.mkstemp(
         dir=str(path.parent), prefix=f".{path.name}.", suffix=".tmp"
     )
@@ -378,7 +390,7 @@ def display_path(path: Path, root: Path) -> str:
     two are related; `relative_to` would raise for such a file.
     """
     try:
-        return str(path.relative_to(root))
+        return str(filesystem_path(path).relative_to(filesystem_path(root)))
     except ValueError:
         return str(path)
 
@@ -399,7 +411,7 @@ def iter_target_files(
     """
     files: list[Path] = []
     for target in targets:
-        full = root / target
+        full = filesystem_path(root / target)
         if not full.exists():
             if missing is not None:
                 missing.append(target)
@@ -464,7 +476,7 @@ def main() -> int:
     parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args()
 
-    root: Path = args.root.resolve()
+    root: Path = filesystem_path(args.root.resolve())
     if not root.is_dir():
         print(f"ERROR: root not found: {root}", file=sys.stderr)
         return 2

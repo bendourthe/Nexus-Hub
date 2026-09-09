@@ -246,7 +246,19 @@ def test_malformed_collection_values_fail_closed_without_type_errors() -> None:
     ]
 
 
-def test_gate_imports_only_the_standard_library() -> None:
+def test_gate_imports_only_the_standard_library_or_bundled_siblings() -> None:
+    """The gate must run on a user's machine with nothing installed.
+
+    The guarantee is "no third-party dependency", not "no imports". A helper
+    bundled in the same `scripts/` directory travels with the skill through the
+    installer, so importing it needs no `pip install` and does not weaken the
+    promise.
+
+    Membership is proven against the directory rather than a hardcoded
+    allowlist, which keeps this STRICTER than a name list: a typo, or a sibling
+    that is later deleted or renamed, fails here instead of failing at runtime
+    on a user's machine where nothing can be done about it.
+    """
     tree = ast.parse(_GATE_PATH.read_text(encoding="utf-8"))
     imports: set[str] = set()
     for node in ast.walk(tree):
@@ -255,7 +267,15 @@ def test_gate_imports_only_the_standard_library() -> None:
         elif isinstance(node, ast.ImportFrom) and node.module:
             imports.add(node.module.split(".", 1)[0])
 
-    assert imports <= (set(sys.stdlib_module_names) | {"__future__"})
+    bundled_siblings = {
+        path.stem for path in _GATE_PATH.parent.glob("*.py") if path != _GATE_PATH
+    }
+    allowed = set(sys.stdlib_module_names) | {"__future__"} | bundled_siblings
+    unexpected = imports - allowed
+    assert not unexpected, (
+        f"{sorted(unexpected)} is neither stdlib nor a file bundled beside the gate; "
+        "a user running this skill would need to install something"
+    )
 
 
 def test_bundle_documentation_references_gate_schema_and_tests() -> None:

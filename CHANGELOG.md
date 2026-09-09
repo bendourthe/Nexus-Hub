@@ -9,6 +9,91 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.9.0] - 2026-09-08
+
+Local application-security audits now carry explicit scope, evidence, coverage and health from specialist selection through portable SARIF results. Existing scanner availability and remediation approvals remain visible throughout the workflow.
+
+### Added
+
+- Bounded application inventory and conditional specialist routing, with explicit positive and negative evidence, a maximum of four concurrent workers, and queued overflow.
+- Target-content manifests and qualified graph receipts that bind findings to the inspected source and preserve missing, failed or unknown-quality tool outcomes.
+- An additive application-audit profile and normalized closure summary, including scanner, remediation and verifier receipts. Overall health stays separate from findings and scanner coverage.
+- Local SARIF 2.1.0 export from the validated normalized summary. Export preserves findings, health and provenance without reading source files, starting scanners or uploading results.
+- A deterministic development benchmark with 16 seeded vulnerable cases and 16 benign cases, isolated source projections, private answer separation, immutable attempt records and integrity checks. Retained native-host attempts were unavailable and supply no accuracy result. [Implementation and verification](https://github.com/bendourthe/Nexus-Hub/pull/190).
+
+### Fixed
+
+- Copilot CLI new-install defaults use the documented string `disable` for `permissions.disableBypassPermissionsMode`; existing user settings remain seed-if-absent. Antigravity 2 global legacy workflows now reach the documented `~/.gemini/config/workflows/` directory. Native command-skills remain available.
+
+- Managed-file replacement creates owner-only staging files and preserves existing destination permissions when readable. New files retain the restrictive default.
+- Organization-cache refresh retries transient Windows rename failures within a bounded budget and preserves the original failure if restoring the backup also fails. [Installer fixes](https://github.com/bendourthe/Nexus-Hub/pull/188).
+- Unicode validation reads and repairs long Windows paths without excluding immutable audit ledgers.
+- Cross-platform audit tests now isolate leaf-file swaps, construct ledger forks independently of directory enumeration order, and preserve byte-exact JSON/SARIF fixtures across Git checkouts.
+
+### Changed
+
+- `/review` dispatches to available retained skills, rejects unknown explicit scopes and mutation/approval payloads, and keeps every scope read-only. `/review pentest` assesses supplied evidence and writes report content; it does not execute penetration tests or modify the target.
+- Per-model prompting references have a generated discovery index. Updated profiles retain their model-specific and family-scoped evidence limitations.
+- Windows CI includes the audit boundary and Unicode tests; supported Windows checkouts enable long paths before checkout. Existing Linux, macOS and Windows bootstrap and installer gates remain required.
+- Release planning and evidence are refreshed, including the future evidence-driven improvement plan. Queued plans do not represent implemented capabilities.
+
+### Using the changed optional capabilities
+
+#### security-audit
+
+Activation: In a supported assistant with Nexus-Hub installed, run `/work security-audit` for an explicitly authorized target. Use `/review security` for the read-only review entry point. No additional installer flag, provider credential or automatic scanner installation is introduced.
+
+Validation: From a Nexus-Hub source checkout, run `python catalog/skills/code-review/security-review/scripts/closure-gate.py tests/fixtures/security-audit/application-audit-complete.json --summary`. It must exit 0 and emit the normalized fixture summary. For a real audit, inspect the component denominator, scanner receipts and overall health; a fixture check does not verify a live target or host.
+
+Rollback: Stop invoking the audit workflow. It installs no scanner or background service. Separately review any explicitly approved patches or saved reports; stopping the workflow does not revert patches or delete retained evidence.
+
+Authority: Audit activation does not authorize source execution, network access, infrastructure changes or remediation. `/review` cannot consume approval receipts or apply patches. Missing tooling and self-attested execution do not become complete coverage or process attestation.
+
+Docs: [Security audit workflow](https://github.com/bendourthe/Nexus-Hub/blob/v4.9.0/guides/reference/SECURITY_AUDIT.md).
+
+#### Local SARIF export
+
+Activation: Pipe an application-audit normalized summary to `python catalog/skills/code-review/security-review/scripts/emit-sarif.py`.
+
+Validation: From a source checkout, run `python catalog/skills/code-review/security-review/scripts/closure-gate.py tests/fixtures/security-audit/application-audit-complete.json --summary | python catalog/skills/code-review/security-review/scripts/emit-sarif.py`. It must exit 0 and emit a SARIF document with `version` equal to `2.1.0`. This command exercises synthetic fixture data and writes only to standard output.
+
+Rollback: Stop invoking the exporter. It has no persistent activation state. Any output file you explicitly redirected to remains until you remove it.
+
+Authority: Export does not scan source, approve remediation, upload results or increase the assurance represented by the input summary.
+
+Docs: [Application-security SARIF contract](https://github.com/bendourthe/Nexus-Hub/blob/v4.9.0/catalog/skills/code-review/security-review/references/application-security-sarif.md).
+
+#### Copilot CLI defaults
+
+Activation: From a checkout, run `bash scripts/installer.sh --platforms copilot` or `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/installer.ps1 -Platforms copilot`. The installer seeds missing settings only.
+
+Validation: Open Copilot CLI and run `/settings permissions.disableBypassPermissionsMode`; the new-install value is `disable`. An existing user value is retained and must be reviewed separately.
+
+Rollback: Restore your previous `permissions.disableBypassPermissionsMode` value in `~/.copilot/settings.json`. Reinstallation preserves a value you explicitly set.
+
+Authority: This user-editable default suppresses allow-all flags; it is not an administrator-enforced security boundary and does not migrate existing configurations.
+
+Docs: [Platform defaults](https://github.com/bendourthe/Nexus-Hub/blob/v4.9.0/docs/policy/platform-defaults-levers.md).
+
+#### Antigravity 2 global workflows
+
+Activation: From a checkout, run `bash scripts/installer.sh --platforms antigravity2` or `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/installer.ps1 -Platforms antigravity2`.
+
+Validation: Open Antigravity 2 and invoke `/review` from the installed command-skills or workflows. Global workflow files are in `~/.gemini/config/workflows/`; a conflicting user-owned file is retained and reported as kept.
+
+Rollback: Remove only installer-owned files using the install manifest, or restore your pre-install backup. Files in the former `~/.gemini/config/global_workflows/` directory are retained, and native command-skills are separate artifacts.
+
+Authority: The corrected directory enables discovery; it grants no additional target access or mutation permission. Existing user workflows are preserved unless overwrite was explicitly requested.
+
+Docs: [Platform read-contracts](https://github.com/bendourthe/Nexus-Hub/blob/v4.9.0/docs/policy/platform-read-contracts.md).
+
+### Compatibility and limitations
+
+- Existing ordinary closure records retain their schema and exit behavior; the application-audit profile is additive. Malformed or contradictory audit evidence fails validation.
+- No new runtime dependency, hosted provider service or default target mutation is introduced.
+- Native-provider manual testing and the retained host-characterization attempts remain unavailable. Deterministic integrity and contract checks are verified separately; no recall or accuracy score is claimed.
+- The interactive-handbooks plan remains queued. Its proposed presentation and export behavior is not part of this release's implemented feature set.
+
 ## [4.8.0] - 2026-09-08
 
 ### Added

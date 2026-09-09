@@ -66,14 +66,14 @@ def test_claude_needs_action_when_empty(tmp_path):
 
 def test_antigravity_ide_and_cli_global_pass(tmp_path):
     """Corrected v3.12.0 paths: IDE global at ~/.gemini/config (skills +
-    global_workflows) + ~/.gemini/GEMINI.md; CLI at ~/.gemini/antigravity-cli.
+    workflows) + ~/.gemini/GEMINI.md; CLI at ~/.gemini/antigravity-cli.
     """
     home = tmp_path / "home"
     cfg = home / ".gemini" / "config"
     (cfg / "skills" / "s").mkdir(parents=True)
     (cfg / "skills" / "s" / "SKILL.md").write_text("s", encoding="utf-8")
-    (cfg / "global_workflows").mkdir(parents=True)
-    (cfg / "global_workflows" / "c.md").write_text("c", encoding="utf-8")
+    (cfg / "workflows").mkdir(parents=True)
+    (cfg / "workflows" / "c.md").write_text("c", encoding="utf-8")
     (cfg / "agents").mkdir(parents=True)
     (cfg / "agents" / "planner.md").write_text("a", encoding="utf-8")
     (home / ".gemini" / "GEMINI.md").write_text("# Nexus-Hub Skill Index\n", encoding="utf-8")
@@ -102,6 +102,11 @@ def test_antigravity_ide_and_cli_global_pass(tmp_path):
     (proj / ".agents" / "agents" / "planner.md").write_text("a", encoding="utf-8")
     labels2 = _by_label(runner._verify_checks(home, proj))
     assert _all_ok(labels2["Antigravity 2.0 (this project .agents/)"])
+
+    # An obsolete global destination alone must not satisfy current discovery.
+    (cfg / "workflows").rename(cfg / "global_workflows")
+    obsolete = _by_label(runner._verify_checks(home, proj))
+    assert not _all_ok(obsolete["Antigravity 2.0 IDE (global)"])
 
 
 def test_codex_pass_and_needs_action(tmp_path):
