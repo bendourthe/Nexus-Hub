@@ -1,0 +1,18 @@
+{
+  "build": {
+    "assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d",
+    "assets/dual-view-runtime.js": "cca036e45febefee365bf5eb6a4e23b0388f6c0a0fc69889445c68c0177b2cb4",
+    "assets/dual-view.css": "6d71063749ef287db25a355ebe6371b19909d474ed7e91f0e98ca65ca940965b",
+    "assets/theme.json": "512cb7343f78c274c3c79e0b8124ec88fdb79639835a345ba369f78d642c3740",
+    "scripts/build_presentation.py": "08816c4302cbe4830fdaee39475360c533b89dfc6ce65b0d93e20f5a85701ae1",
+    "scripts/dual_view.py": "37102405fb3b1ffcd34500c1f1e0a3f4b0727b38c4643fc25ed3ef73fb1b0f3c"
+  },
+  "output": "docs/handbooks/distribution.html",
+  "output_sha256": "fe02fb37e26ca7c99bc5efac14f5a5dc901b4634f9d4d4762ebb9a95c96a51cb",
+  "schema_version": 1,
+  "sources": {
+    "docs/handbooks/_sources/distribution/design.css": "c237cd1cb62d7daf35800b07b8bf23d47b623dc92fedcc31dff6bd395998a5ad",
+    "docs/handbooks/_sources/distribution/model.json": "d7eab5bdf7baa42439ebca9527167a774d10e7367e29e2a3eb027122c57099de",
+    "docs/handbooks/_sources/distribution/source.md": "a64847151df5c8a02d6a51b70041832f800c9bbe6046e7d2a634052573469a69"
+  }
+}

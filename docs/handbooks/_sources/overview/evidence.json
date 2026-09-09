@@ -1,0 +1,38 @@
+{
+  "snapshot": {
+    "entry_sha256": "2ad493210f8c91209ecb9588bb1fc8a0dacbab642b8d0ab3d6e35eeb679ef721",
+    "inputs": {
+      "docs/handbooks/_sources/overview/model.json": "3b38f0ecfc3716162e8610bbfae6c16ab4a13c9b64252b53f853eb428c593ab7",
+      "docs/handbooks/_sources/overview/source.md": "d80559beacc91514099fbf45c2637a8e577e1322d4bc1b4da78245dfe51c9008",
+      "docs/handbooks/_sources/overview/design.css": "c237cd1cb62d7daf35800b07b8bf23d47b623dc92fedcc31dff6bd395998a5ad",
+      "scripts/validate_skills.py": "f43230a16fe00ee40cf7ac2399939eba87398c4cbd323ae859e6929e273e42f4",
+      "scripts/check_registry_entries.py": "53610a7a074d8ba50b7c7a4d79743b75dd06c0bca443340292b184d944216983",
+      "scripts/lib/integrations/_catalog_adapters.py": "24eb871c0c80a230d1e00efe7e909cb66de08c5e6453715c8492f95df512e8fe",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "08816c4302cbe4830fdaee39475360c533b89dfc6ce65b0d93e20f5a85701ae1",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "37102405fb3b1ffcd34500c1f1e0a3f4b0727b38c4643fc25ed3ef73fb1b0f3c",
+      "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js": "cca036e45febefee365bf5eb6a4e23b0388f6c0a0fc69889445c68c0177b2cb4",
+      "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d",
+      "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css": "6d71063749ef287db25a355ebe6371b19909d474ed7e91f0e98ca65ca940965b"
+    },
+    "output_sha256": "6c6bd02db2682b4a91cdff8dbb95287c980011e8241e38656240e3ce0774a301"
+  },
+  "checks": {
+    "content": {
+      "status": "pass",
+      "evidence": "docs/releases/v4/v4.9/development/interactive-handbooks/phase-5-content-review.md",
+      "evidence_sha256": "03e91e7245c413d6abd3bbb07269b28ac8c1945f296f163e6d8a6d8307ace2c3"
+    },
+    "build": {
+      "status": "pass",
+      "evidence": "docs/releases/v4/v4.9/development/interactive-handbooks/phase-5-build-evidence.json",
+      "evidence_sha256": "4a3c0bb2ab8daca2c4d214ddfd3ef06f1c3e4f63a58a04805e3e8948a2e73a4f"
+    },
+    "rendered": {
+      "status": "pass",
+      "evidence": "docs/releases/v4/v4.9/development/interactive-handbooks/phase-5-browser-evidence.json",
+      "evidence_sha256": "4576e2dcd5ed390dbf3da4a3ecf18670733934a7745aa3c54dbf5fbc7863377e",
+      "browser": "Chromium 151.0.7922.34",
+      "output_sha256": "6c6bd02db2682b4a91cdff8dbb95287c980011e8241e38656240e3ce0774a301"
+    }
+  }
+}

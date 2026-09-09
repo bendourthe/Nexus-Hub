@@ -546,3 +546,9 @@ def test_page_only_omits_presentation_assets(project):
     assert "<div data-dv-deck" not in output
     assert "<button data-dv-open" not in output
     assert "window.NexusDualView" not in output
+
+
+def test_builder_help_is_runnable():
+    result = subprocess.run([sys.executable, str(SCRIPTS / "build_presentation.py"), "--help"], capture_output=True, text=True, check=False)
+    assert result.returncode == 0, result.stderr
+    assert "100%" in result.stdout and "--check" in result.stdout

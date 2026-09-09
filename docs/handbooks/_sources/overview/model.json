@@ -1,0 +1,136 @@
+{
+  "schema_version": 2,
+  "title": "Nexus-Hub: from catalog to assistant",
+  "sources": [
+    {
+      "path": "docs/handbooks/_sources/overview/source.md",
+      "format": "markdown",
+      "title": "Nexus-Hub: from catalog to assistant"
+    }
+  ],
+  "sections": [
+    {
+      "id": "purpose",
+      "heading": "One catalog, several hosts",
+      "source_index": 0,
+      "blocks": [
+        {
+          "id": "purpose-text",
+          "type": "paragraph",
+          "text": "Nexus-Hub stores reusable skills, commands, hooks and rules. Installers deliver those files into the local bundle and each supported assistant's configuration. The catalog is the upstream source; generated platform files are delivery artifacts."
+        }
+      ]
+    },
+    {
+      "id": "authoring",
+      "heading": "Start with the skill source",
+      "source_index": 0,
+      "blocks": [
+        {
+          "id": "authoring-text",
+          "type": "paragraph",
+          "text": "Each skill lives under catalog/skills/category/name/SKILL.md. Its frontmatter identifies and describes the capability; its body supplies the procedure. References, scripts and assets remain beside the skill so supporting material can be loaded when needed."
+        }
+      ]
+    },
+    {
+      "id": "validation",
+      "heading": "Check before distribution",
+      "source_index": 0,
+      "blocks": [
+        {
+          "id": "validation-text",
+          "type": "paragraph",
+          "text": "scripts/validate_skills.py validates required frontmatter, strict YAML parsing, directory/name agreement and body conventions. The registry checker compares catalog entries with source metadata. Passing these checks establishes structure, not that an assistant selected or followed the skill."
+        }
+      ]
+    },
+    {
+      "id": "delivery",
+      "heading": "Adapt the shape at the boundary",
+      "source_index": 0,
+      "blocks": [
+        {
+          "id": "delivery-text",
+          "type": "paragraph",
+          "text": "The platform adapters can flatten category folders, synthesize commands as skills, or emit native slash-command files. A synthesized command retains its body and declares disable-model-invocation: true. The host decides whether it honors that field."
+        }
+      ]
+    },
+    {
+      "id": "proof",
+      "heading": "Test the delivered capability",
+      "source_index": 0,
+      "blocks": [
+        {
+          "id": "proof-text",
+          "type": "paragraph",
+          "text": "A source-file test cannot prove installation. Exercise the installed artifact through the intended host, retaining the observed result. This handbook's build receipt proves its current source and output hashes; its browser record covers the reading and presentation views."
+        }
+      ]
+    }
+  ],
+  "presentation": {
+    "enabled": true,
+    "theme": "mixed",
+    "depth": "balanced",
+    "initial_slide": 1,
+    "slide_budget": 5,
+    "theme_sequence": [
+      "dark",
+      "light",
+      "dark",
+      "light",
+      "dark"
+    ],
+    "slides": [
+      {
+        "id": "purpose",
+        "source_ids": [
+          "purpose"
+        ],
+        "composition": "statement"
+      },
+      {
+        "id": "authoring",
+        "source_ids": [
+          "authoring"
+        ],
+        "composition": "process"
+      },
+      {
+        "id": "validation",
+        "source_ids": [
+          "validation"
+        ],
+        "composition": "statement"
+      },
+      {
+        "id": "delivery",
+        "source_ids": [
+          "delivery"
+        ],
+        "composition": "process"
+      },
+      {
+        "id": "proof",
+        "source_ids": [
+          "proof"
+        ],
+        "composition": "statement"
+      }
+    ]
+  },
+  "design": {
+    "layout": "standard",
+    "reading_themes": [
+      "dark",
+      "light",
+      "dark",
+      "light",
+      "dark"
+    ],
+    "stylesheet": "docs/handbooks/_sources/overview/design.css",
+    "brief": "Editorial technical handbook with large numbered chapters and a restrained midnight/blue palette. Preserve the complete explanation in reading view and one clear idea per presentation slide."
+  }
+}

@@ -1,0 +1,3 @@
+# Phase 5 documentation placement audit
+
+The docs inventory completed against the active release tree with repository-root context. Two enduring catalog/installation handbooks and their retained source/output map live under docs/handbooks. A successor decision preserves the historical living-docs decision while changing only source-layout and freshness policy. Reusable procedures remain with their existing skills. Review, browser, build, coverage and freshness records are release evidence. No live tree was archived, moved or deleted; the snapshot exercise operated only in a temporary fixture. No ignore pattern was added.
