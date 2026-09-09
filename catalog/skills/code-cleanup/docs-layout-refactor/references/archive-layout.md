@@ -128,7 +128,7 @@ Never silently overwrite.
 
 ## Handbook snapshot at release close
 
-Living `docs/handbooks/` stays at the docs root. At `/update release`, snapshot `docs/handbooks/markdown/` (and authored HTML if present) to:
+Living `docs/handbooks/` stays at the docs root. At `/update release`, snapshot the source/output map, retained rebuild inputs and verified output from `docs/handbooks/` to:
 
 ```
 docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/

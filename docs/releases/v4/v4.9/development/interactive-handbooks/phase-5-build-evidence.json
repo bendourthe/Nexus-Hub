@@ -1,0 +1,64 @@
+[
+  {
+    "id": "overview",
+    "kind": "build",
+    "command": [
+      "python",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+      "docs/handbooks/_sources/overview/model.json",
+      "--out",
+      "docs/handbooks/overview.html",
+      "--root",
+      "."
+    ],
+    "exit_code": 0,
+    "output": ""
+  },
+  {
+    "id": "overview",
+    "kind": "check",
+    "command": [
+      "python",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+      "docs/handbooks/_sources/overview/model.json",
+      "--out",
+      "docs/handbooks/overview.html",
+      "--root",
+      ".",
+      "--check"
+    ],
+    "exit_code": 0,
+    "output": ""
+  },
+  {
+    "id": "distribution",
+    "kind": "build",
+    "command": [
+      "python",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+      "docs/handbooks/_sources/distribution/model.json",
+      "--out",
+      "docs/handbooks/distribution.html",
+      "--root",
+      "."
+    ],
+    "exit_code": 0,
+    "output": ""
+  },
+  {
+    "id": "distribution",
+    "kind": "check",
+    "command": [
+      "python",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+      "docs/handbooks/_sources/distribution/model.json",
+      "--out",
+      "docs/handbooks/distribution.html",
+      "--root",
+      ".",
+      "--check"
+    ],
+    "exit_code": 0,
+    "output": ""
+  }
+]

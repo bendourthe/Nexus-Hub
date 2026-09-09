@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "handbooks": [
+    {
+      "id": "overview",
+      "output": "docs/handbooks/overview.html",
+      "inputs": [
+        "docs/handbooks/_sources/overview/model.json",
+        "docs/handbooks/_sources/overview/source.md",
+        "docs/handbooks/_sources/overview/design.css",
+        "scripts/validate_skills.py",
+        "scripts/check_registry_entries.py",
+        "scripts/lib/integrations/_catalog_adapters.py",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py",
+        "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js",
+        "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js",
+        "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css"
+      ],
+      "code_inputs": [
+        "scripts/validate_skills.py",
+        "scripts/check_registry_entries.py",
+        "scripts/lib/integrations/_catalog_adapters.py"
+      ],
+      "builder": {
+        "identity": "retained build_presentation.py",
+        "inputs": [
+          "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+          "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py",
+          "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js",
+          "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js",
+          "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css"
+        ],
+        "build": [
+          "python",
+          "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+          "docs/handbooks/_sources/overview/model.json",
+          "--out",
+          "docs/handbooks/overview.html",
+          "--root",
+          "."
+        ],
+        "check": [
+          "python",
+          "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+          "docs/handbooks/_sources/overview/model.json",
+          "--out",
+          "docs/handbooks/overview.html",
+          "--root",
+          ".",
+          "--check"
+        ]
+      },
+      "presentation": true,
+      "evidence": "docs/handbooks/_sources/overview/evidence.json"
+    },
+    {
+      "id": "distribution",
+      "output": "docs/handbooks/distribution.html",
+      "inputs": [
+        "docs/handbooks/_sources/distribution/model.json",
+        "docs/handbooks/_sources/distribution/source.md",
+        "docs/handbooks/_sources/distribution/design.css",
+        "scripts/installer.ps1",
+        "scripts/installer.sh",
+        "scripts/lib/integrations/runner.py",
+        "scripts/lib/integrations/_catalog_adapters.py",
+        "scripts/lib/integrations/_owned.py",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py",
+        "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js",
+        "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js",
+        "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css"
+      ],
+      "code_inputs": [
+        "scripts/installer.ps1",
+        "scripts/installer.sh",
+        "scripts/lib/integrations/runner.py",
+        "scripts/lib/integrations/_catalog_adapters.py",
+        "scripts/lib/integrations/_owned.py"
+      ],
+      "builder": {
+        "identity": "retained build_presentation.py",
+        "inputs": [
+          "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+          "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py",
+          "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js",
+          "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js",
+          "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css"
+        ],
+        "build": [
+          "python",
+          "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+          "docs/handbooks/_sources/distribution/model.json",
+          "--out",
+          "docs/handbooks/distribution.html",
+          "--root",
+          "."
+        ],
+        "check": [
+          "python",
+          "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+          "docs/handbooks/_sources/distribution/model.json",
+          "--out",
+          "docs/handbooks/distribution.html",
+          "--root",
+          ".",
+          "--check"
+        ]
+      },
+      "presentation": true,
+      "evidence": "docs/handbooks/_sources/distribution/evidence.json"
+    }
+  ],
+  "excluded": {}
+}

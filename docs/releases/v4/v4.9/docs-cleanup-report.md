@@ -46,3 +46,4 @@ The active handbook implementation retains living instructions with their owners
 - [Phase 2 audit](development/interactive-handbooks/phase-2-docs-audit.md).
 - [Phase 3 audit](development/interactive-handbooks/phase-3-docs-audit.md).
 - [Phase 4 audit](development/interactive-handbooks/phase-4-docs-audit.md).
+- [Phase 5 audit](development/interactive-handbooks/phase-5-docs-audit.md).

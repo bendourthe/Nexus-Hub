@@ -699,7 +699,7 @@ def main(argv: list | None = None) -> int:
         "--layout",
         choices=sorted(ASPECTS),
         default=None,
-        help="Output aspect / canvas: 'full' (edge-to-edge, page-max 100%), "
+        help="Output aspect / canvas: 'full' (edge-to-edge, page-max 100%%), "
         "'standard' (centered column, the default), or 'portrait' (narrow "
         "reading column). Sets data-aspect and the injected --page-max/--gutter.",
     )

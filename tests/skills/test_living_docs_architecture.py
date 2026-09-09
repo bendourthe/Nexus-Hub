@@ -59,7 +59,8 @@ def test_setup_project_scaffolds_handbooks_and_decisions() -> None:
 
 def test_update_release_regenerates_html_and_snapshots_handbooks() -> None:
     text = _read(UPDATE_CMD)
-    assert "Handbook markdown against the code" in text
+    assert "Handbook content against the candidate" in text
+    assert "Missing sources, missing handbooks and missing generators are incomplete" in text
     assert "Living docs canonicalize" in text
     assert "regenerate-and-fail-on-stale" in text
     assert "Fail the release when generated output is missing or stale" in text
@@ -102,3 +103,31 @@ def test_v4_lifespan_plan_consumes_handbooks_equivalent() -> None:
     assert "docs/archives/v<M>/v<M>.<m>/handbooks/" in text
     assert "regenerate-and-fail-on-stale" in text
     assert "docs/handbooks/" in text
+
+
+def test_mapped_sources_preserve_layout_and_required_gate():
+    layout = _read(LAYOUT)
+    assert "handbooks.json" in layout
+    assert "Do not automatically migrate folders" in layout
+    assert "conflicting source-of-truth declarations block" in layout
+    owner = _read(ROOT / "catalog/skills/documentation/technical-documentation/references/handbook-refresh.md")
+    for requirement in ("--scope", "code_inputs", "output_sha256", "unchanged", "concurrent edits preserve the original"):
+        assert requirement in owner
+    release = _read(UPDATE_CMD)
+    assert release.index("green integration prerequisites") < release.index("before version mutation")
+    assert "A known-gap note cannot waive" in release
+    assert "source/output map, build inputs and verified outputs" in release
+
+
+def test_all_entry_paths_delegate_to_same_handbook_owner():
+    for relative in (
+        "catalog/commands/implement.md",
+        "catalog/commands/update.md",
+        "catalog/skills/documentation/technical-documentation/SKILL.md",
+        "catalog/skills/documentation/user-documentation/SKILL.md",
+        "catalog/skills/workflow/implement-phase/SKILL.md",
+        "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+        "catalog/skills/workflow/implementation-plan/references/mandatory-final-phase.md",
+        "catalog/skills/workflow/version-upgrade/SKILL.md",
+    ):
+        assert "references/handbook-refresh.md" in _read(ROOT / relative), relative

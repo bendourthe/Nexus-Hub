@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """Release-flow preconditions: refuse to tag the wrong commit, and report branch drift.
 
-Three independent checks, each answering a failure this repository actually hit.
+Independent checks answer release failures and candidate handbook freshness.
+
+`--handbooks` (also `--pre-version`) delegates to the bundled read-only handbook
+checker. Release workflows call it after integration checks and before version
+mutation; final-plan publication uses the same gate. It does not run generators,
+replace integration checks, or authorize publication. The legacy `--all` audit
+retains its original three-check selection; handbook gating is explicit.
 
 `--pre-tag` is the one that matters. In the v3.17.5 release a `git checkout main`
 failed on a OneDrive-locked directory, left HEAD on an unrelated branch, and the
@@ -35,6 +41,7 @@ repository is not on GitHub; it only ever READS, and enabling
 and acquiring any would breach the zero-outbound policy.
 
 Usage:
+    python scripts/check_release_preconditions.py --pre-version
     python scripts/check_release_preconditions.py --pre-tag [--release-branch main]
     python scripts/check_release_preconditions.py --branches [--integration-branch develop]
     python scripts/check_release_preconditions.py --repo-settings
@@ -43,7 +50,7 @@ Usage:
 Exit codes:
     0  every requested check passed (an advisory check with nothing to report
        also exits 0)
-    1  a BLOCKING precondition failed -- currently only --pre-tag can do this
+    1  a BLOCKING precondition failed -- --pre-tag and --handbooks can do this
     2  a check could not run (not a git repository, git unavailable)
 """
 
@@ -485,7 +492,8 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="report delete_branch_on_merge and description drift (needs gh)",
     )
-    parser.add_argument("--all", action="store_true", help="run every check")
+    parser.add_argument("--handbooks", "--pre-version", action="store_true", help="BLOCKING: verify all handbook evidence before version mutation")
+    parser.add_argument("--all", action="store_true", help="run every existing repository check")
     parser.add_argument("--release-branch", default=DEFAULT_RELEASE_BRANCH)
     parser.add_argument("--integration-branch", default=DEFAULT_INTEGRATION_BRANCH)
     args = parser.parse_args(argv)
@@ -495,7 +503,7 @@ def main(argv: list[str] | None = None) -> int:
     run_branches = args.branches or args.all
     run_settings = args.repo_settings or args.all
 
-    if not (run_pre_tag or run_branches or run_settings):
+    if not (run_pre_tag or run_branches or run_settings or args.handbooks):
         parser.error(
             "choose at least one of --pre-tag, --branches, --repo-settings, --all"
         )
@@ -509,6 +517,17 @@ def main(argv: list[str] | None = None) -> int:
     except GitUnavailable as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
+
+    if args.handbooks:
+        import runpy
+
+        checker = root / "catalog/skills/documentation/technical-documentation/scripts/check_handbooks.py"
+        if not checker.is_file():
+            print("ERROR: handbook checker unavailable", file=sys.stderr)
+            return 2
+        result = runpy.run_path(str(checker))["check"](root)
+        print(json.dumps(result, indent=2))
+        exit_code = max(exit_code, 1 if result["errors"] else 0)
 
     if run_settings:
         exit_code = max(exit_code, report_repo_settings(root))
