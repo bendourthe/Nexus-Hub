@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Retained handbook assembly for build_presentation.py; no extraction or network."""
 
 from __future__ import annotations
@@ -299,6 +300,7 @@ def svg_instance(text: str, prefix: str) -> str:
         raise ValueError("SVG: root must be svg")
     forbidden = {
         "script",
+        "style",
         "foreignObject",
         "animate",
         "set",
@@ -690,6 +692,12 @@ def render(model: dict[str, Any], inputs: Inputs) -> tuple[str, dict[str, str]]:
     theme = legacy.load_theme(None)
     section_map = {section["id"]: section for section in model["sections"]}
     design = model.get("design", {})
+    layout = design.get("layout", "standard")
+    if layout not in legacy.ASPECTS:
+        raise ValueError(
+            "design.layout: resolve full, standard or portrait before assembly"
+        )
+    page_max, _ = legacy.ASPECTS[layout]
     reading_themes = design.get("reading_themes", ["light"] * len(section_map))
     if len(reading_themes) != len(section_map) or any(
         value not in {"light", "dark"} for value in reading_themes
@@ -805,16 +813,19 @@ def render(model: dict[str, Any], inputs: Inputs) -> tuple[str, dict[str, str]]:
     )
     if design.get("stylesheet"):
         css += safe_css(inputs.read(design["stylesheet"]).decode("utf-8"))
+    css += f"[data-dv-page]{{max-width:{page_max};margin-inline:auto}}"
+    variants = design.get("brand_variants", {})
+    if not isinstance(variants, dict):
+        raise TypeError("design.brand_variants: theme-to-asset object required")
+    page_brand = variants.get("light", design.get("brand_asset"))
     brand = (
-        svg_instance(
-            inputs.read(design["brand_asset"]).decode("utf-8"), "dv-page-brand"
-        )
-        if design.get("brand_asset")
+        svg_instance(inputs.read(page_brand).decode("utf-8"), "dv-page-brand")
+        if page_brand
         else ""
     )
     parts = [
         '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
-        f"<title>{title}</title><style>{BASE_CSS}{css}</style><main data-dv-page>",
+        f'<title>{title}</title><style>{BASE_CSS}{css}</style><main data-dv-page data-aspect="{layout}">',
         f"<header>{brand}<h1>{title}</h1>",
     ]
     if enabled:
@@ -857,11 +868,14 @@ def render(model: dict[str, Any], inputs: Inputs) -> tuple[str, dict[str, str]]:
             parts.append(
                 f'<section id="slide-{i + 1}" data-dv-slide="{key}" data-theme="{model["presentation"]["theme_sequence"][i]}" class="dv-composition-{escaped(slide.get("composition", "content"))}" hidden><h2>{escaped(heading)}</h2>'
             )
-            if design.get("brand_asset"):
+            slide_brand = variants.get(
+                model["presentation"]["theme_sequence"][i], design.get("brand_asset")
+            )
+            if slide_brand and slide.get("brand", True):
                 parts.append(
                     '<div class="dv-brand">'
                     + svg_instance(
-                        inputs.read(design["brand_asset"]).decode("utf-8"),
+                        inputs.read(slide_brand).decode("utf-8"),
                         f"dv-brand-{i}",
                     )
                     + "</div>"
@@ -936,7 +950,7 @@ def controls() -> str:
 
 
 BASE_CSS = """
-[data-dv-zoom-view]{max-height:320px;overflow:auto}[data-dv-zoom-view]>svg{max-width:none;width:100%;display:block}.dv-figure-tools{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}.dv-figure-tools label{display:flex;gap:.5rem;align-items:center}[data-region][data-selected=true]{stroke:currentColor;stroke-width:4}html{font:18px/1.55 system-ui,sans-serif;scrollbar-color:#52677b transparent}body{margin:0;background:#f5f3ec;color:#15283c}*{box-sizing:border-box}button,input,select{font:inherit}button{cursor:pointer;min-height:44px}header,[data-dv-section]{padding:clamp(1.25rem,4vw,4rem)}header h1{font-size:clamp(2rem,5vw,4rem);line-height:1.1}header>svg{width:240px;max-height:60px}[data-theme=dark]{background:#142235;color:#f5f3ec}[data-theme=light]{background:#f5f3ec;color:#15283c}h2{overflow-wrap:anywhere}[data-dv-section] h2{font-size:clamp(1.5rem,3vw,2.7rem);line-height:1.15}.dv-top-menu{position:sticky;top:0;display:flex;justify-content:space-between;background:#f5f3ec;color:#15283c;padding:.5rem;z-index:2}figure{margin:0;min-width:0}figure>svg{width:100%;max-height:220px}figcaption{font-size:1rem}.dv-chart svg{width:100%;min-width:650px;max-height:290px}.dv-chart svg text{font-size:24px;fill:currentColor;stroke:none}.dv-chart [data-dv-native]{overflow:auto}.dv-legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}.dv-legend button{background:transparent;color:inherit;border:1px solid currentColor;border-radius:.5rem}.dv-directory{max-height:200px;overflow:auto;scrollbar-color:currentColor transparent}table{border-collapse:collapse;font-size:1rem}td,th{padding:.3rem .7rem;border-bottom:1px solid currentColor;text-align:left}pre{font-size:1rem}.dv-image{border:0;background:transparent;padding:0}.dv-image img{object-fit:contain;max-width:100%;max-height:240px}.dv-brand{position:absolute;right:1rem;top:1rem;max-width:120px}.dv-brand svg{width:100%}[data-dv-slide]>.dv-brand~*{min-width:0}[data-dv-slide]:has(.dv-brand)>h2{padding-right:140px}[data-dv-slide]>[data-dv-unit]{min-width:0}[data-dv-slide] details[open]{overflow:auto;max-height:180px}[data-dv-map] input{width:100%}[data-dv-region][hidden]{display:none!important}[data-dv-region]{display:block;width:100%;text-align:left}.dv-enlargement{max-width:94vw;max-height:90vh}.dv-enlargement img{max-width:85vw;max-height:75vh;object-fit:contain}dialog::backdrop{background:#101820cc}@media(max-width:760px){[data-dv-slide]:has(.dv-brand)>h2{padding-right:0;padding-top:3rem}}@media print{.dv-top-menu,button,input,select,dialog,[data-dv-deck]{display:none!important}[data-dv-page]{display:block!important}[data-dv-section]{break-inside:avoid;background:white;color:black}}
+[data-dv-zoom-view]{max-height:320px;overflow:auto}[data-dv-zoom-view]>svg{max-width:none;width:100%;display:block}.dv-figure-tools{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}.dv-figure-tools label{display:flex;gap:.5rem;align-items:center}[data-region][data-selected=true]{stroke:currentColor;stroke-width:4}html{font:18px/1.55 system-ui,sans-serif;scrollbar-color:#52677b transparent}body{margin:0;background:#f5f3ec;color:#15283c}*{box-sizing:border-box}button,input,select{font:inherit}button{cursor:pointer;min-height:44px}header,[data-dv-section]{padding:clamp(1.25rem,4vw,4rem)}header h1{font-size:clamp(2rem,5vw,4rem);line-height:1.1}header>svg{width:240px;max-height:60px}[data-theme=dark]{background:#142235;color:#f5f3ec}[data-theme=light]{background:#f5f3ec;color:#15283c}h2{overflow-wrap:anywhere}[data-dv-section] h2{font-size:clamp(1.5rem,3vw,2.7rem);line-height:1.15}.dv-top-menu{position:sticky;top:0;display:flex;justify-content:space-between;background:#f5f3ec;color:#15283c;padding:.5rem;z-index:2}figure svg text:not([fill]),figure svg marker path:not([fill]){fill:currentColor}figure{margin:0;min-width:0}figure>svg{width:100%;max-height:220px}figcaption{font-size:1rem}.dv-chart svg{width:100%;min-width:650px;max-height:290px}.dv-chart svg text{font-size:24px;fill:currentColor;stroke:none}.dv-chart [data-dv-native]{overflow:auto}.dv-legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}.dv-legend button{background:transparent;color:inherit;border:1px solid currentColor;border-radius:.5rem}.dv-directory{max-height:200px;overflow:auto;scrollbar-color:currentColor transparent}table{border-collapse:collapse;font-size:1rem}td,th{padding:.3rem .7rem;border-bottom:1px solid currentColor;text-align:left}pre{font-size:1rem}.dv-image{border:0;background:transparent;padding:0}.dv-image img{object-fit:contain;max-width:100%;max-height:240px}.dv-brand{position:absolute;right:1rem;top:1rem;max-width:120px}.dv-brand svg{width:100%}[data-dv-slide]>.dv-brand~*{min-width:0}[data-dv-slide]:has(.dv-brand)>h2{padding-right:140px}[data-dv-slide]>[data-dv-unit]{min-width:0}[data-dv-slide] details[open]{overflow:auto;max-height:180px}[data-dv-map] input{width:100%}[data-dv-region][hidden]{display:none!important}[data-dv-region]{display:block;width:100%;text-align:left}.dv-enlargement{max-width:94vw;max-height:90vh}.dv-enlargement img{max-width:85vw;max-height:75vh;object-fit:contain}dialog::backdrop{background:#101820cc}@media(max-width:760px){[data-dv-slide]:has(.dv-brand)>h2{padding-right:0;padding-top:3rem}}@media print{.dv-top-menu,button,input,select,dialog,[data-dv-deck]{display:none!important}[data-dv-page]{display:block!important}[data-dv-section]{break-inside:avoid;background:white;color:black}}
 """
 
 

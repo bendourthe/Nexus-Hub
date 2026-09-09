@@ -670,6 +670,14 @@ def test_bundled_scripts_are_marked_executable():
                 f"{path} is git mode {mode}; ruff EXE001 will fail CI on Linux"
             )
     assert py_scripts, "expected bundled Python scripts under scripts/"
+    bundled = {
+        path.relative_to(_ROOT).as_posix()
+        for path in (_ROOT / "catalog/skills/specialized-domains/document-to-interactive-html/scripts").glob("*.py")
+    }
+    assert not bundled - set(py_scripts), (
+        "Stage new bundled Python scripts with executable mode before the phase gate: "
+        + ", ".join(sorted(bundled - set(py_scripts)))
+    )
 
 
 def test_ensure_render_env_probe_reports_a_state_and_never_installs():

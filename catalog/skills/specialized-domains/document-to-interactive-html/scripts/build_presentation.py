@@ -698,7 +698,7 @@ def main(argv: list | None = None) -> int:
     parser.add_argument(
         "--layout",
         choices=sorted(ASPECTS),
-        default=DEFAULT_LAYOUT,
+        default=None,
         help="Output aspect / canvas: 'full' (edge-to-edge, page-max 100%), "
         "'standard' (centered column, the default), or 'portrait' (narrow "
         "reading column). Sets data-aspect and the injected --page-max/--gutter.",
@@ -733,6 +733,18 @@ def main(argv: list | None = None) -> int:
         from dual_view import assemble
 
         try:
+            if args.layout and args.layout != model.get("design", {}).get(
+                "layout", DEFAULT_LAYOUT
+            ):
+                raise ValueError("Retain --layout in design.layout before assembly")
+            if (
+                args.theme
+                or (args.title and args.title != model.get("title"))
+                or args.template != str(DEFAULT_TEMPLATE)
+            ):
+                raise ValueError(
+                    "Retain title, theme and authored fragments in the model before assembly"
+                )
             record = assemble(
                 model_path,
                 Path(args.out),
@@ -766,7 +778,9 @@ def main(argv: list | None = None) -> int:
     theme = load_theme(Path(args.theme) if args.theme else None)
     title = args.title or model.get("title", "Presentation")
 
-    output = build_html(model, theme, template_text, title, args.layout)
+    output = build_html(
+        model, theme, template_text, title, args.layout or DEFAULT_LAYOUT
+    )
     assert_no_external(output)
 
     out_path = Path(args.out)

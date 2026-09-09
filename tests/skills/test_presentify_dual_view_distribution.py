@@ -1,6 +1,7 @@
 """Run actual installers into scratch workspaces and use their shipped runtime."""
 
 import importlib.util
+import json
 import os
 import shutil
 import subprocess
@@ -80,12 +81,33 @@ def test_installed_bundle_runs_offline(tmp_path, shell):
         "assets/dual-view-figures.js",
         "scripts/dual_view.py",
         "scripts/build_presentation.py",
+        "scripts/resolve_presentation.py",
         "references/dual-view-handbooks.md",
     ):
         assert (bundle / relative).read_bytes() == (
             runtime_fixture.BUNDLE / relative
         ).read_bytes()
     artifact = target / "installed.html"
+    intake_input = target / "intake.json"
+    intake_input.write_text(
+        '{"explicit":{"presentation":"yes","presentation_theme":"light"}}',
+        encoding="utf-8",
+    )
+    intake_result = subprocess.run(
+        [
+            sys.executable,
+            str(bundle / "scripts/resolve_presentation.py"),
+            "--input",
+            str(intake_input),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert [item["axis"] for item in json.loads(intake_result.stdout)["questions"]] == [
+        "presentation_depth"
+    ]
     for source in (ROOT / "tests/fixtures/interactive-handbooks").iterdir():
         if source.is_file():
             shutil.copy2(source, target / source.name)
