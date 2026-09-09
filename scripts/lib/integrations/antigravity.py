@@ -82,7 +82,7 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
     see docs/policy/platform-read-contracts.md and the codelabs cited there):
 
       - IDE global skills:    ``~/.gemini/config/skills/<name>/`` (flattened, one level)
-      - IDE global slash cmds: ``~/.gemini/config/global_workflows/<name>.md``
+      - IDE global slash cmds: ``~/.gemini/config/workflows/<name>.md``
       - IDE global rules:     ``~/.gemini/GEMINI.md`` (shared with the ``gemini``
         integration; marker-merge keeps both coexisting -- one Nexus-Hub block)
       - CLI global skills:    ``~/.gemini/antigravity-cli/skills/<name>/`` (flattened)
@@ -101,7 +101,7 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
     display_name = "Antigravity 2.0 + CLI (Google)"
     instruction_mode = "shared"
     config = {
-        # IDE catalog root (skills, global_workflows) is ~/.gemini/config; IDE rules
+        # IDE catalog root (skills, workflows) is ~/.gemini/config; IDE rules
         # live at the sibling ~/.gemini/GEMINI.md. The `agy` CLI reads its catalog
         # from ~/.gemini/antigravity-cli. Project scope is .agents/. install_global /
         # install_workspace below use these explicitly (no generic root loop).
@@ -117,7 +117,7 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
         "instruction_template": "templates/ai-instructions/base-antigravity-20.md",
         "skills_subdir": "skills",
         "commands_subdir": "workflows",
-        "ide_commands_subdir": "global_workflows",
+        "ide_commands_subdir": "workflows",
         "agents_subdir": "agents",
         "rules_subdir": "rules",
         "hooks_subdir": "hooks",
@@ -294,6 +294,7 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
                     src_commands,
                     root / commands_subdir,
                     style="verbatim",
+                    preserve_unowned=scope == "global",
                 )
             )
         catalog_trees = []
