@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `feat/v4.9.0-visa-vulnerability-agentic-harness`
-**Active work:** [v4.9.0 application-security audit](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md), full implementation. The existing guide and handbook work below retains its separate owner.
+**Branch:** `release/v4.9.0`
+**Active work:** Release preparation for the integrated [v4.9.0 application-security audit](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md), full implementation. The existing guide and handbook work below retains its separate owner.
 **Last refreshed:** 2026-09-08
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -154,7 +154,7 @@ Scoped command/skill update: 3/3 items complete; see [implementation and verific
 
 ## Current work - v4.9.0 application-security audit
 
-**Plan**: [Application-security audit pipeline](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md). Driver: full. Verified phases complete: 6/7; verified tasks: 30/31. All local Phase 7 duties pass in [final-phase evidence](releases/v4/v4.9/development/last-phase-evidence.md), including cycle-2 Windows long-path correction, approved CI wiring and explicit manual-test limits. PR 190 exposed two test setup assumptions and Windows golden-fixture conversion; cycle 3 reproduced and corrected all three causes. Affected suites pass 97 tests with seven platform skips and 152 tests using real Git checkout bytes. T031 remains open until corrected-head hosted checks and integration are verified in the external handoff. Existing guide and handbook work above retains its separate owner.
+**Plan**: [Application-security audit pipeline](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md). Driver: full. Verified phases complete: 7/7; verified tasks: 31/31. All local Phase 7 duties pass in [final-phase evidence](releases/v4/v4.9/development/last-phase-evidence.md), including cycle-2 Windows long-path correction, approved CI wiring and explicit manual-test limits. PR 190 exposed two test setup assumptions and Windows golden-fixture conversion; cycle 3 reproduced and corrected all three causes. Affected suites pass 97 tests with seven platform skips and 152 tests using real Git checkout bytes. T031 is complete: [PR 190](https://github.com/bendourthe/Nexus-Hub/pull/190) merged at `bd2c8968` after 28 successful checks and one inapplicable skip; post-merge smoke and provenance passed. Existing guide and handbook work above retains its separate owner.
 
 - [x] Complete and verify Phase 1 contract, input safety, target identity, and compatibility; reconcile the draft's premature completion claims.
 - [x] Complete Phase 2 bounded inventory, pure routing, current review dispatch, and independent correction checks: 395 tests pass, 25 skip, 87.07% coverage.
@@ -162,4 +162,5 @@ Scoped command/skill update: 3/3 items complete; see [implementation and verific
 - [x] Complete Phase 4 normalized envelopes and health enforcement: 447 tests pass, eight platform skips, 87.93% coverage; both bounded reviewers approve.
 - [x] Complete Phase 5 local SARIF and recursive distribution: 105 tests pass, no skips, 98.96% new-runtime coverage; both bounded reviewers approve.
 - [x] Complete Phase 6 deterministic benchmark: 78 benchmark tests pass with 98.63% coverage, 119 integration/contract checks pass, and both unavailable host attempts retain verified outcomes.
-- [ ] Complete Phase 7 local evidence, then request approval for concrete publication inputs.
+- [x] Complete Phase 7 and verify corrected-head checks and integration in PR 190.
+- [ ] Publish v4.9.0, verify the downloaded archive, and back-merge into develop.

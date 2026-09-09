@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.8.0 -->
+<!-- nexus-hub-version: 4.9.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 336 skills, 19 commands, 35 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -34,6 +34,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.9.0
+
+**Application-security audits now follow a bounded, read-only workflow.** The `security-audit` preset inventories the target, selects relevant specialists, binds findings to qualified graph and target evidence, and checks normalized closure records before reporting completion. Target mutation remains outside the audit's authority. See the [audit guide](guides/reference/SECURITY_AUDIT.md) for activation, evidence requirements, and coverage limits.
+
+**Results can be exported locally as SARIF 2.1.0.** The exporter consumes the normalized summary through standard input and emits redacted results through standard output. The deterministic benchmark retains 16 vulnerable and 16 benign cases; native host attempts remain unavailable, so this release makes no accuracy or recall claim.
+
+**Install and verification fixes cover real platform differences.** Managed files stage with owner-only permissions, Windows organization-cache replacement tolerates transient directory locks, and audit fixtures and Unicode checks run correctly across Windows and POSIX. Copilot defaults and Antigravity workflow delivery match their current documented contracts. Prompting profiles now have a generated discovery index. Catalog counts remain 336 skills, 19 commands, 35 hooks, and 23 agents; the separate interactive-handbooks plan remains queued.
 
 ---
 

@@ -68,7 +68,8 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/code-search-routing.sh"
-          },{
+          },
+          {
             "type": "command",
             "command": "bash .claude/hooks/lint-autofix.sh"
           }

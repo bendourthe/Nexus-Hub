@@ -26,6 +26,33 @@ from scripts.lib.integrations._hooks_common import is_windows_host
 from scripts.lib.integrations.base import InstallContext
 
 
+def test_antigravity_20_global_workflows_preserve_users_and_refresh_owned(
+    install_ctx: InstallContext, monkeypatch
+):
+    home = install_ctx.target_root / "home"
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: home))
+    install_ctx.scope = "global"
+    workflows = home / ".gemini" / "config" / "workflows"
+    workflows.mkdir(parents=True)
+    user_file = workflows / "review.md"
+    user_file.write_text("User review restrictions", encoding="utf-8")
+    legacy = workflows.parent / "global_workflows" / "review.md"
+    legacy.parent.mkdir()
+    legacy.write_text("Legacy user workflow", encoding="utf-8")
+    integ = get("antigravity2")
+    result = integ.install(install_ctx)
+    assert user_file.read_text(encoding="utf-8") == "User review restrictions"
+    assert legacy.read_text(encoding="utf-8") == "Legacy user workflow"
+    assert any(Path(a.path) == user_file and a.action == "kept" for a in result.files)
+    owned = workflows / "plan.md"
+    assert owned.is_file()
+    owned.write_text("Stale generated content", encoding="utf-8")
+    integ.install(install_ctx)
+    expected = install_ctx.repo_root / "catalog" / "commands" / "plan.md"
+    assert owned.read_bytes() == expected.read_bytes()
+    assert user_file.read_text(encoding="utf-8") == "User review restrictions"
+
+
 def test_antigravity_10_install_workspace_lays_files(install_ctx: InstallContext):
     integ = get("antigravity")
     result = integ.install(install_ctx)
@@ -306,7 +333,7 @@ def test_antigravity_hook_bridge_does_not_auto_approve_clean_guard_result():
 
 def test_antigravity_20_global_targets_corrected_ide_and_cli_paths(install_ctx: InstallContext):
     """Global install must reach the CORRECTED IDE read-paths (~/.gemini/config/
-    skills + global_workflows, ~/.gemini/GEMINI.md rules) and the CLI root
+    skills + workflows, ~/.gemini/GEMINI.md rules) and the CLI root
     (~/.gemini/antigravity-cli). It must NOT write to the old ~/.gemini/antigravity/
     root, which the IDE does not read. Uses dry_run so real home is never touched.
     """
@@ -318,8 +345,8 @@ def test_antigravity_20_global_targets_corrected_ide_and_cli_paths(install_ctx: 
     joined = " ".join(fa.path.replace("\\", "/") for fa in result.files)
 
     assert "/.gemini/config/skills/" in joined, "IDE global skills must land in ~/.gemini/config/skills"
-    assert "/.gemini/config/global_workflows/" in joined, (
-        "IDE global slash commands must land in ~/.gemini/config/global_workflows"
+    assert "/.gemini/config/workflows/" in joined, (
+        "IDE global slash commands must land in ~/.gemini/config/workflows"
     )
     assert "/.gemini/GEMINI.md" in joined, "IDE global rules must land in ~/.gemini/GEMINI.md"
     assert "/.gemini/antigravity-cli/skills/" in joined, "CLI skills must land in ~/.gemini/antigravity-cli"

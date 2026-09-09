@@ -39,6 +39,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .base import IntegrationBase
+from ._owned import write_owned_file
 from .result import FileAction
 
 _VALID_SLASH_STYLES = frozenset({"verbatim", "codex_prompts"})
@@ -404,6 +405,8 @@ def commands_to_slash(
     src_commands_dir: Path,
     dst_dir: Path,
     style: str = "verbatim",
+    *,
+    preserve_unowned: bool = False,
 ) -> list[FileAction]:
     """Emit each ``catalog/commands/<name>.md`` as a flat slash-command file.
 
@@ -413,6 +416,8 @@ def commands_to_slash(
     body unchanged; the parameter is retained so callers are explicit and a future
     format that needs transformation can branch here. Returns one ``FileAction``
     per command (or a single ``not-found`` action when the tree is missing).
+    ``preserve_unowned`` uses manifest ownership when entering a destination
+    that may already contain user-authored workflows.
     """
     if style not in _VALID_SLASH_STYLES:
         raise ValueError(
@@ -430,7 +435,8 @@ def commands_to_slash(
             ctx.manifest.log(key, f"skipped-not-selected: slash {md.stem}")
             continue
         dst = dst_dir / md.name
-        actions.append(_write_synced(ctx, key, dst, md.read_bytes()))
+        writer = write_owned_file if preserve_unowned else _write_synced
+        actions.append(writer(ctx, key, dst, md.read_bytes()))
     return actions
 
 

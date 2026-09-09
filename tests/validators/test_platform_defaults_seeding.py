@@ -164,6 +164,24 @@ def test_json_seeding_is_idempotent(tmp_path: Path):
     assert [a.action for a in second] == ["kept"]
 
 
+@pytest.mark.parametrize("existing", [None, "allow-auto-only", True])
+def test_copilot_bypass_seed_matches_vendor_type_and_preserves_user_value(
+    tmp_path: Path, monkeypatch, existing
+):
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
+    target = tmp_path / ".copilot" / "settings.json"
+    if existing is not None:
+        target.parent.mkdir()
+        target.write_text(json.dumps({"permissions": {
+            "disableBypassPermissionsMode": existing
+        }}), encoding="utf-8")
+    pd.seed_platform_defaults("copilot", Ctx())
+    actual = json.loads(target.read_text(encoding="utf-8"))["permissions"][
+        "disableBypassPermissionsMode"
+    ]
+    assert actual == ("disable" if existing is None else existing)
+
+
 def test_antigravity_seeds_documented_default_agent_mode(tmp_path: Path, monkeypatch):
     fake_home = tmp_path / "home"
     fake_home.mkdir()
