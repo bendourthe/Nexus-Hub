@@ -1,0 +1,9 @@
+{
+  "allow": [
+    {
+      "rule": "parent-padding-escape",
+      "selector": "[data-dv-native] > p",
+      "reason": "The runtime harness deliberately includes a keyboard-accessible scrolling directory. Its child extends vertically beyond the scroll viewport; the desktop presentation stage itself must still fit."
+    }
+  ]
+}
