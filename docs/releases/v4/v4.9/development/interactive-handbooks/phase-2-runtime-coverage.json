@@ -1,0 +1,28 @@
+{
+  "method": "V8 precise block ranges mapped to first code position of each nonblank code line",
+  "line_coverage_percent": 90.73,
+  "covered": 186,
+  "total": 205,
+  "uncovered_lines": [
+    82,
+    83,
+    84,
+    86,
+    87,
+    88,
+    148,
+    149,
+    170,
+    181,
+    182,
+    183,
+    184,
+    226,
+    227,
+    228,
+    229,
+    230,
+    232
+  ],
+  "runtime_sha256": "cca036e45febefee365bf5eb6a4e23b0388f6c0a0fc69889445c68c0177b2cb4"
+}
