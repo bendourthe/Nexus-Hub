@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/releases/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-09-08, stamped for v4.5.0 (re-stamp for a release that changes no adapter, installer, or discovery path; the live re-fetch is the same-day v4.4.5 pass below, and `verify_platform_contracts.py` reports OK for all 13 platforms at the release tree). Previous: 2026-09-04, stamped for v4.4.5 (re-verification pass, no correction required: 12 of 13 platforms re-fetched from live first-party vendor docs and classified MATCH with zero discovery-path drift; Nexus-AI remains UNVERIFIED because its source is private; the same visit found a Claude Code LEVER drift recorded in the lever contract). Previous: 2026-09-01, stamped for v4.4.0 (re-verification pass, no correction required: 11 of 13 platforms re-fetched from live first-party vendor docs and classified MATCH with zero drift; gemini carried forward with its `~/.gemini/` root independently corroborated; Nexus-AI remains UNVERIFIED because its source is private. Several platforms have added cross-agent `~/.agents/skills` alias roots alongside the declared native paths -- additional surfaces, not drift, so no adapter changed).
+**Last verified**: 2026-09-08 for v4.9.0. The [same-session fourteen-platform sweep](../releases/v4/v4.9/development/qualification/v4.9-platform-verification.md) and release follow-up below record verified surfaces, two corrected discrepancies, and explicit UNVERIFIED limits. The JSON metadata is the authoritative release freshness marker.
 
 ## Invocation-policy emission (v3.20.3)
 
@@ -395,7 +395,7 @@ Formats: skills = folder-per-skill `SKILL.md`. "flattened" means one level deep 
 | Claude | workspace | `<project>/CLAUDE.md` (root) | `<project>/.claude/commands/*.md` | flattened `.claude/skills/<name>/` (+ command-skills) | `.claude/agents/` | `.claude/rules/` | `.claude/hooks/` |
 | Codex (`codex`) | global | `~/.codex/AGENTS.md` (marker-merged) | `~/.codex/prompts/*.md` (flat, `/prompts:name`, deprecated) + skills below (`$name`) | flattened `~/.agents/skills/<name>/` (+ one per command) | `~/.codex/agents/<name>.toml` (transformed from `catalog/agents/*.md`) | not read | `~/.codex/hooks.json` (structured merge) + `~/.codex/hooks/`; enabled by default and disabled only by an existing `hooks = false` setting |
 | Codex | workspace | `<project>/AGENTS.md` (root) | `<project>/.codex/prompts/*.md` + skills below | flattened `.agents/skills/<name>/` (+ one per command) | `.codex/agents/<name>.toml` | not read | `.codex/hooks.json` + `.codex/hooks/` |
-| Antigravity 2.0 IDE (`antigravity2`) | global | `~/.gemini/GEMINI.md` (shared instruction) | `~/.gemini/config/global_workflows/<name>.md` (slash) + skills below | flattened `~/.gemini/config/skills/<name>/` (+ one per command) | `~/.gemini/config/agents/` | `~/.gemini/GEMINI.md` | `~/.gemini/config/hooks/` + `hooks.json` |
+| Antigravity 2.0 IDE (`antigravity2`) | global | `~/.gemini/GEMINI.md` (shared instruction) | `~/.gemini/config/workflows/<name>.md` (slash) + skills below | flattened `~/.gemini/config/skills/<name>/` (+ one per command) | `~/.gemini/config/agents/` | `~/.gemini/GEMINI.md` | `~/.gemini/config/hooks/` + `hooks.json` |
 | Antigravity `agy` CLI (`antigravity2`) | global | shared `~/.gemini/GEMINI.md` | UNVERIFIED; not emitted | flattened `~/.gemini/antigravity-cli/skills/<name>/` | UNVERIFIED; not emitted | shared `~/.gemini/GEMINI.md` | UNVERIFIED; not emitted |
 | Antigravity 2.0 | workspace | `<project>/AGENTS.md` (root) | `<project>/.agents/workflows/*.md` (slash) + skills below | flattened `.agents/skills/<name>/` (+ one per command) | `.agents/agents/` | `.agents/rules/` | `.agents/hooks/` + hooks.json |
 | Gemini IDE (`gemini`) | global | `~/.gemini/GEMINI.md` | UNVERIFIED compatibility write | UNVERIFIED compatibility write | UNVERIFIED compatibility write | UNVERIFIED compatibility write | UNVERIFIED |
@@ -528,7 +528,7 @@ Wiring status: the `hermes` integration is registered in `_register_builtins()` 
 
 - **Codex flattening**: the installer copies `catalog/skills` verbatim to `~/.codex/skills`, preserving the `<category>/<name>/` tree, so skill folders sit two levels deep and Codex discovers none. Fix: `flatten_skills` to `~/.codex/skills` AND `~/.agents/skills` (Phase 2).
 - **Codex commands invisible in the desktop app**: commands ship only as deprecated prompts (`/prompts:name`). Fix: also emit `commands_to_skills` so `$name` works, keep prompts for CLI back-compat (Phase 2).
-- **Antigravity wrong global paths**: the installer writes global content to `~/.gemini/antigravity/`, which the IDE does not read. Fix: `~/.gemini/config/skills/`, `~/.gemini/config/global_workflows/`, `~/.gemini/GEMINI.md` (Phase 3).
+- **Antigravity wrong global paths**: the installer writes global content to `~/.gemini/antigravity/`, which the IDE does not read. Fix: `~/.gemini/config/skills/`, `~/.gemini/config/workflows/`, `~/.gemini/GEMINI.md` (Phase 3).
 
 ## Residual live-verification gaps
 
@@ -570,3 +570,7 @@ Each platform above has a corresponding `IntegrationBase` subclass under `script
 If your change is a new slash command, call out in the CHANGELOG which platforms get a verified slash or command-skill surface. Cursor's global and project `.cursor/commands/` paths and Antigravity CLI loose workflow directories are compatibility writes with UNVERIFIED discovery; do not present them as confirmed command surfaces. OpenCode receives commands through its current adapter surfaces rather than only through an instruction-file body.
 
 If broader per-file distribution to a new platform is needed, add a new subclass under `scripts/lib/integrations/` (not a new lock-step `base-*.md` template).
+
+## v4.9.0 release verification
+
+The 2026-09-08 [platform sweep](../releases/v4/v4.9/development/qualification/v4.9-platform-verification.md) covers all 14 discovery rows and preserves each UNVERIFIED surface. Release follow-up corrected the Antigravity 2 global workflow destination to `~/.gemini/config/workflows/`, as confirmed by the [official migration table](https://antigravity.google/docs/migration/workflows-to-skills). Existing files in the previous directory are retained; native command-skills remain the primary delivery path. No native host execution is claimed.

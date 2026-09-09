@@ -275,7 +275,7 @@
       "settings": {
         "model": "auto",
         "permissions": {
-          "disableBypassPermissionsMode": true
+          "disableBypassPermissionsMode": "disable"
         },
         "sandbox": {
           "enabled": true
@@ -283,7 +283,7 @@
       },
       "rationale": {
         "model": "'auto' is the one vendor-documented self-selecting model value in this file: it delegates the choice to Copilot rather than pinning an id that may not exist for the user's account.",
-        "permissions.disableBypassPermissionsMode": "true prevents bypass flags from skipping approval.",
+        "permissions.disableBypassPermissionsMode": "The documented string disable suppresses allow-all flags; existing user values are preserved.",
         "sandbox.enabled": "true restricts shell and tool access to the sandboxed environment."
       },
       "install_target": {
