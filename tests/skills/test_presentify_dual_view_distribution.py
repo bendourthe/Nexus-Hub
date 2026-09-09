@@ -4,6 +4,7 @@ import importlib.util
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -76,20 +77,34 @@ def test_installed_bundle_runs_offline(tmp_path, shell):
     for relative in (
         "assets/dual-view-runtime.js",
         "assets/dual-view.css",
+        "assets/dual-view-figures.js",
+        "scripts/dual_view.py",
+        "scripts/build_presentation.py",
         "references/dual-view-handbooks.md",
     ):
         assert (bundle / relative).read_bytes() == (
             runtime_fixture.BUNDLE / relative
         ).read_bytes()
     artifact = target / "installed.html"
-    artifact.write_text(runtime_fixture.runtime_html(bundle=bundle), encoding="utf-8")
+    for source in (ROOT / "tests/fixtures/interactive-handbooks").iterdir():
+        if source.is_file():
+            shutil.copy2(source, target / source.name)
+    build = [
+        sys.executable,
+        str(bundle / "scripts/build_presentation.py"),
+        str(target / "model.json"),
+        "-o",
+        str(artifact),
+    ]
+    subprocess.run(build, check=True, capture_output=True, timeout=60)
+    subprocess.run([*build, "--check"], check=True, capture_output=True, timeout=60)
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch()
         page = browser.new_page()
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.goto(artifact.as_uri())
-        page.locator("#hero").click()
+        page.locator("[data-dv-open]").first.click()
         assert page.locator("[data-dv-count]").inner_text() == "1 / 6"
         page.locator("[data-dv-next]").click()
         assert page.locator("[data-dv-count]").inner_text() == "2 / 6"

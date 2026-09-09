@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" role="img" aria-labelledby="map-title"><title id="map-title">Twelve synthetic regions on a local grid; not geographic</title>
+<g data-region="Region 1"><rect x="12" y="12" width="145" height="82" rx="6" fill="#dceaf0" stroke="#176b87"/><text x="84" y="60" text-anchor="middle" fill="#15283c" font-size="24">Region 1</text></g>
+<g data-region="Region 2"><rect x="167" y="12" width="145" height="82" rx="6" fill="#dceaf0" stroke="#176b87"/><text x="239" y="60" text-anchor="middle" fill="#15283c" font-size="24">Region 2</text></g>
+<g data-region="Region 3"><rect x="322" y="12" width="145" height="82" rx="6" fill="#dceaf0" stroke="#176b87"/><text x="394" y="60" text-anchor="middle" fill="#15283c" font-size="24">Region 3</text></g>
+<g data-region="Region 4"><rect x="477" y="12" width="145" height="82" rx="6" fill="#dceaf0" stroke="#176b87"/><text x="549" y="60" text-anchor="middle" fill="#15283c" font-size="24">Region 4</text></g>
+<g data-region="Region 5"><rect x="12" y="106" width="145" height="82" rx="6" fill="#dceaf0" stroke="#176b87"/><text x="84" y="154" text-anchor="middle" fill="#15283c" font-size="24">Region 5</text></g>
+<g data-region="Region 6"><rect x="167" y="106" width="145" height="82" rx="6" fill="#dceaf0" stroke="#176b87"/><text x="239" y="154" text-anchor="middle" fill="#15283c" font-size="24">Region 6</text></g>
+<g data-region="Region 7"><rect x="322" y="106" width="145" height="82" rx="6" fill="#dceaf0" stroke="#176b87"/><text x="394" y="154" text-anchor="middle" fill="#15283c" font-size="24">Region 7</text></g>
+<g data-region="Region 8"><rect x="477" y="106" width="145" height="82" rx="6" fill="#dceaf0" stroke="#176b87"/><text x="549" y="154" text-anchor="middle" fill="#15283c" font-size="24">Region 8</text></g>
+<g data-region="Region 9"><rect x="12" y="200" width="145" height="82" rx="6" fill="#dceaf0" stroke="#176b87"/><text x="84" y="248" text-anchor="middle" fill="#15283c" font-size="24">Region 9</text></g>
+<g data-region="Region 10"><rect x="167" y="200" width="145" height="82" rx="6" fill="#dceaf0" stroke="#176b87"/><text x="239" y="248" text-anchor="middle" fill="#15283c" font-size="24">Region 10</text></g>
+<g data-region="Region 11"><rect x="322" y="200" width="145" height="82" rx="6" fill="#dceaf0" stroke="#176b87"/><text x="394" y="248" text-anchor="middle" fill="#15283c" font-size="24">Region 11</text></g>
+<g data-region="Region 12"><rect x="477" y="200" width="145" height="82" rx="6" fill="#dceaf0" stroke="#176b87"/><text x="549" y="248" text-anchor="middle" fill="#15283c" font-size="24">Region 12</text></g>
+</svg>

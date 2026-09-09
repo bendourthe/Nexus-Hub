@@ -122,6 +122,7 @@ The gates above are **judgment**: they decide whether an effect belongs. Once it
 | Surfaces, elevation, hairline borders | `references/surfaces-and-elevation.md` |
 | Radius scale, icon stroke, optical size | `references/radius-and-icons.md` |
 | Durations, easing, deliberate transforms | `references/motion-recipes.md` |
+| Handbook, presentation and export compositions | `references/cross-format-patterns.md` |
 
 Short defaults when the project has no tokens yet:
 

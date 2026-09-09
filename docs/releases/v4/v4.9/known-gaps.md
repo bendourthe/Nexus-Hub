@@ -127,7 +127,7 @@ The separately owned platform follow-up is included in this release: Copilot new
 
 ## v4.9.1 - interactive-handbooks-and-presentation-default
 
-**Status**: Phases 1-2 complete; Phase 3 next. No accepted gate bypass. Runtime, production assembly and qualification are planned work in Phases 2-7, not completed capabilities.
+**Status**: Phases 1-3 complete; Phase 4 next. No accepted gate bypass. Intake integration, project-wide freshness and one-invocation qualification remain planned work in Phases 4-7.
 
 ### Summary
 
