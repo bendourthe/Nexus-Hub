@@ -142,6 +142,15 @@ Split out from the PowerShell half above, because they turned out to be unrelate
 - **What was done**: the pull-request description was amended with a scope disclosure listing all 12 commits, stating that they are not part of this plan, and giving the command that isolates the v4.8.0 work (`git diff a243c178..HEAD`). Disclosed rather than quietly merged.
 - **RESOLVED 2026-09-07 (post-merge), as suggested.** The runbook's step 9F.2 now requires `git fetch` first, then BOTH a commit count and a file count measured against `origin/<base>..HEAD`, and requires disclosing any extra commits BEFORE asking for approval together with the command that isolates the plan's own work. It also states the unbundling check: when the integration branch requires a pull request, the extra commits cannot be separated, and disclosure in the pull-request description is the honest move. The rule is mirrored into `SKILL.md`, because the runbook is Tier 3 and read on demand while the body is Tier 2 and read on trigger. Four regression tests in `tests/skills/test_implement_lifecycle_contract.py`.
 
+#### WN-K - A high-severity CodeQL alert sits in DISTRIBUTED installer code, and the release-time CodeQL check is red against a stale base
+
+- **Source**: found at the v4.8.0 release, on the `develop` to `main` pull request (#186).
+- **What was observed**: `CodeQL` reported fail while both `Analyze` jobs succeeded and all five REQUIRED contexts passed. `CodeQL` is not a required context, so it did not block; the red is an artifact of comparing against a `main` that was 72 commits behind, which surfaces the whole accumulated line's alerts as new relative to that base. Every open high alert predates v4.8.0 and none was introduced by it, verified per-alert with `git blame`.
+- **The one that matters**: `py/overly-permissive-file` at `scripts/lib/integrations/_owned.py:105`. `_atomic_replace_bytes` creates its temporary file with mode `0o666` before moving it into place, so between `os.open` and the rename the file is world-writable subject only to the caller's umask. This is DISTRIBUTED code: it ships in `scripts/` and runs on a user's machine during install. `0o600` (or `0o644` where readability matters) would close it with no behavioral cost, since the file is immediately renamed over the destination. Untouched by this release and therefore deliberately not changed inside a release flow.
+- **The rest, for completeness**: `py/clear-text-logging-sensitive-data` at `scripts/validate_skills.py:1017` is an argparse help string from v1.2.0 whose wording mentions a secret scan, a false-positive-prone shape for that rule; two `py/bad-tag-filter` and two `js/xss-through-dom` alerts sit in `docs/releases/v3/v3.12/development/` worked examples, which are documentation and are not installed (`docs/` is outside the installer's copy roots).
+- **Suggested next step**: fix the `_owned.py` mode in the next patch and re-run the scan, then triage the remaining four with `[[security-review]]` and either fix or dismiss each with a recorded reason. Separately, decide deliberately whether `CodeQL` should become a required context: today it can be red on a release pull request without blocking, which is either correct (it compares against a stale base and would wedge releases) or a gap (a real new vulnerability would also not block). That is a decision record, not a release-time edit.
+- **Why it did not hold the release**: the required gate was fully green, the finding is pre-existing, and the one alert in distributed code is a file-mode hardening rather than an exploitable path in the install flow. Recorded rather than fixed, per the rule that a release-time finding becomes a known gap plus a follow-up patch.
+
 ## Ledger condition measured for T023, 2026-09-06
 
 T023 of `v4.8.0-adoption-visa-vulnerability-agentic-harness.md` reconciles every reachable open
@@ -238,3 +247,18 @@ the counts were recomputed from the merged catalog in this landing and now sum t
 - **Plan reference**: `docs/releases/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-task 4.2
 - **Reason**: `capture_screenshot.py` drives a headless Chromium-family browser, which is not reliably present in CI or on the dev host, so it is documented and degrades gracefully (exit 3 with an install hint) rather than unit-tested. The perceptual-diff core (`perceptual_diff.py`) IS fully tested (7 cases, Pillow-gated), and `Pillow` was added to the CI tests job so those run.
 - **Suggested next step**: Add a browser-gated smoke test in a CI job that installs a headless browser, or exercise it in the Phase 7 end-of-shift orchestrator's visual-regression step when a browser is available.
+
+## Plan retarget, 2026-09-08
+
+The visa-vulnerability harness plan referenced above by its v4.8.0 filename retargeted again, to
+`docs/releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md`. v4.8.0 was released on
+2026-09-08 carrying only its sibling plan, so this one could not ship under that number for the same reason it
+could not ship as v4.6.0.
+
+The statements earlier in this file are left exactly as written. They were accurate at the time and this ledger
+is finalized, so the honest record is an appended note rather than an edit that makes the earlier text look like
+it always said v4.9.0. Two consequences for a reader following those references:
+
+- The `T023` ledger-condition measurement above still stands. It measured this repository's open-gap state, which
+  did not change because the plan moved; only the task's numbering context did. T023 now sits in the v4.9.0 plan.
+- The v4.9 ledger at `docs/releases/v4/v4.9/known-gaps.md` is where that plan's own findings land.

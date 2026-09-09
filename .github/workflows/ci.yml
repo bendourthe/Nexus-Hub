@@ -175,7 +175,7 @@ jobs:
         # release being cut.
         run: |
           python scripts/ci/run.py --profile full \
-            --only catalog-parse,hygiene,catalog,security,workflows,platform-contracts,docs,version \
+            --only catalog-parse,hygiene,interpreters,catalog,security,workflows,platform-contracts,docs,version \
             --reports-dir reports
 
       - name: Publish the run summary
@@ -324,6 +324,11 @@ jobs:
     timeout-minutes: 60
     if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     steps:
+      - name: Enable Git long paths before checkout
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --global core.longpaths true
+
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
@@ -339,7 +344,7 @@ jobs:
         # NEXUS_TEST_POWERSHELL is pinned inside the profile definition, not
         # here, so a developer running `make ci-platform` on Windows gets the
         # same edition under test as CI does.
-        run: python scripts/ci/run.py --profile platform --only windows-hooks --reports-dir reports
+        run: python scripts/ci/run.py --profile platform --only interpreters,windows-hooks --reports-dir reports
 
       - name: Codex, Copilot, Kimi, Gemini CLI, and Qwen native delivery on Windows
         # Scoped to the integration files whose behavior is Windows-specific
@@ -465,6 +470,11 @@ jobs:
     timeout-minutes: 30
     if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     steps:
+      - name: Enable Git long paths before checkout
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --global core.longpaths true
+
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
@@ -525,6 +535,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
+      - name: Enable Git long paths before checkout
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --global core.longpaths true
+
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
@@ -600,6 +615,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
+      - name: Enable Git long paths before checkout
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --global core.longpaths true
+
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6

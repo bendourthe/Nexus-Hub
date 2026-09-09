@@ -13,3 +13,17 @@ scripts/nexus-hub.cmd text eol=crlf
 
 # Documentation
 *.md text=auto
+
+# Application-audit content bindings must survive Windows and POSIX checkout.
+catalog/skills/code-review/security-review/** text eol=lf
+catalog/skills/workflow/agent-presets/SKILL.md text eol=lf
+catalog/skills/workflow/agent-presets/references/security-audit-routing.* text eol=lf
+catalog/skills/workflow/agent-presets/scripts/resolve-security-audit-routing.py text eol=lf
+extensions/nexus-code-search/src/** text eol=lf
+extensions/nexus-code-search/pyproject.toml text eol=lf
+tests/fixtures/security-audit-appsec/** text eol=lf
+tests/fixtures/security-audit/** text eol=lf
+docs/releases/v4/v4.9/development/repro/record-benchmark-unavailability.py text eol=lf
+docs/releases/v4/v4.9/development/security-audit-benchmark/** text eol=lf
+docs/releases/v4/v4.9/development/security-audit-benchmark-reports/** text eol=lf
+docs/releases/v4/v4.9/development/security-audit-benchmark.md text eol=lf

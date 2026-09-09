@@ -87,6 +87,8 @@ Do not copy the schema field list into this skill. The reference file is the rec
 
 ### Step 1: Dependency Vulnerability Scan
 
+For the application-audit profile, run [code-search seeding](references/code-search-seeding.md) after canonical surface inventory and before deep specialist adjudication. Preserve unavailable, ambiguous, partial, timeout, and unknown-quality obligations. Project observed graph responses through [`_graph_receipt.py`](scripts/_graph_receipt.py) before emission and validate them through closure; raw graph text never enters tracked evidence. Graph evidence cannot approve remediation or replace scanner/verifier ownership.
+
 ```bash
 # Python
 pip-audit
@@ -331,6 +333,20 @@ Build the local review record defined in `references/closure-gate-review-record.
 python scripts/closure-gate.py review-record.json
 ```
 
+The gate imports bundled helpers from the same `scripts/` directory. They are stdlib-only and ship with this skill, so no install step is added, and they are shared deliberately: each replaces a rule that was otherwise re-derived per caller, which is how two callers end up disagreeing about what is safe.
+
+For application-audit reporting, add `--summary` to emit the canonical normalized envelope through [`_audit_envelope.py`](scripts/_audit_envelope.py). Follow the [summary contract](references/closure-gate-review-record.md#normalized-summary-contract) for explicit artifact observation and complete receipt bindings. All host execution stays self-attested; failed scanners fail aggregate health, and a correction requires a successful independent verifier. Send this envelope to downstream reports rather than the raw record.
+
+For a portable local report, pipe that envelope to [`emit-sarif.py`](scripts/emit-sarif.py) using the [application SARIF mapping](references/application-security-sarif.md). Its shared [`_normalized_audit.py`](scripts/_normalized_audit.py) validates the envelope's schema and integrity without recomputing health. The emitter reads stdin, writes stdout, preserves dispositions and provenance, and never opens referenced source paths or uploads results.
+
+For repository benchmark characterization, follow the [benchmark contract](references/security-audit-benchmark.md). Use [`build-security-audit-projection.py`](scripts/build-security-audit-projection.py) and its [`_benchmark_corpus.py`](scripts/_benchmark_corpus.py) helper for inert source-only copies; use [`manage-security-audit-benchmark.py`](scripts/manage-security-audit-benchmark.py) and [`_benchmark_lifecycle.py`](scripts/_benchmark_lifecycle.py) to freeze the candidate, record both declared attempts, retain every terminal outcome, verify the local ledger, and render its report. [`_benchmark_protocol.py`](scripts/_benchmark_protocol.py) owns fixed identities and bindings. [`score-security-audit.py`](scripts/score-security-audit.py) and its pure [`_benchmark_scoring.py`](scripts/_benchmark_scoring.py) entry point score normalized evidence only. Keep the answer map in the separate ignored answer archive, never in host inputs; report all targets and limitations without a release verdict. Invalid artifacts retain digest-only rejection records for replayable unscorable outcomes. Do not execute fixture source, add providers, install fallback tools, repeat unchanged candidates, or treat structural remediation as functional proof.
+
+- `scripts/_strict_json.py` is the one decoder for every input here. `json.loads` keeps the LAST of duplicate object members silently, so a record carrying two `computed_health` values would parse as whichever came second and destroy the evidence that both were claimed. It also rejects `NaN` and `Infinity`, trailing data, invalid Unicode, and unbounded size, nesting, and collection width, all before any semantic check.
+- `scripts/_safe_artifact.py` owns physical containment and lifecycle: root, ancestor, and leaf reparse checks, hard-link refusal, byte ceilings, post-open identity revalidation, exclusive owner-only temporary roots, atomic owner-only writes, and validated cleanup that refuses any directory it did not create. Call `platform_guarantee()` and record what it returns: POSIX gets `prevention` from `O_NOFOLLOW`, while Windows gets `detection` through identity revalidation, and a provenance record that claims the stronger of the two on the weaker platform is wrong.
+- `scripts/_target_manifest.py` generates the content-manifest identity the `application_audit` profile binds to. It records digests and byte counts, never file content, config or source snippets, absolute paths, or symlink target text. Git is resolved from an explicitly trusted absolute path outside the target, verified as a regular non-link executable, and invoked with a minimal environment and a read-only plumbing allowlist, because git configuration is repository-controlled and can specify hooks, filters, external diff commands, and credential helpers that execute programs.
+
+The additive `application_audit` profile in `references/closure-gate-review-record.md` is opt-in: a record without it keeps its previous diffs, output bytes, and exit behavior exactly. A profile record additionally reports `computed_health`, which is evaluator-owned. A producer may emit `claimed_health` and it carries no authority; a disagreement between the two is itself a failure. `tests/fixtures/security-audit/application-audit-complete.json` is the runnable structurally complete example.
+
 The gate computes five schema-v1 diffs, and six additional schema-v2 diffs when `schema_version` is `2`:
 
 - Component inventory minus components with a logged review action or an explicit `OMITTED` / `UNCOVERED` caveat, surfacing components silently implied as covered.
@@ -421,6 +437,8 @@ Any non-empty diff is a FAILURE, not advice. The report does not ship until ever
 - [ ] Race condition sub-categories (9a shared state, 9b TOCTOU, 9c database, 9d distributed) each addressed
 
 ## Related Skills
+
+- [Bounded application-surface collector](scripts/collect-security-audit-inventory.py) -- emits metadata-only inventory for the agent-presets routing authority; it never selects or executes owners.
 
 - [[context-analysis]] -- Context understanding (Phase 1)
 - [[code-quality]] -- Code quality + SOLID review (Phase 2)

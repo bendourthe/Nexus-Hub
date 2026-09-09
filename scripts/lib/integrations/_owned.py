@@ -99,17 +99,48 @@ def _link_like_managed_ancestor(ctx, dst: Path) -> Path | None:
     return None
 
 
+#: Mode for the staging file. Deliberately owner-only rather than the previous
+#: 0o666, which is `0o666 & ~umask` in practice: on a host with umask 000 that
+#: is a WORLD-WRITABLE file sitting in the user's config directory for the
+#: window between creation and the rename, in installed code that runs on a
+#: user's machine (CodeQL `py/overly-permissive-file`, recorded as v4.8 WN-K).
+#: The staging file's mode is a private implementation detail, so the safe
+#: default costs nothing; the mode the USER ends up with is decided below.
+_STAGING_MODE = 0o600
+
+
 def _atomic_replace_bytes(dst: Path, content: bytes) -> None:
-    """Replace one directory entry without ever opening ``dst`` for writing."""
+    """Replace one directory entry without ever opening ``dst`` for writing.
+
+    Two properties, in this order. The staging file is created owner-only, so no
+    umask can widen it. Then, when ``dst`` already exists, its mode is copied
+    onto the staging file before the rename, because ``os.replace`` carries the
+    SOURCE's mode: without that step a refresh would silently rewrite the
+    permissions of a file the user may have chmod'ed deliberately.
+
+    This mirrors the sibling implementation in
+    ``scripts/lib/installer/instruction_merge.py``, which already stats the
+    destination and reapplies its mode. The convention is the repository's own;
+    this function was simply the copy that had not adopted it.
+    """
     temporary = dst.with_name(f".{dst.name}.{uuid.uuid4().hex}.tmp")
     descriptor = os.open(
         temporary,
         os.O_WRONLY | os.O_CREAT | os.O_EXCL,
-        0o666,
+        _STAGING_MODE,
     )
     try:
         with os.fdopen(descriptor, "wb") as stream:
             stream.write(content)
+        try:
+            existing_mode = stat.S_IMODE(dst.stat().st_mode)
+        except OSError:
+            # No destination yet (the common first-install path), or its mode is
+            # unreadable. A new file keeps the owner-only staging mode, which is
+            # the conservative choice for a file this tool created.
+            existing_mode = None
+        if existing_mode is not None:
+            os.chmod(temporary, existing_mode)
         os.replace(temporary, dst)
     finally:
         temporary.unlink(missing_ok=True)
