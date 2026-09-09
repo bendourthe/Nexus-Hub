@@ -11,7 +11,37 @@ This reference owns the shared output, intake, source coverage, and dual-view ac
 5. Keep design direction (Corporate & Professional / Creative & Expressive / Technical & Precise / Surprise me / free text), interactivity (`restrained|balanced|rich|cinematic`), and additional imagery (`none|stock|ai|both`) independent. Inspect supplied assets and references before inventing a brand. Ask unresolved color schemes after extraction, offering three content-derived schemes plus free text; skip when colors are already bound. Offer source-specific section-count/size hints for page coverage after extraction. Main-page `--verbosity distilled|balanced|comprehensive`, presentation depth, and `--qa-depth light|standard|deep` are three separate axes. A request to preserve an entire source binds comprehensive page coverage and deep-dive presentation without another question.
 6. In a genuinely non-interactive run, default to reading view, full-width for slide sources or standard for reports, presentation included, mixed theme, balanced presentation depth, balanced page verbosity, and procedural imagery only. Preserve explicit requirements such as full coverage. An unanswered required question in an interactive session is not consent; continue independent work while awaiting the answer.
 
-## Flags and compatibility
+## Implementation ownership and evidence boundaries
+
+This contract takes precedence over older mutually exclusive scroll/slide wording during the dual-view rollout. Reconcile those consumers in their owning phase; do not treat a passing legacy draft test as proof that the new runtime exists.
+
+| Concern | Owner | Consumer handoff |
+|---|---|---|
+| Output, storyboard, assembly and shared figures | This reference and the HTML skill | presentify and handbook refresh |
+| Input, focus, fullscreen and motion lifecycle | `slide-navigation.md` | Shared runtime and browser tests |
+| Claim inventory and candidate freshness | `technical-documentation`, `references/handbook-refresh.md` | docs updates and release preparation |
+| Paths and migration | `docs-layout-refactor` | Existing generators keep their source paths |
+| Contextual design and positive references | `hallmark-design` | HTML and format-specific document owners |
+| Prose | `anti-slop-editing` | Authoring and maintenance |
+| General SVG geometry | `svg-diagram-quality.md` | Figure reconstruction |
+| Rendered text, contrast and accessibility | `responsive-typography.md`, `web-typography`, `color-systems`, `accessibility-engineering` | Browser measurements; missing delegates stay uncovered |
+| PowerPoint package and native playback | `pptx-generation` | Same source mapping, themes and slide budget |
+| Fresh evidence and real-boundary exercise | `verification-before-completion`, `functional-verification` | Independent factual, visual and functional verdicts |
+
+Decisions for implementers:
+
+1. The page and deck refer to stable source-unit IDs. Each rendered figure instance gets a distinct DOM/SVG namespace, including marker, gradient, ARIA and link references. Canonical data is immutable; filters and selection belong to each instance.
+2. Fullscreen belongs to the presentation container, including its controls and nested details. A failed request leaves the fitted presentation usable. Native fullscreen exit returns to reading; an explicit fullscreen toggle may retain fitted presentation. In fitted mode, Escape closes a nested modal before the deck. Passive deep links never request fullscreen.
+3. Global entry resets to slide 1; chapter targets and explicitly named Resume are separate. Empty/invalid storyboards leave a readable page with a useful error, never a blank modal. Keyboard composition, editable controls, charts and declared scrolling regions own their native keys.
+4. Source-deck budgets count covers, dividers and appendices. Save explicit omissions for lesser presentation depths; deep dive must map all substantive page units. Reflow inside the budget; neither invisible content nor shrinking below the typography owner's floors repairs overflow.
+5. Axis titles and measured trend-line annotations may rotate where figure semantics require it and measured bounds remain legible. This narrow chart exception does not authorize rotated body labels or guessed geometry.
+6. No-JS and print retain the reading page once. Reduced motion reveals complete explanations instantly; inactive views and hidden documents stop their animation work. Native themed scrollbars and forced-color fallbacks preserve access to declared scroll regions.
+7. Authentic marks, wordmarks and photographs belong to the consuming project. Preserve their proportions, labels and subjects. Neutral fixtures may transfer a failure mechanism, never confidential source facts. Project colors and example-specific thresholds are not global rules.
+8. A deterministic build is reproducibility evidence, not a production-ready verdict. Missing render, source-fidelity or design review remains a non-pass. Evidence names final bytes, source/build dependencies, every expected instance and actual conditions. Share the final standalone file; retain rebuild sources separately.
+
+The neutral foundation under `tests/fixtures/interactive-handbooks/` in the upstream repository has an independent section/slide/figure inventory, two brands and declared negative cases. Its Phase 1 builder deliberately emits only a reading scaffold and storyboard. Phase 2 supplies the runtime, Phase 3 supplies production assembly, and Phase 6 proves the full quality matrix. Do not distribute upstream tests as a dependency of the installed skill.
+
+## Compatibility options
 
 These are command/agent authoring options, not new flags on the optional legacy baseline builder. Resolve and record them before calling existing helpers.
 

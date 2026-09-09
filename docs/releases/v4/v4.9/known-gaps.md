@@ -124,3 +124,11 @@ The advisory model-prompting check used the native Codex CLI's current enumerati
 MT-2 and QG-1 are resolved by [PR 190](https://github.com/bendourthe/Nexus-Hub/pull/190): Windows filesystem and Unicode selections passed, Linux tests and all three operating-system installer legs passed, and the corrected merge tree was integrated at `bd2c8968`. All 28 applicable checks passed; the unrelated Presentify job skipped. Post-merge smoke and provenance passed in run 34289027085. Their descriptions above preserve the pre-publication evidence boundary.
 
 The separately owned platform follow-up is included in this release: Copilot new-install defaults use the documented string value, and Antigravity 2 workflows use the documented directory. Existing user settings and old workflow files are retained. The benchmark remains informational with native host attempts unavailable; the ignored private cleanup residue and prompting-profile limitations remain open. The interactive-handbooks plan remains queued at 0/7 phases and 0/31 tasks.
+
+## v4.9.1 - interactive-handbooks-and-presentation-default
+
+**Status**: Phase 1 complete; Phase 2 next. No accepted gate bypass. Runtime, production assembly and qualification are planned work in Phases 2-7, not completed capabilities.
+
+### Summary
+
+No new deferred item or waived requirement. Existing v4.9.0 gaps retain their owners.

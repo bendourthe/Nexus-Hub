@@ -1,14 +1,14 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** The existing guide and queued handbook work below retain their separate owners. The application-security audit is released in v4.9.0; see its [release evidence](releases/v4/v4.9/development/history/2026-09-08_v4.9.0-release.md) and [final release handoff](https://github.com/bendourthe/Nexus-Hub/pull/192).
-**Last refreshed:** 2026-09-08
+**Active work:** v4.9.1 interactive handbooks is implementing Phase 2 after its locally verified foundation. Existing guide work retains its separate owner. The application-security audit is released in v4.9.0; see its [release evidence](releases/v4/v4.9/development/history/2026-09-08_v4.9.0-release.md) and [final release handoff](https://github.com/bendourthe/Nexus-Hub/pull/192).
+**Last refreshed:** 2026-09-09
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
-- [ ] Implement the queued [v4.9.0 master interactive-handbooks plan](releases/v4/v4.9/plans/v4.9.0-interactive-handbooks-and-presentation-default.md). All source analyses and approved-build lessons, including final fullscreen, motion sequencing, headerless layout, PowerPoint export and standalone sharing, are consolidated into R01-R30, conflict resolutions and 31 mapped tasks. Implementation remains 0/7 phases and 0/31 tasks; earlier isolated command/skill drafts require reconciliation before adoption. The active guide work remains unchanged.
+- [ ] Implement the active [v4.9.1 master interactive-handbooks plan](releases/v4/v4.9/plans/v4.9.1-interactive-handbooks-and-presentation-default.md). All source analyses and approved-build lessons, including final fullscreen, motion sequencing, headerless layout, PowerPoint export and standalone sharing, are consolidated into R01-R30, conflict resolutions and 31 mapped tasks. Implementation is 1/7 phases and 3/31 tasks; earlier isolated command/skill drafts require reconciliation before adoption. The active guide work remains unchanged.
 
 ---
 

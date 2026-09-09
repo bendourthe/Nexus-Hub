@@ -1,0 +1,65 @@
+{
+  "source-count-overrun": {
+    "presentation.slide_budget": 5
+  },
+  "missing-caption": {
+    "figures.observations.caption": ""
+  },
+  "wrong-total": {
+    "figures.observations.series.0.values": [
+      12,
+      19
+    ]
+  },
+  "global-resume": {
+    "presentation.initial_slide": 4
+  },
+  "wordmark-distortion": {
+    "design.brand_aspect": 1
+  },
+  "all-light-reading": {
+    "design.reading_themes": [
+      "light",
+      "light",
+      "light",
+      "light",
+      "light",
+      "light"
+    ]
+  },
+  "redundant-banner": {
+    "design.banners": [
+      "review",
+      "review"
+    ]
+  },
+  "hidden-scrollbar": {
+    "design.scrollbar_width": "none"
+  },
+  "height-breakpoint": {
+    "design.defect_css": "@media(min-height:851px){.dv-stage{height:120vh}}"
+  },
+  "photo-crop": {
+    "design.photo_fit": "cover",
+    "design.photo_aspect": 1
+  },
+  "missing-map-label": {
+    "directory.omit": "Region 12"
+  },
+  "missing-edge": {
+    "flow.omit": "analysis-review"
+  },
+  "wave-cutoff": {
+    "design.wave_width": "90%"
+  },
+  "bland-valid": {
+    "design.composition": "identical-heading-and-bullets"
+  },
+  "long-deck": {
+    "presentation.repeat_sections": 8,
+    "presentation.slide_budget": 48
+  },
+  "duplicate-ids": {
+    "figures.namespace": false
+  }
+}

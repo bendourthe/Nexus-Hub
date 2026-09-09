@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "verified_as_of": "2026-09-04",
+  "verified_as_of": "2026-09-09",
   "tiers": {
     "frontier": {
       "Anthropic": "claude-fable-5-1",
