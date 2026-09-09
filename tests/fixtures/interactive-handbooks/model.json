@@ -1,0 +1,294 @@
+{
+  "schema_version": 2,
+  "title": "Aster Observatory Handbook",
+  "sources": [
+    {
+      "path": "handbook.md",
+      "format": "markdown",
+      "title": "Aster Observatory"
+    }
+  ],
+  "sections": [
+    {
+      "id": "overview",
+      "heading": "Aster Observatory",
+      "kind": "title",
+      "source_index": 0,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "id": "overview-text",
+          "text": "Synthetic service handbook. Measurements are illustrative, not operational results."
+        }
+      ]
+    },
+    {
+      "id": "agenda",
+      "heading": "From sensors to a reviewed result",
+      "kind": "content",
+      "source_index": 0,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "id": "agenda-text",
+          "text": "Read acquisition, analysis and review in that order."
+        }
+      ]
+    },
+    {
+      "id": "acquisition",
+      "heading": "Acquisition with an intentionally long heading that must wrap without shrinking the evidence below readable size",
+      "kind": "content",
+      "source_index": 0,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "id": "acquisition-text",
+          "text": "Two instruments supply 12 and 18 observations. Calibration status remains proposed."
+        },
+        {
+          "type": "figure",
+          "id": "acquisition-observations",
+          "figure_id": "observations"
+        }
+      ]
+    },
+    {
+      "id": "analysis",
+      "heading": "Compare the same measurements in both views",
+      "kind": "data",
+      "source_index": 0,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "id": "analysis-text",
+          "text": "Instrument A has 12 observations; instrument B has 18. The source total of 31 conflicts with their sum of 30."
+        },
+        {
+          "type": "figure",
+          "id": "analysis-observations",
+          "figure_id": "observations"
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "heading": "Review and uncertainty",
+      "kind": "content",
+      "source_index": 0,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "id": "review-text",
+          "text": "No reliability estimate is available. Review is required before any deployment claim."
+        },
+        {
+          "type": "figure",
+          "id": "review-flow",
+          "figure_id": "flow"
+        },
+        {
+          "type": "image",
+          "id": "subject",
+          "data_uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAACgCAIAAADywSLLAAAFcUlEQVR4nO3dsY1USxCG0dnWiwDiIIIrJAw8JBIgCCyiwCIIEkDCw8CZcMjh+ay0Ymenu+uve4670r4q43vVuwPi4dWbtxcg09g9AHA7AUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUMwAUOw/3YPcPnz/d0TX3396ffCWcJ8+fHtia9+/fh54Sxhrr9+PvHV4/2HS4iHXf8yw9PdPqbkf+z2MSX/Y7eJJa8O+LndPnbakp/b7WOnLfn6zG6DSl4X8MvTPW3GL0/3tBlfX5xu8YxHYr0zvuFJ6p3xDU9S72XCNwy4wLNLa3yKZ5fW+BRfJ5dW5xTPvcAL7mTXU7zgTnY9xdf5d7LOKR4N0urX8LK0+jV8XZVWkYZHj6g6Nbw4qk4NX9dGVaHh0SanHg1vyalHw9cdOW1veHQKKb3hjSGlN3zdF9LehkezhLYPkJvQ9gFyz+B13wCjXzxFxkiMp8gYWfXuHWO0zKbUMFnZlBompd6Nw4yuwRQcKSWYgiPVr3fXSP4+MAQbjW9d2cHq37qyg1U+v1sGG70jqTxe8Ugqj1e23vXjeUJDsNH1vhUfsvJ9Kz5k8fO7eEgXGIKNZpctYtSaly1i1Ijzu3LU0SOJoIGrJRE0cFC9ywb2hIZgAoaTBVznORo3dp3naNzYce/nNWO7wBBsJN6xm+0dvsIdCx0+9PwuGN4FhmDjPOd37wrR53fvCtHnd/YKLjAEEzCcI+AG7+ddizR4P+9apMH7eeoiLjAEEzCcIOA27+f167R5P69fp837ed46LjAEEzAEEzB0D7jZD8Arl2r2A/DKpZr9ADxpKRcYggkYggkYggkYWgfc8jdYa1Zr+RusNau1/A3WjNVcYAgmYAgmYAgmYAgmYAgmYOgbcOPPkGYv2PgzpNkLNv4M6e4LusAQTMAQTMAQTMAQTMAQTMAQTMAQTMAQTMAQTMAQTMAQTMAQTMAQTMAQTMAQTMAQTMAQTMDQN+DXn35fWpu34NePny+tzVvweP/h0tpxvwVdYAgmYAgmYAgmYAgmYAgmYGgdcONPkmav1viTpNmrNf4k6bjrai4wBBMwBBMwBBMwdA+45e+x1izV8vdYa5Zq+Xus495LucAQTMAQTMBwgoCb/Ri8cp1mPwavXKfZj8HHhHVcYAgmYDhHwG1e0esXafOKXr9Im1f0MWcRFxiCCRhOE3CDV/SuFRq8onet0OAVfUxbwQWGYM8OOPoI7x0++gjvHT76CB8zh3eBIdgtAYce4Qpjhx7hCmOHHuFj8tguMAQTMJwv4ArP0dCBKzxHQweOe0Uf8wceDZKIG7VOEnGjBjV8LBnVExqCjU6XLWjIapctaMiII3ysGtIFhmCj5X2LGK/mfYsYr/gRPhaONxpHUnaw+pGUHax+w8fawTyhIdjoeusKjpRy6wqOlHKEj+UjjZbBlBomK5hSw2Q1fOwYZvTLpsgYidkUGSOx4WPTGKNZPNsHyI1n+wC5DR/7BhidEsqtd3tCufVuT2jv/z5Gm5DS690YUnq9G0PafvxHj5x61Lslpx71bslpe71zPwdeFlWnehdH1anexVFVqHf6H+RYkFa/epel1a/eZWkVqfdyuTy8evN2wX/mz/d3d/+eXdP9y5cf3+7+Pbum+5frr5+Xvuku/aOUd4/tJPXOiO0k9V4mxFat3nUX+I6n+Dzp3v0Unyfdu5/igunuCfjmkk/b7ctLPm23Ly+5bLf7A/7HknV7c8m6vbnk+t0WChi4mb8PDMEEDMEEDMEEDMEEDMEEDMEEDMEEDMEEDMEEDMEEDMEEDMEEDJdc/wPacPUg/oMNLAAAAABJRU5ErkJggg==",
+          "alt": "Synthetic aspect-ratio fixture: three complete colored subjects. This is not a source photograph.",
+          "width": 320,
+          "height": 160
+        }
+      ]
+    },
+    {
+      "id": "appendix",
+      "heading": "Directory and reproducible settings",
+      "kind": "appendix",
+      "source_index": 0,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "id": "appendix-text",
+          "text": "Regions are synthetic. Keep the full directory accessible when its preview scrolls."
+        },
+        {
+          "type": "code",
+          "id": "configuration",
+          "language": "python",
+          "text": "REVIEW_REQUIRED = True\nOBSERVATIONS = [12, 18]"
+        },
+        {
+          "type": "table",
+          "id": "directory",
+          "header": [
+            "Region",
+            "Operator"
+          ],
+          "rows": [
+            [
+              "Region 1",
+              "Operator 1"
+            ],
+            [
+              "Region 2",
+              "Operator 2"
+            ],
+            [
+              "Region 3",
+              "Operator 3"
+            ],
+            [
+              "Region 4",
+              "Operator 4"
+            ],
+            [
+              "Region 5",
+              "Operator 5"
+            ],
+            [
+              "Region 6",
+              "Operator 6"
+            ],
+            [
+              "Region 7",
+              "Operator 7"
+            ],
+            [
+              "Region 8",
+              "Operator 8"
+            ],
+            [
+              "Region 9",
+              "Operator 9"
+            ],
+            [
+              "Region 10",
+              "Operator 10"
+            ],
+            [
+              "Region 11",
+              "Operator 11"
+            ],
+            [
+              "Region 12",
+              "Operator 12"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "figures": {
+    "observations": {
+      "type": "chart",
+      "chart_type_hint": "bar",
+      "categories": [
+        "A",
+        "B"
+      ],
+      "series": [
+        {
+          "name": "Observations",
+          "values": [
+            12,
+            18
+          ]
+        }
+      ],
+      "axis": {
+        "x_label": "Instrument",
+        "y_label": "Count",
+        "unit": "observations"
+      },
+      "caption": "Synthetic observations; reported total 31 conflicts with computed 30."
+    },
+    "flow": {
+      "type": "svg",
+      "asset": "flow.svg",
+      "alt": "Acquisition feeds analysis, which feeds review."
+    }
+  },
+  "presentation": {
+    "enabled": true,
+    "theme": "mixed",
+    "depth": "deep-dive",
+    "initial_slide": 1,
+    "slide_budget": 6,
+    "source_slide_count": 6,
+    "theme_sequence": [
+      "dark",
+      "light",
+      "light",
+      "dark",
+      "light",
+      "dark"
+    ],
+    "slides": [
+      {
+        "id": "overview",
+        "source_ids": [
+          "overview"
+        ],
+        "composition": "title"
+      },
+      {
+        "id": "agenda",
+        "source_ids": [
+          "agenda"
+        ],
+        "composition": "process"
+      },
+      {
+        "id": "acquisition",
+        "source_ids": [
+          "acquisition"
+        ],
+        "composition": "comparison"
+      },
+      {
+        "id": "analysis",
+        "source_ids": [
+          "analysis"
+        ],
+        "composition": "figure"
+      },
+      {
+        "id": "review",
+        "source_ids": [
+          "review"
+        ],
+        "composition": "statement"
+      },
+      {
+        "id": "appendix",
+        "source_ids": [
+          "appendix"
+        ],
+        "composition": "directory"
+      }
+    ]
+  },
+  "design": {
+    "brand": "aster",
+    "reading_themes": [
+      "dark",
+      "light",
+      "dark",
+      "light",
+      "dark",
+      "light"
+    ],
+    "aliases": {
+      "calibration": "acquisition"
+    },
+    "agenda": [
+      "acquisition",
+      "analysis",
+      "review"
+    ],
+    "brief": "Large expressive headings, restrained amber and midnight color fields, clear process curves and genuinely useful comparison marks. Preserve source distinctions and uncertainty; do not fill every slide with identical cards.",
+    "motion": {
+      "process_delay_ms": 130,
+      "duration_ms": 550,
+      "comparisons": "simultaneous"
+    },
+    "compact_max_width": 760
+  }
+}
