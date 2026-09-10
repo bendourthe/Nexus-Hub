@@ -1,0 +1,128 @@
+{
+  "original_hashes": {
+    "docs/handbooks/pilot.html": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+    "docs/handbooks/pilot.pdf": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+    "docs/handbooks/pilot.docx": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4"
+  },
+  "builder_bytes_match_collected_build": true,
+  "steps": [
+    {
+      "builder": "build.py",
+      "arguments": [
+        "--check"
+      ],
+      "exit_code": 0,
+      "output": "PASS: HTML bytes and retained inputs match; read-only check.\r\n",
+      "before": {
+        "docs/handbooks/pilot.html": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+        "docs/handbooks/pilot.pdf": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+        "docs/handbooks/pilot.docx": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4"
+      },
+      "after": {
+        "docs/handbooks/pilot.html": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+        "docs/handbooks/pilot.pdf": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+        "docs/handbooks/pilot.docx": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4"
+      },
+      "bytes_unchanged": true,
+      "mtimes_unchanged": true
+    },
+    {
+      "builder": "build.py",
+      "arguments": [],
+      "exit_code": 0,
+      "output": "Built docs/handbooks/pilot.html: 76470 bytes; SHA-256 f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c\r\n",
+      "before": {
+        "docs/handbooks/pilot.html": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+        "docs/handbooks/pilot.pdf": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+        "docs/handbooks/pilot.docx": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4"
+      },
+      "after": {
+        "docs/handbooks/pilot.html": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+        "docs/handbooks/pilot.pdf": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+        "docs/handbooks/pilot.docx": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4"
+      },
+      "bytes_unchanged": true,
+      "mtimes_unchanged": false
+    },
+    {
+      "builder": "build.py",
+      "arguments": [
+        "--check"
+      ],
+      "exit_code": 0,
+      "output": "PASS: HTML bytes and retained inputs match; read-only check.\r\n",
+      "before": {
+        "docs/handbooks/pilot.html": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+        "docs/handbooks/pilot.pdf": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+        "docs/handbooks/pilot.docx": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4"
+      },
+      "after": {
+        "docs/handbooks/pilot.html": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+        "docs/handbooks/pilot.pdf": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+        "docs/handbooks/pilot.docx": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4"
+      },
+      "bytes_unchanged": true,
+      "mtimes_unchanged": true
+    },
+    {
+      "builder": "build_exports.py",
+      "arguments": [
+        "--check"
+      ],
+      "exit_code": 0,
+      "output": "PASS: static exports hashes, source dependencies, DOCX package and two-page PDF; read-only.\r\n",
+      "before": {
+        "docs/handbooks/pilot.html": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+        "docs/handbooks/pilot.pdf": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+        "docs/handbooks/pilot.docx": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4"
+      },
+      "after": {
+        "docs/handbooks/pilot.html": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+        "docs/handbooks/pilot.pdf": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+        "docs/handbooks/pilot.docx": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4"
+      },
+      "bytes_unchanged": true,
+      "mtimes_unchanged": true
+    },
+    {
+      "builder": "build_exports.py",
+      "arguments": [],
+      "exit_code": 0,
+      "output": "{\r\n  \"docs/handbooks/pilot.pdf\": \"83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0\",\r\n  \"docs/handbooks/pilot.docx\": \"0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4\"\r\n}\r\nPDF pages: 2\r\n",
+      "before": {
+        "docs/handbooks/pilot.html": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+        "docs/handbooks/pilot.pdf": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+        "docs/handbooks/pilot.docx": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4"
+      },
+      "after": {
+        "docs/handbooks/pilot.html": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+        "docs/handbooks/pilot.pdf": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+        "docs/handbooks/pilot.docx": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4"
+      },
+      "bytes_unchanged": true,
+      "mtimes_unchanged": false
+    },
+    {
+      "builder": "build_exports.py",
+      "arguments": [
+        "--check"
+      ],
+      "exit_code": 0,
+      "output": "PASS: static exports hashes, source dependencies, DOCX package and two-page PDF; read-only.\r\n",
+      "before": {
+        "docs/handbooks/pilot.html": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+        "docs/handbooks/pilot.pdf": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+        "docs/handbooks/pilot.docx": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4"
+      },
+      "after": {
+        "docs/handbooks/pilot.html": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+        "docs/handbooks/pilot.pdf": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+        "docs/handbooks/pilot.docx": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4"
+      },
+      "bytes_unchanged": true,
+      "mtimes_unchanged": true
+    }
+  ],
+  "operator_author_output_repairs": 0,
+  "collected_originals_unchanged": true
+}

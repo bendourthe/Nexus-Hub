@@ -15,6 +15,7 @@
   let active = false, index = 0, generation = 0, origin = null;
   let scroll = 0, readingURL = location.href, oldOverflow = '';
   let wasFullscreen = false, keepFitted = false, touch = null;
+  let fullscreenExitPending = null;
   let animations = [];
   let readingAnimations = [];
   const nativeInput = 'input,textarea,select,button,a,[contenteditable]:not([contenteditable="false"]),[data-dv-native],dialog[open]';
@@ -78,6 +79,8 @@
     if (!deck.requestFullscreen || !active) return;
     const request = generation;
     try {
+      if (fullscreenExitPending) await fullscreenExitPending;
+      if (request !== generation || !active) return;
       await deck.requestFullscreen();
       if (request !== generation || !active) {
         if (document.fullscreenElement === deck && !active) await document.exitFullscreen();
@@ -116,7 +119,13 @@
   function close(history = true) {
     if (!active) return;
     generation += 1;
+    const closingGeneration = generation;
     active = false;
+    wasFullscreen = false;
+    keepFitted = false;
+    const fullscreenExit = fullscreenExitPending || (document.fullscreenElement === deck
+      ? document.exitFullscreen().catch(() => {}) : null);
+    fullscreenExitPending = fullscreenExit;
     stopMotion();
     deck.querySelectorAll('dialog[open]').forEach(dialog => dialog.close());
     deck.hidden = true;
@@ -128,11 +137,20 @@
     readingAnimations = [];
     page.dispatchEvent(new CustomEvent('dv:activate', { detail: { reducedMotion: motion.matches } }));
     document.documentElement.style.overflow = oldOverflow;
-    wasFullscreen = false;
-    if (document.fullscreenElement === deck) void document.exitFullscreen().catch(() => {});
     if (history) window.history.replaceState(null, '', readingURL);
-    window.scrollTo(0, scroll);
-    if (origin && origin.isConnected) origin.focus({ preventScroll: true });
+    const restoreReading = () => {
+      if (fullscreenExitPending === fullscreenExit) fullscreenExitPending = null;
+      if (active) {
+        if (!deck.contains(document.activeElement))
+          slides[index].querySelector('h1,h2,h3')?.focus({ preventScroll: true });
+        return;
+      }
+      if (generation !== closingGeneration) return;
+      window.scrollTo(0, scroll);
+      if (origin && origin.isConnected) origin.focus({ preventScroll: true });
+    };
+    if (fullscreenExit) void fullscreenExit.then(restoreReading);
+    else restoreReading();
   }
 
   function fromHash() {
@@ -223,6 +241,7 @@
   });
   on(deck, 'pointercancel', () => { touch = null; });
   on(document, 'fullscreenchange', () => {
+    if (fullscreenExitPending) { fit(); return; }
     if (document.fullscreenElement === deck) wasFullscreen = true;
     else if (wasFullscreen) {
       wasFullscreen = false;

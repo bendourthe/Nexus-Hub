@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: open; seeded 2026-09-08 from post-v4.8.0 work. The v4.8 ledger is finalized, so findings after that release land here rather than reopening it.
-**Last updated**: 2026-09-08 (v4.9.0 Phase 7 qualification in progress)
+**Last updated**: 2026-09-10 (v4.9.1 Phase 6 native authoring gate at 1 of 3)
 
 ## Open Items - found 2026-09-08 during post-v4.8.0 follow-up
 
@@ -106,6 +106,95 @@ The advisory model-prompting check used the native Codex CLI's current enumerati
 | DF-3 | Submodule classification | Phase 1 corrective implementation | Each in-scope gitlink binds child HEAD, dirty and untracked state; incomplete/external metadata fails. |
 | DF-4 | Windows containment primitives | Phase 1 corrective implementation | Native directory handles deny rename during operations, with identity checks before content publication; no process assurance is claimed. |
 
+
+### Open items after the fresh presentation-readable and repo-semantic invocations - 2026-09-10
+
+Both queued invocations completed and are non-passes, so the native authoring gate stays at 1 of 3 accepted and Phase 6 cannot close. Full context, evidence links and the confirmed mechanisms are in [Phase 6 evidence](development/interactive-handbooks/phase-6-evidence.md#fresh-presentation-readable-and-repo-semantic-invocations). The chart-title defect did not recur and is not relisted. Counts below apply to this plan's subsection only.
+
+| Category | Open | Resolved |
+|---|---|---|
+| NI | 0 | 0 |
+| DF | 0 | 0 |
+| BG | 3 | 1 |
+| WN | 3 | 0 |
+| MT | 1 | 1 |
+| QG | 1 | 0 |
+
+#### MT-3 - RESOLVED: rendered contrast is now measured by the owner that renders
+
+- **Source phase**: Phase 6, T019.
+- **Plan reference**: T019 contrast by owner, and light-only and dark-only validation over all slide types and child surfaces; R19 and R24.
+- **What was wrong**: `visual_qa_score.py` pairs custom-property NAMES at root scope, so a block that redefines a token inside the same rule that consumes it resolves at computed-value time and scores clean. Twenty sub-AA rendered pairs at a worst ratio of 1.0 to 1 reached the delivered presentation bytes and were present already in the frozen first build.
+- **Resolution**: `measure_handbook.py` now measures contrast on RENDERED computed colors during the pass that already walks every visible text element with a live browser, rather than teaching the static scorer to resolve cascades it cannot see. Ink comes from the computed `color` (or `fill` for SVG text), the backdrop is the first opaque painted ancestor background as the compositor resolves it, and the floor follows WCAG 1.4.3: 3.0 to 1 for large text at or above 24 pixels or bold at or above 18.66, otherwise 4.5 to 1. Fully transparent ink is skipped as an opacity concern rather than reported as a contrast one. Failures join the existing per-state error list, so an affected state fails its gate.
+- **Proof**: run against the retained failing artifact, the check reports 21 sub-AA pairs with a worst ratio of exactly 1 to 1 (`rgb(23, 43, 59)` ink on an identical background), independently converging on the 20 pairs the runner found by screenshot inspection. Three tests cover the delivered token-redefinition shape, the large-text floor boundary at 4.00 to 1, and transparent ink; negative-controlled by disabling the reporting and confirming all three fail. The two living handbooks and every existing fixture still pass, so the check adds no false positives.
+- **Residual**: the static token-pair check in `visual_qa_score.py` is unchanged and still useful for pre-render authoring feedback; it is no longer the gate for this class.
+
+#### MT-4 - No SVG check compares text bounds against shape bounds
+
+- **Source phase**: Phase 6, T019.
+- **Plan reference**: T019 semantic-figure and SVG reference integrity; R17 and R21.
+- **Reason**: the SVG checks are exactly `check_svg_arrowheads`, `check_svg_viewport_fit` and `check_svg_marker_integrity`; none compares a label against a rectangle and the module never calls `getBBox`. Three edge labels painting over stage-card rectangles in the repository case passed every automated gate and were caught only by screenshot inspection.
+- **Suggested next step**: add a text-versus-shape overlap check with a deliberately broken fixture, and keep the existing text-to-text and viewBox checks unchanged.
+
+#### BG-2 - WITHDRAWN: reading scroll restore is correct; the report was a harness artifact
+
+- **Source phase**: Phase 6, T019, reported against Phase 2 output.
+- **Plan reference**: R25 global reset and return-to-page behavior.
+- **Status**: not a defect. Recorded here because the claim reached this ledger before it was reproduced, and withdrawing it in place is more useful than deleting it.
+- **What was claimed**: closing the presentation left the reading page at scroll 0 instead of its prior 2000, said to reproduce on a stock build and therefore to be a defect in committed `assets/dual-view-runtime.js`.
+- **What direct reproduction showed**: the runtime saves and restores correctly. On a 4807-pixel page, opening and closing through the public API restores 2000 and 3000 exactly, and an in-page `click()` on the entry button restores 2000 exactly. The failure appears only when the entry button is clicked through Playwright's `locator.click()`, which scrolls its target into view before dispatching. Both entry buttons sit at the top of the page, so that auto-scroll moves the viewport to 0 BEFORE the deck opens; the runtime then correctly captures and restores 0. Instrumenting the scroll position at the moment of opening shows 0 for the Playwright path and the intended value for the in-page path.
+- **Correcting the recorded mechanism**: an earlier note in this cycle attributed the behavior to `window.scrollTo` running before layout after `page.hidden` was cleared, with no `requestAnimationFrame` in the file. That explanation is wrong; `scrollTo` forces layout itself, and the existing `test_entry_reset_chapter_and_exit_restore_reading` already asserts a restored scroll and passes.
+- **Suggested next step**: no runtime change. When a future harness exercises scroll restore, drive the entry through an in-page dispatch or place the control below the fold, and assert the scroll captured at open rather than only the value after close. Treat a runner-reported defect in committed code as unconfirmed until reproduced outside the reporting harness.
+
+#### BG-3 - The extractor has no HTML reader while the plan requires legacy HTML migration
+
+- **Source phase**: Phase 6, T020.
+- **Plan reference**: T020 legacy HTML migration; R11 layout preservation.
+- **Reason**: `scripts/extract_content.py` maps roughly seventy-five extensions and `.html` is not among them, appearing once in the module and never as an input format. The frozen repository fixture supplies `docs/handbooks/html/operations.html`, so the case ingested eight of nine files. The run disclosed the omission on the delivered page rather than concealing it.
+- **Suggested next step**: decide explicitly whether an HTML reader is in scope for v4.9.1 or whether T020's legacy-migration clause is amended; do not leave the requirement and the implementation in silent disagreement.
+
+#### BG-4 - Brand light and dark variants are selected inverted
+
+- **Source phase**: Phase 6, T020, repository case.
+- **Plan reference**: R26 brand fidelity and source-to-SVG comparison at actual sizes.
+- **Reason**: every slide selects the opposite brand variant, leaving the wordmark invisible on both light and dark slides with only the diamond legible. The runner records it as a one-character fix in authored output; no automated gate covers wordmark legibility.
+- **Suggested next step**: fix the selection and add a check that a supplied wordmark is legible against the theme it is placed on, so this cannot pass silently again.
+
+#### BG-5 - Chart data points are stretched by a non-uniform aspect ratio
+
+- **Source phase**: Phase 6, T020, repository case.
+- **Plan reference**: R17 figure fidelity.
+- **Reason**: `preserveAspectRatio="none"` deforms data points into ellipses in the delivered figure.
+- **Suggested next step**: correct the aspect handling and cover it in the figure checks.
+
+#### WN-2 - A section renders at partial opacity at load
+
+- **Source phase**: Phase 6, T019, presentation case.
+- **Plan reference**: R23 motion lifetime and reduced-motion behavior.
+- **Reason**: a section partially visible at load renders at opacity 0.45 from the scroll-driven reveal, so first paint shows content the reader cannot properly read.
+- **Suggested next step**: ensure any element within the initial viewport reaches full opacity at first paint regardless of scroll position.
+
+#### WN-3 - The chart pane leaves roughly half the slide empty
+
+- **Source phase**: Phase 6, T020, repository case.
+- **Plan reference**: R20 and R23 composition quality.
+- **Reason**: a positive-design judgment recorded by independent review; no automated gate covers it and none should be invented as a beauty detector.
+- **Suggested next step**: treat as authoring guidance in the design reference; it remains a human or agent visual judgment.
+
+#### WN-4 - The retained chart renderer offers no axis-limit control
+
+- **Source phase**: Phase 6, T019.
+- **Plan reference**: `SKILL.md` interactive-chart requirements.
+- **Reason**: `SKILL.md` requires readers to adjust axis limits and the retained renderer provides no such control, so the contract and the implementation disagree.
+- **Suggested next step**: implement the control or amend the contract; record which was chosen.
+
+#### QG-2 - The three-family authoring gate is unmet and cannot be waived
+
+- **Source phase**: Phase 6, T020.
+- **Plan reference**: T020 three of three final passes.
+- **Reason**: accepted input families remain 1 of 3 after both queued invocations. A corrected specimen cannot retroactively qualify the invocation that produced it, so fresh cases are required once the findings above are addressed.
+- **Suggested next step**: close MT-3, MT-4, BG-2, BG-4 and BG-5, resolve BG-3 as scope or amendment, then run fresh presentation and repository cases under their declared budgets.
+
 ## Resolved during this follow-up
 
 - **The intermittent org-CLI failure was a Windows directory-rename race, now fixed** (carried in as v4.8 `WN-I`, org-CLI half, and briefly tracked here as `BG-1`). It arrived as a test that failed twice on a DIFFERENT test each time, never reproduced in isolation (12 consecutive clean runs of the file, 470 passing for the whole directory), and passed on both CI test jobs. Four candidate causes were ruled out first: the `PYTHONUTF8` decoding defect that explained the PowerShell half (that file was already hardened), load (it failed inside a 4-second single-file run), order randomization (no such plugin is installed), and cross-suite pollution (1319 hook tests immediately before left the suspects passing).
@@ -127,8 +216,16 @@ The separately owned platform follow-up is included in this release: Copilot new
 
 ## v4.9.1 - interactive-handbooks-and-presentation-default
 
-**Status**: Phases 1-5 complete; Phase 6 next. No accepted gate bypass. Independent one-invocation qualification and final integration remain planned work in Phases 6-7.
+**Status**: Phases 1-5 complete; Phase 6 incomplete. No accepted gate bypass. Native sandbox writes, Chromium and explicit installed-skill loading work. A cross-profile probe exposed discarded deny rules in CLI 0.153.4; temporary CLI 0.154.0 applies the configured denials and passes all five tested forbidden reads. The current affected suite passes 510 tests and all 30 catalog checks. One of three native authoring families is independently accepted: the report. The latest repository fails branding placement and semantic process motion; the previous presentation fails native chart-title contrast. Corrected shared guidance is under fresh serialized qualification with frozen inputs, predeclared time limits and three internal repairs. Original failed artifacts remain unchanged. Full feature/design and native export qualification, the Phase 6 commit and Phase 7 integration remain open. See [Phase 6 evidence](development/interactive-handbooks/phase-6-evidence.md).
 
 ### Summary
 
 No new deferred item or waived requirement. Existing v4.9.0 gaps retain their owners.
+
+The completed report retry is also a non-pass: native Word paints the source-appendix table beyond the page edge despite successful HTML/PDF/rebuild checks. The DOCX owner now keeps grid and header/body cell widths consistent and checks usable page width. Four new regressions and twelve affected DOCX/distribution/workflow checks pass. The diagnostic correction is excluded from qualification; a fresh bounded report invocation remains required.
+
+The completed presentation retry opens normally and retains correct native chart values and process edges, but timed PowerPoint playback shows no automatic process or chart-series builds. The shared PPTX owner now includes a portable native fade helper, an explicit required-motion gate and a documented integration recipe. Seventeen affected checks pass with 96.59% helper coverage; both installers deliver matching helper bytes, and a separate diagnostic deck visibly executes eight overlapping process effects and one chart-series fade. Native PowerPoint also opens the corrected connector-only case without repair. The failed author output is unchanged, and a fresh presentation invocation is queued after the corrected report. No diagnostic edit is counted as qualification.
+
+The repository final attempt timed out after 3,600.75 seconds without its final result record. Independent browser inspection reproduces two alternate-panel overflows at 2560x720; this remains a non-pass. The QA owner now requires alternate-panel inventory before first QA. The report run is active, the presentation run is queued, and a fresh repository case is queued with the same frozen input and three-correction ceiling under a predeclared 5,400-second limit. No result from an earlier skill revision or failed artifact is silently restamped.
+
+The subsequent report-final invocation is independently accepted after three internal corrections in 3,247.39 seconds. Its final HTML, PDF and DOCX rebuild byte-identically; native Word renders two complete pages with correct Arial fonts and no outside-page text, and the PDF passes two rendering engines plus QPDF. Two hundred default states and 404 independent control/paint-order checks pass their recorded scopes. See [accepted report evidence](development/interactive-handbooks/phase-6-native-attempts/report-final/summary.json). The native authoring gate is 1/3 accepted; the active presentation and queued repository cases remain required. Earlier failed reports are not relabeled.

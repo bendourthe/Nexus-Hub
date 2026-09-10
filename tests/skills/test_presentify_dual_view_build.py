@@ -376,9 +376,62 @@ def test_map_directory_matches_geometry_and_keyboard_selection(project):
         build(project)
 
 
+@pytest.mark.parametrize("javascript_enabled", [True, False])
+def test_print_keeps_semantic_figure_content_and_expands_scroll_regions(
+    project, javascript_enabled
+):
+    model = read_model(project)
+    regions = json.loads((project / "map.json").read_text(encoding="utf-8"))["regions"]
+    model["sections"][0]["blocks"].append(
+        {"id": "map", "type": "map", "asset": "map.svg", "regions": regions}
+    )
+    save_model(project, model)
+    build(project)
+    html = project / "handbook.html"
+    html.write_text(
+        html.read_text(encoding="utf-8").replace(
+            "</h2>", '</h2><code style="color:#f5f3ec">Print theme contrast</code>', 1
+        ),
+        encoding="utf-8",
+    )
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        page = browser.new_page(
+            viewport={"width": 1366, "height": 768},
+            java_script_enabled=javascript_enabled,
+        )
+        page.goto((project / "handbook.html").as_uri())
+        directory = page.locator("[data-dv-page] [data-dv-map] .dv-directory")
+        assert directory.evaluate("e=>e.scrollHeight>e.clientHeight")
+        code = page.locator("[data-dv-page] [data-theme=dark] code").first
+        palette = "e=>({ink:getComputedStyle(e).color,paper:getComputedStyle(e.closest('[data-dv-section]')).backgroundColor})"
+        screen_palette = code.evaluate(palette)
+        page.emulate_media(media="print")
+        assert code.evaluate(palette) == screen_palette
+        assert page.locator("[data-dv-page] [data-dv-region]:visible").count() == 12
+        assert directory.evaluate("e=>e.scrollHeight<=e.clientHeight+1")
+        assert page.locator("[data-dv-page] .dv-legend button:visible").count() > 0
+        assert page.locator("[data-dv-page] .dv-image img:visible").count() > 0
+        assert page.locator("[data-dv-page] details table:visible").count() > 0
+        assert page.locator("[data-dv-page] .dv-figure-tools:visible").count() == 0
+        assert (
+            page.locator("[data-dv-deck]:visible,[data-dv-open]:visible").count() == 0
+        )
+        page.emulate_media(media="screen")
+        assert directory.evaluate("e=>e.scrollHeight>e.clientHeight")
+        assert page.locator("[data-dv-page] details[open]").count() == 0
+        assert page.locator("[data-dv-page] details table:visible").count() == 0
+        browser.close()
+
+
 def test_svg_measurements_find_broken_labels_and_preserve_readable_rendered_text(
     project,
 ):
+    model = read_model(project)
+    model["figures"]["observations"]["axis"].update(
+        {"y_max": 20, "y_label": "Observations"}
+    )
+    save_model(project, model)
     build(project)
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch()
@@ -386,16 +439,50 @@ def test_svg_measurements_find_broken_labels_and_preserve_readable_rendered_text
         page.goto((project / "handbook.html").as_uri())
         page.evaluate("NexusDualView.open(2)")
         chart = page.locator("[data-dv-slide]:not([hidden]) .dv-chart svg")
-        probe = """svg => [...svg.querySelectorAll('text')].map(node => {const box=node.getBBox(),matrix=node.getScreenCTM(),view=svg.viewBox.baseVal;return {text:node.textContent,inside:box.x>=view.x&&box.y>=view.y&&box.x+box.width<=view.width&&box.y+box.height<=view.height,font:parseFloat(getComputedStyle(node).fontSize)*Math.hypot(matrix.a,matrix.b)};})"""
+        probe = """svg => [...svg.querySelectorAll('text')].map(node => {
+            const b=node.getBBox(),screen=node.getScreenCTM(),v=svg.viewBox.baseVal;
+            const m=svg.getScreenCTM().inverse().multiply(screen);
+            const points=[[b.x,b.y],[b.x+b.width,b.y],[b.x,b.y+b.height],[b.x+b.width,b.y+b.height]].map(([x,y])=>new DOMPoint(x,y).matrixTransform(m));
+            return {text:node.textContent,inside:points.every(p=>p.x>=v.x&&p.y>=v.y&&p.x<=v.x+v.width&&p.y<=v.y+v.height),font:parseFloat(getComputedStyle(node).fontSize)*Math.hypot(screen.a,screen.b)};
+        })"""
         measured = chart.evaluate(probe)
-        assert all(item["font"] >= 18 for item in measured)
-        # Rotated y-axis labels use their local coordinate system; check the ordinary ticks.
-        ordinary = chart.locator("text:not([transform])")
-        assert ordinary.evaluate_all(
-            "nodes => nodes.every(n => {const b=n.getBBox(),v=n.ownerSVGElement.viewBox.baseVal;return b.x>=0&&b.x+b.width<=v.width&&b.y>=0&&b.y+b.height<=v.height;})"
+        assert all(item["font"] >= 18 and item["inside"] for item in measured)
+        assert chart.evaluate("""svg => {
+            const title=svg.querySelector('text[transform]').getBoundingClientRect();
+            return [...svg.querySelectorAll('text[text-anchor="end"]')].every(tick =>
+                tick.getBoundingClientRect().left >= title.right + 2);
+        }""")
+        rotated = chart.locator("text[transform]")
+        rotated.evaluate(
+            'node => node.setAttribute("transform", "translate(24 135) rotate(-90)")'
         )
-        ordinary.first.evaluate('node => node.setAttribute("x", "2000")')
         assert any(not item["inside"] for item in chart.evaluate(probe))
+        rotated.evaluate(
+            'node => node.setAttribute("transform", "translate(36 135) rotate(-90)")'
+        )
+        chart.locator("text:not([transform])").first.evaluate(
+            'node => node.setAttribute("x", "2000")'
+        )
+        assert any(not item["inside"] for item in chart.evaluate(probe))
+        browser.close()
+
+
+@pytest.mark.parametrize("font_size", [18, 28])
+def test_chart_axis_title_clears_decimal_ticks(project, font_size):
+    chart = read_model(project)["figures"]["observations"]
+    chart["axis"].update({"y_max": 20, "y_label": "Observations"})
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        page = browser.new_page()
+        page.set_content(
+            f"<style>svg{{width:760px}}text{{font:{font_size}px Arial}}</style>"
+            + dual.render_chart(chart, "axis-spacing")
+        )
+        assert page.locator("svg").evaluate("""svg => {
+            const title=svg.querySelector('text[transform]').getBoundingClientRect();
+            return [...svg.querySelectorAll('text[text-anchor="end"]')].every(tick =>
+                tick.getBoundingClientRect().left >= title.right + 2);
+        }""")
         browser.close()
 
 
@@ -549,6 +636,11 @@ def test_page_only_omits_presentation_assets(project):
 
 
 def test_builder_help_is_runnable():
-    result = subprocess.run([sys.executable, str(SCRIPTS / "build_presentation.py"), "--help"], capture_output=True, text=True, check=False)
+    result = subprocess.run(
+        [sys.executable, str(SCRIPTS / "build_presentation.py"), "--help"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     assert result.returncode == 0, result.stderr
     assert "100%" in result.stdout and "--check" in result.stdout

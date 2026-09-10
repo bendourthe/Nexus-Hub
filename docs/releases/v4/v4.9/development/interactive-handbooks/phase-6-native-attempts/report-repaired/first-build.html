@@ -1,0 +1,646 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tide sensor pilot</title><style>
+[data-dv-zoom-view]{max-height:320px;overflow:auto}[data-dv-zoom-view]>svg{max-width:none;width:100%;display:block}.dv-figure-tools{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}.dv-figure-tools label{display:flex;gap:.5rem;align-items:center}[data-region][data-selected=true]{stroke:currentColor;stroke-width:4}html{font:18px/1.55 system-ui,sans-serif;scrollbar-color:#52677b transparent}body{margin:0;background:#f5f3ec;color:#15283c}*{box-sizing:border-box}button,input,select{font:inherit}button{cursor:pointer;min-height:44px}header,[data-dv-section]{padding:clamp(1.25rem,4vw,4rem)}header h1{font-size:clamp(2rem,5vw,4rem);line-height:1.1}header>svg{width:240px;max-height:60px}[data-theme=dark]{background:#142235;color:#f5f3ec}[data-theme=light]{background:#f5f3ec;color:#15283c}h2{overflow-wrap:anywhere}[data-dv-section] h2{font-size:clamp(1.5rem,3vw,2.7rem);line-height:1.15}.dv-top-menu{display:flex;justify-content:space-between;background:#f5f3ec;color:#15283c;padding:.5rem;z-index:2}figure svg text:not([fill]),figure svg marker path:not([fill]){fill:currentColor}figure{margin:0;min-width:0}figure>svg{width:100%;max-height:220px}figcaption{font-size:1rem}.dv-chart svg{width:100%;min-width:650px;max-height:290px}.dv-chart svg text{font-size:24px;fill:currentColor;stroke:none}.dv-chart [data-dv-native]{overflow:auto}.dv-legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}.dv-legend button{background:transparent;color:inherit;border:1px solid currentColor;border-radius:.5rem}.dv-directory{max-height:200px;overflow:auto;scrollbar-color:currentColor transparent}table{border-collapse:collapse;font-size:1rem}td,th{padding:.3rem .7rem;border-bottom:1px solid currentColor;text-align:left}pre{font-size:1rem}.dv-image{border:0;background:transparent;padding:0}.dv-image img{object-fit:contain;max-width:100%;max-height:240px}.dv-brand{position:absolute;right:1rem;top:1rem;max-width:120px}.dv-brand svg{width:100%}[data-dv-slide]>.dv-brand~*{min-width:0}[data-dv-slide]:has(.dv-brand)>h2{padding-right:140px}[data-dv-slide]>[data-dv-unit]{min-width:0}[data-dv-slide] details[open]{overflow:auto;max-height:180px}[data-dv-map] input{width:100%}[data-dv-region][hidden]{display:none!important}[data-dv-region]{display:block;width:100%;text-align:left}.dv-enlargement{max-width:94vw;max-height:90vh}.dv-enlargement img{max-width:85vw;max-height:75vh;object-fit:contain}dialog::backdrop{background:#101820cc}@media(max-width:760px){[data-dv-slide]:has(.dv-brand)>h2{padding-right:0;padding-top:3rem}}@media print{.dv-top-menu,button,input,select,dialog,[data-dv-deck]{display:none!important}[data-dv-page]{display:block!important}[data-dv-section]{break-inside:avoid}[data-dv-page]{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+@media print{
+  [data-dv-page] .dv-directory,[data-dv-page] [data-dv-native],[data-dv-page] [data-dv-zoom-view]{height:auto!important;max-height:none!important;overflow:visible!important}
+  [data-dv-page] .dv-image,[data-dv-page] .dv-directory [data-dv-region]{display:block!important}
+  [data-dv-page] .dv-legend button{display:inline-flex!important}
+  [data-dv-page] .dv-image img{max-height:none;max-width:100%}
+  [data-dv-page] .dv-figure-tools,[data-dv-page] [data-dv-map]>label{display:none!important}
+  [data-dv-page] details::details-content{content-visibility:visible!important}
+  [data-dv-page] summary{list-style:none}
+}
+/* Namespaced mechanics; project authors retain composition and brand tokens. */
+[data-dv-deck][hidden], [data-dv-slide][hidden] { display: none !important; }
+[data-dv-open], [data-dv-chapter] { display: none; }
+[data-dv-ready] [data-dv-open], [data-dv-ready] [data-dv-chapter] { display: inline-flex; }
+[data-dv-deck] {
+  --dv-bg: #f5f3ec; --dv-fg: #15283c; --dv-muted: #45566a;
+  box-sizing: border-box; position: fixed; inset: 0; z-index: 1000;
+  width: 100%; height: 100dvh; color: var(--dv-fg); background: var(--dv-bg);
+  display: grid; grid-template-rows: minmax(0, 1fr) auto;
+  font: 1.125rem/1.45 system-ui, sans-serif;
+}
+[data-dv-deck][data-theme="dark"] { --dv-bg: #142235; --dv-fg: #f5f3ec; --dv-muted: #c2d1df; color-scheme: dark; }
+[data-dv-deck][data-theme="light"] { color-scheme: light; }
+[data-dv-deck] *, [data-dv-page] * { box-sizing: border-box; }
+.dv-stage { min-width: 0; min-height: 0; display: grid; }
+[data-dv-slide] {
+  min-width: 0; min-height: 0; padding: clamp(1rem, 3vw, 3rem);
+  display: flex; flex-direction: column; justify-content: center; gap: clamp(.5rem, 1.4vh, 1.5rem);
+  position: relative; background: var(--dv-bg); color: var(--dv-fg);
+}
+[data-dv-slide] h1, [data-dv-slide] h2 { font-size: clamp(1.5rem, 3vw, 3.5rem); line-height: 1.1; margin: 0; overflow-wrap: anywhere; }
+[data-dv-slide] p { margin: 0; }
+[data-dv-slide] input, [data-dv-slide] button, [data-dv-slide] select { font: inherit; min-height: 44px; max-width: 100%; }
+[data-dv-slide] button { align-self: flex-start; }
+[data-dv-slide] h2:focus, [data-dv-slide] h1:focus { outline: none; }
+[data-dv-slide] img { max-width: 100%; max-height: 42vh; object-fit: contain; }
+[data-dv-slide] svg { max-width: 100%; }
+[data-dv-controls] {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+  gap: .5rem; padding: .6rem; border-top: 1px solid currentColor;
+  background: var(--dv-bg); color: var(--dv-fg);
+}
+[data-dv-controls] button, [data-dv-controls] select {
+  color: inherit; background: transparent; border: 1px solid currentColor;
+  border-radius: .5rem; padding: .4rem .65rem; font: inherit; min-height: 44px;
+}
+[data-dv-controls] select { max-width: min(30vw, 16rem); }
+[data-dv-controls] button { display: inline-flex; align-items: center; gap: .3rem; }
+[data-dv-controls] button:disabled { opacity: .45; }
+[data-dv-controls] svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 2; }
+[data-dv-deck] :focus-visible, [data-dv-page] :focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+[data-dv-native] { overflow: auto; scrollbar-width: thin; scrollbar-color: currentColor transparent; }
+[data-dv-page] { scrollbar-color: #52677b transparent; }
+[data-dv-page] [data-theme="dark"] { scrollbar-color: #c2d1df transparent; }
+[data-dv-native]::-webkit-scrollbar { width: 10px; height: 10px; }
+[data-dv-native]::-webkit-scrollbar-track { background: transparent; }
+[data-dv-native]::-webkit-scrollbar-thumb { background: var(--dv-muted, #52677b); border-radius: 1rem; }
+[data-dv-native]::-webkit-scrollbar-thumb:hover { background: currentColor; }
+[data-dv-slide] dialog { max-width: min(90vw, 60rem); max-height: 80dvh; color: inherit; background: var(--dv-bg); }
+@media (max-width: 760px) {
+  .dv-stage { overflow-y: auto; }
+  [data-dv-slide] { justify-content: flex-start; align-self: start; height: auto; min-height: 100%; }
+  [data-dv-slide] > * { flex-shrink: 0; }
+  [data-dv-controls] { gap: .25rem; }
+  [data-dv-controls] button { padding: .3rem; font-size: 1rem; }
+  [data-dv-controls] select { max-width: 40vw; }
+}
+@media (forced-colors: active) { [data-dv-native], [data-dv-page] { scrollbar-color: auto; } }
+@media (prefers-reduced-motion: reduce) { [data-dv-deck] *, [data-dv-page] * { animation: none !important; transition: none !important; } }
+@media print { [data-dv-deck], [data-dv-open], [data-dv-chapter], [data-dv-status] { display: none !important; } [data-dv-page] { display: block !important; } }
+/* DESIGN RECORD: Tide field notes; seeded editorial research report. Source facts and visual contracts live in handbook-record. */
+:root{--paper:#f7f3e9;--ink:#102f44;--accent:#067b83;--page-max:1040px;--gutter:clamp(20px,3vw,64px);font-family:Arial,sans-serif;font-size:18px;line-height:1.5}
+body{background:#e4e3df;color:var(--ink);font-family:Arial,sans-serif}
+[data-dv-page]{max-width:1040px!important;background:var(--paper);box-shadow:0 12px 60px #102f4420}
+[data-theme=light]{--surface:#f7f3e9;--text:#102f44;--tone:#067b83;background:var(--surface);color:var(--text)}
+[data-theme=dark]{--surface:#102f44;--text:#f7f3e9;--tone:#80d3d2;background:var(--surface);color:var(--text)}
+[data-dv-page]>header{padding:clamp(32px,5vw,84px);padding-bottom:clamp(32px,4vw,60px);background:var(--paper)}
+header>svg{width:270px;max-height:60px;display:block;margin-bottom:clamp(24px,3vw,48px)}
+header h1{font-family:Arial,sans-serif;font-size:clamp(44px,5.5vw,78px);font-weight:700;letter-spacing:-.045em;max-width:11ch;margin:0 0 28px;line-height:1.02}
+button,a,input,select,summary{-webkit-tap-highlight-color:transparent}
+button{border:1px solid currentColor;border-radius:7px;background:transparent;color:inherit;padding:10px 16px}
+button:hover,a:hover,summary:hover{background:color-mix(in srgb,currentColor 9%,transparent)}
+header [data-dv-open]{background:var(--accent);color:var(--paper);border-color:var(--accent);font-weight:bold}
+.dv-top-menu{padding:12px var(--gutter);align-items:center;border-top:1px solid #102f4430;border-bottom:1px solid #102f4430;background:var(--paper);color:var(--ink);gap:20px}
+.dv-top-menu a{color:inherit;text-underline-offset:5px;font-size:16px}
+.dv-top-menu button{font-size:16px}
+[data-dv-section]{padding:clamp(30px,4.5vw,68px);scroll-margin-top:16px}
+[data-dv-section]>h2{font-size:clamp(28px,3.5vw,46px);letter-spacing:-.025em;max-width:20ch;line-height:1.12;margin:0 0 clamp(20px,2.5vw,36px)}
+p{margin:0 0 16px;max-width:66ch;font-size:18px}
+.tr-kicker{font-size:14px;font-weight:bold;letter-spacing:.055em;text-transform:uppercase;color:var(--tone,var(--accent));margin:0 0 18px}
+.tr-lead p{font-size:clamp(22px,2.4vw,28px);line-height:1.4;max-width:44ch}
+.tr-link{color:inherit;text-underline-offset:6px;font-size:16px;display:inline-block;margin-top:12px}
+.tr-agenda{display:grid;gap:0}
+.tr-agenda a{color:inherit;display:grid;grid-template-columns:48px 1fr;column-gap:20px;padding:22px 0;border-bottom:1px solid currentColor;text-decoration:none}
+.tr-agenda span{grid-row:span 2;color:var(--tone,var(--accent));font-size:16px;font-weight:bold;padding-top:3px}
+.tr-agenda strong{font-size:25px;line-height:1.2;font-weight:600}
+.tr-agenda small{font-size:16px;line-height:1.4;margin-top:8px}
+.tr-counts{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(24px,3vw,54px);align-items:start}
+.tr-plot{min-width:0}
+.dv-chart figcaption{font-size:16px;margin-bottom:16px;font-weight:bold}
+.dv-chart svg{min-width:0;max-height:none;width:100%;display:block}
+.dv-chart svg text{font-size:34px;font-family:Arial,sans-serif}
+.dv-chart [data-dv-series-marks]{fill:var(--tone,var(--accent));stroke:var(--tone,var(--accent))}
+[data-dv-zoom-view]{max-height:350px;scrollbar-color:currentColor transparent}
+.dv-chart [data-dv-native]{scrollbar-width:thin}
+.dv-legend{margin:10px 0;justify-content:flex-start}
+.dv-legend button{font-size:14px;min-height:44px;padding:8px 12px}
+.dv-figure-tools{gap:12px;margin:14px 0;align-items:center}
+.dv-figure-tools label{font-size:14px;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.dv-figure-tools input{width:120px;min-height:24px;accent-color:var(--tone,var(--accent))}
+.dv-figure-tools button{font-size:14px;padding:8px 10px;min-height:44px}
+summary{font-size:15px;cursor:pointer;padding:8px 0}
+table{width:100%;font-size:16px;line-height:1.4}
+td,th{padding:12px 4px;border-bottom:1px solid color-mix(in srgb,currentColor 30%,transparent);text-align:left;vertical-align:top;overflow-wrap:anywhere}
+th{font-weight:bold}td:last-child,th:last-child{padding-left:14px}
+.dv-directory{max-height:none;overflow:visible}
+.tr-totals{display:flex;gap:clamp(20px,3vw,44px);padding:22px 0}
+.tr-totals strong{display:block;font-size:clamp(36px,3.5vw,52px);line-height:1.1;letter-spacing:-.04em}
+.tr-totals span{font-size:14px;display:block;margin-top:8px}
+.tr-discrepancy p{font-size:16px}
+.tr-reliability p{font-size:16px;font-weight:bold;border-top:1px solid currentColor;padding-top:16px}
+.tr-review{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(20px,3vw,54px);align-items:center}
+.tr-flow figure>svg{width:100%;height:auto;max-height:none;display:block}
+.tr-flow figcaption{font-size:15px;margin-top:14px;line-height:1.45}
+.tr-review-note p{font-size:18px}
+.tr-review-note .tr-kicker{font-size:14px}
+.tr-return{font-weight:bold;border-top:1px solid currentColor;padding-top:20px;margin-top:22px}
+.tr-scope-display{font-size:clamp(30px,3.5vw,44px);font-weight:bold;line-height:1.2;letter-spacing:-.025em;margin-bottom:24px}
+.tr-scope>div p{max-width:50ch}
+.tr-sources table{font-size:16px}
+.tr-sources th:first-child{width:32%}
+[data-dv-status]:empty{display:none}
+[data-dv-deck]{--dv-bg:#f7f3e9;--dv-fg:#102f44;--dv-muted:#426476;font:18px/1.5 Arial,sans-serif}
+[data-dv-deck][data-theme=dark]{--dv-bg:#102f44;--dv-fg:#f7f3e9;--dv-muted:#80d3d2}
+[data-dv-slide]{padding:clamp(24px,3vw,70px);padding-top:clamp(72px,8vh,108px);gap:clamp(16px,2vh,30px);justify-content:center}
+[data-dv-slide]>h2{font-family:Arial,sans-serif;font-size:clamp(30px,3.5vw,64px);letter-spacing:-.025em;line-height:1.12;max-width:25ch;padding-right:0!important;flex-shrink:0}
+.dv-brand{top:clamp(18px,2vh,30px);right:clamp(24px,3vw,70px);max-width:230px;width:230px}
+.dv-brand svg{display:block;height:auto}
+[data-dv-slide] p{font-size:clamp(18px,1.6vw,28px)}
+[data-dv-slide] .tr-kicker{font-size:14px}
+[data-dv-slide] .tr-counts{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);width:100%;align-items:center}
+[data-dv-slide] .tr-counts p{font-size:18px}
+[data-dv-slide] .tr-plot{max-width:1000px;width:100%;justify-self:center}
+[data-dv-slide] .dv-chart svg{max-height:33vh}
+[data-dv-slide] .dv-chart [data-dv-zoom-view]{max-height:33vh}
+[data-dv-slide] .tr-count-context{max-width:650px}
+[data-dv-slide] .tr-totals{padding:18px 0}
+[data-dv-slide] .tr-count-context table{font-size:18px}
+[data-dv-slide] .tr-totals strong{font-size:clamp(38px,4.5vw,80px)}
+[data-dv-slide] .tr-reliability p{font-size:18px;padding-top:12px}
+[data-dv-slide] details[open]{max-height:160px}
+[data-dv-slide] .tr-review{width:100%;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+[data-dv-slide] .tr-flow figure>svg{height:clamp(300px,51vh,620px);max-height:none}
+[data-dv-slide] .tr-flow figcaption{font-size:16px;max-width:50ch;margin-inline:auto;text-align:center}
+[data-dv-slide] .tr-review-note{max-width:660px}
+[data-dv-slide] .tr-return{font-size:clamp(20px,2vw,32px)}
+[data-dv-slide] .tr-agenda{max-width:1100px;width:100%;align-self:center}
+[data-dv-slide] .tr-agenda a{padding:clamp(14px,2.2vh,30px) 0;grid-template-columns:60px 1fr}
+[data-dv-slide] .tr-agenda strong{font-size:clamp(26px,2.4vw,42px)}
+[data-dv-slide] .tr-agenda small{font-size:18px}
+.dv-composition-cover>h2{font-size:clamp(56px,7vw,128px);max-width:12ch;line-height:1;letter-spacing:-.05em}
+.tr-cover-line{font-size:clamp(24px,2.4vw,40px)!important;max-width:30ch;margin:18px 0 32px!important}
+.tr-cover-qualifier p{font-size:clamp(18px,1.6vw,24px);max-width:52ch}
+.tr-cover>.tr-kicker{margin-top:28px;font-size:14px}
+.tr-scope-slide{max-width:1000px}
+[data-dv-slide] .tr-sources{margin-top:12px;max-width:1200px}
+[data-dv-slide] .tr-sources td,[data-dv-slide] .tr-sources th{padding:14px 8px;font-size:clamp(16px,1.4vw,24px)}
+[data-dv-controls]{font-size:16px;padding:8px;gap:8px;border-top-color:color-mix(in srgb,currentColor 25%,transparent)}
+[data-dv-controls] button,[data-dv-controls] select{min-height:44px;font-size:16px;border-radius:6px}
+[data-dv-controls] select{max-width:230px;background:var(--dv-bg);color:var(--dv-fg)}
+[data-dv-controls] svg{width:20px;height:20px}
+:focus-visible{outline:3px solid var(--tone,var(--accent));outline-offset:4px}
+@media(max-width:760px){
+ :root{font-size:18px}
+ [data-dv-section]{padding:30px 22px}
+ [data-dv-page]>header{padding:36px 22px}
+ header h1{font-size:54px}
+ .tr-counts,.tr-review{grid-template-columns:1fr}
+ .tr-plot{width:100%}
+ .tr-review-note{margin-top:10px}
+ .tr-flow figure>svg{max-height:490px}
+ .tr-agenda a{column-gap:12px;grid-template-columns:36px 1fr}
+ .tr-agenda strong{font-size:24px}
+ [data-dv-slide]{padding:82px 22px 30px;gap:24px}
+ [data-dv-slide]>h2{font-size:36px;padding-top:0!important;max-width:100%}
+ [data-dv-slide] .tr-counts,[data-dv-slide] .tr-review{grid-template-columns:1fr}
+ [data-dv-slide] .dv-chart svg{max-height:none}
+ [data-dv-slide] .dv-chart [data-dv-zoom-view]{max-height:340px}
+ [data-dv-slide] .tr-flow figure>svg{height:auto;max-height:510px}
+ [data-dv-slide] .tr-sources th:first-child{width:36%}
+ [data-dv-slide] .tr-sources td,[data-dv-slide] .tr-sources th{font-size:16px}
+ [data-dv-slide] .tr-agenda a{grid-template-columns:36px 1fr;padding:22px 0}
+ [data-dv-slide] .tr-agenda small{font-size:16px}
+ .dv-composition-cover>h2{font-size:58px}
+ .dv-brand{width:205px;right:22px;top:22px;max-width:205px}
+ [data-dv-controls]{gap:5px;justify-content:center}
+ [data-dv-controls] button{font-size:14px;padding:6px 8px}
+ [data-dv-controls] select{max-width:140px;font-size:14px}
+ .tr-cover-line{font-size:26px!important}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+@media(forced-colors:active){[data-dv-page],[data-dv-native]{scrollbar-color:auto}}
+@media print{
+ @page{size:A4;margin:16mm}
+ body{background:#fff;color:#102f44;font:11pt/1.45 Arial,sans-serif}
+ [data-dv-page]{max-width:none!important;box-shadow:none;background:#fff}
+ [data-dv-page]>header{padding:0 0 16pt;background:#fff;break-after:avoid}
+ header>svg{width:180pt;margin-bottom:16pt}
+ header h1{font-size:34pt;max-width:none;margin-bottom:0}
+ [data-dv-section]{padding:18pt 0;background:#fff!important;color:#102f44!important;--tone:#067b83;--text:#102f44;--surface:#fff;break-inside:avoid}
+ [data-dv-section]>h2{font-size:22pt;max-width:none;margin-bottom:14pt}
+ [data-dv-section] p,.tr-review-note p,.tr-lead p{font-size:11pt;line-height:1.45}
+ [data-dv-section] .tr-kicker{font-size:9pt}
+ #agenda{display:none}
+ #review-path{break-before:page}
+ #scope{break-before:page}
+ .tr-counts{grid-template-columns:1.1fr 1fr;gap:22pt}
+ .tr-review{grid-template-columns:1.1fr 1fr;gap:20pt}
+ .tr-flow figure>svg{max-height:380pt}
+ .tr-totals strong{font-size:28pt}
+ .tr-totals span,figcaption,.tr-flow figcaption,.dv-chart figcaption{font-size:10pt}
+ .tr-scope-display{font-size:26pt!important}
+ table,.tr-sources table,.tr-discrepancy p,.tr-reliability p{font-size:10pt}
+ .dv-directory,[data-dv-zoom-view]{max-height:none!important;overflow:visible!important}
+ .dv-chart svg{width:100%!important;min-width:0!important;max-height:none!important}
+ .dv-figure-tools,.dv-legend,.tr-link,.tr-return{display:none!important}
+ details{display:block!important}details::details-content{display:block!important;height:auto!important;content-visibility:visible!important}
+ details>summary{display:none!important}details>table{display:table!important}
+ .tr-sources th:first-child{width:32%}
+}
+[data-dv-page]{max-width:46rem;margin-inline:auto}</style><main data-dv-page data-aspect="portrait">
+<header><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#067b83" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#102f44">Tide Research</text></svg><h1>Tide sensor pilot</h1>
+<button data-dv-open>Presentation Mode</button>
+</header>
+<nav class="dv-top-menu"><a href="#page-title">Top</a><button data-dv-open>Presentation Mode</button></nav>
+<span id="page-title"></span>
+<section id="overview" data-dv-section="overview" data-theme="dark">
+<h2>An illustrative two-station trial</h2><div class="tr-overview"><p class="tr-kicker">Overview</p><div class="tr-lead"><div data-dv-unit="qualifier"><p>Synthetic measurements for illustration; not operational or clinical results.</p></div></div><a class="tr-link" href="#observed-counts">Read the observations</a></div>
+</section>
+<section id="agenda" data-dv-section="agenda" data-theme="light">
+<h2>Inside the pilot</h2><div class="tr-agenda" role="navigation" aria-label="Pilot agenda"><a href="#observed-counts"><span >01</span><strong >Observed counts</strong><small >Station values and the unresolved total</small></a><a href="#review-path"><span >02</span><strong >Review path</strong><small >Accepted records and the rejection loop</small></a><a href="#scope"><span >03</span><strong >Scope</strong><small >Units and limits on interpretation</small></a><a href="#sources"><span >04</span><strong >Source appendix</strong><small >The three local evidence sources</small></a></div>
+</section>
+<section id="observed-counts" data-dv-section="observed-counts" data-theme="dark">
+<span id="counts"></span>
+<h2>Observed counts</h2><div class="tr-counts"><div class="tr-plot"><div data-dv-unit="count-chart"><figure data-dv-figure="dv-page-figure-5" class="dv-chart"><figcaption>North and South observations</figcaption><div data-dv-native data-dv-zoom-view tabindex="0" aria-label="Chart plot; scroll to inspect"><svg viewBox="0 0 760 340" role="img" aria-label="North and South observations"><path d="M150 240.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="140" y="246.000" text-anchor="end">0</text><path d="M150 135.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="140" y="141.000" text-anchor="end">10.0</text><path d="M150 30.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="140" y="36.000" text-anchor="end">20</text><text x="277.500" y="272" text-anchor="middle">North</text><text x="532.500" y="272" text-anchor="middle">South</text><g data-dv-series-marks="0" fill="#b65b14" stroke="#b65b14"><rect data-dv-animate="comparison" data-dv-mark x="188.250" y="114.000" width="176.500" height="126.000"><title>Observed count, North: 12 observations</title></rect><rect data-dv-animate="comparison" data-dv-mark x="443.250" y="51.000" width="176.500" height="189.000"><title>Observed count, South: 18 observations</title></rect></g><text x="405" y="310" text-anchor="middle">Station</text><text transform="translate(36 135) rotate(-90)" text-anchor="middle">Observations</text></svg></div><div class="dv-legend"><button data-dv-series="0" aria-pressed="true">Observed count</button></div><div class="dv-figure-tools"><label>Zoom <input data-dv-zoom type="range" min="1" max="3" step=".25" value="1"></label><button data-dv-figure-reset>Reset figure</button></div><details><summary>Exact chart values</summary><table><thead><tr><th>Category</th><th>Observed count</th></tr></thead><tbody><tr><th>North</th><td>12</td></tr><tr><th>South</th><td>18</td></tr></tbody></table></details></figure></div></div><div class="tr-count-context"><p class="tr-kicker">Station table</p><div data-dv-unit="count-table"><div data-dv-native tabindex="0" class="dv-directory"><table><thead><tr><th>Station</th><th>Observed count</th></tr></thead><tbody><tr><td>North</td><td>12</td></tr><tr><td>South</td><td>18</td></tr></tbody></table></div></div><div class="tr-totals"><div ><strong >31</strong><span >Reported total</span></div><div ><strong >30</strong><span >Computed total</span></div></div><div class="tr-discrepancy"><div data-dv-unit="discrepancy"><p>The reported total is 31; the component values sum to 30. This discrepancy is unresolved.</p></div></div><div class="tr-reliability"><div data-dv-unit="reliability"><p>Reliability is unavailable.</p></div></div></div></div>
+</section>
+<section id="review-path" data-dv-section="review-path" data-theme="light">
+<span id="review"></span>
+<h2>A review loop with a return path</h2><div class="tr-review"><div class="tr-flow"><div data-dv-unit="review-diagram"><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 590 600" role="img" aria-label="Instrument to Queue to Analyst to Archive. Rejected records return from Analyst to Queue.">
+<defs><marker id="dv-page-figure-10-arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M1 1L11 6L1 11Z" fill="currentColor" /></marker></defs>
+<g fill="none" stroke="currentColor" stroke-width="3" marker-end="url(#dv-page-figure-10-arrow)">
+<path data-edge="Instrument-Queue" data-dv-animate="process" data-dv-step="0" data-dv-mark="" d="M220 100V165" />
+<path data-edge="Queue-Analyst" data-dv-animate="process" data-dv-step="1" data-dv-mark="" d="M220 245V310" />
+<path data-edge="Analyst-Archive" data-dv-animate="process" data-dv-step="2" data-dv-mark="" d="M220 390V470" />
+<path data-edge="Analyst-Queue" data-dv-animate="process" data-dv-step="3" data-dv-mark="" d="M390 350C565 350 565 205 390 205" />
+</g>
+<g fill="none" stroke="currentColor" stroke-width="2"><rect x="50" y="20" width="340" height="80" rx="14" /><rect x="50" y="165" width="340" height="80" rx="14" /><rect x="50" y="310" width="340" height="80" rx="14" /><rect x="50" y="470" width="340" height="80" rx="14" /></g>
+<g fill="currentColor" font-family="Arial, sans-serif" font-size="34" text-anchor="middle"><text x="220" y="71">Instrument</text><text x="220" y="216">Queue</text><text x="220" y="361">Analyst</text><text x="220" y="521">Archive</text></g>
+<g fill="currentColor" font-family="Arial, sans-serif" font-size="30"><text x="245" y="444">Accepted</text><text x="400" y="282">Rejected</text></g>
+</svg><figcaption>Accepted records move to Archive. Rejected records return to Queue.</figcaption></figure></div></div><div class="tr-review-note"><p class="tr-kicker">From observation to archive</p><div data-dv-unit="review-description"><p>Instrument sends observations to Queue; Queue sends them to Analyst; Analyst sends accepted records to Archive. Rejected records return from Analyst to Queue.</p></div><p class="tr-return">Rejected records return to Queue for review.</p></div></div>
+</section>
+<section id="scope" data-dv-section="scope" data-theme="dark">
+<h2>What these counts can tell us</h2><div class="tr-scope"><p class="tr-scope-display">Two stations.<br />Observation counts.</p><div ><div data-dv-unit="scope-text"><p>The trial covers two stations. Counts are observations, not percentages. No error bars or confidence intervals were provided.</p></div></div></div>
+</section>
+<section id="sources" data-dv-section="sources" data-theme="light">
+<h2>Source appendix</h2><div class="tr-sources"><div data-dv-unit="source-table"><div data-dv-native tabindex="0" class="dv-directory"><table><thead><tr><th>Local source</th><th>Content</th></tr></thead><tbody><tr><td>pilot.docx</td><td>Overview, observed counts, review path and scope</td></tr><tr><td>observations.csv</td><td>North: 12; South: 18 observations</td></tr><tr><td>review-path.svg</td><td>Four directed links, including the rejected-records return</td></tr></tbody></table></div></div></div>
+</section>
+</main><p data-dv-status role="status"></p>
+<div data-dv-deck hidden><div class="dv-stage">
+<section id="slide-1" data-dv-slide="cover" data-theme="light" class="dv-composition-cover" hidden><h2>Tide sensor pilot</h2>
+<div class="dv-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#067b83" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#102f44">Tide Research</text></svg></div>
+<div class="tr-cover"><p class="tr-cover-line">Counts, review and the limits of the evidence.</p><div class="tr-cover-qualifier"><div data-dv-unit="qualifier"><p>Synthetic measurements for illustration; not operational or clinical results.</p></div></div><p class="tr-kicker">Tide Research</p></div>
+
+</section>
+<section id="slide-2" data-dv-slide="agenda" data-theme="dark" class="dv-composition-agenda" hidden><h2>Inside the pilot</h2>
+<div class="dv-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#80d3d2" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#f7f3e9">Tide Research</text></svg></div>
+<div class="tr-agenda" role="navigation" aria-label="Pilot agenda"><a href="#observed-counts"><span >01</span><strong >Observed counts</strong><small >Station values and the unresolved total</small></a><a href="#review-path"><span >02</span><strong >Review path</strong><small >Accepted records and the rejection loop</small></a><a href="#scope"><span >03</span><strong >Scope</strong><small >Units and limits on interpretation</small></a><a href="#sources"><span >04</span><strong >Source appendix</strong><small >The three local evidence sources</small></a></div>
+
+</section>
+<section id="slide-3" data-dv-slide="counts" data-theme="light" class="dv-composition-counts" hidden><h2>Two counts. One unresolved total.</h2>
+<div class="dv-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#067b83" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#102f44">Tide Research</text></svg></div>
+<div class="tr-counts"><div class="tr-plot"><div data-dv-unit="count-chart"><figure data-dv-figure="dv-deck-figure-20" class="dv-chart"><figcaption>North and South observations</figcaption><div data-dv-native data-dv-zoom-view tabindex="0" aria-label="Chart plot; scroll to inspect"><svg viewBox="0 0 760 340" role="img" aria-label="North and South observations"><path d="M150 240.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="140" y="246.000" text-anchor="end">0</text><path d="M150 135.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="140" y="141.000" text-anchor="end">10.0</text><path d="M150 30.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="140" y="36.000" text-anchor="end">20</text><text x="277.500" y="272" text-anchor="middle">North</text><text x="532.500" y="272" text-anchor="middle">South</text><g data-dv-series-marks="0" fill="#b65b14" stroke="#b65b14"><rect data-dv-animate="comparison" data-dv-mark x="188.250" y="114.000" width="176.500" height="126.000"><title>Observed count, North: 12 observations</title></rect><rect data-dv-animate="comparison" data-dv-mark x="443.250" y="51.000" width="176.500" height="189.000"><title>Observed count, South: 18 observations</title></rect></g><text x="405" y="310" text-anchor="middle">Station</text><text transform="translate(36 135) rotate(-90)" text-anchor="middle">Observations</text></svg></div><div class="dv-legend"><button data-dv-series="0" aria-pressed="true">Observed count</button></div><div class="dv-figure-tools"><label>Zoom <input data-dv-zoom type="range" min="1" max="3" step=".25" value="1"></label><button data-dv-figure-reset>Reset figure</button></div><details><summary>Exact chart values</summary><table><thead><tr><th>Category</th><th>Observed count</th></tr></thead><tbody><tr><th>North</th><td>12</td></tr><tr><th>South</th><td>18</td></tr></tbody></table></details></figure></div></div><div class="tr-count-context"><p class="tr-kicker">Station table</p><div data-dv-unit="count-table"><div data-dv-native tabindex="0" class="dv-directory"><table><thead><tr><th>Station</th><th>Observed count</th></tr></thead><tbody><tr><td>North</td><td>12</td></tr><tr><td>South</td><td>18</td></tr></tbody></table></div></div><div class="tr-totals"><div ><strong >31</strong><span >Reported total</span></div><div ><strong >30</strong><span >Computed total</span></div></div><div class="tr-discrepancy"><div data-dv-unit="discrepancy"><p>The reported total is 31; the component values sum to 30. This discrepancy is unresolved.</p></div></div><div class="tr-reliability"><div data-dv-unit="reliability"><p>Reliability is unavailable.</p></div></div></div></div>
+
+</section>
+<section id="slide-4" data-dv-slide="review" data-theme="dark" class="dv-composition-review" hidden><h2>The review path</h2>
+<div class="dv-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#80d3d2" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#f7f3e9">Tide Research</text></svg></div>
+<div class="tr-review"><div class="tr-flow"><div data-dv-unit="review-diagram"><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 590 600" role="img" aria-label="Instrument to Queue to Analyst to Archive. Rejected records return from Analyst to Queue.">
+<defs><marker id="dv-deck-figure-25-arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M1 1L11 6L1 11Z" fill="currentColor" /></marker></defs>
+<g fill="none" stroke="currentColor" stroke-width="3" marker-end="url(#dv-deck-figure-25-arrow)">
+<path data-edge="Instrument-Queue" data-dv-animate="process" data-dv-step="0" data-dv-mark="" d="M220 100V165" />
+<path data-edge="Queue-Analyst" data-dv-animate="process" data-dv-step="1" data-dv-mark="" d="M220 245V310" />
+<path data-edge="Analyst-Archive" data-dv-animate="process" data-dv-step="2" data-dv-mark="" d="M220 390V470" />
+<path data-edge="Analyst-Queue" data-dv-animate="process" data-dv-step="3" data-dv-mark="" d="M390 350C565 350 565 205 390 205" />
+</g>
+<g fill="none" stroke="currentColor" stroke-width="2"><rect x="50" y="20" width="340" height="80" rx="14" /><rect x="50" y="165" width="340" height="80" rx="14" /><rect x="50" y="310" width="340" height="80" rx="14" /><rect x="50" y="470" width="340" height="80" rx="14" /></g>
+<g fill="currentColor" font-family="Arial, sans-serif" font-size="34" text-anchor="middle"><text x="220" y="71">Instrument</text><text x="220" y="216">Queue</text><text x="220" y="361">Analyst</text><text x="220" y="521">Archive</text></g>
+<g fill="currentColor" font-family="Arial, sans-serif" font-size="30"><text x="245" y="444">Accepted</text><text x="400" y="282">Rejected</text></g>
+</svg><figcaption>Accepted records move to Archive. Rejected records return to Queue.</figcaption></figure></div></div><div class="tr-review-note"><p class="tr-kicker">From observation to archive</p><div data-dv-unit="review-description"><p>Instrument sends observations to Queue; Queue sends them to Analyst; Analyst sends accepted records to Archive. Rejected records return from Analyst to Queue.</p></div><p class="tr-return">Rejected records return to Queue for review.</p></div></div>
+
+</section>
+<section id="slide-5" data-dv-slide="scope" data-theme="light" class="dv-composition-scope" hidden><h2>Scope and source appendix</h2>
+<div class="dv-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#067b83" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#102f44">Tide Research</text></svg></div>
+<div class="tr-scope-slide"><div data-dv-unit="scope-text"><p>The trial covers two stations. Counts are observations, not percentages. No error bars or confidence intervals were provided.</p></div></div>
+
+<div class="tr-sources"><div data-dv-unit="source-table"><div data-dv-native tabindex="0" class="dv-directory"><table><thead><tr><th>Local source</th><th>Content</th></tr></thead><tbody><tr><td>pilot.docx</td><td>Overview, observed counts, review path and scope</td></tr><tr><td>observations.csv</td><td>North: 12; South: 18 observations</td></tr><tr><td>review-path.svg</td><td>Four directed links, including the rejected-records return</td></tr></tbody></table></div></div></div>
+
+</section>
+</div><nav data-dv-controls aria-label="Presentation controls"><button data-dv-prev><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M16 4L8 12L16 20"/></svg>Back</button><button data-dv-replay><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 8A8 8 0 1 1 4 16M5 2V8H11"/></svg>Replay</button><span data-dv-count aria-live="polite"></span><select data-dv-picker aria-label="Go to slide"></select><button data-dv-next><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 4L16 12L8 20"/></svg>Next</button><button data-dv-fullscreen><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 9V3H9M15 3H21V9M21 15V21H15M9 21H3V15"/></svg>Fullscreen</button><button data-dv-exit><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 5L19 19M19 5L5 19"/></svg>Exit</button></nav></div>
+<script type="application/json" id="handbook-record">{"build": {"assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d", "assets/dual-view-runtime.js": "f7892e0de19b83f40cf27680ef81199a4e6fd72b2c5c26f9d3f42ec570adcaff", "assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35", "assets/theme.json": "46a8d331bb277f1d6049da735f3ae5adf8ac60cfd81968685e3d3cc2ae321604", "scripts/build_presentation.py": "5c1525156ed9875703791c9f3293970356e64e8ec6b5de3c0c37904232bacea2", "scripts/dual_view.py": "2e9c79c7027310bdcead71cdfb8381a9be59e8f6a2b1093b9cc2c3c449fb47aa"}, "design": {"aliases": {"counts": "observed-counts", "review": "review-path"}, "brand_asset": "private-rebuild/pilot/inputs/brand.svg", "brand_variants": {"dark": "private-rebuild/pilot/assets/brand-dark.svg", "light": "private-rebuild/pilot/inputs/brand.svg"}, "compact_breakpoints": [760], "content_intent": {"assumptions": [{"statement": "Measurements are synthetic", "status": "accepted"}, {"statement": "Two stations are in scope", "status": "bounded"}, {"statement": "Reliability is unavailable", "status": "needs-verification"}], "decision_to_enable": "Understand the counts, discrepancy and review path within the stated limitations", "exclusions": ["Operational or clinical inference", "Reconciliation of the contradictory total", "Additional imagery", "Network research"], "scope_class": "working-demonstration", "source_relationship": "faithful-adaptation"}, "coverage_reconciliation": {"observations.csv": "rendered: both exact counts as interactive bars and table", "pilot.docx": "rendered: four source headings, table and every factual qualifier", "review-path.svg": "reconstructed: all four nodes and directed edges, high confidence"}, "direction": "Tide field notes: editorial hierarchy, prominent count comparison and a curved review loop", "gate_a": "pass: all source facts and qualifications mapped before HTML generation", "gate_b": "pass: count comparison and directed review loop explain source relationships", "imagery": "none", "intake": {"notes": [], "presentation": {"depth": "deep-dive", "enabled": true, "theme": "mixed"}, "provenance": {"images": "explicit", "interactivity": "explicit", "layout": "explicit", "mode": "explicit", "presentation": "explicit", "presentation_depth": "explicit", "presentation_theme": "explicit", "style": "explicit", "theme": "explicit", "verbosity": "explicit"}, "questions": [], "status": "resolved", "values": {"images": "none", "interactivity": "balanced", "layout": "portrait", "mode": "report", "presentation": "yes", "presentation_depth": "deep-dive", "presentation_theme": "mixed", "style": "Editorial research report with varied evidence-led compositions", "theme": "brand.json", "verbosity": "comprehensive"}}, "interactivity": "balanced", "layout": "portrait", "reading_themes": ["dark", "light", "dark", "light", "dark", "light"], "reading_verbosity": "comprehensive", "seed": 90731, "sticky_layers": [], "stylesheet": "private-rebuild/pilot/style.css", "tokens": {"accent": "#067b83", "font": "Arial, sans-serif", "ink": "#102f44", "motion": "Simultaneous chart entry; causal process entry; no ambient loop", "paper": "#f7f3e9", "space": "clamp(20px, 3vw, 64px)"}, "visual_contracts": [{"encoding": "Equal linear observation axis; source counts determine bar heights", "evidence": "pilot.docx table and observations.csv", "fallback": "Complete static chart and source table", "figure": "counts", "message": "North 12 and South 18 sum to 30, distinct from the reported 31", "question": "How many observations are reported at each station?", "states": ["initial", "zoomed", "series hidden", "exact values open", "reset"], "trigger": "Zoom slider, legend, exact values disclosure and reset"}, {"encoding": "Arrowheads indicate all four directed edges; curved edge is return", "evidence": "pilot.docx Review path and review-path.svg", "fallback": "All nodes, labels and edges are visible", "figure": "review", "message": "Analyst sends accepted records to Archive and rejected records back to Queue", "question": "Where do accepted and rejected records go?", "states": ["initial", "mid entry", "complete", "replay"], "trigger": "Slide entry or Replay"}]}, "figures": ["counts", "review"], "presentation": {"depth": "deep-dive", "enabled": true, "initial_slide": 1, "omissions": {}, "slide_budget": 5, "slides": [{"composition": "cover", "fragments": {"overview": "private-rebuild/pilot/fragments/cover.html"}, "heading": "Tide sensor pilot", "id": "cover", "source_ids": ["overview"]}, {"composition": "agenda", "fragments": {"agenda": "private-rebuild/pilot/fragments/agenda.html"}, "heading": "Inside the pilot", "id": "agenda", "source_ids": ["agenda"]}, {"composition": "counts", "fragments": {"observed-counts": "private-rebuild/pilot/fragments/counts.html"}, "heading": "Two counts. One unresolved total.", "id": "counts", "source_ids": ["observed-counts"]}, {"composition": "review", "fragments": {"review-path": "private-rebuild/pilot/fragments/review.html"}, "heading": "The review path", "id": "review", "source_ids": ["review-path"]}, {"composition": "scope", "fragments": {"scope": "private-rebuild/pilot/fragments/scope-slide.html", "sources": "private-rebuild/pilot/fragments/sources.html"}, "heading": "Scope and source appendix", "id": "scope", "source_ids": ["scope", "sources"]}], "theme": "mixed", "theme_sequence": ["light", "dark", "light", "dark", "light"]}, "schema_version": 1, "sections": ["overview", "agenda", "observed-counts", "review-path", "scope", "sources"], "sources": {"private-rebuild/pilot/assets/brand-dark.svg": "4f68a3098de349c8fcb3d377d308eff5cfb571ce75038bd4e91eaf1cd9d020f6", "private-rebuild/pilot/assets/review-flow.svg": "9801e074d69d37f462f3a8e2a5e4f58f4caf53b67a510ea7f22d9ec0de41b570", "private-rebuild/pilot/design-seed.json": "24979215cda9a13926338343a5c97854b5dbbb68ad85f55a8ed50485fbac7091", "private-rebuild/pilot/enriched-extraction.json": "37eb8ae089101fa23d8ae72d75bcfa0a5cc68a14a83dd7f6dbced18056a5d35a", "private-rebuild/pilot/extracted.json": "a3c8b2d80ec8f026b187b3fc9f283e63647f31e26b476a6d9090c6dfc595c77b", "private-rebuild/pilot/figure-worksheet.json": "80b166ef920bce93eb1db7f78696ce62bcc377afbb945e1b0e2e0442816a558d", "private-rebuild/pilot/fragments/agenda.html": "caeae2744ab13a00dc089f4fa6d1e7ed1ddf07faab3eef27072889a41e1efd32", "private-rebuild/pilot/fragments/counts.html": "611f7fe4d8d0d038ddc45e190244efebc1cfc5bccba7c611e4ad81b9d379d29c", "private-rebuild/pilot/fragments/cover.html": "9ad669a8482cec6317e2cea386edc640a12698a157ba0951d391a46e7c199648", "private-rebuild/pilot/fragments/overview.html": "7f7a31de9962811d93807c2cec59092d00293f508008160d5b44da831a593642", "private-rebuild/pilot/fragments/review.html": "dd3b54eb2779f0014e99ad13c90263e2a4505080bc2cd8afec03371a353e6764", "private-rebuild/pilot/fragments/scope-slide.html": "1a3718981d2344610f99a15e9dbcea154a4a4b6613bc5e74c7f8e28061cc5a02", "private-rebuild/pilot/fragments/scope.html": "c2ee5417b99cc22dec4cd4730615408cad790857ae06f67c3af2dcd19dae6ef0", "private-rebuild/pilot/fragments/sources.html": "4db71d19713ec1e141bc232310ecdc0f28bae27b21278124dd1a7dc10576b770", "private-rebuild/pilot/inputs/brand.json": "e016a8e75963c9f6f18dc75f399fccad003c437f61ecc43e2d0c7671fdf03e08", "private-rebuild/pilot/inputs/brand.svg": "d6e0c308638d150cbc75d7c7f75117830320d749963376caf4f3a83d23034141", "private-rebuild/pilot/inputs/brief.md": "b4498487be1b95613b1c0f914400c98db576bb53d6e5712f1c65d43d827086f0", "private-rebuild/pilot/inputs/observations.csv": "c332dff832017390085b3f3eeb173565b9aad9ee626f46855dac0e6decc9587b", "private-rebuild/pilot/inputs/pilot.docx": "8eb9a960dfdb6ac5c724828d6b3abd732637dca22cd8e3bd8c387956fc2306b7", "private-rebuild/pilot/inputs/review-path.svg": "1a3c3cd1457afec66f38acc9921984aa2ac6ed6c84fbb90b5e9134bc9fe86c39", "private-rebuild/pilot/model.json": "0bdd8ccd6567898dc792b6357581a404564c8be9317ced75e6e77110e0d45275", "private-rebuild/pilot/resolved-options.json": "2e6b7a1a9e450931c71189f72a2ccfb4dcb23b64012ce243db5225af5c8bb048", "private-rebuild/pilot/source-map.json": "ba475f741fec353589d60a0b0e084bbd31e18cbdde3518058ac7a58d5155dbe5", "private-rebuild/pilot/style.css": "4c93d3c0fb4d3d300a0e85d264b5af2acc04273682b8c20fe1a4ec76a8fa0216"}, "status": "requires-rendered-factual-and-design-qualification"}</script>
+<script>/* Independent figure interactions for either view; canonical data stays untouched. */
+(() => {
+  'use strict';
+  document.addEventListener('click', event => {
+    const reset = event.target.closest('[data-dv-figure-reset]');
+    if (reset) {
+      const figure = reset.closest('figure');
+      const zoom = figure.querySelector('[data-dv-zoom]');
+      zoom.value = '1';
+      zoom.dispatchEvent(new Event('input', { bubbles: true }));
+      figure.querySelectorAll('[data-dv-series][aria-pressed="false"]').forEach(button => button.click());
+      figure.querySelectorAll('[data-dv-zoom-view]').forEach(view => view.scrollTo(0, 0));
+    }
+    const toggle = event.target.closest('[data-dv-series]');
+    if (toggle) {
+      const figure = toggle.closest('[data-dv-figure]');
+      const visible = toggle.getAttribute('aria-pressed') !== 'true';
+      toggle.setAttribute('aria-pressed', String(visible));
+      figure.querySelectorAll('[data-dv-series-marks]').forEach(group => {
+        if (group.dataset.dvSeriesMarks === toggle.dataset.dvSeries) group.style.display = visible ? '' : 'none';
+      });
+    }
+    const region = event.target.closest('[data-dv-region]');
+    if (region) {
+      const figure = region.closest('[data-dv-map]');
+      figure.querySelector('[data-dv-map-status]').textContent = region.dataset.dvRegion;
+      figure.querySelectorAll('[data-region]').forEach(node => {
+        node.dataset.selected = String(node.dataset.region === region.dataset.dvRegion);
+      });
+    }
+    const enlarge = event.target.closest('[data-dv-enlarge]');
+    if (enlarge) {
+      const image = enlarge.querySelector('img').cloneNode(true);
+      image.removeAttribute('id');
+      const dialog = document.createElement('dialog');
+      dialog.className = 'dv-enlargement';
+      dialog.setAttribute('aria-label', image.alt || 'Enlarged image');
+      const close = document.createElement('button');
+      close.textContent = 'Close image';
+      close.addEventListener('click', () => dialog.close());
+      dialog.append(image, close);
+      (enlarge.closest('[data-dv-deck]') || document.body).append(dialog);
+      dialog.addEventListener('close', () => { dialog.remove(); enlarge.focus({ preventScroll: true }); }, { once: true });
+      dialog.showModal();
+      close.focus();
+    }
+  });
+  document.addEventListener('input', event => {
+    if (event.target.matches('[data-dv-zoom]')) {
+      const svg = event.target.closest('figure').querySelector('[data-dv-zoom-view] > svg');
+      svg.style.maxWidth = 'none';
+      svg.style.width = `${Number(event.target.value) * 100}%`;
+      svg.style.maxHeight = Number(event.target.value) === 1 ? '' : 'none';
+      return;
+    }
+    if (!event.target.matches('[data-dv-map-search]')) return;
+    const query = event.target.value.toLocaleLowerCase();
+    const figure = event.target.closest('[data-dv-map]');
+    let count = 0;
+    figure.querySelectorAll('[data-dv-region]').forEach(region => {
+      region.hidden = !region.dataset.dvRegion.toLocaleLowerCase().includes(query);
+      if (!region.hidden) count += 1;
+    });
+    figure.querySelector('[data-dv-map-status]').textContent = `${count} matching regions`;
+  });
+})();
+</script>
+<script>/* Offline presentation lifecycle for retained, independently authored views. */
+(() => {
+  'use strict';
+  const page = document.querySelector('[data-dv-page]');
+  const deck = document.querySelector('[data-dv-deck]');
+  if (!page || !deck) return;
+  const slides = Array.from(deck.querySelectorAll('[data-dv-slide]'));
+  const controls = deck.querySelector('[data-dv-controls]');
+  const count = deck.querySelector('[data-dv-count]');
+  const picker = deck.querySelector('[data-dv-picker]');
+  const status = document.querySelector('[data-dv-status]');
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const events = new AbortController();
+  const signal = events.signal;
+  let active = false, index = 0, generation = 0, origin = null;
+  let scroll = 0, readingURL = location.href, oldOverflow = '';
+  let wasFullscreen = false, keepFitted = false, touch = null;
+  let fullscreenExitPending = null;
+  let animations = [];
+  let readingAnimations = [];
+  const nativeInput = 'input,textarea,select,button,a,[contenteditable]:not([contenteditable="false"]),[data-dv-native],dialog[open]';
+  const on = (target, event, callback, options = {}) =>
+    target.addEventListener(event, callback, { ...options, signal });
+  const announce = message => { if (status) status.textContent = message; };
+  const focusables = () => Array.from(deck.querySelectorAll('button,a[href],input,select,textarea,[tabindex]'))
+    .filter(el => !el.disabled && el.tabIndex >= 0 && !el.closest('[hidden],[inert]') && el.getClientRects().length);
+
+  function stopMotion() {
+    animations.forEach(animation => animation.cancel());
+    animations = [];
+    slides.forEach(slide => slide.dispatchEvent(new CustomEvent('dv:deactivate')));
+  }
+
+  function play() {
+    stopMotion();
+    if (!active || document.hidden) return;
+    const slide = slides[index];
+    slide.dispatchEvent(new CustomEvent('dv:activate', { detail: { reducedMotion: motion.matches } }));
+    if (motion.matches) return;
+    slide.querySelectorAll('[data-dv-animate]').forEach(el => {
+      const step = Math.max(0, Number(el.dataset.dvStep) || 0);
+      const delay = el.dataset.dvAnimate === 'process' ? step * 130 : 0;
+      const mark = el.hasAttribute('data-dv-mark');
+      const frames = mark
+        ? [{ clipPath: 'inset(0 100% 0 0)', opacity: 0 }, { clipPath: 'inset(0 0 0 0)', opacity: 1 }]
+        : [{ opacity: 0 }, { opacity: 1 }];
+      animations.push(el.animate(frames, { duration: 550, delay, fill: 'both', easing: 'ease-out' }));
+    });
+  }
+
+  function fit() {
+    if (controls) deck.style.setProperty('--dv-controls-height', `${controls.getBoundingClientRect().height}px`);
+  }
+
+  function show(next, history = true) {
+    if (!active || !Number.isInteger(next)) return;
+    index = Math.max(0, Math.min(slides.length - 1, next));
+    slides.forEach((slide, i) => {
+      slide.hidden = i !== index;
+      slide.inert = i !== index;
+      slide.setAttribute('aria-hidden', String(i !== index));
+    });
+    deck.dataset.theme = slides[index].dataset.theme || 'light';
+    count.textContent = `${index + 1} / ${slides.length}`;
+    if (picker) picker.value = String(index);
+    const previous = deck.querySelector('[data-dv-prev]');
+    const nextButton = deck.querySelector('[data-dv-next]');
+    if (previous) previous.disabled = index === 0;
+    if (nextButton) nextButton.disabled = index === slides.length - 1;
+    if (history && location.hash !== `#slide-${index + 1}`)
+      window.history.pushState(null, '', `#slide-${index + 1}`);
+    const heading = slides[index].querySelector('h1,h2,h3');
+    if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
+    play();
+    fit();
+  }
+
+  async function fullscreen() {
+    if (!deck.requestFullscreen || !active) return;
+    const request = generation;
+    try {
+      if (fullscreenExitPending) await fullscreenExitPending;
+      if (request !== generation || !active) return;
+      await deck.requestFullscreen();
+      if (request !== generation || !active) {
+        if (document.fullscreenElement === deck && !active) await document.exitFullscreen();
+        return;
+      }
+      wasFullscreen = document.fullscreenElement === deck;
+      fit();
+    } catch (_) {
+      if (active) announce('Fullscreen unavailable. Presentation remains available in this window.');
+    }
+  }
+
+  function open(next = 0, userGesture = false, history = true) {
+    if (!Number.isInteger(next)) { announce('Invalid presentation target.'); return; }
+    if (!active) {
+      generation += 1;
+      origin = document.activeElement;
+      scroll = window.scrollY;
+      readingURL = location.hash.startsWith('#slide-') ? location.href.split('#')[0] : location.href;
+      oldOverflow = document.documentElement.style.overflow;
+      active = true;
+      deck.hidden = false;
+      deck.inert = false;
+      page.inert = true;
+      page.setAttribute('aria-hidden', 'true');
+      readingAnimations = page.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running');
+      readingAnimations.forEach(animation => animation.pause());
+      page.hidden = true;
+      page.dispatchEvent(new CustomEvent('dv:deactivate'));
+      document.documentElement.style.overflow = 'hidden';
+    }
+    show(next, history);
+    if (userGesture) void fullscreen();
+  }
+
+  function close(history = true) {
+    if (!active) return;
+    generation += 1;
+    const closingGeneration = generation;
+    active = false;
+    wasFullscreen = false;
+    keepFitted = false;
+    const fullscreenExit = fullscreenExitPending || (document.fullscreenElement === deck
+      ? document.exitFullscreen().catch(() => {}) : null);
+    fullscreenExitPending = fullscreenExit;
+    stopMotion();
+    deck.querySelectorAll('dialog[open]').forEach(dialog => dialog.close());
+    deck.hidden = true;
+    deck.inert = true;
+    page.inert = false;
+    page.hidden = false;
+    page.removeAttribute('aria-hidden');
+    readingAnimations.forEach(animation => animation.play());
+    readingAnimations = [];
+    page.dispatchEvent(new CustomEvent('dv:activate', { detail: { reducedMotion: motion.matches } }));
+    document.documentElement.style.overflow = oldOverflow;
+    if (history) window.history.replaceState(null, '', readingURL);
+    const restoreReading = () => {
+      if (fullscreenExitPending === fullscreenExit) fullscreenExitPending = null;
+      if (active) {
+        if (!deck.contains(document.activeElement))
+          slides[index].querySelector('h1,h2,h3')?.focus({ preventScroll: true });
+        return;
+      }
+      if (generation !== closingGeneration) return;
+      window.scrollTo(0, scroll);
+      if (origin && origin.isConnected) origin.focus({ preventScroll: true });
+    };
+    if (fullscreenExit) void fullscreenExit.then(restoreReading);
+    else restoreReading();
+  }
+
+  function fromHash() {
+    const match = /^#slide-([1-9]\d*)$/.exec(location.hash);
+    if (match && Number(match[1]) <= slides.length) open(Number(match[1]) - 1, false, false);
+    else {
+      if (active) close(false);
+      if (location.hash.startsWith('#slide-')) announce('Unknown slide. The reading page remains available.');
+    }
+  }
+
+  if (!slides.length || !controls || !count) {
+    announce('Presentation is unavailable: the retained storyboard is empty or incomplete.');
+    return;
+  }
+  deck.setAttribute('role', 'dialog');
+  deck.setAttribute('aria-modal', 'true');
+  deck.setAttribute('aria-label', 'Presentation');
+  deck.inert = true;
+  slides.forEach((slide, i) => { if (!slide.id) slide.id = `slide-${i + 1}`; });
+  document.documentElement.dataset.dvReady = 'true';
+  if (picker) slides.forEach((slide, i) => {
+    const option = document.createElement('option');
+    option.value = String(i);
+    option.textContent = `${i + 1}. ${slide.dataset.title || slide.querySelector('h1,h2,h3')?.textContent || 'Slide'}`;
+    picker.append(option);
+  });
+  on(document, 'click', event => {
+    const trigger = event.target.closest('[data-dv-open],[data-dv-chapter]');
+    if (!trigger || trigger.closest('[inert]')) return;
+    if (trigger.hasAttribute('data-dv-open')) open(0, true);
+    else {
+      const target = slides.findIndex(slide => slide.dataset.dvSlide === trigger.dataset.dvChapter);
+      if (target >= 0) open(target, true);
+      else announce('This chapter has no presentation target.');
+    }
+  });
+  on(deck, 'click', event => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    if (button.hasAttribute('data-dv-exit')) close();
+    if (button.hasAttribute('data-dv-next')) show(index + 1);
+    if (button.hasAttribute('data-dv-prev')) show(index - 1);
+    if (button.hasAttribute('data-dv-replay')) play();
+    if (button.hasAttribute('data-dv-fullscreen')) {
+      if (document.fullscreenElement === deck) {
+        keepFitted = true;
+        void document.exitFullscreen().catch(() => { keepFitted = false; });
+      } else void fullscreen();
+    }
+  });
+  if (picker) on(picker, 'change', () => show(Number(picker.value)));
+  on(document, 'keydown', event => {
+    if (!active || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return;
+    const nested = deck.querySelector('dialog[open]');
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      if (nested && document.fullscreenElement !== deck) nested.close();
+      else close();
+      return;
+    }
+    if (nested) return;
+    if (event.key === 'Tab') {
+      const items = focusables();
+      const current = items.indexOf(document.activeElement);
+      if (items.length && (current < 0 || (event.shiftKey && current === 0) || (!event.shiftKey && current === items.length - 1))) {
+        event.preventDefault();
+        items[event.shiftKey ? items.length - 1 : 0].focus();
+      }
+      return;
+    }
+    if (event.target.closest(nativeInput)) return;
+    const delta = { ArrowRight: 1, ArrowDown: 1, PageDown: 1, ' ': 1, ArrowLeft: -1, ArrowUp: -1, PageUp: -1 }[event.key];
+    if (delta) { event.preventDefault(); show(index + delta); }
+    if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault(); show(event.key === 'Home' ? 0 : slides.length - 1);
+    }
+  });
+  on(deck, 'pointerdown', event => {
+    touch = event.pointerType === 'touch' && !event.target.closest(nativeInput)
+      ? { x: event.clientX, y: event.clientY, id: event.pointerId } : null;
+  });
+  on(deck, 'pointerup', event => {
+    if (!touch || event.pointerId !== touch.id) return;
+    const dx = event.clientX - touch.x, dy = event.clientY - touch.y;
+    touch = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 2) show(index + (dx < 0 ? 1 : -1));
+  });
+  on(deck, 'pointercancel', () => { touch = null; });
+  on(document, 'fullscreenchange', () => {
+    if (fullscreenExitPending) { fit(); return; }
+    if (document.fullscreenElement === deck) wasFullscreen = true;
+    else if (wasFullscreen) {
+      wasFullscreen = false;
+      if (keepFitted) keepFitted = false;
+      else close();
+    }
+    fit();
+  });
+  on(window, 'hashchange', fromHash);
+  on(window, 'popstate', fromHash);
+  on(window, 'resize', fit);
+  on(document, 'visibilitychange', () => document.hidden ? stopMotion() : play());
+  on(motion, 'change', play);
+  const resize = new ResizeObserver(fit);
+  resize.observe(controls);
+  window.NexusDualView = Object.freeze({
+    open: next => open(next), close, next: () => show(index + 1), previous: () => show(index - 1), replay: play,
+    snapshot: () => ({ active, index, count: slides.length, animations: animations.length, fullscreen: document.fullscreenElement === deck }),
+    destroy: () => { close(); events.abort(); resize.disconnect(); delete document.documentElement.dataset.dvReady; }
+  });
+  fromHash();
+})();
+</script>
+</html>

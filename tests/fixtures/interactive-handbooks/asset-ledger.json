@@ -12,7 +12,7 @@
     },
     {
       "path": "flow.svg",
-      "sha256": "22d5fea7ba60e317db472bce00f42776cac89e3f85595b0005bc5d2638f4493f",
+      "sha256": "8bb562552792e5948b438310b6fc72b8ac555837f09f5bcf7a7a1a2e4f800d28",
       "role": "Directed acquisition-to-review graph",
       "precision": "original vector edges and labels",
       "confidential": false,

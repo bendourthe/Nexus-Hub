@@ -48,6 +48,10 @@ Full walkthrough: [step-1-library-selection.md](references/step-1-library-select
 
 Full walkthrough: [step-2-python-python-docx-fundamentals.md](references/step-2-python-python-docx-fundamentals.md) (load this step when you reach it).
 
+For fixed-width tables, follow that reference's grid-and-cell sizing procedure before export. A valid DOCX package and complete extracted text do not establish that a table fits the native Word page.
+
+For an explicit brand font, use the same reference's theme-override procedure and verify the fonts resolved by the native renderer.
+
 ### Step 3: Template-Based Generation with docxtpl
 
 Full walkthrough: [step-3-template-based-generation-with-docxtpl.md](references/step-3-template-based-generation-with-docxtpl.md) (load this step when you reach it).
@@ -99,6 +103,7 @@ Full walkthrough: [step-8-testing-and-validation.md](references/step-8-testing-a
 - [ ] The generated file is a structurally valid DOCX (a ZIP archive containing the required OOXML parts)
 - [ ] No unreplaced template tags (`{{` or `{%`) remain in any generated document
 - [ ] A content-extraction test confirms every expected data field appears in the rendered output
+- [ ] Actual native page renders show every table, image and text run within its intended page or column bounds; unavailable native rendering remains unverified
 - [ ] The batch generator records per-record failures without aborting the whole run
 - [ ] Document properties (title, author, subject) are set on `core_properties`
 - [ ] A CI smoke test renders the template with sample (including empty-list and None) data and passes

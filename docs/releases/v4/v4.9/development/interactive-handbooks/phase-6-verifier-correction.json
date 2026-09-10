@@ -1,0 +1,25 @@
+{
+  "change": "Settle only presentation-deck animations; paused reading animations are expected while presentation is active.",
+  "authoring_intervention": "none; frozen installed bundles and author-produced files remain unchanged",
+  "frozen_installed_measurement_sha256": "4a6517b08b1cd8f7513f69d93b1e509e6f960f5cabff9874b1168b61b8562b70",
+  "independent_verifier_sha256": "01b4f7295a3c9ac238da58a418e0cf5df6108cfc17ea3e9aa47b98a3ef2eba26",
+  "final_requirement": "Regrade unchanged final artifacts with the corrected verifier and retain both first-build and final results.",
+  "typography_correction": {
+    "owner": "responsive-typography.md section 4 and svg-diagram-quality.md",
+    "old_default_floors": {
+      "heading": 24,
+      "body": 18,
+      "label": 12
+    },
+    "current_owner_floors": {
+      "heading": 16,
+      "body": 16,
+      "label": 13,
+      "interactive": 12
+    },
+    "inventory_policy": "Explicit floors may strengthen but not weaken owning rules",
+    "regressions": "16px body passes; 15px body fails despite lower declared floor; 12.5px SVG label fails",
+    "active_repository_retry": "Installed verifier remains frozen at its original retry hash; independent final grading uses the corrected verifier"
+  },
+  "current_independent_verifier_sha256": "578bdde94a507ad3ecf49de3b9ba22bb018fde41cdb64f169c27471f85f12119"
+}

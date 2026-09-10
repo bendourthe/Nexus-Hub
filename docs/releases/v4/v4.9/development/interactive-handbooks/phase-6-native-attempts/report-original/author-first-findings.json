@@ -1,0 +1,32 @@
+{
+  "round": 0,
+  "artifact": "qa/first-build.html",
+  "sha256": "8c3ac0a433b0ae3089bae8790b860a1b7ef6d0fdafdc3f7232f5f3c96b182987",
+  "snapshot_policy": "Exact first successful generated HTML bytes saved before QA or corrections. Two assembler contract errors occurred before any HTML was produced.",
+  "measurement_evidence": "qa/round-0/measurements.json",
+  "measurement_rows": 260,
+  "measurement_viewports": 13,
+  "measurement_status": "fail",
+  "raw_measurement_findings": 1029,
+  "screenshots": "qa/round-0/screenshots.json",
+  "screenshot_count": 260,
+  "screenshots_reviewed_for_initial_findings": ["qa/round-0/contact-sheets/1366x768-reading.png", "qa/round-0/contact-sheets/1366x768-slides.png", "qa/round-0/contact-sheets/390x844-reading.png", "qa/round-0/contact-sheets/390x844-slides.png", "qa/round-0/source-review-path.svg.png"],
+  "factual_gate": {"status": "pass", "basis": "Manual comparison with extracted Word paragraphs, Word table, CSV and rendered supplied SVG: North 12, South 18, reported 31, computed 30, unavailable reliability, synthetic non-operational/non-clinical scope, two stations, count units, absent error bars/confidence intervals and all four directed edges retained."},
+  "structural_gate": {"status": "fail", "evidence": "qa/round-0/structural.json"},
+  "rendered_behavior_gate": {"status": "fail", "evidence": "qa/round-0/behavior.json"},
+  "positive_design_gate": {"status": "needs correction", "basis": "Authentic mark, alternating paper/ink sections, prominent directed graph and varied compositions are present. Mobile axis labels crowd and the desktop cover title is too small."},
+  "findings": [
+    {"id": "F01", "severity": "high", "finding": "Source register h3 renders at 21.6 px at minimum root size, below frozen 24 px heading floor.", "action": "Increase source register heading scale."},
+    {"id": "F02", "severity": "high", "finding": "Reading chart labels reach 10.41 px at an intermediate width; mobile y-axis labels also crowd ticks.", "action": "Fit chart type to the actual plot width and separate tick/axis geometry."},
+    {"id": "F03", "severity": "medium", "finding": "Short-height CSS overrides the cover title to a content-heading size, weakening cover hierarchy.", "action": "Keep the cover-specific display size above the compact-height override."},
+    {"id": "F04", "severity": "high", "finding": "Axis state is stored on a figure using the same data attribute as the select, so reset can select the wrong element after axis interaction.", "action": "Separate state and control attributes; retest reset."},
+    {"id": "F05", "severity": "review", "finding": "First behavioral harness includes an evaluated function-assignment error and immediate timing assertions. Nested Escape, hash and scroll restoration need isolated retests.", "action": "Preserve this run, correct only harness mistakes, rerun real controls."},
+    {"id": "F06", "severity": "review", "finding": "Detector repeatedly treats intentional ch-based prose measures and text passing behind opaque sticky navigation as defects. Structural scorer also mistakes a play icon for an arrowhead and print pt units for zero-size text.", "action": "Retain raw findings; recompose real defects and explicitly adjudicate confirmed heuristic false positives without editing installed skills."}
+  ],
+  "desktop_stage_overflow": false,
+  "no_js_and_print": "pass",
+  "reduced_motion_fullscreen_denial_escape": "pass (installed measurement exercise)",
+  "outbound_requests": 0,
+  "console_errors_in_capture": 0,
+  "corrections_applied_before_this_record": 0
+}

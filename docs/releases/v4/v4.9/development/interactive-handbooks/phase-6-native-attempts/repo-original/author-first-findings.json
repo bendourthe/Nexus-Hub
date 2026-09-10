@@ -1,0 +1,3168 @@
+{
+  "sha256": "5f15fefe9c8411ae18d198973d9d3d349154e706d1025741735d58585cecedfe",
+  "bytes": 84148,
+  "correction_count": 0,
+  "recorded_at": "2026-09-09T22:13:32.899555+00:00",
+  "actual_rows": 504,
+  "viewports": [
+    [
+      2560,
+      1300
+    ],
+    [
+      1920,
+      1080
+    ],
+    [
+      1366,
+      768
+    ],
+    [
+      390,
+      844
+    ],
+    [
+      1600,
+      900
+    ],
+    [
+      1024,
+      850
+    ],
+    [
+      1024,
+      851
+    ],
+    [
+      2560,
+      720
+    ],
+    [
+      759,
+      900
+    ],
+    [
+      760,
+      900
+    ],
+    [
+      761,
+      900
+    ],
+    [
+      762,
+      900
+    ],
+    [
+      1024,
+      640
+    ],
+    [
+      320,
+      844
+    ]
+  ],
+  "actual_behaviors": [
+    {
+      "name": "source functions and rendered admission boundary",
+      "status": "pass",
+      "observed": {
+        "attempts": 3,
+        "admitted": {
+          "0": true,
+          "23": true,
+          "24": false,
+          "25": false
+        }
+      }
+    },
+    {
+      "name": "global entries reset; fullscreen denial; Escape; reading restoration",
+      "status": "fail",
+      "error": "Page.evaluate: Error: controlled denial\n    at Element.requestFullscreen (eval at evaluate (:311:30), <anonymous>:1:56)\n    at UtilityScript.evaluate (<anonymous>:318:18)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+    },
+    {
+      "name": "navigation and independent figure state",
+      "status": "pass",
+      "observed": "Chapter, next, previous, Home, End, picker, input key ownership and instance independence matched."
+    },
+    {
+      "name": "nested inspector zoom pan and Escape focus",
+      "status": "pass",
+      "observed": "Zoom reached 150%; nested Escape retained deck and restored inspector opener, then exited to reading."
+    },
+    {
+      "name": "deep links history and original anchors",
+      "status": "pass",
+      "observed": "All five slide hashes, back/forward, invalid hash fallback and original anchors worked."
+    },
+    {
+      "name": "automatic process build Replay lifetime reduced motion",
+      "status": "pass",
+      "observed": {
+        "process_animations_at_260ms": 6,
+        "replay": "restarted",
+        "inactive_deck": "stopped",
+        "reduced_motion": "complete static state"
+      }
+    },
+    {
+      "name": "native fullscreen entry and both exits",
+      "status": "pass",
+      "observed": "Native fullscreen, fitted toggle and native fullscreen exit exercised in Chromium."
+    },
+    {
+      "name": "offline no-JS and print",
+      "status": "fail",
+      "error": "no-JS duplicate deck"
+    }
+  ],
+  "actual_geometry_failures": [
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "initial",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "mid",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        1300
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "initial",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "mid",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "initial",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "mid",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1366,
+        768
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "initial",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "mid",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1600,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "initial",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "mid",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        850
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "initial",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "mid",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        851
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "initial",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "mid",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        2560,
+        720
+      ],
+      "view": "presentation",
+      "id": "configuration",
+      "state": "input-invalid",
+      "clipped": [],
+      "outside_stage": [
+        {
+          "selector": "P",
+          "text": "attempts() returns the retry limit; it does not run retries. Timeout e",
+          "bounds": {
+            "x": 102.390625,
+            "y": 627.984375,
+            "width": 2355.21875,
+            "height": 31.296875,
+            "right": 2457.609375,
+            "bottom": 659.28125
+          }
+        }
+      ],
+      "svg": []
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "initial",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "mid",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        761,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "initial",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "mid",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        762,
+        900
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "reading",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "observation",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "queue",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "analyst",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "archive",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "all",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "initial",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "mid",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    },
+    {
+      "viewport": [
+        1024,
+        640
+      ],
+      "view": "presentation",
+      "id": "workflow",
+      "state": "final",
+      "clipped": [],
+      "outside_stage": [],
+      "svg": [
+        {
+          "collisions": [],
+          "node_escapes": [
+            "Incoming field observation",
+            "Admission: queue_size < 24",
+            "Reviews queued observations"
+          ]
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "high",
+      "status": "confirmed",
+      "finding": "Desktop process detail labels escape node boxes and one label escapes the viewBox; screenshot confirmed."
+    },
+    {
+      "id": "F02",
+      "severity": "high",
+      "status": "confirmed",
+      "finding": "No-JS page exposes Presentation Mode buttons because authored .op-primary display overrides the runtime absence guard."
+    },
+    {
+      "id": "F03",
+      "severity": "high",
+      "status": "confirmed",
+      "finding": "Configuration invalid-input state exceeds available desktop stage at 2560x720; generous spacing must recompose."
+    },
+    {
+      "id": "F04",
+      "severity": "medium",
+      "status": "confirmed",
+      "finding": "Installed measure stops after 7 rows because entering presentation pauses an in-progress reading reveal; paused finite animations do not settle."
+    },
+    {
+      "id": "F05",
+      "severity": "medium",
+      "status": "confirmed",
+      "finding": "Retained metadata lacks the installed schema presentation.slides, theme_sequence and slide_budget fields, despite actual five correct slides."
+    },
+    {
+      "id": "F06",
+      "severity": "medium",
+      "status": "confirmed",
+      "finding": "Display text line boxes overlap slightly; add leading and number-to-label spacing."
+    },
+    {
+      "id": "F07",
+      "severity": "high",
+      "status": "needs_rendered_contrast_disposition",
+      "finding": "Static scorer treats brand accent and dark-only light accent as text on every background. Actual usage must be measured; brand mark must remain faithful."
+    },
+    {
+      "id": "F08",
+      "severity": "low",
+      "status": "refuted",
+      "finding": "Offscreen skip link and screen-reader-only caption trigger detector overflow. These are intentional accessible hidden elements, not content loss."
+    },
+    {
+      "id": "F09",
+      "severity": "low",
+      "status": "refuted",
+      "finding": "Exact Queue operations lookup misses the intentional two-line title; whitespace-normalized text preserves the title."
+    },
+    {
+      "id": "F10",
+      "severity": "low",
+      "status": "test_harness_error",
+      "finding": "Fullscreen-denial assignment expression auto-invokes its returned function in Playwright; rerun with a braced setup function."
+    }
+  ],
+  "gates": {
+    "factual": "pass",
+    "structural": "fail",
+    "rendered_behavioral": "fail",
+    "positive_design": "non-pass until process label repair"
+  },
+  "inspected_screenshots": [
+    "qa/round-0/reading-1366.png",
+    "qa/round-0/workflow-1366.png",
+    "qa/round-0/screenshots/390x844-presentation-workflow-final.png",
+    "qa/round-0/screenshots/1024x851-presentation-appendix-final.png",
+    "qa/round-0/screenshots/2560x720-presentation-configuration-final.png"
+  ],
+  "raw_evidence": "qa/round-0/",
+  "missing_coverage": [
+    "Installed measurement aborted before full matrix; custom measured matrix completed.",
+    "Rendered contrast measurements pending.",
+    "First denial and print assertions need follow-up."
+  ]
+}

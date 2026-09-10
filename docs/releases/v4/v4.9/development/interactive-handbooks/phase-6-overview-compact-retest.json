@@ -1,0 +1,2590 @@
+{
+  "status": "fail",
+  "output_sha256": "c37ebf69f2870b58ff5d655d4f42890129caeb9bd88e20852c37d45b325e3a11",
+  "rows": [
+    {
+      "view": "reading",
+      "id": "purpose",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 27,
+          "text": "One catalog, several hosts"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Nexus-Hub stores reusable skills, commands, hooks and rules."
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "CatalogReusable source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Local bundleInstalled files"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "AssistantHost discovery"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "One catalog, several hosts"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 334,
+          "height": 244.6875,
+          "area": 81725.625
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 686,
+      "scrollHeight": 686,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 157.1875,
+        "width": 390,
+        "height": 686.984375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "authoring",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 27,
+          "text": "Start with the skill source"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Each skill lives under catalog/skills/category/name/SKILL.md"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "FrontmatterName and trigger"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ProcedureSteps and checks"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ResourcesLoad on demand"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Start with the skill source"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 334,
+          "height": 244.6875,
+          "area": 81725.625
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 686,
+      "scrollHeight": 686,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 78.171875,
+        "width": 390,
+        "height": 686.984375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "validation",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 27,
+          "text": "Check before distribution"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "scripts/validate_skills.py validates required frontmatter, s"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Source structureValidate locally"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Registry agreementCompare metadata"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Host behaviorStill needs a real run"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Check before distribution"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 334,
+          "height": 244.6875,
+          "area": 81725.625
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 717,
+      "scrollHeight": 717,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 126.15625,
+        "width": 390,
+        "height": 717.578125
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "delivery",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 27,
+          "text": "Adapt the shape at the boundary"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "The platform adapters can flatten category folders, synthesi"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Flattened skillsCategory removed"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Native commandsHost slash format"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Command as skillExplicit invocation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Adapt the shape at the boundary"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 334,
+          "height": 267.6875,
+          "area": 89407.625
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 740,
+      "scrollHeight": 740,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 102.734375,
+        "width": 390,
+        "height": 741.03125
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "proof",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 27,
+          "text": "Test the delivered capability"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "A source-file test cannot prove installation. Exercise the i"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "BuildMatch source bytes"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "OpenInspect both views"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ExerciseObserve the host"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Test the delivered capability"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 334,
+          "height": 244.6875,
+          "area": 81725.625
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 717,
+      "scrollHeight": 717,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 125.765625,
+        "width": 390,
+        "height": 718.03125
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "purpose",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "One catalog, several hosts"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Nexus-Hub stores reusable skills, commands, hooks and rules."
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "CatalogReusable source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Local bundleInstalled files"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "AssistantHost discovery"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "One catalog, several hosts"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 288.296875,
+          "area": 98597.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 679,
+      "scrollHeight": 679,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 679.03125
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "purpose",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "One catalog, several hosts"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Nexus-Hub stores reusable skills, commands, hooks and rules."
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "CatalogReusable source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Local bundleInstalled files"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "AssistantHost discovery"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "One catalog, several hosts"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 288.296875,
+          "area": 98597.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 679,
+      "scrollHeight": 679,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 679.03125
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "purpose",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "One catalog, several hosts"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Nexus-Hub stores reusable skills, commands, hooks and rules."
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "CatalogReusable source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Local bundleInstalled files"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "AssistantHost discovery"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "One catalog, several hosts"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 288.296875,
+          "area": 98597.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 679,
+      "scrollHeight": 679,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 679.03125
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "authoring",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Start with the skill source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Each skill lives under catalog/skills/category/name/SKILL.md"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "FrontmatterName and trigger"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ProcedureSteps and checks"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ResourcesLoad on demand"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Start with the skill source"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 288.296875,
+          "area": 98597.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 679,
+      "scrollHeight": 679,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 679.03125
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "authoring",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Start with the skill source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Each skill lives under catalog/skills/category/name/SKILL.md"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "FrontmatterName and trigger"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ProcedureSteps and checks"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ResourcesLoad on demand"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Start with the skill source"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 288.296875,
+          "area": 98597.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 679,
+      "scrollHeight": 679,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 679.03125
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "authoring",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Start with the skill source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Each skill lives under catalog/skills/category/name/SKILL.md"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "FrontmatterName and trigger"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ProcedureSteps and checks"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ResourcesLoad on demand"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Start with the skill source"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 288.296875,
+          "area": 98597.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 679,
+      "scrollHeight": 679,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 679.03125
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "validation",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Check before distribution"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "scripts/validate_skills.py validates required frontmatter, s"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Source structureValidate locally"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Registry agreementCompare metadata"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Host behaviorStill needs a real run"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Check before distribution"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 288.296875,
+          "area": 98597.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 679,
+      "scrollHeight": 679,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 679.03125
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "validation",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Check before distribution"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "scripts/validate_skills.py validates required frontmatter, s"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Source structureValidate locally"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Registry agreementCompare metadata"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Host behaviorStill needs a real run"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Check before distribution"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 288.296875,
+          "area": 98597.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 679,
+      "scrollHeight": 679,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 679.03125
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "validation",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Check before distribution"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "scripts/validate_skills.py validates required frontmatter, s"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Source structureValidate locally"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Registry agreementCompare metadata"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Host behaviorStill needs a real run"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Check before distribution"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 288.296875,
+          "area": 98597.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 679,
+      "scrollHeight": 679,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 679.03125
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "delivery",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Adapt the shape at the boundary"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "The platform adapters can flatten category folders, synthesi"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Flattened skillsCategory removed"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Native commandsHost slash format"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Command as skillExplicit invocation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Adapt the shape at the boundary"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 275.296875,
+          "area": 94151.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 695,
+      "scrollHeight": 695,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 695.296875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "delivery",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Adapt the shape at the boundary"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "The platform adapters can flatten category folders, synthesi"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Flattened skillsCategory removed"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Native commandsHost slash format"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Command as skillExplicit invocation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Adapt the shape at the boundary"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 275.296875,
+          "area": 94151.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 695,
+      "scrollHeight": 695,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 695.296875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "delivery",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Adapt the shape at the boundary"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "The platform adapters can flatten category folders, synthesi"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Flattened skillsCategory removed"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Native commandsHost slash format"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Command as skillExplicit invocation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Adapt the shape at the boundary"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 275.296875,
+          "area": 94151.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 695,
+      "scrollHeight": 695,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 695.296875
+      },
+      "detector_findings": [
+        {
+          "rule": "parent-padding-escape",
+          "severity": "high",
+          "selector": "#slide-4",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "measurements": {
+            "child": {
+              "left": 0,
+              "top": 0,
+              "right": 390,
+              "bottom": 695.3
+            },
+            "parent_padding_box": {
+              "left": 0,
+              "top": 0,
+              "right": 390,
+              "bottom": 679.03
+            },
+            "excess_px": {
+              "left": 0,
+              "right": 0,
+              "top": 0,
+              "bottom": 16.27
+            },
+            "tolerance_px": 1
+          },
+          "message": "Element escapes its parent's padding box"
+        }
+      ]
+    },
+    {
+      "view": "presentation",
+      "id": "proof",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Test the delivered capability"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "A source-file test cannot prove installation. Exercise the i"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "BuildMatch source bytes"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "OpenInspect both views"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ExerciseObserve the host"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Test the delivered capability"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 288.296875,
+          "area": 98597.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 708,
+      "scrollHeight": 708,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 708.296875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "proof",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Test the delivered capability"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "A source-file test cannot prove installation. Exercise the i"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "BuildMatch source bytes"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "OpenInspect both views"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ExerciseObserve the host"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Test the delivered capability"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 288.296875,
+          "area": 98597.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 708,
+      "scrollHeight": 708,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 708.296875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "proof",
+      "viewport": [
+        390,
+        844
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Test the delivered capability"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "A source-file test cannot prove installation. Exercise the i"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "BuildMatch source bytes"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "OpenInspect both views"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ExerciseObserve the host"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Test the delivered capability"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 342,
+          "height": 288.296875,
+          "area": 98597.53125
+        }
+      ],
+      "clipped": [],
+      "width": 390,
+      "scrollWidth": 390,
+      "height": 708,
+      "scrollHeight": 708,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 708.296875
+      },
+      "detector_findings": [
+        {
+          "rule": "parent-padding-escape",
+          "severity": "high",
+          "selector": "#slide-5",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "measurements": {
+            "child": {
+              "left": 0,
+              "top": 0,
+              "right": 390,
+              "bottom": 708.3
+            },
+            "parent_padding_box": {
+              "left": 0,
+              "top": 0,
+              "right": 390,
+              "bottom": 679.03
+            },
+            "excess_px": {
+              "left": 0,
+              "right": 0,
+              "top": 0,
+              "bottom": 29.27
+            },
+            "tolerance_px": 1
+          },
+          "message": "Element escapes its parent's padding box"
+        }
+      ]
+    },
+    {
+      "view": "reading",
+      "id": "purpose",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 27,
+          "text": "One catalog, several hosts"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Nexus-Hub stores reusable skills, commands, hooks and rules."
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "CatalogReusable source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Local bundleInstalled files"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "AssistantHost discovery"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "One catalog, several hosts"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 331.453125,
+          "height": 244.6875,
+          "area": 81102.4365234375
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 467,
+      "scrollHeight": 467,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 291.46875,
+        "width": 761,
+        "height": 468
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "authoring",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 27,
+          "text": "Start with the skill source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Each skill lives under catalog/skills/category/name/SKILL.md"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "FrontmatterName and trigger"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ProcedureSteps and checks"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ResourcesLoad on demand"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Start with the skill source"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 331.453125,
+          "height": 244.6875,
+          "area": 81102.4365234375
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 489,
+      "scrollHeight": 489,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 409.46875,
+        "width": 761,
+        "height": 490.234375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "validation",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 27,
+          "text": "Check before distribution"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "scripts/validate_skills.py validates required frontmatter, s"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Source structureValidate locally"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Registry agreementCompare metadata"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Host behaviorStill needs a real run"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Check before distribution"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 331.453125,
+          "height": 244.6875,
+          "area": 81102.4365234375
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 523,
+      "scrollHeight": 523,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 375.703125,
+        "width": 761,
+        "height": 524.234375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "delivery",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 27,
+          "text": "Adapt the shape at the boundary"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "The platform adapters can flatten category folders, synthesi"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Flattened skillsCategory removed"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Native commandsHost slash format"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Command as skillExplicit invocation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Adapt the shape at the boundary"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 684.90625,
+          "height": 141.984375,
+          "area": 97245.98583984375
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 517,
+      "scrollHeight": 517,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 381.9375,
+        "width": 761,
+        "height": 518.21875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "proof",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 27,
+          "text": "Test the delivered capability"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "A source-file test cannot prove installation. Exercise the i"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "BuildMatch source bytes"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "OpenInspect both views"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ExerciseObserve the host"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Test the delivered capability"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 331.453125,
+          "height": 244.6875,
+          "area": 81102.4365234375
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 489,
+      "scrollHeight": 489,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 392.15625,
+        "width": 761,
+        "height": 490.234375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "purpose",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "One catalog, several hosts"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Nexus-Hub stores reusable skills, commands, hooks and rules."
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "CatalogReusable source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Local bundleInstalled files"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "AssistantHost discovery"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "One catalog, several hosts"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 339.0625,
+          "height": 288.296875,
+          "area": 97750.6591796875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "purpose",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "One catalog, several hosts"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Nexus-Hub stores reusable skills, commands, hooks and rules."
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "CatalogReusable source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Local bundleInstalled files"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "AssistantHost discovery"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "One catalog, several hosts"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 339.0625,
+          "height": 288.296875,
+          "area": 97750.6591796875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "purpose",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "One catalog, several hosts"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Nexus-Hub stores reusable skills, commands, hooks and rules."
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "CatalogReusable source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Local bundleInstalled files"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "AssistantHost discovery"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "One catalog, several hosts"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 339.0625,
+          "height": 288.296875,
+          "area": 97750.6591796875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "authoring",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Start with the skill source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Each skill lives under catalog/skills/category/name/SKILL.md"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "FrontmatterName and trigger"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ProcedureSteps and checks"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ResourcesLoad on demand"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Start with the skill source"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 339.0625,
+          "height": 288.296875,
+          "area": 97750.6591796875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "authoring",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Start with the skill source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Each skill lives under catalog/skills/category/name/SKILL.md"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "FrontmatterName and trigger"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ProcedureSteps and checks"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ResourcesLoad on demand"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Start with the skill source"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 339.0625,
+          "height": 288.296875,
+          "area": 97750.6591796875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "authoring",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Start with the skill source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Each skill lives under catalog/skills/category/name/SKILL.md"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "FrontmatterName and trigger"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ProcedureSteps and checks"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ResourcesLoad on demand"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Start with the skill source"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 339.0625,
+          "height": 288.296875,
+          "area": 97750.6591796875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "validation",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Check before distribution"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "scripts/validate_skills.py validates required frontmatter, s"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Source structureValidate locally"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Registry agreementCompare metadata"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Host behaviorStill needs a real run"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Check before distribution"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 339.0625,
+          "height": 288.296875,
+          "area": 97750.6591796875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "validation",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Check before distribution"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "scripts/validate_skills.py validates required frontmatter, s"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Source structureValidate locally"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Registry agreementCompare metadata"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Host behaviorStill needs a real run"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Check before distribution"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 339.0625,
+          "height": 288.296875,
+          "area": 97750.6591796875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "validation",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Check before distribution"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "scripts/validate_skills.py validates required frontmatter, s"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Source structureValidate locally"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Registry agreementCompare metadata"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Host behaviorStill needs a real run"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Check before distribution"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 339.0625,
+          "height": 288.296875,
+          "area": 97750.6591796875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "delivery",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Adapt the shape at the boundary"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "The platform adapters can flatten category folders, synthesi"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Flattened skillsCategory removed"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Native commandsHost slash format"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Command as skillExplicit invocation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Adapt the shape at the boundary"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 700.125,
+          "height": 143.59375,
+          "area": 100533.57421875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "delivery",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Adapt the shape at the boundary"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "The platform adapters can flatten category folders, synthesi"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Flattened skillsCategory removed"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Native commandsHost slash format"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Command as skillExplicit invocation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Adapt the shape at the boundary"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 700.125,
+          "height": 143.59375,
+          "area": 100533.57421875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "delivery",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Adapt the shape at the boundary"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "The platform adapters can flatten category folders, synthesi"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Flattened skillsCategory removed"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Native commandsHost slash format"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Command as skillExplicit invocation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Adapt the shape at the boundary"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 700.125,
+          "height": 143.59375,
+          "area": 100533.57421875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "proof",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Test the delivered capability"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "A source-file test cannot prove installation. Exercise the i"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "BuildMatch source bytes"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "OpenInspect both views"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ExerciseObserve the host"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Test the delivered capability"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 339.0625,
+          "height": 288.296875,
+          "area": 97750.6591796875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "proof",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Test the delivered capability"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "A source-file test cannot prove installation. Exercise the i"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "BuildMatch source bytes"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "OpenInspect both views"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ExerciseObserve the host"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Test the delivered capability"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 339.0625,
+          "height": 288.296875,
+          "area": 97750.6591796875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "proof",
+      "viewport": [
+        761,
+        900
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30,
+          "text": "Test the delivered capability"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "A source-file test cannot prove installation. Exercise the i"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "BuildMatch source bytes"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "OpenInspect both views"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "ExerciseObserve the host"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Test the delivered capability"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 339.0625,
+          "height": 288.296875,
+          "area": 97750.6591796875
+        }
+      ],
+      "clipped": [],
+      "width": 761,
+      "scrollWidth": 761,
+      "height": 777,
+      "scrollHeight": 777,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 761,
+        "height": 776.9375
+      },
+      "detector_findings": []
+    }
+  ],
+  "errors": [
+    "delivery: parent-padding-escape",
+    "proof: parent-padding-escape"
+  ],
+  "qualitative_review": "required separately",
+  "verification_scope": "rendered geometry, inventory and declared browser behaviors",
+  "browser": "Chromium 151.0.7922.34",
+  "no_js_and_print": "pass",
+  "reduced_motion_fullscreen_fallback_escape": "pass",
+  "font_px": {
+    "min": 14,
+    "mean": 20.5,
+    "max": 30
+  },
+  "coverage": {
+    "sections": 5,
+    "slides": 5,
+    "measured_states": 40
+  },
+  "fail_count": 2
+}

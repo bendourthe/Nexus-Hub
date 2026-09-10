@@ -1,0 +1,15 @@
+{
+  "method": "V8 precise block ranges mapped to first code position of each nonblank code line",
+  "runtime_sha256": "f7892e0de19b83f40cf27680ef81199a4e6fd72b2c5c26f9d3f42ec570adcaff",
+  "line_coverage_percent": 98.21,
+  "covered": 220,
+  "total": 224,
+  "runtime_observations": 19,
+  "uncovered_lines": [
+    145,
+    166,
+    167,
+    188
+  ],
+  "pytest_exit_code": 1
+}

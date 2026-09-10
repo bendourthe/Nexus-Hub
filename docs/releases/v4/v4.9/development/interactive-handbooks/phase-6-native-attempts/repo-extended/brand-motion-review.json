@@ -1,0 +1,157 @@
+{
+  "artifact_sha256": "c9848525d658c736afd15fe9d8787014d7efc991d0a09da2071c807f7df2cb55",
+  "slides": [
+    {
+      "id": "cover",
+      "slide_bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 700,
+        "top": 0,
+        "right": 1366,
+        "bottom": 700,
+        "left": 0
+      },
+      "brand_bounds": {
+        "x": 47.796875,
+        "y": 71.609375,
+        "width": 220,
+        "height": 38.5,
+        "top": 71.609375,
+        "right": 267.796875,
+        "bottom": 110.109375,
+        "left": 47.796875
+      },
+      "brand_side": "left",
+      "animation_targets": [],
+      "animations": []
+    },
+    {
+      "id": "agenda",
+      "slide_bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 700,
+        "top": 0,
+        "right": 1366,
+        "bottom": 700,
+        "left": 0
+      },
+      "brand_bounds": {
+        "x": 47.796875,
+        "y": 169.8125,
+        "width": 220,
+        "height": 38.5,
+        "top": 169.8125,
+        "right": 267.796875,
+        "bottom": 208.3125,
+        "left": 47.796875
+      },
+      "brand_side": "left",
+      "animation_targets": [],
+      "animations": []
+    },
+    {
+      "id": "flow",
+      "slide_bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 700,
+        "top": 0,
+        "right": 1366,
+        "bottom": 700,
+        "left": 0
+      },
+      "brand_bounds": {
+        "x": 47.796875,
+        "y": 45.40625,
+        "width": 220,
+        "height": 38.5,
+        "top": 45.40625,
+        "right": 267.796875,
+        "bottom": 83.90625,
+        "left": 47.796875
+      },
+      "brand_side": "left",
+      "animation_targets": [
+        {
+          "tag": "DIV",
+          "classes": "af-graph-pair",
+          "kind": "process",
+          "step": null
+        }
+      ],
+      "animations": [
+        {
+          "target": "DIV",
+          "timing": {
+            "delay": 0,
+            "direction": "normal",
+            "duration": 550,
+            "easing": "ease-out",
+            "endDelay": 0,
+            "fill": "both",
+            "iterationStart": 0,
+            "iterations": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "limits",
+      "slide_bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 700,
+        "top": 0,
+        "right": 1366,
+        "bottom": 700,
+        "left": 0
+      },
+      "brand_bounds": {
+        "x": 47.796875,
+        "y": 92.75,
+        "width": 220,
+        "height": 38.5,
+        "top": 92.75,
+        "right": 267.796875,
+        "bottom": 131.25,
+        "left": 47.796875
+      },
+      "brand_side": "left",
+      "animation_targets": [],
+      "animations": []
+    },
+    {
+      "id": "appendix",
+      "slide_bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 700,
+        "top": 0,
+        "right": 1366,
+        "bottom": 700,
+        "left": 0
+      },
+      "brand_bounds": {
+        "x": 47.796875,
+        "y": 139.34375,
+        "width": 220,
+        "height": 38.5,
+        "top": 139.34375,
+        "right": 267.796875,
+        "bottom": 177.84375,
+        "left": 47.796875
+      },
+      "brand_side": "left",
+      "animation_targets": [],
+      "animations": []
+    }
+  ],
+  "unchanged": true
+}

@@ -1,0 +1,131 @@
+{
+  "status": "non-pass",
+  "author_status": "qualified-pass",
+  "correction_count": 3,
+  "operator_author_output_repairs": 0,
+  "artifacts": {
+    "docs/handbooks/pilot.html": {
+      "sha256": "2b333f23f7fa6ce24098558a3f37844449dd2cf029099247c2b81097d45171bd",
+      "bytes": 61100
+    },
+    "docs/handbooks/pilot.pdf": {
+      "sha256": "3e931ca8d884dfe7a205735502a9d2e312cf31fe4fedd786f1d455ee8c9adb81",
+      "bytes": 73636
+    },
+    "docs/handbooks/pilot.docx": {
+      "sha256": "b71d7371824e002fead3ee08ce9d211a88338b5feb60f081bdea398976148f5b",
+      "bytes": 102121
+    }
+  },
+  "first_build_sha256": "49e37c1642ba6770511d719cd84c6c3c1c67dd05cafb40b1f86a50a66049ea9b",
+  "independent_html": {
+    "status": "pass",
+    "measured_states": 210,
+    "fail_count": 0,
+    "global_entry_escape_focus": "pass at 1366, 390 and 2560 widths"
+  },
+  "retained_rebuild": {
+    "original_hashes": {
+      "docs/handbooks/pilot.html": "2b333f23f7fa6ce24098558a3f37844449dd2cf029099247c2b81097d45171bd",
+      "docs/handbooks/pilot.pdf": "3e931ca8d884dfe7a205735502a9d2e312cf31fe4fedd786f1d455ee8c9adb81",
+      "docs/handbooks/pilot.docx": "b71d7371824e002fead3ee08ce9d211a88338b5feb60f081bdea398976148f5b"
+    },
+    "steps": [
+      {
+        "arguments": [
+          "--check"
+        ],
+        "exit_code": 0,
+        "output": "READ-ONLY CHECK PASS: retained inputs and all three deliverables match their build records.\r\nVerified retained handbook: 2b333f23f7fa6ce24098558a3f37844449dd2cf029099247c2b81097d45171bd\r\n",
+        "before": {
+          "docs/handbooks/pilot.html": "2b333f23f7fa6ce24098558a3f37844449dd2cf029099247c2b81097d45171bd",
+          "docs/handbooks/pilot.pdf": "3e931ca8d884dfe7a205735502a9d2e312cf31fe4fedd786f1d455ee8c9adb81",
+          "docs/handbooks/pilot.docx": "b71d7371824e002fead3ee08ce9d211a88338b5feb60f081bdea398976148f5b"
+        },
+        "after": {
+          "docs/handbooks/pilot.html": "2b333f23f7fa6ce24098558a3f37844449dd2cf029099247c2b81097d45171bd",
+          "docs/handbooks/pilot.pdf": "3e931ca8d884dfe7a205735502a9d2e312cf31fe4fedd786f1d455ee8c9adb81",
+          "docs/handbooks/pilot.docx": "b71d7371824e002fead3ee08ce9d211a88338b5feb60f081bdea398976148f5b"
+        },
+        "unchanged": true
+      },
+      {
+        "arguments": [],
+        "exit_code": 0,
+        "output": "Exported complete PDF and DOCX.\r\nBuilt retained handbook: 2b333f23f7fa6ce24098558a3f37844449dd2cf029099247c2b81097d45171bd\r\n",
+        "before": {
+          "docs/handbooks/pilot.html": "2b333f23f7fa6ce24098558a3f37844449dd2cf029099247c2b81097d45171bd",
+          "docs/handbooks/pilot.pdf": "3e931ca8d884dfe7a205735502a9d2e312cf31fe4fedd786f1d455ee8c9adb81",
+          "docs/handbooks/pilot.docx": "b71d7371824e002fead3ee08ce9d211a88338b5feb60f081bdea398976148f5b"
+        },
+        "after": {
+          "docs/handbooks/pilot.html": "2b333f23f7fa6ce24098558a3f37844449dd2cf029099247c2b81097d45171bd",
+          "docs/handbooks/pilot.pdf": "3e931ca8d884dfe7a205735502a9d2e312cf31fe4fedd786f1d455ee8c9adb81",
+          "docs/handbooks/pilot.docx": "b71d7371824e002fead3ee08ce9d211a88338b5feb60f081bdea398976148f5b"
+        },
+        "unchanged": true
+      },
+      {
+        "arguments": [
+          "--check"
+        ],
+        "exit_code": 0,
+        "output": "READ-ONLY CHECK PASS: retained inputs and all three deliverables match their build records.\r\nVerified retained handbook: 2b333f23f7fa6ce24098558a3f37844449dd2cf029099247c2b81097d45171bd\r\n",
+        "before": {
+          "docs/handbooks/pilot.html": "2b333f23f7fa6ce24098558a3f37844449dd2cf029099247c2b81097d45171bd",
+          "docs/handbooks/pilot.pdf": "3e931ca8d884dfe7a205735502a9d2e312cf31fe4fedd786f1d455ee8c9adb81",
+          "docs/handbooks/pilot.docx": "b71d7371824e002fead3ee08ce9d211a88338b5feb60f081bdea398976148f5b"
+        },
+        "after": {
+          "docs/handbooks/pilot.html": "2b333f23f7fa6ce24098558a3f37844449dd2cf029099247c2b81097d45171bd",
+          "docs/handbooks/pilot.pdf": "3e931ca8d884dfe7a205735502a9d2e312cf31fe4fedd786f1d455ee8c9adb81",
+          "docs/handbooks/pilot.docx": "b71d7371824e002fead3ee08ce9d211a88338b5feb60f081bdea398976148f5b"
+        },
+        "unchanged": true
+      }
+    ],
+    "operator_author_output_repairs": 0,
+    "collected_originals_unchanged": true
+  },
+  "native_docx": {
+    "ordinary_read_only_open": "pass",
+    "pages": 3,
+    "layout": "fail",
+    "source_unchanged": true,
+    "application_options_changed": false
+  },
+  "delivered_pdf": {
+    "pages": 3,
+    "renderers": [
+      "PDFium",
+      "MuPDF"
+    ],
+    "qpdf_exit_code": 0,
+    "qpdf_output": "checking <qualification-root>\\judge\\report-repaired\\docs\\handbooks\\pilot.pdf\r\nPDF Version: 1.3\r\nFile is not encrypted\r\nFile is not linearized\r\nNo syntax or stream encoding errors found; the file may still contain\r\nerrors that qpdf cannot detect\r\n",
+    "visual_review": "All three PDFium pages and MuPDF pages 1 and 2 inspected; source counts, conflicting totals, caveats and four directed edges preserved"
+  },
+  "high_severity_findings": [
+    {
+      "id": "DOCX-TABLE-WIDTH",
+      "artifact": "docs/handbooks/pilot.docx",
+      "page": 3,
+      "page_width_pt": 595.44,
+      "table_right_pt": 623.64,
+      "cause": "Header cell widths remain 4802/4802 twips while the grid and body cells use 2880/6624; native Word expands the table beyond the page edge",
+      "disposition": "Fresh bounded report invocation required after shared DOCX owner correction"
+    }
+  ],
+  "considered_but_rejected": [
+    {
+      "candidate": "Missing process-slide logo",
+      "reason": "Element-only screenshot crop excluded it; full-window capture confirms the correct supplied mark and wordmark visible at the top right"
+    }
+  ],
+  "additional_finding": {
+    "id": "DOCX-THEME-FONT",
+    "severity": "medium",
+    "cause": "Retained same-element theme attributes resolve some headings to Calibri despite explicit Arial font.name",
+    "diagnostic_result": "Clearing conflicting Latin theme-font attributes renders only Arial and Arial Bold; diagnostic remains excluded from qualification"
+  },
+  "diagnostic_limit": "The width-corrected DOCX is an operator-created diagnostic copy and is excluded from authoring qualification"
+}

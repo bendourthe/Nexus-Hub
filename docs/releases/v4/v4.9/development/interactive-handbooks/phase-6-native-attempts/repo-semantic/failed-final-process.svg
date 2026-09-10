@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 440" width="1180" height="440" role="img" aria-labelledby="pg-title pg-desc" font-family="Arial, Helvetica, sans-serif">
+<title id="pg-title">Observation to queue to analyst to archive</title>
+<desc id="pg-desc">Four-stage flow: Observation enters the Queue, which holds at most 24; the Analyst reviews queued items; approved records move to the Archive. Observation to Queue: enters the queue, admission gated by queue_capacity = 24. Queue to Analyst review: an analyst reviews them, no ordering or selection rule is stated. Analyst review to Archive: approved records are archived, outcome for records that are not approved is not stated. retry_limit = 3: The README says configuration controls retry attempts, but no supplied module implements a retry. The stage this binds to is not stated. timeout_seconds = 8: The README says configuration controls a timeout, but no supplied module implements a timer. The stage this binds to is not stated.</desc>
+<defs><marker id="pg-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b5632f"/></marker></defs>
+<rect width="1180" height="440" fill="#f7f3e9"/>
+<text x="48" y="52" font-size="27" font-weight="bold" fill="#172b3b">Observation to queue to analyst to archive</text>
+<text x="48" y="80" font-size="16" fill="#4a5b68">Aster Fieldworks Queue. Every label is taken from the repository sources.</text>
+<rect x="48" y="116" width="232" height="118" rx="14" fill="#ffffff" stroke="#172b3b" stroke-width="2"/>
+<rect x="48" y="116" width="232" height="6" rx="3" fill="#b5632f"/>
+<text x="66" y="160" font-size="20" font-weight="bold" fill="#172b3b">Observation</text>
+<text x="66" y="186" font-size="15" fill="#4a5b68">Field observation arrives</text>
+<text x="66" y="212" font-size="14" fill="#2f6b74">stage 1 of 4</text>
+<rect x="332" y="116" width="232" height="118" rx="14" fill="#ffffff" stroke="#172b3b" stroke-width="2"/>
+<rect x="332" y="116" width="232" height="6" rx="3" fill="#b5632f"/>
+<text x="350" y="160" font-size="20" font-weight="bold" fill="#172b3b">Queue</text>
+<text x="350" y="186" font-size="15" fill="#4a5b68">Holds at most 24</text>
+<text x="350" y="212" font-size="14" fill="#2f6b74">stage 2 of 4</text>
+<rect x="616" y="116" width="232" height="118" rx="14" fill="#ffffff" stroke="#172b3b" stroke-width="2"/>
+<rect x="616" y="116" width="232" height="6" rx="3" fill="#b5632f"/>
+<text x="634" y="160" font-size="20" font-weight="bold" fill="#172b3b">Analyst review</text>
+<text x="634" y="186" font-size="15" fill="#4a5b68">Human review step</text>
+<text x="634" y="212" font-size="14" fill="#2f6b74">stage 3 of 4</text>
+<rect x="900" y="116" width="232" height="118" rx="14" fill="#ffffff" stroke="#172b3b" stroke-width="2"/>
+<rect x="900" y="116" width="232" height="6" rx="3" fill="#b5632f"/>
+<text x="918" y="160" font-size="20" font-weight="bold" fill="#172b3b">Archive</text>
+<text x="918" y="186" font-size="15" fill="#4a5b68">Approved records only</text>
+<text x="918" y="212" font-size="14" fill="#2f6b74">stage 4 of 4</text>
+<path d="M280 175 C306 141 306 141 322 175" fill="none" stroke="#b5632f" stroke-width="2.5" marker-end="url(#pg-arrow)"/>
+<text x="306" y="131" font-size="14" fill="#8f4a1f" text-anchor="middle">enters the queue</text>
+<text x="306" y="260" font-size="13" fill="#4a5b68" text-anchor="middle">admission gated by queue_capacity = 24</text>
+<path d="M564 175 C590 141 590 141 606 175" fill="none" stroke="#b5632f" stroke-width="2.5" marker-end="url(#pg-arrow)"/>
+<text x="590" y="131" font-size="14" fill="#8f4a1f" text-anchor="middle">an analyst reviews them</text>
+<text x="590" y="260" font-size="13" fill="#4a5b68" text-anchor="middle">no ordering or selection rule is stated</text>
+<path d="M848 175 C874 141 874 141 890 175" fill="none" stroke="#b5632f" stroke-width="2.5" marker-end="url(#pg-arrow)"/>
+<text x="874" y="131" font-size="14" fill="#8f4a1f" text-anchor="middle">approved records are archived</text>
+<text x="874" y="260" font-size="13" fill="#4a5b68" text-anchor="middle">outcome for records that are not approved is not stated</text>
+<text x="48" y="308" font-size="15" font-weight="bold" fill="#172b3b">Configured but not bound to a stage by any source</text>
+<rect x="48" y="322" width="186" height="26" rx="13" fill="#efe7d6" stroke="#b5632f" stroke-width="1.5"/>
+<text x="60" y="340" font-size="14" fill="#8f4a1f">retry_limit = 3</text>
+<text x="250" y="340" font-size="14" fill="#4a5b68">The README says configuration controls retry attempts, but no supplied module implements a retry. The stage this binds to is not stated.</text>
+<rect x="48" y="364" width="186" height="26" rx="13" fill="#efe7d6" stroke="#b5632f" stroke-width="1.5"/>
+<text x="60" y="382" font-size="14" fill="#8f4a1f">timeout_seconds = 8</text>
+<text x="250" y="382" font-size="14" fill="#4a5b68">The README says configuration controls a timeout, but no supplied module implements a timer. The stage this binds to is not stated.</text>
+<text x="1132" y="424" font-size="13" fill="#4a5b68" text-anchor="end">Generated by build.py from docs/handbooks/html/_operations-src/model.json</text>
+</svg>

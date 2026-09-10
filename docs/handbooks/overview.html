@@ -1,6 +1,15 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Nexus-Hub: from catalog to assistant</title><style>
-[data-dv-zoom-view]{max-height:320px;overflow:auto}[data-dv-zoom-view]>svg{max-width:none;width:100%;display:block}.dv-figure-tools{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}.dv-figure-tools label{display:flex;gap:.5rem;align-items:center}[data-region][data-selected=true]{stroke:currentColor;stroke-width:4}html{font:18px/1.55 system-ui,sans-serif;scrollbar-color:#52677b transparent}body{margin:0;background:#f5f3ec;color:#15283c}*{box-sizing:border-box}button,input,select{font:inherit}button{cursor:pointer;min-height:44px}header,[data-dv-section]{padding:clamp(1.25rem,4vw,4rem)}header h1{font-size:clamp(2rem,5vw,4rem);line-height:1.1}header>svg{width:240px;max-height:60px}[data-theme=dark]{background:#142235;color:#f5f3ec}[data-theme=light]{background:#f5f3ec;color:#15283c}h2{overflow-wrap:anywhere}[data-dv-section] h2{font-size:clamp(1.5rem,3vw,2.7rem);line-height:1.15}.dv-top-menu{position:sticky;top:0;display:flex;justify-content:space-between;background:#f5f3ec;color:#15283c;padding:.5rem;z-index:2}figure svg text:not([fill]),figure svg marker path:not([fill]){fill:currentColor}figure{margin:0;min-width:0}figure>svg{width:100%;max-height:220px}figcaption{font-size:1rem}.dv-chart svg{width:100%;min-width:650px;max-height:290px}.dv-chart svg text{font-size:24px;fill:currentColor;stroke:none}.dv-chart [data-dv-native]{overflow:auto}.dv-legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}.dv-legend button{background:transparent;color:inherit;border:1px solid currentColor;border-radius:.5rem}.dv-directory{max-height:200px;overflow:auto;scrollbar-color:currentColor transparent}table{border-collapse:collapse;font-size:1rem}td,th{padding:.3rem .7rem;border-bottom:1px solid currentColor;text-align:left}pre{font-size:1rem}.dv-image{border:0;background:transparent;padding:0}.dv-image img{object-fit:contain;max-width:100%;max-height:240px}.dv-brand{position:absolute;right:1rem;top:1rem;max-width:120px}.dv-brand svg{width:100%}[data-dv-slide]>.dv-brand~*{min-width:0}[data-dv-slide]:has(.dv-brand)>h2{padding-right:140px}[data-dv-slide]>[data-dv-unit]{min-width:0}[data-dv-slide] details[open]{overflow:auto;max-height:180px}[data-dv-map] input{width:100%}[data-dv-region][hidden]{display:none!important}[data-dv-region]{display:block;width:100%;text-align:left}.dv-enlargement{max-width:94vw;max-height:90vh}.dv-enlargement img{max-width:85vw;max-height:75vh;object-fit:contain}dialog::backdrop{background:#101820cc}@media(max-width:760px){[data-dv-slide]:has(.dv-brand)>h2{padding-right:0;padding-top:3rem}}@media print{.dv-top-menu,button,input,select,dialog,[data-dv-deck]{display:none!important}[data-dv-page]{display:block!important}[data-dv-section]{break-inside:avoid;background:white;color:black}}
+[data-dv-zoom-view]{max-height:320px;overflow:auto}[data-dv-zoom-view]>svg{max-width:none;width:100%;display:block}.dv-figure-tools{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}.dv-figure-tools label{display:flex;gap:.5rem;align-items:center}[data-region][data-selected=true]{stroke:currentColor;stroke-width:4}html{font:18px/1.55 system-ui,sans-serif;scrollbar-color:#52677b transparent}body{margin:0;background:#f5f3ec;color:#15283c}*{box-sizing:border-box}button,input,select{font:inherit}button{cursor:pointer;min-height:44px}header,[data-dv-section]{padding:clamp(1.25rem,4vw,4rem)}header h1{font-size:clamp(2rem,5vw,4rem);line-height:1.1}header>svg{width:240px;max-height:60px}[data-theme=dark]{background:#142235;color:#f5f3ec}[data-theme=light]{background:#f5f3ec;color:#15283c}h2{overflow-wrap:anywhere}[data-dv-section] h2{font-size:clamp(1.5rem,3vw,2.7rem);line-height:1.15}.dv-top-menu{display:flex;justify-content:space-between;background:#f5f3ec;color:#15283c;padding:.5rem;z-index:2}figure svg text:not([fill]),figure svg marker path:not([fill]){fill:currentColor}figure{margin:0;min-width:0}figure>svg{width:100%;max-height:220px}figcaption{font-size:1rem}.dv-chart svg{width:100%;min-width:650px;max-height:290px}.dv-chart svg text{font-size:24px;fill:currentColor;stroke:none}.dv-chart [data-dv-native]{overflow:auto}.dv-legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}.dv-legend button{background:transparent;color:inherit;border:1px solid currentColor;border-radius:.5rem}.dv-directory{max-height:200px;overflow:auto;scrollbar-color:currentColor transparent}table{border-collapse:collapse;font-size:1rem}td,th{padding:.3rem .7rem;border-bottom:1px solid currentColor;text-align:left}pre{font-size:1rem}.dv-image{border:0;background:transparent;padding:0}.dv-image img{object-fit:contain;max-width:100%;max-height:240px}.dv-brand{position:absolute;right:1rem;top:1rem;max-width:120px}.dv-brand svg{width:100%}[data-dv-slide]>.dv-brand~*{min-width:0}[data-dv-slide]:has(.dv-brand)>h2{padding-right:140px}[data-dv-slide]>[data-dv-unit]{min-width:0}[data-dv-slide] details[open]{overflow:auto;max-height:180px}[data-dv-map] input{width:100%}[data-dv-region][hidden]{display:none!important}[data-dv-region]{display:block;width:100%;text-align:left}.dv-enlargement{max-width:94vw;max-height:90vh}.dv-enlargement img{max-width:85vw;max-height:75vh;object-fit:contain}dialog::backdrop{background:#101820cc}@media(max-width:760px){[data-dv-slide]:has(.dv-brand)>h2{padding-right:0;padding-top:3rem}}@media print{.dv-top-menu,button,input,select,dialog,[data-dv-deck]{display:none!important}[data-dv-page]{display:block!important}[data-dv-section]{break-inside:avoid}[data-dv-page]{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+@media print{
+  [data-dv-page] .dv-directory,[data-dv-page] [data-dv-native],[data-dv-page] [data-dv-zoom-view]{height:auto!important;max-height:none!important;overflow:visible!important}
+  [data-dv-page] .dv-image,[data-dv-page] .dv-directory [data-dv-region]{display:block!important}
+  [data-dv-page] .dv-legend button{display:inline-flex!important}
+  [data-dv-page] .dv-image img{max-height:none;max-width:100%}
+  [data-dv-page] .dv-figure-tools,[data-dv-page] [data-dv-map]>label{display:none!important}
+  [data-dv-page] details::details-content{content-visibility:visible!important}
+  [data-dv-page] summary{list-style:none}
+}
 /* Namespaced mechanics; project authors retain composition and brand tokens. */
 [data-dv-deck][hidden], [data-dv-slide][hidden] { display: none !important; }
 [data-dv-open], [data-dv-chapter] { display: none; }
@@ -52,7 +61,8 @@
 [data-dv-slide] dialog { max-width: min(90vw, 60rem); max-height: 80dvh; color: inherit; background: var(--dv-bg); }
 @media (max-width: 760px) {
   .dv-stage { overflow-y: auto; }
-  [data-dv-slide] { justify-content: flex-start; height: auto; min-height: 100%; }
+  [data-dv-slide] { justify-content: flex-start; align-self: start; height: auto; min-height: 100%; }
+  [data-dv-slide] > * { flex-shrink: 0; }
   [data-dv-controls] { gap: .25rem; }
   [data-dv-controls] button { padding: .3rem; font-size: 1rem; }
   [data-dv-controls] select { max-width: 40vw; }
@@ -60,7 +70,16 @@
 @media (forced-colors: active) { [data-dv-native], [data-dv-page] { scrollbar-color: auto; } }
 @media (prefers-reduced-motion: reduce) { [data-dv-deck] *, [data-dv-page] * { animation: none !important; transition: none !important; } }
 @media print { [data-dv-deck], [data-dv-open], [data-dv-chapter], [data-dv-status] { display: none !important; } [data-dv-page] { display: block !important; } }
-[data-dv-page]{counter-reset:chapter} [data-dv-page]>section{counter-increment:chapter;min-height:52vh;padding:clamp(28px,5vw,76px);border-block-start:1px solid #8194ad55} [data-dv-page]>section:before{content:"CHAPTER " counter(chapter,decimal-leading-zero);font-size:14px;letter-spacing:.18em;display:block;margin-bottom:26px} [data-dv-page] p{max-width:68ch;font-size:20px;line-height:1.7} [data-dv-slide] p{max-width:64ch;font-size:clamp(20px,2.1vw,30px);line-height:1.5} [data-dv-slide] h2{max-width:19ch} @media(max-width:760px){[data-dv-page]>section{min-height:0}[data-dv-page] p{font-size:18px}}
+[data-dv-page]{counter-reset:chapter} [data-dv-page]>section{counter-increment:chapter;min-height:52vh;padding:clamp(28px,5vw,76px);border-block-start:1px solid #8194ad55} [data-dv-page]>section:before{content:"CHAPTER " counter(chapter,decimal-leading-zero);font-size:14px;letter-spacing:.18em;display:block;margin-bottom:26px} [data-dv-page] p{font-size:20px;line-height:1.7} [data-dv-slide] p{font-size:clamp(20px,2.1vw,30px);line-height:1.5} @media(max-width:760px){[data-dv-page]>section{min-height:0}[data-dv-page] p{font-size:18px}}
+
+header{border-top:8px solid #507c98}header h1{font-weight:650;letter-spacing:-.045em}.dv-top-menu{border-top:1px solid #8194ad55;border-bottom:1px solid #8194ad55;align-items:center;padding:14px 24px}.dv-top-menu a{color:inherit;text-underline-offset:5px}[data-dv-page] button{border:1px solid currentColor;background:transparent;color:inherit;padding:10px 18px;border-radius:4px}
+.handbook-composition{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(24px,4vw,64px);align-items:center}.handbook-map{border-left:3px solid currentColor;padding-left:24px}.handbook-map ol{list-style:none;padding:0;margin:0;display:grid;gap:24px;counter-reset:step}.handbook-map li{counter-increment:step;display:grid;grid-template-columns:42px 1fr;column-gap:12px;font-size:20px;line-height:1.35}.handbook-map li:before{content:counter(step,decimal-leading-zero);grid-row:span 2;color:#487490;font-size:18px;letter-spacing:.08em}.handbook-map span{display:block;font-size:16px;line-height:1.5;opacity:.85}.handbook-map strong{font-weight:650}.handbook-map figcaption{margin-top:22px;font-size:14px;letter-spacing:.06em;text-transform:uppercase;opacity:.85}[data-theme=dark] .handbook-map li:before{color:#88c1dc}
+[data-dv-slide]{padding:clamp(28px,4vw,70px);gap:28px}[data-dv-slide] h2{font-size:clamp(30px,3.8vw,54px);letter-spacing:-.025em}[data-dv-slide] p{font-size:clamp(20px,1.8vw,28px);line-height:1.55}[data-dv-slide] .handbook-map{padding-block:18px}[data-dv-slide] .handbook-map li{font-size:clamp(20px,1.7vw,27px)}[data-dv-slide] .handbook-map span{font-size:18px}
+.handbook-composition.branches{grid-template-columns:1fr}.branches .handbook-map{border-left:0;border-top:3px solid currentColor;padding:20px 0 0}.branches ol{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}.boundary .handbook-map{border-left-style:dashed}.evidence .handbook-map{border-left-width:8px}
+@media(max-width:1000px){.handbook-composition{grid-template-columns:1fr 1fr;gap:22px}.handbook-map{padding-left:14px}.handbook-map li{grid-template-columns:30px 1fr;column-gap:8px}.branches .handbook-map li{grid-template-columns:1fr}.branches .handbook-map li:before{grid-row:auto}}
+@media(max-width:760px){.handbook-composition,.handbook-composition.branches{grid-template-columns:1fr}.branches ol{grid-template-columns:1fr}.branches .handbook-map li{grid-template-columns:34px 1fr}.branches .handbook-map li:before{grid-row:span 2}[data-dv-slide]{gap:24px;padding:24px}[data-dv-slide] p{font-size:20px}.handbook-map{margin-top:12px}.handbook-map li{font-size:20px}}
+
+.handbook-composition{min-width:0}.handbook-composition>div{min-width:0}.handbook-composition p{overflow-wrap:anywhere}
 [data-dv-page]{max-width:1180px;margin-inline:auto}</style><main data-dv-page data-aspect="standard">
 <header><h1>Nexus-Hub: from catalog to assistant</h1>
 <button data-dv-open>Presentation Mode</button>
@@ -68,34 +87,44 @@
 <nav class="dv-top-menu"><a href="#page-title">Top</a><button data-dv-open>Presentation Mode</button></nav>
 <span id="page-title"></span>
 <section id="purpose" data-dv-section="purpose" data-theme="dark">
-<h2>One catalog, several hosts</h2><div data-dv-unit="purpose-text"><p>Nexus-Hub stores reusable skills, commands, hooks and rules. Installers deliver those files into the local bundle and each supported assistant's configuration. The catalog is the upstream source; generated platform files are delivery artifacts.</p></div></section>
+<h2>One catalog, several hosts</h2><div class="handbook-composition delivery"><div ><div data-dv-unit="purpose-text"><p>Nexus-Hub stores reusable skills, commands, hooks and rules. Installers deliver those files into the local bundle and each supported assistant's configuration. The catalog is the upstream source; generated platform files are delivery artifacts.</p></div></div><figure class="handbook-map"><ol ><li ><strong >Catalog</strong><span >Reusable source</span></li><li ><strong >Local bundle</strong><span >Installed files</span></li><li ><strong >Assistant</strong><span >Host discovery</span></li></ol><figcaption >One catalog, several hosts</figcaption></figure></div>
+</section>
 <section id="authoring" data-dv-section="authoring" data-theme="light">
-<h2>Start with the skill source</h2><div data-dv-unit="authoring-text"><p>Each skill lives under catalog/skills/category/name/SKILL.md. Its frontmatter identifies and describes the capability; its body supplies the procedure. References, scripts and assets remain beside the skill so supporting material can be loaded when needed.</p></div></section>
+<h2>Start with the skill source</h2><div class="handbook-composition layers"><div ><div data-dv-unit="authoring-text"><p>Each skill lives under catalog/skills/category/name/SKILL.md. Its frontmatter identifies and describes the capability; its body supplies the procedure. References, scripts and assets remain beside the skill so supporting material can be loaded when needed.</p></div></div><figure class="handbook-map"><ol ><li ><strong >Frontmatter</strong><span >Name and trigger</span></li><li ><strong >Procedure</strong><span >Steps and checks</span></li><li ><strong >Resources</strong><span >Load on demand</span></li></ol><figcaption >Start with the skill source</figcaption></figure></div>
+</section>
 <section id="validation" data-dv-section="validation" data-theme="dark">
-<h2>Check before distribution</h2><div data-dv-unit="validation-text"><p>scripts/validate_skills.py validates required frontmatter, strict YAML parsing, directory/name agreement and body conventions. The registry checker compares catalog entries with source metadata. Passing these checks establishes structure, not that an assistant selected or followed the skill.</p></div></section>
+<h2>Check before distribution</h2><div class="handbook-composition boundary"><div ><div data-dv-unit="validation-text"><p>scripts/validate_skills.py validates required frontmatter, strict YAML parsing, directory/name agreement and body conventions. The registry checker compares catalog entries with source metadata. Passing these checks establishes structure, not that an assistant selected or followed the skill.</p></div></div><figure class="handbook-map"><ol ><li ><strong >Source structure</strong><span >Validate locally</span></li><li ><strong >Registry agreement</strong><span >Compare metadata</span></li><li ><strong >Host behavior</strong><span >Still needs a real run</span></li></ol><figcaption >Check before distribution</figcaption></figure></div>
+</section>
 <section id="delivery" data-dv-section="delivery" data-theme="light">
-<h2>Adapt the shape at the boundary</h2><div data-dv-unit="delivery-text"><p>The platform adapters can flatten category folders, synthesize commands as skills, or emit native slash-command files. A synthesized command retains its body and declares disable-model-invocation: true. The host decides whether it honors that field.</p></div></section>
+<h2>Adapt the shape at the boundary</h2><div class="handbook-composition branches"><div ><div data-dv-unit="delivery-text"><p>The platform adapters can flatten category folders, synthesize commands as skills, or emit native slash-command files. A synthesized command retains its body and declares disable-model-invocation: true. The host decides whether it honors that field.</p></div></div><figure class="handbook-map"><ol ><li ><strong >Flattened skills</strong><span >Category removed</span></li><li ><strong >Native commands</strong><span >Host slash format</span></li><li ><strong >Command as skill</strong><span >Explicit invocation</span></li></ol><figcaption >Adapt the shape at the boundary</figcaption></figure></div>
+</section>
 <section id="proof" data-dv-section="proof" data-theme="dark">
-<h2>Test the delivered capability</h2><div data-dv-unit="proof-text"><p>A source-file test cannot prove installation. Exercise the installed artifact through the intended host, retaining the observed result. This handbook's build receipt proves its current source and output hashes; its browser record covers the reading and presentation views.</p></div></section>
+<h2>Test the delivered capability</h2><div class="handbook-composition evidence"><div ><div data-dv-unit="proof-text"><p>A source-file test cannot prove installation. Exercise the installed artifact through the intended host, retaining the observed result. This handbook's build receipt proves its current source and output hashes; its browser record covers the reading and presentation views.</p></div></div><figure class="handbook-map"><ol ><li ><strong >Build</strong><span >Match source bytes</span></li><li ><strong >Open</strong><span >Inspect both views</span></li><li ><strong >Exercise</strong><span >Observe the host</span></li></ol><figcaption >Test the delivered capability</figcaption></figure></div>
+</section>
 </main><p data-dv-status role="status"></p>
 <div data-dv-deck hidden><div class="dv-stage">
 <section id="slide-1" data-dv-slide="purpose" data-theme="dark" class="dv-composition-statement" hidden><h2>One catalog, several hosts</h2>
-<div data-dv-unit="purpose-text"><p>Nexus-Hub stores reusable skills, commands, hooks and rules. Installers deliver those files into the local bundle and each supported assistant's configuration. The catalog is the upstream source; generated platform files are delivery artifacts.</p></div>
+<div class="handbook-composition delivery"><div ><div data-dv-unit="purpose-text"><p>Nexus-Hub stores reusable skills, commands, hooks and rules. Installers deliver those files into the local bundle and each supported assistant's configuration. The catalog is the upstream source; generated platform files are delivery artifacts.</p></div></div><figure class="handbook-map"><ol ><li ><strong >Catalog</strong><span >Reusable source</span></li><li ><strong >Local bundle</strong><span >Installed files</span></li><li ><strong >Assistant</strong><span >Host discovery</span></li></ol><figcaption >One catalog, several hosts</figcaption></figure></div>
+
 </section>
 <section id="slide-2" data-dv-slide="authoring" data-theme="light" class="dv-composition-process" hidden><h2>Start with the skill source</h2>
-<div data-dv-unit="authoring-text"><p>Each skill lives under catalog/skills/category/name/SKILL.md. Its frontmatter identifies and describes the capability; its body supplies the procedure. References, scripts and assets remain beside the skill so supporting material can be loaded when needed.</p></div>
+<div class="handbook-composition layers"><div ><div data-dv-unit="authoring-text"><p>Each skill lives under catalog/skills/category/name/SKILL.md. Its frontmatter identifies and describes the capability; its body supplies the procedure. References, scripts and assets remain beside the skill so supporting material can be loaded when needed.</p></div></div><figure class="handbook-map"><ol ><li ><strong >Frontmatter</strong><span >Name and trigger</span></li><li ><strong >Procedure</strong><span >Steps and checks</span></li><li ><strong >Resources</strong><span >Load on demand</span></li></ol><figcaption >Start with the skill source</figcaption></figure></div>
+
 </section>
 <section id="slide-3" data-dv-slide="validation" data-theme="dark" class="dv-composition-statement" hidden><h2>Check before distribution</h2>
-<div data-dv-unit="validation-text"><p>scripts/validate_skills.py validates required frontmatter, strict YAML parsing, directory/name agreement and body conventions. The registry checker compares catalog entries with source metadata. Passing these checks establishes structure, not that an assistant selected or followed the skill.</p></div>
+<div class="handbook-composition boundary"><div ><div data-dv-unit="validation-text"><p>scripts/validate_skills.py validates required frontmatter, strict YAML parsing, directory/name agreement and body conventions. The registry checker compares catalog entries with source metadata. Passing these checks establishes structure, not that an assistant selected or followed the skill.</p></div></div><figure class="handbook-map"><ol ><li ><strong >Source structure</strong><span >Validate locally</span></li><li ><strong >Registry agreement</strong><span >Compare metadata</span></li><li ><strong >Host behavior</strong><span >Still needs a real run</span></li></ol><figcaption >Check before distribution</figcaption></figure></div>
+
 </section>
 <section id="slide-4" data-dv-slide="delivery" data-theme="light" class="dv-composition-process" hidden><h2>Adapt the shape at the boundary</h2>
-<div data-dv-unit="delivery-text"><p>The platform adapters can flatten category folders, synthesize commands as skills, or emit native slash-command files. A synthesized command retains its body and declares disable-model-invocation: true. The host decides whether it honors that field.</p></div>
+<div class="handbook-composition branches"><div ><div data-dv-unit="delivery-text"><p>The platform adapters can flatten category folders, synthesize commands as skills, or emit native slash-command files. A synthesized command retains its body and declares disable-model-invocation: true. The host decides whether it honors that field.</p></div></div><figure class="handbook-map"><ol ><li ><strong >Flattened skills</strong><span >Category removed</span></li><li ><strong >Native commands</strong><span >Host slash format</span></li><li ><strong >Command as skill</strong><span >Explicit invocation</span></li></ol><figcaption >Adapt the shape at the boundary</figcaption></figure></div>
+
 </section>
 <section id="slide-5" data-dv-slide="proof" data-theme="dark" class="dv-composition-statement" hidden><h2>Test the delivered capability</h2>
-<div data-dv-unit="proof-text"><p>A source-file test cannot prove installation. Exercise the installed artifact through the intended host, retaining the observed result. This handbook's build receipt proves its current source and output hashes; its browser record covers the reading and presentation views.</p></div>
+<div class="handbook-composition evidence"><div ><div data-dv-unit="proof-text"><p>A source-file test cannot prove installation. Exercise the installed artifact through the intended host, retaining the observed result. This handbook's build receipt proves its current source and output hashes; its browser record covers the reading and presentation views.</p></div></div><figure class="handbook-map"><ol ><li ><strong >Build</strong><span >Match source bytes</span></li><li ><strong >Open</strong><span >Inspect both views</span></li><li ><strong >Exercise</strong><span >Observe the host</span></li></ol><figcaption >Test the delivered capability</figcaption></figure></div>
+
 </section>
 </div><nav data-dv-controls aria-label="Presentation controls"><button data-dv-prev><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M16 4L8 12L16 20"/></svg>Back</button><button data-dv-replay><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 8A8 8 0 1 1 4 16M5 2V8H11"/></svg>Replay</button><span data-dv-count aria-live="polite"></span><select data-dv-picker aria-label="Go to slide"></select><button data-dv-next><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 4L16 12L8 20"/></svg>Next</button><button data-dv-fullscreen><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 9V3H9M15 3H21V9M21 15V21H15M9 21H3V15"/></svg>Fullscreen</button><button data-dv-exit><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 5L19 19M19 5L5 19"/></svg>Exit</button></nav></div>
-<script type="application/json" id="handbook-record">{"build": {"assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d", "assets/dual-view-runtime.js": "cca036e45febefee365bf5eb6a4e23b0388f6c0a0fc69889445c68c0177b2cb4", "assets/dual-view.css": "6d71063749ef287db25a355ebe6371b19909d474ed7e91f0e98ca65ca940965b", "assets/theme.json": "512cb7343f78c274c3c79e0b8124ec88fdb79639835a345ba369f78d642c3740", "scripts/build_presentation.py": "08816c4302cbe4830fdaee39475360c533b89dfc6ce65b0d93e20f5a85701ae1", "scripts/dual_view.py": "37102405fb3b1ffcd34500c1f1e0a3f4b0727b38c4643fc25ed3ef73fb1b0f3c"}, "design": {"brief": "Editorial technical handbook with large numbered chapters and a restrained midnight/blue palette. Preserve the complete explanation in reading view and one clear idea per presentation slide.", "layout": "standard", "reading_themes": ["dark", "light", "dark", "light", "dark"], "stylesheet": "docs/handbooks/_sources/overview/design.css"}, "figures": [], "presentation": {"depth": "balanced", "enabled": true, "initial_slide": 1, "slide_budget": 5, "slides": [{"composition": "statement", "id": "purpose", "source_ids": ["purpose"]}, {"composition": "process", "id": "authoring", "source_ids": ["authoring"]}, {"composition": "statement", "id": "validation", "source_ids": ["validation"]}, {"composition": "process", "id": "delivery", "source_ids": ["delivery"]}, {"composition": "statement", "id": "proof", "source_ids": ["proof"]}], "theme": "mixed", "theme_sequence": ["dark", "light", "dark", "light", "dark"]}, "schema_version": 1, "sections": ["purpose", "authoring", "validation", "delivery", "proof"], "sources": {"docs/handbooks/_sources/overview/design.css": "c237cd1cb62d7daf35800b07b8bf23d47b623dc92fedcc31dff6bd395998a5ad", "docs/handbooks/_sources/overview/model.json": "3b38f0ecfc3716162e8610bbfae6c16ab4a13c9b64252b53f853eb428c593ab7", "docs/handbooks/_sources/overview/source.md": "d80559beacc91514099fbf45c2637a8e577e1322d4bc1b4da78245dfe51c9008"}, "status": "requires-rendered-factual-and-design-qualification"}</script>
+<script type="application/json" id="handbook-record">{"build": {"assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d", "assets/dual-view-runtime.js": "f7892e0de19b83f40cf27680ef81199a4e6fd72b2c5c26f9d3f42ec570adcaff", "assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35", "assets/theme.json": "46a8d331bb277f1d6049da735f3ae5adf8ac60cfd81968685e3d3cc2ae321604", "scripts/build_presentation.py": "5c1525156ed9875703791c9f3293970356e64e8ec6b5de3c0c37904232bacea2", "scripts/dual_view.py": "2e9c79c7027310bdcead71cdfb8381a9be59e8f6a2b1093b9cc2c3c449fb47aa"}, "design": {"brief": "Editorial technical handbook with large numbered chapters and a restrained midnight/blue palette. Preserve the complete explanation in reading view and one clear idea per presentation slide.", "layout": "standard", "reading_themes": ["dark", "light", "dark", "light", "dark"], "stylesheet": "docs/handbooks/_sources/overview/design.css"}, "figures": [], "presentation": {"depth": "balanced", "enabled": true, "initial_slide": 1, "slide_budget": 5, "slides": [{"composition": "statement", "id": "purpose", "source_ids": ["purpose"]}, {"composition": "process", "id": "authoring", "source_ids": ["authoring"]}, {"composition": "statement", "id": "validation", "source_ids": ["validation"]}, {"composition": "process", "id": "delivery", "source_ids": ["delivery"]}, {"composition": "statement", "id": "proof", "source_ids": ["proof"]}], "theme": "mixed", "theme_sequence": ["dark", "light", "dark", "light", "dark"]}, "schema_version": 1, "sections": ["purpose", "authoring", "validation", "delivery", "proof"], "sources": {"docs/handbooks/_sources/overview/authoring-composition.html": "e38964521614c8c0317a63d2890685e2ffed10ef2625e6d181bf994db6a4ec6c", "docs/handbooks/_sources/overview/delivery-composition.html": "c7ab0ca77c7f6468d1914f17338d72a33ffe560888fb4573bafe6fe6ce5c9259", "docs/handbooks/_sources/overview/design.css": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24", "docs/handbooks/_sources/overview/model.json": "f5d3c133109e6a5f498037d67228d70255a118adca6663ad7c31c223c3a48580", "docs/handbooks/_sources/overview/proof-composition.html": "5450a7264da18cccd1423951768e9a271cb42211545464ef035dde2a2d75958f", "docs/handbooks/_sources/overview/purpose-composition.html": "511907f9123cb68a61b67a38d7d06ddb67642e5f2871cb84410707b1d7a62beb", "docs/handbooks/_sources/overview/source.md": "23c8a608f9204b67f3ab130891b055bd4946f1e1c7c7d597542773d8bc7721cf", "docs/handbooks/_sources/overview/validation-composition.html": "4769181873d4f9b290a783d44986a9382771a90d7c9a4d548de46e8d0d44461f"}, "status": "requires-rendered-factual-and-design-qualification"}</script>
 <script>/* Independent figure interactions for either view; canonical data stays untouched. */
 (() => {
   'use strict';
@@ -180,6 +209,7 @@
   let active = false, index = 0, generation = 0, origin = null;
   let scroll = 0, readingURL = location.href, oldOverflow = '';
   let wasFullscreen = false, keepFitted = false, touch = null;
+  let fullscreenExitPending = null;
   let animations = [];
   let readingAnimations = [];
   const nativeInput = 'input,textarea,select,button,a,[contenteditable]:not([contenteditable="false"]),[data-dv-native],dialog[open]';
@@ -243,6 +273,8 @@
     if (!deck.requestFullscreen || !active) return;
     const request = generation;
     try {
+      if (fullscreenExitPending) await fullscreenExitPending;
+      if (request !== generation || !active) return;
       await deck.requestFullscreen();
       if (request !== generation || !active) {
         if (document.fullscreenElement === deck && !active) await document.exitFullscreen();
@@ -281,7 +313,13 @@
   function close(history = true) {
     if (!active) return;
     generation += 1;
+    const closingGeneration = generation;
     active = false;
+    wasFullscreen = false;
+    keepFitted = false;
+    const fullscreenExit = fullscreenExitPending || (document.fullscreenElement === deck
+      ? document.exitFullscreen().catch(() => {}) : null);
+    fullscreenExitPending = fullscreenExit;
     stopMotion();
     deck.querySelectorAll('dialog[open]').forEach(dialog => dialog.close());
     deck.hidden = true;
@@ -293,11 +331,20 @@
     readingAnimations = [];
     page.dispatchEvent(new CustomEvent('dv:activate', { detail: { reducedMotion: motion.matches } }));
     document.documentElement.style.overflow = oldOverflow;
-    wasFullscreen = false;
-    if (document.fullscreenElement === deck) void document.exitFullscreen().catch(() => {});
     if (history) window.history.replaceState(null, '', readingURL);
-    window.scrollTo(0, scroll);
-    if (origin && origin.isConnected) origin.focus({ preventScroll: true });
+    const restoreReading = () => {
+      if (fullscreenExitPending === fullscreenExit) fullscreenExitPending = null;
+      if (active) {
+        if (!deck.contains(document.activeElement))
+          slides[index].querySelector('h1,h2,h3')?.focus({ preventScroll: true });
+        return;
+      }
+      if (generation !== closingGeneration) return;
+      window.scrollTo(0, scroll);
+      if (origin && origin.isConnected) origin.focus({ preventScroll: true });
+    };
+    if (fullscreenExit) void fullscreenExit.then(restoreReading);
+    else restoreReading();
   }
 
   function fromHash() {
@@ -388,6 +435,7 @@
   });
   on(deck, 'pointercancel', () => { touch = null; });
   on(document, 'fullscreenchange', () => {
+    if (fullscreenExitPending) { fit(); return; }
     if (document.fullscreenElement === deck) wasFullscreen = true;
     else if (wasFullscreen) {
       wasFullscreen = false;

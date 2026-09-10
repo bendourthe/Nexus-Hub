@@ -1,0 +1,34 @@
+{
+  "first_build_passes": 0,
+  "attempts": 3,
+  "results": [
+    {
+      "case": "repo",
+      "artifact": "first-build.html",
+      "sha256": "5f15fefe9c8411ae18d198973d9d3d349154e706d1025741735d58585cecedfe",
+      "first_build_verdict": "non-pass",
+      "final_invocation_verdict": "non-pass; 2100-second timeout",
+      "operator_artifact_repairs": 0,
+      "raw_first_findings_sha256": "f94e4ee5759f4d0d390b7f854ef54db85ef96b31b5a465030e256769208a97e1"
+    },
+    {
+      "case": "report",
+      "artifact": "first-build.html",
+      "sha256": "8c3ac0a433b0ae3089bae8790b860a1b7ef6d0fdafdc3f7232f5f3c96b182987",
+      "first_build_verdict": "non-pass",
+      "final_invocation_verdict": "non-pass; 2100-second timeout",
+      "operator_artifact_repairs": 0,
+      "raw_first_findings_sha256": "2acc8cc3b94ccae181cd1e825aad3580a4b6b42a815e344ff64d2d1a71539233"
+    },
+    {
+      "case": "presentation",
+      "artifact": "first-build.html",
+      "sha256": "28086389a2d0aa5c50c26bfb70a04fa285ca9fa2d0b8bef6ad7c4c1d92058ab9",
+      "first_build_verdict": "non-pass",
+      "final_invocation_verdict": "non-pass; 2100-second timeout",
+      "operator_artifact_repairs": 0,
+      "pptx_sha256": "bea4668a58ed43decc44faab452907c2b7623c5237d109658196d3c902d5f7c3",
+      "raw_first_findings_sha256": "4b3de70e93713bc5519dab504a34797cc7e559e69c8c1b73b407216d0bef12eb"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "status": "non-pass",
+  "author_status": "complete_with_declared_review_gaps",
+  "correction_count": 3,
+  "operator_author_output_repairs": 0,
+  "outputs": {
+    "html": {
+      "path": "docs/handbooks/service-review.html",
+      "sha256": "67ffd6ede405f0974975936d3a86659fa7f3ba64a65564ba50749d8245853833",
+      "bytes": 74446
+    },
+    "pptx": {
+      "path": "docs/handbooks/service-review.pptx",
+      "sha256": "3143a5cf1d57ef063b94f7cd83320a0185cae2ed1132245cbbeecd4f239371bc",
+      "bytes": 87801
+    }
+  },
+  "native_open": "pass",
+  "native_chart_values": [
+    [
+      [
+        10.0,
+        15.0,
+        20.0
+      ]
+    ]
+  ],
+  "source_bytes_unchanged": true,
+  "detached_bytes_unchanged": true,
+  "application_options_changed": false,
+  "independent_html": {
+    "measured_states": 200,
+    "raw_findings": 24,
+    "behaviors": {
+      "global_entry_1366": true,
+      "escape_1366": true,
+      "focus_1366": true,
+      "global_entry_390": true,
+      "escape_390": true,
+      "focus_390": true,
+      "global_entry_2560": true,
+      "escape_2560": true,
+      "focus_2560": true
+    },
+    "adjudication": "Not claimed complete because missing native motion already makes this invocation a non-pass"
+  },
+  "native_playback": {
+    "video_sha256": "39728f9d5e53b87e86be3caeb6766765edfd1fea1521ccd7877fd4543190307d",
+    "duration_seconds": 21.99525,
+    "decoded_frames": 263,
+    "decoded_timestamps": "strictly increasing",
+    "observed": "Direct slide crossfade followed by a fully drawn stationary process and chart; no automatic process build or native chart-mark entrance",
+    "reviewed_contacts": [
+      "native-process-playback.png",
+      "native-chart-playback.png"
+    ],
+    "initial_seek_capture": "Invalid: browser seeking returned time zero for every frame; preserved privately and excluded"
+  },
+  "high_severity_findings": [
+    {
+      "id": "PPTX-AUTOMATIC-BUILDS",
+      "requirements": [
+        "R23",
+        "T020"
+      ],
+      "detail": "All five native slide sequences contain zero effects. Process steps and chart series have no automatic builds; a slide crossfade does not supply those required effects.",
+      "disposition": "Correct the shared PPTX owner and run a fresh bounded presentation invocation; diagnostic edits are excluded."
+    }
+  ],
+  "native_static_review": "Slides 3 and 4 inspected at 1600x900: all four directed edges and the editable 10/15/20 chart render visibly; no layout pass for uninspected slides is implied",
+  "independent_html_visual_review": "Author contact sheets inspected at 1366x768 and 390x844 for composition and factual presence; compact chart reachability and raw overlaps remain separately measured behaviors"
+}

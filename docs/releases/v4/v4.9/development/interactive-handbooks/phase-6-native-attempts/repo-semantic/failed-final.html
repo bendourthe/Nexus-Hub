@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Queue operations | Aster Fieldworks</title>
+<meta name="description" content="Retry limit: 3. Queue capacity: 24. Timeout: 8 seconds.">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNzAiPjxwYXRoIGQ9Ik01IDM1TDMwIDVMNTUgMzVMMzAgNjVaIiBmaWxsPSIjYjU2MzJmIi8+PHRleHQgeD0iNzIiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iIzE3MmIzYiI+QXN0ZXIgRmllbGR3b3JrczwvdGV4dD48L3N2Zz4=">
+<!-- Design record: {&quot;check&quot;: &quot;python build.py --check&quot;, &quot;config&quot;: {&quot;queue_capacity&quot;: 24, &quot;retry_limit&quot;: 3, &quot;timeout_seconds&quot;: 8}, &quot;design&quot;: &quot;technical: dark cobalt / duotone-graphic / grotesk-editorial / full-bleed-bands / crisp-instant / move: hotspot-annotations (seed 20260910)&quot;, &quot;generator&quot;: &quot;build.py (native entry point, extended in place)&quot;, &quot;intake&quot;: {&quot;images&quot;: &quot;none&quot;, &quot;interactivity&quot;: &quot;balanced&quot;, &quot;layout&quot;: &quot;standard&quot;, &quot;mode&quot;: &quot;report&quot;, &quot;nav&quot;: &quot;scroll&quot;, &quot;presentation&quot;: &quot;yes&quot;, &quot;presentation_depth&quot;: &quot;deep-dive&quot;, &quot;presentation_theme&quot;: &quot;mixed&quot;, &quot;theme&quot;: &quot;brand.json&quot;, &quot;verbosity&quot;: &quot;comprehensive&quot;}, &quot;presentation&quot;: {&quot;depth&quot;: &quot;deep-dive&quot;, &quot;enabled&quot;: true, &quot;initial_slide&quot;: 1, &quot;slide_budget&quot;: 5, &quot;theme&quot;: &quot;mixed&quot;}, &quot;rebuild&quot;: &quot;python build.py&quot;, &quot;retained_sources&quot;: &quot;docs/handbooks/html/_operations-src/&quot;} -->
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+:root{
+ --paper:#f7f3e9;--surface:#efe7d6;--ink:#172b3b;--muted:#4a5b68;
+ --accent:#b5632f;--accent-deep:#8f4a1f;--accent2:#245e66;--line:#d8ccb4;
+ --card:#ffffff;--focus:#245e66;
+ --gut:clamp(16px,4vw,56px);--rhythm:clamp(30px,4.6vh,62px);
+ --head:'Arial Black','Arial Bold',Arial,Helvetica,sans-serif;
+ --mono:Consolas,'Courier New',monospace;
+}
+body{margin:0;background:var(--paper);color:var(--ink);
+ font:400 17px/1.62 Arial,Helvetica,sans-serif;overflow-wrap:break-word}
+[data-band="dark"],.slide[data-theme="dark"]{
+ --paper:#12212e;--surface:#1b3040;--ink:#f4efe4;--muted:#bccbd4;
+ --accent:#e69455;--accent-deep:#f2b98f;--accent2:#8ccbd2;--line:#2f4c61;
+ --card:#182b3a;--focus:#8ccbd2}
+.slide[data-theme="light"]{
+ --paper:#f7f3e9;--surface:#efe7d6;--ink:#172b3b;--muted:#4a5b68;
+ --accent:#b5632f;--accent-deep:#8f4a1f;--accent2:#245e66;--line:#d8ccb4;
+ --card:#ffffff;--focus:#245e66}
+.wrap{width:min(100% - (var(--gut) * 2),78rem);margin-inline:auto}
+.band{padding-block:var(--rhythm);background:var(--paper);color:var(--ink)}
+h1,h2,h3,h4{font-family:var(--head);line-height:1.22;margin:0 0 .55rem;
+ text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(34px,6vw,66px)}
+h2{font-size:clamp(26px,3.4vw,44px)}
+h3{font-size:clamp(20px,2.1vw,27px)}
+h4{font-size:19px}
+p{margin:0 0 .85rem}
+a{color:var(--accent-deep)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:4px}
+.skip{position:absolute;left:10px;top:-5rem;z-index:60;background:#b5632f;
+ color:#fff;padding:11px 16px;border-radius:9px;font:700 16px/1.4 Arial,
+ Helvetica,sans-serif;text-decoration:none}
+.skip:focus{top:10px}
+.eyebrow{font:700 16px/1.4 Arial,Helvetica,sans-serif;letter-spacing:.14em;
+ text-transform:uppercase;color:var(--accent-deep);margin:0 0 .55rem}
+.cap{font:700 16px/1.45 Arial,Helvetica,sans-serif;color:var(--muted);
+ margin:0 0 .6rem;letter-spacing:.02em}
+.cite{font:400 16px/1.55 Arial,Helvetica,sans-serif;color:var(--muted);margin:.4rem 0 0}
+.lede{font-size:clamp(17px,1.2vw,20px);margin-bottom:.9rem}
+figcaption{font:700 16px/1.45 Arial,Helvetica,sans-serif;color:var(--muted);
+ margin:0 0 .55rem}
+code,pre{font-family:var(--mono);font-size:15px}
+pre{overflow-x:auto;scrollbar-color:var(--accent) transparent;scrollbar-width:thin}
+pre::-webkit-scrollbar{height:10px}
+pre::-webkit-scrollbar-track{background:transparent}
+pre::-webkit-scrollbar-thumb{background:var(--accent);border-radius:6px}
+img{max-width:100%}
+
+.mast{position:static;background:#12212e;color:#f4efe4;
+ border-bottom:3px solid #b5632f}
+.mast__in{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-block:10px}
+.mark{display:flex;align-items:center;flex:0 0 auto}
+.mark img{display:block;height:34px;width:auto}
+.mast nav{display:flex;gap:4px;flex-wrap:wrap;flex:1 1 auto}
+.navlink{color:#e2e9ee;text-decoration:none;padding:7px 11px;border-radius:7px;
+ font-size:15px;white-space:nowrap}
+.navlink:hover{background:#22394c;color:#fff}
+.navlink[aria-current="true"]{background:#b5632f;color:#fff;font-weight:700}
+.btn{font:700 15px/1.15 Arial,Helvetica,sans-serif;border-radius:9px;padding:11px 16px;
+ border:2px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+.btn:hover{background:var(--accent-deep);border-color:var(--accent-deep);color:#fff}
+.btn--ghost{background:transparent;color:var(--accent-deep);border-color:var(--accent)}
+.btn--ghost:hover{background:var(--accent);color:#fff}
+.mast .btn{background:#b5632f;color:#fff;border-color:#b5632f}
+.mast .btn:hover{background:#8f4a1f;border-color:#8f4a1f}
+
+.hero{display:grid;gap:clamp(20px,3vw,44px);
+ grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);align-items:start}
+.hero__side{display:grid;gap:18px}
+.hero__cta{display:flex;gap:12px;flex-wrap:wrap;margin:.2rem 0 0;align-items:center}
+.stats{list-style:none;margin:0;padding:0;display:grid;gap:12px;
+ grid-template-columns:repeat(auto-fit,minmax(min(100%,168px),1fr))}
+.stat{background:var(--card);border:1px solid var(--line);
+ border-left:5px solid var(--accent);border-radius:12px;padding:13px 15px;
+ display:grid;gap:6px;box-shadow:0 1px 3px rgba(23,43,59,.09)}
+.stat__label{font:700 14px/1.35 Arial,Helvetica,sans-serif;color:var(--muted);
+ text-transform:uppercase;letter-spacing:.07em}
+.stat__value{font:700 clamp(26px,2.6vw,36px)/1.25 var(--head);
+ color:var(--accent-deep);overflow-wrap:break-word}
+.stat__value--text{font-size:clamp(17px,1.3vw,21px);line-height:1.35;
+ overflow-wrap:anywhere}
+.stat__unit{font-size:14px;color:var(--muted)}
+.stat__cite{font-size:13px;color:var(--muted)}
+.agenda{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+ padding:16px 18px}
+.agenda__list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.agenda__link{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;
+ text-decoration:none;color:inherit;padding:9px 10px;border-radius:9px;
+ border:1px solid transparent}
+.agenda__link:hover{background:var(--card);border-color:var(--line)}
+.agenda__n{grid-row:span 2;font:700 16px/1.5 var(--mono);color:var(--accent-deep)}
+.agenda__t{font:700 16px/1.35 Arial,Helvetica,sans-serif}
+.agenda__note{font-size:14px;color:var(--muted)}
+.callout{border-radius:13px;padding:15px 17px;margin:16px 0 0;
+ background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--accent2)}
+.callout--warning,.callout--authority{border-left-color:var(--accent)}
+.callout__title{font:700 17px/1.35 Arial,Helvetica,sans-serif;margin:0 0 .3rem}
+.callout__text{margin:0}
+
+.cols{display:grid;gap:clamp(18px,2.6vw,38px);
+ grid-template-columns:repeat(auto-fit,minmax(min(100%,26rem),1fr));align-items:start}
+.tablefig,.codefig,.chart,.diagram{margin:18px 0 0}
+.tablescroll,.codescroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;
+ background:var(--card);scrollbar-color:var(--accent) transparent;scrollbar-width:thin}
+.tablescroll::-webkit-scrollbar,.codescroll::-webkit-scrollbar{height:10px;width:10px}
+.tablescroll::-webkit-scrollbar-track,.codescroll::-webkit-scrollbar-track{
+ background:transparent}
+.tablescroll::-webkit-scrollbar-thumb,.codescroll::-webkit-scrollbar-thumb{
+ background:var(--accent);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:16px}
+th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);
+ vertical-align:top}
+thead th{background:var(--surface);font:700 16px/1.4 Arial,Helvetica,sans-serif;
+ text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+tbody tr:last-child td{border-bottom:0}
+pre{margin:0;padding:13px 15px;white-space:pre}
+.bullets{margin:0;padding-left:1.2rem;display:grid;gap:6px}
+.drift--changed .now{background:var(--accent);color:#fff;padding:2px 8px;
+ border-radius:6px;font-weight:700}
+.drift--changed .was{text-decoration:line-through;color:var(--muted)}
+
+.chart__grid{display:grid;gap:6px 10px;grid-template-columns:auto minmax(0,1fr);
+ grid-template-areas:"yl plot" "ya plot" "sp xls" "sp xa"}
+.ch__yl{grid-area:yl;list-style:none;margin:0;padding:4px 0;display:flex;
+ flex-direction:column;justify-content:space-between;font-size:16px;
+ color:var(--muted);height:clamp(150px,21vh,220px)}
+.ch__yaxis{grid-area:ya;font-size:16px;color:var(--muted);margin:0}
+.chart__plot{grid-area:plot;position:relative;background:var(--card);
+ border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+.chart__plot svg{display:block;width:100%;height:clamp(150px,21vh,220px)}
+.ch__grid{stroke:var(--line);vector-effect:non-scaling-stroke;stroke-width:1}
+.ch__area{fill:var(--accent);opacity:.15}
+.ch__line{fill:none;stroke:var(--accent);stroke-width:3;
+ vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.ch__thr{stroke:var(--accent2);stroke-width:2;stroke-dasharray:5 4;
+ vector-effect:non-scaling-stroke}
+.ch__dot{fill:var(--accent-deep)}
+.ch__thrlabel{position:absolute;right:14px;top:10px;margin:0;font-size:16px;
+ color:var(--accent2);font-weight:700;background:var(--card);padding:3px 8px;
+ border-radius:6px;border:1px solid var(--line)}
+.ch__xls{grid-area:xls;list-style:none;margin:0;padding:0;display:flex;
+ justify-content:space-between;gap:2px}
+.ch__pt{background:transparent;border:1px solid transparent;border-radius:6px;
+ padding:5px 6px;font:400 14px/1.2 Arial,Helvetica,sans-serif;color:var(--muted);
+ cursor:pointer;min-width:28px}
+.ch__pt:hover,.ch__pt[aria-pressed="true"]{border-color:var(--accent);
+ color:var(--accent-deep);font-weight:700}
+.ch__xaxis{grid-area:xa;font-size:16px;color:var(--muted);margin:0}
+.ch__readout{margin:.7rem 0 0;font-weight:700;font-size:16px;color:var(--accent-deep)}
+
+.probe{margin:18px 0 0;background:var(--surface);border:1px solid var(--line);
+ border-radius:13px;padding:15px 17px}
+.probe__label{display:block;font-size:16px;color:var(--muted);margin:0 0 6px}
+.probe__range{width:100%;accent-color:var(--accent);height:28px}
+.probe__out{margin:.6rem 0 0;font:700 clamp(17px,1.7vw,21px)/1.35 var(--mono);
+ color:var(--accent-deep)}
+
+.pflow{list-style:none;margin:0;padding:0;display:grid;gap:10px;align-items:stretch;
+ grid-template-columns:minmax(0,1fr) minmax(60px,.44fr) minmax(0,1fr)
+ minmax(60px,.44fr) minmax(0,1fr) minmax(60px,.44fr) minmax(0,1fr)}
+.pnode{background:var(--card);border:1px solid var(--line);
+ border-top:5px solid var(--accent);border-radius:13px;padding:13px 14px;display:grid;
+ gap:7px;align-content:start;box-shadow:0 1px 3px rgba(23,43,59,.09);min-width:0}
+.pnode__n{font:700 13px/1.4 var(--mono);color:var(--accent2);letter-spacing:.05em}
+.pnode__t{margin:0}
+.pnode__s{margin:0;font-size:16px;color:var(--muted)}
+.hotspot{margin-top:6px}
+.hotspot__btn{cursor:pointer;font:700 14px/1.45 Arial,Helvetica,sans-serif;
+ color:var(--accent-deep);list-style:none;padding:4px 0}
+.hotspot__btn::-webkit-details-marker{display:none}
+.hotspot__btn::before{content:"+ ";font-family:var(--mono)}
+.hotspot[open] .hotspot__btn::before{content:"- "}
+.hotspot__body{margin:.4rem 0 0;font-size:16px;color:var(--muted)}
+.conn{display:grid;gap:3px;align-content:center;justify-items:center;
+ color:var(--accent);text-align:center;padding:2px}
+.conn__svg{display:block;width:100%;height:auto;max-height:52px}
+.conn__svg--v{display:none}
+.conn__label{margin:0;font:700 16px/1.35 Arial,Helvetica,sans-serif;
+ color:var(--accent-deep);overflow-wrap:break-word}
+.diagram__desc{margin:12px 0 0;font-size:16px;color:var(--muted)}
+.chips{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.chip{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;
+ align-items:baseline;background:var(--surface);border:1px solid var(--line);
+ border-left:5px solid var(--accent);border-radius:10px;padding:9px 13px}
+.chip__k{font:700 14px/1.45 var(--mono);color:var(--accent-deep);white-space:nowrap}
+.chip__v{font-size:15px;color:var(--muted)}
+.diagram__cta{margin:14px 0 0}
+
+.uncs{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.unc{background:var(--card);border:1px solid var(--line);border-radius:12px;
+ padding:12px 15px;display:grid;gap:6px}
+.unc__tag{justify-self:start;font:700 13px/1.6 var(--mono);color:#fff;
+ background:var(--accent-deep);border-radius:6px;padding:2px 9px;letter-spacing:.04em}
+.slide[data-theme="dark"] .unc__tag,[data-band="dark"] .unc__tag{color:#12212e}
+.unc__q{margin:0;font:700 17px/1.4 Arial,Helvetica,sans-serif}
+.unc__a{margin:0;color:var(--muted);font-size:16px}
+
+.cmdlist{list-style:none;margin:0;padding:0;display:grid;gap:14px;
+ grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr))}
+.cmd{background:var(--card);border:1px solid var(--line);border-radius:13px;
+ padding:14px 16px;display:grid;gap:10px;align-content:start;min-width:0}
+.cmd--writes{border-left:6px solid var(--accent)}
+.cmd--read-only{border-left:6px solid var(--accent2)}
+.cmd__label{margin:0;font:700 17px/1.35 Arial,Helvetica,sans-serif}
+.cmd__mode{margin:0;justify-self:start;font:700 16px/1.5 var(--mono);color:#fff;
+ background:var(--accent-deep);border-radius:6px;padding:3px 10px}
+.slide[data-theme="dark"] .cmd__mode,[data-band="dark"] .cmd__mode{color:#12212e}
+.inv{margin:18px 0 0;background:var(--card);border:1px solid var(--line);
+ border-radius:13px;padding:12px 15px}
+.inv__sum{cursor:pointer;font:700 17px/1.45 Arial,Helvetica,sans-serif;
+ color:var(--accent-deep)}
+.inv .tablescroll{margin-top:12px}
+
+.modal{position:fixed;inset:0;z-index:140;display:grid;place-items:center;
+ background:#0c1620;padding:clamp(12px,3vw,40px);overflow:auto}
+.modal[hidden]{display:none}
+.modal__panel{background:#f7f3e9;color:#172b3b;border-radius:16px;
+ padding:clamp(14px,2.4vw,26px);width:min(100%,72rem);max-height:92vh;overflow:auto;
+ scrollbar-color:#b5632f transparent;scrollbar-width:thin}
+.modal__panel img{display:block;width:100%;height:auto;border:1px solid #d8ccb4;
+ border-radius:10px;background:#fff}
+.modal__bar{display:flex;justify-content:space-between;align-items:center;gap:14px;
+ margin-bottom:12px}
+.modal__title{margin:0;font-size:clamp(19px,2vw,26px)}
+.modal .cite{color:#4a5b68}
+
+.deck{position:fixed;inset:0;z-index:100;background:#0c1620;display:grid;
+ grid-template-rows:minmax(0,1fr) auto}
+.deck[hidden]{display:none}
+body.deck-open > *:not(.deck):not(.modal){visibility:hidden}
+body.modal-open > *:not(.modal){visibility:hidden}
+.stage{position:relative;overflow:hidden}
+.slide{position:absolute;inset:0;display:none;
+ padding:clamp(14px,2.4vh,32px) clamp(16px,3vw,54px);
+ background:var(--paper);color:var(--ink);grid-template-rows:auto minmax(0,1fr)}
+.slide[data-active="true"]{display:grid}
+.slide__head{display:flex;align-items:flex-start;justify-content:space-between;
+ gap:18px;margin-bottom:clamp(6px,1.2vh,14px)}
+.slide__titles{min-width:0}
+.slide__t{font-size:clamp(22px,2.9vh,40px);margin:0 0 .2rem}
+.slide__s{margin:0;font-size:clamp(16px,1.5vh,20px);color:var(--muted)}
+.slide__mark{margin:0;flex:0 0 auto}
+.slide__mark img{display:block;height:clamp(20px,2.8vh,32px);width:auto}
+.slide__body{min-height:0;overflow:auto;padding-right:6px;
+ scrollbar-color:var(--accent) transparent;scrollbar-width:thin}
+.slide__body::-webkit-scrollbar{width:10px;height:10px}
+.slide__body::-webkit-scrollbar-track{background:transparent}
+.slide__body::-webkit-scrollbar-thumb{background:var(--accent);border-radius:6px}
+.slide--cover .slide__body{display:grid;align-content:center;gap:12px}
+.slide--cover .slide__t{font-size:clamp(30px,5.8vh,70px)}
+.deckbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+ padding:9px clamp(14px,3vw,32px);background:#0c1620;color:#e7eef3;
+ border-top:2px solid #b5632f}
+.deckbar__pos{font:700 16px/1.45 var(--mono);color:#e7eef3;margin:0;min-width:7.5rem}
+.deckbar__dots{display:flex;gap:7px;list-style:none;margin:0;padding:0;flex:1 1 auto;
+ align-items:center}
+.dot{width:12px;height:12px;border-radius:50%;border:0;background:#3f596e;padding:0;
+ cursor:pointer}
+.dot[aria-current="true"]{background:#e69455}
+.deckbar .btn{padding:9px 13px;font-size:15px;background:#b5632f;border-color:#b5632f;
+ color:#fff}
+.deckbar .btn--ghost{color:#f2b98f;border-color:#b5632f;background:transparent}
+.deckbar .btn--ghost:hover{background:#b5632f;color:#fff}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px;padding:0;list-style:none}
+.tab{border:2px solid var(--line);background:var(--card);color:var(--ink);
+ border-radius:9px;padding:8px 14px;font:700 15px/1.2 Arial,Helvetica,sans-serif;
+ cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.tabpanel[hidden]{display:none}
+.pane--cols{display:grid;gap:clamp(12px,1.8vw,26px);
+ grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));align-items:start}
+.pane--cols > .tablefig,.pane--cols > .uncwrap,.pane--cols > .cmds{grid-column:1/-1}
+.pane--cols > *{margin-top:0}
+.pane--single > * + *{margin-top:12px}
+.slide .cols{gap:clamp(12px,2vw,26px)}
+.slide .stat__value{font-size:clamp(22px,3.2vh,34px)}
+.slide .stat__value--text{font-size:clamp(17px,1.7vh,21px);line-height:1.35}
+.slide .lede{font-size:clamp(16px,1.7vh,19px)}
+.slide .pflow{gap:8px}
+.slide table{font-size:16px}
+.slide .hotspot{display:none}
+.slide .tablefig,.slide .codefig,.slide .chart,.slide .diagram,
+.slide .probe,.slide .callout,.slide .inv{margin-top:0}
+.slide .chart__plot svg,.slide .ch__yl{height:clamp(120px,16vh,190px)}
+.slide .pnode{padding:10px 12px}
+.slide .lede{margin-bottom:.5rem}
+.slide .cmdlist{gap:10px}
+.slide .uncs{gap:8px}
+.slide .chips{gap:8px;grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr))}
+.slide .uncs{grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr))}
+.slide .bullets{grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));
+ display:grid;padding-left:1.2rem}
+.slide .diagram__desc{margin-top:8px}
+.slide .pane--single > * + *{margin-top:10px}
+.slide .stats{gap:10px}
+
+[data-reveal]{opacity:0;transform:translateY(14px)}
+[data-reveal].is-in{opacity:1;transform:none;transition:opacity .32s ease,
+ transform .32s ease}
+.no-js [data-reveal]{opacity:1;transform:none}
+
+@media (max-width:1100px){
+ .hero{grid-template-columns:minmax(0,1fr)}
+ .pflow{grid-template-columns:minmax(0,1fr)}
+ .conn__svg--h{display:none}
+ .conn__svg--v{display:block;max-height:72px;width:auto}
+ .conn{padding:6px 0}
+}
+@media (max-width:760px){
+ body{font-size:16px}
+ .mast nav{order:3;width:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px;
+  scrollbar-width:thin;scrollbar-color:#b5632f transparent}
+ .ch__xls{flex-wrap:wrap;justify-content:flex-start}
+ .slide__head{flex-direction:column;gap:8px}
+ .slide__mark{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.001ms !important;
+  transition-duration:.001ms !important}
+ [data-reveal]{opacity:1;transform:none}
+}
+@media print{
+ .mast,.deck,.modal,.hero__cta,.diagram__cta{display:none !important}
+ body{background:#fff !important;color:#111 !important}
+ .band,[data-band="dark"]{--paper:#fff;--surface:#f1f1f1;--ink:#111;--muted:#3d3d3d;
+  --card:#fff;--line:#b3b3b3;--accent:#8f4a1f;--accent-deep:#8f4a1f;--accent2:#245e66;
+  background:#fff !important;color:#111 !important;page-break-inside:avoid}
+ .unc__tag,.cmd__mode{color:#111 !important;background:#eee;border:1px solid #999}
+ .tablescroll,.codescroll,.slide__body,.modal__panel{overflow:visible}
+ [data-reveal]{opacity:1 !important;transform:none !important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#overview">Skip to the handbook</a>
+<header class="mast"><div class="wrap mast__in"><span class="mark"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNzAiPjxwYXRoIGQ9Ik01IDM1TDMwIDVMNTUgMzVMMzAgNjVaIiBmaWxsPSIjYjU2MzJmIi8+PHRleHQgeD0iNzIiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2Y3ZjNlOSI+QXN0ZXIgRmllbGR3b3JrczwvdGV4dD48L3N2Zz4=" alt="Aster Fieldworks"></span><nav aria-label="Handbook sections"><a class="navlink" href="#overview" data-target="overview" aria-current="false">Queue operations</a><a class="navlink" href="#configuration" data-target="configuration" aria-current="false">Parameters</a><a class="navlink" href="#workflow" data-target="workflow" aria-current="false">Process</a><a class="navlink" href="#code" data-target="code" aria-current="false">Ownership</a><a class="navlink" href="#freshness" data-target="freshness" aria-current="false">What we do not know</a><a class="navlink" href="#rebuild" data-target="rebuild" aria-current="false">Appendix</a></nav><button type="button" class="btn" data-dv-open>Presentation Mode</button></div></header>
+<main data-dv-page id="handbook"><section class="band" data-band="light" data-dv-section="overview"><div class="wrap" data-reveal><p class="eyebrow">Aster Fieldworks</p><h1 id="overview">Queue operations</h1><div class="hero"><div class="hero__main"><p class="lede">Aster Fieldworks Queue is a synthetic field-observation queue. Configuration controls retry attempts, admission capacity and timeout. Incoming observations enter the queue, an analyst reviews them, and approved records are archived.</p><p class="cite">Source: README.md</p><p class="hero__cta"><button type="button" class="btn" data-dv-open>Presentation Mode</button><a class="btn btn--ghost" href="#workflow">Jump to the process</a></p><aside class="callout callout--authority"><p class="callout__title">Current code and configuration are authoritative</p><p class="callout__text">Where this page and an older artifact disagree, config.json and the Python modules win. The previously generated handbook predates the retry-limit change and states a retry limit of 2.</p><p class="cite">Source: README.md</p></aside></div><div class="hero__side"><div class="statwrap"><p class="cap">Authoritative parameters, read from config.json at build time</p><ul class="stats"><li class="stat"><span class="stat__label">Retry limit</span><span class="stat__value" data-count="3">3</span><span class="stat__unit">attempts</span><span class="stat__cite">config.json</span></li><li class="stat"><span class="stat__label">Queue capacity</span><span class="stat__value" data-count="24">24</span><span class="stat__unit">observations</span><span class="stat__cite">config.json</span></li><li class="stat"><span class="stat__label">Timeout</span><span class="stat__value" data-count="8">8</span><span class="stat__unit">seconds</span><span class="stat__cite">config.json</span></li><li class="stat"><span class="stat__label">Reliability</span><span class="stat__value stat__value--text">Not measured</span><span class="stat__unit">no source figure exists</span><span class="stat__cite">README.md, prior handbook</span></li></ul></div><nav class="agenda" aria-label="Handbook agenda"><p class="cap">What this handbook covers, in reading order</p><ol class="agenda__list"><li class="agenda__row"><a class="agenda__link" href="#configuration"><span class="agenda__n">01</span><span class="agenda__t">Configuration and the admission rule</span><span class="agenda__note">The three parameters and how the code applies capacity</span></a></li><li class="agenda__row"><a class="agenda__link" href="#workflow"><span class="agenda__n">02</span><span class="agenda__t">Observation to queue to analyst to archive</span><span class="agenda__note">The four-stage process and every edge between the stages</span></a></li><li class="agenda__row"><a class="agenda__link" href="#code"><span class="agenda__n">03</span><span class="agenda__t">Code and generator ownership</span><span class="agenda__note">service.py, build.py, and who owns this page</span></a></li><li class="agenda__row"><a class="agenda__link" href="#freshness"><span class="agenda__n">04</span><span class="agenda__t">Freshness, drift and uncertainty</span><span class="agenda__note">What changed, what is stale, and what is unknown</span></a></li><li class="agenda__row"><a class="agenda__link" href="#rebuild"><span class="agenda__n">05</span><span class="agenda__t">Rebuild, check and source inventory</span><span class="agenda__note">The executable commands and every input that fed this page</span></a></li></ol></nav></div></div></div></section><section class="band" data-band="dark" data-dv-section="configuration"><div class="wrap" data-reveal><p class="eyebrow">Parameters</p><h2 id="configuration">Configuration and the admission rule</h2><p class="lede">One file holds every tunable value. config.json is read by service.py at import time and by build.py at generation time, so the runtime and this handbook cannot disagree about a parameter unless the handbook is stale.</p><p class="cite">Source: config.json, service.py, build.py</p><div class="cols"><div><figure class="tablefig"><figcaption>config.json, verbatim keys and values</figcaption><div class="tablescroll"><table><thead><tr><th scope="col">Key</th><th scope="col">Value</th><th scope="col">Unit</th><th scope="col">Read by</th><th scope="col">What the supplied code does with it</th></tr></thead><tbody><tr><td>retry_limit</td><td>3</td><td>attempts</td><td>service.py attempts()</td><td>Returned unchanged; no retry loop exists in the supplied code</td></tr><tr><td>queue_capacity</td><td>24</td><td>observations</td><td>service.py admitted()</td><td>Compared with the current queue size to accept or refuse an observation</td></tr><tr><td>timeout_seconds</td><td>8</td><td>seconds</td><td>build.py handbook text</td><td>Reported only; no timer exists in the supplied code</td></tr></tbody></table></div></figure><figure class="codefig"><figcaption>The admission rule, verbatim from service.py</figcaption><div class="codescroll"><pre><code>def admitted(queue_size):
+    return queue_size &lt; CONFIG[&quot;queue_capacity&quot;]</code></pre></div></figure></div><div><figure class="chart" data-chart><figcaption>Admission decision by queue size, evaluated from the admission rule</figcaption><div class="chart__grid"><ul class="ch__yl"><li>admitted</li><li>refused</li></ul><div class="chart__plot"><svg viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true" focusable="false"><line class="ch__grid" x1="3" y1="6" x2="97" y2="6"/><line class="ch__grid" x1="3" y1="30" x2="97" y2="30"/><line class="ch__grid" x1="3" y1="54" x2="97" y2="54"/><path class="ch__area" d="M3.00 6.00 L14.75 6.00 L14.75 6.00 L26.50 6.00 L26.50 6.00 L38.25 6.00 L38.25 6.00 L50.00 6.00 L50.00 6.00 L61.75 6.00 L61.75 6.00 L73.50 6.00 L73.50 54.00 L85.25 54.00 L85.25 54.00 L97.00 54.00 L97.00 54.00 L97.00 54.00 L3.00 54.00 Z"/><path class="ch__line" d="M3.00 6.00 L14.75 6.00 L14.75 6.00 L26.50 6.00 L26.50 6.00 L38.25 6.00 L38.25 6.00 L50.00 6.00 L50.00 6.00 L61.75 6.00 L61.75 6.00 L73.50 6.00 L73.50 54.00 L85.25 54.00 L85.25 54.00 L97.00 54.00 L97.00 54.00"/><line class="ch__thr" x1="73.50" y1="6" x2="73.50" y2="54"/><circle class="ch__dot" cx="3.00" cy="6.00" r="1.7"/><circle class="ch__dot" cx="14.75" cy="6.00" r="1.7"/><circle class="ch__dot" cx="26.50" cy="6.00" r="1.7"/><circle class="ch__dot" cx="38.25" cy="6.00" r="1.7"/><circle class="ch__dot" cx="50.00" cy="6.00" r="1.7"/><circle class="ch__dot" cx="61.75" cy="6.00" r="1.7"/><circle class="ch__dot" cx="73.50" cy="54.00" r="1.7"/><circle class="ch__dot" cx="85.25" cy="54.00" r="1.7"/><circle class="ch__dot" cx="97.00" cy="54.00" r="1.7"/></svg><p class="ch__thrlabel">capacity reached at 24</p></div><p class="ch__yaxis">Admission decision</p><ul class="ch__xls"><li class="ch__xl"><button type="button" class="ch__pt" data-i="0" data-cat="0" data-val="1">0</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="1" data-cat="8" data-val="1">8</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="2" data-cat="16" data-val="1">16</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="3" data-cat="20" data-val="1">20</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="4" data-cat="22" data-val="1">22</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="5" data-cat="23" data-val="1">23</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="6" data-cat="24" data-val="0">24</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="7" data-cat="25" data-val="0">25</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="8" data-cat="26" data-val="0">26</button></li></ul><p class="ch__xaxis">Observations already in the queue</p></div><p class="ch__readout" role="status">Select or hover a queue size to read the decision.</p><p class="cite">Each point is admitted(queue_size) computed from the rule above with queue_capacity = 24. The comparison is strict, so the queue holds at most 24 observations and the 25th is refused.</p></figure><div class="probe" data-probe data-threshold="24"><p class="cap">Evaluate the admission rule directly</p><label class="probe__label" for="r-configuration-probe">Observations already in the queue</label><input class="probe__range" id="r-configuration-probe" type="range" min="0" max="30" value="23" data-probe-input><p class="probe__out" role="status" data-probe-out>admitted(23) is True</p><p class="cite">The control re-runs the same strict comparison; it does not consult a lookup table.</p></div></div></div></div></section><section class="band" data-band="light" data-dv-section="workflow"><div class="wrap" data-reveal><p class="eyebrow">Process</p><h2 id="workflow">Observation to queue to analyst to archive</h2><p class="lede">The process has four stages and three transitions. Incoming observations enter the queue, an analyst reviews them, and approved records are archived. Every label below is taken from the sources; nothing between the stages is inferred.</p><p class="cite">Source: README.md, prior handbook heading</p><figure class="diagram" data-diagram><figcaption>Observation to queue to analyst to archive</figcaption><ol class="pflow"><li class="pnode" id="r-workflow-n-observation"><span class="pnode__n">stage 1 of 4</span><h4 class="pnode__t">Observation</h4><p class="pnode__s">Field observation arrives</p><details class="hotspot"><summary class="hotspot__btn">What the sources say</summary><p class="hotspot__body">An incoming observation is the unit of work. The sources do not describe how observations are captured or transported.</p></details></li><li class="conn"><svg class="conn__svg conn__svg--h" viewBox="0 0 120 48" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M3 24 C40 3 80 3 111 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M103 17 L113 24 L103 31" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><svg class="conn__svg conn__svg--v" viewBox="0 0 48 96" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M24 3 C45 30 3 62 24 87" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M17 79 L24 89 L31 79" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><p class="conn__label">enters the queue</p></li><li class="pnode" id="r-workflow-n-queue"><span class="pnode__n">stage 2 of 4</span><h4 class="pnode__t">Queue</h4><p class="pnode__s">Holds at most 24</p><details class="hotspot"><summary class="hotspot__btn">What the sources say</summary><p class="hotspot__body">Admission is decided by admitted(queue_size), a strict comparison against queue_capacity = 24. Once 24 observations are held, the next one is refused.</p></details></li><li class="conn"><svg class="conn__svg conn__svg--h" viewBox="0 0 120 48" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M3 24 C40 3 80 3 111 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M103 17 L113 24 L103 31" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><svg class="conn__svg conn__svg--v" viewBox="0 0 48 96" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M24 3 C45 30 3 62 24 87" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M17 79 L24 89 L31 79" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><p class="conn__label">an analyst reviews them</p></li><li class="pnode" id="r-workflow-n-analyst"><span class="pnode__n">stage 3 of 4</span><h4 class="pnode__t">Analyst review</h4><p class="pnode__s">Human review step</p><details class="hotspot"><summary class="hotspot__btn">What the sources say</summary><p class="hotspot__body">An analyst reviews queued observations. The sources describe review as a step and name its outcome, but do not describe review criteria or ordering.</p></details></li><li class="conn"><svg class="conn__svg conn__svg--h" viewBox="0 0 120 48" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M3 24 C40 3 80 3 111 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M103 17 L113 24 L103 31" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><svg class="conn__svg conn__svg--v" viewBox="0 0 48 96" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M24 3 C45 30 3 62 24 87" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M17 79 L24 89 L31 79" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><p class="conn__label">approved records are archived</p></li><li class="pnode" id="r-workflow-n-archive"><span class="pnode__n">stage 4 of 4</span><h4 class="pnode__t">Archive</h4><p class="pnode__s">Approved records only</p><details class="hotspot"><summary class="hotspot__btn">What the sources say</summary><p class="hotspot__body">Approved records are archived. The sources state no destination for records that are not approved.</p></details></li></ol><p class="cap">What each edge is constrained by</p><ul class="chips"><li class="chip"><span class="chip__k">Observation to Queue</span><span class="chip__v">admission gated by queue_capacity = 24</span></li><li class="chip"><span class="chip__k">Queue to Analyst review</span><span class="chip__v">no ordering or selection rule is stated</span></li><li class="chip"><span class="chip__k">Analyst review to Archive</span><span class="chip__v">outcome for records that are not approved is not stated</span></li></ul><p class="cap">Configured but not bound to a stage by any source</p><ul class="chips"><li class="chip"><span class="chip__k">retry_limit = 3</span><span class="chip__v">The README says configuration controls retry attempts, but no supplied module implements a retry. The stage this binds to is not stated.</span></li><li class="chip"><span class="chip__k">timeout_seconds = 8</span><span class="chip__v">The README says configuration controls a timeout, but no supplied module implements a timer. The stage this binds to is not stated.</span></li></ul><p class="diagram__desc">Four-stage flow: Observation enters the Queue, which holds at most 24; the Analyst reviews queued items; approved records move to the Archive.</p><p class="diagram__cta"><button type="button" class="btn btn--ghost" data-dv-modal-open="r-workflow-modal">Enlarge the process graphic</button></p></figure><figure class="tablefig"><figcaption>Every edge in the process, with its source</figcaption><div class="tablescroll"><table><thead><tr><th scope="col">From</th><th scope="col">To</th><th scope="col">Transition</th><th scope="col">Constraint recorded in the sources</th><th scope="col">Source</th></tr></thead><tbody><tr><td>Observation</td><td>Queue</td><td>enters the queue</td><td>Admitted only while fewer than 24 observations are held</td><td>README.md, service.py</td></tr><tr><td>Queue</td><td>Analyst review</td><td>an analyst reviews them</td><td>No ordering, batching or selection rule is stated</td><td>README.md</td></tr><tr><td>Analyst review</td><td>Archive</td><td>approved records are archived</td><td>Only approved records; no stated path for the rest</td><td>README.md</td></tr></tbody></table></div></figure></div></section><section class="band" data-band="dark" data-dv-section="code"><div class="wrap" data-reveal><p class="eyebrow">Ownership</p><h2 id="code">Code and generator ownership</h2><p class="lede">This page has one owner. The native build.py entry point generates docs/handbooks/html/operations.html, and the overview and workflow anchors are part of the contract with anything that links here.</p><p class="cite">Source: docs/handbooks/README.md, README.md</p><aside class="callout callout--ownership"><p class="callout__title">Native build.py owns html/operations.html</p><p class="callout__text">Preserve the overview and workflow anchors. This refresh extends the existing generator in place; it does not introduce a competing generator and does not move the handbook URL.</p><p class="cite">Source: docs/handbooks/README.md</p></aside><div class="cols"><div><figure class="codefig"><figcaption>service.py, verbatim</figcaption><div class="codescroll"><pre><code>import json
+from pathlib import Path
+CONFIG = json.loads(Path(__file__).with_name(&quot;config.json&quot;).read_text())
+def attempts():
+    return CONFIG[&quot;retry_limit&quot;]
+def admitted(queue_size):
+    return queue_size &lt; CONFIG[&quot;queue_capacity&quot;]</code></pre></div></figure><figure class="codefig"><figcaption>The generator contract build.py keeps</figcaption><div class="codescroll"><pre><code>root   = Path(__file__).parent
+config = json.loads((root / &#x27;config.json&#x27;).read_text())
+out    = root / &#x27;docs/handbooks/html/operations.html&#x27;
+out.parent.mkdir(parents=True, exist_ok=True)</code></pre></div></figure></div><div><figure class="tablefig"><figcaption>The two public functions in service.py</figcaption><div class="tablescroll"><table><thead><tr><th scope="col">Function</th><th scope="col">Input</th><th scope="col">Returns</th><th scope="col">Behaviour</th></tr></thead><tbody><tr><td>attempts()</td><td>none</td><td>int</td><td>The configured retry limit, currently 3. It is returned as-is; the function performs no retrying.</td></tr><tr><td>admitted(queue_size)</td><td>queue_size: int</td><td>bool</td><td>True while queue_size is strictly less than 24, otherwise False.</td></tr></tbody></table></div></figure><div class="bulletwrap"><p class="cap">What the extended generator preserves from the original build.py</p><ul class="bullets"><li>The entry point stays python build.py, run from the repository root.</li><li>config.json remains the single input for the three parameters, read the same way.</li><li>The output path stays docs/handbooks/html/operations.html, so the handbook URL is unchanged.</li><li>The overview and workflow anchors are still emitted, with the same heading text as before.</li><li>The parent directory is still created when missing.</li></ul></div></div></div></div></section><section class="band" data-band="light" data-dv-section="freshness"><div class="wrap" data-reveal><p class="eyebrow">What we do not know</p><h2 id="freshness">Freshness, drift and uncertainty</h2><p class="lede">Two different things are recorded here and they must not be confused. Drift is a value that was correct once and is now wrong. Uncertainty is a value that no source states at all, which no regeneration can fix.</p><p class="cite">Source: README.md</p><figure class="tablefig"><figcaption>Drift between the previously generated handbook and current configuration</figcaption><div class="tablescroll"><table><thead><tr><th scope="col">Field</th><th scope="col">Previous handbook</th><th scope="col">Current sources</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead><tbody><tr class="drift--changed"><td>Retry limit</td><td><span class="was">2</span></td><td><span class="now">3</span></td><td>changed</td><td>The generated handbook predates the retry-limit change. Current config.json is authoritative.</td></tr><tr class="drift--unchanged"><td>Queue capacity</td><td><span class="was">24</span></td><td><span class="now">24</span></td><td>unchanged</td><td>Matches config.json.</td></tr><tr class="drift--unchanged"><td>Timeout</td><td><span class="was">8 seconds</span></td><td><span class="now">8 seconds</span></td><td>unchanged</td><td>Matches config.json.</td></tr><tr class="drift--unchanged"><td>Reliability</td><td><span class="was">Reliability unavailable.</span></td><td><span class="now">Still unavailable</span></td><td>unchanged</td><td>No reliability measurement exists in any source.</td></tr></tbody></table></div></figure><div class="uncwrap"><p class="cap">Open questions the sources do not answer</p><ul class="uncs"><li class="unc"><span class="unc__tag">stated-unknown</span><p class="unc__q">How reliable is the queue?</p><p class="unc__a">No reliability measurement is available. Neither the README, the code, the configuration nor the previous handbook states one.</p></li><li class="unc"><span class="unc__tag">unbound-parameter</span><p class="unc__q">Which stage does retry_limit apply to?</p><p class="unc__a">Not stated. The README says configuration controls retry attempts, but no supplied module implements a retry, so the binding stage cannot be recovered from the sources.</p></li><li class="unc"><span class="unc__tag">unbound-parameter</span><p class="unc__q">Which stage does timeout_seconds apply to?</p><p class="unc__a">Not stated. The README says configuration controls a timeout, but no supplied module implements a timer.</p></li><li class="unc"><span class="unc__tag">gap</span><p class="unc__q">What happens to observations that are refused admission?</p><p class="unc__a">Not stated. admitted() returns False and the sources describe no overflow, retry or rejection path.</p></li><li class="unc"><span class="unc__tag">gap</span><p class="unc__q">What happens to reviewed records that are not approved?</p><p class="unc__a">Not stated. Only approved records are described as archived.</p></li></ul></div><aside class="callout callout--warning"><p class="callout__title">Nothing above was filled in by inference</p><p class="callout__text">Where a source is silent this page says so. No reliability figure, retry stage, timeout stage or overflow path has been invented to make the explanation feel complete.</p><p class="cite">Source: README.md, brief.md</p></aside></div></section><section class="band" data-band="dark" data-dv-section="rebuild"><div class="wrap" data-reveal><p class="eyebrow">Appendix</p><h2 id="rebuild">Rebuild, check and source inventory</h2><p class="lede">This page is generated, not hand-edited. Both commands below run from the repository root and are the only supported way to refresh or verify it.</p><p class="cite">Source: build.py</p><div class="cmds"><p class="cap">Executable rebuild and read-only check</p><ul class="cmdlist"><li class="cmd cmd--writes"><p class="cmd__label">Rebuild the handbook and the standalone process graphic</p><div class="codescroll"><pre><code>python build.py</code></pre></div><p class="cmd__mode">writes</p><p class="cite">Regenerates docs/handbooks/html/operations.html and docs/handbooks/html/operations-process.svg from config.json and the retained model. A candidate is written and compared against the anchor and fact contract before the live file is replaced.</p></li><li class="cmd cmd--read-only"><p class="cmd__label">Verify freshness without writing anything</p><div class="codescroll"><pre><code>python build.py --check</code></pre></div><p class="cmd__mode">read-only</p><p class="cite">Recomputes the artifacts in memory and compares them with the files on disk. Exit code 0 means fresh; 1 means stale or missing. It never writes and never invokes generation as a side effect.</p></li></ul></div><details class="inv" data-inventory><summary class="inv__sum">Every input that fed this page (9 files)</summary><div class="tablescroll"><table><thead><tr><th scope="col">Source</th><th scope="col">Kind</th><th scope="col">Role</th></tr></thead><tbody><tr><td><code>README.md</code></td><td>markdown</td><td>Project description, process narrative, authority and preservation rules</td></tr><tr><td><code>config.json</code></td><td>json</td><td>Authoritative runtime parameters</td></tr><tr><td><code>service.py</code></td><td>python</td><td>Runtime code reading the configuration</td></tr><tr><td><code>build.py</code></td><td>python</td><td>Native handbook generator (entry point, extended in place)</td></tr><tr><td><code>docs/handbooks/README.md</code></td><td>markdown</td><td>Generator ownership and anchor-preservation rule</td></tr><tr><td><code>docs/handbooks/html/operations.html</code></td><td>html</td><td>Previously generated handbook (stale retry limit)</td></tr><tr><td><code>brand.json</code></td><td>json</td><td>Brand tokens (palette, font, logo reference)</td></tr><tr><td><code>brand.svg</code></td><td>svg</td><td>Original brand mark and wordmark</td></tr><tr><td><code>brief.md</code></td><td>markdown</td><td>Approved visual brief; build instruction, not reader-facing subject content</td></tr></tbody></table></div><p class="cite">Retained under docs/handbooks/html/_operations-src/ together with the content model, the design record and the extractor output.</p></details><aside class="callout callout--note"><p class="callout__title">One source was read outside the extractor</p><p class="callout__text">The installed extractor walked the repository and ingested 8 of the 9 files. It has no .html reader, so the previously generated docs/handbooks/html/operations.html was not in the extracted model; its stale retry value was read directly from the frozen file. The gap is recorded rather than papered over.</p><p class="cite">Source: extracted/model-extracted.json</p></aside></div></section></main>
+<footer class="band" data-band="light"><div class="wrap"><p class="cite">Retry limit: 3. Queue capacity: 24. Timeout: 8 seconds. Generated by build.py from config.json and the retained model under docs/handbooks/html/_operations-src/. This page is offline and self-contained; every asset is embedded.</p></div></footer>
+<div class="deck" data-dv-deck hidden role="dialog" aria-modal="true" aria-label="Presentation Mode" data-native-fs="0"><div class="stage"><article class="slide slide--cover" data-dv-slide="cover" data-theme="dark" data-active="true" aria-hidden="false" role="group" aria-roledescription="slide" aria-label="Slide 1 of 5: Queue operations"><header class="slide__head"><div class="slide__titles"><h2 class="slide__t">Queue operations</h2><p class="slide__s">Aster Fieldworks Queue : field-observation handbook</p></div><p class="slide__mark"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNzAiPjxwYXRoIGQ9Ik01IDM1TDMwIDVMNTUgMzVMMzAgNjVaIiBmaWxsPSIjYjU2MzJmIi8+PHRleHQgeD0iNzIiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iIzE3MmIzYiI+QXN0ZXIgRmllbGR3b3JrczwvdGV4dD48L3N2Zz4=" alt="Aster Fieldworks"></p></header><div class="slide__body"><div class="pane pane--single"><p class="lede">Aster Fieldworks Queue is a synthetic field-observation queue. Configuration controls retry attempts, admission capacity and timeout. Incoming observations enter the queue, an analyst reviews them, and approved records are archived.</p><p class="cite">Source: README.md</p><aside class="callout callout--authority"><p class="callout__title">Current code and configuration are authoritative</p><p class="callout__text">Where this page and an older artifact disagree, config.json and the Python modules win. The previously generated handbook predates the retry-limit change and states a retry limit of 2.</p><p class="cite">Source: README.md</p></aside></div></div></article><article class="slide slide--agenda" data-dv-slide="agenda" data-theme="light" data-active="false" aria-hidden="true" role="group" aria-roledescription="slide" aria-label="Slide 2 of 5: Agenda"><header class="slide__head"><div class="slide__titles"><h2 class="slide__t">Agenda</h2><p class="slide__s">Five sections, in reading order</p></div><p class="slide__mark"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNzAiPjxwYXRoIGQ9Ik01IDM1TDMwIDVMNTUgMzVMMzAgNjVaIiBmaWxsPSIjYjU2MzJmIi8+PHRleHQgeD0iNzIiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2Y3ZjNlOSI+QXN0ZXIgRmllbGR3b3JrczwvdGV4dD48L3N2Zz4=" alt="Aster Fieldworks"></p></header><div class="slide__body"><div class="pane pane--cols"><nav class="agenda" aria-label="Handbook agenda"><p class="cap">What this handbook covers, in reading order</p><ol class="agenda__list"><li class="agenda__row"><a class="agenda__link" href="#configuration"><span class="agenda__n">01</span><span class="agenda__t">Configuration and the admission rule</span><span class="agenda__note">The three parameters and how the code applies capacity</span></a></li><li class="agenda__row"><a class="agenda__link" href="#workflow"><span class="agenda__n">02</span><span class="agenda__t">Observation to queue to analyst to archive</span><span class="agenda__note">The four-stage process and every edge between the stages</span></a></li><li class="agenda__row"><a class="agenda__link" href="#code"><span class="agenda__n">03</span><span class="agenda__t">Code and generator ownership</span><span class="agenda__note">service.py, build.py, and who owns this page</span></a></li><li class="agenda__row"><a class="agenda__link" href="#freshness"><span class="agenda__n">04</span><span class="agenda__t">Freshness, drift and uncertainty</span><span class="agenda__note">What changed, what is stale, and what is unknown</span></a></li><li class="agenda__row"><a class="agenda__link" href="#rebuild"><span class="agenda__n">05</span><span class="agenda__t">Rebuild, check and source inventory</span><span class="agenda__note">The executable commands and every input that fed this page</span></a></li></ol></nav><div class="statwrap"><p class="cap">Authoritative parameters, read from config.json at build time</p><ul class="stats"><li class="stat"><span class="stat__label">Retry limit</span><span class="stat__value" data-count="3">3</span><span class="stat__unit">attempts</span><span class="stat__cite">config.json</span></li><li class="stat"><span class="stat__label">Queue capacity</span><span class="stat__value" data-count="24">24</span><span class="stat__unit">observations</span><span class="stat__cite">config.json</span></li><li class="stat"><span class="stat__label">Timeout</span><span class="stat__value" data-count="8">8</span><span class="stat__unit">seconds</span><span class="stat__cite">config.json</span></li><li class="stat"><span class="stat__label">Reliability</span><span class="stat__value stat__value--text">Not measured</span><span class="stat__unit">no source figure exists</span><span class="stat__cite">README.md, prior handbook</span></li></ul></div></div></div></article><article class="slide slide--data" data-dv-slide="parameters" data-theme="light" data-active="false" aria-hidden="true" role="group" aria-roledescription="slide" aria-label="Slide 3 of 5: Configuration and the admission rule"><header class="slide__head"><div class="slide__titles"><h2 class="slide__t">Configuration and the admission rule</h2><p class="slide__s">Three parameters; one of them is enforced by code</p></div><p class="slide__mark"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNzAiPjxwYXRoIGQ9Ik01IDM1TDMwIDVMNTUgMzVMMzAgNjVaIiBmaWxsPSIjYjU2MzJmIi8+PHRleHQgeD0iNzIiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2Y3ZjNlOSI+QXN0ZXIgRmllbGR3b3JrczwvdGV4dD48L3N2Zz4=" alt="Aster Fieldworks"></p></header><div class="slide__body"><div data-tabs><ul class="tabs" role="tablist" aria-label="Within-slide views"><li><button type="button" role="tab" id="pane-par-table-tab" aria-controls="pane-par-table-panel" aria-selected="true" tabindex="0" class="tab">The three parameters</button></li><li><button type="button" role="tab" id="pane-par-rule-tab" aria-controls="pane-par-rule-panel" aria-selected="false" tabindex="-1" class="tab">The admission rule</button></li><li><button type="button" role="tab" id="pane-par-chart-tab" aria-controls="pane-par-chart-panel" aria-selected="false" tabindex="-1" class="tab">Admission by queue size</button></li></ul><div role="tabpanel" id="pane-par-table-panel" aria-labelledby="pane-par-table-tab" class="tabpanel"><div class="pane pane--cols"><p class="lede">One file holds every tunable value. config.json is read by service.py at import time and by build.py at generation time, so the runtime and this handbook cannot disagree about a parameter unless the handbook is stale.</p><p class="cite">Source: config.json, service.py, build.py</p><figure class="tablefig"><figcaption>config.json, verbatim keys and values</figcaption><div class="tablescroll"><table><thead><tr><th scope="col">Key</th><th scope="col">Value</th><th scope="col">Unit</th><th scope="col">Read by</th><th scope="col">What the supplied code does with it</th></tr></thead><tbody><tr><td>retry_limit</td><td>3</td><td>attempts</td><td>service.py attempts()</td><td>Returned unchanged; no retry loop exists in the supplied code</td></tr><tr><td>queue_capacity</td><td>24</td><td>observations</td><td>service.py admitted()</td><td>Compared with the current queue size to accept or refuse an observation</td></tr><tr><td>timeout_seconds</td><td>8</td><td>seconds</td><td>build.py handbook text</td><td>Reported only; no timer exists in the supplied code</td></tr></tbody></table></div></figure></div></div><div role="tabpanel" id="pane-par-rule-panel" aria-labelledby="pane-par-rule-tab" class="tabpanel" hidden><div class="pane pane--cols"><figure class="codefig"><figcaption>The admission rule, verbatim from service.py</figcaption><div class="codescroll"><pre><code>def admitted(queue_size):
+    return queue_size &lt; CONFIG[&quot;queue_capacity&quot;]</code></pre></div></figure><div class="probe" data-probe data-threshold="24"><p class="cap">Evaluate the admission rule directly</p><label class="probe__label" for="s-parameters-probe">Observations already in the queue</label><input class="probe__range" id="s-parameters-probe" type="range" min="0" max="30" value="23" data-probe-input><p class="probe__out" role="status" data-probe-out>admitted(23) is True</p><p class="cite">The control re-runs the same strict comparison; it does not consult a lookup table.</p></div></div></div><div role="tabpanel" id="pane-par-chart-panel" aria-labelledby="pane-par-chart-tab" class="tabpanel" hidden><div class="pane pane--cols"><figure class="chart" data-chart><figcaption>Admission decision by queue size, evaluated from the admission rule</figcaption><div class="chart__grid"><ul class="ch__yl"><li>admitted</li><li>refused</li></ul><div class="chart__plot"><svg viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true" focusable="false"><line class="ch__grid" x1="3" y1="6" x2="97" y2="6"/><line class="ch__grid" x1="3" y1="30" x2="97" y2="30"/><line class="ch__grid" x1="3" y1="54" x2="97" y2="54"/><path class="ch__area" d="M3.00 6.00 L14.75 6.00 L14.75 6.00 L26.50 6.00 L26.50 6.00 L38.25 6.00 L38.25 6.00 L50.00 6.00 L50.00 6.00 L61.75 6.00 L61.75 6.00 L73.50 6.00 L73.50 54.00 L85.25 54.00 L85.25 54.00 L97.00 54.00 L97.00 54.00 L97.00 54.00 L3.00 54.00 Z"/><path class="ch__line" d="M3.00 6.00 L14.75 6.00 L14.75 6.00 L26.50 6.00 L26.50 6.00 L38.25 6.00 L38.25 6.00 L50.00 6.00 L50.00 6.00 L61.75 6.00 L61.75 6.00 L73.50 6.00 L73.50 54.00 L85.25 54.00 L85.25 54.00 L97.00 54.00 L97.00 54.00"/><line class="ch__thr" x1="73.50" y1="6" x2="73.50" y2="54"/><circle class="ch__dot" cx="3.00" cy="6.00" r="1.7"/><circle class="ch__dot" cx="14.75" cy="6.00" r="1.7"/><circle class="ch__dot" cx="26.50" cy="6.00" r="1.7"/><circle class="ch__dot" cx="38.25" cy="6.00" r="1.7"/><circle class="ch__dot" cx="50.00" cy="6.00" r="1.7"/><circle class="ch__dot" cx="61.75" cy="6.00" r="1.7"/><circle class="ch__dot" cx="73.50" cy="54.00" r="1.7"/><circle class="ch__dot" cx="85.25" cy="54.00" r="1.7"/><circle class="ch__dot" cx="97.00" cy="54.00" r="1.7"/></svg><p class="ch__thrlabel">capacity reached at 24</p></div><p class="ch__yaxis">Admission decision</p><ul class="ch__xls"><li class="ch__xl"><button type="button" class="ch__pt" data-i="0" data-cat="0" data-val="1">0</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="1" data-cat="8" data-val="1">8</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="2" data-cat="16" data-val="1">16</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="3" data-cat="20" data-val="1">20</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="4" data-cat="22" data-val="1">22</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="5" data-cat="23" data-val="1">23</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="6" data-cat="24" data-val="0">24</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="7" data-cat="25" data-val="0">25</button></li><li class="ch__xl"><button type="button" class="ch__pt" data-i="8" data-cat="26" data-val="0">26</button></li></ul><p class="ch__xaxis">Observations already in the queue</p></div><p class="ch__readout" role="status">Select or hover a queue size to read the decision.</p><p class="cite">Each point is admitted(queue_size) computed from the rule above with queue_capacity = 24. The comparison is strict, so the queue holds at most 24 observations and the 25th is refused.</p></figure></div></div></div></div></article><article class="slide slide--process" data-dv-slide="process" data-theme="dark" data-active="false" aria-hidden="true" role="group" aria-roledescription="slide" aria-label="Slide 4 of 5: Observation to queue to analyst to archive"><header class="slide__head"><div class="slide__titles"><h2 class="slide__t">Observation to queue to analyst to archive</h2><p class="slide__s">Four stages, three edges, two unbound parameters</p></div><p class="slide__mark"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNzAiPjxwYXRoIGQ9Ik01IDM1TDMwIDVMNTUgMzVMMzAgNjVaIiBmaWxsPSIjYjU2MzJmIi8+PHRleHQgeD0iNzIiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iIzE3MmIzYiI+QXN0ZXIgRmllbGR3b3JrczwvdGV4dD48L3N2Zz4=" alt="Aster Fieldworks"></p></header><div class="slide__body"><div data-tabs><ul class="tabs" role="tablist" aria-label="Within-slide views"><li><button type="button" role="tab" id="pane-proc-flow-tab" aria-controls="pane-proc-flow-panel" aria-selected="true" tabindex="0" class="tab">The four stages</button></li><li><button type="button" role="tab" id="pane-proc-detail-tab" aria-controls="pane-proc-detail-panel" aria-selected="false" tabindex="-1" class="tab">What the sources say per stage</button></li><li><button type="button" role="tab" id="pane-proc-edges-tab" aria-controls="pane-proc-edges-panel" aria-selected="false" tabindex="-1" class="tab">Edges and unbound parameters</button></li></ul><div role="tabpanel" id="pane-proc-flow-panel" aria-labelledby="pane-proc-flow-tab" class="tabpanel"><div class="pane pane--single"><p class="lede">The process has four stages and three transitions. Incoming observations enter the queue, an analyst reviews them, and approved records are archived. Every label below is taken from the sources; nothing between the stages is inferred.</p><p class="cite">Source: README.md, prior handbook heading</p><figure class="diagram" data-diagram><figcaption>Observation to queue to analyst to archive</figcaption><ol class="pflow"><li class="pnode"><span class="pnode__n">stage 1 of 4</span><h4 class="pnode__t">Observation</h4><p class="pnode__s">Field observation arrives</p></li><li class="conn"><svg class="conn__svg conn__svg--h" viewBox="0 0 120 48" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M3 24 C40 3 80 3 111 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M103 17 L113 24 L103 31" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><svg class="conn__svg conn__svg--v" viewBox="0 0 48 96" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M24 3 C45 30 3 62 24 87" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M17 79 L24 89 L31 79" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><p class="conn__label">enters the queue</p></li><li class="pnode"><span class="pnode__n">stage 2 of 4</span><h4 class="pnode__t">Queue</h4><p class="pnode__s">Holds at most 24</p></li><li class="conn"><svg class="conn__svg conn__svg--h" viewBox="0 0 120 48" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M3 24 C40 3 80 3 111 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M103 17 L113 24 L103 31" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><svg class="conn__svg conn__svg--v" viewBox="0 0 48 96" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M24 3 C45 30 3 62 24 87" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M17 79 L24 89 L31 79" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><p class="conn__label">an analyst reviews them</p></li><li class="pnode"><span class="pnode__n">stage 3 of 4</span><h4 class="pnode__t">Analyst review</h4><p class="pnode__s">Human review step</p></li><li class="conn"><svg class="conn__svg conn__svg--h" viewBox="0 0 120 48" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M3 24 C40 3 80 3 111 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M103 17 L113 24 L103 31" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><svg class="conn__svg conn__svg--v" viewBox="0 0 48 96" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M24 3 C45 30 3 62 24 87" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M17 79 L24 89 L31 79" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg><p class="conn__label">approved records are archived</p></li><li class="pnode"><span class="pnode__n">stage 4 of 4</span><h4 class="pnode__t">Archive</h4><p class="pnode__s">Approved records only</p></li></ol><p class="diagram__desc">Four-stage flow: Observation enters the Queue, which holds at most 24; the Analyst reviews queued items; approved records move to the Archive.</p><p class="diagram__cta"><button type="button" class="btn btn--ghost" data-dv-modal-open="s-process-modal">Enlarge the process graphic</button></p></figure></div></div><div role="tabpanel" id="pane-proc-detail-panel" aria-labelledby="pane-proc-detail-tab" class="tabpanel" hidden><div class="pane pane--single"><div class="uncwrap"><p class="cap">What the sources say about each stage</p><ul class="uncs"><li class="unc"><span class="unc__tag">stage 1 of 4</span><p class="unc__q">Observation: Field observation arrives</p><p class="unc__a">An incoming observation is the unit of work. The sources do not describe how observations are captured or transported.</p></li><li class="unc"><span class="unc__tag">stage 2 of 4</span><p class="unc__q">Queue: Holds at most 24</p><p class="unc__a">Admission is decided by admitted(queue_size), a strict comparison against queue_capacity = 24. Once 24 observations are held, the next one is refused.</p></li><li class="unc"><span class="unc__tag">stage 3 of 4</span><p class="unc__q">Analyst review: Human review step</p><p class="unc__a">An analyst reviews queued observations. The sources describe review as a step and name its outcome, but do not describe review criteria or ordering.</p></li><li class="unc"><span class="unc__tag">stage 4 of 4</span><p class="unc__q">Archive: Approved records only</p><p class="unc__a">Approved records are archived. The sources state no destination for records that are not approved.</p></li></ul></div></div></div><div role="tabpanel" id="pane-proc-edges-panel" aria-labelledby="pane-proc-edges-tab" class="tabpanel" hidden><div class="pane pane--single"><p class="cap">What each edge is constrained by</p><ul class="chips"><li class="chip"><span class="chip__k">Observation to Queue</span><span class="chip__v">admission gated by queue_capacity = 24</span></li><li class="chip"><span class="chip__k">Queue to Analyst review</span><span class="chip__v">no ordering or selection rule is stated</span></li><li class="chip"><span class="chip__k">Analyst review to Archive</span><span class="chip__v">outcome for records that are not approved is not stated</span></li></ul><p class="cap">Configured but not bound to a stage by any source</p><ul class="chips"><li class="chip"><span class="chip__k">retry_limit = 3</span><span class="chip__v">The README says configuration controls retry attempts, but no supplied module implements a retry. The stage this binds to is not stated.</span></li><li class="chip"><span class="chip__k">timeout_seconds = 8</span><span class="chip__v">The README says configuration controls a timeout, but no supplied module implements a timer. The stage this binds to is not stated.</span></li></ul><figure class="tablefig"><figcaption>Every edge in the process, with its source</figcaption><div class="tablescroll"><table><thead><tr><th scope="col">From</th><th scope="col">To</th><th scope="col">Transition</th><th scope="col">Constraint recorded in the sources</th><th scope="col">Source</th></tr></thead><tbody><tr><td>Observation</td><td>Queue</td><td>enters the queue</td><td>Admitted only while fewer than 24 observations are held</td><td>README.md, service.py</td></tr><tr><td>Queue</td><td>Analyst review</td><td>an analyst reviews them</td><td>No ordering, batching or selection rule is stated</td><td>README.md</td></tr><tr><td>Analyst review</td><td>Archive</td><td>approved records are archived</td><td>Only approved records; no stated path for the rest</td><td>README.md</td></tr></tbody></table></div></figure></div></div></div></div></article><article class="slide slide--appendix" data-dv-slide="appendices" data-theme="light" data-active="false" aria-hidden="true" role="group" aria-roledescription="slide" aria-label="Slide 5 of 5: Appendices"><header class="slide__head"><div class="slide__titles"><h2 class="slide__t">Appendices</h2><p class="slide__s">Ownership, uncertainty and rebuild</p></div><p class="slide__mark"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNzAiPjxwYXRoIGQ9Ik01IDM1TDMwIDVMNTUgMzVMMzAgNjVaIiBmaWxsPSIjYjU2MzJmIi8+PHRleHQgeD0iNzIiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2Y3ZjNlOSI+QXN0ZXIgRmllbGR3b3JrczwvdGV4dD48L3N2Zz4=" alt="Aster Fieldworks"></p></header><div class="slide__body"><div data-tabs><ul class="tabs" role="tablist" aria-label="Within-slide views"><li><button type="button" role="tab" id="pane-app-owner-tab" aria-controls="pane-app-owner-panel" aria-selected="true" tabindex="0" class="tab">Ownership</button></li><li><button type="button" role="tab" id="pane-app-code-tab" aria-controls="pane-app-code-panel" aria-selected="false" tabindex="-1" class="tab">Code and API</button></li><li><button type="button" role="tab" id="pane-app-drift-tab" aria-controls="pane-app-drift-panel" aria-selected="false" tabindex="-1" class="tab">Drift</button></li><li><button type="button" role="tab" id="pane-app-unknown-tab" aria-controls="pane-app-unknown-panel" aria-selected="false" tabindex="-1" class="tab">Uncertainty</button></li><li><button type="button" role="tab" id="pane-app-rebuild-tab" aria-controls="pane-app-rebuild-panel" aria-selected="false" tabindex="-1" class="tab">Rebuild and sources</button></li></ul><div role="tabpanel" id="pane-app-owner-panel" aria-labelledby="pane-app-owner-tab" class="tabpanel"><div class="pane pane--cols"><p class="lede">This page has one owner. The native build.py entry point generates docs/handbooks/html/operations.html, and the overview and workflow anchors are part of the contract with anything that links here.</p><p class="cite">Source: docs/handbooks/README.md, README.md</p><aside class="callout callout--ownership"><p class="callout__title">Native build.py owns html/operations.html</p><p class="callout__text">Preserve the overview and workflow anchors. This refresh extends the existing generator in place; it does not introduce a competing generator and does not move the handbook URL.</p><p class="cite">Source: docs/handbooks/README.md</p></aside><div class="bulletwrap"><p class="cap">What the extended generator preserves from the original build.py</p><ul class="bullets"><li>The entry point stays python build.py, run from the repository root.</li><li>config.json remains the single input for the three parameters, read the same way.</li><li>The output path stays docs/handbooks/html/operations.html, so the handbook URL is unchanged.</li><li>The overview and workflow anchors are still emitted, with the same heading text as before.</li><li>The parent directory is still created when missing.</li></ul></div></div></div><div role="tabpanel" id="pane-app-code-panel" aria-labelledby="pane-app-code-tab" class="tabpanel" hidden><div class="pane pane--cols"><figure class="codefig"><figcaption>service.py, verbatim</figcaption><div class="codescroll"><pre><code>import json
+from pathlib import Path
+CONFIG = json.loads(Path(__file__).with_name(&quot;config.json&quot;).read_text())
+def attempts():
+    return CONFIG[&quot;retry_limit&quot;]
+def admitted(queue_size):
+    return queue_size &lt; CONFIG[&quot;queue_capacity&quot;]</code></pre></div></figure><figure class="codefig"><figcaption>The generator contract build.py keeps</figcaption><div class="codescroll"><pre><code>root   = Path(__file__).parent
+config = json.loads((root / &#x27;config.json&#x27;).read_text())
+out    = root / &#x27;docs/handbooks/html/operations.html&#x27;
+out.parent.mkdir(parents=True, exist_ok=True)</code></pre></div></figure><figure class="tablefig"><figcaption>The two public functions in service.py</figcaption><div class="tablescroll"><table><thead><tr><th scope="col">Function</th><th scope="col">Input</th><th scope="col">Returns</th><th scope="col">Behaviour</th></tr></thead><tbody><tr><td>attempts()</td><td>none</td><td>int</td><td>The configured retry limit, currently 3. It is returned as-is; the function performs no retrying.</td></tr><tr><td>admitted(queue_size)</td><td>queue_size: int</td><td>bool</td><td>True while queue_size is strictly less than 24, otherwise False.</td></tr></tbody></table></div></figure></div></div><div role="tabpanel" id="pane-app-drift-panel" aria-labelledby="pane-app-drift-tab" class="tabpanel" hidden><div class="pane pane--cols"><p class="lede">Two different things are recorded here and they must not be confused. Drift is a value that was correct once and is now wrong. Uncertainty is a value that no source states at all, which no regeneration can fix.</p><p class="cite">Source: README.md</p><figure class="tablefig"><figcaption>Drift between the previously generated handbook and current configuration</figcaption><div class="tablescroll"><table><thead><tr><th scope="col">Field</th><th scope="col">Previous handbook</th><th scope="col">Current sources</th><th scope="col">Status</th><th scope="col">Note</th></tr></thead><tbody><tr class="drift--changed"><td>Retry limit</td><td><span class="was">2</span></td><td><span class="now">3</span></td><td>changed</td><td>The generated handbook predates the retry-limit change. Current config.json is authoritative.</td></tr><tr class="drift--unchanged"><td>Queue capacity</td><td><span class="was">24</span></td><td><span class="now">24</span></td><td>unchanged</td><td>Matches config.json.</td></tr><tr class="drift--unchanged"><td>Timeout</td><td><span class="was">8 seconds</span></td><td><span class="now">8 seconds</span></td><td>unchanged</td><td>Matches config.json.</td></tr><tr class="drift--unchanged"><td>Reliability</td><td><span class="was">Reliability unavailable.</span></td><td><span class="now">Still unavailable</span></td><td>unchanged</td><td>No reliability measurement exists in any source.</td></tr></tbody></table></div></figure></div></div><div role="tabpanel" id="pane-app-unknown-panel" aria-labelledby="pane-app-unknown-tab" class="tabpanel" hidden><div class="pane pane--cols"><div class="uncwrap"><p class="cap">Open questions the sources do not answer</p><ul class="uncs"><li class="unc"><span class="unc__tag">stated-unknown</span><p class="unc__q">How reliable is the queue?</p><p class="unc__a">No reliability measurement is available. Neither the README, the code, the configuration nor the previous handbook states one.</p></li><li class="unc"><span class="unc__tag">unbound-parameter</span><p class="unc__q">Which stage does retry_limit apply to?</p><p class="unc__a">Not stated. The README says configuration controls retry attempts, but no supplied module implements a retry, so the binding stage cannot be recovered from the sources.</p></li><li class="unc"><span class="unc__tag">unbound-parameter</span><p class="unc__q">Which stage does timeout_seconds apply to?</p><p class="unc__a">Not stated. The README says configuration controls a timeout, but no supplied module implements a timer.</p></li><li class="unc"><span class="unc__tag">gap</span><p class="unc__q">What happens to observations that are refused admission?</p><p class="unc__a">Not stated. admitted() returns False and the sources describe no overflow, retry or rejection path.</p></li><li class="unc"><span class="unc__tag">gap</span><p class="unc__q">What happens to reviewed records that are not approved?</p><p class="unc__a">Not stated. Only approved records are described as archived.</p></li></ul></div><aside class="callout callout--warning"><p class="callout__title">Nothing above was filled in by inference</p><p class="callout__text">Where a source is silent this page says so. No reliability figure, retry stage, timeout stage or overflow path has been invented to make the explanation feel complete.</p><p class="cite">Source: README.md, brief.md</p></aside></div></div><div role="tabpanel" id="pane-app-rebuild-panel" aria-labelledby="pane-app-rebuild-tab" class="tabpanel" hidden><div class="pane pane--cols"><p class="lede">This page is generated, not hand-edited. Both commands below run from the repository root and are the only supported way to refresh or verify it.</p><p class="cite">Source: build.py</p><div class="cmds"><p class="cap">Executable rebuild and read-only check</p><ul class="cmdlist"><li class="cmd cmd--writes"><p class="cmd__label">Rebuild the handbook and the standalone process graphic</p><div class="codescroll"><pre><code>python build.py</code></pre></div><p class="cmd__mode">writes</p><p class="cite">Regenerates docs/handbooks/html/operations.html and docs/handbooks/html/operations-process.svg from config.json and the retained model. A candidate is written and compared against the anchor and fact contract before the live file is replaced.</p></li><li class="cmd cmd--read-only"><p class="cmd__label">Verify freshness without writing anything</p><div class="codescroll"><pre><code>python build.py --check</code></pre></div><p class="cmd__mode">read-only</p><p class="cite">Recomputes the artifacts in memory and compares them with the files on disk. Exit code 0 means fresh; 1 means stale or missing. It never writes and never invokes generation as a side effect.</p></li></ul></div><details class="inv" data-inventory><summary class="inv__sum">Every input that fed this page (9 files)</summary><div class="tablescroll"><table><thead><tr><th scope="col">Source</th><th scope="col">Kind</th><th scope="col">Role</th></tr></thead><tbody><tr><td><code>README.md</code></td><td>markdown</td><td>Project description, process narrative, authority and preservation rules</td></tr><tr><td><code>config.json</code></td><td>json</td><td>Authoritative runtime parameters</td></tr><tr><td><code>service.py</code></td><td>python</td><td>Runtime code reading the configuration</td></tr><tr><td><code>build.py</code></td><td>python</td><td>Native handbook generator (entry point, extended in place)</td></tr><tr><td><code>docs/handbooks/README.md</code></td><td>markdown</td><td>Generator ownership and anchor-preservation rule</td></tr><tr><td><code>docs/handbooks/html/operations.html</code></td><td>html</td><td>Previously generated handbook (stale retry limit)</td></tr><tr><td><code>brand.json</code></td><td>json</td><td>Brand tokens (palette, font, logo reference)</td></tr><tr><td><code>brand.svg</code></td><td>svg</td><td>Original brand mark and wordmark</td></tr><tr><td><code>brief.md</code></td><td>markdown</td><td>Approved visual brief; build instruction, not reader-facing subject content</td></tr></tbody></table></div><p class="cite">Retained under docs/handbooks/html/_operations-src/ together with the content model, the design record and the extractor output.</p></details><aside class="callout callout--note"><p class="callout__title">One source was read outside the extractor</p><p class="callout__text">The installed extractor walked the repository and ingested 8 of the 9 files. It has no .html reader, so the previously generated docs/handbooks/html/operations.html was not in the extracted model; its stale retry value was read directly from the frozen file. The gap is recorded rather than papered over.</p><p class="cite">Source: extracted/model-extracted.json</p></aside></div></div></div></div></article></div><div class="deckbar"><p class="deckbar__pos" data-dv-pos role="status">Slide 1 of 5</p><ul class="deckbar__dots"><li><button type="button" class="dot" data-dv-dot="0" aria-current="true" aria-label="Go to slide 1: Queue operations"></button></li><li><button type="button" class="dot" data-dv-dot="1" aria-current="false" aria-label="Go to slide 2: Agenda"></button></li><li><button type="button" class="dot" data-dv-dot="2" aria-current="false" aria-label="Go to slide 3: Configuration and the admission rule"></button></li><li><button type="button" class="dot" data-dv-dot="3" aria-current="false" aria-label="Go to slide 4: Observation to queue to analyst to archive"></button></li><li><button type="button" class="dot" data-dv-dot="4" aria-current="false" aria-label="Go to slide 5: Appendices"></button></li></ul><button type="button" class="btn btn--ghost" data-dv-prev>Previous</button><button type="button" class="btn" data-dv-next>Next</button><button type="button" class="btn btn--ghost" data-dv-fs>Full screen</button><button type="button" class="btn btn--ghost" data-dv-close>Close</button></div></div>
+<div class="modal" id="r-workflow-modal" hidden role="dialog" aria-modal="true" aria-label="Observation to queue to analyst to archive"><div class="modal__panel"><div class="modal__bar"><h3 class="modal__title">Observation to queue to analyst to archive</h3><button type="button" class="btn" data-modal-close>Close</button></div><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTgwIDQ0MCIgd2lkdGg9IjExODAiIGhlaWdodD0iNDQwIiByb2xlPSJpbWciIGFyaWEtbGFiZWxsZWRieT0icGctdGl0bGUgcGctZGVzYyIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiPgo8dGl0bGUgaWQ9InBnLXRpdGxlIj5PYnNlcnZhdGlvbiB0byBxdWV1ZSB0byBhbmFseXN0IHRvIGFyY2hpdmU8L3RpdGxlPgo8ZGVzYyBpZD0icGctZGVzYyI+Rm91ci1zdGFnZSBmbG93OiBPYnNlcnZhdGlvbiBlbnRlcnMgdGhlIFF1ZXVlLCB3aGljaCBob2xkcyBhdCBtb3N0IDI0OyB0aGUgQW5hbHlzdCByZXZpZXdzIHF1ZXVlZCBpdGVtczsgYXBwcm92ZWQgcmVjb3JkcyBtb3ZlIHRvIHRoZSBBcmNoaXZlLiBPYnNlcnZhdGlvbiB0byBRdWV1ZTogZW50ZXJzIHRoZSBxdWV1ZSwgYWRtaXNzaW9uIGdhdGVkIGJ5IHF1ZXVlX2NhcGFjaXR5ID0gMjQuIFF1ZXVlIHRvIEFuYWx5c3QgcmV2aWV3OiBhbiBhbmFseXN0IHJldmlld3MgdGhlbSwgbm8gb3JkZXJpbmcgb3Igc2VsZWN0aW9uIHJ1bGUgaXMgc3RhdGVkLiBBbmFseXN0IHJldmlldyB0byBBcmNoaXZlOiBhcHByb3ZlZCByZWNvcmRzIGFyZSBhcmNoaXZlZCwgb3V0Y29tZSBmb3IgcmVjb3JkcyB0aGF0IGFyZSBub3QgYXBwcm92ZWQgaXMgbm90IHN0YXRlZC4gcmV0cnlfbGltaXQgPSAzOiBUaGUgUkVBRE1FIHNheXMgY29uZmlndXJhdGlvbiBjb250cm9scyByZXRyeSBhdHRlbXB0cywgYnV0IG5vIHN1cHBsaWVkIG1vZHVsZSBpbXBsZW1lbnRzIGEgcmV0cnkuIFRoZSBzdGFnZSB0aGlzIGJpbmRzIHRvIGlzIG5vdCBzdGF0ZWQuIHRpbWVvdXRfc2Vjb25kcyA9IDg6IFRoZSBSRUFETUUgc2F5cyBjb25maWd1cmF0aW9uIGNvbnRyb2xzIGEgdGltZW91dCwgYnV0IG5vIHN1cHBsaWVkIG1vZHVsZSBpbXBsZW1lbnRzIGEgdGltZXIuIFRoZSBzdGFnZSB0aGlzIGJpbmRzIHRvIGlzIG5vdCBzdGF0ZWQuPC9kZXNjPgo8ZGVmcz48bWFya2VyIGlkPSJwZy1hcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+PHBhdGggZD0iTTAgMEwxMCA1TDAgMTB6IiBmaWxsPSIjYjU2MzJmIi8+PC9tYXJrZXI+PC9kZWZzPgo8cmVjdCB3aWR0aD0iMTE4MCIgaGVpZ2h0PSI0NDAiIGZpbGw9IiNmN2YzZTkiLz4KPHRleHQgeD0iNDgiIHk9IjUyIiBmb250LXNpemU9IjI3IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE3MmIzYiI+T2JzZXJ2YXRpb24gdG8gcXVldWUgdG8gYW5hbHlzdCB0byBhcmNoaXZlPC90ZXh0Pgo8dGV4dCB4PSI0OCIgeT0iODAiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM0YTViNjgiPkFzdGVyIEZpZWxkd29ya3MgUXVldWUuIEV2ZXJ5IGxhYmVsIGlzIHRha2VuIGZyb20gdGhlIHJlcG9zaXRvcnkgc291cmNlcy48L3RleHQ+CjxyZWN0IHg9IjQ4IiB5PSIxMTYiIHdpZHRoPSIyMzIiIGhlaWdodD0iMTE4IiByeD0iMTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzE3MmIzYiIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxyZWN0IHg9IjQ4IiB5PSIxMTYiIHdpZHRoPSIyMzIiIGhlaWdodD0iNiIgcng9IjMiIGZpbGw9IiNiNTYzMmYiLz4KPHRleHQgeD0iNjYiIHk9IjE2MCIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiMxNzJiM2IiPk9ic2VydmF0aW9uPC90ZXh0Pgo8dGV4dCB4PSI2NiIgeT0iMTg2IiBmb250LXNpemU9IjE1IiBmaWxsPSIjNGE1YjY4Ij5GaWVsZCBvYnNlcnZhdGlvbiBhcnJpdmVzPC90ZXh0Pgo8dGV4dCB4PSI2NiIgeT0iMjEyIiBmb250LXNpemU9IjE0IiBmaWxsPSIjMmY2Yjc0Ij5zdGFnZSAxIG9mIDQ8L3RleHQ+CjxyZWN0IHg9IjMzMiIgeT0iMTE2IiB3aWR0aD0iMjMyIiBoZWlnaHQ9IjExOCIgcng9IjE0IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiMxNzJiM2IiIHN0cm9rZS13aWR0aD0iMiIvPgo8cmVjdCB4PSIzMzIiIHk9IjExNiIgd2lkdGg9IjIzMiIgaGVpZ2h0PSI2IiByeD0iMyIgZmlsbD0iI2I1NjMyZiIvPgo8dGV4dCB4PSIzNTAiIHk9IjE2MCIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiMxNzJiM2IiPlF1ZXVlPC90ZXh0Pgo8dGV4dCB4PSIzNTAiIHk9IjE4NiIgZm9udC1zaXplPSIxNSIgZmlsbD0iIzRhNWI2OCI+SG9sZHMgYXQgbW9zdCAyNDwvdGV4dD4KPHRleHQgeD0iMzUwIiB5PSIyMTIiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMyZjZiNzQiPnN0YWdlIDIgb2YgNDwvdGV4dD4KPHJlY3QgeD0iNjE2IiB5PSIxMTYiIHdpZHRoPSIyMzIiIGhlaWdodD0iMTE4IiByeD0iMTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzE3MmIzYiIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxyZWN0IHg9IjYxNiIgeT0iMTE2IiB3aWR0aD0iMjMyIiBoZWlnaHQ9IjYiIHJ4PSIzIiBmaWxsPSIjYjU2MzJmIi8+Cjx0ZXh0IHg9IjYzNCIgeT0iMTYwIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE3MmIzYiI+QW5hbHlzdCByZXZpZXc8L3RleHQ+Cjx0ZXh0IHg9IjYzNCIgeT0iMTg2IiBmb250LXNpemU9IjE1IiBmaWxsPSIjNGE1YjY4Ij5IdW1hbiByZXZpZXcgc3RlcDwvdGV4dD4KPHRleHQgeD0iNjM0IiB5PSIyMTIiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMyZjZiNzQiPnN0YWdlIDMgb2YgNDwvdGV4dD4KPHJlY3QgeD0iOTAwIiB5PSIxMTYiIHdpZHRoPSIyMzIiIGhlaWdodD0iMTE4IiByeD0iMTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzE3MmIzYiIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxyZWN0IHg9IjkwMCIgeT0iMTE2IiB3aWR0aD0iMjMyIiBoZWlnaHQ9IjYiIHJ4PSIzIiBmaWxsPSIjYjU2MzJmIi8+Cjx0ZXh0IHg9IjkxOCIgeT0iMTYwIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE3MmIzYiI+QXJjaGl2ZTwvdGV4dD4KPHRleHQgeD0iOTE4IiB5PSIxODYiIGZvbnQtc2l6ZT0iMTUiIGZpbGw9IiM0YTViNjgiPkFwcHJvdmVkIHJlY29yZHMgb25seTwvdGV4dD4KPHRleHQgeD0iOTE4IiB5PSIyMTIiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMyZjZiNzQiPnN0YWdlIDQgb2YgNDwvdGV4dD4KPHBhdGggZD0iTTI4MCAxNzUgQzMwNiAxNDEgMzA2IDE0MSAzMjIgMTc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNiNTYzMmYiIHN0cm9rZS13aWR0aD0iMi41IiBtYXJrZXItZW5kPSJ1cmwoI3BnLWFycm93KSIvPgo8dGV4dCB4PSIzMDYiIHk9IjEzMSIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhmNGExZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+ZW50ZXJzIHRoZSBxdWV1ZTwvdGV4dD4KPHRleHQgeD0iMzA2IiB5PSIyNjAiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM0YTViNjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPmFkbWlzc2lvbiBnYXRlZCBieSBxdWV1ZV9jYXBhY2l0eSA9IDI0PC90ZXh0Pgo8cGF0aCBkPSJNNTY0IDE3NSBDNTkwIDE0MSA1OTAgMTQxIDYwNiAxNzUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2I1NjMyZiIgc3Ryb2tlLXdpZHRoPSIyLjUiIG1hcmtlci1lbmQ9InVybCgjcGctYXJyb3cpIi8+Cjx0ZXh0IHg9IjU5MCIgeT0iMTMxIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOGY0YTFmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5hbiBhbmFseXN0IHJldmlld3MgdGhlbTwvdGV4dD4KPHRleHQgeD0iNTkwIiB5PSIyNjAiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM0YTViNjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPm5vIG9yZGVyaW5nIG9yIHNlbGVjdGlvbiBydWxlIGlzIHN0YXRlZDwvdGV4dD4KPHBhdGggZD0iTTg0OCAxNzUgQzg3NCAxNDEgODc0IDE0MSA4OTAgMTc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNiNTYzMmYiIHN0cm9rZS13aWR0aD0iMi41IiBtYXJrZXItZW5kPSJ1cmwoI3BnLWFycm93KSIvPgo8dGV4dCB4PSI4NzQiIHk9IjEzMSIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhmNGExZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+YXBwcm92ZWQgcmVjb3JkcyBhcmUgYXJjaGl2ZWQ8L3RleHQ+Cjx0ZXh0IHg9Ijg3NCIgeT0iMjYwIiBmb250LXNpemU9IjEzIiBmaWxsPSIjNGE1YjY4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5vdXRjb21lIGZvciByZWNvcmRzIHRoYXQgYXJlIG5vdCBhcHByb3ZlZCBpcyBub3Qgc3RhdGVkPC90ZXh0Pgo8dGV4dCB4PSI0OCIgeT0iMzA4IiBmb250LXNpemU9IjE1IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE3MmIzYiI+Q29uZmlndXJlZCBidXQgbm90IGJvdW5kIHRvIGEgc3RhZ2UgYnkgYW55IHNvdXJjZTwvdGV4dD4KPHJlY3QgeD0iNDgiIHk9IjMyMiIgd2lkdGg9IjE4NiIgaGVpZ2h0PSIyNiIgcng9IjEzIiBmaWxsPSIjZWZlN2Q2IiBzdHJva2U9IiNiNTYzMmYiIHN0cm9rZS13aWR0aD0iMS41Ii8+Cjx0ZXh0IHg9IjYwIiB5PSIzNDAiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM4ZjRhMWYiPnJldHJ5X2xpbWl0ID0gMzwvdGV4dD4KPHRleHQgeD0iMjUwIiB5PSIzNDAiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM0YTViNjgiPlRoZSBSRUFETUUgc2F5cyBjb25maWd1cmF0aW9uIGNvbnRyb2xzIHJldHJ5IGF0dGVtcHRzLCBidXQgbm8gc3VwcGxpZWQgbW9kdWxlIGltcGxlbWVudHMgYSByZXRyeS4gVGhlIHN0YWdlIHRoaXMgYmluZHMgdG8gaXMgbm90IHN0YXRlZC48L3RleHQ+CjxyZWN0IHg9IjQ4IiB5PSIzNjQiIHdpZHRoPSIxODYiIGhlaWdodD0iMjYiIHJ4PSIxMyIgZmlsbD0iI2VmZTdkNiIgc3Ryb2tlPSIjYjU2MzJmIiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8dGV4dCB4PSI2MCIgeT0iMzgyIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOGY0YTFmIj50aW1lb3V0X3NlY29uZHMgPSA4PC90ZXh0Pgo8dGV4dCB4PSIyNTAiIHk9IjM4MiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzRhNWI2OCI+VGhlIFJFQURNRSBzYXlzIGNvbmZpZ3VyYXRpb24gY29udHJvbHMgYSB0aW1lb3V0LCBidXQgbm8gc3VwcGxpZWQgbW9kdWxlIGltcGxlbWVudHMgYSB0aW1lci4gVGhlIHN0YWdlIHRoaXMgYmluZHMgdG8gaXMgbm90IHN0YXRlZC48L3RleHQ+Cjx0ZXh0IHg9IjExMzIiIHk9IjQyNCIgZm9udC1zaXplPSIxMyIgZmlsbD0iIzRhNWI2OCIgdGV4dC1hbmNob3I9ImVuZCI+R2VuZXJhdGVkIGJ5IGJ1aWxkLnB5IGZyb20gZG9jcy9oYW5kYm9va3MvaHRtbC9fb3BlcmF0aW9ucy1zcmMvbW9kZWwuanNvbjwvdGV4dD4KPC9zdmc+Cg==" alt="Four-stage flow: Observation enters the Queue, which holds at most 24; the Analyst reviews queued items; approved records move to the Archive."><p class="cite">The same graphic is exported beside this page as operations-process.svg.</p></div></div>
+<div class="modal" id="s-process-modal" hidden role="dialog" aria-modal="true" aria-label="Observation to queue to analyst to archive"><div class="modal__panel"><div class="modal__bar"><h3 class="modal__title">Observation to queue to analyst to archive</h3><button type="button" class="btn" data-modal-close>Close</button></div><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTgwIDQ0MCIgd2lkdGg9IjExODAiIGhlaWdodD0iNDQwIiByb2xlPSJpbWciIGFyaWEtbGFiZWxsZWRieT0icGctdGl0bGUgcGctZGVzYyIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiPgo8dGl0bGUgaWQ9InBnLXRpdGxlIj5PYnNlcnZhdGlvbiB0byBxdWV1ZSB0byBhbmFseXN0IHRvIGFyY2hpdmU8L3RpdGxlPgo8ZGVzYyBpZD0icGctZGVzYyI+Rm91ci1zdGFnZSBmbG93OiBPYnNlcnZhdGlvbiBlbnRlcnMgdGhlIFF1ZXVlLCB3aGljaCBob2xkcyBhdCBtb3N0IDI0OyB0aGUgQW5hbHlzdCByZXZpZXdzIHF1ZXVlZCBpdGVtczsgYXBwcm92ZWQgcmVjb3JkcyBtb3ZlIHRvIHRoZSBBcmNoaXZlLiBPYnNlcnZhdGlvbiB0byBRdWV1ZTogZW50ZXJzIHRoZSBxdWV1ZSwgYWRtaXNzaW9uIGdhdGVkIGJ5IHF1ZXVlX2NhcGFjaXR5ID0gMjQuIFF1ZXVlIHRvIEFuYWx5c3QgcmV2aWV3OiBhbiBhbmFseXN0IHJldmlld3MgdGhlbSwgbm8gb3JkZXJpbmcgb3Igc2VsZWN0aW9uIHJ1bGUgaXMgc3RhdGVkLiBBbmFseXN0IHJldmlldyB0byBBcmNoaXZlOiBhcHByb3ZlZCByZWNvcmRzIGFyZSBhcmNoaXZlZCwgb3V0Y29tZSBmb3IgcmVjb3JkcyB0aGF0IGFyZSBub3QgYXBwcm92ZWQgaXMgbm90IHN0YXRlZC4gcmV0cnlfbGltaXQgPSAzOiBUaGUgUkVBRE1FIHNheXMgY29uZmlndXJhdGlvbiBjb250cm9scyByZXRyeSBhdHRlbXB0cywgYnV0IG5vIHN1cHBsaWVkIG1vZHVsZSBpbXBsZW1lbnRzIGEgcmV0cnkuIFRoZSBzdGFnZSB0aGlzIGJpbmRzIHRvIGlzIG5vdCBzdGF0ZWQuIHRpbWVvdXRfc2Vjb25kcyA9IDg6IFRoZSBSRUFETUUgc2F5cyBjb25maWd1cmF0aW9uIGNvbnRyb2xzIGEgdGltZW91dCwgYnV0IG5vIHN1cHBsaWVkIG1vZHVsZSBpbXBsZW1lbnRzIGEgdGltZXIuIFRoZSBzdGFnZSB0aGlzIGJpbmRzIHRvIGlzIG5vdCBzdGF0ZWQuPC9kZXNjPgo8ZGVmcz48bWFya2VyIGlkPSJwZy1hcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+PHBhdGggZD0iTTAgMEwxMCA1TDAgMTB6IiBmaWxsPSIjYjU2MzJmIi8+PC9tYXJrZXI+PC9kZWZzPgo8cmVjdCB3aWR0aD0iMTE4MCIgaGVpZ2h0PSI0NDAiIGZpbGw9IiNmN2YzZTkiLz4KPHRleHQgeD0iNDgiIHk9IjUyIiBmb250LXNpemU9IjI3IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE3MmIzYiI+T2JzZXJ2YXRpb24gdG8gcXVldWUgdG8gYW5hbHlzdCB0byBhcmNoaXZlPC90ZXh0Pgo8dGV4dCB4PSI0OCIgeT0iODAiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM0YTViNjgiPkFzdGVyIEZpZWxkd29ya3MgUXVldWUuIEV2ZXJ5IGxhYmVsIGlzIHRha2VuIGZyb20gdGhlIHJlcG9zaXRvcnkgc291cmNlcy48L3RleHQ+CjxyZWN0IHg9IjQ4IiB5PSIxMTYiIHdpZHRoPSIyMzIiIGhlaWdodD0iMTE4IiByeD0iMTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzE3MmIzYiIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxyZWN0IHg9IjQ4IiB5PSIxMTYiIHdpZHRoPSIyMzIiIGhlaWdodD0iNiIgcng9IjMiIGZpbGw9IiNiNTYzMmYiLz4KPHRleHQgeD0iNjYiIHk9IjE2MCIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiMxNzJiM2IiPk9ic2VydmF0aW9uPC90ZXh0Pgo8dGV4dCB4PSI2NiIgeT0iMTg2IiBmb250LXNpemU9IjE1IiBmaWxsPSIjNGE1YjY4Ij5GaWVsZCBvYnNlcnZhdGlvbiBhcnJpdmVzPC90ZXh0Pgo8dGV4dCB4PSI2NiIgeT0iMjEyIiBmb250LXNpemU9IjE0IiBmaWxsPSIjMmY2Yjc0Ij5zdGFnZSAxIG9mIDQ8L3RleHQ+CjxyZWN0IHg9IjMzMiIgeT0iMTE2IiB3aWR0aD0iMjMyIiBoZWlnaHQ9IjExOCIgcng9IjE0IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiMxNzJiM2IiIHN0cm9rZS13aWR0aD0iMiIvPgo8cmVjdCB4PSIzMzIiIHk9IjExNiIgd2lkdGg9IjIzMiIgaGVpZ2h0PSI2IiByeD0iMyIgZmlsbD0iI2I1NjMyZiIvPgo8dGV4dCB4PSIzNTAiIHk9IjE2MCIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiMxNzJiM2IiPlF1ZXVlPC90ZXh0Pgo8dGV4dCB4PSIzNTAiIHk9IjE4NiIgZm9udC1zaXplPSIxNSIgZmlsbD0iIzRhNWI2OCI+SG9sZHMgYXQgbW9zdCAyNDwvdGV4dD4KPHRleHQgeD0iMzUwIiB5PSIyMTIiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMyZjZiNzQiPnN0YWdlIDIgb2YgNDwvdGV4dD4KPHJlY3QgeD0iNjE2IiB5PSIxMTYiIHdpZHRoPSIyMzIiIGhlaWdodD0iMTE4IiByeD0iMTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzE3MmIzYiIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxyZWN0IHg9IjYxNiIgeT0iMTE2IiB3aWR0aD0iMjMyIiBoZWlnaHQ9IjYiIHJ4PSIzIiBmaWxsPSIjYjU2MzJmIi8+Cjx0ZXh0IHg9IjYzNCIgeT0iMTYwIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE3MmIzYiI+QW5hbHlzdCByZXZpZXc8L3RleHQ+Cjx0ZXh0IHg9IjYzNCIgeT0iMTg2IiBmb250LXNpemU9IjE1IiBmaWxsPSIjNGE1YjY4Ij5IdW1hbiByZXZpZXcgc3RlcDwvdGV4dD4KPHRleHQgeD0iNjM0IiB5PSIyMTIiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMyZjZiNzQiPnN0YWdlIDMgb2YgNDwvdGV4dD4KPHJlY3QgeD0iOTAwIiB5PSIxMTYiIHdpZHRoPSIyMzIiIGhlaWdodD0iMTE4IiByeD0iMTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iIzE3MmIzYiIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxyZWN0IHg9IjkwMCIgeT0iMTE2IiB3aWR0aD0iMjMyIiBoZWlnaHQ9IjYiIHJ4PSIzIiBmaWxsPSIjYjU2MzJmIi8+Cjx0ZXh0IHg9IjkxOCIgeT0iMTYwIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE3MmIzYiI+QXJjaGl2ZTwvdGV4dD4KPHRleHQgeD0iOTE4IiB5PSIxODYiIGZvbnQtc2l6ZT0iMTUiIGZpbGw9IiM0YTViNjgiPkFwcHJvdmVkIHJlY29yZHMgb25seTwvdGV4dD4KPHRleHQgeD0iOTE4IiB5PSIyMTIiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMyZjZiNzQiPnN0YWdlIDQgb2YgNDwvdGV4dD4KPHBhdGggZD0iTTI4MCAxNzUgQzMwNiAxNDEgMzA2IDE0MSAzMjIgMTc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNiNTYzMmYiIHN0cm9rZS13aWR0aD0iMi41IiBtYXJrZXItZW5kPSJ1cmwoI3BnLWFycm93KSIvPgo8dGV4dCB4PSIzMDYiIHk9IjEzMSIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhmNGExZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+ZW50ZXJzIHRoZSBxdWV1ZTwvdGV4dD4KPHRleHQgeD0iMzA2IiB5PSIyNjAiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM0YTViNjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPmFkbWlzc2lvbiBnYXRlZCBieSBxdWV1ZV9jYXBhY2l0eSA9IDI0PC90ZXh0Pgo8cGF0aCBkPSJNNTY0IDE3NSBDNTkwIDE0MSA1OTAgMTQxIDYwNiAxNzUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2I1NjMyZiIgc3Ryb2tlLXdpZHRoPSIyLjUiIG1hcmtlci1lbmQ9InVybCgjcGctYXJyb3cpIi8+Cjx0ZXh0IHg9IjU5MCIgeT0iMTMxIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOGY0YTFmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5hbiBhbmFseXN0IHJldmlld3MgdGhlbTwvdGV4dD4KPHRleHQgeD0iNTkwIiB5PSIyNjAiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM0YTViNjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiPm5vIG9yZGVyaW5nIG9yIHNlbGVjdGlvbiBydWxlIGlzIHN0YXRlZDwvdGV4dD4KPHBhdGggZD0iTTg0OCAxNzUgQzg3NCAxNDEgODc0IDE0MSA4OTAgMTc1IiBmaWxsPSJub25lIiBzdHJva2U9IiNiNTYzMmYiIHN0cm9rZS13aWR0aD0iMi41IiBtYXJrZXItZW5kPSJ1cmwoI3BnLWFycm93KSIvPgo8dGV4dCB4PSI4NzQiIHk9IjEzMSIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzhmNGExZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+YXBwcm92ZWQgcmVjb3JkcyBhcmUgYXJjaGl2ZWQ8L3RleHQ+Cjx0ZXh0IHg9Ijg3NCIgeT0iMjYwIiBmb250LXNpemU9IjEzIiBmaWxsPSIjNGE1YjY4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5vdXRjb21lIGZvciByZWNvcmRzIHRoYXQgYXJlIG5vdCBhcHByb3ZlZCBpcyBub3Qgc3RhdGVkPC90ZXh0Pgo8dGV4dCB4PSI0OCIgeT0iMzA4IiBmb250LXNpemU9IjE1IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzE3MmIzYiI+Q29uZmlndXJlZCBidXQgbm90IGJvdW5kIHRvIGEgc3RhZ2UgYnkgYW55IHNvdXJjZTwvdGV4dD4KPHJlY3QgeD0iNDgiIHk9IjMyMiIgd2lkdGg9IjE4NiIgaGVpZ2h0PSIyNiIgcng9IjEzIiBmaWxsPSIjZWZlN2Q2IiBzdHJva2U9IiNiNTYzMmYiIHN0cm9rZS13aWR0aD0iMS41Ii8+Cjx0ZXh0IHg9IjYwIiB5PSIzNDAiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM4ZjRhMWYiPnJldHJ5X2xpbWl0ID0gMzwvdGV4dD4KPHRleHQgeD0iMjUwIiB5PSIzNDAiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM0YTViNjgiPlRoZSBSRUFETUUgc2F5cyBjb25maWd1cmF0aW9uIGNvbnRyb2xzIHJldHJ5IGF0dGVtcHRzLCBidXQgbm8gc3VwcGxpZWQgbW9kdWxlIGltcGxlbWVudHMgYSByZXRyeS4gVGhlIHN0YWdlIHRoaXMgYmluZHMgdG8gaXMgbm90IHN0YXRlZC48L3RleHQ+CjxyZWN0IHg9IjQ4IiB5PSIzNjQiIHdpZHRoPSIxODYiIGhlaWdodD0iMjYiIHJ4PSIxMyIgZmlsbD0iI2VmZTdkNiIgc3Ryb2tlPSIjYjU2MzJmIiBzdHJva2Utd2lkdGg9IjEuNSIvPgo8dGV4dCB4PSI2MCIgeT0iMzgyIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOGY0YTFmIj50aW1lb3V0X3NlY29uZHMgPSA4PC90ZXh0Pgo8dGV4dCB4PSIyNTAiIHk9IjM4MiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzRhNWI2OCI+VGhlIFJFQURNRSBzYXlzIGNvbmZpZ3VyYXRpb24gY29udHJvbHMgYSB0aW1lb3V0LCBidXQgbm8gc3VwcGxpZWQgbW9kdWxlIGltcGxlbWVudHMgYSB0aW1lci4gVGhlIHN0YWdlIHRoaXMgYmluZHMgdG8gaXMgbm90IHN0YXRlZC48L3RleHQ+Cjx0ZXh0IHg9IjExMzIiIHk9IjQyNCIgZm9udC1zaXplPSIxMyIgZmlsbD0iIzRhNWI2OCIgdGV4dC1hbmNob3I9ImVuZCI+R2VuZXJhdGVkIGJ5IGJ1aWxkLnB5IGZyb20gZG9jcy9oYW5kYm9va3MvaHRtbC9fb3BlcmF0aW9ucy1zcmMvbW9kZWwuanNvbjwvdGV4dD4KPC9zdmc+Cg==" alt="Four-stage flow: Observation enters the Queue, which holds at most 24; the Analyst reviews queued items; approved records move to the Archive."><p class="cite">The same graphic is exported beside this page as operations-process.svg.</p></div></div>
+<script>
+(function(){
+ 'use strict';
+ var d=document;
+ d.documentElement.classList.remove('no-js');
+ var deck=d.querySelector('[data-dv-deck]');
+ var slides=Array.prototype.slice.call(d.querySelectorAll('[data-dv-slide]'));
+ var dots=Array.prototype.slice.call(d.querySelectorAll('[data-dv-dot]'));
+ var page=d.querySelector('[data-dv-page]');
+ var pos=d.querySelector('[data-dv-pos]');
+ var index=0,active=false,savedScroll=0,savedFocus=null,openModal=null;
+ var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+ function closest(node,sel){return node&&node.closest?node.closest(sel):null;}
+
+ var reveals=Array.prototype.slice.call(d.querySelectorAll('[data-reveal]'));
+ if(reduce||!('IntersectionObserver' in window)){
+  reveals.forEach(function(el){el.classList.add('is-in');});
+ }else{
+  var io=new IntersectionObserver(function(en){
+   en.forEach(function(x){if(x.isIntersecting){x.target.classList.add('is-in');
+    io.unobserve(x.target);}});
+  },{rootMargin:'0px 0px -6% 0px',threshold:.05});
+  reveals.forEach(function(el){io.observe(el);});
+ }
+
+ var links=Array.prototype.slice.call(d.querySelectorAll('.navlink'));
+ var sections=Array.prototype.slice.call(d.querySelectorAll('[data-dv-section]'));
+ if('IntersectionObserver' in window){
+  var spy=new IntersectionObserver(function(en){
+   if(active)return;
+   en.forEach(function(x){
+    if(!x.isIntersecting)return;
+    var id=x.target.getAttribute('data-dv-section');
+    links.forEach(function(a){
+     a.setAttribute('aria-current',a.getAttribute('data-target')===id?'true':'false');});
+   });
+  },{rootMargin:'-45% 0px -50% 0px',threshold:0});
+  sections.forEach(function(s){spy.observe(s);});
+ }
+
+ var counters=Array.prototype.slice.call(d.querySelectorAll('[data-count]'));
+ function runCounter(el){
+  var target=parseFloat(el.getAttribute('data-count'));
+  if(isNaN(target))return;
+  var t0=null;
+  function step(ts){
+   if(t0===null)t0=ts;
+   var k=Math.min(1,(ts-t0)/620);
+   el.textContent=String(Math.round(target*(1-Math.pow(1-k,3))));
+   if(k<1)requestAnimationFrame(step);else el.textContent=el.getAttribute('data-count');
+  }
+  requestAnimationFrame(step);
+ }
+ if('IntersectionObserver' in window&&!reduce){
+  var cio=new IntersectionObserver(function(en){
+   en.forEach(function(x){if(x.isIntersecting){runCounter(x.target);cio.unobserve(x.target);}});
+  },{threshold:.4});
+  counters.forEach(function(c){cio.observe(c);});
+ }
+
+ Array.prototype.slice.call(d.querySelectorAll('[data-chart]')).forEach(function(fig){
+  var out=fig.querySelector('.ch__readout');
+  var pts=Array.prototype.slice.call(fig.querySelectorAll('.ch__pt'));
+  function show(btn){
+   var cat=btn.getAttribute('data-cat'),val=btn.getAttribute('data-val');
+   pts.forEach(function(p){p.setAttribute('aria-pressed',p===btn?'true':'false');});
+   out.textContent='Queue size '+cat+': admitted('+cat+') is '+
+    (val==='1'?'True, the observation is accepted.':'False, the observation is refused.');
+  }
+  pts.forEach(function(p){
+   p.setAttribute('aria-pressed','false');
+   p.addEventListener('mouseenter',function(){show(p);});
+   p.addEventListener('focus',function(){show(p);});
+   p.addEventListener('click',function(){show(p);});
+  });
+ });
+
+ Array.prototype.slice.call(d.querySelectorAll('[data-probe]')).forEach(function(box){
+  var input=box.querySelector('[data-probe-input]');
+  var out=box.querySelector('[data-probe-out]');
+  var cap=parseInt(box.getAttribute('data-threshold'),10);
+  function paint(){
+   var n=parseInt(input.value,10),ok=n<cap;
+   out.textContent='admitted('+n+') is '+(ok?'True':'False')+' -- '+
+    (ok?(cap-n)+' free of '+cap:'the queue is at capacity '+cap);
+   out.setAttribute('data-state',ok?'admitted':'refused');
+  }
+  input.addEventListener('input',paint);
+  paint();
+ });
+
+ function showModal(m,opener){
+  openModal={el:m,opener:opener};m.hidden=false;
+  d.body.classList.add('modal-open');
+  var f=m.querySelector('[data-modal-close]');if(f)f.focus({preventScroll:true});
+ }
+ function hideModal(){
+  if(!openModal)return;
+  openModal.el.hidden=true;
+  d.body.classList.remove('modal-open');
+  if(openModal.opener&&openModal.opener.isConnected)
+   openModal.opener.focus({preventScroll:true});
+  openModal=null;
+ }
+
+ Array.prototype.slice.call(d.querySelectorAll('[data-tabs]')).forEach(function(group){
+  var tabs=Array.prototype.slice.call(group.querySelectorAll('[role="tab"]'));
+  function select(tab){
+   tabs.forEach(function(t){
+    var on=t===tab;
+    t.setAttribute('aria-selected',on?'true':'false');
+    t.setAttribute('tabindex',on?'0':'-1');
+    var panel=d.getElementById(t.getAttribute('aria-controls'));
+    if(panel)panel.hidden=!on;
+   });
+  }
+  tabs.forEach(function(tab){
+   tab.addEventListener('click',function(){select(tab);});
+   tab.addEventListener('keydown',function(ev){
+    if(ev.key!=='ArrowRight'&&ev.key!=='ArrowLeft')return;
+    ev.preventDefault();ev.stopPropagation();
+    var i=tabs.indexOf(tab);
+    var next=tabs[(i+(ev.key==='ArrowRight'?1:tabs.length-1))%tabs.length];
+    select(next);next.focus();
+   });
+  });
+ });
+
+ function paintSlides(){
+  slides.forEach(function(s,i){
+   var on=i===index;
+   s.setAttribute('data-active',on?'true':'false');
+   s.setAttribute('aria-hidden',on?'false':'true');
+  });
+  dots.forEach(function(t,i){t.setAttribute('aria-current',i===index?'true':'false');});
+  if(pos)pos.textContent='Slide '+(index+1)+' of '+slides.length;
+ }
+ function open(target){
+  if(!deck||!slides.length)return false;
+  if(!active){savedScroll=window.scrollY||0;savedFocus=d.activeElement;}
+  index=(typeof target==='number'&&target>=0&&target<slides.length)?target:0;
+  active=true;deck.hidden=false;
+  if(page){page.setAttribute('aria-hidden','true');page.inert=true;}
+  d.body.classList.add('deck-open');
+  d.body.style.overflow='hidden';
+  paintSlides();
+  var f=deck.querySelector('[data-dv-next]');if(f)f.focus({preventScroll:true});
+  return true;
+ }
+ function close(){
+  if(!active)return false;
+  hideModal();
+  active=false;deck.hidden=true;
+  if(page){page.setAttribute('aria-hidden','false');page.inert=false;}
+  d.body.classList.remove('deck-open');
+  d.body.style.overflow='';
+  if(d.fullscreenElement&&d.exitFullscreen){d.exitFullscreen().catch(function(){});}
+  if(savedFocus&&savedFocus.isConnected)savedFocus.focus({preventScroll:true});
+  window.scrollTo(0,savedScroll);
+  return true;
+ }
+ function go(n){
+  if(!active)return;
+  index=Math.max(0,Math.min(slides.length-1,n));
+  paintSlides();
+ }
+ function requestFs(){
+  if(!deck.requestFullscreen)return;
+  var p=deck.requestFullscreen();
+  if(p&&p.catch)p.catch(function(){});
+ }
+ d.addEventListener('click',function(ev){
+  var t=ev.target;
+  var mo=closest(t,'[data-dv-modal-open]');
+  if(mo){var m=d.getElementById(mo.getAttribute('data-dv-modal-open'));
+   if(m){ev.preventDefault();showModal(m,mo);}return;}
+  if(closest(t,'[data-modal-close]')){hideModal();return;}
+  var panel=closest(t,'.modal');
+  if(panel&&t===panel){hideModal();return;}
+  if(closest(t,'[data-dv-open]')){ev.preventDefault();open(0);requestFs();return;}
+  if(closest(t,'[data-dv-close]')){close();return;}
+  if(closest(t,'[data-dv-next]')){go(index+1);return;}
+  if(closest(t,'[data-dv-prev]')){go(index-1);return;}
+  var dt=closest(t,'[data-dv-dot]');
+  if(dt){go(parseInt(dt.getAttribute('data-dv-dot'),10));return;}
+  if(closest(t,'[data-dv-fs]')){
+   if(d.fullscreenElement){if(d.exitFullscreen)d.exitFullscreen().catch(function(){});}
+   else{requestFs();}
+  }
+ });
+ d.addEventListener('fullscreenchange',function(){
+  if(!deck)return;
+  if(!d.fullscreenElement&&active&&deck.getAttribute('data-native-fs')==='1'){close();}
+  deck.setAttribute('data-native-fs',d.fullscreenElement?'1':'0');
+ });
+ d.addEventListener('keydown',function(ev){
+  if(ev.key==='Escape'){
+   if(openModal){ev.preventDefault();hideModal();return;}
+   if(active){ev.preventDefault();close();return;}
+   return;
+  }
+  if(!active)return;
+  var t=ev.target,tag=t&&t.tagName?t.tagName.toLowerCase():'';
+  if(tag==='input'||tag==='select'||tag==='textarea'||(t&&t.isContentEditable))return;
+  if(t&&t.getAttribute&&t.getAttribute('role')==='tab')return;
+  if(ev.key==='ArrowRight'||ev.key==='PageDown'){ev.preventDefault();go(index+1);}
+  else if(ev.key==='ArrowLeft'||ev.key==='PageUp'){ev.preventDefault();go(index-1);}
+  else if(ev.key==='Home'){ev.preventDefault();go(0);}
+  else if(ev.key==='End'){ev.preventDefault();go(slides.length-1);}
+ });
+ if(deck)paintSlides();
+ window.NexusDualView={
+  open:function(t){return open(typeof t==='number'?t:0);},
+  close:close,go:go,
+  snapshot:function(){
+   return {active:active,index:index,total:slides.length,initial:1,modal:!!openModal,
+    slide:slides.length?slides[index].getAttribute('data-dv-slide'):null,
+    theme:slides.length?slides[index].getAttribute('data-theme'):null};
+  }
+ };
+})();
+</script>
+</body>
+</html>

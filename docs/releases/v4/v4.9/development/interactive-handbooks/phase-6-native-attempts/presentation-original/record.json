@@ -1,0 +1,10 @@
+{
+  "case": "presentation",
+  "artifact": "first-build.html",
+  "sha256": "28086389a2d0aa5c50c26bfb70a04fa285ca9fa2d0b8bef6ad7c4c1d92058ab9",
+  "first_build_verdict": "non-pass",
+  "final_invocation_verdict": "non-pass; 2100-second timeout",
+  "operator_artifact_repairs": 0,
+  "pptx_sha256": "bea4668a58ed43decc44faab452907c2b7623c5237d109658196d3c902d5f7c3",
+  "raw_first_findings_sha256": "4b3de70e93713bc5519dab504a34797cc7e559e69c8c1b73b407216d0bef12eb"
+}

@@ -1,0 +1,103 @@
+{
+  "status": "non-pass",
+  "case": "presentation-final",
+  "internal_repairs": 1,
+  "html_sha256": "553f8417757f6d904238080f69bb85c9ed0afd7a1f97d9f0876b515a8fecb787",
+  "pptx_sha256": "f2d7eff7a2514c9b74d2d17ebda2c630b8f49b9a732dd030e8436ae7cd65bb75",
+  "operator_author_output_repairs": 0,
+  "finding": {
+    "severity": "high",
+    "surface": "native slide 4 chart title",
+    "observed": "PowerPoint displays black Visits text on the saved dark chart background.",
+    "cause": "The absent explicit title coexists with c:autoTitleDeleted val=0. PowerPoint generates an automatic series-name title. Axis and legend styling does not style it.",
+    "required_result": "Explicit title visibility and readable native chart labels on the saved theme."
+  },
+  "native_observations": {
+    "ordinary_read_only_open": "pass",
+    "effect_counts": [
+      0,
+      0,
+      8,
+      1,
+      0
+    ],
+    "source_bytes_unchanged": true,
+    "detached_bytes_unchanged": true,
+    "external_relationships": [],
+    "video_sha256": "cb3d9c02686de260e50cd0c03074f2e98a58dced79d5d026afc95a2cb66c7443",
+    "decoded_frames": 262,
+    "video_unchanged": true,
+    "visual_review": "All five native slide images inspected. Process nodes and edges enter in overlapping order; chart marks fade together with stationary axes and labels. Direct crossfades appear without a black interstitial. The chart title remains unreadable in actual playback."
+  },
+  "default_html_measurement": {
+    "status": "fail",
+    "measured_states": 200,
+    "raw_fail_count": 10,
+    "limits": "Raw findings retained; no complete acceptance or blanket overlap waiver claimed."
+  },
+  "independent_html_behaviors": {
+    "global_entry_1366": true,
+    "escape_1366": true,
+    "focus_1366": true,
+    "global_entry_390": true,
+    "escape_390": true,
+    "focus_390": true,
+    "global_entry_2560": true,
+    "escape_2560": true,
+    "focus_2560": true
+  },
+  "diagnostic": {
+    "source_sha256": "f2d7eff7a2514c9b74d2d17ebda2c630b8f49b9a732dd030e8436ae7cd65bb75",
+    "python_pptx_has_title_before": false,
+    "automatic_title_deleted_before": [
+      "0"
+    ],
+    "qualification_credit": false,
+    "correction": "chart.has_title = False",
+    "automatic_title_deleted_after": [
+      "1"
+    ],
+    "diagnostic_sha256": "dfc04ddddc20c4cc0159d5c063b91ba25b2c6834a8f03738800e301b20282db3",
+    "original_unchanged": true
+  },
+  "diagnostic_native_open": "pass",
+  "diagnostic_visual_review": "Native chart after-image inspected: automatic title absent, complete 10/15/20 values, axis and categories readable. Diagnostic only; no qualification credit.",
+  "next_attempt": {
+    "case": "presentation-readable",
+    "starts_after": "repo-extended terminal status and collection",
+    "wall_time_limit_seconds": 3600,
+    "internal_repair_limit": 3,
+    "frozen_prompt_and_inputs_unchanged": true,
+    "failed_outputs_supplied": false
+  },
+  "artifacts": [
+    {
+      "file": "first-build.html",
+      "sha256": "6d1bbf020d53d87ea6c51ec22529d525fe6eb698efdaa63946f491858b359848"
+    },
+    {
+      "file": "first-build.pptx",
+      "sha256": "5a3d648529a6de2200d16d30b7698f0c5609b378940f28bc49d64f16bbc90b8d"
+    },
+    {
+      "file": "failed-final.pptx",
+      "sha256": "f2d7eff7a2514c9b74d2d17ebda2c630b8f49b9a732dd030e8436ae7cd65bb75"
+    },
+    {
+      "file": "native-chart-before.png",
+      "sha256": "3aad4267a51b5500e7ee74e78679c25e396ec7b778c74c55925f95de838b0407"
+    },
+    {
+      "file": "diagnostic-chart-after.png",
+      "sha256": "057fa7ba834402208415372cbf0db42a9bfe7c604c9cabe18e297a5703946f00"
+    },
+    {
+      "file": "native-process-playback.png",
+      "sha256": "a0a56bed3efce3973aa66f1ed12c2db9c8c6df7d08013f5cf32e4fa66e80603e"
+    },
+    {
+      "file": "native-chart-playback.png",
+      "sha256": "08c558ed89cf79ebfecd1717909e9fb41f1b16f5e0abeec7e1fc2c1916dfde55"
+    }
+  ]
+}

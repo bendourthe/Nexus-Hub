@@ -169,6 +169,39 @@ def test_rapid_actions_theme_stability_and_destroy(page):
     assert page.evaluate("document.getAnimations().length") == 0
 
 
+@pytest.mark.parametrize("exit_action", ["escape", "button"])
+def test_fullscreen_close_restores_entry_focus(browser, tmp_path, exit_action):
+    path = tmp_path / "fullscreen-focus.html"
+    path.write_text(runtime_html(), encoding="utf-8")
+    page = browser.new_page()
+    page.goto(path.as_uri())
+    page.locator("#chapter").click()
+    page.wait_for_function("document.fullscreenElement !== null")
+    if exit_action == "escape":
+        page.keyboard.press("Escape")
+    else:
+        page.locator("[data-dv-exit]").click()
+    page.wait_for_function("document.fullscreenElement === null")
+    page.wait_for_function("document.activeElement.id === 'chapter'", timeout=1500)
+    assert not state(page)["active"]
+    assert page.evaluate("scrollY") > 100
+    page.close()
+
+
+def test_reopening_during_fullscreen_exit_keeps_new_deck_focus(browser, tmp_path):
+    path = tmp_path / "fullscreen-reopen.html"
+    path.write_text(runtime_html(), encoding="utf-8")
+    page = browser.new_page()
+    page.goto(path.as_uri())
+    page.locator("#hero").click()
+    page.wait_for_function("document.fullscreenElement !== null")
+    page.evaluate("NexusDualView.close(); NexusDualView.open(3)")
+    page.wait_for_function("document.fullscreenElement === null")
+    assert state(page)["active"] and state(page)["index"] == 3
+    assert page.evaluate("!!document.activeElement.closest('[data-dv-deck]')")
+    page.close()
+
+
 def test_real_fullscreen_exit_and_explicit_toggle(browser, tmp_path):
     path = tmp_path / "native.html"
     path.write_text(runtime_html(), encoding="utf-8")
@@ -246,6 +279,20 @@ def test_long_deck_and_empty_storyboard(browser, tmp_path):
     assert not page.locator("#hero").is_visible()
     assert "empty or incomplete" in page.locator("[data-dv-status]").inner_text()
     page.close()
+
+
+def test_print_from_active_presentation_keeps_reading_content(page):
+    page.locator("#hero").click()
+    assert state(page)["active"]
+    assert not page.locator("[data-dv-page]").is_visible()
+    page.emulate_media(media="print")
+    assert page.locator("[data-dv-page]").is_visible()
+    assert not page.locator("[data-dv-deck]").is_visible()
+    page.emulate_media(media="screen")
+    assert not page.locator("[data-dv-page]").is_visible()
+    assert page.locator("[data-dv-deck]").is_visible()
+    page.keyboard.press("Escape")
+    assert page.locator("[data-dv-page]").is_visible()
 
 
 def test_touch_native_region_and_hidden_document_stop_work(page):

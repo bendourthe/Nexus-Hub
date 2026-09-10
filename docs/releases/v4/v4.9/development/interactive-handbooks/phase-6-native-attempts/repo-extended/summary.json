@@ -1,0 +1,59 @@
+{
+  "case": "repo-extended",
+  "status": "non-pass",
+  "internal_repairs": 3,
+  "operator_author_output_repairs": 0,
+  "html_sha256": "c9848525d658c736afd15fe9d8787014d7efc991d0a09da2071c807f7df2cb55",
+  "svg_sha256": "099af91561e52f91c6219d1d856151cdc1df257a5b12a5228f586058a327d37a",
+  "findings": [
+    {
+      "requirement": "R26",
+      "observed": "All five slide lockups occupy the left side. Four non-cover slides have no occupied-upper-right rationale.",
+      "required": "Conditional authentic upper-right lockup, omitted on collision; avoid duplicate cover branding."
+    },
+    {
+      "requirement": "R23",
+      "observed": "The process has one DIV wrapper animation target, no step value, and one 550ms fade at delay zero. Inspected 0/200/600ms frames show all nodes, arrows and labels appearing together.",
+      "required": "Individual semantic process steps with short overlapping starts; labels remain stable."
+    }
+  ],
+  "review": "All reading and slide desktop compositions were inspected. Current configuration values and helper-only limitations are represented accurately. The two required failures prevent acceptance; remaining raw geometry findings are not waived and no complete acceptance of unreviewed scopes is claimed.",
+  "unchanged_artifact": true,
+  "next_attempt": {
+    "case": "repo-semantic",
+    "wall_time_limit_seconds": 5400,
+    "internal_repair_limit": 3,
+    "frozen_prompt_and_inputs_unchanged": true,
+    "failed_outputs_supplied": false
+  },
+  "artifacts": [
+    {
+      "file": "first-build.html",
+      "sha256": "526fd94f512cc607b3103badbca1ac022e695e4271f5fa41dc5d597c55236006"
+    },
+    {
+      "file": "failed-final.html",
+      "sha256": "c9848525d658c736afd15fe9d8787014d7efc991d0a09da2071c807f7df2cb55"
+    },
+    {
+      "file": "brand-motion-review.json",
+      "sha256": "3fbd401542ecab8ec74a394d575f6a32126c32c8008a90f007e5f5e1977470fb"
+    },
+    {
+      "file": "slide-desktop-contact.png",
+      "sha256": "0c0c66eef751ca4add0e39edd98e93339b4d8266749809762d70c0b6edeeb9d4"
+    },
+    {
+      "file": "process-motion-0.png",
+      "sha256": "baa2f563e3daa4c3dad19a41983f488ebefdcdd743fe190801dbc4410fdb13cf"
+    },
+    {
+      "file": "process-motion-200.png",
+      "sha256": "84210650011a3f2f64e131810034ace6e1529615554e0d967897ef73937c34dd"
+    },
+    {
+      "file": "process-motion-600.png",
+      "sha256": "15a56ba06dfac5b0521097046c72312924d0cc9d380e5cd72f0f5fc06e7b6336"
+    }
+  ]
+}

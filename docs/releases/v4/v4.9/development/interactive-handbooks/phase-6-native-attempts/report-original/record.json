@@ -1,0 +1,9 @@
+{
+  "case": "report",
+  "artifact": "first-build.html",
+  "sha256": "8c3ac0a433b0ae3089bae8790b860a1b7ef6d0fdafdc3f7232f5f3c96b182987",
+  "first_build_verdict": "non-pass",
+  "final_invocation_verdict": "non-pass; 2100-second timeout",
+  "operator_artifact_repairs": 0,
+  "raw_first_findings_sha256": "2acc8cc3b94ccae181cd1e825aad3580a4b6b42a815e344ff64d2d1a71539233"
+}

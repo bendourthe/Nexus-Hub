@@ -1,0 +1,14 @@
+[
+  {
+    "file": "service-review.pptx",
+    "sha256": "994b418c0653c428182bb2bcc11707d04e8d4b03ec72356a45531a0748fd1843",
+    "native_open": "pass",
+    "slides": 5
+  },
+  {
+    "file": "first-build.pptx",
+    "sha256": "bea4668a58ed43decc44faab452907c2b7623c5237d109658196d3c902d5f7c3",
+    "native_open": "fail",
+    "error": "(-2147352567, 'Exception occurred.', (0, 'Microsoft PowerPoint', 'PowerPoint could not open the file.', '', 0, -2147467259), None)"
+  }
+]

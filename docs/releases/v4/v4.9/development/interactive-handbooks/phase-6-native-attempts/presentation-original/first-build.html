@@ -1,0 +1,610 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><title>Aster service review</title><style>/* Namespaced mechanics; project authors retain composition and brand tokens. */
+[data-dv-deck][hidden], [data-dv-slide][hidden] { display: none !important; }
+[data-dv-open], [data-dv-chapter] { display: none; }
+[data-dv-ready] [data-dv-open], [data-dv-ready] [data-dv-chapter] { display: inline-flex; }
+[data-dv-deck] {
+  --dv-bg: #f5f3ec; --dv-fg: #15283c; --dv-muted: #45566a;
+  box-sizing: border-box; position: fixed; inset: 0; z-index: 1000;
+  width: 100%; height: 100dvh; color: var(--dv-fg); background: var(--dv-bg);
+  display: grid; grid-template-rows: minmax(0, 1fr) auto;
+  font: 1.125rem/1.45 system-ui, sans-serif;
+}
+[data-dv-deck][data-theme="dark"] { --dv-bg: #142235; --dv-fg: #f5f3ec; --dv-muted: #c2d1df; color-scheme: dark; }
+[data-dv-deck][data-theme="light"] { color-scheme: light; }
+[data-dv-deck] *, [data-dv-page] * { box-sizing: border-box; }
+.dv-stage { min-width: 0; min-height: 0; display: grid; }
+[data-dv-slide] {
+  min-width: 0; min-height: 0; padding: clamp(1rem, 3vw, 3rem);
+  display: flex; flex-direction: column; justify-content: center; gap: clamp(.5rem, 1.4vh, 1.5rem);
+  position: relative; background: var(--dv-bg); color: var(--dv-fg);
+}
+[data-dv-slide] h1, [data-dv-slide] h2 { font-size: clamp(1.5rem, 3vw, 3.5rem); line-height: 1.1; margin: 0; overflow-wrap: anywhere; }
+[data-dv-slide] p { margin: 0; }
+[data-dv-slide] input, [data-dv-slide] button, [data-dv-slide] select { font: inherit; min-height: 44px; max-width: 100%; }
+[data-dv-slide] button { align-self: flex-start; }
+[data-dv-slide] h2:focus, [data-dv-slide] h1:focus { outline: none; }
+[data-dv-slide] img { max-width: 100%; max-height: 42vh; object-fit: contain; }
+[data-dv-slide] svg { max-width: 100%; }
+[data-dv-controls] {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+  gap: .5rem; padding: .6rem; border-top: 1px solid currentColor;
+  background: var(--dv-bg); color: var(--dv-fg);
+}
+[data-dv-controls] button, [data-dv-controls] select {
+  color: inherit; background: transparent; border: 1px solid currentColor;
+  border-radius: .5rem; padding: .4rem .65rem; font: inherit; min-height: 44px;
+}
+[data-dv-controls] select { max-width: min(30vw, 16rem); }
+[data-dv-controls] button { display: inline-flex; align-items: center; gap: .3rem; }
+[data-dv-controls] button:disabled { opacity: .45; }
+[data-dv-controls] svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 2; }
+[data-dv-deck] :focus-visible, [data-dv-page] :focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+[data-dv-native] { overflow: auto; scrollbar-width: thin; scrollbar-color: currentColor transparent; }
+[data-dv-page] { scrollbar-color: #52677b transparent; }
+[data-dv-page] [data-theme="dark"] { scrollbar-color: #c2d1df transparent; }
+[data-dv-native]::-webkit-scrollbar { width: 10px; height: 10px; }
+[data-dv-native]::-webkit-scrollbar-track { background: transparent; }
+[data-dv-native]::-webkit-scrollbar-thumb { background: var(--dv-muted, #52677b); border-radius: 1rem; }
+[data-dv-native]::-webkit-scrollbar-thumb:hover { background: currentColor; }
+[data-dv-slide] dialog { max-width: min(90vw, 60rem); max-height: 80dvh; color: inherit; background: var(--dv-bg); }
+@media (max-width: 760px) {
+  .dv-stage { overflow-y: auto; }
+  [data-dv-slide] { justify-content: flex-start; align-self: start; height: auto; min-height: 100%; }
+  [data-dv-slide] > * { flex-shrink: 0; }
+  [data-dv-controls] { gap: .25rem; }
+  [data-dv-controls] button { padding: .3rem; font-size: 1rem; }
+  [data-dv-controls] select { max-width: 40vw; }
+}
+@media (forced-colors: active) { [data-dv-native], [data-dv-page] { scrollbar-color: auto; } }
+@media (prefers-reduced-motion: reduce) { [data-dv-deck] *, [data-dv-page] * { animation: none !important; transition: none !important; } }
+@media print { [data-dv-deck], [data-dv-open], [data-dv-chapter], [data-dv-status] { display: none !important; } [data-dv-page] { display: block !important; } }
+
+:root{font-size:clamp(16px,.5vw + 8.8px,25.6px);--page-max:76rem;--gutter:clamp(1rem,4vw,4rem);--ink:#172b3b;--paper:#f7f3e9;--accent:#b5632f;--space:clamp(1rem,2.5vw,3rem)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scrollbar-color:#b5632f transparent}body{margin:0;font-family:Arial,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5}button,input,select{font:inherit}button,a,input,select{touch-action:manipulation}button,select{min-height:44px}button{cursor:pointer;border:1px solid currentColor;border-radius:6px;padding:.45em .85em;background:transparent;color:inherit}button:hover,a:hover{filter:brightness(1.15)}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[tabindex="0"]:focus-visible{outline:3px solid currentColor;outline-offset:4px}a{color:inherit;text-underline-offset:.22em}button:disabled{cursor:default}h1,h2,h3,p,figure{margin:0}h1,h2{line-height:1.08;letter-spacing:-.035em;text-wrap:balance}h1{font-size:3.5rem;max-width:12ch}h2{font-size:2.4rem}h3{font-size:1.25rem}p{font-size:1.05rem;max-width:65ch}svg{display:block}svg text{font-family:Arial,sans-serif;fill:currentColor}figure{min-width:0}figure svg{width:100%}.sr-wrap{width:min(100% - 2*var(--gutter),var(--page-max));margin-inline:auto}.sr-nav{position:sticky;top:0;z-index:5;background:var(--paper);color:var(--ink);border-bottom:1px solid #172b3b33}.sr-nav .sr-wrap{display:flex;align-items:center;justify-content:space-between;gap:clamp(.5rem,1vw,1.2rem);padding-block:.6rem;flex-wrap:wrap}.sr-brand{width:220px;flex:0 0 auto}.sr-brand svg{width:100%;height:auto}.sr-links{display:flex;gap:clamp(.6rem,1.2vw,1.5rem);font-size:.85rem;align-items:center;flex-wrap:wrap}.sr-links a{text-decoration:none;border-bottom:2px solid transparent}.sr-links a[aria-current]{border-color:currentColor}.sr-primary{background:var(--ink);color:var(--paper);border-color:var(--ink);display:inline-flex;gap:.5em;align-items:center}.sr-icon{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:2}.sr-band{padding-block:clamp(2.2rem,5.5vw,6rem);scroll-margin-top:6rem}.sr-band[data-theme=light],.sr-slide[data-theme=light]{background:var(--paper);color:var(--ink);--figure-bg:#eee9de;--figure-line:#172b3b;--notice:#8a451c;--muted:#465865;--mark:#b5632f;color-scheme:light}.sr-band[data-theme=dark],.sr-slide[data-theme=dark]{background:var(--ink);color:var(--paper);--figure-bg:#20394b;--figure-line:#f7f3e9;--notice:#edb38c;--muted:#d4d8d5;--mark:#edb38c;color-scheme:dark}.sr-kicker{font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.7rem}.sr-hero-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:var(--space);align-items:center}.sr-hero-copy{display:grid;gap:clamp(1rem,2vw,2rem)}.sr-hero-copy .sr-primary{justify-self:start}.sr-total{border-left:1px solid currentColor;padding-left:clamp(1rem,3vw,3rem);display:grid;gap:.25rem}.sr-total strong{font-size:7rem;letter-spacing:-.07em;line-height:1}.sr-total p{font-size:1.2rem}.sr-agenda-grid{display:grid;grid-template-columns:.7fr 1.3fr;gap:var(--space)}.sr-agenda-list{list-style:none;padding:0;margin:0;counter-reset:agenda}.sr-agenda-list li{counter-increment:agenda;border-bottom:1px solid #f7f3e950;padding:clamp(.7rem,1.4vw,1.4rem) 0;font-size:1.5rem}.sr-agenda-list a,.sr-agenda-list span{display:flex;align-items:center;gap:clamp(.75rem,1.5vw,2rem);text-decoration:none}.sr-agenda-list a::before,.sr-agenda-list span::before{content:counter(agenda,decimal-leading-zero);font-size:.85rem;opacity:.8}.sr-section-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space);margin-bottom:clamp(1rem,2vw,2rem)}.sr-chapter{font-size:.85rem;white-space:nowrap}.sr-flow-panel{background:var(--figure-bg);border-radius:12px;padding:clamp(.75rem,1.8vw,2rem);margin-top:clamp(1rem,2vw,2rem)}.sr-flow-svg{width:100%;height:auto;color:var(--figure-line)}.sr-flow-svg text{font-size:28px}.sr-flow-node rect{fill:var(--paper);stroke:var(--ink);stroke-width:2}.sr-flow-node text{fill:var(--ink);font-weight:700}.sr-flow-edge{fill:none;stroke:var(--figure-line);stroke-width:3.5}.sr-flow-return{stroke:var(--notice)}.sr-flow-return-marker{fill:var(--notice)}.sr-flow-marker{fill:var(--figure-line)}.sr-flow-caption{display:flex;align-items:center;justify-content:space-between;gap:var(--space);margin-top:1rem;flex-wrap:wrap}.sr-flow-actions{display:flex;gap:.5rem;flex-wrap:wrap;font-size:.85rem}.sr-flow-actions button[aria-pressed=true]{background:var(--ink);color:var(--paper)}[data-theme=dark] .sr-flow-actions button[aria-pressed=true]{background:var(--paper);color:var(--ink)}.sr-flow-mobile{display:none}.sr-flow-panel[data-path=forward] .sr-flow-return{stroke-width:2;opacity:.35}.sr-flow-panel[data-path=return] .sr-flow-forward{opacity:.35}.sr-flow-panel[data-path=return] .sr-flow-return{stroke-width:6}.sr-visits-grid{display:grid;grid-template-columns:.6fr 1.4fr;align-items:center;gap:var(--space)}.sr-visit-summary{display:grid;gap:1rem}.sr-visit-summary strong{display:block;font-size:5rem;line-height:1;letter-spacing:-.06em}.sr-chart svg{width:100%;height:auto;max-height:440px}.sr-chart text{font-size:27px}.sr-chart .sr-chart-mark{fill:var(--mark)}.sr-chart .sr-chart-mark:hover,.sr-chart .sr-chart-mark:focus{stroke:currentColor;stroke-width:3}.sr-chart-grid{stroke:currentColor;opacity:.2}.sr-chart-viewport{overflow:auto;max-height:450px;scrollbar-color:var(--mark) transparent}.sr-chart-legend{display:flex;justify-content:center;margin-block:.5rem}.sr-chart-legend button{font-size:.85rem;display:flex;gap:.5em;align-items:center}.sr-chart-swatch{width:1em;height:1em;background:var(--mark);display:inline-block}.sr-chart-legend button[aria-pressed=false]{text-decoration:line-through}.sr-chart-tools{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:.65rem;font-size:.8rem}.sr-chart-tools label{display:flex;gap:.5rem;align-items:center}.sr-chart-tools input{width:5rem;accent-color:var(--mark)}.sr-chart-tools select{background:var(--figure-bg);color:inherit;border:1px solid currentColor;border-radius:6px;padding:.25rem}.sr-chart-readout{font-size:.85rem;text-align:center;max-width:none;margin-top:.6rem;min-height:1.5em;color:var(--muted)}.sr-chart-values{margin-top:1rem;font-size:.9rem}.sr-chart-values summary{cursor:pointer}.sr-chart-values table{border-collapse:collapse;width:100%;margin-top:.7rem}.sr-chart-values td,.sr-chart-values th{border-bottom:1px solid currentColor;text-align:left;padding:.35rem}.sr-boundary-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:var(--space)}.sr-boundary-list{margin:0}.sr-boundary-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space);padding:clamp(.7rem,1.5vw,1.3rem) 0;border-bottom:1px solid #172b3b55}.sr-boundary-row dt{font-weight:700}.sr-boundary-row dd{margin:0;color:var(--muted)}.sr-scope{margin-top:clamp(1.5rem,3vw,3rem);font-size:.9rem}.sr-footer{border-top:1px solid #172b3b30;margin-top:clamp(1rem,2vw,2rem);padding-top:1rem;display:flex;justify-content:space-between;gap:1rem;font-size:.8rem}.sr-status{position:fixed;bottom:0;left:0;z-index:1100;max-width:80vw;background:var(--paper);color:var(--ink);font-size:14px}.sr-status:empty{display:none}.sr-slide{font-family:Arial,sans-serif!important;padding:clamp(1rem,3vh,3rem) clamp(1rem,5vw,6rem)!important;gap:clamp(.75rem,2vh,2rem)!important}.sr-slide-inner{width:min(100%,76rem);margin-inline:auto}.sr-slide h2{font-size:3rem!important;line-height:1.08;overflow-wrap:normal!important}.sr-slide .sr-hero-grid h2{font-size:3.8rem!important;max-width:12ch}.sr-slide .sr-hero-grid{gap:clamp(1rem,4vw,5rem)}.sr-slide-brand{width:220px;position:absolute;right:clamp(1rem,5vw,6rem);top:clamp(1rem,3vh,3rem)}.sr-slide-brand svg{width:100%;height:auto}.sr-slide .sr-section-head{margin-bottom:clamp(.75rem,2vh,1.5rem)}.sr-slide .sr-flow-panel{margin-top:0}.sr-slide .sr-flow-svg{max-height:38vh}.sr-slide .sr-chart svg{max-height:36vh}.sr-slide .sr-chart-viewport{max-height:38vh}.sr-slide .sr-chart-values{display:none}.sr-slide .sr-flow-caption p{font-size:1rem}.sr-slide .sr-chart-tools{font-size:.8rem}.sr-slide .sr-visit-summary p{font-size:1rem}.sr-slide .sr-boundary-row{padding-block:clamp(.7rem,2vh,1.5rem)}.sr-slide .sr-agenda-list li{font-size:1.8rem}.sr-slide .sr-agenda-grid{align-items:center}.sr-slide .sr-scope{margin-top:clamp(1rem,4vh,3rem)}[data-dv-deck]{--dv-bg:var(--paper);--dv-fg:var(--ink);font-family:Arial,sans-serif!important}[data-dv-deck][data-theme=light]{--dv-bg:#f7f3e9;--dv-fg:#172b3b}[data-dv-deck][data-theme=dark]{--dv-bg:#172b3b;--dv-fg:#f7f3e9}[data-dv-controls]{font-size:.8rem;border-top:1px solid #8886;padding:.45rem!important}[data-dv-controls] button,[data-dv-controls] select{border-radius:6px!important;font-size:.8rem!important}[data-dv-slide]{animation:sr-fade .2s linear}@keyframes sr-fade{from{opacity:.2}to{opacity:1}}
+@media(max-width:760px){h1{font-size:2.9rem}h2{font-size:2rem}.sr-wrap{width:calc(100% - 2rem)}.sr-nav .sr-wrap{gap:.65rem}.sr-brand{width:175px}.sr-primary{font-size:14px}.sr-links{order:3;width:100%;font-size:13px;justify-content:space-between;gap:.3rem}.sr-band{scroll-margin-top:8rem;padding-block:clamp(2rem,7vw,3rem)}.sr-hero-grid,.sr-agenda-grid,.sr-visits-grid,.sr-boundary-grid{grid-template-columns:1fr}.sr-total{margin-top:1rem;display:flex;align-items:end;gap:1rem;border-left:0;border-top:1px solid currentColor;padding:1rem 0 0}.sr-total strong{font-size:5rem}.sr-total p{font-size:1rem;max-width:9ch}.sr-agenda-list li{font-size:1.3rem}.sr-section-head{align-items:flex-start;flex-wrap:wrap}.sr-flow-desktop{display:none}.sr-flow-mobile{display:block}.sr-flow-panel{padding:.6rem}.sr-flow-svg text{font-size:23px}.sr-flow-caption{gap:.7rem}.sr-flow-caption p{font-size:1rem}.sr-chart-tools{justify-content:flex-start;font-size:13px}.sr-chart-tools input{width:4rem}.sr-chart-tools label{gap:.3rem}.sr-chart-readout{text-align:left}.sr-visit-summary{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}.sr-visit-summary p{font-size:1rem}.sr-visit-summary strong{font-size:3.5rem}.sr-visit-summary .sr-qualification{width:100%}.sr-boundary-row{gap:.7rem;grid-template-columns:1.1fr 1fr}.sr-footer{flex-wrap:wrap}.sr-slide{padding:clamp(1rem,4vw,2rem)!important}.sr-slide-inner{padding-top:1rem}.sr-slide h2{font-size:2rem!important}.sr-slide .sr-hero-grid h2{font-size:2.9rem!important}.sr-slide-brand{position:static;width:190px;margin:0 auto 0 0}.sr-slide .sr-flow-svg{max-height:none}.sr-slide .sr-chart svg{max-height:none}.sr-slide .sr-chart-viewport{max-height:340px}.sr-slide .sr-agenda-list li{font-size:1.5rem}.sr-slide .sr-total{margin-top:0}.sr-slide .sr-section-head{margin-bottom:1rem}[data-dv-controls] svg{width:1.2em;height:1.2em}[data-dv-controls]{gap:.3rem!important}[data-dv-controls] button{padding:.35rem!important}.sr-status{max-width:100vw}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+@media print{.sr-nav,.sr-chart-tools,.sr-chart-legend,.sr-flow-actions,.sr-footer,.sr-chart-readout,[data-dv-chapter],[data-dv-open],[data-dv-deck]{display:none!important}.sr-band{background:white!important;color:#172b3b!important;break-inside:avoid;padding:1.5rem 0}.sr-chart-values{display:block!important}.sr-chart-values>table{display:table!important}.sr-flow-edge{stroke:#172b3b}.sr-chart-mark{fill:#b5632f}.sr-chart-viewport{max-height:none}.sr-band{--muted:#172b3b;--figure-line:#172b3b;--notice:#8a451c;--mark:#b5632f}}
+</style></head><body data-aspect="standard" data-nav="scroll"><main data-dv-page>
+<nav class="sr-nav" aria-label="Review navigation"><div class="sr-wrap"><a class="sr-brand" href="#cover" aria-label="Aster Fieldworks, back to top"><svg role="img" aria-label="Aster Fieldworks" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#b5632f"/><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#172b3b">Aster Fieldworks</text></svg></a><div class="sr-links"><a href="#agenda">Agenda</a><a href="#service-path">Service path</a><a href="#completed-visits">Visits</a><a href="#boundaries">Boundaries</a></div><button class="sr-primary" data-dv-open><svg class="sr-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4 20 12 8 20Z"/></svg>Presentation Mode</button></div></nav>
+<section id="cover" data-dv-section="cover" data-theme="light" class="sr-band"><div class="sr-wrap"><div class="sr-hero-grid"><div class="sr-hero-copy"><p class="sr-kicker">Field service</p><h1>Aster service review</h1><p data-dv-unit="cover-1">Synthetic field service results; no real customer data.</p><button class="sr-primary" data-dv-open><svg class="sr-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4 20 12 8 20Z"/></svg>Presentation Mode</button></div><div class="sr-total"><strong>45</strong><p>completed visits</p></div></div></div></section>
+<section id="agenda" data-dv-section="agenda" data-theme="dark" class="sr-band"><div class="sr-wrap"><div class="sr-agenda-grid"><div><h2>Agenda</h2></div><ol class="sr-agenda-list" data-dv-unit="agenda-1"><li><a href="#service-path">Service path</a></li><li><a href="#completed-visits">Completed visits</a></li><li><a href="#boundaries">Boundaries</a></li></ol></div></div></section>
+<section id="service-path" data-dv-section="service-path" data-theme="light" class="sr-band"><div class="sr-wrap"><div class="sr-section-head"><h2>Service path</h2><button class="sr-chapter" data-dv-chapter="service-path">Present chapter</button></div><div class="sr-flow-panel" data-path="complete" data-dv-unit="service-path-1"><figure aria-label="Service path with failed-review return"><svg class="sr-flow-svg sr-flow-desktop" viewBox="0 0 1040 260" role="img" aria-label="Request to Dispatch to Field visit to Review. Failed review returns to Dispatch."><defs><marker id="page-service-path-desktop-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path class="sr-flow-marker" d="M0 0L8 4L0 8Z"/></marker><marker id="page-service-path-desktop-return" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path class="sr-flow-return-marker" d="M0 0L8 4L0 8Z"/></marker></defs><g class="sr-flow-node" data-dv-animate="process" data-dv-step="0"><rect x="10" y="30" width="210" height="80" rx="8"/><text x="115.0" y="79.0" text-anchor="middle">Request</text></g><path class="sr-flow-edge sr-flow-forward" data-edge="Request -&gt; Dispatch" data-dv-animate="process" data-dv-step="1" d="M220 70H280" marker-end="url(#page-service-path-desktop-arrow)"/><g class="sr-flow-node" data-dv-animate="process" data-dv-step="1"><rect x="280" y="30" width="210" height="80" rx="8"/><text x="385.0" y="79.0" text-anchor="middle">Dispatch</text></g><path class="sr-flow-edge sr-flow-forward" data-edge="Dispatch -&gt; Field visit" data-dv-animate="process" data-dv-step="2" d="M490 70H550" marker-end="url(#page-service-path-desktop-arrow)"/><g class="sr-flow-node" data-dv-animate="process" data-dv-step="2"><rect x="550" y="30" width="210" height="80" rx="8"/><text x="655.0" y="79.0" text-anchor="middle">Field visit</text></g><path class="sr-flow-edge sr-flow-forward" data-edge="Field visit -&gt; Review" data-dv-animate="process" data-dv-step="3" d="M760 70H820" marker-end="url(#page-service-path-desktop-arrow)"/><g class="sr-flow-node" data-dv-animate="process" data-dv-step="3"><rect x="820" y="30" width="210" height="80" rx="8"/><text x="925.0" y="79.0" text-anchor="middle">Review</text></g><path class="sr-flow-edge sr-flow-return" data-edge="Review -&gt; Dispatch" data-dv-animate="process" data-dv-step="4" d="M925 110C925 220 385 220 385 110" marker-end="url(#page-service-path-desktop-return)"/><text x="655" y="242" text-anchor="middle">Failed review returns to Dispatch</text></svg><svg class="sr-flow-svg sr-flow-mobile" viewBox="0 0 340 540" role="img" aria-label="Request to Dispatch to Field visit to Review. Failed review returns to Dispatch."><defs><marker id="page-service-path-mobile-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path class="sr-flow-marker" d="M0 0L8 4L0 8Z"/></marker><marker id="page-service-path-mobile-return" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path class="sr-flow-return-marker" d="M0 0L8 4L0 8Z"/></marker></defs><g class="sr-flow-node" data-dv-animate="process" data-dv-step="0"><rect x="30" y="20" width="215" height="64" rx="8"/><text x="137.5" y="61.0" text-anchor="middle">Request</text></g><path class="sr-flow-edge sr-flow-forward" data-edge="Request -&gt; Dispatch" data-dv-animate="process" data-dv-step="1" d="M137.5 84V135" marker-end="url(#page-service-path-mobile-arrow)"/><g class="sr-flow-node" data-dv-animate="process" data-dv-step="1"><rect x="30" y="135" width="215" height="64" rx="8"/><text x="137.5" y="176.0" text-anchor="middle">Dispatch</text></g><path class="sr-flow-edge sr-flow-forward" data-edge="Dispatch -&gt; Field visit" data-dv-animate="process" data-dv-step="2" d="M137.5 199V250" marker-end="url(#page-service-path-mobile-arrow)"/><g class="sr-flow-node" data-dv-animate="process" data-dv-step="2"><rect x="30" y="250" width="215" height="64" rx="8"/><text x="137.5" y="291.0" text-anchor="middle">Field visit</text></g><path class="sr-flow-edge sr-flow-forward" data-edge="Field visit -&gt; Review" data-dv-animate="process" data-dv-step="3" d="M137.5 314V365" marker-end="url(#page-service-path-mobile-arrow)"/><g class="sr-flow-node" data-dv-animate="process" data-dv-step="3"><rect x="30" y="365" width="215" height="64" rx="8"/><text x="137.5" y="406.0" text-anchor="middle">Review</text></g><path class="sr-flow-edge sr-flow-return" data-edge="Review -&gt; Dispatch" data-dv-animate="process" data-dv-step="4" d="M245 397C328 397 328 167 245 167" marker-end="url(#page-service-path-mobile-return)"/><text x="165" y="480" text-anchor="middle">Failed review</text><text x="165" y="512" text-anchor="middle">returns to Dispatch</text></svg></figure><div class="sr-flow-caption"><p data-dv-unit="service-path-2">A failed review returns to Dispatch.</p><div class="sr-flow-actions" aria-label="Inspect service path"><button data-path-choice="forward" aria-pressed="false">Forward path</button><button data-path-choice="return" aria-pressed="false">Failed review</button></div></div></div></div></section>
+<section id="completed-visits" data-dv-section="completed-visits" data-theme="dark" class="sr-band"><div class="sr-wrap"><div class="sr-section-head"><h2>Completed visits</h2><button class="sr-chapter" data-dv-chapter="completed-visits">Present chapter</button></div><div class="sr-visits-grid"><div class="sr-visit-summary" data-dv-unit="completed-visits-1"><div><strong>45</strong><p>Total visits</p></div><p class="sr-qualification">These are counts, not rates.</p></div><figure class="sr-chart" data-figure-instance="page-visits" data-dv-unit="completed-visits-2" aria-label="Completed visits by region"><div class="sr-chart-viewport" data-dv-native tabindex="0" aria-label="Chart plot. Zoom then scroll to inspect."><svg viewBox="0 0 640 330" role="img" aria-label="Completed visits: East 10, Central 15, West 20."><path class="sr-chart-grid" d="M70 245H620"/><text x="55" y="254" text-anchor="end" data-tick="0">0</text><path class="sr-chart-grid" d="M70 142.5H620"/><text x="55" y="151.5" text-anchor="end" data-tick="0.5">10</text><path class="sr-chart-grid" d="M70 40H620"/><text x="55" y="49" text-anchor="end" data-tick="1">20</text><rect class="sr-chart-mark" data-dv-animate="comparison" data-dv-mark data-region="East" data-value="10" x="105" y="142.5" width="100" height="102.5" rx="3" tabindex="0" role="img" aria-label="East: 10 visits"><title>East: 10 visits</title></rect><text data-value-label x="155" y="132.5" text-anchor="middle">10</text><text x="155" y="282" text-anchor="middle">East</text><rect class="sr-chart-mark" data-dv-animate="comparison" data-dv-mark data-region="Central" data-value="15" x="290" y="91.25" width="100" height="153.75" rx="3" tabindex="0" role="img" aria-label="Central: 15 visits"><title>Central: 15 visits</title></rect><text data-value-label x="340" y="81.25" text-anchor="middle">15</text><text x="340" y="282" text-anchor="middle">Central</text><rect class="sr-chart-mark" data-dv-animate="comparison" data-dv-mark data-region="West" data-value="20" x="475" y="40.0" width="100" height="205.0" rx="3" tabindex="0" role="img" aria-label="West: 20 visits"><title>West: 20 visits</title></rect><text data-value-label x="525" y="30.0" text-anchor="middle">20</text><text x="525" y="282" text-anchor="middle">West</text></svg></div><div class="sr-chart-legend"><button data-series aria-pressed="true"><span class="sr-chart-swatch" aria-hidden="true"></span>Visits</button></div><div class="sr-chart-tools" data-dv-native><label>Axis <select data-axis aria-label="Visit count axis maximum"><option value="20">0 to 20</option><option value="25">0 to 25</option><option value="40">0 to 40</option></select></label><label>Zoom <input data-zoom aria-label="Chart zoom" type="range" min="1" max="2" step=".25" value="1"></label><button data-chart-reset>Reset chart</button></div><p class="sr-chart-readout" data-readout role="status">East 10; Central 15; West 20. Total 45 visits.</p><details class="sr-chart-values"><summary>Exact chart values</summary><table><thead><tr><th>Region</th><th>Completed visits</th></tr></thead><tbody><tr><th>East</th><td>10</td></tr><tr><th>Central</th><td>15</td></tr><tr><th>West</th><td>20</td></tr><tr><th>Total</th><td>45</td></tr></tbody></table></details></figure></div></div></section>
+<section id="boundaries" data-dv-section="boundaries" data-theme="light" class="sr-band"><div class="sr-wrap"><div class="sr-boundary-grid"><div><h2>Boundaries</h2><button class="sr-chapter" data-dv-chapter="boundaries">Present chapter</button></div><dl class="sr-boundary-list" data-dv-unit="boundaries-2"><div class="sr-boundary-row"><dt>Costs</dt><dd>Unavailable</dd></div><div class="sr-boundary-row"><dt>Forecast</dt><dd>Not supplied</dd></div><div class="sr-boundary-row"><dt>Confidence interval</dt><dd>Not supplied</dd></div></dl></div><p class="sr-scope" data-dv-unit="boundaries-1">Five source slides including this page.</p><footer class="sr-footer"><span>Aster Fieldworks</span><a href="#cover">Back to top</a></footer></div></section>
+</main><p class="sr-status" data-dv-status role="status"></p><div data-dv-deck hidden><div class="dv-stage">
+<section id="slide-1" class="sr-slide" data-dv-slide="review" data-theme="light" data-title="Aster service review" hidden><div class="sr-slide-brand"><svg role="img" aria-label="Aster Fieldworks" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#b5632f"/><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#172b3b">Aster Fieldworks</text></svg></div><div class="sr-slide-inner"><div class="sr-hero-grid"><div class="sr-hero-copy"><p class="sr-kicker">Field service</p><h2>Aster service review</h2><p data-dv-unit="cover-1">Synthetic field service results; no real customer data.</p></div><div class="sr-total"><strong>45</strong><p>completed visits</p></div></div></div></section>
+<section id="slide-2" class="sr-slide" data-dv-slide="agenda" data-theme="dark" data-title="Agenda" hidden><div class="sr-slide-brand"><svg role="img" aria-label="Aster Fieldworks" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#b5632f"/><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#f7f3e9">Aster Fieldworks</text></svg></div><div class="sr-slide-inner"><div class="sr-agenda-grid"><div><h2>Agenda</h2></div><ol class="sr-agenda-list" data-dv-unit="agenda-1"><li><span>Service path</span></li><li><span>Completed visits</span></li><li><span>Boundaries</span></li></ol></div></div></section>
+<section id="slide-3" class="sr-slide" data-dv-slide="service-path" data-theme="light" data-title="Service path" hidden><div class="sr-slide-brand"><svg role="img" aria-label="Aster Fieldworks" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#b5632f"/><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#172b3b">Aster Fieldworks</text></svg></div><div class="sr-slide-inner"><div class="sr-section-head"><h2>Service path</h2></div><div class="sr-flow-panel" data-path="complete" data-dv-unit="service-path-1"><figure aria-label="Service path with failed-review return"><svg class="sr-flow-svg sr-flow-desktop" viewBox="0 0 1040 260" role="img" aria-label="Request to Dispatch to Field visit to Review. Failed review returns to Dispatch."><defs><marker id="deck-service-path-desktop-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path class="sr-flow-marker" d="M0 0L8 4L0 8Z"/></marker><marker id="deck-service-path-desktop-return" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path class="sr-flow-return-marker" d="M0 0L8 4L0 8Z"/></marker></defs><g class="sr-flow-node" data-dv-animate="process" data-dv-step="0"><rect x="10" y="30" width="210" height="80" rx="8"/><text x="115.0" y="79.0" text-anchor="middle">Request</text></g><path class="sr-flow-edge sr-flow-forward" data-edge="Request -&gt; Dispatch" data-dv-animate="process" data-dv-step="1" d="M220 70H280" marker-end="url(#deck-service-path-desktop-arrow)"/><g class="sr-flow-node" data-dv-animate="process" data-dv-step="1"><rect x="280" y="30" width="210" height="80" rx="8"/><text x="385.0" y="79.0" text-anchor="middle">Dispatch</text></g><path class="sr-flow-edge sr-flow-forward" data-edge="Dispatch -&gt; Field visit" data-dv-animate="process" data-dv-step="2" d="M490 70H550" marker-end="url(#deck-service-path-desktop-arrow)"/><g class="sr-flow-node" data-dv-animate="process" data-dv-step="2"><rect x="550" y="30" width="210" height="80" rx="8"/><text x="655.0" y="79.0" text-anchor="middle">Field visit</text></g><path class="sr-flow-edge sr-flow-forward" data-edge="Field visit -&gt; Review" data-dv-animate="process" data-dv-step="3" d="M760 70H820" marker-end="url(#deck-service-path-desktop-arrow)"/><g class="sr-flow-node" data-dv-animate="process" data-dv-step="3"><rect x="820" y="30" width="210" height="80" rx="8"/><text x="925.0" y="79.0" text-anchor="middle">Review</text></g><path class="sr-flow-edge sr-flow-return" data-edge="Review -&gt; Dispatch" data-dv-animate="process" data-dv-step="4" d="M925 110C925 220 385 220 385 110" marker-end="url(#deck-service-path-desktop-return)"/><text x="655" y="242" text-anchor="middle">Failed review returns to Dispatch</text></svg><svg class="sr-flow-svg sr-flow-mobile" viewBox="0 0 340 540" role="img" aria-label="Request to Dispatch to Field visit to Review. Failed review returns to Dispatch."><defs><marker id="deck-service-path-mobile-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path class="sr-flow-marker" d="M0 0L8 4L0 8Z"/></marker><marker id="deck-service-path-mobile-return" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path class="sr-flow-return-marker" d="M0 0L8 4L0 8Z"/></marker></defs><g class="sr-flow-node" data-dv-animate="process" data-dv-step="0"><rect x="30" y="20" width="215" height="64" rx="8"/><text x="137.5" y="61.0" text-anchor="middle">Request</text></g><path class="sr-flow-edge sr-flow-forward" data-edge="Request -&gt; Dispatch" data-dv-animate="process" data-dv-step="1" d="M137.5 84V135" marker-end="url(#deck-service-path-mobile-arrow)"/><g class="sr-flow-node" data-dv-animate="process" data-dv-step="1"><rect x="30" y="135" width="215" height="64" rx="8"/><text x="137.5" y="176.0" text-anchor="middle">Dispatch</text></g><path class="sr-flow-edge sr-flow-forward" data-edge="Dispatch -&gt; Field visit" data-dv-animate="process" data-dv-step="2" d="M137.5 199V250" marker-end="url(#deck-service-path-mobile-arrow)"/><g class="sr-flow-node" data-dv-animate="process" data-dv-step="2"><rect x="30" y="250" width="215" height="64" rx="8"/><text x="137.5" y="291.0" text-anchor="middle">Field visit</text></g><path class="sr-flow-edge sr-flow-forward" data-edge="Field visit -&gt; Review" data-dv-animate="process" data-dv-step="3" d="M137.5 314V365" marker-end="url(#deck-service-path-mobile-arrow)"/><g class="sr-flow-node" data-dv-animate="process" data-dv-step="3"><rect x="30" y="365" width="215" height="64" rx="8"/><text x="137.5" y="406.0" text-anchor="middle">Review</text></g><path class="sr-flow-edge sr-flow-return" data-edge="Review -&gt; Dispatch" data-dv-animate="process" data-dv-step="4" d="M245 397C328 397 328 167 245 167" marker-end="url(#deck-service-path-mobile-return)"/><text x="165" y="480" text-anchor="middle">Failed review</text><text x="165" y="512" text-anchor="middle">returns to Dispatch</text></svg></figure><div class="sr-flow-caption"><p data-dv-unit="service-path-2">A failed review returns to Dispatch.</p><div class="sr-flow-actions" aria-label="Inspect service path"><button data-path-choice="forward" aria-pressed="false">Forward path</button><button data-path-choice="return" aria-pressed="false">Failed review</button></div></div></div></div></section>
+<section id="slide-4" class="sr-slide" data-dv-slide="completed-visits" data-theme="light" data-title="Completed visits" hidden><div class="sr-slide-brand"><svg role="img" aria-label="Aster Fieldworks" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#b5632f"/><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#172b3b">Aster Fieldworks</text></svg></div><div class="sr-slide-inner"><div class="sr-section-head"><h2>Completed visits</h2></div><div class="sr-visits-grid"><div class="sr-visit-summary" data-dv-unit="completed-visits-1"><div><strong>45</strong><p>Total visits</p></div><p class="sr-qualification">These are counts, not rates.</p></div><figure class="sr-chart" data-figure-instance="deck-visits" data-dv-unit="completed-visits-2" aria-label="Completed visits by region"><div class="sr-chart-viewport" data-dv-native tabindex="0" aria-label="Chart plot. Zoom then scroll to inspect."><svg viewBox="0 0 640 330" role="img" aria-label="Completed visits: East 10, Central 15, West 20."><path class="sr-chart-grid" d="M70 245H620"/><text x="55" y="254" text-anchor="end" data-tick="0">0</text><path class="sr-chart-grid" d="M70 142.5H620"/><text x="55" y="151.5" text-anchor="end" data-tick="0.5">10</text><path class="sr-chart-grid" d="M70 40H620"/><text x="55" y="49" text-anchor="end" data-tick="1">20</text><rect class="sr-chart-mark" data-dv-animate="comparison" data-dv-mark data-region="East" data-value="10" x="105" y="142.5" width="100" height="102.5" rx="3" tabindex="0" role="img" aria-label="East: 10 visits"><title>East: 10 visits</title></rect><text data-value-label x="155" y="132.5" text-anchor="middle">10</text><text x="155" y="282" text-anchor="middle">East</text><rect class="sr-chart-mark" data-dv-animate="comparison" data-dv-mark data-region="Central" data-value="15" x="290" y="91.25" width="100" height="153.75" rx="3" tabindex="0" role="img" aria-label="Central: 15 visits"><title>Central: 15 visits</title></rect><text data-value-label x="340" y="81.25" text-anchor="middle">15</text><text x="340" y="282" text-anchor="middle">Central</text><rect class="sr-chart-mark" data-dv-animate="comparison" data-dv-mark data-region="West" data-value="20" x="475" y="40.0" width="100" height="205.0" rx="3" tabindex="0" role="img" aria-label="West: 20 visits"><title>West: 20 visits</title></rect><text data-value-label x="525" y="30.0" text-anchor="middle">20</text><text x="525" y="282" text-anchor="middle">West</text></svg></div><div class="sr-chart-legend"><button data-series aria-pressed="true"><span class="sr-chart-swatch" aria-hidden="true"></span>Visits</button></div><div class="sr-chart-tools" data-dv-native><label>Axis <select data-axis aria-label="Visit count axis maximum"><option value="20">0 to 20</option><option value="25">0 to 25</option><option value="40">0 to 40</option></select></label><label>Zoom <input data-zoom aria-label="Chart zoom" type="range" min="1" max="2" step=".25" value="1"></label><button data-chart-reset>Reset chart</button></div><p class="sr-chart-readout" data-readout role="status">East 10; Central 15; West 20. Total 45 visits.</p></figure></div></div></section>
+<section id="slide-5" class="sr-slide" data-dv-slide="boundaries" data-theme="dark" data-title="Boundaries" hidden><div class="sr-slide-brand"><svg role="img" aria-label="Aster Fieldworks" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#b5632f"/><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#f7f3e9">Aster Fieldworks</text></svg></div><div class="sr-slide-inner"><div class="sr-boundary-grid"><div><h2>Boundaries</h2></div><dl class="sr-boundary-list" data-dv-unit="boundaries-2"><div class="sr-boundary-row"><dt>Costs</dt><dd>Unavailable</dd></div><div class="sr-boundary-row"><dt>Forecast</dt><dd>Not supplied</dd></div><div class="sr-boundary-row"><dt>Confidence interval</dt><dd>Not supplied</dd></div></dl></div><p class="sr-scope" data-dv-unit="boundaries-1">Five source slides including this page.</p></div></section>
+</div><nav data-dv-controls aria-label="Presentation controls"><button data-dv-prev><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M16 4L8 12L16 20"/></svg>Back</button><button data-dv-replay><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 8A8 8 0 1 1 4 16M5 2V8H11"/></svg>Replay</button><span data-dv-count aria-live="polite"></span><select data-dv-picker aria-label="Go to slide"></select><button data-dv-next><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 4L16 12L8 20"/></svg>Next</button><button data-dv-fullscreen><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 9V3H9M15 3H21V9M21 15V21H15M9 21H3V15"/></svg>Fullscreen</button><button data-dv-exit><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 5L19 19M19 5L5 19"/></svg>Exit</button></nav></div>
+<script type="application/json" id="handbook-record">{"schema_version": 1, "presentation": {"enabled": true, "theme": "mixed", "depth": "deep-dive", "initial_slide": 1, "slide_budget": 5, "source_slide_count": 5, "theme_seed": "aster-service-914", "theme_assignments": {"review": "light", "agenda": "dark", "service-path": "light", "completed-visits": "light", "boundaries": "dark"}, "theme_sequence": ["light", "dark", "light", "light", "dark"], "slides": [{"id": "review", "source_ids": ["cover"], "composition": "editorial-cover"}, {"id": "agenda", "source_ids": ["agenda"], "composition": "visual-index"}, {"id": "service-path", "source_ids": ["service-path"], "composition": "causal-flow"}, {"id": "completed-visits", "source_ids": ["completed-visits"], "composition": "comparison"}, {"id": "boundaries", "source_ids": ["boundaries"], "composition": "boundaries"}], "omissions": {}, "compact_breakpoint": 760}, "design": {"layout": "standard", "verbosity": "comprehensive", "interactivity": "balanced", "imagery": "none", "reading_themes": ["light", "dark", "light", "dark", "light"], "brand": {"name": "Aster Fieldworks", "colors": {"accent": "#b5632f", "ink": "#172b3b", "paper": "#f7f3e9"}, "font": "Arial, sans-serif", "logo": "brand.svg"}, "content_intent": {"source_relationship": "faithful-adaptation", "decision_to_enable": null, "scope_class": "working-demonstration", "assumptions": [{"statement": "All service data is synthetic.", "status": "accepted"}, {"statement": "Five slides are the complete fixed scope.", "status": "bounded"}], "exclusions": ["external facts", "cost estimates", "forecasts", "invented confidence intervals", "additional imagery"]}, "section_heights": {"cover": "content-height", "agenda": "content-height", "service-path": "content-height", "completed-visits": "content-height", "boundaries": "content-height"}, "sticky_layers": ["Reading navigation only. No sticky figure or table."], "wrap_plan": {"cover": {"desktop": 2, "mobile": 3}, "section_headings": {"desktop": 1, "mobile": "1 or 2, never split a word"}}, "visual_contracts": [{"id": "service-path", "question": "Where does failed review go?", "message": "Review returns to Dispatch when it fails.", "encoding": "Directed connectors show the four supplied edges; accent identifies the return.", "states": ["complete", "forward emphasis", "return emphasis"], "trigger": "Automatic slide build or path buttons.", "fallback": "Complete labeled static flow.", "evidence": "Source slide 3, both bullet items."}, {"id": "visits", "question": "How many visits were completed in each region?", "message": "East 10, Central 15, West 20; total 45.", "encoding": "A shared zero baseline and column height encode visit counts.", "states": ["all marks", "series hidden", "axis 0-20/25/40", "zoom 1-2"], "trigger": "Legend, axis selector, zoom slider, keyboard focus or pointer on a bar.", "fallback": "Complete static labels and readable exact values.", "evidence": "Native chart series in source slide 4."}], "motion": {"slide": "Shared native runtime automatic comparison/process builds", "crossfade": "direct 200ms; no black intermediary", "reduced": "Complete static content"}, "positive_compositions": ["Large evidence count beside the editorial cover", "Full-width return-loop diagram", "Native counts chart with attached qualification"], "sampler_adaptation": "Brand JSON overrides sampled palette and fonts. Standard canvas overrides full-width sample. One-series counts need axis inspection rather than an invented A/B slider.", "construction-debt": "One local Python generator plus HTML/CSS/JS; no framework, remote assets, or new dependencies."}, "sections": ["cover", "agenda", "service-path", "completed-visits", "boundaries"], "figures": ["service-path", "visits"]}</script>
+<script>/* Offline presentation lifecycle for retained, independently authored views. */
+(() => {
+  'use strict';
+  const page = document.querySelector('[data-dv-page]');
+  const deck = document.querySelector('[data-dv-deck]');
+  if (!page || !deck) return;
+  const slides = Array.from(deck.querySelectorAll('[data-dv-slide]'));
+  const controls = deck.querySelector('[data-dv-controls]');
+  const count = deck.querySelector('[data-dv-count]');
+  const picker = deck.querySelector('[data-dv-picker]');
+  const status = document.querySelector('[data-dv-status]');
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const events = new AbortController();
+  const signal = events.signal;
+  let active = false, index = 0, generation = 0, origin = null;
+  let scroll = 0, readingURL = location.href, oldOverflow = '';
+  let wasFullscreen = false, keepFitted = false, touch = null;
+  let animations = [];
+  let readingAnimations = [];
+  const nativeInput = 'input,textarea,select,button,a,[contenteditable]:not([contenteditable="false"]),[data-dv-native],dialog[open]';
+  const on = (target, event, callback, options = {}) =>
+    target.addEventListener(event, callback, { ...options, signal });
+  const announce = message => { if (status) status.textContent = message; };
+  const focusables = () => Array.from(deck.querySelectorAll('button,a[href],input,select,textarea,[tabindex]'))
+    .filter(el => !el.disabled && el.tabIndex >= 0 && !el.closest('[hidden],[inert]') && el.getClientRects().length);
+
+  function stopMotion() {
+    animations.forEach(animation => animation.cancel());
+    animations = [];
+    slides.forEach(slide => slide.dispatchEvent(new CustomEvent('dv:deactivate')));
+  }
+
+  function play() {
+    stopMotion();
+    if (!active || document.hidden) return;
+    const slide = slides[index];
+    slide.dispatchEvent(new CustomEvent('dv:activate', { detail: { reducedMotion: motion.matches } }));
+    if (motion.matches) return;
+    slide.querySelectorAll('[data-dv-animate]').forEach(el => {
+      const step = Math.max(0, Number(el.dataset.dvStep) || 0);
+      const delay = el.dataset.dvAnimate === 'process' ? step * 130 : 0;
+      const mark = el.hasAttribute('data-dv-mark');
+      const frames = mark
+        ? [{ clipPath: 'inset(0 100% 0 0)', opacity: 0 }, { clipPath: 'inset(0 0 0 0)', opacity: 1 }]
+        : [{ opacity: 0 }, { opacity: 1 }];
+      animations.push(el.animate(frames, { duration: 550, delay, fill: 'both', easing: 'ease-out' }));
+    });
+  }
+
+  function fit() {
+    if (controls) deck.style.setProperty('--dv-controls-height', `${controls.getBoundingClientRect().height}px`);
+  }
+
+  function show(next, history = true) {
+    if (!active || !Number.isInteger(next)) return;
+    index = Math.max(0, Math.min(slides.length - 1, next));
+    slides.forEach((slide, i) => {
+      slide.hidden = i !== index;
+      slide.inert = i !== index;
+      slide.setAttribute('aria-hidden', String(i !== index));
+    });
+    deck.dataset.theme = slides[index].dataset.theme || 'light';
+    count.textContent = `${index + 1} / ${slides.length}`;
+    if (picker) picker.value = String(index);
+    const previous = deck.querySelector('[data-dv-prev]');
+    const nextButton = deck.querySelector('[data-dv-next]');
+    if (previous) previous.disabled = index === 0;
+    if (nextButton) nextButton.disabled = index === slides.length - 1;
+    if (history && location.hash !== `#slide-${index + 1}`)
+      window.history.pushState(null, '', `#slide-${index + 1}`);
+    const heading = slides[index].querySelector('h1,h2,h3');
+    if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
+    play();
+    fit();
+  }
+
+  async function fullscreen() {
+    if (!deck.requestFullscreen || !active) return;
+    const request = generation;
+    try {
+      await deck.requestFullscreen();
+      if (request !== generation || !active) {
+        if (document.fullscreenElement === deck && !active) await document.exitFullscreen();
+        return;
+      }
+      wasFullscreen = document.fullscreenElement === deck;
+      fit();
+    } catch (_) {
+      if (active) announce('Fullscreen unavailable. Presentation remains available in this window.');
+    }
+  }
+
+  function open(next = 0, userGesture = false, history = true) {
+    if (!Number.isInteger(next)) { announce('Invalid presentation target.'); return; }
+    if (!active) {
+      generation += 1;
+      origin = document.activeElement;
+      scroll = window.scrollY;
+      readingURL = location.hash.startsWith('#slide-') ? location.href.split('#')[0] : location.href;
+      oldOverflow = document.documentElement.style.overflow;
+      active = true;
+      deck.hidden = false;
+      deck.inert = false;
+      page.inert = true;
+      page.setAttribute('aria-hidden', 'true');
+      readingAnimations = page.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running');
+      readingAnimations.forEach(animation => animation.pause());
+      page.hidden = true;
+      page.dispatchEvent(new CustomEvent('dv:deactivate'));
+      document.documentElement.style.overflow = 'hidden';
+    }
+    show(next, history);
+    if (userGesture) void fullscreen();
+  }
+
+  function close(history = true) {
+    if (!active) return;
+    generation += 1;
+    active = false;
+    stopMotion();
+    deck.querySelectorAll('dialog[open]').forEach(dialog => dialog.close());
+    deck.hidden = true;
+    deck.inert = true;
+    page.inert = false;
+    page.hidden = false;
+    page.removeAttribute('aria-hidden');
+    readingAnimations.forEach(animation => animation.play());
+    readingAnimations = [];
+    page.dispatchEvent(new CustomEvent('dv:activate', { detail: { reducedMotion: motion.matches } }));
+    document.documentElement.style.overflow = oldOverflow;
+    wasFullscreen = false;
+    if (document.fullscreenElement === deck) void document.exitFullscreen().catch(() => {});
+    if (history) window.history.replaceState(null, '', readingURL);
+    window.scrollTo(0, scroll);
+    if (origin && origin.isConnected) origin.focus({ preventScroll: true });
+  }
+
+  function fromHash() {
+    const match = /^#slide-([1-9]\d*)$/.exec(location.hash);
+    if (match && Number(match[1]) <= slides.length) open(Number(match[1]) - 1, false, false);
+    else {
+      if (active) close(false);
+      if (location.hash.startsWith('#slide-')) announce('Unknown slide. The reading page remains available.');
+    }
+  }
+
+  if (!slides.length || !controls || !count) {
+    announce('Presentation is unavailable: the retained storyboard is empty or incomplete.');
+    return;
+  }
+  deck.setAttribute('role', 'dialog');
+  deck.setAttribute('aria-modal', 'true');
+  deck.setAttribute('aria-label', 'Presentation');
+  deck.inert = true;
+  slides.forEach((slide, i) => { if (!slide.id) slide.id = `slide-${i + 1}`; });
+  document.documentElement.dataset.dvReady = 'true';
+  if (picker) slides.forEach((slide, i) => {
+    const option = document.createElement('option');
+    option.value = String(i);
+    option.textContent = `${i + 1}. ${slide.dataset.title || slide.querySelector('h1,h2,h3')?.textContent || 'Slide'}`;
+    picker.append(option);
+  });
+  on(document, 'click', event => {
+    const trigger = event.target.closest('[data-dv-open],[data-dv-chapter]');
+    if (!trigger || trigger.closest('[inert]')) return;
+    if (trigger.hasAttribute('data-dv-open')) open(0, true);
+    else {
+      const target = slides.findIndex(slide => slide.dataset.dvSlide === trigger.dataset.dvChapter);
+      if (target >= 0) open(target, true);
+      else announce('This chapter has no presentation target.');
+    }
+  });
+  on(deck, 'click', event => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    if (button.hasAttribute('data-dv-exit')) close();
+    if (button.hasAttribute('data-dv-next')) show(index + 1);
+    if (button.hasAttribute('data-dv-prev')) show(index - 1);
+    if (button.hasAttribute('data-dv-replay')) play();
+    if (button.hasAttribute('data-dv-fullscreen')) {
+      if (document.fullscreenElement === deck) {
+        keepFitted = true;
+        void document.exitFullscreen().catch(() => { keepFitted = false; });
+      } else void fullscreen();
+    }
+  });
+  if (picker) on(picker, 'change', () => show(Number(picker.value)));
+  on(document, 'keydown', event => {
+    if (!active || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return;
+    const nested = deck.querySelector('dialog[open]');
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      if (nested && document.fullscreenElement !== deck) nested.close();
+      else close();
+      return;
+    }
+    if (nested) return;
+    if (event.key === 'Tab') {
+      const items = focusables();
+      const current = items.indexOf(document.activeElement);
+      if (items.length && (current < 0 || (event.shiftKey && current === 0) || (!event.shiftKey && current === items.length - 1))) {
+        event.preventDefault();
+        items[event.shiftKey ? items.length - 1 : 0].focus();
+      }
+      return;
+    }
+    if (event.target.closest(nativeInput)) return;
+    const delta = { ArrowRight: 1, ArrowDown: 1, PageDown: 1, ' ': 1, ArrowLeft: -1, ArrowUp: -1, PageUp: -1 }[event.key];
+    if (delta) { event.preventDefault(); show(index + delta); }
+    if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault(); show(event.key === 'Home' ? 0 : slides.length - 1);
+    }
+  });
+  on(deck, 'pointerdown', event => {
+    touch = event.pointerType === 'touch' && !event.target.closest(nativeInput)
+      ? { x: event.clientX, y: event.clientY, id: event.pointerId } : null;
+  });
+  on(deck, 'pointerup', event => {
+    if (!touch || event.pointerId !== touch.id) return;
+    const dx = event.clientX - touch.x, dy = event.clientY - touch.y;
+    touch = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 2) show(index + (dx < 0 ? 1 : -1));
+  });
+  on(deck, 'pointercancel', () => { touch = null; });
+  on(document, 'fullscreenchange', () => {
+    if (document.fullscreenElement === deck) wasFullscreen = true;
+    else if (wasFullscreen) {
+      wasFullscreen = false;
+      if (keepFitted) keepFitted = false;
+      else close();
+    }
+    fit();
+  });
+  on(window, 'hashchange', fromHash);
+  on(window, 'popstate', fromHash);
+  on(window, 'resize', fit);
+  on(document, 'visibilitychange', () => document.hidden ? stopMotion() : play());
+  on(motion, 'change', play);
+  const resize = new ResizeObserver(fit);
+  resize.observe(controls);
+  window.NexusDualView = Object.freeze({
+    open: next => open(next), close, next: () => show(index + 1), previous: () => show(index - 1), replay: play,
+    snapshot: () => ({ active, index, count: slides.length, animations: animations.length, fullscreen: document.fullscreenElement === deck }),
+    destroy: () => { close(); events.abort(); resize.disconnect(); delete document.documentElement.dataset.dvReady; }
+  });
+  fromHash();
+})();
+</script><script>/* Instance-local chart and path controls over immutable source data. */
+(() => {
+  'use strict';
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  document.querySelectorAll('.sr-chart').forEach(figure => {
+    const svg = figure.querySelector('svg');
+    const marks = [...svg.querySelectorAll('.sr-chart-mark')];
+    const values = [...svg.querySelectorAll('[data-value-label]')];
+    const axis = figure.querySelector('[data-axis]');
+    const zoom = figure.querySelector('[data-zoom]');
+    const legend = figure.querySelector('[data-series]');
+    const readout = figure.querySelector('[data-readout]');
+    const initial = 'East 10; Central 15; West 20. Total 45 visits.';
+    const draw = () => {
+      const max = Number(axis.value);
+      marks.forEach((mark, i) => {
+        const value = Number(mark.dataset.value), y = 245 - value / max * 205;
+        mark.setAttribute('y', y); mark.setAttribute('height', 245-y);
+        values[i].setAttribute('y', y - 10);
+      });
+      svg.querySelectorAll('[data-tick]').forEach(tick => { tick.textContent = String(max * Number(tick.dataset.tick)); });
+      svg.style.width = `${Number(zoom.value)*100}%`;
+      svg.style.maxHeight = Number(zoom.value)>1 ? 'none' : '';
+    };
+    axis.addEventListener('change', () => { draw(); readout.textContent = `Axis: 0 to ${axis.value} visits. All values are unchanged.`; });
+    zoom.addEventListener('input', draw);
+    legend.addEventListener('click', () => {
+      const visible = legend.getAttribute('aria-pressed') !== 'true';
+      legend.setAttribute('aria-pressed', String(visible));
+      marks.forEach(mark => { mark.style.visibility = visible ? 'visible' : 'hidden'; });
+      values.forEach(label => { label.style.visibility = visible ? 'visible' : 'hidden'; });
+      readout.textContent = visible ? initial : 'Visits series hidden. Select Visits to show all three counts.';
+    });
+    figure.querySelector('[data-chart-reset]').addEventListener('click', () => {
+      axis.value='20'; zoom.value='1'; legend.setAttribute('aria-pressed','true');
+      [...marks,...values].forEach(mark=>mark.style.visibility='visible');
+      draw(); figure.querySelector('.sr-chart-viewport').scrollTo(0,0); readout.textContent=initial;
+    });
+    marks.forEach(mark => {
+      const inspect = () => { readout.textContent = `${mark.dataset.region}: ${mark.dataset.value} completed visits.`; };
+      mark.addEventListener('pointerenter',inspect); mark.addEventListener('focus',inspect);
+      mark.addEventListener('click',inspect);
+    });
+  });
+  document.querySelectorAll('.sr-flow-panel').forEach(panel=>{
+    panel.querySelectorAll('[data-path-choice]').forEach(button=>button.addEventListener('click',()=>{
+      const choice=button.dataset.pathChoice;
+      panel.dataset.path = panel.dataset.path === choice ? 'complete' : choice;
+      panel.querySelectorAll('[data-path-choice]').forEach(control=>control.setAttribute('aria-pressed',String(control.dataset.pathChoice===panel.dataset.path)));
+    }));
+  });
+  const links=[...document.querySelectorAll('.sr-links a')];
+  const sections=[...document.querySelectorAll('[data-dv-section]')];
+  const observer=new IntersectionObserver(entries=>{
+    for(const entry of entries){
+      if(!entry.isIntersecting)continue;
+      links.forEach(link=>{if(link.hash===`#${entry.target.id}`)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current');});
+      if(!motion.matches&&!entry.target.dataset.revealed){
+        const title=entry.target.querySelector('h2');
+        if(title)title.animate([{transform:'translateY(7px)'},{transform:'translateY(0)'}],{duration:250,easing:'ease-out'});
+      }
+      entry.target.dataset.revealed='true';
+    }
+  },{rootMargin:'-18% 0px -55% 0px'});
+  sections.forEach(section=>observer.observe(section));
+})();
+</script>
+<!-- DESIGN RECORD
+{
+  "layout": "standard",
+  "verbosity": "comprehensive",
+  "interactivity": "balanced",
+  "imagery": "none",
+  "reading_themes": [
+    "light",
+    "dark",
+    "light",
+    "dark",
+    "light"
+  ],
+  "brand": {
+    "name": "Aster Fieldworks",
+    "colors": {
+      "accent": "#b5632f",
+      "ink": "#172b3b",
+      "paper": "#f7f3e9"
+    },
+    "font": "Arial, sans-serif",
+    "logo": "brand.svg"
+  },
+  "content_intent": {
+    "source_relationship": "faithful-adaptation",
+    "decision_to_enable": null,
+    "scope_class": "working-demonstration",
+    "assumptions": [
+      {
+        "statement": "All service data is synthetic.",
+        "status": "accepted"
+      },
+      {
+        "statement": "Five slides are the complete fixed scope.",
+        "status": "bounded"
+      }
+    ],
+    "exclusions": [
+      "external facts",
+      "cost estimates",
+      "forecasts",
+      "invented confidence intervals",
+      "additional imagery"
+    ]
+  },
+  "section_heights": {
+    "cover": "content-height",
+    "agenda": "content-height",
+    "service-path": "content-height",
+    "completed-visits": "content-height",
+    "boundaries": "content-height"
+  },
+  "sticky_layers": [
+    "Reading navigation only. No sticky figure or table."
+  ],
+  "wrap_plan": {
+    "cover": {
+      "desktop": 2,
+      "mobile": 3
+    },
+    "section_headings": {
+      "desktop": 1,
+      "mobile": "1 or 2, never split a word"
+    }
+  },
+  "visual_contracts": [
+    {
+      "id": "service-path",
+      "question": "Where does failed review go?",
+      "message": "Review returns to Dispatch when it fails.",
+      "encoding": "Directed connectors show the four supplied edges; accent identifies the return.",
+      "states": [
+        "complete",
+        "forward emphasis",
+        "return emphasis"
+      ],
+      "trigger": "Automatic slide build or path buttons.",
+      "fallback": "Complete labeled static flow.",
+      "evidence": "Source slide 3, both bullet items."
+    },
+    {
+      "id": "visits",
+      "question": "How many visits were completed in each region?",
+      "message": "East 10, Central 15, West 20; total 45.",
+      "encoding": "A shared zero baseline and column height encode visit counts.",
+      "states": [
+        "all marks",
+        "series hidden",
+        "axis 0-20/25/40",
+        "zoom 1-2"
+      ],
+      "trigger": "Legend, axis selector, zoom slider, keyboard focus or pointer on a bar.",
+      "fallback": "Complete static labels and readable exact values.",
+      "evidence": "Native chart series in source slide 4."
+    }
+  ],
+  "motion": {
+    "slide": "Shared native runtime automatic comparison/process builds",
+    "crossfade": "direct 200ms; no black intermediary",
+    "reduced": "Complete static content"
+  },
+  "positive_compositions": [
+    "Large evidence count beside the editorial cover",
+    "Full-width return-loop diagram",
+    "Native counts chart with attached qualification"
+  ],
+  "sampler_adaptation": "Brand JSON overrides sampled palette and fonts. Standard canvas overrides full-width sample. One-series counts need axis inspection rather than an invented A/B slider.",
+  "construction-debt": "One local Python generator plus HTML/CSS/JS; no framework, remote assets, or new dependencies."
+}
+COVERAGE RECONCILIATION
+{
+  "verdict": "ACCOUNTED",
+  "source_slides": 5,
+  "slides": 5,
+  "unaccounted": [],
+  "units": [
+    {
+      "source": "slide-1",
+      "reading": "cover",
+      "slide": "review",
+      "units": [
+        "cover-1"
+      ],
+      "status": "rendered",
+      "all_visible_on_pptx": true
+    },
+    {
+      "source": "slide-2",
+      "reading": "agenda",
+      "slide": "agenda",
+      "units": [
+        "agenda-1"
+      ],
+      "status": "rendered",
+      "all_visible_on_pptx": true
+    },
+    {
+      "source": "slide-3",
+      "reading": "service-path",
+      "slide": "service-path",
+      "units": [
+        "service-path-1"
+      ],
+      "status": "rendered",
+      "all_visible_on_pptx": true
+    },
+    {
+      "source": "slide-4",
+      "reading": "completed-visits",
+      "slide": "completed-visits",
+      "units": [
+        "completed-visits-1",
+        "completed-visits-2"
+      ],
+      "status": "rendered",
+      "all_visible_on_pptx": true
+    },
+    {
+      "source": "slide-5",
+      "reading": "boundaries",
+      "slide": "boundaries",
+      "units": [
+        "boundaries-1"
+      ],
+      "status": "rendered",
+      "all_visible_on_pptx": true
+    }
+  ],
+  "diagram_edges": [
+    [
+      "Request",
+      "Dispatch",
+      "forward"
+    ],
+    [
+      "Dispatch",
+      "Field visit",
+      "forward"
+    ],
+    [
+      "Field visit",
+      "Review",
+      "forward"
+    ],
+    [
+      "Review",
+      "Dispatch",
+      "failed review"
+    ]
+  ],
+  "native_chart": {
+    "series": "Visits",
+    "categories": [
+      "East",
+      "Central",
+      "West"
+    ],
+    "values": [
+      10,
+      15,
+      20
+    ],
+    "total": 45,
+    "unit": "counts, not rates"
+  },
+  "uncertainty": [
+    "Costs unavailable",
+    "No forecast supplied",
+    "No confidence interval supplied"
+  ]
+}
+
+All four diagram edges reconstructed from source slide 3. One native chart rendered in both views. Zero unaccounted figures.
+-->
+</body></html>

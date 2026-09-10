@@ -1,0 +1,30 @@
+{
+  "status": "pass",
+  "before": [
+    "overview: changed content review evidence",
+    "distribution: changed content review evidence"
+  ],
+  "binding_changes": [
+    {
+      "handbook": "overview",
+      "previous_review_sha256": "bbfceb3dbc9e8dfed91eae37f1e82c2a1e5086edc243a8caf513cad527bc7f04",
+      "review_sha256": "0bf746d75065778f5adccca0442dcac07d847fe8e816e470a4f223d7b020c819",
+      "output_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91"
+    },
+    {
+      "handbook": "distribution",
+      "previous_review_sha256": "bbfceb3dbc9e8dfed91eae37f1e82c2a1e5086edc243a8caf513cad527bc7f04",
+      "review_sha256": "0bf746d75065778f5adccca0442dcac07d847fe8e816e470a4f223d7b020c819",
+      "output_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132"
+    }
+  ],
+  "verified_individual_capture_hashes": 40,
+  "verified_contact_sheet_hashes": 8,
+  "source_build_output_snapshots_unchanged": true,
+  "review_scope": "All eight contact sheets inspected: 40 final section and slide captures across both maintained handbooks at desktop and compact widths. Readable text and numbered diagrams, clear hierarchy and alternating palettes, with no visible content clipping. Element captures do not establish every scroll position or full-window control visibility; separate behavioral receipts cover those boundaries.",
+  "correction": "Bind the existing final content review, including its previously completed screenshot-review paragraph. No HTML regeneration, image recapture, or new visual-review claim.",
+  "after": {
+    "status": "pass",
+    "errors": []
+  }
+}

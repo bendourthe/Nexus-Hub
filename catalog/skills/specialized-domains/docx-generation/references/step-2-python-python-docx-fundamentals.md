@@ -142,7 +142,24 @@ add_formatted_paragraph(doc, [
 ])
 ```
 
+**Explicit Brand Fonts in Template Styles**:
+
+When an explicit Latin brand font replaces a template's heading font, clear conflicting `w:asciiTheme` and `w:hAnsiTheme` attributes on that same font definition. A style can report `font.name == "Arial"` while native Word still resolves a retained theme font. Preserve script-specific fallback fonts unless the brief explicitly replaces them. Verify the fonts in an actual Word-rendered PDF, not just the `font.name` getter. Microsoft's [run-font precedence notes](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oi29500/aef3c9a6-5d6c-434b-90b7-85e761fd8e62) explain the distinction between same-element attributes and inherited style definitions.
+
+```python
+from docx.oxml.ns import qn
+
+for name in ("Normal", "Title", "Heading 1", "Heading 2"):
+    style = doc.styles[name]
+    style.font.name = "Arial"  # The explicit font from this document's brief.
+    fonts = style.element.get_or_add_rPr().rFonts
+    for attribute in ("asciiTheme", "hAnsiTheme"):
+        fonts.attrib.pop(qn("w:" + attribute), None)
+```
+
 **Tables with Merged Cells and Styling**:
+
+For a fixed-width rectangular table, set both the column grid and every cell width, including the existing header row. Setting only `table.columns[i].width` leaves previously created cells at their old widths; Word can reconcile the disagreement by expanding the table beyond the page. Disable autofit when widths are explicit, validate their sum against the current section's usable width, and repeat the cell assignment for rows added later. Merged cells need widths matching the grid columns they span. Inspect the actual Word render as well as the OOXML widths.
 
 ```python
 from docx import Document
@@ -172,15 +189,25 @@ def add_data_table(
         header_text_color: Hex color for header row text.
         stripe_color: Hex color for alternating row backgrounds.
     """
+    widths = None
+    if col_widths is not None:
+        if len(col_widths) != len(headers) or any(width <= 0 for width in col_widths):
+            raise ValueError("Provide one positive width per column")
+        widths = [Inches(width) for width in col_widths]
+        section = doc.sections[-1]
+        usable_width = section.page_width - section.left_margin - section.right_margin
+        if sum(widths) > usable_width:
+            raise ValueError("Table exceeds the section's usable width")
     table = doc.add_table(rows=1 + len(rows), cols=len(headers))
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    table.autofit = True
+    table.autofit = widths is None
 
-    # Set column widths if provided
-    if col_widths:
-        for i, width in enumerate(col_widths):
+    # Keep the grid and all existing cells consistent, including the header.
+    if widths is not None:
+        for i, width in enumerate(widths):
+            table.columns[i].width = width
             for row in table.rows:
-                row.cells[i].width = Inches(width)
+                row.cells[i].width = width
 
     # Style header row
     header_row = table.rows[0]

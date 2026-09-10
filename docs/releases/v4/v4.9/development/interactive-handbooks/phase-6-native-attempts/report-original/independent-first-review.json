@@ -1,0 +1,38 @@
+{
+  "artifact_sha256": "8c3ac0a433b0ae3089bae8790b860a1b7ef6d0fdafdc3f7232f5f3c96b182987",
+  "stage": "raw first build",
+  "design_verdict": "non-pass",
+  "reviewer": "implementation operator, separate from native authoring invocation",
+  "feedback_to_author": false,
+  "inspected": [
+    "reading-desktop.png",
+    "reading-compact.png",
+    "slide-1.png",
+    "slide-2.png",
+    "slide-3.png",
+    "slide-4.png",
+    "slide-5.png",
+    "slide-compact.png"
+  ],
+  "findings": [
+    {
+      "severity": "medium",
+      "location": "counts chart in reading and slide 3",
+      "detail": "Y-axis label Observations collides with the 10.0 tick label."
+    },
+    {
+      "severity": "medium",
+      "location": "slides 3 and 4",
+      "detail": "Supplied brand is absent from the chart and process slides; title, agenda and scope slides retain it."
+    }
+  ],
+  "positive_observations": [
+    "Reported 31 and computed 30 remain explicitly unresolved.",
+    "Directed process and rejected Analyst-to-Queue return remain legible.",
+    "Reading sections alternate themes with a clear ordered contents section."
+  ],
+  "limits": [
+    "Full behavioral and source-fidelity verdicts are separate.",
+    "Compact source diagram labels require final measured qualification."
+  ]
+}
