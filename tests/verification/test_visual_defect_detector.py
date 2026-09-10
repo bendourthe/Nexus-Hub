@@ -112,6 +112,26 @@ def test_clean_fixture_passes_full_viewport_matrix(rendered_detector: None) -> N
     assert "PASS visual-defect detector" in result.stderr
 
 
+@pytest.mark.parametrize("offset,expected", [(100, 0), (210, 1)])
+def test_svg_bounds_include_ancestor_translation_and_rotation(
+    rendered_detector: None, tmp_path: Path, offset: int, expected: int
+) -> None:
+    page = tmp_path / "transformed.svg.html"
+    page.write_text(
+        '<!doctype html><html><body style="margin:0">'
+        '<svg width="200" height="200" viewBox="0 0 200 200">'
+        f'<g transform="translate({offset} 100)"><g transform="rotate(90)">'
+        '<rect x="-20" y="-20" width="40" height="40" fill="navy"/>'
+        '</g></g></svg></body></html>',
+        encoding="utf-8",
+    )
+    result = _run_path(page, "--viewports", "900")
+    assert result.returncode == expected, result.stdout
+    assert {finding["rule"] for finding in _payload(result)["findings"]} == (
+        {"svg-viewbox-overflow"} if expected else set()
+    )
+
+
 def test_explicit_theme_override_is_applied_before_page_bootstrap(
     rendered_detector: None,
     tmp_path: Path,

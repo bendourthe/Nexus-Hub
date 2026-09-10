@@ -15,7 +15,12 @@
         "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py",
         "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js",
         "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js",
-        "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css"
+        "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css",
+        "docs/handbooks/_sources/overview/purpose-composition.html",
+        "docs/handbooks/_sources/overview/authoring-composition.html",
+        "docs/handbooks/_sources/overview/validation-composition.html",
+        "docs/handbooks/_sources/overview/delivery-composition.html",
+        "docs/handbooks/_sources/overview/proof-composition.html"
       ],
       "code_inputs": [
         "scripts/validate_skills.py",
@@ -70,7 +75,12 @@
         "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py",
         "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js",
         "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js",
-        "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css"
+        "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css",
+        "docs/handbooks/_sources/distribution/route-composition.html",
+        "docs/handbooks/_sources/distribution/shapes-composition.html",
+        "docs/handbooks/_sources/distribution/identity-composition.html",
+        "docs/handbooks/_sources/distribution/ownership-composition.html",
+        "docs/handbooks/_sources/distribution/verification-composition.html"
       ],
       "code_inputs": [
         "scripts/installer.ps1",
@@ -112,5 +122,16 @@
       "evidence": "docs/handbooks/_sources/distribution/evidence.json"
     }
   ],
-  "excluded": {}
+  "excluded": {
+    "docs/handbooks/_sources/overview/purpose-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/overview/authoring-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/overview/validation-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/overview/delivery-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/overview/proof-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/distribution/route-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/distribution/shapes-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/distribution/identity-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/distribution/ownership-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/distribution/verification-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook."
+  }
 }

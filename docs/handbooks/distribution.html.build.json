@@ -1,18 +1,23 @@
 {
   "build": {
     "assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d",
-    "assets/dual-view-runtime.js": "cca036e45febefee365bf5eb6a4e23b0388f6c0a0fc69889445c68c0177b2cb4",
-    "assets/dual-view.css": "6d71063749ef287db25a355ebe6371b19909d474ed7e91f0e98ca65ca940965b",
-    "assets/theme.json": "512cb7343f78c274c3c79e0b8124ec88fdb79639835a345ba369f78d642c3740",
-    "scripts/build_presentation.py": "08816c4302cbe4830fdaee39475360c533b89dfc6ce65b0d93e20f5a85701ae1",
-    "scripts/dual_view.py": "37102405fb3b1ffcd34500c1f1e0a3f4b0727b38c4643fc25ed3ef73fb1b0f3c"
+    "assets/dual-view-runtime.js": "f7892e0de19b83f40cf27680ef81199a4e6fd72b2c5c26f9d3f42ec570adcaff",
+    "assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35",
+    "assets/theme.json": "46a8d331bb277f1d6049da735f3ae5adf8ac60cfd81968685e3d3cc2ae321604",
+    "scripts/build_presentation.py": "5c1525156ed9875703791c9f3293970356e64e8ec6b5de3c0c37904232bacea2",
+    "scripts/dual_view.py": "2e9c79c7027310bdcead71cdfb8381a9be59e8f6a2b1093b9cc2c3c449fb47aa"
   },
   "output": "docs/handbooks/distribution.html",
-  "output_sha256": "fe02fb37e26ca7c99bc5efac14f5a5dc901b4634f9d4d4762ebb9a95c96a51cb",
+  "output_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
   "schema_version": 1,
   "sources": {
-    "docs/handbooks/_sources/distribution/design.css": "c237cd1cb62d7daf35800b07b8bf23d47b623dc92fedcc31dff6bd395998a5ad",
-    "docs/handbooks/_sources/distribution/model.json": "d7eab5bdf7baa42439ebca9527167a774d10e7367e29e2a3eb027122c57099de",
-    "docs/handbooks/_sources/distribution/source.md": "a64847151df5c8a02d6a51b70041832f800c9bbe6046e7d2a634052573469a69"
+    "docs/handbooks/_sources/distribution/design.css": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24",
+    "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
+    "docs/handbooks/_sources/distribution/model.json": "f63af1e8e6a20de8c8473515f2bc3bdbad52a21344a36c425142d13e2ba04237",
+    "docs/handbooks/_sources/distribution/ownership-composition.html": "31df6a101328862f4e525a8b79cec45cb531d3404a8c97a108b48fca4ff231e3",
+    "docs/handbooks/_sources/distribution/route-composition.html": "349e1382529a541ee001f589b96194205c6e0854037bae2d240f54749b6d1cb3",
+    "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
+    "docs/handbooks/_sources/distribution/source.md": "e78e24ee80f54094b1cdbc648442fdae2543baa9ac195afe18fbf64fe620851b",
+    "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779"
   }
 }

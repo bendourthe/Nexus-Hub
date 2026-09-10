@@ -1,0 +1,137 @@
+{
+  "artifact_sha256": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+  "source_preservation": [
+    {
+      "file": "brand.json",
+      "sha256": "e016a8e75963c9f6f18dc75f399fccad003c437f61ecc43e2d0c7671fdf03e08",
+      "both_copies_match": true
+    },
+    {
+      "file": "brand.svg",
+      "sha256": "d6e0c308638d150cbc75d7c7f75117830320d749963376caf4f3a83d23034141",
+      "both_copies_match": true
+    },
+    {
+      "file": "brief.md",
+      "sha256": "b4498487be1b95613b1c0f914400c98db576bb53d6e5712f1c65d43d827086f0",
+      "both_copies_match": true
+    },
+    {
+      "file": "observations.csv",
+      "sha256": "c332dff832017390085b3f3eeb173565b9aad9ee626f46855dac0e6decc9587b",
+      "both_copies_match": true
+    },
+    {
+      "file": "pilot.docx",
+      "sha256": "8eb9a960dfdb6ac5c724828d6b3abd732637dca22cd8e3bd8c387956fc2306b7",
+      "both_copies_match": true
+    },
+    {
+      "file": "review-path.svg",
+      "sha256": "1a3c3cd1457afec66f38acc9921984aa2ac6ed6c84fbb90b5e9134bc9fe86c39",
+      "both_copies_match": true
+    }
+  ],
+  "motion": [
+    {
+      "figure": "chart",
+      "animations": [
+        {
+          "target": "<rect data-dv-animate=\"comparison\" data-dv-mark=\"\" x=\"226.500\" y=\"114.000\" width=\"176.500\" height=\"126.000\" tabindex=\"0\" role=\"img\" aria-label=\"North: 12 observations\"><title>North, Station: 12 observ",
+          "timing": {
+            "delay": 0,
+            "direction": "normal",
+            "duration": 550,
+            "easing": "ease-out",
+            "endDelay": 0,
+            "fill": "both",
+            "iterationStart": 0,
+            "iterations": 1
+          }
+        },
+        {
+          "target": "<rect data-dv-animate=\"comparison\" data-dv-mark=\"\" x=\"405.000\" y=\"51.000\" width=\"176.500\" height=\"189.000\" tabindex=\"0\" role=\"img\" aria-label=\"South: 18 observations\"><title>South, Station: 18 observa",
+          "timing": {
+            "delay": 0,
+            "direction": "normal",
+            "duration": 550,
+            "easing": "ease-out",
+            "endDelay": 0,
+            "fill": "both",
+            "iterationStart": 0,
+            "iterations": 1
+          }
+        }
+      ],
+      "frames": [
+        "motion-chart-0.png",
+        "motion-chart-200.png",
+        "motion-chart-450.png",
+        "motion-chart-900.png"
+      ]
+    },
+    {
+      "figure": "process",
+      "animations": [
+        {
+          "target": "<path data-edge=\"Instrument-Queue\" data-dv-animate=\"process\" data-dv-step=\"0\" d=\"M200 100H270\"></path>",
+          "timing": {
+            "delay": 0,
+            "direction": "normal",
+            "duration": 550,
+            "easing": "ease-out",
+            "endDelay": 0,
+            "fill": "both",
+            "iterationStart": 0,
+            "iterations": 1
+          }
+        },
+        {
+          "target": "<path data-edge=\"Queue-Analyst\" data-dv-animate=\"process\" data-dv-step=\"1\" d=\"M440 100H510\"></path>",
+          "timing": {
+            "delay": 130,
+            "direction": "normal",
+            "duration": 550,
+            "easing": "ease-out",
+            "endDelay": 0,
+            "fill": "both",
+            "iterationStart": 0,
+            "iterations": 1
+          }
+        },
+        {
+          "target": "<path data-edge=\"Analyst-Archive\" data-dv-animate=\"process\" data-dv-step=\"2\" d=\"M680 100H750\"></path>",
+          "timing": {
+            "delay": 260,
+            "direction": "normal",
+            "duration": 550,
+            "easing": "ease-out",
+            "endDelay": 0,
+            "fill": "both",
+            "iterationStart": 0,
+            "iterations": 1
+          }
+        },
+        {
+          "target": "<path data-edge=\"Analyst-Queue\" data-dv-animate=\"process\" data-dv-step=\"3\" d=\"M595 145C595 255 355 255 355 145\"></path>",
+          "timing": {
+            "delay": 390,
+            "direction": "normal",
+            "duration": 550,
+            "easing": "ease-out",
+            "endDelay": 0,
+            "fill": "both",
+            "iterationStart": 0,
+            "iterations": 1
+          }
+        }
+      ],
+      "frames": [
+        "motion-process-0.png",
+        "motion-process-200.png",
+        "motion-process-450.png",
+        "motion-process-900.png"
+      ]
+    }
+  ]
+}

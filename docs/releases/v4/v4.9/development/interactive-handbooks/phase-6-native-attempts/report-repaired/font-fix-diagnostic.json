@@ -1,0 +1,12 @@
+{
+  "qualification": "excluded; operator-created diagnostic copy only",
+  "native_fonts": [
+    "BCDEEE+ArialMT",
+    "BCDFEE+ArialMT",
+    "BCDGEE+Arial-BoldMT"
+  ],
+  "native_pages": 3,
+  "application_options_changed": false,
+  "diagnostic_sha256": "e9a5db18e1d5c0ce6872da652c9e55d426c3755871aee6c8c76a379f1d911e52",
+  "native_pdf_sha256": "b2684e9f480acab46b81dfe24c960b7015f17f805cc76af3f57d42f4ffa90a67"
+}

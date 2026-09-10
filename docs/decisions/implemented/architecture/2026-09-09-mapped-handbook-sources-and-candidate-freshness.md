@@ -1,8 +1,8 @@
-# Mapped handbook sources and candidate freshness
+# Decision: Mapped handbook sources and candidate freshness
+
+Status: implemented - Preserve native handbook layouts and verify mapped sources and rendered evidence against the release candidate.
 
 This decision governs living handbook source/output ownership and release freshness for maintainers updating documentation. It supersedes the fixed-folder and empty-source no-op portions of the 2026-08-24 living-docs decision; its release snapshots and separate decisions tree remain valid.
-
-Status: implemented
 
 ## Problem
 

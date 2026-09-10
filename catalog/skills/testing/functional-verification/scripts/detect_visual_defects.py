@@ -242,10 +242,11 @@ _DETECTOR_JS = r"""
     };
     const parentHasHorizontalOverflow = parent.scrollWidth > parent.clientWidth + tolerance;
     const horizontalScroller = ["auto", "scroll"].includes(parentStyle.overflowX);
+    const verticalScroller = ["auto", "scroll"].includes(parentStyle.overflowY);
     const escapesLeft = !parentHasHorizontalOverflow && !horizontalScroller && childRect.left < paddingBox.left - tolerance;
     const escapesRight = !parentHasHorizontalOverflow && !horizontalScroller && childRect.right > paddingBox.right + tolerance;
-    const escapesTop = childRect.top < paddingBox.top - tolerance;
-    const escapesBottom = childRect.bottom > paddingBox.bottom + tolerance;
+    const escapesTop = !verticalScroller && childRect.top < paddingBox.top - tolerance;
+    const escapesBottom = !verticalScroller && childRect.bottom > paddingBox.bottom + tolerance;
     if (escapesLeft || escapesRight || escapesTop || escapesBottom) {
       addFinding(
         "parent-padding-escape",
@@ -286,17 +287,22 @@ _DETECTOR_JS = r"""
     };
     for (const graphic of Array.from(svg.querySelectorAll(graphicSelector)).filter(rendered)) {
       if (graphic.closest("defs,clipPath,mask,pattern,symbol,marker")) continue;
-      let box;
+      let box, points;
       try {
         box = graphic.getBBox();
+        const matrix = svg.getScreenCTM().inverse().multiply(graphic.getScreenCTM());
+        points = [
+          [box.x, box.y], [box.x + box.width, box.y],
+          [box.x, box.y + box.height], [box.x + box.width, box.y + box.height]
+        ].map(([x, y]) => new DOMPoint(x, y).matrixTransform(matrix));
       } catch (_) {
         continue;
       }
       const graphicBounds = {
-        left: box.x,
-        top: box.y,
-        right: box.x + box.width,
-        bottom: box.y + box.height
+        left: Math.min(...points.map(point => point.x)),
+        top: Math.min(...points.map(point => point.y)),
+        right: Math.max(...points.map(point => point.x)),
+        bottom: Math.max(...points.map(point => point.y))
       };
       const graphicRect = graphic.getBoundingClientRect();
       const svgRect = svg.getBoundingClientRect();

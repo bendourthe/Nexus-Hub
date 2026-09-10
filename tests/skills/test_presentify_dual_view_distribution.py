@@ -88,6 +88,15 @@ def test_installed_bundle_runs_offline(tmp_path, shell):
             runtime_fixture.BUNDLE / relative
         ).read_bytes()
     artifact = target / "installed.html"
+    for relative in (
+        "SKILL.md",
+        "references/retained-handbook-export.md",
+        "references/native-motion.md",
+        "scripts/native_motion.py",
+    ):
+        assert (target / ".claude/skills/pptx-generation" / relative).read_bytes() == (
+            ROOT / "catalog/skills/specialized-domains/pptx-generation" / relative
+        ).read_bytes()
     intake_input = target / "intake.json"
     intake_input.write_text(
         '{"explicit":{"presentation":"yes","presentation_theme":"light"}}',

@@ -567,7 +567,7 @@ def render_chart(block: dict[str, Any], prefix: str) -> str:
         upper = lower + 1
     if lower > min(values) or upper < max(values) or upper <= lower:
         raise ValueError("chart.axis: bounds conceal source samples")
-    left, top, width, height = 100, 30, 560, 210
+    left, top, width, height = 150, 30, 510, 210
     y = lambda value: top + height * (upper - value) / (upper - lower)
     baseline = y(min(upper, max(lower, 0)))
     parts = [
@@ -581,7 +581,7 @@ def render_chart(block: dict[str, Any], prefix: str) -> str:
     ):
         yy = y(value)
         parts.append(
-            f'<path d="M{left} {yy:.3f}H{left + width}" fill="none" stroke="currentColor" opacity=".3"/><text x="90" y="{yy + 6:.3f}" text-anchor="end">{escaped(value)}</text>'
+            f'<path d="M{left} {yy:.3f}H{left + width}" fill="none" stroke="currentColor" opacity=".3"/><text x="{left - 10}" y="{yy + 6:.3f}" text-anchor="end">{escaped(value)}</text>'
         )
     step = width / len(categories)
     for ci, category in enumerate(categories):
@@ -620,7 +620,7 @@ def render_chart(block: dict[str, Any], prefix: str) -> str:
                 )
         parts.append("</g>")
     parts.append(
-        f'<text x="380" y="310" text-anchor="middle">{escaped(axis.get("x_label", ""))}</text><text transform="translate(24 135) rotate(-90)" text-anchor="middle">{escaped(axis.get("y_label", axis.get("unit", "")))}</text></svg></div><div class="dv-legend">'
+        f'<text x="{left + width / 2:g}" y="310" text-anchor="middle">{escaped(axis.get("x_label", ""))}</text><text transform="translate(36 135) rotate(-90)" text-anchor="middle">{escaped(axis.get("y_label", axis.get("unit", "")))}</text></svg></div><div class="dv-legend">'
     )
     for si, item in enumerate(series):
         parts.append(
@@ -950,7 +950,16 @@ def controls() -> str:
 
 
 BASE_CSS = """
-[data-dv-zoom-view]{max-height:320px;overflow:auto}[data-dv-zoom-view]>svg{max-width:none;width:100%;display:block}.dv-figure-tools{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}.dv-figure-tools label{display:flex;gap:.5rem;align-items:center}[data-region][data-selected=true]{stroke:currentColor;stroke-width:4}html{font:18px/1.55 system-ui,sans-serif;scrollbar-color:#52677b transparent}body{margin:0;background:#f5f3ec;color:#15283c}*{box-sizing:border-box}button,input,select{font:inherit}button{cursor:pointer;min-height:44px}header,[data-dv-section]{padding:clamp(1.25rem,4vw,4rem)}header h1{font-size:clamp(2rem,5vw,4rem);line-height:1.1}header>svg{width:240px;max-height:60px}[data-theme=dark]{background:#142235;color:#f5f3ec}[data-theme=light]{background:#f5f3ec;color:#15283c}h2{overflow-wrap:anywhere}[data-dv-section] h2{font-size:clamp(1.5rem,3vw,2.7rem);line-height:1.15}.dv-top-menu{position:sticky;top:0;display:flex;justify-content:space-between;background:#f5f3ec;color:#15283c;padding:.5rem;z-index:2}figure svg text:not([fill]),figure svg marker path:not([fill]){fill:currentColor}figure{margin:0;min-width:0}figure>svg{width:100%;max-height:220px}figcaption{font-size:1rem}.dv-chart svg{width:100%;min-width:650px;max-height:290px}.dv-chart svg text{font-size:24px;fill:currentColor;stroke:none}.dv-chart [data-dv-native]{overflow:auto}.dv-legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}.dv-legend button{background:transparent;color:inherit;border:1px solid currentColor;border-radius:.5rem}.dv-directory{max-height:200px;overflow:auto;scrollbar-color:currentColor transparent}table{border-collapse:collapse;font-size:1rem}td,th{padding:.3rem .7rem;border-bottom:1px solid currentColor;text-align:left}pre{font-size:1rem}.dv-image{border:0;background:transparent;padding:0}.dv-image img{object-fit:contain;max-width:100%;max-height:240px}.dv-brand{position:absolute;right:1rem;top:1rem;max-width:120px}.dv-brand svg{width:100%}[data-dv-slide]>.dv-brand~*{min-width:0}[data-dv-slide]:has(.dv-brand)>h2{padding-right:140px}[data-dv-slide]>[data-dv-unit]{min-width:0}[data-dv-slide] details[open]{overflow:auto;max-height:180px}[data-dv-map] input{width:100%}[data-dv-region][hidden]{display:none!important}[data-dv-region]{display:block;width:100%;text-align:left}.dv-enlargement{max-width:94vw;max-height:90vh}.dv-enlargement img{max-width:85vw;max-height:75vh;object-fit:contain}dialog::backdrop{background:#101820cc}@media(max-width:760px){[data-dv-slide]:has(.dv-brand)>h2{padding-right:0;padding-top:3rem}}@media print{.dv-top-menu,button,input,select,dialog,[data-dv-deck]{display:none!important}[data-dv-page]{display:block!important}[data-dv-section]{break-inside:avoid;background:white;color:black}}
+[data-dv-zoom-view]{max-height:320px;overflow:auto}[data-dv-zoom-view]>svg{max-width:none;width:100%;display:block}.dv-figure-tools{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}.dv-figure-tools label{display:flex;gap:.5rem;align-items:center}[data-region][data-selected=true]{stroke:currentColor;stroke-width:4}html{font:18px/1.55 system-ui,sans-serif;scrollbar-color:#52677b transparent}body{margin:0;background:#f5f3ec;color:#15283c}*{box-sizing:border-box}button,input,select{font:inherit}button{cursor:pointer;min-height:44px}header,[data-dv-section]{padding:clamp(1.25rem,4vw,4rem)}header h1{font-size:clamp(2rem,5vw,4rem);line-height:1.1}header>svg{width:240px;max-height:60px}[data-theme=dark]{background:#142235;color:#f5f3ec}[data-theme=light]{background:#f5f3ec;color:#15283c}h2{overflow-wrap:anywhere}[data-dv-section] h2{font-size:clamp(1.5rem,3vw,2.7rem);line-height:1.15}.dv-top-menu{display:flex;justify-content:space-between;background:#f5f3ec;color:#15283c;padding:.5rem;z-index:2}figure svg text:not([fill]),figure svg marker path:not([fill]){fill:currentColor}figure{margin:0;min-width:0}figure>svg{width:100%;max-height:220px}figcaption{font-size:1rem}.dv-chart svg{width:100%;min-width:650px;max-height:290px}.dv-chart svg text{font-size:24px;fill:currentColor;stroke:none}.dv-chart [data-dv-native]{overflow:auto}.dv-legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}.dv-legend button{background:transparent;color:inherit;border:1px solid currentColor;border-radius:.5rem}.dv-directory{max-height:200px;overflow:auto;scrollbar-color:currentColor transparent}table{border-collapse:collapse;font-size:1rem}td,th{padding:.3rem .7rem;border-bottom:1px solid currentColor;text-align:left}pre{font-size:1rem}.dv-image{border:0;background:transparent;padding:0}.dv-image img{object-fit:contain;max-width:100%;max-height:240px}.dv-brand{position:absolute;right:1rem;top:1rem;max-width:120px}.dv-brand svg{width:100%}[data-dv-slide]>.dv-brand~*{min-width:0}[data-dv-slide]:has(.dv-brand)>h2{padding-right:140px}[data-dv-slide]>[data-dv-unit]{min-width:0}[data-dv-slide] details[open]{overflow:auto;max-height:180px}[data-dv-map] input{width:100%}[data-dv-region][hidden]{display:none!important}[data-dv-region]{display:block;width:100%;text-align:left}.dv-enlargement{max-width:94vw;max-height:90vh}.dv-enlargement img{max-width:85vw;max-height:75vh;object-fit:contain}dialog::backdrop{background:#101820cc}@media(max-width:760px){[data-dv-slide]:has(.dv-brand)>h2{padding-right:0;padding-top:3rem}}@media print{.dv-top-menu,button,input,select,dialog,[data-dv-deck]{display:none!important}[data-dv-page]{display:block!important}[data-dv-section]{break-inside:avoid}[data-dv-page]{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+@media print{
+  [data-dv-page] .dv-directory,[data-dv-page] [data-dv-native],[data-dv-page] [data-dv-zoom-view]{height:auto!important;max-height:none!important;overflow:visible!important}
+  [data-dv-page] .dv-image,[data-dv-page] .dv-directory [data-dv-region]{display:block!important}
+  [data-dv-page] .dv-legend button{display:inline-flex!important}
+  [data-dv-page] .dv-image img{max-height:none;max-width:100%}
+  [data-dv-page] .dv-figure-tools,[data-dv-page] [data-dv-map]>label{display:none!important}
+  [data-dv-page] details::details-content{content-visibility:visible!important}
+  [data-dv-page] summary{list-style:none}
+}
 """
 
 

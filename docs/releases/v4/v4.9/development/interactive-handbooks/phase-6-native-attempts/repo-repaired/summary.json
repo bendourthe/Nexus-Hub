@@ -1,0 +1,9 @@
+{
+  "status": "non-pass",
+  "correction_count": 3,
+  "first_build_sha256": "5c110278112f0725434f94cc6ef499d9a7846c5c12f50b4bad88cf86ada51495",
+  "final_artifact_sha256": "cef7fb808442bdbb685b4a28c3160e674d825175408f1017c8e8d7b330dd8c8a",
+  "reason": "Requested maximum of three internal correction rounds reached with confirmed defects remaining.",
+  "remaining_failure": "print contrast after three internal repairs",
+  "cost": "unknown; provider terminal token usage retained separately"
+}

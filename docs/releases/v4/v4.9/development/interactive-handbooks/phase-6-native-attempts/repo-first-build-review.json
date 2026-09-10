@@ -1,0 +1,26 @@
+{
+  "artifact_sha256": "5f15fefe9c8411ae18d198973d9d3d349154e706d1025741735d58585cecedfe",
+  "review": "independent first-build visual inspection; no feedback or edits supplied to authoring run",
+  "factual": "pending complete source reconciliation",
+  "engineering": "pending authored first QA record",
+  "design": "non-pass",
+  "findings": [
+    {
+      "severity": "medium",
+      "location": "workflow slide, node subtitles and edge captions",
+      "observation": "Several long labels reach or cross their node boundaries and edge captions crowd the connecting arrows; the graph does not yet meet the frozen readable-figure brief."
+    }
+  ],
+  "positive_observations": [
+    "Clear editorial heading hierarchy and retained brand lockup",
+    "Distinct reading and presentation views",
+    "Five-slide ceiling retained",
+    "Compact cover keeps readable text and visible navigation"
+  ],
+  "inspected_screenshots": [
+    "reading-desktop.png",
+    "slide-1.png",
+    "slide-3.png",
+    "slide-compact.png"
+  ]
+}

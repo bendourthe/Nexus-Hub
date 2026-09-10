@@ -1,0 +1,87 @@
+{
+  "status": "pass",
+  "case": "report-final",
+  "qualification_scope": "One frozen report conversion, one native CLI invocation, no operator artifact repair; not universal quality evidence",
+  "author_status": "delivered-with-declared-inspection-gaps",
+  "operator_author_output_repairs": 0,
+  "correction_count": 3,
+  "first_build_pass": false,
+  "first_build_sha256": "ea7ad06621e6a5fc92a4e4650ec337cfc8d2d43e400af2193f8afd4be3eb4f5b",
+  "elapsed_seconds": 3247.39,
+  "wall_time_limit_seconds": 3600,
+  "usage": {
+    "input_tokens": 8332919,
+    "cached_input_tokens": 7972992,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 73393,
+    "reasoning_output_tokens": 21514
+  },
+  "monetary_cost": "unavailable; terminal token usage is recorded without estimating a price",
+  "artifacts": {
+    "docs/handbooks/pilot.docx": {
+      "sha256": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4",
+      "bytes": 122036
+    },
+    "docs/handbooks/pilot.html": {
+      "sha256": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+      "bytes": 76470
+    },
+    "docs/handbooks/pilot.pdf": {
+      "sha256": "83c1dd8a50f403f73565076ceff9e3f19b63930dee45f4998555067f657e89f0",
+      "bytes": 72313
+    }
+  },
+  "factual_verdict": "pass",
+  "factual_evidence": [
+    "Six original inputs and six retained copies match frozen source bytes",
+    "North 12 and South 18; reported total 31 and computed total 30 remain explicitly unresolved",
+    "Synthetic illustrative counts, not operational or clinical results; reliability unavailable; no supplied error bars or confidence intervals",
+    "Instrument to Queue to Analyst to Archive and Analyst to Queue rejection path preserved"
+  ],
+  "engineering_verdict": "pass",
+  "engineering_evidence": {
+    "independent_default_states": 200,
+    "independent_control_checks": 404,
+    "independent_viewports": 15,
+    "raw_overlap_findings": 56,
+    "adjudication": "Every reported pair includes opaque sticky navigation; actual paint order and all four anchor targets tested per matching viewport. Raw fail remains preserved separately.",
+    "read_only_checks": "HTML and static-export checks pass without byte or mtime changes",
+    "retained_rebuild": "HTML, PDF and DOCX rebuilt byte-identically from a separate copy using recorded owner bytes and the original Python/browser environment",
+    "installed_critical_files_unchanged": 10,
+    "renamed_offline_html": "Independent renamed standalone file, HTTP/HTTPS blocked; controls and nested inspectors exercised",
+    "native_docx": "Ordinary read-only Word open without repair; two pages, no painted text outside page bounds, resolved Arial family only; unchanged source and detached bytes",
+    "pdf": "Two pages rendered through PDFium and MuPDF and visually inspected; QPDF exit 0",
+    "application_options_changed_by_grading": false
+  },
+  "design_verdict": "pass",
+  "design_evidence": [
+    "Distinct overview, agenda, comparison, process and uncertainty compositions use the supplied Tide identity and coherent navy/cream surfaces",
+    "Actual desktop/compact and short-desktop expanded states inspected; native Word and delivered PDF pages inspected",
+    "Two comparison marks use matching 0ms starts/550ms durations; four process edges start at 0/130/260/390ms with overlapping 550ms durations, labels stay stable; rendered frames inspected"
+  ],
+  "source_deck_budget": 5,
+  "actual_slides": 5,
+  "remaining_required_gaps": [],
+  "considered_but_rejected": [
+    {
+      "candidate": "Sticky-navigation geometry overlaps",
+      "reason": "Independent paint-order checks and destination heading clearance establish expected occlusion, not colliding visible text"
+    },
+    {
+      "candidate": "Native DOCX and PDF inspection missing in author result",
+      "reason": "Independent host grading of unchanged collected files supplies ordinary native Word opening, page/font/bounds inspection, two PDF render engines and QPDF proof"
+    },
+    {
+      "candidate": "Exact invocation duration unavailable in author report",
+      "reason": "The independent process wrapper records the full 3247.39-second invocation and terminal usage, including initial lookup"
+    }
+  ],
+  "raw_evidence_sha256": {
+    "rendered.json": "de27c43841ffb1a5691eb8cd07238b09abc29724a4f1462938a71ccfc39a36b5",
+    "browser-review.json": "89eda088f86a94c7ee79bbf5d55c6509ad9f22eb38ba7766ed88d017f08ab7e0",
+    "pdf-review\\rendered.json": "747d431f6d290a804d3a1ede092fcda79cd820a1793e1386d47ae598edf9697c",
+    "control-review.json": "37c92a4a5ee457193dba7ad5865f5c6bab440ff662bd4e4f2b02e214a11bab6a",
+    "motion-review.json": "ee189b6b1a24763a9829a47322e1fcac4b9ce7be10ca0f7482a8d8d7e6874557"
+  },
+  "retention": "Full collected corpus, author trace, retained build package, 309 author PNGs and independent raw measurements remain in the local qualification root. Curated final artifacts, native pages, controls and motion evidence are promoted here."
+}

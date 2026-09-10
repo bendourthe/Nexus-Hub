@@ -1748,6 +1748,8 @@ def score_html(
     high = sum(1 for finding in findings if finding.get("severity") == "high")
     return {
         "mode": "structural",
+        "rendered_scope": "both reading and presentation views" if dual_view else "legacy view",
+        "production_readiness": "requires separate rendered, factual and positive-design evidence",
         "nav": nav_mode(html),
         "root_font_px": round(root_at_viewport, 2),
         "root_font_px_at_clamp_min": round(root_at_minimum, 2),

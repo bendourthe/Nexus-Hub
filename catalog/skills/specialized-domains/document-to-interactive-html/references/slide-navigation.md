@@ -18,6 +18,8 @@ Title and global buttons use `[data-dv-open]`; explicit chapter buttons use `[da
 
 Authored automatic builds use `[data-dv-animate="process"]` with a zero-based `data-dv-step` for 130 ms overlapping starts, or `[data-dv-animate="comparison"]` for simultaneous series. `data-dv-mark` reveals the mark from its origin while stationary labels/axes remain readable. Replay cancels and restarts these animations. Custom chart/render loops must respond to `dv:activate` and `dv:deactivate` on their slide and stop inactive work. The runtime exposes `window.NexusDualView` open/close/next/previous/replay/snapshot/destroy for embedding and agent inspection. Initial content is static and complete without JavaScript; CSS/JS hiding applies only to the additional view.
 
+Assign process targets to the individual nodes/edges that convey each semantic step, including any return path; give related parallel branches the same step. Do not assign a lone process target to the whole figure wrapper. Independent comparisons start their marks together, keeping labels and axes stationary. Retain the intended element-to-step map and verify actual animation targets, start delays and intermediate painted frames before accepting the final artifact; a wrapper fade can look polished while erasing the required sequence. Apply the same semantics to custom reading-view reveals, with complete static content under reduced motion.
+
 The shared runtime uses automatic entry builds. The older manual-fragment reference below applies only to explicitly authored legacy fragment interactions; do not require per-element clicks for process/comparison builds. Missing or incomplete markup keeps the reading page and reports a non-pass.
 
 ## Viewport fit

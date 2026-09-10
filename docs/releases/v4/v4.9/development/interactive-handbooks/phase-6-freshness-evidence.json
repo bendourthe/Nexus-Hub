@@ -1,0 +1,79 @@
+{
+  "candidate": {
+    "revision": "788e801f8db5dd73f1980712b80a1427c1828125",
+    "working_tree": "uncommitted"
+  },
+  "scope": "full",
+  "documents": [
+    {
+      "id": "overview",
+      "output": "docs/handbooks/overview.html",
+      "status": "verified",
+      "snapshot": {
+        "entry_sha256": "4b61ca9e0dee7f749d645a6bf77d908fe40990ab7202cd0c452e200254ef9f23",
+        "inputs": {
+          "docs/handbooks/_sources/overview/model.json": "f5d3c133109e6a5f498037d67228d70255a118adca6663ad7c31c223c3a48580",
+          "docs/handbooks/_sources/overview/source.md": "23c8a608f9204b67f3ab130891b055bd4946f1e1c7c7d597542773d8bc7721cf",
+          "docs/handbooks/_sources/overview/design.css": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24",
+          "scripts/validate_skills.py": "afd50ff3d6f4fe25b79d55c4872941823ea53d1e74736a76cff49bd8df344ed0",
+          "scripts/check_registry_entries.py": "0a5a963ce21d1d0304935a22b9cf506bf62bf1e613b89e423ddce6256996ceb6",
+          "scripts/lib/integrations/_catalog_adapters.py": "3d92a49b0f0338461e6e029bd5301abc5cbce7451ac4e58014357ae998536de9",
+          "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "5c1525156ed9875703791c9f3293970356e64e8ec6b5de3c0c37904232bacea2",
+          "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "2e9c79c7027310bdcead71cdfb8381a9be59e8f6a2b1093b9cc2c3c449fb47aa",
+          "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js": "f7892e0de19b83f40cf27680ef81199a4e6fd72b2c5c26f9d3f42ec570adcaff",
+          "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d",
+          "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35",
+          "docs/handbooks/_sources/overview/purpose-composition.html": "511907f9123cb68a61b67a38d7d06ddb67642e5f2871cb84410707b1d7a62beb",
+          "docs/handbooks/_sources/overview/authoring-composition.html": "e38964521614c8c0317a63d2890685e2ffed10ef2625e6d181bf994db6a4ec6c",
+          "docs/handbooks/_sources/overview/validation-composition.html": "4769181873d4f9b290a783d44986a9382771a90d7c9a4d548de46e8d0d44461f",
+          "docs/handbooks/_sources/overview/delivery-composition.html": "c7ab0ca77c7f6468d1914f17338d72a33ffe560888fb4573bafe6fe6ce5c9259",
+          "docs/handbooks/_sources/overview/proof-composition.html": "5450a7264da18cccd1423951768e9a271cb42211545464ef035dde2a2d75958f"
+        },
+        "output_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91"
+      }
+    },
+    {
+      "id": "distribution",
+      "output": "docs/handbooks/distribution.html",
+      "status": "verified",
+      "snapshot": {
+        "entry_sha256": "87e477916b7b387fa4f81d344e38aac4066e92bdf48477732f5bd91bf53bde3b",
+        "inputs": {
+          "docs/handbooks/_sources/distribution/model.json": "f63af1e8e6a20de8c8473515f2bc3bdbad52a21344a36c425142d13e2ba04237",
+          "docs/handbooks/_sources/distribution/source.md": "e78e24ee80f54094b1cdbc648442fdae2543baa9ac195afe18fbf64fe620851b",
+          "docs/handbooks/_sources/distribution/design.css": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24",
+          "scripts/installer.ps1": "3dadb25167b2f0d0ce6df031bc97a154c4d741e19443d0bab3e4caefa691cd96",
+          "scripts/installer.sh": "d0b2bd1d75b4aa0308617c4fe53f6426d2d67faa44e22e3a0d61f12e7b77d466",
+          "scripts/lib/integrations/runner.py": "7912fa31727da6bb9bf3877b3c68d9972d491f7f9cb96010d2a93acabd221833",
+          "scripts/lib/integrations/_catalog_adapters.py": "3d92a49b0f0338461e6e029bd5301abc5cbce7451ac4e58014357ae998536de9",
+          "scripts/lib/integrations/_owned.py": "aaeae3a0fe420ecabd4d5f863257454bc966e707d97e0fba4e7bba2ebc761f64",
+          "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "5c1525156ed9875703791c9f3293970356e64e8ec6b5de3c0c37904232bacea2",
+          "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "2e9c79c7027310bdcead71cdfb8381a9be59e8f6a2b1093b9cc2c3c449fb47aa",
+          "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js": "f7892e0de19b83f40cf27680ef81199a4e6fd72b2c5c26f9d3f42ec570adcaff",
+          "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d",
+          "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35",
+          "docs/handbooks/_sources/distribution/route-composition.html": "349e1382529a541ee001f589b96194205c6e0854037bae2d240f54749b6d1cb3",
+          "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
+          "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
+          "docs/handbooks/_sources/distribution/ownership-composition.html": "31df6a101328862f4e525a8b79cec45cb531d3404a8c97a108b48fca4ff231e3",
+          "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779"
+        },
+        "output_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132"
+      }
+    }
+  ],
+  "errors": [],
+  "excluded": {
+    "docs/handbooks/_sources/overview/purpose-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/overview/authoring-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/overview/validation-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/overview/delivery-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/overview/proof-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/distribution/route-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/distribution/shapes-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/distribution/identity-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/distribution/ownership-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.",
+    "docs/handbooks/_sources/distribution/verification-composition.html": "Retained authored fragment; assembled into the mapped handbook, not a standalone handbook."
+  },
+  "status": "pass"
+}
