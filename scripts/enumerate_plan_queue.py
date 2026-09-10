@@ -241,11 +241,63 @@ def render_table(plans: Sequence[Plan]) -> str:
     return "\n".join(lines)
 
 
+# A version reference that a renumber must repair. Only `v`-prefixed forms are
+# matched: a bare section number such as the heading "#### 4.10 - Publication"
+# is NOT a version, and rewriting it corrupts the document. That trap has
+# actually occurred.
+def _version_reference(version: str) -> re.Pattern:
+    return re.compile(r"(?<![\w.])" + re.escape(version) + r"(?!\d)")
+
+
+# A line that deliberately records history keeps its original claim, so it is
+# exempt when it also carries a dated renumber note. Repair a historical claim
+# with a note, never a silent restatement.
+HISTORICAL_NOTE = re.compile(
+    r"renumbered|renamed|was swapped|at authoring time|formerly", re.I
+)
+
+
+def find_residual_references(
+    root: Path, old_version: str, *, skip: Sequence[str] = ()
+) -> list[tuple[str, int, str]]:
+    """Return every surviving reference to `old_version` after a renumber.
+
+    A single survivor is a failure: the renumber left a broken link or a stale
+    tracker row. Lines carrying a dated renumber note are exempt, because a
+    historical claim is repaired with a note rather than a restatement.
+    """
+    pattern = _version_reference(old_version)
+    skipped = tuple(skip)
+    findings: list[tuple[str, int, str]] = []
+
+    for path in sorted(root.rglob("*.md")):
+        parts = path.relative_to(root).parts
+        if any(part.startswith(".") for part in parts):
+            continue
+        rel = path.relative_to(root).as_posix()
+        if any(rel.startswith(s) for s in skipped):
+            continue
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        for number, line in enumerate(lines, start=1):
+            if pattern.search(line) and not HISTORICAL_NOTE.search(line):
+                findings.append((rel, number, line.strip()))
+
+    return findings
+
+
 def main(argv: Iterable[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--root", default=".", help="repository root (default: .)")
     parser.add_argument(
         "--json", action="store_true", help="emit JSON instead of a table"
+    )
+    parser.add_argument(
+        "--check-residual",
+        metavar="OLD_VERSION",
+        help="after a renumber, fail if any reference to OLD_VERSION survives",
     )
     args = parser.parse_args(list(argv) if argv is not None else None)
 
@@ -253,6 +305,19 @@ def main(argv: Iterable[str] | None = None) -> int:
     if not root.is_dir():
         print(f"error: root is not a directory: {root}", file=sys.stderr)
         return 2
+
+    if args.check_residual:
+        findings = find_residual_references(root, args.check_residual)
+        if findings:
+            print(
+                f"residual references to {args.check_residual} ({len(findings)}):",
+                file=sys.stderr,
+            )
+            for rel, number, line in findings:
+                print(f"  {rel}:{number}: {line[:120]}", file=sys.stderr)
+            return 1
+        print(f"no residual references to {args.check_residual}")
+        return 0
 
     plans = enumerate_plans(root)
 

@@ -135,7 +135,13 @@ Renumbering rewrites version identity that merged pull requests, changelogs, and
    5. Tracker dashboard rows.
    6. Tracker prose and section headings.
    7. Committed implementation evidence under the moved tree.
-5. **Prove the repair.** A residual-reference check must fail on a single surviving reference to the old version outside a deliberately historical statement.
+5. **Prove the repair.** Run the residual-reference check; it fails on a single surviving reference.
+
+    ```bash
+    python scripts/enumerate_plan_queue.py --root . --check-residual v<OLD_VERSION>
+    ```
+
+    Exit 0 means no reference to the old version survives outside a deliberately historical statement. Exit 1 lists every survivor with its file, line, and text. One survivor is a failure, because one broken link is a broken link. The check matches only `v`-prefixed forms, so a bare section number is never rewritten, and it exempts a line carrying a dated renumber note, because a historical claim is repaired with a note rather than a restatement.
 
 ### Two traps a blanket rewrite hits
 
