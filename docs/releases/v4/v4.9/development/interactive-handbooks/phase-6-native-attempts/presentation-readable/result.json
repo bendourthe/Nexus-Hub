@@ -354,13 +354,13 @@
   "constraints_honoured": {
     "installed_skills_unmodified": "No file under .agents/ was written. OPEN-3 and OPEN-4 are installed-skill findings recorded rather than patched.",
     "inputs_unmodified": "No file under inputs/ was written; inputs/brand.svg was copied, not edited.",
-    "filesystem_scope": "All writes are inside C:/Users/BEDOURTHE/nh-qual/run-presentation.",
+    "filesystem_scope": "All writes are inside <qualification-workspace>/run-presentation.",
     "network": "Zero outbound requests. Every Playwright context routed http**/* to an abort-and-record handler; 0 recorded. The delivered HTML contains no fetchable external reference (only the SVG namespace URI).",
     "dependencies": "Nothing installed. Playwright, python-pptx and pywin32 were already present.",
     "fabrication": "No test execution is reported that was not run. Every number in this file traces to a raw artefact named beside it."
   },
   "rebuild_and_check_commands": {
-    "cwd": "C:/Users/BEDOURTHE/nh-qual/run-presentation",
+    "cwd": "<qualification-workspace>/run-presentation",
     "rebuild_html": "python .agents/skills/document-to-interactive-html/scripts/build_presentation.py private/build/handbook.model.json -o docs/handbooks/service-review.html --root .",
     "check_html_read_only": "python .agents/skills/document-to-interactive-html/scripts/build_presentation.py private/build/handbook.model.json -o docs/handbooks/service-review.html --root . --check",
     "check_html_verified_output": "Verified retained handbook: 63ac1806fdbe8d572245b260b9d621a7f2f7e94db5ed41eea9ad044c0856e33b (exit 0, writes nothing)",

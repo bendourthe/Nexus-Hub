@@ -115,7 +115,7 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 |---|---|---|
 | NI | 0 | 0 |
 | DF | 0 | 0 |
-| BG | 3 | 1 |
+| BG | 2 | 2 |
 | WN | 3 | 0 |
 | MT | 0 | 2 |
 | QG | 1 | 0 |
@@ -148,12 +148,15 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **Correcting the recorded mechanism**: an earlier note in this cycle attributed the behavior to `window.scrollTo` running before layout after `page.hidden` was cleared, with no `requestAnimationFrame` in the file. That explanation is wrong; `scrollTo` forces layout itself, and the existing `test_entry_reset_chapter_and_exit_restore_reading` already asserts a restored scroll and passes.
 - **Suggested next step**: no runtime change. When a future harness exercises scroll restore, drive the entry through an in-page dispatch or place the control below the fold, and assert the scroll captured at open rather than only the value after close. Treat a runner-reported defect in committed code as unconfirmed until reproduced outside the reporting harness.
 
-#### BG-3 - The extractor has no HTML reader while the plan requires legacy HTML migration
+#### BG-3 - RESOLVED: an existing web page is now a first-class source
 
 - **Source phase**: Phase 6, T020.
 - **Plan reference**: T020 legacy HTML migration; R11 layout preservation.
-- **Reason**: `scripts/extract_content.py` maps roughly seventy-five extensions and `.html` is not among them, appearing once in the module and never as an input format. The frozen repository fixture supplies `docs/handbooks/html/operations.html`, so the case ingested eight of nine files. The run disclosed the omission on the delivered page rather than concealing it.
-- **Suggested next step**: decide explicitly whether an HTML reader is in scope for v4.9.1 or whether T020's legacy-migration clause is amended; do not leave the requirement and the implementation in silent disagreement.
+- **What was wrong**: `scripts/extract_content.py` mapped roughly seventy-five extensions and `.html` was not among them, so the repository case ingested eight of nine files. The plan promised legacy HTML migration while the implementation could not read a web page, and the two disagreed silently. The run disclosed the omission on the delivered page rather than concealing it, which kept the result honest but did not close the gap.
+- **Decision**: build the reader. The user chose the full capability over narrowing or dropping the promise, accepting a longer release.
+- **Resolution**: `.html`, `.htm` and `.xhtml` now route to `_extract_html`, which reads a page into the shared section and block model using the standard library's `html.parser`. No dependency was added, so the reader cannot fail for a missing install. Headings open sections; paragraphs, blockquotes, definition terms and figure captions become paragraphs; lists become bullet blocks; tables keep header and body rows; `pre` becomes a code block; and an image contributes its `alt` text so a described visual is not silently lost. `title` supplies the document title, falling back to the first heading. Page chrome is dropped WHOLE rather than word by word: `nav`, `header`, `footer` and `aside` subtrees contribute nothing, and `script`, `style`, `noscript`, `template` and `svg` are skipped entirely, so navigation labels can never be presented as handbook prose. Malformed markup degrades rather than aborting, and a page with no readable content records its reason instead of passing.
+- **Proof**: the frozen repository fixture now ingests 9 of 9 sources, and the legacy page yields both its headings with exact text, including the configuration values and the uncertainty statement the factual gate checks. 21 tests cover suffix recognition, the real fixture, heading and title resolution, lists, tables, preformatted text, image alt text, whitespace collapsing, each chrome and code tag, unclosed tags, an empty page and a chrome-only page; negative-controlled by unregistering the format and confirming four fail. 102 tests pass across the extractor-adjacent suites with no regression.
+- **Residual**: reading a page and preserving its published URL and anchors are separate duties. This closes the reading half; the handbook-refresh rules continue to own address and anchor preservation, and a migration needs both.
 
 #### BG-4 - Brand light and dark variants are selected inverted
 

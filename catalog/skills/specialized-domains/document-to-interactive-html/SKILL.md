@@ -43,7 +43,7 @@ design intake ROUND 1  (five unresolved choices before extraction:
                         additional imagery [none|stock|ai|both])
    |
    v
-inputs (.pptx/.docx/.xlsx/.pdf, or a folder)
+inputs (.pptx/.docx/.xlsx/.pdf/.html, or a folder)
    |
    |  scripts/extract_content.py   (local, lazy-import parsers)
    v
