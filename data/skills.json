@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 336,
+    "total_skills": 337,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -27,7 +27,7 @@
       "specialized-domains": 14,
       "testing": 5,
       "tests-generation": 20,
-      "workflow": 47,
+      "workflow": 48,
       "security-operations": 29,
       "ot-security": 5,
       "mobile-security": 5
