@@ -125,7 +125,7 @@ Ranking produces a recommendation. Acting on it moves files and rewrites referen
 Renumbering rewrites version identity that merged pull requests, changelogs, and published documentation already reference. It is the highest-blast-radius operation this skill touches.
 
 1. **Propose.** Present the new order with the reason per move. Wait for explicit confirmation. Silence is not approval.
-2. **Move the tree** via `[[docs-layout-refactor]]`. Do not reimplement the move.
+2. **Move the tree** via `[[docs-layout-refactor]]`. Do not reimplement the move. **A swap needs a temporary name**: moving tree A onto tree B directly collides, so go A to temp, B to A, temp to B. Every real swap has needed this.
 3. **Rename** the plan and comparison files to their new version prefix.
 4. **Repair every reference class** via `[[project-refactor]]`. All seven have been observed in practice:
    1. Intra-tree version strings (`**Version**:`, `**Filename**:`, body prose).
@@ -154,7 +154,12 @@ Both have occurred. Both must be checked by hand.
 
 ### The mid-implementation case
 
-Renumbering a plan whose phases are already committed requires a step beyond the rename: the committed implementation must be re-applied at the new paths. Cherry-picking across the rename conflicts, because the rename and the phase edits touch the same files. Reconstruct the branch at the new paths instead, and say in the commit message that the per-phase commits were collapsed and where the per-phase record survives.
+Renumbering a plan whose phases are already committed costs more than the rename. The committed implementation must be re-applied at the new paths, and in practice that means all of:
+
+1. **Cherry-picking will conflict.** The rename and the phase edits touch the same files, so the picks fail on the plan file and the tracker.
+2. **Reconstruct the branch from the integration branch instead.** Take the path-stable files (source, tests) from the old branch tip, then re-write the moved documentation at its new paths.
+3. **Per-phase commits collapse into one.** State that in the commit message and name where the per-phase record survives, which is the session-history files.
+4. **Re-apply the plan's own checkbox state and status line**, because the plan file moved with the tree and its progress markers came from commits that no longer apply cleanly.
 
 Prefer not to renumber a mid-implementation plan at all. When it is done anyway, it is a maintainer decision and the cost above is the reason to state it out loud first.
 

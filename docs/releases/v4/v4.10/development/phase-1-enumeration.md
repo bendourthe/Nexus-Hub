@@ -8,7 +8,7 @@ Evidence for Phase 1 (T001-T004) of the [v4.10.0 plan-queue continuity plan](../
 
 ### The real inventory
 
-A full scan of `docs/releases/*/*/plans/*.md` finds **101 plan files** across v3 and v4. Grouping by unchecked `T###` lines gives a first approximation of the queue, and immediately exposes the central design finding below.
+A full scan of `docs/releases/*/*/plans/*.md` finds **99 plan files** across v3 and v4. (This evidence first stated 101, an unverified figure; corrected in Phase 6 against the script's own count.) Grouping by unchecked `T###` lines gives a first approximation of the queue, and immediately exposes the central design finding below.
 
 The four plans the maintainer actually considers queued:
 
@@ -95,7 +95,7 @@ Two decisions changed from the plan's first reading, both recorded here rather t
 
 **The task-line pattern requires a trailing space after the identifier.** Without it, `- [ ] The phase's observable gate passed.` matches on the leading `T` and inflates every count. This defect was live in the ad-hoc `grep -c` used during T001 and produced 33 tasks for a 26-task plan. A test pins it.
 
-**A missing `Status` line is a note, not an error.** The first implementation returned exit 1 for any plan lacking one. Against the live tree that is **83 of 101 plans**, so every real run would exit 1 and the exit code would carry no signal. Errors are now reserved for a genuinely unreadable plan; an undeclared status is reported as a note and summarised in the table footer. This preserves D1's requirement that a malformed plan is an explicit finding while keeping the exit code meaningful.
+**A missing `Status` line is a note, not an error.** The first implementation returned exit 1 for any plan lacking one. Against the live tree that is **83 of 99 plans**, so every real run would exit 1 and the exit code would carry no signal. Errors are now reserved for a genuinely unreadable plan; an undeclared status is reported as a note and summarised in the table footer. This preserves D1's requirement that a malformed plan is an explicit finding while keeping the exit code meaningful.
 
 ## T003 - Fixture tests
 

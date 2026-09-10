@@ -7220,9 +7220,13 @@
       "tools_required": [
         "Write"
       ],
-      "path": "catalog/skills/workflow/plan-queue-assessment",
+      "path": "catalog/skills/workflow/plan-queue-assessment/",
       "file": "catalog/skills/workflow/plan-queue-assessment/SKILL.md",
-      "size": 15322,
+      "size": {
+        "lines": 201,
+        "characters": 16403,
+        "tokens_estimate": 2421
+      },
       "downloads": 0,
       "status": "active",
       "security": {
