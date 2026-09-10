@@ -12,7 +12,7 @@ This plan was authored in the v4.11.0 slot and swapped to v4.10.0 on the same da
 
 ## Subtasks completed
 
-- **T001** - Baselined the real inventory (101 plan files), reconstructed the three renumbers from `git log --diff-filter=R`, and enumerated seven distinct reference classes plus two traps that a blanket rewrite hits.
+- **T001** - Baselined the real inventory (99 plan files; the evidence first said 101, corrected in Phase 6), reconstructed the three renumbers from `git log --diff-filter=R`, and enumerated seven distinct reference classes plus two traps that a blanket rewrite hits.
 - **T002** - Added `scripts/enumerate_plan_queue.py`, stdlib only, with numeric version sorting, whole-tree scanning, status reporting, and touched-path extraction. Declared repo-internal in `DEV_ONLY_SCRIPTS`.
 - **T003** - Added 18 fixture tests covering both historical sort and scope traps plus the full reporting contract.
 - **T004** - Ran the tests, the installer-smoke suite, ruff, and the fast profile; confirmed by inspection that the new test path is already collected.
@@ -36,7 +36,7 @@ None requiring a `# DEVIATION:` marker. Two design corrections were made inside 
 
 **Disposition: Incomplete (non-blocking).**
 
-Evidence: the plan's D1 says the script must report "a malformed or unreadable plan as an explicit finding rather than omitting it from the queue". Implementation showed that phrase conflates two different conditions with opposite correct handling. A plan that cannot be read is genuinely exceptional and should fail the exit code. A plan with no `Status` line is not exceptional at all: **83 of 101 plans** in the live tree have none, because the header convention post-dates most of them. Treating the second as a failure would make every real run exit 1, which destroys the signal D1 was trying to create.
+Evidence: the plan's D1 says the script must report "a malformed or unreadable plan as an explicit finding rather than omitting it from the queue". Implementation showed that phrase conflates two different conditions with opposite correct handling. A plan that cannot be read is genuinely exceptional and should fail the exit code. A plan with no `Status` line is not exceptional at all: **83 of 99 plans** in the live tree have none, because the header convention post-dates most of them. Treating the second as a failure would make every real run exit 1, which destroys the signal D1 was trying to create.
 
 The implementation therefore splits the two: `error` for unreadable, exit 1; `note` for undeclared status, exit 0, summarised in the table footer. Both remain explicit findings and neither plan is omitted, so D1's actual intent is satisfied.
 
