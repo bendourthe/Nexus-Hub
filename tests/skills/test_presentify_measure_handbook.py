@@ -285,3 +285,63 @@ def test_unfilled_shape_cannot_occlude_a_label(output):
         encoding="utf-8",
     )
     assert not [e for e in run(output)["errors"] if "straddles" in e]
+
+
+BRAND_DARK_ON_DARK = (
+    '<div class="dv-brand" style="background:#172b3b">'
+    '<svg viewBox="0 0 120 40" width="120" height="40" aria-label="Lockup">'
+    '<rect x="0" y="0" width="30" height="30" fill="#e0a06a"/>'
+    '<path d="M40 5 h70 v24 h-70 z" fill="#172b3b"/></svg></div>'
+)
+BRAND_READABLE = BRAND_DARK_ON_DARK.replace('fill="#172b3b"/></svg>', 'fill="#f7f3e9"/></svg>')
+
+
+def test_invisible_brand_wordmark_fails_even_when_the_symbol_reads(output):
+    """The repo case shipped a legible diamond beside a vanished wordmark."""
+    output.write_text(
+        output.read_text(encoding="utf-8").replace("</h2>", f"</h2>{BRAND_DARK_ON_DARK}", 1),
+        encoding="utf-8",
+    )
+    errors = [e for e in run(output)["errors"] if "brand mark" in e]
+    assert errors, run(output)["errors"]
+    assert "SURFACE theme" in errors[0]
+
+
+def test_a_brand_that_reads_against_its_surface_passes(output):
+    output.write_text(
+        output.read_text(encoding="utf-8").replace("</h2>", f"</h2>{BRAND_READABLE}", 1),
+        encoding="utf-8",
+    )
+    assert not [e for e in run(output)["errors"] if "brand mark" in e]
+
+
+def test_chart_with_non_uniform_scaling_is_reported(output):
+    """preserveAspectRatio=none turns data points into ellipses."""
+    output.write_text(
+        output.read_text(encoding="utf-8").replace(
+            "</h2>",
+            '</h2><div class="dv-chart"><svg viewBox="0 0 200 80" width="400" height="80" '
+            'preserveAspectRatio="none" aria-label="Throughput">'
+            '<circle data-dv-mark cx="20" cy="40" r="6" fill="#94491d"/>'
+            '<circle data-dv-mark cx="60" cy="30" r="6" fill="#94491d"/></svg></div>',
+            1,
+        ),
+        encoding="utf-8",
+    )
+    errors = [e for e in run(output)["errors"] if "preserveAspectRatio" in e]
+    assert errors and "2 data mark" in errors[0], run(output)["errors"]
+
+
+def test_decorative_artwork_may_still_stretch(output):
+    """A background wave carries no data; stretching it is a design choice."""
+    output.write_text(
+        output.read_text(encoding="utf-8").replace(
+            "</h2>",
+            '</h2><svg viewBox="0 0 200 40" width="400" height="40" '
+            'preserveAspectRatio="none" aria-hidden="true">'
+            '<path d="M0 20 Q50 0 100 20 T200 20" fill="#efe7d6"/></svg>',
+            1,
+        ),
+        encoding="utf-8",
+    )
+    assert not [e for e in run(output)["errors"] if "preserveAspectRatio" in e]
