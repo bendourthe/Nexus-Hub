@@ -17,10 +17,12 @@ Refreshing this file to the active plan (rather than appending another version's
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
 | Cost and diagram comparison sources assessed | 2 | 2 | 0 |
-| v4.10.0 comparison and plan prepared | 2 | 2 | 0 |
-| v4.10.0 implementation tasks complete | 0 | 25 | 25 |
+| v4.10.0 plan prepared | 1 | 1 | 0 |
+| v4.10.0 implementation tasks complete | 0 | 26 | 26 |
 | v4.11.0 comparison and plan prepared | 2 | 2 | 0 |
-| v4.11.0 implementation tasks complete | 0 | 34 | 34 |
+| v4.11.0 implementation tasks complete | 0 | 25 | 25 |
+| v4.13.0 comparison and plan prepared | 2 | 2 | 0 |
+| v4.13.0 implementation tasks complete | 0 | 34 | 34 |
 | v4.4.5 baseline guide/test files restored | 59 | 59 | 0 |
 | Exact production-file restorations | 3 | 3 | 0 |
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
@@ -34,11 +36,15 @@ Refreshing this file to the active plan (rather than appending another version's
 
 ---
 
-## Queued work - v4.10.0 cache accounting and diagram quality
+## Queued work - v4.10.0 plan-queue continuity and re-sequencing
 
-- [ ] Implement the published [v4.10.0 adoption plan](releases/v4/v4.10/plans/v4.10.0-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.10/comparisons/v4.10.0-comparison-cache-and-diagram-quality.md). Published to develop through [PR #194](https://github.com/bendourthe/Nexus-Hub/pull/194) on 2026-09-09; implementation remains 0/6 phases and 0/25 tasks. Correct cache accounting first, then extend existing prompt and diagram owners; preserve separate v4.9.1 handbook and v4.11 evaluation responsibilities.
+- [ ] Implement the [v4.10.0 plan-queue continuity plan](releases/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md): make /compare, /plan, /implement and /update release each account for the other queued plans, and add a ranked re-ordering recommendation with an assisted renumber behind explicit confirmation. Authored 2026-09-10; 0/6 phases and 0/26 tasks. One skill and one enumeration script own the rule; the four commands delegate. Sequenced first deliberately, so its own ordering recommendation can sequence the rest of the queue rather than being applied after the fact.
 
-## Queued work - v4.11.0 evidence-driven agent improvement
+## Queued work - v4.11.0 cache accounting and diagram quality
+
+- [ ] Implement the published [v4.11.0 adoption plan](releases/v4/v4.11/plans/v4.11.0-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.0-comparison-cache-and-diagram-quality.md). Published to develop through [PR #194](https://github.com/bendourthe/Nexus-Hub/pull/194) on 2026-09-09; implementation remains 0/6 phases and 0/25 tasks. Correct cache accounting first, then extend existing prompt and diagram owners; preserve separate v4.9.1 handbook and v4.13 evaluation responsibilities.
+
+## Queued work - v4.13.0 evidence-driven agent improvement
 
 - [ ] Qualify an existing native runner for the two-model trigger pilot before starting the seven-phase, 34-task implementation plan: prove observed skill loading, bounded calls/time/spend, and isolated synthetic context. Planning documents are in [PR #189](https://github.com/bendourthe/Nexus-Hub/pull/189); keyword-only evaluators do not satisfy the prerequisite. The v4.9 audit and handbook work retain their existing owners.
 
