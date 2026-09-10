@@ -2,7 +2,7 @@
   "plugin": {
     "name": "nexus-hub",
     "version": "4.9.0",
-    "description": "Enterprise-grade skill library for AI coding assistants with 336 curated skills, 18 commands, 33 hooks, and cross-platform support",
+    "description": "Enterprise-grade skill library for AI coding assistants with 337 curated skills, 18 commands, 33 hooks, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
     "repository": "https://github.com/bendourthe/Nexus-Hub",
@@ -180,7 +180,7 @@
       "id": "workflow",
       "name": "Workflow",
       "description": "Git workflows, TDD, debugging, session history and session query, context-pack distillation, skill evaluation, version management, project governance and product strategy, issue tracking, agent context modes, local continuous learning, persistent agent memory, skill quality audit and generation, local PR demo capture",
-      "skill_count": 47
+      "skill_count": 48
     },
     {
       "id": "research",

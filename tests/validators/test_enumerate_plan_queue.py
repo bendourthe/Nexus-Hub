@@ -203,3 +203,53 @@ def test_json_output_is_wellformed(
     assert payload["plans"][0]["version"] == "v4.1.0"
     assert payload["plans"][0]["open_tasks"] == 2
     assert payload["plans"][0]["done_tasks"] == 1
+
+
+def test_bare_unbackticked_paths_are_extracted(tmp_path: Path) -> None:
+    # Two path conventions are in use across the tree. Reading only the quoted
+    # form returned zero touched paths for three of five live plans, which makes
+    # every overlap check involving them a false "no impact".
+    plans = tmp_path / "docs" / "releases" / "v4" / "v4.1" / "plans"
+    plans.mkdir(parents=True)
+    (plans / "v4.1.0-bare.md").write_text(
+        "# Plan\n\n"
+        "**Status**: Authored.\n\n"
+        "- [ ] T001 Inventory refs docs/releases/v4/v4.1/development/inventory.md\n"
+        "- [ ] T002 Create the fixture tests/fixtures/handbooks/\n",
+        encoding="utf-8",
+    )
+
+    touched = enumerate_plans(tmp_path)[0].touched
+
+    assert "docs/releases/v4/v4.1/development/inventory.md" in touched
+    assert "tests/fixtures/handbooks/" in touched
+
+
+def test_both_path_conventions_coexist_without_duplication(tmp_path: Path) -> None:
+    plans = tmp_path / "docs" / "releases" / "v4" / "v4.1" / "plans"
+    plans.mkdir(parents=True)
+    (plans / "v4.1.0-mixed.md").write_text(
+        "# Plan\n\n"
+        "**Status**: Authored.\n\n"
+        "- [ ] T001 Quoted `scripts/one.py` and bare scripts/two.py\n"
+        "- [ ] T002 Repeat `scripts/one.py`\n",
+        encoding="utf-8",
+    )
+
+    touched = enumerate_plans(tmp_path)[0].touched
+
+    assert touched.count("scripts/one.py") == 1
+    assert "scripts/two.py" in touched
+
+
+def test_prose_words_are_not_mistaken_for_paths(tmp_path: Path) -> None:
+    plans = tmp_path / "docs" / "releases" / "v4" / "v4.1" / "plans"
+    plans.mkdir(parents=True)
+    (plans / "v4.1.0-prose.md").write_text(
+        "# Plan\n\n"
+        "**Status**: Authored.\n\n"
+        "- [ ] T001 Decide the read/write split and record it\n",
+        encoding="utf-8",
+    )
+
+    assert enumerate_plans(tmp_path)[0].touched == []
