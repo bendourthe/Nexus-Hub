@@ -117,7 +117,7 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 | DF | 0 | 0 |
 | BG | 3 | 1 |
 | WN | 3 | 0 |
-| MT | 1 | 1 |
+| MT | 0 | 2 |
 | QG | 1 | 0 |
 
 #### MT-3 - RESOLVED: rendered contrast is now measured by the owner that renders
@@ -129,12 +129,14 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **Proof**: run against the retained failing artifact, the check reports 21 sub-AA pairs with a worst ratio of exactly 1 to 1 (`rgb(23, 43, 59)` ink on an identical background), independently converging on the 20 pairs the runner found by screenshot inspection. Three tests cover the delivered token-redefinition shape, the large-text floor boundary at 4.00 to 1, and transparent ink; negative-controlled by disabling the reporting and confirming all three fail. The two living handbooks and every existing fixture still pass, so the check adds no false positives.
 - **Residual**: the static token-pair check in `visual_qa_score.py` is unchanged and still useful for pre-render authoring feedback; it is no longer the gate for this class.
 
-#### MT-4 - No SVG check compares text bounds against shape bounds
+#### MT-4 - RESOLVED: label-versus-shape collisions are measured in the rendered pass
 
 - **Source phase**: Phase 6, T019.
 - **Plan reference**: T019 semantic-figure and SVG reference integrity; R17 and R21.
-- **Reason**: the SVG checks are exactly `check_svg_arrowheads`, `check_svg_viewport_fit` and `check_svg_marker_integrity`; none compares a label against a rectangle and the module never calls `getBBox`. Three edge labels painting over stage-card rectangles in the repository case passed every automated gate and were caught only by screenshot inspection.
-- **Suggested next step**: add a text-versus-shape overlap check with a deliberately broken fixture, and keep the existing text-to-text and viewBox checks unchanged.
+- **What was wrong**: the SVG checks were exactly `check_svg_arrowheads`, `check_svg_viewport_fit` and `check_svg_marker_integrity`. None compared a label against a shape and the module never called `getBBox`, so three edge labels painting across stage-card rectangles in the repository case passed every automated gate and were caught only by screenshot inspection.
+- **Resolution**: `measure_handbook.py` now compares every rendered SVG `<text>` against every filled `<rect>`, `<circle>`, `<ellipse>` and `<polygon>` in the same figure. The discriminating rule is PARTIAL overlap: a label wholly inside a shape is correct node labelling and is ignored, a label clear of every shape is ignored, and a label straddling a shape's edge is a collision. A shape with `fill:none` is a stroke outline and cannot occlude, a label already inside the shape's own subtree is skipped, and an overlap covering under 8 percent of the label is treated as a grazing touch. Measuring in the browser means transforms, text length and font resolution are already applied rather than estimated.
+- **Proof**: run against the retained failing SVG, the check reports exactly 3 collisions at 25, 33 and 36 percent label coverage, independently converging on the three edge labels the runner found by screenshot inspection, while the other 23 text elements in the same figure are correctly ignored. Four tests cover a straddling label, a wholly-inside label, a label clear of every shape, and an unfilled outline; negative-controlled by disabling the reporting and confirming the straddle test fails.
+- **Residual**: this measures collision geometry only. Whether a diagram explains the right relationship remains a human or agent judgment, and no beauty or authorship detector was added.
 
 #### BG-2 - WITHDRAWN: reading scroll restore is correct; the report was a harness artifact
 

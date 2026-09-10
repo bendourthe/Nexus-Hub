@@ -236,3 +236,52 @@ def test_transparent_text_is_not_reported_as_a_contrast_failure(output):
     """Fully transparent ink is an opacity concern, not a contrast one."""
     _inject(output, "[data-dv-page] p{color:rgba(0,0,0,0)}")
     assert not [e for e in run(output)["errors"] if "contrast" in e]
+
+
+SVG_OPEN = (
+    '<svg viewBox="0 0 400 120" width="400" height="120" aria-label="Process">'
+    '<rect x="20" y="30" width="120" height="60" fill="#dddddd"/>'
+)
+
+
+def _with_svg(output, body):
+    output.write_text(
+        output.read_text(encoding="utf-8").replace(
+            "</h2>", f"</h2>{SVG_OPEN}{body}</svg>", 1
+        ),
+        encoding="utf-8",
+    )
+
+
+def test_label_straddling_a_shape_edge_is_a_collision(output):
+    """The repo case shipped three edge labels sitting across card rectangles."""
+    _with_svg(output, '<text x="110" y="65" style="font-size:14px">crosses edge</text>')
+    errors = [e for e in run(output)["errors"] if "straddles" in e]
+    assert errors, run(output)["errors"]
+    assert "crosses edge" in errors[0]
+
+
+def test_label_wholly_inside_a_shape_is_correct_labelling(output):
+    """A node label belongs inside its box; flagging it would be noise."""
+    _with_svg(output, '<text x="35" y="65" style="font-size:14px">in box</text>')
+    assert not [e for e in run(output)["errors"] if "straddles" in e]
+
+
+def test_label_clear_of_every_shape_is_not_reported(output):
+    _with_svg(output, '<text x="250" y="65" style="font-size:14px">clear</text>')
+    assert not [e for e in run(output)["errors"] if "straddles" in e]
+
+
+def test_unfilled_shape_cannot_occlude_a_label(output):
+    """fill:none is a stroke outline; a label crossing it is not obscured."""
+    output.write_text(
+        output.read_text(encoding="utf-8").replace(
+            "</h2>",
+            '</h2><svg viewBox="0 0 400 120" width="400" height="120" aria-label="Outline">'
+            '<rect x="20" y="30" width="120" height="60" fill="none" stroke="#333"/>'
+            '<text x="110" y="65" style="font-size:14px">crosses outline</text></svg>',
+            1,
+        ),
+        encoding="utf-8",
+    )
+    assert not [e for e in run(output)["errors"] if "straddles" in e]
