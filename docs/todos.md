@@ -2,13 +2,13 @@
 
 **Integration branch:** `develop`
 **Active work:** The existing guide and queued handbook work below retain their separate owners. The application-security audit is released in v4.9.0; see its [release evidence](releases/v4/v4.9/development/history/2026-09-08_v4.9.0-release.md) and [final release handoff](https://github.com/bendourthe/Nexus-Hub/pull/192).
-**Last refreshed:** 2026-09-08
+**Last refreshed:** 2026-09-09
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
-- [ ] Implement the queued [v4.9.0 master interactive-handbooks plan](releases/v4/v4.9/plans/v4.9.0-interactive-handbooks-and-presentation-default.md). All source analyses and approved-build lessons, including final fullscreen, motion sequencing, headerless layout, PowerPoint export and standalone sharing, are consolidated into R01-R30, conflict resolutions and 31 mapped tasks. Implementation remains 0/7 phases and 0/31 tasks; earlier isolated command/skill drafts require reconciliation before adoption. The active guide work remains unchanged.
+- [ ] Implement the queued [v4.9.1 master interactive-handbooks plan](releases/v4/v4.9/plans/v4.9.1-interactive-handbooks-and-presentation-default.md). All source analyses and approved-build lessons, including final fullscreen, motion sequencing, headerless layout, PowerPoint export and standalone sharing, are consolidated into R01-R30, conflict resolutions and 31 mapped tasks. Implementation remains 0/7 phases and 0/31 tasks; earlier isolated command/skill drafts require reconciliation before adoption. The active guide work remains unchanged.
 
 ---
 
@@ -16,6 +16,9 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
+| Cost and diagram comparison sources assessed | 2 | 2 | 0 |
+| v4.10.0 comparison and plan prepared | 2 | 2 | 0 |
+| v4.10.0 implementation tasks complete | 0 | 25 | 25 |
 | v4.11.0 comparison and plan prepared | 2 | 2 | 0 |
 | v4.11.0 implementation tasks complete | 0 | 34 | 34 |
 | v4.4.5 baseline guide/test files restored | 59 | 59 | 0 |
@@ -30,6 +33,10 @@ Refreshing this file to the active plan (rather than appending another version's
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
+
+## Queued work - v4.10.0 cache accounting and diagram quality
+
+- [ ] Implement the published [v4.10.0 adoption plan](releases/v4/v4.10/plans/v4.10.0-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.10/comparisons/v4.10.0-comparison-cache-and-diagram-quality.md). Published to develop through [PR #194](https://github.com/bendourthe/Nexus-Hub/pull/194) on 2026-09-09; implementation remains 0/6 phases and 0/25 tasks. Correct cache accounting first, then extend existing prompt and diagram owners; preserve separate v4.9.1 handbook and v4.11 evaluation responsibilities.
 
 ## Queued work - v4.11.0 evidence-driven agent improvement
 
