@@ -36,8 +36,15 @@ from pathlib import Path
 # item beginning "The ..." matches "T" and inflates every count.
 TASK_LINE = re.compile(r"^- \[(?P<mark>[ xX])\] (?P<id>T\d{3}) ")
 
-# Repository paths named inside a task line, e.g. `docs/releases/.../x.md`.
-TOUCHED_PATH = re.compile(r"`([A-Za-z0-9_][A-Za-z0-9_./-]*\.[A-Za-z0-9]{1,6})`")
+# Repository paths named inside a task line. Two conventions are in use across
+# the tree and BOTH must be read: backtick-quoted (`docs/releases/.../x.md`) and
+# bare trailing paths. Matching only the quoted form returned zero touched paths
+# for three of five live plans, which would report a false "no impact" for every
+# pair involving them.
+TOUCHED_PATH = re.compile(
+    r"`([A-Za-z0-9_][A-Za-z0-9_./-]*(?:\.[A-Za-z0-9]{1,6}|/))`"
+    r"|(?<![`\w/])([A-Za-z0-9_][A-Za-z0-9_.-]*(?:/[A-Za-z0-9_.-]+)+(?:\.[A-Za-z0-9]{1,6}|/))"
+)
 
 STATUS_LINE = re.compile(r"^\*\*Status\*\*:\s*(?P<status>.+?)\s*$", re.MULTILINE)
 VERSION_DIR = re.compile(r"^v(?P<major>\d+)\.(?P<minor>\d+)$")
@@ -151,8 +158,9 @@ def _read_plan(path: Path, root: Path, version: tuple[int, int]) -> Plan:
             open_tasks += 1
         else:
             done_tasks += 1
-        for candidate in TOUCHED_PATH.findall(line):
-            if candidate not in seen:
+        for quoted, bare in TOUCHED_PATH.findall(line):
+            candidate = quoted or bare
+            if candidate and candidate not in seen:
                 seen.add(candidate)
                 touched.append(candidate)
 

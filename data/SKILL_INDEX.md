@@ -220,6 +220,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | browser-testing-with-devtools | testing | "Test and debug frontend behavior using browser DevTools for network, console, performance, and accessibility" | catalog/skills/testing/browser-testing-with-devtools/SKILL.md |
 | code-simplification | code-cleanup | "Reduce structural complexity by eliminating over-abstraction and dead code without changing behavior" | catalog/skills/code-cleanup/code-simplification/SKILL.md |
 | platform-contract-verification | workflow | "Re-verify each AI platform's discovery format and default lever before release; fix installer drift" | catalog/skills/workflow/platform-contract-verification/SKILL.md |
+| plan-queue-assessment | workflow | "Assess queued-plan staleness and rank the queue by parallel compatibility and impact" | catalog/skills/workflow/plan-queue-assessment/SKILL.md |
 | known-gaps-tracker | workflow | "Track release-scoped unfinished work with derived counts for the next plan" | catalog/skills/workflow/known-gaps-tracker/SKILL.md |
 | loop-engineering | workflow | "Assemble goal-terminated agentic loops from Nexus-Hub primitives" | catalog/skills/workflow/loop-engineering/SKILL.md |
 | doc-coauthoring | workflow | "Guide users through a 3-stage workflow for co-authoring documentation" | catalog/skills/workflow/doc-coauthoring/SKILL.md |
@@ -341,4 +342,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | setup-wizard-generator | developer-experience | "Generate a resumable human-only setup wizard with bash and PowerShell templates" | catalog/skills/developer-experience/setup-wizard-generator/SKILL.md |
 | decision-questionnaire | business-product | "Write an async Markdown questionnaire for the one stakeholder who can unblock" | catalog/skills/business-product/decision-questionnaire/SKILL.md |
 | functional-verification | testing | "Exercise built artifacts through real boundaries and record observable behavioral evidence" | catalog/skills/testing/functional-verification/SKILL.md |
-**Total: 336 skills across 23 categories**
+**Total: 337 skills across 23 categories**
