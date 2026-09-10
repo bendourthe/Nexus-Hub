@@ -31,7 +31,7 @@ FONT_FLOORS = {"heading": 16, "body": 16, "label": 13, "interactive": 12}
 
 MEASURE = r"""(root) => {
  const visible = e => e.checkVisibility({checkOpacity:true,checkVisibilityCSS:true});
- const fonts=[], figures=[], clipped=[], contrast=[];
+ const fonts=[], figures=[], clipped=[], contrast=[], overlaps=[];
  // Contrast is measured on RENDERED computed colors, never by pairing token
  // names. A block that redefines a custom property inside the same rule that
  // consumes it resolves at computed-value time, so a name-pairing check reads
@@ -89,8 +89,39 @@ MEASURE = r"""(root) => {
  for(const e of root.querySelectorAll('figure,canvas,img')) if(visible(e)) {
    const b=e.getBoundingClientRect();figures.push({tag:e.tagName,width:b.width,height:b.height,area:b.width*b.height});
  }
+ // A label sitting wholly inside a node box is correct labelling; a label
+ // STRADDLING a filled shape's edge is a collision. Partial overlap is the
+ // signal, so proper in-box labels never register. Arrowhead, viewport-fit and
+ // marker-integrity checks never compare a label against a shape at all.
+ for(const svg of root.querySelectorAll('svg')) {
+   if(!visible(svg)) continue;
+   const shapes=[...svg.querySelectorAll('rect,circle,ellipse,polygon')].filter(s=>{
+     const f=getComputedStyle(s).fill;
+     return f && f!=='none' && !/rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\)/.test(f);
+   });
+   for(const t of svg.querySelectorAll('text')) {
+     if(!t.textContent.trim() || !visible(t)) continue;
+     const a=t.getBoundingClientRect();
+     if(!a.width || !a.height) continue;
+     for(const s of shapes) {
+       if(s.contains(t)) continue;
+       const b=s.getBoundingClientRect();
+       const ox=Math.min(a.right,b.right)-Math.max(a.left,b.left);
+       const oy=Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top);
+       if(ox<=0.5||oy<=0.5) continue;                       // no meaningful overlap
+       const inside=a.left>=b.left-0.5&&a.right<=b.right+0.5&&
+                    a.top>=b.top-0.5&&a.bottom<=b.bottom+0.5;
+       if(inside) continue;                                  // a proper in-box label
+       const covered=(ox*oy)/(a.width*a.height);
+       if(covered<0.08) continue;                            // a grazing touch
+       overlaps.push({text:t.textContent.trim().slice(0,40),shape:s.tagName,
+         covered:Math.round(covered*100)});
+       break;
+     }
+   }
+ }
  const b=root.getBoundingClientRect();
- return {fonts,figures,clipped,contrast,width:root.clientWidth,scrollWidth:root.scrollWidth,
+ return {fonts,figures,clipped,contrast,overlaps,width:root.clientWidth,scrollWidth:root.scrollWidth,
    height:root.clientHeight,scrollHeight:root.scrollHeight,visible:visible(root),
    theme:root.getAttribute('data-theme'),bounds:{x:b.x,y:b.y,width:b.width,height:b.height}};
 }"""
@@ -221,6 +252,12 @@ def measure(
                             ):
                                 report["errors"].append(
                                     f"{identity}/{width}x{height}: desktop stage scroll"
+                                )
+                            for hit in values["overlaps"]:
+                                report["errors"].append(
+                                    f"{view}/{identity}/{width}x{height}: svg label "
+                                    f"{hit['text']!r} straddles a <{hit['shape']}> "
+                                    f"({hit['covered']}% of the label covered)"
                                 )
                             for pair in values["contrast"]:
                                 report["errors"].append(
