@@ -31,7 +31,7 @@ FONT_FLOORS = {"heading": 16, "body": 16, "label": 13, "interactive": 12}
 
 MEASURE = r"""(root) => {
  const visible = e => e.checkVisibility({checkOpacity:true,checkVisibilityCSS:true});
- const fonts=[], figures=[], clipped=[], contrast=[], overlaps=[];
+ const fonts=[], figures=[], clipped=[], contrast=[], overlaps=[], brand=[], deformed=[];
  // Contrast is measured on RENDERED computed colors, never by pairing token
  // names. A block that redefines a custom property inside the same rule that
  // consumes it resolves at computed-value time, so a name-pairing check reads
@@ -120,8 +120,34 @@ MEASURE = r"""(root) => {
      }
    }
  }
+ // A brand lockup carries meaning in its shapes, not in text, so the contrast
+ // pass above cannot see it. brand_variants is keyed by the SURFACE theme, and
+ // an author who reads the key as the artwork's own colour inverts every slide
+ // and ships a wordmark that vanishes into the background.
+ for(const mark of root.querySelectorAll('.dv-brand svg, header > svg')) {
+   if(!visible(mark)) continue;
+   const bg=backdrop(mark);
+   for(const shape of mark.querySelectorAll('path,rect,polygon,circle,ellipse')) {
+     const box=shape.getBoundingClientRect();
+     if(box.width*box.height<16) continue;            // hairlines and registration marks
+     const fill=rgb(getComputedStyle(shape).fill);
+     if(!fill || fill[3]<0.5) continue;               // unfilled or near-transparent by intent
+     const value=ratio(fill,bg);
+     if(value<1.5) {                                  // effectively the background colour
+       brand.push({ratio:Math.round(value*100)/100,fill:fill.slice(0,3),
+         background:bg.slice(0,3),width:Math.round(box.width),height:Math.round(box.height)});
+     }
+   }
+ }
+ // Non-uniform scaling deforms a chart's marks, so a circle stops reading as a
+ // point and a bar stops being comparable. Decorative artwork may stretch.
+ for(const chart of root.querySelectorAll('.dv-chart svg,[data-dv-chart] svg,svg:has([data-dv-mark])')) {
+   if(!visible(chart)) continue;
+   if((chart.getAttribute('preserveAspectRatio')||'').trim().toLowerCase().startsWith('none'))
+     deformed.push({marks:chart.querySelectorAll('[data-dv-mark]').length});
+ }
  const b=root.getBoundingClientRect();
- return {fonts,figures,clipped,contrast,overlaps,width:root.clientWidth,scrollWidth:root.scrollWidth,
+ return {fonts,figures,clipped,contrast,overlaps,brand,deformed,width:root.clientWidth,scrollWidth:root.scrollWidth,
    height:root.clientHeight,scrollHeight:root.scrollHeight,visible:visible(root),
    theme:root.getAttribute('data-theme'),bounds:{x:b.x,y:b.y,width:b.width,height:b.height}};
 }"""
@@ -252,6 +278,20 @@ def measure(
                             ):
                                 report["errors"].append(
                                     f"{identity}/{width}x{height}: desktop stage scroll"
+                                )
+                            for mark in values["brand"]:
+                                report["errors"].append(
+                                    f"{view}/{identity}/{width}x{height}: brand mark "
+                                    f"{mark['width']}x{mark['height']} is invisible at "
+                                    f"{mark['ratio']}:1, rgb{tuple(mark['fill'])} on "
+                                    f"rgb{tuple(mark['background'])}; brand_variants is "
+                                    f"keyed by the SURFACE theme"
+                                )
+                            for chart in values["deformed"]:
+                                report["errors"].append(
+                                    f"{view}/{identity}/{width}x{height}: chart uses "
+                                    f"preserveAspectRatio=none, deforming "
+                                    f"{chart['marks']} data mark(s)"
                                 )
                             for hit in values["overlaps"]:
                                 report["errors"].append(
