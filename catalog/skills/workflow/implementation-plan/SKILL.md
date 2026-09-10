@@ -142,6 +142,17 @@ Create `<version_dir>/plans/` if it does not exist and write to `<version_dir>/p
 delivered, what the UI and runtime impact look like, and what success looks like
 for this scope.]
 
+## Queued predecessors
+
+[REQUIRED. One row per queued plan that could complete before this one, with the
+verdict from `[[plan-queue-assessment]]` (it owns the rule) and its evidence. An
+empty queue gets the explicit line "No queued predecessors." - an omitted section
+is indistinguishable from a skipped check.
+
+| Queued plan | Verdict | Consequence if it completes first |
+|---|---|---|
+| vX.Y.Z <slug> | content / ordering / no impact / unknown | [what changes for THIS plan] |]
+
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
@@ -475,6 +486,7 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 - [ ] Every phase has a stability gate and exit checklist
 - [ ] `## Current model map` is present with four tiers, Anthropic / OpenAI / Google / Cursor columns, a dated status, and source URLs (or one exact offline fallback marker)
 - [ ] Every phase carries an allowed generic model tier and effort in both the glance table and its separate per-phase fields; concrete model ids appear only in the Current model map
+- [ ] `## Queued predecessors` section present, with a verdict and named evidence per queued plan, or the explicit "No queued predecessors." line
 - [ ] `## Constitution Check` section present between `## Overview` and `## Phases at a Glance` (with PASS / FAIL / N/A per MUST principle, or the informational note when no constitution file exists)
 - [ ] `## Complexity Tracking` section present near the end of the file (empty table when no FAIL bullets; populated row per FAIL otherwise)
 - [ ] File written to the resolved `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` (canonical `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)
