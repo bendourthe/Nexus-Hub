@@ -165,6 +165,52 @@ MEASURE = r"""(root) => {
 }"""
 
 
+# Chromium drops background painting for print unless print-color-adjust is
+# exact, so a dark band prints WHITE while its light ink survives. The computed
+# style still reports the declared dark background, which is why the rendered
+# contrast pass above cannot see this: print emulation changes what is painted,
+# not what is computed. This models the paint decision instead of reading the
+# declaration, and runs under print emulation so an @media print palette remap
+# has already been applied and legitimately passes.
+PRINT_CONTRAST = r"""() => {
+ const rgb = v => { const m=(v||'').match(/[\d.]+/g); return m ? [+m[0],+m[1],+m[2], m.length>3?+m[3]:1] : null; };
+ const lum = c => { const f=x=>{x/=255;return x<=0.03928?x/12.92:Math.pow((x+0.055)/1.055,2.4)};
+   return 0.2126*f(c[0])+0.7152*f(c[1])+0.0722*f(c[2]); };
+ const ratio = (a,b) => { const l1=lum(a),l2=lum(b); return (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05); };
+ const paints = e => {
+   for(let p=e;p;p=p.parentElement) {
+     const s=getComputedStyle(p);
+     const adjust=s.printColorAdjust||s.webkitPrintColorAdjust||'';
+     if(adjust.trim()==='exact') return true;
+   }
+   return false;
+ };
+ const PAPER=[255,255,255];
+ const out=[];
+ for(const e of document.querySelectorAll('h1,h2,h3,p,li,td,th,figcaption')) {
+   const text=e.textContent.trim();
+   if(!text || !e.checkVisibility({checkOpacity:true,checkVisibilityCSS:true})) continue;
+   const css=getComputedStyle(e);
+   const ink=rgb(css.color);
+   if(!ink || ink[3]<0.05) continue;
+   let declared=null, owner=null;
+   for(let p=e;p;p=p.parentElement) {
+     const c=rgb(getComputedStyle(p).backgroundColor);
+     if(c && c[3]===1) { declared=c; owner=p; break; }
+   }
+   // A surface only reaches paper if the printer is told to paint it.
+   const effective=(declared && paints(owner)) ? declared : PAPER;
+   const px=parseFloat(css.fontSize)||16;
+   const bold=(parseInt(css.fontWeight,10)||400)>=700;
+   const floor=(px>=24||(bold&&px>=18.66))?3:4.5;
+   const value=ratio(ink,effective);
+   if(value<floor) out.push({ratio:Math.round(value*100)/100,floor,
+     ink:ink.slice(0,3),declared:declared?declared.slice(0,3):null,
+     printed:effective,text:text.slice(0,50)});
+ }
+ return out;
+}"""
+
 def measure(
     html: Path,
     inventory: dict[str, Any],
@@ -367,6 +413,18 @@ def measure(
             page.emulate_media(media="print")
             if not page.locator("[data-dv-page]").is_visible():
                 raise ValueError("print reading view missing")
+            for pair in page.evaluate(PRINT_CONTRAST):
+                report["errors"].append(
+                    f"print: contrast {pair['ratio']}:1 below {pair['floor']}:1 -- "
+                    f"ink rgb{tuple(pair['ink'])} prints on rgb{tuple(pair['printed'])}"
+                    + (
+                        f" because the declared rgb{tuple(pair['declared'])} surface "
+                        f"is not painted without print-color-adjust: exact"
+                        if pair["declared"]
+                        else ""
+                    )
+                    + f" -- {pair['text']!r}"
+                )
             report["no_js_and_print"] = "pass"
             page.close()
             if slides:

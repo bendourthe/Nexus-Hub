@@ -373,3 +373,44 @@ def test_content_below_the_fold_may_start_faded(output):
         "[data-dv-page] p{margin-top:3000px;opacity:0.2}",
     )
     assert not [e for e in run(output)["errors"] if "opening-screen" in e]
+
+
+# A bespoke-authored page that does not inherit the assembler base CSS, which
+# already opts into background painting. This is the shape all three delivered
+# qualification artifacts had.
+DARK_BAND = (
+    "[data-dv-page] [data-dv-section]{background:#172b3b;color:#f7f3e9}"
+    "@media print{[data-dv-page]{print-color-adjust:economy}}"
+)
+
+
+def test_dark_band_without_print_color_adjust_fails_the_print_gate(output):
+    """Chromium drops the band's background; the light ink survives on white."""
+    _inject(output, DARK_BAND)
+    errors = [e for e in run(output)["errors"] if e.startswith("print:")]
+    assert errors, run(output)["errors"]
+    assert "print-color-adjust: exact" in errors[0]
+
+
+def test_print_color_adjust_exact_keeps_the_band_and_passes(output):
+    """Opting into background painting makes the declared pair the real pair."""
+    _inject(
+        output,
+        DARK_BAND + "@media print{[data-dv-page]{print-color-adjust:exact}}",
+    )
+    assert not [e for e in run(output)["errors"] if e.startswith("print:")]
+
+
+def test_a_print_palette_remap_also_passes(output):
+    """Repainting the ink dark for print is the other legitimate remedy."""
+    _inject(
+        output,
+        DARK_BAND
+        + "@media print{[data-dv-page] [data-dv-section]{background:#ffffff;color:#172b3b}}",
+    )
+    assert not [e for e in run(output)["errors"] if e.startswith("print:")]
+
+
+def test_ordinary_dark_on_light_text_is_unaffected_by_the_print_gate(output):
+    _inject(output, "[data-dv-page] p{color:#172b3b;background:#ffffff}")
+    assert not [e for e in run(output)["errors"] if e.startswith("print:")]

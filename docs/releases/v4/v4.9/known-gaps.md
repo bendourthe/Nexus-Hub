@@ -116,8 +116,8 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 | NI | 0 | 0 |
 | DF | 0 | 0 |
 | BG | 0 | 4 |
-| WN | 0 | 3 |
-| MT | 1 | 2 |
+| WN | 1 | 3 |
+| MT | 2 | 2 |
 | QG | 1 | 0 |
 
 #### MT-3 - RESOLVED: rendered contrast is now measured by the owner that renders
@@ -207,12 +207,32 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **What was done instead**: a binary authoring rule in `references/interactive-features.md` forbids animating the digits of a sourced value, requires the surrounding form to carry the motion, and permits animation of numbers the source does not contain. Guidance is the appropriate instrument here because both runners found and fixed the defect unaided once looking.
 - **Suggested next step**: if this recurs after the rule ships, build the temporal sampler as its own scoped work with a fixture that animates a known-wrong intermediate value; do not bolt it onto the settled-frame pass.
 
-#### QG-2 - The three-family authoring gate is unmet and cannot be waived
+#### MT-6 - Contrast is measured from computed style, which print does not honour
+
+- **Source phase**: Phase 6, T020, third qualification round, repository case.
+- **Plan reference**: T019 contrast by owner; R06 print behavior.
+- **What was observed**: the delivered page declares dark bands with light ink. Chromium drops background painting for print unless `print-color-adjust: exact` is set, so the band prints white while its text keeps the light ink. The runner measured 46 of 86 dark-band text elements below 4.5 to 1 in print, worst 1.11 to 1, and retained a rendered page image that shows the defect plainly.
+- **Why the installed check cannot see it**: the rendered contrast pass added earlier in this cycle reads `getComputedStyle().backgroundColor`. Print emulation changes what is PAINTED, not what is computed, so the check still reads the declared dark background and scores the pair clean. Verified directly: measuring the delivered page under `emulate_media('print')` reports zero contrast findings while the rasterised page is visibly unreadable. This is the same lesson as the PowerPoint automatic chart title, one medium over: the value the defect lives in is absent from the object model.
+- **Suggested next step**: a deterministic static check is available and cheap. A page that paints a dark surface behind light ink MUST either declare `print-color-adjust: exact` on that surface or remap the palette in an `@media print` block; a page that does neither will print unreadable text. That is checkable without rasterising, and it fails the cause rather than sampling pixels for the symptom. Rasterising the print output and sampling is the fallback if the static rule proves insufficient.
+
+#### WN-5 - The text-overlap rule fires on deliberately overlaying elements
+
+- **Source phase**: Phase 6, T020, third qualification round, report case.
+- **Plan reference**: T019 non-vacuous checks.
+- **Owner**: `catalog/skills/testing/functional-verification/scripts/detect_visual_defects.py`, which belongs to `functional-verification` rather than to this skill.
+- **What was observed**: a sticky global navigation produced 86 `text-overlap` errors across 7 of 8 sections, because its links overlap the prose beneath them once the reader scrolls. That is what a sticky nav is for. The runner removed the sticky behavior rather than silence the rule or edit the tooling, and recorded the disagreement with retained evidence. The delivered page is worse for it: a reader deep in the document must scroll to the top to reach navigation. The two installed tools disagreed on the same page, since `visual_qa_score.py`'s render-only-defects criterion passed the sticky version.
+- **Why this matters beyond one page**: the same class was already adjudicated by hand during v4.9.0, whose evidence records that all 56 raw overlap warnings were opaque sticky-navigation occlusion. A false positive that is waived by a human every round is eventually obeyed instead, and this round it deleted a legitimate feature.
+- **Suggested next step**: exempt an element whose computed `position` is `sticky` or `fixed` AND which paints an opaque background, because such an element occludes by design. Keep the rule for ordinary flow content, where overlap is always a defect. This is a change to another skill's script and should be scoped to that owner rather than folded into this plan.
+
+#### QG-2 - The three-family authoring gate is still unmet at 2 of 3
 
 - **Source phase**: Phase 6, T020.
 - **Plan reference**: T020 three of three final passes.
-- **Reason**: accepted input families remain 1 of 3 after both queued invocations. A corrected specimen cannot retroactively qualify the invocation that produced it, so fresh cases are required once the findings above are addressed.
-- **Suggested next step**: close MT-3, MT-4, BG-2, BG-4 and BG-5, resolve BG-3 as scope or amendment, then run fresh presentation and repository cases under their declared budgets.
+- **State after the third round**: report PASS, presentation PASS, repository qualified NON-PASS. Two rounds now stand at 2 of 3 and 1 of 3 respectively; the intervening round reached 3 of 3 but against a build carrying the confirmed BG-2 defect, so it does not qualify the current tree.
+- **This round's evidence**: all three cases ran against a workspace-scoped install verified byte-identical to the tree, with the frozen corpus intact and the installed tooling confirmed unmodified afterwards in every case. The report and presentation deliverables were independently re-measured at four viewports with zero findings, their native Word and PowerPoint output was inspected, and scroll restore was confirmed exact on delivered output at 3000 to 3000, which closes BG-2 in production rather than only in a fixture.
+- **Why the repository case did not pass**: a single high-severity print defect, recorded as MT-6. The page declares no print palette, so dark bands print white while their text keeps light ink. The runner reported it rather than exceeding its correction budget silently, which is the correct behavior.
+- **Suggested next step**: fix the print-palette cause, land the MT-6 static check so the class cannot recur unseen, then re-run the repository case alone. The report and presentation results stand against the current tree and do not need repeating unless the tooling changes again.
+
 
 ## Resolved during this follow-up
 
