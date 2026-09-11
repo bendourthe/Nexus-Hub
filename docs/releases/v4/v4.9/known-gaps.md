@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: open; seeded 2026-09-08 from post-v4.8.0 work. The v4.8 ledger is finalized, so findings after that release land here rather than reopening it.
-**Last updated**: 2026-09-08 (v4.9.0 Phase 7 qualification in progress)
+**Last updated**: 2026-09-11 (v4.9.1 Claude Usage Monitor scoped weekly bar, pre-publication)
 
 ## Open Items - found 2026-09-08 during post-v4.8.0 follow-up
 
@@ -105,6 +105,26 @@ The advisory model-prompting check used the native Codex CLI's current enumerati
 | DF-2 | Index identity | Phase 1 corrective implementation | Index bytes and parsed entry digests are bound; index changes invalidate a manifest. |
 | DF-3 | Submodule classification | Phase 1 corrective implementation | Each in-scope gitlink binds child HEAD, dirty and untracked state; incomplete/external metadata fails. |
 | DF-4 | Windows containment primitives | Phase 1 corrective implementation | Native directory handles deny rename during operations, with identity checks before content publication; no process assurance is claimed. |
+
+## v4.9.1 - Claude Usage Monitor scoped weekly bar
+
+### Warnings (WN)
+
+#### WN-3 - The scoped weekly bar is display-only and will not warn the user
+
+- **Source**: v4.9.1, the Claude Usage Monitor second weekly bar.
+- **What was observed**: urgency thresholds, status-bar highlighting, and threshold notifications continue to evaluate the session and all-models weekly metrics only. The model-scoped weekly bar is rendered in the dashboard and the status-bar hover but feeds none of them.
+- **Why this is the deliberate outcome, not an omission**: the requirement was explicit that the second bar stay out of the status-bar text. Feeding it into the `highest` threshold metric would have coloured the status bar and raised a toast from a bar the user asked to keep off that surface. The consequence is real and is stated in the release notes: a scoped limit approaching capacity is visible on hover and in the dashboard but will not interrupt the user.
+- **Suggested next step**: if a scoped limit ever becomes the binding constraint in practice, the cheapest change is a fourth `claudeUsage.thresholdMetric` value rather than folding it into `highest`, so an existing user's alerting does not change under them. That is a settings-schema change and needs its own decision record.
+
+### Missing tests / coverage gaps (MT)
+
+#### MT-3 - The two new bars were not exercised in a running extension host
+
+- **Source**: v4.9.1, the same change.
+- **What was observed**: the type check passed, 12 unit tests passed including 6 new mapping cases, and the real account payload was fed through `mapClaudeUsageResponse` and resolved a `Fable`-labelled scoped metric. None of that loads the extension. The tooltip SVG and the dashboard section were not rendered.
+- **Why it is worth recording**: the verified boundary is the normalized data model, not the pixels. A mistake in the tooltip markup or the dashboard template would pass every check that was run. The status-bar hover in particular builds an inline SVG into a percent-encoded data URI, which no unit test in this extension covers today.
+- **Suggested next step**: build the extension, load it in VS Code, hover the status-bar item, and open the dashboard, confirming two weekly bars with the second labelled from the account. Do this before publishing the tag, since the release notes assert the bar appears.
 
 ## Resolved during this follow-up
 

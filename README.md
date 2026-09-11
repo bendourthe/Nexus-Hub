@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.9.0 -->
+<!-- nexus-hub-version: 4.9.1 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 336 skills, 19 commands, 35 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -34,6 +34,12 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.9.1
+
+**The Claude Usage Monitor shows both weekly limits.** A second weekly bar appears beneath the existing one in the status-bar hover and the dashboard, reporting the weekly limit scoped to a single model and labeled with the model name the usage API returns for it, so the label follows your account rather than a hardcoded string. The bar is omitted when your plan reports no scoped limit. The status-bar text is unchanged and still shows the all-models figure as `(week)`, and the scoped bar does not colour the status bar or raise threshold warnings. The extension now reads the usage endpoint's self-describing `limits` array, falling back to the older flat fields, rather than binding to the rotating internal codenames that carry the same numbers. Extension `0.9.9` -> `0.10.0`; catalog counts are unchanged at 336 skills, 19 commands, 35 hooks, and 23 agents.
 
 ---
 
