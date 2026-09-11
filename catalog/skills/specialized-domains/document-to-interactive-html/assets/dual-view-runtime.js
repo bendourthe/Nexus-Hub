@@ -146,7 +146,11 @@
         return;
       }
       if (generation !== closingGeneration) return;
-      window.scrollTo(0, scroll);
+      // Returning the reader to their place is a restoration, not a journey. A
+      // page that sets scroll-behavior:smooth turns a plain scrollTo into an
+      // animation, and the focus() below cancels it mid-flight, stranding the
+      // reader partway down. 'instant' opts out of that page-level preference.
+      window.scrollTo({ top: scroll, left: 0, behavior: 'instant' });
       if (origin && origin.isConnected) origin.focus({ preventScroll: true });
     };
     if (fullscreenExit) void fullscreenExit.then(restoreReading);

@@ -345,3 +345,31 @@ def test_decorative_artwork_may_still_stretch(output):
         encoding="utf-8",
     )
     assert not [e for e in run(output)["errors"] if "preserveAspectRatio" in e]
+
+
+def test_opening_screen_content_below_full_opacity_fails(output):
+    """A scroll-reveal that starts faded ships its first screen unreadable."""
+    _inject(output, "[data-dv-page] p{opacity:0.45}")
+    errors = [e for e in run(output)["errors"] if "opening-screen" in e]
+    assert errors, run(output)["errors"]
+    assert "0.45" in errors[0]
+
+
+def test_inherited_opacity_is_accumulated(output):
+    """Two stacked 0.7 ancestors leave the text at 0.49, not 0.7."""
+    _inject(output, "[data-dv-section]{opacity:0.7} [data-dv-page] p{opacity:0.7}")
+    assert [e for e in run(output)["errors"] if "opening-screen" in e]
+
+
+def test_fully_opaque_opening_screen_passes(output):
+    _inject(output, "[data-dv-page] p{opacity:1}")
+    assert not [e for e in run(output)["errors"] if "opening-screen" in e]
+
+
+def test_content_below_the_fold_may_start_faded(output):
+    """A reveal is legitimate for content the reader has to scroll to."""
+    _inject(
+        output,
+        "[data-dv-page] p{margin-top:3000px;opacity:0.2}",
+    )
+    assert not [e for e in run(output)["errors"] if "opening-screen" in e]

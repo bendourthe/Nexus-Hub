@@ -115,9 +115,9 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 |---|---|---|
 | NI | 0 | 0 |
 | DF | 0 | 0 |
-| BG | 2 | 2 |
-| WN | 3 | 0 |
-| MT | 0 | 2 |
+| BG | 0 | 4 |
+| WN | 0 | 3 |
+| MT | 1 | 2 |
 | QG | 1 | 0 |
 
 #### MT-3 - RESOLVED: rendered contrast is now measured by the owner that renders
@@ -138,15 +138,15 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **Proof**: run against the retained failing SVG, the check reports exactly 3 collisions at 25, 33 and 36 percent label coverage, independently converging on the three edge labels the runner found by screenshot inspection, while the other 23 text elements in the same figure are correctly ignored. Four tests cover a straddling label, a wholly-inside label, a label clear of every shape, and an unfilled outline; negative-controlled by disabling the reporting and confirming the straddle test fails.
 - **Residual**: this measures collision geometry only. Whether a diagram explains the right relationship remains a human or agent judgment, and no beauty or authorship detector was added.
 
-#### BG-2 - WITHDRAWN: reading scroll restore is correct; the report was a harness artifact
+#### BG-2 - RESOLVED: the reading offset is restored instantly rather than animated
 
-- **Source phase**: Phase 6, T019, reported against Phase 2 output.
+- **Source phase**: Phase 6, T019, reported independently by two runners against Phase 2 output.
 - **Plan reference**: R25 global reset and return-to-page behavior.
-- **Status**: not a defect. Recorded here because the claim reached this ledger before it was reproduced, and withdrawing it in place is more useful than deleting it.
-- **What was claimed**: closing the presentation left the reading page at scroll 0 instead of its prior 2000, said to reproduce on a stock build and therefore to be a defect in committed `assets/dual-view-runtime.js`.
-- **What direct reproduction showed**: the runtime saves and restores correctly. On a 4807-pixel page, opening and closing through the public API restores 2000 and 3000 exactly, and an in-page `click()` on the entry button restores 2000 exactly. The failure appears only when the entry button is clicked through Playwright's `locator.click()`, which scrolls its target into view before dispatching. Both entry buttons sit at the top of the page, so that auto-scroll moves the viewport to 0 BEFORE the deck opens; the runtime then correctly captures and restores 0. Instrumenting the scroll position at the moment of opening shows 0 for the Playwright path and the intended value for the in-page path.
-- **Correcting the recorded mechanism**: an earlier note in this cycle attributed the behavior to `window.scrollTo` running before layout after `page.hidden` was cleared, with no `requestAnimationFrame` in the file. That explanation is wrong; `scrollTo` forces layout itself, and the existing `test_entry_reset_chapter_and_exit_restore_reading` already asserts a restored scroll and passes.
-- **Suggested next step**: no runtime change. When a future harness exercises scroll restore, drive the entry through an in-page dispatch or place the control below the fold, and assert the scroll captured at open rather than only the value after close. Treat a runner-reported defect in committed code as unconfirmed until reproduced outside the reporting harness.
+- **History**: first reported as a clamp to zero, then WITHDRAWN in this cycle after a synthetic harness restored correctly and the failure was traced to Playwright's `locator.click()` auto-scrolling its top-of-page target into view. That withdrawal was wrong. The auto-scroll was a genuine confound in that one harness, but a contaminated reproduction does not disprove the phenomenon, and a second runner then reported a partial shortfall that the auto-scroll explanation cannot produce.
+- **Confirmed mechanism**: the page sets `html { scroll-behavior: smooth }`, which turns the restoring `window.scrollTo(0, scroll)` into an ANIMATION. The `origin.focus()` call on the next line cancels that animation mid-flight, stranding the reader wherever it had reached. Instrumenting the call on the retained real page shows the target and the document height were both already correct (5394 requested, 6384 tall) while `scrollY` immediately after the call was 0, settling later at 4663. The shortfall scales with depth because a short scroll completes before the cancellation: measured on the same page with the same sequence, 5394 lost 789 pixels and 3000 lost 140, while 1200 restored exactly. Layout timing, the mechanism proposed earlier in this cycle, was NOT the cause.
+- **Resolution**: `assets/dual-view-runtime.js` restores with `window.scrollTo({top, left, behavior: 'instant'})`. Returning a reader to their place is a restoration, not a journey, so it opts out of the page-level smooth preference and cannot be cancelled.
+- **Proof**: measured end to end on the retained first build with only the runtime swapped. Committed runtime: 5394 to 4605, 3000 to 2860, 1200 exact. Fixed runtime: all three exact. A regression test drives the documented open and close API on a fixture that sets `scroll-behavior: smooth` at depths 5394 and 3000; negative-controlled against the committed runtime, where both cases fail. The pre-existing `test_entry_reset_chapter_and_exit_restore_reading` still passes.
+- **Why the earlier fixtures could not catch it**: none set `scroll-behavior: smooth`, so their restores were never animated and nothing could cancel them. A fixture that cannot fail proves nothing; the new one fails without the fix.
 
 #### BG-3 - RESOLVED: an existing web page is now a first-class source
 
@@ -158,40 +158,54 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **Proof**: the frozen repository fixture now ingests 9 of 9 sources, and the legacy page yields both its headings with exact text, including the configuration values and the uncertainty statement the factual gate checks. 21 tests cover suffix recognition, the real fixture, heading and title resolution, lists, tables, preformatted text, image alt text, whitespace collapsing, each chrome and code tag, unclosed tags, an empty page and a chrome-only page; negative-controlled by unregistering the format and confirming four fail. 102 tests pass across the extractor-adjacent suites with no regression.
 - **Residual**: reading a page and preserving its published URL and anchors are separate duties. This closes the reading half; the handbook-refresh rules continue to own address and anchor preservation, and a migration needs both.
 
-#### BG-4 - Brand light and dark variants are selected inverted
+#### BG-4 - RESOLVED: an invisible brand mark now fails its gate
 
 - **Source phase**: Phase 6, T020, repository case.
 - **Plan reference**: R26 brand fidelity and source-to-SVG comparison at actual sizes.
-- **Reason**: every slide selects the opposite brand variant, leaving the wordmark invisible on both light and dark slides with only the diamond legible. The runner records it as a one-character fix in authored output; no automated gate covers wordmark legibility.
-- **Suggested next step**: fix the selection and add a check that a supplied wordmark is legible against the theme it is placed on, so this cannot pass silently again.
+- **What was wrong**: every slide selected the opposite brand variant, leaving the wordmark invisible on both themes while the symbol still read. The selection code was correct and internally consistent; the CONTRACT was the defect, saying only that `brand_variants` "maps light/dark to supplied asset variants" without stating whether the key means the surface or the artwork's own colour.
+- **Resolution**: `content-model.md` now states that the key is the SURFACE the lockup is drawn on, gives the concrete implication that `brand_variants.dark` is normally the light artwork, and names the consequence of reading it the other way. A rendered check measures every filled shape in a lockup against its actual backdrop and fails below 1.5 to 1. It is per-shape, so a legible symbol beside a vanished wordmark is still caught; the contrast pass could not see this because a lockup carries meaning in shapes rather than text.
+- **Proof**: two tests, an invisible wordmark beside a legible symbol and a brand that reads against its surface, negative-controlled. The subsequent repository qualification found no mark below the floor at any of its 462 measured states.
 
-#### BG-5 - Chart data points are stretched by a non-uniform aspect ratio
+#### BG-5 - RESOLVED: a deformed data mark now fails its gate
 
 - **Source phase**: Phase 6, T020, repository case.
 - **Plan reference**: R17 figure fidelity.
-- **Reason**: `preserveAspectRatio="none"` deforms data points into ellipses in the delivered figure.
-- **Suggested next step**: correct the aspect handling and cover it in the figure checks.
+- **What was wrong**: `preserveAspectRatio="none"` stretched chart data points into ellipses. The attribute appears nowhere in this codebase, so it was authored, and nothing prevented it.
+- **Resolution**: a rendered check flags non-uniform scaling on charts only, identified by `.dv-chart`, `[data-dv-chart]`, or any `svg` containing `[data-dv-mark]`. Decorative artwork may still stretch, because a background wave is a design choice while a deformed data mark is a misrepresentation.
+- **Proof**: two tests, a deformed chart naming its mark count and decorative artwork that may stretch, negative-controlled.
 
-#### WN-2 - A section renders at partial opacity at load
+#### WN-2 - RESOLVED: opening-screen content must be readable at first paint
 
 - **Source phase**: Phase 6, T019, presentation case.
 - **Plan reference**: R23 motion lifetime and reduced-motion behavior.
-- **Reason**: a section partially visible at load renders at opacity 0.45 from the scroll-driven reveal, so first paint shows content the reader cannot properly read.
-- **Suggested next step**: ensure any element within the initial viewport reaches full opacity at first paint regardless of scroll position.
+- **What was wrong**: a section already on screen at load rendered at opacity 0.45 from a scroll-driven reveal, so the opening screen shipped half-faded with nothing for the reader to scroll to trigger it.
+- **Resolution**: the rendered pass now accumulates inherited opacity down the ancestor chain for every text-bearing element intersecting the initial viewport and fails below 0.95. Content below the fold may still start faded, because a reveal is legitimate for content the reader has to scroll to.
+- **Proof**: four tests covering a faded opening screen, two stacked 0.7 ancestors compounding to 0.49, a fully opaque screen, and a legitimate below-the-fold reveal; negative-controlled. Independently, the later presentation run declined scroll-triggered reveals for exactly this reason and recorded it rather than shipping one.
 
-#### WN-3 - The chart pane leaves roughly half the slide empty
+#### WN-3 - CLOSED as authoring guidance: composition balance is not automatable
 
 - **Source phase**: Phase 6, T020, repository case.
 - **Plan reference**: R20 and R23 composition quality.
-- **Reason**: a positive-design judgment recorded by independent review; no automated gate covers it and none should be invented as a beauty detector.
-- **Suggested next step**: treat as authoring guidance in the design reference; it remains a human or agent visual judgment.
+- **What was observed**: the chart pane left roughly half the slide empty. A later independent review recorded the same class as some empty space in a right-hand column.
+- **Why this closes without a check**: the plan forbids an automatic beauty or authorship detector, and rightly. Empty space is a defect in one composition and deliberate in another, and no measurement separates them. Inventing a fill-ratio threshold would fail legitimate work and be gamed by padding, which the plan also names.
+- **Resolution**: this stays a human or agent visual judgement, carried by the existing positive-design gate and the reference comparison. It is recorded here so a future reader does not mistake the absence of a check for an absence of review.
 
-#### WN-4 - The retained chart renderer offers no axis-limit control
+#### WN-4 - RESOLVED: the axis claim now matches what the runtime provides
 
 - **Source phase**: Phase 6, T019.
 - **Plan reference**: `SKILL.md` interactive-chart requirements.
-- **Reason**: `SKILL.md` requires readers to adjust axis limits and the retained renderer provides no such control, so the contract and the implementation disagree.
-- **Suggested next step**: implement the control or amend the contract; record which was chosen.
+- **What was wrong**: `SKILL.md` promised in two places that a reader can "adjust axis limits". `assets/dual-view-figures.js` implements reset, series toggle, region select, enlargement, zoom and pan, and no axis-limit control. The contract and the implementation disagreed.
+- **Decision and reason**: the claim was corrected rather than implemented. A direct axis-limit control has to re-lay-out arbitrary authored SVG to an operator-chosen range, which is a charting engine, and this plan's `construction-debt` line forbids a second chart framework outright. The reader-facing value that claim was reaching for is already delivered by the auto-refit rule: toggling a series refits the axis so no value is silently clamped.
+- **Resolution**: both claims now describe zoom, pan and series toggling with the axis refitting to whatever stays visible, and state plainly that there is no direct axis-limit control and why. The mixed-scale safety rule is untouched, including its binary statement that a flat-topped bar at the axis maximum is fabricated data.
+
+#### MT-5 - No automated coverage for values fabricated mid-animation
+
+- **Source phase**: Phase 6, T019 and T020, found by screenshot inspection in two independent runs.
+- **Plan reference**: R16 source fidelity; T019 non-vacuous checks.
+- **What was observed**: a count-up animation paints numbers the source does not contain. One run displayed 11 / 17 / 28 / 29 mid-flight where the true value was 31; another transiently painted a retry limit of 2, precisely the stale figure that refresh existed to correct. Both were caught only by looking at screenshots, and both runs independently repaired it the same way, by making the printed values static and animating a proportion bar instead.
+- **Why no detector was added**: every gate in this system measures a settled frame, so the defect is invisible to all of them by construction. Catching it automatically needs temporal sampling of text content against the source model across the whole animation window, which is a new measurement architecture rather than an extension of the existing pass, and a naive version would fire on any legitimately animated non-sourced number.
+- **What was done instead**: a binary authoring rule in `references/interactive-features.md` forbids animating the digits of a sourced value, requires the surrounding form to carry the motion, and permits animation of numbers the source does not contain. Guidance is the appropriate instrument here because both runners found and fixed the defect unaided once looking.
+- **Suggested next step**: if this recurs after the rule ships, build the temporal sampler as its own scoped work with a fixture that animates a known-wrong intermediate value; do not bolt it onto the settled-frame pass.
 
 #### QG-2 - The three-family authoring gate is unmet and cannot be waived
 
