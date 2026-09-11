@@ -31,7 +31,7 @@ FONT_FLOORS = {"heading": 16, "body": 16, "label": 13, "interactive": 12}
 
 MEASURE = r"""(root) => {
  const visible = e => e.checkVisibility({checkOpacity:true,checkVisibilityCSS:true});
- const fonts=[], figures=[], clipped=[], contrast=[], overlaps=[], brand=[], deformed=[];
+ const fonts=[], figures=[], clipped=[], contrast=[], overlaps=[], brand=[], deformed=[], faded=[];
  // Contrast is measured on RENDERED computed colors, never by pairing token
  // names. A block that redefines a custom property inside the same rule that
  // consumes it resolves at computed-value time, so a name-pairing check reads
@@ -146,8 +146,20 @@ MEASURE = r"""(root) => {
    if((chart.getAttribute('preserveAspectRatio')||'').trim().toLowerCase().startsWith('none'))
      deformed.push({marks:chart.querySelectorAll('[data-dv-mark]').length});
  }
+ // Content already on screen must be readable at first paint. A scroll-driven
+ // reveal that starts below full opacity ships its opening screen half-faded,
+ // and the reader has nothing to scroll to trigger it.
+ for(const e of root.querySelectorAll('h1,h2,h3,p,li,td,th,figcaption')) {
+   if(!e.textContent.trim() || !visible(e)) continue;
+   const box=e.getBoundingClientRect();
+   if(box.bottom<=0 || box.top>=innerHeight) continue;   // not on the opening screen
+   let alpha=1;
+   for(let p=e;p;p=p.parentElement) alpha*=parseFloat(getComputedStyle(p).opacity)||1;
+   if(alpha<0.95) faded.push({alpha:Math.round(alpha*100)/100,
+     text:e.textContent.trim().slice(0,50)});
+ }
  const b=root.getBoundingClientRect();
- return {fonts,figures,clipped,contrast,overlaps,brand,deformed,width:root.clientWidth,scrollWidth:root.scrollWidth,
+ return {fonts,figures,clipped,contrast,overlaps,brand,deformed,faded,width:root.clientWidth,scrollWidth:root.scrollWidth,
    height:root.clientHeight,scrollHeight:root.scrollHeight,visible:visible(root),
    theme:root.getAttribute('data-theme'),bounds:{x:b.x,y:b.y,width:b.width,height:b.height}};
 }"""
@@ -278,6 +290,11 @@ def measure(
                             ):
                                 report["errors"].append(
                                     f"{identity}/{width}x{height}: desktop stage scroll"
+                                )
+                            for item in values["faded"]:
+                                report["errors"].append(
+                                    f"{view}/{identity}/{width}x{height}: opening-screen "
+                                    f"content at opacity {item['alpha']} -- {item['text']!r}"
                                 )
                             for mark in values["brand"]:
                                 report["errors"].append(

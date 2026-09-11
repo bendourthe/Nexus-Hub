@@ -349,3 +349,40 @@ def test_interrupted_fullscreen_promise_does_not_reopen(page):
     page.evaluate("finishFullscreen()")
     assert not state(page)["active"]
     assert page.evaluate("document.documentElement.style.overflow") == ""
+
+
+def smooth_scroll_html(depth_vh=900):
+    """A page that opts into smooth scrolling, as authored handbooks do.
+
+    Without `scroll-behavior: smooth` this defect is invisible: a plain
+    restore lands instantly and nothing can cancel it. With it, the restore
+    becomes an animation that the focus() call immediately after aborts,
+    stranding the reader partway. The shortfall scales with depth, so a
+    shallow fixture also cannot fail.
+    """
+    return runtime_html().replace(
+        "<main data-dv-page>",
+        f'<style>html{{scroll-behavior:smooth}}</style><main data-dv-page>',
+    ).replace('height:180vh', f'height:{depth_vh}vh')
+
+
+@pytest.mark.parametrize("target", [5394, 3000])
+def test_deep_scroll_restores_exactly_on_a_smooth_scrolling_page(browser, tmp_path, target):
+    path = tmp_path / "smooth.html"
+    path.write_text(smooth_scroll_html(), encoding="utf-8")
+    page = browser.new_page(viewport={"width": 1366, "height": 768})
+    page.add_init_script(
+        "Element.prototype.requestFullscreen = () => Promise.reject(new Error('denied'))"
+    )
+    page.goto(path.as_uri())
+    page.evaluate(f"window.scrollTo(0,{target})")
+    page.wait_for_timeout(120)
+    before = page.evaluate("Math.round(scrollY)")
+    assert before == target, "fixture could not reach the requested depth"
+    page.evaluate("NexusDualView.open(0)")
+    page.wait_for_timeout(200)
+    page.evaluate("NexusDualView.close()")
+    page.wait_for_timeout(500)
+    after = page.evaluate("Math.round(scrollY)")
+    page.close()
+    assert after == before, f"reading offset drifted {after - before} px on close"
