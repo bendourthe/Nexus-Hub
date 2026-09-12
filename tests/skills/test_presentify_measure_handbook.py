@@ -414,3 +414,49 @@ def test_a_print_palette_remap_also_passes(output):
 def test_ordinary_dark_on_light_text_is_unaffected_by_the_print_gate(output):
     _inject(output, "[data-dv-page] p{color:#172b3b;background:#ffffff}")
     assert not [e for e in run(output)["errors"] if e.startswith("print:")]
+
+
+def test_declared_sticky_that_loses_the_cascade_is_reported(output):
+    """A rail authored sticky, overridden to static by a later equal-specificity rule."""
+    _inject(
+        output,
+        "[data-dv-page] header{position:sticky;top:0}"
+        "[data-dv-page] header{position:static}",
+    )
+    errors = [e for e in run(output)["errors"] if e.startswith("layout:")]
+    assert errors, run(output)["errors"]
+    assert "declares position sticky" in errors[0] and "computes static" in errors[0]
+
+
+def test_declared_sticky_that_applies_is_not_reported(output):
+    _inject(output, "[data-dv-page] header{position:sticky;top:0}")
+    assert not [e for e in run(output)["errors"] if e.startswith("layout:")]
+
+
+def test_a_breakpoint_that_does_not_stick_is_not_a_finding(output):
+    """A media query whose condition does not match is not a lost declaration."""
+    _inject(
+        output,
+        "@media (max-width:200px){[data-dv-page] header{position:sticky;top:0}}",
+    )
+    assert not [e for e in run(output)["errors"] if e.startswith("layout:")]
+
+
+def test_focus_returns_to_the_control_that_opened_the_deck(output):
+    """R25 names focus restoration beside scroll restoration."""
+    assert not [e for e in run(output)["errors"] if e.startswith("focus:")]
+
+
+def test_a_lost_opener_is_reported_rather_than_silently_dropping_focus(output):
+    """If the opener does not survive a shell rebuild, focus lands nowhere."""
+    output.write_text(
+        output.read_text(encoding="utf-8").replace(
+            "</html>",
+            "<script>document.addEventListener('keydown',e=>{if(e.key==='Escape')"
+            "document.querySelectorAll('[data-dv-open]').forEach(n=>n.remove());},true);"
+            "</script></html>",
+            1,
+        ),
+        encoding="utf-8",
+    )
+    assert [e for e in run(output)["errors"] if e.startswith("focus:")]

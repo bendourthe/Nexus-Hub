@@ -211,6 +211,44 @@ PRINT_CONTRAST = r"""() => {
  return out;
 }"""
 
+# A declaration is a request, not a fact. A rule that sets position sticky or
+# fixed can lose the cascade to a later rule at equal specificity, and the
+# element then computes static with nothing reporting it: the navigation simply
+# stops following the reader. Only rules whose media condition currently matches
+# are considered, so a breakpoint that deliberately does not stick is not a
+# finding. If an override IS deliberate, remove the losing declaration rather
+# than leaving a live rule that never applies.
+DECLARED_POSITION = r"""() => {
+ const wanted=new Set(['sticky','fixed']);
+ const out=[];
+ const seen=new Set();
+ const walk = (rules, active) => {
+   for(const rule of rules||[]) {
+     if(rule.media) { walk(rule.cssRules, active && matchMedia(rule.media.mediaText).matches); continue; }
+     if(rule.cssRules && !rule.selectorText) { walk(rule.cssRules, active); continue; }
+     if(!active || !rule.selectorText || !rule.style) continue;
+     const want=(rule.style.position||'').trim().toLowerCase();
+     if(!wanted.has(want)) continue;
+     let nodes=[];
+     try { nodes=[...document.querySelectorAll(rule.selectorText)]; } catch(e) { continue; }
+     for(const node of nodes) {
+       if(!node.checkVisibility || !node.checkVisibility({checkVisibilityCSS:true})) continue;
+       const got=getComputedStyle(node).position;
+       if(got===want) continue;
+       const key=rule.selectorText+'|'+want+'|'+got;
+       if(seen.has(key)) continue;
+       seen.add(key);
+       out.push({selector:rule.selectorText.slice(0,70),declared:want,computed:got,
+         tag:node.tagName.toLowerCase()});
+     }
+   }
+ };
+ for(const sheet of document.styleSheets) {
+   try { walk(sheet.cssRules, true); } catch(e) { /* cross-origin sheet */ }
+ }
+ return out;
+}"""
+
 def measure(
     html: Path,
     inventory: dict[str, Any],
@@ -410,6 +448,12 @@ def measure(
                 or not page.locator("[data-dv-page]").is_visible()
             ):
                 raise ValueError("no-JS reading view missing")
+            for hit in page.evaluate(DECLARED_POSITION):
+                report["errors"].append(
+                    f"layout: {hit['selector']!r} declares position "
+                    f"{hit['declared']} but <{hit['tag']}> computes "
+                    f"{hit['computed']}; the declaration never applies"
+                )
             page.emulate_media(media="print")
             if not page.locator("[data-dv-page]").is_visible():
                 raise ValueError("print reading view missing")
@@ -443,6 +487,20 @@ def measure(
                 page.keyboard.press("Escape")
                 if page.evaluate("window.NexusDualView.snapshot().active"):
                     raise ValueError("Escape did not restore reading")
+                # R25 names focus restoration beside scroll restoration. A
+                # keyboard or screen-reader user returned to <body> has lost
+                # their place entirely, and deck deactivation alone cannot
+                # detect that.
+                landed = page.evaluate(
+                    "() => {const a=document.activeElement;"
+                    " return {tag:a?a.tagName.toLowerCase():'none',"
+                    " opener:!!(a&&a.closest&&a.closest('[data-dv-open],[data-dv-chapter]'))};}"
+                )
+                if not landed["opener"]:
+                    report["errors"].append(
+                        "focus: closing the presentation left focus on "
+                        f"<{landed['tag']}> rather than the control that opened it"
+                    )
                 report["reduced_motion_fullscreen_fallback_escape"] = "pass"
                 page.close()
             browser.close()
