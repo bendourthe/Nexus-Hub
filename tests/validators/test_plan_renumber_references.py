@@ -142,3 +142,34 @@ def test_dot_directories_are_ignored(tmp_path: Path) -> None:
     write(tmp_path, ".nexus/evidence/report.md", "v4.10.0 everywhere\n")
 
     assert find_residual_references(tmp_path, "v4.10.0") == []
+
+def test_skip_excludes_a_closed_versions_sealed_record(tmp_path):
+    """A closed version's evidence records the queue as it stood.
+
+    Rewriting it would falsify the record, so --skip exempts it by prefix. The
+    skip is narrow on purpose: a path OUTSIDE the prefix still fails.
+    """
+    write(tmp_path, "docs/releases/v4/v4.10/development/phase-2.md", "ranking put v4.9.1 last")
+    write(tmp_path, "docs/todos.md", "see v4.9.1 for details")
+
+    skipped = find_residual_references(tmp_path, "v4.9.1", skip=["docs/releases/v4/v4.10/"])
+
+    assert [f[0] for f in skipped] == ["docs/todos.md"]
+    assert main(["--root", str(tmp_path), "--check-residual", "v4.9.1",
+                 "--skip", "docs/releases/v4/v4.10/"]) == 1
+
+
+def test_skip_exempts_only_the_named_prefix(tmp_path):
+    """With the live survivor gone, the sealed record alone is allowed to pass."""
+    write(tmp_path, "docs/releases/v4/v4.10/development/phase-2.md", "ranking put v4.9.1 last")
+
+    assert find_residual_references(tmp_path, "v4.9.1", skip=["docs/releases/v4/v4.10/"]) == []
+    assert main(["--root", str(tmp_path), "--check-residual", "v4.9.1",
+                 "--skip", "docs/releases/v4/v4.10/"]) == 0
+
+
+def test_an_unskipped_sealed_record_still_fails(tmp_path):
+    """--skip is opt-in. Without it the same tree fails, so the gate is not weakened."""
+    write(tmp_path, "docs/releases/v4/v4.10/development/phase-2.md", "ranking put v4.9.1 last")
+
+    assert main(["--root", str(tmp_path), "--check-residual", "v4.9.1"]) == 1

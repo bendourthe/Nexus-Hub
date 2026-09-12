@@ -8,7 +8,7 @@ This dashboard tracks the work in flight right now. It is deliberately short. Fi
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
-- [ ] Implement the queued [v4.9.1 master interactive-handbooks plan](releases/v4/v4.9/plans/v4.9.1-interactive-handbooks-and-presentation-default.md). All source analyses and approved-build lessons, including final fullscreen, motion sequencing, headerless layout, PowerPoint export and standalone sharing, are consolidated into R01-R30, conflict resolutions and 31 mapped tasks. Implementation remains 0/7 phases and 0/31 tasks; earlier isolated command/skill drafts require reconciliation before adoption. The active guide work remains unchanged.
+- [ ] Implement the queued [v4.11.0 master interactive-handbooks plan](releases/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md). All source analyses and approved-build lessons, including final fullscreen, motion sequencing, headerless layout, PowerPoint export and standalone sharing, are consolidated into R01-R30, conflict resolutions and 31 mapped tasks. Implementation remains 0/7 phases and 0/31 tasks; earlier isolated command/skill drafts require reconciliation before adoption. The active guide work remains unchanged.
 
 ---
 
@@ -42,7 +42,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 ## Queued work - v4.11.0 cache accounting and diagram quality
 
-- [ ] Implement the published [v4.11.0 adoption plan](releases/v4/v4.11/plans/v4.11.0-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.0-comparison-cache-and-diagram-quality.md). Published to develop through [PR #194](https://github.com/bendourthe/Nexus-Hub/pull/194) on 2026-09-09; implementation remains 0/6 phases and 0/25 tasks. Correct cache accounting first, then extend existing prompt and diagram owners; preserve separate v4.9.1 handbook and v4.13 evaluation responsibilities.
+- [ ] Implement the published [v4.11.1 adoption plan](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md). Published to develop through [PR #194](https://github.com/bendourthe/Nexus-Hub/pull/194) on 2026-09-09; implementation remains 0/6 phases and 0/25 tasks. Correct cache accounting first, then extend existing prompt and diagram owners; preserve separate v4.11.0 handbook and v4.13 evaluation responsibilities.
 
 ## Queued work - v4.13.0 evidence-driven agent improvement
 

@@ -1,13 +1,13 @@
 # Interactive handbooks: source analysis and adoption decisions
 
-**Historical evidence notice (2026-09-05)**: Observations and verification limits below describe the inspected specimen at the time. Implementation decisions are consolidated in the [master v4.9.0 plan](../plans/v4.9.1-interactive-handbooks-and-presentation-default.md#evidence-reconciliation-and-precedence), whose conflict resolutions supersede earlier recommendations. A reference to a rejected local rebuild below does not describe the subsequently approved artifact or qualify the generic catalog.
+**Historical evidence notice (2026-09-05)**: Observations and verification limits below describe the inspected specimen at the time. Implementation decisions are consolidated in the [master v4.9.0 plan](../../v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md#evidence-reconciliation-and-precedence), whose conflict resolutions supersede earlier recommendations. A reference to a rejected local rebuild below does not describe the subsequently approved artifact or qualify the generic catalog.
 
 **Date**: 2026-09-04
 **Project**: Nexus-Hub
 **Adoption target**: v4.9.0
 **Scope**: Analyze the supplied rd-data-dev handbooks and authoring standard; plan a shared default for presentify, documentation updates, and release preparation.
 **Verification level**: Local source and structure inspection. Browser inspection was attempted through the available browser tool, which returned "No browser is available". No rendered visual, fullscreen, accessibility, or clinical correctness pass is claimed.
-**Companion plan**: [v4.9.0 interactive handbooks](../plans/v4.9.1-interactive-handbooks-and-presentation-default.md).
+**Companion plan**: [v4.9.0 interactive handbooks](../../v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md).
 
 ## Outcome
 
