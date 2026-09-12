@@ -11,6 +11,16 @@ export interface UsageMetric {
   resetsAt: number | null;
 }
 
+/**
+ * A weekly limit that applies to one model rather than to all models, carrying
+ * the display name the usage API itself reports for that model (today "Fable").
+ * The label is never hardcoded: the account page shows whichever scoped weekly
+ * limits the plan has, so the name travels with the number.
+ */
+export interface ScopedUsageMetric extends UsageMetric {
+  label: string;
+}
+
 export type DataSource = "api" | "manual";
 
 export interface ExtraUsageInfo {
@@ -23,6 +33,13 @@ export interface ExtraUsageInfo {
 export interface UsageData {
   session: UsageMetric;
   weeklyAllModels: UsageMetric;
+  /**
+   * The weekly limit scoped to a single model, shown as a second weekly bar in
+   * the dashboard and the status-bar hover. Absent when the account reports no
+   * scoped weekly limit, and deliberately NOT surfaced in the status-bar text,
+   * which keeps showing the all-models weekly figure as "(week)".
+   */
+  weeklyScoped?: ScopedUsageMetric;
   currentModel: ClaudeModel;
   lastUpdated: number;
   dataSource?: DataSource;
