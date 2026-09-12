@@ -14,6 +14,7 @@ from __future__ import annotations
 import importlib.util
 import os
 import shutil
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -52,7 +53,47 @@ def test_previously_hashed_leaf_change_invalidates_manifest(tree: Path, monkeypa
         tm.build_target_manifest(tree)
 
 _GIT = shutil.which("git")
-_needs_git = pytest.mark.skipif(_GIT is None, reason="git is not installed on this host")
+
+
+def _trusted_git_reason(candidate: str | None) -> str | None:
+    """Return why `candidate` cannot serve as a trusted git, or None if it can.
+
+    `resolve_trusted_git` refuses a non-regular, link-like, or hard-linked
+    executable, because a hard link has no distinguishable real path. These
+    tests need a git that MEETS that contract; a host whose only git fails it
+    cannot exercise them, and reporting that as a failure blames the test for a
+    property of the machine.
+
+    Git for Windows is the live case: it ships `git.exe` hard-linked, and a
+    stock install exposes only the hard-linked copies on PATH (`mingw64/bin`
+    at `st_nlink` 4, `cmd` at 2), while the conforming `bin/git.exe` is not on
+    PATH. On such a host these tests skip. CI runners whose git is a single-link
+    regular file run them in full.
+    """
+    if candidate is None:
+        return "git is not installed on this host"
+    path = Path(candidate)
+    try:
+        info = path.lstat()
+    except OSError as exc:
+        return f"git at {path} cannot be stat'd: {exc.__class__.__name__}"
+    if stat.S_ISLNK(info.st_mode):
+        return f"git at {path} is a symlink, which resolve_trusted_git refuses"
+    if not stat.S_ISREG(info.st_mode):
+        return f"git at {path} is not a regular file"
+    if info.st_nlink != 1:
+        return (
+            f"git at {path} is hard-linked (st_nlink={info.st_nlink}); "
+            "resolve_trusted_git refuses it, so this host cannot supply a "
+            "trusted git"
+        )
+    return None
+
+
+_GIT_SKIP_REASON = _trusted_git_reason(_GIT)
+_needs_git = pytest.mark.skipif(
+    _GIT_SKIP_REASON is not None, reason=_GIT_SKIP_REASON or ""
+)
 
 
 @_needs_git
