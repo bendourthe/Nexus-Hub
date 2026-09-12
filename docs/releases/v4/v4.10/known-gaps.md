@@ -2,13 +2,15 @@
 
 Unfinished work, deferrals, and defects found during v4.10.0 that did not reach a clean state. Open items carry forward into the next plan's ingest.
 
-**Last updated**: 2026-09-10
+**Last updated**: 2026-09-12
 
 ## Open Items - found 2026-09-10 during v4.10.0 implementation
 
-**Summary**: 5 open (1 DF, 3 WN, 1 MT).
+**Summary**: 6 open (1 DF, 3 WN, 2 MT). WN-3 resolved 2026-09-12.
 
 ### WN-3 - `tests/skills/test_target_manifest.py` is red on `develop`
+
+**Status**: RESOLVED 2026-09-12 by PR #199; see "Resolved during this version" below. Retained here because its diagnosis was wrong in an instructive way: it read an environmental property as a defect on `develop`.
 
 - **Source phase**: Phase 6 (T025).
 - **Plan reference**: v4.10.0 Phase 6, full local suite.
@@ -53,8 +55,23 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **Reason it is open**: it is a GitHub repository setting, changed through the web UI or `gh`, not a file in this branch. Changing it is outside a code branch's authority and should not be done silently on the maintainer's behalf.
 - **Suggested next step**: the maintainer updates the repository description to 337 when this plan merges, or at the next release. The precondition checker already reports it, so it will not be missed.
 
+### WN-4 - The scoped weekly bar is display-only and will not warn the user
+
+- **Source phase**: the Claude Usage Monitor scoped weekly bar, folded into v4.10.0 from the unreleased v4.9.1 slot.
+- **What was observed**: urgency thresholds, status-bar highlighting, and threshold notifications continue to evaluate the session and all-models weekly metrics only. The model-scoped weekly bar is rendered in the dashboard and the status-bar hover but feeds none of them.
+- **Reason it is open**: this is the deliberate outcome, not an omission. The requirement was explicit that the second bar stay out of the status-bar text, and feeding it into the `highest` threshold metric would have coloured the status bar and raised a toast from a bar the user asked to keep off that surface. The consequence is real and is stated in the changelog: a scoped limit approaching capacity is visible on hover and in the dashboard but will not interrupt the user.
+- **Suggested next step**: if a scoped limit ever becomes the binding constraint in practice, the cheapest change is a fourth `claudeUsage.thresholdMetric` value rather than folding it into `highest`, so an existing user's alerting does not change under them. That is a settings-schema change and needs its own decision record.
+
+### MT-2 - The two weekly bars were not exercised in a running extension host
+
+- **Source phase**: the same change.
+- **What was observed**: the type check passed, 12 unit tests passed including 6 new mapping cases, and the real account payload was fed through `mapClaudeUsageResponse` and resolved a `Fable`-labelled scoped metric. None of that loads the extension. The tooltip SVG and the dashboard section were not rendered.
+- **Reason it is open**: the verified boundary is the normalized data model, not the pixels. A mistake in the tooltip markup or the dashboard template would pass every check that was run. The status-bar hover in particular builds an inline SVG into a percent-encoded data URI, which no unit test in this extension covers today.
+- **Suggested next step**: build the extension, load it in VS Code, hover the status-bar item, and open the dashboard, confirming two weekly bars with the second labelled from the account. Do this before publishing the tag, since the changelog asserts the bar appears.
+
 ## Resolved during this version
 
+- **WN-3, `tests/skills/test_target_manifest.py` red on `develop`** - RESOLVED 2026-09-12 by PR #199. The 11 failures were not a defect in the module or on `develop`: they are a property of a host whose only git is hard-linked, which `resolve_trusted_git` correctly refuses. The fixture asserted that git EXISTS rather than that it QUALIFIES. The marker now skips with the measured reason. This gap's predicted consequence did NOT occur: it expected the integration pull request to show the same 11 failures, but PR #198 was green twice, because GitHub runners ship a single-link git. Coverage is unaffected - putting the conforming `bin/git.exe` first on PATH restores `53 passed, 2 skipped` locally.
 - **Touched-path extraction returned zero for three of five live plans** (Phase 2, T007). The extractor read only backtick-quoted paths while three plans use bare trailing paths, which would have produced a false "no impact" for every pair involving them. Fixed and pinned by three tests.
 - **`data/skills.json` statistics block disagreed with its own entry list** (Phase 5). Fixed by deriving both counts from the entries. The instruction that produced the error remains open as DF-1.
 - **The Phase 1 evidence stated 99 plan files as 101** (Phase 6). An unverified figure, corrected against the script's own count in the evidence and the session history.
