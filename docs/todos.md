@@ -18,7 +18,7 @@ Refreshing this file to the active plan (rather than appending another version's
 |--------|---------|--------|-------|
 | Cost and diagram comparison sources assessed | 2 | 2 | 0 |
 | v4.10.0 plan prepared | 1 | 1 | 0 |
-| v4.10.0 implementation tasks complete | 0 | 26 | 26 |
+| v4.10.0 implementation tasks complete | 25 | 26 | 1 |
 | v4.11.0 comparison and plan prepared | 2 | 2 | 0 |
 | v4.11.0 implementation tasks complete | 0 | 25 | 25 |
 | v4.13.0 comparison and plan prepared | 2 | 2 | 0 |
@@ -38,7 +38,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 ## Queued work - v4.10.0 plan-queue continuity and re-sequencing
 
-- [ ] Implement the [v4.10.0 plan-queue continuity plan](releases/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md): make /compare, /plan, /implement and /update release each account for the other queued plans, and add a ranked re-ordering recommendation with an assisted renumber behind explicit confirmation. Authored 2026-09-10; 0/6 phases and 0/26 tasks. One skill and one enumeration script own the rule; the four commands delegate. Sequenced first deliberately, so its own ordering recommendation can sequence the rest of the queue rather than being applied after the fact.
+- [ ] Implement the [v4.10.0 plan-queue continuity plan](releases/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md): make /compare, /plan, /implement and /update release each account for the other queued plans, and add a ranked re-ordering recommendation with an assisted renumber behind explicit confirmation. Authored 2026-09-10; 25/26 tasks; all five build phases and every Phase 6 last-phase duty landed 2026-09-10. Remaining: the single publication, which awaits explicit approval. One skill and one enumeration script own the rule; the four commands delegate. Sequenced first deliberately, so its own ordering recommendation can sequence the rest of the queue rather than being applied after the fact.
 
 ## Queued work - v4.11.0 cache accounting and diagram quality
 

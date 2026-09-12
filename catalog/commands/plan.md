@@ -67,6 +67,10 @@ Every plan this command generates is challenged before it is presented. The gate
 
 `/plan grill` re-runs this gate on an existing plan. The duties live in `[[implementation-plan]]` Step 4.5, the critique in `[[plan-review]]`, and the interview mechanics in `[[design-interview]]`; this dispatcher states the guarantee and stops there.
 
+## Queue-aware planning (guarantee)
+
+Every generated plan records the plans already queued around it. Before decomposition, the enumerated queue is assessed through `[[plan-queue-assessment]]`, and the plan carries a required `## Queued predecessors` section giving a verdict and named evidence per queued plan, or an explicit "No queued predecessors." line. A plan authored against one codebase state is then re-validatable against the later state it actually runs in, rather than being executed as written months after its assumptions stopped holding. The rule lives in that skill; this dispatcher states the guarantee.
+
 ## Mandatory final phase (planning scopes)
 
 Every plan ends with a fail-closed last phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - that includes independent Goal-vs-codebase review, a last-phase evidence file, and the living handbook architecture check. Automated tests still end every phase; human/manual testing suggestions wait until that last phase. New plans are written to the current version dir. This is part of the plan contract, not a dispatcher responsibility: the template and the duties live in the `[[implementation-plan]]` skill. This dispatcher only surfaces the guarantee; it does not duplicate the template.

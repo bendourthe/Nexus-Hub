@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 336,
+    "total_skills": 337,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -27,7 +27,7 @@
       "specialized-domains": 14,
       "testing": 5,
       "tests-generation": 20,
-      "workflow": 47,
+      "workflow": 48,
       "security-operations": 29,
       "ot-security": 5,
       "mobile-security": 5
@@ -124,7 +124,7 @@
       "name": "claude-agent-sdk",
       "title": "claude-agent-sdk",
       "description": "Production-grade Claude Agent SDK integration in TypeScript -- multi-provider routing, retry logic with exponential backoff, spending cap enforcement, per-invocation audit logging, error classification, and MCP tool registration. Use when building autonomous Claude agents in Node.js/TypeScript.",
-      "long_description": "Production patterns for integrating the Anthropic Claude Agent SDK in TypeScript/Node.js projects. Covers the full operational stack from provider routing and credential management to spending cap enforcement, structured audit logging, and MCP tool registration. Grounded in patterns from Shannon â€” a...",
+      "long_description": "Production patterns for integrating the Anthropic Claude Agent SDK in TypeScript/Node.js projects. Covers the full operational stack from provider routing and credential management to spending cap enforcement, structured audit logging, and MCP tool registration. Grounded in patterns from Shannon \u00e2\u20ac\u201d a...",
       "summary_l0": "\"Integrate Claude Agent SDK in TypeScript with provider routing, spending caps, and audit logging\"",
       "overview_l1": "\"This skill provides production patterns for integrating the Anthropic Claude Agent SDK in TypeScript/Node.js projects. Use it when building autonomous Claude agents, implementing multi-provider LLM routing (Anthropic, AWS Bedrock, Google Vertex AI, OpenRouter), adding spending cap enforcement, structuring per-invocation audit logging, classifying errors as retryable versus fatal, registering MCP tools, or designing agent identity via system prompts. Key capabilities include provider configuration and credential setup, exponential backoff retry logic with jitter, hard budget limits with automatic session termination, structured audit trails, error classification hierarchies, and MCP tool registration within the SDK context. The expected output is production-grade TypeScript agent code with full observability, cost controls, and multi-provider failover. Trigger phrases: Claude Agent SDK, Claude SDK TypeScript, autonomous agent Node.js, multi-provider Claude, agent spending cap, Claude SDK retry, Claude SDK audit, agent SDK production.\"",
       "version": "1.0.0",
@@ -6660,7 +6660,7 @@
       "description": "\"Writes a structured technical specification before any code is written. Use when starting a new project, feature, or significant change and no written specification exists -- especially when requirements are ambiguous, the change touches multiple files, or architectural decisions must be made. Trigger phrases: write a spec, create a specification, spec this out, define the requirements, spec-driven, write the spec before coding. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "long_description": "Write a structured specification before writing any code. The spec is the shared source of truth between you and the human engineer -- it defines what we're building, why, and how we'll know it's done. Code without a spec is guessing.",
       "summary_l0": "\"Write specifications before code and place release-bound artifacts canonically\"",
-      "overview_l1": "\"This skill produces a written technical specification before implementation begins, following a four-phase gated workflow: Specify → Plan → Tasks → Implement. Use it when requirements are ambiguous, the change spans multiple files or modules, or you are making an architectural decision. Key capabilities include assumption surfacing, success criteria formulation, scope bounding through explicit non-goals, spec depth chosen by blast radius, and task breakdown with per-task acceptance criteria. The spec is committed to the repo as a living document -- updated as decisions change, referenced in PRs, and never discarded after implementation begins. Without this skill, implementation risks solving the wrong problem or building an architecture that does not match the team's intent. Trigger phrases: write a spec, spec this out, create a specification, define requirements, spec before coding, what should I build. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
+      "overview_l1": "\"This skill produces a written technical specification before implementation begins, following a four-phase gated workflow: Specify \u2192 Plan \u2192 Tasks \u2192 Implement. Use it when requirements are ambiguous, the change spans multiple files or modules, or you are making an architectural decision. Key capabilities include assumption surfacing, success criteria formulation, scope bounding through explicit non-goals, spec depth chosen by blast radius, and task breakdown with per-task acceptance criteria. The spec is committed to the repo as a living document -- updated as decisions change, referenced in PRs, and never discarded after implementation begins. Without this skill, implementation risks solving the wrong problem or building an architecture that does not match the team's intent. Trigger phrases: write a spec, spec this out, create a specification, define requirements, spec before coding, what should I build. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "developer-experience",
@@ -7195,6 +7195,44 @@
         "integrity": 100,
         "semantic": 95,
         "validated": true
+      }
+    },
+    {
+      "name": "plan-queue-assessment",
+      "title": "plan-queue-assessment",
+      "description": "Assess whether a queued plan has gone stale against the current codebase and the other plans queued around it, and rank the queue by parallel-implementation compatibility and impact. Make sure to use this skill whenever the user mentions queued plans, plan ordering, plan sequencing, which plan to do next, whether a plan is still relevant, whether a comparison is out of date, re-slotting or renumbering a release, or says \"is this plan still valid\", \"what should we build next\", \"can these two run in parallel\", \"did the last release change our plans\", or \"re-order the queue\" - even when they do not use the word queue. SKIP - authoring a new plan (use implementation-plan), executing a phase (use implement-phase), moving documentation trees for layout reasons rather than re-sequencing (use docs-layout-refactor), and any claim that re-ordering makes delivery faster, which this skill never makes.",
+      "long_description": "A comparison is a snapshot and a plan derived from it executes later, against a codebase that has moved and alongside plans that will move it further. This skill is the single owner of two rules: how to classify one queued plan's effect on another as no impact, content impact, or ordering impact with named evidence; and how to rank a queue by parallel-implementation compatibility and by judged impact on the harness, placing documentation, interactive-guide and refactor classes last with a refresh requirement attached. It consumes the deterministic inventory from scripts/enumerate_plan_queue.py and is invoked by the comparison, planning, implementation and release surfaces. It reports and recommends; it never rewrites a plan's content, and it never claims that re-sequencing improves delivery speed.",
+      "summary_l0": "\"Assess queued-plan staleness and rank the queue by parallel compatibility and impact\"",
+      "overview_l1": "\"A comparison is a snapshot and a plan derived from it executes later, against a codebase that has moved and alongside plans that will move it further. This skill is the single owner of two rules: how to classify one queued plan's effect on another as no impact, content impact, or ordering impact with named evidence; and how to rank a queue by parallel-implementation compatibility and by judged impact on the harness, placing documentation, interactive-guide and refactor classes last with a refresh requirement attached. It consumes the deterministic inventory from scripts/enumerate_plan_queue.py and is invoked by the comparison, planning, implementation and release surfaces. It reports and recommends; it never rewrites a plan's content, and it never claims that re-sequencing improves delivery speed.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "plan-queue",
+        "sequencing",
+        "staleness",
+        "ordering",
+        "renumber",
+        "workflow"
+      ],
+      "priority": "MEDIUM",
+      "tools_required": [
+        "Write"
+      ],
+      "path": "catalog/skills/workflow/plan-queue-assessment/",
+      "file": "catalog/skills/workflow/plan-queue-assessment/SKILL.md",
+      "size": {
+        "lines": 201,
+        "characters": 16403,
+        "tokens_estimate": 2421
+      },
+      "downloads": 0,
+      "status": "active",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
       }
     },
     {

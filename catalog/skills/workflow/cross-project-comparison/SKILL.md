@@ -182,15 +182,25 @@ A comparison is intrinsically forward-looking: it seeds a *future* adoption, and
 1. Resolve the in-flight version via the [[docs-layout-refactor]] Version-directory resolution (git tags / CHANGELOG). This is the CURRENT release, whose plan almost always already lives under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/` and is locked or in flight, so it is usually NOT free to absorb a brand-new comparison.
 2. Because that slot is taken, the default adoption target is the next FREE version slot after it: walk forward (the next patch `vX.Y.(Z+1)`, then the next minor `vX.(Y+1).0`, and so on) and skip any minor or patch whose `plans/` directory already holds a locked or in-flight plan. The first slot with no committed plan is the default target. This is exactly the reasoning the codesight comparison recorded ("v3.14.0 is taken by agentic-setup + codex-lb, so v3.15.0").
 
-    **Enumerate NUMERICALLY, and scan EVERY version directory.** Two failure modes, both of which have actually happened:
+    **Enumerate with `python scripts/enumerate_plan_queue.py --root . --json`** rather than by hand. It exists because of two failure modes, both of which have actually happened, and both of which it now prevents:
 
-    - **Sort on the parsed integers, never lexically.** A directory listing is alphabetical, which orders `v3.10`, `v3.18`, and `v3.20` BEFORE `v3.5`. Parse each directory name into `(major, minor)` and sort on those integers. A lexical walk concludes the wrong slot is free while later plans already exist.
-    - **Scan `docs/v*/v*/plans/` across the whole tree, not just the current minor.** Plans routinely exist several minors ahead of the in-flight version, and a scan scoped to the current minor cannot see them.
+    - **Sort on the parsed integers, never lexically.** A directory listing is alphabetical, which orders `v3.10`, `v3.18`, and `v3.20` BEFORE `v3.5`. A lexical walk concludes the wrong slot is free while later plans already exist.
+    - **Scan the whole tree, not just the current minor.** Plans routinely exist several minors ahead of the in-flight version, and a scan scoped to the current minor cannot see them.
 
-    A live instance: a comparison resolved `v3.17.12` as free while plans already existed through `v3.20.0`. Both failures produce a confident wrong answer rather than an error, so confirm the resolved target against the highest plan actually on disk before presenting it.
+    A live instance: a comparison resolved `v3.17.12` as free while plans already existed through `v3.20.0`. Both failures produce a confident wrong answer rather than an error, so confirm the resolved target against the highest plan the enumerator actually reports. Read its findings too: an unreadable plan is reported with exit 1 and still occupies its slot, and a plan with unchecked tasks is NOT necessarily queued (see the membership rule in [[plan-queue-assessment]]).
 3. Only when the current in-flight plan is still open AND will genuinely absorb the comparison's highest-value items (rare) is the in-flight version itself the target. State that reason explicitly.
 
 **Always CONFIRM the resolved target with the user before writing the report.** Slotting is a judgment call: whether a gap lands in the next patch, the next minor, or a later release depends on roadmap intent the user owns. Present the resolved `vX.Y.Z` and a one-line reason, and adjust to the user's choice.
+
+### Step 6.6: Assess queue impact on this comparison
+
+Slotting decides WHERE the comparison lands. It does not ask whether the comparison will still be TRUE by the time that slot is reached. A comparison is a snapshot of the codebase as it stands now; the plans already queued ahead of the adoption target will change that codebase first.
+
+Using the same inventory from Step 6.5, invoke [[plan-queue-assessment]] and record, per queued plan that would complete before the adoption target, whether its completion would change this comparison's findings. Do not restate that skill's classification rule here; it owns it.
+
+The report MUST carry a `## Queued-plan impact` section listing each such plan with its verdict and the named evidence. An empty queue produces an explicit "no queued predecessors" statement rather than an omitted section, because an omitted section is indistinguishable from a skipped check.
+
+A finding that a queued plan would invalidate a recommendation does not block the comparison. It is recorded so the adoption plan inherits it, and so a reader in three months knows the finding was considered rather than missed.
 
 Record the confirmed value in the report header as an `Adoption target: vX.Y.Z` line. The `/compare` command then versions and places the file under that target's directory with that target's prefix (not the authoring cycle's), and `/plan from-comparison` reads this field to co-locate the generated plan in the same version tree. Keep this step instruction-level: it introduces no script, dependency, or outbound call.
 
@@ -225,6 +235,7 @@ Items classified as `drop-outright` in Step 5 belong in the NOT-recommended list
 - [ ] Items NOT recommended for adoption include reasoning
 - [ ] **Step 5 Security and Reverse-Engineering Assessment is complete** - threat model table, per-item risk scorecard, and per-item RE classification are all present
 - [ ] **Step 5.4 ordering is used to sequence the adoption plan** - skill-native first, then RE builds, then vendor-intrinsic (justified), then drops moved to NOT-recommended
+- [ ] **Step 6.6 recorded a `## Queued-plan impact` section** with a verdict and named evidence per queued predecessor, or an explicit "no queued predecessors" statement
 - [ ] **Step 6.5 resolved an adoption target and the report header carries an `Adoption target: vX.Y.Z` field** - the confirmed target version, not the authoring cycle, is what the file is placed under and prefixed by
 - [ ] **MCP Registry Policy is cited by name** in the Rationale column for every adoption item that involves an outbound call, new API key, new third-party data processor, or new runtime dependency
 - [ ] Reports missing Step 5 fail this checklist
