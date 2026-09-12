@@ -117,7 +117,7 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 | DF | 0 | 0 |
 | BG | 0 | 4 |
 | WN | 1 | 3 |
-| MT | 2 | 4 |
+| MT | 3 | 4 |
 | QG | 1 | 0 |
 
 #### MT-3 - RESOLVED: rendered contrast is now measured by the owner that renders
@@ -241,14 +241,24 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **Why a check was still added**: R25 names focus restoration and nothing measured it, so a regression would have shipped silently. The gate now asserts that after close `document.activeElement` is within the control that opened the deck. It reads a value the contract already promises rather than inventing a requirement, and it currently passes everywhere, which is the correct outcome for a guard rather than evidence that it is useless.
 - **Proof**: two tests, one asserting restoration on a sound fixture and one removing the opener before close so focus lands nowhere; negative-controlled. Driven through the real entry point, zero focus errors on all three round-four artifacts.
 
-#### QG-2 - The three-family authoring gate remains unmet after four rounds
+#### MT-9 - A control that exists but does nothing is not detected
+
+- **Source phase**: Phase 6, T020, fifth qualification round, repository case.
+- **Plan reference**: R21 behavioral verification; T019 non-vacuous checks.
+- **What was observed**: four stage buttons on presentation slide 4 are inert. A round-one restructure moved them out of the `<figure>` the interaction layer scopes its listeners to, so they render, focus, and click with no effect. The same control on the reading page is wired and works. Independently reproduced: the four buttons exist, none is inside a `<figure>`, and clicking all four leaves the slide's DOM byte-identical.
+- **Why no gate saw it**: every existing check measures whether something is DRAWN correctly. None asks whether it DOES anything. A dead control passes contrast, geometry, floors, clipping and overlap perfectly, because visually it is flawless.
+- **Why it is worth gating rather than leaving to review**: a button that does nothing is worse for a reader than no button, because it advertises a capability and then silently withholds it. The runner itself asserted 21 of 22 controls working, so the check is clearly cheap: activate each control and require an observable change in the DOM, the URL, or focus. That is a behavioral assertion, not a design judgement, so it stays inside the line the plan draws around automatic beauty detectors.
+- **Suggested next step**: add a control-liveness pass over `button`, `[role=button]` and `summary` elements inside the reading page and each slide. Exempt controls whose effect is genuinely external, and record an exemption rather than silently skipping.
+
+#### QG-2 - Two of three sustained; the repository case does not converge inside the stated repair budget
 
 - **Source phase**: Phase 6, T020.
-- **Plan reference**: T020 three of three final passes with no high-severity unresolved finding.
-- **Round history**: round two 1 of 3; round three reported 2 of 3 but was 0 of 3 once print contrast became visible; round four 2 of 3, with the report case a clean pass, the repository case a qualified pass carrying medium residuals, and the presentation case a self-declared non-pass on two defects.
-- **What the rounds establish**: the gate is converging on the measurable and has stopped finding high-severity machine-detectable defects. Print contrast went from 52, 35 and 46 failures across the three artifacts to zero on all three in one round, entirely through guidance, without any artifact ever failing the new gate in anger. Every other machine check passes on all three round-four artifacts. Every fix this cycle held.
-- **What still blocks it**: the surviving defects are of three kinds that the gate does not cover by construction. A contract term that is named but unmeasured (focus restoration, MT-8). A declared property that never applied (MT-7). And design judgements the plan forbids automating (a connector crossing a label, a slide left a fifth empty). Round four contains no high-severity unresolved finding in any case, which is the plan's literal bar, but two cases self-declared short of a clean pass.
-- **Suggested next step**: land MT-7 and MT-8, which are both narrow, cheap, and read values the contracts already promise, then re-run. If a further round still turns on design judgement rather than measurable defect, the honest conclusion is that this gate has reached what automation can settle, and the remaining decision belongs to a human reviewer rather than another round.
+- **Plan reference**: T020 three of three final passes with no high-severity unresolved finding, within at most three internal correction rounds.
+- **Round history**: round two 1 of 3. Round three reported 2 of 3 but was 0 of 3 once print contrast became visible. Round four 2 of 3. Round five 2 of 3, with the report and presentation cases both passing and independently re-verified through the real measurement entry point at zero errors.
+- **What the five rounds establish about the TOOLING**: it is converging and is no longer the limiting factor. Each defect class found has been gated and has not recurred: chart auto-titles, rendered contrast, SVG label collisions, brand visibility, chart deformation, opening-screen opacity, print contrast, lost layout declarations, focus restoration. Print contrast went from 52, 35 and 46 failures across three artifacts to zero in a single round through guidance alone. The report case has now passed twice consecutively; the presentation case passed this round after fixing both round-four defects.
+- **What the rounds establish about the REPOSITORY case**: it is the hardest input by a clear margin (nine sources including code, config, an existing published HTML handbook, and a native generator whose path, URL and anchors must survive) and it does not reliably finish inside three correction rounds. Its round-five gate failures fell 33, 25, 11, 5 across the permitted rounds and it stopped with five remaining, all one root cause and a one-line fix identified. That is budget exhaustion on a converging trend, not a defect the gate missed, and the runner correctly declined to exceed the cap or ship an unverified fix.
+- **The one genuinely uncovered class**: MT-9, a control that renders perfectly and does nothing.
+- **The decision this now presents**: the three-correction cap is part of the benchmark's definition of single-invocation delivery, so raising it for the hardest input changes what the benchmark measures and is a plan-level decision rather than a tooling change. The alternatives are to record QG-2 as unmet and carry it forward with this evidence, or to amend T020's budget deliberately for the repository family and re-run. Adding further gates is not the lever; the gate caught this round's machine-detectable defect and the runner ran out of repairs.
 
 
 ## Resolved during this follow-up
