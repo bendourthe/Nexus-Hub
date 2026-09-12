@@ -52,7 +52,7 @@ $(claude-icon) Claude Usage: 12% (current) 5% (week)
 ```
 
 - The extension auto-fetches usage data on startup using your Claude OAuth credentials
-- **Hover** for a detailed SVG tooltip with progress bars for the Current Session and Weekly metrics and their reset timers
+- **Hover** for a detailed SVG tooltip with progress bars for the Current Session, Weekly (All Models), and any model-scoped weekly limit your plan reports, each with its reset timer
 - **Click** to open the full usage dashboard panel
 
 The status bar background changes color based on urgency:
@@ -102,7 +102,9 @@ Authorization: Bearer {token}
 anthropic-beta: oauth-2025-04-20
 ```
 
-The API returns `five_hour` (session), `seven_day` (weekly all-models), `seven_day_sonnet`, `seven_day_opus`, and `extra_usage` fields, each with `utilization` (0-100) and `resets_at` (ISO 8601 timestamp).
+The API returns a self-describing `limits` array plus the older flat fields. Each `limits` entry carries a `kind` (`session`, `weekly_all`, or `weekly_scoped`), a `percent` (0-100), a `resets_at` (ISO 8601 timestamp), and — for a `weekly_scoped` entry — a `scope.model.display_name` naming the model the limit applies to. The extension reads that array when present and falls back to the flat `five_hour` (session), `seven_day` (weekly all-models), and `extra_usage` fields when it is absent.
+
+The scoped weekly bar is labeled from `display_name` rather than from a hardcoded model name, and the flat sibling keys that carry the same numbers are rotating internal codenames, so they are deliberately not read.
 
 If credentials are missing or expired, the extension falls back gracefully to cached data.
 

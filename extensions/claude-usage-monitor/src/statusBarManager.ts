@@ -173,7 +173,7 @@ export class StatusBarManager {
       const fillW = Math.round(W * Math.min(100, Math.max(0, pct)) / 100);
       const svg =
         `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${svgH}">` +
-        `<text x="0" y="${textY}" fill="${labelColor}" font-weight="bold" font-family="system-ui,sans-serif" font-size="${fontSize}">${label}</text>` +
+        `<text x="0" y="${textY}" fill="${labelColor}" font-weight="bold" font-family="system-ui,sans-serif" font-size="${fontSize}">${escapeXml(label)}</text>` +
         `<text x="${W}" y="${textY}" fill="${dimColor}" font-family="system-ui,sans-serif" font-size="${fontSize}" text-anchor="end">${pct}%</text>` +
         `<rect y="${barY}" width="${W}" height="${barH}" rx="3" fill="rgba(193,95,60,0.2)"/>` +
         `<rect y="${barY}" width="${fillW}" height="${barH}" rx="3" fill="#C15F3C"/>` +
@@ -204,7 +204,16 @@ export class StatusBarManager {
       `<span style="opacity:0.6">Claude Usage</span><br><br>` +
       staleWarning +
       section("Current Session", data.session.percent, data.session.resetsIn) +
-      section("Weekly", data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn) +
+      section("Weekly (All Models)", data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn) +
+      // The model-scoped weekly bar is hover- and dashboard-only by design: the
+      // status-bar text still reports the all-models figure as "(week)".
+      (data.weeklyScoped
+        ? section(
+            `Weekly (${data.weeklyScoped.label})`,
+            data.weeklyScoped.percent,
+            data.weeklyScoped.resetsIn
+          )
+        : "") +
       extraCredits +
       `<span style="opacity:0.6">Last updated: ${timeSince}</span>`
     );
@@ -308,4 +317,19 @@ export class StatusBarManager {
       this.displayTickTimer = undefined;
     }
   }
+}
+
+/**
+ * Escape XML metacharacters before embedding text in the tooltip's inline SVG.
+ * The whole SVG is percent-encoded into a data URI, so an unescaped "<" in a
+ * server-provided label (the scoped weekly model name) would still reach the SVG
+ * parser as markup and break the bar rather than render as a character.
+ */
+function escapeXml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }

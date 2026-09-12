@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Plan-queue continuity and re-sequencing.** A comparison, a plan, an implementation phase, and a release each now account for the OTHER plans queued around them, so a plan authored against one codebase state is re-validated before it is executed against a later one, and queue order becomes a reasoned decision rather than an accident of allocation order. A new `plan-queue-assessment` skill owns what makes a plan stale and how the queue is ranked (catalog 336 -> 337 skills); `/compare`, `/plan`, `/implement`, and `/update release` delegate to it rather than each carrying a copy of the rule.
+- **`scripts/enumerate_plan_queue.py`**, a deterministic queue enumerator, with a `--check-residual <version>` mode that proves a renumber complete by failing on a single surviving reference. Covered by `tests/validators/test_enumerate_plan_queue.py` and `tests/validators/test_plan_renumber_references.py`.
+- **A second weekly bar in the Claude Usage Monitor** (extension `0.9.9` -> `0.10.0`), rendered beneath the existing weekly bar in both the status-bar hover tooltip and the dashboard. It reports the weekly limit scoped to a single model and takes its label from the display name the usage API itself returns for that model (`Fable` on a plan that has one), so the label follows the account instead of a hardcoded string. The bar is omitted entirely when the account reports no scoped weekly limit, and a scoped limit that arrives without a usable display name is skipped rather than shown under an invented label.
+- **Unit coverage for the usage-response mapping** (`test/claude-usage-mapping.test.ts`), including the fallback path, an account with no scoped limit, an unnamed scoped entry, an empty payload, and extra-credit minor-unit conversion. Response mapping moved into an exported pure function, `mapClaudeUsageResponse`, matching the shape the Codex monitor already used for the same reason.
+
+### Changed
+
+- **The Claude Usage Monitor reads the usage endpoint's self-describing `limits` array** in preference to the older flat per-window fields, which remain the fallback for any response that does not carry it. Each entry carries a `kind` (`session`, `weekly_all`, or `weekly_scoped`), a `percent`, a `resets_at`, and for a scoped entry a `scope.model.display_name`. The flat sibling keys holding the same scoped numbers are rotating internal codenames (`nimbus_quill`, `tangelo`, `juniper_tide`, and others), so they are deliberately not read: binding a shipped bar to one would break silently the moment it is renamed.
+- **The existing weekly bar is relabeled `Weekly (All Models)`** in the hover tooltip and the dashboard, so the two weekly bars are distinguishable. The status-bar text is unchanged and still reports the all-models figure as `(week)`.
+- **Urgency thresholds, status-bar highlighting, and threshold notifications continue to evaluate the session and all-models weekly metrics only.** The scoped weekly bar is a display surface; it does not colour the status bar or raise a warning. A scoped limit approaching capacity is therefore visible on hover and in the dashboard but will not interrupt you.
+
+### Fixed
+
+- **`tests/skills/test_target_manifest.py` no longer fails on a host whose only git cannot meet the trust contract it tests.** `resolve_trusted_git` refuses a hard-linked executable, and Git for Windows ships `git.exe` hard-linked while exposing only the hard-linked copies on PATH. The fixture checked that git EXISTS rather than that it QUALIFIES, so 11 tests failed while asserting a capability the machine cannot supply. The marker now skips with the measured reason. No product code changed and no security gate was relaxed: a runner whose git is a single-link regular file still runs all 11, verified both in CI and locally by putting the conforming `bin/git.exe` first on PATH (`53 passed, 2 skipped`).
+
+### Using the changed optional capabilities
+
+This release introduces no new opt-in capability, installer flag, managed skill, or host surface, so there is no activation mechanism, disable path, or authority boundary to state. The second weekly bar appears automatically for any account whose usage API reports a model-scoped weekly limit, requires no setting, and grants the extension no access it did not already have: it is read from the same single authenticated request to `api.anthropic.com/api/oauth/usage` the monitor already made. The plan-queue assessment runs inside commands the user already invokes and adds no outbound call, credential, or dependency.
+
 ## [4.9.0] - 2026-09-08
 
 Local application-security audits now carry explicit scope, evidence, coverage and health from specialist selection through portable SARIF results. Existing scanner availability and remediation approvals remain visible throughout the workflow.
