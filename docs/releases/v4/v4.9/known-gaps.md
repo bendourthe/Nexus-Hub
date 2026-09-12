@@ -117,7 +117,7 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 | DF | 0 | 0 |
 | BG | 0 | 5 |
 | WN | 1 | 3 |
-| MT | 3 | 4 |
+| MT | 2 | 5 |
 | QG | 1 | 0 |
 
 #### MT-3 - RESOLVED: rendered contrast is now measured by the owner that renders
@@ -216,13 +216,14 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **What was done instead**: a binary authoring rule in `references/interactive-features.md` forbids animating the digits of a sourced value, requires the surrounding form to carry the motion, and permits animation of numbers the source does not contain. Guidance is the appropriate instrument here because both runners found and fixed the defect unaided once looking.
 - **Suggested next step**: if this recurs after the rule ships, build the temporal sampler as its own scoped work with a fixture that animates a known-wrong intermediate value; do not bolt it onto the settled-frame pass.
 
-#### MT-6 - Contrast is measured from computed style, which print does not honour
+#### MT-6 - RESOLVED: print contrast is measured against the surface that will actually paint
 
 - **Source phase**: Phase 6, T020, third qualification round, repository case.
 - **Plan reference**: T019 contrast by owner; R06 print behavior.
-- **What was observed**: the delivered page declares dark bands with light ink. Chromium drops background painting for print unless `print-color-adjust: exact` is set, so the band prints white while its text keeps the light ink. The runner measured 46 of 86 dark-band text elements below 4.5 to 1 in print, worst 1.11 to 1, and retained a rendered page image that shows the defect plainly.
-- **Why the installed check cannot see it**: the rendered contrast pass added earlier in this cycle reads `getComputedStyle().backgroundColor`. Print emulation changes what is PAINTED, not what is computed, so the check still reads the declared dark background and scores the pair clean. Verified directly: measuring the delivered page under `emulate_media('print')` reports zero contrast findings while the rasterised page is visibly unreadable. This is the same lesson as the PowerPoint automatic chart title, one medium over: the value the defect lives in is absent from the object model.
-- **Suggested next step**: a deterministic static check is available and cheap. A page that paints a dark surface behind light ink MUST either declare `print-color-adjust: exact` on that surface or remap the palette in an `@media print` block; a page that does neither will print unreadable text. That is checkable without rasterising, and it fails the cause rather than sampling pixels for the symptom. Rasterising the print output and sampling is the fallback if the static rule proves insufficient.
+- **What was wrong**: Chromium defaults `print-color-adjust` to `economy` and drops background painting, so a dark band prints white while its light ink survives. The rendered contrast pass read `getComputedStyle().backgroundColor`, which print emulation does not change, so it read the declared dark surface and scored the pair clean. All THREE round-three artifacts carried the defect at 46, 52 and 35 failures; only one runner found it, by rasterising and looking, and the two that passed did so because nothing measured it. On that criterion round three was 0 of 3, not 2 of 3.
+- **Resolution**: the existing print pass now resolves each text element's first opaque ancestor background and then decides whether that surface will actually PAINT, by walking for a computed `print-color-adjust: exact`. If it will not, contrast is computed against paper. Running under print emulation means an `@media print` palette remap has already applied, so both legitimate remedies pass and neither is mandated.
+- **Proof**: reproduced the reported figures exactly on the retained artifact, 46 failures at worst 1.11 to 1. Four tests cover a bespoke dark band with no opt-in, `print-color-adjust: exact`, an `@media print` remap, and ordinary dark-on-light text; negative-controlled. An authoring rule in `responsive-typography.md` states the cause and both remedies.
+- **Outcome in later rounds**: the three delivered artifacts went from 52, 35 and 46 failures to zero in a single round, entirely through guidance given up front, without any artifact failing the new gate in anger.
 
 #### WN-5 - The text-overlap rule fires on deliberately overlaying elements
 
