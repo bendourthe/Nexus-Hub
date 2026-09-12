@@ -299,6 +299,17 @@ def main(argv: Iterable[str] | None = None) -> int:
         metavar="OLD_VERSION",
         help="after a renumber, fail if any reference to OLD_VERSION survives",
     )
+    parser.add_argument(
+        "--skip",
+        action="append",
+        default=[],
+        metavar="PREFIX",
+        help=(
+            "path prefix to exclude from --check-residual, repeatable. Use ONLY for a "
+            "closed version's sealed record, where a reference describes the queue as it "
+            "stood and rewriting it would falsify evidence. Every skip is printed."
+        ),
+    )
     args = parser.parse_args(list(argv) if argv is not None else None)
 
     root = Path(args.root).resolve()
@@ -307,7 +318,9 @@ def main(argv: Iterable[str] | None = None) -> int:
         return 2
 
     if args.check_residual:
-        findings = find_residual_references(root, args.check_residual)
+        findings = find_residual_references(root, args.check_residual, skip=args.skip)
+        for prefix in args.skip:
+            print(f"skipping {prefix} (excluded from the residual scan)")
         if findings:
             print(
                 f"residual references to {args.check_residual} ({len(findings)}):",
