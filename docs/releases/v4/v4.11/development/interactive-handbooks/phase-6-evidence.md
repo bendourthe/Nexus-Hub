@@ -1,6 +1,10 @@
 # Phase 6 evidence: interactive handbooks
 
-**Status: INCOMPLETE.** Phases 1-5 remain locally committed; T019-T021 remain open. One of three native input families is accepted. The [R01-R30 ledger](phase-6-requirement-evidence.md) identifies proven behavior and remaining qualification. No Phase 6 completion commit, Phase 7 advancement, push, PR, remote CI, version mutation or release ran. The target is v4.11.0; published v4.9.0 is unchanged.
+**Status: CLOSED, with a recorded deviation from the phase lifecycle.** T019 and T020 are implemented and committed; T021's single stabilization commit never happened. Instead the phase closed across six commits (`32cb8433`, `59492077`, `6834edc3`, `858b6dda`, `fd1c49ff`, `e7ca89d0`) as successive qualification rounds produced corrections, and this status line was left saying INCOMPLETE while Phase 7 proceeded. That is a real departure from "every phase ends with exactly one local commit", and it is recorded here rather than backdated into a tidy one.
+
+**The deviation had a measurable cost.** Those commits were gated on the `fast` profile, which does not reach `hook-tests` or `repo-tests`. Two defects therefore sat green on every pre-commit gate while red on the profile that matters, and were found only in Phase 7: an unclassified developer-only script, and `test_print_keeps_semantic_figure_content_and_expands_scroll_regions` asserting the reading-view scroll region that BG-6 had deliberately removed in `e7ca89d0` itself. Both are fixed; see the [last-phase evidence](last-phase-evidence.md).
+
+**The qualification result is unchanged by this closure.** One of three native input families was independently accepted at the time of writing; a later round accepted the repository case, and the three-of-three simultaneous gate remains QG-2, CLOSED AS UNMET and carried forward. Closing Phase 6 does not convert that into a pass. The [R01-R30 ledger](phase-6-requirement-evidence.md) identifies proven behavior and remaining qualification. No push, PR, remote CI, version mutation or release ran during this phase. The target is v4.11.0; published v4.9.0 is unchanged.
 
 ## Implemented and observed
 

@@ -366,6 +366,38 @@ def test_fully_opaque_opening_screen_passes(output):
     assert not [e for e in run(output)["errors"] if "opening-screen" in e]
 
 
+def test_transparency_is_folded_into_the_measured_contrast(output):
+    """Declared ink is not the colour on screen, and the difference is a pass.
+
+    Scoring the declared colour treats a low-alpha grey as solid grey. This is
+    the hole the 0.95 opacity floor was crudely patching from the other side:
+    it fired on any dimming, while text dimmed by its OWN rgba alpha slipped
+    past both checks.
+
+    The fixture has to discriminate, and the first one chosen did not: #787878
+    at 62% scores 4.42:1 on the declared ink, which already fails, so the test
+    passed against the unfixed gate and proved nothing. #555555 at 45% scores
+    7.46:1 declared - a comfortable pass - and 2.11:1 as actually rendered.
+    Only the composited measurement can tell those apart.
+    """
+    _inject(output, "[data-dv-page] p{color:rgba(85,85,85,0.45);background:#fff}")
+    assert [e for e in run(output)["errors"] if "contrast" in e], run(output)["errors"]
+
+
+def test_a_deliberate_de_emphasis_that_stays_legible_passes_both(output):
+    """0.85 on near-black ink measures 10.75:1; dimming is not illegibility.
+
+    The repository's own handbooks de-emphasise secondary text at 0.85. The old
+    0.95 floor failed all 100 of those elements while the text was comfortably
+    above every WCAG floor, which is a gate reporting a design choice as a
+    defect. Contrast is the arbiter, so this must pass both checks.
+    """
+    _inject(output, "[data-dv-page] p{opacity:0.85;color:#111;background:#fff}")
+    errors = run(output)["errors"]
+    assert not [e for e in errors if "opening-screen" in e], errors
+    assert not [e for e in errors if "contrast" in e], errors
+
+
 def test_content_below_the_fold_may_start_faded(output):
     """A reveal is legitimate for content the reader has to scroll to."""
     _inject(

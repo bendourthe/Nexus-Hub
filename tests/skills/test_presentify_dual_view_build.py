@@ -402,7 +402,17 @@ def test_print_keeps_semantic_figure_content_and_expands_scroll_regions(
         )
         page.goto((project / "handbook.html").as_uri())
         directory = page.locator("[data-dv-page] [data-dv-map] .dv-directory")
-        assert directory.evaluate("e=>e.scrollHeight>e.clientHeight")
+        # BG-6 removed the 200px cap from the READING view: with overlay
+        # scrollbars a capped directory and a complete one look identical, so a
+        # reader saw a truncated table with nothing indicating more existed.
+        # This test used to require the reading directory to BE a scroll region
+        # and has asserted the pre-fix behaviour since e7ca89d0. What print must
+        # still guarantee is that nothing here is clipped on paper, so that is
+        # what is asserted, on screen and in print. The cap survives on slides,
+        # which must fit a fixed stage; both halves are covered directly by
+        # test_reading_directory_is_not_capped_so_content_is_not_hidden and
+        # test_slide_directory_keeps_its_cap_and_reserves_a_scroll_gutter.
+        assert directory.evaluate("e=>e.scrollHeight<=e.clientHeight+1")
         code = page.locator("[data-dv-page] [data-theme=dark] code").first
         palette = "e=>({ink:getComputedStyle(e).color,paper:getComputedStyle(e.closest('[data-dv-section]')).backgroundColor})"
         screen_palette = code.evaluate(palette)
@@ -418,7 +428,7 @@ def test_print_keeps_semantic_figure_content_and_expands_scroll_regions(
             page.locator("[data-dv-deck]:visible,[data-dv-open]:visible").count() == 0
         )
         page.emulate_media(media="screen")
-        assert directory.evaluate("e=>e.scrollHeight>e.clientHeight")
+        assert directory.evaluate("e=>e.scrollHeight<=e.clientHeight+1")
         assert page.locator("[data-dv-page] details[open]").count() == 0
         assert page.locator("[data-dv-page] details table:visible").count() == 0
         browser.close()
