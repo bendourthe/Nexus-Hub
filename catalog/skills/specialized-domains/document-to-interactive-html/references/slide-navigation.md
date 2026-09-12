@@ -7,16 +7,32 @@ Use this contract when presentation is included alongside the scrolling page. `d
 - Start in reading view unless an explicit slide deep link is loaded. Title and global top-menu **Presentation Mode** actions always call entry with index zero. **Present chapter** names and opens its specific target. Any resume action is separately labeled.
 - Use a modal dialog or equivalent accessible presentation region. Make the inactive view inert, pause its animation, and keep its filter state independent. Save reading position and opener focus before entry; restore both on exit. Close a nested inspector first on Escape, then the presentation on the next Escape.
 - Keep exactly one active slide, with namespaced classes and unique IDs for duplicated figure/gradient/clip definitions. Size the desktop stage to the available viewport minus header/footer controls and safe areas. Reading canvas width does not dictate deck aspect ratio. Preserve readable text and complete imagery at every supported size.
-- Fullscreen is optional enhancement: request it on a supported element such as `document.documentElement`; handle rejection by keeping the fitted presentation usable. Observe native fullscreen exit and restore consistent reading/focus state. Repeated entry and exit must not leak listeners or leave scrolling locked.
+- User-triggered entry requests fullscreen on the presentation container, including controls and nested details. Rejection retains fitted mode. Native exit returns to reading; the explicit fullscreen toggle can retain fitted mode. In native fullscreen, Escape returns to reading and closes overlays; in fitted mode, nested-modal Escape takes priority. Passive hashes never request fullscreen.
 - Record `presentation.enabled`, resolved theme/depth, stable theme sequence, source-to-slide mapping, initial slide, and supported compact breakpoint in retained authoring inputs. The legacy scorer keys on `data-nav="slides"`, `.slide-stage`, `.slide-rail`, and `.slide-counter` for its old standalone draft contract. Do not claim that it recognizes the new presentation fields; inspect both views in a browser.
 
-## 2. Fit and source-count ceiling
+## Shared runtime markup
+
+Inline `assets/dual-view.css` and `assets/dual-view-runtime.js` after the retained HTML. Put reading content inside `[data-dv-page]`; put a hidden `[data-dv-deck]` alongside it, with a `.dv-stage` containing authored `[data-dv-slide="stable-id"]` sections. Each slide retains its whole-slide `data-theme` and title. Place `[data-dv-controls]` inside the deck, with named buttons `[data-dv-prev]`, `[data-dv-next]`, `[data-dv-replay]`, `[data-dv-exit]`, `[data-dv-fullscreen]`, a live `[data-dv-count]` and a labeled `[data-dv-picker]`. The bounded picker replaces one-dot-per-slide navigation for long decks. Controls use visible SVG icons and accessible names.
+
+Title and global buttons use `[data-dv-open]`; explicit chapter buttons use `[data-dv-chapter="stable-id"]`. A `[data-dv-status]` live region explains unavailable targets or fullscreen denial. Native controls, chart gestures, and `[data-dv-native]` exploratory scroll regions keep their own keys. The runtime traps Tab in the active deck and restores the original reading focus/scroll on exit. At 760 CSS pixels and below, compact mode permits stage reflow and scrolling; desktop compositions must fit the available stage without scroll or hidden content.
+
+Authored automatic builds use `[data-dv-animate="process"]` with a zero-based `data-dv-step` for 130 ms overlapping starts, or `[data-dv-animate="comparison"]` for simultaneous series. `data-dv-mark` reveals the mark from its origin while stationary labels/axes remain readable. Replay cancels and restarts these animations. Custom chart/render loops must respond to `dv:activate` and `dv:deactivate` on their slide and stop inactive work. The runtime exposes `window.NexusDualView` open/close/next/previous/replay/snapshot/destroy for embedding and agent inspection. Initial content is static and complete without JavaScript; CSS/JS hiding applies only to the additional view.
+
+Assign process targets to the individual nodes/edges that convey each semantic step, including any return path; give related parallel branches the same step. Do not assign a lone process target to the whole figure wrapper. Independent comparisons start their marks together, keeping labels and axes stationary. Retain the intended element-to-step map and verify actual animation targets, start delays and intermediate painted frames before accepting the final artifact; a wrapper fade can look polished while erasing the required sequence. Apply the same semantics to custom reading-view reveals, with complete static content under reduced motion.
+
+The shared runtime uses automatic entry builds. The older manual-fragment reference below applies only to explicitly authored legacy fragment interactions; do not require per-element clicks for process/comparison builds. Missing or incomplete markup keeps the reading page and reports a non-pass.
+
+## Viewport fit
 
 Follow the source-count ceiling in `dual-view-handbooks.md`. Do not split a source slide into additional continuation slides to fix overflow. Recompose the layout, remove redundant wording without dropping facts, improve figure allocation, or expose clearly labeled within-slide detail. Do not hide overflow or shrink text below readable floors. An impossible count/coverage/fit combination remains an explicit unresolved constraint, not a success claim.
 
 Check every slide across the desktop sizes and breakpoint boundaries in the shared contract. A single passing 1366x768 screenshot does not imply other aspect ratios fit. Compact presentation can deliberately reflow vertically; declare that breakpoint. Large tables or map directories may scroll locally with visible affordances and full keyboard/touch access. Desktop slide content itself must fit without a vertical scrollbar. Keep native scrolling available inside declared controls and theme their scrollbars; do not intercept their arrow keys.
 
-## 3. Inputs: keyboard, touch, pointer
+## Legacy manual-fragment compatibility
+
+The following manual-fragment conventions apply only to explicitly retained legacy authored decks. The shared runtime markup and automatic-entry policy above own new dual-view behavior; its bounded picker replaces the legacy rail and its namespaced dv selectors replace slide-prefixed mechanics.
+
+### Inputs: keyboard, touch, pointer
 
 The full input map, all wired to the same step function:
 
@@ -33,7 +49,7 @@ The full input map, all wired to the same step function:
 - **Native behavior is not fought (BINARY)**: when focus is inside an interactive chart, a declared scrollable region, or a form control, deck keys DISENGAGE - arrows pan the chart or scroll the table as they natively would. `Escape` returns focus to the deck (the active `.slide-stage`), after which deck keys re-engage. The runtime checks `event.target` containment rather than swallowing keys globally; a deck that hijacks arrow keys inside its own interactive charts breaks the interactivity guarantee the page exists to provide.
 - **Input during a transition (BINARY)**: a step input arriving while a fragment or slide transition is mid-flight either queues (runs after the current transition settles) or fast-forwards (jumps the current transition to its end state, then applies the step). It is NEVER dropped and NEVER double-applied. The cheap correct implementation is fast-forward: keep the target state authoritative, snap to it, step once.
 
-## 4. Fragment stepping
+### Fragment stepping
 
 Fragments are the within-slide build model - the slide-mode replacement for scroll-progress reveals, and the substrate Phase 3's animation grammar and the cinematic camera map onto.
 
@@ -54,13 +70,13 @@ function applyState(deck, s, f) {           // authoritative; called on every st
 
 - Fragment reveal effects follow the Phase 3 animation grammar (`references/interactive-features.md`, "Slide-mode animation grammar"): data-bearing motion is entry-triggered or fragment-stepped, never looped.
 
-## 5. Deep links and history
+### Legacy deep links and history
 
 - **Stable ids (BINARY)**: every `.slide-stage` carries `id="slide-<n>"` with `n` its 1-based position. The URL hash tracks the active slide as `#slide-<n>`, updated on every slide change (`history.pushState` on discrete navigation so back/forward walk slide history; fragment steps within a slide do NOT push history entries - they would make the back button re-hide builds one by one, which reads as a broken back button).
 - **Loading with a hash (BINARY)**: opening the file at `#slide-7` shows slide 7 with slides 1-6 fully revealed and slides 8+ fully hidden, per rule 4's idempotence. A malformed hash falls back to slide 1; a well-formed but out-of-range slide number clamps to the nearest existing slide. Either way the deck opens on a real slide - never a blank stage.
 - **Browser back / forward** move through visited slides. `hashchange` is handled through the same `applyState` path as keyboard input, so an external hash edit is indistinguishable from navigation.
 
-## 6. Accessibility
+### Legacy accessibility
 
 - **Off-screen slides are inert (BINARY)**: every non-active `.slide-stage` carries both `inert` and `aria-hidden="true"`, so hidden content is unreachable by Tab and invisible to the accessibility tree. The active slide carries neither.
 - **Announcements (BINARY)**: a visually-hidden `aria-live="polite"` region (`.slide-live`) announces each slide change as "<slide title>, slide <n> of <total>". Fragment reveals do not announce (they are within-slide presentation, and announcing every build spams the screen reader).
@@ -68,7 +84,7 @@ function applyState(deck, s, f) {           // authoritative; called on every st
 - **Reduced motion (BINARY)**: under `prefers-reduced-motion: reduce`, slide and fragment transitions become instant cuts (no transform/opacity tween), and ambient loops (Phase 3) are disabled entirely - not slowed. The deck remains fully navigable; motion is presentation, never the mechanism.
 - Color, contrast, and the emphasis-token rules are the existing contracts, unchanged.
 
-## 7. No-JS and print fallback (BINARY)
+## No-JS and print fallback (BINARY)
 
 The complete reading page is visible without JavaScript. Keep the additional presentation region hidden until explicitly opened by a functioning runtime; a missing or broken runtime must neither blank the reading page nor duplicate it with a stacked slide copy. Presentation fragment hiding and scroll locking apply only to an active presentation, never the initial reading view.
 
@@ -91,7 +107,7 @@ Record the enabled view, theme/depth, source mapping, logical slide count, decla
 ## Verification (binary, per slide-mode output)
 
 - [ ] Reading is the initial view; included presentation and option provenance are recorded, and both global entry controls start slide 1.
-- [ ] Every mode class carries the `slide-` prefix; no bare `.stage` / `.deck` / `.rail` / `.counter` selector exists.
+- [ ] Shared mechanics use `dv-` classes or `data-dv-*` attributes; legacy mode classes carry the `slide-` prefix; no bare `.stage` / `.deck` / `.rail` / `.counter` selector exists.
 - [ ] Exactly one presentation slide is active; its available stage excludes chrome, and inactive views are inert.
 - [ ] At 1366x768 no `.slide-inner` overflows its stage except declared scrollable regions, each with a visible affordance and a design-record note.
 - [ ] All keyboard, touch, and pointer inputs from the rule 3 table work; deck keys disengage inside interactive charts and re-engage on `Escape`.

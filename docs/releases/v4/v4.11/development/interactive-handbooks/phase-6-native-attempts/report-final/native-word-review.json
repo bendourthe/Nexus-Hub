@@ -1,0 +1,37 @@
+{
+  "source_sha256": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4",
+  "detached_sha256": "0b24dc20470f4f0506772c7bc062a933c719148174bb6238571d2efae0f8a9b4",
+  "ordinary_read_only_open": "pass",
+  "repair_allowed": false,
+  "application_options_changed": false,
+  "grader_sha256": "0efe4f4ffa125aea4d5771b5f2a0dbce8e4990d2c310032ae500dcecad3166bf",
+  "external_relationships": [],
+  "native_pages": 2,
+  "native_pdf_sha256": "6345915904a6e8d6a0f65ddd4f8d9157e7037216a2913cecd3137abe9a40ed93",
+  "native_text": "/\rIllustrative research report\rTide sensor pilot\rOverview\rSynthetic measurements for illustration; not operational or clinical results.\rObserved counts\rThe trial covers two stations. Counts are observations, not percentages.\rStation\r\u0007Observed count\r\u0007\r\u0007North\r\u000712\r\u0007\r\u0007South\r\u000718\r\u0007\r\u0007The total remains unresolved\rThe reported total is 31; the component values sum to 30. The difference of one observation remains unresolved.\rReliability is unavailable.\rTotal\r\u0007Value\r\u0007\r\u0007Reported\r\u000731\r\u0007\r\u0007Computed\r\u000730\r\u0007\r\u0007Difference\r\u00071 observation, unresolved\r\u0007\r\u0007Report: pilot.docx. Count data: observations.csv.\r\f\rThe review path\r/\rAccepted records continue to Archive. Rejected records return to Queue.\rInstrument sends observations to Queue; Queue sends them to Analyst; Analyst sends accepted records to Archive. Rejected records return from Analyst to Queue.\rScope and uncertainty\rThe trial covers two stations. Counts are observations, not percentages. No error bars or confidence intervals were provided.\rItem\r\u0007Status\r\u0007\r\u0007Stations covered\r\u0007Two\r\u0007\r\u0007Measure\r\u0007Observation counts, not percentages\r\u0007\r\u0007Error bars\r\u0007Not provided\r\u0007\r\u0007Confidence intervals\r\u0007Not provided\r\u0007\r\u0007Reliability\r\u0007Unavailable\r\u0007\r\u0007Materials: pilot.docx, observations.csv and review-path.svg. Tide Research branding: brand.json and brand.svg.\r",
+  "native_page_bounds": [
+    {
+      "page": 1,
+      "width_pt": 595.2000122070312,
+      "outside_painted_bounds": [],
+      "resolved_fonts": [
+        "BCDEEE+ArialMT",
+        "BCDFEE+Arial-ItalicMT",
+        "BCDGEE+ArialMT",
+        "BCDHEE+Arial-BoldMT"
+      ]
+    },
+    {
+      "page": 2,
+      "width_pt": 595.2000122070312,
+      "outside_painted_bounds": [],
+      "resolved_fonts": [
+        "BCDEEE+ArialMT",
+        "BCDHEE+Arial-BoldMT"
+      ]
+    }
+  ],
+  "native_layout_verdict": "required separately; opening alone does not establish fit",
+  "source_bytes_unchanged": true,
+  "detached_bytes_unchanged": true
+}

@@ -1,0 +1,27 @@
+{
+  "case": "repo-repaired",
+  "started_utc": "2026-09-09T23:34:20.516810+00:00",
+  "model": "gpt-6-astra",
+  "effort": "max",
+  "wall_time_limit_seconds": 3600,
+  "internal_repair_limit": 3,
+  "prompt_sha256": "89c1996b4f2d43717dac341ede8d637678c183d74689fc85412e67435ea1ce75",
+  "frozen_manifest_sha256": "1eb44c17d6aaad765625af16bc247c332373cd05a2f8bbbcd72e743a26ecd768",
+  "profile_sha256": "8f6f7ff48f5c75cfd69c6fe5ff903d7d03b39aac3c29ecc724de6c7a46199365",
+  "agents_sha256": "4c01b911d940cf9f74283f9900ac533e75c866a380f2352d620691793fa67104",
+  "cli_sha256": "444a3f0008050605cae73cd9b7a2dcac61294062dfaab56dd20430fd6498518b",
+  "runner_sha256": "34b527f89d674421bf90574d3a52cc24f219492fe84639a9c2c12309e6ca5123",
+  "status": "finished",
+  "pid": 54636,
+  "exit_code": 0,
+  "elapsed_seconds": 3545.84,
+  "ended_utc": "2026-09-10T00:33:26.625696+00:00",
+  "events_sha256": "36b11acda8cc7af79c0f9f47e56d8a7f151f13a51736a093e8a93e340aa31f3e",
+  "usage": {
+    "input_tokens": 10690076,
+    "cached_input_tokens": 10309760,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 87030,
+    "reasoning_output_tokens": 36977
+  }
+}

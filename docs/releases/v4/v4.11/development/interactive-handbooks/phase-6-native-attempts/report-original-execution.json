@@ -1,0 +1,20 @@
+{
+  "case": "report",
+  "started_utc": "2026-09-09T22:23:29.553917+00:00",
+  "model": "gpt-6-astra",
+  "effort": "max",
+  "wall_time_limit_seconds": 2100,
+  "internal_repair_limit": 3,
+  "prompt_sha256": "d301b3871157adbaa59f1dcba8df7e60e1d3bfa4b508b0e872bbf1787b6fd631",
+  "frozen_manifest_sha256": "1eb44c17d6aaad765625af16bc247c332373cd05a2f8bbbcd72e743a26ecd768",
+  "profile_sha256": "598d3ebc0cd5964a57ee5367426a6e4a165b055c32904220c4a31725c5488d31",
+  "agents_sha256": "64fd13396fe5dcdd387d81e837f8ce3d4b15685f975fc37f81cee27de6c4b5ff",
+  "cli_sha256": "444a3f0008050605cae73cd9b7a2dcac61294062dfaab56dd20430fd6498518b",
+  "status": "timeout",
+  "exit_code": 1,
+  "elapsed_seconds": 2100.83,
+  "ended_utc": "2026-09-09T22:58:30.673667+00:00",
+  "events_sha256": "e812f5333bece075150484ca8ffc0344cd2801f854bb29ec9dfebd86ec477c3c",
+  "qualification": "non-pass",
+  "usage_status": "unknown; no terminal usage event"
+}

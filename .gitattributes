@@ -27,3 +27,27 @@ docs/releases/v4/v4.9/development/repro/record-benchmark-unavailability.py text 
 docs/releases/v4/v4.9/development/security-audit-benchmark/** text eol=lf
 docs/releases/v4/v4.9/development/security-audit-benchmark-reports/** text eol=lf
 docs/releases/v4/v4.9/development/security-audit-benchmark.md text eol=lf
+
+# Retained handbook evidence binds exact bytes across supported checkouts.
+catalog/skills/specialized-domains/document-to-interactive-html/** text=auto eol=lf
+catalog/skills/documentation/technical-documentation/** text=auto eol=lf
+catalog/skills/specialized-domains/docx-generation/SKILL.md text eol=lf
+catalog/skills/specialized-domains/docx-generation/references/step-2-python-python-docx-fundamentals.md text eol=lf
+catalog/skills/specialized-domains/docx-generation/references/step-8-testing-and-validation.md text eol=lf
+catalog/skills/specialized-domains/pptx-generation/SKILL.md text eol=lf
+catalog/skills/specialized-domains/pptx-generation/references/retained-handbook-export.md text eol=lf
+catalog/skills/specialized-domains/pptx-generation/references/native-motion.md text eol=lf
+catalog/skills/specialized-domains/pptx-generation/scripts/native_motion.py text eol=lf
+docs/handbooks/** text=auto eol=lf
+docs/releases/v4/v4.9/development/interactive-handbooks/** text=auto eol=lf
+tests/fixtures/interactive-handbooks/** text=auto eol=lf
+scripts/installer.ps1 text eol=lf
+scripts/validate_skills.py text eol=lf
+scripts/check_registry_entries.py text eol=lf
+scripts/lib/integrations/_catalog_adapters.py text eol=lf
+scripts/lib/integrations/_owned.py text eol=lf
+scripts/lib/integrations/runner.py text eol=lf
+tests/fixtures/interactive-handbooks-qualification/** text=auto eol=lf
+docs/releases/v4/v4.9/development/interactive-handbooks/phase-6-native-attempts/**/first-build.html -text
+docs/releases/v4/v4.9/development/interactive-handbooks/phase-6-native-attempts/**/failed-final.html -text
+docs/releases/v4/v4.9/development/interactive-handbooks/phase-6-native-attempts/**/failed-final-process.svg -text

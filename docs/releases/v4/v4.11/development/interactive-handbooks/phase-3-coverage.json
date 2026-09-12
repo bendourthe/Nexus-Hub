@@ -1,0 +1,15 @@
+{
+  "file": "scripts/dual_view.py",
+  "measurement": "coverage.py Python line coverage; real subprocess and browser tests are separate functional evidence",
+  "totals": {
+    "covered_lines": 472,
+    "num_statements": 528,
+    "percent_covered": 89.39393939393939,
+    "percent_covered_display": "89",
+    "missing_lines": 56,
+    "excluded_lines": 0,
+    "percent_statements_covered": 89.39393939393939,
+    "percent_statements_covered_display": "89"
+  },
+  "output_sha256": "fdd1f5a6aba296a188d4321579912858a3f9384b4e4d0537aff471d094774769"
+}

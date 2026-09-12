@@ -1,0 +1,22 @@
+{
+  "presentation-original-final-native-open.json": {
+    "raw_sha256": "31ef064b8a17c9d726ada3d6ecfe30ac0e12dadfcd443aad626723573cf5175a",
+    "record_sha256": "f92ca784ae5b69b10ae9f18482665aa64ee15f1c43f64170a81135d7afa0e098"
+  },
+  "presentation-first-native-open.json": {
+    "raw_sha256": "9b737f0892f5736b66c9867450c9491f72bbf8b4b150a21a6f942237e9c2a940",
+    "record_sha256": "7bbc00d53789c601a43ab9f7f5e042e5fbbfbe4c67fe1f27e50e9afa1a4ec822"
+  },
+  "presentation-freeform-diagnostic.json": {
+    "raw_sha256": "d02c0f068942aa7641fc002c7319efb48da93fc98ff49203ad86a71db1fc2055",
+    "record_sha256": "0a3942dcaba461c49820abf1c04608a8227cc717e83e445aab776bf1af798bae"
+  },
+  "report-original-focus-retest.json": {
+    "raw_sha256": "77d875102d5b4ca66afbed35c7a4fd37e39cd947250b2ae952249e7c072e2b88",
+    "record_sha256": "06816a8e87569ae4958ef81659e4e826e7e363b1d704314a364e7810c7460550"
+  },
+  "native-office-boundary.json": {
+    "raw_sha256": "ff00de0ae029ed7fb061768fdd1c723edb0af6490f4eee11adf2242287cb9c29",
+    "record_sha256": "697432904d3c59b7601fbeda1eeb41b2a72c37be16bd7d6b8e12fa02cc003183"
+  }
+}

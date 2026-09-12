@@ -6,6 +6,28 @@ Eleven rules, each with the CSS pattern that satisfies it and the observable cri
 
 Rules 1 through 7 catch text that is too small, too fixed, or stranded. Rules 8 through 11 catch the inverse family, observed 2026-08-13: text that is correctly sized and correctly measured while using half its track, and sections that are viewport-tall for no reason. Both families read as broken to a human, and neither is visible to a font-floor check.
 
+## A dark band must survive printing
+
+Browsers do not print background colours unless the page asks. Chromium defaults
+`print-color-adjust` to `economy`, which drops the fill and keeps the text, so a
+band designed as light ink on a dark surface prints light ink on WHITE PAPER and
+is effectively blank. Measured on three independently authored handbooks, this
+stranded 35 to 52 text elements each, with worst-case contrast between 1.11 and
+1.15 to 1.
+
+The assembler's own base stylesheet already sets `print-color-adjust: exact` on
+`[data-dv-page]`, so a page built through it is safe. A BESPOKE page that carries
+its own stylesheet inherits nothing and must handle this itself. Pick one:
+
+- Opt into painting: `@media print { [data-dv-page] { print-color-adjust: exact } }`,
+  which keeps the design intact and costs the reader ink.
+- Remap the palette: `@media print { .dark-band { background: #fff; color: #172b3b } }`,
+  which prints economically and reads correctly.
+
+Either is acceptable and the rendered print pass accepts both. Doing neither is a
+defect the screen view cannot reveal, because the computed style still reports the
+declared dark background; only the paint decision differs.
+
 ## 1. Fluid space, never fixed space
 
 Every MACRO-layout dimension - band padding, grid gaps, column widths, gutters, section rhythm - is a `clamp()` of viewport-relative units, never a bare `px` or `rem` constant. MICRO-spacing inside a component (a chip's inline padding, a list item's margin, a hairline rule) may stay `rem`-based, because it should track the type size rather than the window.

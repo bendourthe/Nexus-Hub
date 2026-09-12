@@ -112,6 +112,26 @@ def test_clean_fixture_passes_full_viewport_matrix(rendered_detector: None) -> N
     assert "PASS visual-defect detector" in result.stderr
 
 
+@pytest.mark.parametrize("offset,expected", [(100, 0), (210, 1)])
+def test_svg_bounds_include_ancestor_translation_and_rotation(
+    rendered_detector: None, tmp_path: Path, offset: int, expected: int
+) -> None:
+    page = tmp_path / "transformed.svg.html"
+    page.write_text(
+        '<!doctype html><html><body style="margin:0">'
+        '<svg width="200" height="200" viewBox="0 0 200 200">'
+        f'<g transform="translate({offset} 100)"><g transform="rotate(90)">'
+        '<rect x="-20" y="-20" width="40" height="40" fill="navy"/>'
+        '</g></g></svg></body></html>',
+        encoding="utf-8",
+    )
+    result = _run_path(page, "--viewports", "900")
+    assert result.returncode == expected, result.stdout
+    assert {finding["rule"] for finding in _payload(result)["findings"]} == (
+        {"svg-viewbox-overflow"} if expected else set()
+    )
+
+
 def test_explicit_theme_override_is_applied_before_page_bootstrap(
     rendered_detector: None,
     tmp_path: Path,
@@ -317,6 +337,95 @@ body { margin: 0; padding: 16px; }
     assert len(findings) == 1  # type: ignore[arg-type]
     assert findings[0]["rule"] == "text-overlap"  # type: ignore[index]
     assert findings[0]["selector"] == "#true-overlap"  # type: ignore[index]
+
+
+def test_out_of_flow_layer_may_cover_flow_text_but_not_collide_with_itself(
+    rendered_detector: None,
+    tmp_path: Path,
+) -> None:
+    """A fixed or sticky layer is MEANT to sit over flow content.
+
+    Reporting that as text-overlap makes this gate contradict the declared-position
+    gate in measure_handbook.py, which requires the navigation to be sticky at all.
+    Working navigation was deleted three times to satisfy both. An overlap WITHIN
+    one layer is still a real defect, so the same page proves both halves.
+    """
+    page = tmp_path / "out-of-flow-layer.html"
+    page.write_text(
+        """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Out of flow</title>
+<style>
+* { box-sizing: border-box; }
+html { font: 16px/24px Arial, sans-serif; }
+body { margin: 0; padding: 0; }
+.bar { position: fixed; top: 0; left: 0; width: 300px; height: 40px; background: #fff; }
+.tab { position: absolute; top: 8px; width: 120px; height: 24px; background: #eef; }
+.tab-one { left: 0; }
+.tab-two { left: 60px; }
+.page { margin: 0; padding: 12px; width: 300px; }
+</style>
+</head>
+<body>
+<div class="bar"><span class="tab tab-one">Overview</span><span id="layer-collision" class="tab tab-two">Chapters</span></div>
+<p class="page">Body text that the fixed bar is drawn directly on top of.</p>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+    result = _run_path(page, "--viewports", "900")
+    report = _payload(result)
+    findings = report["findings"]
+
+    # The opaque bar covers the paragraph; only the two tabs inside it are reported.
+    assert result.returncode == 1
+    assert len(findings) == 1  # type: ignore[arg-type]
+    assert findings[0]["rule"] == "text-overlap"  # type: ignore[index]
+    assert findings[0]["selector"] == "#layer-collision"  # type: ignore[index]
+
+
+def test_a_transparent_out_of_flow_layer_still_collides_with_flow_text(
+    rendered_detector: None,
+    tmp_path: Path,
+) -> None:
+    """Opacity is the whole exemption: a see-through bar does not occlude.
+
+    Exempting every sticky element would silence a real collision, where the
+    bar's text and the prose beneath it are both visible in the same pixels.
+    """
+    page = tmp_path / "transparent-layer.html"
+    page.write_text(
+        """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Transparent layer</title>
+<style>
+* { box-sizing: border-box; }
+html { font: 16px/24px Arial, sans-serif; }
+body { margin: 0; padding: 0; }
+.bar { position: fixed; top: 0; left: 0; width: 300px; height: 40px; background: transparent; }
+.tab { position: absolute; top: 8px; left: 0; width: 120px; height: 24px; }
+.page { margin: 0; padding: 12px; width: 300px; }
+</style>
+</head>
+<body>
+<div class="bar"><span id="see-through-tab" class="tab">Overview</span></div>
+<p class="page">Body text the transparent bar genuinely collides with here.</p>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+    result = _run_path(page, "--viewports", "900")
+    report = _payload(result)
+    findings = report["findings"]
+
+    assert result.returncode == 1
+    assert [finding["rule"] for finding in findings] == ["text-overlap"]  # type: ignore[index]
 
 
 def test_inline_overflow_does_not_erase_text_but_zero_sized_block_clip_does(

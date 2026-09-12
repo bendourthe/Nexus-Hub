@@ -1,0 +1,47 @@
+{
+  "html_sha256": "d58226002b11a39b4a1fbaf1530eb3ae3726f752401976094c7c33c01763dc3d",
+  "pdf_sha256": "9b9107c127f4de97fbbb5571a5272edd8ac84a97f9753d43f0694ffb51ca76be",
+  "pages": 6,
+  "semantic_image_elements": 1,
+  "pdf_images": 1,
+  "visible_region_labels": [
+    "Region 1",
+    "Region 2",
+    "Region 3",
+    "Region 4",
+    "Region 5",
+    "Region 6",
+    "Region 7",
+    "Region 8",
+    "Region 9",
+    "Region 10",
+    "Region 11",
+    "Region 12"
+  ],
+  "directory_geometry": [
+    {
+      "height": 528,
+      "scrollHeight": 528
+    },
+    {
+      "height": 56,
+      "scrollHeight": 56
+    },
+    {
+      "height": 516,
+      "scrollHeight": 516
+    }
+  ],
+  "all_regions_in_pdf": true,
+  "background_graphics": false,
+  "status": "pass",
+  "fixture": "print-only map extension",
+  "rendered_pages_for_visual_review": [
+    "page-2.png",
+    "page-5.png",
+    "page-6.png"
+  ],
+  "visual_review": "pass: inspected map entries, full image, diagram, code and full directory in rendered PDF pages 2, 5 and 6",
+  "regression": "Both JavaScript-enabled and no-JS cases fail with the old forced-white section palette and pass with preserved print colors; hidden semantic controls, details and scroll regions remain visible",
+  "builder_sha256": "2e9c79c7027310bdcead71cdfb8381a9be59e8f6a2b1093b9cc2c3c449fb47aa"
+}

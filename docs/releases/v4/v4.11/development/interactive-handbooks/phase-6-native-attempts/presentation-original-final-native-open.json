@@ -1,0 +1,11 @@
+{
+  "artifact_sha256": "511e859a384f32fb08931e4efa180a1411aaf1dc09e3b1a09e76df99f4f70f78",
+  "ordinary_read_only_open": "fail",
+  "repair_allowed": false,
+  "slide_count": 5,
+  "custom_geometry_connectors": 1,
+  "slides_with_timing": 0,
+  "error": "(-2147352567, 'Exception occurred.', (0, 'Microsoft PowerPoint', 'PowerPoint could not open the file.', '', 0, -2147467259), None)",
+  "original_bytes_unchanged": true,
+  "qualification": "non-pass; original invocation timed out"
+}

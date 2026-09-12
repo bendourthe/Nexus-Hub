@@ -1,0 +1,22 @@
+{
+  "catalog\\skills\\specialized-domains\\document-to-interactive-html\\scripts\\dual_view.py": {
+    "covered_lines": 481,
+    "num_statements": 538,
+    "percent_covered": 89.40520446096654,
+    "percent_covered_display": "89",
+    "missing_lines": 57,
+    "excluded_lines": 0,
+    "percent_statements_covered": 89.40520446096654,
+    "percent_statements_covered_display": "89"
+  },
+  "catalog\\skills\\specialized-domains\\document-to-interactive-html\\scripts\\resolve_presentation.py": {
+    "covered_lines": 81,
+    "num_statements": 84,
+    "percent_covered": 96.42857142857143,
+    "percent_covered_display": "96",
+    "missing_lines": 3,
+    "excluded_lines": 0,
+    "percent_statements_covered": 96.42857142857143,
+    "percent_statements_covered_display": "96"
+  }
+}

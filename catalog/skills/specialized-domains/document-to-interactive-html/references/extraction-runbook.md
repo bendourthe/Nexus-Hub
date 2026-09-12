@@ -75,6 +75,16 @@ The extractor is local-only and makes no network calls. Every parser is lazy-imp
     - OCR table recovery is geometry-based (aligned multi-cell rows) and works best on well-separated columns; the `pytesseract` path recovers paragraphs only. The scanned-page image block plus the figure-reconstruction protocol's transcription pass are the accuracy backstop either way.
     - Author-added annotations on a PDF figure (region overlays, callout labels on a map) are BAKED into the page's pixels, so the extractor does NOT recover them as structured `annotations` metadata (unlike PPTX overlay shapes). The base figure ships as an `embedded-raster` or `rasterized-region` image, and the agent recreates its annotations from the rendered image via the overlay-recreation path in `references/figure-reconstruction.md` (part 5), under the confidence gate.
 
+## Existing web pages (.html / .htm / .xhtml)
+
+- Library: none. The standard library's `html.parser` reads the page, so a legacy handbook needs no extra install and the reader cannot fail for a missing dependency.
+- This is the LEGACY MIGRATION path: an existing published handbook is READ into the shared content model, not merely preserved at its URL. Headings open sections, `<p>` / `<blockquote>` / `<dd>` / `<dt>` / `<figcaption>` become paragraphs, `<ul>` and `<ol>` become bullet blocks, `<table>` keeps its header row and body rows, `<pre>` becomes a code block, and an `<img>` contributes its `alt` text so a described visual is not silently lost.
+- `<title>` supplies the document title when present; otherwise the first heading does.
+- **Page chrome is dropped whole**, not word by word: `<nav>`, `<header>`, `<footer>` and `<aside>` subtrees contribute nothing, and `<script>`, `<style>`, `<noscript>`, `<template>` and `<svg>` are skipped entirely. A page whose only text is chrome yields no sections and records `no readable content` in `coverage.skip_reasons` rather than passing off navigation labels as handbook prose.
+- Malformed markup degrades instead of aborting the run: unclosed tags still yield their text, and a parser failure records `html parse failed` with a truncated text fallback so one bad page cannot lose a whole directory.
+- Whitespace is collapsed, so source indentation never reaches the model as content.
+- Preserving the original page's URL and anchors is a separate concern owned by the handbook-refresh rules; reading its content and keeping its address are both required for a migration and neither substitutes for the other.
+
 ## Source code and config (universal ingestion)
 
 - No third-party library: files are read with the standard library.

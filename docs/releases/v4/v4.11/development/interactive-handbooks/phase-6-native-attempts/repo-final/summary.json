@@ -1,0 +1,85 @@
+{
+  "status": "non-pass",
+  "reason": "Declared time limit expired before the third correction and final verification completed; final result record absent.",
+  "artifact_sha256": "c53a122e4fc3d1a7b486dc5ea78ce7c756c79dc174ab2eaddd7424d78381f4ad",
+  "operator_author_output_repairs": 0,
+  "first_build": {
+    "html_sha256": "fbb03a515aa7423398c671e0d585513c52e13246a07e4c2797be156b7191c772",
+    "measurement_status": "fail",
+    "measurement_rows": 266,
+    "measurement_error_count": 326,
+    "browser_status": "fail"
+  },
+  "final_default_view_measurement": {
+    "status": "fail",
+    "measured_states": 190,
+    "raw_fail_count": 54,
+    "limits": "Raw findings retained privately; no blanket header-overlap exception or complete factual/design pass claimed."
+  },
+  "independent_behaviors": {
+    "global_entry_1366": true,
+    "escape_1366": true,
+    "focus_1366": true,
+    "global_entry_390": true,
+    "escape_390": true,
+    "focus_390": true,
+    "global_entry_2560": true,
+    "escape_2560": true,
+    "focus_2560": true
+  },
+  "independent_panels": {
+    "status": "non-pass",
+    "artifact_sha256": "c53a122e4fc3d1a7b486dc5ea78ce7c756c79dc174ab2eaddd7424d78381f4ad",
+    "bytes_unchanged": true,
+    "viewport": [
+      2560,
+      720
+    ],
+    "panels": [
+      {
+        "state": "admission",
+        "height": 643,
+        "scroll_height": 715,
+        "overflow_px": 72,
+        "screenshot": "panel-admission-2560x720.png",
+        "screenshot_sha256": "320c6e36efa9fd9f90d3d299208b44873e333931d4c159ff716e5e93af570d52"
+      },
+      {
+        "state": "sources",
+        "height": 643,
+        "scroll_height": 663,
+        "overflow_px": 20,
+        "screenshot": "panel-sources-2560x720.png",
+        "screenshot_sha256": "83233abcd5096d7ca7d0045a4c593b52b523465e2a9d5a60ed1cfa90a768376a"
+      }
+    ],
+    "operator_repairs": 0
+  },
+  "visual_review": "Both full-window screenshots inspected. Admission content covers part of navigation; source text crosses into navigation. Desktop stage overflow is a high-severity non-pass.",
+  "next_attempt": {
+    "case": "repo-extended",
+    "wall_time_limit_seconds": 5400,
+    "internal_correction_limit": 3,
+    "inputs_and_prompt": "unchanged frozen corpus",
+    "starts_after": "presentation-final terminal status and collection",
+    "guidance_change": "Inventory and exercise authored alternate panel states before the first QA pass."
+  },
+  "artifacts": [
+    {
+      "file": "first-build.html",
+      "sha256": "fbb03a515aa7423398c671e0d585513c52e13246a07e4c2797be156b7191c772"
+    },
+    {
+      "file": "first-build-process.svg",
+      "sha256": "6491be07003037123100eaf4526ae356fbce29d933a474079d7ec0da839eec88"
+    },
+    {
+      "file": "panel-admission-2560x720.png",
+      "sha256": "320c6e36efa9fd9f90d3d299208b44873e333931d4c159ff716e5e93af570d52"
+    },
+    {
+      "file": "panel-sources-2560x720.png",
+      "sha256": "83233abcd5096d7ca7d0045a4c593b52b523465e2a9d5a60ed1cfa90a768376a"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "round": 0,
+  "html_sha256": "28086389a2d0aa5c50c26bfb70a04fa285ca9fa2d0b8bef6ad7c4c1d92058ab9",
+  "pptx_sha256": "bea4668a58ed43decc44faab452907c2b7623c5237d109658196d3c902d5f7c3",
+  "exact_bytes": ["qa/first-build.html", "qa/first-build.pptx"],
+  "measurement": "qa/round-0/measurements.json",
+  "second_attempt_measurement": "qa/round-0-attempt-2/measurements.json",
+  "structural_diagnostics": "qa/round-0/structural.stderr.txt",
+  "package_inspection": "qa/round-0/package.json",
+  "rendered_capture_count": 130,
+  "rendered_capture_directory": "qa/round-0-attempt-2",
+  "viewports": [[2560,1300],[1920,1080],[1366,768],[390,844],[1600,900],[1024,850],[1024,851],[2560,720],[760,900],[761,900],[1024,640],[759,900],[762,900]],
+  "findings": [
+    {"id":"F01","severity":"medium","confirmed":true,"description":"Count and Total visits text boxes overlap by 2 px at 2560x1300. Add explicit spacing."},
+    {"id":"F02","severity":"medium","confirmed":true,"description":"Secondary .8rem text computes to 12.8 px at the root minimum. Increase secondary controls to at least 13 px and paragraph labels to 16 px."},
+    {"id":"F03","severity":"medium","confirmed":true,"description":"Installed measure stops after 7 states because entering presentation pauses a still-running reading reveal. Cancel reading reveal animations when the page deactivates."},
+    {"id":"F04","severity":"medium","confirmed":true,"description":"Several brief display texts inherit fixed character caps intended for long prose; remove unnecessary caps and preserve intentional title line breaks."},
+    {"id":"F05","severity":"medium","confirmed":true,"description":"PPTX read-only rebuild differs only in the embedded native chart workbook. Normalize generated workbook metadata for deterministic rebuilding."},
+    {"id":"F06","severity":"low","confirmed":false,"description":"Structural scorer parses font-size values containing !important as 0 px, although rendered slide titles are legible. Remove unnecessary importance declarations."},
+    {"id":"F07","severity":"low","confirmed":false,"description":"Structural accent-on-paper contrast flag refers to an unused accent token; actual copper use is graphical. Remove unused token, preserve supplied brand colors and measure rendered text separately."},
+    {"id":"F08","severity":"low","confirmed":false,"description":"Scorer requests image and sticky-SVG caps for the small supplied navigation logo. Add explicit containment even though the inspected logo fits."}
+  ],
+  "positive_design_review": {"status":"partial","inspected":["reading-2560x1300-1.png","reading-2560x1300-3.png","slides-2560x1300-4.png","reading-390x844-1.png","reading-390x844-3.png","slides-390x844-4.png"],"observed":"Brand contours remain intact; chart values and the complete return loop are legible; compositions differ by source role; mobile flow reflows vertically.","remaining":"Contact-sheet review of all other sections and slide sizes; full rendered behavioral and measured gates."},
+  "checker_errors": ["Attempt 1: SVGRect has no toJSON method; capture stopped after the first screenshot.","Attempt 2: fullscreen-denial injection returned a function that Playwright invoked; all 130 captures completed but behavior checks did not start."],
+  "native_playback": {"status":"unavailable","hresult":"0x80070520","reason":"A specified logon session does not exist. It may already have been terminated."},
+  "first_build_verdict": "non-pass",
+  "recorded_before_any_artifact_correction": true
+}

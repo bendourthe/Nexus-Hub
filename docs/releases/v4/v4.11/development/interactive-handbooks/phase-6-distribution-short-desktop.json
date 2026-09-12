@@ -1,0 +1,1273 @@
+{
+  "status": "pass",
+  "output_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+  "rows": [
+    {
+      "view": "reading",
+      "id": "route",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "From installer to adapter"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Both installer entry points prepare the bundle and invoke pl"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "InstallerPrepare bundle"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "RunnerSelect platform"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "AdapterWrite native shape"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "From installer to adapter"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 419.375,
+          "height": 244.6875,
+          "area": 102615.8203125
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 456,
+      "scrollHeight": 456,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 183.59375,
+        "width": 1024,
+        "height": 456.546875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "shapes",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Three delivery shapes"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "flatten_skills drops the catalog category level for hosts th"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Category treeSource organization"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Flat skillsHost discovery"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Native commandHost invocation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Three delivery shapes"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 921.625,
+          "height": 117.6875,
+          "area": 108463.7421875
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 512,
+      "scrollHeight": 512,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 64.140625,
+        "width": 1024,
+        "height": 512.5
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "identity",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Names remain unambiguous"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "The catalog adapter collects only directories that contain S"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Skill nameStable identity"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Trigger descriptionDiscovery context"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Invocation policyHost interpretation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Names remain unambiguous"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 419.375,
+          "height": 244.6875,
+          "area": 102615.8203125
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 456,
+      "scrollHeight": 456,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 183.640625,
+        "width": 1024,
+        "height": 456.546875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "ownership",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Generated and user-owned files differ"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Owned-file writing consults the installation manifest. It ca"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Managed fileUpdate owned content"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Unowned filePreserve by default"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Unchanged bytesAvoid a rewrite"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Generated and user-owned files differ"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 419.375,
+          "height": 244.6875,
+          "area": 102615.8203125
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 489,
+      "scrollHeight": 489,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 75.1875,
+        "width": 1024,
+        "height": 489.859375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "verification",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Inspect outcomes, then test behavior"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Adapters return file actions and track managed paths. Unchan"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Reported actionsInspect file decisions"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Installed bytesVerify actual output"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Host behaviorExercise capability"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Inspect outcomes, then test behavior"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 419.375,
+          "height": 244.6875,
+          "area": 102615.8203125
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 456,
+      "scrollHeight": 456,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 183.046875,
+        "width": 1024,
+        "height": 456.546875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "route",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "From installer to adapter"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Both installer entry points prepare the bundle and invoke pl"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "InstallerPrepare bundle"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "RunnerSelect platform"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "AdapterWrite native shape"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "From installer to adapter"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 288.296875,
+          "area": 123715.396484375
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "route",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "From installer to adapter"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Both installer entry points prepare the bundle and invoke pl"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "InstallerPrepare bundle"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "RunnerSelect platform"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "AdapterWrite native shape"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "From installer to adapter"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 288.296875,
+          "area": 123715.396484375
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "route",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "From installer to adapter"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Both installer entry points prepare the bundle and invoke pl"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "InstallerPrepare bundle"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "RunnerSelect platform"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "AdapterWrite native shape"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "From installer to adapter"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 288.296875,
+          "area": 123715.396484375
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "shapes",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "Three delivery shapes"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "flatten_skills drops the catalog category level for hosts th"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Category treeSource organization"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Flat skillsHost discovery"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Native commandHost invocation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Three delivery shapes"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 942.09375,
+          "height": 119.296875,
+          "area": 112388.84033203125
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "shapes",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "Three delivery shapes"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "flatten_skills drops the catalog category level for hosts th"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Category treeSource organization"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Flat skillsHost discovery"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Native commandHost invocation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Three delivery shapes"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 942.09375,
+          "height": 119.296875,
+          "area": 112388.84033203125
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "shapes",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "Three delivery shapes"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "flatten_skills drops the catalog category level for hosts th"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Category treeSource organization"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Flat skillsHost discovery"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Native commandHost invocation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Three delivery shapes"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 942.09375,
+          "height": 119.296875,
+          "area": 112388.84033203125
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "identity",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "Names remain unambiguous"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "The catalog adapter collects only directories that contain S"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Skill nameStable identity"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Trigger descriptionDiscovery context"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Invocation policyHost interpretation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Names remain unambiguous"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 288.296875,
+          "area": 123715.396484375
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "identity",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "Names remain unambiguous"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "The catalog adapter collects only directories that contain S"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Skill nameStable identity"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Trigger descriptionDiscovery context"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Invocation policyHost interpretation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Names remain unambiguous"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 288.296875,
+          "area": 123715.396484375
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "identity",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "Names remain unambiguous"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "The catalog adapter collects only directories that contain S"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Skill nameStable identity"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Trigger descriptionDiscovery context"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Invocation policyHost interpretation"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Names remain unambiguous"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 288.296875,
+          "area": 123715.396484375
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "ownership",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "Generated and user-owned files differ"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Owned-file writing consults the installation manifest. It ca"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Managed fileUpdate owned content"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Unowned filePreserve by default"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Unchanged bytesAvoid a rewrite"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Generated and user-owned files differ"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 288.296875,
+          "area": 123715.396484375
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "ownership",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "Generated and user-owned files differ"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Owned-file writing consults the installation manifest. It ca"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Managed fileUpdate owned content"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Unowned filePreserve by default"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Unchanged bytesAvoid a rewrite"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Generated and user-owned files differ"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 288.296875,
+          "area": 123715.396484375
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "ownership",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "Generated and user-owned files differ"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Owned-file writing consults the installation manifest. It ca"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Managed fileUpdate owned content"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Unowned filePreserve by default"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Unchanged bytesAvoid a rewrite"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Generated and user-owned files differ"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 288.296875,
+          "area": 123715.396484375
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "verification",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "Inspect outcomes, then test behavior"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Adapters return file actions and track managed paths. Unchan"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Reported actionsInspect file decisions"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Installed bytesVerify actual output"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Host behaviorExercise capability"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Inspect outcomes, then test behavior"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 288.296875,
+          "area": 123715.396484375
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "verification",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "Inspect outcomes, then test behavior"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Adapters return file actions and track managed paths. Unchan"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Reported actionsInspect file decisions"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Installed bytesVerify actual output"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Host behaviorExercise capability"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Inspect outcomes, then test behavior"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 288.296875,
+          "area": 123715.396484375
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "verification",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 38.912,
+          "text": "Inspect outcomes, then test behavior"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Adapters return file actions and track managed paths. Unchan"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Reported actionsInspect file decisions"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Installed bytesVerify actual output"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Host behaviorExercise capability"
+        },
+        {
+          "role": "label",
+          "px": 14,
+          "text": "Inspect outcomes, then test behavior"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 429.125,
+          "height": 288.296875,
+          "area": 123715.396484375
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    }
+  ],
+  "errors": [],
+  "qualitative_review": "required separately",
+  "verification_scope": "rendered geometry, inventory and declared browser behaviors",
+  "browser": "Chromium 151.0.7922.34",
+  "no_js_and_print": "pass",
+  "reduced_motion_fullscreen_fallback_escape": "pass",
+  "font_px": {
+    "min": 14,
+    "mean": 21.810666666666666,
+    "max": 38.912
+  },
+  "coverage": {
+    "sections": 5,
+    "slides": 5,
+    "measured_states": 20
+  },
+  "fail_count": 0
+}

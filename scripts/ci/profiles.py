@@ -142,6 +142,7 @@ HYGIENE = Group(
     commands=(
         _py("validate_unicode_safety", "--strict", timeout=300),
         _py("validate_no_personal_paths", timeout=300),
+        _py("check_merge_conflict_markers", timeout=120),
         _py("check_docs_conventions", timeout=300),
         _py("validate_doc_budgets", timeout=120),
         _py("check_memory_integration_budget", timeout=120),
@@ -204,6 +205,21 @@ DOCS = Group(
         # data-count marker stamped from data/ and catalog/, and this is the drift gate.
         _py("stamp_guide_counts", "--check", timeout=120),
         _py("check_memory_provenance", timeout=120),
+        # v4.11.0: the living handbooks are generated, so an edit to the builder
+        # silently invalidates them - the same sources stop producing the same
+        # bytes. This is read-only and hash-only: it launches no browser and
+        # runs in about a second, so it costs the docs group nothing and is a
+        # hard gate. It was unwired until Phase 7, and in that window both
+        # repository handbooks went stale against two Phase 6 builder fixes
+        # without anything reporting it.
+        Command(
+            name="check_handbooks",
+            argv=[
+                PY,
+                "catalog/skills/documentation/technical-documentation/scripts/check_handbooks.py",
+            ],
+            timeout=300,
+        ),
         # Advisory by design: archiving repairs references repo-wide, so it
         # belongs in a reviewed pass. A hard gate here would stop an unrelated
         # release the moment a minor version aged out.

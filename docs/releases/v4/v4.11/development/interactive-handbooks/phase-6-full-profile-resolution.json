@@ -1,0 +1,416 @@
+{
+  "status": "affected-failures-resolved",
+  "full_profile_status": "fail",
+  "full_profile_finished_at": "2026-09-10T06:56:31Z",
+  "full_profile_seconds": 5281.8129999999655,
+  "raw_full_receipt_sha256": "a516bae48109c61f6c166779878d9e0ced4e4399e97aa508b5a623158f3bf531",
+  "full_commands": [
+    {
+      "name": "skills.json parses",
+      "group": "catalog-parse",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.14099999994505197,
+      "test_summary": []
+    },
+    {
+      "name": "bundles.json parses",
+      "group": "catalog-parse",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.1720000000204891,
+      "test_summary": []
+    },
+    {
+      "name": "workflows.json parses",
+      "group": "catalog-parse",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.14000000001396984,
+      "test_summary": []
+    },
+    {
+      "name": "templates.json parses",
+      "group": "catalog-parse",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.14099999994505197,
+      "test_summary": []
+    },
+    {
+      "name": "validate_unicode_safety",
+      "group": "hygiene",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 88.78100000007544,
+      "test_summary": []
+    },
+    {
+      "name": "validate_no_personal_paths",
+      "group": "hygiene",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 4.968999999924563,
+      "test_summary": []
+    },
+    {
+      "name": "check_docs_conventions",
+      "group": "hygiene",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.26500000001396984,
+      "test_summary": []
+    },
+    {
+      "name": "validate_doc_budgets",
+      "group": "hygiene",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.1410000000614673,
+      "test_summary": []
+    },
+    {
+      "name": "check_memory_integration_budget",
+      "group": "hygiene",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.5470000000204891,
+      "test_summary": []
+    },
+    {
+      "name": "check_interpreter_resolution",
+      "group": "interpreters",
+      "status": "fail",
+      "exit_code": 1,
+      "duration_s": 1.3119999999180436,
+      "test_summary": []
+    },
+    {
+      "name": "validate_skills",
+      "group": "catalog",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 1.1099999999860302,
+      "test_summary": []
+    },
+    {
+      "name": "check_agentskills_conformance",
+      "group": "catalog",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.18700000003445894,
+      "test_summary": []
+    },
+    {
+      "name": "build_framework_coverage",
+      "group": "catalog",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.18799999996554106,
+      "test_summary": []
+    },
+    {
+      "name": "run_trigger_evals",
+      "group": "catalog",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.3440000000409782,
+      "test_summary": []
+    },
+    {
+      "name": "check_registry_entries",
+      "group": "catalog",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.3279999999795109,
+      "test_summary": []
+    },
+    {
+      "name": "scan_skill_security",
+      "group": "catalog",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 4.217999999993481,
+      "test_summary": []
+    },
+    {
+      "name": "scan_supply_chain_iocs",
+      "group": "security",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 14.704000000027008,
+      "test_summary": []
+    },
+    {
+      "name": "validate_permission_baseline",
+      "group": "security",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.21799999999348074,
+      "test_summary": []
+    },
+    {
+      "name": "check_no_outbound",
+      "group": "security",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.15700000000651926,
+      "test_summary": []
+    },
+    {
+      "name": "validate_workflow_security",
+      "group": "workflows",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.2029999999795109,
+      "test_summary": []
+    },
+    {
+      "name": "check_required_check_coverage",
+      "group": "workflows",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.18799999996554106,
+      "test_summary": []
+    },
+    {
+      "name": "check_installer_parity",
+      "group": "platform-contracts",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.26500000001396984,
+      "test_summary": []
+    },
+    {
+      "name": "check_base_template_parity",
+      "group": "platform-contracts",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.10999999998603016,
+      "test_summary": []
+    },
+    {
+      "name": "verify_platform_contracts",
+      "group": "platform-contracts",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.18700000003445894,
+      "test_summary": []
+    },
+    {
+      "name": "check_platform_contract_freshness",
+      "group": "platform-contracts",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.125,
+      "test_summary": []
+    },
+    {
+      "name": "sync_platform_defaults",
+      "group": "platform-contracts",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.15700000000651926,
+      "test_summary": []
+    },
+    {
+      "name": "verify_model_prompting_profiles",
+      "group": "platform-contracts",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.10900000005494803,
+      "test_summary": []
+    },
+    {
+      "name": "check_doc_colocation",
+      "group": "docs",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.2339999999385327,
+      "test_summary": []
+    },
+    {
+      "name": "validate_solution_frontmatter",
+      "group": "docs",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.125,
+      "test_summary": []
+    },
+    {
+      "name": "check_incident_notes",
+      "group": "docs",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.2029999999795109,
+      "test_summary": []
+    },
+    {
+      "name": "validate_decision_records",
+      "group": "docs",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.1410000000614673,
+      "test_summary": []
+    },
+    {
+      "name": "stamp_guide_counts",
+      "group": "docs",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.9689999999245629,
+      "test_summary": []
+    },
+    {
+      "name": "check_memory_provenance",
+      "group": "docs",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.10900000005494803,
+      "test_summary": []
+    },
+    {
+      "name": "check_docs_retention",
+      "group": "docs",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.18799999996554106,
+      "test_summary": []
+    },
+    {
+      "name": "check_version_sync",
+      "group": "version",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.125,
+      "test_summary": []
+    },
+    {
+      "name": "hook-tests",
+      "group": "tests",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 984.359000000055,
+      "test_summary": [
+        "1319 passed, 35 skipped in 551.54s (0:09:11)"
+      ]
+    },
+    {
+      "name": "repo-tests",
+      "group": "tests",
+      "status": "fail",
+      "exit_code": 1,
+      "duration_s": 3825.765999999945,
+      "test_summary": [
+        "1 failed, 5221 passed, 77 skipped, 5 warnings in 3807.08s (1:03:27)"
+      ]
+    },
+    {
+      "name": "skill-server",
+      "group": "extension-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 16.59299999999348,
+      "test_summary": [
+        "43 passed in 4.47s"
+      ]
+    },
+    {
+      "name": "code-search",
+      "group": "extension-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 32.03200000000652,
+      "test_summary": [
+        "379 passed, 1 skipped in 26.02s"
+      ]
+    },
+    {
+      "name": "web-fetch",
+      "group": "extension-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 5.217999999993481,
+      "test_summary": [
+        "29 passed in 3.93s"
+      ]
+    },
+    {
+      "name": "skill-scanner",
+      "group": "extension-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 247.454000000027,
+      "test_summary": [
+        "89 passed in 2.45s"
+      ]
+    },
+    {
+      "name": "context-compressor",
+      "group": "extension-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 25.89000000001397,
+      "test_summary": [
+        "237 passed in 8.33s"
+      ]
+    },
+    {
+      "name": "memory",
+      "group": "extension-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 22.515999999945052,
+      "test_summary": [
+        "53 passed, 1 skipped in 20.29s"
+      ]
+    },
+    {
+      "name": "compression-accuracy-gate",
+      "group": "extension-tests",
+      "status": "pass",
+      "exit_code": 0,
+      "duration_s": 0.4690000000409782,
+      "test_summary": []
+    }
+  ],
+  "resolution": {
+    "status": "pass",
+    "environment": "Process-scoped Git Bash PATH precedence; user and machine PATH unchanged",
+    "command_sha256": "028396cd1a829548703c010b647379f4921ec959b66b298803a2d39a32f7fef3",
+    "results": [
+      {
+        "command": [
+          "python",
+          "scripts/check_interpreter_resolution.py",
+          "--gate"
+        ],
+        "exit_code": 0,
+        "seconds": 1.06,
+        "tail": [
+          "[interpreters] OK   bash -> C:/Program Files/Git/bin\\bash.EXE",
+          "[interpreters] every hook interpreter can execute a script."
+        ]
+      },
+      {
+        "command": [
+          "python",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/skills/test_functional_verification_crosslinks.py",
+          "tests/skills/test_presentify_presentation_intake.py",
+          "tests/skills/test_presentify_dual_view_distribution.py",
+          "tests/validators/test_interpreter_resolution.py"
+        ],
+        "exit_code": 0,
+        "seconds": 90.25,
+        "tail": [
+          "........................................................                 [100%]",
+          "56 passed in 88.68s (0:01:28)"
+        ]
+      }
+    ]
+  },
+  "limitations": "The original full profile remains a 42-pass, 2-failure result. Both failures pass affected reruns. This is combined evidence, not a claim that the original full invocation passed. User and machine PATH remain unchanged; local gates require verified Git Bash precedence."
+}

@@ -60,6 +60,8 @@ HTML artifacts that are saved (a review report, an exported timeline, a persiste
 
 ## Instructions
 
+For handbook, presentation or cross-format document work, apply `[[hallmark-design]]` and its `references/cross-format-patterns.md` to the composition, and `[[anti-slop-editing]]` to prose. These are the existing design/prose owners; format-specific rendering and verification remain here. Do not transfer app-specific layout bans into every document format.
+
 1. Identify the artifact and consult the decision table. If it is an HTML row, proceed; if Markdown, stop and emit Markdown.
 2. Pick the closest reference template and adapt its content. Keep the layout system, accessibility affordances, and self-contained structure.
 3. Apply `catalog/rules/html/responsive-layout.md` as the canonical owner for responsive width behavior.

@@ -1,0 +1,41 @@
+[
+  {
+    "delay_before_escape_ms": 0,
+    "state": {
+      "active": false,
+      "index": 0,
+      "count": 5,
+      "animations": 0,
+      "fullscreen": false
+    },
+    "focus_returned": false,
+    "active": "<body data-aspect=\"portrait\"><main data-dv-page=\"\" data-aspect=\"portrait\" style=\"--tide-progress: 0.7788724685276409;\">\n\n<nav class=\"dv-top-menu\"><div class=\"tide-menu-links\"><a href=\"#overview\" aria-",
+    "fullscreen": false
+  },
+  {
+    "delay_before_escape_ms": 100,
+    "state": {
+      "active": false,
+      "index": 0,
+      "count": 5,
+      "animations": 0,
+      "fullscreen": false
+    },
+    "focus_returned": false,
+    "active": "<body data-aspect=\"portrait\"><main data-dv-page=\"\" data-aspect=\"portrait\" style=\"--tide-progress: 0.7788724685276409;\">\n\n<nav class=\"dv-top-menu\"><div class=\"tide-menu-links\"><a href=\"#overview\" aria-",
+    "fullscreen": false
+  },
+  {
+    "delay_before_escape_ms": 500,
+    "state": {
+      "active": false,
+      "index": 0,
+      "count": 5,
+      "animations": 0,
+      "fullscreen": false
+    },
+    "focus_returned": false,
+    "active": "<body data-aspect=\"portrait\"><main data-dv-page=\"\" data-aspect=\"portrait\" style=\"--tide-progress: 0.7788724685276409;\">\n\n<nav class=\"dv-top-menu\"><div class=\"tide-menu-links\"><a href=\"#overview\" aria-",
+    "fullscreen": false
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "installer_exit": 0,
+  "files": [
+    {
+      "relative_path": "scripts/dual_view.py",
+      "sha256": "a7452fc009c09ae682e377492e91e0b4a7330c37f0d5f5cdf05a54af6f29672f"
+    },
+    {
+      "relative_path": "scripts/measure_handbook.py",
+      "sha256": "01b4f7295a3c9ac238da58a418e0cf5df6108cfc17ea3e9aa47b98a3ef2eba26"
+    },
+    {
+      "relative_path": "assets/dual-view.css",
+      "sha256": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35"
+    },
+    {
+      "relative_path": "assets/dual-view-runtime.js",
+      "sha256": "cca036e45febefee365bf5eb6a4e23b0388f6c0a0fc69889445c68c0177b2cb4"
+    },
+    {
+      "relative_path": "detect_visual_defects.py",
+      "sha256": "71c7cb79e465e95c5b130f6a5d9e1f012cdd9f92f1c81e7d10bf3a2fdbbbf2d0"
+    }
+  ]
+}

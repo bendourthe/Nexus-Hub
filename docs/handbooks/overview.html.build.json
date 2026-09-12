@@ -1,0 +1,23 @@
+{
+  "build": {
+    "assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d",
+    "assets/dual-view-runtime.js": "336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6",
+    "assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35",
+    "assets/theme.json": "46a8d331bb277f1d6049da735f3ae5adf8ac60cfd81968685e3d3cc2ae321604",
+    "scripts/build_presentation.py": "5c1525156ed9875703791c9f3293970356e64e8ec6b5de3c0c37904232bacea2",
+    "scripts/dual_view.py": "14e52768f4510fdc736bf08b1ae800ccdc0c47731a507bdf2d049e8ddbd3a67a"
+  },
+  "output": "docs/handbooks/overview.html",
+  "output_sha256": "33937d67b7041d9e3ae12f11e54885b3fb87e27d3402b159e25463012eb82c31",
+  "schema_version": 1,
+  "sources": {
+    "docs/handbooks/_sources/overview/authoring-composition.html": "e38964521614c8c0317a63d2890685e2ffed10ef2625e6d181bf994db6a4ec6c",
+    "docs/handbooks/_sources/overview/delivery-composition.html": "c7ab0ca77c7f6468d1914f17338d72a33ffe560888fb4573bafe6fe6ce5c9259",
+    "docs/handbooks/_sources/overview/design.css": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24",
+    "docs/handbooks/_sources/overview/model.json": "f5d3c133109e6a5f498037d67228d70255a118adca6663ad7c31c223c3a48580",
+    "docs/handbooks/_sources/overview/proof-composition.html": "5450a7264da18cccd1423951768e9a271cb42211545464ef035dde2a2d75958f",
+    "docs/handbooks/_sources/overview/purpose-composition.html": "511907f9123cb68a61b67a38d7d06ddb67642e5f2871cb84410707b1d7a62beb",
+    "docs/handbooks/_sources/overview/source.md": "23c8a608f9204b67f3ab130891b055bd4946f1e1c7c7d597542773d8bc7721cf",
+    "docs/handbooks/_sources/overview/validation-composition.html": "4769181873d4f9b290a783d44986a9382771a90d7c9a4d548de46e8d0d44461f"
+  }
+}

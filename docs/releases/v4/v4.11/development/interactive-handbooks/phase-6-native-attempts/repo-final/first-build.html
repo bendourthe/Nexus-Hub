@@ -1,0 +1,577 @@
+<!doctype html>
+<!-- DESIGN RECORD {"content_intent": {"assumptions": [{"statement": "Current code and config are authoritative", "status": "accepted"}, {"statement": "This is a synthetic queue, not a measured deployment", "status": "accepted"}, {"statement": "Reliability is unavailable", "status": "needs-verification"}], "decision_to_enable": "Understand the observation workflow, determine admission at a given queue size, and distinguish documented behavior from implemented checks", "exclusions": ["Invented reliability, throughput or timing data", "Network research and added imagery", "Implementation of the documented operational service"], "scope_class": "working-demonstration", "source_relationship": "faithful-adaptation"}, "dependencies": {"README.md": "5d87e97f0098032504551ff6d1b08973ae7411ea6a5ce332720e6fef0f384029", "brand.json": "945007214e619f98b9efc85691064c462f773d739c145d98dcbf0a20576bedde", "brand.svg": "42fab0b554686f8c158d1b474816f0a898eef8f90e332a812b761b8fd6701642", "brief.md": "b4498487be1b95613b1c0f914400c98db576bb53d6e5712f1c65d43d827086f0", "build.py": "dcbe4f2dc7aa1e543f6e019c4f2973f0b40ecd459a3d870cde1dfc1161b1260c", "config.json": "5a2d812a6f27b49fd169a17e5ea89cbad5061c0886fcfea2632f947ed5529502", "private-rebuild/design-record.json": "8766ab524ed3e43b41a35d0ca6f61fddfbc852ecb2541afccaf311fdca013b51", "private-rebuild/model.json": "63d0e420e3e1f85b324a70295d46abe10797a4c90625625e52029ff9c6d6ba6e", "private-rebuild/resolved-options.json": "0ab714a0a4fbc247fd8f2783d9797a21b4e079ffaaebaf4c0326e7578320cb20", "private-rebuild/source-map.json": "7ee6c1f821cc8a36933109aa646d238e6b1a1e4119f1e2a5ad17214a700a10ac", "private-rebuild/sources/dual-view-runtime.js": "f7892e0de19b83f40cf27680ef81199a4e6fd72b2c5c26f9d3f42ec570adcaff", "private-rebuild/sources/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35", "private-rebuild/sources/legacy-template.html": "eb5e36ec9e977651c6ae4c6c6f00c4616ae805f0507eda2597c766205eac8548", "private-rebuild/sources/operations.css": "6aa97e536bd3ab6d8f3c89e25d2696f3678766dfd8b45c54fad761e981a55c8d", "private-rebuild/sources/operations.js": "110905457ddc890573d45710c11abdce2cc4199a50b2292b16643e0c0fa772b8", "private-rebuild/sources/reading.html": "2c8cbe4eed8ad7df9db5c3903a86a77d21c2a6a1906314f7ef493e4cb6cd7a10", "private-rebuild/sources/slides.html": "9bef88a92337cbf57c072f4be4ec4288b8c0b298d52a9ad0020a2f0b1ade5989", "service.py": "96c44823325c82d97934f0c89fcc5da10a4e0124914f6e2354bd9567b522db81"}, "direction": "Aster operations field manual", "motion": "150ms control feedback; process edge reveal in causal order; reduced motion shows final state", "options": {"notes": [], "presentation": {"depth": "deep-dive", "enabled": true, "theme": "mixed"}, "provenance": {"images": "explicit", "interactivity": "explicit", "layout": "explicit", "presentation": "explicit", "presentation_depth": "explicit", "presentation_theme": "explicit", "style": "explicit", "theme": "explicit", "verbosity": "explicit"}, "questions": [], "status": "resolved", "values": {"images": "none", "interactivity": "balanced", "layout": "standard", "presentation": "yes", "presentation_depth": "deep-dive", "presentation_theme": "mixed", "style": "Editorial field manual; authentic Aster Fieldworks branding and accurate process figures", "theme": "brand.json", "verbosity": "comprehensive"}}, "palette": {"brand_accent": "#b5632f", "dark_text_accent": "#edb48e", "ink": "#172b3b", "light_text_accent": "#86431e", "paper": "#f7f3e9"}, "pre_authoring_gates": {"A": "pass: source hierarchy and uncertainty preserved in outline", "B": "pass: directed process and capacity boundary each have a specific explanatory job"}, "presentation": {"depth": "deep-dive", "enabled": true, "initial_slide": 1, "logical_slide_ceiling": 5, "theme": "mixed", "themes": {"agenda": "light", "appendix": "dark", "configuration": "light", "cover": "dark", "workflow": "dark"}}, "qa_protocol": {"final_result": "qa/result.json", "first_bytes": "qa/first-build.html", "first_findings": "qa/first-build.json", "maximum_corrections": 3, "required": "Factual, structural, rendered behavior and positive-design gates", "rounds": "qa/round-N/"}, "reading_layout": "standard", "reading_theme_sequence": ["light", "dark", "light", "dark"], "reference": "brief.md and brand.json; authentic brand.svg", "sampler_adaptations": ["Supplied brand font overrides sampled slab font", "Global top navigation from brief overrides sticky sidebar; retain asymmetric reading compositions", "Filterable evidence table expresses sampled filterable-grid interaction without identical cards", "Sampler retained plum-magenta summary despite the pinned palette; actual approved colors are authoritative"], "section_height_class": {"configuration": "content-height", "evidence": "content-height", "overview": "content-height", "workflow": "content-height"}, "seed": 491, "source_mapping": {"coverage": "comprehensive", "diagram": {"classification": "process authored from explicit prose", "confidence": "high", "edges": [["Observation", "Queue"], ["Queue", "Analyst"], ["Analyst", "Archive"]], "nodes": ["Observation", "Queue", "Analyst", "Archive"], "qualification": "Only approved records proceed to Archive; no rejection loop is specified", "source": "README.md"}, "extractor_exclusions": [{"path": "docs/handbooks/html/operations.html", "reason": "Generated HTML is outside the installed recursive extractor's supported source formats; preserved and parsed separately for exact-byte parity and stale-fact accounting"}], "logical_slide_ceiling": 5, "omitted_facts": [], "units": [{"fact": "Aster Fieldworks Queue is a synthetic field-observation queue", "id": "identity", "section": "overview", "slide": "cover", "source": "README.md"}, {"fact": "Incoming observations enter the queue", "id": "flow1", "section": "workflow", "slide": "workflow", "source": "README.md"}, {"fact": "An analyst reviews queued observations", "id": "flow2", "section": "workflow", "slide": "workflow", "source": "README.md"}, {"fact": "Approved records are archived", "id": "flow3", "section": "workflow", "slide": "workflow", "source": "README.md"}, {"fact": "retry_limit=3", "id": "retry", "section": "configuration", "slide": "configuration", "source": "config.json", "state": "settings"}, {"fact": "queue_capacity=24", "id": "capacity", "section": "configuration", "slide": "configuration", "source": "config.json", "state": "settings"}, {"fact": "timeout_seconds=8", "id": "timeout", "section": "configuration", "slide": "configuration", "source": "config.json", "state": "settings"}, {"fact": "attempts() returns CONFIG[retry_limit]", "id": "attempts", "section": "configuration", "slide": "configuration", "source": "service.py", "state": "settings"}, {"fact": "admitted(queue_size) returns queue_size < CONFIG[queue_capacity]", "id": "admission", "section": "configuration", "slide": "configuration", "source": "service.py", "state": "admission"}, {"fact": "JSON configuration is loaded from the sibling config.json at import time", "id": "loader", "section": "evidence", "slide": "appendix", "source": "service.py", "state": "status"}, {"fact": "No retry loop, timeout enforcement, input validation, review or archive implementation is shown", "id": "code-scope", "section": "evidence", "slide": "appendix", "source": "service.py", "state": "status"}, {"fact": "No reliability measurement is available", "id": "reliability", "section": "evidence", "slide": "appendix", "source": "README.md", "state": "status"}, {"fact": "Current code/config is authoritative", "id": "authority", "section": "evidence", "slide": "appendix", "source": "README.md", "state": "sources"}, {"fact": "Snapshot retry 2 is stale; capacity 24 and timeout 8 remain current", "id": "stale-retry", "section": "evidence", "slide": "appendix", "source": "docs/handbooks/html/operations.html (preserved snapshot)", "state": "sources"}, {"fact": "Native build.py owns docs/handbooks/html/operations.html and preserves overview/workflow anchors", "id": "generator", "section": "evidence", "slide": "appendix", "source": "build.py and docs/handbooks/README.md", "state": "sources"}, {"fact": "Aster Fieldworks brand, Arial, paper/ink/copper and original vector contours", "id": "brand", "section": "overview", "slide": "cover", "source": "brand.json and brand.svg"}, {"disposition": "Applied design constraint; retained in design record", "fact": "Editorial hierarchy, alternating reading themes, mixed deck themes, balanced interaction, five-slide ceiling", "id": "brief", "section": "overview", "slide": "agenda", "source": "brief.md"}], "visual_accounting": [{"classification": "decorative brand lockup", "detail": "Unchanged viewBox and path; permitted ink-only dark variant", "source": "brand.svg", "status": "rendered"}]}, "spacing": "Fluid gutters and section gaps; content-height reading sections", "sticky_layers": ["One reading header; anchors clear its measured height", "Presentation toolbar occupies its own grid row; compact stage scrolls independently"], "typography": "Arial, sans-serif; root fluid scale; bold editorial display", "visual_contracts": [{"encoding": "Directed edges express documented order; archive label carries approval condition", "evidence": "README.md", "fallback": "Complete accessible SVG plus ordered text", "id": "process", "message": "Observations enter the queue, an analyst reviews them, and approved records are archived", "question": "Where does an observation go?", "states": ["complete", "causal edge reveal", "zoomed inspection"], "subtractive_test": "Removing it loses the visible handoff chain", "trigger": "Presentation entry or Replay; enlarge control"}, {"encoding": "24 slots show configured capacity; occupied slots are a user-selected example, never telemetry", "evidence": "service.py admitted(queue_size), config.json queue_capacity", "fallback": "Static table with 0, 23, 24 and 26 examples", "id": "admission", "message": "23 is admitted; 24 and above are not admitted", "question": "Is a supplied queue size below capacity?", "states": ["size 0", "size 23", "size 24", "size 26"], "subtractive_test": "The control reveals the strict boundary without comparing incompatible units", "trigger": "Slider or boundary buttons"}], "visual_coverage": "ACCOUNTED: brand.svg rendered; no source chart or data figure; process is authored from README prose; generated legacy HTML recovered separately", "wrap_plan": {"configuration": "1 or 2 desktop lines; 2 mobile lines", "evidence": "1 or 2 desktop lines; 2 mobile lines", "overview": "2 lines desktop; 2 lines mobile", "workflow": "1 or 2 desktop lines; 2 mobile lines"}} -->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="description" content="Aster Fieldworks queue operations: observation handoffs, admission checks, configured limits and evidence boundaries."><title>Queue operations | Aster Fieldworks</title><style>/* Namespaced mechanics; project authors retain composition and brand tokens. */
+[data-dv-deck][hidden], [data-dv-slide][hidden] { display: none !important; }
+[data-dv-open], [data-dv-chapter] { display: none; }
+[data-dv-ready] [data-dv-open], [data-dv-ready] [data-dv-chapter] { display: inline-flex; }
+[data-dv-deck] {
+  --dv-bg: #f5f3ec; --dv-fg: #15283c; --dv-muted: #45566a;
+  box-sizing: border-box; position: fixed; inset: 0; z-index: 1000;
+  width: 100%; height: 100dvh; color: var(--dv-fg); background: var(--dv-bg);
+  display: grid; grid-template-rows: minmax(0, 1fr) auto;
+  font: 1.125rem/1.45 system-ui, sans-serif;
+}
+[data-dv-deck][data-theme="dark"] { --dv-bg: #142235; --dv-fg: #f5f3ec; --dv-muted: #c2d1df; color-scheme: dark; }
+[data-dv-deck][data-theme="light"] { color-scheme: light; }
+[data-dv-deck] *, [data-dv-page] * { box-sizing: border-box; }
+.dv-stage { min-width: 0; min-height: 0; display: grid; }
+[data-dv-slide] {
+  min-width: 0; min-height: 0; padding: clamp(1rem, 3vw, 3rem);
+  display: flex; flex-direction: column; justify-content: center; gap: clamp(.5rem, 1.4vh, 1.5rem);
+  position: relative; background: var(--dv-bg); color: var(--dv-fg);
+}
+[data-dv-slide] h1, [data-dv-slide] h2 { font-size: clamp(1.5rem, 3vw, 3.5rem); line-height: 1.1; margin: 0; overflow-wrap: anywhere; }
+[data-dv-slide] p { margin: 0; }
+[data-dv-slide] input, [data-dv-slide] button, [data-dv-slide] select { font: inherit; min-height: 44px; max-width: 100%; }
+[data-dv-slide] button { align-self: flex-start; }
+[data-dv-slide] h2:focus, [data-dv-slide] h1:focus { outline: none; }
+[data-dv-slide] img { max-width: 100%; max-height: 42vh; object-fit: contain; }
+[data-dv-slide] svg { max-width: 100%; }
+[data-dv-controls] {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+  gap: .5rem; padding: .6rem; border-top: 1px solid currentColor;
+  background: var(--dv-bg); color: var(--dv-fg);
+}
+[data-dv-controls] button, [data-dv-controls] select {
+  color: inherit; background: transparent; border: 1px solid currentColor;
+  border-radius: .5rem; padding: .4rem .65rem; font: inherit; min-height: 44px;
+}
+[data-dv-controls] select { max-width: min(30vw, 16rem); }
+[data-dv-controls] button { display: inline-flex; align-items: center; gap: .3rem; }
+[data-dv-controls] button:disabled { opacity: .45; }
+[data-dv-controls] svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 2; }
+[data-dv-deck] :focus-visible, [data-dv-page] :focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+[data-dv-native] { overflow: auto; scrollbar-width: thin; scrollbar-color: currentColor transparent; }
+[data-dv-page] { scrollbar-color: #52677b transparent; }
+[data-dv-page] [data-theme="dark"] { scrollbar-color: #c2d1df transparent; }
+[data-dv-native]::-webkit-scrollbar { width: 10px; height: 10px; }
+[data-dv-native]::-webkit-scrollbar-track { background: transparent; }
+[data-dv-native]::-webkit-scrollbar-thumb { background: var(--dv-muted, #52677b); border-radius: 1rem; }
+[data-dv-native]::-webkit-scrollbar-thumb:hover { background: currentColor; }
+[data-dv-slide] dialog { max-width: min(90vw, 60rem); max-height: 80dvh; color: inherit; background: var(--dv-bg); }
+@media (max-width: 760px) {
+  .dv-stage { overflow-y: auto; }
+  [data-dv-slide] { justify-content: flex-start; align-self: start; height: auto; min-height: 100%; }
+  [data-dv-slide] > * { flex-shrink: 0; }
+  [data-dv-controls] { gap: .25rem; }
+  [data-dv-controls] button { padding: .3rem; font-size: 1rem; }
+  [data-dv-controls] select { max-width: 40vw; }
+}
+@media (forced-colors: active) { [data-dv-native], [data-dv-page] { scrollbar-color: auto; } }
+@media (prefers-reduced-motion: reduce) { [data-dv-deck] *, [data-dv-page] * { animation: none !important; transition: none !important; } }
+@media print { [data-dv-deck], [data-dv-open], [data-dv-chapter], [data-dv-status] { display: none !important; } [data-dv-page] { display: block !important; } }
+
+:root{--paper:#f7f3e9;--ink:#172b3b;--accent:#86431e;--gutter:clamp(1.25rem,8vw,12rem);--page-max:100%;--header-height:6rem;--flow-node:#f7f3e9;--flow-ink:#172b3b;--flow-edge:#86431e}
+html{font-size:clamp(1rem,.625vw + .5rem,1.5rem);scroll-behavior:smooth;scrollbar-color:#657584 #f7f3e9}
+body{margin:0;background:var(--paper);color:var(--ink);font:1rem/1.5 Arial,sans-serif}
+*{box-sizing:border-box}button,input,select{font:inherit}button,a{-webkit-tap-highlight-color:transparent}button{cursor:pointer}a{color:inherit;text-underline-offset:.2em}h1,h2,h3,p,figure,ol,dl{margin:0}p+p{margin-top:.8em}h1,h2,h3{line-height:1.08;letter-spacing:-.035em;text-wrap:balance}h2{font-size:2.5rem}h3{font-size:1.125rem;letter-spacing:-.01em}p{font-size:1rem}strong{font-weight:700}small,figcaption{font-size:.875rem;line-height:1.45}code{font-family:Consolas,monospace;font-weight:600;color:var(--accent);overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:1rem/1.6 Consolas,monospace;margin:0}
+[hidden]{display:none!important}.ops-sr{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}.ops-js-only{display:none}[data-dv-ready] .ops-js-only{display:flex}[data-dv-ready] .ops-explorer>.ops-js-only{display:block}.ops-icon{width:1.25rem;height:1.25rem;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;max-height:2rem}
+.ops-button, .ops-boundaries button,.ops-tabs button,.ops-filters button,.ops-zoom-controls button{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:44px;padding:.55rem .8rem;border:1px solid currentColor;border-radius:6px;background:transparent;color:inherit;font-size:.875rem;text-decoration:none;transition:background-color .15s,color .15s}
+.ops-button:hover,.ops-boundaries button:hover,.ops-filters button:hover,.ops-zoom-controls button:hover{background:color-mix(in srgb,currentColor 10%,transparent)}.ops-primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}.ops-primary:hover{background:#2e495d}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:4px}a:hover{text-decoration-thickness:2px}button:active{transform:translateY(1px)}
+.ops-skip{position:fixed;left:1rem;top:-5rem;z-index:2000;background:var(--ink);color:var(--paper);padding:1rem}.ops-skip:focus{top:1rem}
+.ops-header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:clamp(.5rem,1.2vw,1rem);padding:.8rem clamp(1rem,3vw,3rem);color:#172b3b;background:#f7f3e9;border-bottom:1px solid #b4b5ae}
+.ops-brand-link{display:block;flex:none}.ops-logo{display:block;width:clamp(10rem,17vw,14rem);height:auto;max-height:3rem;object-fit:contain}.ops-nav{display:flex;align-items:center;gap:clamp(.6rem,1.6vw,1.5rem)}.ops-nav a{font-size:.875rem;padding:.5rem .1rem;text-decoration:none;border-bottom:2px solid transparent;min-height:36px}.ops-nav a[aria-current]{border-bottom-color:#86431e}.ops-reading-progress{position:absolute;bottom:-1px;left:0;height:3px;width:100%;background:transparent}.ops-reading-progress span{display:block;height:100%;width:0;background:#b5632f}
+.ops-section{padding-block:clamp(2.5rem,5vw,5rem);scroll-margin-top:calc(var(--header-height) + 1rem)}.ops-inner{padding-inline:var(--gutter);width:100%}.ops-section[data-theme="dark"]{--paper:#172b3b;--ink:#f7f3e9;--accent:#edb48e;--flow-node:#203b50;--flow-ink:#f7f3e9;--flow-edge:#edb48e;background:var(--paper);color:var(--ink);color-scheme:dark}.ops-kicker{font-size:.875rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem}.ops-lede{font-size:1.5rem;line-height:1.3;letter-spacing:-.015em}.ops-hero-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:clamp(2rem,7vw,7rem);align-items:center}.ops-hero-copy h1{font-size:4.7rem;line-height:.98;margin-bottom:clamp(1rem,2vw,2rem)}.ops-hero-copy .ops-lede{margin-bottom:1rem}.ops-hero-copy>.ops-button{margin-top:clamp(1rem,2vw,2rem)}.ops-hero-copy>p:not(.ops-kicker){width:100%}.ops-agenda{border-top:2px solid #b5632f;padding-top:clamp(1rem,2vw,2rem)}.ops-agenda h2{font-size:1.5rem;letter-spacing:-.025em}.ops-agenda ol,.ops-slide-agenda{list-style:none;padding:0;margin:clamp(1rem,2vw,2rem) 0 0}.ops-agenda li,.ops-slide-agenda li{border-top:1px solid #aaa99f}.ops-agenda li:first-child,.ops-slide-agenda li:first-child{border-top:0}.ops-agenda a,.ops-slide-agenda a{display:grid;grid-template-columns:2rem minmax(0,1fr);column-gap:1rem;padding:clamp(.9rem,1.8vw,1.5rem) 0;text-decoration:none}.ops-agenda a>span,.ops-slide-agenda a>span{grid-row:1/3;color:var(--accent);font-size:.875rem}.ops-agenda strong{font-size:1.125rem}.ops-agenda small,.ops-slide-agenda small{margin-top:.35rem}.ops-agenda a:hover strong,.ops-slide-agenda a:hover strong{text-decoration:underline;text-underline-offset:.2em}.ops-overview-note{border-top:1px solid #aaa99f;margin-top:clamp(2rem,4vw,4rem);padding-top:1rem}
+.ops-section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:clamp(1rem,3vw,3rem);margin-bottom:clamp(1.5rem,2.8vw,3rem)}.ops-section-head .ops-button{flex:none}.ops-section-head h2{font-size:2.5rem}.ops-flow-figure{margin-block:clamp(1rem,2vw,2rem)}.ops-flow-art{width:100%}.ops-process-svg{display:block;width:100%;height:auto;max-height:min(45vh,25rem);font-family:Arial,sans-serif}.ops-flow-tall{display:none}.ops-flow-node{fill:var(--flow-node);stroke:var(--flow-ink);stroke-width:2}.ops-flow-edge{fill:none;stroke:var(--flow-edge);stroke-width:3}.ops-node-title{fill:var(--flow-ink);font-size:26px;font-weight:700}.ops-node-detail{fill:var(--flow-ink);font-size:20px}.ops-flow-figure figcaption{text-align:center;color:var(--ink);margin-top:.5rem}.ops-flow-caption{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(1rem,5vw,5rem);align-items:start}.ops-note{border-top:1px solid #617789;padding-top:clamp(1rem,2vw,2rem);margin-top:clamp(1.5rem,3vw,3rem);display:grid;grid-template-columns:minmax(0,.28fr) minmax(0,1fr);gap:clamp(1rem,3vw,3rem)}.ops-note strong{color:var(--accent)}.ops-light-note{display:block;margin-top:clamp(1rem,2vw,2rem)}.ops-light-note p{margin-top:.6rem}
+.ops-configuration-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(2rem,5vw,5rem);align-items:start}.ops-configuration-grid .ops-lede{margin-bottom:1rem}.ops-table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:1rem;line-height:1.45;text-align:left}.ops-table caption{font-size:1.125rem;text-align:left;font-weight:700;padding:0 0 1rem}.ops-table th,.ops-table td{border-bottom:1px solid #869394;vertical-align:top;padding:.75rem .4rem;overflow-wrap:anywhere}.ops-table th{font-weight:700}.ops-table thead{font-size:.875rem}.ops-table th:first-child,.ops-table td:first-child{padding-left:0}.ops-table th:last-child,.ops-table td:last-child{padding-right:0}.ops-table th:nth-child(1){width:27%}.ops-table th:nth-child(2){width:21%}.ops-table th:nth-child(3){width:52%}.ops-table tbody tr:hover,.ops-table tbody tr:focus{background:color-mix(in srgb,currentColor 7%,transparent)}.ops-table tbody tr:focus-visible{outline:2px solid var(--accent);outline-offset:0}.ops-explorer{margin-top:clamp(1.5rem,3vw,3rem);padding:clamp(1rem,2.5vw,2rem);border:1px solid #9b9d93;border-radius:12px;background:color-mix(in srgb,var(--accent) 4%,var(--paper))}.ops-capacity-heading{display:flex;align-items:baseline;gap:.75rem}.ops-counter{font-size:3rem;line-height:1}.ops-capacity-heading>span{font-size:1rem}.ops-slot-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(.2rem,.5vw,.5rem);margin:1rem 0}.ops-slot{height:clamp(.8rem,1.5vw,1.5rem);border:1px solid var(--ink);border-radius:3px;background:transparent}.ops-slot.is-filled{background:var(--ink)}.ops-slot-grid.is-full .ops-slot.is-filled{background:var(--accent)}.ops-explorer label{display:block;font-size:.875rem;font-weight:700}.ops-explorer input{width:100%;min-height:44px;accent-color:var(--accent);margin:0}.ops-boundaries{display:flex;gap:.5rem;flex-wrap:wrap;margin:.25rem 0 .75rem}.ops-admission-result{font-weight:700;color:var(--accent);min-height:1.5em}.ops-small{font-size:1rem}.ops-details{border-top:1px solid #869394;margin-top:clamp(1.5rem,3vw,3rem);padding-top:1rem}.ops-details summary{cursor:pointer;font-weight:700;min-height:44px;padding:.45rem 0}.ops-details>p,.ops-details>pre,.ops-details>div{margin-top:1rem}.ops-details-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(1rem,4vw,4rem)}.ops-details pre{padding:clamp(1rem,2vw,2rem);border:1px solid #869394;border-radius:6px}
+.ops-evidence-grid{display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr);gap:clamp(2rem,6vw,6rem)}.ops-reliability{border-top:3px solid var(--accent);padding-top:clamp(1rem,2vw,2rem)}.ops-reliability .ops-lede{font-size:2rem}.ops-reliability p+p{margin-top:1rem}.ops-filters{gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}.ops-filters [aria-pressed="true"],.ops-tabs [aria-selected="true"]{color:var(--paper);background:var(--ink);border-color:var(--ink)}.ops-evidence-table th:first-child{width:26%}.ops-evidence-table th:nth-child(2){width:auto}.ops-source-notes h3{margin:1.5rem 0 .75rem}.ops-source-list{display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);gap:.75rem clamp(1rem,3vw,3rem);font-size:1rem}.ops-source-list dt{font-weight:700;overflow-wrap:anywhere}.ops-source-list dd{margin:0}.ops-source-notes>.ops-small{margin-top:1.5rem}.ops-footer{display:flex;justify-content:space-between;gap:1rem;padding:clamp(1.25rem,3vw,3rem) var(--gutter);font-size:.875rem}
+.ops-dialog{width:min(94vw,68rem);max-height:90dvh;border:2px solid var(--ink);border-radius:12px;padding:clamp(1rem,2vw,2rem);background:var(--paper);color:var(--ink);overflow:auto;scrollbar-color:var(--ink) transparent}.ops-dialog::backdrop{background:rgb(8 18 27/.75)}.ops-dialog-header{display:flex;justify-content:space-between;gap:1rem;align-items:center}.ops-dialog-header h2{font-size:1.5rem}.ops-zoom-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin-block:1rem}.ops-diagram-window{overflow:auto;max-height:48dvh;min-height:12rem;border:1px solid #879494;touch-action:pan-x pan-y}.ops-diagram-transform{transform-origin:center;transition:transform .15s}.ops-dialog p{margin-top:1rem}
+[data-dv-deck]{--dv-bg:#f7f3e9;--dv-fg:#172b3b;--dv-muted:#40586b;--paper:#f7f3e9;--ink:#172b3b;--accent:#86431e;font:1rem/1.45 Arial,sans-serif}
+[data-dv-deck][data-theme="dark"]{--dv-bg:#172b3b;--dv-fg:#f7f3e9;--dv-muted:#cad6dc;--paper:#172b3b;--ink:#f7f3e9;--accent:#edb48e;--flow-node:#203b50;--flow-ink:#f7f3e9;--flow-edge:#edb48e}
+[data-dv-deck][data-theme="light"]{--flow-node:#f7f3e9;--flow-ink:#172b3b;--flow-edge:#86431e}
+.ops-slide{padding:clamp(1.25rem,3vw,3rem) clamp(1.5rem,5vw,5rem);gap:clamp(.75rem,1.5vh,1.4rem);justify-content:center;overflow:visible}.ops-slide-brand{margin-bottom:auto}.ops-slide-brand .ops-logo{width:clamp(11rem,15vw,14rem);max-height:2.5rem}.ops-slide h1{font-size:4rem;line-height:1}.ops-slide h2{font-size:2.7rem;line-height:1.1}.ops-slide h3{font-size:1.125rem;line-height:1.2}.ops-slide p{font-size:1rem;line-height:1.45}.ops-slide .ops-kicker{font-size:.875rem;margin-bottom:.7rem}.ops-slide-lede{font-size:1.65rem!important;line-height:1.25!important}.ops-slide-title{margin-top:.5rem}.ops-slide-cover-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(2rem,7vw,7rem);align-items:center;margin-block:auto}.ops-slide-cover h1{font-size:4.2rem;margin-bottom:clamp(1rem,2vw,2rem)}.ops-cover-route{border-left:1px solid #748695;padding-left:clamp(1.5rem,3vw,3rem)}.ops-cover-route ol{list-style:none;padding:0;margin:clamp(1rem,2vw,2rem) 0;font-size:1.6rem;line-height:1.2}.ops-cover-route li{padding:.5rem 0}.ops-cover-route li+li{border-top:1px solid #5c7181}.ops-slide-bottom{margin-top:auto;border-top:1px solid #5c7181;padding-top:1rem}.ops-slide-agenda-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:clamp(2rem,7vw,7rem);align-items:center;margin-block:auto}.ops-slide-agenda-grid h2{margin-bottom:1.2rem}.ops-slide-agenda{margin:0}.ops-slide-agenda strong{font-size:1.4rem;line-height:1.25}.ops-slide .ops-flow-figure{margin-block:0}.ops-slide .ops-process-svg{max-height:clamp(180px,30vh,22rem)}.ops-slide-flow-notes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(1.5rem,5vw,5rem);margin-top:.5rem}.ops-slide-flow-notes .ops-button{margin-top:.75rem}.ops-tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.5rem}.ops-tabs button{font-size:.875rem;min-height:44px}.ops-slide-settings-grid{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr);gap:clamp(1.5rem,4vw,4rem);align-items:center}.ops-capacity-stat strong{font-size:6rem;line-height:1;color:var(--accent)}.ops-capacity-stat>p{margin-top:.5rem}.ops-slide .ops-table{font-size:1rem}.ops-slide .ops-table caption{padding-bottom:.5rem}.ops-slide .ops-table td,.ops-slide .ops-table th{padding-block:.5rem}.ops-slide .ops-explorer{margin-top:0}.ops-slide [role="tabpanel"]{margin-block:auto;min-width:0}.ops-slide-evidence-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(1.5rem,5vw,5rem);align-items:start}.ops-status-list{display:grid;gap:clamp(.6rem,1.6vh,1.5rem)}.ops-status-list h3{color:var(--accent);margin-bottom:.4rem}.ops-status-list p{margin:0}.ops-slide-source-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(1.5rem,4vw,4rem);align-items:start}.ops-slide-source-grid h3{color:var(--accent);margin:.5rem 0}.ops-slide-source-grid h3:not(:first-child){margin-top:1.5rem}.ops-slide-source-grid .ops-source-list{grid-template-columns:1fr;gap:.35rem}.ops-slide-source-grid dd{margin-bottom:.4rem}.ops-slide dialog{max-height:90dvh;background:var(--paper);color:var(--ink)}[data-dv-controls]{font-size:.875rem;gap:.5rem;padding:.5rem clamp(.5rem,2vw,2rem)}[data-dv-controls] button,[data-dv-controls] select{font-size:.875rem;min-height:44px}[data-dv-controls] select{background:var(--paper);color:var(--ink);min-width:8rem;max-width:28vw}[data-dv-controls] button:disabled{opacity:.6}
+@media(max-height:850px) and (min-width:761px){.ops-slide{padding-block:clamp(.9rem,2vh,1.5rem);gap:clamp(.4rem,1vh,.75rem)}.ops-slide h1{font-size:3.5rem}.ops-slide h2{font-size:2.3rem}.ops-slide-brand .ops-logo{max-height:2rem}.ops-slide .ops-kicker{margin-bottom:.45rem}.ops-slide-source-grid h3:not(:first-child){margin-top:.8rem}.ops-slide .ops-explorer{padding:clamp(.8rem,1.5vw,1.5rem)}.ops-slide .ops-counter{font-size:2.5rem}.ops-slide .ops-slot-grid{margin:.5rem 0}.ops-slide .ops-source-list{font-size:1rem}.ops-slide .ops-flow-figure figcaption{margin-top:0}}
+@media(max-width:760px){:root{--gutter:clamp(1.25rem,5vw,2.5rem)}.ops-header{padding:.6rem 1rem;gap:.25rem .5rem}.ops-header .ops-logo{width:10rem}.ops-nav{order:3;width:100%;justify-content:space-between;gap:.5rem}.ops-nav a{font-size:.875rem;min-height:36px}.ops-nav-present{font-size:.8125rem;padding:.45rem .55rem;gap:.3rem}.ops-nav-present .ops-icon{width:1rem;height:1rem}.ops-section{padding-block:clamp(2rem,8vw,3.5rem)}.ops-hero-grid,.ops-configuration-grid,.ops-evidence-grid,.ops-details-grid,.ops-slide-cover-grid,.ops-slide-agenda-grid,.ops-slide-settings-grid,.ops-slide-evidence-grid,.ops-slide-source-grid,.ops-slide-flow-notes{grid-template-columns:minmax(0,1fr);gap:clamp(1.5rem,5vw,2.5rem)}.ops-hero-copy h1{font-size:3.4rem}.ops-section-head{display:block}.ops-section-head h2{font-size:2rem}.ops-section-head .ops-button{margin-top:1rem}.ops-lede{font-size:1.4rem}.ops-flow-wide{display:none}.ops-flow-tall{display:block;max-height:none!important;width:100%;height:auto}.ops-flow-caption{grid-template-columns:1fr;gap:1rem}.ops-note{grid-template-columns:1fr;gap:.75rem}.ops-agenda{margin-top:.5rem}.ops-source-list{grid-template-columns:1fr;gap:.5rem}.ops-source-list dd{margin-bottom:.65rem}.ops-footer{display:block}.ops-footer a{display:block;margin-top:.5rem}.ops-slide{padding:clamp(1.25rem,5vw,2.5rem);gap:clamp(1rem,4vw,2rem);height:auto;min-height:100%}.ops-slide h1{font-size:3rem}.ops-slide h2{font-size:2rem}.ops-slide-brand{margin-bottom:0}.ops-slide-title{margin-top:0}.ops-slide-cover-grid,.ops-slide-agenda-grid{margin-block:0}.ops-cover-route{border-left:0;border-top:1px solid #748695;padding:1.5rem 0 0}.ops-cover-route ol{font-size:1.4rem}.ops-slide-lede{font-size:1.5rem!important}.ops-slide [role="tabpanel"]{margin:0}.ops-capacity-stat strong{font-size:4rem}.ops-slide .ops-table{font-size:1rem}.ops-slide .ops-table th:nth-child(1){width:27%}.ops-slide .ops-table th:nth-child(2){width:22%}.ops-slide .ops-table th:nth-child(3){width:51%}.ops-slide .ops-flow-figure{margin:0}.ops-slide-source-grid .ops-source-list{gap:.5rem}.ops-diagram-window{max-height:48dvh}.ops-dialog-header{align-items:flex-start}.ops-dialog-header h2{font-size:1.25rem}[data-dv-controls]{gap:.3rem;padding:.4rem}[data-dv-controls] button span{display:none}[data-dv-controls] button{min-width:38px;padding:.35rem}[data-dv-controls] select{min-width:7rem;max-width:40vw;font-size:.8125rem}[data-dv-controls] .ops-icon{width:1.1rem;height:1.1rem}[data-dv-count]{font-size:.875rem}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+@media(forced-colors:active){.ops-slot.is-filled{background:Highlight}.ops-reading-progress span{background:Highlight}.ops-process-svg{forced-color-adjust:auto}}
+@media print{html{font-size:12pt;scroll-behavior:auto}body{background:#f7f3e9;color:#172b3b;print-color-adjust:exact;-webkit-print-color-adjust:exact}.ops-header,.ops-footer,.ops-agenda,.ops-overview-note,.ops-js-only,.ops-skip,.ops-button,.ops-tabs,.ops-dialog{display:none!important}.ops-section{--paper:#f7f3e9!important;--ink:#172b3b!important;--accent:#86431e!important;--flow-node:#f7f3e9!important;--flow-ink:#172b3b!important;--flow-edge:#86431e!important;background:#f7f3e9!important;color:#172b3b!important;padding:1rem 0;break-before:page}.ops-section:first-child{break-before:auto}.ops-inner{padding:0}.ops-hero-grid,.ops-configuration-grid,.ops-evidence-grid,.ops-details-grid,.ops-flow-caption{display:block}.ops-hero-copy h1{font-size:3rem}.ops-section h2{font-size:2rem}.ops-flow-wide{display:block}.ops-flow-tall{display:none}.ops-process-svg{max-height:none}.ops-section-head{margin:0 0 1rem}.ops-details{content-visibility:visible;margin-top:1rem}.ops-details::details-content{display:block;content-visibility:visible}.ops-details>*{display:block}.ops-details summary{list-style:none}.ops-details summary::marker{content:''}.ops-configuration-grid>div+div{margin-top:1.5rem}.ops-explorer{break-inside:avoid;padding:1rem}.ops-filters{display:none!important}.ops-evidence-table tr[hidden]{display:table-row!important}.ops-table{font-size:1rem}.ops-table tr{break-inside:avoid}.ops-source-list{display:grid;grid-template-columns:1fr 1.5fr}.ops-note{display:block}.ops-note p{margin-top:.5rem}pre{font-size:1rem}.ops-reliability{margin-bottom:1rem}.ops-flow-figure{break-inside:avoid}.ops-reading-progress{display:none}.ops-table caption{font-size:1rem}}
+</style></head><body data-aspect="standard"><div data-dv-page>
+  <a class="ops-skip" href="#overview">Skip to handbook</a>
+  <header class="ops-header">
+    <a class="ops-brand-link" href="#overview" aria-label="Aster Fieldworks, handbook overview"><img class="ops-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNzAiPjxwYXRoIGQ9Ik01IDM1TDMwIDVMNTUgMzVMMzAgNjVaIiBmaWxsPSIjYjU2MzJmIi8+PHRleHQgeD0iNzIiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iIzE3MmIzYiI+QXN0ZXIgRmllbGR3b3JrczwvdGV4dD48L3N2Zz4=" width="400" height="70" alt="Aster Fieldworks"></a>
+    <nav class="ops-nav" aria-label="Handbook sections">
+      <a href="#overview" data-section-link="overview" aria-current="location">Overview</a><a href="#workflow" data-section-link="workflow">Workflow</a><a href="#configuration" data-section-link="configuration">Configuration</a><a href="#evidence" data-section-link="evidence">Evidence</a>
+    </nav>
+    <button class="ops-button ops-nav-present" type="button" data-dv-open><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7Z"/></svg>Presentation Mode</button>
+    <div class="ops-reading-progress" aria-hidden="true"><span></span></div>
+  </header>
+  <main>
+    <section id="overview" data-dv-section="overview" data-theme="light" class="ops-section ops-overview" aria-labelledby="overview-title">
+      <div class="ops-inner">
+        <div class="ops-hero-grid">
+          <div class="ops-hero-copy"><p class="ops-kicker">Field observation handbook</p><h1 id="overview-title">Queue<br>operations</h1><p class="ops-lede">From incoming observations to reviewed, archived records.</p><p>Aster Fieldworks Queue is a synthetic field-observation queue. Its configuration defines retry attempts, admission capacity and timeout.</p><button class="ops-button ops-primary" type="button" data-dv-open><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7Z"/></svg>Presentation Mode</button></div>
+          <aside class="ops-agenda" aria-labelledby="agenda-title"><h2 id="agenda-title">In this handbook</h2><ol><li><a href="#workflow"><span>01</span><strong>Follow the handoffs</strong><small>Observation to archive</small></a></li><li><a href="#configuration"><span>02</span><strong>Inspect the limits</strong><small>Settings and admission boundary</small></a></li><li><a href="#evidence"><span>03</span><strong>Read the evidence</strong><small>Implementation and uncertainty</small></a></li></ol></aside>
+        </div>
+        <p class="ops-overview-note">Current operating values: retry limit <strong>3</strong>, queue capacity <strong>24</strong>, timeout <strong>8 seconds</strong>.</p>
+      </div>
+    </section>
+    <section id="workflow" data-dv-section="workflow" data-theme="dark" class="ops-section" aria-labelledby="workflow-title">
+      <div class="ops-inner">
+        <div class="ops-section-head"><div><p class="ops-kicker">01 / Workflow</p><h2 id="workflow-title">Follow the handoffs</h2></div><button class="ops-button" type="button" data-dv-chapter="workflow"><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7Z"/></svg>Present chapter</button></div>
+        <p class="ops-lede">Observation to queue to analyst to archive</p>
+        <figure class="ops-flow-figure"><div class="ops-flow-art"><svg xmlns="http://www.w3.org/2000/svg" class="ops-process-svg ops-flow-wide" viewBox="0 0 940 260" role="img" aria-labelledby="reading-flow-title reading-flow-desc"><title id="reading-flow-title">Observation to queue to analyst to archive</title><desc id="reading-flow-desc">Incoming observations enter the queue. An analyst reviews them. Approved records are archived. This is the documented workflow; review and archive execution are not implemented in service.py. Reliability unavailable.</desc><defs><marker id="reading-flow-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto" markerUnits="strokeWidth"><path d="M0 0L10 5L0 10Z" fill="var(--flow-edge)"/></marker></defs><path class="ops-flow-edge" data-edge="Observation:Queue" data-start="200,99.0" data-end="260,159.0" d="M200 99.0 C230.0 99.0 230.0 159.0 260 159.0" marker-end="url(#reading-flow-arrow)"><title>Observation to Queue</title></path><path class="ops-flow-edge" data-edge="Queue:Analyst" data-start="440,159.0" data-end="500,99.0" d="M440 159.0 C470.0 159.0 470.0 99.0 500 99.0" marker-end="url(#reading-flow-arrow)"><title>Queue to Analyst</title></path><path class="ops-flow-edge" data-edge="Analyst:Archive" data-start="680,99.0" data-end="740,159.0" d="M680 99.0 C710.0 99.0 710.0 159.0 740 159.0" marker-end="url(#reading-flow-arrow)"><title>Analyst to Archive</title></path><g data-flow-node="Observation"><rect class="ops-flow-node" x="20" y="48" width="180" height="102" rx="12"/><text class="ops-node-title" x="110.0" y="91" text-anchor="middle">Observation</text><text class="ops-node-detail" x="110.0" y="124" text-anchor="middle">Incoming record</text></g><g data-flow-node="Queue"><rect class="ops-flow-node" x="260" y="108" width="180" height="102" rx="12"/><text class="ops-node-title" x="350.0" y="151" text-anchor="middle">Queue</text><text class="ops-node-detail" x="350.0" y="184" text-anchor="middle">Pending review</text></g><g data-flow-node="Analyst"><rect class="ops-flow-node" x="500" y="48" width="180" height="102" rx="12"/><text class="ops-node-title" x="590.0" y="91" text-anchor="middle">Analyst</text><text class="ops-node-detail" x="590.0" y="124" text-anchor="middle">Reviews records</text></g><g data-flow-node="Archive"><rect class="ops-flow-node" x="740" y="108" width="180" height="102" rx="12"/><text class="ops-node-title" x="830.0" y="151" text-anchor="middle">Archive</text><text class="ops-node-detail" x="830.0" y="184" text-anchor="middle">Approved records</text></g></svg><svg xmlns="http://www.w3.org/2000/svg" class="ops-process-svg ops-flow-tall" viewBox="0 0 360 630" role="img" aria-labelledby="reading-flow-mobile-title reading-flow-mobile-desc"><title id="reading-flow-mobile-title">Observation to queue to analyst to archive</title><desc id="reading-flow-mobile-desc">Incoming observations enter the queue. An analyst reviews them. Approved records are archived. This is the documented workflow; review and archive execution are not implemented in service.py. Reliability unavailable.</desc><defs><marker id="reading-flow-mobile-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto" markerUnits="strokeWidth"><path d="M0 0L10 5L0 10Z" fill="var(--flow-edge)"/></marker></defs><path class="ops-flow-edge" data-edge="Observation:Queue" data-start="180.0,122" data-end="180.0,176" d="M180.0 122 L180.0 176" marker-end="url(#reading-flow-mobile-arrow)"><title>Observation to Queue</title></path><path class="ops-flow-edge" data-edge="Queue:Analyst" data-start="180.0,278" data-end="180.0,332" d="M180.0 278 L180.0 332" marker-end="url(#reading-flow-mobile-arrow)"><title>Queue to Analyst</title></path><path class="ops-flow-edge" data-edge="Analyst:Archive" data-start="180.0,434" data-end="180.0,488" d="M180.0 434 L180.0 488" marker-end="url(#reading-flow-mobile-arrow)"><title>Analyst to Archive</title></path><g data-flow-node="Observation"><rect class="ops-flow-node" x="45" y="20" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="63" text-anchor="middle">Observation</text><text class="ops-node-detail" x="180.0" y="96" text-anchor="middle">Incoming record</text></g><g data-flow-node="Queue"><rect class="ops-flow-node" x="45" y="176" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="219" text-anchor="middle">Queue</text><text class="ops-node-detail" x="180.0" y="252" text-anchor="middle">Pending review</text></g><g data-flow-node="Analyst"><rect class="ops-flow-node" x="45" y="332" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="375" text-anchor="middle">Analyst</text><text class="ops-node-detail" x="180.0" y="408" text-anchor="middle">Reviews records</text></g><g data-flow-node="Archive"><rect class="ops-flow-node" x="45" y="488" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="531" text-anchor="middle">Archive</text><text class="ops-node-detail" x="180.0" y="564" text-anchor="middle">Approved records</text></g></svg></div><figcaption>Documented process. The archive receives approved records.</figcaption></figure>
+        <div class="ops-flow-caption"><p>Incoming observations enter the queue. An analyst reviews them, and approved records are archived. No alternate route or rejection loop is specified.</p><button class="ops-button ops-js-only" type="button" data-flow-open="reading-flow-dialog"><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg>Inspect diagram</button></div>
+        <div class="ops-note"><strong>Workflow scope</strong><p>The README describes the process. The supplied service implements retry-value lookup and admission checks; it does not implement analyst review or archiving.</p></div>
+        <dialog class="ops-dialog" id="reading-flow-dialog" aria-labelledby="reading-dialog-title"><div class="ops-dialog-header"><h2 id="reading-dialog-title">Inspect the process</h2><button class="ops-button" type="button" data-flow-close><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>Close</button></div><div class="ops-zoom-controls"><button type="button" data-zoom="in">Zoom in</button><button type="button" data-zoom="out">Zoom out</button><button type="button" data-zoom="reset">Reset view</button><button type="button" data-pan="left">Pan left</button><button type="button" data-pan="right">Pan right</button><button type="button" data-pan="up">Pan up</button><button type="button" data-pan="down">Pan down</button></div><div class="ops-diagram-window" data-dv-native tabindex="0" aria-label="Zoomable process diagram"><div class="ops-diagram-transform"><div class="ops-flow-art"><svg xmlns="http://www.w3.org/2000/svg" class="ops-process-svg ops-flow-wide" viewBox="0 0 940 260" role="img" aria-labelledby="modal-reading-title modal-reading-desc"><title id="modal-reading-title">Observation to queue to analyst to archive</title><desc id="modal-reading-desc">Incoming observations enter the queue. An analyst reviews them. Approved records are archived. This is the documented workflow; review and archive execution are not implemented in service.py. Reliability unavailable.</desc><defs><marker id="modal-reading-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto" markerUnits="strokeWidth"><path d="M0 0L10 5L0 10Z" fill="var(--flow-edge)"/></marker></defs><path class="ops-flow-edge" data-edge="Observation:Queue" data-start="200,99.0" data-end="260,159.0" d="M200 99.0 C230.0 99.0 230.0 159.0 260 159.0" marker-end="url(#modal-reading-arrow)"><title>Observation to Queue</title></path><path class="ops-flow-edge" data-edge="Queue:Analyst" data-start="440,159.0" data-end="500,99.0" d="M440 159.0 C470.0 159.0 470.0 99.0 500 99.0" marker-end="url(#modal-reading-arrow)"><title>Queue to Analyst</title></path><path class="ops-flow-edge" data-edge="Analyst:Archive" data-start="680,99.0" data-end="740,159.0" d="M680 99.0 C710.0 99.0 710.0 159.0 740 159.0" marker-end="url(#modal-reading-arrow)"><title>Analyst to Archive</title></path><g data-flow-node="Observation"><rect class="ops-flow-node" x="20" y="48" width="180" height="102" rx="12"/><text class="ops-node-title" x="110.0" y="91" text-anchor="middle">Observation</text><text class="ops-node-detail" x="110.0" y="124" text-anchor="middle">Incoming record</text></g><g data-flow-node="Queue"><rect class="ops-flow-node" x="260" y="108" width="180" height="102" rx="12"/><text class="ops-node-title" x="350.0" y="151" text-anchor="middle">Queue</text><text class="ops-node-detail" x="350.0" y="184" text-anchor="middle">Pending review</text></g><g data-flow-node="Analyst"><rect class="ops-flow-node" x="500" y="48" width="180" height="102" rx="12"/><text class="ops-node-title" x="590.0" y="91" text-anchor="middle">Analyst</text><text class="ops-node-detail" x="590.0" y="124" text-anchor="middle">Reviews records</text></g><g data-flow-node="Archive"><rect class="ops-flow-node" x="740" y="108" width="180" height="102" rx="12"/><text class="ops-node-title" x="830.0" y="151" text-anchor="middle">Archive</text><text class="ops-node-detail" x="830.0" y="184" text-anchor="middle">Approved records</text></g></svg><svg xmlns="http://www.w3.org/2000/svg" class="ops-process-svg ops-flow-tall" viewBox="0 0 360 630" role="img" aria-labelledby="modal-reading-mobile-title modal-reading-mobile-desc"><title id="modal-reading-mobile-title">Observation to queue to analyst to archive</title><desc id="modal-reading-mobile-desc">Incoming observations enter the queue. An analyst reviews them. Approved records are archived. This is the documented workflow; review and archive execution are not implemented in service.py. Reliability unavailable.</desc><defs><marker id="modal-reading-mobile-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto" markerUnits="strokeWidth"><path d="M0 0L10 5L0 10Z" fill="var(--flow-edge)"/></marker></defs><path class="ops-flow-edge" data-edge="Observation:Queue" data-start="180.0,122" data-end="180.0,176" d="M180.0 122 L180.0 176" marker-end="url(#modal-reading-mobile-arrow)"><title>Observation to Queue</title></path><path class="ops-flow-edge" data-edge="Queue:Analyst" data-start="180.0,278" data-end="180.0,332" d="M180.0 278 L180.0 332" marker-end="url(#modal-reading-mobile-arrow)"><title>Queue to Analyst</title></path><path class="ops-flow-edge" data-edge="Analyst:Archive" data-start="180.0,434" data-end="180.0,488" d="M180.0 434 L180.0 488" marker-end="url(#modal-reading-mobile-arrow)"><title>Analyst to Archive</title></path><g data-flow-node="Observation"><rect class="ops-flow-node" x="45" y="20" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="63" text-anchor="middle">Observation</text><text class="ops-node-detail" x="180.0" y="96" text-anchor="middle">Incoming record</text></g><g data-flow-node="Queue"><rect class="ops-flow-node" x="45" y="176" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="219" text-anchor="middle">Queue</text><text class="ops-node-detail" x="180.0" y="252" text-anchor="middle">Pending review</text></g><g data-flow-node="Analyst"><rect class="ops-flow-node" x="45" y="332" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="375" text-anchor="middle">Analyst</text><text class="ops-node-detail" x="180.0" y="408" text-anchor="middle">Reviews records</text></g><g data-flow-node="Archive"><rect class="ops-flow-node" x="45" y="488" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="531" text-anchor="middle">Archive</text><text class="ops-node-detail" x="180.0" y="564" text-anchor="middle">Approved records</text></g></svg></div></div></div><p>Incoming observations enter the queue. An analyst reviews them. Approved records are archived.</p></dialog>
+      </div>
+    </section>
+    <section id="configuration" data-dv-section="configuration" data-theme="light" class="ops-section" aria-labelledby="configuration-title">
+      <div class="ops-inner">
+        <div class="ops-section-head"><div><p class="ops-kicker">02 / Configuration</p><h2 id="configuration-title">Know the admission boundary</h2></div><button class="ops-button" type="button" data-dv-chapter="configuration"><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7Z"/></svg>Present chapter</button></div>
+        <div class="ops-configuration-grid"><div><p class="ops-lede">Below 24 is admitted.</p><p><code>admitted(queue_size)</code> compares the supplied queue size with capacity. The comparison is strict: <strong>23 is admitted; 24 is not</strong>.</p><p>Try the boundary to see the returned result. This illustrates a function's decision; it does not add an observation to a running service.</p><div class="ops-explorer" data-explorer data-capacity="24">
+      <div class="ops-capacity-heading"><strong class="ops-counter" data-queue-count>23</strong><span>of 24 places in this example</span></div>
+      <div class="ops-slot-grid" aria-hidden="true"><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot "></span></div>
+      <div class="ops-js-only"><label for="reading-size">Queue size</label><input id="reading-size" type="range" min="0" max="26" value="23" step="1" data-queue-input aria-describedby="reading-result">
+      <div class="ops-boundaries"><button type="button" data-size="23">Try 23</button><button type="button" data-size="24">Try 24</button><button type="button" data-size="26">Try 26</button></div></div>
+      <p id="reading-result" class="ops-admission-result" data-queue-result aria-live="polite">Admitted: 23 &lt; 24.</p>
+      <p class="ops-small">Illustrative input to the admission rule. These slots are not live queue measurements.</p></div></div><div><table class="ops-table"><caption>Current configuration</caption><thead><tr><th scope="col">Setting</th><th scope="col">Value</th><th scope="col">What the source shows</th></tr></thead><tbody>
+    <tr tabindex="0"><th scope="row">Retry limit</th><td>3</td><td><code>attempts()</code> returns this value; no retry loop is shown.</td></tr>
+    <tr tabindex="0"><th scope="row">Queue capacity</th><td>24</td><td>Admission requires a supplied size below this limit.</td></tr>
+    <tr tabindex="0"><th scope="row">Timeout</th><td>8 seconds</td><td>Configured; timeout enforcement is not shown.</td></tr></tbody></table><div class="ops-note ops-light-note"><strong>Separate quantities</strong><p>Retries, queue places and seconds use different units. They do not form a comparable performance series.</p></div></div></div>
+        <details class="ops-details"><summary>Admission examples and exact configuration</summary><div class="ops-details-grid"><table class="ops-table"><caption>Results of the configured comparison</caption><thead><tr><th scope="col">Queue size</th><th scope="col">Returned value</th></tr></thead><tbody><tr><td>0</td><td>True</td></tr><tr><td>23</td><td>True</td></tr><tr><td>24</td><td>False</td></tr><tr><td>26</td><td>False</td></tr></tbody></table><pre><code>{
+  &quot;retry_limit&quot;: 3,
+  &quot;queue_capacity&quot;: 24,
+  &quot;timeout_seconds&quot;: 8
+}</code></pre></div></details>
+      </div>
+    </section>
+    <section id="evidence" data-dv-section="evidence" data-theme="dark" class="ops-section" aria-labelledby="evidence-title">
+      <div class="ops-inner">
+        <div class="ops-section-head"><div><p class="ops-kicker">03 / Evidence</p><h2 id="evidence-title">What the source establishes</h2></div><button class="ops-button" type="button" data-dv-chapter="appendix"><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7Z"/></svg>Present chapter</button></div>
+        <div class="ops-evidence-grid"><div class="ops-reliability"><p class="ops-lede">Reliability unavailable.</p><p>No reliability measurement is available. The configured limits do not establish success rate, throughput or observed processing time.</p></div><div><div class="ops-filters ops-js-only" role="group" aria-label="Filter implementation evidence"><button type="button" data-status-filter="all" aria-pressed="true">All</button><button type="button" data-status-filter="implemented" aria-pressed="false">Implemented</button><button type="button" data-status-filter="documented" aria-pressed="false">Documented</button><button type="button" data-status-filter="unavailable" aria-pressed="false">Unavailable</button></div><table class="ops-table ops-evidence-table"><caption>Implementation evidence</caption><thead><tr><th scope="col">Status</th><th scope="col">Observed in the source</th></tr></thead><tbody><tr data-status="implemented" tabindex="0"><th scope="row">Implemented</th><td>Load the sibling JSON config at module import; return the retry limit; compare queue size with capacity.</td></tr><tr data-status="documented" tabindex="0"><th scope="row">Documented</th><td>Observation, queue, analyst review and approved-record archiving.</td></tr><tr data-status="unavailable" tabindex="0"><th scope="row">Not shown</th><td>Retry execution, timeout enforcement, queue mutation, input validation, review and archive execution.</td></tr></tbody></table></div></div>
+        <details class="ops-details"><summary>Read the implemented service</summary><p>The module loads <code>config.json</code> once on import. The admission function compares its input directly; it does not validate whether the value is a nonnegative integer.</p><pre><code>import json
+from pathlib import Path
+CONFIG = json.loads(Path(__file__).with_name(&quot;config.json&quot;).read_text())
+def attempts():
+    return CONFIG[&quot;retry_limit&quot;]
+def admitted(queue_size):
+    return queue_size &lt; CONFIG[&quot;queue_capacity&quot;]
+</code></pre></details>
+        <details class="ops-details"><summary>Source notes and handbook maintenance</summary><div class="ops-source-notes"><h3>Source authority</h3><p>Current code and configuration are authoritative. The supplied handbook snapshot reports retry limit 2; the current value is <strong>3</strong>. Its queue capacity of 24 and timeout of 8 seconds remain consistent with configuration.</p><h3>Generator ownership</h3><p><code>build.py</code> owns <code>docs/handbooks/html/operations.html</code>. The handbook keeps the <code>overview</code> and <code>workflow</code> anchors.</p><h3>Source index</h3><dl class="ops-source-list"><dt>README.md</dt><dd>Purpose, documented flow, reliability and source authority.</dd><dt>service.py</dt><dd>Configuration loading and the two implemented functions.</dd><dt>config.json</dt><dd>Retry limit, capacity and timeout values.</dd><dt>build.py; docs/handbooks/README.md</dt><dd>Native generator and stable handbook path and anchors.</dd><dt>Handbook snapshot</dt><dd>Historical retry value and unchanged capacity and timeout.</dd><dt>brand.json; brand.svg; brief.md</dt><dd>Aster Fieldworks identity, original vector mark and visual direction.</dd></dl><p class="ops-small">Brand artwork: supplied Aster Fieldworks vector. Process graphic: authored from the documented workflow. No additional imagery.</p></div></details>
+      </div>
+    </section>
+  </main>
+  <footer class="ops-footer">Aster Fieldworks / Queue operations <a href="#overview">Back to overview</a></footer>
+</div>
+<div data-dv-deck data-theme="dark" hidden>
+  <div class="dv-stage">
+    <section class="ops-slide ops-slide-cover" data-dv-slide="cover" data-title="Queue operations" data-theme="dark">
+      <div class="ops-slide-brand"><img class="ops-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNzAiPjxwYXRoIGQ9Ik01IDM1TDMwIDVMNTUgMzVMMzAgNjVaIiBmaWxsPSIjYjU2MzJmIi8+PHRleHQgeD0iNzIiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2Y3ZjNlOSI+QXN0ZXIgRmllbGR3b3JrczwvdGV4dD48L3N2Zz4=" width="400" height="70" alt="Aster Fieldworks"></div>
+      <div class="ops-slide-cover-grid"><div><p class="ops-kicker">Field observation handbook</p><h1>Queue operations</h1><p class="ops-slide-lede">From observation to reviewed record.</p></div><div class="ops-cover-route"><p>A synthetic field-observation queue.</p><ol><li>Observation</li><li>Queue</li><li>Analyst</li><li>Archive</li></ol><p>Approved records are archived.</p></div></div>
+      <p class="ops-slide-bottom">Configured limits shape admission. Reliability remains unavailable.</p>
+    </section>
+    <section class="ops-slide" data-dv-slide="agenda" data-title="Agenda" data-theme="light" hidden>
+      <div class="ops-slide-brand"><img class="ops-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNzAiPjxwYXRoIGQ9Ik01IDM1TDMwIDVMNTUgMzVMMzAgNjVaIiBmaWxsPSIjYjU2MzJmIi8+PHRleHQgeD0iNzIiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iIzE3MmIzYiI+QXN0ZXIgRmllbGR3b3JrczwvdGV4dD48L3N2Zz4=" width="400" height="70" alt="Aster Fieldworks"></div>
+      <div class="ops-slide-agenda-grid"><div><p class="ops-kicker">Agenda</p><h2>Three questions<br>to guide the work</h2><p>Follow the workflow, inspect its limits, then read the evidence behind it.</p></div><ol class="ops-slide-agenda"><li><a href="#slide-3"><span>01</span><strong>Where does an observation go?</strong><small>Workflow / slide 3</small></a></li><li><a href="#slide-4"><span>02</span><strong>When is it admitted?</strong><small>Configuration / slide 4</small></a></li><li><a href="#slide-5"><span>03</span><strong>What is established?</strong><small>Evidence and sources / slide 5</small></a></li></ol></div>
+    </section>
+    <section class="ops-slide" data-dv-slide="workflow" data-title="Workflow" data-theme="dark" hidden>
+      <div class="ops-slide-brand"><img class="ops-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNzAiPjxwYXRoIGQ9Ik01IDM1TDMwIDVMNTUgMzVMMzAgNjVaIiBmaWxsPSIjYjU2MzJmIi8+PHRleHQgeD0iNzIiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2Y3ZjNlOSI+QXN0ZXIgRmllbGR3b3JrczwvdGV4dD48L3N2Zz4=" width="400" height="70" alt="Aster Fieldworks"></div>
+      <div class="ops-slide-title"><p class="ops-kicker">01 / Workflow</p><h2>Follow the handoffs</h2></div>
+      <figure class="ops-flow-figure"><div class="ops-flow-art"><svg xmlns="http://www.w3.org/2000/svg" class="ops-process-svg ops-flow-wide" viewBox="0 0 940 260" role="img" aria-labelledby="slide-flow-title slide-flow-desc"><title id="slide-flow-title">Observation to queue to analyst to archive</title><desc id="slide-flow-desc">Incoming observations enter the queue. An analyst reviews them. Approved records are archived. This is the documented workflow; review and archive execution are not implemented in service.py. Reliability unavailable.</desc><defs><marker id="slide-flow-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto" markerUnits="strokeWidth"><path d="M0 0L10 5L0 10Z" fill="var(--flow-edge)"/></marker></defs><path class="ops-flow-edge" data-edge="Observation:Queue" data-start="200,99.0" data-end="260,159.0" d="M200 99.0 C230.0 99.0 230.0 159.0 260 159.0" marker-end="url(#slide-flow-arrow)"><title>Observation to Queue</title></path><path class="ops-flow-edge" data-edge="Queue:Analyst" data-start="440,159.0" data-end="500,99.0" d="M440 159.0 C470.0 159.0 470.0 99.0 500 99.0" marker-end="url(#slide-flow-arrow)"><title>Queue to Analyst</title></path><path class="ops-flow-edge" data-edge="Analyst:Archive" data-start="680,99.0" data-end="740,159.0" d="M680 99.0 C710.0 99.0 710.0 159.0 740 159.0" marker-end="url(#slide-flow-arrow)"><title>Analyst to Archive</title></path><g data-flow-node="Observation"><rect class="ops-flow-node" x="20" y="48" width="180" height="102" rx="12"/><text class="ops-node-title" x="110.0" y="91" text-anchor="middle">Observation</text><text class="ops-node-detail" x="110.0" y="124" text-anchor="middle">Incoming record</text></g><g data-flow-node="Queue"><rect class="ops-flow-node" x="260" y="108" width="180" height="102" rx="12"/><text class="ops-node-title" x="350.0" y="151" text-anchor="middle">Queue</text><text class="ops-node-detail" x="350.0" y="184" text-anchor="middle">Pending review</text></g><g data-flow-node="Analyst"><rect class="ops-flow-node" x="500" y="48" width="180" height="102" rx="12"/><text class="ops-node-title" x="590.0" y="91" text-anchor="middle">Analyst</text><text class="ops-node-detail" x="590.0" y="124" text-anchor="middle">Reviews records</text></g><g data-flow-node="Archive"><rect class="ops-flow-node" x="740" y="108" width="180" height="102" rx="12"/><text class="ops-node-title" x="830.0" y="151" text-anchor="middle">Archive</text><text class="ops-node-detail" x="830.0" y="184" text-anchor="middle">Approved records</text></g></svg><svg xmlns="http://www.w3.org/2000/svg" class="ops-process-svg ops-flow-tall" viewBox="0 0 360 630" role="img" aria-labelledby="slide-flow-mobile-title slide-flow-mobile-desc"><title id="slide-flow-mobile-title">Observation to queue to analyst to archive</title><desc id="slide-flow-mobile-desc">Incoming observations enter the queue. An analyst reviews them. Approved records are archived. This is the documented workflow; review and archive execution are not implemented in service.py. Reliability unavailable.</desc><defs><marker id="slide-flow-mobile-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto" markerUnits="strokeWidth"><path d="M0 0L10 5L0 10Z" fill="var(--flow-edge)"/></marker></defs><path class="ops-flow-edge" data-edge="Observation:Queue" data-start="180.0,122" data-end="180.0,176" d="M180.0 122 L180.0 176" marker-end="url(#slide-flow-mobile-arrow)"><title>Observation to Queue</title></path><path class="ops-flow-edge" data-edge="Queue:Analyst" data-start="180.0,278" data-end="180.0,332" d="M180.0 278 L180.0 332" marker-end="url(#slide-flow-mobile-arrow)"><title>Queue to Analyst</title></path><path class="ops-flow-edge" data-edge="Analyst:Archive" data-start="180.0,434" data-end="180.0,488" d="M180.0 434 L180.0 488" marker-end="url(#slide-flow-mobile-arrow)"><title>Analyst to Archive</title></path><g data-flow-node="Observation"><rect class="ops-flow-node" x="45" y="20" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="63" text-anchor="middle">Observation</text><text class="ops-node-detail" x="180.0" y="96" text-anchor="middle">Incoming record</text></g><g data-flow-node="Queue"><rect class="ops-flow-node" x="45" y="176" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="219" text-anchor="middle">Queue</text><text class="ops-node-detail" x="180.0" y="252" text-anchor="middle">Pending review</text></g><g data-flow-node="Analyst"><rect class="ops-flow-node" x="45" y="332" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="375" text-anchor="middle">Analyst</text><text class="ops-node-detail" x="180.0" y="408" text-anchor="middle">Reviews records</text></g><g data-flow-node="Archive"><rect class="ops-flow-node" x="45" y="488" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="531" text-anchor="middle">Archive</text><text class="ops-node-detail" x="180.0" y="564" text-anchor="middle">Approved records</text></g></svg></div><figcaption>Observation to queue to analyst to archive</figcaption></figure>
+      <div class="ops-slide-flow-notes"><p>Incoming observations enter the queue. An analyst reviews them. <strong>Approved records are archived.</strong></p><div><p>Documented process; analyst review and archiving are not implemented in the supplied service.</p><button class="ops-button" type="button" data-flow-open="slide-flow-dialog"><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg>Inspect diagram</button></div></div>
+      <dialog class="ops-dialog" id="slide-flow-dialog" aria-labelledby="slide-dialog-title"><div class="ops-dialog-header"><h2 id="slide-dialog-title">Inspect the process</h2><button class="ops-button" type="button" data-flow-close><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>Close</button></div><div class="ops-zoom-controls"><button type="button" data-zoom="in">Zoom in</button><button type="button" data-zoom="out">Zoom out</button><button type="button" data-zoom="reset">Reset view</button><button type="button" data-pan="left">Pan left</button><button type="button" data-pan="right">Pan right</button><button type="button" data-pan="up">Pan up</button><button type="button" data-pan="down">Pan down</button></div><div class="ops-diagram-window" data-dv-native tabindex="0" aria-label="Zoomable process diagram"><div class="ops-diagram-transform"><div class="ops-flow-art"><svg xmlns="http://www.w3.org/2000/svg" class="ops-process-svg ops-flow-wide" viewBox="0 0 940 260" role="img" aria-labelledby="modal-slide-title modal-slide-desc"><title id="modal-slide-title">Observation to queue to analyst to archive</title><desc id="modal-slide-desc">Incoming observations enter the queue. An analyst reviews them. Approved records are archived. This is the documented workflow; review and archive execution are not implemented in service.py. Reliability unavailable.</desc><defs><marker id="modal-slide-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto" markerUnits="strokeWidth"><path d="M0 0L10 5L0 10Z" fill="var(--flow-edge)"/></marker></defs><path class="ops-flow-edge" data-edge="Observation:Queue" data-start="200,99.0" data-end="260,159.0" d="M200 99.0 C230.0 99.0 230.0 159.0 260 159.0" marker-end="url(#modal-slide-arrow)"><title>Observation to Queue</title></path><path class="ops-flow-edge" data-edge="Queue:Analyst" data-start="440,159.0" data-end="500,99.0" d="M440 159.0 C470.0 159.0 470.0 99.0 500 99.0" marker-end="url(#modal-slide-arrow)"><title>Queue to Analyst</title></path><path class="ops-flow-edge" data-edge="Analyst:Archive" data-start="680,99.0" data-end="740,159.0" d="M680 99.0 C710.0 99.0 710.0 159.0 740 159.0" marker-end="url(#modal-slide-arrow)"><title>Analyst to Archive</title></path><g data-flow-node="Observation"><rect class="ops-flow-node" x="20" y="48" width="180" height="102" rx="12"/><text class="ops-node-title" x="110.0" y="91" text-anchor="middle">Observation</text><text class="ops-node-detail" x="110.0" y="124" text-anchor="middle">Incoming record</text></g><g data-flow-node="Queue"><rect class="ops-flow-node" x="260" y="108" width="180" height="102" rx="12"/><text class="ops-node-title" x="350.0" y="151" text-anchor="middle">Queue</text><text class="ops-node-detail" x="350.0" y="184" text-anchor="middle">Pending review</text></g><g data-flow-node="Analyst"><rect class="ops-flow-node" x="500" y="48" width="180" height="102" rx="12"/><text class="ops-node-title" x="590.0" y="91" text-anchor="middle">Analyst</text><text class="ops-node-detail" x="590.0" y="124" text-anchor="middle">Reviews records</text></g><g data-flow-node="Archive"><rect class="ops-flow-node" x="740" y="108" width="180" height="102" rx="12"/><text class="ops-node-title" x="830.0" y="151" text-anchor="middle">Archive</text><text class="ops-node-detail" x="830.0" y="184" text-anchor="middle">Approved records</text></g></svg><svg xmlns="http://www.w3.org/2000/svg" class="ops-process-svg ops-flow-tall" viewBox="0 0 360 630" role="img" aria-labelledby="modal-slide-mobile-title modal-slide-mobile-desc"><title id="modal-slide-mobile-title">Observation to queue to analyst to archive</title><desc id="modal-slide-mobile-desc">Incoming observations enter the queue. An analyst reviews them. Approved records are archived. This is the documented workflow; review and archive execution are not implemented in service.py. Reliability unavailable.</desc><defs><marker id="modal-slide-mobile-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto" markerUnits="strokeWidth"><path d="M0 0L10 5L0 10Z" fill="var(--flow-edge)"/></marker></defs><path class="ops-flow-edge" data-edge="Observation:Queue" data-start="180.0,122" data-end="180.0,176" d="M180.0 122 L180.0 176" marker-end="url(#modal-slide-mobile-arrow)"><title>Observation to Queue</title></path><path class="ops-flow-edge" data-edge="Queue:Analyst" data-start="180.0,278" data-end="180.0,332" d="M180.0 278 L180.0 332" marker-end="url(#modal-slide-mobile-arrow)"><title>Queue to Analyst</title></path><path class="ops-flow-edge" data-edge="Analyst:Archive" data-start="180.0,434" data-end="180.0,488" d="M180.0 434 L180.0 488" marker-end="url(#modal-slide-mobile-arrow)"><title>Analyst to Archive</title></path><g data-flow-node="Observation"><rect class="ops-flow-node" x="45" y="20" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="63" text-anchor="middle">Observation</text><text class="ops-node-detail" x="180.0" y="96" text-anchor="middle">Incoming record</text></g><g data-flow-node="Queue"><rect class="ops-flow-node" x="45" y="176" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="219" text-anchor="middle">Queue</text><text class="ops-node-detail" x="180.0" y="252" text-anchor="middle">Pending review</text></g><g data-flow-node="Analyst"><rect class="ops-flow-node" x="45" y="332" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="375" text-anchor="middle">Analyst</text><text class="ops-node-detail" x="180.0" y="408" text-anchor="middle">Reviews records</text></g><g data-flow-node="Archive"><rect class="ops-flow-node" x="45" y="488" width="270" height="102" rx="12"/><text class="ops-node-title" x="180.0" y="531" text-anchor="middle">Archive</text><text class="ops-node-detail" x="180.0" y="564" text-anchor="middle">Approved records</text></g></svg></div></div></div><p>Incoming observations enter the queue. An analyst reviews them. Approved records are archived. No alternate route or rejection loop is specified.</p></dialog>
+    </section>
+    <section class="ops-slide" data-dv-slide="configuration" data-title="Configuration" data-theme="light" hidden>
+      <div class="ops-slide-brand"><img class="ops-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNzAiPjxwYXRoIGQ9Ik01IDM1TDMwIDVMNTUgMzVMMzAgNjVaIiBmaWxsPSIjYjU2MzJmIi8+PHRleHQgeD0iNzIiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iIzE3MmIzYiI+QXN0ZXIgRmllbGR3b3JrczwvdGV4dD48L3N2Zz4=" width="400" height="70" alt="Aster Fieldworks"></div>
+      <div class="ops-slide-title"><p class="ops-kicker">02 / Configuration</p><h2>Know the admission boundary</h2></div>
+      <div class="ops-tabs" role="tablist" aria-label="Configuration detail"><button type="button" role="tab" id="settings-tab" aria-controls="settings-panel" aria-selected="true" data-tab="settings">1. Settings</button><button type="button" role="tab" id="admission-tab" aria-controls="admission-panel" aria-selected="false" tabindex="-1" data-tab="admission">2. Admission explorer</button></div>
+      <div id="settings-panel" role="tabpanel" aria-labelledby="settings-tab" data-panel="settings"><div class="ops-slide-settings-grid"><div class="ops-capacity-stat"><strong>24</strong><p>Queue capacity</p><p>Below 24 is admitted.<br>At 24, admission returns false.</p></div><div><table class="ops-table"><caption>Current configuration</caption><thead><tr><th scope="col">Setting</th><th scope="col">Value</th><th scope="col">What the source shows</th></tr></thead><tbody>
+    <tr tabindex="0"><th scope="row">Retry limit</th><td>3</td><td><code>attempts()</code> returns this value; no retry loop is shown.</td></tr>
+    <tr tabindex="0"><th scope="row">Queue capacity</th><td>24</td><td>Admission requires a supplied size below this limit.</td></tr>
+    <tr tabindex="0"><th scope="row">Timeout</th><td>8 seconds</td><td>Configured; timeout enforcement is not shown.</td></tr></tbody></table></div></div></div>
+      <div id="admission-panel" role="tabpanel" aria-labelledby="admission-tab" data-panel="admission" hidden><div class="ops-slide-settings-grid"><div><p class="ops-slide-lede">A strict comparison.</p><p><code>admitted(queue_size)</code> returns <code>queue_size &lt; 24</code>.</p><p>At 23: True.<br>At 24: False.<br>At 26: False.</p><p>This input is an illustration, not live queue telemetry or an enqueue operation.</p></div><div class="ops-explorer" data-explorer data-capacity="24">
+      <div class="ops-capacity-heading"><strong class="ops-counter" data-queue-count>23</strong><span>of 24 places in this example</span></div>
+      <div class="ops-slot-grid" aria-hidden="true"><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot is-filled"></span><span class="ops-slot "></span></div>
+      <div class="ops-js-only"><label for="slide-size">Queue size</label><input id="slide-size" type="range" min="0" max="26" value="23" step="1" data-queue-input aria-describedby="slide-result">
+      <div class="ops-boundaries"><button type="button" data-size="23">Try 23</button><button type="button" data-size="24">Try 24</button><button type="button" data-size="26">Try 26</button></div></div>
+      <p id="slide-result" class="ops-admission-result" data-queue-result aria-live="polite">Admitted: 23 &lt; 24.</p>
+      <p class="ops-small">Illustrative input to the admission rule. These slots are not live queue measurements.</p></div></div></div>
+    </section>
+    <section class="ops-slide" data-dv-slide="appendix" data-title="Evidence and sources" data-theme="dark" hidden>
+      <div class="ops-slide-brand"><img class="ops-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNzAiPjxwYXRoIGQ9Ik01IDM1TDMwIDVMNTUgMzVMMzAgNjVaIiBmaWxsPSIjYjU2MzJmIi8+PHRleHQgeD0iNzIiIHk9IjQ1IiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2Y3ZjNlOSI+QXN0ZXIgRmllbGR3b3JrczwvdGV4dD48L3N2Zz4=" width="400" height="70" alt="Aster Fieldworks"></div>
+      <div class="ops-slide-title"><p class="ops-kicker">03 / Evidence and appendix</p><h2>What the source establishes</h2></div>
+      <div class="ops-tabs" role="tablist" aria-label="Evidence detail"><button type="button" role="tab" id="status-tab" aria-controls="status-panel" aria-selected="true" data-tab="status">1. Implementation</button><button type="button" role="tab" id="sources-tab" aria-controls="sources-panel" aria-selected="false" tabindex="-1" data-tab="sources">2. Sources and maintenance</button></div>
+      <div id="status-panel" role="tabpanel" aria-labelledby="status-tab" data-panel="status"><div class="ops-slide-evidence-grid"><div class="ops-reliability"><p class="ops-slide-lede">Reliability unavailable.</p><p>No reliability measurement is available. Settings do not establish success rate, throughput or observed processing time.</p></div><div class="ops-status-list"><div><h3>Implemented</h3><p>Load sibling JSON config once on module import. Return the retry limit. Compare queue size with capacity.</p></div><div><h3>Documented</h3><p>Observation, queue, analyst review and approved-record archiving. No alternate route or rejection loop is specified.</p></div><div><h3>Not shown</h3><p>Retry execution, timeout enforcement, queue mutation, input validation, review and archive execution.</p></div></div></div></div>
+      <div id="sources-panel" role="tabpanel" aria-labelledby="sources-tab" data-panel="sources" hidden><div class="ops-slide-source-grid"><div><h3>Current source wins</h3><p>The handbook snapshot says retry limit 2. Current code/config is authoritative: <strong>3</strong>. Capacity 24 and timeout 8 seconds remain consistent.</p><h3>Native ownership</h3><p><code>build.py</code> owns <code>docs/handbooks/html/operations.html</code>. Keep <code>overview</code> and <code>workflow</code> anchors.</p></div><dl class="ops-source-list"><dt>README.md</dt><dd>Purpose, flow, reliability and authority.</dd><dt>service.py / config.json</dt><dd>Implemented functions and current values.</dd><dt>build.py / handbook README / snapshot</dt><dd>Generation, URL, anchors and historic values.</dd><dt>brand.json / brand.svg / brief.md</dt><dd>Aster Fieldworks identity, original vector and visual direction. No additional imagery.</dd></dl></div></div>
+    </section>
+  </div>
+  <nav data-dv-controls aria-label="Presentation controls"><button type="button" data-dv-prev aria-label="Previous slide"><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 4l-8 8 8 8"/></svg><span>Previous</span></button><span data-dv-count aria-live="polite">1 / 5</span><button type="button" data-dv-next aria-label="Next slide"><span>Next</span><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4l8 8-8 8"/></svg></button><label class="ops-sr" for="slide-picker">Choose slide</label><select id="slide-picker" data-dv-picker></select><button type="button" data-dv-replay aria-label="Replay animation"><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/></svg><span>Replay</span></button><button type="button" data-dv-fullscreen aria-label="Toggle fullscreen"><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg><span>Fullscreen</span></button><button type="button" data-dv-exit aria-label="Exit presentation"><svg class="ops-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg><span>Exit</span></button></nav>
+</div>
+<div data-dv-status class="ops-sr" role="status" aria-live="polite"></div><script>/* Offline presentation lifecycle for retained, independently authored views. */
+(() => {
+  'use strict';
+  const page = document.querySelector('[data-dv-page]');
+  const deck = document.querySelector('[data-dv-deck]');
+  if (!page || !deck) return;
+  const slides = Array.from(deck.querySelectorAll('[data-dv-slide]'));
+  const controls = deck.querySelector('[data-dv-controls]');
+  const count = deck.querySelector('[data-dv-count]');
+  const picker = deck.querySelector('[data-dv-picker]');
+  const status = document.querySelector('[data-dv-status]');
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const events = new AbortController();
+  const signal = events.signal;
+  let active = false, index = 0, generation = 0, origin = null;
+  let scroll = 0, readingURL = location.href, oldOverflow = '';
+  let wasFullscreen = false, keepFitted = false, touch = null;
+  let fullscreenExitPending = null;
+  let animations = [];
+  let readingAnimations = [];
+  const nativeInput = 'input,textarea,select,button,a,[contenteditable]:not([contenteditable="false"]),[data-dv-native],dialog[open]';
+  const on = (target, event, callback, options = {}) =>
+    target.addEventListener(event, callback, { ...options, signal });
+  const announce = message => { if (status) status.textContent = message; };
+  const focusables = () => Array.from(deck.querySelectorAll('button,a[href],input,select,textarea,[tabindex]'))
+    .filter(el => !el.disabled && el.tabIndex >= 0 && !el.closest('[hidden],[inert]') && el.getClientRects().length);
+
+  function stopMotion() {
+    animations.forEach(animation => animation.cancel());
+    animations = [];
+    slides.forEach(slide => slide.dispatchEvent(new CustomEvent('dv:deactivate')));
+  }
+
+  function play() {
+    stopMotion();
+    if (!active || document.hidden) return;
+    const slide = slides[index];
+    slide.dispatchEvent(new CustomEvent('dv:activate', { detail: { reducedMotion: motion.matches } }));
+    if (motion.matches) return;
+    slide.querySelectorAll('[data-dv-animate]').forEach(el => {
+      const step = Math.max(0, Number(el.dataset.dvStep) || 0);
+      const delay = el.dataset.dvAnimate === 'process' ? step * 130 : 0;
+      const mark = el.hasAttribute('data-dv-mark');
+      const frames = mark
+        ? [{ clipPath: 'inset(0 100% 0 0)', opacity: 0 }, { clipPath: 'inset(0 0 0 0)', opacity: 1 }]
+        : [{ opacity: 0 }, { opacity: 1 }];
+      animations.push(el.animate(frames, { duration: 550, delay, fill: 'both', easing: 'ease-out' }));
+    });
+  }
+
+  function fit() {
+    if (controls) deck.style.setProperty('--dv-controls-height', `${controls.getBoundingClientRect().height}px`);
+  }
+
+  function show(next, history = true) {
+    if (!active || !Number.isInteger(next)) return;
+    index = Math.max(0, Math.min(slides.length - 1, next));
+    slides.forEach((slide, i) => {
+      slide.hidden = i !== index;
+      slide.inert = i !== index;
+      slide.setAttribute('aria-hidden', String(i !== index));
+    });
+    deck.dataset.theme = slides[index].dataset.theme || 'light';
+    count.textContent = `${index + 1} / ${slides.length}`;
+    if (picker) picker.value = String(index);
+    const previous = deck.querySelector('[data-dv-prev]');
+    const nextButton = deck.querySelector('[data-dv-next]');
+    if (previous) previous.disabled = index === 0;
+    if (nextButton) nextButton.disabled = index === slides.length - 1;
+    if (history && location.hash !== `#slide-${index + 1}`)
+      window.history.pushState(null, '', `#slide-${index + 1}`);
+    const heading = slides[index].querySelector('h1,h2,h3');
+    if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
+    play();
+    fit();
+  }
+
+  async function fullscreen() {
+    if (!deck.requestFullscreen || !active) return;
+    const request = generation;
+    try {
+      if (fullscreenExitPending) await fullscreenExitPending;
+      if (request !== generation || !active) return;
+      await deck.requestFullscreen();
+      if (request !== generation || !active) {
+        if (document.fullscreenElement === deck && !active) await document.exitFullscreen();
+        return;
+      }
+      wasFullscreen = document.fullscreenElement === deck;
+      fit();
+    } catch (_) {
+      if (active) announce('Fullscreen unavailable. Presentation remains available in this window.');
+    }
+  }
+
+  function open(next = 0, userGesture = false, history = true) {
+    if (!Number.isInteger(next)) { announce('Invalid presentation target.'); return; }
+    if (!active) {
+      generation += 1;
+      origin = document.activeElement;
+      scroll = window.scrollY;
+      readingURL = location.hash.startsWith('#slide-') ? location.href.split('#')[0] : location.href;
+      oldOverflow = document.documentElement.style.overflow;
+      active = true;
+      deck.hidden = false;
+      deck.inert = false;
+      page.inert = true;
+      page.setAttribute('aria-hidden', 'true');
+      readingAnimations = page.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running');
+      readingAnimations.forEach(animation => animation.pause());
+      page.hidden = true;
+      page.dispatchEvent(new CustomEvent('dv:deactivate'));
+      document.documentElement.style.overflow = 'hidden';
+    }
+    show(next, history);
+    if (userGesture) void fullscreen();
+  }
+
+  function close(history = true) {
+    if (!active) return;
+    generation += 1;
+    const closingGeneration = generation;
+    active = false;
+    wasFullscreen = false;
+    keepFitted = false;
+    const fullscreenExit = fullscreenExitPending || (document.fullscreenElement === deck
+      ? document.exitFullscreen().catch(() => {}) : null);
+    fullscreenExitPending = fullscreenExit;
+    stopMotion();
+    deck.querySelectorAll('dialog[open]').forEach(dialog => dialog.close());
+    deck.hidden = true;
+    deck.inert = true;
+    page.inert = false;
+    page.hidden = false;
+    page.removeAttribute('aria-hidden');
+    readingAnimations.forEach(animation => animation.play());
+    readingAnimations = [];
+    page.dispatchEvent(new CustomEvent('dv:activate', { detail: { reducedMotion: motion.matches } }));
+    document.documentElement.style.overflow = oldOverflow;
+    if (history) window.history.replaceState(null, '', readingURL);
+    const restoreReading = () => {
+      if (fullscreenExitPending === fullscreenExit) fullscreenExitPending = null;
+      if (active) {
+        if (!deck.contains(document.activeElement))
+          slides[index].querySelector('h1,h2,h3')?.focus({ preventScroll: true });
+        return;
+      }
+      if (generation !== closingGeneration) return;
+      window.scrollTo(0, scroll);
+      if (origin && origin.isConnected) origin.focus({ preventScroll: true });
+    };
+    if (fullscreenExit) void fullscreenExit.then(restoreReading);
+    else restoreReading();
+  }
+
+  function fromHash() {
+    const match = /^#slide-([1-9]\d*)$/.exec(location.hash);
+    if (match && Number(match[1]) <= slides.length) open(Number(match[1]) - 1, false, false);
+    else {
+      if (active) close(false);
+      if (location.hash.startsWith('#slide-')) announce('Unknown slide. The reading page remains available.');
+    }
+  }
+
+  if (!slides.length || !controls || !count) {
+    announce('Presentation is unavailable: the retained storyboard is empty or incomplete.');
+    return;
+  }
+  deck.setAttribute('role', 'dialog');
+  deck.setAttribute('aria-modal', 'true');
+  deck.setAttribute('aria-label', 'Presentation');
+  deck.inert = true;
+  slides.forEach((slide, i) => { if (!slide.id) slide.id = `slide-${i + 1}`; });
+  document.documentElement.dataset.dvReady = 'true';
+  if (picker) slides.forEach((slide, i) => {
+    const option = document.createElement('option');
+    option.value = String(i);
+    option.textContent = `${i + 1}. ${slide.dataset.title || slide.querySelector('h1,h2,h3')?.textContent || 'Slide'}`;
+    picker.append(option);
+  });
+  on(document, 'click', event => {
+    const trigger = event.target.closest('[data-dv-open],[data-dv-chapter]');
+    if (!trigger || trigger.closest('[inert]')) return;
+    if (trigger.hasAttribute('data-dv-open')) open(0, true);
+    else {
+      const target = slides.findIndex(slide => slide.dataset.dvSlide === trigger.dataset.dvChapter);
+      if (target >= 0) open(target, true);
+      else announce('This chapter has no presentation target.');
+    }
+  });
+  on(deck, 'click', event => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    if (button.hasAttribute('data-dv-exit')) close();
+    if (button.hasAttribute('data-dv-next')) show(index + 1);
+    if (button.hasAttribute('data-dv-prev')) show(index - 1);
+    if (button.hasAttribute('data-dv-replay')) play();
+    if (button.hasAttribute('data-dv-fullscreen')) {
+      if (document.fullscreenElement === deck) {
+        keepFitted = true;
+        void document.exitFullscreen().catch(() => { keepFitted = false; });
+      } else void fullscreen();
+    }
+  });
+  if (picker) on(picker, 'change', () => show(Number(picker.value)));
+  on(document, 'keydown', event => {
+    if (!active || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return;
+    const nested = deck.querySelector('dialog[open]');
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      if (nested && document.fullscreenElement !== deck) nested.close();
+      else close();
+      return;
+    }
+    if (nested) return;
+    if (event.key === 'Tab') {
+      const items = focusables();
+      const current = items.indexOf(document.activeElement);
+      if (items.length && (current < 0 || (event.shiftKey && current === 0) || (!event.shiftKey && current === items.length - 1))) {
+        event.preventDefault();
+        items[event.shiftKey ? items.length - 1 : 0].focus();
+      }
+      return;
+    }
+    if (event.target.closest(nativeInput)) return;
+    const delta = { ArrowRight: 1, ArrowDown: 1, PageDown: 1, ' ': 1, ArrowLeft: -1, ArrowUp: -1, PageUp: -1 }[event.key];
+    if (delta) { event.preventDefault(); show(index + delta); }
+    if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault(); show(event.key === 'Home' ? 0 : slides.length - 1);
+    }
+  });
+  on(deck, 'pointerdown', event => {
+    touch = event.pointerType === 'touch' && !event.target.closest(nativeInput)
+      ? { x: event.clientX, y: event.clientY, id: event.pointerId } : null;
+  });
+  on(deck, 'pointerup', event => {
+    if (!touch || event.pointerId !== touch.id) return;
+    const dx = event.clientX - touch.x, dy = event.clientY - touch.y;
+    touch = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 2) show(index + (dx < 0 ? 1 : -1));
+  });
+  on(deck, 'pointercancel', () => { touch = null; });
+  on(document, 'fullscreenchange', () => {
+    if (fullscreenExitPending) { fit(); return; }
+    if (document.fullscreenElement === deck) wasFullscreen = true;
+    else if (wasFullscreen) {
+      wasFullscreen = false;
+      if (keepFitted) keepFitted = false;
+      else close();
+    }
+    fit();
+  });
+  on(window, 'hashchange', fromHash);
+  on(window, 'popstate', fromHash);
+  on(window, 'resize', fit);
+  on(document, 'visibilitychange', () => document.hidden ? stopMotion() : play());
+  on(motion, 'change', play);
+  const resize = new ResizeObserver(fit);
+  resize.observe(controls);
+  window.NexusDualView = Object.freeze({
+    open: next => open(next), close, next: () => show(index + 1), previous: () => show(index - 1), replay: play,
+    snapshot: () => ({ active, index, count: slides.length, animations: animations.length, fullscreen: document.fullscreenElement === deck }),
+    destroy: () => { close(); events.abort(); resize.disconnect(); delete document.documentElement.dataset.dvReady; }
+  });
+  fromHash();
+})();
+
+/* Project interactions; build.py remains the sole generator. */
+(() => {
+  'use strict';
+  const page = document.querySelector('[data-dv-page]');
+  const header = document.querySelector('.ops-header');
+  const sections = [...document.querySelectorAll('[data-dv-section]')];
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  let readingActive = true;
+  const updateReading = () => {
+    if (!readingActive) return;
+    const offset = header.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--header-height', `${offset}px`);
+    let active = sections[0];
+    for (const section of sections) if (section.getBoundingClientRect().top <= offset + 70) active = section;
+    document.querySelectorAll('[data-section-link]').forEach(link => {
+      if (link.dataset.sectionLink === active.id) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+    const available = document.documentElement.scrollHeight - innerHeight;
+    header.querySelector('.ops-reading-progress span').style.width = `${available > 0 ? Math.max(0,Math.min(100,scrollY/available*100)) : 0}%`;
+  };
+  window.addEventListener('scroll', updateReading, {passive:true});
+  new ResizeObserver(updateReading).observe(header);
+  page.addEventListener('dv:deactivate', () => { readingActive = false; });
+  page.addEventListener('dv:activate', () => { readingActive = true; requestAnimationFrame(updateReading); });
+  updateReading();
+
+  document.querySelectorAll('[data-explorer]').forEach(explorer => {
+    const input = explorer.querySelector('[data-queue-input]');
+    const cap = Number(explorer.dataset.capacity);
+    const update = () => {
+      const size = Number(input.value), admitted = size < cap;
+      explorer.dataset.admitted = String(admitted);
+      explorer.querySelector('[data-queue-count]').textContent = String(size);
+      explorer.querySelector('[data-queue-result]').textContent = admitted ? `Admitted: ${size} < ${cap}.` : `Not admitted: ${size} is at or above ${cap}.`;
+      explorer.querySelector('.ops-slot-grid').classList.toggle('is-full', !admitted);
+      explorer.querySelectorAll('.ops-slot').forEach((slot,index)=>slot.classList.toggle('is-filled', index < Math.min(size,cap)));
+      explorer.querySelectorAll('[data-size]').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.size)===size)));
+    };
+    input.addEventListener('input',update);
+    explorer.querySelectorAll('[data-size]').forEach(button=>button.addEventListener('click',()=>{input.value=button.dataset.size;update();}));
+    update();
+  });
+
+  document.querySelectorAll('.ops-tabs').forEach(tabs => {
+    const buttons = [...tabs.querySelectorAll('[data-tab]')];
+    const slide = tabs.closest('[data-dv-slide]');
+    const select = button => {
+      buttons.forEach(item=>{item.setAttribute('aria-selected',String(item===button));item.tabIndex=item===button?0:-1;});
+      slide.querySelectorAll('[data-panel]').forEach(panel=>{panel.hidden=panel.dataset.panel!==button.dataset.tab;});
+      slide.dataset.activeState=button.dataset.tab;
+    };
+    buttons.forEach((button,index)=>{
+      button.addEventListener('click',()=>select(button));
+      button.addEventListener('keydown',event=>{
+        let target;
+        if(event.key==='ArrowRight')target=(index+1)%buttons.length;
+        if(event.key==='ArrowLeft')target=(index-1+buttons.length)%buttons.length;
+        if(event.key==='Home')target=0;
+        if(event.key==='End')target=buttons.length-1;
+        if(target===undefined)return;
+        event.preventDefault();event.stopPropagation();select(buttons[target]);buttons[target].focus();
+      });
+    });
+    slide.addEventListener('dv:activate',()=>select(buttons[0]));
+    select(buttons[0]);
+  });
+
+  document.querySelectorAll('[data-status-filter]').forEach(button=>button.addEventListener('click',()=>{
+    const status=button.dataset.statusFilter;
+    document.querySelectorAll('[data-status-filter]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+    document.querySelectorAll('.ops-evidence-table [data-status]').forEach(row=>{row.hidden=status!=='all'&&row.dataset.status!==status;});
+  }));
+
+  document.querySelectorAll('.ops-dialog').forEach(dialog=>{
+    let zoom=1,x=0,y=0,invoker=null;
+    const transform=dialog.querySelector('.ops-diagram-transform');
+    const paint=()=>{transform.style.transform=`translate(${x}px,${y}px) scale(${zoom})`;dialog.dataset.zoom=String(zoom);dialog.dataset.pan=`${x},${y}`;};
+    document.querySelectorAll(`[data-flow-open="${dialog.id}"]`).forEach(button=>button.addEventListener('click',()=>{
+      invoker=button;zoom=1;x=0;y=0;paint();dialog.showModal();dialog.querySelector('[data-flow-close]').focus();
+    }));
+    dialog.querySelector('[data-flow-close]').addEventListener('click',()=>dialog.close());
+    dialog.addEventListener('cancel',event=>{event.preventDefault();dialog.close();});
+    dialog.addEventListener('close',()=>{if(invoker&&invoker.checkVisibility())invoker.focus({preventScroll:true});});
+    dialog.querySelectorAll('[data-zoom]').forEach(button=>button.addEventListener('click',()=>{
+      if(button.dataset.zoom==='reset'){zoom=1;x=0;y=0;}
+      else zoom=Math.max(1,Math.min(3,zoom+(button.dataset.zoom==='in'?.25:-.25)));
+      paint();
+    }));
+    dialog.querySelectorAll('[data-pan]').forEach(button=>button.addEventListener('click',()=>{
+      const direction=button.dataset.pan;
+      x+=direction==='left'?-40:direction==='right'?40:0;
+      y+=direction==='up'?-40:direction==='down'?40:0;
+      paint();
+    }));
+  });
+
+  const processSlide=document.querySelector('[data-dv-slide="workflow"]');
+  let pulses=[];
+  const stop=()=>{pulses.forEach(animation=>animation.cancel());pulses=[];};
+  processSlide.addEventListener('dv:deactivate',stop);
+  processSlide.addEventListener('dv:activate',()=>{
+    stop();if(motion.matches||document.hidden)return;
+    processSlide.querySelectorAll('.ops-flow-figure [data-edge]').forEach((edge,index)=>{
+      pulses.push(edge.animate([{strokeWidth:3},{strokeWidth:6},{strokeWidth:3}],{duration:650,delay:(index%3)*180,easing:'ease-out'}));
+    });
+  });
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+  motion.addEventListener('change',()=>{if(motion.matches)stop();});
+})();
+</script><!-- COVERAGE {"coverage": "comprehensive", "logical_slide_ceiling": 5, "units": [{"id": "identity", "source": "README.md", "fact": "Aster Fieldworks Queue is a synthetic field-observation queue", "section": "overview", "slide": "cover"}, {"id": "flow1", "source": "README.md", "fact": "Incoming observations enter the queue", "section": "workflow", "slide": "workflow"}, {"id": "flow2", "source": "README.md", "fact": "An analyst reviews queued observations", "section": "workflow", "slide": "workflow"}, {"id": "flow3", "source": "README.md", "fact": "Approved records are archived", "section": "workflow", "slide": "workflow"}, {"id": "retry", "source": "config.json", "fact": "retry_limit=3", "section": "configuration", "slide": "configuration", "state": "settings"}, {"id": "capacity", "source": "config.json", "fact": "queue_capacity=24", "section": "configuration", "slide": "configuration", "state": "settings"}, {"id": "timeout", "source": "config.json", "fact": "timeout_seconds=8", "section": "configuration", "slide": "configuration", "state": "settings"}, {"id": "attempts", "source": "service.py", "fact": "attempts() returns CONFIG[retry_limit]", "section": "configuration", "slide": "configuration", "state": "settings"}, {"id": "admission", "source": "service.py", "fact": "admitted(queue_size) returns queue_size < CONFIG[queue_capacity]", "section": "configuration", "slide": "configuration", "state": "admission"}, {"id": "loader", "source": "service.py", "fact": "JSON configuration is loaded from the sibling config.json at import time", "section": "evidence", "slide": "appendix", "state": "status"}, {"id": "code-scope", "source": "service.py", "fact": "No retry loop, timeout enforcement, input validation, review or archive implementation is shown", "section": "evidence", "slide": "appendix", "state": "status"}, {"id": "reliability", "source": "README.md", "fact": "No reliability measurement is available", "section": "evidence", "slide": "appendix", "state": "status"}, {"id": "authority", "source": "README.md", "fact": "Current code/config is authoritative", "section": "evidence", "slide": "appendix", "state": "sources"}, {"id": "stale-retry", "source": "docs/handbooks/html/operations.html (preserved snapshot)", "fact": "Snapshot retry 2 is stale; capacity 24 and timeout 8 remain current", "section": "evidence", "slide": "appendix", "state": "sources"}, {"id": "generator", "source": "build.py and docs/handbooks/README.md", "fact": "Native build.py owns docs/handbooks/html/operations.html and preserves overview/workflow anchors", "section": "evidence", "slide": "appendix", "state": "sources"}, {"id": "brand", "source": "brand.json and brand.svg", "fact": "Aster Fieldworks brand, Arial, paper/ink/copper and original vector contours", "section": "overview", "slide": "cover"}, {"id": "brief", "source": "brief.md", "fact": "Editorial hierarchy, alternating reading themes, mixed deck themes, balanced interaction, five-slide ceiling", "section": "overview", "slide": "agenda", "disposition": "Applied design constraint; retained in design record"}], "diagram": {"source": "README.md", "classification": "process authored from explicit prose", "confidence": "high", "nodes": ["Observation", "Queue", "Analyst", "Archive"], "edges": [["Observation", "Queue"], ["Queue", "Analyst"], ["Analyst", "Archive"]], "qualification": "Only approved records proceed to Archive; no rejection loop is specified"}, "visual_accounting": [{"source": "brand.svg", "status": "rendered", "classification": "decorative brand lockup", "detail": "Unchanged viewBox and path; permitted ink-only dark variant"}], "extractor_exclusions": [{"path": "docs/handbooks/html/operations.html", "reason": "Generated HTML is outside the installed recursive extractor's supported source formats; preserved and parsed separately for exact-byte parity and stale-fact accounting"}], "omitted_facts": []} --></body></html>

@@ -1,0 +1,141 @@
+{
+  "schema_version": 2,
+  "title": "How installation preserves ownership",
+  "sources": [
+    {
+      "path": "docs/handbooks/_sources/distribution/source.md",
+      "format": "markdown",
+      "title": "How installation preserves ownership"
+    }
+  ],
+  "sections": [
+    {
+      "id": "route",
+      "heading": "From installer to adapter",
+      "source_index": 0,
+      "blocks": [
+        {
+          "id": "route-text",
+          "type": "paragraph",
+          "text": "Both installer entry points prepare the bundle and invoke platform integration logic. The Python integration runner selects the requested platform and scope. A shared adapter translates the catalog into that platform's native file shape."
+        }
+      ],
+      "fragment": "docs/handbooks/_sources/distribution/route-composition.html"
+    },
+    {
+      "id": "shapes",
+      "heading": "Three delivery shapes",
+      "source_index": 0,
+      "blocks": [
+        {
+          "id": "shapes-text",
+          "type": "paragraph",
+          "text": "flatten_skills drops the catalog category level for hosts that read skills/name/SKILL.md. commands_to_skills creates skill-shaped command wrappers. commands_to_slash emits command files in the selected native style. The catalog stays organized for maintainers."
+        }
+      ],
+      "fragment": "docs/handbooks/_sources/distribution/shapes-composition.html"
+    },
+    {
+      "id": "identity",
+      "heading": "Names remain unambiguous",
+      "source_index": 0,
+      "blocks": [
+        {
+          "id": "identity-text",
+          "type": "paragraph",
+          "text": "The catalog adapter collects only directories that contain SKILL.md. A leftover empty directory therefore does not reserve a skill name and suppress a legitimate command wrapper. A real skill name takes precedence over a same-name synthesized wrapper."
+        }
+      ],
+      "fragment": "docs/handbooks/_sources/distribution/identity-composition.html"
+    },
+    {
+      "id": "ownership",
+      "heading": "Generated and user-owned files differ",
+      "source_index": 0,
+      "blocks": [
+        {
+          "id": "ownership-text",
+          "type": "paragraph",
+          "text": "Owned-file writing consults the installation manifest. It can repair an artifact created by Nexus-Hub while preserving a file authored by the user. Some derived catalog materialization paths synchronize on byte difference and track their output; do not assume every copy path has identical overwrite behavior."
+        }
+      ],
+      "fragment": "docs/handbooks/_sources/distribution/ownership-composition.html"
+    },
+    {
+      "id": "verification",
+      "heading": "Inspect outcomes, then test behavior",
+      "source_index": 0,
+      "blocks": [
+        {
+          "id": "verification-text",
+          "type": "paragraph",
+          "text": "Adapters return file actions and track managed paths. Unchanged bytes can remain unchanged on a second run. Inspect reported actions and actual installed files, then exercise the capability in its host. A successful file copy alone is not proof of discovery or runtime behavior."
+        }
+      ],
+      "fragment": "docs/handbooks/_sources/distribution/verification-composition.html"
+    }
+  ],
+  "presentation": {
+    "enabled": true,
+    "theme": "mixed",
+    "depth": "balanced",
+    "initial_slide": 1,
+    "slide_budget": 5,
+    "theme_sequence": [
+      "dark",
+      "light",
+      "dark",
+      "light",
+      "dark"
+    ],
+    "slides": [
+      {
+        "id": "route",
+        "source_ids": [
+          "route"
+        ],
+        "composition": "statement"
+      },
+      {
+        "id": "shapes",
+        "source_ids": [
+          "shapes"
+        ],
+        "composition": "process"
+      },
+      {
+        "id": "identity",
+        "source_ids": [
+          "identity"
+        ],
+        "composition": "statement"
+      },
+      {
+        "id": "ownership",
+        "source_ids": [
+          "ownership"
+        ],
+        "composition": "process"
+      },
+      {
+        "id": "verification",
+        "source_ids": [
+          "verification"
+        ],
+        "composition": "statement"
+      }
+    ]
+  },
+  "design": {
+    "layout": "standard",
+    "reading_themes": [
+      "dark",
+      "light",
+      "dark",
+      "light",
+      "dark"
+    ],
+    "stylesheet": "docs/handbooks/_sources/distribution/design.css",
+    "brief": "Editorial technical handbook with large numbered chapters and a restrained midnight/blue palette. Preserve the complete explanation in reading view and one clear idea per presentation slide."
+  }
+}

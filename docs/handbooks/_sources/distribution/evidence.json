@@ -1,0 +1,45 @@
+{
+  "snapshot": {
+    "entry_sha256": "87e477916b7b387fa4f81d344e38aac4066e92bdf48477732f5bd91bf53bde3b",
+    "inputs": {
+      "docs/handbooks/_sources/distribution/model.json": "f63af1e8e6a20de8c8473515f2bc3bdbad52a21344a36c425142d13e2ba04237",
+      "docs/handbooks/_sources/distribution/source.md": "e78e24ee80f54094b1cdbc648442fdae2543baa9ac195afe18fbf64fe620851b",
+      "docs/handbooks/_sources/distribution/design.css": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24",
+      "scripts/installer.ps1": "3dadb25167b2f0d0ce6df031bc97a154c4d741e19443d0bab3e4caefa691cd96",
+      "scripts/installer.sh": "d0b2bd1d75b4aa0308617c4fe53f6426d2d67faa44e22e3a0d61f12e7b77d466",
+      "scripts/lib/integrations/runner.py": "7912fa31727da6bb9bf3877b3c68d9972d491f7f9cb96010d2a93acabd221833",
+      "scripts/lib/integrations/_catalog_adapters.py": "3d92a49b0f0338461e6e029bd5301abc5cbce7451ac4e58014357ae998536de9",
+      "scripts/lib/integrations/_owned.py": "aaeae3a0fe420ecabd4d5f863257454bc966e707d97e0fba4e7bba2ebc761f64",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "5c1525156ed9875703791c9f3293970356e64e8ec6b5de3c0c37904232bacea2",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "14e52768f4510fdc736bf08b1ae800ccdc0c47731a507bdf2d049e8ddbd3a67a",
+      "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js": "336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6",
+      "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d",
+      "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35",
+      "docs/handbooks/_sources/distribution/route-composition.html": "349e1382529a541ee001f589b96194205c6e0854037bae2d240f54749b6d1cb3",
+      "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
+      "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
+      "docs/handbooks/_sources/distribution/ownership-composition.html": "31df6a101328862f4e525a8b79cec45cb531d3404a8c97a108b48fca4ff231e3",
+      "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779"
+    },
+    "output_sha256": "7954761932c412573cc0bbc7623f61fca6228f46d486774f6883133f6c6d2a8e"
+  },
+  "checks": {
+    "content": {
+      "status": "pass",
+      "evidence": "docs/releases/v4/v4.11/development/interactive-handbooks/phase-6-content-review.md",
+      "evidence_sha256": "0bf746d75065778f5adccca0442dcac07d847fe8e816e470a4f223d7b020c819"
+    },
+    "build": {
+      "status": "pass",
+      "evidence": "docs/releases/v4/v4.11/development/interactive-handbooks/phase-6-build-evidence.json",
+      "evidence_sha256": "0d96f1b172acb89ce7107d19eae4cd535a936d4283b0a4326262da1900b3d0bb"
+    },
+    "rendered": {
+      "status": "pass",
+      "evidence": "docs/releases/v4/v4.11/development/interactive-handbooks/phase-7-distribution-rendered.json",
+      "evidence_sha256": "36f0c044ba3b54d79ef4a0a88f1f9c1df421e774e8fee1dbeeaf30a7e3d4769c",
+      "browser": "Chromium 151.0.7922.34",
+      "output_sha256": "7954761932c412573cc0bbc7623f61fca6228f46d486774f6883133f6c6d2a8e"
+    }
+  }
+}

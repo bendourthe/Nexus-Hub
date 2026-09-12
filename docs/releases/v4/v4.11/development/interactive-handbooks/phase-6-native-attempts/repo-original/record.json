@@ -1,0 +1,9 @@
+{
+  "case": "repo",
+  "artifact": "first-build.html",
+  "sha256": "5f15fefe9c8411ae18d198973d9d3d349154e706d1025741735d58585cecedfe",
+  "first_build_verdict": "non-pass",
+  "final_invocation_verdict": "non-pass; 2100-second timeout",
+  "operator_artifact_repairs": 0,
+  "raw_first_findings_sha256": "f94e4ee5759f4d0d390b7f854ef54db85ef96b31b5a465030e256769208a97e1"
+}

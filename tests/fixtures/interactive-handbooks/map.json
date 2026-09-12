@@ -1,0 +1,78 @@
+{
+  "synthetic": true,
+  "coordinate_system": "local illustrative grid, not geographic",
+  "regions": [
+    {
+      "id": "region-1",
+      "label": "Region 1",
+      "x": 1,
+      "y": 0
+    },
+    {
+      "id": "region-2",
+      "label": "Region 2",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "id": "region-3",
+      "label": "Region 3",
+      "x": 3,
+      "y": 0
+    },
+    {
+      "id": "region-4",
+      "label": "Region 4",
+      "x": 0,
+      "y": 1
+    },
+    {
+      "id": "region-5",
+      "label": "Region 5",
+      "x": 1,
+      "y": 1
+    },
+    {
+      "id": "region-6",
+      "label": "Region 6",
+      "x": 2,
+      "y": 1
+    },
+    {
+      "id": "region-7",
+      "label": "Region 7",
+      "x": 3,
+      "y": 1
+    },
+    {
+      "id": "region-8",
+      "label": "Region 8",
+      "x": 0,
+      "y": 2
+    },
+    {
+      "id": "region-9",
+      "label": "Region 9",
+      "x": 1,
+      "y": 2
+    },
+    {
+      "id": "region-10",
+      "label": "Region 10",
+      "x": 2,
+      "y": 2
+    },
+    {
+      "id": "region-11",
+      "label": "Region 11",
+      "x": 3,
+      "y": 2
+    },
+    {
+      "id": "region-12",
+      "label": "Region 12",
+      "x": 0,
+      "y": 3
+    }
+  ]
+}

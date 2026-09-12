@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: open; seeded 2026-09-08 from post-v4.8.0 work. The v4.8 ledger is finalized, so findings after that release land here rather than reopening it.
-**Last updated**: 2026-09-08 (v4.9.0 Phase 7 qualification in progress)
+**Last updated**: 2026-09-10 (v4.9.1 Phase 6 native authoring gate at 1 of 3)
 
 ## Open Items - found 2026-09-08 during post-v4.8.0 follow-up
 
@@ -106,6 +106,7 @@ The advisory model-prompting check used the native Codex CLI's current enumerati
 | DF-3 | Submodule classification | Phase 1 corrective implementation | Each in-scope gitlink binds child HEAD, dirty and untracked state; incomplete/external metadata fails. |
 | DF-4 | Windows containment primitives | Phase 1 corrective implementation | Native directory handles deny rename during operations, with identity checks before content publication; no process assurance is claimed. |
 
+
 ## Resolved during this follow-up
 
 - **The intermittent org-CLI failure was a Windows directory-rename race, now fixed** (carried in as v4.8 `WN-I`, org-CLI half, and briefly tracked here as `BG-1`). It arrived as a test that failed twice on a DIFFERENT test each time, never reproduced in isolation (12 consecutive clean runs of the file, 470 passing for the whole directory), and passed on both CI test jobs. Four candidate causes were ruled out first: the `PYTHONUTF8` decoding defect that explained the PowerShell half (that file was already hardened), load (it failed inside a 4-second single-file run), order randomization (no such plugin is installed), and cross-suite pollution (1319 hook tests immediately before left the suspects passing).
@@ -123,4 +124,5 @@ The advisory model-prompting check used the native Codex CLI's current enumerati
 
 MT-2 and QG-1 are resolved by [PR 190](https://github.com/bendourthe/Nexus-Hub/pull/190): Windows filesystem and Unicode selections passed, Linux tests and all three operating-system installer legs passed, and the corrected merge tree was integrated at `bd2c8968`. All 28 applicable checks passed; the unrelated Presentify job skipped. Post-merge smoke and provenance passed in run 34289027085. Their descriptions above preserve the pre-publication evidence boundary.
 
-The separately owned platform follow-up is included in this release: Copilot new-install defaults use the documented string value, and Antigravity 2 workflows use the documented directory. Existing user settings and old workflow files are retained. The benchmark remains informational with native host attempts unavailable; the ignored private cleanup residue and prompting-profile limitations remain open. The interactive-handbooks plan remains queued at 0/7 phases and 0/31 tasks.
+The separately owned platform follow-up is included in this release: Copilot new-install defaults use the documented string value, and Antigravity 2 workflows use the documented directory. Existing user settings and old workflow files are retained. The benchmark remains informational with native host attempts unavailable; the ignored private cleanup residue and prompting-profile limitations remain open. The interactive-handbooks plan was renumbered to v4.11.0 and its ledger moved to [v4.11 known gaps](../v4.11/known-gaps.md); it stands at 6 of 7 phases and 21 of 31 tasks, with Phase 7 open. The count recorded here was 0/7 and is corrected rather than deleted, because this line is what a reader of the v4.9 cycle would otherwise still believe.
+

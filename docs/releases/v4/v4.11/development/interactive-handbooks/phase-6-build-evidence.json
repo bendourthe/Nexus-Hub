@@ -1,0 +1,37 @@
+{
+  "status": "pass",
+  "handbooks": [
+    {
+      "id": "overview",
+      "command": [
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "docs/handbooks/_sources/overview/model.json",
+        "--out",
+        "docs/handbooks/overview.html",
+        "--root",
+        "."
+      ],
+      "build_exit": 0,
+      "check_exit": 0,
+      "rebuild_identical": true,
+      "output_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "build_record_sha256": "b4c937bfae63c257e235f26a5e8735e40d68f03a4d8b9802285704113b8ff2a7"
+    },
+    {
+      "id": "distribution",
+      "command": [
+        "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+        "docs/handbooks/_sources/distribution/model.json",
+        "--out",
+        "docs/handbooks/distribution.html",
+        "--root",
+        "."
+      ],
+      "build_exit": 0,
+      "check_exit": 0,
+      "rebuild_identical": true,
+      "output_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "build_record_sha256": "d50c4df0b120c4174903eb07381b6c8e9fcb0684bfe24311a4f514b5f2e6a263"
+    }
+  ]
+}

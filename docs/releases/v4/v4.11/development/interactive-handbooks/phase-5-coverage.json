@@ -1,0 +1,12 @@
+{
+  "catalog\\skills\\documentation\\technical-documentation\\scripts\\check_handbooks.py": {
+    "covered_lines": 142,
+    "num_statements": 167,
+    "percent_covered": 85.02994011976048,
+    "percent_covered_display": "85",
+    "missing_lines": 25,
+    "excluded_lines": 0,
+    "percent_statements_covered": 85.02994011976048,
+    "percent_statements_covered_display": "85"
+  }
+}

@@ -470,14 +470,19 @@ def _render_table(block: dict) -> str:
     return "".join(parts)
 
 
-def _render_annotated_figure(uri: str, alt: str, annotations: list, caption: str) -> str:
+def _render_annotated_figure(
+    uri: str, alt: str, annotations: list, caption: str
+) -> str:
     """Recreate an annotated figure: the base image plus a registered overlay
     layer (regions positioned by image-relative percentage coords), a legend,
     and a CSS-only view-original toggle. Offline, no JS (see the overlay-
     recreation pattern in references/figure-reconstruction.md part 5)."""
-    toggle_id = "figorig-" + hashlib.md5(
-        json.dumps(annotations, sort_keys=True).encode("utf-8")
-    ).hexdigest()[:10]
+    toggle_id = (
+        "figorig-"
+        + hashlib.md5(
+            json.dumps(annotations, sort_keys=True).encode("utf-8")
+        ).hexdigest()[:10]
+    )
     regions: list[str] = []
     legend: list[tuple[str, str | None]] = []
     for annotation in annotations:
@@ -693,10 +698,22 @@ def main(argv: list | None = None) -> int:
     parser.add_argument(
         "--layout",
         choices=sorted(ASPECTS),
-        default=DEFAULT_LAYOUT,
-        help="Output aspect / canvas: 'full' (edge-to-edge, page-max 100%), "
+        default=None,
+        help="Output aspect / canvas: 'full' (edge-to-edge, page-max 100%%), "
         "'standard' (centered column, the default), or 'portrait' (narrow "
         "reading column). Sets data-aspect and the injected --page-max/--gutter.",
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Read-only retained-handbook freshness check.",
+    )
+    parser.add_argument(
+        "--root", type=Path, help="Root containing retained sources and output."
+    )
+    parser.add_argument(
+        "--expected-output-sha256",
+        help="Expected current hash when deliberately replacing an unowned HTML.",
     )
     args = parser.parse_args(argv)
 
@@ -704,8 +721,45 @@ def main(argv: list | None = None) -> int:
     if not model_path.is_file():
         print(f"Error: content model not found: {model_path}", file=sys.stderr)
         return 2
-    with model_path.open(encoding="utf-8") as handle:
-        model: dict[str, Any] = json.load(handle)
+    try:
+        with model_path.open(encoding="utf-8") as handle:
+            model: dict[str, Any] = json.load(handle)
+        if not isinstance(model, dict):
+            raise TypeError("content model must be an object")
+    except (ValueError, TypeError, OSError) as error:
+        print(f"Error: {error}", file=sys.stderr)
+        return 2
+    if "presentation" in model or args.check:
+        from dual_view import assemble
+
+        try:
+            if args.layout and args.layout != model.get("design", {}).get(
+                "layout", DEFAULT_LAYOUT
+            ):
+                raise ValueError("Retain --layout in design.layout before assembly")
+            if (
+                args.theme
+                or (args.title and args.title != model.get("title"))
+                or args.template != str(DEFAULT_TEMPLATE)
+            ):
+                raise ValueError(
+                    "Retain title, theme and authored fragments in the model before assembly"
+                )
+            record = assemble(
+                model_path,
+                Path(args.out),
+                root=args.root,
+                check=args.check,
+                expected_output=args.expected_output_sha256,
+            )
+        except (ValueError, TypeError, KeyError, OSError) as error:
+            print(f"Error: {error}", file=sys.stderr)
+            return 2
+        print(
+            f"{'Verified' if args.check else 'Built'} retained handbook: {record['output_sha256']}",
+            file=sys.stderr,
+        )
+        return 0
     if int(model.get("schema_version", 1)) not in (1, 2):
         print(
             f"Error: unsupported content-model schema_version "
@@ -724,7 +778,9 @@ def main(argv: list | None = None) -> int:
     theme = load_theme(Path(args.theme) if args.theme else None)
     title = args.title or model.get("title", "Presentation")
 
-    output = build_html(model, theme, template_text, title, args.layout)
+    output = build_html(
+        model, theme, template_text, title, args.layout or DEFAULT_LAYOUT
+    )
     assert_no_external(output)
 
     out_path = Path(args.out)

@@ -1,0 +1,5 @@
+{
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "New-Object : Retrieving the COM class factory for component with CLSID {91493441-5A91-11CF-8700-00AA0060263B} failed \r\ndue to the following error: 80070520 A specified logon session does not exist. It may already have been terminated. \r\n(Exception from HRESULT: 0x80070520).\r\nAt line:1 char:169\r\n+ ... ) } catch { $app=New-Object -ComObject PowerPoint.Application; $owned ...\r\n+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : ResourceUnavailable: (:) [New-Object], COMException\r\n    + FullyQualifiedErrorId : NoCOMClassIdentified,Microsoft.PowerShell.Commands.NewObjectCommand\r\n \r\n"
+}
