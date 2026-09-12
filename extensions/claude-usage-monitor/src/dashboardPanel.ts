@@ -188,9 +188,16 @@ export class DashboardPanel {
       </div>
 
       <div class="section">
-        <h3>Weekly</h3>
+        <h3>Weekly (All Models)</h3>
         ${this.renderProgressBar(data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn, data.weeklyAllModels.resetsAt)}
       </div>
+
+      ${data.weeklyScoped ? `
+      <div class="section">
+        <h3>Weekly (${escapeHtml(data.weeklyScoped.label)})</h3>
+        ${this.renderProgressBar(data.weeklyScoped.percent, data.weeklyScoped.resetsIn, data.weeklyScoped.resetsAt)}
+      </div>
+      ` : ""}
 
       ${data.extraUsage && data.extraUsage.isEnabled ? `
       <div class="section">

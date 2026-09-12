@@ -30,6 +30,9 @@ export class UsageStore {
       ...data,
       session: refreshMetricCountdown(data.session),
       weeklyAllModels: refreshMetricCountdown(data.weeklyAllModels),
+      weeklyScoped: data.weeklyScoped
+        ? refreshMetricCountdown(data.weeklyScoped)
+        : undefined,
     };
   }
 
@@ -77,7 +80,10 @@ export class UsageStore {
       return false;
     }
     const now = Date.now();
-    const metrics = [data.session, data.weeklyAllModels];
+    const metrics: UsageMetric[] = [data.session, data.weeklyAllModels];
+    if (data.weeklyScoped) {
+      metrics.push(data.weeklyScoped);
+    }
     return metrics.some(
       (m) => m.resetsAt != null && m.resetsAt <= now && data.lastUpdated < m.resetsAt
     );
@@ -121,7 +127,9 @@ export class UsageStore {
 
 }
 
-function refreshMetricCountdown(metric: UsageMetric): UsageMetric {
+// Generic over the metric type so a ScopedUsageMetric keeps its `label` through
+// a countdown refresh instead of being widened back to a bare UsageMetric.
+function refreshMetricCountdown<T extends UsageMetric>(metric: T): T {
   if (metric.resetsAt == null) {
     return metric;
   }
