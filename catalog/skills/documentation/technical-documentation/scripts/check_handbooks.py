@@ -208,10 +208,29 @@ def check(
                     continue
                 contract(local(root, entry["output"]), entry["presentation"])
                 evidence = read_json(local(root, entry["evidence"]))
-                if evidence.get("snapshot") != expected:
-                    raise ValueError(
-                        "stale source, builder, mapping or output evidence"
+                recorded = evidence.get("snapshot") or {}
+                if recorded != expected:
+                    # Naming the four candidates without saying which one fired
+                    # sends the reader to diff the snapshots by hand. During
+                    # v4.11.0 Phase 7 that cost three round-trips before the
+                    # answer turned out to be the builder, whose hashes live
+                    # under a different key from the sources.
+                    drifted = sorted(
+                        key for key in set(recorded) | set(expected)
+                        if recorded.get(key) != expected.get(key)
                     )
+                    detail = []
+                    for key in drifted:
+                        was, now = recorded.get(key), expected.get(key)
+                        if isinstance(was, dict) and isinstance(now, dict):
+                            inner = sorted(
+                                name for name in set(was) | set(now)
+                                if was.get(name) != now.get(name)
+                            )
+                            detail.append(f"{key}: " + ", ".join(inner))
+                        else:
+                            detail.append(key)
+                    raise ValueError("stale evidence -- " + "; ".join(detail))
                 for kind in ("content", "build", "rendered"):
                     review = evidence.get("checks", {}).get(kind, {})
                     if review.get("status") != "pass" or not review.get("evidence"):

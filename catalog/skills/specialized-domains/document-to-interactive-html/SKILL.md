@@ -359,6 +359,32 @@ The skill ships a Tier-3 bundle; load each file on demand rather than inlining i
 - `assets/theme.json` - the default theme tokens the template reads, overridable via `[[theme-tokens]]` / `[[brand-styling]]`.
 - `assets/visual-qa-workflow.js` - the Dynamic-Workflow TEMPLATE (adapt, do not run verbatim) that fans the per-segment visual-QA grading out (grade -> adversarially verify -> synthesize fixes -> re-render), carrying the three mandatory workflow rules (graceful degradation to subagents / a single agent and to the structural scorer; scope-first token caution; skill-native, no outbound call).
 
+## Rule ownership
+
+This skill and `[[functional-verification]]` both measure rendered geometry, so
+each concern below names exactly one owner. The non-owner references the owner
+and describes only the handoff; it never restates the rule.
+
+Without this table the two gates contradicted each other: `text-overlap` in
+`functional-verification` reported a sticky navigation bar drawn over body text
+as a defect, while the declared-position gate here requires that bar to compute
+as sticky at all. Working navigation was deleted three times to satisfy both.
+`text-overlap` is now scoped to a single out-of-flow layer, which is the fix
+this table's absence had hidden.
+
+| Concern | Owner |
+|---|---|
+| Whether a rendered artifact is exercised at all, and what counts as evidence | `[[functional-verification]]` |
+| Text colliding with text in ONE layout layer | `[[functional-verification]]` (`text-overlap`) |
+| A label straddling an SVG shape it does not belong to | this skill (`measure_handbook.py`) |
+| A declared `position` that does not compute, and focus restoration after Escape | this skill |
+| Rendered type size, contrast, and print-surface contrast | this skill |
+| Brand-mark visibility and chart deformation | this skill |
+| Figure fidelity to its source, and the illustrative-vs-evidential split | `references/figure-reconstruction.md` |
+| Diagram geometry, axes, ticks, annotation placement | `references/svg-diagram-quality.md` |
+| The "looks AI-generated" visual tells | `[[hallmark-design]]` |
+| Named AI-slop prose patterns | `[[anti-slop-editing]]` |
+
 ## Related Skills
 
 - [[pptx-generation]] -- reads / authors PowerPoint; the upstream skill for a `.pptx` source and for generating a NEW deck (the inverse direction).

@@ -385,6 +385,38 @@ _DETECTOR_JS = r"""
     }
     return clipped;
   };
+  // An OPAQUE element taken out of flow is MEANT to sit over flow content: that
+  // is what sticky and fixed are for, and the paint hides what is beneath it.
+  // Comparing a sticky header's text against the body text scrolling under it
+  // reports the feature as the defect, and this gate has had working navigation
+  // deleted three times on exactly that reading.
+  //
+  // Opacity is the whole condition. A TRANSPARENT sticky bar does not occlude;
+  // its text and the text beneath genuinely collide on screen, so that pair is
+  // still reported. Two fragments in the SAME layer compare as before, because
+  // an overlap inside one header is a real defect wherever the header sits.
+  const layerCache = new Map();
+  const opaqueOutOfFlowLayer = (element) => {
+    if (layerCache.has(element)) return layerCache.get(element);
+    let current = element;
+    let layer = null;
+    while (current && current !== document.documentElement) {
+      const style = getComputedStyle(current);
+      if (style.position === "sticky" || style.position === "fixed") {
+        // rgba(...) with an explicit alpha below 1, or the keyword transparent,
+        // leaves the content beneath visible; anything else paints over it.
+        const alpha = /^rgba\(.*,\s*([0-9.]+)\s*\)$/.exec(style.backgroundColor);
+        const opaque = style.backgroundColor !== "transparent"
+          && (!alpha || Number(alpha[1]) >= 1);
+        layer = opaque ? current : null;
+        break;
+      }
+      current = current.parentElement;
+    }
+    layerCache.set(element, layer);
+    return layer;
+  };
+
   const directTextFragments = (element) => Array.from(element.childNodes)
     .filter((node) => node.nodeType === Node.TEXT_NODE && Boolean(node.textContent.trim()))
     .flatMap((node) => {
@@ -405,6 +437,9 @@ _DETECTOR_JS = r"""
       const right = textNodes[rightIndex];
       if (right.rect.top >= left.rect.bottom - tolerance) break;
       if (left.element.contains(right.element) || right.element.contains(left.element)) continue;
+      const leftLayer = opaqueOutOfFlowLayer(left.element);
+      const rightLayer = opaqueOutOfFlowLayer(right.element);
+      if ((leftLayer || rightLayer) && leftLayer !== rightLayer) continue;
       const overlapWidth = Math.min(left.rect.right, right.rect.right) - Math.max(left.rect.left, right.rect.left);
       const overlapHeight = Math.min(left.rect.bottom, right.rect.bottom) - Math.max(left.rect.top, right.rect.top);
       if (overlapWidth > tolerance && overlapHeight > tolerance) {

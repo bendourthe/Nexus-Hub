@@ -67,13 +67,24 @@ MEASURE = r"""(root) => {
    if(label) {
      const ink=rgb(e instanceof SVGElement ? (css.fill!=='none'?css.fill:css.color) : css.color);
      if(ink && ink[3]>0.05) {
+       // Transparency is part of the colour the reader sees. Scoring the
+       // DECLARED ink treats 40%-alpha grey as if it were solid grey and
+       // reports a pass the screen does not support, so the ink is composited
+       // over its backdrop at its effective alpha first: the element's own
+       // rgba() alpha multiplied by every opacity inherited down the chain.
+       // This is what makes contrast the single owner of legibility; the
+       // opacity floor below keeps only the case contrast cannot see.
+       let alpha=ink[3];
+       for(let p=e;p;p=p.parentElement) alpha*=parseFloat(getComputedStyle(p).opacity)||1;
        // WCAG 1.4.3: 3.0 for large text (>=24px, or >=18.66px bold), else 4.5.
        const bold=(parseInt(css.fontWeight,10)||400)>=700;
        const floor=(px>=24||(bold&&px>=18.66))?3:4.5;
        const bg=backdrop(e);
-       const value=ratio(ink,bg);
+       const seen=[0,1,2].map(i=>ink[i]*alpha+bg[i]*(1-alpha));
+       const value=ratio(seen,bg);
        if(value<floor) contrast.push({role,px:Math.round(px*10)/10,
-         ink:ink.slice(0,3),background:bg.slice(0,3),
+         ink:ink.slice(0,3),alpha:Math.round(alpha*100)/100,
+         background:bg.slice(0,3),
          ratio:Math.round(value*100)/100,floor,text:label.slice(0,60)});
      }
    }
@@ -146,16 +157,27 @@ MEASURE = r"""(root) => {
    if((chart.getAttribute('preserveAspectRatio')||'').trim().toLowerCase().startsWith('none'))
      deformed.push({marks:chart.querySelectorAll('[data-dv-mark]').length});
  }
- // Content already on screen must be readable at first paint. A scroll-driven
+ // Content already on screen must be present at first paint. A scroll-driven
  // reveal that starts below full opacity ships its opening screen half-faded,
- // and the reader has nothing to scroll to trigger it.
+ // and the reader has nothing to scroll to trigger it. The defect this was
+ // built from measured 0.45.
+ //
+ // The floor is 0.5, not 0.95, and the difference is the whole point. Whether
+ // dimmed text can be READ is a contrast question, and the contrast pass above
+ // now composites accumulated opacity into the ink, so it answers that one
+ // properly for every colour. A bare opacity number cannot: 0.85 on near-black
+ // ink still measures 10.75:1 and is perfectly legible, while 0.96 on mid-grey
+ // can sit under the floor. Keeping 0.95 here made this gate fail a deliberate
+ // de-emphasis on secondary text while the readability hole stayed open.
+ // What survives is the case contrast cannot see: content more absent than
+ // present, which reads as a reveal that never ran whatever colour it is.
  for(const e of root.querySelectorAll('h1,h2,h3,p,li,td,th,figcaption')) {
    if(!e.textContent.trim() || !visible(e)) continue;
    const box=e.getBoundingClientRect();
    if(box.bottom<=0 || box.top>=innerHeight) continue;   // not on the opening screen
    let alpha=1;
    for(let p=e;p;p=p.parentElement) alpha*=parseFloat(getComputedStyle(p).opacity)||1;
-   if(alpha<0.95) faded.push({alpha:Math.round(alpha*100)/100,
+   if(alpha<0.5) faded.push({alpha:Math.round(alpha*100)/100,
      text:e.textContent.trim().slice(0,50)});
  }
  const b=root.getBoundingClientRect();
