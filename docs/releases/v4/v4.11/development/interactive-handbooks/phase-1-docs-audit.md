@@ -4,7 +4,7 @@ Mode: audit only. `audit-docs.py inventory --root docs/releases/v4/v4.9 --repo-r
 
 | Scope | Disposition | Reason |
 |---|---|---|
-| v4.9.1 handbook plan | Active | Seven-phase implementation now authorized |
+| v4.11.0 handbook plan | Active | Seven-phase implementation now authorized |
 | Phase 1 evidence and history | Active release record | Records actual build and tests |
 | Shared owner reference | Living distributed contract | Continues to evolve after this release |
 | Historical analyses and draft record | Retain | Evidence boundaries unchanged; incoming plan link repaired |

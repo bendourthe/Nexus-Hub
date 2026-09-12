@@ -42,10 +42,10 @@ The SARIF mapping and both runtime files remain bundled with security-review. Go
 
 The active handbook implementation retains living instructions with their owners and release-only evidence under this tree. No cleanup moves or deletions were required.
 
-- [Phase 1 audit](development/interactive-handbooks/phase-1-docs-audit.md).
-- [Phase 2 audit](development/interactive-handbooks/phase-2-docs-audit.md).
-- [Phase 3 audit](development/interactive-handbooks/phase-3-docs-audit.md).
-- [Phase 4 audit](development/interactive-handbooks/phase-4-docs-audit.md).
-- [Phase 5 audit](development/interactive-handbooks/phase-5-docs-audit.md).
+- [Phase 1 audit](../v4.11/development/interactive-handbooks/phase-1-docs-audit.md).
+- [Phase 2 audit](../v4.11/development/interactive-handbooks/phase-2-docs-audit.md).
+- [Phase 3 audit](../v4.11/development/interactive-handbooks/phase-3-docs-audit.md).
+- [Phase 4 audit](../v4.11/development/interactive-handbooks/phase-4-docs-audit.md).
+- [Phase 5 audit](../v4.11/development/interactive-handbooks/phase-5-docs-audit.md).
 
-- Phase 6 working-tree audit (phase incomplete): [interactive handbook audit](development/interactive-handbooks/phase-6-docs-audit.md).
+- Phase 6 working-tree audit (phase incomplete): [interactive handbook audit](../v4.11/development/interactive-handbooks/phase-6-docs-audit.md).

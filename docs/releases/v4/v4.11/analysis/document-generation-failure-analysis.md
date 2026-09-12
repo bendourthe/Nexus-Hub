@@ -1,18 +1,10 @@
 # Document Generation Failure Analysis
 
-<<<<<<< HEAD
-**Historical evidence notice (2026-09-05)**: Observations and verification limits below describe the inspected specimen at the time. Implementation decisions are consolidated in the [master v4.9.0 plan](../plans/v4.9.1-interactive-handbooks-and-presentation-default.md#evidence-reconciliation-and-precedence), whose conflict resolutions supersede earlier recommendations. A reference to a rejected local rebuild below does not describe the subsequently approved artifact or qualify the generic catalog.
+**Historical evidence notice (2026-09-05)**: Observations and verification limits below describe the inspected specimen at the time. Implementation decisions are consolidated in the [master v4.9.0 plan](../plans/v4.11.0-interactive-handbooks-and-presentation-default.md#evidence-reconciliation-and-precedence), whose conflict resolutions supersede earlier recommendations. A reference to a rejected local rebuild below does not describe the subsequently approved artifact or qualify the generic catalog.
 
 **Date**: 2026-09-04
 **Status**: Analysis and implementation requirements; catalog changes not implemented
-**Companion**: [Interactive handbooks plan](../plans/v4.9.1-interactive-handbooks-and-presentation-default.md)
-=======
-**Historical evidence notice (2026-09-05)**: Observations and verification limits below describe the inspected specimen at the time. Implementation decisions are consolidated in the [master v4.9.0 plan](../../v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md#evidence-reconciliation-and-precedence), whose conflict resolutions supersede earlier recommendations. A reference to a rejected local rebuild below does not describe the subsequently approved artifact or qualify the generic catalog.
-
-**Date**: 2026-09-04
-**Status**: Analysis and implementation requirements; catalog changes not implemented
-**Companion**: [Interactive handbooks plan](../../v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md)
->>>>>>> origin/develop
+**Companion**: [Interactive handbooks plan](../plans/v4.11.0-interactive-handbooks-and-presentation-default.md)
 **Subsequent correction**: [Presentation design and fit reassessment](presentation-design-and-fit-reassessment.md). The later 83-slide rebuild was also rejected: negative pattern review overcorrected toward plainness, the deck exceeded the source count, and expanded viewport checks found overflow. Read the positive design contract below with this inventory; it is not a minimalism mandate.
 
 ## Outcome and evidence boundary
