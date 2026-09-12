@@ -9,11 +9,18 @@ fast profile reported 13 of 13 green.
 
 Only line-anchored conflict markers count. A skill that documents the markers,
 or prose that mentions them inline, is not a conflict.
+
+The marker run is seven characters ONLY in the common case. Git widens it when
+the two sides disagree about the path as well as the content, so a rename that
+is merged and committed unresolved writes `<<<<<<<< HEAD:old/path`. Anchoring
+on exactly seven let eleven such conflicts sit in a release plan while this
+check reported clean, which is the same blindness it was written to end.
 """
 
 from __future__ import annotations
 
 import argparse
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -24,9 +31,10 @@ ALLOWLIST = {
     "scripts/check_merge_conflict_markers.py",
 }
 
-START = "<<<<<<< "
-MIDDLE = "======="
-END = ">>>>>>> "
+# Seven or more, because a rename conflict widens the run. The trailing group
+# keeps a line of seven-plus nested blockquotes, or a rule of equals signs,
+# from reading as a conflict: git always writes a label or nothing after it.
+MARKER = re.compile(r"^(?:<{7,}|>{7,})(?: .*)?$")
 
 TEXT_SUFFIXES = {
     ".md", ".py", ".js", ".json", ".yml", ".yaml", ".toml", ".sh", ".ps1",
@@ -54,9 +62,10 @@ def conflicts_in(path: Path) -> list[tuple[int, str]]:
         return []
     found = []
     for number, line in enumerate(text.splitlines(), start=1):
-        # A bare '=======' is also a valid Markdown setext rule, so it only
-        # counts when a start marker is already open above it.
-        if line.startswith((START, END)):
+        # A bare row of equals signs is also a valid Markdown setext rule, so
+        # only the start and end markers are scanned; either one alone proves
+        # the conflict.
+        if MARKER.match(line):
             found.append((number, line[:60]))
     return found
 
