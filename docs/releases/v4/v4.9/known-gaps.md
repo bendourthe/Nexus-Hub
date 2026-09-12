@@ -117,7 +117,7 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 | DF | 0 | 0 |
 | BG | 0 | 4 |
 | WN | 1 | 3 |
-| MT | 4 | 2 |
+| MT | 2 | 4 |
 | QG | 1 | 0 |
 
 #### MT-3 - RESOLVED: rendered contrast is now measured by the owner that renders
@@ -224,22 +224,22 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **Why this matters beyond one page**: the same class was already adjudicated by hand during v4.9.0, whose evidence records that all 56 raw overlap warnings were opaque sticky-navigation occlusion. A false positive that is waived by a human every round is eventually obeyed instead, and this round it deleted a legitimate feature.
 - **Suggested next step**: exempt an element whose computed `position` is `sticky` or `fixed` AND which paints an opaque background, because such an element occludes by design. Keep the rule for ordinary flow content, where overlap is always a defect. This is a change to another skill's script and should be scoped to that owner rather than folded into this plan.
 
-#### MT-7 - A declared layout property is not the computed one, and nothing checks the difference
+#### MT-7 - RESOLVED: a declared layout property must be the computed one
 
 - **Source phase**: Phase 6, T020, fourth qualification round, presentation case.
 - **Plan reference**: R25 navigation reachability; T019 non-vacuous checks.
-- **What was observed**: the navigation rail was authored `position: sticky`, but a later base rule at equal specificity won the cascade and it computes `static` everywhere. Independently reproduced: the rail and its `nav` both compute `static` on the delivered page. No measured gate fails, both Presentation Mode entries still work, and the reader simply cannot reach global navigation deep in the document.
-- **Why it matters beyond one page**: this is the third appearance of one class in three rounds, from three directions. The round-three report case DELETED a legitimate sticky nav because the overlap rule fired on it (WN-5); the round-four presentation case authored one that silently never applied; the round-four repository case hit it, verified the computed value, and rebuilt the shell correctly. Only the third outcome is good, and it happened because that runner was told to check the computed value rather than trust the declaration.
-- **The general shape**: a declaration is a request, not a fact. This is the same gap as `HasTitle=False` while PowerPoint synthesises a title, and `backgroundColor` reporting a dark surface that print will not paint. Three media, one lesson: read what the engine resolved.
-- **Suggested next step**: a cheap targeted check. Any element whose stylesheet declares `position: sticky` or `fixed` must COMPUTE to that value in the rendered page; a mismatch is a silently lost layout contract. This is far narrower than the overlap rule that produced WN-5 and does not judge design.
+- **What was wrong**: the navigation rail was authored `position: sticky`, but a later base rule at equal specificity won the cascade and it computed `static` everywhere, so global navigation was unreachable deep in the document. No gate saw it. This was the third appearance of one class in three rounds from three directions: round three DELETED a legitimate sticky nav because the overlap rule fired on it (WN-5), round four's presentation case authored one that never applied, and round four's repository case got it right only because its brief told it to verify the computed value.
+- **Resolution**: the rendered pass now walks every stylesheet rule that declares `position: sticky` or `fixed`, skips rules whose media condition does not currently match, and reports any matching visible element whose computed position differs. A declaration is a request, not a fact; this reads what the engine resolved. A breakpoint that deliberately does not stick is not a finding, and a deliberate override should remove the losing declaration rather than leave a live rule that never applies.
+- **Proof**: run against the retained presentation artifact it reports exactly one finding, `'.rail' declares position sticky but <header> computes static`, and reports zero on the other two round-four artifacts. Driven through the real measurement entry point the presentation case fails with that single layout error while the report case passes with none. Three tests cover a lost cascade, a declaration that applies, and a non-matching breakpoint; negative-controlled.
 
-#### MT-8 - Focus restoration on closing the presentation is not gated
+#### MT-8 - RESOLVED: focus restoration is now gated, and the reported defect was a harness artifact
 
 - **Source phase**: Phase 6, T020, fourth qualification round, repository case.
-- **Plan reference**: R25 return-to-page behavior, which names focus restoration alongside scroll restoration.
-- **What was observed**: closing Presentation Mode restores the view and scroll position but leaves focus on `body` rather than the control that opened the deck. Independently reproduced on the delivered page: after open and close, `document.activeElement` is `BODY`. The runtime does call `origin.focus({preventScroll: true})`, so the cause is page-specific: the opening control this page uses is not the element the runtime retained, or it did not survive the shell rebuild.
-- **Why the gate missed it**: the installed pass asserts only that Escape deactivates the deck, which passes. R25 names focus restoration as part of the same contract but nothing measures it, so a keyboard or screen-reader user is returned to the top of the document with no position.
-- **Suggested next step**: assert in the rendered pass that after close, `document.activeElement` is the element that opened the deck, and that it is still connected. The runtime already retains `origin`, so the check reads a value the contract already promises rather than inventing a new requirement.
+- **Plan reference**: R25 return-to-page behavior, which names focus restoration beside scroll restoration.
+- **What was reported**: closing Presentation Mode left focus on `body` rather than the control that opened the deck.
+- **What reproduction showed**: the runtime is correct. Focus returns to the opening control on ALL THREE round-four artifacts when the control is genuinely focused first, as a real user click does. The failure appears only when the deck is opened with a programmatic `element.click()`, which does not move focus: the runtime then captures `body` as the origin and restoring to `body` is the right answer for that input. An earlier verification in this cycle repeated the reporting harness's mistake and wrongly confirmed the defect; that confirmation is withdrawn here rather than left standing. This is the same class as the BG-2 withdrawal, in the opposite direction: there a contaminated harness hid a real defect, here it invented one.
+- **Why a check was still added**: R25 names focus restoration and nothing measured it, so a regression would have shipped silently. The gate now asserts that after close `document.activeElement` is within the control that opened the deck. It reads a value the contract already promises rather than inventing a requirement, and it currently passes everywhere, which is the correct outcome for a guard rather than evidence that it is useless.
+- **Proof**: two tests, one asserting restoration on a sound fixture and one removing the opener before close so focus lands nowhere; negative-controlled. Driven through the real entry point, zero focus errors on all three round-four artifacts.
 
 #### QG-2 - The three-family authoring gate remains unmet after four rounds
 
