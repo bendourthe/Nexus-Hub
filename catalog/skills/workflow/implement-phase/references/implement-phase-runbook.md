@@ -25,6 +25,19 @@ The complete, ordered procedure for the `implement-phase` skill. `SKILL.md` link
 
 Read the full plan and the target phase in detail (goals, acceptance criteria, subtasks, files, dependencies). Check prerequisites (marked complete + `git log` references). Scan the codebase for files the phase touches. Report the goal, subtask count, likely-affected files, and prerequisite/dependency status before implementing.
 
+### Queue re-assessment (plan entry and every phase entry)
+
+A plan was written against the codebase as it stood then. It executes against the codebase as it stands now, after the plans queued around it have moved. Re-validate that before writing code, not after.
+
+Run `[[plan-queue-assessment]]` against this plan and the enumerated queue. Do NOT restate its rules; it owns them. Two scopes:
+
+- **Plan entry**, once, when the first phase of a plan begins: assess the whole plan's assumptions and touched-file surface.
+- **Phase entry**, every phase: assess this phase's stated prerequisites and target files.
+
+Keep it cheap and proportional. It reads the plan and the queue inventory; it does not re-run the suite.
+
+Write the result into the phase session history as evidence for the existing `## Plan delta` section (step 8.4). **This step supplies evidence to that disposition; it does not introduce a second vocabulary.** A finding requiring a plan edit is blocking and follows 8.4's existing escalation path. **A finding of no drift is written explicitly** - an unwritten check is indistinguishable from a skipped one, which is the exact pattern that turns four added assessment steps into ritual rather than evidence.
+
 ### Model-routing pre-flight
 
 Before Phase 2 begins, run `[[model-routing]]` in implementation mode:

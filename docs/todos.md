@@ -1,16 +1,25 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
+<<<<<<< HEAD
 **Active work:** v4.9.1 interactive handbooks remains in Phase 6: 510 affected tests, 30 catalog checks, live handbook geometry/freshness and native 125% tab zoom pass. Temporary CLI 0.154.0 repairs a reproduced Windows deny-rule defect; explicit installed-skill discovery works. The report case is independently accepted after three internal repairs; presentation and repository qualification remain open. Existing guide work retains its separate owner. The application-security audit is released in v4.9.0; see its [release evidence](releases/v4/v4.9/development/history/2026-09-08_v4.9.0-release.md) and [final release handoff](https://github.com/bendourthe/Nexus-Hub/pull/192).
 **Last refreshed:** 2026-09-09
 
 Latest qualification: the [report case passes](releases/v4/v4.9/development/interactive-handbooks/phase-6-native-attempts/report-final/summary.json), including native Word/PDF inspection and byte-identical rebuilding. Accepted native final passes are 1/3. The presentation retry is active after the chart-title correction. The latest repository fails branding placement and process-step motion; shared guidance is repaired and a fresh 90-minute repository trial is queued after presentation collection. Earlier failures and operator-only diagnostics remain separate from qualification.
+=======
+**Active work:** The existing guide and queued handbook work below retain their separate owners. The application-security audit is released in v4.9.0; see its [release evidence](releases/v4/v4.9/development/history/2026-09-08_v4.9.0-release.md) and [final release handoff](https://github.com/bendourthe/Nexus-Hub/pull/192).
+**Last refreshed:** 2026-09-09
+>>>>>>> origin/develop
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
+<<<<<<< HEAD
 - [ ] Implement the active [v4.9.1 master interactive-handbooks plan](releases/v4/v4.9/plans/v4.9.1-interactive-handbooks-and-presentation-default.md). All source analyses and approved-build lessons, including final fullscreen, motion sequencing, headerless layout, PowerPoint export and standalone sharing, are consolidated into R01-R30, conflict resolutions and 31 mapped tasks. Implementation is 5/7 phases and 18/31 tasks; Phase 6 still requires three accepted native authoring results before its commit and Phase 7 integration.
+=======
+- [ ] Implement the queued [v4.11.0 master interactive-handbooks plan](releases/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md). All source analyses and approved-build lessons, including final fullscreen, motion sequencing, headerless layout, PowerPoint export and standalone sharing, are consolidated into R01-R30, conflict resolutions and 31 mapped tasks. Implementation remains 0/7 phases and 0/31 tasks; earlier isolated command/skill drafts require reconciliation before adoption. The active guide work remains unchanged.
+>>>>>>> origin/develop
 
 ---
 
@@ -18,11 +27,19 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
+<<<<<<< HEAD
 | v4.9.1 interactive-handbook phases complete | 5 | 7 | 2 |
 | v4.9.1 interactive-handbook tasks complete | 18 | 31 | 13 |
 | v4.9.1 accepted native authoring cases | 1 | 3 | 2 |
+=======
+| Cost and diagram comparison sources assessed | 2 | 2 | 0 |
+| v4.10.0 plan prepared | 1 | 1 | 0 |
+| v4.10.0 implementation tasks complete | 25 | 26 | 1 |
+>>>>>>> origin/develop
 | v4.11.0 comparison and plan prepared | 2 | 2 | 0 |
-| v4.11.0 implementation tasks complete | 0 | 34 | 34 |
+| v4.11.0 implementation tasks complete | 0 | 25 | 25 |
+| v4.13.0 comparison and plan prepared | 2 | 2 | 0 |
+| v4.13.0 implementation tasks complete | 0 | 34 | 34 |
 | v4.4.5 baseline guide/test files restored | 59 | 59 | 0 |
 | Exact production-file restorations | 3 | 3 | 0 |
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
@@ -36,7 +53,15 @@ Refreshing this file to the active plan (rather than appending another version's
 
 ---
 
-## Queued work - v4.11.0 evidence-driven agent improvement
+## Queued work - v4.10.0 plan-queue continuity and re-sequencing
+
+- [ ] Implement the [v4.10.0 plan-queue continuity plan](releases/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md): make /compare, /plan, /implement and /update release each account for the other queued plans, and add a ranked re-ordering recommendation with an assisted renumber behind explicit confirmation. Authored 2026-09-10; 25/26 tasks; all five build phases and every Phase 6 last-phase duty landed 2026-09-10. Remaining: the single publication, which awaits explicit approval. One skill and one enumeration script own the rule; the four commands delegate. Sequenced first deliberately, so its own ordering recommendation can sequence the rest of the queue rather than being applied after the fact.
+
+## Queued work - v4.11.0 cache accounting and diagram quality
+
+- [ ] Implement the published [v4.11.1 adoption plan](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md). Published to develop through [PR #194](https://github.com/bendourthe/Nexus-Hub/pull/194) on 2026-09-09; implementation remains 0/6 phases and 0/25 tasks. Correct cache accounting first, then extend existing prompt and diagram owners; preserve separate v4.11.0 handbook and v4.13 evaluation responsibilities.
+
+## Queued work - v4.13.0 evidence-driven agent improvement
 
 - [ ] Qualify an existing native runner for the two-model trigger pilot before starting the seven-phase, 34-task implementation plan: prove observed skill loading, bounded calls/time/spend, and isolated synthetic context. Planning documents are in [PR #189](https://github.com/bendourthe/Nexus-Hub/pull/189); keyword-only evaluators do not satisfy the prerequisite. The v4.9 audit and handbook work retain their existing owners.
 

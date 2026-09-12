@@ -1,10 +1,18 @@
 # Presentation Design and Fit Reassessment
 
+<<<<<<< HEAD
 **Historical evidence notice (2026-09-05)**: Observations and verification limits below describe the inspected specimen at the time. Implementation decisions are consolidated in the [master v4.9.0 plan](../plans/v4.9.1-interactive-handbooks-and-presentation-default.md#evidence-reconciliation-and-precedence), whose conflict resolutions supersede earlier recommendations. A reference to a rejected local rebuild below does not describe the subsequently approved artifact or qualify the generic catalog.
 
 **Date**: 2026-09-04
 **Status**: User-rejected local specimen; design qualification failed; expanded viewport audit failed. Catalog implementation remains unstarted.
 **Companions**: [Implementation plan](../plans/v4.9.1-interactive-handbooks-and-presentation-default.md), [earlier failure analysis](document-generation-failure-analysis.md), [reference study](interactive-handbooks-source-analysis.md).
+=======
+**Historical evidence notice (2026-09-05)**: Observations and verification limits below describe the inspected specimen at the time. Implementation decisions are consolidated in the [master v4.9.0 plan](../../v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md#evidence-reconciliation-and-precedence), whose conflict resolutions supersede earlier recommendations. A reference to a rejected local rebuild below does not describe the subsequently approved artifact or qualify the generic catalog.
+
+**Date**: 2026-09-04
+**Status**: User-rejected local specimen; design qualification failed; expanded viewport audit failed. Catalog implementation remains unstarted.
+**Companions**: [Implementation plan](../../v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md), [earlier failure analysis](document-generation-failure-analysis.md), [reference study](interactive-handbooks-source-analysis.md).
+>>>>>>> origin/develop
 
 ## Verdict and scope
 
