@@ -117,7 +117,7 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 | DF | 0 | 0 |
 | BG | 0 | 4 |
 | WN | 1 | 3 |
-| MT | 2 | 2 |
+| MT | 4 | 2 |
 | QG | 1 | 0 |
 
 #### MT-3 - RESOLVED: rendered contrast is now measured by the owner that renders
@@ -224,14 +224,31 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **Why this matters beyond one page**: the same class was already adjudicated by hand during v4.9.0, whose evidence records that all 56 raw overlap warnings were opaque sticky-navigation occlusion. A false positive that is waived by a human every round is eventually obeyed instead, and this round it deleted a legitimate feature.
 - **Suggested next step**: exempt an element whose computed `position` is `sticky` or `fixed` AND which paints an opaque background, because such an element occludes by design. Keep the rule for ordinary flow content, where overlap is always a defect. This is a change to another skill's script and should be scoped to that owner rather than folded into this plan.
 
-#### QG-2 - The three-family authoring gate is still unmet at 2 of 3
+#### MT-7 - A declared layout property is not the computed one, and nothing checks the difference
+
+- **Source phase**: Phase 6, T020, fourth qualification round, presentation case.
+- **Plan reference**: R25 navigation reachability; T019 non-vacuous checks.
+- **What was observed**: the navigation rail was authored `position: sticky`, but a later base rule at equal specificity won the cascade and it computes `static` everywhere. Independently reproduced: the rail and its `nav` both compute `static` on the delivered page. No measured gate fails, both Presentation Mode entries still work, and the reader simply cannot reach global navigation deep in the document.
+- **Why it matters beyond one page**: this is the third appearance of one class in three rounds, from three directions. The round-three report case DELETED a legitimate sticky nav because the overlap rule fired on it (WN-5); the round-four presentation case authored one that silently never applied; the round-four repository case hit it, verified the computed value, and rebuilt the shell correctly. Only the third outcome is good, and it happened because that runner was told to check the computed value rather than trust the declaration.
+- **The general shape**: a declaration is a request, not a fact. This is the same gap as `HasTitle=False` while PowerPoint synthesises a title, and `backgroundColor` reporting a dark surface that print will not paint. Three media, one lesson: read what the engine resolved.
+- **Suggested next step**: a cheap targeted check. Any element whose stylesheet declares `position: sticky` or `fixed` must COMPUTE to that value in the rendered page; a mismatch is a silently lost layout contract. This is far narrower than the overlap rule that produced WN-5 and does not judge design.
+
+#### MT-8 - Focus restoration on closing the presentation is not gated
+
+- **Source phase**: Phase 6, T020, fourth qualification round, repository case.
+- **Plan reference**: R25 return-to-page behavior, which names focus restoration alongside scroll restoration.
+- **What was observed**: closing Presentation Mode restores the view and scroll position but leaves focus on `body` rather than the control that opened the deck. Independently reproduced on the delivered page: after open and close, `document.activeElement` is `BODY`. The runtime does call `origin.focus({preventScroll: true})`, so the cause is page-specific: the opening control this page uses is not the element the runtime retained, or it did not survive the shell rebuild.
+- **Why the gate missed it**: the installed pass asserts only that Escape deactivates the deck, which passes. R25 names focus restoration as part of the same contract but nothing measures it, so a keyboard or screen-reader user is returned to the top of the document with no position.
+- **Suggested next step**: assert in the rendered pass that after close, `document.activeElement` is the element that opened the deck, and that it is still connected. The runtime already retains `origin`, so the check reads a value the contract already promises rather than inventing a new requirement.
+
+#### QG-2 - The three-family authoring gate remains unmet after four rounds
 
 - **Source phase**: Phase 6, T020.
-- **Plan reference**: T020 three of three final passes.
-- **State after the third round**: report PASS, presentation PASS, repository qualified NON-PASS. Two rounds now stand at 2 of 3 and 1 of 3 respectively; the intervening round reached 3 of 3 but against a build carrying the confirmed BG-2 defect, so it does not qualify the current tree.
-- **This round's evidence**: all three cases ran against a workspace-scoped install verified byte-identical to the tree, with the frozen corpus intact and the installed tooling confirmed unmodified afterwards in every case. The report and presentation deliverables were independently re-measured at four viewports with zero findings, their native Word and PowerPoint output was inspected, and scroll restore was confirmed exact on delivered output at 3000 to 3000, which closes BG-2 in production rather than only in a fixture.
-- **Why the repository case did not pass**: a single high-severity print defect, recorded as MT-6. The page declares no print palette, so dark bands print white while their text keeps light ink. The runner reported it rather than exceeding its correction budget silently, which is the correct behavior.
-- **Suggested next step**: fix the print-palette cause, land the MT-6 static check so the class cannot recur unseen, then re-run the repository case alone. The report and presentation results stand against the current tree and do not need repeating unless the tooling changes again.
+- **Plan reference**: T020 three of three final passes with no high-severity unresolved finding.
+- **Round history**: round two 1 of 3; round three reported 2 of 3 but was 0 of 3 once print contrast became visible; round four 2 of 3, with the report case a clean pass, the repository case a qualified pass carrying medium residuals, and the presentation case a self-declared non-pass on two defects.
+- **What the rounds establish**: the gate is converging on the measurable and has stopped finding high-severity machine-detectable defects. Print contrast went from 52, 35 and 46 failures across the three artifacts to zero on all three in one round, entirely through guidance, without any artifact ever failing the new gate in anger. Every other machine check passes on all three round-four artifacts. Every fix this cycle held.
+- **What still blocks it**: the surviving defects are of three kinds that the gate does not cover by construction. A contract term that is named but unmeasured (focus restoration, MT-8). A declared property that never applied (MT-7). And design judgements the plan forbids automating (a connector crossing a label, a slide left a fifth empty). Round four contains no high-severity unresolved finding in any case, which is the plan's literal bar, but two cases self-declared short of a clean pass.
+- **Suggested next step**: land MT-7 and MT-8, which are both narrow, cheap, and read values the contracts already promise, then re-run. If a further round still turns on design judgement rather than measurable defect, the honest conclusion is that this gate has reached what automation can settle, and the remaining decision belongs to a human reviewer rather than another round.
 
 
 ## Resolved during this follow-up
