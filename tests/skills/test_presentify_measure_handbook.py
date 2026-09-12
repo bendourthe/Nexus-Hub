@@ -460,3 +460,60 @@ def test_a_lost_opener_is_reported_rather_than_silently_dropping_focus(output):
         encoding="utf-8",
     )
     assert [e for e in run(output)["errors"] if e.startswith("focus:")]
+
+
+def _long_directory(tmp_path, rows=30):
+    """A directory long enough that a 200px cap would hide most of it."""
+    model = json.loads((tmp_path / "model.json").read_text(encoding="utf-8"))
+    model["sections"][0]["blocks"].append(
+        {
+            "type": "table",
+            "id": "directory",
+            "header": ["Key", "Value"],
+            "rows": [[f"row {i}", f"value {i}"] for i in range(rows)],
+        }
+    )
+    (tmp_path / "model.json").write_text(json.dumps(model), encoding="utf-8")
+    dual.assemble(tmp_path / "model.json", tmp_path / "long.html")
+    return tmp_path / "long.html"
+
+
+def test_reading_directory_is_not_capped_so_content_is_not_hidden(output):
+    """D1: a cap plus overlay scrollbars makes truncated and complete identical."""
+    page = _long_directory(output.parent)
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch()
+        tab = browser.new_page(viewport={"width": 1366, "height": 768})
+        tab.goto(page.as_uri())
+        tab.wait_for_timeout(300)
+        hidden = tab.evaluate(
+            "() => [...document.querySelectorAll('[data-dv-page] .dv-directory')]"
+            ".map(d => d.scrollHeight - d.clientHeight)"
+        )
+        browser.close()
+    assert hidden, "fixture produced no directory to measure"
+    assert max(hidden) <= 2, f"reading-view directory still hides {max(hidden)}px"
+
+
+def test_slide_directory_keeps_its_cap_and_reserves_a_scroll_gutter(output):
+    """The slide must still fit its stage; the scroll must be visible, not hidden."""
+    page = _long_directory(output.parent)
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch()
+        tab = browser.new_page(viewport={"width": 1366, "height": 768})
+        tab.goto(page.as_uri())
+        tab.wait_for_timeout(300)
+        styles = tab.evaluate(
+            "() => {const d=document.querySelector('[data-dv-slide] .dv-directory');"
+            " if(!d) return null; const s=getComputedStyle(d);"
+            " return {maxHeight:s.maxHeight, gutter:s.scrollbarGutter};}"
+        )
+        browser.close()
+    if styles is None:
+        pytest.skip("this fixture puts no directory on a slide")
+    assert styles["maxHeight"] == "200px"
+    assert "stable" in styles["gutter"]

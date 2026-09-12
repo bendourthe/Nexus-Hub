@@ -115,7 +115,7 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 |---|---|---|
 | NI | 0 | 0 |
 | DF | 0 | 0 |
-| BG | 0 | 4 |
+| BG | 0 | 5 |
 | WN | 1 | 3 |
 | MT | 3 | 4 |
 | QG | 1 | 0 |
@@ -198,6 +198,15 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **Decision and reason**: the claim was corrected rather than implemented. A direct axis-limit control has to re-lay-out arbitrary authored SVG to an operator-chosen range, which is a charting engine, and this plan's `construction-debt` line forbids a second chart framework outright. The reader-facing value that claim was reaching for is already delivered by the auto-refit rule: toggling a series refits the axis so no value is silently clamped.
 - **Resolution**: both claims now describe zoom, pan and series toggling with the axis refitting to whatever stays visible, and state plainly that there is no direct axis-limit control and why. The mixed-scale safety rule is untouched, including its binary statement that a flat-topped bar at the axis maximum is fabricated data.
 
+#### BG-6 - RESOLVED: the reading view no longer hides content behind an undiscoverable scroll
+
+- **Source phase**: Phase 6, T020, sixth qualification round, report case.
+- **Plan reference**: R02 whole-source retention; R06 reading-view completeness.
+- **What was wrong**: the assembler's own base stylesheet capped `.dv-directory` at 200 pixels with `overflow: auto`, in BOTH views. On the delivered report page that hid content in five separate blocks, the worst by 787 pixels, and `offsetWidth - clientWidth` was zero on every one, so no scrollbar was drawn. A reader saw a truncated table with nothing indicating more existed. The content was intact in the DOM, the PDF and the DOCX, so nothing was lost; it was simply unreachable in the view most readers use. This is a shipped default, not an authoring mistake, and two separate runners had to work around it.
+- **Why it is the same shape as the print defect**: a default that behaves reasonably in the small case and quietly wrongly in the large one. With overlay scrollbars, "scrollable" and "truncated" are visually identical.
+- **Resolution**: the cap is now scoped to slides only. The reading page has no stage to fit, so its directories are uncapped and content flows. The slide keeps the 200-pixel cap because it must fit a fixed stage, and it now sets `scrollbar-gutter: stable` so the scroll is visible rather than discovered.
+- **Proof**: two tests build a thirty-row directory and assert the reading view hides at most two pixels while the slide retains its cap and its reserved gutter. Negative-controlled against the original declaration, where both fail. 39 measure tests pass.
+
 #### MT-5 - No automated coverage for values fabricated mid-animation
 
 - **Source phase**: Phase 6, T019 and T020, found by screenshot inspection in two independent runs.
@@ -251,16 +260,25 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **What a correct check needs**: ask whether anything is LISTENING rather than whether something changed. Walk from the control up through its ancestors collecting click listeners through the Chrome DevTools Protocol, and report a control with no listener anywhere in its chain and no native form or anchor behavior. That distinguishes this defect exactly, since the moved buttons have no listening ancestor while working delegated controls do, and it is immune to idempotency. It must also iterate EVERY slide, not just the first.
 - **Why it was not built now**: that is materially more machinery than the activate-and-observe sketch it replaces, and shipping the rejected version would have been worse than shipping nothing. A gate that fires on working reset buttons is how the `text-overlap` false positive (WN-5) came to delete working navigation three times.
 
-#### QG-2 - Two of three sustained; the repository case does not converge inside the stated repair budget
+#### QG-2 - CLOSED AS UNMET: two of three sustained across six rounds, carried forward
 
 - **Source phase**: Phase 6, T020.
-- **Plan reference**: T020 three of three final passes with no high-severity unresolved finding, within at most three internal correction rounds.
-- **Round history**: round two 1 of 3. Round three reported 2 of 3 but was 0 of 3 once print contrast became visible. Round four 2 of 3. Round five 2 of 3, with the report and presentation cases both passing and independently re-verified through the real measurement entry point at zero errors.
-- **What the five rounds establish about the TOOLING**: it is converging and is no longer the limiting factor. Each defect class found has been gated and has not recurred: chart auto-titles, rendered contrast, SVG label collisions, brand visibility, chart deformation, opening-screen opacity, print contrast, lost layout declarations, focus restoration. Print contrast went from 52, 35 and 46 failures across three artifacts to zero in a single round through guidance alone. The report case has now passed twice consecutively; the presentation case passed this round after fixing both round-four defects.
-- **What the rounds establish about the REPOSITORY case**: it is the hardest input by a clear margin (nine sources including code, config, an existing published HTML handbook, and a native generator whose path, URL and anchors must survive) and it does not reliably finish inside three correction rounds. Its round-five gate failures fell 33, 25, 11, 5 across the permitted rounds and it stopped with five remaining, all one root cause and a one-line fix identified. That is budget exhaustion on a converging trend, not a defect the gate missed, and the runner correctly declined to exceed the cap or ship an unverified fix.
-- **The one genuinely uncovered class**: MT-9, a control that renders perfectly and does nothing.
-- **Decision taken 2026-09-11**: the repository family's correction budget is raised from three to five in T020, recorded as a per-family amendment with the round evidence, and the resulting claim is narrowed to match. The report and presentation families keep the three-correction cap and both pass at it. A sixth round runs under the amended budget.
-- **The decision this presented**: the three-correction cap is part of the benchmark's definition of single-invocation delivery, so raising it for the hardest input changes what the benchmark measures and is a plan-level decision rather than a tooling change. The alternatives are to record QG-2 as unmet and carry it forward with this evidence, or to amend T020's budget deliberately for the repository family and re-run. Adding further gates is not the lever; the gate caught this round's machine-detectable defect and the runner ran out of repairs.
+- **Plan reference**: T020 three of three final passes, with the repository family's repair budget amended from three to five on 2026-09-11.
+- **Final state**: unmet. Six rounds never produced three simultaneous passes.
+
+| Round | report | presentation | repository | Result |
+|---|---|---|---|---|
+| 2 | - | - | - | 1 of 3 |
+| 3 | pass | pass | non-pass | 0 of 3, once print contrast became visible |
+| 4 | pass | non-pass | qualified pass | 2 of 3 |
+| 5 | pass | pass | non-pass | 2 of 3 |
+| 6 | non-pass | non-pass | PASS | 1 of 3 |
+
+- **What the budget amendment established**: it worked, and it moved the constraint rather than removing it. The repository case passed for the first time in round six, using all five corrections, with twelve deck controls independently probed across five slides and none inert. Its round-five failure was budget exhaustion on a converging trend, exactly as the amendment argued. In the same round both previously-reliable families failed.
+- **What six rounds establish about the TOOLING**: it converged and is not the limiting factor. Nine gates were built from observed defects and every class has held without recurrence: chart auto-titles, rendered contrast, SVG label collisions, brand visibility, chart deformation, opening-screen opacity, print contrast, lost layout declarations, and focus restoration. Print contrast went from 52, 35 and 46 failures across three artifacts to zero in a single round through guidance alone. Each individual family has now demonstrably passed at least twice.
+- **Why three at once did not happen**: this is a joint outcome, not a quality threshold. Each family passes roughly half to two thirds of attempts, so three simultaneous passes is near one attempt in five. Six rounds without it is an unremarkable result at those odds, and a seventh would be another draw rather than a fix. The round-six failures were a four-pixel stage overflow at a single viewport after findings fell 36, 7, 3, 3, and a shipped-stylesheet defect now fixed as BG-6.
+- **Decision**: carried forward rather than pursued further. Roughly fifteen hours of qualification runtime across six rounds has extracted the available signal. The claim v4.9.1 ships is therefore narrower and is stated plainly: each of the three source families has been independently qualified to pass, the tooling that judges them is verified and negative-controlled, and simultaneous single-invocation delivery across all three within bounded repair is NOT established.
+- **Suggested next step**: if a future version wants the three-family gate, raise per-family reliability rather than re-running. The two highest-value candidates are already recorded: MT-9, a control-liveness check built on listener presence rather than observed change, and WN-5, the `text-overlap` false positive that has now cost working navigation three times and directly contradicts MT-7.
 
 
 ## Resolved during this follow-up
