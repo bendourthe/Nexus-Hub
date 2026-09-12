@@ -57,7 +57,7 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 
 ### WN-4 - The scoped weekly bar is display-only and will not warn the user
 
-- **Source phase**: the Claude Usage Monitor scoped weekly bar, folded into v4.10.0 from the unreleased v4.9.1 slot.
+- **Source phase**: the Claude Usage Monitor scoped weekly bar, folded into v4.10.0 from the unreleased v4.9.1 slot, which was dropped rather than renumbered.
 - **What was observed**: urgency thresholds, status-bar highlighting, and threshold notifications continue to evaluate the session and all-models weekly metrics only. The model-scoped weekly bar is rendered in the dashboard and the status-bar hover but feeds none of them.
 - **Reason it is open**: this is the deliberate outcome, not an omission. The requirement was explicit that the second bar stay out of the status-bar text, and feeding it into the `highest` threshold metric would have coloured the status bar and raised a toast from a bar the user asked to keep off that surface. The consequence is real and is stated in the changelog: a scoped limit approaching capacity is visible on hover and in the dashboard but will not interrupt the user.
 - **Suggested next step**: if a scoped limit ever becomes the binding constraint in practice, the cheapest change is a fourth `claudeUsage.thresholdMetric` value rather than folding it into `highest`, so an existing user's alerting does not change under them. That is a settings-schema change and needs its own decision record.
