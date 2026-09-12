@@ -1,6 +1,6 @@
-# v4.9.1 interactive handbooks - Phase 1 evidence
+# v4.11.0 interactive handbooks - Phase 1 evidence
 
-Phase 1 establishes the shared contract and neutral retained-source seam. It does not qualify a production presentation. Base: develop at 27136cd74ce1dbfec757adea6fbfea9efabcaaa5; isolated branch feat/v4.9.1-interactive-handbooks.
+Phase 1 establishes the shared contract and neutral retained-source seam. It does not qualify a production presentation. Base: develop at 27136cd74ce1dbfec757adea6fbfea9efabcaaa5; isolated branch feat/v4.11.0-interactive-handbooks.
 
 ## Contract reconciliation
 
@@ -35,7 +35,7 @@ GitHub Actions invokes repository-native CI profiles. New stdlib fixture builder
 
 ## Post-phase sequence
 
-Gitignore: 0 patterns added; temporary outputs use pytest directories and existing cache exclusions. Post-phase test review passed: 275 tests; Ruff and git diff --check passed. Documentation audit is read-only and limits new evidence to the active release tree. Product version remains 4.9.0; only this unfinished plan is retargeted to v4.9.1 with incoming link repair. Known gaps and the development index record the active work. No scratch deletion or archive mutation was requested.
+Gitignore: 0 patterns added; temporary outputs use pytest directories and existing cache exclusions. Post-phase test review passed: 275 tests; Ruff and git diff --check passed. Documentation audit is read-only and limits new evidence to the active release tree. Product version remains 4.9.0; only this unfinished plan is retargeted to v4.11.0 with incoming link repair. Known gaps and the development index record the active work. No scratch deletion or archive mutation was requested.
 
 ## Retained input hashes
 

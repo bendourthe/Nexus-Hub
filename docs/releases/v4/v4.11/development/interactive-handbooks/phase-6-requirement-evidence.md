@@ -1,6 +1,6 @@
 # Phase 6 requirement evidence
 
-This ledger connects R01-R30 to observed local behavior and the fresh native authoring gate. Read it with the [master plan](../../plans/v4.9.1-interactive-handbooks-and-presentation-default.md) and [Phase 6 evidence](phase-6-evidence.md). Local regression coverage does not substitute for accepted authoring or final integration. Phase 6 remains incomplete with one of three native input families accepted.
+This ledger connects R01-R30 to observed local behavior and the fresh native authoring gate. Read it with the [master plan](../../plans/v4.11.0-interactive-handbooks-and-presentation-default.md) and [Phase 6 evidence](phase-6-evidence.md). Local regression coverage does not substitute for accepted authoring or final integration. Phase 6 remains incomplete with one of three native input families accepted.
 
 The [affected-suite receipt](phase-6-test-summary.json) records 510 passing tests. Test paths below identify the relevant behavior within that run. The [accepted report](phase-6-native-attempts/report-final/summary.json) records an independent factual, engineering and design pass on unchanged final files. The earlier failed attempts retain their own verdicts.
 

@@ -1,4 +1,4 @@
-# v4.9.1 interactive handbooks - Phase 2 evidence
+# v4.11.0 interactive handbooks - Phase 2 evidence
 
 The shared offline runtime manages one active deck, retained reading position and focus, automatic builds and independent authored slide state. It is exercised through inline browser output and both real installer paths. This is runtime qualification; production assembly and visual design qualification remain in Phases 3 and 6.
 

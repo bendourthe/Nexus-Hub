@@ -1,4 +1,4 @@
-# v4.9.1 interactive handbooks - Phase 3 evidence
+# v4.11.0 interactive handbooks - Phase 3 evidence
 
 Retained assembly now preserves authored page/slide fragments, independent depth selections, saved themes, shared figures and source/build fingerprints. This is an assembly and real-boundary verification result; Phase 6 still owns one-invocation authoring qualification and comparative visual quality.
 

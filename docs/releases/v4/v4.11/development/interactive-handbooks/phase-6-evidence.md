@@ -1,6 +1,6 @@
 # Phase 6 evidence: interactive handbooks
 
-**Status: INCOMPLETE.** Phases 1-5 remain locally committed; T019-T021 remain open. One of three native input families is accepted. The [R01-R30 ledger](phase-6-requirement-evidence.md) identifies proven behavior and remaining qualification. No Phase 6 completion commit, Phase 7 advancement, push, PR, remote CI, version mutation or release ran. The target is v4.9.1; published v4.9.0 is unchanged.
+**Status: INCOMPLETE.** Phases 1-5 remain locally committed; T019-T021 remain open. One of three native input families is accepted. The [R01-R30 ledger](phase-6-requirement-evidence.md) identifies proven behavior and remaining qualification. No Phase 6 completion commit, Phase 7 advancement, push, PR, remote CI, version mutation or release ran. The target is v4.11.0; published v4.9.0 is unchanged.
 
 ## Implemented and observed
 

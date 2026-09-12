@@ -1,6 +1,6 @@
 # Native handbook authoring benchmark
 
-This record separates original first-build performance from later repaired-workflow qualification for the v4.9.1 handbook plan. Read it when assessing T020 and R12; a later successful attempt does not erase a failed first build or demonstrate universal reliability. Current acceptance is one of three required input families.
+This record separates original first-build performance from later repaired-workflow qualification for the v4.11.0 handbook plan. Read it when assessing T020 and R12; a later successful attempt does not erase a failed first build or demonstrate universal reliability. Current acceptance is one of three required input families.
 
 Each model run receives one frozen prompt, unchanged factual inputs and at most three internal correction rounds. Shared-owner fixes are installed only into fresh workspaces; failed output and operator diagnostic repairs are not supplied to subsequent authors. Runtime startup and collection are serialized to preserve Windows read-denial boundaries. Independent host grading opens unchanged collected Office files because native Office automation is unavailable to the sandbox logon account.
 
