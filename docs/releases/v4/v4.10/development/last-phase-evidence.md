@@ -228,4 +228,28 @@ Worth stating plainly, because four of the five came from following a documented
 
 ## Publication and integration
 
-Pending explicit approval.
+Approved and published 2026-09-11. One push, one integration pull request, as the lifecycle requires.
+
+- **Branch**: `feat/v4.10.0-plan-queue-continuity`, 6 commits, 6 ahead / 0 behind `origin/develop` at push time (clean fast-forward, no rebase or merge needed).
+- **Pull request**: [#198](https://github.com/bendourthe/Nexus-Hub/pull/198) into `develop`.
+- **Result**: 23 checks passed, 0 failed, 1 skipped. The aggregate required context `ci-required` passed.
+
+| Check | Result |
+|---|---|
+| `ci-required` (aggregate required context) | pass 2s |
+| `tests` | pass 11m11s |
+| `tests-windows` | pass 17m19s |
+| `validate` | pass 46s |
+| `guide-render` | pass 7m11s |
+| `bootstrap-windows` | pass 4m16s |
+| `bootstrap` (macos, ubuntu) | pass 1m50s, 2m9s |
+| `installer-smoke` (macos, ubuntu, windows) | pass 15s, 12s, 38s |
+| `install-smoke` (macos, ubuntu, windows) | pass 12s, 12s, 29s |
+| `shellcheck` | pass 26s |
+| `colocation`, `changes`, `detect`, `verify` | pass |
+| `CodeQL`, `Analyze` (python, javascript-typescript) | pass 4s, 1m37s, 1m21s |
+| `render` | skipping (no renderable change in this diff) |
+
+**The `tests-windows` pass settles WN-3.** The 11 `tests/skills/test_target_manifest.py` failures recorded above are confirmed to be a property of the development host, not of the code: GitHub's Windows runner ships a git whose executable is a single-link regular file, so `resolve_trusted_git` admits it and all 11 ran green. A fixture fix that makes a local run on an affected host honest rather than red exists on `fix/target-manifest-git-trust-skip` and lands separately; it changes no product code and relaxes no security gate.
+
+Post-merge work is deliberately minimal. `/update release` starts only after this pull request is green and merged.
