@@ -598,6 +598,90 @@ require explicit approval.** Nothing has been pushed, no pull request exists, no
 tag has been created, and no remote CI has run. The plan's `/update release`
 handoff begins only after integration is green and merged.
 
+## First remote validation: PR #202
+
+The branch was pushed once and [PR #202](https://github.com/bendourthe/Nexus-Hub/pull/202)
+opened against `develop`. Every local gate had been green, and the `validate`
+job failed in 32 seconds on a step the canonical profile does not contain:
+`Run pre-commit hooks`. This is exactly what the plan means by the integration
+pull request being the first real validation.
+
+### A wrong diagnosis, recorded because it cost real time
+
+The first hypothesis was line endings, and it was wrong. `core.autocrlf=true` on
+the development host checks every file out as CRLF, so `mixed-line-ending` can
+never pass locally no matter what is committed. Several steps were spent reading
+a host artifact as a repository fact, and a `.pre-commit-config.yaml` exclusion
+was written for a hook that had actually PASSED in CI. That change was reverted
+rather than shipped.
+
+The correct move was available the whole time and was taken too late: read CI's
+own log instead of inferring from a local signal the host distorts.
+
+```
+trim trailing whitespace.......Failed   1 file
+fix end of files...............Failed  31 files
+```
+
+Neither hook has anything to do with line endings.
+
+### Root cause
+
+The generated handbooks did not end with a newline, because the builder wrote
+them with `pathlib.write_text`. That call ALSO translates newlines per host, so
+the same model produced different bytes on Windows and on Linux - a reproducible
+build that was not reproducible across platforms. Both writers now append a
+trailing newline and pin `newline=""`:
+
+- `scripts/build_presentation.py`
+- `scripts/dual_view.py`
+
+This is the defect. Everything else was consequence.
+
+### How the 31 files split, and why most are not fixed
+
+| Kind | Count | Action |
+|---|---|---|
+| Hash-pinned qualification artifacts | 16 | excluded from the hook |
+| Measurement records and one captured test log | 4 | excluded from the hook |
+| Generated handbooks | 2 | fixed at the generator |
+| Test fixtures | 8 | trailing newline added |
+| Release ledgers ending in a blank line | 2 | collapsed to one newline |
+
+The excluded files are captured evidence: each native-authoring attempt pins
+SHA-256 values in its own `summary.json`, 69 of them across the v4.11.0 rounds.
+Appending a newline rewrites a byte-for-byte record of what a generator actually
+produced, and this plan forbids restamping evidence. Both hooks now exclude
+captured artifacts under release `development/` trees, which is the reasoning
+the repository already applies to `docs/releases/**/assets/` for the same hook.
+
+**Authored Markdown under those trees is deliberately NOT excluded.** Prose
+still gets the hygiene; only captured bytes are preserved. That boundary is the
+whole point of scoping by extension rather than by directory.
+
+### Re-verification on the new bytes
+
+```
+overview      status: pass  errors: 0   sha256 c16b69de18b92760
+distribution  status: pass  errors: 0   sha256 7f00f7826654615a
+check_handbooks exit=0
+tests/skills/test_presentify_dual_view_build.py
+tests/skills/test_handbook_freshness.py
+tests/skills/test_living_docs_architecture.py      110 passed in 27.82s
+end-of-file offenders outside the exclusion: none
+```
+
+Handbook evidence was regenerated through the gate's own `snapshot()` function
+against the rebuilt bytes, not edited by hand.
+
+### One further self-inflicted cost
+
+A bash heredoc on this host ate the backslash in `\n` and corrupted
+`build_presentation.py` mid-edit. This is a KNOWN property of this environment
+and was already recorded; it was not applied. Both files were restored from the
+commit and the edit redone through a script file. Nothing corrupted survived,
+and the syntax check that caught it ran before anything was rebuilt.
+
 ## Publication and integration
 
 **Status: not started. Awaiting explicit approval.**

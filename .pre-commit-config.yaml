@@ -36,13 +36,25 @@ repos:
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
-        exclude: '\.(md)$'
+        # Retained release artifacts are captured output, not authored prose:
+        # trailing whitespace in a recorded test log is part of what the run
+        # actually printed. See the end-of-file-fixer note below.
+        exclude: '\.(md)$|^docs/releases/.*/development/.*\.(json|html|txt|csv)$'
       - id: end-of-file-fixer
         # Release evidence under docs/releases/**/assets/ holds approved-bytes-only
         # artifacts whose SHA-256 is pinned in an asset-provenance ledger and matched
         # against the bytes embedded in the guide. Appending a newline would change
         # every hash and break that discipline, so the fixer must not touch them.
-        exclude: '^docs/releases/.*/assets/'
+        #
+        # The same discipline covers retained release ARTIFACTS: the captured
+        # JSON, HTML and log output of a qualification run. Each native-authoring
+        # attempt pins SHA-256 values in its own summary.json - 69 across the
+        # v4.11.0 rounds - and generated handbooks are hash-checked by
+        # check_handbooks.py against their build record. Appending a newline
+        # rewrites a byte-for-byte record of what a generator actually produced.
+        # Authored Markdown under the same trees is NOT excluded: prose still
+        # gets the hygiene, only captured artifacts keep their bytes.
+        exclude: '^docs/releases/.*/assets/|^docs/releases/.*/development/.*\.(json|html|txt|csv)$'
       - id: check-yaml
         exclude: 'templates.json|skills.json'
       - id: check-json

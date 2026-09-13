@@ -786,7 +786,15 @@ def main(argv: list | None = None) -> int:
     out_path = Path(args.out)
     if out_path.parent and not out_path.parent.exists():
         out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(output, encoding="utf-8")
+    # newline="" stops Windows translating every \n into \r\n, which would
+    # make the same model produce different bytes on different hosts. The file
+    # also ends with a newline, like any other text file: without it the
+    # end-of-file hook rewrites the output on the next commit, changing the very
+    # hash the build record pins and reporting the handbook stale against a
+    # build nobody touched.
+    if not output.endswith("\n"):
+        output += "\n"
+    out_path.write_text(output, encoding="utf-8", newline="")
     print(
         f"Wrote {out_path} ({len(model.get('sections', []))} slide(s)).",
         file=sys.stderr,
