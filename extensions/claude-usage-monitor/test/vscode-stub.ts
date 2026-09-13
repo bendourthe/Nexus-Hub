@@ -34,8 +34,10 @@ export function __setStubConfig(section: string, key: string, value: unknown): v
 // Every status-bar item created, in creation order, so tests can assert the
 // priorities. `__resetStubState` clears both stores between tests.
 export const createdStatusBarItems: Array<Record<string, unknown>> = [];
+export const createdWebviewPanels: Array<Record<string, any>> = [];
 export function __resetStubState(): void {
   createdStatusBarItems.length = 0;
+  createdWebviewPanels.length = 0;
   configurationUpdates.length = 0;
   for (const k of Object.keys(stubConfig)) {
     delete stubConfig[k];
@@ -71,6 +73,21 @@ export const workspace = {
 
 export const window = {
   activeColorTheme: { kind: 1 },
+  createWebviewPanel(_viewType: string, _title: string, _col?: unknown, _opts?: unknown): Record<string, any> {
+    const panel: Record<string, any> = {
+      webview: {
+        html: "",
+        onDidReceiveMessage: () => ({ dispose() {} }),
+        postMessage: () => {},
+      },
+      onDidDispose: () => ({ dispose() {} }),
+      reveal() {},
+      dispose() {},
+      iconPath: undefined,
+    };
+    createdWebviewPanels.push(panel);
+    return panel;
+  },
   createStatusBarItem(alignment?: unknown, priority?: number): Record<string, unknown> {
     const item: Record<string, unknown> = {
       alignment,
@@ -89,7 +106,29 @@ export const window = {
   },
 };
 
+export const ViewColumn = { Active: -1, Beside: -2, One: 1, Two: 2 } as const;
+
 export const ColorThemeKind = { Light: 1, Dark: 2, HighContrast: 3, HighContrastLight: 4 } as const;
+
+/**
+ * Minimal `MarkdownString`. The status-bar tooltip is built entirely through
+ * this type, so without it the data-path tooltip - including the percent-
+ * encoded inline SVG for each bar - could not be asserted at all (v4.10.0 MT-2).
+ */
+export class MarkdownString {
+  public value: string;
+  public isTrusted = false;
+  public supportThemeIcons = false;
+  public supportHtml = false;
+  constructor(value = "", supportThemeIcons = false) {
+    this.value = value;
+    this.supportThemeIcons = supportThemeIcons;
+  }
+  appendMarkdown(markdown: string): MarkdownString {
+    this.value += markdown;
+    return this;
+  }
+}
 
 export class ThemeColor {
   constructor(public readonly id: string) {}
