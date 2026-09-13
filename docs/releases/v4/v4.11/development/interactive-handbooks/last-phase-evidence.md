@@ -828,6 +828,42 @@ with playwright present            -> 68 passed in 112.38s
 The control earning its keep for the second time this phase: a guard that cannot
 be shown to fire is not a guard.
 
+### Fifth CI round, and a change of method that should have come sooner
+
+Four collection errors, from three optional dependencies: `python-docx`,
+`python-pptx` twice, and Pillow. The Pillow one was in a module already guarded
+for playwright - the guard sat BELOW `from PIL import Image`, and a guard placed
+after the import it protects never runs.
+
+All four take the repository's existing idiom for optional dependencies,
+`pytest.importorskip`, as `tests/skills/test_presentify_annotations.py` already
+does. `NEXUS_REQUIRE_RENDER` is specific to a browser being available and
+correctly does not apply to Office or imaging libraries.
+
+**The method changed here, and that matters more than the fix.** Four rounds
+were spent discovering one instance at a time of a single defect class, at
+roughly twenty-five minutes per instance. The class is "a module needs an
+optional dependency the job does not install", and it is enumerable locally in
+seconds. A sandbox that makes `playwright`, `docx`, `pptx`, `PIL` and `win32com`
+raise ImportError on import reproduces the runner's environment:
+
+```
+PYTHONPATH=<sandbox> python -m pytest tests/ --collect-only -q
+  5169 tests collected in 7.45s          (0 errors)
+
+PYTHONPATH=<sandbox> python -m pytest tests/skills/ -q
+  1571 passed, 45 skipped in 425.48s     (0 failed)
+
+with every dependency present:
+  62 passed, 5 skipped in 32.85s         (the four guarded modules)
+```
+
+That closes the collection-error class and the `unverified` runtime class
+together, instead of one per round trip. The lesson is not about dependencies:
+when a remote failure is an instance of a class, reproduce the ENVIRONMENT and
+enumerate the class, rather than fixing the instance and paying for another
+round to find the next one.
+
 ## Publication and integration
 
 **Status: not started. Awaiting explicit approval.**

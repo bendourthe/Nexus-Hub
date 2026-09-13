@@ -6,6 +6,8 @@ from io import BytesIO
 from pathlib import Path
 
 import pytest
+pytest.importorskip("pptx", reason="python-pptx is not installed in this job")
+
 from pptx import Presentation
 from pptx.chart.data import CategoryChartData
 from pptx.enum.chart import XL_CHART_TYPE

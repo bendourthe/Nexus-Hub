@@ -11,6 +11,8 @@ import sys
 from pathlib import Path
 
 import pytest
+pytest.importorskip("PIL", reason="Pillow is not installed in this job")
+
 from PIL import Image
 # playwright is installed only by the CI render job, which also sets
 # NEXUS_REQUIRE_RENDER=1. Everywhere else these modules skip rather than erroring

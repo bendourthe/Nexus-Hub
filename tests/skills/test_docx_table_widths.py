@@ -4,6 +4,8 @@ import re
 from pathlib import Path
 
 import pytest
+pytest.importorskip("docx", reason="python-docx is not installed in this job")
+
 from docx import Document
 from docx.shared import Inches
 
