@@ -67,4 +67,3 @@ Glossary: no newly ambiguous load-bearing terms arose; definitions already appea
 The final validation receipt is [verification.json](verification.json). It records the task/phase parser, local links, resource/model-map checks, Markdown hygiene, mandatory final-template preservation and comparison/plan co-location. No implementation suite, upstream executable, live model benchmark, commit or remote publication ran for this planning task.
 
 Workflow coverage limitation: the installed plan dispatcher names the unavailable generate-plan delegate. That delegate was not run. The available implementation-plan skill supplied the retained planning procedure, and plan-review plus its seeded design-interview pass were applied as recorded above.
-
