@@ -97,6 +97,14 @@ Every entry in a section's `blocks` array is an object whose `type` field select
         - `source_image` (string; a base64 `data:` URI of the original figure image, powering the view-original toggle on reconstructed charts).
         - `caption` (string; the chart's own title or a nearby caption line when present).
         - `axis` (object with optional `x_label`, `y_label`, `y_min`, `y_max`, `unit`) - so reconstructions preserve the source's scales and units faithfully.
+        - `fragment` (integer, on a SERIES) - the reveal order of that series within the slide hosting the chart. The renderer stamps it onto the emitted element as `data-fragment="<n>"`, the attribute the deck's fragment stepper already consumes (`references/slide-navigation.md` section 4). The field is inert on the reading page, where figures reveal whole: one model, two views.
+        - `fragment_plan` (array of `{ "n": integer, "shows": string }`, on the CHART) - the authored build manifest, in the presenter's words, ordered by `n`. Section 4.1 of `slide-navigation.md` requires this manifest to exist before any number is assigned; recording it in the model is what makes it reviewable and checkable rather than an intention that lived only in the author's head.
+
+    Three rules govern these two fields, each closing a way the build has gone wrong before:
+
+    - **Order is authored, never inferred.** A renderer MUST NOT assign fragments itself. An inferred order falls back to what the renderer can see - element type, tag name, or DOM position - which is what produces "every box, then every label, then every arrow" on a diagram.
+    - **Assignment is all-or-nothing within one figure.** Every drawable carries `fragment`, or none does. A figure where some carry it has undefined build positions for the rest, and the renderer has no defensible way to place them.
+    - **Omitting it everywhere is legitimate.** A figure with no fragments reveals whole, which is the right choice for a simple figure. Absence is a decision, not an oversight to be filled in automatically.
 - `code`: a preformatted code or monospace block.
     - `{ "type": "code", "text": string, "language": string }`
     - `language` may be an empty string when unknown.

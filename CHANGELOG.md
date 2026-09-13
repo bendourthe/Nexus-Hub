@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Slide build-order contract** (`slide-navigation.md` section 4.1): fragment order derives from the content's own logic, never from element type, tag name, stroke style, or DOM order alone. A node and the connector arriving at it share one fragment.
+- **Projection-distance type floors** (`responsive-typography.md` section 4.1): no rendered text on a slide stage below 2% of stage height, at most four distinct sizes per slide. The page floors are desk-reading floors and do not cover a projected stage.
+- **Aspect-change re-layout rule** (`figure-reconstruction.md` section 8): a figure re-used at an aspect differing by more than 25% is re-laid-out, not scaled.
+- **`fragment` and `fragment_plan` in the figure model** (`content-model.md`), so a build can be authored in data and stamped by the renderer rather than inferred.
+- **Four scorer checks**: `slide-type-variety`, `slide-figure-scaled`, partial-assignment detection in `slide-fragments`, and `presentation-declared`.
+
 - **Interactive handbooks with a title-page presentation mode as the default output.** `/presentify` and project handbook maintenance now produce ONE self-contained offline HTML file carrying both a complete scrolling reading view and a title-page presentation mode, from the same retained sources. The user may opt out with `--presentation no`, which wins over every other flag. Nothing is fetched at runtime: fonts, images, charts and the runtime are embedded, so the file works from a `file://` URI with no network.
 - **Nine rendered-output gates, each negative-controlled.** The measurement pass reads what the browser computed rather than what the source declared: rendered type size against per-role floors, WCAG contrast on composited colour, SVG label-versus-shape collisions, clipped text, invisible brand marks, deformed charts, print-surface contrast, a declared layout property that does not compute, and focus restoration after Escape. Each fails a purpose-built fixture and stays silent on the others.
 - **`check_handbooks.py`, a read-only handbook inventory and freshness gate**, now wired into the `docs` CI group. It hashes sources, BUILDER and output, so an edit to the builder invalidates a handbook whose sources never changed - the case an input/output hash cannot see. It launches no browser and adds about a second.
@@ -32,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Urgency thresholds, status-bar highlighting, and threshold notifications continue to evaluate the session and all-models weekly metrics only.** The scoped weekly bar is a display surface; it does not colour the status bar or raise a warning. A scoped limit approaching capacity is therefore visible on hover and in the dashboard but will not interrupt you.
 
 ### Fixed
+
+- **Fail-open in the slide-mode check family.** A page whose markup ships a presentation while its design record declares none scored a clean pass, because the family gates on the declaration and nothing verified the declaration against the markup. Five shipped handbook decks were skipped this way. `presentation-declared` runs ungated and closes it.
 
 - **`check_merge_conflict_markers` catches a marker run wider than seven characters.** Git widens it when the two sides disagree about the PATH as well as the content, so a committed rename conflict writes `<<<<<<<< HEAD:old/path`. Eleven unresolved conflicts sat in a release plan while the check reported clean on the same revision. Now matches seven or more, with the test that was missing.
 
