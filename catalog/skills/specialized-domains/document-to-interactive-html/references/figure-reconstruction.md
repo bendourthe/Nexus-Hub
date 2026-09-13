@@ -114,6 +114,8 @@ The protocol UPDATES the model JSON so downstream stages (design, authoring, and
 
 Nothing is deleted from the model. The reconciliation rule stays: every visual the coverage manifest counts must end up rendered, reconstructed, or explicitly skipped with a reason.
 
+5. Where the figure appears on a presentation slide, each drawable it contributes MAY carry `fragment: <n>` giving its reveal order, per the schema in `references/content-model.md`. The build belongs to the reconstruction, not to a later styling pass: the author who worked out what the figure means is the one who knows the order it should arrive in. Order is chosen per `references/slide-navigation.md` section 4.1, never inferred by the renderer.
+
 ## 7. Scanned-page transcription and OCR verification
 
 For every `image` block with `origin: "scanned-page"`, the agent reads the page image and reconciles it with the OCR blocks the extractor emitted for that page (`provenance: "ocr"`):
@@ -125,6 +127,16 @@ For every `image` block with `origin: "scanned-page"`, the agent reads the page 
 - **Truthfulness**: transcription follows the worksheet's rules - unreadable words are written `<unreadable>`, never guessed; the page image ships in the output (lightbox-enabled) so the reader can always consult the original.
 
 A scanned page is complete when its text, tables, and figures are all either verified/transcribed or explicitly marked unreadable - the same no-silent-loss rule as everywhere else in this skill.
+
+## 8. Re-use at a different aspect ratio (BINARY)
+
+A figure is composed for the box it was drawn for. Placing it in a box of a materially different aspect ratio is a new composition, not a resize. This is the rule that separates a reconstruction from a screenshot with extra steps.
+
+- **When the target aspect differs from the source by more than 25%, re-lay-out the figure; do not scale it.** Re-layout recomputes the panel rectangle, the tick density, the legend placement, and the type sizes for the new box. Scaling multiplies everything by one factor, carrying the source's proportions and the source's typography into a box that suits neither.
+- The common case is a reading-column figure (tall, narrow) placed on a 16:9 presentation stage (wide, short). Scaled, the drawing occupies a horizontal band with dead margins above and below, and its type lands below the stage floor in `references/responsive-typography.md` section 4.1. Both are symptoms of the same omission, which is why fixing only the type does not fix the slide.
+- **A scaled figure is detectable**: rendered text smaller than the authored `font-size` means a uniform transform was applied somewhere above it. Re-layout changes the authored values instead, so authored and rendered agree.
+- Re-layout is a property of the FIGURE, not of its container. Fitting the container, letterboxing inside `preserveAspectRatio`, and scaling a wrapper are the same omission wearing different clothes; none of them recomposes anything.
+- A figure that genuinely cannot be recomposed for the target box (a wide flow diagram on a tall canvas, say) is split, simplified for that view, or given its own view - not shrunk until it fits.
 
 ## Coverage reconciliation (output format)
 

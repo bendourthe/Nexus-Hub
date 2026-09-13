@@ -369,6 +369,158 @@ def test_padded_nav_value_still_resolves_to_slide_mode() -> None:
 # --- the reference documents what the scorer enforces ------------------------
 
 
+# --- v4.9.2: build order, stage typography, and figure composition -----------
+#
+# Three defects the family could not previously see. Each is exercised twice:
+# once on a fixture carrying exactly one seeded defect that must be detected,
+# once on a clean fixture that must pass, because a check that has only ever
+# been shown passing is indistinguishable from one that cannot fail.
+
+
+def _slide_page(body_inner: str, head_extra: str = "") -> str:
+    """A minimal slide-mode page carrying the chrome the other checks require."""
+    return (
+        "<html><head><style>"
+        "html, body{overflow: hidden;}"
+        ".slide-stage{height: 100svh; width: 100svw;}"
+        + head_extra
+        + "</style></head>"
+        + "<!--" + chr(10) + "DESIGN RECORD" + chr(10)
+        + "nav: slides (provenance: flag)" + chr(10) + "-->"
+        '<body data-nav="slides">'
+        '<div class="slide-deck">'
+        '<section class="slide-stage" id="slide-1"><div class="slide-inner">'
+        + body_inner
+        + "</div></section></div>"
+        '<p class="slide-counter">1 / 1</p><nav class="slide-rail"></nav>'
+        '<button class="slide-hit-prev"></button><button class="slide-hit-next"></button>'
+        "</body></html>"
+    )
+
+
+def test_partially_fragmented_figure_is_flagged() -> None:
+    """Some drawables numbered and some not leaves the rest with no build position."""
+    page = _slide_page(
+        '<svg viewBox="0 0 100 50" width="100" height="50">'
+        '<path d="M0 0 L10 10" data-fragment="1"/>'
+        '<circle cx="5" cy="5" r="2"/>'       # no fragment: the seeded defect
+        "</svg>"
+    )
+    result = scorer.score_html(page)
+    assert "slide-fragments" in _fails(result)
+    assert "partial" in _by_criterion(result)["slide-fragments"]["evidence"].lower()
+
+
+def test_figure_with_no_fragments_anywhere_is_a_legitimate_whole_reveal() -> None:
+    """Absence everywhere is a decision, not an oversight to be filled in."""
+    page = _slide_page(
+        '<svg viewBox="0 0 100 50" width="100" height="50">'
+        '<path d="M0 0 L10 10"/><circle cx="5" cy="5" r="2"/>'
+        "</svg>"
+    )
+    assert "slide-fragments" not in _fails(scorer.score_html(page))
+
+
+def test_fully_fragmented_figure_passes() -> None:
+    page = _slide_page(
+        '<svg viewBox="0 0 100 50" width="100" height="50">'
+        '<path d="M0 0 L10 10" data-fragment="1"/>'
+        '<circle cx="5" cy="5" r="2" data-fragment="2"/>'
+        "</svg>"
+    )
+    assert "slide-fragments" not in _fails(scorer.score_html(page))
+
+
+def test_slide_carrying_more_than_four_type_sizes_is_flagged() -> None:
+    """Six sizes on one slide is a page that was moved, not a slide composed."""
+    spans = "".join(
+        f'<span style="font-size:{size}px">x</span>' for size in (11, 13, 15, 17, 19, 21)
+    )
+    result = scorer.score_html(_slide_page(spans))
+    assert "slide-type-variety" in _fails(result)
+
+
+def test_slide_with_four_type_sizes_passes() -> None:
+    spans = "".join(
+        f'<span style="font-size:{size}px">x</span>' for size in (18, 20, 24, 30)
+    )
+    assert "slide-type-variety" not in _fails(scorer.score_html(_slide_page(spans)))
+
+
+def test_scaled_figure_wrapper_is_flagged() -> None:
+    """A uniform transform carries the source's proportions and typography."""
+    page = _slide_page(
+        '<div class="fig" style="transform: scale(0.62)">'
+        '<svg viewBox="0 0 620 350" width="620" height="350"></svg></div>'
+    )
+    result = scorer.score_html(page)
+    assert "slide-figure-scaled" in _fails(result)
+    assert "scale" in _by_criterion(result)["slide-figure-scaled"]["evidence"].lower()
+
+
+def test_svg_stretched_to_a_box_of_another_aspect_is_flagged() -> None:
+    """width/height 100% over a viewBox letterboxes rather than recomposing."""
+    page = _slide_page(
+        '<svg viewBox="0 0 620 350" style="width:100%;height:100%"></svg>'
+    )
+    assert "slide-figure-scaled" in _fails(scorer.score_html(page))
+
+
+def test_figure_authored_at_its_own_box_passes() -> None:
+    page = _slide_page('<svg viewBox="0 0 1408 620" width="1408" height="620"></svg>')
+    assert "slide-figure-scaled" not in _fails(scorer.score_html(page))
+
+
+def test_clean_slide_fixture_passes_the_new_checks() -> None:
+    fails = _fails(scorer.score_html(_CLEAN_SLIDES))
+    assert "slide-type-variety" not in fails
+    assert "slide-figure-scaled" not in fails
+
+
+def test_scroll_mode_skips_the_new_checks_rather_than_failing_them() -> None:
+    fails = _fails(scorer.score_html(_CLEAN_SCROLL))
+    assert "slide-type-variety" not in fails
+    assert "slide-figure-scaled" not in fails
+
+
+def test_page_shipping_a_deck_without_declaring_one_is_flagged() -> None:
+    """The fail-open that let five shipped handbooks score clean."""
+    page = (
+        "<html><body>"
+        '<div id="deck" aria-label="LVEDP: presentation">'
+        '<article class="dkslide">1</article>'
+        '<article class="dkslide">2</article>'
+        '<article class="dkslide">3</article>'
+        "</div></body></html>"
+    )
+    result = scorer.score_html(page)
+    assert "presentation-declared" in _fails(result)
+    evidence = _by_criterion(result)["presentation-declared"]["evidence"]
+    assert "declares" in evidence and "skip" in evidence
+
+
+def test_plain_scrolling_report_is_not_accused_of_hiding_a_deck() -> None:
+    assert "presentation-declared" not in _fails(scorer.score_html(_CLEAN_SCROLL))
+
+
+def test_declared_slide_mode_page_passes_the_declaration_check() -> None:
+    assert "presentation-declared" not in _fails(scorer.score_html(_CLEAN_SLIDES))
+
+
+def test_a_single_slider_class_is_below_the_threshold() -> None:
+    """One carousel named 'slider' is not a presentation."""
+    page = "<html><body><div class='slider'><p>x</p></div></body></html>"
+    assert "presentation-declared" not in _fails(scorer.score_html(page))
+
+
+def test_reference_documents_how_fragment_order_is_chosen() -> None:
+    """The scorer can only check well-formedness; 4.1 is what makes order right."""
+    text = _REFERENCE_PATH.read_text(encoding="utf-8")
+    assert "4.1 Choosing n" in text
+    assert "Never derive order from element type" in text
+    assert "a node and the connector arriving at it share one fragment" in text
+
+
 def test_reference_documents_the_data_nav_hook_the_scorer_keys_on() -> None:
     text = _REFERENCE_PATH.read_text(encoding="utf-8")
     assert 'data-nav="slides"' in text
