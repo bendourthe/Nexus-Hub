@@ -19,12 +19,13 @@ import pytest
 # Under NEXUS_REQUIRE_RENDER=1 a missing browser is a FAILURE, never a quiet
 # skip inside an otherwise green run: a render job that skips every rendered
 # assertion and reports success is the blindness this plan exists to remove.
-try:  # pragma: no cover - environment dependent
-    import playwright.sync_api  # noqa: F401
-except ImportError:
-    if os.environ.get("NEXUS_REQUIRE_RENDER") == "1":
-        raise
-    pytest.skip("playwright is not installed", allow_module_level=True)
+# importlib.import_module and importorskip both really IMPORT the module, unlike
+# find_spec, which only locates it and therefore passes a broken install. Neither
+# leaves a bare `import` statement whose binding is unused, which CodeQL flags.
+if os.environ.get("NEXUS_REQUIRE_RENDER") == "1":  # pragma: no cover
+    importlib.import_module("playwright.sync_api")
+else:
+    pytest.importorskip("playwright.sync_api", reason="playwright is not installed")
 
 ROOT = Path(__file__).resolve().parents[2]
 BUNDLE = ROOT / "catalog/skills/specialized-domains/document-to-interactive-html"
