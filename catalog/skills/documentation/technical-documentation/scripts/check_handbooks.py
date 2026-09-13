@@ -32,7 +32,23 @@ def local(root: Path, name: str) -> Path:
 
 
 def digest(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    """Hash a file's CONTENT, not the line endings its checkout happened to use.
+
+    Under `* text=auto` git stores a text file with LF and checks it out with
+    CRLF on Windows. Hashing raw bytes therefore makes this gate host-dependent:
+    a snapshot recorded on a Windows workstation can never verify on a Linux
+    runner, and vice versa. During v4.11.0 Phase 7 that shipped a handbook
+    record which passed locally at 46 of 46 and failed CI with "changed content
+    review evidence" - a difference of zero content.
+
+    Text is normalised to LF before hashing. A file carrying a NUL byte is
+    binary (a PNG, a PPTX) and is hashed exactly as it lies, because there a
+    byte is a byte and CRLF is data rather than a line ending.
+    """
+    raw = path.read_bytes()
+    if b"\0" in raw[:8000]:
+        return hashlib.sha256(raw).hexdigest()
+    return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
 
 
 def read_json(path: Path) -> dict[str, Any]:

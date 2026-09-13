@@ -740,6 +740,66 @@ And with playwright present, the five modules still pass in full:
 Refusing to ship the unexplained change cost one CI round-trip and remains the
 right call: the alternative was committing someone else's unreviewed edit.
 
+### Third CI round: the gate this phase wired in was host-dependent
+
+Both pre-commit hooks and the presentify suite passed. The failure moved to the
+repository-native profile, and to `check_handbooks` - the gate THIS phase added
+to CI. It had just passed locally at 46 of 46.
+
+```
+[FAIL] check_handbooks (0.2s)
+FAIL: 36 passed, 1 failed, 0 skipped, 0 advisory in 11.5s
+```
+
+The runner truncated the JSON, and two hypotheses were wrong before the right
+move was taken: stop inferring and REPRODUCE. A pristine clone checked out with
+`core.autocrlf=false` - a Linux-shaped checkout on this Windows host - gave the
+answer in one run:
+
+```
+overview: changed content review evidence
+distribution: changed content review evidence
+```
+
+**Root cause.** `digest()` hashed raw bytes. Under `* text=auto` git stores a
+text file with LF and checks it out with CRLF on Windows, so the same commit
+produced different hashes on a workstation and on a runner. A snapshot recorded
+on one host could never verify on the other. The gate was answering "was this
+checked out on the same operating system", not "is this the same content" - and
+a freshness gate that cannot agree with itself across hosts is not a gate.
+
+Note what this means for the earlier rounds: the local 46 of 46 was true, and so
+was CI's failure. Both were correct about different checkouts of identical
+content.
+
+**Fix.** `digest()` normalises CRLF to LF before hashing text, and hashes a file
+containing a NUL byte exactly as it lies, because in a PNG or a PPTX a CR is
+data rather than a line ending.
+
+```
+text LF == text CRLF : True
+binary hashed exactly: True
+```
+
+**Verified in both checkouts**, which is the only proof that settles a
+host-dependence bug:
+
+```
+windows worktree (CRLF): check_handbooks exit=0
+LF checkout (CI shape) : check_handbooks exit=0
+tests/skills/test_handbook_freshness.py
+tests/skills/test_living_docs_architecture.py     35 passed in 7.91s
+```
+
+Handbook evidence was regenerated under the corrected digest.
+
+**The lesson this round is worth the whole exercise.** A gate added in Phase 7
+to stop stale documentation shipped with a defect that would have failed every
+future contributor's CI while passing every Windows author's machine, and it was
+caught because the plan requires the integration pull request to be the first
+remote validation. Three rounds of red checks found four real defects, none of
+which any local run could have surfaced.
+
 ## Publication and integration
 
 **Status: not started. Awaiting explicit approval.**

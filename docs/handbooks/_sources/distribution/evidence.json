@@ -37,7 +37,7 @@
     "rendered": {
       "status": "pass",
       "evidence": "docs/releases/v4/v4.11/development/interactive-handbooks/phase-7-distribution-rendered.json",
-      "evidence_sha256": "4f3eba9fdcaf2cbc72fd9e53a740e8b900615f4d0e5b566ad17432f8b49326a5",
+      "evidence_sha256": "2ee536f8279e7c605327d7d1a8b69b3f7dde7f55de96eca91d0931496be1f396",
       "browser": "Chromium 151.0.7922.34",
       "output_sha256": "7f00f7826654615a5948b70ab3fe4c3f7ba2f2bef7889976678d899b51550af5"
     }
