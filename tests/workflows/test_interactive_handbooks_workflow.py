@@ -39,6 +39,7 @@ def extractor():
 
 
 def test_report_extraction_preserves_conflicting_totals(extractor):
+    pytest.importorskip("docx", reason="python-docx is not installed in this job")
     model = extractor.build_model(
         [
             str(CORPUS / "report/inputs/pilot.docx"),
@@ -58,6 +59,7 @@ def test_report_extraction_preserves_conflicting_totals(extractor):
 
 
 def test_pptx_extractor_retains_five_source_pages_and_exact_chart(extractor):
+    pytest.importorskip("pptx", reason="python-pptx is not installed in this job")
     from pptx import Presentation
 
     source = CORPUS / "presentation/inputs/service-review.pptx"

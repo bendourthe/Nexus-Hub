@@ -864,6 +864,52 @@ when a remote failure is an instance of a class, reproduce the ENVIRONMENT and
 enumerate the class, rather than fixing the instance and paying for another
 round to find the next one.
 
+### Sixth CI round: a regression this branch caused, caught by its own test
+
+Three failures in `tests/workflows/` - a directory the previous sandbox sweep
+covered for COLLECTION but not for runtime, because that sweep ran only
+`tests/skills/`. Enumerating a class over part of the tree is not enumerating
+the class.
+
+Two were the familiar optional-dependency class, guarded the same way.
+
+**The third was self-inflicted and is the one worth recording.**
+`test_frozen_inputs_have_exact_bytes_and_no_unlisted_files` hashes the
+qualification corpus against its own `frozen-manifest.json`. Adding trailing
+newlines to satisfy `end-of-file-fixer` silently rewrote EIGHT frozen inputs.
+
+That corpus is byte-frozen on purpose: QG-2's three-family benchmark is only
+meaningful if every run starts from identical bytes. Tidying whitespace damaged
+the thing the benchmark rests on, and it did so quietly - the hook reported a
+fix, not a warning.
+
+All eight restored; the manifest reports zero mismatches. The corpus is now
+excluded from all three hygiene hooks with the reasoning recorded in the config.
+This is the discipline already applied to hash-pinned release evidence; the
+corpus simply had not been recognised as the same kind of thing.
+
+**Full environment sweep, the whole tree this time:**
+
+```
+PYTHONPATH=<sandbox> python -m pytest tests/ -q
+  4843 passed, 338 skipped, 0 failed in 3311.54s
+
+all three hooks, whole repository : 0 / 0 / 0 offenders
+frozen corpus vs manifest         : 0 mismatches
+```
+
+Two non-fatal warnings remain: a Windows-only `UnicodeDecodeError` in a
+subprocess reader thread, unrelated to this work and absent on Linux runners.
+Recorded rather than silenced, because an unexplained warning that nobody wrote
+down is how the next investigation starts from zero.
+
+**What these six rounds cost, and what they bought.** Roughly three hours of
+round trips found six real defects, four of which no local run could have
+surfaced and one of which this branch introduced. The recurring error was mine:
+fixing the instance in front of me instead of reproducing the environment and
+enumerating the class. The sandbox that finally did it takes seven seconds to
+build.
+
 ## Publication and integration
 
 **Status: not started. Awaiting explicit approval.**

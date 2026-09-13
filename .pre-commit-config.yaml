@@ -39,7 +39,7 @@ repos:
         # Retained release artifacts are captured output, not authored prose:
         # trailing whitespace in a recorded test log is part of what the run
         # actually printed. See the end-of-file-fixer note below.
-        exclude: '\.(md)$|^docs/releases/.*/development/.*\.(json|html|txt|csv)$'
+        exclude: '\.(md)$|^docs/releases/.*/development/.*\.(json|html|txt|csv)$|^tests/fixtures/interactive-handbooks-qualification/'
       - id: end-of-file-fixer
         # Release evidence under docs/releases/**/assets/ holds approved-bytes-only
         # artifacts whose SHA-256 is pinned in an asset-provenance ledger and matched
@@ -54,7 +54,14 @@ repos:
         # rewrites a byte-for-byte record of what a generator actually produced.
         # Authored Markdown under the same trees is NOT excluded: prose still
         # gets the hygiene, only captured artifacts keep their bytes.
-        exclude: '^docs/releases/.*/assets/|^docs/releases/.*/development/.*\.(json|html|txt|csv)$'
+        #
+        # The frozen qualification corpus is the same kind of thing and learned
+        # it the hard way: every file is pinned in its own frozen-manifest.json,
+        # because QG-2's benchmark is only meaningful if all three families are
+        # rebuilt from byte-identical inputs. Appending newlines to eight of its
+        # files to satisfy this hook silently invalidated the manifest, and the
+        # test that guards it caught the regression in CI.
+        exclude: '^docs/releases/.*/assets/|^docs/releases/.*/development/.*\.(json|html|txt|csv)$|^tests/fixtures/interactive-handbooks-qualification/'
       - id: check-yaml
         exclude: 'templates.json|skills.json'
       - id: check-json
@@ -71,8 +78,10 @@ repos:
         # produced, for the reason given on end-of-file-fixer above: their
         # SHA-256 values are pinned in the qualification summaries. Two of them
         # carry mixed endings because that is what the generator emitted, and
-        # normalising those would edit the record rather than fix a defect.
-        exclude: '\.cmd$|^docs/releases/.*/development/.*\.(json|html|txt|csv)$'
+        # normalising those would edit the record rather than fix a defect. The
+        # frozen qualification corpus is pinned the same way, by its own
+        # frozen-manifest.json.
+        exclude: '\.cmd$|^docs/releases/.*/development/.*\.(json|html|txt|csv)$|^tests/fixtures/interactive-handbooks-qualification/'
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1
