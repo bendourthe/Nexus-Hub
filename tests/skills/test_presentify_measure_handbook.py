@@ -1,11 +1,30 @@
 """Independent inventory, rendered geometry and unavailable-capability regressions."""
 
 import importlib
+import os
 import json
 import sys
 from pathlib import Path
 
 import pytest
+
+
+# These tests drive measure_handbook.py, which needs a browser. Without
+# playwright the script correctly reports "unverified" - an unavailable
+# capability is never a pass - so every assertion expecting "fail" or "pass"
+# breaks for an environmental reason rather than a real one. Round four guarded
+# the modules that IMPORT playwright; these reach it through a subprocess, which
+# is the same gap one layer down.
+#
+# Under NEXUS_REQUIRE_RENDER=1 a missing browser is a FAILURE, never a quiet
+# skip inside an otherwise green run: a render job that skips every rendered
+# assertion and reports success is the blindness this plan exists to remove.
+try:  # pragma: no cover - environment dependent
+    import playwright.sync_api  # noqa: F401
+except ImportError:
+    if os.environ.get("NEXUS_REQUIRE_RENDER") == "1":
+        raise
+    pytest.skip("playwright is not installed", allow_module_level=True)
 
 ROOT = Path(__file__).resolve().parents[2]
 BUNDLE = ROOT / "catalog/skills/specialized-domains/document-to-interactive-html"
