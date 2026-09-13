@@ -682,6 +682,64 @@ and was already recorded; it was not applied. Both files were restored from the
 commit and the edit redone through a script file. Nothing corrupted survived,
 and the syntax check that caught it ran before anything was rebuilt.
 
+### Second CI round: two more, both real
+
+Fixing the first two hooks revealed a third. `pre-commit` reports hooks in
+order, so `mixed line ending` had been failing all along behind them.
+
+**`mixed line ending`.** The first diagnosis was right after all; it just was
+not what failed FIRST. Two committed artifacts genuinely carry mixed endings
+because that is what the generator emitted, and both are hash-pinned, so they
+take the same captured-artifact exclusion as the other two hooks. All three
+hooks now simulate clean across the whole repository, not just this diff:
+
+```
+end-of-file offenders (whole repo):        0
+trailing-whitespace offenders (whole repo): 0
+mixed-line-ending offenders (whole repo):   0
+```
+
+**The presentify suite could not even be collected.**
+
+```
+ModuleNotFoundError: No module named 'playwright'
+  test_presentify_dual_view_build.py
+  test_presentify_dual_view_distribution.py
+  test_presentify_dual_view_runtime.py
+  test_presentify_presentation_intake.py
+  test_presentify_qualification_boundaries.py
+```
+
+Five modules import `playwright` at module scope, so a job without it errors at
+COLLECTION and takes the whole suite down before one test runs.
+
+This one has a story worth keeping. Those exact guards were found in the
+worktree earlier in this phase, were not authored by this session - most likely
+restored by `pre-commit` from a stale cached stash patch - and were deliberately
+REMOVED rather than committed, because unexplained content does not go into a
+commit under someone's name. CI then demonstrated precisely why they were
+needed. They are now re-added as a deliberate change, following the repository's
+own idiom from `tests/guides/test_arcade_shooter_game.py`: skip when playwright
+is absent, but FAIL when `NEXUS_REQUIRE_RENDER=1`, so the render job can never
+report green while silently skipping every rendered assertion. That failure mode
+is the same blindness this plan spent seven phases removing.
+
+Negative-controlled in both directions against a simulated missing playwright:
+
+```
+A. absent, flag unset             -> 1 skipped in 0.04s
+B. absent, NEXUS_REQUIRE_RENDER=1 -> 1 error during collection
+```
+
+And with playwright present, the five modules still pass in full:
+
+```
+141 passed in 117.26s
+```
+
+Refusing to ship the unexplained change cost one CI round-trip and remains the
+right call: the alternative was committing someone else's unreviewed edit.
+
 ## Publication and integration
 
 **Status: not started. Awaiting explicit approval.**

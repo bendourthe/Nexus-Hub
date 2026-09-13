@@ -12,8 +12,18 @@ import sys
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import sync_playwright
-
+# playwright is installed only by the CI render job, which also sets
+# NEXUS_REQUIRE_RENDER=1. Everywhere else these modules skip rather than erroring
+# at collection, which is what took the whole presentify suite down in PR #202.
+# Under that flag a missing playwright is a FAILURE, never a quiet skip inside an
+# otherwise green run: a render job that skips every rendered assertion and
+# reports success is the exact blindness this plan spent seven phases removing.
+try:
+    from playwright.sync_api import sync_playwright
+except ImportError:  # pragma: no cover - environment dependent
+    if os.environ.get("NEXUS_REQUIRE_RENDER") == "1":
+        raise
+    pytest.skip("playwright is not installed", allow_module_level=True)
 ROOT = Path(__file__).resolve().parents[2]
 BUNDLE = ROOT / "catalog/skills/specialized-domains/document-to-interactive-html"
 SCRIPTS = BUNDLE / "scripts"
