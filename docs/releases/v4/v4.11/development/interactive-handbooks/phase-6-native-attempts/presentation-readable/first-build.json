@@ -1,0 +1,61 @@
+{
+  "artifact": "qa/first-build.html",
+  "sha256": "2e717b359d6283d4e8fa94908dfa45bc86742c2cb7a3d4470662e9f7be63f1e8",
+  "bytes": 66965,
+  "captured": "immediately after the first successful retained assembly, before any correction",
+  "builder": ".agents/skills/document-to-interactive-html/scripts/build_presentation.py (retained dual-view assembly)",
+
+  "qa_run_at_capture_time": {
+    "tool": ".agents/skills/document-to-interactive-html/scripts/visual_qa_score.py",
+    "raw": "qa/first-structural.json",
+    "page_pass": false,
+    "high_severity": 2,
+    "findings": [
+      {
+        "id": "FB-1",
+        "criterion": "image-sizing",
+        "severity": "high",
+        "evidence": "missing image caps: max-height: 80vh",
+        "note": "The scorer's authored-markup contract requires the literal hero image cap even on a page with no raster images."
+      },
+      {
+        "id": "FB-2",
+        "criterion": "contrast",
+        "severity": "high",
+        "evidence": "2 pair(s) below AA 4.5:1: --ed-accent-graphic on --ed-paper = 3.96:1; --ed-accent-graphic on --ed-surface = 3.56:1"
+      }
+    ],
+    "offline": "grep for external http(s)/cdn found only the SVG namespace URI; zero fetchable references",
+    "n_a": ["full-width (aspect=standard)", "annotation-fidelity (no annotated figures)", "imagery-integration (images=none)", "emphasis-token (no inline token markup)"]
+  },
+
+  "qa_run_later_against_the_preserved_first_build_bytes": {
+    "disclosure": "These two passes were executed AFTER the correction rounds, against the frozen qa/first-build.html bytes. They are recorded here because they establish which defects belonged to the first build rather than to a later round. They were not available at capture time; the ordering is stated rather than implied.",
+    "measure_handbook": {
+      "tool": ".agents/skills/document-to-interactive-html/scripts/measure_handbook.py --inventory qa/inventory.json --detector .agents/skills/functional-verification/scripts/detect_visual_defects.py",
+      "raw": "qa/first-build-measure.json",
+      "browser": "Chromium 151.0.7922.34",
+      "status": "fail",
+      "fail_count": 242,
+      "classes": {
+        "undersized body text (16px floor)": 90,
+        "undersized label text (13px floor)": 122,
+        "text-overlap (detector, high)": 24,
+        "parent-padding-escape (detector, high)": 2,
+        "desktop stage scroll": 1,
+        "no_js_and_print": "pass",
+        "reduced_motion_fullscreen_denial_escape": "pass"
+      }
+    },
+    "rendered_contrast_probe": {
+      "tool": "qa/contrast-probe.json (Playwright, computed colour vs nearest painted background, WCAG formula)",
+      "sub_aa_rendered_pairs": 20,
+      "worst_ratio": 1.0,
+      "root_cause": "[data-dv-page] [data-theme=dark] declares color:var(--ed-paper) while redefining --ed-paper to the dark ink in the SAME rule, so the custom property resolves on that element to the background colour and dark-section text renders ink-on-ink.",
+      "affected": ["agenda h2", "agenda list items", "jump-card titles", "visits h2", "visits list items", "chart axis/category/legend text on the dark section"],
+      "still_open_in_final": true
+    }
+  },
+
+  "verdict": "first build: NOT a pass. Two high-severity structural findings at capture time, plus (established later against these same bytes) 242 measured rendered failures and 20 sub-AA rendered colour pairs."
+}

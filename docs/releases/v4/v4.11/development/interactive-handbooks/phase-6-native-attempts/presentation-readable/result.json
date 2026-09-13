@@ -1,0 +1,430 @@
+{
+  "status": "non-pass",
+  "status_reason": "Every factual, structural, functional and package gate passes on real Chromium and real PowerPoint, but two rendered-visual gates remain open after the three permitted correction rounds were exhausted: a dark-reading-section colour inversion (20 sub-AA rendered pairs, worst 1.0:1) and a first-paint dimming of a partially visible section (opacity 0.45). Both are diagnosed with a stated one-line fix; neither was repaired because the correction budget was spent.",
+  "deliverables": {
+    "html": {
+      "path": "docs/handbooks/service-review.html",
+      "sha256": "63ac1806fdbe8d572245b260b9d621a7f2f7e94db5ed41eea9ad044c0856e33b",
+      "bytes": 67394
+    },
+    "pptx": {
+      "path": "docs/handbooks/service-review.pptx",
+      "sha256": "0e969e888ff4dc7fb3b29ca5de803b8daffa9f58f519702b6c6bc9e0b0acb19a",
+      "bytes": 45606
+    },
+    "first_build_frozen": {
+      "path": "qa/first-build.html",
+      "sha256": "2e717b359d6283d4e8fa94908dfa45bc86742c2cb7a3d4470662e9f7be63f1e8"
+    }
+  },
+  "correction_count": {
+    "html": 3,
+    "html_cap": 3,
+    "pptx": 1,
+    "total_applied": 4,
+    "note": "The three-round cap was applied to the HTML deliverable and was fully consumed. The PPTX is a separate deliverable with its own single build-inspect-correct cycle, counted separately and disclosed rather than folded into the HTML budget."
+  },
+  "elapsed_seconds": 2745,
+  "wall_time_budget_seconds": 3600,
+  "correction_rounds": [
+    {
+      "round": 1,
+      "target": "html",
+      "found_by": "visual_qa_score.py on qa/first-build.html",
+      "findings": [
+        "image-sizing: missing literal hero cap max-height: 80vh",
+        "contrast: --ed-accent-graphic 3.96:1 on paper, 3.56:1 on surface"
+      ],
+      "fixes": [
+        "Renamed --ed-accent-graphic to --ed-accent-rule, which is what every remaining use is (border, rule, stroke); the one text use (dossier summary hover) became an underline.",
+        "Authored the literal hero image cap contract."
+      ],
+      "result": "structural high-severity 0, page_pass true"
+    },
+    {
+      "round": 2,
+      "target": "html",
+      "found_by": "measure_handbook.py, 200 measured states across 10 viewports",
+      "findings": [
+        "240 errors: 90 undersized body (<16px), 122 undersized label (<13px, mostly SVG diagram text at small render scale and the per-slide brand wordmark at compact widths)",
+        "24 text-overlap (the sticky global menu sitting over section text)",
+        "2 parent-padding-escape and 1 desktop stage scroll at 2560x720 (slide figures exceeding the fitted stage at short viewport heights)"
+      ],
+      "fixes": [
+        "--ed-step-1 minimum raised from .88rem to 1rem so every <p>/<li>/<td> clears 16px.",
+        "Diagram SVG type raised (node 23->26, stage 15->20, caption 16->20, return label 19->22) with min-width 660px and an overflow-x:auto wrapper, so rendered scale never falls below ~0.73.",
+        "Reading figures given the full column (single-column .ed-split and .ed-evidence-grid) so neither figure scrolls on desktop.",
+        "The global menu became position:static, so it no longer covers the text it labels.",
+        "Slide vertical padding became height-relative; process SVG cap 42vh->30vh, chart cap 36vh->26vh; evidence slide reflows to one column below 1100px.",
+        "Per-slide brand mark omitted below 900px with the measured-space reason recorded in CSS (the corner is occupied by the slide title)."
+      ],
+      "result": "measure_handbook status pass, 0 errors, 200 states"
+    },
+    {
+      "round": 3,
+      "target": "html",
+      "found_by": "qa/harness.py composition probes across 15 viewports",
+      "findings": [
+        "Hero answer rendered 12 lines at 2560x1300, 8 at 1920x1080, 6 at 1366x768",
+        "Hero question used 56-58% of an otherwise empty track"
+      ],
+      "fixes": [
+        "Hero restructured to a single full-width editorial column with a horizontal stat row.",
+        "Hero answer capped at clamp(1.5rem, 1.1vw + 1rem, 2.2rem) and tightened to '45 visits completed across three regions: East 10, Central 15, West 20.'"
+      ],
+      "result": "harness error_count 0; measure_handbook still pass; structural still pass. This round's re-verification surfaced the two findings now listed as open."
+    },
+    {
+      "round": "pptx-1",
+      "target": "pptx",
+      "found_by": "native PowerPoint render of the first exported deck (qa/pptx-frames/slide3.png, first export)",
+      "findings": [
+        "The Review->Dispatch return path was a preset curved connector between two bottom connection sites at equal Y, which PowerPoint degenerates to a straight dashed line crossing the Field visit node.",
+        "Boundaries panel used a rounded rectangle whose large corner radius left the accent edge bar outside the shape.",
+        "An em dash appeared in slide copy.",
+        "The package was not byte-reproducible: python-pptx stamps fresh core-property and zip-entry timestamps."
+      ],
+      "fixes": [
+        "Return path rebuilt as an editable freeform (custGeom) sampled from a cubic bezier routed below the nodes, dashed, triangle arrowhead landing on Dispatch's bottom edge, label placed clear of the curve.",
+        "Boundaries panel became a plain rectangle so the accent edge aligns.",
+        "ASCII punctuation.",
+        "Core properties pinned and the zip rewritten with fixed entry timestamps; two consecutive builds now produce an identical sha256."
+      ],
+      "result": "inspect_native_office pass; native re-render confirms the corrected geometry"
+    }
+  ],
+  "open_findings": [
+    {
+      "id": "OPEN-1",
+      "severity": "high",
+      "gate": "rendered visual / colour",
+      "artifact": "docs/handbooks/service-review.html",
+      "summary": "Dark reading sections render their heading, list items, jump-card titles, chart axis/category/legend text and figure-tool labels in the background ink, at contrast ratios down to 1.0:1.",
+      "evidence": "qa/contrast-probe.json (20 sub-AA rendered pairs, identical in the frozen first build and the final build); qa/shots/read-agenda-1920x1080.png; qa/shots/read-visits-1920x1080.png",
+      "root_cause": "private/build/style.css: the rule [data-dv-page] [data-theme=dark] sets color:var(--ed-paper) while redefining --ed-paper:#172b3b in the SAME declaration block, so the custom property resolves on that element to the section background.",
+      "exact_fix": "In that rule use the literal colours (background:#172b3b; color:#f7f3e9) and give the dark surface a distinct token name, so the foreground no longer resolves against a redefined background token.",
+      "why_not_fixed": "Discovered during the third round's re-verification screenshots; the three permitted correction rounds were already consumed.",
+      "why_the_scorers_missed_it": "visual_qa_score.py pairs root-scope custom properties only, so a token redefined inside a theme block is invisible to it; measure_handbook.py and detect_visual_defects.py measure geometry, clipping and font size, not colour contrast. This is the documented 'a structural pass is not a visual pass' case.",
+      "not_present_in": "The presentation deck and the PPTX are unaffected; their dark slides render correctly (qa/shots/deck-s-visits-1920x1080.png, qa/pptx-frames/slide4.png)."
+    },
+    {
+      "id": "OPEN-2",
+      "severity": "medium",
+      "gate": "rendered visual / first-paint legibility",
+      "artifact": "docs/handbooks/service-review.html",
+      "summary": "At 1920x1080 the section partially visible below the hero at load renders at opacity 0.45; the binary rule is that every section's load-time entry state is fully legible.",
+      "evidence": "qa/harness-report.json behaviour.first_paint_min_opacity = 0.45 (it was 1 before round 3 shortened the hero and brought the next section into the first viewport)",
+      "root_cause": "The scroll-responsive reveal (animation-timeline: view(), keyframe ed-rise from opacity .45) is applied to section CONTENT.",
+      "exact_fix": "Move the scroll-driven animation off the content onto a decorative [data-dv-section]::before section rule that grows on scroll, leaving content at opacity 1 at all times.",
+      "why_not_fixed": "Introduced and detected in round 3; the correction budget was exhausted.",
+      "mitigation_in_place": "Under prefers-reduced-motion the animation is disabled entirely (verified: reduced_motion_hero_opaque = 1, no running animations), and the hero itself is excluded from the reveal."
+    },
+    {
+      "id": "OPEN-3",
+      "severity": "medium",
+      "gate": "installed-runtime defect (not repaired: installed skills must not be modified)",
+      "artifact": ".agents/skills/document-to-interactive-html/assets/dual-view-runtime.js",
+      "summary": "Closing Presentation Mode does not restore the reading scroll position. Scrolled to y=2000, opened the deck, pressed Escape: the page returns to y=0.",
+      "reproduced_on_stock": "Yes. A build with NO authored stylesheet and NO authored fragments, from the same builder, restored 1200 -> 17. The defect is in the installed runtime, not in this run's authoring.",
+      "root_cause": "close() calls window.scrollTo(0, scroll) in the same task in which documentElement.style.overflow is restored and the page element is unhidden; the scroll is clamped against the still-locked scrolling box. A manual window.scrollTo after settle reaches y=2000 correctly.",
+      "exact_fix": "Defer the restore by one frame (requestAnimationFrame) inside restoreReading(), or read a layout property to force a flush before scrolling.",
+      "contract_reference": "dual-view-handbooks.md 'Verify the delivered bytes' item 4: 'Closing presentation restores reading position and focus.' Focus restoration DOES work (focus_returned_to_opener = true); only scroll does not."
+    },
+    {
+      "id": "OPEN-4",
+      "severity": "low",
+      "gate": "skill-contract divergence (recorded, not repaired)",
+      "summary": "SKILL.md requires every data figure to offer 'zoom, pan, series toggle AND axis adjustment'. The installed retained chart renderer (dual_view.py render_chart) emits series toggle, a zoom range, a reset control and an exact-values table, but no axis-limit control.",
+      "impact": "Axis adjustment is unavailable on the retained-assembly path. Providing it would require authoring script into the output, which the retained-fragment contract forbids (fragments are passive markup only).",
+      "verified_working": "series toggle hides/restores marks, zoom scales the plot to 200%, reset restores, exact-values table renders 3 rows with the true source numbers."
+    },
+    {
+      "id": "OPEN-5",
+      "severity": "cosmetic",
+      "summary": "The chart's midpoint gridline label renders as '10.0' rather than '10'. The installed renderer formats the computed midpoint (lower+upper)/2 as a float.",
+      "impact": "Cosmetic only; the value is correct and the exact-values table shows 10 / 15 / 20."
+    },
+    {
+      "id": "OPEN-6",
+      "severity": "informational",
+      "summary": "Composition probe reports the reading-page H1 at 41-42% of its track over 2 lines at 390px. This is a probe artefact: the H1 sits in grid column 1 beside the Presentation Mode button, so its available width is the track, not the header's padding box which the probe measures.",
+      "action": "None. Recorded so the note is not mistaken for a defect."
+    }
+  ],
+  "gates": {
+    "factual": {
+      "verdict": "pass",
+      "evidence": "qa/inventory.json expected_labels (10 verbatim source strings) asserted present in [data-dv-page] at every one of measure_handbook.py's 10 viewports; 0 missing-label errors in qa/r3-measure.json.",
+      "source_facts_total": 12,
+      "source_facts_represented": 12,
+      "diagram_edges_total": 4,
+      "diagram_edges_represented": 4,
+      "diagram_edges_detail": "Request->Dispatch, Dispatch->Field visit, Field visit->Review (solid, marker-terminated) and Review->Dispatch (dashed return, labelled) in both the HTML SVG and the PPTX freeform.",
+      "uncertainty_items_total": 4,
+      "uncertainty_items_represented": 4,
+      "uncertainty_detail": "Costs unavailable; no forecast; no confidence interval; counts not rates. Present in the reading Boundaries section, its 'Unresolved items, verbatim' dossier, deck slide 5 and PPTX slide 5.",
+      "chart_data_fidelity": "East 10, Central 15, West 20 from the native PPTX chart part (provenance native-chart); identical values in the HTML SVG chart, its exact-values table, and the PPTX native series with its embedded editable workbook.",
+      "fabrication_check": "No value, rate, cost, forecast or interval was invented. Extractor reported 0 placeholders and 0 images, so no figure reconstruction, OCR or confidence gate applied.",
+      "deck_ceiling": "5 source slides, 5 logical slides, budget 5 - unchanged. No continuation slides."
+    },
+    "structural": {
+      "verdict": "pass",
+      "tool": "visual_qa_score.py",
+      "raw": "qa/r3-structural.json",
+      "high_severity": 0,
+      "page_pass": true
+    },
+    "rendered_behavioural": {
+      "verdict": "pass",
+      "tools": [
+        "measure_handbook.py (installed)",
+        "qa/harness.py (this run)"
+      ],
+      "browser": "Chromium 151.0.7922.34 via Playwright, file:// only",
+      "measure_handbook": {
+        "status": "pass",
+        "errors": 0,
+        "measured_states": 200,
+        "raw": "qa/r3-measure.json"
+      },
+      "harness": {
+        "error_count": 0,
+        "raw": "qa/harness-report.json"
+      },
+      "viewports_measured": [
+        "2560x1300",
+        "1920x1080",
+        "1366x768",
+        "1024x640",
+        "1024x850",
+        "1024x851",
+        "1600x900",
+        "2560x720",
+        "1101x800",
+        "1099x800",
+        "901x800",
+        "899x800",
+        "861x800",
+        "859x800",
+        "761x900",
+        "760x900",
+        "759x900",
+        "391x844",
+        "390x844",
+        "389x844"
+      ],
+      "breakpoint_neighbours": "760/761 and 759/761 (dual-view compact), 859/861 (former slide reflow), 899/901 (deck brand omission), 1099/1101 (evidence slide reflow), 389/391 (mobile)",
+      "behaviours_exercised": {
+        "two_Presentation_Mode_controls_present": true,
+        "hero_control_enters_slide_1": true,
+        "global_menu_control_enters_slide_1_after_deep_scroll_and_a_prior_deck_session": true,
+        "Home_End_ArrowLeft_ArrowRight": "0 / 4 / round-trip to 0",
+        "slide_picker": "selects slide 4 (index 3)",
+        "hash_tracking": "#slide-5 at End",
+        "deep_link_#slide-4": "opens index 3, active, no fullscreen requested",
+        "replay_restarts_animations": true,
+        "Escape_closes_deck": true,
+        "focus_returns_to_opener": true,
+        "reading_scroll_restored": false,
+        "deck_keys_disengage_inside_a_native_scroll_region": true,
+        "chart_legend_toggle": "hides the series marks",
+        "chart_reset": "restores them",
+        "chart_zoom": "scales the plot to 200%",
+        "exact_values_table": "3 rows",
+        "dossier_disclosures": 3,
+        "agenda_anchor_targets_all_resolve": true,
+        "source_slide_aliases_1_to_5_resolve": true,
+        "no_js_reading_view": "pass",
+        "print_reading_view": "pass",
+        "reduced_motion": "hero opacity 1, no running animations",
+        "fullscreen_denial_retains_fitted_deck_then_Escape_restores_reading": "pass",
+        "renamed_file_offline": "deck opens, 5 sections, 5 slides, zero page errors, zero outbound requests",
+        "console_errors": 0,
+        "outbound_requests": 0
+      }
+    },
+    "positive_design": {
+      "verdict": "non-pass",
+      "method": "Screenshots inspected directly (not keyword checks): 44 Playwright captures in qa/shots (every reading section and every slide at 2560x1300, 1920x1080, 1366x768, 390x844, plus 4 full-page frames) and 5 native PowerPoint exports in qa/pptx-frames.",
+      "good": [
+        "Editorial warm-paper direction distinct from the default dark/mono/amber attractor; brand palette and Arial stack honoured from inputs/brand.json.",
+        "The service-path diagram reads correctly at every size: marker arrowheads attach to node edges, the return path is curved and dashed with its label clear of the curve, all four stages and the single return edge are present.",
+        "The chart is prominent, accurate and manipulable in both views; the deck's dark evidence slide is fully legible.",
+        "Five varied slide compositions (cover, agenda cards, process, evidence split, limits panel) rather than one repeated template."
+      ],
+      "failing": [
+        "OPEN-1: the two dark reading sections render their headings and several text runs invisible.",
+        "OPEN-2: a partially visible section renders dimmed at first paint."
+      ]
+    },
+    "pptx": {
+      "verdict": "pass",
+      "aspect": "16:9 (12191695 x 6858000 EMU = 960 x 540 pt), confirmed by PowerPoint's own PageSetup",
+      "slides": 5,
+      "theme_assignment": [
+        "dark",
+        "light",
+        "light",
+        "dark",
+        "light"
+      ],
+      "theme_matches_html_saved_sequence": true,
+      "slide_backgrounds_read_back": [
+        "#172B3B",
+        "#F7F3E9",
+        "#F7F3E9",
+        "#172B3B",
+        "#F7F3E9"
+      ],
+      "package_inspection": {
+        "tool": ".agents/skills/document-to-interactive-html/scripts/inspect_native_office.py",
+        "raw": [
+          "qa/pptx-inspect.json",
+          "qa/pptx-package.json"
+        ],
+        "result": "pass, 0 failures",
+        "auto_title": "c:autoTitleDeleted val=1 - PowerPoint synthesises no near-black series-name title on the dark slide (the named defect class)",
+        "zip_integrity": "ok, 49 parts, every XML and .rels part parses",
+        "external_relationships": 0,
+        "linked_media": 0,
+        "embedded_chart_workbook": "ppt/embeddings/Microsoft_Excel_Sheet1.xlsx - the series stays natively editable",
+        "native_chart_series": [
+          {
+            "name": "Visits",
+            "categories": [
+              "East",
+              "Central",
+              "West"
+            ],
+            "values": [
+              "10",
+              "15",
+              "20"
+            ]
+          }
+        ],
+        "editable_diagram": "slide 3: 18 shapes including 3 preset curved connectors, 1 custGeom freeform return path, 4 rounded-rectangle nodes with accent bars - no rasterised figure anywhere in the package (ppt/media is empty)",
+        "deterministic": "two consecutive rebuilds produce the identical sha256"
+      },
+      "native_playback": {
+        "available": true,
+        "player": "Microsoft PowerPoint 16.0 (build 20326) via COM",
+        "raw": "qa/pptx-native-playback.json",
+        "opened_read_only_without_repair": true,
+        "file_unchanged_by_inspection": true,
+        "sha256_before_and_after": "0e969e888ff4dc7fb3b29ca5de803b8daffa9f58f519702b6c6bc9e0b0acb19a",
+        "transitions": "every slide: EntryEffect 3849 (ppEffectFade), Duration 0.20 s, thruBlk=0 - a quick direct crossfade, no fade-through-black",
+        "slide_3_process_build": "13 effects, all EffectType 10 (msoAnimEffectFade), TriggerType 2 (msoAnimTriggerWithPrevious = automatic on entry), delays 0.00 / 0.14 / 0.28 / 0.42 / 0.56 / 0.70 / 0.84 / 0.98 s, duration 0.45 s each - the recorded overlapping node-then-edge sequence including the return path",
+        "slide_4_chart_build": "1 effect, EffectType 10, automatic, delay 0.15 s, duration 0.70 s, targeting a:chart bldStep=series seriesIdx=0 with animBg=0, so the plotted series builds while axes, gridlines and legend stay in place",
+        "frames_exported": "qa/pptx-frames/slide1..5.png rendered by PowerPoint itself at 1600x900 and inspected",
+        "renamed_final_file": "copied to a separate directory as 'Aster Service Review FINAL.pptx' and reopened read-only: 5 slides, shapes 7/13/18/5/8, no repair"
+      },
+      "content_completeness": "Every source fact appears as visible slide content. Nothing is in speaker notes, off-slide, cropped, or behind a scrolling-only region.",
+      "note": "Package geometry, native effects and rendered frames were verified here; an independent native playback review will inspect this unchanged final file."
+    }
+  },
+  "intake": {
+    "resolver": ".agents/skills/document-to-interactive-html/scripts/resolve_presentation.py --non-interactive",
+    "raw": "private/build/intake-resolved.json",
+    "status": "resolved, 0 pending questions",
+    "values": {
+      "presentation": "yes",
+      "presentation_theme": "mixed",
+      "presentation_depth": "deep-dive",
+      "verbosity": "comprehensive",
+      "interactivity": "balanced",
+      "images": "none",
+      "layout": "standard",
+      "theme": "inputs/brand.json",
+      "qa_depth": "deep",
+      "mode": "deck"
+    },
+    "provenance": "every axis explicit",
+    "design_seed": 10160717564168266118,
+    "design_brief": "private/build/design-brief.json",
+    "brief_deviation": "The roll proposed a Georgia serif heading voice; inputs/brand.json binds font to Arial, so the brand token wins and the mixed-contrast voice is carried by weight, size and letter-spacing. Recorded in the model's design.type.",
+    "signature_move_adaptation": "The rolled 'tabbed-dossiers' move is realised as native keyboard-navigable <details> dossiers, because the retained-fragment contract accepts no buttons and no script."
+  },
+  "conditional_requirements_not_applicable": [
+    "'Preserve native build.py and existing handbook URL/anchors in the repository case' - the source case is a presentation (.pptx), not a repository. No native build.py and no pre-existing handbook exist in this workspace, so there was nothing to preserve and no parity check to run. Recorded rather than silently skipped.",
+    "Figure reconstruction, OCR verification and the confidence gate - the extractor found 0 images and 1 native chart, so no image block required classification.",
+    "Imagery placements, stock/AI consent, credits section - images=none, so no placement block is expected and no network call was made.",
+    "Lightbox on non-decorative images - the source carries no raster images."
+  ],
+  "constraints_honoured": {
+    "installed_skills_unmodified": "No file under .agents/ was written. OPEN-3 and OPEN-4 are installed-skill findings recorded rather than patched.",
+    "inputs_unmodified": "No file under inputs/ was written; inputs/brand.svg was copied, not edited.",
+    "filesystem_scope": "All writes are inside <qualification-workspace>/run-presentation.",
+    "network": "Zero outbound requests. Every Playwright context routed http**/* to an abort-and-record handler; 0 recorded. The delivered HTML contains no fetchable external reference (only the SVG namespace URI).",
+    "dependencies": "Nothing installed. Playwright, python-pptx and pywin32 were already present.",
+    "fabrication": "No test execution is reported that was not run. Every number in this file traces to a raw artefact named beside it."
+  },
+  "rebuild_and_check_commands": {
+    "cwd": "<qualification-workspace>/run-presentation",
+    "rebuild_html": "python .agents/skills/document-to-interactive-html/scripts/build_presentation.py private/build/handbook.model.json -o docs/handbooks/service-review.html --root .",
+    "check_html_read_only": "python .agents/skills/document-to-interactive-html/scripts/build_presentation.py private/build/handbook.model.json -o docs/handbooks/service-review.html --root . --check",
+    "check_html_verified_output": "Verified retained handbook: 63ac1806fdbe8d572245b260b9d621a7f2f7e94db5ed41eea9ad044c0856e33b (exit 0, writes nothing)",
+    "rebuild_pptx": "python private/build/export_pptx.py",
+    "rescore_structural": "python .agents/skills/document-to-interactive-html/scripts/visual_qa_score.py docs/handbooks/service-review.html --json",
+    "remeasure": "python .agents/skills/document-to-interactive-html/scripts/measure_handbook.py docs/handbooks/service-review.html --inventory qa/inventory.json --detector .agents/skills/functional-verification/scripts/detect_visual_defects.py",
+    "rerun_behaviour_harness": "python qa/harness.py",
+    "inspect_pptx_package": "python .agents/skills/document-to-interactive-html/scripts/inspect_native_office.py --pptx docs/handbooks/service-review.pptx --json qa/pptx-inspect.json",
+    "html_rebuild_is_byte_identical": true,
+    "pptx_rebuild_is_byte_identical": true
+  },
+  "retained_private_sources": {
+    "root": "private/build/",
+    "files": [
+      "handbook.model.json - the retained authoring model (sections, blocks, storyboard, saved themes, design record, content intent, visual contracts)",
+      "model.json - the raw extractor output from inputs/service-review.pptx",
+      "intake.json / intake-resolved.json - the option objects and the resolver result with provenance",
+      "design-brief.json / design-history.json - the entropy roll and its history",
+      "source-inventory.json - the independently frozen fact / edge / uncertainty inventory",
+      "style.css - the authored retained stylesheet",
+      "fragments/*.html - 5 reading fragments and 5 deck fragments (passive markup with {{unit:...}} slots)",
+      "figures/service-path.svg - the authored process diagram asset",
+      "brand-light.svg (byte-identical copy of inputs/brand.svg) and brand-dark.svg (same contours, wordmark ink only)",
+      "export_pptx.py - the PPTX generator, reading the same retained model"
+    ],
+    "originals_preserved": "inputs/ is untouched and hash-stable; brand-light.svg is a byte-identical copy of inputs/brand.svg, so the original mark contours are preserved unmodified.",
+    "share_list": [
+      "docs/handbooks/service-review.html",
+      "docs/handbooks/service-review.pptx"
+    ],
+    "keep_but_do_not_share": [
+      "private/build/**",
+      "qa/**",
+      "docs/handbooks/service-review.html.build.json"
+    ]
+  },
+  "evidence_index": {
+    "first_build_bytes": "qa/first-build.html",
+    "first_build_findings": "qa/first-build.json",
+    "first_build_structural": "qa/first-structural.json",
+    "first_build_measured": "qa/first-build-measure.json",
+    "round_1_structural": "qa/r1-structural.json",
+    "round_1_measured": "qa/r1-measure.json",
+    "round_2_structural": "qa/r2-structural.json",
+    "round_2_measured": "qa/r2-measure.json",
+    "round_3_structural": "qa/r3-structural.json",
+    "round_3_measured": "qa/r3-measure.json",
+    "behaviour_and_composition": "qa/harness-report.json",
+    "harness_source": "qa/harness.py",
+    "frozen_inventory": "qa/inventory.json",
+    "rendered_contrast": "qa/contrast-probe.json",
+    "renamed_file_check": "qa/rename-check.json",
+    "pptx_inspector": "qa/pptx-inspect.json",
+    "pptx_package_audit": "qa/pptx-package.json",
+    "pptx_native_playback": "qa/pptx-native-playback.json",
+    "browser_screenshots": "qa/shots/ (44 files)",
+    "powerpoint_frames": "qa/pptx-frames/ (5 files)"
+  },
+  "missing_coverage": [
+    "OPEN-1 and OPEN-2 were not repaired: the three permitted HTML correction rounds were exhausted. Both carry a diagnosed one-line fix above.",
+    "OPEN-3 (reading-scroll restoration) was not repaired because the defect is in an installed skill file and installed skills must not be modified.",
+    "OPEN-4 (chart axis-limit control) is unreachable on the retained-assembly path without violating the passive-fragment contract.",
+    "No DOCX was produced or required, so inspect_native_office.py's Word table-geometry check did not run.",
+    "Video-frame capture of PowerPoint's timed playback was not performed; effect targets, triggers, delays and durations were read from PowerPoint's own object model and static native frames were exported instead. Timed motion itself is left to the independent native playback review named in the task."
+  ],
+  "elapsed_note": "Measured from the run's first tool call (epoch 1789062853) to the writing of this record."
+}

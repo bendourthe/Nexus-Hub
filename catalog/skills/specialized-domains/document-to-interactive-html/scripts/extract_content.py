@@ -60,8 +60,9 @@ import os
 import re
 import statistics
 import sys
+from html.parser import HTMLParser
 from pathlib import Path
-from typing import NoReturn
+from typing import ClassVar, NoReturn
 
 # Extension -> language for source-code / config files (universal ingestion).
 CODE_LANGUAGES = {
@@ -81,6 +82,9 @@ CODE_LANGUAGES = {
     ".graphql": "graphql", ".css": "css", ".scss": "scss", ".less": "less",
 }
 MARKDOWN_EXTENSIONS = {".md", ".markdown", ".mdown", ".mkd"}
+# An existing web-page handbook is a first-class source: legacy
+# migration must READ it, not merely preserve its URL.
+HTML_EXTENSIONS = {".html", ".htm", ".xhtml"}
 TEXT_EXTENSIONS = {".txt", ".text", ".rst", ".log"}
 CSV_EXTENSIONS = {".csv", ".tsv"}
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg"}
@@ -93,6 +97,7 @@ EXTENSION_FORMATS = {
 }
 EXTENSION_FORMATS.update(dict.fromkeys(CODE_LANGUAGES, "code"))
 EXTENSION_FORMATS.update(dict.fromkeys(MARKDOWN_EXTENSIONS, "markdown"))
+EXTENSION_FORMATS.update(dict.fromkeys(HTML_EXTENSIONS, "html"))
 EXTENSION_FORMATS.update(dict.fromkeys(TEXT_EXTENSIONS, "text"))
 EXTENSION_FORMATS.update(dict.fromkeys(CSV_EXTENSIONS, "csv"))
 EXTENSION_FORMATS.update(dict.fromkeys(IMAGE_EXTENSIONS, "image"))
@@ -1868,6 +1873,213 @@ def _one_section(heading: str, blocks: list, kind: str = "content") -> dict:
     }
 
 
+class _HandbookHTMLReader(HTMLParser):
+    """Turn an existing web-page handbook into the shared section/block model.
+
+    Uses the standard library parser rather than a new dependency. Real pages
+    carry navigation, scripts and chrome that are not content, so those
+    subtrees are dropped whole instead of contributing stray words.
+    """
+
+    SKIP: ClassVar[set[str]] = {
+        "script",
+        "style",
+        "noscript",
+        "template",
+        "svg",
+        "head",
+    }
+    CHROME: ClassVar[set[str]] = {"nav", "header", "footer", "aside"}
+    HEADINGS: ClassVar[set[str]] = {"h1", "h2", "h3", "h4", "h5", "h6"}
+    BLOCKS: ClassVar[set[str]] = {
+        "p",
+        "li",
+        "pre",
+        "figcaption",
+        "blockquote",
+        "dd",
+        "dt",
+    }
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.title: str | None = None
+        self.sections: list = []
+        self._section: dict | None = None
+        self._skip_depth = 0
+        self._chrome_depth = 0
+        self._buf: list[str] = []
+        self._mode: str | None = None
+        self._bullets: list[str] = []
+        self._in_title = False
+        self._table: list[list[str]] | None = None
+        self._row: list[str] | None = None
+
+    def _text(self) -> str:
+        return re.sub(r"\s+", " ", "".join(self._buf)).strip()
+
+    def _section_for(self, heading: str) -> dict:
+        section = _one_section(heading, [])
+        self.sections.append(section)
+        return section
+
+    def _blocks(self) -> list:
+        if self._section is None:
+            self._section = self._section_for("")
+        return self._section["blocks"]
+
+    def _flush_bullets(self) -> None:
+        if self._bullets:
+            self._blocks().append({"type": "bullets", "items": list(self._bullets)})
+            self._bullets.clear()
+
+    def _close(self) -> None:
+        text, mode = self._text(), self._mode
+        self._buf.clear()
+        self._mode = None
+        if not text:
+            return
+        if mode == "li":
+            self._bullets.append(text)
+        elif mode == "pre":
+            self._flush_bullets()
+            self._blocks().append({"type": "code", "text": text, "language": ""})
+        elif mode == "cell":
+            if self._row is not None:
+                self._row.append(text)
+        else:
+            self._flush_bullets()
+            self._blocks().append({"type": "paragraph", "text": text})
+
+    def handle_starttag(self, tag, attrs):
+        if self._skip_depth or tag in self.SKIP:
+            self._skip_depth += 1
+            return
+        if tag in self.CHROME:
+            self._chrome_depth += 1
+            return
+        if tag == "title":
+            self._in_title = True
+            return
+        if self._chrome_depth:
+            return
+        if tag in self.HEADINGS:
+            self._close()
+            self._flush_bullets()
+            self._mode = "heading"
+            return
+        if tag == "table":
+            self._close()
+            self._flush_bullets()
+            self._table = []
+            return
+        if tag == "tr" and self._table is not None:
+            self._row = []
+            return
+        if tag in {"td", "th"} and self._row is not None:
+            self._close()
+            self._mode = "cell"
+            return
+        if tag == "img":
+            alt = dict(attrs).get("alt", "")
+            alt = (alt or "").strip()
+            if alt:
+                self._close()
+                self._flush_bullets()
+                self._blocks().append({"type": "paragraph", "text": f"Image: {alt}"})
+            return
+        if tag in self.BLOCKS:
+            self._close()
+            self._mode = "li" if tag == "li" else ("pre" if tag == "pre" else "para")
+
+    def handle_endtag(self, tag):
+        if tag in self.SKIP and self._skip_depth:
+            self._skip_depth -= 1
+            return
+        if self._skip_depth:
+            return
+        if tag == "title":
+            text = self._text()
+            self._buf.clear()
+            self._in_title = False
+            if text and self.title is None:
+                self.title = text
+            return
+        if tag in self.CHROME and self._chrome_depth:
+            self._chrome_depth -= 1
+            return
+        if self._chrome_depth:
+            return
+        if tag in self.HEADINGS and self._mode == "heading":
+            heading = self._text()
+            self._buf.clear()
+            self._mode = None
+            if heading:
+                if self.title is None:
+                    self.title = heading
+                self._section = self._section_for(heading)
+            return
+        if tag in {"td", "th"}:
+            self._close()
+            return
+        if tag == "tr" and self._table is not None:
+            if self._row:
+                self._table.append(self._row)
+            self._row = None
+            return
+        if tag == "table" and self._table is not None:
+            rows = [r for r in self._table if any(c for c in r)]
+            self._table = None
+            if len(rows) >= 2:
+                self._blocks().append(
+                    {"type": "table", "header": rows[0], "rows": rows[1:]}
+                )
+            elif rows:
+                self._blocks().append(
+                    {"type": "paragraph", "text": " | ".join(rows[0])}
+                )
+            return
+        if tag in self.BLOCKS:
+            self._close()
+        if tag in {"ul", "ol"}:
+            self._flush_bullets()
+
+    def handle_data(self, data):
+        if self._skip_depth or self._chrome_depth:
+            return
+        if self._in_title or self._mode:
+            self._buf.append(data)
+
+    def finish(self) -> None:
+        self._close()
+        self._flush_bullets()
+
+
+def _extract_html(
+    path: str, max_text_bytes: int, cov: dict, rel_path: str
+) -> tuple[str, list]:
+    """An existing web-page handbook -> the shared section/block model."""
+    text, truncated, fallback = _read_text_file(path, max_text_bytes)
+    if fallback:
+        cov["skip_reasons"].append(f"decode-fallback (latin-1): {rel_path}")
+    if truncated:
+        cov["skip_reasons"].append(f"truncated at max-text-bytes: {rel_path}")
+    reader = _HandbookHTMLReader()
+    try:
+        reader.feed(text)
+        reader.finish()
+    except Exception as exc:  # noqa: BLE001 - malformed markup must degrade
+        cov["skip_reasons"].append(f"html parse failed: {rel_path}: {exc}")
+        return "", [
+            _one_section(rel_path, [{"type": "paragraph", "text": text[:2000]}])
+        ]
+    sections = [s for s in reader.sections if s["blocks"]]
+    if not sections:
+        cov["skip_reasons"].append(f"no readable content: {rel_path}")
+        return reader.title or "", []
+    return reader.title or sections[0]["heading"] or rel_path, sections
+
+
 def _extract_code(
     path: str, max_text_bytes: int, cov: dict, rel_path: str
 ) -> tuple[str, list]:
@@ -2391,6 +2603,8 @@ def _extract_one(
         return _extract_pdf(path, max_bytes, cov)
     if fmt == "code":
         return _extract_code(path, max_text_bytes, cov, rel_path)
+    if fmt == "html":
+        return _extract_html(path, max_text_bytes, cov, rel_path)
     if fmt == "markdown":
         return _extract_markdown(path, max_text_bytes, max_bytes, cov, rel_path)
     if fmt == "text":

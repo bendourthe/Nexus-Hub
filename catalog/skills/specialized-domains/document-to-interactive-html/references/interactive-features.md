@@ -6,6 +6,30 @@ This document is the design contract for the output. It has two layers: the PRIM
 
 Everything here holds the two non-negotiable guarantees: the output is a single self-contained file that opens with zero external network requests (see `[[html-output-conventions]]`), and it reads as intentionally designed rather than AI-generated (see `[[hallmark-design]]`). The default output is a navigable website, not a static slide deck.
 
+## Never animate the digits of a sourced value
+
+A count-up animation on a figure taken from the source paints numbers the source
+does not contain. Two independent qualification runs shipped this in their first
+build: one displayed 11 / 17 / 28 / 29 mid-flight where the true value was 31, and
+another transiently painted a retry limit of 2, which was precisely the stale
+figure that refresh existed to correct. A reader who glances mid-animation reads a
+fabricated fact, and a screenshot taken mid-animation records one.
+
+Every automated gate measures a settled frame, so this class is invisible to all of
+them and stays a human or agent judgement. The rule is therefore preventive, and it
+is binary:
+
+- Render a sourced number as static text from the first paint. It never counts,
+  rolls, scrambles, or interpolates.
+- Animate the SURROUNDING form instead when motion is wanted: grow a bar, sweep an
+  arc, fade the tile in. The digits stay still while the shape moves.
+- A number the source does not contain, such as a progress percentage the page
+  computes for its own animation, may animate freely; it asserts nothing about the
+  source.
+
+Both runs converged on the same repair independently: make the printed values
+static and animate a proportion bar beside them.
+
 ## Authoring the Interactive Website (primary path)
 
 The default deliverable is a unique, interactive, single-file website authored from the content model - not a slide deck. Aim for a clear, engaging, dynamic interface.

@@ -1,0 +1,9 @@
+{
+  "purpose": "diagnostic only; not a qualifying author-produced artifact",
+  "one_changed_geometry_container": true,
+  "source_sha256": "bea4668a58ed43decc44faab452907c2b7623c5237d109658196d3c902d5f7c3",
+  "diagnostic_sha256": "03e0b6f35557851b32b7beebbdcc681762c46100fbd106e64aaf0a8ad52b67e6",
+  "native_open": "pass",
+  "slides": 5,
+  "process_shapes": 13
+}

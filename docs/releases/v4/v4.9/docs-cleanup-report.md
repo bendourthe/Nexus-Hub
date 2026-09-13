@@ -37,3 +37,15 @@ The inventory completed for 16 existing release files before adding Phase 4 hist
 ## Phase 5 audit update
 
 The SARIF mapping and both runtime files remain bundled with security-review. Golden SARIF outputs stay under tests/fixtures/security-audit and the phase history stays under development/history. The release inventory is refreshed, with no moves, archival changes, sibling-plan edits or proposed scratch deletion. Local links, ASCII and staged diff checks precede the commit.
+
+## v4.9.1 handbook phase audits
+
+The active handbook implementation retains living instructions with their owners and release-only evidence under this tree. No cleanup moves or deletions were required.
+
+- [Phase 1 audit](../v4.11/development/interactive-handbooks/phase-1-docs-audit.md).
+- [Phase 2 audit](../v4.11/development/interactive-handbooks/phase-2-docs-audit.md).
+- [Phase 3 audit](../v4.11/development/interactive-handbooks/phase-3-docs-audit.md).
+- [Phase 4 audit](../v4.11/development/interactive-handbooks/phase-4-docs-audit.md).
+- [Phase 5 audit](../v4.11/development/interactive-handbooks/phase-5-docs-audit.md).
+
+- Phase 6 working-tree audit (phase incomplete): [interactive handbook audit](../v4.11/development/interactive-handbooks/phase-6-docs-audit.md).

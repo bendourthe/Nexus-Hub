@@ -1,0 +1,79 @@
+{
+  "section_ids": [
+    "overview",
+    "agenda",
+    "acquisition",
+    "analysis",
+    "review",
+    "appendix"
+  ],
+  "slide_ids": [
+    "overview",
+    "agenda",
+    "acquisition",
+    "analysis",
+    "review",
+    "appendix"
+  ],
+  "figure_ids": [
+    "observations",
+    "flow"
+  ],
+  "figure_instances": {
+    "observations": 2,
+    "flow": 1
+  },
+  "expected_labels": [
+    "Instrument",
+    "Observations",
+    "Acquisition",
+    "Analysis",
+    "Review",
+    "Region 12"
+  ],
+  "negative_cases": {
+    "source-count-overrun": "extra slide exceeds frozen source budget",
+    "missing-caption": "figure loses conflict qualifier",
+    "missing-edge": "analysis no longer points to review",
+    "missing-map-label": "directory omits Region 12",
+    "photo-crop": "2:1 source subject cropped square",
+    "wrong-total": "conflicting total silently corrected",
+    "global-resume": "global entry resumes slide 4",
+    "wordmark-distortion": "lockup aspect ratio changed",
+    "wave-cutoff": "wave ends inside viewport",
+    "redundant-banner": "adjacent chapter dividers",
+    "all-light-reading": "alternation erased",
+    "hidden-scrollbar": "directory affordance removed",
+    "height-breakpoint": "850 passes but 851 clips",
+    "bland-valid": "technically valid identical unstyled cards",
+    "long-deck": "48 slides retain bounded navigation",
+    "duplicate-ids": "two figure instances share SVG IDs"
+  },
+  "pending_capabilities": {
+    "phase_2": [
+      "runtime",
+      "fullscreen",
+      "focus",
+      "motion",
+      "asset distribution"
+    ],
+    "phase_3": [
+      "retained assembly",
+      "figure resolution",
+      "stale check"
+    ],
+    "phase_6": [
+      "all-view qualification",
+      "one-invocation benchmark"
+    ]
+  },
+  "theme_variants": [
+    "light",
+    "dark",
+    "mixed"
+  ],
+  "brands": [
+    "aster",
+    "tide"
+  ]
+}

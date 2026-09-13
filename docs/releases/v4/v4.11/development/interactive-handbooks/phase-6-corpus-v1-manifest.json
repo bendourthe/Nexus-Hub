@@ -1,0 +1,31 @@
+{
+  "corpus_version": 1,
+  "frozen_before_execution": true,
+  "files": {
+    "expected.json": "124a66fea66d57cfccd9ccd3a68c38e05898bdbbe1f164f56d47e444a38f0863",
+    "presentation/inputs/brand.json": "945007214e619f98b9efc85691064c462f773d739c145d98dcbf0a20576bedde",
+    "presentation/inputs/brand.svg": "42fab0b554686f8c158d1b474816f0a898eef8f90e332a812b761b8fd6701642",
+    "presentation/inputs/brief.md": "b4498487be1b95613b1c0f914400c98db576bb53d6e5712f1c65d43d827086f0",
+    "presentation/inputs/service-review.pptx": "994b418c0653c428182bb2bcc11707d04e8d4b03ec72356a45531a0748fd1843",
+    "presentation/prompt.txt": "2348805d355da86b141269d7187baae2d19796a4056673d41f106e1f18744359",
+    "repo/inputs/brand.json": "945007214e619f98b9efc85691064c462f773d739c145d98dcbf0a20576bedde",
+    "repo/inputs/brand.svg": "42fab0b554686f8c158d1b474816f0a898eef8f90e332a812b761b8fd6701642",
+    "repo/inputs/brief.md": "b4498487be1b95613b1c0f914400c98db576bb53d6e5712f1c65d43d827086f0",
+    "repo/inputs/build.py": "218cfc22665f639401a9f33b0fd4cb2035b828392b6ca319b6089c0ab7ae9879",
+    "repo/inputs/config.json": "5a2d812a6f27b49fd169a17e5ea89cbad5061c0886fcfea2632f947ed5529502",
+    "repo/inputs/docs/handbooks/html/operations.html": "b16d42b3c8cf0b0e74fffe453b6f8630286e5c8a3b42a5d07d61524aa66d99c0",
+    "repo/inputs/docs/handbooks/README.md": "c93187924284d01a64636d3b3678ed02dde9ffbd9c0586fd3e19756be42cfee3",
+    "repo/inputs/README.md": "5d87e97f0098032504551ff6d1b08973ae7411ea6a5ce332720e6fef0f384029",
+    "repo/inputs/service.py": "96c44823325c82d97934f0c89fcc5da10a4e0124914f6e2354bd9567b522db81",
+    "repo/prompt.txt": "6e73e1aa1dde5c9dbd64aaf69723777ef065af92dc8fc41a58aa736bb1b13a68",
+    "report/inputs/brand.json": "e016a8e75963c9f6f18dc75f399fccad003c437f61ecc43e2d0c7671fdf03e08",
+    "report/inputs/brand.svg": "d6e0c308638d150cbc75d7c7f75117830320d749963376caf4f3a83d23034141",
+    "report/inputs/brief.md": "b4498487be1b95613b1c0f914400c98db576bb53d6e5712f1c65d43d827086f0",
+    "report/inputs/observations.csv": "c332dff832017390085b3f3eeb173565b9aad9ee626f46855dac0e6decc9587b",
+    "report/inputs/pilot.docx": "8eb9a960dfdb6ac5c724828d6b3abd732637dca22cd8e3bd8c387956fc2306b7",
+    "report/inputs/review-path.svg": "1a3c3cd1457afec66f38acc9921984aa2ac6ed6c84fbb90b5e9134bc9fe86c39",
+    "report/prompt.txt": "6631607d1c46fd75555e1ca105fcfff60993dd90f134caf33d6d9fdf516dab11"
+  },
+  "repair_limit_per_run": 3,
+  "first_builds_are_separate": true
+}

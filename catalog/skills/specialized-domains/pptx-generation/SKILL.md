@@ -38,6 +38,12 @@ Provides presentation generation patterns including:
 
 ## Instructions
 
+For handbook, presentation or cross-format document work, apply `[[hallmark-design]]` and its `references/cross-format-patterns.md` to the composition, and `[[anti-slop-editing]]` to prose. These are the existing design/prose owners; format-specific rendering and verification remain here. Do not transfer app-specific layout bans into every document format.
+
+For an explicitly requested retained-handbook export, follow [retained-handbook-export.md](references/retained-handbook-export.md): shared storyboard/figures, native effects, source budget, aspect fit, actual playback and standalone package verification. HTML documentation refresh alone does not request this export.
+
+When that storyboard requires automatic builds, use the existing native template or the bounded [native fade recipe](references/native-motion.md) and [native_motion.py](scripts/native_motion.py) from the retained exporter. A slide crossfade does not animate process steps or plotted chart series. Missing native playback is a review gap; omitting required effects is an implementation failure.
+
 ### Step 1: Library Selection
 
 Full walkthrough: [step-1-library-selection.md](references/step-1-library-selection.md) (load this step when you reach it).
@@ -78,16 +84,18 @@ Full walkthrough: [step-8-testing-and-quality-assurance.md](references/step-8-te
 | "The deck looks right when I open it, no need to assert content" | Visual inspection misses the slide whose data field silently rendered empty because the placeholder name changed. Extracting and asserting text content is the only check that scales past a handful of slides. |
 | "Embedding full-resolution images is fine" | Unoptimized images balloon a deck to tens of megabytes that will not email or upload; resizing before embedding keeps the file within budget. |
 | "The chart shows numbers, so the data is correct" | A chart can render with the wrong series mapped to the wrong axis and still look plausible. Re-reading the chart XML and asserting the series values is what catches a swapped column. |
+| "The deck has fade transitions, so the required motion is covered" | A transition can reveal a fully drawn static chart and process. Verify the planned native shape/series effects and automatic triggers, then inspect timed native playback. |
 
 ## Verification
 
-- [ ] The generated file opens as a valid PPTX (a ZIP archive with the required OOXML parts)
+- [ ] The generated file opens normally in the target presentation application without repair; ZIP/XML parsing is recorded separately as package validation
 - [ ] Slide count matches the expected number of data items
 - [ ] A content-extraction test asserts the expected text appears on each slide (not visual inspection)
 - [ ] Table dimensions (rows, columns) match the input data
 - [ ] Speaker notes are populated where expected and hyperlinks resolve to valid URLs
 - [ ] Output file size stays within budget (images optimized before embedding)
 - [ ] A LibreOffice headless conversion runs in CI for visual regression
+- [ ] When retained motion is required, its process/comparison and chart-series effects exist with automatic triggers, and native timed playback confirms the intended sequence; unavailable playback remains explicitly unverified
 
 ## Related Skills
 

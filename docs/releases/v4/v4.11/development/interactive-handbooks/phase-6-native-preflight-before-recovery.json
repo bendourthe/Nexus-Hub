@@ -1,0 +1,39 @@
+{
+  "status": "unqualified",
+  "authoring_runs_started": 0,
+  "required_final_passes": 3,
+  "final_passes": 0,
+  "first_build_pass_rate": null,
+  "internal_repairs": null,
+  "installed_cli": "0.136.0",
+  "temporary_cli": "0.153.4",
+  "global_cli_changed": false,
+  "model": "gpt-6-astra",
+  "effort": "max",
+  "preflight_elapsed_seconds": 85.9,
+  "usage": {
+    "input_tokens": 393273,
+    "cached_input_tokens": 325888,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 1005,
+    "reasoning_output_tokens": 623
+  },
+  "monetary_cost": "unavailable; subscription usage is not a dollar charge",
+  "observations": [
+    "Old CLI cannot parse max effort and server rejects its version for the requested model.",
+    "Temporary current CLI successfully completes a model-only probe.",
+    "Explicit sandbox_mode workspace-write appears in generated permission context.",
+    "Current native file-change tool cannot create qa/native-probe.txt; PowerShell reports Access denied.",
+    "Installed presentify exists on disk but is absent from the model-visible available list; 700 additional skills excluded in the final preflight.",
+    "No frozen authoring prompt has run."
+  ],
+  "raw_preflight_sha256": "d55e4fb32cd5c0850bad2d8a5010ed99087be4a88b8ccc438779240058ab6720",
+  "raw_log_location": "Temporary local qualification workspace; not promoted because diagnostics can contain unrelated installed skill context.",
+  "resume": [
+    "Repair the native Windows sandbox setup without disabling its boundaries.",
+    "Verify presentify and its delegate are exposed from the installed project bundle within the native context budget.",
+    "Reinstall the current feature bundle into all three temporary cases; Phase 6 runtime and detector fixes postdate the earlier installation.",
+    "Verify frozen input hashes, run a successful workspace-write preflight, then execute each frozen prompt once with at most three internal repair rounds.",
+    "Retain raw first-build results, final artifacts, all QA layers, token usage and elapsed time; require three final passes."
+  ]
+}

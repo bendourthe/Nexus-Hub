@@ -51,6 +51,10 @@ If any of the four fails, stop and say which one.
 
 This step is a no-op for an ad-hoc version bump outside a plan; a one-off patch has no integration pull request to gate on. See `[[git-branching-workflow]]` for the branch model and `[[cicd-architect]]` for what "green" means.
 
+### Step 0a: Handbook content gate (every release invocation)
+
+After applicable integration prerequisites pass, and before changing any version-carrying file, run `[[technical-documentation]]` through `references/handbook-refresh.md`. This step also applies to a direct release without a plan. A narrow docs check cannot satisfy the full release gate. In Nexus-Hub run `python scripts/check_release_preconditions.py --pre-version`; a nonzero result stops version mutation. After mutation, recheck version-dependent documents and final rendered evidence before qualification. Unchanged independent documents retain their bytes. Preserve all existing commit, tag, push and release approvals.
+
 ### Step 1: Determine Target Version
 
 Accept one of:

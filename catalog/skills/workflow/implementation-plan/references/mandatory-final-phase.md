@@ -34,7 +34,7 @@ Every generated plan MUST end with a fail-closed last phase dedicated to archite
 #### N.3 - Living docs architecture
 **Objective**: Prove handbooks, decisions, and generated HTML match the required living tree.
 **Prompt**:
-> Check `docs/handbooks/` (markdown source of truth, generated `html/`, one atlas walkthrough, technical companions for key components), `docs/decisions/`, and living `docs/README.md` / `docs/DEVLOG.md` / `docs/todos.md`. Self-gated: never invent `docs/testing/` or `docs/validation/`. Markdown wins if HTML disagrees; regenerate or fail the check. Quote the check in the evidence file under `## Living docs architecture`. Details live in [[docs-layout-refactor]].
+> Check `docs/handbooks/` (mapped sources and generated outputs in legacy or topic layouts, a code-grounded overview and relevant technical companions), `docs/decisions/`, and living `docs/README.md` / `docs/DEVLOG.md` / `docs/todos.md`. Self-gated: never invent `docs/testing/` or `docs/validation/`. Markdown wins if HTML disagrees; regenerate or fail the check. Quote the check in the evidence file under `## Living docs architecture`. Details live in [[docs-layout-refactor]].
 
 #### N.4 - Git-tree hygiene
 **Objective**: Report branch and repository-settings hygiene without deleting anything.
@@ -71,3 +71,7 @@ Every generated plan MUST end with a fail-closed last phase dedicated to archite
 **Prompt**:
 > Create the final local commit for this phase. Then present the resolved branching model, remote, branch name, and pull-request target, and obtain EXPLICIT approval before the plan's first branch push. Push once, open the integration pull request against the integration branch, and report the exact required checks expected. Wait until every required check reaches a terminal state. A red check REOPENS this phase: classify the failure, reproduce it locally, apply the narrow fix, re-run the local gate, update known gaps and session history, then amend the final commit or add one narrowly scoped stabilization commit and push again with approval. Never re-run a red check without a local reproduction; a re-run without one is a guess. Merge only after every required check is green and the user approves. Confirm the post-merge workflow performed only its intended smoke, publication, or provenance work and did not rerun the complete suite. Only then hand off to `/update release`, which owns the version bump, changelog, tag, push, and GitHub Release behind its own confirmation gates. Quote the required-check results in the evidence file under `## Publication and integration`.
 ```
+
+## Candidate-aware handbook gate
+
+In the living-docs sub-task, invoke `technical-documentation` through `references/handbook-refresh.md` before local completion and feature publication. Inventory every live HTML through the existing source/output map, review code claims against the actual candidate, and require reproducible build checks plus final rendered evidence. Missing trees, sources, generators or browser proof block the required handbook, including direct implement-phase and /implement dispatch. A known-gap cannot waive this gate. The release handoff rechecks the integrated candidate before version mutation and rechecks affected version-dependent outputs afterward, reusing unchanged independent bytes.
