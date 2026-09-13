@@ -800,6 +800,34 @@ caught because the plan requires the integration pull request to be the first
 remote validation. Three rounds of red checks found four real defects, none of
 which any local run could have surfaced.
 
+### Fourth CI round: the same gap one layer down
+
+Twenty-five failures across two modules, one cause. Round four guarded the
+modules that IMPORT playwright. These two never import it: they invoke
+`measure_handbook.py`, which needs a browser and correctly reports `unverified`
+when it has none, so assertions expecting `fail` or `pass` broke for an
+environmental reason.
+
+```
+AssertionError: assert 'unverified' == 'fail'
+```
+
+Guarded on the same contract. The first attempt used
+`importlib.util.find_spec("playwright")`, and its negative control FAILED to
+skip - correctly, because `find_spec` only LOCATES a package and never executes
+it, so a present-but-broken playwright passes the probe and then fails inside
+the subprocess anyway. Switched to an actual import, which is the honest probe
+and covers both absent and broken.
+
+```
+A. broken or absent               -> 2 skipped in 0.10s
+B. absent + NEXUS_REQUIRE_RENDER=1 -> 1 error during collection
+with playwright present            -> 68 passed in 112.38s
+```
+
+The control earning its keep for the second time this phase: a guard that cannot
+be shown to fire is not a guard.
+
 ## Publication and integration
 
 **Status: not started. Awaiting explicit approval.**
