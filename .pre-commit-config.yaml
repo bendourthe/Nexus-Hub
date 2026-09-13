@@ -61,10 +61,18 @@ repos:
         files: '\.(json)$'
       - id: mixed-line-ending
         args: ['--fix=lf']
+        # Two exclusions, for opposite reasons.
+        #
         # Windows batch shims must keep CRLF (see .gitattributes:
         # `scripts/nexus-hub.cmd text eol=crlf`). They check out as CRLF on
         # every OS, so the global --fix=lf would rewrite them and fail the hook.
-        exclude: '\.cmd$'
+        #
+        # Captured release artifacts keep the bytes a generator actually
+        # produced, for the reason given on end-of-file-fixer above: their
+        # SHA-256 values are pinned in the qualification summaries. Two of them
+        # carry mixed endings because that is what the generator emitted, and
+        # normalising those would edit the record rather than fix a defect.
+        exclude: '\.cmd$|^docs/releases/.*/development/.*\.(json|html|txt|csv)$'
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1
