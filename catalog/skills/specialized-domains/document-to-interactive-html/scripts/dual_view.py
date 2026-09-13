@@ -988,6 +988,12 @@ def assemble(
         for name in (output_name, output_name + ".build.json", output_name + ".lock")
     ):
         raise ValueError("output: destination overlaps retained input")
+    # A generated file is still a text file: it ends with a newline, like every
+    # other one in the tree. Without it the end-of-file hook rewrites the output
+    # on the next commit, which changes the very hash this record pins and
+    # reports the handbook stale against a build nobody touched.
+    if not output.endswith("\n"):
+        output += "\n"
     payload = output.encode("utf-8")
     record_path = contained(root, output_name + ".build.json")
     record = {
