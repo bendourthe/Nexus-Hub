@@ -35,7 +35,7 @@
     "rendered": {
       "status": "pass",
       "evidence": "docs/releases/v4/v4.11/development/interactive-handbooks/phase-7-overview-rendered.json",
-      "evidence_sha256": "c0b5a54b6acdbf08fb8e25f7185b9c6a53d50337f673157a80cecd19ba3e6d78",
+      "evidence_sha256": "6561c4d8872603b022776a8f27ea4dbc855c7d6dc7d6a5037c1dab9a0cd90b07",
       "browser": "Chromium 151.0.7922.34",
       "output_sha256": "c16b69de18b92760e101c7f8ddbe95d566c0058fdfbf14d5657255584a659799"
     }
