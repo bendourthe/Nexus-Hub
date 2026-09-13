@@ -1,0 +1,5349 @@
+{
+  "artifact_sha256": "f7d78ec762e7b46a0df11d2c1c8d2a07f792fe7462c7baa19e6acc75f20fcb1c",
+  "checks": [
+    {
+      "name": "anchor:overview:2560x1300",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 764.796875,
+          "y": 195.328125,
+          "width": 1030.40625,
+          "height": 65.6875
+        },
+        "nav": {
+          "x": 682,
+          "y": 40.9375,
+          "width": 1196,
+          "height": 71.59375
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:2560x1300",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 764.796875,
+          "y": 197.578125,
+          "width": 1030.40625,
+          "height": 65.6875
+        },
+        "nav": {
+          "x": 682,
+          "y": 0,
+          "width": 1196,
+          "height": 71.59375
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:2560x1300",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 764.796875,
+          "y": 198.140625,
+          "width": 1030.40625,
+          "height": 65.6875
+        },
+        "nav": {
+          "x": 682,
+          "y": 0,
+          "width": 1196,
+          "height": 71.59375
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:2560x1300",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 764.796875,
+          "y": 485.203125,
+          "width": 1030.40625,
+          "height": 65.6875
+        },
+        "nav": {
+          "x": 682,
+          "y": 0,
+          "width": 1196,
+          "height": 71.59375
+        }
+      }
+    },
+    {
+      "name": "paint:counts:2560x1300:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:counts:2560x1300:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:counts:2560x1300:2",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:review-path:2560x1300:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:review-path:2560x1300:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:review-path:2560x1300:2",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:review-path:2560x1300:3",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "chart:default:2560x1300",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 1230,
+        "scrollHeight": 1230,
+        "stageHeight": 1230,
+        "stageScrollHeight": 1230,
+        "stageOverflow": "visible",
+        "bottom": 1229.625,
+        "stageBottom": 1229.625
+      }
+    },
+    {
+      "name": "chart-input-priority:default:2560x1300",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:2560x1300",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 1230,
+        "scrollHeight": 1230,
+        "stageHeight": 1230,
+        "stageScrollHeight": 1230,
+        "stageOverflow": "visible",
+        "bottom": 1229.625,
+        "stageBottom": 1229.625
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:2560x1300",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:2560x1300",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 1230,
+        "scrollHeight": 1230,
+        "stageHeight": 1230,
+        "stageScrollHeight": 1230,
+        "stageOverflow": "visible",
+        "bottom": 1229.625,
+        "stageBottom": 1229.625
+      }
+    },
+    {
+      "name": "chart-input-priority:none:2560x1300",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:2560x1300",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 1230,
+        "scrollHeight": 1230,
+        "stageHeight": 1230,
+        "stageScrollHeight": 1230,
+        "stageOverflow": "visible",
+        "bottom": 1229.625,
+        "stageBottom": 1229.625
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:2560x1300",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:2560x1300",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 1230,
+        "scrollHeight": 1230,
+        "stageHeight": 1230,
+        "stageScrollHeight": 1230,
+        "stageOverflow": "visible",
+        "bottom": 1229.625,
+        "stageBottom": 1229.625
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:2560x1300",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:2560x1300",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 1230,
+        "scrollHeight": 1230,
+        "stageHeight": 1230,
+        "stageScrollHeight": 1230,
+        "stageOverflow": "visible",
+        "bottom": 1229.625,
+        "stageBottom": 1229.625
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:2560x1300",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:2560x1300",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 1230,
+        "scrollHeight": 1230,
+        "stageHeight": 1230,
+        "stageScrollHeight": 1230,
+        "stageOverflow": "visible",
+        "bottom": 1229.625,
+        "stageBottom": 1229.625
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:2560x1300",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:2560x1300",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 1230,
+        "scrollHeight": 1230,
+        "stageHeight": 1230,
+        "stageScrollHeight": 1230,
+        "stageOverflow": "visible",
+        "bottom": 1229.625,
+        "stageBottom": 1229.625
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:2560x1300",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "process-details-open:2560x1300",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 1230,
+        "scrollHeight": 1230,
+        "stageHeight": 1230,
+        "stageScrollHeight": 1230,
+        "stageOverflow": "visible",
+        "bottom": 1229.625,
+        "stageBottom": 1229.625
+      }
+    },
+    {
+      "name": "detail-modal:2560x1300",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:2560x1300",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:1920x1080",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 488.046875,
+          "y": 168.75,
+          "width": 943.890625,
+          "height": 53.75
+        },
+        "nav": {
+          "x": 420.859375,
+          "y": 36.25,
+          "width": 1078.265625,
+          "height": 65.3125
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:1920x1080",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 488.046875,
+          "y": 170.546875,
+          "width": 943.890625,
+          "height": 53.75
+        },
+        "nav": {
+          "x": 420.859375,
+          "y": 0,
+          "width": 1078.265625,
+          "height": 65.3125
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:1920x1080",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 488.046875,
+          "y": 170.359375,
+          "width": 943.890625,
+          "height": 53.75
+        },
+        "nav": {
+          "x": 420.859375,
+          "y": 0,
+          "width": 1078.265625,
+          "height": 65.3125
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:1920x1080",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 488.046875,
+          "y": 362.34375,
+          "width": 943.890625,
+          "height": 53.75
+        },
+        "nav": {
+          "x": 420.859375,
+          "y": 0,
+          "width": 1078.265625,
+          "height": 65.3125
+        }
+      }
+    },
+    {
+      "name": "paint:review-path:1920x1080:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:review-path:1920x1080:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:review-path:1920x1080:2",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:scope:1920x1080:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "chart:default:1920x1080",
+      "pass": true,
+      "observed": {
+        "width": 1920,
+        "scrollWidth": 1920,
+        "height": 1014,
+        "scrollHeight": 1014,
+        "stageHeight": 1014,
+        "stageScrollHeight": 1014,
+        "stageOverflow": "visible",
+        "bottom": 1014.28125,
+        "stageBottom": 1014.28125
+      }
+    },
+    {
+      "name": "chart-input-priority:default:1920x1080",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:1920x1080",
+      "pass": true,
+      "observed": {
+        "width": 1920,
+        "scrollWidth": 1920,
+        "height": 1014,
+        "scrollHeight": 1014,
+        "stageHeight": 1014,
+        "stageScrollHeight": 1014,
+        "stageOverflow": "visible",
+        "bottom": 1014.28125,
+        "stageBottom": 1014.28125
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:1920x1080",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:1920x1080",
+      "pass": true,
+      "observed": {
+        "width": 1920,
+        "scrollWidth": 1920,
+        "height": 1014,
+        "scrollHeight": 1014,
+        "stageHeight": 1014,
+        "stageScrollHeight": 1014,
+        "stageOverflow": "visible",
+        "bottom": 1014.28125,
+        "stageBottom": 1014.28125
+      }
+    },
+    {
+      "name": "chart-input-priority:none:1920x1080",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:1920x1080",
+      "pass": true,
+      "observed": {
+        "width": 1920,
+        "scrollWidth": 1920,
+        "height": 1014,
+        "scrollHeight": 1014,
+        "stageHeight": 1014,
+        "stageScrollHeight": 1014,
+        "stageOverflow": "visible",
+        "bottom": 1014.28125,
+        "stageBottom": 1014.28125
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:1920x1080",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:1920x1080",
+      "pass": true,
+      "observed": {
+        "width": 1920,
+        "scrollWidth": 1920,
+        "height": 1014,
+        "scrollHeight": 1014,
+        "stageHeight": 1014,
+        "stageScrollHeight": 1014,
+        "stageOverflow": "visible",
+        "bottom": 1014.28125,
+        "stageBottom": 1014.28125
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:1920x1080",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:1920x1080",
+      "pass": true,
+      "observed": {
+        "width": 1920,
+        "scrollWidth": 1920,
+        "height": 1014,
+        "scrollHeight": 1014,
+        "stageHeight": 1014,
+        "stageScrollHeight": 1014,
+        "stageOverflow": "visible",
+        "bottom": 1014.28125,
+        "stageBottom": 1014.28125
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:1920x1080",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:1920x1080",
+      "pass": true,
+      "observed": {
+        "width": 1920,
+        "scrollWidth": 1920,
+        "height": 1014,
+        "scrollHeight": 1014,
+        "stageHeight": 1014,
+        "stageScrollHeight": 1014,
+        "stageOverflow": "visible",
+        "bottom": 1014.28125,
+        "stageBottom": 1014.28125
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:1920x1080",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:1920x1080",
+      "pass": true,
+      "observed": {
+        "width": 1920,
+        "scrollWidth": 1920,
+        "height": 1014,
+        "scrollHeight": 1014,
+        "stageHeight": 1014,
+        "stageScrollHeight": 1014,
+        "stageOverflow": "visible",
+        "bottom": 1014.28125,
+        "stageBottom": 1014.28125
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:1920x1080",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "process-details-open:1920x1080",
+      "pass": true,
+      "observed": {
+        "width": 1920,
+        "scrollWidth": 1920,
+        "height": 1014,
+        "scrollHeight": 1014,
+        "stageHeight": 1014,
+        "stageScrollHeight": 1014,
+        "stageOverflow": "visible",
+        "bottom": 1014.28125,
+        "stageBottom": 1014.28125
+      }
+    },
+    {
+      "name": "detail-modal:1920x1080",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:1920x1080",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:1366x768",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 262.796875,
+          "y": 137.78125,
+          "width": 840.40625,
+          "height": 38.25
+        },
+        "nav": {
+          "x": 215,
+          "y": 27.796875,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:1366x768",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 262.796875,
+          "y": 138.15625,
+          "width": 840.40625,
+          "height": 38.25
+        },
+        "nav": {
+          "x": 215,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:1366x768",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 262.796875,
+          "y": 138.1875,
+          "width": 840.40625,
+          "height": 38.25
+        },
+        "nav": {
+          "x": 215,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:1366x768",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 262.796875,
+          "y": 166.546875,
+          "width": 840.40625,
+          "height": 38.25
+        },
+        "nav": {
+          "x": 215,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "paint:scope:1366x768:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:scope:1366x768:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:scope:1366x768:2",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "chart:default:1366x768",
+      "pass": true,
+      "observed": {
+        "width": 1366,
+        "scrollWidth": 1366,
+        "height": 705,
+        "scrollHeight": 705,
+        "stageHeight": 705,
+        "stageScrollHeight": 705,
+        "stageOverflow": "visible",
+        "bottom": 705,
+        "stageBottom": 705
+      }
+    },
+    {
+      "name": "chart-input-priority:default:1366x768",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:1366x768",
+      "pass": true,
+      "observed": {
+        "width": 1366,
+        "scrollWidth": 1366,
+        "height": 705,
+        "scrollHeight": 705,
+        "stageHeight": 705,
+        "stageScrollHeight": 705,
+        "stageOverflow": "visible",
+        "bottom": 705,
+        "stageBottom": 705
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:1366x768",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:1366x768",
+      "pass": true,
+      "observed": {
+        "width": 1366,
+        "scrollWidth": 1366,
+        "height": 705,
+        "scrollHeight": 705,
+        "stageHeight": 705,
+        "stageScrollHeight": 705,
+        "stageOverflow": "visible",
+        "bottom": 705,
+        "stageBottom": 705
+      }
+    },
+    {
+      "name": "chart-input-priority:none:1366x768",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:1366x768",
+      "pass": true,
+      "observed": {
+        "width": 1366,
+        "scrollWidth": 1366,
+        "height": 705,
+        "scrollHeight": 705,
+        "stageHeight": 705,
+        "stageScrollHeight": 705,
+        "stageOverflow": "visible",
+        "bottom": 705,
+        "stageBottom": 705
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:1366x768",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:1366x768",
+      "pass": true,
+      "observed": {
+        "width": 1366,
+        "scrollWidth": 1366,
+        "height": 705,
+        "scrollHeight": 705,
+        "stageHeight": 705,
+        "stageScrollHeight": 705,
+        "stageOverflow": "visible",
+        "bottom": 705,
+        "stageBottom": 705
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:1366x768",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:1366x768",
+      "pass": true,
+      "observed": {
+        "width": 1366,
+        "scrollWidth": 1366,
+        "height": 705,
+        "scrollHeight": 705,
+        "stageHeight": 705,
+        "stageScrollHeight": 705,
+        "stageOverflow": "visible",
+        "bottom": 705,
+        "stageBottom": 705
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:1366x768",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:1366x768",
+      "pass": true,
+      "observed": {
+        "width": 1366,
+        "scrollWidth": 1366,
+        "height": 705,
+        "scrollHeight": 705,
+        "stageHeight": 705,
+        "stageScrollHeight": 705,
+        "stageOverflow": "visible",
+        "bottom": 705,
+        "stageBottom": 705
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:1366x768",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:1366x768",
+      "pass": true,
+      "observed": {
+        "width": 1366,
+        "scrollWidth": 1366,
+        "height": 705,
+        "scrollHeight": 705,
+        "stageHeight": 705,
+        "stageScrollHeight": 705,
+        "stageOverflow": "visible",
+        "bottom": 705,
+        "stageBottom": 705
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:1366x768",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "process-details-open:1366x768",
+      "pass": true,
+      "observed": {
+        "width": 1366,
+        "scrollWidth": 1366,
+        "height": 705,
+        "scrollHeight": 705,
+        "stageHeight": 705,
+        "stageScrollHeight": 705,
+        "stageOverflow": "visible",
+        "bottom": 705,
+        "stageBottom": 705
+      }
+    },
+    {
+      "name": "detail-modal:1366x768",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:1366x768",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:390x844",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 19.796875,
+          "y": 143.1875,
+          "width": 350.40625,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 13.609375,
+          "width": 390,
+          "height": 109.78125
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:390x844",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 19.796875,
+          "y": 145.84375,
+          "width": 350.40625,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 109.78125
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:390x844",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 19.796875,
+          "y": 145.578125,
+          "width": 350.40625,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 109.78125
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:390x844",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 19.796875,
+          "y": 156.484375,
+          "width": 350.40625,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 109.78125
+        }
+      }
+    },
+    {
+      "name": "paint:counts:390x844:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:review-path:390x844:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:review-path:390x844:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:review-path:390x844:2",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:review-path:390x844:3",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:review-path:390x844:4",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:scope:390x844:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:scope:390x844:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "chart:default:390x844",
+      "pass": true,
+      "observed": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 1001,
+        "scrollHeight": 1001,
+        "stageHeight": 684,
+        "stageScrollHeight": 1001,
+        "stageOverflow": "auto",
+        "bottom": 1000.65625,
+        "stageBottom": 684.03125
+      }
+    },
+    {
+      "name": "chart-input-priority:default:390x844",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:390x844",
+      "pass": true,
+      "observed": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 1001,
+        "scrollHeight": 1001,
+        "stageHeight": 684,
+        "stageScrollHeight": 1001,
+        "stageOverflow": "auto",
+        "bottom": 1000.65625,
+        "stageBottom": 684.03125
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:390x844",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:390x844",
+      "pass": true,
+      "observed": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 1001,
+        "scrollHeight": 1001,
+        "stageHeight": 684,
+        "stageScrollHeight": 1001,
+        "stageOverflow": "auto",
+        "bottom": 1000.65625,
+        "stageBottom": 684.03125
+      }
+    },
+    {
+      "name": "chart-input-priority:none:390x844",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:390x844",
+      "pass": true,
+      "observed": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 1001,
+        "scrollHeight": 1001,
+        "stageHeight": 684,
+        "stageScrollHeight": 1001,
+        "stageOverflow": "auto",
+        "bottom": 1000.65625,
+        "stageBottom": 684.03125
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:390x844",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:390x844",
+      "pass": true,
+      "observed": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 1092,
+        "scrollHeight": 1092,
+        "stageHeight": 684,
+        "stageScrollHeight": 1092,
+        "stageOverflow": "auto",
+        "bottom": 1092.21875,
+        "stageBottom": 684.03125
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:390x844",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:390x844",
+      "pass": true,
+      "observed": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 1116,
+        "scrollHeight": 1116,
+        "stageHeight": 684,
+        "stageScrollHeight": 1116,
+        "stageOverflow": "auto",
+        "bottom": 1115.703125,
+        "stageBottom": 684.03125
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:390x844",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:390x844",
+      "pass": true,
+      "observed": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 1116,
+        "scrollHeight": 1116,
+        "stageHeight": 684,
+        "stageScrollHeight": 1116,
+        "stageOverflow": "auto",
+        "bottom": 1115.703125,
+        "stageBottom": 684.03125
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:390x844",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:390x844",
+      "pass": true,
+      "observed": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 1092,
+        "scrollHeight": 1092,
+        "stageHeight": 684,
+        "stageScrollHeight": 1092,
+        "stageOverflow": "auto",
+        "bottom": 1092.21875,
+        "stageBottom": 684.03125
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:390x844",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "compact-counts-bottom:390x844",
+      "pass": true,
+      "observed": {
+        "x": 19.796875,
+        "y": 635.546875,
+        "width": 350.40625,
+        "height": 23.484375
+      }
+    },
+    {
+      "name": "process-details-open:390x844",
+      "pass": true,
+      "observed": {
+        "width": 390,
+        "scrollWidth": 390,
+        "height": 1118,
+        "scrollHeight": 1118,
+        "stageHeight": 684,
+        "stageScrollHeight": 1118,
+        "stageOverflow": "auto",
+        "bottom": 845.671875,
+        "stageBottom": 684.03125
+      }
+    },
+    {
+      "name": "detail-modal:390x844",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:390x844",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:1600x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 388,
+          "y": 143.34375,
+          "width": 824,
+          "height": 44.796875
+        },
+        "nav": {
+          "x": 332,
+          "y": 25.15625,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:1600x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 388,
+          "y": 146.15625,
+          "width": 824,
+          "height": 44.796875
+        },
+        "nav": {
+          "x": 332,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:1600x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 388,
+          "y": 146.0625,
+          "width": 824,
+          "height": 44.796875
+        },
+        "nav": {
+          "x": 332,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:1600x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 388,
+          "y": 279.171875,
+          "width": 824,
+          "height": 44.796875
+        },
+        "nav": {
+          "x": 332,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "paint:counts:1600x900:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:scope:1600x900:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "chart:default:1600x900",
+      "pass": true,
+      "observed": {
+        "width": 1600,
+        "scrollWidth": 1600,
+        "height": 837,
+        "scrollHeight": 837,
+        "stageHeight": 837,
+        "stageScrollHeight": 837,
+        "stageOverflow": "visible",
+        "bottom": 837,
+        "stageBottom": 837
+      }
+    },
+    {
+      "name": "chart-input-priority:default:1600x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:1600x900",
+      "pass": true,
+      "observed": {
+        "width": 1600,
+        "scrollWidth": 1600,
+        "height": 837,
+        "scrollHeight": 837,
+        "stageHeight": 837,
+        "stageScrollHeight": 837,
+        "stageOverflow": "visible",
+        "bottom": 837,
+        "stageBottom": 837
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:1600x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:1600x900",
+      "pass": true,
+      "observed": {
+        "width": 1600,
+        "scrollWidth": 1600,
+        "height": 837,
+        "scrollHeight": 837,
+        "stageHeight": 837,
+        "stageScrollHeight": 837,
+        "stageOverflow": "visible",
+        "bottom": 837,
+        "stageBottom": 837
+      }
+    },
+    {
+      "name": "chart-input-priority:none:1600x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:1600x900",
+      "pass": true,
+      "observed": {
+        "width": 1600,
+        "scrollWidth": 1600,
+        "height": 837,
+        "scrollHeight": 837,
+        "stageHeight": 837,
+        "stageScrollHeight": 837,
+        "stageOverflow": "visible",
+        "bottom": 837,
+        "stageBottom": 837
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:1600x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:1600x900",
+      "pass": true,
+      "observed": {
+        "width": 1600,
+        "scrollWidth": 1600,
+        "height": 837,
+        "scrollHeight": 837,
+        "stageHeight": 837,
+        "stageScrollHeight": 837,
+        "stageOverflow": "visible",
+        "bottom": 837,
+        "stageBottom": 837
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:1600x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:1600x900",
+      "pass": true,
+      "observed": {
+        "width": 1600,
+        "scrollWidth": 1600,
+        "height": 837,
+        "scrollHeight": 837,
+        "stageHeight": 837,
+        "stageScrollHeight": 837,
+        "stageOverflow": "visible",
+        "bottom": 837,
+        "stageBottom": 837
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:1600x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:1600x900",
+      "pass": true,
+      "observed": {
+        "width": 1600,
+        "scrollWidth": 1600,
+        "height": 837,
+        "scrollHeight": 837,
+        "stageHeight": 837,
+        "stageScrollHeight": 837,
+        "stageOverflow": "visible",
+        "bottom": 837,
+        "stageBottom": 837
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:1600x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:1600x900",
+      "pass": true,
+      "observed": {
+        "width": 1600,
+        "scrollWidth": 1600,
+        "height": 837,
+        "scrollHeight": 837,
+        "stageHeight": 837,
+        "stageScrollHeight": 837,
+        "stageOverflow": "visible",
+        "bottom": 837,
+        "stageBottom": 837
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:1600x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "process-details-open:1600x900",
+      "pass": true,
+      "observed": {
+        "width": 1600,
+        "scrollWidth": 1600,
+        "height": 837,
+        "scrollHeight": 837,
+        "stageHeight": 837,
+        "stageScrollHeight": 837,
+        "stageOverflow": "visible",
+        "bottom": 837,
+        "stageBottom": 837
+      }
+    },
+    {
+      "name": "detail-modal:1600x900",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:1600x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:1024x849",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 79.828125,
+          "y": 123.96875,
+          "width": 864.34375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 44,
+          "y": 25.953125,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:1024x849",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 79.828125,
+          "y": 125.46875,
+          "width": 864.34375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 44,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:1024x849",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 79.828125,
+          "y": 125.859375,
+          "width": 864.34375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 44,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:1024x849",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 79.828125,
+          "y": 269.265625,
+          "width": 864.34375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 44,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "chart:default:1024x849",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 786,
+        "scrollHeight": 786,
+        "stageHeight": 786,
+        "stageScrollHeight": 786,
+        "stageOverflow": "visible",
+        "bottom": 786,
+        "stageBottom": 786
+      }
+    },
+    {
+      "name": "chart-input-priority:default:1024x849",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:1024x849",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 786,
+        "scrollHeight": 786,
+        "stageHeight": 786,
+        "stageScrollHeight": 786,
+        "stageOverflow": "visible",
+        "bottom": 786,
+        "stageBottom": 786
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:1024x849",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:1024x849",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 786,
+        "scrollHeight": 786,
+        "stageHeight": 786,
+        "stageScrollHeight": 786,
+        "stageOverflow": "visible",
+        "bottom": 786,
+        "stageBottom": 786
+      }
+    },
+    {
+      "name": "chart-input-priority:none:1024x849",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:1024x849",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 786,
+        "scrollHeight": 786,
+        "stageHeight": 786,
+        "stageScrollHeight": 786,
+        "stageOverflow": "visible",
+        "bottom": 786,
+        "stageBottom": 786
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:1024x849",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:1024x849",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 786,
+        "scrollHeight": 786,
+        "stageHeight": 786,
+        "stageScrollHeight": 786,
+        "stageOverflow": "visible",
+        "bottom": 786,
+        "stageBottom": 786
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:1024x849",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:1024x849",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 786,
+        "scrollHeight": 786,
+        "stageHeight": 786,
+        "stageScrollHeight": 786,
+        "stageOverflow": "visible",
+        "bottom": 786,
+        "stageBottom": 786
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:1024x849",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:1024x849",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 786,
+        "scrollHeight": 786,
+        "stageHeight": 786,
+        "stageScrollHeight": 786,
+        "stageOverflow": "visible",
+        "bottom": 786,
+        "stageBottom": 786
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:1024x849",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:1024x849",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 786,
+        "scrollHeight": 786,
+        "stageHeight": 786,
+        "stageScrollHeight": 786,
+        "stageOverflow": "visible",
+        "bottom": 786,
+        "stageBottom": 786
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:1024x849",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "process-details-open:1024x849",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 786,
+        "scrollHeight": 786,
+        "stageHeight": 786,
+        "stageScrollHeight": 786,
+        "stageOverflow": "visible",
+        "bottom": 786,
+        "stageBottom": 786
+      }
+    },
+    {
+      "name": "detail-modal:1024x849",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:1024x849",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:1024x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 79.828125,
+          "y": 123.96875,
+          "width": 864.34375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 44,
+          "y": 25.953125,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:1024x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 79.828125,
+          "y": 125.46875,
+          "width": 864.34375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 44,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:1024x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 79.828125,
+          "y": 125.859375,
+          "width": 864.34375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 44,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:1024x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 79.828125,
+          "y": 270.265625,
+          "width": 864.34375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 44,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "paint:counts:1024x850:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:counts:1024x850:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:counts:1024x850:2",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:counts:1024x850:3",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:review-path:1024x850:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:review-path:1024x850:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:scope:1024x850:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:scope:1024x850:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:scope:1024x850:2",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:scope:1024x850:3",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "chart:default:1024x850",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:default:1024x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:1024x850",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:1024x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:1024x850",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:none:1024x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:1024x850",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:1024x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:1024x850",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:1024x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:1024x850",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:1024x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:1024x850",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:1024x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:1024x850",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:1024x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "process-details-open:1024x850",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "detail-modal:1024x850",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:1024x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:1024x851",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 79.828125,
+          "y": 123.96875,
+          "width": 864.34375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 44,
+          "y": 25.953125,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:1024x851",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 79.828125,
+          "y": 125.46875,
+          "width": 864.34375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 44,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:1024x851",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 79.828125,
+          "y": 125.859375,
+          "width": 864.34375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 44,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:1024x851",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 79.828125,
+          "y": 271.265625,
+          "width": 864.34375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 44,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "paint:counts:1024x851:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:counts:1024x851:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:counts:1024x851:2",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:counts:1024x851:3",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:review-path:1024x851:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:review-path:1024x851:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:scope:1024x851:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "chart:default:1024x851",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 788,
+        "scrollHeight": 788,
+        "stageHeight": 788,
+        "stageScrollHeight": 788,
+        "stageOverflow": "visible",
+        "bottom": 788,
+        "stageBottom": 788
+      }
+    },
+    {
+      "name": "chart-input-priority:default:1024x851",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:1024x851",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 788,
+        "scrollHeight": 788,
+        "stageHeight": 788,
+        "stageScrollHeight": 788,
+        "stageOverflow": "visible",
+        "bottom": 788,
+        "stageBottom": 788
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:1024x851",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:1024x851",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 788,
+        "scrollHeight": 788,
+        "stageHeight": 788,
+        "stageScrollHeight": 788,
+        "stageOverflow": "visible",
+        "bottom": 788,
+        "stageBottom": 788
+      }
+    },
+    {
+      "name": "chart-input-priority:none:1024x851",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:1024x851",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 788,
+        "scrollHeight": 788,
+        "stageHeight": 788,
+        "stageScrollHeight": 788,
+        "stageOverflow": "visible",
+        "bottom": 788,
+        "stageBottom": 788
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:1024x851",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:1024x851",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 788,
+        "scrollHeight": 788,
+        "stageHeight": 788,
+        "stageScrollHeight": 788,
+        "stageOverflow": "visible",
+        "bottom": 788,
+        "stageBottom": 788
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:1024x851",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:1024x851",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 788,
+        "scrollHeight": 788,
+        "stageHeight": 788,
+        "stageScrollHeight": 788,
+        "stageOverflow": "visible",
+        "bottom": 788,
+        "stageBottom": 788
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:1024x851",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:1024x851",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 788,
+        "scrollHeight": 788,
+        "stageHeight": 788,
+        "stageScrollHeight": 788,
+        "stageOverflow": "visible",
+        "bottom": 788,
+        "stageBottom": 788
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:1024x851",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:1024x851",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 788,
+        "scrollHeight": 788,
+        "stageHeight": 788,
+        "stageScrollHeight": 788,
+        "stageOverflow": "visible",
+        "bottom": 788,
+        "stageBottom": 788
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:1024x851",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "process-details-open:1024x851",
+      "pass": true,
+      "observed": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "height": 788,
+        "scrollHeight": 788,
+        "stageHeight": 788,
+        "stageScrollHeight": 788,
+        "stageOverflow": "visible",
+        "bottom": 788,
+        "stageBottom": 788
+      }
+    },
+    {
+      "name": "detail-modal:1024x851",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:1024x851",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:2560x720",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 764.796875,
+          "y": 197.328125,
+          "width": 1030.40625,
+          "height": 65.6875
+        },
+        "nav": {
+          "x": 682,
+          "y": 42.9375,
+          "width": 1196,
+          "height": 71.59375
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:2560x720",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 764.796875,
+          "y": 197.578125,
+          "width": 1030.40625,
+          "height": 65.6875
+        },
+        "nav": {
+          "x": 682,
+          "y": 0,
+          "width": 1196,
+          "height": 71.59375
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:2560x720",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 764.796875,
+          "y": 198.3486328125,
+          "width": 1030.40625,
+          "height": 65.6875
+        },
+        "nav": {
+          "x": 682,
+          "y": 0,
+          "width": 1196,
+          "height": 71.59375
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:2560x720",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 764.796875,
+          "y": 198.203125,
+          "width": 1030.40625,
+          "height": 65.6875
+        },
+        "nav": {
+          "x": 682,
+          "y": 0,
+          "width": 1196,
+          "height": 71.59375
+        }
+      }
+    },
+    {
+      "name": "paint:agenda:2560x720:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:counts:2560x720:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:counts:2560x720:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:counts:2560x720:2",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "chart:default:2560x720",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 650,
+        "scrollHeight": 650,
+        "stageHeight": 650,
+        "stageScrollHeight": 650,
+        "stageOverflow": "visible",
+        "bottom": 649.625,
+        "stageBottom": 649.625
+      }
+    },
+    {
+      "name": "chart-input-priority:default:2560x720",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:2560x720",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 650,
+        "scrollHeight": 650,
+        "stageHeight": 650,
+        "stageScrollHeight": 650,
+        "stageOverflow": "visible",
+        "bottom": 649.625,
+        "stageBottom": 649.625
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:2560x720",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:2560x720",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 650,
+        "scrollHeight": 650,
+        "stageHeight": 650,
+        "stageScrollHeight": 650,
+        "stageOverflow": "visible",
+        "bottom": 649.625,
+        "stageBottom": 649.625
+      }
+    },
+    {
+      "name": "chart-input-priority:none:2560x720",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:2560x720",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 650,
+        "scrollHeight": 650,
+        "stageHeight": 650,
+        "stageScrollHeight": 650,
+        "stageOverflow": "visible",
+        "bottom": 649.625,
+        "stageBottom": 649.625
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:2560x720",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:2560x720",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 650,
+        "scrollHeight": 650,
+        "stageHeight": 650,
+        "stageScrollHeight": 650,
+        "stageOverflow": "visible",
+        "bottom": 649.625,
+        "stageBottom": 649.625
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:2560x720",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:2560x720",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 650,
+        "scrollHeight": 650,
+        "stageHeight": 650,
+        "stageScrollHeight": 650,
+        "stageOverflow": "visible",
+        "bottom": 649.625,
+        "stageBottom": 649.625
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:2560x720",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:2560x720",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 650,
+        "scrollHeight": 650,
+        "stageHeight": 650,
+        "stageScrollHeight": 650,
+        "stageOverflow": "visible",
+        "bottom": 649.625,
+        "stageBottom": 649.625
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:2560x720",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:2560x720",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 650,
+        "scrollHeight": 650,
+        "stageHeight": 650,
+        "stageScrollHeight": 650,
+        "stageOverflow": "visible",
+        "bottom": 649.625,
+        "stageBottom": 649.625
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:2560x720",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "process-details-open:2560x720",
+      "pass": true,
+      "observed": {
+        "width": 2560,
+        "scrollWidth": 2560,
+        "height": 650,
+        "scrollHeight": 650,
+        "stageHeight": 650,
+        "stageScrollHeight": 650,
+        "stageOverflow": "visible",
+        "bottom": 649.625,
+        "stageBottom": 649.625
+      }
+    },
+    {
+      "name": "detail-modal:2560x720",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:2560x720",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:759x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 26.5625,
+          "y": 150.375,
+          "width": 705.875,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 59.8125,
+          "width": 759,
+          "height": 64
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:759x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 26.5625,
+          "y": 152.4375,
+          "width": 705.875,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 759,
+          "height": 64
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:759x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 26.5625,
+          "y": 152.875,
+          "width": 705.875,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 759,
+          "height": 64
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:759x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 26.5625,
+          "y": 329.181396484375,
+          "width": 705.875,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 759,
+          "height": 64
+        }
+      }
+    },
+    {
+      "name": "chart:default:759x900",
+      "pass": true,
+      "observed": {
+        "width": 759,
+        "scrollWidth": 759,
+        "height": 1090,
+        "scrollHeight": 1090,
+        "stageHeight": 841,
+        "stageScrollHeight": 1090,
+        "stageOverflow": "auto",
+        "bottom": 1090.0625,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:default:759x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:759x900",
+      "pass": true,
+      "observed": {
+        "width": 759,
+        "scrollWidth": 759,
+        "height": 1090,
+        "scrollHeight": 1090,
+        "stageHeight": 841,
+        "stageScrollHeight": 1090,
+        "stageOverflow": "auto",
+        "bottom": 1090.0625,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:759x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:759x900",
+      "pass": true,
+      "observed": {
+        "width": 759,
+        "scrollWidth": 759,
+        "height": 1090,
+        "scrollHeight": 1090,
+        "stageHeight": 841,
+        "stageScrollHeight": 1090,
+        "stageOverflow": "auto",
+        "bottom": 1090.0625,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:none:759x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:759x900",
+      "pass": true,
+      "observed": {
+        "width": 759,
+        "scrollWidth": 759,
+        "height": 1090,
+        "scrollHeight": 1090,
+        "stageHeight": 841,
+        "stageScrollHeight": 1090,
+        "stageOverflow": "auto",
+        "bottom": 1090.0625,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:759x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:759x900",
+      "pass": true,
+      "observed": {
+        "width": 759,
+        "scrollWidth": 759,
+        "height": 1182,
+        "scrollHeight": 1182,
+        "stageHeight": 841,
+        "stageScrollHeight": 1182,
+        "stageOverflow": "auto",
+        "bottom": 1181.625,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:759x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:759x900",
+      "pass": true,
+      "observed": {
+        "width": 759,
+        "scrollWidth": 759,
+        "height": 1182,
+        "scrollHeight": 1182,
+        "stageHeight": 841,
+        "stageScrollHeight": 1182,
+        "stageOverflow": "auto",
+        "bottom": 1181.625,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:759x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:759x900",
+      "pass": true,
+      "observed": {
+        "width": 759,
+        "scrollWidth": 759,
+        "height": 1182,
+        "scrollHeight": 1182,
+        "stageHeight": 841,
+        "stageScrollHeight": 1182,
+        "stageOverflow": "auto",
+        "bottom": 1181.625,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:759x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:759x900",
+      "pass": true,
+      "observed": {
+        "width": 759,
+        "scrollWidth": 759,
+        "height": 1182,
+        "scrollHeight": 1182,
+        "stageHeight": 841,
+        "stageScrollHeight": 1182,
+        "stageOverflow": "auto",
+        "bottom": 1181.625,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:759x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "compact-counts-bottom:759x900",
+      "pass": true,
+      "observed": {
+        "x": 19.796875,
+        "y": 791.953125,
+        "width": 719.40625,
+        "height": 23.484375
+      }
+    },
+    {
+      "name": "process-details-open:759x900",
+      "pass": true,
+      "observed": {
+        "width": 759,
+        "scrollWidth": 759,
+        "height": 1549,
+        "scrollHeight": 1549,
+        "stageHeight": 841,
+        "stageScrollHeight": 1549,
+        "stageOverflow": "auto",
+        "bottom": 1173.5625,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "detail-modal:759x900",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:759x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:760x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 26.59375,
+          "y": 150.46875,
+          "width": 706.8125,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 59.875,
+          "width": 760,
+          "height": 64
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:760x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 26.59375,
+          "y": 152.65625,
+          "width": 706.8125,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 760,
+          "height": 64
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:760x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 26.59375,
+          "y": 152.578125,
+          "width": 706.8125,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 760,
+          "height": 64
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:760x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 26.59375,
+          "y": 329.150390625,
+          "width": 706.8125,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 760,
+          "height": 64
+        }
+      }
+    },
+    {
+      "name": "paint:counts:760x900:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:counts:760x900:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:counts:760x900:2",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "chart:default:760x900",
+      "pass": true,
+      "observed": {
+        "width": 760,
+        "scrollWidth": 760,
+        "height": 1091,
+        "scrollHeight": 1091,
+        "stageHeight": 841,
+        "stageScrollHeight": 1091,
+        "stageOverflow": "auto",
+        "bottom": 1090.515625,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:default:760x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:760x900",
+      "pass": true,
+      "observed": {
+        "width": 760,
+        "scrollWidth": 760,
+        "height": 1091,
+        "scrollHeight": 1091,
+        "stageHeight": 841,
+        "stageScrollHeight": 1091,
+        "stageOverflow": "auto",
+        "bottom": 1090.515625,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:760x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:760x900",
+      "pass": true,
+      "observed": {
+        "width": 760,
+        "scrollWidth": 760,
+        "height": 1091,
+        "scrollHeight": 1091,
+        "stageHeight": 841,
+        "stageScrollHeight": 1091,
+        "stageOverflow": "auto",
+        "bottom": 1090.515625,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:none:760x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:760x900",
+      "pass": true,
+      "observed": {
+        "width": 760,
+        "scrollWidth": 760,
+        "height": 1091,
+        "scrollHeight": 1091,
+        "stageHeight": 841,
+        "stageScrollHeight": 1091,
+        "stageOverflow": "auto",
+        "bottom": 1090.515625,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:760x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:760x900",
+      "pass": true,
+      "observed": {
+        "width": 760,
+        "scrollWidth": 760,
+        "height": 1182,
+        "scrollHeight": 1182,
+        "stageHeight": 841,
+        "stageScrollHeight": 1182,
+        "stageOverflow": "auto",
+        "bottom": 1182.078125,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:760x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:760x900",
+      "pass": true,
+      "observed": {
+        "width": 760,
+        "scrollWidth": 760,
+        "height": 1182,
+        "scrollHeight": 1182,
+        "stageHeight": 841,
+        "stageScrollHeight": 1182,
+        "stageOverflow": "auto",
+        "bottom": 1182.078125,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:760x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:760x900",
+      "pass": true,
+      "observed": {
+        "width": 760,
+        "scrollWidth": 760,
+        "height": 1182,
+        "scrollHeight": 1182,
+        "stageHeight": 841,
+        "stageScrollHeight": 1182,
+        "stageOverflow": "auto",
+        "bottom": 1182.078125,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:760x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:760x900",
+      "pass": true,
+      "observed": {
+        "width": 760,
+        "scrollWidth": 760,
+        "height": 1182,
+        "scrollHeight": 1182,
+        "stageHeight": 841,
+        "stageScrollHeight": 1182,
+        "stageOverflow": "auto",
+        "bottom": 1182.078125,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:760x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "compact-counts-bottom:760x900",
+      "pass": true,
+      "observed": {
+        "x": 19.796875,
+        "y": 792.40625,
+        "width": 720.40625,
+        "height": 23.484375
+      }
+    },
+    {
+      "name": "process-details-open:760x900",
+      "pass": true,
+      "observed": {
+        "width": 760,
+        "scrollWidth": 760,
+        "height": 1550,
+        "scrollHeight": 1550,
+        "stageHeight": 841,
+        "stageScrollHeight": 1550,
+        "stageOverflow": "auto",
+        "bottom": 1174.09375,
+        "stageBottom": 840.625
+      }
+    },
+    {
+      "name": "detail-modal:760x900",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:760x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:761x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 26.625,
+          "y": 114.671875,
+          "width": 707.75,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 25.859375,
+          "width": 761,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:761x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 26.625,
+          "y": 116.421875,
+          "width": 707.75,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 761,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:761x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 26.625,
+          "y": 116.203125,
+          "width": 707.75,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 761,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:761x900",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 26.625,
+          "y": 329,
+          "width": 707.75,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 0,
+          "y": 0,
+          "width": 761,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "paint:counts:761x900:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:counts:761x900:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:counts:761x900:2",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:counts:761x900:3",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:counts:761x900:4",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": false,
+        "topPaintIsNavigation": false
+      }
+    },
+    {
+      "name": "paint:review-path:761x900:0",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:review-path:761x900:1",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "paint:review-path:761x900:2",
+      "pass": true,
+      "observed": {
+        "navigationPair": true,
+        "opaque": true,
+        "sticky": true,
+        "overlap": true,
+        "topPaintIsNavigation": true
+      }
+    },
+    {
+      "name": "chart:default:761x900",
+      "pass": true,
+      "observed": {
+        "width": 761,
+        "scrollWidth": 761,
+        "height": 784,
+        "scrollHeight": 784,
+        "stageHeight": 784,
+        "stageScrollHeight": 784,
+        "stageOverflow": "visible",
+        "bottom": 784,
+        "stageBottom": 784
+      }
+    },
+    {
+      "name": "chart-input-priority:default:761x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:761x900",
+      "pass": true,
+      "observed": {
+        "width": 761,
+        "scrollWidth": 761,
+        "height": 784,
+        "scrollHeight": 784,
+        "stageHeight": 784,
+        "stageScrollHeight": 784,
+        "stageOverflow": "visible",
+        "bottom": 784,
+        "stageBottom": 784
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:761x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:761x900",
+      "pass": true,
+      "observed": {
+        "width": 761,
+        "scrollWidth": 761,
+        "height": 784,
+        "scrollHeight": 784,
+        "stageHeight": 784,
+        "stageScrollHeight": 784,
+        "stageOverflow": "visible",
+        "bottom": 784,
+        "stageBottom": 784
+      }
+    },
+    {
+      "name": "chart-input-priority:none:761x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:761x900",
+      "pass": true,
+      "observed": {
+        "width": 761,
+        "scrollWidth": 761,
+        "height": 784,
+        "scrollHeight": 784,
+        "stageHeight": 784,
+        "stageScrollHeight": 784,
+        "stageOverflow": "visible",
+        "bottom": 784,
+        "stageBottom": 784
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:761x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:761x900",
+      "pass": true,
+      "observed": {
+        "width": 761,
+        "scrollWidth": 761,
+        "height": 784,
+        "scrollHeight": 784,
+        "stageHeight": 784,
+        "stageScrollHeight": 784,
+        "stageOverflow": "visible",
+        "bottom": 784,
+        "stageBottom": 784
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:761x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:761x900",
+      "pass": true,
+      "observed": {
+        "width": 761,
+        "scrollWidth": 761,
+        "height": 784,
+        "scrollHeight": 784,
+        "stageHeight": 784,
+        "stageScrollHeight": 784,
+        "stageOverflow": "visible",
+        "bottom": 784,
+        "stageBottom": 784
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:761x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:761x900",
+      "pass": true,
+      "observed": {
+        "width": 761,
+        "scrollWidth": 761,
+        "height": 784,
+        "scrollHeight": 784,
+        "stageHeight": 784,
+        "stageScrollHeight": 784,
+        "stageOverflow": "visible",
+        "bottom": 784,
+        "stageBottom": 784
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:761x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:761x900",
+      "pass": true,
+      "observed": {
+        "width": 761,
+        "scrollWidth": 761,
+        "height": 784,
+        "scrollHeight": 784,
+        "stageHeight": 784,
+        "stageScrollHeight": 784,
+        "stageOverflow": "visible",
+        "bottom": 784,
+        "stageBottom": 784
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:761x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "process-details-open:761x900",
+      "pass": true,
+      "observed": {
+        "width": 761,
+        "scrollWidth": 761,
+        "height": 784,
+        "scrollHeight": 784,
+        "stageHeight": 784,
+        "stageScrollHeight": 784,
+        "stageOverflow": "visible",
+        "bottom": 784,
+        "stageBottom": 784
+      }
+    },
+    {
+      "name": "detail-modal:761x900",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:761x900",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:1049x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 93.203125,
+          "y": 124.9375,
+          "width": 862.59375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 56.5,
+          "y": 26.046875,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:1049x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 93.203125,
+          "y": 126.9375,
+          "width": 862.59375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 56.5,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:1049x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 93.203125,
+          "y": 126.296875,
+          "width": 862.59375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 56.5,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:1049x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 93.203125,
+          "y": 268.875,
+          "width": 862.59375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 56.5,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "chart:default:1049x850",
+      "pass": true,
+      "observed": {
+        "width": 1049,
+        "scrollWidth": 1049,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:default:1049x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:1049x850",
+      "pass": true,
+      "observed": {
+        "width": 1049,
+        "scrollWidth": 1049,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:1049x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:1049x850",
+      "pass": true,
+      "observed": {
+        "width": 1049,
+        "scrollWidth": 1049,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:none:1049x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:1049x850",
+      "pass": true,
+      "observed": {
+        "width": 1049,
+        "scrollWidth": 1049,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:1049x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:1049x850",
+      "pass": true,
+      "observed": {
+        "width": 1049,
+        "scrollWidth": 1049,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:1049x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:1049x850",
+      "pass": true,
+      "observed": {
+        "width": 1049,
+        "scrollWidth": 1049,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:1049x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:1049x850",
+      "pass": true,
+      "observed": {
+        "width": 1049,
+        "scrollWidth": 1049,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:1049x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:1049x850",
+      "pass": true,
+      "observed": {
+        "width": 1049,
+        "scrollWidth": 1049,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:1049x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "process-details-open:1049x850",
+      "pass": true,
+      "observed": {
+        "width": 1049,
+        "scrollWidth": 1049,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "detail-modal:1049x850",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:1049x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:1050x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 93.75,
+          "y": 124.078125,
+          "width": 862.5,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 57,
+          "y": 25.140625,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:1050x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 93.75,
+          "y": 126.265625,
+          "width": 862.5,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 57,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:1050x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 93.75,
+          "y": 126.671875,
+          "width": 862.5,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 57,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:1050x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 93.75,
+          "y": 269.3125,
+          "width": 862.5,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 57,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "chart:default:1050x850",
+      "pass": true,
+      "observed": {
+        "width": 1050,
+        "scrollWidth": 1050,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:default:1050x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:1050x850",
+      "pass": true,
+      "observed": {
+        "width": 1050,
+        "scrollWidth": 1050,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:1050x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:1050x850",
+      "pass": true,
+      "observed": {
+        "width": 1050,
+        "scrollWidth": 1050,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:none:1050x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:1050x850",
+      "pass": true,
+      "observed": {
+        "width": 1050,
+        "scrollWidth": 1050,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:1050x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:1050x850",
+      "pass": true,
+      "observed": {
+        "width": 1050,
+        "scrollWidth": 1050,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:1050x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:1050x850",
+      "pass": true,
+      "observed": {
+        "width": 1050,
+        "scrollWidth": 1050,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:1050x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:1050x850",
+      "pass": true,
+      "observed": {
+        "width": 1050,
+        "scrollWidth": 1050,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:1050x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:1050x850",
+      "pass": true,
+      "observed": {
+        "width": 1050,
+        "scrollWidth": 1050,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:1050x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "process-details-open:1050x850",
+      "pass": true,
+      "observed": {
+        "width": 1050,
+        "scrollWidth": 1050,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "detail-modal:1050x850",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:1050x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "anchor:overview:1051x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 94.28125,
+          "y": 124.203125,
+          "width": 862.4375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 57.5,
+          "y": 25.234375,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:counts:1051x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 94.28125,
+          "y": 126.515625,
+          "width": 862.4375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 57.5,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:review-path:1051x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 94.28125,
+          "y": 126.953125,
+          "width": 862.4375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 57.5,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "anchor:scope:1051x850",
+      "pass": true,
+      "observed": {
+        "heading": {
+          "x": 94.28125,
+          "y": 268.625,
+          "width": 862.4375,
+          "height": 33.265625
+        },
+        "nav": {
+          "x": 57.5,
+          "y": 0,
+          "width": 936,
+          "height": 62.1875
+        }
+      }
+    },
+    {
+      "name": "chart:default:1051x850",
+      "pass": true,
+      "observed": {
+        "width": 1051,
+        "scrollWidth": 1051,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:default:1051x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:north-only:1051x850",
+      "pass": true,
+      "observed": {
+        "width": 1051,
+        "scrollWidth": 1051,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:north-only:1051x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:none:1051x850",
+      "pass": true,
+      "observed": {
+        "width": 1051,
+        "scrollWidth": 1051,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:none:1051x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset:1051x850",
+      "pass": true,
+      "observed": {
+        "width": 1051,
+        "scrollWidth": 1051,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:reset:1051x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:values-open:1051x850",
+      "pass": true,
+      "observed": {
+        "width": 1051,
+        "scrollWidth": 1051,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:values-open:1051x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-100:1051x850",
+      "pass": true,
+      "observed": {
+        "width": 1051,
+        "scrollWidth": 1051,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-100:1051x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:axis-invalid:1051x850",
+      "pass": true,
+      "observed": {
+        "width": 1051,
+        "scrollWidth": 1051,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:axis-invalid:1051x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "chart:reset-again:1051x850",
+      "pass": true,
+      "observed": {
+        "width": 1051,
+        "scrollWidth": 1051,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "chart-input-priority:reset-again:1051x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 2,
+        "count": 5,
+        "animations": 2,
+        "fullscreen": false
+      }
+    },
+    {
+      "name": "process-details-open:1051x850",
+      "pass": true,
+      "observed": {
+        "width": 1051,
+        "scrollWidth": 1051,
+        "height": 787,
+        "scrollHeight": 787,
+        "stageHeight": 787,
+        "stageScrollHeight": 787,
+        "stageOverflow": "visible",
+        "bottom": 787,
+        "stageBottom": 787
+      }
+    },
+    {
+      "name": "detail-modal:1051x850",
+      "pass": true,
+      "observed": {
+        "open_dialogs": 1
+      }
+    },
+    {
+      "name": "nested-escape:1051x850",
+      "pass": true,
+      "observed": {
+        "active": true,
+        "index": 3,
+        "count": 5,
+        "animations": 4,
+        "fullscreen": false
+      }
+    }
+  ],
+  "errors": [],
+  "pass": true,
+  "operator_artifact_repairs": 0
+}

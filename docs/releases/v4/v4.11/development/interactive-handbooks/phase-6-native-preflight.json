@@ -1,0 +1,79 @@
+{
+  "status": "CLI 0.154.0 boundary recovery verified; authoring qualification pending",
+  "cli": "0.154.0 temporary installation; global CLI unchanged",
+  "model": "gpt-6-astra",
+  "effort": "max",
+  "sandbox": "elevated native Windows; managed requirements retained; approval never",
+  "discovery": "Opt-in user profiles use full SKILL.md paths; native repository preflight observed successful reads of installed presentify and document-to-interactive-html",
+  "python": "Existing uv-managed Python with temporary dependency environment; invoke absolute executable because Store shortcut fails",
+  "renderer": {
+    "status": "pass",
+    "browser": "Chromium 151.0.7922.34",
+    "screenshot_sha256": "78841db86779996f2ee734d9ab4af0604f2a55ce9834816fc07e5cd17ca488bf"
+  },
+  "boundary": {
+    "implementation_read": "denied",
+    "other_case_read": "denied",
+    "outside_workspace_write": "denied",
+    "workspace_write": "allowed",
+    "supersedes": "0.153.4 sandbox subcommand discarded configured deny-read paths; earlier access failures alone did not prove policy enforcement",
+    "verified_denied_reads": [
+      "original repository",
+      "repository retry",
+      "original presentation",
+      "private judge artifacts",
+      "implementation checkout"
+    ],
+    "diagnostic_sha256": "009c39b00f9960a81fab42236a68e1f7aed77ce237f4a45f201d3d0c5ac87653",
+    "current_full_preflight_sha256": "3885af0b8ed0c3f0ac1c86f918671b90a7fec328f4b8f0051e7ca24f2c126c0d"
+  },
+  "installed_cases": [
+    {
+      "case": "repo",
+      "exit_code": 0,
+      "installed_sha256": {
+        "dual_view.py": "6fe19a7058bf8a5f9b7e501ed95296e278580b8310baaf112b28b0451a082daa",
+        "detect_visual_defects.py": "71c7cb79e465e95c5b130f6a5d9e1f012cdd9f92f1c81e7d10bf3a2fdbbbf2d0"
+      }
+    },
+    {
+      "case": "report",
+      "exit_code": 0,
+      "installed_sha256": {
+        "dual_view.py": "6fe19a7058bf8a5f9b7e501ed95296e278580b8310baaf112b28b0451a082daa",
+        "detect_visual_defects.py": "71c7cb79e465e95c5b130f6a5d9e1f012cdd9f92f1c81e7d10bf3a2fdbbbf2d0"
+      }
+    },
+    {
+      "case": "presentation",
+      "exit_code": 0,
+      "installed_sha256": {
+        "dual_view.py": "6fe19a7058bf8a5f9b7e501ed95296e278580b8310baaf112b28b0451a082daa",
+        "detect_visual_defects.py": "71c7cb79e465e95c5b130f6a5d9e1f012cdd9f92f1c81e7d10bf3a2fdbbbf2d0"
+      }
+    }
+  ],
+  "diagnostic_hashes": {
+    "boundary-probe-result.json": "e8ad8fd62acace70f0884597e239b5b681f74d98ac0f4bceb993c05af6375d6c",
+    "native-renderer-readroots-result.json": "291ab1d4d46f0f3435f89946ec529e9101d452e12ae916c4a28ce637ca92afc6",
+    "final-install-evidence.json": "8de485f579243953f51440316ab1fe5cc630c261672b7105a8c39aa22b881dd4",
+    "profile-skill-diagnostic.json": "956d18d7bb8ee4a423698b5e595b6ebb7af6a9f3d12bbaedfcad50f79eabaaf5"
+  },
+  "authoring": {
+    "repo": "original timed out after 2100 seconds; non-pass",
+    "report": "original timed out after 2100 seconds; non-pass",
+    "presentation": "original timed out after 2100 seconds; non-pass",
+    "final_passes": 0,
+    "repo_retry": "finished within 3600 seconds; three internal repairs; non-pass due to print contrast",
+    "report_retry": "running under CLI 0.154.0 after fresh full boundary preflight"
+  },
+  "recovery_next": "Fresh serialized 3600-second attempts use corrected shared owners; accept only independently verified unchanged outputs.",
+  "references": [
+    "https://learn.chatgpt.com/docs/windows/windows-sandbox",
+    "https://learn.chatgpt.com/docs/config-file/config-reference",
+    "https://github.com/openai/codex/blob/main/codex-rs/windows-sandbox-rs/src/deny_read_state.rs",
+    "https://github.com/openai/codex/blob/rust-v0.153.4/codex-rs/cli/src/debug_sandbox.rs",
+    "https://github.com/openai/codex/blob/rust-v0.154.0/codex-rs/cli/src/debug_sandbox.rs"
+  ],
+  "native_office": "Sandbox account unavailable: HRESULT 0x80070520. Host-side read-only grading is separate."
+}

@@ -1,0 +1,66 @@
+{
+  "repo": {
+    "facts": [
+      "3",
+      "24",
+      "8",
+      "Reliability unavailable"
+    ],
+    "anchors": [
+      "overview",
+      "workflow"
+    ],
+    "native_generator": "build.py",
+    "output": "docs/handbooks/html/operations.html",
+    "layout": "legacy markdown/html",
+    "budget": 5,
+    "additional_outputs": [
+      "docs/handbooks/process.svg"
+    ],
+    "graphics_path_policy": "Any explicit final standalone SVG path is acceptable when recorded."
+  },
+  "report": {
+    "facts": [
+      "North",
+      "12",
+      "South",
+      "18",
+      "31",
+      "30",
+      "unavailable"
+    ],
+    "edges": [
+      "Instrument -> Queue",
+      "Queue -> Analyst",
+      "Analyst -> Archive",
+      "Analyst -> Queue"
+    ],
+    "output": "docs/handbooks/pilot.html",
+    "layout": "topic",
+    "budget": 5,
+    "additional_outputs": [
+      "docs/handbooks/pilot.pdf",
+      "docs/handbooks/pilot.docx"
+    ]
+  },
+  "presentation": {
+    "facts": [
+      "East",
+      "10",
+      "Central",
+      "15",
+      "West",
+      "20",
+      "45",
+      "unavailable"
+    ],
+    "source_slide_count": 5,
+    "output": "docs/handbooks/service-review.html",
+    "layout": "topic",
+    "budget": 5,
+    "additional_outputs": [
+      "docs/handbooks/service-review.pptx"
+    ],
+    "export_ratio": "16:9"
+  }
+}

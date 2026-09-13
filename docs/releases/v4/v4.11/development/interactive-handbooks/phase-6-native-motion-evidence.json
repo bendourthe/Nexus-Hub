@@ -1,0 +1,129 @@
+{
+  "status": "pass for shared helper diagnostic; not a qualification invocation",
+  "helper": "catalog/skills/specialized-domains/pptx-generation/scripts/native_motion.py",
+  "native": {
+    "diagnostic_only": true,
+    "helper_sha256": "683304fc99f5eb4f86313175c2c1afc88c2fd59c9b221f3968337be2e88b8f47",
+    "input_sha256": "ea9fa6e3f2ede15ad19bb04a009ebf0f7f8e11a38a5fb3d27fcb90b05cbe8f04",
+    "application_options_changed": false,
+    "ordinary_read_only_open": "pass",
+    "effect_counts": [
+      0,
+      0,
+      8,
+      1,
+      0
+    ],
+    "process_effects": [
+      {
+        "shape": "Process node: Request",
+        "trigger": 2,
+        "delay": 0.0,
+        "duration": 0.44999998807907104
+      },
+      {
+        "shape": "Request to Dispatch",
+        "trigger": 2,
+        "delay": 0.14000000059604645,
+        "duration": 0.44999998807907104
+      },
+      {
+        "shape": "Process node: Dispatch",
+        "trigger": 2,
+        "delay": 0.2800000011920929,
+        "duration": 0.44999998807907104
+      },
+      {
+        "shape": "Dispatch to Field visit",
+        "trigger": 2,
+        "delay": 0.41999998688697815,
+        "duration": 0.44999998807907104
+      },
+      {
+        "shape": "Process node: Field visit",
+        "trigger": 2,
+        "delay": 0.5600000023841858,
+        "duration": 0.44999998807907104
+      },
+      {
+        "shape": "Field visit to Review",
+        "trigger": 2,
+        "delay": 0.699999988079071,
+        "duration": 0.44999998807907104
+      },
+      {
+        "shape": "Process node: Review",
+        "trigger": 2,
+        "delay": 0.8399999737739563,
+        "duration": 0.44999998807907104
+      },
+      {
+        "shape": "Directed edge: Review to Dispatch on failed review",
+        "trigger": 2,
+        "delay": 0.9800000190734863,
+        "duration": 0.44999998807907104
+      }
+    ],
+    "video_status": 3,
+    "input_unchanged": true,
+    "author_output_unchanged": true,
+    "video_sha256": "67e40e93486de28b9cdfd21dd420a9f1410693bb1d2f40efe70d7c5fd9b55e30"
+  },
+  "video": {
+    "sha256": "67e40e93486de28b9cdfd21dd420a9f1410693bb1d2f40efe70d7c5fd9b55e30",
+    "duration_seconds": 21.99525,
+    "decoded_frames": 263,
+    "timestamps": "strictly increasing mediaTime from linear playback",
+    "visual_review": "Contacts 4 and 6 inspected: automatic overlapping process fades, followed by simultaneous native chart-series fade; chart axes and legend remain visible and stationary."
+  },
+  "tests": {
+    "affected_passed": 17,
+    "runs": [
+      {
+        "passed": 15,
+        "elapsed_seconds": 2.51
+      },
+      {
+        "passed": 2,
+        "elapsed_seconds": 36.04
+      }
+    ],
+    "covered_lines": 85,
+    "statements": 88,
+    "line_percent": 96.5909090909091
+  },
+  "connector_only_regression": {
+    "application_options_changed": false,
+    "ordinary_read_only_open": true,
+    "cases": [
+      {
+        "artifact": "connector-only-motion.pptx",
+        "sha256": "e12edd43d2a44087c2343d5e395efaf9c5a8cc74c19e109944a78961d79019de",
+        "expected": "rejected",
+        "status": "rejected",
+        "error_type": "com_error",
+        "hresult": -2147352567,
+        "bytes_unchanged": true
+      },
+      {
+        "artifact": "connector-only-motion-after.pptx",
+        "sha256": "65e7171349920b26a5a82fb71cbf51ee39f34e026261e8f69bbbe42a3df42de0",
+        "expected": "opened",
+        "status": "opened",
+        "effects": 1,
+        "bytes_unchanged": true
+      }
+    ]
+  },
+  "catalog_validation": {
+    "checks": 30,
+    "passed": 30,
+    "failed": 0
+  },
+  "source_references": [
+    "https://learn.microsoft.com/en-us/office/vba/api/powerpoint.sequence.addeffect",
+    "https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.drawing.chart",
+    "https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.drawing.buildchart"
+  ],
+  "limits": "Only the tested native fade/series path is claimed. Diagnostic repairs are excluded from the three-case authoring gate."
+}
