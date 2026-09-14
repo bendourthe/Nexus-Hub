@@ -15,6 +15,56 @@
 - **Next step**: triage each of the eight against the `used in tests` / false-positive / real-finding split, in a change that is not a release. Confirm in particular that `test_safe_artifact.py:390` is asserting behaviour rather than masking it.
 - **Status**: open, carried forward.
 
+## v4.11.2 - adoption-document-and-deck-quality
+
+**Status**: implementation complete, 7 of 7 phases. Nineteen checks across two
+scripts, every one negative-controlled. Reconciled 2026-09-13.
+
+### Summary
+
+Six phases built gates; the seventh reconciled them. No check ships that has not
+been observed to fail on a fixture built for it, and no fixture carries more
+than one defect, so an over-broad check cannot hide a missing one beside it.
+
+The repository's own handbooks pass every gate with zero findings, which is the
+result the source project's audit could not reach - its first version produced
+roughly 220 findings on real output and was abandoned.
+
+### MT-5 - PARTIALLY addressed, and the remainder is named
+
+MT-5 was transferred into this plan from v4.11.0 on the expectation that Phase
+5's provenance record would close it. It closes one half.
+
+- **Closed**: a series with no computation behind it now fails `check_attestation.py`. That is the root cause of a fabricated value - a hardcoded list chosen to look right, indistinguishable from data until someone tries to reproduce it.
+- **Still open**: a value that exists only in an intermediate animation frame. The attestation covers what the series IS; it does not observe what a chart displays mid-transition, which would need frame sampling during the animation window rather than after it.
+- **Next step**: sample the rendered series at two or three points inside the animation window and assert every displayed value lies within the source data's range. The per-slide walk added in Phase 4 already establishes the timing discipline this needs.
+- **Status**: open, carried forward, narrowed.
+
+### Deliberately attested rather than gated
+
+Four tells from the source document have no mechanical check and are recorded as
+attestations instead: emoji as section markers, heavy em-dash rhythm, sentences
+that announce structure rather than delivering content, and every section
+carrying exactly three bullets of similar length.
+
+This is a decision, not an omission. Each needs a judgement about what the
+document is FOR, and a check that guessed would be the beauty detector this plan
+forbids. `check_attestation.py` fails a missing or empty `authorship` record, so
+the review cannot be skipped silently - which is the failure mode that matters.
+
+### No pipeline change was required
+
+Recorded because "no change" and "not checked" look identical afterwards. This
+plan added no script under `scripts/` (so neither installer needed an edit),
+three skill-bundled scripts (auto-copied by both installers), and five test
+files already covered by the existing `repo-tests` glob. `check_installer_parity.py`
+passes.
+
+### Carried from earlier cycles, unchanged by this plan
+
+- **SEC-1**: eight CodeQL alerts, five high, all test-only. Untouched here; it belongs to a change that is not a release.
+- **MT-9**: an inert control is still undetected. Needs CDP listener-chain inspection, which no phase of this plan attempted.
+
 ## v4.11.0 - interactive-handbooks-and-presentation-default
 
 **Status**: Phases 1-6 complete (21 of 31 tasks); Phase 7 open and in progress. The line below was written mid-Phase-6 and its detail is retained as the record of that round; the phase closed with QG-2 recorded as UNMET and carried forward, not waived. No accepted gate bypass. Native sandbox writes, Chromium and explicit installed-skill loading work. A cross-profile probe exposed discarded deny rules in CLI 0.153.4; temporary CLI 0.154.0 applies the configured denials and passes all five tested forbidden reads. The current affected suite passes 510 tests and all 30 catalog checks. One of three native authoring families is independently accepted: the report. The latest repository fails branding placement and semantic process motion; the previous presentation fails native chart-title contrast. Corrected shared guidance is under fresh serialized qualification with frozen inputs, predeclared time limits and three internal repairs. Original failed artifacts remain unchanged. Full feature/design and native export qualification, the Phase 6 commit and Phase 7 integration remain open. See [Phase 6 evidence](development/interactive-handbooks/phase-6-evidence.md).

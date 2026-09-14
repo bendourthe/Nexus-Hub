@@ -392,6 +392,13 @@ as sticky at all. Working navigation was deleted three times to satisfy both.
 `text-overlap` is now scoped to a single out-of-flow layer, which is the fix
 this table's absence had hidden.
 
+The AI-tell rows follow this catalog's tie-break for an overlapping concern: one
+skill decides WHEN a constraint applies and how severe a violation is, another
+owns MEASURING it. `[[hallmark-design]]` judges, `[[anti-slop-editing]]` holds
+the named list, and this skill counts the two members of that list which are
+countable in the rendered DOM. Nothing here judges taste; a count is a fact, and
+whether the count is right for a document is the author's call.
+
 | Concern | Owner |
 |---|---|
 | Whether a rendered artifact is exercised at all, and what counts as evidence | `[[functional-verification]]` |
@@ -402,8 +409,13 @@ this table's absence had hidden.
 | Brand-mark visibility and chart deformation | this skill |
 | Figure fidelity to its source, and the illustrative-vs-evidential split | `references/figure-reconstruction.md` |
 | Diagram geometry, axes, ticks, annotation placement | `references/svg-diagram-quality.md` |
-| The "looks AI-generated" visual tells | `[[hallmark-design]]` |
-| Named AI-slop prose patterns | `[[anti-slop-editing]]` |
+| Whether a design reads as AI-generated, and how severe that is | `[[hallmark-design]]` |
+| The NAMED tell list, prose and document alike | `[[anti-slop-editing]]` |
+| MEASURING the two countable document tells | this skill (`geometric_audit.py`) |
+| Whether the unmeasurable decisions were recorded | this skill (`check_attestation.py`) |
+| Figure construction: legend integrity, tick range, viewBox cropping | this skill (`geometric_audit.py`), rules in `references/figure-reconstruction.md` |
+| Deck integrity: canvas fit, post-animation visibility, clone references | this skill (`measure_handbook.py`), rules in `references/dual-view-handbooks.md` |
+| The render-and-look loop, for every HTML artifact this harness produces | `catalog/rules/html/visual-self-verification.md` |
 
 ## Related Skills
 
