@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import { execFileSync } from "child_process";
-import { UsageData, UsageMetric } from "../types";
+import { ScopedUsageMetric, UsageData, UsageMetric } from "../types";
 import { formatResetTime } from "../usageStore";
 import {
   UsageProvider,
@@ -30,15 +30,40 @@ interface ApiExtraUsage {
   utilization: number | null;
 }
 
-interface ApiUsageResponse {
-  five_hour: ApiUsageLimit | null;
-  seven_day: ApiUsageLimit | null;
-  seven_day_oauth_apps: ApiUsageLimit | null;
-  seven_day_opus: ApiUsageLimit | null;
-  seven_day_sonnet: ApiUsageLimit | null;
-  seven_day_cowork: ApiUsageLimit | null;
-  iguana_necktie: unknown;
-  extra_usage: ApiExtraUsage | null;
+/**
+ * One entry of the self-describing `limits` array the usage endpoint returns
+ * alongside the older per-window fields. This is the only stable way to read a
+ * model-scoped weekly limit: the flat sibling keys that carry the same numbers
+ * are rotating internal codenames (`nimbus_quill`, `tangelo`, `juniper_tide`,
+ * ...), so binding to one of those would break the moment it is renamed.
+ */
+interface ApiLimitEntry {
+  /** "session", "weekly_all", or "weekly_scoped". Unknown kinds are ignored. */
+  kind: string;
+  group?: string;
+  percent: number;
+  resets_at: string | null;
+  scope?: {
+    model?: { id: string | null; display_name: string | null } | null;
+  } | null;
+}
+
+/**
+ * Every field is optional because the endpoint is undocumented and has already
+ * gained and dropped keys between Claude Code releases; each reader below
+ * tolerates an absent value rather than assuming the shape.
+ */
+export interface ApiUsageResponse {
+  five_hour?: ApiUsageLimit | null;
+  seven_day?: ApiUsageLimit | null;
+  seven_day_oauth_apps?: ApiUsageLimit | null;
+  seven_day_opus?: ApiUsageLimit | null;
+  seven_day_sonnet?: ApiUsageLimit | null;
+  seven_day_cowork?: ApiUsageLimit | null;
+  iguana_necktie?: unknown;
+  extra_usage?: ApiExtraUsage | null;
+  /** Absent on older responses; the flat fields above remain the fallback. */
+  limits?: ApiLimitEntry[] | null;
 }
 
 interface OAuthCredentials {
@@ -335,31 +360,7 @@ export class ClaudeUsageProvider implements UsageProvider {
     apiData: ApiUsageResponse,
     currentModel: string
   ): UsageData {
-    return {
-      session: this.mapLimit(apiData.five_hour),
-      weeklyAllModels: this.mapLimit(apiData.seven_day),
-      currentModel,
-      lastUpdated: Date.now(),
-      dataSource: "api",
-      extraUsage: apiData.extra_usage ? {
-        isEnabled: apiData.extra_usage.is_enabled,
-        monthlyLimit: apiData.extra_usage.monthly_limit / 100,
-        usedCredits: apiData.extra_usage.used_credits / 100,
-        utilization: apiData.extra_usage.utilization,
-      } : undefined,
-    };
-  }
-
-  private mapLimit(limit: ApiUsageLimit | null): UsageMetric {
-    if (!limit) {
-      return { percent: 0, resetsIn: "N/A", resetsAt: null };
-    }
-    const resetsAt = limit.resets_at ? new Date(limit.resets_at).getTime() : null;
-    return {
-      percent: Math.round(limit.utilization),
-      resetsIn: resetsAt != null ? formatResetTime(resetsAt) : "N/A",
-      resetsAt,
-    };
+    return mapClaudeUsageResponse(apiData, currentModel);
   }
 
   private async refreshAccessToken(credentials: OAuthCredentials): Promise<OAuthCredentials> {
@@ -433,4 +434,95 @@ export class ClaudeUsageProvider implements UsageProvider {
       // Non-fatal: extension will use the refreshed token for this session only
     }
   }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Response mapping (pure, so it can be unit-tested without a host)   */
+/* ------------------------------------------------------------------ */
+
+/** The value shown when a window is absent from the payload entirely. */
+function emptyMetric(): UsageMetric {
+  return { percent: 0, resetsIn: "N/A", resetsAt: null };
+}
+
+/** Normalize one percentage plus its ISO reset timestamp into a UsageMetric. */
+function toMetric(
+  percent: number | null | undefined,
+  resetsAtIso: string | null | undefined
+): UsageMetric {
+  if (typeof percent !== "number" || !Number.isFinite(percent)) {
+    return emptyMetric();
+  }
+  const parsed = resetsAtIso ? new Date(resetsAtIso).getTime() : Number.NaN;
+  const resetsAt = Number.isFinite(parsed) ? parsed : null;
+  return {
+    percent: Math.round(percent),
+    resetsIn: resetsAt != null ? formatResetTime(resetsAt) : "N/A",
+    resetsAt,
+  };
+}
+
+/** The pre-`limits` per-window fields, kept as the fallback path. */
+function mapLegacyLimit(limit: ApiUsageLimit | null | undefined): UsageMetric {
+  return limit ? toMetric(limit.utilization, limit.resets_at) : emptyMetric();
+}
+
+function findLimit(limits: ApiLimitEntry[], kind: string): ApiLimitEntry | undefined {
+  return limits.find((entry) => entry != null && entry.kind === kind);
+}
+
+/**
+ * The first model-scoped weekly limit that carries a usable display name.
+ * An entry without one is skipped rather than shown under an invented label:
+ * the account page names this bar after the model, so an unnamed bar would be
+ * a number with no stated meaning.
+ */
+function mapScopedWeekly(limits: ApiLimitEntry[]): ScopedUsageMetric | undefined {
+  for (const entry of limits) {
+    if (entry == null || entry.kind !== "weekly_scoped") {
+      continue;
+    }
+    const label = entry.scope?.model?.display_name?.trim();
+    if (!label) {
+      continue;
+    }
+    return { ...toMetric(entry.percent, entry.resets_at), label };
+  }
+  return undefined;
+}
+
+/**
+ * Map an account usage payload onto the normalized {@link UsageData} model.
+ * Prefers the self-describing `limits` array and falls back to the older flat
+ * `five_hour` / `seven_day` fields when a response does not carry it.
+ */
+export function mapClaudeUsageResponse(
+  apiData: ApiUsageResponse,
+  currentModel: string
+): UsageData {
+  const limits = Array.isArray(apiData.limits) ? apiData.limits : [];
+  const session = findLimit(limits, "session");
+  const weeklyAll = findLimit(limits, "weekly_all");
+  const extra = apiData.extra_usage;
+
+  return {
+    session: session
+      ? toMetric(session.percent, session.resets_at)
+      : mapLegacyLimit(apiData.five_hour),
+    weeklyAllModels: weeklyAll
+      ? toMetric(weeklyAll.percent, weeklyAll.resets_at)
+      : mapLegacyLimit(apiData.seven_day),
+    weeklyScoped: mapScopedWeekly(limits),
+    currentModel,
+    lastUpdated: Date.now(),
+    dataSource: "api",
+    extraUsage: extra
+      ? {
+          isEnabled: extra.is_enabled,
+          monthlyLimit: extra.monthly_limit / 100,
+          usedCredits: extra.used_credits / 100,
+          utilization: extra.utilization,
+        }
+      : undefined,
+  };
 }

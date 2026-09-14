@@ -1,0 +1,79 @@
+{
+  "artifact": "qa/first-build.html",
+  "sha256": "ea7ad06621e6a5fc92a4e4650ec337cfc8d2d43e400af2193f8afd4be3eb4f5b",
+  "correction_count_at_capture": 0,
+  "actual_execution": {
+    "installed_measurement": "qa/round-0/measure.json",
+    "installed_detector": "qa/round-0/detector.json",
+    "tool_receipts": "qa/round-0/tool-receipts.json",
+    "screenshots_and_interactions": "qa/round-0/capture-behavior.json",
+    "measured_states": 200,
+    "measurement_error_occurrences": 360,
+    "screenshot_viewport_count": 14,
+    "chromium_rendered": true
+  },
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "high",
+      "finding": "Some source paragraphs and table text render at 13.68-15.76px, below the 16px body floor.",
+      "evidence": "measure.json font rows for counts, review-path and scope"
+    },
+    {
+      "id": "F02",
+      "severity": "high",
+      "finding": "Slide brand wordmark text renders as small as 10.79px due to the 8rem SVG width.",
+      "evidence": "measure.json label rows across slide instances"
+    },
+    {
+      "id": "F03",
+      "severity": "high",
+      "finding": "The 390px count slide exceeds its container and the chart does not remain fully contained.",
+      "evidence": "390x844-slides-contact.png and presentation/counts geometry"
+    },
+    {
+      "id": "F04",
+      "severity": "high",
+      "finding": "The review diagram is cut at the narrow desktop boundary, and compact diagram inspection needs an explicit readable reflow.",
+      "evidence": "761x900-slides-contact.png and 390x844-reading-contact.png"
+    },
+    {
+      "id": "F05",
+      "severity": "medium",
+      "finding": "The large station number has an inline line-box that escapes and overlaps its label by 2.8px.",
+      "evidence": "overview/1366x768 detector_findings"
+    },
+    {
+      "id": "F06",
+      "severity": "medium",
+      "finding": "Desktop process diagram and count plot are too small relative to the allocated stage, especially at 2560px.",
+      "evidence": "2560x1300-slides-contact.png"
+    },
+    {
+      "id": "F07",
+      "severity": "unverified",
+      "finding": "Global-entry exercise failed because its page.evaluate returned a rejecting function. Artifact behavior needs a corrected test harness.",
+      "evidence": "capture-behavior.json behavior 0"
+    },
+    {
+      "id": "F08",
+      "severity": "unverified",
+      "finding": "Additional text-overlap and horizontal-overflow warnings need location-specific adjudication.",
+      "evidence": "measure.json detector_findings"
+    }
+  ],
+  "observed_passes": [
+    "North/South filtering",
+    "Independent reading/deck filters",
+    "Axis ceiling changes preserve exact geometry",
+    "Zoom and reset",
+    "Keyboard and picker navigation",
+    "Supplied diagram inspector",
+    "Renamed offline opening",
+    "No-JS reading",
+    "Print deck absence"
+  ],
+  "factual_review": "North 12, South 18, reported 31 and computed 30 retained; discrepancy unresolved; qualifiers and four directed edges present. Full executable factual audit pending.",
+  "positive_design_review": "Brand contours, alternating reading surfaces, mixed slide themes and varied compositions are present. Font floors, compact fit and desktop figure prominence fail the first pass.",
+  "verdict": "fail; first output preserved before any correction"
+}

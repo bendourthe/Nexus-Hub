@@ -34,6 +34,8 @@ If the artifact is fixed rather than parameter-driven, this skill is the wrong s
 
 ## Instructions
 
+For handbook, presentation or cross-format document work, apply `[[hallmark-design]]` and its `references/cross-format-patterns.md` to the composition, and `[[anti-slop-editing]]` to prose. These are the existing design/prose owners; format-specific rendering and verification remain here. Do not transfer app-specific layout bans into every document format.
+
 The skill has two non-negotiable steps. Do not skip Step 1. Do not produce a sketch without first producing the philosophy manifesto, because the manifesto is what stops the agent from defaulting to perlin-noise clichés.
 
 ### Step 1: Algorithmic Philosophy (Markdown manifesto)

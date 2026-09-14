@@ -142,6 +142,17 @@ Create `<version_dir>/plans/` if it does not exist and write to `<version_dir>/p
 delivered, what the UI and runtime impact look like, and what success looks like
 for this scope.]
 
+## Queued predecessors
+
+[REQUIRED. One row per queued plan that could complete before this one, with the
+verdict from `[[plan-queue-assessment]]` (it owns the rule) and its evidence. An
+empty queue gets the explicit line "No queued predecessors." - an omitted section
+is indistinguishable from a skipped check.
+
+| Queued plan | Verdict | Consequence if it completes first |
+|---|---|---|
+| vX.Y.Z <slug> | content / ordering / no impact / unknown | [what changes for THIS plan] |]
+
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
@@ -467,7 +478,7 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 - [ ] Every phase states a Verification Expectation beside its Stability Gate that names what a reader can run or open and the specific result they must observe, with the exercise procedure delegated to `[[functional-verification]]`
 - [ ] Every phase ends with an automated testing and stabilization sub-task that records CI impact against `[[cicd-architect]]` WITHOUT authoring or optimizing the pipeline; human/manual testing suggestions appear only in the last phase
 - [ ] Every phase ends with exactly one local commit, and every non-final phase explicitly prohibits push, pull request, and remote CI
-- [ ] The final phase owns the single branch publication, the integration pull request, and the wait for required checks; release work is gated on a green integration result
+- [ ] The final phase owns the single branch publication, integration pull request and required checks; its living-docs task invokes `technical-documentation` through `references/handbook-refresh.md` before publication. Release rechecks the merged candidate before version mutation and affected outputs afterward; failed required evidence blocks handoff.
 - [ ] The plan's last phase is the fail-closed "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps across this version and other open files, N.3 living docs architecture, N.4 git-tree hygiene, N.5 terminal pipeline reconciliation via `[[cicd-architect]]` plus installer parity, N.6 Tier 3 deep pass via `[[functional-verification]]`, N.7 Goal-vs-codebase review, N.8 last-phase-only human testing, N.9 full-suite testing, N.10 publication and integration) and requires `<version_dir>/development/last-phase-evidence.md`, including `## Tier 3 deep pass`
 - [ ] Every sub-task has a complete, self-contained executable prompt
 - [ ] Every sub-task that introduces or changes a component states its failure modes across all three situations (malformed or absent input, unreachable or slow dependency, conflicting operations), and no error-handling, data-model, interface, or schema detail was pushed back into the spec to achieve it
@@ -475,6 +486,7 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 - [ ] Every phase has a stability gate and exit checklist
 - [ ] `## Current model map` is present with four tiers, Anthropic / OpenAI / Google / Cursor columns, a dated status, and source URLs (or one exact offline fallback marker)
 - [ ] Every phase carries an allowed generic model tier and effort in both the glance table and its separate per-phase fields; concrete model ids appear only in the Current model map
+- [ ] `## Queued predecessors` section present, with a verdict and named evidence per queued plan, or the explicit "No queued predecessors." line
 - [ ] `## Constitution Check` section present between `## Overview` and `## Phases at a Glance` (with PASS / FAIL / N/A per MUST principle, or the informational note when no constitution file exists)
 - [ ] `## Complexity Tracking` section present near the end of the file (empty table when no FAIL bullets; populated row per FAIL otherwise)
 - [ ] File written to the resolved `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` (canonical `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)

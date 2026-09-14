@@ -441,6 +441,10 @@ results = pipeline.process_batch(data_list)
 | "I will draw the architecture diagram once in a drawing tool." | A static image diverges from the system the moment a component moves and nobody updates the binary file. Diagram-as-code (Mermaid, PlantUML) lives in the repo and is reviewed with the change, so it stays current. |
 | "We made the decision; recording an ADR is bureaucratic overhead." | An undocumented decision gets reversed by someone who never knew the constraints behind it, then reverted again when the original reason resurfaces. The ADR's context and consequences sections are what stop that loop. |
 
+## Read-only freshness helper
+
+After the source and browser reviews in [handbook refresh](references/handbook-refresh.md), run `python <this-skill>/scripts/check_handbooks.py --root <project-root>`. [scripts/check_handbooks.py](scripts/check_handbooks.py) checks the small fallback map and final review receipts without generating content or executing a project command. `--inventory` reports hashes only, never a verification verdict. Existing native manifests remain authoritative; adapt their entries to this check schema without replacing their generators. Explicit `--scope <id>` is a narrow docs check, not release qualification.
+
 ## Verification
 
 - [ ] Architecture overview complete

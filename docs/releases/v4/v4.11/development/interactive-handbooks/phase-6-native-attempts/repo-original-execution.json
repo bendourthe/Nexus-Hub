@@ -1,0 +1,20 @@
+{
+  "case": "repo",
+  "started_utc": "2026-09-09T21:47:56.392095+00:00",
+  "model": "gpt-6-astra",
+  "effort": "max",
+  "wall_time_limit_seconds": 2100,
+  "internal_repair_limit": 3,
+  "prompt_sha256": "89c1996b4f2d43717dac341ede8d637678c183d74689fc85412e67435ea1ce75",
+  "frozen_manifest_sha256": "1eb44c17d6aaad765625af16bc247c332373cd05a2f8bbbcd72e743a26ecd768",
+  "profile_sha256": "ee2a39ceec9a8a593394369eb023d25727719b41cb1bdfcf9057486de76a2bb9",
+  "agents_sha256": "6b23f635bbb3740f666e426755e4280d2db34225d55dabea7113552c5e646d4f",
+  "cli_sha256": "444a3f0008050605cae73cd9b7a2dcac61294062dfaab56dd20430fd6498518b",
+  "status": "timeout",
+  "exit_code": 1,
+  "elapsed_seconds": 2100.75,
+  "ended_utc": "2026-09-09T22:22:57.482989+00:00",
+  "events_sha256": "b733c798e01d1ae2cb0df16cf7f31dbbbf65ff476d89ba382ff8c15bbbf53bd3",
+  "qualification": "non-pass",
+  "usage_status": "unknown; no terminal usage event"
+}

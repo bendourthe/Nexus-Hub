@@ -1,0 +1,153 @@
+{
+  "round": 0,
+  "label": "first-build",
+  "description": "Findings recorded against the FIRST generated output, before any correction. The exact bytes are frozen at qa/first-build.html (page) and qa/first-build-process.svg (standalone graphic); qa/first-build.build.py is the generator that produced them.",
+  "artifacts": {
+    "qa/first-build.html": "8573e758953a3c68172210a08531df1c5a5f417caabf01fde63f844b450571b2",
+    "qa/first-build-process.svg": "272fcf920f1aeb6547943673ea985e6f5e753903699f1cba972152629c06146d"
+  },
+  "evidence": {
+    "installed_measurement_harness": "qa/measure-round0.json (.agents/skills/document-to-interactive-html/scripts/measure_handbook.py, 210 measured states, fail_count 3760)",
+    "installed_detector_direct": "qa/detect-round0.json (.agents/skills/functional-verification/scripts/detect_visual_defects.py at 9 widths)",
+    "alternate_state_sweep": "qa/states-round0.json (qa/states.py: 15 view states x 12 viewports = 180 measured states, fail_count 8956, 47 screenshots under qa/screenshots/round0/)",
+    "renderer": "Chromium 151.0.7922.34 via Playwright, real headless render with screenshot inspection",
+    "model_contract": "installed dual_view.validate(model) PASS (budget 5, deep-dive coverage complete, mixed theme sequence, initial_slide 1)"
+  },
+  "what_already_passed_on_the_first_build": {
+    "functional": [
+      "global Presentation Mode entry resets to slide 1 after deep scrolling",
+      "re-entry after a previous deck session resets to slide 1",
+      "ArrowRight/ArrowLeft/Home/End navigate; no wrap below the first slide",
+      "Escape closes the deck and restores the reading scroll position",
+      "nested modal opens inside the deck; first Escape closes the modal, second closes the deck",
+      "deck shortcuts disengage while focus is inside the range input",
+      "fullscreen denial leaves the fitted presentation usable; Escape still exits",
+      "reduced motion reveals every section completely",
+      "no-JS reading view renders all 6 sections; print media keeps the reading page"
+    ],
+    "offline_and_integrity": [
+      "zero outbound requests across 180 measured states",
+      "zero console errors and zero page errors",
+      "every embedded image decoded"
+    ],
+    "content": [
+      "reading band sequence alternates light/dark/light/dark/light/dark in visible order",
+      "presentation theme_sequence dark/light/light/dark/light satisfies the mixed policy",
+      "sampled text/background contrast pairs all met WCAG AA (worst sampled ratio 5.71 at 14px)"
+    ],
+    "budget": "5 logical slides, unchanged; no slide added at any point"
+  },
+  "defects_found_on_the_first_build": [
+    {
+      "id": "F1",
+      "severity": "high",
+      "class": "rendered-typography",
+      "gate": "measure_handbook font floor, body role >= 16px",
+      "finding": "Pervasive body-role text below the 16px floor: table cells and headers at 15px/14px, .cite at 14px, .cap at 15px, chart axis and tick text at 14px, connector labels at 14px, node subtitles at 15px, probe label at 15px, command mode chips at 13px, slide tables at clamp min 14px, section eyebrow at 14px. 166 distinct undersized text samples across the sweep.",
+      "affected_states": "all reading sections and all 5 slides",
+      "resolution_round": 1
+    },
+    {
+      "id": "F2",
+      "severity": "high",
+      "class": "svg-geometry",
+      "gate": "detector svg-viewbox-overflow",
+      "finding": "All 9 data points of the admission chart (circle r=1.7 at the plot edges) extended past the SVG viewBox because the series was mapped edge-to-edge with no coordinate inset.",
+      "affected_states": "every state, document-wide (9 findings x 180 state-viewport combinations)",
+      "resolution_round": 1
+    },
+    {
+      "id": "F3",
+      "severity": "high",
+      "class": "layout-overflow",
+      "gate": "detector horizontal-overflow, measure_handbook clipped",
+      "finding": "The visually-hidden pattern (.sr-only, 1px box with overflow:hidden) produced real horizontal overflow on the skip link and on the diagram description paragraph; body{overflow-x:hidden} additionally made every wide table cell and code line report as clipped by an ancestor.",
+      "affected_states": "reading view at all 12 viewports",
+      "resolution_round": 1
+    },
+    {
+      "id": "F4",
+      "severity": "high",
+      "class": "layout-overflow",
+      "gate": "detector horizontal-overflow, parent-padding-escape",
+      "finding": "<pre> blocks carried white-space:pre with the scroller on the wrapping div, so the pre itself overflowed horizontally with no scroller of its own and escaped its parent's padding box in the rebuild section.",
+      "affected_states": "configuration, code and rebuild sections; appendix slide",
+      "resolution_round": 1
+    },
+    {
+      "id": "F5",
+      "severity": "high",
+      "class": "layout-geometry",
+      "gate": "detector parent-padding-escape",
+      "finding": "The scroll-reveal transform (translateY 14px) was applied to the <section> element itself, so the last section (rebuild), which had not yet been revealed, sat 14px below the padding box of <main>.",
+      "affected_states": "reading view at all 12 viewports",
+      "resolution_round": 1
+    },
+    {
+      "id": "F6",
+      "severity": "high",
+      "class": "text-collision",
+      "gate": "detector text-overlap",
+      "finding": "Two distinct collisions. (a) The sticky masthead overlapped page text in every scrolled reading state (nav links, the Presentation Mode button and the hero prose). (b) Tight leading on the stat tiles (line-height 1.08 with a clamped display size) made the value's text fragment rect intrude into the label above it.",
+      "affected_states": "all scrolled reading states; hero stats at all viewports",
+      "resolution_round": 1
+    },
+    {
+      "id": "F7",
+      "severity": "high",
+      "class": "text-collision",
+      "gate": "detector text-overlap while the deck is open",
+      "finding": "With Presentation Mode open, the reading page and the masthead stayed rendered behind the fixed deck, so every deck text fragment collided with page text underneath it.",
+      "affected_states": "all 5 slides at all viewports",
+      "resolution_round": 1
+    },
+    {
+      "id": "F8",
+      "severity": "medium",
+      "class": "layout-overflow",
+      "gate": "detector horizontal-overflow",
+      "finding": "The Reliability stat tile overflowed its track: the value 'Not measured' inherited the numeric display size (up to 38px on the page and 28.8px on a slide, where a .slide-scoped rule outranked the text variant), so the word 'measured' exceeded the 155px column.",
+      "affected_states": "hero at narrow widths; agenda slide at 1099x900 and neighbours",
+      "resolution_round": 1
+    },
+    {
+      "id": "F9",
+      "severity": "medium",
+      "class": "layout-overflow",
+      "gate": "detector horizontal-overflow",
+      "finding": "In the 7-column process flow the connector cells (about 60px wide) carried the edge annotation text, whose longest token (queue_capacity) could not fit; the node cards overflowed for the same reason at 1099px and below.",
+      "affected_states": "workflow section between 761px and 1100px",
+      "resolution_round": 1
+    },
+    {
+      "id": "F10",
+      "severity": "medium",
+      "class": "presentation-fit",
+      "gate": "self-imposed check: slide body must not need component scrolling at a named desktop size",
+      "finding": "35 state/viewport combinations needed component scrolling inside the slide body, including 1920x1080 (appendix ownership pane 1021 > 891, freshness pane 1119 > 891), 1366x768 (parameters 662 > 610, process 668 > 610, appendix 1065 > 610) and 2560x1300 (freshness pane 1120 > 1087). The slide element itself never scrolled, so the installed gate did not flag it, but the content did not genuinely fit.",
+      "affected_states": "slides 3, 4 and 5",
+      "resolution_round": 1
+    },
+    {
+      "id": "F11",
+      "severity": "informational",
+      "class": "extraction-coverage",
+      "gate": "source coverage reconciliation",
+      "finding": "The installed extractor (extract_content.py) walked the repository and ingested 8 of the 9 files. It has no .html reader, so the previously generated docs/handbooks/html/operations.html did not appear in the extracted model. The stale retry value it contains was read directly from the frozen input instead. This is an extractor capability gap, not a page defect; it is disclosed on the delivered page in the Rebuild appendix and in the retained source inventory.",
+      "affected_states": "extraction stage",
+      "resolution_round": "disclosed, not repaired (the installed skill was not modified)"
+    }
+  ],
+  "counts": {
+    "installed_harness_failures": 3760,
+    "state_sweep_failures": 8956,
+    "distinct_root_causes": 11,
+    "gates_already_passing": [
+      "functional behaviour (12/12)",
+      "offline and console integrity",
+      "no-JS, print, reduced motion, fullscreen denial",
+      "slide budget",
+      "contrast"
+    ]
+  }
+}

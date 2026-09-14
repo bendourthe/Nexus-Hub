@@ -1,0 +1,10 @@
+{
+  "name": "Tide Research",
+  "colors": {
+    "accent": "#067b83",
+    "ink": "#102f44",
+    "paper": "#f7f3e9"
+  },
+  "font": "Arial, sans-serif",
+  "logo": "brand.svg"
+}

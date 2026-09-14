@@ -1,0 +1,521 @@
+{
+  "status": "pass for the captured visual review scope",
+  "visual_review": "All eight contact sheets inspected: 40 final section and slide captures across both maintained handbooks at desktop and compact widths. Readable text and numbered diagrams, clear hierarchy and alternating palettes, with no visible content clipping. Element captures do not establish every scroll position or full-window control visibility; separate behavioral receipts cover those boundaries.",
+  "scope": "Final reading sections and final slide states at 1366x768 and 390x844; compact screenshots supplement native-scroll tests and are not proof of every scroll position",
+  "captures": [
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "reading",
+      "index": 0,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "overview-reading-1366-1.png",
+      "screenshot_sha256": "d8d6f5297306a1d11dbd3630cab8b0a5d8dd2f320ff165a8b5f1d8ebf89e0a7b"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "reading",
+      "index": 1,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "overview-reading-1366-2.png",
+      "screenshot_sha256": "928786d46349f701b38c627bd6f6b2491bc98560b7cec183880bb6735b5a11c4"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "reading",
+      "index": 2,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "overview-reading-1366-3.png",
+      "screenshot_sha256": "a764a1d0ea6bdc4aa46e95eb889ae5a13959996d868d5a87acb6f7293f3ef8f1"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "reading",
+      "index": 3,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "overview-reading-1366-4.png",
+      "screenshot_sha256": "721851f86d12b864d41f9f8fd684bf2b1b78f0af913dfaf9e423d0a4f1cff9ca"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "reading",
+      "index": 4,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "overview-reading-1366-5.png",
+      "screenshot_sha256": "a11f79b1770f5446731bf1b881cd215dad8afcb2cf41cc832234739b832f50e3"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "presentation",
+      "index": 0,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "overview-presentation-1366-1.png",
+      "screenshot_sha256": "c77f65fb8a8fc47fe0e875873ce547d67b0a56418f98df6a19f78644c4ff1429"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "presentation",
+      "index": 1,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "overview-presentation-1366-2.png",
+      "screenshot_sha256": "6f475692504cd7994aa2614fc8f56f3d522e192146f64ae73e4de9e71cf6ca7c"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "presentation",
+      "index": 2,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "overview-presentation-1366-3.png",
+      "screenshot_sha256": "3aa5bf586c757977d73675eefa47192d5d7ec80b03c6f66feb5dda11d9ec49c0"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "presentation",
+      "index": 3,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "overview-presentation-1366-4.png",
+      "screenshot_sha256": "139fe4e1d7aba4dce3e0b915cad277f7d5dc1a9c362bffc3ba14d152ee315c71"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "presentation",
+      "index": 4,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "overview-presentation-1366-5.png",
+      "screenshot_sha256": "4c8f1f4c083eed72f4316c7d2a5a582ff755a3e4c0f2c84e59851a3ca29ae72f"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "reading",
+      "index": 0,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "overview-reading-390-1.png",
+      "screenshot_sha256": "603a9be6ea5ac39bde92ed0c6ccab43b4ffd04f94cb4baa4288439a835501dfb"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "reading",
+      "index": 1,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "overview-reading-390-2.png",
+      "screenshot_sha256": "9cee637f6d50f93d3401442431adeb6cee77aa4f0ac08703d2de960a4c48bc96"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "reading",
+      "index": 2,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "overview-reading-390-3.png",
+      "screenshot_sha256": "47713e71aa54212e5a5281219f2ab598317ca65e80e811b075578b92784f3768"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "reading",
+      "index": 3,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "overview-reading-390-4.png",
+      "screenshot_sha256": "3681cb10f8805d5c6b6b7ac10aedf753b189df93112d77aadd390057a6fe47d5"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "reading",
+      "index": 4,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "overview-reading-390-5.png",
+      "screenshot_sha256": "a6b35aed5c852df4e4227d435768c216fb2eb67462e50d4f1e901ba707722106"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "presentation",
+      "index": 0,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "overview-presentation-390-1.png",
+      "screenshot_sha256": "ee6ef0cbd199de1ca7dbdf189ac6151cd4b9ba6227ab655b4faa5acbeebe27f5"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "presentation",
+      "index": 1,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "overview-presentation-390-2.png",
+      "screenshot_sha256": "e12bc01803a6cd62afd1ab61fad2bbbc609ccfbc7506e254cfd64e09f8fa39ab"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "presentation",
+      "index": 2,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "overview-presentation-390-3.png",
+      "screenshot_sha256": "ec6cf64403ec8ded85e05d225eb860ded530df8ca502ff9dd196a51d031a1202"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "presentation",
+      "index": 3,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "overview-presentation-390-4.png",
+      "screenshot_sha256": "f8beadd7eeb424dc50502bd1bc0164a7d9ba32fe815e95fdbc58d2996b79f5c9"
+    },
+    {
+      "artifact": "docs/handbooks/overview.html",
+      "artifact_sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "view": "presentation",
+      "index": 4,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "overview-presentation-390-5.png",
+      "screenshot_sha256": "7e245956370e982877fed2f2852249be9fab710ef829d5427fb6a44fb8118752"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "reading",
+      "index": 0,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "distribution-reading-1366-1.png",
+      "screenshot_sha256": "b30df88de2c0ef6dd96bae02e35215649b58ebdc360746854200d7c48b00a348"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "reading",
+      "index": 1,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "distribution-reading-1366-2.png",
+      "screenshot_sha256": "376ce75b6c7d314377044722093eeeeed029a281823875ef75348df3a246a394"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "reading",
+      "index": 2,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "distribution-reading-1366-3.png",
+      "screenshot_sha256": "92d387ea72ec3c3b874e7d2710b7ec5033ebf02859b6f10323f433d18e7d88a0"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "reading",
+      "index": 3,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "distribution-reading-1366-4.png",
+      "screenshot_sha256": "4fa31b9253cb784cb622c5445ea8f611c08e93553d3587064a4a7b81722209ae"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "reading",
+      "index": 4,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "distribution-reading-1366-5.png",
+      "screenshot_sha256": "c1e392315d526bc94b09ee0c955d52a89240b1df79fa9bf8584a92d272c1fc31"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "presentation",
+      "index": 0,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "distribution-presentation-1366-1.png",
+      "screenshot_sha256": "c0e5395c5e62083fbc377653c432676ab0f0bde02d5c3b2a83fa68ee9f90bdc1"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "presentation",
+      "index": 1,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "distribution-presentation-1366-2.png",
+      "screenshot_sha256": "4b7554853ad6996f4b6abc8b8c41866f0c40265ae6d038d26875dd770d0a0e2c"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "presentation",
+      "index": 2,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "distribution-presentation-1366-3.png",
+      "screenshot_sha256": "67da60549d13c8af4f2657aab9a2a8c024c227c07e18aa09cf630796580ccda5"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "presentation",
+      "index": 3,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "distribution-presentation-1366-4.png",
+      "screenshot_sha256": "61451c85eb088a24dbaf37b4bb96c4e855ede4e4e1c5e21eb581fd3f8b7489ed"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "presentation",
+      "index": 4,
+      "viewport": [
+        1366,
+        768
+      ],
+      "screenshot": "distribution-presentation-1366-5.png",
+      "screenshot_sha256": "1bb320d7079cc4f517a96aa9217eeae29e12d5cb2512d9dca8a91da1502c5c93"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "reading",
+      "index": 0,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "distribution-reading-390-1.png",
+      "screenshot_sha256": "9586025730a61207eb94e32a51206b0c784f9c0e6dffdfae9b5baa90cbd3bcf0"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "reading",
+      "index": 1,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "distribution-reading-390-2.png",
+      "screenshot_sha256": "7be9b086a02dabbf045da2e41253e5fe617e23325abebce63205c20094d96add"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "reading",
+      "index": 2,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "distribution-reading-390-3.png",
+      "screenshot_sha256": "7fd7e9b0ea711a5fa5ebf19a9504fdfa4b07ddf2dd41ec50001e6c7e3503abcd"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "reading",
+      "index": 3,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "distribution-reading-390-4.png",
+      "screenshot_sha256": "45d819337d3b8724a67288136309fb488eb82bde5e55b9b20cede78bc156543c"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "reading",
+      "index": 4,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "distribution-reading-390-5.png",
+      "screenshot_sha256": "7985692af095b935789af0bcbf5ca85a5bfed95baa03569ec5ba054dbfa2a3cd"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "presentation",
+      "index": 0,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "distribution-presentation-390-1.png",
+      "screenshot_sha256": "5bfec470d9690828b8e55778d126fa2dba4f1fa96cfb8ad374f2acdb91b6df52"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "presentation",
+      "index": 1,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "distribution-presentation-390-2.png",
+      "screenshot_sha256": "91291182f59ead03a26d3b8d72ff16fd1c89cdd1b323b6bfb355cc11b423dfb9"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "presentation",
+      "index": 2,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "distribution-presentation-390-3.png",
+      "screenshot_sha256": "d0a917a8c764eeb0c839040d149b98b34827de85a9351a3903b97af0f088e2e0"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "presentation",
+      "index": 3,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "distribution-presentation-390-4.png",
+      "screenshot_sha256": "d11513d10ed08818aa5e5a9a143dd63e735578c54ab08b32caa0e8974fcebb0c"
+    },
+    {
+      "artifact": "docs/handbooks/distribution.html",
+      "artifact_sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "view": "presentation",
+      "index": 4,
+      "viewport": [
+        390,
+        844
+      ],
+      "screenshot": "distribution-presentation-390-5.png",
+      "screenshot_sha256": "17bed371195c72ebde6b2e4c76a4cb1ddc193d1881c837b668f1d1c2cbeabdc7"
+    }
+  ],
+  "contact_sheets": [
+    {
+      "path": "phase-6-screenshots/current/distribution-presentation-1366.png",
+      "sha256": "6650d9fc034a7611bc4e9035ecb4301f69138414140f199cf90b4fea48523a34"
+    },
+    {
+      "path": "phase-6-screenshots/current/distribution-presentation-390.png",
+      "sha256": "7ec63ae00e6fc3913aec2c388ad453d9ea2244c1fda9d2e9a802e34aa83b550e"
+    },
+    {
+      "path": "phase-6-screenshots/current/distribution-reading-1366.png",
+      "sha256": "90cf7ca2b90723d232366ccf3cd49fde040faa397433767bfcee471b072c1d37"
+    },
+    {
+      "path": "phase-6-screenshots/current/distribution-reading-390.png",
+      "sha256": "fa9d34be913d61a52266c92088b738925b87d8699dd0bd3ff3aa15b420e0176d"
+    },
+    {
+      "path": "phase-6-screenshots/current/overview-presentation-1366.png",
+      "sha256": "79fcb1b2a1237a14ccf9f98bc04b4a9dafb081e3dda0ee546be3b72f0d31f760"
+    },
+    {
+      "path": "phase-6-screenshots/current/overview-presentation-390.png",
+      "sha256": "4278b3ed1ee2e7b13e7cafb4dd45686e34f8788f4189d1f92d69b6e6d406f6fd"
+    },
+    {
+      "path": "phase-6-screenshots/current/overview-reading-1366.png",
+      "sha256": "16b4ee47f91cf4d694d8e4c484f60fce9d37c73a37ade9d1aa73fe28e65422bf"
+    },
+    {
+      "path": "phase-6-screenshots/current/overview-reading-390.png",
+      "sha256": "29912ba06e856bbd6a4437bf3686d7e30afce47247b96ddc0e7026d735d4a099"
+    }
+  ]
+}
