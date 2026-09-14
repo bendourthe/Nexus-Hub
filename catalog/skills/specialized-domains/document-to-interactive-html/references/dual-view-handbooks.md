@@ -2,6 +2,51 @@
 
 This reference owns the shared output, intake, source coverage, and dual-view acceptance contract for presentify and interactive handbooks. Direct skill calls follow it too. `technical-documentation` owns handbook discovery and freshness in its `references/handbook-refresh.md`; `hallmark-design` owns contextual design review; `slide-navigation.md` owns presentation interaction. Reuse those owners instead of defining competing rules in dispatchers.
 
+
+## Slides CLONE the document's figures; they never carry a second copy
+
+Two drawings of one thing diverge on the first edit, and the divergence is
+silent because nobody re-reads the copy. The deck clones at runtime.
+
+Cloning correctly is where the defects live:
+
+1. **Renumber ids in the copy; never strip them.** A figure referencing an arrow marker by id needs that id. Stripping ids made a clone appear to work only because the ORIGINAL was still in the document to resolve against - it renders correctly right up until the original is removed, which is the worst possible failure schedule. Gated as `clone-reference-escapes-slide`, which resolves references WITHIN the slide rather than document-wide, precisely so this case is caught while it still looks fine.
+2. **Rewrite `url(#x)` and `href="#x"` literally, not by regex.** A regex over the serialized markup rewrites ids inside text content and attribute values that merely resemble references.
+3. **Append the container node, not its children.** Appending children loses the container's own attributes, including the `viewBox` every coordinate inside depends on.
+4. **Every clone holder resolves and is non-empty.** An empty holder is an absent figure, and an absent figure on a slide reads as a design choice. Gated as `empty-clone-holder`.
+
+## A slide has nowhere to scroll
+
+Overflow on a page is a scroll. Overflow on a slide is content the reader can
+never reach. Scale an offending slide to fit rather than clipping it.
+
+Gated as `slide-overflow`, measured against the fixed canvas.
+
+## Animation: order follows the narrative, and fill modes collide
+
+**Sequencing.** A step cannot begin before the thing it acts on is drawn.
+Express a group's delay as its start in the narrative, and stamp a per-child
+index from the engine rather than relying on `nth-child` - which broke when a
+list's length changed and animated the last rows first.
+
+**Fill-mode collisions.** A staggering utility that sets `opacity: 0` filling
+FORWARDS, combined with a component animating itself filling BACKWARDS, left
+four tiles permanently invisible in the source project. Nothing in the markup
+shows it. Measuring opacity after the animation window shows it immediately.
+Gated as `invisible-after-animation`.
+
+### Measure while the slide is CURRENT
+
+Every check above is taken with that slide displayed, inside the existing
+per-slide walk, after the animation window has closed.
+
+This is not a stylistic preference. Measured on this repository's own fixture,
+a probe that walks every slide at the end finds NO overflow at all, because
+`getBoundingClientRect` returns zeros inside a `display:none` slide. The defect
+is not over-reported; it is invisible to that measurement. A false alarm gets
+investigated, and a silent miss ships.
+
+
 ## Resolve the output before authoring
 
 1. Default to one self-contained offline HTML file opening as a detailed scrolling page. Offer presentation as an additional view within that file. The title and global top menu use **Presentation Mode**; both always enter slide 1. A **Present chapter** control may enter its named chapter. Resume, if supplied, is a separate explicitly named action. An explicit slide deep link may enter that slide; it does not change the global button's behavior.
