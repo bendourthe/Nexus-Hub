@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Integrate outstanding handbook changes and the preserved v4.11.1 cache phases, reconcile PR #203, then return to a clean develop checkout and remove only confirmed merged branches before v4.12.0 starts.
+**Active work:** Implement [v4.12.0 sole-contributor attribution](releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md). Phase 1 checker and fixture verification are complete locally; next is the isolated all-ref rewrite with a verified mirror backup. Prerequisite cleanup merged PRs #214, #215 and #216, returned to verified develop, and removed 31 merged local branches. Historical unmerged refs and seven stashes remain preserved.
 **Last refreshed:** 2026-09-14
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -16,6 +16,8 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
+| v4.12.0 implementation tasks complete | 5 | 23 | 18 |
+| v4.12.0 implementation phases complete | 1 | 4 | 3 |
 | v4.11.0 interactive-handbook phases complete | 7 | 7 | 0 |
 | v4.11.0 interactive-handbook tasks complete | 31 | 31 | 0 |
 | v4.11.0 accepted native authoring families | 2 | 3 | 1 |

@@ -552,6 +552,8 @@ def test_installer_ps1_fallback_literal_matches_template():
 # so a future contributor can tell whether a new script belongs here or in the
 # installer copy blocks.
 DEV_ONLY_SCRIPTS = {
+    # Maintainer GitHub-attribution hygiene, not a user-facing script.
+    "check_commit_attribution.py",
     # Repo-internal co-location guard (v3.17.7): enforces that a /compare
     # report and the plan it seeds share a version directory. Moved out of
     # .github/workflows/doc-colocation.yml so its three fail-open defects
