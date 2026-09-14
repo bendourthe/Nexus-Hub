@@ -252,10 +252,7 @@ Before stopping for any governance confirmation below, follow the active instruc
 
     Wording that satisfies the no-change form: `changes no opt-in capability`, `no opt-in capability`, `no opt-in surface`, `no applicable opt-in`, or `no optional capability changes`. Detection is marker-based rather than prose-inferring: each surface declares its five elements as labelled lines (`Activation:`, `Validation:`, `Rollback:`, `Authority:`, `Docs:`) or as a Markdown table row, because a checker that guessed at free text would produce confident false passes.
 
-7. **Rendered-artifact and generated-source gate**: every generated `.html` this release ships passes `geometric_audit.py`, and two properties are asserted that a content check cannot see.
-
-    - **Generated regions have a single source of truth.** A fix patched into rendered output is reverted by the next regeneration from an unedited generator, silently and with no failing check in between. Edit the generator.
-    - **Line endings are unchanged from baseline.** Compare each changed file against its committed blob. A whitespace pass during v4.11.2 silently rewrote eight files of a byte-frozen qualification corpus, invalidating the manifest that made the benchmark meaningful; nothing else in the release flow would have caught it.
+**Rendered-artifact and generated-source gate**: every generated `.html` this release ships passes the `rendered-artifact-verified` gate, which also asserts that generated regions have a single source of truth and that line endings are unchanged from baseline. The procedure and the reasoning behind both live with their owner, `[[document-to-interactive-html]]`; this dispatcher only states that the gate runs.
 
 7. **Unicode-hygiene gate on release artifacts (BLOCKING)**: sanitize what this release actually ships, before it is committed.
 
