@@ -243,3 +243,99 @@ def test_bounded_diagnostics_keep_total(repo: Path, capsys) -> None:
     assert scan(repo) == 1
     output = capsys.readouterr().out
     assert "22 findings" in output and "2 additional findings" in output
+
+
+@pytest.mark.parametrize(
+    "kind",
+    ["clean", "author", "committer", "trailer", "amend-author", "amend-inherited"],
+)
+def test_real_commit_hook(repo: Path, kind: str) -> None:
+    commit(repo, author=CURSOR if kind == "amend-inherited" else TARGET)
+    (repo / "scripts").mkdir()
+    (repo / "scripts/check_commit_attribution.py").write_bytes(SCRIPT.read_bytes())
+    hooks = repo / ".githooks"
+    hooks.mkdir()
+    hook = hooks / "commit-msg"
+    hook.write_bytes((SCRIPT.parent.parent / ".githooks/commit-msg").read_bytes())
+    hook.chmod(0o755)
+    git(repo, "config", "core.hooksPath", hooks.as_posix())
+    old = git(repo, "rev-parse", "HEAD")
+    env = os.environ.copy()
+    if kind == "author":
+        env.update(GIT_AUTHOR_NAME=CURSOR[0], GIT_AUTHOR_EMAIL=CURSOR[1])
+    if kind == "committer":
+        env.update(GIT_COMMITTER_NAME=CURSOR[0], GIT_COMMITTER_EMAIL=CURSOR[1])
+    message = "Hook fixture"
+    if kind == "trailer":
+        message += "\n\nCo-authored-by: Cursor <cursoragent@cursor.com>"
+    args = ["commit", "--allow-empty", "-m", message]
+    if kind.startswith("amend"):
+        args.append("--amend")
+    if kind == "amend-author":
+        args.append("--author=Cursor <cursoragent@cursor.com>")
+    result = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if kind == "clean":
+        assert result.returncode == 0, result.stderr
+        assert git(repo, "rev-parse", "HEAD") != old
+    else:
+        assert result.returncode != 0
+        assert "cursoragent@cursor.com" in result.stdout + result.stderr
+        assert git(repo, "rev-parse", "HEAD") == old
+
+
+def test_pending_mode_and_message_both_report(
+    repo: Path, tmp_path: Path, monkeypatch, capsys
+) -> None:
+    message = tmp_path / "message"
+    message.write_text("Made-with: Unknown", encoding="utf-8")
+    monkeypatch.setenv("GIT_AUTHOR_NAME", CURSOR[0])
+    monkeypatch.setenv("GIT_AUTHOR_EMAIL", CURSOR[1])
+    assert (
+        checker.main(
+            ["--root", str(repo), "--pending-commit", "--message-file", str(message)]
+        )
+        == 1
+    )
+    output = capsys.readouterr().out
+    assert "pending author" in output and "Made-with" in output
+
+
+def test_pending_requires_worktree(tmp_path: Path) -> None:
+    assert checker.main(["--root", str(tmp_path), "--pending-commit"]) == 2
+
+
+def test_pending_malformed_identity(repo: Path, monkeypatch) -> None:
+    monkeypatch.setattr(
+        checker,
+        "git",
+        lambda root, *args: b"true" if args[0] == "rev-parse" else b"malformed",
+    )
+    assert checker.main(["--root", str(repo), "--pending-commit"]) == 2
+
+
+def test_hook_survives_fresh_crlf_checkout(repo: Path, tmp_path: Path) -> None:
+    (repo / ".githooks").mkdir()
+    (repo / "scripts").mkdir()
+    (repo / ".githooks/commit-msg").write_bytes(
+        (SCRIPT.parent.parent / ".githooks/commit-msg").read_bytes()
+    )
+    (repo / ".githooks/commit-msg").chmod(0o755)
+    (repo / "scripts/check_commit_attribution.py").write_bytes(SCRIPT.read_bytes())
+    (repo / ".gitattributes").write_bytes(
+        (SCRIPT.parent.parent / ".gitattributes").read_bytes()
+    )
+    git(repo, "add", ".")
+    git(repo, "update-index", "--chmod=+x", ".githooks/commit-msg")
+    commit(repo)
+    clone = tmp_path / "fresh checkout with spaces"
+    git(tmp_path, "clone", "-q", "-c", "core.autocrlf=true", str(repo), str(clone))
+    assert b"\r\n" not in (clone / ".githooks/commit-msg").read_bytes()
+    git(clone, "config", "core.hooksPath", ".githooks")
+    old = git(clone, "rev-parse", "HEAD")
+    assert commit(clone) != old

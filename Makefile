@@ -3,6 +3,7 @@
 all: validate lint ## Run validation and linting
 
 validate: ## Validate all JSON catalog files and skill bundles
+	@python scripts/check_commit_attribution.py --all-refs --root .
 	@echo "Validating JSON catalogs..."
 	@python -c "import json; d = json.load(open('data/skills.json', encoding='utf-8')); print(f'  skills.json OK -- {len(d[\"skills\"])} skills')"
 	@python -c "import json; d = json.load(open('data/bundles.json', encoding='utf-8')); print(f'  bundles.json OK -- {len(d[\"bundles\"])} bundles')"

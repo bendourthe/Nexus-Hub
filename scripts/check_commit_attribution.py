@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Check maintainer Git attribution; never distributed by Nexus-Hub installers.
 
-Scan raw author/committer fields on all refs and/or one commit-message file.
+Scan history, pending commit identities and/or one commit-message file.
 Exit 0: clean; 1: attribution findings; 2: usage or incomplete-scan error.
 """
 
@@ -118,11 +118,30 @@ def history_findings(root: Path) -> tuple[int, list[str]]:
     return len(fields) // 6, findings
 
 
+def pending_findings(root: Path) -> list[str]:
+    """Check identities Git exposes to commit hooks, including amended authors."""
+    if git(root, "rev-parse", "--is-inside-work-tree").strip() != b"true":
+        raise ValueError("pending commit checks require a Git working tree")
+    findings = []
+    for role in ("author", "committer"):
+        value = git(root, "var", f"GIT_{role.upper()}_IDENT").decode("utf-8").strip()
+        identity = re.fullmatch(r"(.+) <([^<>]+)> -?\d+ [+-]\d{4}", value)
+        if not identity:
+            raise ValueError(f"malformed pending {role} identity")
+        name, email = identity.groups()
+        if not allowed(name, email, committer=role == "committer"):
+            findings.append(f"pending {role}: {json.dumps(f'{name} <{email}>')}")
+    return findings
+
+
 def main(argv: list[str] | None = None) -> int:
-    """Run both requested operations; errors dominate findings in the exit code."""
+    """Run every requested operation; errors dominate findings in the exit code."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--root", type=Path, default=Path.cwd(), help="repository root for --all-refs"
+        "--root",
+        type=Path,
+        default=Path.cwd(),
+        help="repository root for history and pending-commit checks",
     )
     parser.add_argument(
         "--all-refs", action="store_true", help="scan full history on every ref"
@@ -130,9 +149,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--message-file", type=Path, help="check one UTF-8 commit-message file"
     )
+    parser.add_argument(
+        "--pending-commit",
+        action="store_true",
+        help="check Git's pending author and committer in a commit hook",
+    )
     args = parser.parse_args(argv)
-    if not args.all_refs and args.message_file is None:
-        parser.error("specify --all-refs and/or --message-file")
+    if not args.all_refs and args.message_file is None and not args.pending_commit:
+        parser.error("specify --all-refs, --message-file and/or --pending-commit")
     findings: list[str] = []
     errors: list[str] = []
     commits = 0
@@ -142,6 +166,13 @@ def main(argv: list[str] | None = None) -> int:
             findings.extend(found)
         except (OSError, ValueError, subprocess.SubprocessError) as exc:
             errors.append(f"history scan incomplete: {type(exc).__name__}: {exc}")
+    if args.pending_commit:
+        try:
+            findings.extend(pending_findings(args.root.resolve()))
+        except (OSError, ValueError, subprocess.SubprocessError) as exc:
+            errors.append(
+                f"pending commit scan incomplete: {type(exc).__name__}: {exc}"
+            )
     if args.message_file is not None:
         try:
             findings.extend(

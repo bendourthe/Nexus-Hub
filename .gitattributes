@@ -3,6 +3,7 @@
 
 # Ensure script files keep LF if needed (optional, but good for bash)
 *.sh text eol=lf
+.githooks/commit-msg text eol=lf
 *.ps1 text=auto
 
 # v3.7.0 Phase 3 nexus-hub launchers: the extension-less POSIX shim MUST stay

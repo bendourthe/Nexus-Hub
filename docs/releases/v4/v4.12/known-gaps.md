@@ -15,13 +15,17 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-None identified in Phases 1-2. The expected dirty pre-rewrite live scan is the input to Phase 2, not a waived validation gate; the isolated Phase 2 scan is now clean.
+#### WN-1: Existing CI-profile lint findings
+
+**Owner**: CI profile maintainer. **Status**: open. **Next step**: address UP035 at the existing typing imports and FLY002 in `_PS_AST_PARSE` during the next CI-profile maintenance change.
+
+Phase 3 confirmed both findings against the parent commit before its one-command change. No new checker or test-module lint finding remains. Evidence: external `phase3-baseline-lint.json`; this does not waive the final functional validation gate.
 
 ### Resolved
 

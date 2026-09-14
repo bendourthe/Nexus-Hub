@@ -1,4 +1,6 @@
-# Sole-contributor history rewrite
+# Decision: Sole-contributor history rewrite
+
+Status: proposed - Prepare an isolated attribution rewrite with verified recovery before approving publication.
 
 Proposed repository-maintenance decision for the owner reviewing v4.12 publication. Covers canonical identity, all-ref rewriting, local prevention, backups and GitHub contributor-page verification. Evidence refreshed 2026-09-14 in the [inventory](../../../releases/v4/v4.12/development/attribution-inventory.md).
 

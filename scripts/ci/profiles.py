@@ -140,6 +140,7 @@ CATALOG_PARSE = Group(
 HYGIENE = Group(
     name="hygiene",
     commands=(
+        _py("check_commit_attribution", "--all-refs", "--root", ".", timeout=120),
         _py("validate_unicode_safety", "--strict", timeout=300),
         _py("validate_no_personal_paths", timeout=300),
         _py("check_merge_conflict_markers", timeout=120),

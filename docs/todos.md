@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Implement [v4.12.0 sole-contributor attribution](releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md). Phases 1-2 are complete locally: checker fixtures pass and all 1,697 commits in the isolated rewrite are attribution-clean. Next is maintainer CI and hook enforcement; remote publication remains pending. Prerequisite cleanup merged PRs #214, #215 and #216, returned to verified develop, and removed 31 merged local branches. Historical unmerged refs and seven stashes remain preserved.
+**Active work:** Implement [v4.12.0 sole-contributor attribution](releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md). Phases 1-3 are complete locally: the isolated rewrite is attribution-clean, 55 focused tests pass, and the validate-equivalent profile passes all 38 checks. Final qualification and remote publication remain pending. Prerequisite cleanup merged PRs #214, #215 and #216, returned to verified develop, and removed 31 merged local branches. Historical unmerged refs and seven stashes remain preserved.
 **Last refreshed:** 2026-09-14
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -16,8 +16,8 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.12.0 implementation tasks complete | 9 | 23 | 14 |
-| v4.12.0 implementation phases complete | 2 | 4 | 2 |
+| v4.12.0 implementation tasks complete | 13 | 23 | 10 |
+| v4.12.0 implementation phases complete | 3 | 4 | 1 |
 | v4.11.0 interactive-handbook phases complete | 7 | 7 | 0 |
 | v4.11.0 interactive-handbook tasks complete | 31 | 31 | 0 |
 | v4.11.0 accepted native authoring families | 2 | 3 | 1 |

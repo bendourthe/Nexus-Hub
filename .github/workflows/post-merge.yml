@@ -50,6 +50,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          fetch-depth: 0 # Fast includes the all-ref attribution hygiene gate.
 
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
