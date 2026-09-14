@@ -267,6 +267,35 @@ Before stopping for any governance confirmation below, follow the active instruc
 
 This mirrors the `implement-phase` final-phase gate - `/implement` hands off to `/update release` on a plan's last phase - so the same refactor + known-gaps + CI/CD + platform-contract + installer-parity + prompting-staleness + capability-usage work runs whether the release is reached through `/implement` or invoked directly.
 
+## Next-plan handoff (after the release is published)
+
+A released plan leaves the queue in a state only the repository knows. Close the
+release by printing the handoff so the next session starts with a command rather
+than an investigation:
+
+```bash
+python scripts/plan_status.py --next
+```
+
+It reports the next plan with open tasks AT OR ABOVE the released version, the
+copy-paste `/implement <version> in-full` command, and ONE tier and effort level.
+
+**One recommendation, and it is the maximum rather than the average.** `in-full`
+executes every phase in a single invocation, so the setting must carry the
+HARDEST phase in the plan. A phase-by-phase breakdown would be correct advice
+for a command nobody is running, and the modal value would under-provision the
+phase most likely to need the headroom.
+
+The per-platform rows come from the plan's own dated `## Current model map`. The
+script never invents a model id: an absent or stale map is reported as such,
+because a confidently wrong id is worse than none. Cursor, OpenCode and Copilot
+have no scriptable model switch, so those are set in the picker before starting.
+
+The version floor matters. Plans from shipped cycles keep unticked tasks - some
+predate the checkbox convention, others were closed without anyone ticking them
+- so an unfiltered scan proposes archaeology. The first version of this selector
+offered v3.0.0 while the repository sat at v4.11.0.
+
 ## Release closing output
 
 The message that closes a `release`-scope run uses the Completed / Verified / Open / Next shape from `catalog/style-guides/agent-communication.md`: **Completed** names the version shipped and the surfaces bumped; **Verified** carries the gate results (validate, tests, version-sync, capability-docs, contract freshness) and the published tag and Release URL; **Open** lists any hold condition, deferred gap, or advisory that did not block; **Next** states the follow-on action or that there is none. Link the finalized `## [X.Y.Z]` CHANGELOG section instead of inlining it, since that section is already the Release body. Skill: `[[agent-communication]]`.
