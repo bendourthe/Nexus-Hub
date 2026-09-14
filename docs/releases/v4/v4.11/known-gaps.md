@@ -1,8 +1,8 @@
 # Known Gaps - v4.11
 
 **Project**: Nexus-Hub
-**Status**: open. Seeded 2026-09-12 by moving the interactive-handbooks ledger out of `v4.9`, where it had been recorded while the plan still carried the v4.11.0 number. The plan was renumbered to v4.11.0 because v4.10.0 was completed and released in parallel; this ledger follows the plan rather than the number it was written under. The v4.9 ledger retains the v4.9.0 security-audit work and the post-v4.8.0 prompting follow-up, which are unrelated and keep their owners.
-**Last updated**: 2026-09-12
+**Status**: open. Seeded 2026-09-12 by moving the interactive-handbooks ledger out of `v4.9`, where it had been recorded while the plan still carried the v4.11.0 number. The plan was renumbered to v4.11.0 on the belief that v4.10.0 had been completed AND released in parallel. The release half of that turned out to be false: at v4.11.0 release time the newest tag was v4.9.0, no v4.10.0 tag or GitHub Release ever existed, and no `## [4.10.0]` changelog section was ever written. The v4.10.0 work was merged but never shipped, so it ships inside v4.11.0 and the 4.10.0 number is skipped rather than retrofitted. This ledger follows the plan rather than the number it was written under. The v4.9 ledger retains the v4.9.0 security-audit work and the post-v4.8.0 prompting follow-up, which are unrelated and keep their owners.
+**Last updated**: 2026-09-13
 
 ## v4.11.0 - interactive-handbooks-and-presentation-default
 
