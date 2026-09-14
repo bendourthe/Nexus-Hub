@@ -47,11 +47,14 @@ BROKEN = {
     "legend-colour": "legend-colour-collision",
     "oversized-type": "oversized-type",
     "stroke-drift": "stroke-drift",
+    "legend-not-drawn": "legend-entry-not-drawn",
+    "tick-outside-range": "tick-outside-range",
+    "viewbox-dead-space": "viewbox-dead-space",
 }
 
 # Fixtures that must report NOTHING. clean is the baseline; the other two are
 # the false-positive defences.
-SILENT = ("clean", "rotated-axis-title", "label-beside-wiggle")
+SILENT = ("clean", "rotated-axis-title", "label-beside-wiggle", "viewbox-cropped")
 
 
 def run(name: str, disabled: list[str] | None = None) -> dict:
@@ -134,3 +137,33 @@ def test_an_unavailable_renderer_is_unverified_never_a_pass(tmp_path: Path) -> N
 def test_exit_codes_separate_a_pass_from_a_finding() -> None:
     assert audit_mod.main([str(FIXTURES / "clean.html")]) == audit_mod.EXIT_PASS
     assert audit_mod.main([str(FIXTURES / "label-overlap.html")]) == audit_mod.EXIT_FINDINGS
+
+
+def test_the_suggested_crop_is_actionable_not_advisory() -> None:
+    """A suggestion nobody can apply is a complaint.
+
+    `viewbox-dead-space.html` and `viewbox-cropped.html` are the same figure.
+    The cropped one carries, verbatim, the viewBox the check suggested for the
+    other, and it passes. That is what makes the suggestion worth emitting.
+    """
+    report = run("viewbox-dead-space")
+    finding = next(f for f in report["findings"] if f["check"] == "viewbox-dead-space")
+    assert finding["measurement"]["suggested_viewBox"], "a finding must suggest a crop"
+    assert run("viewbox-cropped")["findings"] == []
+
+
+def test_dead_space_threshold_is_what_decides_the_finding() -> None:
+    """Negative control for the threshold rather than for the check."""
+    assert "viewbox-dead-space" in checks_in(run("viewbox-dead-space"))
+    generous = audit_mod.audit(
+        FIXTURES / "viewbox-dead-space.html",
+        samples=audit_mod.TRACE_SAMPLES,
+        oversize_multiple=3.0,
+        dead_space_fraction=0.95,
+    )
+    assert "viewbox-dead-space" not in {f["check"] for f in generous["findings"]}
+
+
+def test_a_legend_entry_matching_a_drawn_colour_is_not_reported() -> None:
+    """The clean fixture's legend keys both entries to colours the figure draws."""
+    assert "legend-entry-not-drawn" not in checks_in(run("clean"))
