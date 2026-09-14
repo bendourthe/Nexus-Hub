@@ -18,6 +18,48 @@ Remove the recognizable "AI slop" signature from prose while preserving the writ
 
 It runs in two modes. Edit (the default) rewrites with the minimum effective touch and reports what changed. Detect names the patterns without rewriting, so a writer keeps full control of their own draft. In both modes the goal is the same: cut the slop, keep the human.
 
+## Document-specific tells (rendered artifacts)
+
+The named prose patterns above apply to any text. A rendered document carries
+its own tells, and the first two are COUNTABLE rather than judged.
+
+### Gated, because they can be counted
+
+| Tell | How it is counted |
+|---|---|
+| A coloured left-border stripe as the default emphasis device | text blocks carrying only a thick left border, counted across the document |
+| Uniform equal-sized card grids as the answer to every piece of content | multi-column containers whose children are the same size, counted |
+
+Both are gated by `geometric_audit.py` in `[[document-to-interactive-html]]`,
+which reports the COUNT. Using a device once is a choice; using it as the answer
+to everything is the tell. `--tell-threshold` exists because a document that
+genuinely wants eight callouts should be able to say so.
+
+Two narrowings are worth knowing, because both were false positives on real
+output before they were fixed: a bordered `<figure>` is a frame rather than a
+callout, and a vertical list is not a card grid - its items are trivially equal
+in width because they all span the container.
+
+### Attested, because they need an authorship judgement
+
+- Emoji as section markers in a professional document.
+- Heavy em-dash rhythm.
+- Sentences that announce structure instead of delivering content ("This section explores...").
+- Every section carrying exactly three bullets of similar length.
+
+These cannot be counted without deciding what the document is for, so they are
+recorded rather than scored: the build attests that the review happened, and
+`check_attestation.py` fails a missing or empty record. That gates the silence,
+which is the failure mode that matters, without inventing a taste metric.
+
+### New content matches the SURROUNDING document
+
+The strongest tell is not any single pattern; it is a section that reads as
+though it arrived from a different document. Match the conventions already in
+the file - its heading depth, its list style, its density, its voice - rather
+than importing a house style the rest of the document does not use.
+
+
 ## When to Use This Skill
 
 Use this skill when:

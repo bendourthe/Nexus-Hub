@@ -4,6 +4,38 @@ The contract that decides what the artifact must ACCOMPLISH, resolved before aut
 
 Every other reference in this bundle governs how the page is BUILT: how wide a band is, how type scales, how a diagram's arrowheads attach, whether a canvas painted. This one governs whether the page was worth building. That distinction is not academic. A real session (2026-08-13, a VectorCAST decision brief) delivered a page that was offline, responsive, browser-verified, and structurally clean, and was nonetheless the wrong artifact: it critiqued a draft the audience had never seen, estimated a reusable commercial platform when a bounded pilot was requested, and argued against an assumption the reader had already granted. Every existing gate passed, because every existing gate asks whether the page WORKS.
 
+## Cuts and claims are recorded, because neither can be measured
+
+Two attestations, both required, both checked for presence rather than quality.
+
+### What was cut, and why
+
+A generated first draft is typically two to three times longer than the useful
+version. The source project's user asked for reductions repeatedly, which is
+the signal that the draft length was never a decision - it was a default.
+
+The record names what was cut and the reason. An empty entry fails: a build that
+cut nothing has either not looked, or has decided the first draft was already
+right and should say so.
+
+The gate does not judge whether enough was cut. That is not measurable without
+reading for quality, which this catalog forbids. What it prevents is the cut
+never being considered.
+
+### Every claim about code names where it was verified
+
+A claim about how code behaves records the file and the function it was checked
+against, IN THE SAME SESSION that makes the claim.
+
+The source project stated three confident errors about thresholds and
+algorithms, each exposed only because the user happened to ask. A confident
+sentence about code is indistinguishable from a verified one in the finished
+document; the difference exists only in whether anyone opened the file.
+
+"In the same session" is the load-bearing part. A claim verified last week
+against code that has since changed is not verified.
+
+
 ## Part 1: The content brief (Gate A input)
 
 Four fields plus an exclusions list, resolved in the Step 5 intake round alongside the color scheme and coverage depth. INFER each from the request and the extracted source first; ask only when inference is unsafe, and ask in ONE batched clarification rather than several. The batched form is what makes this cheap:

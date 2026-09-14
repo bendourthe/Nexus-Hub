@@ -46,6 +46,8 @@ CHECKS = (
     "legend-entry-not-drawn",
     "tick-outside-range",
     "viewbox-dead-space",
+    "callout-stripe-default",
+    "uniform-card-grid",
 )
 
 # Dead space beyond the ink, as a fraction of the viewBox dimension, before an
@@ -55,6 +57,17 @@ CHECKS = (
 # "0 22 1240 432" left 4.2%. Ten separate requests to remove that space is what
 # makes this worth gating rather than advising.
 DEAD_SPACE_FRACTION = 0.08
+
+# How many times a device may appear before it reads as THE device rather than a
+# choice. These two are the AI tells that are countable in the rendered DOM;
+# everything else on that list needs an authorship judgement and is attested
+# instead, via check_attestation.py.
+#
+# These count a PATTERN, never taste. The finding says "you used this device N
+# times", which is a fact. Whether that is right for the document is the
+# author's call, and --tell-threshold exists so a document that genuinely wants
+# eight callouts can say so.
+TELL_THRESHOLD = 4
 
 # Sampling density along a trace. 240 points resolves a label-sized gap on a
 # full-width panel; the cost is a few milliseconds per path.
@@ -437,6 +450,67 @@ AUDIT = r"""(options) => {
     }
   }
 
+
+  // ---- 10. the coloured left-border stripe as the default emphasis --------
+  // One callout is a choice. Every emphasis being a coloured left border is a
+  // house style nobody chose, and it is the single most recognisable tell in a
+  // generated document.
+  const striped = [];
+  for (const e of document.querySelectorAll("*")) {
+    if (!visible(e)) continue;
+    const cs = getComputedStyle(e);
+    const w = parseFloat(cs.borderLeftWidth) || 0;
+    if (w < 3) continue;
+    if (cs.borderLeftStyle === "none" || cs.borderLeftStyle === "hidden") continue;
+    const c = cs.borderLeftColor;
+    if (!c || /rgba\(0, 0, 0, 0\)/.test(c)) continue;
+    // Only a LEFT border: a full box is a border, not a stripe.
+    const others = ["borderTopWidth", "borderRightWidth", "borderBottomWidth"]
+      .map((k) => parseFloat(cs[k]) || 0);
+    if (others.some((v) => v >= w)) continue;
+    // The tell is a CALLOUT stripe: a text block leaning on a coloured edge for
+    // emphasis. A bordered figure or media container is a frame, not a callout,
+    // and counting those reported eight per handbook on this repository's own
+    // output - every one of them a legitimate figure treatment.
+    if (e.matches("figure, img, svg, video, table")) continue;
+    if (!e.querySelector("p, li, h1, h2, h3, h4") &&
+        ![...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())) continue;
+    striped.push(e);
+  }
+  if (striped.length >= options.tell_threshold) {
+    add("callout-stripe-default", striped[0],
+        {count: striped.length, threshold: options.tell_threshold},
+        `A coloured left-border stripe is used ${striped.length} times; it reads as the default emphasis device rather than a choice`);
+  }
+
+  // ---- 11. the uniform three-card grid ------------------------------------
+  // Three equal cards as the answer to every piece of content. Counted by
+  // shape: a container whose children are the same size, repeated.
+  const uniform = [];
+  for (const container of document.querySelectorAll("*")) {
+    if (!visible(container)) continue;
+    const cs = getComputedStyle(container);
+    if (!/grid|flex/.test(cs.display)) continue;
+    const kids = [...container.children].filter(visible);
+    if (kids.length < 2) continue;
+    const boxes = kids.map(rectOf).filter((r) => r.width && r.height);
+    if (boxes.length !== kids.length) continue;
+    // A CARD GRID puts cards side by side. A vertical list trivially has equal
+    // widths because every item spans the container, so counting those matched
+    // ordered lists inside figures - five per handbook, none of them a grid.
+    const rows = new Set(boxes.map((b) => Math.round(b.top)));
+    const columnsPerRow = boxes.length / rows.size;
+    if (columnsPerRow < 2) continue;
+    const widths = boxes.map((b) => b.width), heights = boxes.map((b) => b.height);
+    const spread = (v) => (Math.max(...v) - Math.min(...v)) / Math.max(...v);
+    if (spread(widths) < 0.02 && spread(heights) < 0.02) uniform.push(container);
+  }
+  if (uniform.length >= options.tell_threshold) {
+    add("uniform-card-grid", uniform[0],
+        {count: uniform.length, threshold: options.tell_threshold},
+        `${uniform.length} uniform equal-sized card grids; the layout is answering every piece of content the same way`);
+  }
+
   return {findings, svg_count: svgs.length};
 }"""
 
@@ -447,6 +521,7 @@ def audit(
     oversize_multiple: float,
     disabled: list[str] | None = None,
     dead_space_fraction: float = DEAD_SPACE_FRACTION,
+    tell_threshold: int = TELL_THRESHOLD,
 ) -> dict[str, Any]:
     """Render the page and run every check. Never claims a pass it cannot prove."""
     report: dict[str, Any] = {
@@ -485,6 +560,7 @@ def audit(
                     "oversize_multiple": oversize_multiple,
                     "disabled": disabled or [],
                     "dead_space_fraction": dead_space_fraction,
+                    "tell_threshold": tell_threshold,
                 },
             )
             browser.close()
@@ -507,6 +583,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="rendered type above this multiple of body size fails")
     parser.add_argument("--dead-space-fraction", type=float, default=DEAD_SPACE_FRACTION,
                         help="dead space beyond the ink before an edge is reported")
+    parser.add_argument("--tell-threshold", type=int, default=TELL_THRESHOLD,
+                        help="repetitions before a device reads as the default")
     parser.add_argument("--disable", action="append", default=[], choices=list(CHECKS),
                         help="skip a check; repeatable, for the negative control")
     parser.add_argument("--out", type=Path, help="write the JSON report here")
@@ -518,7 +596,7 @@ def main(argv: list[str] | None = None) -> int:
         return EXIT_UNVERIFIED
 
     report = audit(args.html, args.samples, args.oversize_multiple, args.disable,
-                   args.dead_space_fraction)
+                   args.dead_space_fraction, args.tell_threshold)
     text = json.dumps(report, indent=2)
     if args.out:
         args.out.write_text(text + "\n", encoding="utf-8", newline="\n")
