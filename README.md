@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.11.0 -->
+<!-- nexus-hub-version: 4.11.2 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 337 skills, 19 commands, 35 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -34,6 +34,22 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.11.2
+
+**Quality is now measured on the render, not asserted from the source.** Nineteen gates fail a build rather than advising one: eleven figure defects measured entirely in screen space, four deck rules measured while each slide is current, and four attestation sections for the decisions no measurement can settle. Every gate fires on a fixture built for it and stays silent on the others, because a check that has never been observed to fail is not evidence.
+
+**Type size is a rendered property.** An SVG multiplies its authored `font-size` by (css width / viewBox width), so a `14px` label in a small viewBox can render at 70px while the source looks ordinary. The font gate enforced floors only and passed that silently; it now enforces ceilings per named role, calibrated against real output.
+
+**The render-and-look loop is mandatory.** A task producing an HTML artifact is incomplete until the agent has rendered it, captured the edited region and inspected the capture. Verification reads computed DOM values rather than re-reading the markup it just wrote, and the agent never asks for a screenshot it can render itself.
+
+**Plans now report their own progress.** `/implement` closes each phase with a table of every phase and its task counts, and `/update release` prints the next plan with its copy-paste command, one tier and effort level, and the per-platform model row.
+
+**Honest limit.** Every gate fires correctly and this repository's own handbooks pass all of them with zero findings. That is not the same as proving a first generated draft survives inspection, and no end-to-end qualification run was attempted. The weaker claim is the one that ships.
+
+**On the version number.** There is no v4.11.1 release; that slot holds a planned but unimplemented plan, so only the slot is skipped. Catalog counts are **337 skills**, 19 commands, 35 hooks, and 23 agents.
 
 ---
 
