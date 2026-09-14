@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Restrained use</title>
+<style>
+  body { margin: 0; font: 16px/1.5 Arial, sans-serif; padding: 16px; }
+  /* The coloured left-border stripe as THE emphasis device: every callout in
+     the document is the same shape, which is the tell. */
+  .callout { border-left: 5px solid #3b82f6; padding: 8px 12px; margin: 12px 0; background: #f4f7fb; }
+  /* Three equal cards as the answer to every piece of content, four times. */
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 12px 0; }
+  .cards > div { background: #f2f2f2; padding: 12px; height: 90px; }
+</style>
+</head>
+<body>
+<p class="callout">One deliberate callout.</p>
+<div class="cards"><div>Alpha</div><div>Beta</div><div>Gamma</div></div>
+</body>
+</html>

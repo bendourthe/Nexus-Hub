@@ -7,7 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [4.11.2] - 2026-09-14
+
+### Added
+
+- **Nineteen rendered-output gates that fail a build rather than advise one.** `geometric_audit.py` measures eleven figure defects entirely in SCREEN space: text outside its SVG viewport, label-versus-label collisions, a label sitting on a plotted trace, a legend entry whose colour nothing draws, two entries sharing a colour, a tick claiming the axis reaches a value the data never does, type rendering above its role ceiling, stroke drift across comparable traces, a `viewBox` carrying dead space, and two countable AI tells. `DECK_INTEGRITY` adds four deck rules measured while each slide is current.
+- **`check_attestation.py`**, the completeness gate for decisions no measurement can settle: every figure classified illustrative or evidential, every evidential series naming the computation behind it, what was cut from the draft and why, every claim about code naming the file and function it was verified against, and the AI-tell review. It checks that a decision was RECORDED, never whether it was a good one.
+- **`catalog/rules/html/visual-self-verification.md`**, binding every HTML artifact this harness produces: render it, capture the edited region, look at the capture. Verification reads computed DOM values rather than re-reading authored source, every programmatic edit asserts its anchor is present and unique first, and captures cap near 1500px because oversized images are silently rejected.
+- **The `rendered-artifact-verified` gate** in `[[quality-gate-definitions]]`, wired into `presentify`, `/update docs` and `/update release`.
+- **`scripts/plan_status.py`**, which prints a plan's phase-by-phase progress table and, after a release, the next plan with its copy-paste `/implement <version> in-full` command, one tier and effort level, and the per-platform model row.
+
+### Changed
+
+- **Type size is gated as a RENDERED property.** The font pass enforced floors only, so text rendering far ABOVE the document scale passed silently - which is how the SVG scaling trap escapes, since an SVG multiplies authored `font-size` by (css width / viewBox width). A `14px` label in a 120-unit viewBox laid out at 600px renders at 70px. Ceilings are calibrated against real output rather than chosen, and a named 17-role inventory replaces the previous four coarse roles for this purpose.
+- **`text-overlap` no longer fires on an opaque out-of-flow layer** drawn over flow content, which is what sticky and fixed are for. Opacity is the whole exemption: a transparent layer still collides.
+
+### Fixed
+
+- **Four transitive dependency advisories** across the three usage-monitor extensions (`@xmldom/xmldom`, `fast-uri`, `js-yaml` high; `qs` moderate). All three declare `dependencies: {}`, so every advisory sat in the build toolchain and was never reachable by a user of the shipped extension. Lockfile-only resolution; all three compile and pass their tests at zero vulnerabilities.
+- **A rendered-geometry assertion that reported `assert False` and nothing else.** It now names the label and the measured value, so an intermittent CI failure can be diagnosed remotely instead of guessed at. This does NOT fix the intermittent failure; it makes the next occurrence actionable.
+
+### Using the changed optional capabilities
+
+This release changes no installer flag, no managed skill, and no new host surface. It adds one MANDATORY gate to commands that already ran.
+
+#### The rendered-artifact gate
+
+- Activation: automatic, no setting. `presentify`, `/update docs` and `/update release` now run `geometric_audit.py` after generating an artifact.
+- Validation: `python catalog/skills/specialized-domains/document-to-interactive-html/scripts/geometric_audit.py <file>` exits 0 on a pass, 1 on findings, 2 when it could not verify.
+- Rollback: `--disable <check>` switches one check off; `--tell-threshold`, `--dead-space-fraction` and `--oversize-multiple` move the thresholds. No project-wide opt-out, because the gate is the feature.
+- Authority: activation grants NO network access, no new credential and no new dependency. The audit reads a local render only. Exit 2 means unverified, never a pass.
+- Docs: `catalog/rules/html/visual-self-verification.md` and the skill's `## Post-generation gate`.
+
+**Honest limit on the quality claim.** Every gate fires correctly on a fixture built for it, and the repository's own handbooks pass all of them with zero findings. That is NOT the same as proving a first generated draft survives inspection, and no end-to-end qualification run was attempted in this cycle. The weaker claim is the one that ships. See the [v4.11 ledger](docs/releases/v4/v4.11/known-gaps.md) for MT-5, which is half closed, and the four tells that rest on an attestation rather than a check.
+
+**On the version number.** There is no v4.11.1 release. That slot holds a planned but unimplemented cache-and-diagram plan, and renumbering this work into it would contradict its own documentation. As with the skipped v4.10.0, only the slot is skipped.
+
+## [4.11.0] - 2026-09-13
 
 ### Added
 
