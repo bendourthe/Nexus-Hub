@@ -2580,6 +2580,7 @@ install_templates() {
 
     # Copy report generator script
     local script_source="$repo_root/scripts/generate_report.py"
+    local script_source="$repo_root/scripts/plan_status.py"
     if [ -f "$script_source" ]; then
         safe_copy "$script_source" "$scripts_dest/generate_report.py" true "[OK] Report generator installed at: $scripts_dest/generate_report.py"
     fi
