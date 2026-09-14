@@ -16,6 +16,15 @@
 - **Status**: open, carried forward.
 
 ## v4.11.2 - adoption-document-and-deck-quality
+### WN-1 - Every release invalidates the distribution handbook
+
+- **Observed three times in two days**: v4.11.0's release PR, the plan_status.py registration (#207), and v4.11.2's release PR. Each time `check_handbooks` failed `validate`, each time the fix was identical, and each time the rebuilt output was BYTE-IDENTICAL.
+- **Cause**: the `distribution` handbook declares `scripts/installer.sh` and `scripts/installer.ps1` as inputs, and every release bumps a version string in both. The gate hashes the builder and the inputs, not just the output, which is what makes "the same sources now describe different code" visible - so this is the gate working as designed, not a defect in it.
+- **Cost**: a mandatory rebuild-and-refresh on every release and on every installer edit, discovered only after CI fails rather than before the PR opens.
+- **Why it is recorded rather than fixed here**: the obvious fix - excluding the installers from the handbook's inputs - would blind the gate to the case it exists for, which is an installer change that really does make the handbook wrong. The version string is the only part that churns without changing meaning, and distinguishing it needs the gate to understand content rather than bytes.
+- **Suggested next step**: have `/update release` rebuild mapped handbooks and refresh their evidence as a step BEFORE the release commit, in the same pass that regenerates `MANIFEST.sha256`. That converts a recurring CI failure into a routine regeneration, without weakening what the gate checks.
+- **Status**: open, carried forward.
+
 
 **Status**: implementation complete, 7 of 7 phases. Nineteen checks across two
 scripts, every one negative-controlled. Reconciled 2026-09-13.
