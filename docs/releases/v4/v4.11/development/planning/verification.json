@@ -1,0 +1,37 @@
+{
+  "date": "2026-09-09",
+  "result": "PASS",
+  "implementation_started": false,
+  "tasks": 25,
+  "completed_tasks": 0,
+  "phases": 6,
+  "completed_phases": 0,
+  "mandatory_final_template_paragraphs_preserved": true,
+  "model_map": "Validated4tiers4providers; rendered by repository model-map helper",
+  "phase_scoring": "All6phases scored by repository helper",
+  "co_location": "python scripts/check_doc_colocation.py exited0",
+  "unicode": "Final scoped strict sanitize exited0; no repairs",
+  "whitespace": "git diff --check for docs/todos.md and v4.11 exited0",
+  "independent_agents": 6,
+  "review_lenses": 7,
+  "resolved_findings": {
+    "P2": 5
+  },
+  "review_limit": "Security and adversarial shared one reviewer; author verified revisions, no second independent pass",
+  "files": {
+    "comparisons/v4.11.0-comparison-cache-and-diagram-quality.md": {
+      "sha256": "6cdffab27a0344cb678adcfdd06772f9a430a86a640e67eb8c5275c9d9348a84"
+    },
+    "plans/v4.11.0-adoption-cache-and-diagram-quality.md": {
+      "sha256": "1978a98fc8e508825a1145f94ed517e5b8f4c341898031dc016af4b81d4f5cf4"
+    },
+    "development/planning/model-map.json": {
+      "sha256": "8cf026e90ee5755703bf4053b578a7aba40514dd99a3b2fa1beb9e901451828d"
+    },
+    "development/planning/plan-review.md": {
+      "sha256": "7950cad73c88032168cf713d91fd4187458e1be9b640cc9a563d7507258c183a"
+    }
+  },
+  "local_links_checked": 19,
+  "markdown": "ASCII and heading spacing pass; list/table/fence layout reviewed"
+}

@@ -70,6 +70,20 @@ function applyState(deck, s, f) {           // authoritative; called on every st
 
 - Fragment reveal effects follow the Phase 3 animation grammar (`references/interactive-features.md`, "Slide-mode animation grammar"): data-bearing motion is entry-triggered or fragment-stepped, never looped.
 
+### 4.1 Choosing n (BINARY)
+
+Section 4 defines how a fragment steps. This defines how its number is chosen, because an unspecified order is not a neutral default: an implementation with no rule falls back to the order it can see, which is element type or DOM position, and that is what produces "every box, then every label, then every arrow" on a diagram.
+
+- **Order derives from the content's own logic** - the order a knowledgeable presenter would reveal it while talking. Write the order down as a manifest of `(n, what this step shows)` before assigning a single attribute; if the manifest cannot be written in plain sentences, the slide has no argument and the fragments are decoration.
+- **Never derive order from element type, tag name, stroke style, or DOM order alone.** Grouping by what an element IS rather than what it MEANS is a defect, not a fallback.
+- **Dependency**: nothing reveals before the thing it acts on. A marker cannot precede the series it sits on; an annotation cannot precede its subject; a connector cannot precede its source.
+- **Flow and process diagrams**: a node and the connector arriving at it share one fragment. The reader follows one path rather than watching a disconnected set of boxes appear.
+- **Comparison figures**: the baseline reveals before the variant it is compared against.
+- **Data figures**: frame and axes, then the data, then derived overlays (thresholds, fits, regions), then the single element the slide concludes on.
+- **Budget**: at most 8 fragments per slide. More than eight discrete states is two slides.
+- **Pace is derived, never chosen**: the per-fragment delay follows from the build budget and the fragment cap, as `(build_budget - lead - last_element_duration) / (max_fragments - 1)`. A step picked independently silently caps how many fragments a slide can carry: a 0.42s step against a 3.2s budget overruns on the seventh fragment, so a figure with seven genuine steps fails a gate it should pass. Derive the constant, and the budget stays a statement about the viewer's wait rather than a limit on the content.
+- **Duplicate n reveals together** (section 4) and is the correct way to say "these arrive as one idea", not a way to evade the budget.
+
 ### Legacy deep links and history
 
 - **Stable ids (BINARY)**: every `.slide-stage` carries `id="slide-<n>"` with `n` its 1-based position. The URL hash tracks the active slide as `#slide-<n>`, updated on every slide change (`history.pushState` on discrete navigation so back/forward walk slide history; fragment steps within a slide do NOT push history entries - they would make the back button re-hide builds one by one, which reads as a broken back button).

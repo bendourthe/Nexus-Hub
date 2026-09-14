@@ -127,6 +127,19 @@ Nothing renders below 12px. The 2026-08-10 defects (unreadable margin notes at 1
 
 SVG text inside a scaled `viewBox` is exempt from these floors, because its declared `font-size` is in user units and the rendered size depends on the SVG's scale factor. The scorer identifies such rules by the presence of a `fill:` declaration in the same block (SVG text is colored with `fill`, HTML text with `color`) and skips them. Diagram label legibility is governed by `references/svg-diagram-quality.md` rule 5 instead, which holds SVG labels to the same 13px secondary floor after scaling the declared size by the render factor.
 
+## 4.1 Slide-mode floors (BINARY)
+
+The floors above are reading-page floors, set for a document at desk distance. A presentation stage is read across a room, and a figure that satisfies every page floor can still be illegible on it. 13px is a correct floor for a caption someone can lean toward; it is not a floor for an axis tick projected in a meeting room.
+
+Slide mode therefore has its own floor, expressed as a share of the stage so it holds at any canvas size rather than assuming one:
+
+- **No rendered text on an active slide stage is smaller than 2% of the stage's height.** On a 900-unit design canvas that is 18 units; on a 1080px stage, 21.6px. Measure the RENDERED size after dividing out the stage's own scale factor, never the authored value.
+- **The floor applies to every text node on the stage**, including axis ticks, legends, table cells, source lines, and text inside an SVG. A figure's internal type is not exempt because it is inside a figure. Use the same effective-size formula section 4 gives for SVG text (`declared_size * rendered_width / viewBox_width`), then hold the result to the stage floor instead of the 13px secondary floor.
+- **At most four distinct rendered text sizes per slide.** A slide carrying six or seven sizes is a page that was moved rather than a slide that was composed.
+- A figure whose authored type satisfies the page floors while its RENDERED type fails the stage floor has been scaled rather than re-laid-out. That is a composition defect, not a typography one; see the re-use rule in `references/figure-reconstruction.md`.
+
+The page floors and the stage floor coexist: the same figure may appear in both views, and it must clear the floor of whichever view is rendering it. A figure that can only clear one of the two has been reused where it should have been recomposed.
+
 ## 5. Emphasis tokens must be visually distinct
 
 An inline token that carries meaning - a command name, a file path, a flag, a key term - must differ from surrounding prose on BOTH axes at once:
