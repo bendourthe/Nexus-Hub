@@ -46,3 +46,7 @@ Retain `docs/releases/v4/v4.12/{plans,development,known-gaps.md,docs-cleanup-rep
 ## Self-classification
 
 This report is Cat 4 active release evidence; it freezes at release close.
+
+## Phase 2 addendum - 2026-09-14
+
+The phase-scoped inventory contains 9 active v4.12 documents. The same helper reference calculation, restricted to Git-indexed sources, completed for the staged tree. New `development/rewrite-backup.md` and `development/history/2026-09-14-phase-2-history-rewrite.md` are Cat 4 active release evidence. No delete, archive, stale-refresh or lifespan-contradiction finding applies to these new records. No file moved. The earlier Phase 1 table remains its dated inventory, not the current total. Detector records are retained beside the Phase 2 mirror as `phase2-docs-inventory.json` and `phase2-docs-refgraph.json`.

@@ -21,7 +21,7 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 
 ### Open Items
 
-None identified in Phase 1. The expected dirty pre-rewrite live scan is the input to Phase 2, not a waived validation gate.
+None identified in Phases 1-2. The expected dirty pre-rewrite live scan is the input to Phase 2, not a waived validation gate; the isolated Phase 2 scan is now clean.
 
 ### Resolved
 
