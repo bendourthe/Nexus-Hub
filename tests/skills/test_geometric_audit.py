@@ -54,7 +54,8 @@ BROKEN = {
 
 # Fixtures that must report NOTHING. clean is the baseline; the other two are
 # the false-positive defences.
-SILENT = ("clean", "rotated-axis-title", "label-beside-wiggle", "viewbox-cropped")
+SILENT = ("clean", "rotated-axis-title", "label-beside-wiggle", "viewbox-cropped",
+          "ai-tells-restrained")
 
 
 def run(name: str, disabled: list[str] | None = None) -> dict:
@@ -167,3 +168,55 @@ def test_dead_space_threshold_is_what_decides_the_finding() -> None:
 def test_a_legend_entry_matching_a_drawn_colour_is_not_reported() -> None:
     """The clean fixture's legend keys both entries to colours the figure draws."""
     assert "legend-entry-not-drawn" not in checks_in(run("clean"))
+
+
+# --- the two countable AI tells ---------------------------------------------
+# These are the only members of the anti-slop list that can be counted in the
+# rendered DOM. The rest need an authorship judgement and are attested instead,
+# through check_attestation.py. Counting a PATTERN is a fact; judging whether
+# the document should have used it is not, which is why the threshold is a flag.
+
+def test_a_device_used_as_the_default_is_reported() -> None:
+    report = run("ai-tells")
+    found = {f["check"]: f["measurement"]["count"] for f in report["findings"]}
+    assert found.get("callout-stripe-default") == 5
+    assert found.get("uniform-card-grid") == 4
+
+
+def test_the_same_devices_used_once_each_are_not_reported() -> None:
+    """Same stylesheet, same devices, restrained use. The count is the tell."""
+    assert run("ai-tells-restrained")["findings"] == []
+
+
+def test_raising_the_threshold_silences_both_tells() -> None:
+    """Negative control: the COUNT is what produces the finding."""
+    assert checks_in(run("ai-tells"))
+    generous = audit_mod.audit(
+        FIXTURES / "ai-tells.html",
+        samples=audit_mod.TRACE_SAMPLES,
+        oversize_multiple=3.0,
+        tell_threshold=99,
+    )
+    reported = {f["check"] for f in generous["findings"]}
+    assert "callout-stripe-default" not in reported
+    assert "uniform-card-grid" not in reported
+
+
+def test_a_bordered_figure_is_a_frame_not_a_callout() -> None:
+    """The narrowing that mattered.
+
+    Counting any thick left border reported eight per handbook on this
+    repository's own output, every one a legitimate figure treatment. The tell
+    is a TEXT block leaning on a coloured edge for emphasis.
+    """
+    assert "callout-stripe-default" not in checks_in(run("clean"))
+
+
+def test_a_vertical_list_is_not_a_card_grid() -> None:
+    """The other narrowing.
+
+    A list's items all span the container, so their widths are trivially equal.
+    Counting those matched ordered lists inside figures - five per handbook,
+    none of them a grid. A card grid puts cards side by side.
+    """
+    assert "uniform-card-grid" not in checks_in(run("clean"))

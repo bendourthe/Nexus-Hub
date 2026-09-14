@@ -5,6 +5,46 @@ The LLM-native method for turning static figure images into faithful interactive
 The protocol has seven parts, run in order: classification, the read-the-figure worksheet, fidelity cross-checks, the confidence gate, map/diagram handling, the model round-trip, and the scanned-page transcription/verification pass.
 
 
+## Every figure declares what KIND of claim it makes
+
+A figure is either ILLUSTRATIVE or EVIDENTIAL, and the difference is what it
+promises the reader. An unclassified figure fails the attestation gate, because
+a reader cannot tell the two apart by looking and will assume the stronger one.
+
+### Illustrative
+
+Carries no measured values. It shows how something works, not what was measured.
+
+**Label the RULE, not the number.** Write "walk-stop threshold: 25% of this
+window's own peak", never "threshold = 4.0". The source project's user asked
+three separate times to remove real-looking values from conceptual plots,
+because a number on a diagram is read as a measurement no matter how the caption
+hedges.
+
+The attestation records that the figure labels the rule rather than a value.
+The gate checks that the attestation is there; it does not read the labels and
+grade them.
+
+### Evidential
+
+Carries values traceable to a real computation. Every series names the
+computation it came from.
+
+**No point, dot or marker comes from a hardcoded list chosen to look right.**
+This is the defect the provenance record exists to make impossible to file
+silently: a series with no computation behind it is a drawing of a plausible
+shape, and it is indistinguishable from data until someone tries to reproduce it.
+
+### A number appearing in both a figure and its prose
+
+Record the single shared source it was derived from. In the source project a
+quoted figure flipped between 4.7 and 27.8 depending only on where a window was
+cut - two derivations of "the same" number, neither wrong in isolation, and no
+way to tell which the prose meant.
+
+One number, one derivation, named once.
+
+
 ## A legend is a promise, and a tick is a claim
 
 Three defects the source project shipped, each of which passed every structural
