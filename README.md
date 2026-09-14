@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.9.0 -->
+<!-- nexus-hub-version: 4.11.2 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 337 skills, 19 commands, 35 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -34,6 +34,44 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.11.2
+
+**Quality is now measured on the render, not asserted from the source.** Nineteen gates fail a build rather than advising one: eleven figure defects measured entirely in screen space, four deck rules measured while each slide is current, and four attestation sections for the decisions no measurement can settle. Every gate fires on a fixture built for it and stays silent on the others, because a check that has never been observed to fail is not evidence.
+
+**Type size is a rendered property.** An SVG multiplies its authored `font-size` by (css width / viewBox width), so a `14px` label in a small viewBox can render at 70px while the source looks ordinary. The font gate enforced floors only and passed that silently; it now enforces ceilings per named role, calibrated against real output.
+
+**The render-and-look loop is mandatory.** A task producing an HTML artifact is incomplete until the agent has rendered it, captured the edited region and inspected the capture. Verification reads computed DOM values rather than re-reading the markup it just wrote, and the agent never asks for a screenshot it can render itself.
+
+**Plans now report their own progress.** `/implement` closes each phase with a table of every phase and its task counts, and `/update release` prints the next plan with its copy-paste command, one tier and effort level, and the per-platform model row.
+
+**Honest limit.** Every gate fires correctly and this repository's own handbooks pass all of them with zero findings. That is not the same as proving a first generated draft survives inspection, and no end-to-end qualification run was attempted. The weaker claim is the one that ships.
+
+**On the version number.** There is no v4.11.1 release; that slot holds a planned but unimplemented plan, so only the slot is skipped. Catalog counts are **337 skills**, 19 commands, 35 hooks, and 23 agents.
+
+---
+
+## What's New in v4.11.0
+
+**Handbooks are now one file that both reads and presents.** `/presentify` and project handbook maintenance produce a single self-contained offline HTML file carrying a complete scrolling reading view AND a title-page presentation mode, built from the same retained sources. Nothing is fetched at view time - fonts, images, charts and the runtime are embedded - so the file works from a `file://` URI with no network. This is a changed default rather than a new flag; opt out with `--presentation no`, which wins over every other option.
+
+**Nine rendered-output gates decide quality by measuring the render, not the source.** Each reads what the browser actually computed: rendered type size against per-role floors, WCAG contrast on composited colour, SVG label-versus-shape collisions, clipped text, invisible brand marks, deformed charts, print-surface contrast, a declared layout property that does not compute, and focus restoration after Escape. Every one fails a purpose-built fixture and stays silent on the others, because a gate never observed to fail is not evidence.
+
+**Contrast now owns legibility and measures what the reader sees.** It composites ink over its backdrop at effective alpha - the element's own `rgba()` alpha times every inherited `opacity` - rather than scoring the declared colour, which had reported 7.46:1 where the screen showed 2.11:1. The net effect is stricter, not looser.
+
+**`check_handbooks.py` keeps living documentation honest**, wired into the `docs` CI group. It hashes sources, BUILDER and output, so editing the builder invalidates a handbook whose sources never changed - the case an input/output hash cannot see. It launches no browser and costs about a second.
+
+**An existing web page is a first-class source.** `extract_content.py` reads `.html`, `.htm` and `.xhtml` through the standard library's `html.parser`, so re-presenting a published page no longer requires recovering its original document. No new dependency.
+
+**Plan-queue continuity.** A comparison, a plan, an implementation phase, and a release each account for the other plans queued around them, so a plan authored against one codebase state is re-validated before executing against a later one. Queue order becomes a reasoned decision rather than an artifact of allocation order.
+
+**The Claude Usage Monitor gained a model-scoped weekly bar**, taking its label from the display name the usage API itself returns, so the label follows the account instead of a hardcoded string. It is omitted entirely when no scoped limit is reported.
+
+**Honest limit on the quality claim.** Each of the three source families - report, presentation, repository - has been independently qualified to pass, and the tooling that judges them is verified and negative-controlled. Delivering all three simultaneously from a single invocation within a bounded repair budget is NOT established: the best sustained result across six qualification rounds and roughly fifteen hours of runtime was two of three. That gate ships recorded as UNMET and carried forward rather than waived. See the [v4.11 ledger](docs/releases/v4/v4.11/known-gaps.md).
+
+**On the version number.** There is no v4.10.0 release. That work - plan-queue continuity, the usage-monitor bar, and a git-trust test fix - was completed and merged but never tagged, so it ships here under v4.11.0 rather than being retrofitted to a number its own documentation never used. Catalog counts are **337 skills**, 19 commands, 35 hooks, and 23 agents.
 
 ---
 

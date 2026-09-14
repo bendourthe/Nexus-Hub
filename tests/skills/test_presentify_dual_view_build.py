@@ -466,12 +466,33 @@ def test_svg_measurements_find_broken_labels_and_preserve_readable_rendered_text
             return {text:node.textContent,inside:points.every(p=>p.x>=v.x&&p.y>=v.y&&p.x<=v.x+v.width&&p.y<=v.y+v.height),font:parseFloat(getComputedStyle(node).fontSize)*Math.hypot(screen.a,screen.b)};
         })"""
         measured = chart.evaluate(probe)
-        assert all(item["font"] >= 18 and item["inside"] for item in measured)
-        assert chart.evaluate("""svg => {
+        # Report WHICH label failed and by how much. This assertion used to be a
+        # bare `assert all(...)`, so a failure on a CI runner said only
+        # `assert False` - and diagnosing it meant guessing at font metrics,
+        # layout width and scale in turn, none of which reproduce on a
+        # developer's own machine. A rendered-geometry gate has to say what it
+        # measured or it cannot be acted on remotely.
+        undersized = [i for i in measured if i["font"] < 18]
+        outside = [i for i in measured if not i["inside"]]
+        assert not undersized, (
+            "rendered text below the 18px floor: "
+            + "; ".join(f"{i['text']!r} at {i['font']:.2f}px" for i in undersized)
+        )
+        assert not outside, (
+            "text outside the chart viewBox: "
+            + "; ".join(repr(i["text"]) for i in outside)
+        )
+        clearance = chart.evaluate("""svg => {
             const title=svg.querySelector('text[transform]').getBoundingClientRect();
-            return [...svg.querySelectorAll('text[text-anchor="end"]')].every(tick =>
-                tick.getBoundingClientRect().left >= title.right + 2);
+            return [...svg.querySelectorAll('text[text-anchor="end"]')].map(tick =>
+                ({text: tick.textContent,
+                  gap: tick.getBoundingClientRect().left - title.right}));
         }""")
+        tight = [c for c in clearance if c["gap"] < 2]
+        assert not tight, (
+            "axis title does not clear its ticks by 2px: "
+            + "; ".join(f"{c['text']!r} gap {c['gap']:.2f}px" for c in tight)
+        )
         rotated = chart.locator("text[transform]")
         rotated.evaluate(
             'node => node.setAttribute("transform", "translate(24 135) rotate(-90)")'

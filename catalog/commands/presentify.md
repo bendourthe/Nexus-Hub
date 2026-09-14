@@ -46,6 +46,30 @@ All paths below are relative to the delegated `document-to-interactive-html` ski
 | Render environment probe | `scripts/ensure_render_env.py` |
 | Structural scorer | `scripts/visual_qa_score.py` |
 | Retained assembly or legacy plain draft | `scripts/build_presentation.py` |
+| Rendered geometry audit | `scripts/geometric_audit.py` |
+| Attestation completeness | `scripts/check_attestation.py` |
+
+## Post-generation gate (mandatory)
+
+Generation is not finished when the file is written. Run the
+`rendered-artifact-verified` gate from `[[quality-gate-definitions]]` against
+the artifact just produced, and treat a finding as a defect to fix rather than a
+note to report:
+
+```
+python <skill>/scripts/geometric_audit.py <output.html>
+python <skill>/scripts/check_attestation.py <attestation.json>
+```
+
+Both exit 0 on a pass, 1 on findings, and 2 when they could not verify. **Exit 2
+is not a pass.** An unavailable renderer means the artifact is unverified, which
+is the state the whole gate exists to make visible.
+
+Then render the artifact and LOOK at the region you produced. The rule is
+`catalog/rules/html/visual-self-verification.md`: a document is a visual
+artifact, its correctness lives in rendered geometry rather than in source text,
+and re-reading the markup you just wrote confirms the markup, not the render.
+Never ask the user for a screenshot you can render yourself.
 
 ## Output
 

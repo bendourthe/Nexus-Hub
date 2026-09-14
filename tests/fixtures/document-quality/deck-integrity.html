@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Deck integrity fixture</title>
+<style>
+  body { margin: 0; font: 16px/1.5 Arial, sans-serif; }
+  /* A deck shows ONE slide at a time. Everything else is display:none, which
+     is precisely why a probe that walks all slides at the end reports them all
+     hidden and produces a false alarm. */
+  [data-dv-slide] { display: none; position: relative; width: 600px; height: 300px; overflow: hidden; }
+  [data-dv-slide][data-dv-current] { display: block; }
+  .fine { padding: 8px; }
+</style>
+</head>
+<body>
+
+<!-- 1. Clean: inside the canvas, visible, and its marker resolves within the slide. -->
+<div data-dv-slide data-dv-current id="s-clean">
+  <p class="fine">All content sits inside the canvas.</p>
+  <svg width="120" height="40">
+    <defs><marker id="s-clean-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6" fill="#333"/></marker></defs>
+    <line x1="4" y1="20" x2="110" y2="20" stroke="#333" stroke-width="2" marker-end="url(#s-clean-arrow)"/>
+  </svg>
+</div>
+
+<!-- 2. Overflow: content beyond the right edge, with nowhere to scroll. -->
+<div data-dv-slide id="s-overflow">
+  <p class="fine" style="position:absolute; left:900px; top:40px">Beyond the right edge.</p>
+</div>
+
+<!-- 3. Fill-mode collision: the element survives the animation window at
+     opacity 0, so it is permanently invisible. This is what a staggering
+     utility filling forwards does when combined with a component animating
+     itself filling backwards. -->
+<div data-dv-slide id="s-invisible">
+  <p class="fine" style="opacity:0">Invisible after the animation window.</p>
+</div>
+
+<!-- 4. A cloned figure whose marker reference escapes the slide: it resolves
+     only against the original still sitting in the document, so it appears to
+     work right up until the original is removed. -->
+<div data-dv-slide id="s-dangling">
+  <svg width="120" height="40">
+    <line x1="4" y1="20" x2="110" y2="20" stroke="#333" stroke-width="2" marker-end="url(#s-clean-arrow)"/>
+  </svg>
+</div>
+
+</body>
+</html>

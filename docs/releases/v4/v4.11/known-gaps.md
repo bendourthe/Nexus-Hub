@@ -1,8 +1,78 @@
 # Known Gaps - v4.11
 
 **Project**: Nexus-Hub
-**Status**: open. Seeded 2026-09-12 by moving the interactive-handbooks ledger out of `v4.9`, where it had been recorded while the plan still carried the v4.11.0 number. The plan was renumbered to v4.11.0 because v4.10.0 was completed and released in parallel; this ledger follows the plan rather than the number it was written under. The v4.9 ledger retains the v4.9.0 security-audit work and the post-v4.8.0 prompting follow-up, which are unrelated and keep their owners.
-**Last updated**: 2026-09-12
+**Status**: open. Seeded 2026-09-12 by moving the interactive-handbooks ledger out of `v4.9`, where it had been recorded while the plan still carried the v4.11.0 number. The plan was renumbered to v4.11.0 on the belief that v4.10.0 had been completed AND released in parallel. The release half of that turned out to be false: at v4.11.0 release time the newest tag was v4.9.0, no v4.10.0 tag or GitHub Release ever existed, and no `## [4.10.0]` changelog section was ever written. The v4.10.0 work was merged but never shipped, so it ships inside v4.11.0 and the 4.10.0 number is skipped rather than retrofitted. This ledger follows the plan rather than the number it was written under. The v4.9 ledger retains the v4.9.0 security-audit work and the post-v4.8.0 prompting follow-up, which are unrelated and keep their owners.
+**Last updated**: 2026-09-13
+
+## Carried into v4.11.0 from earlier cycles - CodeQL backlog
+
+#### SEC-1 - Eight CodeQL alerts newly visible to `main`, five of them high
+
+- **Source**: PR #205 (`develop` -> `main`). CodeQL compares against `main`'s baseline, and `main` had not moved since v4.9.0, so every alert accumulated across the v4.9/v4.10/v4.11 work surfaced at once.
+- **Not from this plan.** None originates in the interactive-handbooks work. Alerts 279-282 come from the v4.10 target-manifest git-trust fix, 278 and 283-284 from the v4.9.0 security-audit work, and 285 is a pre-existing cyclic import.
+- **The five high alerts are `py/overly-permissive-file`, all test-only.** `tests/skills/test_target_manifest.py` (302, 384, 400, 417) chmods temporary fixtures so the code under test can execute them; `tests/skills/test_safe_artifact.py:390` sets `0o640` on a `tmp_path` file because the permission mode is the INPUT the test asserts `atomic_write_bytes` handles correctly. No shipped artifact, credential, or user-facing path is involved.
+- **Deliberately NOT dismissed at release time.** CodeQL is not a required check for `main`, so these never blocked the release. Dismissing five high-severity alerts to clear a red mark during a release is how a real finding gets waved through beside four harmless ones; they are recorded here to be triaged on their own merits instead.
+- **Next step**: triage each of the eight against the `used in tests` / false-positive / real-finding split, in a change that is not a release. Confirm in particular that `test_safe_artifact.py:390` is asserting behaviour rather than masking it.
+- **Status**: open, carried forward.
+
+## v4.11.2 - adoption-document-and-deck-quality
+### WN-1 - Every release invalidates the distribution handbook
+
+- **Observed three times in two days**: v4.11.0's release PR, the plan_status.py registration (#207), and v4.11.2's release PR. Each time `check_handbooks` failed `validate`, each time the fix was identical, and each time the rebuilt output was BYTE-IDENTICAL.
+- **Cause**: the `distribution` handbook declares `scripts/installer.sh` and `scripts/installer.ps1` as inputs, and every release bumps a version string in both. The gate hashes the builder and the inputs, not just the output, which is what makes "the same sources now describe different code" visible - so this is the gate working as designed, not a defect in it.
+- **Cost**: a mandatory rebuild-and-refresh on every release and on every installer edit, discovered only after CI fails rather than before the PR opens.
+- **Why it is recorded rather than fixed here**: the obvious fix - excluding the installers from the handbook's inputs - would blind the gate to the case it exists for, which is an installer change that really does make the handbook wrong. The version string is the only part that churns without changing meaning, and distinguishing it needs the gate to understand content rather than bytes.
+- **Suggested next step**: have `/update release` rebuild mapped handbooks and refresh their evidence as a step BEFORE the release commit, in the same pass that regenerates `MANIFEST.sha256`. That converts a recurring CI failure into a routine regeneration, without weakening what the gate checks.
+- **Status**: open, carried forward.
+
+
+**Status**: implementation complete, 7 of 7 phases. Nineteen checks across two
+scripts, every one negative-controlled. Reconciled 2026-09-13.
+
+### Summary
+
+Six phases built gates; the seventh reconciled them. No check ships that has not
+been observed to fail on a fixture built for it, and no fixture carries more
+than one defect, so an over-broad check cannot hide a missing one beside it.
+
+The repository's own handbooks pass every gate with zero findings, which is the
+result the source project's audit could not reach - its first version produced
+roughly 220 findings on real output and was abandoned.
+
+### MT-5 - PARTIALLY addressed, and the remainder is named
+
+MT-5 was transferred into this plan from v4.11.0 on the expectation that Phase
+5's provenance record would close it. It closes one half.
+
+- **Closed**: a series with no computation behind it now fails `check_attestation.py`. That is the root cause of a fabricated value - a hardcoded list chosen to look right, indistinguishable from data until someone tries to reproduce it.
+- **Still open**: a value that exists only in an intermediate animation frame. The attestation covers what the series IS; it does not observe what a chart displays mid-transition, which would need frame sampling during the animation window rather than after it.
+- **Next step**: sample the rendered series at two or three points inside the animation window and assert every displayed value lies within the source data's range. The per-slide walk added in Phase 4 already establishes the timing discipline this needs.
+- **Status**: open, carried forward, narrowed.
+
+### Deliberately attested rather than gated
+
+Four tells from the source document have no mechanical check and are recorded as
+attestations instead: emoji as section markers, heavy em-dash rhythm, sentences
+that announce structure rather than delivering content, and every section
+carrying exactly three bullets of similar length.
+
+This is a decision, not an omission. Each needs a judgement about what the
+document is FOR, and a check that guessed would be the beauty detector this plan
+forbids. `check_attestation.py` fails a missing or empty `authorship` record, so
+the review cannot be skipped silently - which is the failure mode that matters.
+
+### No pipeline change was required
+
+Recorded because "no change" and "not checked" look identical afterwards. This
+plan added no script under `scripts/` (so neither installer needed an edit),
+three skill-bundled scripts (auto-copied by both installers), and five test
+files already covered by the existing `repo-tests` glob. `check_installer_parity.py`
+passes.
+
+### Carried from earlier cycles, unchanged by this plan
+
+- **SEC-1**: eight CodeQL alerts, five high, all test-only. Untouched here; it belongs to a change that is not a release.
+- **MT-9**: an inert control is still undetected. Needs CDP listener-chain inspection, which no phase of this plan attempted.
 
 ## v4.11.0 - interactive-handbooks-and-presentation-default
 

@@ -9,6 +9,39 @@ overview_l1: "This skill documents technical architecture, design decisions, sys
 
 Document technical architecture, design decisions, system design, and development workflows for developers and technical stakeholders.
 
+## Reordering sections is a cross-surface edit
+
+Moving a section changes four things, and they must change in the SAME pass:
+
+1. the section itself,
+2. the navigation entry pointing at it,
+3. its number, if sections are numbered,
+4. every cross-reference that names it by position ("the previous section", "see section 3").
+
+In the source project a section swap left the navigation in the old order and a
+callout pointing at the wrong section. Both survived many sessions, because each
+surface looked correct when read on its own - the inconsistency exists only
+BETWEEN them.
+
+**Verify in the rendered DOM, not the source.** The navigation order a reader
+sees is the order the DOM produces, which is not necessarily the order the
+source declares.
+
+## Generated regions carry stable fences
+
+Delimit every generated region with a stable BEGIN and END marker, and after
+writing assert that **exactly one of each exists**.
+
+A duplicated BEGIN marker breaks the next removal: the replacement spans from
+the first BEGIN to the first END, leaving the second copy orphaned and
+un-removable by the tool that created it. Asserting the count turns that into a
+failure at write time rather than a puzzle three regenerations later.
+
+A fix patched directly into generated output is reverted by the next
+regeneration from an unedited generator. Generated regions have a single source
+of truth: edit the generator, never its output.
+
+
 ## When to Use This Skill
 
 Use this skill when you need to:

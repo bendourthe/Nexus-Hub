@@ -569,3 +569,86 @@ def test_slide_directory_keeps_its_cap_and_reserves_a_scroll_gutter(output):
         pytest.skip("this fixture puts no directory on a slide")
     assert styles["maxHeight"] == "200px"
     assert "stable" in styles["gutter"]
+
+
+def _inject_style(output, css):
+    """Add a rule to the built handbook without rebuilding it."""
+    output.write_text(
+        output.read_text(encoding="utf-8").replace(
+            "</style>", f"</style><style>{css}</style>", 1
+        ),
+        encoding="utf-8",
+    )
+
+
+def test_type_rendering_above_its_ceiling_fails(output):
+    """The floor gate is one-sided; this is the other side.
+
+    An SVG multiplies its authored font-size by (css width / viewBox width), so
+    a source that looks ordinary can render enormous. Before this ceiling the
+    scaling trap passed silently.
+    """
+    _inject_style(output, "[data-dv-page] p{font-size:60px!important}")
+    result = run(output)
+    assert result["status"] == "fail", "60px body must exceed the 28px body ceiling"
+    assert any("oversized body" in error for error in result["errors"]), result["errors"]
+
+
+def test_the_same_figure_passes_once_its_size_is_inside_the_ceiling(output):
+    """The stability gate: the same document passes when the size is right."""
+    _inject_style(output, "[data-dv-page] p{font-size:20px!important}")
+    result = run(output)
+    assert result["status"] == "pass", result["errors"]
+
+
+def test_raising_the_declared_ceiling_silences_the_finding(output):
+    """Negative control for the ceiling.
+
+    The finding must come from the ceiling and nothing else, so declaring a
+    higher one for that role has to silence exactly this error.
+    """
+    _inject_style(output, "[data-dv-page] p{font-size:60px!important}")
+    assert any("oversized body" in e for e in run(output)["errors"])
+
+    result = run(
+        output,
+        section_ids=["one"],
+        slide_ids=["one"],
+        type_ceilings={"body": 200},
+    )
+    assert not any("oversized body" in e for e in result["errors"]), result["errors"]
+
+
+def test_every_visible_text_node_resolves_to_a_named_role(output):
+    """Role coverage on real output: the structural map must already cover it."""
+    result = run(output)
+    assert not any("unassigned type role" in e for e in result["errors"]), result["errors"]
+
+
+def test_an_unassignable_text_node_fails_with_its_text_and_selector(output):
+    """A node the map cannot classify must fail loudly, not default to body.
+
+    `<span>` directly under a section matches no structural rule, which is the
+    point: silently calling it body would apply the wrong ceiling to it.
+    """
+    output.write_text(
+        output.read_text(encoding="utf-8").replace(
+            "</section>", "<span>orphaned by design</span></section>", 1
+        ),
+        encoding="utf-8",
+    )
+    result = run(output)
+    unassigned = [e for e in result["errors"] if "unassigned type role" in e]
+    assert unassigned, result["errors"]
+    assert "orphaned by design" in unassigned[0]
+
+
+def test_declaring_the_role_silences_the_coverage_finding(output):
+    """Negative control for coverage: an explicit data-type-role resolves it."""
+    marked = '<span data-type-role="annotation">orphaned by design</span>'
+    output.write_text(
+        output.read_text(encoding="utf-8").replace("</section>", marked + "</section>", 1),
+        encoding="utf-8",
+    )
+    result = run(output)
+    assert not any("unassigned type role" in e for e in result["errors"]), result["errors"]
