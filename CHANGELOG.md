@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A maintainer-only commit-attribution checker runs in `make validate` and the existing CI validation profile, rejecting noncanonical author, committer and attribution-trailer identities, including Cursor and older maintainer email forms. An opt-in repository-local commit hook checks pending identities as well as messages. Neither is distributed by the installers. The isolated historical rewrite is repository maintenance; remote publication remains pending explicit approval.
 
+### Fixed
+
+- Target manifests reject directory-entry changes during traversal even when the filesystem modification timestamp stays unchanged. Final validation exposed this existing gap; a timestamp-preserving regression now covers it.
+
 ## [4.11.2] - 2026-09-14
 
 ### Added

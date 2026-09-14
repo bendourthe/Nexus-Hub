@@ -597,6 +597,8 @@ For contributors working *on* Nexus-Hub (not consumers of the installer), the re
 
 The devcontainer is opt-in -- the standard Quick Start above does not require it. It exists for first-touch contributor onboarding and for reproducing the maintainer's environment across machines.
 
+Maintainers can opt into the [repository attribution hook](.githooks/README.md). The normal validation profile also checks full Git history; use a complete clone. This repository-specific policy is not distributed by the installers.
+
 ### Running the checks locally
 
 Validation logic lives in the repository, not in the workflow files, so what CI runs is exactly what you can run:

@@ -588,9 +588,13 @@ def test_walk_error_cannot_return_a_partial_manifest(tree: Path, monkeypatch) ->
     assert "TEST_SECRET_CANARY" not in str(exc.value)
 
 
-def test_a_directory_replaced_during_traversal_invalidates_manifest(tree: Path, monkeypatch) -> None:
+@pytest.mark.parametrize("restore_mtime", [False, True])
+def test_a_directory_replaced_during_traversal_invalidates_manifest(
+    tree: Path, monkeypatch, restore_mtime: bool
+) -> None:
     original = tm.safe.digest_contained_file
     changed = False
+    directory_stamp = tree.stat()
 
     def add_file(*args):
         nonlocal changed
@@ -598,11 +602,14 @@ def test_a_directory_replaced_during_traversal_invalidates_manifest(tree: Path, 
         if not changed:
             changed = True
             (tree / "new.txt").write_text("new")
+            if restore_mtime:
+                os.utime(tree, ns=(directory_stamp.st_atime_ns, directory_stamp.st_mtime_ns))
         return result
 
     monkeypatch.setattr(tm.safe, "digest_contained_file", add_file)
     with pytest.raises(tm.TargetManifestError) as exc:
         tm.build_target_manifest(tree)
+    assert changed
     assert exc.value.code == "directory_changed"
 
 

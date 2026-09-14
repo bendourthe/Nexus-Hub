@@ -54,3 +54,7 @@ The phase-scoped inventory contains 9 active v4.12 documents. The same helper re
 ## Phase 3 addendum - 2026-09-14
 
 The new Phase 3 history is Cat 4 active release evidence in the existing history directory. The proposed decision remains Cat 3 and now passes its required header validator. DEVLOG and todos remain living navigation documents. No movement, deletion or new directory hierarchy is required. The validate-equivalent profile completed its docs checks; the final phase owns the complete architecture audit.
+
+## Phase 4 addendum - 2026-09-14
+
+The process decision moved to `docs/decisions/implemented/process/2026-09-06-sole-contributor-history-rewrite.md` after a copy/hash verification. It records local implementation and explicitly pending remote publication. Historical tables above retain their dated paths. No Markdown link points to the removed source. Final evidence, gap reconciliation and the incomplete independent-review record are active Cat 4 evidence. A copied link in the Phase 1 queue assessment was repaired to the v4.4 source; scoped link validation now passes. Existing deep catalog hierarchies and independently distributed duplicate files are retained with their consumers named in last-phase evidence.

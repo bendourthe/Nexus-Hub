@@ -655,7 +655,7 @@ def _build_target_manifest(
     inode_aliases: dict[tuple[int, int], list[str]] = {}
     total_bytes = 0
     file_count = 0
-    directories: list[tuple[Path, tuple[int, int], int]] = []
+    directories: list[tuple[Path, tuple[int, int], int, frozenset[str]]] = []
     leaves: list[tuple[Path, tuple[int, int, int, int, int, int]]] = []
 
     def leaf_stamp(info: os.stat_result) -> tuple[int, int, int, int, int, int]:
@@ -668,7 +668,9 @@ def _build_target_manifest(
         here = Path(directory)
         safe.assert_no_reparse_in_chain(root, here)
         info = here.lstat()
-        directories.append((here, safe._identity(info), info.st_mtime_ns))
+        directories.append(
+            (here, safe._identity(info), info.st_mtime_ns, frozenset((*subdirectories, *filenames)))
+        )
         depth = len(here.relative_to(root).parts)
         if depth > MAX_DEPTH:
             _reject("depth_exceeded", f"traversal reached depth {depth}")
@@ -773,10 +775,15 @@ def _build_target_manifest(
             if key in normalization_seen and normalization_seen[key] != name:
                 _reject("path_normalization_collision", "index and working tree paths alias")
 
-    for directory, identity, modified in directories:
+    for directory, identity, modified, names in directories:
         safe.assert_no_reparse_in_chain(root, directory)
         after = directory.lstat()
-        if safe._identity(after) != identity or after.st_mtime_ns != modified:
+        # Fast changes can share a filesystem timestamp; bind membership too.
+        if (
+            safe._identity(after) != identity
+            or after.st_mtime_ns != modified
+            or frozenset(os.listdir(directory)) != names
+        ):
             _reject("directory_changed", "target directories changed during traversal")
 
     for leaf, stamp in leaves:

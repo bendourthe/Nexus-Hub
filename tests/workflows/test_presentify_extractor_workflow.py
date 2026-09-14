@@ -45,7 +45,10 @@ def test_detector_owns_the_presentify_path_filter() -> None:
 def test_verify_always_exists_but_heavy_steps_are_conditional() -> None:
     verify = load()["jobs"]["verify"]
     assert verify["needs"] == "detect"
-    assert verify["if"] == "always() && github.event_name == 'pull_request'"
+    assert verify["if"] == (
+        "always() && (github.event_name == 'pull_request' || "
+        "github.event_name == 'workflow_dispatch')"
+    )
     assert verify["steps"]
     detector_gate = verify["steps"][0]
     assert detector_gate["if"] == "needs.detect.result != 'success'"

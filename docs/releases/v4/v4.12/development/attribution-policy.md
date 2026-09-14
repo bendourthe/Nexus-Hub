@@ -24,6 +24,8 @@ Rewrite every non-allowlisted author or committer to the target, after checking 
 
 ## Enforcement and publication
 
-The checker is stdlib-only and maintainer-only. Exit 0 means clean, 1 means attribution findings, and 2 means an incomplete or invalid scan. A missing Git executable, non-repository root, shallow repository, unreadable message or malformed Git output cannot pass. Both requested modes run; one clean input cannot hide findings from the other.
+The checker is stdlib-only and maintainer-only. Exit 0 means clean, 1 means attribution findings, and 2 means an incomplete or invalid scan. A missing Git executable, non-repository root, shallow repository, unreadable message or malformed Git output cannot pass. Every requested operation runs; one clean input cannot hide another operation's findings. The local hook combines pending author/committer validation with message-file validation.
 
 Phase 1 tests synthetic histories and records the expected dirty live scan. Phase 2 rewrites only a separate clone derived from a verified mirror backup. Phase 3 enables the live gate and a repository-local hook. Installers never distribute this checker or hook. Publication requires review of the exact ref set and explicit approval of the force-push, with per-ref expected old SHAs and a tested recovery backup. Local preparation does not authorize rewriting GitHub refs.
+
+The local all-ref scan covers every ref fetched into that repository. Public publication covers captured writable branches and tags; GitHub read-only PR refs remain outside normal push authority. See [the final evidence](last-phase-evidence.md) and [QG-1](../known-gaps.md). This is a declared proof limit, not an exception that silently accepts dirty fetched history.
