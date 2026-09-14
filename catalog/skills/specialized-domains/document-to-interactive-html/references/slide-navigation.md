@@ -81,6 +81,7 @@ Section 4 defines how a fragment steps. This defines how its number is chosen, b
 - **Comparison figures**: the baseline reveals before the variant it is compared against.
 - **Data figures**: frame and axes, then the data, then derived overlays (thresholds, fits, regions), then the single element the slide concludes on.
 - **Budget**: at most 8 fragments per slide. More than eight discrete states is two slides.
+- **Pace is derived, never chosen**: the per-fragment delay follows from the build budget and the fragment cap, as `(build_budget - lead - last_element_duration) / (max_fragments - 1)`. A step picked independently silently caps how many fragments a slide can carry: a 0.42s step against a 3.2s budget overruns on the seventh fragment, so a figure with seven genuine steps fails a gate it should pass. Derive the constant, and the budget stays a statement about the viewer's wait rather than a limit on the content.
 - **Duplicate n reveals together** (section 4) and is the correct way to say "these arrive as one idea", not a way to evade the budget.
 
 ### Legacy deep links and history
