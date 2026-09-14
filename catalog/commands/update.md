@@ -55,6 +55,7 @@ The `docs` scope MUST refresh documentation CONTENT to the repo's current state,
 - **Internal MCP server list**: the README's "internal MCP servers" enumeration matches the `nexus-*` servers actually registered in `catalog/mcp-configs/mcp-servers.json` -- both the COUNT and the NAMES (e.g. when `nexus-context-compressor` was added in v3.2.0 the README still read "3 internal MCP servers").
 - **"What's New" narrative**: the README has a section summarizing the headline features of the release being shipped. Do NOT leave the latest release undocumented -- a release whose only README change is the version/count bump has skipped this step (the exact failure the v3.2.0 release hit).
 - **Removed / renamed surfaces**: no doc still presents a command, skill, flag, or path removed or renamed since the last release as if it were current.
+- **Rendered artifacts pass their gate**: every generated `.html` the docs scope touches passes `geometric_audit.py` (exit 0) and, where the build records one, `check_attestation.py`. Exit 2 is unverified, not a pass. Rule: `catalog/rules/html/visual-self-verification.md`.
 - **Per-version docs structure**: the active version's `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/` tree exists with `plans/` and `comparisons/` subdirs per the `[[docs-layout-refactor]]` Version-directory resolution scheme; create or repair it (and relocate any stray comparison reports into `comparisons/`) if not.
 - **Handbook content against the candidate**: run `[[technical-documentation]]` through `references/handbook-refresh.md` for full docs/documentation scope, including ordinary project documentation requests. Inventory every live handbook HTML recursively, review claims against the actual candidate code, preserve source/output mappings and approved presentation policies, rebuild and verify changed outputs. Explicit README-only or named-document scope stays narrow and is recorded. Missing sources, missing handbooks and missing generators are incomplete, not no-ops. Do not invent `docs/testing/` or `docs/validation/`.
 
@@ -251,6 +252,8 @@ Before stopping for any governance confirmation below, follow the active instruc
 
     Wording that satisfies the no-change form: `changes no opt-in capability`, `no opt-in capability`, `no opt-in surface`, `no applicable opt-in`, or `no optional capability changes`. Detection is marker-based rather than prose-inferring: each surface declares its five elements as labelled lines (`Activation:`, `Validation:`, `Rollback:`, `Authority:`, `Docs:`) or as a Markdown table row, because a checker that guessed at free text would produce confident false passes.
 
+**Rendered-artifact and generated-source gate**: every generated `.html` this release ships passes the `rendered-artifact-verified` gate, which also asserts that generated regions have a single source of truth and that line endings are unchanged from baseline. The procedure and the reasoning behind both live with their owner, `[[document-to-interactive-html]]`; this dispatcher only states that the gate runs.
+
 7. **Unicode-hygiene gate on release artifacts (BLOCKING)**: sanitize what this release actually ships, before it is committed.
 
     ```bash
@@ -266,6 +269,35 @@ Before stopping for any governance confirmation below, follow the active instruc
     - **The one-time historical normalization is already done (v3.16.8).** A changelog is a single file holding both the new entry and all past ones, so file-level scoping cannot spare its history: the gate's first run rewrote 7 non-ASCII dashes in already-released `CHANGELOG.md` sections. That was performed deliberately and once, in the release that introduced this gate, and is recorded in its changelog entry. Every subsequent run is a no-op on history, so a future release seeing a large `CHANGELOG.md` diff from this gate should stop and investigate rather than accept it.
 
 This mirrors the `implement-phase` final-phase gate - `/implement` hands off to `/update release` on a plan's last phase - so the same refactor + known-gaps + CI/CD + platform-contract + installer-parity + prompting-staleness + capability-usage work runs whether the release is reached through `/implement` or invoked directly.
+
+## Next-plan handoff (after the release is published)
+
+A released plan leaves the queue in a state only the repository knows. Close the
+release by printing the handoff so the next session starts with a command rather
+than an investigation:
+
+```bash
+python scripts/plan_status.py --next
+```
+
+It reports the next plan with open tasks AT OR ABOVE the released version, the
+copy-paste `/implement <version> in-full` command, and ONE tier and effort level.
+
+**One recommendation, and it is the maximum rather than the average.** `in-full`
+executes every phase in a single invocation, so the setting must carry the
+HARDEST phase in the plan. A phase-by-phase breakdown would be correct advice
+for a command nobody is running, and the modal value would under-provision the
+phase most likely to need the headroom.
+
+The per-platform rows come from the plan's own dated `## Current model map`. The
+script never invents a model id: an absent or stale map is reported as such,
+because a confidently wrong id is worse than none. Cursor, OpenCode and Copilot
+have no scriptable model switch, so those are set in the picker before starting.
+
+The version floor matters. Plans from shipped cycles keep unticked tasks - some
+predate the checkbox convention, others were closed without anyone ticking them
+- so an unfiltered scan proposes archaeology. The first version of this selector
+offered v3.0.0 while the repository sat at v4.11.0.
 
 ## Release closing output
 
