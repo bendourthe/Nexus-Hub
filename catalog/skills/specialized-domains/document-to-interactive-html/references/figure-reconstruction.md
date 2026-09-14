@@ -4,6 +4,93 @@ The LLM-native method for turning static figure images into faithful interactive
 
 The protocol has seven parts, run in order: classification, the read-the-figure worksheet, fidelity cross-checks, the confidence gate, map/diagram handling, the model round-trip, and the scanned-page transcription/verification pass.
 
+
+## Every figure declares what KIND of claim it makes
+
+A figure is either ILLUSTRATIVE or EVIDENTIAL, and the difference is what it
+promises the reader. An unclassified figure fails the attestation gate, because
+a reader cannot tell the two apart by looking and will assume the stronger one.
+
+### Illustrative
+
+Carries no measured values. It shows how something works, not what was measured.
+
+**Label the RULE, not the number.** Write "walk-stop threshold: 25% of this
+window's own peak", never "threshold = 4.0". The source project's user asked
+three separate times to remove real-looking values from conceptual plots,
+because a number on a diagram is read as a measurement no matter how the caption
+hedges.
+
+The attestation records that the figure labels the rule rather than a value.
+The gate checks that the attestation is there; it does not read the labels and
+grade them.
+
+### Evidential
+
+Carries values traceable to a real computation. Every series names the
+computation it came from.
+
+**No point, dot or marker comes from a hardcoded list chosen to look right.**
+This is the defect the provenance record exists to make impossible to file
+silently: a series with no computation behind it is a drawing of a plausible
+shape, and it is indistinguishable from data until someone tries to reproduce it.
+
+### A number appearing in both a figure and its prose
+
+Record the single shared source it was derived from. In the source project a
+quoted figure flipped between 4.7 and 27.8 depending only on where a window was
+cut - two derivations of "the same" number, neither wrong in isolation, and no
+way to tell which the prose meant.
+
+One number, one derivation, named once.
+
+
+## A legend is a promise, and a tick is a claim
+
+Three defects the source project shipped, each of which passed every structural
+check because none of them is visible in the markup:
+
+- a legend showing filled dots where the figure drew rings;
+- a legend listing an item the plot never draws;
+- a legend dot in a different colour from the figure's dots.
+
+All three tell the reader to look for something that is not there. The reader
+either hunts for missing data or, worse, matches the wrong series to the wrong
+label and reads the figure backwards.
+
+### Rules
+
+1. **Every legend entry corresponds to something actually drawn.** If nothing in the figure paints that colour, the entry is a lie about the data. Gated as `legend-entry-not-drawn`.
+2. **The swatch matches the drawn mark, in colour AND in shape.** A filled swatch for a hollow ring is the same defect as the wrong colour; both break the reader's lookup.
+3. **No two entries share a colour** where the rendering keys legends by colour. Gated as `legend-colour-collision`.
+4. **No tick is emitted outside the data range.** The source project labelled a panel to `1 s` whose data stopped at 0.97 s, inviting the reader to read a value nobody measured. A tick is a claim that the axis reaches that value. Gated as `tick-outside-range`.
+
+### Cropping beats moving
+
+When a figure carries dead space, crop the `viewBox`; do not move the elements.
+
+Cropping changes one attribute and leaves every coordinate untouched, so
+nothing drifts and no annotation detaches from what it points at. Moving
+elements to close a gap edits every coordinate and is how an arrow ends up
+pointing at nothing three revisions later.
+
+Worked examples from the source project, both accepted verbatim:
+
+| Figure | Declared | Content | Cropped to |
+|---|---|---|---|
+| Flowchart | `0 0 1240 470` | y 40 to 436 | `0 22 1240 432` |
+| Gantt chart | `0 0 1240 538` | y 58 to 492 | `0 34 1240 480` |
+
+Gated as `viewbox-dead-space`, which reports the offending edge and emits the
+crop to apply. The suggestion is actionable rather than advisory: the audit's
+own corrected fixture carries the suggested `viewBox` verbatim and passes.
+
+Two related gaps belong to the same family and are checked the same way: the
+recurring gap between an x-axis title and the legend beneath it, and a clamped
+spacing token measured at a realistic width rather than at its minimum, where a
+footer clamp resolved to 72px of dead space at 1600px.
+
+
 ## 1. Classification pass
 
 Render and read EVERY `image` block in the content model (decode its `data_uri`; the agent views the image directly). Assign each a `classification` - one of:

@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/releases/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-09-08 for v4.9.0. The [same-session fourteen-platform sweep](../releases/v4/v4.9/development/qualification/v4.9-platform-verification.md) and release follow-up below record verified surfaces, two corrected discrepancies, and explicit UNVERIFIED limits. The JSON metadata is the authoritative release freshness marker.
+**Last verified**: 2026-09-14 for v4.9.0. The [same-session fourteen-platform sweep](../releases/v4/v4.9/development/qualification/v4.9-platform-verification.md) and release follow-up below record verified surfaces, two corrected discrepancies, and explicit UNVERIFIED limits. The JSON metadata is the authoritative release freshness marker.
 
 ## Invocation-policy emission (v3.20.3)
 

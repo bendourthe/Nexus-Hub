@@ -265,6 +265,72 @@ The pass NEVER resolves density by shrinking body text below its floor, so it co
 
 Observable criterion: a density revision names the variables it changed together, and confirms the rule-4 floors still hold at both measurement points.
 
+## 12. Type size is a RENDERED property, and an SVG multiplies it
+
+Rule 9 classifies text by role for WIDTH. Rule 12 does the same for SIZE, and adds the one multiplication that makes authored size a lie.
+
+### The scaling trap
+
+An SVG scales to its container. Every length inside it, `font-size` included, is multiplied by:
+
+```
+ratio = css width of the <svg> / viewBox width
+```
+
+So two figures both carrying `font-size: 14px` render at different sizes whenever their viewBox widths differ relative to the layout width. The source project measured four families at **1.271, 1.330, 1.125 and 1.188**, which is a spread of roughly 18% between the largest and smallest for identical authored values. Nothing in the source looks wrong. The page shows four different sizes.
+
+This is why a floor-only font gate misses it. Text rendering far ABOVE the document scale passes every floor, and the larger the ratio the more invisible the defect is in the source.
+
+### The derivation
+
+Never author a size directly into an SVG. Derive it:
+
+```
+authored size = target rendered size / that family's measured ratio
+```
+
+**The ratio is MEASURED in the browser at the document's real reading width. It is never estimated, and never taken from a sibling figure.** A ratio read at the wrong width is worse than no ratio, because it produces a number that looks derived.
+
+To measure: render the document at its real reading width, then for each figure family read the `<svg>` element's `getBoundingClientRect().width` and its `viewBox.baseVal.width`, and divide.
+
+### One scale, two implementations
+
+The HTML scale and the SVG scale are not two scales. They are one scale expressed twice, and the RENDERED measurement is the arbiter between them. When they disagree, the SVG is wrong, because the HTML scale is what the reader has been reading down the whole page.
+
+### The named role inventory
+
+Every visible text node belongs to **exactly one** role. A node that resolves to none is a defect, not a default: silently treating it as body applies the wrong ceiling to it.
+
+| Role | Where it appears |
+|---|---|
+| `title` | The document's single `h1`. |
+| `subtitle` | A deck or hero subtitle beneath the title. |
+| `heading-1` | `h2`, the top section heading. |
+| `heading-2` | `h3`. |
+| `heading-3` | `h4` and below. |
+| `lead` | An opening paragraph set larger than body. |
+| `body` | Long-form prose, list items. The default recipient of the measure (rule 9). |
+| `caption` | `figcaption` and figure credits. |
+| `plot-title` | The title inside a figure, not the figure's HTML caption. |
+| `axis-title` | An axis label naming the quantity and unit. |
+| `axis-tick` | Individual tick values. |
+| `legend` | Legend entry labels. |
+| `annotation` | Callouts and labels placed inside a figure. |
+| `annotation-strong` | An annotation carrying the figure's main point. |
+| `table-header` | `th`. |
+| `table-cell` | `td`. |
+| `mono` | Code, keys, identifiers. |
+
+An inline element INHERITS the role of the block containing it: a `<strong>` inside a paragraph is body text, not an orphan. Only a node with nothing role-bearing anywhere above it is unassigned. Reporting inherited cases instead produced 30 findings per handbook on this repository's own output, every one of them legitimate, which buries the one case that matters.
+
+A role the structural map cannot infer is declared with `data-type-role`, which always wins.
+
+### Ceilings, and why they are one-sided no longer
+
+`measure_handbook.py` enforces floors AND ceilings on rendered size per role. The ceilings are calibrated against real output rather than chosen: this repository's handbooks render at most title 68.3px, heading-1 41.0px, body 20.0px, interactive 18.0px, caption 14.0px, and each ceiling sits well above its observed maximum while staying far below what the scaling trap produces. A `14px` label in a 120-unit viewBox laid out at 600px renders at 70px against a 22px `axis-tick` ceiling.
+
+Observable criterion: every visible text node resolves to exactly one named role, and its rendered size sits between that role's floor and its ceiling, measured after `getScreenCTM` scaling rather than read from the source.
+
 ## Verification
 
 - [ ] Every hero title and major section heading has a recorded wrap plan, and no display heading carries an avoidable one-word orphan.
