@@ -1113,6 +1113,43 @@ _SCROLL_TIMELINE_RE = re.compile(r"animation-timeline\s*:\s*scroll\(", re.IGNORE
 _SCRIPT_RE = re.compile(r"<script[^>]*>(.*?)</script>", re.DOTALL | re.IGNORECASE)
 _INFINITE_ANIM_RE = re.compile(r"\binfinite\b", re.IGNORECASE)
 
+# v4.9.2. A figure's build, its type scale, and whether it was recomposed or
+# merely shrunk are all partly decidable from the markup. The authoritative
+# measurement is a render probe (the rendered size after the stage's own scale
+# factor is divided out); these catch the cases that need no browser.
+_SVG_BLOCK_RE = re.compile(r"<svg\b.*?</svg>", re.DOTALL | re.IGNORECASE)
+_SVG_OPEN_RE = re.compile(r"<svg\b[^>]*>", re.IGNORECASE)
+_DEFS_RE = re.compile(r"<defs\b.*?</defs>", re.DOTALL | re.IGNORECASE)
+_DRAWABLE_RE = re.compile(
+    r"<(path|circle|ellipse|rect|line|polyline|polygon|text|image)\b[^>]*>",
+    re.IGNORECASE,
+)
+_FONT_SIZE_RE = re.compile(r"font-size\s*:\s*([0-9.]+)\s*(px|rem|em|pt)", re.IGNORECASE)
+_TRANSFORM_SCALE_RE = re.compile(
+    r"""transform\s*:\s*[^;'"]*\bscale\s*\(""", re.IGNORECASE
+)
+_FULL_BLEED_SVG_RE = re.compile(
+    r"""width\s*:\s*100%[^'"]*height\s*:\s*100%""", re.IGNORECASE
+)
+_VIEWBOX_RE = re.compile(
+    r"""viewBox\s*=\s*['"][^'"]+['"]""", re.IGNORECASE
+)
+
+#: at most this many distinct declared text sizes on one slide
+_MAX_SLIDE_TYPE_SIZES = 4
+
+# A presentation shipped without a record. Detected from the markup rather than
+# from a declaration, because the declaration is the thing that is missing.
+_DECKISH_RE = re.compile(
+    r"""(?:class|id)\s*=\s*["'][^"']*\b(?:slide|deck)""", re.IGNORECASE
+)
+_PRESENTATION_LABEL_RE = re.compile(
+    r"""aria-label\s*=\s*["'][^"']*presentation""", re.IGNORECASE
+)
+
+#: how many deck-ish class/id hits before a page is treated as shipping slides
+_DECKISH_THRESHOLD = 3
+
 # Structural wrappers this mode introduces. A bare generic class here collides
 # with another component the moment two features coexist - the collision that
 # once blanked a hero with zero console errors - so the contract requires the
@@ -1311,6 +1348,25 @@ def check_slide_fragments(html: str) -> dict[str, Any]:
             # Duplicates reveal together by design; report only as context when
             # the sequence is otherwise well-formed.
             continue
+        # Assignment is all-or-nothing within one figure. A figure where some
+        # drawables carry a fragment and some do not leaves the remainder with no
+        # defined build position, so the renderer invents one - which is exactly
+        # the inference section 4.1 exists to forbid.
+        for figure in _SVG_BLOCK_RE.findall(inner):
+            body = _DEFS_RE.sub("", figure)
+            drawables = _DRAWABLE_RE.findall(body)
+            if not drawables:
+                continue
+            carried = sum(
+                1
+                for tag in _DRAWABLE_RE.finditer(body)
+                if "data-fragment" in tag.group(0).lower()
+            )
+            if 0 < carried < len(drawables):
+                problems.append(
+                    f"slide {index}: partial fragment assignment - {carried} of "
+                    f"{len(drawables)} drawables in one figure carry data-fragment"
+                )
     if problems:
         return _finding(
             "slide-fragments", "fail", "structural",
@@ -1319,7 +1375,119 @@ def check_slide_fragments(html: str) -> dict[str, Any]:
         )
     return _finding(
         "slide-fragments", "pass", "structural",
-        "every slide's data-fragment values are positive and contiguous from 1",
+        "every slide's data-fragment values are positive and contiguous from 1, "
+        "and every figure assigns them to all of its drawables or to none",
+    )
+
+
+def check_undeclared_presentation(html: str) -> dict[str, Any]:
+    """A page that SHIPS a presentation must declare one. Runs UNGATED.
+
+    check_slide_record_agreement catches a record claiming slides while the
+    markup lost its attribute. This catches the reverse, and the reverse is the
+    one that actually shipped: five handbooks carrying twenty-slide decks scored
+    a clean pass because the record said nothing, nav_mode() reported scroll, and
+    every slide check skipped. A check that skips a page which HAS the feature is
+    worse than no check, because it reports success.
+
+    Detected from the markup, since the declaration is what is missing: repeated
+    slide/deck class or id hints, or an accessible name announcing a
+    presentation. The threshold keeps a lone carousel named "slider" out of the
+    finding set.
+    """
+    if nav_mode(html) == "slides" or record_nav_mode(html):
+        return _finding(
+            "presentation-declared", "pass", "structural",
+            "presentation mode is declared, so the slide family applies",
+        )
+    deckish = len(_DECKISH_RE.findall(html))
+    labelled = bool(_PRESENTATION_LABEL_RE.search(html))
+    if deckish >= _DECKISH_THRESHOLD or labelled:
+        reasons = []
+        if deckish:
+            reasons.append(f"{deckish} slide/deck class or id hint(s)")
+        if labelled:
+            reasons.append("an accessible name announcing a presentation")
+        return _finding(
+            "presentation-declared", "fail", "structural",
+            "page ships a presentation (" + " and ".join(reasons) + ") but declares "
+            "none, so every slide-mode check would skip a feature that exists; "
+            "add data-nav or a nav field to the design record",
+            "high",
+        )
+    return _finding(
+        "presentation-declared", "pass", "structural",
+        "no presentation markup found and none declared",
+    )
+
+
+def check_slide_type_variety(html: str) -> dict[str, Any]:
+    """At most four distinct declared text sizes on one slide.
+
+    A slide carrying six or seven sizes is a page that was moved rather than a
+    slide that was composed. Only sizes declared WITHIN the slide are counted:
+    inline styles and slide-scoped style blocks, which is where a figure's own
+    typography lives. A size in a page-level stylesheet cannot be attributed to
+    one slide without a browser, and the rendered floor itself is a render probe
+    (references/responsive-typography.md section 4.1).
+    """
+    problems: list[str] = []
+    for index, inner in enumerate(slide_sections(html), start=1):
+        sizes = {
+            f"{float(value):g}{unit.lower()}"
+            for value, unit in _FONT_SIZE_RE.findall(inner)
+        }
+        if len(sizes) > _MAX_SLIDE_TYPE_SIZES:
+            problems.append(
+                f"slide {index}: {len(sizes)} distinct declared text sizes "
+                f"({', '.join(sorted(sizes))})"
+            )
+    if problems:
+        return _finding(
+            "slide-type-variety", "fail", "structural",
+            f"{len(problems)} slide(s) above the {_MAX_SLIDE_TYPE_SIZES}-size limit: "
+            + "; ".join(problems[:3]),
+            "medium",
+        )
+    return _finding(
+        "slide-type-variety", "pass", "structural",
+        f"no slide declares more than {_MAX_SLIDE_TYPE_SIZES} distinct text sizes",
+    )
+
+
+def check_slide_figure_scaled(html: str) -> dict[str, Any]:
+    """No figure on a slide is a uniformly scaled copy of another composition.
+
+    A figure is composed for the box it was drawn for; placing it in a box of a
+    materially different aspect ratio is a new composition, not a resize
+    (references/figure-reconstruction.md section 8). Two signatures are decidable
+    from the markup: a wrapper carrying a scale transform, and an svg with a
+    viewBox stretched to width:100%;height:100%, which letterboxes inside
+    preserveAspectRatio and leaves the drawing sitting in a band.
+    """
+    problems: list[str] = []
+    for index, inner in enumerate(slide_sections(html), start=1):
+        if _TRANSFORM_SCALE_RE.search(inner):
+            problems.append(
+                f"slide {index}: a figure wrapper declares a scale transform, "
+                "which carries the source's proportions and typography with it"
+            )
+        for tag in _SVG_OPEN_RE.findall(inner):
+            if _VIEWBOX_RE.search(tag) and _FULL_BLEED_SVG_RE.search(tag):
+                problems.append(
+                    f"slide {index}: an svg with a viewBox is stretched to "
+                    "width:100%;height:100%, so it letterboxes rather than recomposes"
+                )
+                break
+    if problems:
+        return _finding(
+            "slide-figure-scaled", "fail", "structural",
+            f"{len(problems)} scaled-figure signature(s): " + "; ".join(problems[:3]),
+            "high",
+        )
+    return _finding(
+        "slide-figure-scaled", "pass", "structural",
+        "no slide figure is a uniformly scaled or stretched copy",
     )
 
 
@@ -1731,10 +1899,13 @@ def score_html(
         findings.append(dual_view)
     else:
         findings.append(check_slide_record_agreement(html))
+        findings.append(check_undeclared_presentation(html))
     if not dual_view and nav_mode(html) == "slides":
         findings.append(check_slide_structure(stripped, rules))
         findings.append(check_slide_fit(rules))
         findings.append(check_slide_fragments(stripped))
+        findings.append(check_slide_type_variety(stripped))
+        findings.append(check_slide_figure_scaled(stripped))
         findings.append(check_slide_scroll_keyed(stripped))
         findings.append(check_slide_ambient(html))
         findings.append(check_slide_chrome(stripped))

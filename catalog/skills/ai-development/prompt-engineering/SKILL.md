@@ -83,6 +83,12 @@ Detailed guidance lives in [effort-level-strategy.md](references/effort-level-st
 
 Detailed guidance lives in [opus-4-7-practices.md](references/opus-4-7-practices.md) (load on demand).
 
+## Prompt Audit
+
+A bounded worksheet for removing redundant instructions from an existing prompt without removing the evidence needed to trust the result. Use it when a prompt has accumulated repeated self-checks, stacked emphasis, stale examples, or settings named for a retired API mode. It preserves user requirements, trust boundaries, hard budgets, and observable proof by default, and refuses rather than guesses when a currency-dependent claim cannot be verified.
+
+Detailed guidance lives in [prompt-audit.md](references/prompt-audit.md) (load on demand).
+
 ## Best Practices
 
 - **Be specific, not verbose**: "Return a JSON object with keys: name, age, city" beats "Please provide a structured response in JSON format containing the relevant information"
