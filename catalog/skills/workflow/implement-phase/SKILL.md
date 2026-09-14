@@ -43,6 +43,24 @@ The runbook defines ten stages; the load-bearing ones:
 
 When `is_final_phase` is true, before the release-readiness sub-phases, run the fail-closed last-phase duties - even if the plan predates v3.11.0 and has no explicit "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (detect its absence and run the gate anyway). Each duty writes a section of `<version_dir>/development/last-phase-evidence.md` quoting the proving command or scan: architecture refactor via `[[project-refactor]]` and `[[docs-layout-refactor]]`; known-gaps reconciliation for this version and every other still-open `docs/**/known-gaps.md`; living docs architecture; git-tree hygiene via `python scripts/check_release_preconditions.py --branches --repo-settings` (report only); CI/CD coverage plus installer parity; the Tier 3 `[[functional-verification]]` deep pass; independent Goal-vs-codebase review of the resulting tree; last-phase-only human testing suggestions; full-suite testing. If the repository ships more than one installer, run the declarative parity checker in the same pass as `[[platform-contract-verification]]`; zero or one installer is a silent no-op. A duty is omitted only by recording a known-gap (`QG` or `DF`) with Source phase, Plan reference, Reason, and Suggested next step. The `/update release` handoff is blocked while the evidence file is missing or a deep-pass or Goal-review finding is unresolved without a recorded gap. Keep the five-signal `is_final_phase` detection; never tag or push automatically.
 
+## Close every phase with the progress table
+
+A phase boundary ends with a table, before the closing summary, so a reader can
+see where a multi-session plan actually stands without opening the plan file:
+
+```bash
+python scripts/plan_status.py --plan <plan-file>
+```
+
+It prints the plan name, the target version, and every phase with its status and
+task counts. Emit the table whenever a message closes work on a plan, not only
+at the final phase - the point is that progress is visible continuously rather
+than reconstructed at the end.
+
+The script derives everything from the plan's own headings and checkboxes, so
+the table cannot disagree with the file. Do not hand-write it: a hand-written
+table is a second source of truth that drifts on the first missed tick.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
