@@ -219,15 +219,19 @@ def handoff(plan: Plan) -> str:
         lines += [
             f"**Use {tier} tier at {effort} effort for the whole run.**",
             "",
-            f"`in-full` executes every phase in one invocation, so the setting has "
-            f"to carry the hardest phase rather than the average one. {tier}/{effort} "
-            f"is the maximum this plan asks for anywhere.",
+            (
+                f"`in-full` executes every phase in one invocation, so the setting "
+                f"has to carry the hardest phase rather than the average one. "
+                f"{tier}/{effort} is the maximum this plan asks for anywhere."
+            ),
             "",
         ]
     else:
         lines += [
-            "**Tier and effort: not recorded in this plan.** Assess at "
-            "implementation time and default upward on any uncertainty.",
+            (
+                "**Tier and effort: not recorded in this plan.** Assess at "
+                "implementation time and default upward on any uncertainty."
+            ),
             "",
         ]
 
