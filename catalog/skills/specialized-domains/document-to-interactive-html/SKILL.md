@@ -361,6 +361,24 @@ The skill ships a Tier-3 bundle; load each file on demand rather than inlining i
 - `assets/theme.json` - the default theme tokens the template reads, overridable via `[[theme-tokens]]` / `[[brand-styling]]`.
 - `assets/visual-qa-workflow.js` - the Dynamic-Workflow TEMPLATE (adapt, do not run verbatim) that fans the per-segment visual-QA grading out (grade -> adversarially verify -> synthesize fixes -> re-render), carrying the three mandatory workflow rules (graceful degradation to subagents / a single agent and to the structural scorer; scope-first token caution; skill-native, no outbound call).
 
+## Post-generation gate
+
+Every route that writes an artifact finishes with the same two commands, and a
+finding is a defect to fix rather than a note to pass along:
+
+```
+python scripts/geometric_audit.py <output.html>      # 0 pass, 1 findings, 2 unverified
+python scripts/check_attestation.py <attestation>    # 0 complete, 1 incomplete, 2 unreadable
+```
+
+Exit 2 never counts as a pass. An unavailable renderer means unverified, and
+reporting unverified as success is the failure this whole gate exists to
+prevent.
+
+The rendered-region capture that closes the loop is owned by
+`catalog/rules/html/visual-self-verification.md`, which binds every HTML
+artifact this harness produces rather than this skill alone.
+
 ## Rule ownership
 
 This skill and `[[functional-verification]]` both measure rendered geometry, so
