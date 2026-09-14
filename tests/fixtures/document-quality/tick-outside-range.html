@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Tick outside range</title>
+<style>
+  body { margin: 0; font: 16px/1.5 Arial, sans-serif; }
+  svg { width: 600px; display: block; }
+  text { font-size: 14px; fill: #111; }
+</style></head><body>
+
+<svg viewBox="0 114 600 175">
+  <line data-axis x1="40" y1="260" x2="560" y2="260" stroke="#999" stroke-width="1"/>
+  <path d="M40,240 L300,180 L470,120" fill="none" stroke="#2f6f9f" stroke-width="2"/>
+  <text data-axis-tick data-axis-x x="36" y="280">0.0 s</text>
+  <text data-axis-tick data-axis-x x="290" y="280">0.5 s</text>
+  <text data-axis-tick data-axis-x x="545" y="280">1 s</text>
+</svg>
+</body></html>

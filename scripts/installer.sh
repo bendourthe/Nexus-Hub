@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="4.11.0"
+NEXUS_HUB_VERSION="4.11.2"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -2580,6 +2580,7 @@ install_templates() {
 
     # Copy report generator script
     local script_source="$repo_root/scripts/generate_report.py"
+    local script_source="$repo_root/scripts/plan_status.py"
     if [ -f "$script_source" ]; then
         safe_copy "$script_source" "$scripts_dest/generate_report.py" true "[OK] Report generator installed at: $scripts_dest/generate_report.py"
     fi
