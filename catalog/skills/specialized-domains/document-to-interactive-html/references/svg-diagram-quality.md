@@ -4,6 +4,36 @@ The authoring rules for hand-written inline SVG diagrams, and the checks that ve
 
 Five rules. `scripts/visual_qa_score.py` enforces rules 1, 4, and part of 5 deterministically; rules 2 and 3 are verified by the geometry self-check in rule 5 and graded from screenshots against the criteria stated here.
 
+
+## One colour per signal IDENTITY, not per series
+
+A raw signal, its resampled version, its smoothed version and its derivatives
+are the SAME signal. Giving each a colour tells the reader there are four
+quantities on the panel when there is one, and it exhausts the palette on
+distinctions nobody asked about.
+
+**One colour per identity. Distinguish the variants by dash pattern.** Solid
+for the primary form, dashed for a derived one, dotted for a reference. The
+colour answers "which signal", the dash answers "which form of it".
+
+Two consequences worth stating because they are routinely got wrong:
+
+- **An arrow takes the colour of the label it belongs to.** An annotation and its pointer are one object; colouring the arrow independently makes the reader work out which label it serves.
+- **A secondary trace is drawn UNDER the primary one, thinner and at lower opacity.** Equal weight means the reader cannot tell which line the figure is about. Draw order is part of the message.
+
+## Stroke width is consistent across comparable traces
+
+Comparable means stroked marks carrying data inside one figure. When they
+disagree, the reader reads the thicker line as more important, which is a claim
+the figure did not intend to make.
+
+Gated as `stroke-drift`: the audit groups comparable marks, takes the dominant
+width, and reports every mark that differs from it. A deliberate weight
+difference between a primary and a secondary trace is expressed through the
+primary/secondary rule above, which the gate reads as intent rather than drift
+because the secondary also carries lower opacity.
+
+
 ## 1. Arrowheads are `<marker>` elements
 
 An arrowhead is declared once as a `<marker>` in `<defs>` and attached with `marker-end` (or `marker-start` / `marker-mid`). It is never a separate hand-placed triangle path.

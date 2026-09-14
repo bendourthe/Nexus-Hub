@@ -144,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "4.9.0"
+$script:NexusHubVersion = "4.11.2"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2739,6 +2739,7 @@ function Install-Templates {
 
     # Copy report generator script
     $scriptSource = Join-Path $RepoRoot "scripts\generate_report.py"
+    $scriptSource = Join-Path $RepoRoot "scripts\plan_status.py"
     if (Test-Path $scriptSource) {
         Safe-Copy -Source $scriptSource -Destination (Join-Path $scriptsDest "generate_report.py") -Confirm:$true -CustomMessage "✓ Report generator installed at: $scriptsDest\generate_report.py"
     }

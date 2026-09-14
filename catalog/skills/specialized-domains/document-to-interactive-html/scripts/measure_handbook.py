@@ -29,9 +29,41 @@ VIEWPORTS = [
 # A larger heading floor may be declared by the visual brief; it is not universal.
 FONT_FLOORS = {"heading": 16, "body": 16, "label": 13, "interactive": 12}
 
+# Ceilings on RENDERED size, per named role. The floor gate above is one-sided,
+# so text rendering far ABOVE the document scale passed silently - which is
+# exactly how the SVG scaling trap escapes: an SVG multiplies its authored
+# font-size by (css width / viewBox width), so `font-size:14px` in a 120-unit
+# viewBox laid out at 600px renders at 70px while the source looks ordinary.
+#
+# These are calibrated against real output rather than guessed. The repository's
+# own handbooks render at most: title 68.3, heading-1 41.0, body 20.0,
+# interactive 18.0, caption 14.0. Each ceiling sits well above its observed
+# maximum so legitimate design has room, and far below what the scaling trap
+# produces.
+TYPE_CEILINGS = {
+    "title": 96,
+    "subtitle": 56,
+    "heading-1": 56,
+    "heading-2": 44,
+    "heading-3": 36,
+    "lead": 32,
+    "body": 28,
+    "caption": 22,
+    "plot-title": 32,
+    "axis-title": 26,
+    "axis-tick": 22,
+    "legend": 22,
+    "annotation": 26,
+    "annotation-strong": 30,
+    "table-header": 24,
+    "table-cell": 24,
+    "mono": 24,
+    "interactive": 28,
+}
+
 MEASURE = r"""(root) => {
  const visible = e => e.checkVisibility({checkOpacity:true,checkVisibilityCSS:true});
- const fonts=[], figures=[], clipped=[], contrast=[], overlaps=[], brand=[], deformed=[], faded=[];
+ const fonts=[], figures=[], clipped=[], contrast=[], overlaps=[], brand=[], deformed=[], faded=[], unroled=[];
  // Contrast is measured on RENDERED computed colors, never by pairing token
  // names. A block that redefines a custom property inside the same rule that
  // consumes it resolves at computed-value time, so a name-pairing check reads
@@ -49,6 +81,31 @@ MEASURE = r"""(root) => {
    const c=rgb(getComputedStyle(document.body).backgroundColor);
    return (c && c[3]===1) ? c : [255,255,255];
  };
+ const resolveTypeRole=(e)=>{
+     const declared=e.closest('[data-type-role]');
+     if(declared) return declared.getAttribute('data-type-role');
+     if(e.matches('code,pre,kbd,samp,.mono')||e.closest('code,pre')) return 'mono';
+     if(e.matches('th')) return 'table-header';
+     if(e.matches('td')) return 'table-cell';
+     if(e.matches('figcaption')) return 'caption';
+     if(e.matches('h1')) return 'title';
+     if(e.matches('h2')) return 'heading-1';
+     if(e.matches('h3')) return 'heading-2';
+     if(e.matches('h4,h5,h6')) return 'heading-3';
+     if(e.matches('[data-subtitle],.subtitle')) return 'subtitle';
+     if(e.matches('[data-lead],.lead')) return 'lead';
+     if(e instanceof SVGElement) {
+       if(e.closest('.dv-legend,[data-dv-legend],.legend')) return 'legend';
+       if(e.matches('[data-plot-title],.plot-title')) return 'plot-title';
+       if(e.matches('[data-axis-title],.axis-title')) return 'axis-title';
+       if(e.matches('[data-axis-tick],.axis-tick,.tick text')) return 'axis-tick';
+       if(e.matches('[data-annotation-strong],.annotation-strong')) return 'annotation-strong';
+       return 'annotation';
+     }
+     if(e.matches('button,a,input,select,textarea,label')) return 'interactive';
+     if(e.matches('p,li')) return 'body';
+     return null;
+ };
  for(const e of root.querySelectorAll('h1,h2,h3,p,li,td,th,figcaption,svg text,label,button,a,input,select,textarea')) {
    if(!visible(e)) continue;
    const css=getComputedStyle(e); let scale=1;
@@ -61,8 +118,15 @@ MEASURE = r"""(root) => {
      }
    }
    const role=e.matches('h1,h2,h3')?'heading':e.matches('button,a,input,select,textarea')?'interactive':e.matches('svg text,figcaption,label')?'label':'body';
+   // The NAMED role, from responsive-typography.md section 12. This is separate
+   // from the coarse `role` above, which the floor gate has always used: floors
+   // and ceilings ask different questions, and merging them would change what
+   // the floor gate measures. An explicit data-type-role always wins, so a
+   // document can name a role the structural map cannot infer.
+   const typeRole=resolveTypeRole(e);
    const px=parseFloat(css.fontSize)*scale;
-   fonts.push({role,px,text:e.textContent.trim().slice(0,60)});
+   fonts.push({role,typeRole,px,text:e.textContent.trim().slice(0,60),
+               selector:e.tagName.toLowerCase()+(e.id?('#'+e.id):'')});
    const label=e.textContent.trim();
    if(label) {
      const ink=rgb(e instanceof SVGElement ? (css.fill!=='none'?css.fill:css.color) : css.color);
@@ -181,7 +245,33 @@ MEASURE = r"""(root) => {
      text:e.textContent.trim().slice(0,50)});
  }
  const b=root.getBoundingClientRect();
- return {fonts,figures,clipped,contrast,overlaps,brand,deformed,faded,width:root.clientWidth,scrollWidth:root.scrollWidth,
+ // Role COVERAGE walks every element that owns visible text of its own, which
+ // is a wider set than the floor gate's fixed selector list. That list contains
+ // only elements the role map already resolves, so a coverage check driven from
+ // it could never report anything - a gate that cannot fail is not a gate. A
+ // bare <span> carrying prose is exactly the case worth catching, because
+ // silently treating it as body would apply the wrong ceiling to it.
+ for(const e of root.querySelectorAll('*')) {
+   if(!visible(e)) continue;
+   if(e.closest('script,style,noscript,template')) continue;
+   const own=[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim());
+   if(!own) continue;
+   // An inline element INHERITS the role of the block it sits in: a <strong>
+   // inside a paragraph is body text, not an orphan. Reporting it would bury
+   // the real case - 30 per handbook on the repository's own output, all of
+   // them legitimate. Only a node with nothing role-bearing anywhere above it
+   // is genuinely unassigned.
+   let inherited=null;
+   for(let a=e;a&&a!==root.parentElement;a=a.parentElement) {
+     inherited=resolveTypeRole(a);
+     if(inherited!==null) break;
+   }
+   if(inherited===null) {
+     unroled.push({selector:e.tagName.toLowerCase()+(e.id?('#'+e.id):''),
+                   text:e.textContent.trim().slice(0,60)});
+   }
+ }
+ return {fonts,figures,clipped,contrast,overlaps,brand,deformed,faded,unroled,width:root.clientWidth,scrollWidth:root.scrollWidth,
    height:root.clientHeight,scrollHeight:root.scrollHeight,visible:visible(root),
    theme:root.getAttribute('data-theme'),bounds:{x:b.x,y:b.y,width:b.width,height:b.height}};
 }"""
@@ -270,6 +360,103 @@ DECLARED_POSITION = r"""() => {
  }
  return out;
 }"""
+
+# Deck integrity, evaluated against ONE slide while that slide is current.
+#
+# The "while current" part is the whole contract. A probe that walks every slide
+# at the end reports all of them hidden, because only the current slide is
+# displayed - that produced a false alarm in the source project and cost a round
+# of investigation into a defect that did not exist. The caller runs this inside
+# the existing per-slide loop, after the animation window has closed.
+#
+# Three defects, none of which is visible in markup review:
+#
+#  - A slide that overflows the fixed canvas. There is nowhere to scroll on a
+#    slide, so overflow is content the reader can never reach.
+#  - An element left permanently invisible by a fill-mode collision. Combining a
+#    staggering utility that sets opacity:0 filling FORWARDS with a component
+#    that animates itself filling BACKWARDS left four tiles invisible in the
+#    source project. Undetectable by reading the CSS; trivial to measure once
+#    the animations have finished.
+#  - A dangling reference in a cloned figure. Slides clone the document's
+#    figures, and a clone whose url(#x) still points at the original appears to
+#    work only while the original is in the document to resolve against.
+DECK_INTEGRITY = r"""(slide) => {
+ const findings = [];
+ const round = (n) => Math.round(n * 100) / 100;
+ const name = (e) => e.tagName.toLowerCase() + (e.id ? ('#' + e.id) : '');
+
+ // ---- canvas fit ---------------------------------------------------------
+ const frame = slide.getBoundingClientRect();
+ for (const child of slide.querySelectorAll('*')) {
+   const cs = getComputedStyle(child);
+   if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+   if (cs.position === 'fixed') continue;
+   const r = child.getBoundingClientRect();
+   if (!r.width && !r.height) continue;
+   const overX = Math.max(frame.left - r.left, r.right - frame.right);
+   const overY = Math.max(frame.top - r.top, r.bottom - frame.bottom);
+   const worst = Math.max(overX, overY);
+   if (worst > 2) {
+     findings.push({rule: 'slide-overflow', selector: name(child),
+       overflow_px: round(worst), axis: overX >= overY ? 'x' : 'y',
+       text: (child.textContent || '').trim().slice(0, 40)});
+     break;   // one report per slide; the first is enough to act on
+   }
+ }
+
+ // ---- an element left invisible after the animation window ----------------
+ for (const e of slide.querySelectorAll('*')) {
+   const own = [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
+   const paints = own || e.tagName === 'IMG' || e.tagName === 'svg';
+   if (!paints) continue;
+   if (e.closest('[aria-hidden="true"],[hidden]')) continue;
+   const cs = getComputedStyle(e);
+   if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+   let effective = 1;
+   for (let a = e; a && a !== document.documentElement; a = a.parentElement) {
+     effective *= parseFloat(getComputedStyle(a).opacity || '1');
+     if (a === slide) break;
+   }
+   if (effective < 0.05) {
+     findings.push({rule: 'invisible-after-animation', selector: name(e),
+       effective_opacity: round(effective),
+       text: (e.textContent || '').trim().slice(0, 40)});
+   }
+ }
+
+ // ---- a cloned figure whose references do not resolve ---------------------
+ const scope = slide.querySelectorAll('[data-dv-clone], svg');
+ for (const holder of scope) {
+   if (holder.matches('[data-dv-clone]') && !holder.children.length) {
+     findings.push({rule: 'empty-clone-holder', selector: name(holder)});
+     continue;
+   }
+   for (const node of holder.querySelectorAll('*')) {
+     const refs = [];
+     for (const attr of node.getAttributeNames()) {
+       const v = node.getAttribute(attr);
+       if (!v) continue;
+       const m = /^url\(["']?#([^"')]+)["']?\)$/.exec(v.trim());
+       if (m) refs.push(m[1]);
+       else if (attr === 'href' || attr === 'xlink:href') {
+         if (v.startsWith('#')) refs.push(v.slice(1));
+       }
+     }
+     for (const id of refs) {
+       // Resolve WITHIN the slide first: a clone that resolves only against the
+       // original is the exact defect, and it looks fine until the original goes.
+       if (!slide.querySelector('[id="' + CSS.escape(id) + '"]')) {
+         findings.push({rule: 'clone-reference-escapes-slide', selector: name(node),
+           reference: id,
+           resolves_in_document: !!document.getElementById(id)});
+       }
+     }
+   }
+ }
+ return findings;
+}"""
+
 
 def measure(
     html: Path,
@@ -439,6 +626,23 @@ def measure(
                                     report["errors"].append(
                                         f"{identity}: undersized {font['role']}: {font['px']:.2f}px"
                                     )
+                                # The other side of the same gate.
+                                named = font.get("typeRole")
+                                if named is not None:
+                                    ceiling = inventory.get("type_ceilings", {}).get(
+                                        named, TYPE_CEILINGS.get(named)
+                                    )
+                                    if ceiling and font["px"] > ceiling + 0.1:
+                                        report["errors"].append(
+                                            f"{identity}: oversized {named}: "
+                                            f"{font['px']:.2f}px above the "
+                                            f"{ceiling}px ceiling -- {font['text']!r}"
+                                        )
+                            for node in values.get("unroled", []):
+                                report["errors"].append(
+                                    f"{identity}: unassigned type role on "
+                                    f"{node['selector']} -- {node['text']!r}"
+                                )
                             found = page.evaluate(
                                 detector._DETECTOR_JS,
                                 {
@@ -452,6 +656,18 @@ def measure(
                                     "linkedStylesheets": [],
                                 },
                             )
+                            if view == "presentation" and state == "final":
+                                # While THIS slide is current, and only now:
+                                # the animations have finished, so opacity is
+                                # what the reader will actually see.
+                                for hit in page.evaluate(
+                                    DECK_INTEGRITY, item.element_handle()
+                                ):
+                                    report["errors"].append(
+                                        f"{identity}: {hit['rule']} on "
+                                        f"{hit['selector']}"
+                                        + (f" -- {hit['text']!r}" if hit.get("text") else "")
+                                    )
                             row["detector_findings"] = found["findings"]
                             report["errors"].extend(
                                 f"{identity}: {f['rule']}"
