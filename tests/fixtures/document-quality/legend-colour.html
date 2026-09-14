@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Legend colour collision</title>
+<style>
+  body { margin: 0; font: 16px/1.5 Arial, sans-serif; }
+  svg { width: 600px; display: block; }
+  text { font-size: 14px; fill: #111; }
+</style></head><body>
+
+<svg viewBox="0 0 600 300">
+  <path d="M40,260 L560,90" fill="none" stroke="#2f6f9f" stroke-width="2"/>
+</svg>
+<div class="dv-legend">
+  <button data-legend-entry><svg width="10" height="10"><rect width="10" height="10" fill="#2f6f9f"/></svg>Primary</button>
+  <button data-legend-entry><svg width="10" height="10"><rect width="10" height="10" fill="#2f6f9f"/></svg>Secondary</button>
+</div>
+</body></html>
