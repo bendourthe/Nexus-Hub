@@ -1,0 +1,388 @@
+{
+  "status": "pass",
+  "checks": 30,
+  "interpreter": "Host Python 3.12, invoked by its verified absolute executable path",
+  "raw_receipt_sha256": "c1a94e9ada5a15b94d3a5b16a19bd09c9f1f3694088c9c6f637472747bb68c81",
+  "scope": "Shared chart-title, branding and semantic-motion guidance; accepted report and retained repository/presentation failures; no paid model calls or remote CI",
+  "results": [
+    {
+      "name": "validate_skills-bundles-only",
+      "command": [
+        "python",
+        "scripts/validate_skills.py",
+        "--bundles-only"
+      ],
+      "exit_code": 0,
+      "seconds": 0.94,
+      "tail": [
+        "Scanned 336 skills under catalog\\skills (bundle audit)",
+        "",
+        "RESULT: PASS (0 errors, 64 warnings)"
+      ]
+    },
+    {
+      "name": "check_agentskills_conformance",
+      "command": [
+        "python",
+        "scripts/check_agentskills_conformance.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.23,
+      "tail": [
+        "INFO: extra top-level keys beyond the agentskills.io recognized set (permitted): atlas_techniques, attribution, author, category, d3fend_techniques, language, languages, long_description, mitre_attack, mitre_f3, nist_ai_rmf, nist_csf, overview_l1, owasp_agentic, priority, summary_l0, tags, tools_required, version",
+        "INFO: grandfathered over-1024-character descriptions (12): deepseek-harness, mcp-builder, cross-artifact-analyzer, agentic-endpoint-hardening, continuous-learning, product-strategy, project-constitution, session-query, skill-create, skill-eval-loop, skill-stocktake, tasks-to-issues",
+        "RESULT: PASS (0 errors, 336 skills scanned)"
+      ]
+    },
+    {
+      "name": "build_framework_coverage-check",
+      "command": [
+        "python",
+        "scripts/build_framework_coverage.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.34,
+      "tail": [
+        "OK: framework coverage in sync (docs/framework-coverage.md, docs/attack-navigator-layer.json)"
+      ]
+    },
+    {
+      "name": "validate_skills-quality",
+      "command": [
+        "python",
+        "scripts/validate_skills.py",
+        "--quality"
+      ],
+      "exit_code": 0,
+      "seconds": 0.45,
+      "tail": [
+        "Scanned 336 skills under catalog\\skills (quality heuristics)",
+        "",
+        "RESULT: PASS (0 errors, 29 warnings)"
+      ]
+    },
+    {
+      "name": "run_trigger_evals-gate",
+      "command": [
+        "python",
+        "scripts/run_trigger_evals.py",
+        "--gate"
+      ],
+      "exit_code": 0,
+      "seconds": 0.52,
+      "tail": [
+        "  WARN: 248/336 skills have no trigger-cases.json (incremental coverage; never fails the gate)",
+        "",
+        "RESULT: PASS (0 un-allowlisted collisions, 37 allowlisted; 0 routing failures across 88 skill(s) with cases)"
+      ]
+    },
+    {
+      "name": "validate_permission_baseline",
+      "command": [
+        "python",
+        "scripts/validate_permission_baseline.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.22,
+      "tail": [
+        "  claude-permissions.json OK (glob matcher)",
+        "  gemini-permissions.json OK (prefix matcher)",
+        "Permission baseline is read-only at the side-effect level."
+      ]
+    },
+    {
+      "name": "check_installer_parity",
+      "command": [
+        "python",
+        "scripts/check_installer_parity.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.3,
+      "tail": [
+        "installer parity: PASS"
+      ]
+    },
+    {
+      "name": "validate_no_personal_paths",
+      "command": [
+        "python",
+        "scripts/validate_no_personal_paths.py"
+      ],
+      "exit_code": 0,
+      "seconds": 14.8,
+      "tail": []
+    },
+    {
+      "name": "validate_unicode_safety-strict",
+      "command": [
+        "python",
+        "scripts/validate_unicode_safety.py",
+        "--strict"
+      ],
+      "exit_code": 0,
+      "seconds": 14.69,
+      "tail": []
+    },
+    {
+      "name": "scan_supply_chain_iocs",
+      "command": [
+        "python",
+        "scripts/scan_supply_chain_iocs.py"
+      ],
+      "exit_code": 0,
+      "seconds": 9.06,
+      "tail": []
+    },
+    {
+      "name": "validate_workflow_security",
+      "command": [
+        "python",
+        "scripts/validate_workflow_security.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.42,
+      "tail": []
+    },
+    {
+      "name": "check_required_check_coverage",
+      "command": [
+        "python",
+        "scripts/check_required_check_coverage.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.17,
+      "tail": [
+        "Required-check coverage: OK -- 10 declared context(s) across 2 branch(es), every one produced unconditionally."
+      ]
+    },
+    {
+      "name": "check_doc_colocation",
+      "command": [
+        "python",
+        "scripts/check_doc_colocation.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.3,
+      "tail": [
+        "Enforcing co-location under every major: docs/releases/v3, docs/releases/v4 (docs/archives/** and docs/archive/** grandfathered)",
+        "OK: no comparison / adoption-plan co-location mismatches under docs/releases/v3, docs/releases/v4"
+      ]
+    },
+    {
+      "name": "validate_solution_frontmatter",
+      "command": [
+        "python",
+        "scripts/validate_solution_frontmatter.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.12,
+      "tail": []
+    },
+    {
+      "name": "check_incident_notes",
+      "command": [
+        "python",
+        "scripts/check_incident_notes.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.11,
+      "tail": [
+        "  OK powershell-sibling-parse-error-20260709.md",
+        "  OK provenance-ledger-sibling-divergence-20260722.md",
+        "  2 incident note(s) OK"
+      ]
+    },
+    {
+      "name": "check_docs_retention",
+      "command": [
+        "python",
+        "scripts/check_docs_retention.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.16,
+      "tail": [
+        "  docs retention: 1 version(s) due for archival (current v4.9, threshold 2 minors). Advisory only; see docs/policy/docs-retention.md",
+        "  WARN: docs/releases/v4/v4.7/development/history (8 file(s)) -> docs/archives/v4/v4.7/development/history/",
+        "  Run the archive pass via /update refactor or the docs-layout-refactor skill."
+      ]
+    },
+    {
+      "name": "validate_doc_budgets",
+      "command": [
+        "python",
+        "scripts/validate_doc_budgets.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.11,
+      "tail": [
+        "  8 budgeted doc(s) within ceiling"
+      ]
+    },
+    {
+      "name": "check_memory_integration_budget",
+      "command": [
+        "python",
+        "scripts/check_memory_integration_budget.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.58,
+      "tail": [
+        "OK   <implementation-root>/docs/policy/memory-integration-prose.md: 222 tokens (tiktoken) / 500"
+      ]
+    },
+    {
+      "name": "validate_decision_records",
+      "command": [
+        "python",
+        "scripts/validate_decision_records.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.14,
+      "tail": [
+        "  39 decision record(s) OK"
+      ]
+    },
+    {
+      "name": "check_registry_entries-strict",
+      "command": [
+        "python",
+        "scripts/check_registry_entries.py",
+        "--check",
+        "--strict"
+      ],
+      "exit_code": 0,
+      "seconds": 0.25,
+      "tail": [
+        "  registry entries: structure and reachability agree with the catalog"
+      ]
+    },
+    {
+      "name": "check_version_sync",
+      "command": [
+        "python",
+        "scripts/check_version_sync.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.14,
+      "tail": [
+        "  [      match] CHANGELOG.md: matches 4.9.0",
+        "  [      match] README.md: matches 4.9.0",
+        "  [      match] AGENTS.md: matches 4.9.0"
+      ]
+    },
+    {
+      "name": "check_no_outbound",
+      "command": [
+        "python",
+        "scripts/check_no_outbound.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.27,
+      "tail": [
+        "check_no_outbound: OK (<implementation-root>/extensions/nexus-context-compressor)"
+      ]
+    },
+    {
+      "name": "check_docs_conventions",
+      "command": [
+        "python",
+        "scripts/check_docs_conventions.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.89,
+      "tail": [
+        "OK: docs conventions hold under <implementation-root>\\docs\\releases\\v4\\v4.9"
+      ]
+    },
+    {
+      "name": "check_memory_provenance",
+      "command": [
+        "python",
+        "scripts/check_memory_provenance.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.12,
+      "tail": [
+        "OK: memory provenance contract holds under <implementation-root>\\catalog\\memory"
+      ]
+    },
+    {
+      "name": "check_base_template_parity",
+      "command": [
+        "python",
+        "scripts/check_base_template_parity.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.12,
+      "tail": [
+        "  [present] base-cursor.md",
+        "  [present] base-gemini.md",
+        "  [present] base-opencode.md"
+      ]
+    },
+    {
+      "name": "verify_model_prompting_profiles",
+      "command": [
+        "python",
+        "scripts/verify_model_prompting_profiles.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.14,
+      "tail": [
+        "[profile-schema] OK: 12 profiled model(s) of 16 rostered (schema 1.1.0, last verified 2026-09-08).",
+        "  Note: 4 rostered model(s) not yet profiled (claude-haiku-4-5, gpt-5.6-luna, gpt-5.6-sol, gpt-5.6-terra); tracked as known gaps, not a gate failure."
+      ]
+    },
+    {
+      "name": "verify_platform_contracts",
+      "command": [
+        "python",
+        "scripts/verify_platform_contracts.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.16,
+      "tail": [
+        "[verify-contracts] OK: 14 platforms match the contract doc."
+      ]
+    },
+    {
+      "name": "check_platform_contract_freshness",
+      "command": [
+        "python",
+        "scripts/check_platform_contract_freshness.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.16,
+      "tail": [
+        "[contract-freshness] OK: contract verified for v4.9.0 (last_verified 2026-09-08)."
+      ]
+    },
+    {
+      "name": "sync_platform_defaults-check",
+      "command": [
+        "python",
+        "scripts/sync_platform_defaults.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.12,
+      "tail": [
+        "  platform-defaults OK -- 14 platform(s), all derived artifacts in sync"
+      ]
+    },
+    {
+      "name": "stamp_guide_counts-check",
+      "command": [
+        "python",
+        "scripts/stamp_guide_counts.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.92,
+      "tail": [
+        "stamp_guide_counts: OK -- 5 marker(s) match the catalog (skills=336, hooks=31, pretooluse=16, commands=19)"
+      ]
+    }
+  ]
+}

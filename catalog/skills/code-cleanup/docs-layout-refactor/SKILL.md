@@ -108,7 +108,7 @@ Versioned plans still resolve via the Version-directory algorithm above. Alongsi
 
 **Required** (create if missing; never overwrite inherited files):
 
-- `docs/handbooks/` - README, `markdown/` source of truth, generated `html/`, one non-technical atlas `*.html` walkthrough, technical companion `*.html` files for key components
+- `docs/handbooks/` - README and mapped living handbook sources/outputs, supporting both `markdown/` + `html/` and topic subfolders, including an overview and relevant technical companions grounded in real code
 - `docs/decisions/` - ADRs, never release-scoped
 - Living `docs/README.md`, `docs/DEVLOG.md`, `docs/todos.md`
 
@@ -119,10 +119,10 @@ Versioned plans still resolve via the Version-directory algorithm above. Alongsi
 
 Rules:
 
-- Handbooks are edited in place in `docs/handbooks/markdown/`. Generated `html/` is never hand-edited. If markdown and HTML disagree, markdown wins; regenerate HTML or fail `--check`.
+- The existing source/output map or native generator configuration is authoritative; otherwise retain a small `handbooks.json`. Generated `html/` is never hand-edited. Edit mapped Markdown, fragments, models or native inputs in place; conflicting source-of-truth declarations block that document until resolved. Do not automatically migrate folders. Delegate freshness to `[[technical-documentation]]` through `references/handbook-refresh.md`.
 - Point HTML walkthroughs at `[[document-to-interactive-html]]` / `/presentify`.
-- A missing key-component companion lists the components the codebase has and requires a companion or a recorded known-gap.
-- At release close, snapshot `docs/handbooks/markdown/` (and authored HTML if present) to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/`. Name the snapshot for the version its content describes, not the release that prompted the copy; see [references/archive-layout.md](references/archive-layout.md).
+- A missing key-component companion lists the components the codebase has and requires a relevant companion; a known-gap cannot waive required release evidence.
+- At release close, snapshot mapped sources, assets, builder inputs and verified HTML from `docs/handbooks/` to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/`. Name the snapshot for the version its content describes, not the release that prompted the copy; see [references/archive-layout.md](references/archive-layout.md).
 - An inherited repo with a flat `docs/` is a proposed migration, not a destroy-and-replace.
 
 See [references/archive-layout.md](references/archive-layout.md) for the handbook snapshot path inside the archive tree.
@@ -151,7 +151,7 @@ Not every `docs/` subtree is a version-scoped artifact. Many projects keep long-
 | Class | Directories | Behavior |
 |---|---|---|
 | **Append-only decision logs** | `adr/` (`adrs`, `decisions`, `architecture/decisions`), `rfc/` (`rfcs`), `proposals/` | Records are *superseded*, never deleted - a superseded ADR/RFC is still part of the history. |
-| **Living handbooks** | `handbooks/` | Required living tree (`markdown/` source of truth, generated `html/`). Never version-archive the live tree; snapshot at release close instead. |
+| **Living handbooks** | `handbooks/` | Required living tree (mapped sources and generated outputs in existing legacy or topic layouts). Never version-archive the live tree; snapshot at release close instead. |
 | **Architecture and design** | `architecture/`, `design/` | Long-lived system documentation. Leave in place. |
 | **Diataxis content** | `tutorials/`, `how-to/` (`howto`, `how-to-guides`), `reference/`, `explanation/` (`concepts`), `guides/` | Maintained against the current codebase, not a past release. |
 | **Operations** | `runbooks/` (`runbook`), `playbooks/`, `troubleshooting/`, `ops/` (`operations`) | Living operational docs. |

@@ -30,6 +30,8 @@ Dispatch the resolved scope to the retained skill:
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file only resolves scope and delegates.
 
+Project setup preserves the existing handbook map and topic or legacy layout. A missing tree delegates to `technical-documentation` through `references/handbook-refresh.md` for code-grounded content; empty folders do not establish completion.
+
 ## Notes
 
 - This command replaces `/setup-project` and `/install-pre-commit-review-hook` (removed in v3.2.0).

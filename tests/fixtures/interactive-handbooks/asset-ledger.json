@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "assets": [
+    {
+      "path": "brand.svg",
+      "sha256": "ccb7d9679a3c8113806eab6d6fea3efc813bdbb8a23ec5996ba32a449f512a32",
+      "role": "Synthetic supplied mark and typed source wordmark",
+      "precision": "original vector",
+      "confidential": false,
+      "qualification": "fixture source inventory; rendered qualification recorded separately"
+    },
+    {
+      "path": "flow.svg",
+      "sha256": "8bb562552792e5948b438310b6fc72b8ac555837f09f5bcf7a7a1a2e4f800d28",
+      "role": "Directed acquisition-to-review graph",
+      "precision": "original vector edges and labels",
+      "confidential": false,
+      "qualification": "fixture source inventory; rendered qualification recorded separately"
+    },
+    {
+      "path": "map.svg",
+      "sha256": "76580ba3ee50606a194265e0c7e03789e6760f7bb6836537b3ae578006368555",
+      "role": "Twelve explicitly non-geographic local grid regions",
+      "precision": "original vector boundaries; no inferred geocoding",
+      "confidential": false,
+      "qualification": "fixture source inventory; rendered qualification recorded separately"
+    },
+    {
+      "path": "subject-fixture.png",
+      "sha256": "feaa1928bc7efad1099775f1630eb9df960d36ce63a1746f99f2e3acbc2055e1",
+      "role": "Three complete synthetic subjects",
+      "precision": "320 by 160 native pixels",
+      "confidential": false,
+      "qualification": "fixture source inventory; rendered qualification recorded separately"
+    },
+    {
+      "path": "wave.svg",
+      "sha256": "b12e65ecd4ef39a316f3e78ed9f23cf3e7bd3338ea0aba9267ed1fab15c7a0f4",
+      "role": "Edge-extending decorative curve",
+      "precision": "original vector",
+      "confidential": false,
+      "qualification": "fixture source inventory; rendered qualification recorded separately"
+    },
+    {
+      "path": "brand-light.svg",
+      "sha256": "a3c89725ccd3600a2a7618bef618ac8d661979dbb94c278755aeddfdaeafe7d1",
+      "role": "Synthetic supplied lockup variant for light backgrounds; contours and wordmark unchanged",
+      "precision": "original vector",
+      "confidential": false,
+      "qualification": "fixture source inventory; rendered qualification recorded separately"
+    }
+  ]
+}

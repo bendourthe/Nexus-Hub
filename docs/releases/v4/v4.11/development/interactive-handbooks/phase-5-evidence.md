@@ -1,0 +1,23 @@
+# Phase 5 - Candidate-aware handbook freshness
+
+T015-T018 implement one documentation-refresh owner for recursive living HTML discovery, mapped retained/native inputs, code-claim review and final rendered evidence. The existing release-preconditions CLI now exposes the full read-only handbook gate before version mutation. This is workflow and evidence enforcement; the checker never invents explanations or runs a generator.
+
+## Verification
+
+- Lifecycle, living-docs, freshness and release-precondition suites: 89 passed. After folding the final-template handoff into its existing checklist, 35 affected routing tests passed. The builder/living-docs/freshness combination passed 101 tests after correcting the builder help escape.
+- Final freshness suite: 27 passed, 85.0% line coverage. It exercises code-only changes, absent output/source/evidence, changed renderer/review bytes, explicit narrow scope, missing trees, unmapped legacy HTML, invalid source paths, native generator failure, output preservation, opt-out absence checks, version-dependent invalidation and a new committed candidate. Synthetic receipts in checker unit tests are labeled fixtures, not native authoring proof.
+- The functional native-generator case changes retry configuration from 2 to 7, observes an incomplete freshness gate, refreshes the explanation, and reads 7 through actual Chromium reading and presentation views. The second build is byte-identical. Its archive includes mapped source, generator and code inputs and passes the narrow read-only check independently of the live tree.
+- The real catalog overview and installation handbooks build and check through their recorded CLI commands. A repeated build preserves identical output bytes. Their source review is in [content review](phase-5-content-review.md), actual command results in [build evidence](phase-5-build-evidence.json), and final hashes in [freshness evidence](phase-5-freshness-evidence.json).
+- Chromium 151 covers all five sections and five slides in both handbooks at 1440x900, 1024x768, 761x900, 760x900 and 390x844: 100 cases, zero page errors or outbound requests. [Browser evidence](phase-5-browser-evidence.json) and four inspected screenshots retain the measured results. Desktop slides fit; compact slides use the explicit reflow/scroll policy. These focused technical handbooks do not substitute for Phase 6's independent authoring corpus.
+- Direct `python scripts/check_release_preconditions.py --pre-version` passes for both current live handbooks. The stale-fixture invocation exits 1 with the version file untouched. The docs/documentation and direct skill/implementation routes delegate to the same owner; the integration and publication approvals remain with their existing workflows.
+- Ruff and diff checks pass. Bundle validation passes for 336 skills with zero errors and the unchanged 64-warning baseline. The new bundled checker is executable in the Git index. No CI pipeline, service, secret or dependency was added.
+
+## Resolved failures and limits
+
+A historical wording assertion expected Markdown-only discovery; it now asserts candidate-aware behavior. The builder --help path exposed an unescaped percent sign in its layout description; the fix and real CLI regression pass. The first source-map commands used --output instead of the actual --out option; final recorded build/check commands were executed successfully. An added skill-body section crossed the 500-line soft limit; its handoff now lives in the existing checklist and detailed template. No warning waiver remains.
+
+The fallback checker supports a small explicit map and review receipts. Existing native generators retain their authority and execute through the documentation workflow, never from untrusted command strings inside the checker. Receipt hashes detect changed evidence; they cannot independently prove that a semantic or visual reviewer did the work. Missing required sources or browser/generator evidence stays incomplete and cannot be waived by a known-gap note. Legacy reconstruction preserves the original until source/anchor/visual parity is reviewed; no wholesale folder migration ran here.
+
+## CI impact and phase boundary
+
+Existing tests/skills and tests/validators selection cover the new checker and release CLI option; the browser uses the already-installed Playwright/Chromium dependency. Terminal pipeline reconciliation remains Phase 7. Documentation inventory is recorded in [phase audit](phase-5-docs-audit.md). No remote CI, push or PR ran, and version metadata is unchanged. No accepted gate bypass or deferred phase-owned implementation gap was added.

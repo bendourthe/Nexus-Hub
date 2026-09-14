@@ -1,0 +1,309 @@
+{
+  "status": "pass",
+  "method": "Chromium native tabs.setZoom/setZoomSettings/getZoom in an ephemeral profile, verified after every slide navigation",
+  "coverage": "All 16 slides at native 125%; restored 100% after each artifact; no CSS zoom or visual scale injection",
+  "observations": [
+    {
+      "artifact": "rich",
+      "sha256": "b88faed078a21087aeda780c5b0516f8ad16658ad18135361f83c5c84a1e04e9",
+      "verified_native_zoom": 1.25,
+      "index": 0,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": [
+        16.00000023841858
+      ]
+    },
+    {
+      "artifact": "rich",
+      "sha256": "b88faed078a21087aeda780c5b0516f8ad16658ad18135361f83c5c84a1e04e9",
+      "verified_native_zoom": 1.25,
+      "index": 1,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": [
+        16.00000023841858
+      ]
+    },
+    {
+      "artifact": "rich",
+      "sha256": "b88faed078a21087aeda780c5b0516f8ad16658ad18135361f83c5c84a1e04e9",
+      "verified_native_zoom": 1.25,
+      "index": 2,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": [
+        16.00000023841858,
+        20.47058854032965,
+        20.47058854032965,
+        20.47058854032965,
+        20.47058854032965,
+        20.47058854032965,
+        20.47058854032965,
+        20.47058854032965
+      ]
+    },
+    {
+      "artifact": "rich",
+      "sha256": "b88faed078a21087aeda780c5b0516f8ad16658ad18135361f83c5c84a1e04e9",
+      "verified_native_zoom": 1.25,
+      "index": 3,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": [
+        16.00000023841858,
+        20.47058854032965,
+        20.47058854032965,
+        20.47058854032965,
+        20.47058854032965,
+        20.47058854032965,
+        20.47058854032965,
+        20.47058854032965
+      ]
+    },
+    {
+      "artifact": "rich",
+      "sha256": "b88faed078a21087aeda780c5b0516f8ad16658ad18135361f83c5c84a1e04e9",
+      "verified_native_zoom": 1.25,
+      "index": 4,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": [
+        16.00000023841858,
+        29.333333770434066,
+        29.333333770434066,
+        29.333333770434066
+      ]
+    },
+    {
+      "artifact": "rich",
+      "sha256": "b88faed078a21087aeda780c5b0516f8ad16658ad18135361f83c5c84a1e04e9",
+      "verified_native_zoom": 1.25,
+      "index": 5,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": [
+        16.00000023841858
+      ]
+    },
+    {
+      "artifact": "overview",
+      "sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "verified_native_zoom": 1.25,
+      "index": 0,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": []
+    },
+    {
+      "artifact": "overview",
+      "sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "verified_native_zoom": 1.25,
+      "index": 1,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": []
+    },
+    {
+      "artifact": "overview",
+      "sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "verified_native_zoom": 1.25,
+      "index": 2,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": []
+    },
+    {
+      "artifact": "overview",
+      "sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "verified_native_zoom": 1.25,
+      "index": 3,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": []
+    },
+    {
+      "artifact": "overview",
+      "sha256": "7f2a0a7b6ec755f145aaa946a4233adbbda0c9609dae81003ece4b7c52a2ce91",
+      "verified_native_zoom": 1.25,
+      "index": 4,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": []
+    },
+    {
+      "artifact": "distribution",
+      "sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "verified_native_zoom": 1.25,
+      "index": 0,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": []
+    },
+    {
+      "artifact": "distribution",
+      "sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "verified_native_zoom": 1.25,
+      "index": 1,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": []
+    },
+    {
+      "artifact": "distribution",
+      "sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "verified_native_zoom": 1.25,
+      "index": 2,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": []
+    },
+    {
+      "artifact": "distribution",
+      "sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "verified_native_zoom": 1.25,
+      "index": 3,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": []
+    },
+    {
+      "artifact": "distribution",
+      "sha256": "ce1fca66e0fa7bbac964168a0a553c5bb9768807025d0cf0ba2f53cfcacc9132",
+      "verified_native_zoom": 1.25,
+      "index": 4,
+      "viewport": [
+        1267,
+        724
+      ],
+      "dpr": 1.25,
+      "visualScale": 1,
+      "height": 656,
+      "scrollHeight": 656,
+      "width": 1267,
+      "scrollWidth": 1267,
+      "svgFonts": []
+    }
+  ],
+  "limits": "This is measured native tab zoom, not browser-menu keyboard automation or visual review. Earlier 150/200% sweep was invalidated because file navigation reset the zoom state. No claim is made for those stress conditions."
+}

@@ -62,6 +62,10 @@ When `is_final_phase` is true, before the release-readiness sub-phases, run the 
 | "The user can just pick the push option if they want it." | There is no push option on a non-final phase; 8.11 offers Commit / Amend / Stop. A user who explicitly ASKS to push still gets it, after a one-line statement of the cost. The rule removes the default, not the user's authority. |
 | "I will update the CI workflow now while I am in this file anyway." | A phase changes pipeline files only when the pipeline is that phase's explicit deliverable. Per-phase pipeline authorship is what produces a different topology per phase and a pipeline nobody can run locally; 8.3 records the impact and 9.0 duty 5 reconciles it once. |
 
+## Handbook gate handoff
+
+The final phase invokes `[[technical-documentation]]` through `references/handbook-refresh.md` on the actual candidate before local completion and feature publication. The final-phase template must name recursive source/output inventory, code-claim review, reproducible checks and final rendered evidence. `/update release` rechecks the merged candidate before version mutation and rechecks affected outputs afterward. Failed required evidence blocks either handoff; unchanged dependency hashes reuse existing output. The runbook owns execution order.
+
 ## Verification
 
 - [ ] Plan and phase resolved; `is_final_phase` set from the five signals and shown in the pre-flight summary.

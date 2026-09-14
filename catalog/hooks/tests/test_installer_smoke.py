@@ -565,6 +565,18 @@ DEV_ONLY_SCRIPTS = {
     # NEEDS-ACTION line that `runner.py verify` (nexus-hub doctor) emits.
     "check_interpreter_resolution.py",
     "check_doc_colocation.py",
+    # Repo-internal plan-queue inventory (v4.10.0): enumerates every plan
+    # under docs/releases/ with its status, task counts, and touched-file
+    # surface, so a staleness or ordering decision has deterministic inputs.
+    # Maintainer queue tooling; meaningless in an end-user
+    # ~/.nexus-hub/scripts/ with no docs/releases tree.
+    "enumerate_plan_queue.py",
+    # Repo-internal conflict-marker gate (v4.11.0): fails when a tracked text
+    # file carries an unresolved merge conflict marker, which the rest of the
+    # gate cannot see because nothing else reads the repository's own prose.
+    # Runs in the fast and full profiles; an end-user ~/.nexus-hub/scripts/ has
+    # no git worktree to scan.
+    "check_merge_conflict_markers.py",
     # Repo-internal retention reporter (v3.18.0): reports per-version
     # development/ subtrees due for archival per docs/policy/docs-retention.md.
     # Advisory (always exit 0), runs in make validate; meaningless in an

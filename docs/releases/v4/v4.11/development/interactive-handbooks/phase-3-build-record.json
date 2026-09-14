@@ -1,0 +1,19 @@
+{
+  "build": {
+    "assets/dual-view-figures.js": "dae9b80203fb80ebc4c795ce15b58aa666a580c1f649f4891185b80c72a645c7",
+    "assets/dual-view-runtime.js": "cca036e45febefee365bf5eb6a4e23b0388f6c0a0fc69889445c68c0177b2cb4",
+    "assets/dual-view.css": "6d71063749ef287db25a355ebe6371b19909d474ed7e91f0e98ca65ca940965b",
+    "assets/theme.json": "512cb7343f78c274c3c79e0b8124ec88fdb79639835a345ba369f78d642c3740",
+    "scripts/build_presentation.py": "b195ce2dd744fb0001dbd7d7b27695a9bb55b7b4d7f5cd4f441737d58f548c1f",
+    "scripts/dual_view.py": "680ea812106abdb615f50c3d7e3ec73115ae0abc952b33792f62f19dbf26bcb4"
+  },
+  "output": "handbook.html",
+  "output_sha256": "fdd1f5a6aba296a188d4321579912858a3f9384b4e4d0537aff471d094774769",
+  "schema_version": 1,
+  "sources": {
+    "brand.svg": "ccb7d9679a3c8113806eab6d6fea3efc813bdbb8a23ec5996ba32a449f512a32",
+    "flow.svg": "4e9f0ed605e3e824d8426fa13337a38e3f37278286241ba2515310f964934055",
+    "handbook.md": "ed0c1c8572b836d0d94418887f2d86298754bae5f587245496fdc626ea94a68d",
+    "model.json": "41ae70dde1ca08cb4acc55bcac53a2d826720d3d7d82926d87e5411e690af286"
+  }
+}

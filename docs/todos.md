@@ -1,14 +1,14 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `release/v4.9.0`
-**Active work:** Release preparation for the integrated [v4.9.0 application-security audit](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md), full implementation. The existing guide and handbook work below retains its separate owner.
-**Last refreshed:** 2026-09-08
+**Integration branch:** `develop`
+**Active work:** v4.11.0 interactive handbooks is through Phase 7 with the full profile green at 46/46; publication and integration await explicit approval. Phase 6 closed across six commits rather than one, and that deviation is recorded in its evidence file rather than backdated. The three-family authoring gate is closed as UNMET at two of three sustained across six qualification rounds, recorded with its full evidence in the [v4.11 ledger](releases/v4/v4.11/known-gaps.md). Nine rendered-output gates were built from observed defects and none has recurred. The v4.9.0 application-security audit and the concurrent guide work retain their separate owners.
+**Last refreshed:** 2026-09-12
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
-- [ ] Implement the queued [v4.9.0 master interactive-handbooks plan](releases/v4/v4.9/plans/v4.9.0-interactive-handbooks-and-presentation-default.md). All source analyses and approved-build lessons, including final fullscreen, motion sequencing, headerless layout, PowerPoint export and standalone sharing, are consolidated into R01-R30, conflict resolutions and 31 mapped tasks. Implementation remains 0/7 phases and 0/31 tasks; earlier isolated command/skill drafts require reconciliation before adoption. The active guide work remains unchanged.
+- [ ] Implement the queued [v4.11.0 master interactive-handbooks plan](releases/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md). All source analyses and approved-build lessons, including final fullscreen, motion sequencing, headerless layout, PowerPoint export and standalone sharing, are consolidated into R01-R30, conflict resolutions and 31 mapped tasks. Implementation remains 0/7 phases and 0/31 tasks; earlier isolated command/skill drafts require reconciliation before adoption. The active guide work remains unchanged.
 
 ---
 
@@ -16,8 +16,14 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.11.0 comparison and plan prepared | 2 | 2 | 0 |
-| v4.11.0 implementation tasks complete | 0 | 34 | 34 |
+| v4.11.0 interactive-handbook phases complete | 7 | 7 | 0 |
+| v4.11.0 interactive-handbook tasks complete | 31 | 31 | 0 |
+| v4.11.0 accepted native authoring families | 2 | 3 | 1 |
+| v4.10.0 implementation tasks complete | 26 | 26 | 0 |
+| v4.11.1 comparison and plan prepared | 2 | 2 | 0 |
+| v4.11.1 implementation tasks complete | 0 | 25 | 25 |
+| v4.13.0 comparison and plan prepared | 2 | 2 | 0 |
+| v4.13.0 implementation tasks complete | 0 | 34 | 34 |
 | v4.4.5 baseline guide/test files restored | 59 | 59 | 0 |
 | Exact production-file restorations | 3 | 3 | 0 |
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
@@ -31,7 +37,15 @@ Refreshing this file to the active plan (rather than appending another version's
 
 ---
 
-## Queued work - v4.11.0 evidence-driven agent improvement
+## Queued work - v4.10.0 plan-queue continuity and re-sequencing
+
+- [ ] Implement the [v4.10.0 plan-queue continuity plan](releases/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md): make /compare, /plan, /implement and /update release each account for the other queued plans, and add a ranked re-ordering recommendation with an assisted renumber behind explicit confirmation. Authored 2026-09-10; 25/26 tasks; all five build phases and every Phase 6 last-phase duty landed 2026-09-10. Remaining: the single publication, which awaits explicit approval. One skill and one enumeration script own the rule; the four commands delegate. Sequenced first deliberately, so its own ordering recommendation can sequence the rest of the queue rather than being applied after the fact.
+
+## Queued work - v4.11.0 cache accounting and diagram quality
+
+- [ ] Implement the published [v4.11.1 adoption plan](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md). Published to develop through [PR #194](https://github.com/bendourthe/Nexus-Hub/pull/194) on 2026-09-09; implementation remains 0/6 phases and 0/25 tasks. Correct cache accounting first, then extend existing prompt and diagram owners; preserve separate v4.11.0 handbook and v4.13 evaluation responsibilities.
+
+## Queued work - v4.13.0 evidence-driven agent improvement
 
 - [ ] Qualify an existing native runner for the two-model trigger pilot before starting the seven-phase, 34-task implementation plan: prove observed skill loading, bounded calls/time/spend, and isolated synthetic context. Planning documents are in [PR #189](https://github.com/bendourthe/Nexus-Hub/pull/189); keyword-only evaluators do not satisfy the prerequisite. The v4.9 audit and handbook work retain their existing owners.
 
@@ -147,20 +161,7 @@ One rule: this dashboard describes the current branch and the active plan. When 
 
 ## Approved interactive authoring follow-up
 
-Scoped command/skill update: 3/3 items complete; see [implementation and verification](releases/v4/v4.9/development/approved-authoring-contract.md). Work is isolated on `feat/approved-interactive-authoring`. The historical guide dashboard above is inherited from the integration base and is not modified by this task.
+Scoped command/skill update: 3/3 items complete; see [implementation and verification](releases/v4/v4.11/development/approved-authoring-contract.md). Work is isolated on `feat/approved-interactive-authoring`. The historical guide dashboard above is inherited from the integration base and is not modified by this task.
 
 - [ ] Review and integrate the scoped authoring-contract changes through the normal branch workflow.
 - [ ] Complete the separately queued v4.9 reusable runtime, assembler, and cross-project qualification phases; this contract update does not complete those phases.
-
-## Current work - v4.9.0 application-security audit
-
-**Plan**: [Application-security audit pipeline](releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md). Driver: full. Verified phases complete: 7/7; verified tasks: 31/31. All local Phase 7 duties pass in [final-phase evidence](releases/v4/v4.9/development/last-phase-evidence.md), including cycle-2 Windows long-path correction, approved CI wiring and explicit manual-test limits. PR 190 exposed two test setup assumptions and Windows golden-fixture conversion; cycle 3 reproduced and corrected all three causes. Affected suites pass 97 tests with seven platform skips and 152 tests using real Git checkout bytes. T031 is complete: [PR 190](https://github.com/bendourthe/Nexus-Hub/pull/190) merged at `bd2c8968` after 28 successful checks and one inapplicable skip; post-merge smoke and provenance passed. Existing guide and handbook work above retains its separate owner.
-
-- [x] Complete and verify Phase 1 contract, input safety, target identity, and compatibility; reconcile the draft's premature completion claims.
-- [x] Complete Phase 2 bounded inventory, pure routing, current review dispatch, and independent correction checks: 395 tests pass, 25 skip, 87.07% coverage.
-- [x] Complete Phase 3 graph seeding and approved A1 repair: 341 tests pass, eight platform skips, 87.72% coverage, all seven extension groups pass, public MCP probe passes.
-- [x] Complete Phase 4 normalized envelopes and health enforcement: 447 tests pass, eight platform skips, 87.93% coverage; both bounded reviewers approve.
-- [x] Complete Phase 5 local SARIF and recursive distribution: 105 tests pass, no skips, 98.96% new-runtime coverage; both bounded reviewers approve.
-- [x] Complete Phase 6 deterministic benchmark: 78 benchmark tests pass with 98.63% coverage, 119 integration/contract checks pass, and both unavailable host attempts retain verified outcomes.
-- [x] Complete Phase 7 and verify corrected-head checks and integration in PR 190.
-- [ ] Publish v4.9.0, verify the downloaded archive, and back-merge into develop.

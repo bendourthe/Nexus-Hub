@@ -1,0 +1,20 @@
+{
+  "case": "repo-final",
+  "started_utc": "2026-09-10T02:28:05.844984+00:00",
+  "model": "gpt-6-astra",
+  "effort": "max",
+  "wall_time_limit_seconds": 3600,
+  "internal_repair_limit": 3,
+  "prompt_sha256": "89c1996b4f2d43717dac341ede8d637678c183d74689fc85412e67435ea1ce75",
+  "frozen_manifest_sha256": "1eb44c17d6aaad765625af16bc247c332373cd05a2f8bbbcd72e743a26ecd768",
+  "profile_sha256": "d50997cd58012aaa654367d77f5d3243f4292541be674166333afd0bd97413d2",
+  "agents_sha256": "86f1b1446be1de62efc826bff1c50b4ff59b2bc6d2fbf838dfa70c4ad2c770da",
+  "cli_sha256": "be96b992178b1e467c225800da0d65f2c86d5eba1ef0b14632f65db381cbdfde",
+  "runner_sha256": "cd05fc17c833fcd229e367b7fda4f0b40e4c9d0b9c538faefc1deea4ff829821",
+  "status": "timeout",
+  "pid": 7380,
+  "exit_code": 1,
+  "elapsed_seconds": 3600.75,
+  "ended_utc": "2026-09-10T03:28:07.251162+00:00",
+  "events_sha256": "3b58f4847ff1c55f930acddf70f17d30317721f51db8bb3fb94aa9cd0d266135"
+}

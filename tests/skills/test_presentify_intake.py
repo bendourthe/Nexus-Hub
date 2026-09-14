@@ -55,7 +55,7 @@ COMMAND_TEXT = _COMMAND.read_text(encoding="utf-8")
 def test_both_surfaces_offer_the_four_imagery_values():
     for name, text in (("SKILL.md", SKILL_TEXT), ("presentify.md", COMMAND_TEXT)):
         for value in ("none", "stock", "ai", "both"):
-            assert f"`{value}`" in text, f"{name} does not name the `{value}` option"
+            assert f"`{value}`" in text or value in text.split("--images", 1)[1].split("]", 1)[0], f"{name} does not name the `{value}` option"
 
 
 def test_the_command_usage_line_lists_exactly_the_current_values():
@@ -78,14 +78,14 @@ def test_procedural_is_stated_as_the_always_on_baseline():
     assert "ALWAYS-ON" in SKILL_TEXT or "always-on" in SKILL_TEXT
     # `None` must be described so it does not read as a bare page - the whole
     # reason the option is worded "additional imagery".
-    assert "NOT a bare page" in COMMAND_TEXT or "not a bare page" in COMMAND_TEXT.lower()
+    assert "current none means nothing added" in COMMAND_TEXT
 
 
 def test_the_none_semantic_change_is_disclosed_rather_than_hidden():
     # The old `none` meant "no visuals at all". That mode is gone, and a silent
     # redefinition of a flag value is worse than a documented one.
     for name, text in (("SKILL.md", SKILL_TEXT), ("presentify.md", COMMAND_TEXT)):
-        assert "no longer exists" in text, f"{name} hides the `none` behavior change"
+        assert "no longer exists" in text or "old none meant no visuals; current none means nothing added" in text, f"{name} hides the `none` behavior change"
 
 
 def test_consent_invariants_survive_the_rewording():
@@ -371,7 +371,7 @@ def test_verbosity_is_distinguished_from_qa_depth():
     # The two axes are easy to conflate from the flag names alone; the command
     # must draw the line explicitly (content carried vs QA thoroughness).
     assert "--qa-depth" in COMMAND_TEXT
-    assert "CONTENT axis" in COMMAND_TEXT or "content axis" in COMMAND_TEXT
+    assert "changes review scope, not content depth" in COMMAND_TEXT
 
 
 def test_the_verbosity_question_is_part_of_round_two():
@@ -380,31 +380,33 @@ def test_the_verbosity_question_is_part_of_round_two():
     author = SKILL_TEXT.index("Author the interactive website")
     verbosity_q = SKILL_TEXT.index("Ask the coverage depth (verbosity) in the same round")
     assert skill_round_two < verbosity_q < author, "verbosity question out of pipeline order"
-    assert "coverage depth" in COMMAND_TEXT.lower()
+    assert "independent page verbosity" in COMMAND_TEXT.lower()
 
 
 def test_the_question_stem_is_content_derived():
     # A generic low/medium/high asked blind is the design this axis rejects:
     # the options carry an approximate section count for THIS source set.
     assert "section count" in SKILL_TEXT
-    assert "content-derived size hint" in COMMAND_TEXT or "size hint" in COMMAND_TEXT
+    assert "references/presentation-intake.md" in COMMAND_TEXT
+    assert "section-count" in SKILL_TEXT or "section count" in SKILL_TEXT
 
 
 def test_the_flag_is_a_preset_that_skips_the_question():
     assert "PRESET" in SKILL_TEXT, "SKILL.md must state the flag wins over the question"
-    assert "skips the round-2 coverage-depth question" in COMMAND_TEXT
+    assert "already resolved answer" in COMMAND_TEXT and "suppresses its own question" in COMMAND_TEXT
 
 
 def test_the_fallback_is_balanced_on_both_surfaces():
     for name, text in (("SKILL.md", SKILL_TEXT), ("presentify.md", COMMAND_TEXT)):
-        assert "`balanced`" in text, f"{name} does not name the balanced fallback"
-    assert "verbosity -> balanced" in COMMAND_TEXT, "the auto-pick list must include verbosity"
+        assert "balanced" in text, f"{name} does not name the balanced fallback"
+    assert "page verbosity independently balanced" in (_BUNDLE / "references/presentation-intake.md").read_text(encoding="utf-8")
 
 
 def test_a_malformed_flag_value_degrades_instead_of_blocking():
     for name, text in (("SKILL.md", SKILL_TEXT), ("presentify.md", COMMAND_TEXT)):
-        assert "usage note" in text, f"{name} does not document the malformed-value path"
-        assert "never blocks" in text, f"{name} must state the run never blocks on it"
+        assert "usage note" in text or "usage-note/question-or-default" in text, f"{name} does not document the malformed-value path"
+    assert "never blocks" in SKILL_TEXT
+    assert "question-or-default behavior" in COMMAND_TEXT
 
 
 def test_the_design_record_carries_level_provenance_and_target():

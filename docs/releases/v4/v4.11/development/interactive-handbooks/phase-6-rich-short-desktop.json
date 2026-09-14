@@ -1,0 +1,2217 @@
+{
+  "status": "pass",
+  "output_sha256": "b88faed078a21087aeda780c5b0516f8ad16658ad18135361f83c5c84a1e04e9",
+  "rows": [
+    {
+      "view": "reading",
+      "id": "overview",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Aster Observatory"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Synthetic service handbook. Measurements are illustrative, n"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 214,
+      "scrollHeight": 214,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 380.703125,
+        "width": 1024,
+        "height": 214.078125
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "agenda",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "From sensors to a reviewed result"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Read acquisition, analysis and review in that order."
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 214,
+      "scrollHeight": 214,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 425.78125,
+        "width": 1024,
+        "height": 214.078125
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "acquisition",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Acquisition with an intentionally long heading that must wra"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Two instruments supply 12 and 18 observations. Calibration s"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Synthetic observations; reported total 31 conflicts with com"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "9.0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "18"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "A"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "B"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Instrument"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Count"
+        },
+        {
+          "role": "interactive",
+          "px": 18,
+          "text": "Observations"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Zoom"
+        },
+        {
+          "role": "interactive",
+          "px": 18,
+          "text": ""
+        },
+        {
+          "role": "interactive",
+          "px": 18,
+          "text": "Reset figure"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 942.09375,
+          "height": 433.78125,
+          "area": 408662.6044921875
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 683,
+      "scrollHeight": 683,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": -0.140625,
+        "width": 1024,
+        "height": 683.171875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "analysis",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Compare the same measurements in both views"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Instrument A has 12 observations; instrument B has 18. The s"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Synthetic observations; reported total 31 conflicts with com"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "9.0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "18"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "A"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "B"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Instrument"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Count"
+        },
+        {
+          "role": "interactive",
+          "px": 18,
+          "text": "Observations"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Zoom"
+        },
+        {
+          "role": "interactive",
+          "px": 18,
+          "text": ""
+        },
+        {
+          "role": "interactive",
+          "px": 18,
+          "text": "Reset figure"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 942.09375,
+          "height": 433.78125,
+          "area": 408662.6044921875
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 648,
+      "scrollHeight": 648,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": -3.96875,
+        "width": 1024,
+        "height": 647.859375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "review",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Review and uncertainty"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "No reliability estimate is available. Review is required bef"
+        },
+        {
+          "role": "label",
+          "px": 29.333333333333336,
+          "text": "Acquisition"
+        },
+        {
+          "role": "label",
+          "px": 29.333333333333336,
+          "text": "Analysis"
+        },
+        {
+          "role": "label",
+          "px": 29.333333333333336,
+          "text": "Review"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Acquisition feeds analysis, which feeds review."
+        },
+        {
+          "role": "interactive",
+          "px": 18,
+          "text": ""
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Synthetic aspect-ratio fixture: three complete colored subje"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 942.09375,
+          "height": 255.78125,
+          "area": 240969.9169921875
+        },
+        {
+          "tag": "FIGURE",
+          "width": 942.09375,
+          "height": 195.78125,
+          "area": 184444.2919921875
+        },
+        {
+          "tag": "IMG",
+          "width": 320,
+          "height": 160,
+          "area": 51200
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 666,
+      "scrollHeight": 666,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": -13.109375,
+        "width": 1024,
+        "height": 665.640625
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "reading",
+      "id": "appendix",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Directory and reproducible settings"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Regions are synthetic. Keep the full directory accessible wh"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 1"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 1"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 2"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 2"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 3"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 3"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 4"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 4"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 5"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 5"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 6"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 6"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 7"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 7"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 8"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 8"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 9"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 9"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 10"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 10"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 11"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 11"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 12"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 12"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 506,
+      "scrollHeight": 506,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 116.53125,
+        "width": 1024,
+        "height": 505.859375
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "overview",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Aster Observatory"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Synthetic service handbook. Measurements are illustrative, n"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "overview",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Aster Observatory"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Synthetic service handbook. Measurements are illustrative, n"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "overview",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Aster Observatory"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Synthetic service handbook. Measurements are illustrative, n"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "agenda",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "From sensors to a reviewed result"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Read acquisition, analysis and review in that order."
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "agenda",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "From sensors to a reviewed result"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Read acquisition, analysis and review in that order."
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "agenda",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "From sensors to a reviewed result"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Read acquisition, analysis and review in that order."
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "acquisition",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Acquisition with an intentionally long heading that must wra"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Two instruments supply 12 and 18 observations. Calibration s"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Synthetic observations; reported total 31 conflicts with com"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "9.0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "18"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "A"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "B"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Instrument"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Count"
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": "Observations"
+        },
+        {
+          "role": "label",
+          "px": 20.25,
+          "text": "Zoom"
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": ""
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": "Reset figure"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 962.5625,
+          "height": 437.453125,
+          "area": 421075.9736328125
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "acquisition",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Acquisition with an intentionally long heading that must wra"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Two instruments supply 12 and 18 observations. Calibration s"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Synthetic observations; reported total 31 conflicts with com"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "9.0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "18"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "A"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "B"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Instrument"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Count"
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": "Observations"
+        },
+        {
+          "role": "label",
+          "px": 20.25,
+          "text": "Zoom"
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": ""
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": "Reset figure"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 962.5625,
+          "height": 437.453125,
+          "area": 421075.9736328125
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "acquisition",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Acquisition with an intentionally long heading that must wra"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Two instruments supply 12 and 18 observations. Calibration s"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Synthetic observations; reported total 31 conflicts with com"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "9.0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "18"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "A"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "B"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Instrument"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Count"
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": "Observations"
+        },
+        {
+          "role": "label",
+          "px": 20.25,
+          "text": "Zoom"
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": ""
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": "Reset figure"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 962.5625,
+          "height": 437.453125,
+          "area": 421075.9736328125
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "analysis",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Compare the same measurements in both views"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Instrument A has 12 observations; instrument B has 18. The s"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Synthetic observations; reported total 31 conflicts with com"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "9.0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "18"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "A"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "B"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Instrument"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Count"
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": "Observations"
+        },
+        {
+          "role": "label",
+          "px": 20.25,
+          "text": "Zoom"
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": ""
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": "Reset figure"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 962.5625,
+          "height": 437.453125,
+          "area": 421075.9736328125
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "analysis",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Compare the same measurements in both views"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Instrument A has 12 observations; instrument B has 18. The s"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Synthetic observations; reported total 31 conflicts with com"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "9.0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "18"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "A"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "B"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Instrument"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Count"
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": "Observations"
+        },
+        {
+          "role": "label",
+          "px": 20.25,
+          "text": "Zoom"
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": ""
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": "Reset figure"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 962.5625,
+          "height": 437.453125,
+          "area": 421075.9736328125
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "analysis",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Compare the same measurements in both views"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Instrument A has 12 observations; instrument B has 18. The s"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Synthetic observations; reported total 31 conflicts with com"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "9.0"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "18"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "A"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "B"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Instrument"
+        },
+        {
+          "role": "label",
+          "px": 20.470588235294116,
+          "text": "Count"
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": "Observations"
+        },
+        {
+          "role": "label",
+          "px": 20.25,
+          "text": "Zoom"
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": ""
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": "Reset figure"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 962.5625,
+          "height": 437.453125,
+          "area": 421075.9736328125
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "review",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Review and uncertainty"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "No reliability estimate is available. Review is required bef"
+        },
+        {
+          "role": "label",
+          "px": 29.333333333333336,
+          "text": "Acquisition"
+        },
+        {
+          "role": "label",
+          "px": 29.333333333333336,
+          "text": "Analysis"
+        },
+        {
+          "role": "label",
+          "px": 29.333333333333336,
+          "text": "Review"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Acquisition feeds analysis, which feeds review."
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": ""
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Synthetic aspect-ratio fixture: three complete colored subje"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 962.5625,
+          "height": 252.453125,
+          "area": 243001.9111328125
+        },
+        {
+          "tag": "FIGURE",
+          "width": 962.5625,
+          "height": 192.453125,
+          "area": 185248.1611328125
+        },
+        {
+          "tag": "IMG",
+          "width": 320,
+          "height": 160,
+          "area": 51200
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "review",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Review and uncertainty"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "No reliability estimate is available. Review is required bef"
+        },
+        {
+          "role": "label",
+          "px": 29.333333333333336,
+          "text": "Acquisition"
+        },
+        {
+          "role": "label",
+          "px": 29.333333333333336,
+          "text": "Analysis"
+        },
+        {
+          "role": "label",
+          "px": 29.333333333333336,
+          "text": "Review"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Acquisition feeds analysis, which feeds review."
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": ""
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Synthetic aspect-ratio fixture: three complete colored subje"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 962.5625,
+          "height": 252.453125,
+          "area": 243001.9111328125
+        },
+        {
+          "tag": "FIGURE",
+          "width": 962.5625,
+          "height": 192.453125,
+          "area": 185248.1611328125
+        },
+        {
+          "tag": "IMG",
+          "width": 320,
+          "height": 160,
+          "area": 51200
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "review",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Review and uncertainty"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "No reliability estimate is available. Review is required bef"
+        },
+        {
+          "role": "label",
+          "px": 29.333333333333336,
+          "text": "Acquisition"
+        },
+        {
+          "role": "label",
+          "px": 29.333333333333336,
+          "text": "Analysis"
+        },
+        {
+          "role": "label",
+          "px": 29.333333333333336,
+          "text": "Review"
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Acquisition feeds analysis, which feeds review."
+        },
+        {
+          "role": "interactive",
+          "px": 20.25,
+          "text": ""
+        },
+        {
+          "role": "label",
+          "px": 18,
+          "text": "Synthetic aspect-ratio fixture: three complete colored subje"
+        }
+      ],
+      "figures": [
+        {
+          "tag": "FIGURE",
+          "width": 962.5625,
+          "height": 252.453125,
+          "area": 243001.9111328125
+        },
+        {
+          "tag": "FIGURE",
+          "width": 962.5625,
+          "height": 192.453125,
+          "area": 185248.1611328125
+        },
+        {
+          "tag": "IMG",
+          "width": 320,
+          "height": 160,
+          "area": 51200
+        }
+      ],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    },
+    {
+      "view": "presentation",
+      "id": "appendix",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Directory and reproducible settings"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Regions are synthetic. Keep the full directory accessible wh"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 1"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 1"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 2"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 2"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 3"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 3"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 4"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 4"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 5"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 5"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 6"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 6"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 7"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 7"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 8"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 8"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 9"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 9"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 10"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 10"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 11"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 11"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 12"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 12"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "appendix",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Directory and reproducible settings"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Regions are synthetic. Keep the full directory accessible wh"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 1"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 1"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 2"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 2"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 3"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 3"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 4"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 4"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 5"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 5"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 6"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 6"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 7"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 7"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 8"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 8"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 9"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 9"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 10"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 10"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 11"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 11"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 12"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 12"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "appendix",
+      "viewport": [
+        1024,
+        640
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 30.72,
+          "text": "Directory and reproducible settings"
+        },
+        {
+          "role": "label",
+          "px": 16,
+          "text": "ASTER"
+        },
+        {
+          "role": "body",
+          "px": 20.25,
+          "text": "Regions are synthetic. Keep the full directory accessible wh"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 1"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 1"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 2"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 2"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 3"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 3"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 4"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 4"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 5"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 5"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 6"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 6"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 7"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 7"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 8"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 8"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 9"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 9"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 10"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 10"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 11"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 11"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Region 12"
+        },
+        {
+          "role": "body",
+          "px": 18,
+          "text": "Operator 12"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1024,
+      "scrollWidth": 1024,
+      "height": 572,
+      "scrollHeight": 572,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 571.671875
+      },
+      "detector_findings": []
+    }
+  ],
+  "errors": [],
+  "qualitative_review": "required separately",
+  "verification_scope": "rendered geometry, inventory and declared browser behaviors",
+  "browser": "Chromium 151.0.7922.34",
+  "no_js_and_print": "pass",
+  "reduced_motion_fullscreen_fallback_escape": "pass",
+  "font_px": {
+    "min": 16,
+    "mean": 20.223734279918865,
+    "max": 30.72
+  },
+  "coverage": {
+    "sections": 6,
+    "slides": 6,
+    "measured_states": 24
+  },
+  "fail_count": 0
+}

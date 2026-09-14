@@ -1,0 +1,22 @@
+{
+  "qualification": "excluded; operator-created diagnostic copy only",
+  "source_sha256": "b71d7371824e002fead3ee08ce9d211a88338b5feb60f081bdea398976148f5b",
+  "source_unchanged": true,
+  "diagnostic_sha256": "ebaf1b43b54caf56a8c2d50efe4d6fcc2d010b40e7513cdc043562dc36b80db3",
+  "application_options_changed": false,
+  "native_pdf_sha256": "f8c624ad69b8fbbc4d931a8490cc03a8e9bdc5bcce26fe025bb4367c55a71a83",
+  "pages": [
+    {
+      "page": 1,
+      "outside_drawings": []
+    },
+    {
+      "page": 2,
+      "outside_drawings": []
+    },
+    {
+      "page": 3,
+      "outside_drawings": []
+    }
+  ]
+}

@@ -1,0 +1,237 @@
+{
+  "status": "qualified-non-pass",
+  "verdict": "Factual, structural, functional, offline and rendered-geometry gates all pass on the delivered bytes. The positive-design gate does NOT pass: screenshot inspection found four visual defects that no geometric gate detects, and the three permitted correction rounds were already spent. Reported rather than repaired.",
+  "elapsed_seconds": 3576,
+  "wall_time_budget_seconds": 5400,
+  "correction_rounds_used": 3,
+  "correction_rounds_permitted": 3,
+  "delivered": {
+    "docs/handbooks/html/operations.html": "18fbf0fca7d94af57042e36506c8d67fc88ae1d2b746d552727db9c4611578c4",
+    "docs/handbooks/html/operations-process.svg": "272fcf920f1aeb6547943673ea985e6f5e753903699f1cba972152629c06146d",
+    "build.py": "3b8558275a52f180f2bbc7d90f79d0c00d964881d114baaa9f770e69aabe8c82"
+  },
+  "frozen_first_build": {
+    "qa/first-build.html": "8573e758953a3c68172210a08531df1c5a5f417caabf01fde63f844b450571b2",
+    "qa/first-build-process.svg": "272fcf920f1aeb6547943673ea985e6f5e753903699f1cba972152629c06146d",
+    "qa/first-build.build.py": "the generator that produced them",
+    "findings": "qa/first-build.json (11 root causes, recorded before any correction)"
+  },
+  "renderer": {
+    "engine": "Chromium 151.0.7922.34 via Playwright (real headless render)",
+    "screenshots_inspected": true,
+    "screenshot_count": 74,
+    "screenshot_dirs": ["qa/screenshots/round0", "qa/screenshots/round3",
+                        "qa/screenshots/final", "qa/screenshots"]
+  },
+  "correction_rounds": [
+    {
+      "round": 1,
+      "patches": ["qa/patch1.py", "qa/patch2.py"],
+      "fixed": ["F1 body text below the 16px floor", "F2 chart geometry outside the viewBox",
+                "F3 sr-only overflow and body overflow-x clipping",
+                "F4 pre blocks with no scroller of their own",
+                "F5 reveal transform on the section escaping main's padding box",
+                "F6 sticky-masthead text overlap and tight stat leading",
+                "F9 connector cells too narrow for their annotation text",
+                "F10 first pass at slide density (declared within-slide panes)"],
+      "measured_after": "qa/measure-round1.json (fail_count 3760 -> 643)"
+    },
+    {
+      "round": 2,
+      "patches": ["inline patch3", "inline patch4"],
+      "fixed": ["F7 reading page and masthead still painted behind the open deck",
+                "F8 Reliability stat inheriting the numeric display size",
+                "remaining 14px eyebrow"],
+      "measured_after": "qa/measure-round1b.json then qa/measure-round2.json (643 -> 13 -> 0)"
+    },
+    {
+      "round": 3,
+      "patches": ["qa/patch5.py"],
+      "fixed": ["modal stacking (a full-screen dialog now hides what is behind it)",
+                "focus restore no longer scrolls the page (preventScroll)",
+                "slide density: 13 declared within-slide states instead of 7",
+                "multi-column card lists and full-width tables inside panes"],
+      "measured_after": "qa/states-round3.json (98 -> 26) and qa/states-final.json (25)"
+    }
+  ],
+  "gates": {
+    "factual": {
+      "status": "pass",
+      "evidence": "qa/facts.json",
+      "checks": 34,
+      "present": 34,
+      "detail": "Every config value, the process narrative, the authority rule, the anchor and entry-point preservation rules, both service.py functions verbatim, the derived strict-comparison consequence, the stale retry value, the brand identity, the rebuild and check commands, all 3 diagram edges with their constraints, all 4 nodes with their per-stage detail, both unbound parameters and all 5 uncertainty items are present in the rendered text; edges, nodes and unbound parameters are additionally present in the standalone graphic."
+    },
+    "structural": {
+      "status": "pass",
+      "evidence": "installed dual_view.validate(model) PASS; qa/measure-final.json",
+      "detail": "6 reading sections and 5 slides in declared order; slide_budget 5, slides used 5, source_slide_count 5; deep-dive coverage complete (26 source units, 0 uncovered, qa/_operations-src/source-map.json); mixed theme policy satisfied with both themes present; initial_slide 1."
+    },
+    "rendered_geometry": {
+      "status": "pass",
+      "evidence": "qa/measure-final.json (installed measure_handbook.py)",
+      "detail": "210 measured states across 10 viewports, fail_count 0. No clipping, no horizontal overflow, no desktop stage scroll, no detector gate finding (parent-padding-escape, svg-viewbox-overflow, text-overlap, horizontal-overflow, fixed-text-max-width, undersized-text-box, font-size-floor), min rendered font 15px against role floors 16/16/13/12."
+    },
+    "alternate_states": {
+      "status": "pass with declared component scrolling",
+      "evidence": "qa/states-final.json, inventory in qa/state_list.py",
+      "detail": "24 view states x 12 viewports = 288 measured states. 0 detector findings, 0 undersized text, 0 console errors, 0 outbound requests. 25 notices remain, all of them the self-imposed stricter check described under residual_findings C1."
+    },
+    "behavioural": {
+      "status": "pass",
+      "evidence": "qa/states-final.json behaviour block (12/12 true)",
+      "checks": ["global entry resets to slide 1 after deep scrolling",
+                 "re-entry after a previous deck session resets to slide 1",
+                 "ArrowRight/ArrowLeft/Home/End; no wrap below the first slide",
+                 "Escape closes the deck and restores the exact reading offset",
+                 "nested modal: first Escape closes the modal, second closes the deck",
+                 "deck shortcuts disengage while focus is inside the range input",
+                 "fullscreen denial leaves the fitted deck usable; Escape still exits",
+                 "reduced motion reveals every section completely",
+                 "no-JS reading view renders all 6 sections; print keeps the page",
+                 "reading band order light/dark/light/dark/light/dark",
+                 "slide theme order dark/light/light/dark/light",
+                 "contrast: worst sampled pair 5.71 against a 4.5 requirement"]
+    },
+    "offline": {
+      "status": "pass",
+      "evidence": "qa/offline-rename.json",
+      "detail": "Copied to a different directory under a different filename: 0 non-file requests, 0 console or page errors, all 8 embedded images decoded, 6 sections and 5 slides present, deck opens/navigates/closes, #overview and #workflow both resolve."
+    },
+    "preservation": {
+      "status": "pass",
+      "evidence": "qa/preservation.json, qa/parity-gate.json",
+      "detail": "All 9 frozen inputs byte-identical after the run. The original handbook is preserved byte-identical under docs/handbooks/html/_operations-src/original/. Nothing under .agents/ was modified (the only files touched there are two __pycache__ bytecode caches written by importing the installed scripts). The parity gate was exercised: a page missing #workflow, missing #overview, missing a config value, or carrying an outbound URL is rejected, main() exits 2, and the live handbook is left untouched. python build.py --check exits 0 and does not write."
+    },
+    "positive_design": {
+      "status": "FAIL",
+      "evidence": "screenshot inspection, qa/screenshots/",
+      "detail": "Four defects that geometric gates cannot see. See residual_findings V1-V4."
+    }
+  },
+  "residual_findings": [
+    {
+      "id": "V1",
+      "severity": "high",
+      "gate": "positive design / brand",
+      "artifact": "docs/handbooks/html/operations.html (all 5 slides)",
+      "finding": "The light and dark brand-mark variants are selected the wrong way round on slides. build_deck picks marks['dark'] for a light slide and marks['light'] for a dark slide, so a light slide gets the paper-filled wordmark on a paper ground and a dark slide gets the ink-filled wordmark on an ink ground. Only the diamond reads; the wordmark is effectively invisible on every slide. The masthead lockup is correct.",
+      "evidence": "qa/screenshots/round3/deck-cover_1920x1080.png (dark slide, ink wordmark on ink), qa/screenshots/round3/deck-parameters-pane-par-chart_1920x1080.png (light slide, paper wordmark on paper)",
+      "why_not_caught_earlier": "The mark is an <img>, so its text is not in the DOM and no font, contrast or overlap rule applies to it. Only looking at the rendered pixels reveals it.",
+      "fix": "one-character change: invert the conditional in build_deck's mark selection"
+    },
+    {
+      "id": "V2",
+      "severity": "medium",
+      "gate": "positive design / figure quality",
+      "artifact": "the admission chart, reading page and slide 3 pane 3",
+      "finding": "The plot SVG uses preserveAspectRatio=\"none\" so the data-point circles are stretched into wide ellipses at every desktop width. The step line and the threshold marker are unaffected because their strokes are non-scaling.",
+      "evidence": "qa/screenshots/round3/deck-parameters-pane-par-chart_1920x1080.png",
+      "why_not_caught_earlier": "Distortion is not overflow, clipping, overlap or an undersized box, so no gate rule covers it.",
+      "fix": "draw the points with a non-scaling marker, or drop preserveAspectRatio=\"none\" and map the series to the rendered pixel box"
+    },
+    {
+      "id": "V3",
+      "severity": "medium",
+      "gate": "positive design / composition",
+      "artifact": "slide 3 pane 'Admission by queue size'",
+      "finding": "The chart is stretched to the full slide width at a short fixed height and roughly the lower half of the slide is empty. The installed contract calls out oversized empty containers as not meeting the design goal.",
+      "evidence": "qa/screenshots/round3/deck-parameters-pane-par-chart_1920x1080.png, qa/screenshots/final/deck-parameters-pane-par-chart_1920x1080.png",
+      "why_not_caught_earlier": "Occupied area is a diagnostic, not a gate threshold; the pane passes every geometric rule.",
+      "fix": "let the chart grow with available height on a slide and pair it with the probe in a two-column composition"
+    },
+    {
+      "id": "V4",
+      "severity": "high",
+      "gate": "positive design / legibility of the standalone graphic",
+      "artifact": "docs/handbooks/html/operations-process.svg",
+      "finding": "The three edge labels are centred in the gaps between stage cards but drawn at a y that falls inside the cards' vertical band, and they are wider than the gaps, so each label paints over the neighbouring card borders. 'approved records are archived' is about 190px wide in a gap of about 70px.",
+      "evidence": "qa/screenshots/standalone-process-svg.png",
+      "why_not_caught_earlier": "The SVG geometry check (qa/svg-check.json) compares text bounding boxes against the viewBox and against each other. Both pass: no text leaves the viewBox and no two text boxes overlap. Text over a rectangle is not text over text.",
+      "fix": "raise the label baseline above the card tops, or place the labels under the curve inside the gap and shorten them to the verb phrase"
+    },
+    {
+      "id": "C1",
+      "severity": "low",
+      "gate": "self-imposed stricter fit check",
+      "finding": "The slide element itself never scrolls at any measured viewport, so the installed desktop-stage-scroll gate passes everywhere. A stricter check on the inner .slide__body region reports 25 remaining cases of component scrolling with a visible themed scrollbar.",
+      "breakdown": {
+        "user-expanded source inventory (deck-appendices-inventory-open)": "9 cases at every viewport including 2560x1300 (+1048px) and 1920x1080 (+1210px); expanding a 9-row disclosure inside a slide is an explicit user action",
+        "compact reflow below the 1100px breakpoint": "deck-process panes at 1099x900, 1024x850 and 761x900 (+56 to +430px), where the 4-stage flow stacks vertically",
+        "genuine near-misses at named desktop sizes": "1366x768 appendix panes Ownership +52px, Uncertainty +63px, Rebuild +166px; 1600x900 Rebuild +102px; 1101x900 Rebuild +32px",
+        "extreme aspect 2560x720": "2 cases (+163px and +1525px)"
+      },
+      "note": "At 2560x1300 and 1920x1080 the only component scroll is the user-expanded inventory. Text was never shrunk below the floors and no slide was added to relieve this."
+    },
+    {
+      "id": "F11",
+      "severity": "informational",
+      "gate": "source coverage",
+      "finding": "The installed extractor walked the repository and ingested 8 of the 9 files. It has no .html reader, so the previously generated docs/handbooks/html/operations.html was absent from the extracted model; its stale retry value was read directly from the frozen input. The installed skill was not modified. The gap is disclosed on the delivered page (Rebuild appendix) and in the retained source inventory.",
+      "evidence": "docs/handbooks/html/_operations-src/extracted/model-extracted.json, docs/handbooks/html/_operations-src/source-map.json"
+    },
+    {
+      "id": "D1",
+      "severity": "informational",
+      "gate": "design consequence of a correction",
+      "finding": "The global navigation was changed from sticky to static in correction round 1, because a sticky bar overlaps page text in every scrolled state and the detector treats that as a text collision. The consequence is that reaching the global Presentation Mode button from deep in the page requires scrolling to the top, so 'close the deck and return to where I was' returns the reader to the top in that particular flow. Entering the deck without moving the page restores the exact offset (verified: 4000 -> 4000)."
+    }
+  ],
+  "missing_coverage": {
+    "source_units_not_represented_on_any_slide": [],
+    "reading_sections_not_measured": [],
+    "slides_not_measured": [],
+    "view_states_not_measured": [],
+    "viewports_not_measured": [],
+    "capabilities_unavailable": [],
+    "checks_not_performed": [
+      "No printed PDF was produced. Print-media geometry and the JavaScript-disabled print fallback were both exercised in Chromium (qa/measure-final.json no_js_and_print pass, qa/screenshots/final/nojs-print_1366x768.png), but an actual exported PDF file was not generated or inspected.",
+      "No native PowerPoint export was requested or produced.",
+      "Assistive-technology behaviour was not exercised with a real screen reader; accessibility evidence is limited to roles, names, labels, focus order, keyboard operation and measured contrast."
+    ]
+  },
+  "viewports_measured": [
+    [2560, 1300], [1920, 1080], [1366, 768], [390, 844],
+    [1101, 900], [1099, 900], [761, 900], [759, 900],
+    [2560, 720], [1024, 850], [1024, 851], [1600, 900], [360, 780]
+  ],
+  "breakpoints": {
+    "implemented": [1100, 760],
+    "neighbours_measured": [[1101, 1099], [761, 759]]
+  },
+  "states_inventoried": {
+    "count": 24,
+    "reading": ["default", "hotspots expanded", "source inventory expanded",
+                "chart readout selected", "probe refused (27)", "probe admitted edge (23)",
+                "enlarged process modal"],
+    "slides": ["cover", "agenda"],
+    "within_slide_panes": {
+      "parameters": ["The three parameters", "The admission rule", "Admission by queue size"],
+      "process": ["The four stages", "What the sources say per stage",
+                  "Edges and unbound parameters"],
+      "appendices": ["Ownership", "Code and API", "Drift", "Uncertainty",
+                     "Rebuild and sources"]
+    },
+    "deck_interactions": ["probe refused (29)", "chart readout selected",
+                          "enlarged process modal", "source inventory expanded"],
+    "environment_states": ["JavaScript disabled", "print media", "reduced motion",
+                           "fullscreen denied", "renamed and moved file"]
+  },
+  "evidence_index": {
+    "first build findings": "qa/first-build.json",
+    "installed measurement harness, first build": "qa/measure-round0.json",
+    "installed measurement harness, final": "qa/measure-final.json",
+    "installed detector, first build": "qa/detect-round0.json",
+    "state sweep, first build": "qa/states-round0.json",
+    "state sweep, final": "qa/states-final.json",
+    "factual coverage": "qa/facts.json",
+    "standalone graphic geometry": "qa/svg-check.json",
+    "offline after rename": "qa/offline-rename.json",
+    "input preservation": "qa/preservation.json",
+    "parity gate": "qa/parity-gate.json",
+    "state inventory": "qa/state_list.py",
+    "sweep harness": "qa/states.py",
+    "design record": "docs/handbooks/html/_operations-src/design-record.json",
+    "source to page to slide map": "docs/handbooks/html/_operations-src/source-map.json"
+  }
+}

@@ -45,6 +45,10 @@ Before the subtask-by-subtask implementation step begins for a phase, `/implemen
 
 This pre-flight is platform-agnostic. Public web research may refresh the map, but it requires no new credential or dependency; deterministic score/map validation and host enumeration/switch mechanics stay in `[[model-routing]]`. The retained `implement-phase` runbook executes the same pre-flight before its implementation stage. A phase that hits repeated test failures during the troubleshooting loop may upshift to a stronger tier or higher effort (upshift only, with confirmation, never an automatic mid-phase downshift); see the mid-task escalation rule in `[[model-routing]]`.
 
+## Queue re-assessment (guarantee)
+
+Before writing code, at plan entry and at every phase entry, `/implement` re-validates the plan against the codebase as it stands now and the plans queued around it, through `[[plan-queue-assessment]]`. A plan written months earlier is not assumed still correct. The result is written into the phase session history as evidence for the existing `## Plan delta` disposition, including when nothing drifted, because an unwritten check is indistinguishable from a skipped one. The rule lives in that skill; this dispatcher states the guarantee.
+
 ## Phase lifecycle (guarantee)
 
 `/implement` enforces the same lifecycle `/plan` generates. Three guarantees, worth stating because they change what the reader should expect at a phase boundary:

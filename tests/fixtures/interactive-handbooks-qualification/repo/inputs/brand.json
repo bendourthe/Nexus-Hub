@@ -1,0 +1,10 @@
+{
+  "name": "Aster Fieldworks",
+  "colors": {
+    "accent": "#b5632f",
+    "ink": "#172b3b",
+    "paper": "#f7f3e9"
+  },
+  "font": "Arial, sans-serif",
+  "logo": "brand.svg"
+}

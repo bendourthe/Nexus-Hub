@@ -1,0 +1,1546 @@
+{
+  "status": "fail",
+  "output_sha256": "ff7c6216b725e6355cc3977ede660b7172a9a497be0388875ca123b3f97f8e4b",
+  "rows": [
+    {
+      "view": "reading",
+      "id": "purpose",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "One catalog, several hosts"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Nexus-Hub stores reusable skills, commands, hooks and rules."
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1180,
+      "scrollWidth": 1180,
+      "height": 398,
+      "scrollHeight": 398,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 93,
+        "y": 369,
+        "width": 1180,
+        "height": 399.359375
+      },
+      "detector_findings": [
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(1) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(2) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(3) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(4) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(5) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        }
+      ]
+    },
+    {
+      "view": "reading",
+      "id": "authoring",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Start with the skill source"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "Each skill lives under catalog/skills/category/name/SKILL.md"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1180,
+      "scrollWidth": 1180,
+      "height": 429,
+      "scrollHeight": 429,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 93,
+        "y": 168.359375,
+        "width": 1180,
+        "height": 430.40625
+      },
+      "detector_findings": [
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(1) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(2) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(3) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(4) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(5) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        }
+      ]
+    },
+    {
+      "view": "reading",
+      "id": "validation",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Check before distribution"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "scripts/validate_skills.py validates required frontmatter, s"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1180,
+      "scrollWidth": 1180,
+      "height": 429,
+      "scrollHeight": 429,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 93,
+        "y": 337.765625,
+        "width": 1180,
+        "height": 430.40625
+      },
+      "detector_findings": [
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(1) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(2) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(3) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(4) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(5) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        }
+      ]
+    },
+    {
+      "view": "reading",
+      "id": "delivery",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Adapt the shape at the boundary"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "The platform adapters can flatten category folders, synthesi"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1180,
+      "scrollWidth": 1180,
+      "height": 429,
+      "scrollHeight": 429,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 93,
+        "y": 169.171875,
+        "width": 1180,
+        "height": 430.40625
+      },
+      "detector_findings": [
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(1) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(2) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(3) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(4) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(5) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        }
+      ]
+    },
+    {
+      "view": "reading",
+      "id": "proof",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Test the delivered capability"
+        },
+        {
+          "role": "body",
+          "px": 20,
+          "text": "A source-file test cannot prove installation. Exercise the i"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1180,
+      "scrollWidth": 1180,
+      "height": 429,
+      "scrollHeight": 429,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 93,
+        "y": 337.578125,
+        "width": 1180,
+        "height": 430.40625
+      },
+      "detector_findings": [
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(1) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(2) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(3) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(4) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > main > section:nth-of-type(5) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-page] p",
+                "value": "68ch",
+                "resolved_value": "68ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "733.125px",
+            "rendered_width_px": 733.13
+          },
+          "message": "Text-bearing element uses fixed max-width 68ch"
+        }
+      ]
+    },
+    {
+      "view": "presentation",
+      "id": "purpose",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "One catalog, several hosts"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "Nexus-Hub stores reusable skills, commands, hooks and rules."
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "purpose",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "One catalog, several hosts"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "Nexus-Hub stores reusable skills, commands, hooks and rules."
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "purpose",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "One catalog, several hosts"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "Nexus-Hub stores reusable skills, commands, hooks and rules."
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      },
+      "detector_findings": [
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > div > div > section:nth-of-type(1) > h2",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-slide] h2",
+                "value": "19ch",
+                "resolved_value": "19ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "447.859px",
+            "rendered_width_px": 447.84
+          },
+          "message": "Text-bearing element uses fixed max-width 19ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > div > div > section:nth-of-type(1) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-slide] p",
+                "value": "64ch",
+                "resolved_value": "64ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "989.46px",
+            "rendered_width_px": 989.45
+          },
+          "message": "Text-bearing element uses fixed max-width 64ch"
+        }
+      ]
+    },
+    {
+      "view": "presentation",
+      "id": "authoring",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Start with the skill source"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "Each skill lives under catalog/skills/category/name/SKILL.md"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "authoring",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Start with the skill source"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "Each skill lives under catalog/skills/category/name/SKILL.md"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "authoring",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Start with the skill source"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "Each skill lives under catalog/skills/category/name/SKILL.md"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      },
+      "detector_findings": [
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > div > div > section:nth-of-type(2) > h2",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-slide] h2",
+                "value": "19ch",
+                "resolved_value": "19ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "447.859px",
+            "rendered_width_px": 447.84
+          },
+          "message": "Text-bearing element uses fixed max-width 19ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > div > div > section:nth-of-type(2) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-slide] p",
+                "value": "64ch",
+                "resolved_value": "64ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "989.46px",
+            "rendered_width_px": 989.45
+          },
+          "message": "Text-bearing element uses fixed max-width 64ch"
+        }
+      ]
+    },
+    {
+      "view": "presentation",
+      "id": "validation",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Check before distribution"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "scripts/validate_skills.py validates required frontmatter, s"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "validation",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Check before distribution"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "scripts/validate_skills.py validates required frontmatter, s"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "validation",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Check before distribution"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "scripts/validate_skills.py validates required frontmatter, s"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      },
+      "detector_findings": [
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > div > div > section:nth-of-type(3) > h2",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-slide] h2",
+                "value": "19ch",
+                "resolved_value": "19ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "447.859px",
+            "rendered_width_px": 447.84
+          },
+          "message": "Text-bearing element uses fixed max-width 19ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > div > div > section:nth-of-type(3) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-slide] p",
+                "value": "64ch",
+                "resolved_value": "64ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "989.46px",
+            "rendered_width_px": 989.45
+          },
+          "message": "Text-bearing element uses fixed max-width 64ch"
+        }
+      ]
+    },
+    {
+      "view": "presentation",
+      "id": "delivery",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Adapt the shape at the boundary"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "The platform adapters can flatten category folders, synthesi"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "delivery",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Adapt the shape at the boundary"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "The platform adapters can flatten category folders, synthesi"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "delivery",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Adapt the shape at the boundary"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "The platform adapters can flatten category folders, synthesi"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "light",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      },
+      "detector_findings": [
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > div > div > section:nth-of-type(4) > h2",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-slide] h2",
+                "value": "19ch",
+                "resolved_value": "19ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "447.859px",
+            "rendered_width_px": 447.84
+          },
+          "message": "Text-bearing element uses fixed max-width 19ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > div > div > section:nth-of-type(4) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-slide] p",
+                "value": "64ch",
+                "resolved_value": "64ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "989.46px",
+            "rendered_width_px": 989.45
+          },
+          "message": "Text-bearing element uses fixed max-width 64ch"
+        }
+      ]
+    },
+    {
+      "view": "presentation",
+      "id": "proof",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "initial",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Test the delivered capability"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "A source-file test cannot prove installation. Exercise the i"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "proof",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "mid",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Test the delivered capability"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "A source-file test cannot prove installation. Exercise the i"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      }
+    },
+    {
+      "view": "presentation",
+      "id": "proof",
+      "viewport": [
+        1366,
+        768
+      ],
+      "state": "final",
+      "fonts": [
+        {
+          "role": "heading",
+          "px": 40.98,
+          "text": "Test the delivered capability"
+        },
+        {
+          "role": "body",
+          "px": 28.686,
+          "text": "A source-file test cannot prove installation. Exercise the i"
+        }
+      ],
+      "figures": [],
+      "clipped": [],
+      "width": 1366,
+      "scrollWidth": 1366,
+      "height": 700,
+      "scrollHeight": 700,
+      "visible": true,
+      "theme": "dark",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1366,
+        "height": 699.671875
+      },
+      "detector_findings": [
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > div > div > section:nth-of-type(5) > h2",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-slide] h2",
+                "value": "19ch",
+                "resolved_value": "19ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "447.859px",
+            "rendered_width_px": 447.84
+          },
+          "message": "Text-bearing element uses fixed max-width 19ch"
+        },
+        {
+          "rule": "fixed-text-max-width",
+          "severity": "high",
+          "selector": "body > div > div > section:nth-of-type(5) > div > p",
+          "viewport": {
+            "width": 1366,
+            "height": 768
+          },
+          "measurements": {
+            "declarations": [
+              {
+                "selector": "[data-dv-slide] p",
+                "value": "64ch",
+                "resolved_value": "64ch"
+              }
+            ],
+            "text_evidence": "semantic-text-tag",
+            "computed_max_width": "989.46px",
+            "rendered_width_px": 989.45
+          },
+          "message": "Text-bearing element uses fixed max-width 64ch"
+        }
+      ]
+    }
+  ],
+  "errors": [
+    "purpose: fixed-text-max-width",
+    "purpose: fixed-text-max-width",
+    "purpose: fixed-text-max-width",
+    "purpose: fixed-text-max-width",
+    "purpose: fixed-text-max-width",
+    "authoring: fixed-text-max-width",
+    "authoring: fixed-text-max-width",
+    "authoring: fixed-text-max-width",
+    "authoring: fixed-text-max-width",
+    "authoring: fixed-text-max-width",
+    "validation: fixed-text-max-width",
+    "validation: fixed-text-max-width",
+    "validation: fixed-text-max-width",
+    "validation: fixed-text-max-width",
+    "validation: fixed-text-max-width",
+    "delivery: fixed-text-max-width",
+    "delivery: fixed-text-max-width",
+    "delivery: fixed-text-max-width",
+    "delivery: fixed-text-max-width",
+    "delivery: fixed-text-max-width",
+    "proof: fixed-text-max-width",
+    "proof: fixed-text-max-width",
+    "proof: fixed-text-max-width",
+    "proof: fixed-text-max-width",
+    "proof: fixed-text-max-width",
+    "purpose: fixed-text-max-width",
+    "purpose: fixed-text-max-width",
+    "authoring: fixed-text-max-width",
+    "authoring: fixed-text-max-width",
+    "validation: fixed-text-max-width",
+    "validation: fixed-text-max-width",
+    "delivery: fixed-text-max-width",
+    "delivery: fixed-text-max-width",
+    "proof: fixed-text-max-width",
+    "proof: fixed-text-max-width"
+  ],
+  "qualitative_review": "required separately",
+  "browser": "Chromium 151.0.7922.34",
+  "font_px": {
+    "min": 20,
+    "mean": 33.74725,
+    "max": 40.98
+  },
+  "fail_count": 35,
+  "coverage": {
+    "sections": 5,
+    "slides": 5,
+    "measured_states": 20
+  }
+}
