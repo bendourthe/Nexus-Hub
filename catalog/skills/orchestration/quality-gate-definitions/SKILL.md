@@ -238,6 +238,37 @@ Add tests for uncovered code paths. Focus on new code first, then existing gaps.
 Critical and high vulnerabilities are blocking. Update dependencies or refactor code. Medium vulnerabilities are tracked but not blocking.
 ```
 
+#### Gate: rendered-artifact-verified
+
+```markdown
+## Gate: rendered-artifact-verified
+**Type**: Implementation Gate
+**Automation**: Fully automatic, except the final criterion
+
+### Required Criteria
+| # | Criterion | Check |
+|---|-----------|-------|
+| R1 | Renders with zero page errors | `measure_handbook.py` reports no pageerror entries |
+| R2 | Geometric audit returns zero findings | `geometric_audit.py <file>` exits 0 |
+| R3 | Nothing overflows its designed container | `slide-overflow` and `clipped-text` silent |
+| R4 | Every figure and table reference resolves | `clone-reference-escapes-slide` silent |
+| R5 | Line endings unchanged from baseline | each changed file against its committed blob |
+| R6 | The unmeasurable decisions are recorded | `check_attestation.py <record>` exits 0 |
+| R7 | The edited region was captured and inspected | a capture clipped to the region, under 1500px longest edge |
+
+### On Fail
+Return to the generation step. A rendered artifact that has not been rendered
+and looked at is not verified, whatever its source says.
+```
+
+R5 exists because a whitespace pass once silently rewrote eight files of a
+byte-frozen qualification corpus, invalidating the manifest that made the
+benchmark meaningful. R7 is the only criterion a machine cannot fully settle,
+and it is the one the source project's failures traced to most often.
+
+Owners: `[[document-to-interactive-html]]` for R1 to R4 and R6,
+`catalog/rules/html/visual-self-verification.md` for R7.
+
 #### Gate: docs-complete
 
 ```markdown
