@@ -564,7 +564,7 @@ def audit(
                 },
             )
             browser.close()
-    except Exception as exc:  # pragma: no cover - environment dependent
+    except Exception as exc:  # noqa: BLE001 - unavailable renderer is an explicit non-pass
         report["errors"].append(f"{type(exc).__name__}: {exc}")
         return report
 
