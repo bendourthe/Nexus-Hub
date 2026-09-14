@@ -43,7 +43,18 @@ CHECKS = (
     "legend-colour-collision",
     "oversized-type",
     "stroke-drift",
+    "legend-entry-not-drawn",
+    "tick-outside-range",
+    "viewbox-dead-space",
 )
+
+# Dead space beyond the ink, as a fraction of the viewBox dimension, before an
+# edge is reported. Calibrated from the source project's worked examples: a
+# flowchart declaring viewBox "0 0 1240 470" with content at y 40-436 carried
+# 8.5% at the top and 7.2% at the bottom and was visibly wrong; cropping it to
+# "0 22 1240 432" left 4.2%. Ten separate requests to remove that space is what
+# makes this worth gating rather than advising.
+DEAD_SPACE_FRACTION = 0.08
 
 # Sampling density along a trace. 240 points resolves a label-sized gap on a
 # full-width panel; the cost is a few milliseconds per path.
@@ -299,6 +310,133 @@ AUDIT = r"""(options) => {
     }
   }
 
+
+  // ---- 7. a legend entry with nothing drawn to match it -------------------
+  // A legend is a promise about the figure. The source project shipped a legend
+  // listing an item absent from the plot, and one whose dot was a different
+  // colour from the figure's dots; both read as data the reader cannot find.
+  const norm = (c) => (c || "").replace(/\s+/g, "");
+  for (const legend of legendGroups) {
+    // The figure this legend belongs to: nearest container holding an svg.
+    const scope = legend.closest("figure, .dv-figure, section, body");
+    const drawn = new Set();
+    for (const svg of (scope ? [...scope.querySelectorAll("svg")] : [])) {
+      if (legend.contains(svg)) continue;   // the swatches themselves
+      for (const mark of svg.querySelectorAll("path, circle, rect, line, polyline, polygon")) {
+        if (!visible(mark)) continue;
+        const ms = getComputedStyle(mark);
+        for (const paint of [ms.stroke, ms.fill]) {
+          if (paint && paint !== "none" && !/rgba\(0, 0, 0, 0\)/.test(paint)) {
+            drawn.add(norm(paint));
+          }
+        }
+      }
+    }
+    if (!drawn.size) continue;   // no figure to compare against
+    for (const entry of [...legend.querySelectorAll(
+        "[data-legend-entry], button, li, .legend-entry")].filter(visible)) {
+      const swatchEl = entry.querySelector("[data-swatch], svg *, .swatch") || entry;
+      const es = getComputedStyle(swatchEl);
+      const paint = [es.fill, es.backgroundColor, es.stroke].find(
+        (v) => v && v !== "none" && !/rgba\(0, 0, 0, 0\)/.test(v));
+      if (!paint) continue;
+      if (!drawn.has(norm(paint))) {
+        add("legend-entry-not-drawn", entry,
+            {swatch: paint, label: entry.textContent.trim().slice(0, 40),
+             drawn_colours: [...drawn].slice(0, 8)},
+            `Legend entry "${entry.textContent.trim().slice(0, 40)}" uses ${paint}, which nothing in the figure draws`);
+      }
+    }
+  }
+
+  // ---- 8. a tick outside the plotted range --------------------------------
+  // The source project emitted a "1 s" tick on a panel whose data stopped at
+  // 0.97 s, which invites the reader to read a value that was never measured.
+  for (const svg of svgs) {
+    const ticks = [...svg.querySelectorAll("[data-axis-tick], .tick text, .axis-tick")]
+      .filter((t) => visible(t) && t.textContent.trim());
+    if (!ticks.length) continue;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) continue;
+    // The drawn extent: every stroked mark's screen box, unioned.
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const mark of svg.querySelectorAll("path, polyline, circle, rect")) {
+      if (!visible(mark)) continue;
+      const ms = getComputedStyle(mark);
+      if (!ms.stroke || ms.stroke === "none") continue;
+      if (mark.closest("[data-axis], .axis")) continue;   // axis lines are not data
+      const r = rectOf(mark);
+      if (!r.width && !r.height) continue;
+      minX = Math.min(minX, r.left); maxX = Math.max(maxX, r.right);
+      minY = Math.min(minY, r.top);  maxY = Math.max(maxY, r.bottom);
+    }
+    if (!isFinite(minX)) continue;
+    for (const tick of ticks) {
+      const r = rectOf(tick);
+      const cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2;
+      const horizontal = tick.closest("[data-axis-x], .axis-x") !== null ||
+                         Math.abs(cy - maxY) < Math.abs(cx - minX);
+      // A tick is out of range when its CENTRE sits beyond the drawn data on
+      // its own axis, by more than half its own width, so a tick sitting at the
+      // final data point is not reported.
+      const slackX = r.width / 2 + 2, slackY = r.height / 2 + 2;
+      const outX = cx > maxX + slackX || cx < minX - slackX;
+      const outY = cy > maxY + slackY || cy < minY - slackY;
+      if ((horizontal && outX) || (!horizontal && outY)) {
+        add("tick-outside-range", tick,
+            {tick: tick.textContent.trim().slice(0, 20),
+             axis: horizontal ? "x" : "y",
+             data_extent_px: horizontal ? [round(minX), round(maxX)] : [round(minY), round(maxY)],
+             tick_centre_px: round(horizontal ? cx : cy)},
+            `Tick "${tick.textContent.trim().slice(0, 20)}" sits outside the plotted range`);
+      }
+    }
+  }
+
+  // ---- 9. a viewBox carrying dead space beyond its ink ---------------------
+  // Cropping the viewBox is strictly better than moving elements: the
+  // coordinates stay untouched, so nothing drifts and no annotation detaches.
+  for (const svg of svgs) {
+    const vb = svg.viewBox && svg.viewBox.baseVal;
+    if (!vb || !vb.width || !vb.height) continue;
+    const frame = rectOf(svg);
+    if (!frame.width || !frame.height) continue;
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const node of svg.querySelectorAll("*")) {
+      if (!visible(node) || node.tagName === "defs" || node.closest("defs")) continue;
+      if (typeof node.getBBox !== "function") continue;
+      let b;
+      try { b = node.getBBox(); } catch (e) { continue; }
+      if (!b || (!b.width && !b.height)) continue;
+      minX = Math.min(minX, b.x); maxX = Math.max(maxX, b.x + b.width);
+      minY = Math.min(minY, b.y); maxY = Math.max(maxY, b.y + b.height);
+    }
+    if (!isFinite(minX)) continue;
+    // getBBox is the right tool HERE and only here: this compares user-space
+    // content bounds against a user-space viewBox, so transforms are not the
+    // question. Everything judged against the SCREEN still uses rects.
+    const edges = {
+      top: (minY - vb.y) / vb.height,
+      bottom: (vb.y + vb.height - maxY) / vb.height,
+      left: (minX - vb.x) / vb.width,
+      right: (vb.x + vb.width - maxX) / vb.width,
+    };
+    for (const [edge, fraction] of Object.entries(edges)) {
+      if (fraction > options.dead_space_fraction) {
+        const vertical = edge === "top" || edge === "bottom";
+        const suggested = vertical
+          ? `"${round(vb.x)} ${round(minY - vb.height * 0.02)} ${round(vb.width)} ${round(maxY - minY + vb.height * 0.04)}"`
+          : `"${round(minX - vb.width * 0.02)} ${round(vb.y)} ${round(maxX - minX + vb.width * 0.04)} ${round(vb.height)}"`;
+        add("viewbox-dead-space", svg,
+            {edge, fraction: round(fraction), content_bounds:
+              [round(minX), round(minY), round(maxX), round(maxY)],
+             viewBox: `${round(vb.x)} ${round(vb.y)} ${round(vb.width)} ${round(vb.height)}`,
+             suggested_viewBox: suggested},
+            `viewBox carries ${Math.round(fraction * 100)}% dead space at the ${edge}; crop to ${suggested}`);
+      }
+    }
+  }
+
   return {findings, svg_count: svgs.length};
 }"""
 
@@ -308,6 +446,7 @@ def audit(
     samples: int,
     oversize_multiple: float,
     disabled: list[str] | None = None,
+    dead_space_fraction: float = DEAD_SPACE_FRACTION,
 ) -> dict[str, Any]:
     """Render the page and run every check. Never claims a pass it cannot prove."""
     report: dict[str, Any] = {
@@ -345,6 +484,7 @@ def audit(
                     "samples": samples,
                     "oversize_multiple": oversize_multiple,
                     "disabled": disabled or [],
+                    "dead_space_fraction": dead_space_fraction,
                 },
             )
             browser.close()
@@ -365,6 +505,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="points sampled along each trace")
     parser.add_argument("--oversize-multiple", type=float, default=3.0,
                         help="rendered type above this multiple of body size fails")
+    parser.add_argument("--dead-space-fraction", type=float, default=DEAD_SPACE_FRACTION,
+                        help="dead space beyond the ink before an edge is reported")
     parser.add_argument("--disable", action="append", default=[], choices=list(CHECKS),
                         help="skip a check; repeatable, for the negative control")
     parser.add_argument("--out", type=Path, help="write the JSON report here")
@@ -375,7 +517,8 @@ def main(argv: list[str] | None = None) -> int:
                           "errors": [f"no such file: {args.html}"]}, indent=2))
         return EXIT_UNVERIFIED
 
-    report = audit(args.html, args.samples, args.oversize_multiple, args.disable)
+    report = audit(args.html, args.samples, args.oversize_multiple, args.disable,
+                   args.dead_space_fraction)
     text = json.dumps(report, indent=2)
     if args.out:
         args.out.write_text(text + "\n", encoding="utf-8", newline="\n")
