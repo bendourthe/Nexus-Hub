@@ -69,7 +69,8 @@ def write(tmp_path: Path, record) -> Path:
 
 def test_a_complete_record_passes(tmp_path: Path) -> None:
     assert att.check(complete_record()) == []
-    assert att.main([str(write(tmp_path, complete_record()))]) == att.EXIT_PASS
+    record_path = write(tmp_path, complete_record())
+    assert att.main([str(record_path)]) == att.EXIT_PASS
 
 
 def test_an_absent_record_fails_rather_than_defaulting_to_pass(tmp_path: Path) -> None:
@@ -83,7 +84,8 @@ def test_removing_any_required_section_fails(tmp_path: Path, section: str) -> No
     del record[section]
     findings = att.check(record)
     assert any(section in f for f in findings), findings
-    assert att.main([str(write(tmp_path, record))]) == att.EXIT_INCOMPLETE
+    record_path = write(tmp_path, record)
+    assert att.main([str(record_path)]) == att.EXIT_INCOMPLETE
 
 
 @pytest.mark.parametrize("section", sorted(att.REQUIRED_SECTIONS))
