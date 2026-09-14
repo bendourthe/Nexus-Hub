@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Oversized type</title>
+<style>
+  body { margin: 0; font: 16px/1.5 Arial, sans-serif; }
+  svg { width: 600px; display: block; }
+  text { font-size: 14px; fill: #111; }
+</style></head><body>
+
+<svg viewBox="0 12.2 120 39">
+  <path d="M5,50 L115,15" fill="none" stroke="#2f6f9f" stroke-width="1"/>
+    <!-- Baseline at y=26 so the ascender of the scaled-up type stays inside
+       the viewBox. At y=12 it poked 3px above the top edge and the fixture
+       carried two defects instead of one. -->
+  <text x="5" y="26" style="font-size:14px">HUGE</text>
+</svg>
+</body></html>

@@ -348,6 +348,8 @@ The skill ships a Tier-3 bundle; load each file on demand rather than inlining i
 - `references/extraction-runbook.md` - per-format coverage, library + `pip install` lines, gotchas, the base64 image budget, determinism, the two-tier scanned-page OCR path, and the out-of-scope list.
 - `references/figure-reconstruction.md` - the figure classification taxonomy, the read-the-figure worksheet, the fidelity cross-checks, the confidence gate, map/diagram rules, the model round-trip, and the scanned-page transcription/OCR-verification pass (Step 3).
 - `references/interactive-features.md` - the interactive feature catalog, the full-width canvas contract, the image-sizing rules, the imagery tiers with the image-starved-section detection + integration gate, the theme-override path, and the enrichment pass tied to `[[hallmark-design]]` and the three input modes.
+- `scripts/check_attestation.py` - the completeness gate for the decisions no measurement can settle: every figure classified illustrative or evidential, every evidential series naming the computation behind it, what was cut from the draft and why, every claim about code naming the file and function it was verified against in the same session, and the AI-tell review. It checks that a decision was RECORDED, never whether it was a good one - a missing or empty record fails, and a complete record passes however plain its prose. Adding a quality heuristic here turns it into the beauty detector this catalog forbids, which is why a test feeds it a deliberately awful but complete record and requires a pass.
+- `scripts/geometric_audit.py` - the rendered-figure geometry audit: text outside its SVG viewport, label-versus-label collisions, a label sitting on a plotted trace, two legend entries keyed to one colour, type rendering far above the document scale, and stroke-width drift across comparable traces. Everything is measured in SCREEN space via `getBoundingClientRect`, never `getBBox`, which ignores transforms and reported every rotated axis title as clipped. Label-on-trace samples real ink with `getPointAtLength` rather than testing the trace's bounding box, which for a wiggly line is the whole panel. It also gates construction: a legend entry whose colour nothing in the figure draws, a tick emitted outside the plotted range, and a `viewBox` carrying dead space beyond its ink (reporting the offending edge and the crop to apply, because cropping leaves every coordinate untouched while moving elements makes annotations drift). `--disable <check>` switches one check off so its finding can be negative-controlled. An unavailable renderer reports `unverified` with the exact error and exits 2, never a pass.
 - `scripts/ensure_render_env.py` - probes the local headless-render environment the Step 9 loop needs (importable Playwright with a launchable chromium, then a local Chrome/Edge it can drive), exiting with a distinct code per state and printing the exact one-time provisioning commands. It NEVER installs without `--install`; its whole purpose is to make a degraded render environment EXPLICIT instead of silent.
 - `references/scroll-scrub.md` - the OPT-IN cinematic protocol: when it applies, job fidelity (present the document, do not invent a brand), the size / cost gate, the asset boundary (no hosted generation, no sibling files), the seam and pacing rules, the stills-only fallback, and the accessibility floor.
 - `assets/scroll-scrub-engine.js` - the zero-dependency scroll-scrub engine implementing that protocol: `data:` / Blob clip loading so the output stays one file, seam crossfade, per-section scroll + linger, mobile seek-coalescing, iOS priming, and a stills-only path that creates no video element under reduced motion. Adapt it; do not paste it.
@@ -358,6 +360,24 @@ The skill ships a Tier-3 bundle; load each file on demand rather than inlining i
 - `assets/presentation-template.html` - the self-contained offline scaffold (all CSS/JS inline, no external requests) the builder populates.
 - `assets/theme.json` - the default theme tokens the template reads, overridable via `[[theme-tokens]]` / `[[brand-styling]]`.
 - `assets/visual-qa-workflow.js` - the Dynamic-Workflow TEMPLATE (adapt, do not run verbatim) that fans the per-segment visual-QA grading out (grade -> adversarially verify -> synthesize fixes -> re-render), carrying the three mandatory workflow rules (graceful degradation to subagents / a single agent and to the structural scorer; scope-first token caution; skill-native, no outbound call).
+
+## Post-generation gate
+
+Every route that writes an artifact finishes with the same two commands, and a
+finding is a defect to fix rather than a note to pass along:
+
+```
+python scripts/geometric_audit.py <output.html>      # 0 pass, 1 findings, 2 unverified
+python scripts/check_attestation.py <attestation>    # 0 complete, 1 incomplete, 2 unreadable
+```
+
+Exit 2 never counts as a pass. An unavailable renderer means unverified, and
+reporting unverified as success is the failure this whole gate exists to
+prevent.
+
+The rendered-region capture that closes the loop is owned by
+`catalog/rules/html/visual-self-verification.md`, which binds every HTML
+artifact this harness produces rather than this skill alone.
 
 ## Rule ownership
 
@@ -372,6 +392,13 @@ as sticky at all. Working navigation was deleted three times to satisfy both.
 `text-overlap` is now scoped to a single out-of-flow layer, which is the fix
 this table's absence had hidden.
 
+The AI-tell rows follow this catalog's tie-break for an overlapping concern: one
+skill decides WHEN a constraint applies and how severe a violation is, another
+owns MEASURING it. `[[hallmark-design]]` judges, `[[anti-slop-editing]]` holds
+the named list, and this skill counts the two members of that list which are
+countable in the rendered DOM. Nothing here judges taste; a count is a fact, and
+whether the count is right for a document is the author's call.
+
 | Concern | Owner |
 |---|---|
 | Whether a rendered artifact is exercised at all, and what counts as evidence | `[[functional-verification]]` |
@@ -382,8 +409,13 @@ this table's absence had hidden.
 | Brand-mark visibility and chart deformation | this skill |
 | Figure fidelity to its source, and the illustrative-vs-evidential split | `references/figure-reconstruction.md` |
 | Diagram geometry, axes, ticks, annotation placement | `references/svg-diagram-quality.md` |
-| The "looks AI-generated" visual tells | `[[hallmark-design]]` |
-| Named AI-slop prose patterns | `[[anti-slop-editing]]` |
+| Whether a design reads as AI-generated, and how severe that is | `[[hallmark-design]]` |
+| The NAMED tell list, prose and document alike | `[[anti-slop-editing]]` |
+| MEASURING the two countable document tells | this skill (`geometric_audit.py`) |
+| Whether the unmeasurable decisions were recorded | this skill (`check_attestation.py`) |
+| Figure construction: legend integrity, tick range, viewBox cropping | this skill (`geometric_audit.py`), rules in `references/figure-reconstruction.md` |
+| Deck integrity: canvas fit, post-animation visibility, clone references | this skill (`measure_handbook.py`), rules in `references/dual-view-handbooks.md` |
+| The render-and-look loop, for every HTML artifact this harness produces | `catalog/rules/html/visual-self-verification.md` |
 
 ## Related Skills
 
