@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 4.11.0 -->
+<!-- nexus-hub-version: 4.11.2 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
