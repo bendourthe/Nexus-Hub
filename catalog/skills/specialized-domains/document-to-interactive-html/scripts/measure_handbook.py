@@ -361,6 +361,103 @@ DECLARED_POSITION = r"""() => {
  return out;
 }"""
 
+# Deck integrity, evaluated against ONE slide while that slide is current.
+#
+# The "while current" part is the whole contract. A probe that walks every slide
+# at the end reports all of them hidden, because only the current slide is
+# displayed - that produced a false alarm in the source project and cost a round
+# of investigation into a defect that did not exist. The caller runs this inside
+# the existing per-slide loop, after the animation window has closed.
+#
+# Three defects, none of which is visible in markup review:
+#
+#  - A slide that overflows the fixed canvas. There is nowhere to scroll on a
+#    slide, so overflow is content the reader can never reach.
+#  - An element left permanently invisible by a fill-mode collision. Combining a
+#    staggering utility that sets opacity:0 filling FORWARDS with a component
+#    that animates itself filling BACKWARDS left four tiles invisible in the
+#    source project. Undetectable by reading the CSS; trivial to measure once
+#    the animations have finished.
+#  - A dangling reference in a cloned figure. Slides clone the document's
+#    figures, and a clone whose url(#x) still points at the original appears to
+#    work only while the original is in the document to resolve against.
+DECK_INTEGRITY = r"""(slide) => {
+ const findings = [];
+ const round = (n) => Math.round(n * 100) / 100;
+ const name = (e) => e.tagName.toLowerCase() + (e.id ? ('#' + e.id) : '');
+
+ // ---- canvas fit ---------------------------------------------------------
+ const frame = slide.getBoundingClientRect();
+ for (const child of slide.querySelectorAll('*')) {
+   const cs = getComputedStyle(child);
+   if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+   if (cs.position === 'fixed') continue;
+   const r = child.getBoundingClientRect();
+   if (!r.width && !r.height) continue;
+   const overX = Math.max(frame.left - r.left, r.right - frame.right);
+   const overY = Math.max(frame.top - r.top, r.bottom - frame.bottom);
+   const worst = Math.max(overX, overY);
+   if (worst > 2) {
+     findings.push({rule: 'slide-overflow', selector: name(child),
+       overflow_px: round(worst), axis: overX >= overY ? 'x' : 'y',
+       text: (child.textContent || '').trim().slice(0, 40)});
+     break;   // one report per slide; the first is enough to act on
+   }
+ }
+
+ // ---- an element left invisible after the animation window ----------------
+ for (const e of slide.querySelectorAll('*')) {
+   const own = [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
+   const paints = own || e.tagName === 'IMG' || e.tagName === 'svg';
+   if (!paints) continue;
+   if (e.closest('[aria-hidden="true"],[hidden]')) continue;
+   const cs = getComputedStyle(e);
+   if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+   let effective = 1;
+   for (let a = e; a && a !== document.documentElement; a = a.parentElement) {
+     effective *= parseFloat(getComputedStyle(a).opacity || '1');
+     if (a === slide) break;
+   }
+   if (effective < 0.05) {
+     findings.push({rule: 'invisible-after-animation', selector: name(e),
+       effective_opacity: round(effective),
+       text: (e.textContent || '').trim().slice(0, 40)});
+   }
+ }
+
+ // ---- a cloned figure whose references do not resolve ---------------------
+ const scope = slide.querySelectorAll('[data-dv-clone], svg');
+ for (const holder of scope) {
+   if (holder.matches('[data-dv-clone]') && !holder.children.length) {
+     findings.push({rule: 'empty-clone-holder', selector: name(holder)});
+     continue;
+   }
+   for (const node of holder.querySelectorAll('*')) {
+     const refs = [];
+     for (const attr of node.getAttributeNames()) {
+       const v = node.getAttribute(attr);
+       if (!v) continue;
+       const m = /^url\(["']?#([^"')]+)["']?\)$/.exec(v.trim());
+       if (m) refs.push(m[1]);
+       else if (attr === 'href' || attr === 'xlink:href') {
+         if (v.startsWith('#')) refs.push(v.slice(1));
+       }
+     }
+     for (const id of refs) {
+       // Resolve WITHIN the slide first: a clone that resolves only against the
+       // original is the exact defect, and it looks fine until the original goes.
+       if (!slide.querySelector('[id="' + CSS.escape(id) + '"]')) {
+         findings.push({rule: 'clone-reference-escapes-slide', selector: name(node),
+           reference: id,
+           resolves_in_document: !!document.getElementById(id)});
+       }
+     }
+   }
+ }
+ return findings;
+}"""
+
+
 def measure(
     html: Path,
     inventory: dict[str, Any],
@@ -559,6 +656,18 @@ def measure(
                                     "linkedStylesheets": [],
                                 },
                             )
+                            if view == "presentation" and state == "final":
+                                # While THIS slide is current, and only now:
+                                # the animations have finished, so opacity is
+                                # what the reader will actually see.
+                                for hit in page.evaluate(
+                                    DECK_INTEGRITY, item.element_handle()
+                                ):
+                                    report["errors"].append(
+                                        f"{identity}: {hit['rule']} on "
+                                        f"{hit['selector']}"
+                                        + (f" -- {hit['text']!r}" if hit.get("text") else "")
+                                    )
                             row["detector_findings"] = found["findings"]
                             report["errors"].extend(
                                 f"{identity}: {f['rule']}"
