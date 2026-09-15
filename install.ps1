@@ -64,6 +64,47 @@ function Test-CommandExists {
     return [bool](Get-Command $Name -ErrorAction SilentlyContinue)
 }
 
+# Delete a directory tree that may contain paths longer than Windows MAX_PATH.
+#
+# `Remove-Item -Recurse` fails on any path over 260 characters, and it reports
+# "Could not find a part of the path" rather than a length error, so the failure
+# reads as a missing file and sends the reader looking for the wrong bug. Setting
+# LongPathsEnabled=1 does not rescue this: PowerShell 5.1 runs on .NET Framework,
+# which ignores that flag without a separate per-application opt-in.
+#
+# The catalog reaches 298 characters repo-relative under
+# docs/releases/v4/v4.9/development/security-audit-benchmark/, whose ledger entry
+# filenames concatenate two SHA-256 hashes (148 characters). Any install prefix
+# pushes those past the limit, so extracting the catalog and then re-running the
+# bootstrap fails for every Windows user on a stock shell.
+#
+# robocopy uses the long-path-aware APIs and mirrors from an empty directory,
+# which is the same reason Safe-Folder-Copy in scripts/installer.ps1 already uses
+# it for arbitrary-depth skill trees. Exit codes 0-7 are success; 8 and above are
+# real failures.
+function Remove-TreeLongPathSafe {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path)) { return $true }
+
+    if (-not (Test-CommandExists 'robocopy')) {
+        # Fall back rather than fail: a short tree still deletes fine.
+        Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction SilentlyContinue
+        return -not (Test-Path -LiteralPath $Path)
+    }
+
+    $empty = Join-Path ([System.IO.Path]::GetTempPath()) ("nh-empty-" + [guid]::NewGuid().ToString('N'))
+    try {
+        New-Item -ItemType Directory -Force -Path $empty | Out-Null
+        & robocopy $empty $Path /purge /nfl /ndl /njh /njs /r:1 /w:1 | Out-Null
+        if ($LASTEXITCODE -ge 8) { return $false }
+        Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction SilentlyContinue
+        return -not (Test-Path -LiteralPath $Path)
+    } finally {
+        Remove-Item -LiteralPath $empty -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
 # Resolve a tar that can actually read a Windows path. GNU tar -- the one Git
 # Bash / MSYS put on PATH -- parses a drive-letter path as a remote `host:path`
 # spec, so extracting from `a drive-letter path` makes it try to connect to a host
@@ -427,7 +468,12 @@ function Invoke-Standalone {
         Set-PinMarker -Src $src -Ref $ref
 
         Write-BootstrapInfo "Extracting catalog to $src ..."
-        if (Test-Path $src) { Remove-Item -Recurse -Force $src }
+        if (Test-Path $src) {
+            if (-not (Remove-TreeLongPathSafe -Path $src)) {
+                Write-BootstrapError "Could not clear the previous catalog at $src. Remove it manually and re-run."
+                exit 1
+            }
+        }
         New-Item -ItemType Directory -Force -Path $src | Out-Null
 
         if ($useTar) {
@@ -459,7 +505,7 @@ function Invoke-Standalone {
         & (Get-PowerShellExe) -NoProfile -ExecutionPolicy Bypass -File $installer @ArgList
         $exitCode = $LASTEXITCODE
     } finally {
-        if (Test-Path $tmp) { Remove-Item -Recurse -Force $tmp -ErrorAction SilentlyContinue }
+        if (Test-Path $tmp) { Remove-TreeLongPathSafe -Path $tmp | Out-Null }
     }
     exit $exitCode
 }
