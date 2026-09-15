@@ -4,7 +4,7 @@ Status: implemented - Local implementation is complete; integration and release 
 
 Use configured human Git identities for generated work on every supported local agent platform. This decision covers install-time Git hooks, existing-hook preservation, activation, rollback and the limits of local enforcement.
 
-**Status**: Implemented; integration pending
+**Status**: Implemented; integrated through PR #217
 **Date**: 2026-09-14
 **Author**: Ben Dourthe
 **Template**: Nygard
@@ -51,4 +51,4 @@ Both installers deliver an active guard in a configured Git repository. Real com
 | New platform changes attribution defaults | Medium | Medium | Seed only documented levers, refresh source evidence and keep Git checks independent. |
 | Old agent-authored history is pushed to a new remote | Medium | Medium | Reject with diagnostics; installation never rewrites or reattributes history automatically. |
 
-Integration and release qualification remain pending. User operation details are in [the attribution guide](../../../guides/user-attribution.md).
+Integration passed through PR #217 at bd16d3996d9474a6bc43e1ba836049ee7e009cc9; all five required checks and post-merge run 34925451808 passed. Release publication and downloaded-artifact verification are the remaining release gates. User operation details are in [the attribution guide](../../../guides/user-attribution.md).

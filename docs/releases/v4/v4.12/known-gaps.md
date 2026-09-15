@@ -78,3 +78,8 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 **Source phase**: Phase 4. **Plan reference**: T022. **Owner**: Target-manifest maintainer. **Resolution**: final validation found that a file added during traversal could share the directory's original modification timestamp. The manifest now compares the captured entry-name set as well as directory identity and timestamp. No API or history-rewrite policy changed.
 
 **Evidence**: the original Linux full receipt retains one failed directory-change assertion, 4,970 passing repository tests and 343 skips. A deterministic timestamp-restoration regression failed before the fix; afterward the target-manifest module passed 54 tests with two explicit Windows skips. Both changed Python files pass Ruff. The complete corrected-candidate rerun is recorded separately in the final evidence.
+
+
+### Release disposition
+
+The v4.12.0 release preserves the four warnings and four historical quality-gate gaps above. Portable attribution integration passed PR #217 and post-merge run 34925451808; it does not close those independent items. No unresolved portable-code finding remains. See [release qualification](development/release-qualification.md) for the release evidence and queue impacts.
