@@ -242,6 +242,8 @@ def test_real_workspace_installer_delivers_working_guard(sandbox, runtime, scope
             "POSIX global venv layout is covered on Linux; Windows uses the PowerShell installer."
         )
     if runtime == "powershell":
+        if os.name != "nt":
+            pytest.skip("The PowerShell installer targets Windows; POSIX hosts use Bash.")
         executable = shutil.which("powershell") or shutil.which("pwsh")
         if not executable:
             pytest.skip("PowerShell unavailable")

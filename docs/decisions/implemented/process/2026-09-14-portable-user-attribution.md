@@ -23,7 +23,7 @@ Ship a separate standard-library Python guard and expose it through `nexus-hub a
 
 Chain original hooks and retain their arguments, input and exit status. Preserve special hook absence when Git assigns meaning to presence. Worktree configuration requires activation at that scope. A non-Git workspace reports setup pending; missing identity installs a guard that blocks contributions until configured. A check reports active coverage or actionable failure. Rollback restores only the configuration still owned by Nexus-Hub and retains recovery files.
 
-All instruction templates require user authorship, no agent footers, preflight verification and publication using the intended user's hosting account. Claude's documented empty attribution settings are seeded from the canonical platform-defaults source. Cursor's sessionStart context response loads the shared policy where no global instruction file exists. Aider's adapter seeds its documented attribution flags, Git verification and policy read list for both installation scopes. Existing conflicting user configuration is preserved and reported as NEEDS SETUP.
+All instruction templates require user authorship, no agent footers, preflight verification and publication using the intended user's hosting account. Claude's documented empty attribution settings are seeded from the canonical platform-defaults source. Cursor's sessionStart context response loads the shared policy where no global instruction file exists. Aider's adapter seeds its documented attribution flags, Git verification and policy read list for both installation scopes. Aider conflicts and preserved Cursor hooks are reported as NEEDS SETUP; existing Claude settings follow the normal preservation policy.
 
 ## Alternatives considered
 
