@@ -1,0 +1,8 @@
+# User Attribution
+
+Rules for agents creating commits, tags, pull requests and releases after Nexus-Hub installation. Covers human identity, preflight verification, checked tags and publication limits.
+
+- All newly generated work belongs to the user. Use their configured Git `user.name` and `user.email` for author, committer and annotated-tag identity. Never substitute Claude, Codex, Cursor, Antigravity, Copilot, Gemini, another agent, a bot, or a fabricated human identity. Preserve the original human author when replaying existing human commits.
+- Before committing, tagging or pushing, run `nexus-hub attribution check` in that repository. If it fails, resolve the reported setup issue; missing identity requires the user's real identity. A repository with its own hooks needs `nexus-hub attribution install --workspace`, which preserves those hooks. Never bypass or disable hooks, use `--no-verify`, or override identity to make a blocked operation pass.
+- Do not add agent co-authors, `Co-Authored-By`, `Made-With`, `Claude-Session`, generated-by footers or AI signatures to commits, tags, pull requests or release notes. Use `nexus-hub attribution tag NAME -m MESSAGE` for annotated tags, substituting the requested name and message.
+- Authenticate pushes, pull requests and releases with the user's intended hosting account. Git identity does not select that account. Check the authenticated account before publishing. Direct hosting API commits and cloud-agent commits bypass local Git hooks: do not publish through them unless the resulting author, committer and message have been verified against these rules. Platform-generated merge metadata and GitHub contributor-cache refresh are outside local control.

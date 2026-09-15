@@ -1,0 +1,253 @@
+{
+  "version": "4.12.0",
+  "integration_revision": "bd16d3996d9474a6bc43e1ba836049ee7e009cc9",
+  "scope": "Mapped living sources, builder inputs, reviewed code inputs, final outputs and review receipts; repository-relative layout retained under repository/.",
+  "files": [
+    {
+      "source": "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js",
+      "snapshot": "repository/catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js",
+      "sha256": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d"
+    },
+    {
+      "source": "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js",
+      "snapshot": "repository/catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js",
+      "sha256": "336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6"
+    },
+    {
+      "source": "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css",
+      "snapshot": "repository/catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css",
+      "sha256": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35"
+    },
+    {
+      "source": "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+      "snapshot": "repository/catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+      "sha256": "6c6fe8535e5be98a5bd92118d6f27847dbe5edb04da52bfea78741eb0e3962d4"
+    },
+    {
+      "source": "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py",
+      "snapshot": "repository/catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py",
+      "sha256": "cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2"
+    },
+    {
+      "source": "catalog/style-guides/git-attribution.md",
+      "snapshot": "repository/catalog/style-guides/git-attribution.md",
+      "sha256": "b7f981c25aeabb79761e215205e2fd09829f4290713b8e82755a1dfa1c5abe67"
+    },
+    {
+      "source": "configs/platform-defaults.json",
+      "snapshot": "repository/configs/platform-defaults.json",
+      "sha256": "e8ca8c8f49bd70448e5b7896a20308407dbcac0e442de5c3964e955e9c7ebc23"
+    },
+    {
+      "source": "docs/handbooks/_sources/distribution/design.css",
+      "snapshot": "repository/docs/handbooks/_sources/distribution/design.css",
+      "sha256": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24"
+    },
+    {
+      "source": "docs/handbooks/_sources/distribution/evidence.json",
+      "snapshot": "repository/docs/handbooks/_sources/distribution/evidence.json",
+      "sha256": "b810d9515e63557e5186f7d5c62da1f3aa5538fc644fd89d6bdfead90be6b02b"
+    },
+    {
+      "source": "docs/handbooks/_sources/distribution/identity-composition.html",
+      "snapshot": "repository/docs/handbooks/_sources/distribution/identity-composition.html",
+      "sha256": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014"
+    },
+    {
+      "source": "docs/handbooks/_sources/distribution/model.json",
+      "snapshot": "repository/docs/handbooks/_sources/distribution/model.json",
+      "sha256": "c89ec3703b5dbc35eb4b62d12fcf2eba7a956f6319ef74c83dbce9386a6766ae"
+    },
+    {
+      "source": "docs/handbooks/_sources/distribution/ownership-composition.html",
+      "snapshot": "repository/docs/handbooks/_sources/distribution/ownership-composition.html",
+      "sha256": "31df6a101328862f4e525a8b79cec45cb531d3404a8c97a108b48fca4ff231e3"
+    },
+    {
+      "source": "docs/handbooks/_sources/distribution/route-composition.html",
+      "snapshot": "repository/docs/handbooks/_sources/distribution/route-composition.html",
+      "sha256": "349e1382529a541ee001f589b96194205c6e0854037bae2d240f54749b6d1cb3"
+    },
+    {
+      "source": "docs/handbooks/_sources/distribution/shapes-composition.html",
+      "snapshot": "repository/docs/handbooks/_sources/distribution/shapes-composition.html",
+      "sha256": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85"
+    },
+    {
+      "source": "docs/handbooks/_sources/distribution/source.md",
+      "snapshot": "repository/docs/handbooks/_sources/distribution/source.md",
+      "sha256": "0b4bfc5f7254911e278bb74cb0b160ed372013a57eaf63356b91fc610acce080"
+    },
+    {
+      "source": "docs/handbooks/_sources/distribution/verification-composition.html",
+      "snapshot": "repository/docs/handbooks/_sources/distribution/verification-composition.html",
+      "sha256": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779"
+    },
+    {
+      "source": "docs/handbooks/_sources/overview/authoring-composition.html",
+      "snapshot": "repository/docs/handbooks/_sources/overview/authoring-composition.html",
+      "sha256": "e38964521614c8c0317a63d2890685e2ffed10ef2625e6d181bf994db6a4ec6c"
+    },
+    {
+      "source": "docs/handbooks/_sources/overview/delivery-composition.html",
+      "snapshot": "repository/docs/handbooks/_sources/overview/delivery-composition.html",
+      "sha256": "c7ab0ca77c7f6468d1914f17338d72a33ffe560888fb4573bafe6fe6ce5c9259"
+    },
+    {
+      "source": "docs/handbooks/_sources/overview/design.css",
+      "snapshot": "repository/docs/handbooks/_sources/overview/design.css",
+      "sha256": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24"
+    },
+    {
+      "source": "docs/handbooks/_sources/overview/evidence.json",
+      "snapshot": "repository/docs/handbooks/_sources/overview/evidence.json",
+      "sha256": "0e8690086493097d07101d1a2bfbc6452f04aa72d02222205b6406f436d1b58b"
+    },
+    {
+      "source": "docs/handbooks/_sources/overview/model.json",
+      "snapshot": "repository/docs/handbooks/_sources/overview/model.json",
+      "sha256": "f5d3c133109e6a5f498037d67228d70255a118adca6663ad7c31c223c3a48580"
+    },
+    {
+      "source": "docs/handbooks/_sources/overview/proof-composition.html",
+      "snapshot": "repository/docs/handbooks/_sources/overview/proof-composition.html",
+      "sha256": "5450a7264da18cccd1423951768e9a271cb42211545464ef035dde2a2d75958f"
+    },
+    {
+      "source": "docs/handbooks/_sources/overview/purpose-composition.html",
+      "snapshot": "repository/docs/handbooks/_sources/overview/purpose-composition.html",
+      "sha256": "511907f9123cb68a61b67a38d7d06ddb67642e5f2871cb84410707b1d7a62beb"
+    },
+    {
+      "source": "docs/handbooks/_sources/overview/source.md",
+      "snapshot": "repository/docs/handbooks/_sources/overview/source.md",
+      "sha256": "23c8a608f9204b67f3ab130891b055bd4946f1e1c7c7d597542773d8bc7721cf"
+    },
+    {
+      "source": "docs/handbooks/_sources/overview/validation-composition.html",
+      "snapshot": "repository/docs/handbooks/_sources/overview/validation-composition.html",
+      "sha256": "4769181873d4f9b290a783d44986a9382771a90d7c9a4d548de46e8d0d44461f"
+    },
+    {
+      "source": "docs/handbooks/distribution.html",
+      "snapshot": "repository/docs/handbooks/distribution.html",
+      "sha256": "8463c66d85d0d354374b89ceb2a10ddf8c9fe5138a866ad13606776d763cc557"
+    },
+    {
+      "source": "docs/handbooks/distribution.html.build.json",
+      "snapshot": "repository/docs/handbooks/distribution.html.build.json",
+      "sha256": "6ca712b4197840f012e0503cb96959a8983b2521f54ae9ebd559dffbfb8b3e1d"
+    },
+    {
+      "source": "docs/handbooks/handbooks.json",
+      "snapshot": "repository/docs/handbooks/handbooks.json",
+      "sha256": "2150fe98564177982b2f7d5623c7ba73b7b32a228cbac45f37b0611d3e52d890"
+    },
+    {
+      "source": "docs/handbooks/html/.gitkeep",
+      "snapshot": "repository/docs/handbooks/html/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "docs/handbooks/markdown/.gitkeep",
+      "snapshot": "repository/docs/handbooks/markdown/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "docs/handbooks/overview.html",
+      "snapshot": "repository/docs/handbooks/overview.html",
+      "sha256": "c16b69de18b92760e101c7f8ddbe95d566c0058fdfbf14d5657255584a659799"
+    },
+    {
+      "source": "docs/handbooks/overview.html.build.json",
+      "snapshot": "repository/docs/handbooks/overview.html.build.json",
+      "sha256": "5c02806b13ce21b35dde5dbd3330115856e9523ed1d368cf2a02f23f253736f6"
+    },
+    {
+      "source": "docs/handbooks/README.md",
+      "snapshot": "repository/docs/handbooks/README.md",
+      "sha256": "c3b9639fed210fb95c04b265ecfb40f140e4ad36840b490094d42f5a3d802961"
+    },
+    {
+      "source": "docs/releases/v4/v4.11/development/interactive-handbooks/phase-6-build-evidence.json",
+      "snapshot": "repository/docs/releases/v4/v4.11/development/interactive-handbooks/phase-6-build-evidence.json",
+      "sha256": "0d96f1b172acb89ce7107d19eae4cd535a936d4283b0a4326262da1900b3d0bb"
+    },
+    {
+      "source": "docs/releases/v4/v4.11/development/interactive-handbooks/phase-6-content-review.md",
+      "snapshot": "repository/docs/releases/v4/v4.11/development/interactive-handbooks/phase-6-content-review.md",
+      "sha256": "0bf746d75065778f5adccca0442dcac07d847fe8e816e470a4f223d7b020c819"
+    },
+    {
+      "source": "docs/releases/v4/v4.11/development/interactive-handbooks/phase-7-overview-rendered.json",
+      "snapshot": "repository/docs/releases/v4/v4.11/development/interactive-handbooks/phase-7-overview-rendered.json",
+      "sha256": "6561c4d8872603b022776a8f27ea4dbc855c7d6dc7d6a5037c1dab9a0cd90b07"
+    },
+    {
+      "source": "docs/releases/v4/v4.12/development/portable-attribution-handbook-build.json",
+      "snapshot": "repository/docs/releases/v4/v4.12/development/portable-attribution-handbook-build.json",
+      "sha256": "042069917bcef67964fbc9de316045cd9c05877a15c40e745400b41abf414070"
+    },
+    {
+      "source": "docs/releases/v4/v4.12/development/portable-attribution-handbook-content.md",
+      "snapshot": "repository/docs/releases/v4/v4.12/development/portable-attribution-handbook-content.md",
+      "sha256": "598617998397ce3cb38afad2fe3a4a42b813802560971ca1aa9b40c94507dbc8"
+    },
+    {
+      "source": "docs/releases/v4/v4.12/development/portable-attribution-handbook-rendered.json",
+      "snapshot": "repository/docs/releases/v4/v4.12/development/portable-attribution-handbook-rendered.json",
+      "sha256": "44e194c65e2bc5bb901e2d7cf282c652ec640a370e9a65157f49fc20cdcbed79"
+    },
+    {
+      "source": "scripts/check_registry_entries.py",
+      "snapshot": "repository/scripts/check_registry_entries.py",
+      "sha256": "0a5a963ce21d1d0304935a22b9cf506bf62bf1e613b89e423ddce6256996ceb6"
+    },
+    {
+      "source": "scripts/installer.ps1",
+      "snapshot": "repository/scripts/installer.ps1",
+      "sha256": "6d8d46c46122a7454d658d7d9b2fec8c369e1b8bc788e1d2bbc38218f51725df"
+    },
+    {
+      "source": "scripts/installer.sh",
+      "snapshot": "repository/scripts/installer.sh",
+      "sha256": "7edd2c8582fac9b5a73716655762170826f28b6798df51fb387c646c8a994ff4"
+    },
+    {
+      "source": "scripts/lib/integrations/_catalog_adapters.py",
+      "snapshot": "repository/scripts/lib/integrations/_catalog_adapters.py",
+      "sha256": "3d92a49b0f0338461e6e029bd5301abc5cbce7451ac4e58014357ae998536de9"
+    },
+    {
+      "source": "scripts/lib/integrations/_owned.py",
+      "snapshot": "repository/scripts/lib/integrations/_owned.py",
+      "sha256": "aaeae3a0fe420ecabd4d5f863257454bc966e707d97e0fba4e7bba2ebc761f64"
+    },
+    {
+      "source": "scripts/lib/integrations/aider.py",
+      "snapshot": "repository/scripts/lib/integrations/aider.py",
+      "sha256": "46055a8d110cf1230a7bfc631d4e8b0941adb1929bdf9cfc89489ef676be4edc"
+    },
+    {
+      "source": "scripts/lib/integrations/cursor.py",
+      "snapshot": "repository/scripts/lib/integrations/cursor.py",
+      "sha256": "1a93d54aae64f161cc0f00f559a5a9010c42e34864b2672a901c2cd5a160ad84"
+    },
+    {
+      "source": "scripts/lib/integrations/runner.py",
+      "snapshot": "repository/scripts/lib/integrations/runner.py",
+      "sha256": "7912fa31727da6bb9bf3877b3c68d9972d491f7f9cb96010d2a93acabd221833"
+    },
+    {
+      "source": "scripts/nexus_git_attribution.py",
+      "snapshot": "repository/scripts/nexus_git_attribution.py",
+      "sha256": "866d6960f46b1ba8b155e14735732ac8f5150e64b96e02dbd2073baaec738d34"
+    },
+    {
+      "source": "scripts/validate_skills.py",
+      "snapshot": "repository/scripts/validate_skills.py",
+      "sha256": "afd50ff3d6f4fe25b79d55c4872941823ea53d1e74736a76cff49bd8df344ed0"
+    }
+  ],
+  "hash_encoding": "sha256 of UTF-8 text with CRLF normalized to LF"
+}

@@ -3,9 +3,10 @@
   "AGENTS.md": 9100,
   "CLAUDE.md": 270,
   "catalog/style-guides/markdown.md": 1660,
-  "templates/ai-instructions/base-claude.md": 2148,
-  "templates/ai-instructions/base-codex.md": 1851,
-  "templates/ai-instructions/base-cursor.md": 1820,
-  "templates/ai-instructions/base-gemini.md": 1841,
-  "templates/ai-instructions/base-opencode.md": 1820
+  "templates/ai-instructions/base-claude.md": 2178,
+  "templates/ai-instructions/base-codex.md": 1881,
+  "templates/ai-instructions/base-cursor.md": 1850,
+  "templates/ai-instructions/base-gemini.md": 1871,
+  "templates/ai-instructions/base-opencode.md": 1850,
+  "_v4_12_attribution_justification": "The new user-attribution capability requires one shared preflight rule in every platform template. Only that concise section increases these ceilings; detailed procedures moved to the installed git-attribution style guide. No unrelated ceiling changed."
 }

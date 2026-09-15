@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.11.2 -->
+<!-- nexus-hub-version: 4.12.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 337 skills, 19 commands, 35 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -34,6 +34,18 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.12.0
+
+**Generated work uses your Git identity.** Fresh Bash and PowerShell installations activate a portable attribution guard that rejects agent identities, unexpected identity overrides and attribution trailers during normal local commits and pushes. All 17 instruction templates require user authorship. Claude disables native commit/PR attribution, Cursor loads the policy at session start, and Aider loads it with native attribution disabled.
+
+**Check protection in each repository.** Run `nexus-hub attribution check`; if a repository overrides global hooks, activate its guard with `nexus-hub attribution install --workspace`. Git and Python 3 plus your own configured name/email are required. The [attribution guide](docs/guides/user-attribution.md) covers setup, checked tags and rollback.
+
+**Scope is explicit.** Local hooks cannot prevent deliberate bypass, select hosting credentials, protect an unconfigured cloud machine or refresh GitHub's contributor cache. Existing human history remains intact. The Nexus-Hub maintainer identity is never installed on another user's machine.
+
+Presentation reveal-order and incomplete-evidence checks, structured prompt-cache audits, target-manifest traversal protection and weekly-bar regression coverage are also included. See the [release changelog](CHANGELOG.md#4120---2026-09-14).
 
 ---
 

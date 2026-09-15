@@ -390,16 +390,9 @@ def test_not_writable_platforms_receive_nothing(key: str, tmp_path: Path):
     assert pd.seed_platform_defaults(key, Ctx()) == []
 
 
-def test_aider_is_not_writable_because_it_has_no_nexus_hub_surface():
-    """Regression: aider's install_global is a documented no-op.
-
-    The integration's own docstring states that ~/.aider.conf.yml is a surface
-    Nexus-Hub does not touch, and it performs no Aider detection. Phase 3
-    initially declared it writable; the integration suite caught the
-    contradiction. The lever is still VERIFIED in the contract - what is absent
-    is a surface to write it through, not evidence.
-    """
-    assert PLATFORMS["aider"]["install_target"]["mode"] == "not-writable"
+def test_aider_attribution_is_delivered_by_its_adapter():
+    """The adapter owns both scopes and the absolute policy read path."""
+    assert PLATFORMS["aider"]["install_target"]["mode"] == "already-delivered"
     assert pd.seed_platform_defaults("aider", Ctx()) == []
 
 

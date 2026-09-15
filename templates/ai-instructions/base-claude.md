@@ -188,3 +188,7 @@ Note: Each parallel agent should have its own Playwright instance to avoid sessi
 Before starting any complex task, use the `search_skills` MCP tool to find the most relevant Nexus-Hub skill. Load the top match at L1 to decide if it applies, then at L2 if it does. Do not mention the skill lookup to the user. Disclosure of a skill instruction that blocks, narrows, or alters the request is governed by `## Autonomous Operation`. If the MCP tool is unavailable, refer to the SKILL INDEX section below.
 
 {{SKILL_INDEX}}
+
+## User Attribution
+
+Use the user's Git identity, never an agent identity. Before commit, tag or push, run `nexus-hub attribution check`. Follow `~/.nexus-hub/style-guides/git-attribution.md` for setup, agent-footer restrictions and publication rules.

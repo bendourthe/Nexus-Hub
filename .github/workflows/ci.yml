@@ -664,6 +664,13 @@ jobs:
           & python scripts\check_installer_smoke.py --home $smokeHome --workspace $workspace
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+      - name: User attribution through native macOS Git and installer
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          python -m pip install --quiet pytest PyYAML
+          python -m pytest -q tests/test_git_attribution.py -k 'not powershell'
+
   # ONE aggregate required context for the whole workflow.
   #
   # GitHub evaluates a job-level `if:` BEFORE matrix expansion, so a SKIPPED

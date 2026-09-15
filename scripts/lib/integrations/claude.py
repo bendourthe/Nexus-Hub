@@ -31,6 +31,7 @@ _DEFAULTS_CANDIDATES = (
 # `python scripts/sync_platform_defaults.py --check`, which fails the build when
 # they drift away from the declared values.
 _FALLBACK_SETTINGS = {
+    "attribution": {"commit": "", "pr": ""},
     "effortLevel": "high",
     "model": "opus",
     "env": {
