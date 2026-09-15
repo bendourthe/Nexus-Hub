@@ -71,6 +71,8 @@ CI already runs all repository tests on Linux. The existing Windows installer/va
 
 ## Release handoff
 
+PR #217 at `3ba28395` exposed a native macOS test-environment gap: both Bash installer cases completed installation and policy delivery, then the test interpreter failed to import PyYAML for the Aider configuration assertions. The macOS test step now installs that test dependency alongside pytest. The original job log is retained as `pr217-macos-first.log` in the external evidence root; this correction does not change the installer or attribution runtime. Required checks must pass on the corrected head before merge.
+
 The [known gaps](../known-gaps.md) retain GitHub PR-ref limitations, the stale Code contributor display, incomplete historical adversarial review and the earlier Windows whole-profile timeout. None is silently closed by portable enforcement. The existing CI lint/reporting and native authoring gaps retain their owners. The user operation and recovery procedure is in the [attribution guide](../../../../guides/user-attribution.md).
 
 Before release, merge the feature PR with required checks green, verify post-merge results, derive release notes from the actual `v4.11.2..develop` range, and obtain the release-notes approval required by `/update release` before version mutation. v4.11.2 does not contain this portable guard. A new published artifact and its download verification are required before telling users it is available to install.

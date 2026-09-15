@@ -668,7 +668,7 @@ jobs:
         if: runner.os == 'macOS'
         shell: bash
         run: |
-          python -m pip install --quiet pytest
+          python -m pip install --quiet pytest PyYAML
           python -m pytest -q tests/test_git_attribution.py -k 'not powershell'
 
   # ONE aggregate required context for the whole workflow.
