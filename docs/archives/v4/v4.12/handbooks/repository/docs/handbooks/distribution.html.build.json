@@ -1,0 +1,23 @@
+{
+  "build": {
+    "assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d",
+    "assets/dual-view-runtime.js": "336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6",
+    "assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35",
+    "assets/theme.json": "46a8d331bb277f1d6049da735f3ae5adf8ac60cfd81968685e3d3cc2ae321604",
+    "scripts/build_presentation.py": "6c6fe8535e5be98a5bd92118d6f27847dbe5edb04da52bfea78741eb0e3962d4",
+    "scripts/dual_view.py": "cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2"
+  },
+  "output": "docs/handbooks/distribution.html",
+  "output_sha256": "8463c66d85d0d354374b89ceb2a10ddf8c9fe5138a866ad13606776d763cc557",
+  "schema_version": 1,
+  "sources": {
+    "docs/handbooks/_sources/distribution/design.css": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24",
+    "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
+    "docs/handbooks/_sources/distribution/model.json": "c89ec3703b5dbc35eb4b62d12fcf2eba7a956f6319ef74c83dbce9386a6766ae",
+    "docs/handbooks/_sources/distribution/ownership-composition.html": "31df6a101328862f4e525a8b79cec45cb531d3404a8c97a108b48fca4ff231e3",
+    "docs/handbooks/_sources/distribution/route-composition.html": "349e1382529a541ee001f589b96194205c6e0854037bae2d240f54749b6d1cb3",
+    "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
+    "docs/handbooks/_sources/distribution/source.md": "0b4bfc5f7254911e278bb74cb0b160ed372013a57eaf63356b91fc610acce080",
+    "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779"
+  }
+}

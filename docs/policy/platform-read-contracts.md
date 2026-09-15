@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/releases/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-09-14 for v4.9.0. The [same-session fourteen-platform sweep](../releases/v4/v4.9/development/qualification/v4.9-platform-verification.md) and release follow-up below record verified surfaces, two corrected discrepancies, and explicit UNVERIFIED limits. The JSON metadata is the authoritative release freshness marker.
+**Last verified**: 2026-09-14 for v4.12.0. v4.12.0: official discovery documentation fetched on 2026-09-14 for claude, codex, cursor, antigravity2, gemini, gemini-cli, opencode, kimi, qwen, windsurf, pi and copilot; OpenClaw rechecked in the release pass. Documented installed discovery paths MATCH. Nexus-AI remains UNVERIFIED because its source is private. Cursor attribution uses nonblocking sessionStart context, not a global Markdown instruction file; ordinary cloud agents do not receive that hook. Attribution defaults were separately verified for Claude and Aider. Other behavioral defaults retain their earlier dated evidence and are not claimed freshly verified.
 
 ## Invocation-policy emission (v3.20.3)
 

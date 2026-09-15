@@ -9,13 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.12.0] - 2026-09-14
+
 ### Added
 
-- A maintainer-only commit-attribution checker runs in `make validate` and the existing CI validation profile, rejecting noncanonical author, committer and attribution-trailer identities, including Cursor and older maintainer email forms. An opt-in repository-local commit hook checks pending identities as well as messages. Neither is distributed by the installers. The isolated historical rewrite is repository maintenance; remote publication remains pending explicit approval.
+- Fresh installations through the Bash or PowerShell installer activate a portable Git attribution guard. Generated commits use each user's configured name and email; agent/bot identities, unexpected identity overrides and agent attribution footers are rejected during normal local Git operations. Workspace installations preserve and chain existing hooks.
+- All 17 instruction templates require user authorship and preflight verification. Claude receives empty native commit/PR attribution defaults, Cursor receives the shared policy at session start, and Aider receives policy loading plus disabled native attribution flags. Aider configuration conflicts and preserved Cursor hooks are reported as NEEDS SETUP; existing Claude settings follow the normal preservation policy.
+- `nexus-hub attribution check`, `install`, `uninstall` and `tag` expose setup diagnostics, workspace activation, recovery and checked annotated-tag creation. Normal pushes validate outgoing commits and annotated tags.
+- Nexus-Hub's own maintainer-attribution checker and local/CI checks protect this repository. Its historical public Git refs were repaired separately; that maintainer-specific identity is never installed on another user's machine.
 
-### Fixed
+### Improved and fixed
 
-- Target manifests reject directory-entry changes during traversal even when the filesystem modification timestamp stays unchanged. Final validation exposed this existing gap; a timestamp-preserving regression now covers it.
+- Presentation guidance derives reveal order from slide content, checks incomplete visual-QA evidence, and preserves annotation placement, axis layout and build pacing guidance.
+- Prompt-engineering guidance adds structured cache audits and cache-aware cost/latency practices.
+- Target manifests detect directory-entry changes during traversal even when modification timestamps are unchanged.
+- Both weekly-bar monitor render surfaces have regression coverage. Previously orphaned planning and integration evidence is tracked.
+- Distribution documentation explains attribution activation and recovery; its changed handbook passed 200 rendered states across ten viewport sizes.
+
+### Using attribution protection
+
+- Activation: The Bash and PowerShell installers enable global Git hooks by default. For an existing repository or one with overriding hooks, run `nexus-hub attribution install --workspace` inside that repository after installing this release. Git and Python 3 are required; configure your own Git name/email. Missing identity remains a setup issue and contributions are blocked until it is resolved.
+- Validation: Run `nexus-hub attribution check` in each repository. Resolve NEEDS SETUP messages from platform configuration before relying on instruction delivery. Create annotated tags with `nexus-hub attribution tag v1.0.0 -m "Release v1.0.0"`, replacing the version with the intended tag.
+- Rollback: Run `nexus-hub attribution uninstall` for global activation, or `nexus-hub attribution uninstall --workspace` for repository activation. These restore the prior hooks setting only while Nexus-Hub still owns it and retain inert recovery files. Preserved platform settings, including shared Aider YAML, are not deleted by this command.
+- Authority: Local hooks do not select hosting credentials, rewrite existing history, control GitHub's contributor cache, prevent deliberate hook bypass or protect an unconfigured cloud machine. Cursor session-start context is nonblocking and ordinary cloud agents do not receive that hook. Human-authored history may retain GitHub's exact service committer. Agents must verify the intended publishing account and any publication path outside local hooks.
+- Docs: [User attribution and recovery](https://github.com/bendourthe/Nexus-Hub/blob/v4.12.0/docs/guides/user-attribution.md).
+
+### Known limitations
+
+The GitHub Code sidebar contributor count may remain cached after history repair. Read-only hosting PR refs, the earlier historical-review limitation and prior incomplete validation receipts remain documented. These are not closed by the new portable guard. v4.11.2 does not contain this guard.
 
 ## [4.11.2] - 2026-09-14
 

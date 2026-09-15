@@ -194,3 +194,8 @@ The functional matrix in [portable-attribution-evidence.md](portable-attribution
 Human testing after installation should run `nexus-hub attribution check` in an actual user repository, create a normal commit and checked tag, and verify the intended hosting account before publication. This is a practical adoption check, not a substitute for the automated qualification. Direct API/cloud writes and deliberate hook disabling are explicitly outside local enforcement, so no unconditional all-path guarantee is claimed.
 
 The normal feature integration must finish green before `/update release` derives and presents notes from the actual last-tag-to-develop range. Version mutation, new tags and release publication have not occurred.
+
+
+## Release handoff update
+
+The portable integration subsequently passed through PR #217 and post-merge run 34925451808. The user approved the actual-diff release notes before version mutation. See [release qualification](release-qualification.md) for the release governance and preserved open items.

@@ -80,3 +80,9 @@ The Windows regression job passed on `438482bc`. A Linux scratch-container check
 The [known gaps](../known-gaps.md) retain GitHub PR-ref limitations, the stale Code contributor display, incomplete historical adversarial review and the earlier Windows whole-profile timeout. None is silently closed by portable enforcement. The existing CI lint/reporting and native authoring gaps retain their owners. The user operation and recovery procedure is in the [attribution guide](../../../../guides/user-attribution.md).
 
 Before release, merge the feature PR with required checks green, verify post-merge results, derive release notes from the actual `v4.11.2..develop` range, and obtain the release-notes approval required by `/update release` before version mutation. v4.11.2 does not contain this portable guard. A new published artifact and its download verification are required before telling users it is available to install.
+
+## Final integration and release handoff
+
+PR #217 merged into develop at `bd16d3996d9474a6bc43e1ba836049ee7e009cc9`. Required checks `validate`, `shellcheck`, `colocation`, `verify` and `ci-required` passed at head `31933184e8cafdbc3b994f46633cbd524f87c30c`. Post-merge run 34925451808 passed. Final Linux CI passed nine commands in 624.8 seconds; the native macOS attribution suite passed 39 tests with two deselected. The earlier failed receipts above remain immutable. A fresh clean release clone matched origin/develop and passed the workspace attribution check as Ben Dourthe with the canonical GitHub noreply email.
+
+The user approved release notes derived from `v4.11.2..bd16d3996d9474a6bc43e1ba836049ee7e009cc9` before version mutation. v4.12.0 publication now proceeds through the release workflow. T021 and the known historical limitations remain open independently of portable attribution qualification.
