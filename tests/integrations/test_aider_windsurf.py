@@ -6,8 +6,7 @@ we assert the platform-specific behavior:
 
   - both keys are registered in `_register_builtins()`;
   - Aider remains a behavioral-only surface;
-  - Aider writes a project-root CONVENTIONS.md at workspace scope and is a
-    no-op-with-note at global scope;
+  - Aider writes workspace conventions and seeds attribution at both scopes;
   - Devin Desktop writes current AGENTS.md, `.devin/rules`, native skills,
     workflows, and Cascade hooks while retaining `.windsurfrules`.
 """
@@ -116,11 +115,43 @@ def test_aider_workspace_writes_root_conventions(fake_home: Path, tmp_path: Path
     assert any(fa.path == str(conventions) for fa in result.files)
 
 
-def test_aider_global_is_noop_with_note(fake_home: Path, tmp_path: Path) -> None:
+def test_aider_global_seeds_attribution_and_policy(fake_home: Path, tmp_path: Path) -> None:
+    import yaml
+
     integ = get("aider")
     result = integ.install(_ctx(tmp_path, scope="global"))
-    assert result.files == [], "Aider has no global instruction surface"
-    assert result.notes, "Aider global install should explain the no-op via a note"
+    config = fake_home / ".aider.conf.yml"
+    parsed = yaml.safe_load(config.read_text())
+    assert parsed["attribute-co-authored-by"] is False
+    assert parsed["attribute-author"] is False
+    assert parsed["attribute-committer"] is False
+    assert parsed["git-commit-verify"] is True
+    assert parsed["read"] == [(fake_home / ".nexus-hub/style-guides/git-attribution.md").as_posix()]
+    assert result.files
+    before = config.read_bytes()
+    integ.install(_ctx(tmp_path, scope="global"))
+    assert config.read_bytes() == before
+
+
+def test_aider_preserves_custom_configuration_and_reports_conflict(fake_home: Path, tmp_path: Path) -> None:
+    import yaml
+
+    config = fake_home / ".aider.conf.yml"
+    original = "# Personal configuration\nmodel: chosen-model\nread: [my-rules.md]\nattribute-author: true\n"
+    config.write_text(original, encoding="utf-8")
+    result = get("aider").install(_ctx(tmp_path, scope="global"))
+    assert config.read_text().startswith(original)
+    assert yaml.safe_load(config.read_text())["read"] == ["my-rules.md"]
+    assert any("NEEDS SETUP" in note for note in result.notes)
+
+
+def test_aider_invalid_yaml_reports_setup_without_replacing_it(fake_home: Path, tmp_path: Path) -> None:
+    config = fake_home / ".aider.conf.yml"
+    original = "read: [unterminated\n"
+    config.write_text(original, encoding="utf-8")
+    result = get("aider").install(_ctx(tmp_path, scope="global"))
+    assert config.read_text() == original
+    assert any("NEEDS SETUP" in note for note in result.notes)
 
 
 # ---------------------------------------------------------------------------

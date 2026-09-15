@@ -36,7 +36,11 @@ installing host, so Windows never depends on Bash or WSL path translation.
 from __future__ import annotations
 
 import json
+import shlex
+import sys
 from pathlib import Path
+
+from scripts.lib.installer.instruction_merge import merge_marker_section
 
 from ._catalog_adapters import (
     catalog_skill_names,
@@ -46,13 +50,19 @@ from ._catalog_adapters import (
 from ._command_surface import mirror_command_surface
 from ._hooks_common import (
     command_for as host_command_for,
+)
+from ._hooks_common import (
     is_windows_host,
     script_for_host,
     sibling_scripts,
 )
-from .base import InstallContext, MarkdownIntegration, SkillsIntegration, YamlIntegration
+from .base import (
+    InstallContext,
+    MarkdownIntegration,
+    SkillsIntegration,
+    YamlIntegration,
+)
 from .result import FileAction, WriteResult
-from scripts.lib.installer.instruction_merge import merge_marker_section
 
 
 class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration):
@@ -148,6 +158,7 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         )
         if not ctx.instruction_only:
             result.files.extend(self._mirror_catalog_surfaces(cursor_root, ctx, scope="global"))
+            self._attribution_notice(result)
         return result
 
     def install_workspace(self, ctx: InstallContext) -> WriteResult:
@@ -181,9 +192,15 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
                 mirror_command_surface(ctx, self.key, commands_dir, suffix=".md")
             )
             result.files.extend(self._mirror_catalog_surfaces(cursor_root, ctx, scope="workspace"))
+            self._attribution_notice(result)
         return result
 
     # ----- surface helpers -------------------------------------------------
+
+    @staticmethod
+    def _attribution_notice(result: WriteResult) -> None:
+        if any(Path(action.path).name == "hooks.json" and action.action == "kept" for action in result.files):
+            result.note("NEEDS SETUP: Existing Cursor hooks.json was preserved; verify its sessionStart hook loads the installed git-attribution policy before relying on global instruction coverage.")
 
     def _install_rules(self, cursor_root: Path, ctx: InstallContext) -> list[FileAction]:
         """Flatten catalog/rules/**.md into ``<cursor_root>/rules/<flat>.mdc``."""
@@ -298,7 +315,17 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
             compat_path = f'{base}/cursor-hook-compat.py'
             return f'{python_runner} "{compat_path}" {hook_command}'
 
-        content = json.dumps(self._hook_registration(command_for), indent=2) + "\n"
+        registration = self._hook_registration(command_for)
+        # Cursor has no global Markdown instruction file. Its documented
+        # sessionStart context response supplies the shared attribution policy.
+        helper = (Path.home() / ".nexus-hub/scripts/nexus_git_attribution.py").as_posix()
+        context_command = (
+            f'"{Path(sys.executable).as_posix()}" "{helper}" context'
+            if windows
+            else shlex.join([sys.executable, helper, "context"])
+        )
+        registration["hooks"]["sessionStart"] = [{"command": context_command}]
+        content = json.dumps(registration, indent=2) + "\n"
         content_bytes = content.encode("utf-8")
         dst = cursor_root / "hooks.json"
         if dst.exists():

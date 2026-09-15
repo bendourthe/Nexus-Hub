@@ -75,8 +75,14 @@ Phase 4 changes only the existing Presentify workflow's manual trigger, explicit
 - [x] T014-T020 local audits, bounded deep-pass record and independent Goal assessment.
 - [ ] T021 actual post-publication GitHub UI observations.
 - [x] T022 full local suite and final local phase commit.
-- [ ] T023 explicit publication approval, operator-controlled protection exception, one ref update and remote verification.
+- [x] T023 explicit publication approval, operator-controlled protection exception, one ref update and remote verification.
 
 ## 9. Summary and Next Steps
 
 The final local phase commit contains this record and the external publication manifest binds its full SHA. The reviewable action updates only the named public branches and 116 tags, with exact leases, a rehearsed recovery path and immediate restoration of any approved protection exception. Publication, required remote checks and public contributor observations remain pending the owner's explicit decision. No release tag or version bump is part of this implementation driver.
+
+## Post-publication checkpoint
+
+The owner approved the exact publication and temporary protection exception. The single atomic push completed at `2026-09-14T23:07:37.124852+00:00`; all 120 refs matched and both protections were restored exactly. All five required contexts and both post-merge smoke/provenance runs passed. The fresh public clone scanned 1,687 commits with zero findings and passed integrity checks. All 116 releases and their assets are unchanged. See the final evidence file for run links and raw receipt locations.
+
+T021 remains open: Insights graph data contains only bendourthe, but the contributor API still lists Dependabot and no browser is available to verify both rendered views. QG-2 records the next manual check at `2026-09-15T23:15:00Z (September 15, 4:15 PM America/Los_Angeles)`. The plan is 22/23 tasks, with publication complete and visual contributor confirmation pending. This local evidence checkpoint makes no new implementation change and no second remote publication.

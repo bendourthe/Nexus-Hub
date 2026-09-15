@@ -381,6 +381,7 @@ WINDOWS_HOOKS = Group(
             "installer + validators (Windows)",
             "tests/installer",
             "tests/validators",
+            "tests/test_git_attribution.py",
             platforms=("windows",),
             timeout=1800,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},

@@ -16,20 +16,25 @@
   "platforms": {
     "claude": {
       "display_name": "Claude Code",
-      "source_url": "https://code.claude.com/docs/en/model-config",
-      "verified": "2026-09-05",
-      "doc_statement": "The Claude Code settings reference documents effortLevel (\"Set a default effort level for models without a saved level of their own\"), model (\"Change the model Claude Code starts with\"), env (environment variables applied to every session and its subprocesses), and a per-model modelSettings key that /effort writes. The model-config page (fetched 2026-09-05) states: \"set effortLevel to low, medium, high, or xhigh as the default for models without one. max isn't accepted in either key\" (effortLevel or modelSettings), and \"max is the deepest reasoning level. Unless you set it through the CLAUDE_CODE_EFFORT_LEVEL environment variable, Claude Code applies max to the current session only\"; CLAUDE_CODE_EFFORT_LEVEL is documented as taking \"a level name or auto\" and as the higher-precedence lever. So the settings keys accept four levels and the environment variable accepts five: the two levers do not share one value set, both accept the seeded value high, and a future change to a value other than high must be checked against both (max is valid only through the environment variable, /effort, or --effort). The 2026-09-04 statement had the two surfaces the other way round and is superseded.",
+      "source_url": "https://code.claude.com/docs/en/configuration",
+      "verified": "2026-09-14",
+      "doc_statement": "The Claude Code settings reference documents effortLevel (\"Set a default effort level for models without a saved level of their own\"), model (\"Change the model Claude Code starts with\"), env (environment variables applied to every session and its subprocesses), and a per-model modelSettings key that /effort writes. The model-config page (fetched 2026-09-05) states: \"set effortLevel to low, medium, high, or xhigh as the default for models without one. max isn't accepted in either key\" (effortLevel or modelSettings), and \"max is the deepest reasoning level. Unless you set it through the CLAUDE_CODE_EFFORT_LEVEL environment variable, Claude Code applies max to the current session only\"; CLAUDE_CODE_EFFORT_LEVEL is documented as taking \"a level name or auto\" and as the higher-precedence lever. So the settings keys accept four levels and the environment variable accepts five: the two levers do not share one value set, both accept the seeded value high, and a future change to a value other than high must be checked against both (max is valid only through the environment variable, /effort, or --effort). The 2026-09-04 statement had the two surfaces the other way round and is superseded. Attribution-specific verification on 2026-09-14: the official configuration reference documents attribution.commit and attribution.pr; empty strings hide commit trailers and PR attribution. The effort/model evidence above remains dated 2026-09-05; it was not reverified in this targeted attribution pass.",
       "settings": {
         "effortLevel": "high",
         "model": "opus",
         "env": {
           "CLAUDE_CODE_EFFORT_LEVEL": "high"
+        },
+        "attribution": {
+          "commit": "",
+          "pr": ""
         }
       },
       "rationale": {
         "effortLevel": "high is a deliberate quality choice adopted in v4.4.0, replacing the v3.15.5 medium default. Nexus-Hub work is plan-driven and multi-step, where a shallow turn costs more in rework than the extra reasoning costs to run. Lower to medium for routine or cost-sensitive use; raise to xhigh for the deepest reasoning.",
         "model": "opus pins the strongest tier as the default rather than leaving the account default, so a fresh install reasons at full strength unless the user opts down.",
-        "env.CLAUDE_CODE_EFFORT_LEVEL": "Mirrors effortLevel because the environment variable is the higher-precedence lever: it pins the effort past the VS Code effort toggle on every new session. If it disagreed with the scalar it would silently win."
+        "env.CLAUDE_CODE_EFFORT_LEVEL": "Mirrors effortLevel because the environment variable is the higher-precedence lever: it pins the effort past the VS Code effort toggle on every new session. If it disagreed with the scalar it would silently win.",
+        "attribution": "Empty commit and pr strings disable Claude attribution in generated commit messages and pull-request descriptions. Official settings documentation verified 2026-09-14: https://code.claude.com/docs/en/configuration . Portable Git hooks independently reject attribution trailers."
       },
       "derived_artifacts": [
         {
@@ -39,7 +44,8 @@
           "keys": [
             "effortLevel",
             "model",
-            "env.CLAUDE_CODE_EFFORT_LEVEL"
+            "env.CLAUDE_CODE_EFFORT_LEVEL",
+            "attribution"
           ],
           "note": "This file is BOTH a declared default and the artifact copied to a user's ~/.claude/settings.json, and it additionally carries the full hook registration chains (SessionStart / PreToolUse / PostToolUse / UserPromptSubmit / Notification / Stop / PreCompact / SessionEnd). The generator therefore updates only the keys listed above in place and leaves every other byte untouched. It is never serialized fresh over the file."
         },
@@ -50,7 +56,8 @@
           "keys": [
             "effortLevel",
             "model",
-            "env.CLAUDE_CODE_EFFORT_LEVEL"
+            "env.CLAUDE_CODE_EFFORT_LEVEL",
+            "attribution"
           ],
           "fallback_symbol": "_FALLBACK_SETTINGS",
           "note": "The nexus-hub init project stub reads this file at runtime, so there is nothing to generate. It keeps a hardcoded fallback for installed trees that do not carry configs/; --check verifies that fallback still equals the declared values so it cannot quietly drift into stating something untrue."
@@ -184,23 +191,37 @@
     "aider": {
       "display_name": "Aider",
       "source_url": "https://aider.chat/docs/config/aider_conf.html",
-      "verified": "2026-08-30",
-      "doc_statement": ".aider.conf.yml documents model, reasoning-effort ('Set the reasoning_effort API parameter'), thinking-tokens, yes-always ('Always say yes to every confirmation'), and auto-commits (default True). The file is searched in the home directory, then the git repo root, then the current directory, with later files taking priority.",
-      "settings": {},
-      "rationale": {},
+      "verified": "2026-09-14",
+      "doc_statement": "The official YAML configuration documents home/project scope, read lists, attribute-author, attribute-committer, attribute-co-authored-by, both commit-message attribution flags, and git-commit-verify. Attribution keys were re-fetched on 2026-09-14; unrelated model/effort keys retain their prior verification.",
+      "settings": {
+        "attribute-author": false,
+        "attribute-committer": false,
+        "attribute-co-authored-by": false,
+        "attribute-commit-message-author": false,
+        "attribute-commit-message-committer": false,
+        "git-commit-verify": true
+      },
+      "rationale": {
+        "attribute-author": "Use the configured human identity and omit agent attribution.",
+        "attribute-committer": "Use the configured human identity and omit agent attribution.",
+        "attribute-co-authored-by": "Use the configured human identity and omit agent attribution.",
+        "attribute-commit-message-author": "Use the configured human identity and omit agent attribution.",
+        "attribute-commit-message-committer": "Use the configured human identity and omit agent attribution.",
+        "git-commit-verify": "Keep normal Git verification hooks enabled."
+      },
       "install_target": {
-        "mode": "not-writable",
-        "reason": "Nexus-Hub's aider integration writes ONLY the project-root CONVENTIONS.md at workspace scope; its install_global is a documented no-op whose own docstring states that ~/.aider.conf.yml is a surface Nexus-Hub does not touch. The integration also performs no Aider detection, so seeding the home-directory config would create configuration for software the user may not have installed. Reclassified from write to not-writable during Phase 3 after the integration test suite caught the contradiction."
+        "mode": "already-delivered",
+        "reason": "The Aider integration seeds both global and workspace YAML attribution settings and an absolute shared-policy read path, preserving existing user keys and reporting conflicts."
       },
       "derived_artifacts": [],
       "omitted": {
-        "reasoning-effort": "Nexus-Hub's aider integration writes ONLY the project-root CONVENTIONS.md at workspace scope; its install_global is a documented no-op whose own docstring states that ~/.aider.conf.yml is a surface Nexus-Hub does not touch. The integration also performs no Aider detection, so seeding the home-directory config would create configuration for software the user may not have installed. Reclassified from write to not-writable during Phase 3 after the integration test suite caught the contradiction.",
-        "yes-always": "Nexus-Hub's aider integration writes ONLY the project-root CONVENTIONS.md at workspace scope; its install_global is a documented no-op whose own docstring states that ~/.aider.conf.yml is a surface Nexus-Hub does not touch. The integration also performs no Aider detection, so seeding the home-directory config would create configuration for software the user may not have installed. Reclassified from write to not-writable during Phase 3 after the integration test suite caught the contradiction.",
+        "reasoning-effort": "Outside the user-attribution change; retain the user selection.",
+        "yes-always": "Outside the user-attribution change; retain the user selection.",
         "model": "No vendor-documented safe default.",
         "thinking-tokens": "A numeric token budget is model-specific; seeding one value across models would misconfigure most of them.",
         "auto-commits": "Left at the vendor default (True); changing a user's commit behavior is beyond the scope of a reasoning default."
       },
-      "notes": "The lever itself is real and VERIFIED (see docs/policy/platform-defaults-levers.md, Surface alignment: Partial). What is missing is a Nexus-Hub surface to write it through, not evidence."
+      "notes": "Portable attribution explicitly adds an Aider configuration surface in v4.12. Existing conflicting keys require setup; unrelated model and autonomy defaults remain omitted."
     },
     "gemini-cli": {
       "display_name": "Gemini CLI (Google)",

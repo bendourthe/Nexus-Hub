@@ -2860,6 +2860,7 @@ function Install-Templates {
     # sibling. The launcher itself + the VERSION file are installed by
     # Install-CliLauncher below. Mirror of the same block in scripts\installer.sh.
     $cliSource = Join-Path $RepoRoot "scripts\nexus_hub_cli.py"
+    Safe-Copy -Source (Join-Path $RepoRoot "scripts\nexus_git_attribution.py") -Destination (Join-Path $scriptsDest "nexus_git_attribution.py") -Confirm:$true -CustomMessage "Portable Git attribution guard installed"
     if (Test-Path $cliSource) {
         Safe-Copy -Source $cliSource -Destination (Join-Path $scriptsDest "nexus_hub_cli.py") -Confirm:$true -CustomMessage "✓ nexus-hub CLI installed at: $scriptsDest\nexus_hub_cli.py"
     }
@@ -3976,6 +3977,20 @@ Install-Templates -RepoRoot $repoRoot
 
 # Install the nexus-hub CLI launcher + version marker (v3.7.0 Phase 3).
 Install-CliLauncher -RepoRoot $repoRoot
+
+# Shared Git enforcement applies to every selected agent platform.
+$attributionPython = $null
+foreach ($candidate in @("python", "py", "python3")) {
+    if (Get-Command $candidate -ErrorAction SilentlyContinue) { $attributionPython = $candidate; break }
+}
+if (-not $attributionPython) { Write-Error "Attribution setup failed: Python 3 is required. Install it and rerun Nexus-Hub."; exit 1 }
+$attributionHelper = Join-Path $env:USERPROFILE ".nexus-hub\scripts\nexus_git_attribution.py"
+$attributionArgs = @($attributionHelper, "install")
+if ($attributionPython -eq "py") { $attributionArgs = @("-3") + $attributionArgs }
+if ($scopeLabel -eq "Workspace") { $attributionArgs += "--workspace"; Push-Location -LiteralPath $workspaceTarget }
+try { & $attributionPython @attributionArgs; $attributionExit = $LASTEXITCODE }
+finally { if ($scopeLabel -eq "Workspace") { Pop-Location } }
+if ($attributionExit -ne 0) { Write-Error "Attribution setup failed; installation is incomplete."; exit 1 }
 
 # --- INSTALL VERIFICATION (with project seeding folded in) ---
 # Post-install per-platform verification (v3.11.0 Phase 7.4): report PASS /

@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Implement [v4.12.0 sole-contributor attribution](releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md). Local implementation and qualification are complete: the isolated rewrite is attribution-clean, the corrected Linux full profile passes all 47 commands, and the Windows CI-specific commands pass. Original host failures and incomplete independent review remain recorded. Publication and public contributor observations await explicit approval. Prerequisite cleanup merged PRs #214, #215 and #216, returned to verified develop, and removed 31 merged local branches. Historical unmerged refs and seven stashes remain preserved.
+**Active work:** Implement [v4.12.0 sole-contributor attribution](releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md). Local implementation and qualification are complete: the isolated rewrite is attribution-clean, the corrected Linux full profile passes all 47 commands, and the Windows CI-specific commands pass. Original host failures and incomplete independent review remain recorded. The approved history update is published at `ba468f5f`; all five required checks and both post-merge runs passed. User screenshots confirm Insights shows only bendourthe, but the Code sidebar shows five contributors. T021 remains open for the Code result; QG-2 records the discrepancy and next check. Post-publication evidence notes are saved locally after the single approved publication. Prerequisite cleanup merged PRs #214, #215 and #216, returned to verified develop, and removed 31 merged local branches. Historical unmerged refs and seven stashes remain preserved.
 **Last refreshed:** 2026-09-14
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -12,12 +12,18 @@ Refreshing this file to the active plan (rather than appending another version's
 
 ---
 
+## Portable attribution extension
+
+Local feature implementation and qualification are complete: all 47 Linux full-profile commands and 15 Windows fast-profile commands pass, with real Windows and Linux installer verification. Normal integration and v4.12.0 publication remain pending in the [portable evidence](releases/v4/v4.12/development/portable-attribution-evidence.md). The public Code contributor display remains open independently.
+
+- [x] Implemented approved v4.12 Phase 5: installable Git attribution guard, both installers, all platform instructions, installed-behavior verification and release preparation. See [the active plan](releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md).
+
 ## Scores
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.12.0 implementation tasks complete | 21 | 23 | 2 |
-| v4.12.0 implementation phases complete | 3 | 4 | 1 |
+| v4.12.0 implementation tasks complete | 27 | 28 | 1 |
+| v4.12.0 implementation phases complete | 4 | 5 | 1 |
 | v4.11.0 interactive-handbook phases complete | 7 | 7 | 0 |
 | v4.11.0 interactive-handbook tasks complete | 31 | 31 | 0 |
 | v4.11.0 accepted native authoring families | 2 | 3 | 1 |

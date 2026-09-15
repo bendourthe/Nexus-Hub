@@ -80,14 +80,24 @@
         "docs/handbooks/_sources/distribution/shapes-composition.html",
         "docs/handbooks/_sources/distribution/identity-composition.html",
         "docs/handbooks/_sources/distribution/ownership-composition.html",
-        "docs/handbooks/_sources/distribution/verification-composition.html"
+        "docs/handbooks/_sources/distribution/verification-composition.html",
+        "scripts/nexus_git_attribution.py",
+        "catalog/style-guides/git-attribution.md",
+        "scripts/lib/integrations/cursor.py",
+        "scripts/lib/integrations/aider.py",
+        "configs/platform-defaults.json"
       ],
       "code_inputs": [
         "scripts/installer.ps1",
         "scripts/installer.sh",
         "scripts/lib/integrations/runner.py",
         "scripts/lib/integrations/_catalog_adapters.py",
-        "scripts/lib/integrations/_owned.py"
+        "scripts/lib/integrations/_owned.py",
+        "scripts/nexus_git_attribution.py",
+        "catalog/style-guides/git-attribution.md",
+        "scripts/lib/integrations/cursor.py",
+        "scripts/lib/integrations/aider.py",
+        "configs/platform-defaults.json"
       ],
       "builder": {
         "identity": "retained build_presentation.py",

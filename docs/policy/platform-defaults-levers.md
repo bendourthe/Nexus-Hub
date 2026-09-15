@@ -27,10 +27,10 @@ Classification is about whether a documented lever EXISTS. Whether Nexus-Hub can
 
 | Platform (registry id) | Class | Lever keys | Config file | Surface alignment | Source | Verified |
 |---|---|---|---|---|---|---|
-| `aider` | VERIFIED | `model`, `reasoning-effort`, `thinking-tokens`, `yes-always`, `auto-commits` | `.aider.conf.yml` | Partial | [aider.chat](https://aider.chat/docs/config/aider_conf.html) | 2026-08-30 |
+| `aider` | VERIFIED | `model`, `reasoning-effort`, `thinking-tokens`, `yes-always`, `auto-commits`, `attribute-author`, `attribute-committer`, `attribute-co-authored-by`, `attribute-commit-message-author`, `attribute-commit-message-committer`, `git-commit-verify`, `read` | `.aider.conf.yml` | Exact | [aider.chat](https://aider.chat/docs/config/aider_conf.html) | 2026-09-14 |
 | `antigravity` | UNVERIFIED | - | - | - | [antigravity.google](https://antigravity.google/docs/ide/settings) | 2026-08-30 |
 | `antigravity2` | VERIFIED | `agentMode` | `~/.gemini/antigravity-cli/settings.json` | Near | [antigravity.google](https://www.antigravity.google/docs/cli/modes/) | 2026-08-30 |
-| `claude` | VERIFIED | `effortLevel`, `model`, `env.CLAUDE_CODE_EFFORT_LEVEL` (plus per-model `modelSettings`, not seeded) | `~/.claude/settings.json`, `.claude/settings.json` | Exact | [code.claude.com](https://code.claude.com/docs/en/settings), [model-config](https://code.claude.com/docs/en/model-config) | 2026-09-04 |
+| `claude` | VERIFIED | `effortLevel`, `model`, `env.CLAUDE_CODE_EFFORT_LEVEL` (plus per-model `modelSettings`, not seeded), `attribution.commit`, `attribution.pr` | `~/.claude/settings.json`, `.claude/settings.json` | Exact | [configuration](https://code.claude.com/docs/en/configuration), [model-config](https://code.claude.com/docs/en/model-config) | 2026-09-14 |
 | `codex` | VERIFIED | `model`, `model_reasoning_effort`, `approval_policy`, `sandbox_mode` | `~/.codex/config.toml` | Exact | [learn.chatgpt.com](https://learn.chatgpt.com/docs/config-file/config-reference) | 2026-08-30 |
 | `copilot` | VERIFIED | `model`, `permissions.disableBypassPermissionsMode`, `sandbox.enabled`, `sandbox.allowBypass` | `~/.copilot/settings.json` | Exact | [docs.github.com](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference) | 2026-08-30 |
 | `cursor` | VERIFIED | `approvalMode`, `sandbox.mode`, `sandbox.networkAccess` | `~/.cursor/cli-config.json` | Near | [cursor.com](https://cursor.com/docs/cli/reference/configuration) | 2026-08-30 |
@@ -59,7 +59,7 @@ Classification is about whether a documented lever EXISTS. Whether Nexus-Hub can
 
 `.aider.conf.yml` documents `model` ("Specify the model to use for the main chat"), `reasoning-effort` ("Set the reasoning_effort API parameter"), `thinking-tokens` ("Set the thinking token budget for models that support it"), plus automation gates `yes-always`, `auto-commits`, `auto-accept-architect`, `auto-lint`, and `auto-test`. The file is searched in the home directory, then the git repo root, then the current directory, with later files taking priority.
 
-Surface alignment is **Partial**: Nexus-Hub installs Aider at workspace scope only (project-root `CONVENTIONS.md`, no global surface), while the lever file is most naturally a home-directory or git-root file. Writing a project-root `.aider.conf.yml` is possible but would place a new file type in a user's repo, which Phase 3 should weigh deliberately.
+The attribution keys and `read` were re-verified on 2026-09-14; model and automation findings retain their 2026-08-30 evidence. v4.12 seeds both home and workspace `.aider.conf.yml` through the Aider adapter: all five `attribute-*` flags are false, `git-commit-verify` is true, and `read` includes the installed shared policy (plus project `CONVENTIONS.md` for workspace scope). Existing keys and read lists are preserved; conflicting attribution settings or a missing policy path produce a NEEDS SETUP note. Later configuration files and CLI arguments can override these defaults. Shared user YAML is retained on uninstall.
 
 ### antigravity (Antigravity 1.0) - UNVERIFIED
 
@@ -217,3 +217,7 @@ When re-verifying, check three things per platform: that the documented key name
 ### 2026-09-08 - v4.9.0 release follow-up
 
 The [17-row official-source sweep](../releases/v4/v4.9/development/qualification/v4.9-platform-verification.md) found one default-value mismatch. Copilot new installs now seed the documented string `disable` for `permissions.disableBypassPermissionsMode`, confirmed again in the [official configuration reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference). Existing user settings remain seed-if-absent; no user configuration migration was performed. Fourteen rows have documented keys, three remain UNVERIFIED, and this advisory contract has no release freshness gate.
+
+### 2026-09-14 - v4.12 portable attribution
+
+Claude attribution is VERIFIED for the documented `attribution.commit` and `attribution.pr` keys: empty strings disable commit trailers and pull-request attribution. The [official configuration documentation](https://code.claude.com/docs/en/configuration) was retrieved through its indexed attribution section on 2026-09-14. The current settings overview links to `settings-reference`, whose full retrieval exceeded the web tool response limit; no additional key such as `sessionUrl` is asserted from that unavailable page. This targeted check does not refresh prior effort/model evidence or other platforms. `configs/platform-defaults.json` owns the seeded values; the settings template and Claude adapter fallback are synchronized. No undocumented Cursor, Codex or Antigravity attribution setting is invented. Shared Git enforcement and agent instructions cover those local Git paths.

@@ -553,6 +553,15 @@ def cmd_setup_media(argv: list[str]) -> int:
     return subprocess.run([sys.executable, str(helper), *argv]).returncode
 
 
+def cmd_attribution(argv: list[str]) -> int:
+    """Forward attribution lifecycle commands to the installed Git guard."""
+    helper = Path(__file__).resolve().parent / "nexus_git_attribution.py"
+    if not helper.is_file():
+        _eprint("Attribution guard missing. Re-run the Nexus-Hub installer.")
+        return 2
+    return subprocess.run([sys.executable, str(helper), *argv], check=False).returncode
+
+
 def cmd_map(argv: list[str]) -> int:
     """Dispatch `nexus-hub map` to the nexus-code-search context-map CLI.
 
@@ -1114,6 +1123,7 @@ def build_parser() -> argparse.ArgumentParser:
         "-v", "--version", action="store_true", help="Print the installed version."
     )
     sub = parser.add_subparsers(dest="command")
+    sub.add_parser("attribution", add_help=False, help="Install, check or restore user-attribution Git hooks; create checked tags.")
     sub.add_parser("version", help="Print the installed version.")
     up = sub.add_parser("upgrade", help="Check for and install the latest version.")
     up.add_argument(
@@ -1164,6 +1174,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     raw = list(sys.argv[1:] if argv is None else argv)
+    if raw and raw[0] == "attribution":
+        return cmd_attribution(raw[1:])
 
     # `verify` forwards every remaining token to the verifier verbatim, so its
     # own flags (--root/--manifest/--ignore-extra) are never swallowed by this
