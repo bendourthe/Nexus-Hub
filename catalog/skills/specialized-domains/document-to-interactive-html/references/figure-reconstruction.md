@@ -284,3 +284,15 @@ A label that names specific points must reach them. Give it leaders that end sho
 A label that names the whole plot rather than a point in it belongs in the band above the frame. Two traps: the group annotations are normally drawn into is clipped to the plot rectangle, so such a label renders into the DOM at the right coordinates and is then clipped away (present, measurable, invisible) unless it is drawn into the unclipped layer; and the title band must grow by a line or the label lands on whatever sits above it.
 
 Where a figure shows a search or a traversal rather than a set of readings, mark the steps BETWEEN the readings, not only the readings. A round dot marks a place; a triangle with a direction marks a place and a direction of travel. A transcribed trace often carries one point per reading, so there is nothing to sample between two adjacent readings: interpolate the step marks along the straight segment the renderer draws between them, which is the line.
+
+## Reserve for what is drawn, and fit the drawing, not its wrapper
+
+Three defects in one family, all of which read to a viewer as "the plots are squashed and the bottom one is cut off".
+
+Reserve a band only where something is actually drawn in it. A title band floored at one line gives every untitled panel a title's worth of dead height, and an axis-title band keyed to "last row" gives a single-panel figure the band whether or not it has an axis title (a one-panel figure is its own last row). At page type sizes these are a few percent; at slide type sizes they were an eighth and a fifth of the plot respectively. Reclaiming both took one figure's plots from 160px and 123px to 202px and 201px inside unchanged cards.
+
+Fit the DRAWING, not the box you sized for it. An `<svg>` at `width:100%` with `height:auto` takes its height from the canvas aspect ratio and ignores the container, so it can paint far outside the wrapper the renderer sized. A fit loop that measures the wrapper therefore reads the wrapper's own fixed height, concludes there is slack, and grows the canvas further, which is simultaneously the dead white space inside the card and the axis title clipped off the bottom of the last one. Measure the svg's own box, and charge it for any sibling that must follow it (a legend row below the plot): a row can sit inside the container while the drawing paints straight over it, so checking "does anything stick out of the container" never catches that overlap.
+
+Equal rows do not give equal PLOTS. Where two stacked figures carry different furniture (one has the shared x-axis title, one has a label above its frame), equal-height cards produce visibly unequal drawings. Size the rows in proportion to each card's furniture plus the plot height you want, and verify by measuring both plot boxes rather than by eye.
+
+A layout probe that compares only SVG text against SVG text will not see an HTML legend chip sitting on a tick label. Include the rendered legend in the intersection test.
