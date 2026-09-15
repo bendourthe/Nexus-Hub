@@ -32,3 +32,9 @@ Known gaps retain four warnings and four historical quality-gate gaps, with the 
 ## Publication gates
 
 Release-note approval is complete. Local release checks, manifest generation, the protected release merges, immediate pre-tag branch assertion, publication, archive download verification and isolated installed behavior are recorded in external release receipts as they execute. No pending gate is represented here as passed in advance.
+
+## Release stabilization
+
+The first release candidate failed the Linux and Windows repository suites in runs 34935277895 and 34935180406: the newest model-map refresh note omitted the two required inline OpenAI source URLs. Local reproduction returned one failure and two passes in test_model_map_astra_note.py. The correction restores the already-fetched catalog and model-guide links in that note and the source list; model selections and test assertions remain unchanged. Original failed run evidence is retained separately from the corrected candidate.
+
+CodeQL alert 294 in the archived validate_skills.py was reviewed and dismissed as a false positive: scan_text_for_secrets returns only the path, fixed rule name and line number, never matched secret text. Five lower-severity archive findings remain visible: three conditional-analysis warnings around mutable asynchronous presentation state and two unused-declaration notices. The archived bytes remain unchanged. The corrected model-map tests pass all 25 focused cases; this does not replace the failed full-profile receipts.
