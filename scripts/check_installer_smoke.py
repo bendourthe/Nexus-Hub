@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 EXPECTED_SCRIPTS = (
+    "nexus_git_attribution.py",
     "merge_permissions.py",
     "nexus_hub_cli.py",
     "run_trigger_evals.py",

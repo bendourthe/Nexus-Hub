@@ -155,3 +155,7 @@ When the user's request matches a skill in the SKILL INDEX below, read the full 
 ## Context References
 
 - Skills: see the Skill Index above (the Nexus-Hub catalog ships under `~/.nexus-hub/`)
+
+## User Attribution
+
+Use the user's Git identity, never an agent identity. Before commit, tag or push, run `nexus-hub attribution check`. Follow `~/.nexus-hub/style-guides/git-attribution.md` for setup, agent-footer restrictions and publication rules.

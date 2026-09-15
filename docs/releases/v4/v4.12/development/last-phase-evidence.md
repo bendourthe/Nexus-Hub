@@ -1,5 +1,7 @@
 # v4.12.0 final qualification
 
+**Current scope: Phase 5 portable attribution.** The user expanded this release to include installed rules and a configured-user Git guard. The [portable qualification record](portable-attribution-evidence.md) owns current implementation, installer, review, handbook and CI evidence. The Phase 4 records below remain historical receipts, including their original non-passes; their repository-only scope does not describe Phase 5. The approved historical publication is complete. Portable feature integration and the v4.12.0 release remain separate pending gates.
+
 Local qualification and publication preparation for the repository owner. Covers preserved history, maintainer enforcement, final review, inherited gaps and the explicit approval boundary for remote history replacement. No v4.12 remote publication has occurred.
 
 **Date**: 2026-09-14. **Candidate input**: `e56d0251407ec84f59d9425cf6a64dc15c3a112e`, the Phase 3 commit. **Final revision**: the Phase 4 commit containing this record, resolved to its full SHA in the external publication manifest. The [backup record](rewrite-backup.md) identifies both independent mirrors and the active rewritten checkout.
@@ -174,3 +176,21 @@ Raw receipts are beside the independent backup in `Nexus-Hub-backups/2026-09-14-
 After publication, the user supplied two screenshots in this conversation. Screenshot 1 visibly shows Insights > Contributors with Period: All, main, excluding merge commits, and exactly one contributor: bendourthe with 1,345 commits. This passes the Insights portion of T021. Screenshot 2 visibly shows main at ba468f5, 1,685 commits, four branches and 116 tags; its Code sidebar says Contributors 5 and displays five avatars. This fails the Code portion. Account names for the additional avatars are not visible, so they are not inferred.
 
 A live API recheck still returned bendourthe (1,655 contributions) and dependabot[bot] (eight), while contributor statistics returned only bendourthe (1,345). GitHub's official documentation says contributor displays and statistics can take about 24 hours to refresh after history changes; it recommends contacting GitHub Support if they remain incorrect afterward. [Official guidance](https://docs.github.com/en/repositories/viewing-activity-and-data-for-your-repository/viewing-a-projects-contributors#contributor-data-is-stale-after-history-changes). QG-2 remains open for the Code sidebar, with the existing September 15, 4:15 PM Pacific checkpoint. The screenshot evidence supersedes the earlier inability to observe either rendered view. No remote change or additional rewrite was made.
+
+## Phase 5 terminal reconciliation
+
+The new helper, CLI delegation, installer activation and existing platform templates are the smallest sufficient implementation. Living guidance is in `docs/guides/user-attribution.md` and the installed style guide; the design record is in `docs/decisions/implemented/process/`. No unrelated repository or documentation restructuring is needed. The decision validator reports 42 valid records. Existing history, PR-ref and contributor-cache gaps remain open under their original owners. Platform discovery, native document authoring and CI reporting gaps are not closed by this feature.
+
+Both live handbooks pass the mapped freshness gate. The distribution handbook's changed ownership explanation was rebuilt, measured across 200 states and visually inspected; overview retains its unchanged verified inputs. These are current-content checks, not a new native-authoring qualification. The [portable record](portable-attribution-evidence.md) names the raw receipts and preserved failed attempts.
+
+The authenticated remote integration branch was fetched directly into `public/develop`, avoiding the recovery checkout's local pre-rewrite origin. It still requires `validate`, `shellcheck`, `colocation`, `verify` and `ci-required`. No branch-protection change or force-push belongs to this phase. The final feature diff and its commit count are measured against that remote integration ref before publication.
+
+CI retains its current event/profile contract. Linux already collects the complete repository tests. Windows now includes `tests/test_git_attribution.py` in its existing installer/validator group, and the macOS installer matrix exercises native Bash/Git attribution. Workflow conformance and installer parity are checked locally. Required remote checks validate the integrated result once the normal feature PR exists.
+
+### Tier 3 deep pass - portable extension
+
+The functional matrix in [portable-attribution-evidence.md](portable-attribution-evidence.md) maps every new behavior to real Git or installer operations: configured users, metadata overrides, outgoing history, tags, existing hooks, streaming forwarding, worktrees, human replay, interpreter removal, rollback and platform delivery. Correctness, testing, standards and maintainability reviewers inspected the new feature. The goal review identified a legitimate-human-name false positive, which was corrected and exercised with Claude Martin. Independent follow-up re-ran and closed both interpreter-lifecycle defects. There is no unresolved reported portable-code finding; the older adversarial-review gap remains distinct.
+
+Human testing after installation should run `nexus-hub attribution check` in an actual user repository, create a normal commit and checked tag, and verify the intended hosting account before publication. This is a practical adoption check, not a substitute for the automated qualification. Direct API/cloud writes and deliberate hook disabling are explicitly outside local enforcement, so no unconditional all-path guarantee is claimed.
+
+The normal feature integration must finish green before `/update release` derives and presents notes from the actual last-tag-to-develop range. Version mutation, new tags and release publication have not occurred.

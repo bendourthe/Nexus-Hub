@@ -14,7 +14,7 @@ The catalog adapter collects only directories that contain SKILL.md. A leftover 
 
 ## Generated and user-owned files differ
 
-Owned-file writing consults the installation manifest. It can repair an artifact created by Nexus-Hub while preserving a file authored by the user. Some derived catalog materialization paths synchronize on byte difference and track their output; do not assume every copy path has identical overwrite behavior.
+Owned-file writing consults the installation manifest. It can repair an artifact created by Nexus-Hub while preserving a file authored by the user. Some derived catalog materialization paths synchronize on byte difference and track their output; do not assume every copy path has identical overwrite behavior. Both installers also activate user-attribution Git hooks. Run nexus-hub attribution check before commits, tags and pushes. Configured human identity and existing hooks are preserved; direct hosting API writes require separate verification.
 
 ## Inspect outcomes, then test behavior
 

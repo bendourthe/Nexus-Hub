@@ -113,11 +113,13 @@ def test_cursor_windows_registration_uses_powershell(
 
     cursor_root = install_ctx.target_root / ".cursor"
     data = json.loads((cursor_root / "hooks.json").read_text(encoding="utf-8"))
-    commands = [entry["command"] for entries in data["hooks"].values() for entry in entries]
+    commands = [entry["command"] for event, entries in data["hooks"].items() if event != "sessionStart" for entry in entries]
     assert commands
     assert all(command.startswith("python ") for command in commands)
     assert all("cursor-hook-compat.py" in command for command in commands)
     assert all(".ps1" in command and ".sh" not in command for command in commands)
+    assert data["hooks"]["sessionStart"][0]["command"].startswith('"')
+    assert data["hooks"]["sessionStart"][0]["command"].endswith('nexus_git_attribution.py" context')
 
 
 def test_cursor_posix_registration_uses_bash(
@@ -130,11 +132,13 @@ def test_cursor_posix_registration_uses_bash(
 
     cursor_root = install_ctx.target_root / ".cursor"
     data = json.loads((cursor_root / "hooks.json").read_text(encoding="utf-8"))
-    commands = [entry["command"] for entries in data["hooks"].values() for entry in entries]
+    commands = [entry["command"] for event, entries in data["hooks"].items() if event != "sessionStart" for entry in entries]
     assert commands
     assert all(command.startswith("python3 ") for command in commands)
     assert all("cursor-hook-compat.py" in command for command in commands)
     assert all("bash " in command and ".sh" in command and ".ps1" not in command for command in commands)
+    assert "python" in data["hooks"]["sessionStart"][0]["command"]
+    assert "nexus_git_attribution.py" in data["hooks"]["sessionStart"][0]["command"]
 
 
 def test_cursor_stop_carries_the_completion_notification(install_ctx: InstallContext):

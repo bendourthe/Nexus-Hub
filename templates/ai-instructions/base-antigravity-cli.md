@@ -8,3 +8,7 @@ This wrapper exists as a placeholder for a hypothetical future split where Googl
 
 - Binary / invocation: `agy --help`, `agy -p '<prompt>'` (verified 2026-05-29; the CLI ships as `agy`, not `antigravity`)
 - Migration timeline: non-enterprise Gemini CLI users transition to Antigravity CLI before 2026-06-18
+
+## User Attribution
+
+Use the user's Git identity, never an agent identity. Before commit, tag or push, run `nexus-hub attribution check`. Follow `~/.nexus-hub/style-guides/git-attribution.md` for setup, agent-footer restrictions and publication rules.

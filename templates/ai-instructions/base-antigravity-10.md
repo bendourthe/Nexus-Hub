@@ -8,3 +8,7 @@ This file deploys to `~/.gemini/antigravity/rules.md` (global) or `<project>/.ge
 - Customizations: surfaced via the IDE's Customizations menu; the on-disk layout uses `rules_library/` for rule sets and `global_workflows/` for saved prompts
 - Hooks: not supported on the 1.0 surface (see Antigravity 2.0 for hook support)
 - Migration note: Antigravity 1.0 is superseded by Antigravity 2.0 + CLI for new users; this template remains supported for existing 1.0 installs
+
+## User Attribution
+
+Use the user's Git identity, never an agent identity. Before commit, tag or push, run `nexus-hub attribution check`. Follow `~/.nexus-hub/style-guides/git-attribution.md` for setup, agent-footer restrictions and publication rules.

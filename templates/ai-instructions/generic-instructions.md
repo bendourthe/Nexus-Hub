@@ -260,3 +260,7 @@ This shape applies to **mid-task** turns. A turn that ends a task uses the Compl
     *   Use Markdown for formatting.
     *   Use Code Blocks for code.
 3.  **Explanation/Notes**: (If needed) Context, instructions, or trade-offs.
+
+## User Attribution
+
+Use the user's Git identity, never an agent identity. Before commit, tag or push, run `nexus-hub attribution check`. Follow `~/.nexus-hub/style-guides/git-attribution.md` for setup, agent-footer restrictions and publication rules.

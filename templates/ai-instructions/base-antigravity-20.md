@@ -13,3 +13,7 @@ This file is consumed by BOTH the Antigravity 2.0 desktop IDE and the Antigravit
 - Subagents: `.agents/subagents/` (and both global roots) -- the Nexus-Hub installer mirrors `catalog/agents/` here automatically.
 - Hooks: `.agents/hooks.json` registers a curated, platform-agnostic set (secret-scan, large-file-guard, git-guardrails, and the opt-in context-compressor) whose scripts the installer places under `.agents/hooks/`. The schema is keyed by named hook groups (each with an `enabled` flag) using Claude-compatible events (PreToolUse/PostToolUse/SessionStart/Stop) and `matcher` regexes. On Windows the `.sh` hooks need a Unix shell (git-bash), same as the Claude hooks.
 - Permissions: `configs/permissions/gemini-permissions.json` (shared with the Gemini surfaces -- the same trusted-domain allowlist applies)
+
+## User Attribution
+
+Use the user's Git identity, never an agent identity. Before commit, tag or push, run `nexus-hub attribution check`. Follow `~/.nexus-hub/style-guides/git-attribution.md` for setup, agent-footer restrictions and publication rules.

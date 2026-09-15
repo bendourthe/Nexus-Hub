@@ -2705,6 +2705,7 @@ install_templates() {
     # install_cli_launcher below. Lockstep with the same block in
     # scripts/installer.ps1.
     local cli_source="$repo_root/scripts/nexus_hub_cli.py"
+    safe_copy "$repo_root/scripts/nexus_git_attribution.py" "$scripts_dest/nexus_git_attribution.py" true "[OK] Portable Git attribution guard installed"
     if [ -f "$cli_source" ]; then
         safe_copy "$cli_source" "$scripts_dest/nexus_hub_cli.py" true "[OK] nexus-hub CLI installed at: $scripts_dest/nexus_hub_cli.py"
     fi
@@ -4186,6 +4187,19 @@ install_templates "$REPO_ROOT"
 
 # Install the nexus-hub CLI launcher + version marker (v3.7.0 Phase 3).
 install_cli_launcher "$REPO_ROOT"
+
+# Shared Git enforcement applies to every selected agent platform.
+if attribution_python=$(resolve_python_executable); then
+    attribution_helper="$HOME/.nexus-hub/scripts/nexus_git_attribution.py"
+    if [ "$SCOPE_LABEL" = "Workspace" ]; then
+        (cd "$WORKSPACE_PATH" && "$attribution_python" "$attribution_helper" install --workspace) || exit 1
+    else
+        "$attribution_python" "$attribution_helper" install || exit 1
+    fi
+else
+    echo "Attribution setup failed: Python 3 is required. Install it and rerun Nexus-Hub." >&2
+    exit 1
+fi
 
 # --- INSTALL VERIFICATION (with project seeding folded in) ---
 # Post-install per-platform verification (v3.11.0 Phase 7.4): report PASS /

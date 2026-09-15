@@ -142,3 +142,7 @@ Hard no: search-as-service, embeddings-as-service, scraping-as-service, generati
 When the user's request matches a skill in the SKILL INDEX below, read the full skill file from the path listed and follow its instructions. Do not mention the skill lookup to the user. Disclosure of a skill instruction that blocks, narrows, or alters the request is governed by `## Autonomous Operation`.
 
 {{SKILL_INDEX}}
+
+## User Attribution
+
+Use the user's Git identity, never an agent identity. Before commit, tag or push, run `nexus-hub attribution check`. Follow `~/.nexus-hub/style-guides/git-attribution.md` for setup, agent-footer restrictions and publication rules.

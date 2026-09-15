@@ -125,6 +125,10 @@ def test_uninstall_reverses_install(
         template_vars={"PROJECT_NAME": "test-project"},
     )
     integ.install(ctx_install)
+    # Native Aider YAML is shared user configuration, seeded append-only and
+    # deliberately retained. Uninstall must preserve its exact bytes.
+    retained_config = fresh_target / ".aider.conf.yml"
+    retained_bytes = retained_config.read_bytes() if key == "aider" else None
 
     ctx_uninstall = InstallContext(
         repo_root=REPO_ROOT,
@@ -142,6 +146,9 @@ def test_uninstall_reverses_install(
     # The .nexus-hub/install-manifest.json is written by runner.cmd_install,
     # not by integ.install(). Confirm none of our other paths leaked through.
     real_leaks = {p for p in leftover if ".nexus-hub" not in p.parts}
+    if key == "aider":
+        assert retained_config.read_bytes() == retained_bytes
+        real_leaks.discard(retained_config.relative_to(fresh_target))
     assert not real_leaks, (
         f"{key}: uninstall left files behind: {sorted(real_leaks)}"
     )

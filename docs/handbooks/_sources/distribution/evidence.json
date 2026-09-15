@@ -1,12 +1,12 @@
 {
   "snapshot": {
-    "entry_sha256": "87e477916b7b387fa4f81d344e38aac4066e92bdf48477732f5bd91bf53bde3b",
+    "entry_sha256": "90b6e519dbbdebc658cdf68459bed2600a07046cadb095ade2509bc7711c1165",
     "inputs": {
-      "docs/handbooks/_sources/distribution/model.json": "f63af1e8e6a20de8c8473515f2bc3bdbad52a21344a36c425142d13e2ba04237",
-      "docs/handbooks/_sources/distribution/source.md": "e78e24ee80f54094b1cdbc648442fdae2543baa9ac195afe18fbf64fe620851b",
+      "docs/handbooks/_sources/distribution/model.json": "c89ec3703b5dbc35eb4b62d12fcf2eba7a956f6319ef74c83dbce9386a6766ae",
+      "docs/handbooks/_sources/distribution/source.md": "0b4bfc5f7254911e278bb74cb0b160ed372013a57eaf63356b91fc610acce080",
       "docs/handbooks/_sources/distribution/design.css": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24",
-      "scripts/installer.ps1": "9c7e0453934dabe0cce04a403eaa2180c4676f82b6dbb2009aaec99c1bc823a4",
-      "scripts/installer.sh": "b996835add4c31b7bf37a48293c5517248c3e1b4e78297c601f290577a28d876",
+      "scripts/installer.ps1": "172fbb04eca80ff8ec223a9b7ddd47dc537703af797c4e7807daf656957c58ea",
+      "scripts/installer.sh": "65a3d2daa1a05ed6ca0579e9850443d5cd4d5d3a0dd348b76543e7e3e0350da8",
       "scripts/lib/integrations/runner.py": "7912fa31727da6bb9bf3877b3c68d9972d491f7f9cb96010d2a93acabd221833",
       "scripts/lib/integrations/_catalog_adapters.py": "3d92a49b0f0338461e6e029bd5301abc5cbce7451ac4e58014357ae998536de9",
       "scripts/lib/integrations/_owned.py": "aaeae3a0fe420ecabd4d5f863257454bc966e707d97e0fba4e7bba2ebc761f64",
@@ -19,27 +19,32 @@
       "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
       "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
       "docs/handbooks/_sources/distribution/ownership-composition.html": "31df6a101328862f4e525a8b79cec45cb531d3404a8c97a108b48fca4ff231e3",
-      "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779"
+      "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
+      "scripts/nexus_git_attribution.py": "866d6960f46b1ba8b155e14735732ac8f5150e64b96e02dbd2073baaec738d34",
+      "catalog/style-guides/git-attribution.md": "b7f981c25aeabb79761e215205e2fd09829f4290713b8e82755a1dfa1c5abe67",
+      "scripts/lib/integrations/cursor.py": "1a93d54aae64f161cc0f00f559a5a9010c42e34864b2672a901c2cd5a160ad84",
+      "scripts/lib/integrations/aider.py": "46055a8d110cf1230a7bfc631d4e8b0941adb1929bdf9cfc89489ef676be4edc",
+      "configs/platform-defaults.json": "e8ca8c8f49bd70448e5b7896a20308407dbcac0e442de5c3964e955e9c7ebc23"
     },
-    "output_sha256": "7f00f7826654615a5948b70ab3fe4c3f7ba2f2bef7889976678d899b51550af5"
+    "output_sha256": "8463c66d85d0d354374b89ceb2a10ddf8c9fe5138a866ad13606776d763cc557"
   },
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.11/development/interactive-handbooks/phase-6-content-review.md",
-      "evidence_sha256": "0bf746d75065778f5adccca0442dcac07d847fe8e816e470a4f223d7b020c819"
+      "evidence": "docs/releases/v4/v4.12/development/portable-attribution-handbook-content.md",
+      "evidence_sha256": "598617998397ce3cb38afad2fe3a4a42b813802560971ca1aa9b40c94507dbc8"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.11/development/interactive-handbooks/phase-6-build-evidence.json",
-      "evidence_sha256": "0d96f1b172acb89ce7107d19eae4cd535a936d4283b0a4326262da1900b3d0bb"
+      "evidence": "docs/releases/v4/v4.12/development/portable-attribution-handbook-build.json",
+      "evidence_sha256": "042069917bcef67964fbc9de316045cd9c05877a15c40e745400b41abf414070"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.11/development/interactive-handbooks/phase-7-distribution-rendered.json",
-      "evidence_sha256": "2ee536f8279e7c605327d7d1a8b69b3f7dde7f55de96eca91d0931496be1f396",
+      "evidence": "docs/releases/v4/v4.12/development/portable-attribution-handbook-rendered.json",
+      "evidence_sha256": "44e194c65e2bc5bb901e2d7cf282c652ec640a370e9a65157f49fc20cdcbed79",
       "browser": "Chromium 151.0.7922.34",
-      "output_sha256": "7f00f7826654615a5948b70ab3fe4c3f7ba2f2bef7889976678d899b51550af5"
+      "output_sha256": "8463c66d85d0d354374b89ceb2a10ddf8c9fe5138a866ad13606776d763cc557"
     }
   }
 }

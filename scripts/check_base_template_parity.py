@@ -97,6 +97,7 @@ LOCKSTEP_FILES = [
 # Section headings (by text, level-agnostic) that every lockstep file must
 # carry. Derived from the intersection of all five files as they stand today.
 REQUIRED_HEADINGS = [
+    "User Attribution",
     "{{PROJECT_NAME}}",
     "Tech Stack",
     "Project Layout",
@@ -145,6 +146,7 @@ REQUIRED_PLACEHOLDERS = [
 # Minimization is deliberately NOT here: base-claude.md carries a legitimate
 # 5th bullet the other four do not.
 INVARIANT_SECTIONS = [
+    "User Attribution",
     "Tech Stack",
     "Key Commands",
     "Branching",

@@ -8,3 +8,7 @@ This file deploys to `~/.gemini/GEMINI.md` (global) or `<project>/.gemini/GEMINI
 - Slash commands: TOML files at `~/.gemini/commands/<name>.toml` (the Nexus-Hub installer mirrors `catalog/commands/` into this location automatically)
 - Permissions: `configs/permissions/gemini-permissions.json` -- filesystem-read scoped to project roots, network scoped to trusted domains
 - Migration: non-enterprise users should switch to Antigravity CLI before 2026-06-18 (see `base-antigravity-cli.md`)
+
+## User Attribution
+
+Use the user's Git identity, never an agent identity. Before commit, tag or push, run `nexus-hub attribution check`. Follow `~/.nexus-hub/style-guides/git-attribution.md` for setup, agent-footer restrictions and publication rules.

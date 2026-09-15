@@ -12,12 +12,18 @@ Refreshing this file to the active plan (rather than appending another version's
 
 ---
 
+## Portable attribution extension
+
+Local feature implementation and qualification are complete: all 47 Linux full-profile commands and 15 Windows fast-profile commands pass, with real Windows and Linux installer verification. Normal integration and v4.12.0 publication remain pending in the [portable evidence](releases/v4/v4.12/development/portable-attribution-evidence.md). The public Code contributor display remains open independently.
+
+- [x] Implemented approved v4.12 Phase 5: installable Git attribution guard, both installers, all platform instructions, installed-behavior verification and release preparation. See [the active plan](releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md).
+
 ## Scores
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.12.0 implementation tasks complete | 22 | 23 | 1 |
-| v4.12.0 implementation phases complete | 3 | 4 | 1 |
+| v4.12.0 implementation tasks complete | 27 | 28 | 1 |
+| v4.12.0 implementation phases complete | 4 | 5 | 1 |
 | v4.11.0 interactive-handbook phases complete | 7 | 7 | 0 |
 | v4.11.0 interactive-handbook tasks complete | 31 | 31 | 0 |
 | v4.11.0 accepted native authoring families | 2 | 3 | 1 |
