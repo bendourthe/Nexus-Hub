@@ -1,8 +1,8 @@
 # Known gaps - v4.12
 
 **Project**: Nexus-Hub
-**Status**: in-progress
-**Last updated**: 2026-09-14
+**Status**: released
+**Last updated**: 2026-09-15
 
 Release-scoped gaps for the sole-contributor-attribution plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -82,4 +82,4 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 ### Release disposition
 
-The v4.12.0 release preserves the four warnings and four historical quality-gate gaps above. Portable attribution integration passed PR #217 and post-merge run 34925451808; it does not close those independent items. No unresolved portable-code finding remains. See [release qualification](development/release-qualification.md) for the release evidence and queue impacts.
+v4.12.0 was published on 2026-09-15 at tag `v4.12.0` (`0dabca77`) and reconciled into `develop` by the back-merge in PR #220. Post-publication verification of the downloaded artifacts passed for both published forms (1,929 manifest entries each, matching asset digest, successful provenance attestation). The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. Publication does not close the four warnings and four historical quality-gate gaps above, which the release preserves. Portable attribution integration passed PR #217 and post-merge run 34925451808; it does not close those independent items. No unresolved portable-code finding remains. See [release qualification](development/release-qualification.md) for the release evidence and queue impacts.
