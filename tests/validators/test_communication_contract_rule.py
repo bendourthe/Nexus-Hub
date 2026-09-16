@@ -136,16 +136,18 @@ def test_style_guide_specifies_the_table_shape():
     """The shape is load-bearing: a recommendation written away from its option
     makes the reader match it back to the list."""
     text = _read(_STYLE_GUIDE)
-    assert "Shape: one table per Open item" in text
-    assert "Mark the recommended option **on its own row**" in text
-    assert "(Recommended)" in text
-    assert "numbered heading" in text
+    assert "Shape: a line of prose, then a table of options" in text
+    assert "Keep the description **out** of the table" in text
+    assert "End every item with a horizontal rule." in text
+    assert "- recommended" in text
+    assert "numbered heading" in text.lower()
 
 
 def test_skill_carries_the_table_shape():
     text = _read(_SKILL)
-    assert "two-column table under a numbered heading" in text
-    assert "(Recommended)" in text
+    assert "Keep the description OUT of the table" in text
+    assert "- recommended" in text
+    assert "ONE clause" in text
 
 
 def test_style_guide_owns_the_decision_block_procedure():

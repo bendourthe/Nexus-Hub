@@ -95,14 +95,22 @@ Each Open item carries four parts, in order:
 
 Write each item so it reads cold, without scrolling back.
 
-Render it as a two-column table under a numbered heading: the first row is the description, each later row is one option and its consequence, and exactly one row carries *(Recommended)* plus the reason. Marking the recommendation on its own row means the reader never has to match it back to a list. Numbered headings let them reply "do 2 and 3" instead of quoting text.
+Keep the description OUT of the table. A table whose first row is a paragraph and whose later rows are choices gives the eye nothing to lock onto. Prose states the problem; the table compares the choices.
 
-| | |
+```markdown
+### 1. Short title naming the problem
+
+One or two sentences: what it is and what it costs.
+
+| Option | Consequence |
 |---|---|
-| **What** | The problem and its consequence, in plain language. |
-| **Do the thing** *(Recommended)* | What it costs or changes, then why this one. |
-| **Do nothing** | Its cost, stated. Include this row whenever it is genuinely available. |
+| **Do the thing** - recommended | Why, in one clause |
+| Do nothing | What that costs |
 
+---
+```
+
+Each consequence cell is ONE clause. The table is a comparison, not an explanation; an option needing a paragraph has that paragraph above the table or nowhere. Exactly one option cell carries `- recommended`. End each item with a horizontal rule, because stacked tables with no break read as one long grid. Numbered headings let the reader answer "do 2 and 3" instead of quoting text.
 
 Two constraints keep it honest. Never manufacture options to fill the shape: where only one course exists, say so and say why. And never use the block to re-open a decision the user already made; absent new evidence, that is closed, not open.
 

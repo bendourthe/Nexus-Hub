@@ -101,9 +101,32 @@ Each Open item therefore carries four parts, in this order:
 
 Write it so the item can be read cold, without scrolling back. Assume the reader has forgotten the intermediate steps.
 
-### Shape: one table per Open item
+### Shape: a line of prose, then a table of options
 
-Render each item as a two-column table. The first row carries the description; each remaining row is one option and its consequence. Mark the recommended option **on its own row**, so the reader never has to match a recommendation written elsewhere back to the list.
+Keep the description **out** of the table. A table whose first row is a paragraph and whose later rows are choices gives the eye nothing to lock onto, so the reader has to parse every row to find where the options start.
+
+```markdown
+### 1. Short title naming the problem
+
+One or two sentences: what it is and what it costs. Prose, not a table row.
+
+| Option | Consequence |
+|---|---|
+| **Do the thing** - recommended | Why, in one clause |
+| Do the other thing | Its cost, in one clause |
+| Do nothing | What that costs |
+
+---
+```
+
+Four things this buys, each of which was a real defect in the version before it:
+
+- **The description reads as prose**, visually separate from the choices, so the boundary is obvious at a glance.
+- **Consequences stay to one clause.** The table is a comparison, not an explanation; if an option needs a paragraph, that paragraph belongs above the table or nowhere.
+- **The recommendation sits in the option cell**, so it is never written away from the thing it recommends.
+- **A horizontal rule separates items.** Stacked tables with no break read as one long grid.
+
+Numbered headings let the reader answer "do 2 and 3" instead of quoting text back.
 
 **Do not write this:**
 
@@ -115,23 +138,24 @@ Three decisions are named and none is explained. The reader cannot choose withou
 
 **Write this:**
 
-> **1. The fix has not reached users yet**
+> ### 1. The fix has not reached users
 >
-> | | |
+> The bug is fixed on the working branch, but installs download from the published branch. Anyone installing today still hits it.
+>
+> | Option | Consequence |
 > |---|---|
-> | **What** | The bug is fixed in the working branch, but installs download from the published branch, so anyone installing today still hits it. |
-> | **Publish a release** *(Recommended)* | Users get the fix now. Costs one release cycle. Recommended because the failure blocks first-time installs and the change is small and already reviewed. |
-> | **Wait for the next scheduled release** | No extra work, but every install until then still fails. |
+> | **Cut a release** - recommended | Blocks first-time installs; change is small and already reviewed |
+> | Wait for the next release | Every install until then still fails |
+>
+> ---
 
-Rules for the table:
+Rules:
 
-- The **What** row states the problem and its consequence in plain language. It never names an internal mechanism the reader has not seen.
-- Each option row leads with the action, in bold, followed by what it costs or changes.
-- Exactly one row carries *(Recommended)*, and that row also carries the reason. A recommendation with no reason is an instruction.
-- Where doing nothing is genuinely available, it is one of the rows, with its cost stated.
-- Add a **Why open** row only when the reason is not obvious from the What row: blocked on a person, on evidence, or on time.
-
-Keep a numbered heading above each table so a reader can answer with "do 2 and 3" instead of quoting text back.
+- The prose line states the problem and its cost in plain language, never an internal mechanism the reader has not seen.
+- Each option cell leads with the action in bold; each consequence cell is ONE clause.
+- Exactly one option carries `- recommended`, in its own cell, with the reason in that row's consequence.
+- Include a **Do nothing** row whenever that is genuinely available, with its cost.
+- End every item with a horizontal rule.
 
 Two constraints keep this honest. Do not manufacture options to fill the shape: where only one course is genuinely available, say so and say why. And do not use the block to re-litigate a decision the user already made; if they declined something and nothing has changed, it is closed, not open.
 
@@ -190,8 +214,9 @@ Check a response against this list before sending it.
 - [ ] A task-ending response carries all four labeled parts: Completed, Verified, Open, Next.
 - [ ] The Open part is present even when empty ("nothing outstanding").
 - [ ] Every Open item states what it is in plain language, why it is open, its options with consequences, and a recommendation with a reason.
-- [ ] Each Open item is a two-column table under a numbered heading, with the description in the first row and one option per row after it.
-- [ ] Exactly one option row carries (Recommended) and that same row carries the reason.
+- [ ] Each Open item is a numbered heading, then prose stating the problem, then a table of options only.
+- [ ] Every consequence cell is one clause, and exactly one option cell carries "- recommended".
+- [ ] A horizontal rule separates each Open item from the next.
 - [ ] No Open item is a bare "what I did not do" list, and none re-opens a decision the user already made.
 - [ ] Options are real: where only one course is available the response says so rather than inventing alternatives.
 - [ ] Detail beyond about 5 lines is linked to a `docs/` file with a repository-relative link, and the question that was asked is still answered in the response.
