@@ -882,3 +882,173 @@ class TestGraduationPoolContract:
         """Phase 3 retires nothing; retirement stays the existing advisory rule."""
         text = _SKILL_EVAL_LOOP.read_text(encoding="utf-8")
         assert "it is RETIRED with a recorded reason" in text
+
+
+# === Phase 4: smallest useful visual explanation ===
+
+_REPRESENTATION = _FIXTURES / "representation-cases.json"
+_HTML_CONVENTIONS = (
+    _SKILLS / "developer-experience" / "html-output-conventions" / "SKILL.md"
+)
+_AGENT_COMMUNICATION = (
+    _SKILLS / "developer-experience" / "agent-communication" / "SKILL.md"
+)
+_COMMS_STYLE_GUIDE = _ROOT / "catalog" / "style-guides" / "agent-communication.md"
+
+
+@pytest.fixture(scope="module")
+def representation() -> dict:
+    return json.loads(_REPRESENTATION.read_text(encoding="utf-8"))
+
+
+class TestRepresentationCases:
+    def test_every_ladder_rung_that_matters_has_a_scenario(
+        self, representation: dict
+    ) -> None:
+        covered = {c["expected_rung"] for c in representation["cases"]}
+        for rung in ("table", "pseudocode", "mermaid", "html"):
+            assert rung in covered, f"no scenario expects the {rung} rung"
+
+    def test_expected_rungs_are_on_the_declared_ladder(
+        self, representation: dict
+    ) -> None:
+        ladder = set(representation["ladder"])
+        for case in representation["cases"]:
+            assert case["expected_rung"] in ladder
+
+    def test_no_case_expects_what_it_forbids(self, representation: dict) -> None:
+        """A self-contradictory case would be satisfiable either way."""
+        for case in representation["cases"]:
+            assert case["expected_rung"] not in case["must_not_be"], (
+                f"{case['case_id']} both expects and forbids {case['expected_rung']}"
+            )
+
+    def test_both_near_misses_are_present_and_point_opposite_ways(
+        self, representation: dict
+    ) -> None:
+        near = [c for c in representation["cases"] if "near_miss_of" in c]
+        assert len(near) >= 2, "fewer than two near-misses"
+        directions = {c["near_miss_of"] for c in near}
+        assert "html" in directions, "no near-miss guarding against over-climbing"
+        assert "prose" in directions, "no near-miss guarding against over-collapsing"
+
+    def test_short_static_table_must_not_force_html(
+        self, representation: dict
+    ) -> None:
+        case = next(
+            c for c in representation["cases"] if c["case_id"] == "REP-5-near-miss"
+        )
+        assert case["expected_rung"] == "table"
+        assert "html" in case["must_not_be"]
+
+    def test_interactive_state_comparison_must_not_collapse_to_prose(
+        self, representation: dict
+    ) -> None:
+        case = next(
+            c for c in representation["cases"] if c["case_id"] == "REP-6-near-miss"
+        )
+        assert case["expected_rung"] == "html"
+        assert "prose" in case["must_not_be"]
+
+    def test_responsibility_list_is_not_accepted_for_topology(
+        self, representation: dict
+    ) -> None:
+        case = next(c for c in representation["cases"] if c["case_id"] == "REP-7")
+        assert "responsibility_list" in case["must_not_be"]
+
+    def test_ascii_box_diagram_is_excluded_wherever_a_diagram_applies(
+        self, representation: dict
+    ) -> None:
+        diagram_cases = [
+            c for c in representation["cases"] if c["expected_rung"] == "mermaid"
+        ]
+        assert diagram_cases
+        for case in diagram_cases:
+            assert "ascii_box_diagram" in case["must_not_be"] or any(
+                inv["invariant_id"] == "INV-2"
+                and case["case_id"] in inv["applies_to"]
+                for inv in representation["invariants"]
+            )
+
+    def test_invariants_reference_real_cases(self, representation: dict) -> None:
+        ids = {c["case_id"] for c in representation["cases"]}
+        for invariant in representation["invariants"]:
+            assert invariant["applies_to"], f"{invariant['invariant_id']} applies to nothing"
+            for case_id in invariant["applies_to"]:
+                assert case_id in ids, f"{invariant['invariant_id']} names unknown {case_id}"
+
+    def test_fixture_does_not_claim_a_comprehension_result(
+        self, representation: dict
+    ) -> None:
+        prov = representation["provenance"]
+        assert prov["synthetic"] is True
+        assert "comprehension" in prov["not_evidence_of"]
+
+
+class TestRepresentationOwner:
+    def test_ladder_exists_with_its_rungs(self) -> None:
+        text = _HTML_CONVENTIONS.read_text(encoding="utf-8")
+        assert "The smallest useful representation" in text
+        for rung in ("Small table", "Pseudocode", "Mermaid diagram", "HTML artifact"):
+            assert rung in text
+
+    def test_short_answer_needs_no_file(self) -> None:
+        text = _HTML_CONVENTIONS.read_text(encoding="utf-8")
+        assert "A short answer must not require creating or opening a file." in text
+
+    def test_ascii_box_diagrams_stay_excluded(self) -> None:
+        text = _HTML_CONVENTIONS.read_text(encoding="utf-8")
+        assert "Decorative ASCII box diagrams remain excluded at every rung" in text
+
+    def test_html_rules_are_preserved_not_relaxed(self) -> None:
+        """Reaching rung 5 must not weaken any existing HTML requirement."""
+        text = _HTML_CONVENTIONS.read_text(encoding="utf-8")
+        assert "no color-only meaning" in text
+        assert "offline self-contained delivery" in text
+        assert "responsive layout rules" in text
+        assert "full artifact quality pass" in text
+
+    def test_pseudocode_is_not_a_substitute_for_a_spatial_graphic(self) -> None:
+        text = _HTML_CONVENTIONS.read_text(encoding="utf-8")
+        assert "not** substitutes for an accessible spatial graphic" in text
+
+    def test_the_original_html_decision_table_survives(self) -> None:
+        text = _HTML_CONVENTIONS.read_text(encoding="utf-8")
+        assert "## HTML vs Markdown decision table" in text
+        assert "grid-comparison.html" in text
+        assert "annotated-diff.html" in text
+
+    @pytest.mark.parametrize(
+        "needle",
+        [
+            "A short answer must not require creating or opening a file.",
+            "Decorative ASCII box diagrams remain excluded at every rung",
+        ],
+    )
+    def test_ladder_claims_have_teeth(self, needle: str) -> None:
+        mutated = _HTML_CONVENTIONS.read_text(encoding="utf-8").replace(needle, "")
+        assert needle not in mutated
+
+
+class TestCommunicationHandoff:
+    def test_communication_defers_representation_choice(self) -> None:
+        text = _AGENT_COMMUNICATION.read_text(encoding="utf-8")
+        assert "html-output-conventions" in text
+        assert "do not restate it here" in text
+
+    def test_communication_does_not_duplicate_the_ladder(self) -> None:
+        """One owner per rule; a copied ladder is a second source of truth."""
+        text = _AGENT_COMMUNICATION.read_text(encoding="utf-8")
+        assert "The smallest useful representation" not in text
+        assert "Decorative ASCII box diagrams" not in text
+
+    def test_closing_report_requirements_are_unchanged(self) -> None:
+        text = _AGENT_COMMUNICATION.read_text(encoding="utf-8")
+        assert "Completed" in text and "Verified" in text
+        assert "Open" in text and "Next" in text
+
+    def test_style_guide_was_left_alone(self) -> None:
+        """It governs chat formatting, not representation choice, so it is untouched."""
+        text = _COMMS_STYLE_GUIDE.read_text(encoding="utf-8")
+        assert "The smallest useful representation" not in text
+        assert "html-output-conventions" not in text
