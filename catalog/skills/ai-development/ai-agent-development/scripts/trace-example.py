@@ -47,7 +47,7 @@ FORBIDDEN_KEYS = (
 
 # Sentinels. Present in the generator, absent from every emitted record.
 _SENTINEL_PAYLOAD = "sk-live-SENTINEL-must-not-appear"
-_SENTINEL_EXCEPTION = "PermissionError: /home/real-user/.ssh/id_rsa SENTINEL"
+_SENTINEL_EXCEPTION = "PermissionError: /srv/secrets/SENTINEL-private-key.pem denied"
 
 _BASE = datetime(2026, 1, 1, tzinfo=timezone.utc)
 

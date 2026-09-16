@@ -12,6 +12,18 @@ Refreshing this file to the active plan (rather than appending another version's
 
 ---
 
+## Evidence-driven agent improvement (v4.13.0)
+
+Phases 1-5 of the [v4.13.0 plan](releases/v4/v4.13/plans/v4.13.0-adoption-evidence-driven-agent-improvement.md) are implemented and locally committed on `feat/v4.13.0-evidence-driven-agent-improvement`, one commit per phase, no push. Phase 6 is deferred as UNMEASURED because the plan's fail-closed entry prerequisite is unsatisfied: no available execution path both enforces an aggregate spend ceiling across the pilot and observes organic skill selection rather than forced skill loading. Phase 7 has not started. Open items are DF-1, QG-1, WN-1 and WN-2 in the [v4.13 ledger](releases/v4/v4.13/known-gaps.md).
+
+- [x] Phase 1 (A1): judge sensitivity foundation - frozen synthetic fixture, evaluator-validation Step 6, audit routing under concern 4.
+- [x] Phase 2 (A6): pinned agent span contract and a metadata-only runnable trace example; unsafe logging example replaced.
+- [x] Phase 3 (A2): observation-to-regression chain with an independent oracle and byte-exact rollback.
+- [x] Phase 4 (A4): smallest-useful-representation ladder with both near-misses guarded.
+- [x] Phase 5 (A5): optional context-fact freshness procedure and controlled-clock disposition matrix.
+- [ ] Phase 6 (A3): bounded trigger pilot - BLOCKED on the entry prerequisite; requires a separately scoped runner decision.
+- [ ] Phase 7: architecture refactor, known-gaps reconciliation, CI/CD and integration.
+
 ## Portable attribution extension
 
 Local feature implementation and qualification are complete: all 47 Linux full-profile commands and 15 Windows fast-profile commands pass, with real Windows and Linux installer verification. Normal integration passed through PR #217 and post-merge run 34925451808; v4.12.0 is published and its downloaded artifacts are verified, recorded in the [portable evidence](releases/v4/v4.12/development/portable-attribution-evidence.md). The public Code contributor display remains open independently.

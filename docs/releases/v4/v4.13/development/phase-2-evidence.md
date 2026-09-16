@@ -31,7 +31,7 @@ The contract therefore marks tool attributes unverified and instructs the reader
 | Path | Kind | SHA-256 (first 16) |
 |---|---|---|
 | `catalog/skills/ai-development/ai-agent-development/references/agent-span-contract.md` | pinned contract | `b6e3b2950fff1b12` |
-| `catalog/skills/ai-development/ai-agent-development/scripts/trace-example.py` | runnable demonstration | `52efd8d8f2e0057b` |
+| `catalog/skills/ai-development/ai-agent-development/scripts/trace-example.py` | runnable demonstration | `2828b80a175029cc` |
 
 Both are linked from the owning `SKILL.md`, so the recursive installer delivers them with no installer edit. The bundle audit reports no orphan warning for this skill.
 
@@ -85,7 +85,7 @@ The generator holds two sentinel values, so omission is proven against data know
 | Sentinel | Represents | Present in output |
 |---|---|---|
 | `sk-live-SENTINEL-must-not-appear` | a credential in tool arguments | **no** |
-| `PermissionError: /home/real-user/.ssh/id_rsa SENTINEL` | a raw exception string with a path | **no** |
+| `PermissionError: /srv/secrets/SENTINEL-private-key.pem denied` | a raw exception string with a path | **no** |
 
 The failed tool call records `error.type: permission_denied`, an allowlisted category derived from the sentinel exception whose text was read and discarded. No Opt-In payload attribute (`gen_ai.input.messages`, `gen_ai.output.messages`, `gen_ai.system_instructions`, `gen_ai.tool.definitions`) appears anywhere in the output.
 

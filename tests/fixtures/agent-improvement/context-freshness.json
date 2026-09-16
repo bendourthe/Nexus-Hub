@@ -1,0 +1,156 @@
+{
+  "fixture_id": "context-freshness-v1",
+  "schema_version": "1.0.0",
+  "purpose": "Exercise the freshness dispositions, including the cases where creation time and confidence disagree with current validity.",
+  "provenance": {
+    "synthetic": true,
+    "authored_for": "v4.13.0 Phase 5 (candidate A5)",
+    "evidence_class": "disposition_rules_only",
+    "not_evidence_of": "any real pack, memory store, or deployment state"
+  },
+  "evaluation_clock": {
+    "now": "2026-09-15T12:00:00Z",
+    "target_identity": "v4.13.0",
+    "note": "Tests evaluate against this fixed instant and this target. They never call a wall clock and never sleep, so the matrix is reproducible on any host at any date."
+  },
+  "dispositions": ["current", "historical", "unknown", "superseded"],
+  "facts": [
+    {
+      "fact_id": "CF-1-stale-check",
+      "content": "The integration suite passes on the payments module.",
+      "volatile": true,
+      "observed_at": "2026-08-02T09:15:00Z",
+      "observed_of_target": "v4.11.0",
+      "confidence": "high",
+      "source_reachable": true,
+      "staleness_trigger": "any edit to the payments module or a new release",
+      "trigger_fired": true,
+      "expected_disposition": "historical",
+      "requires_revalidation": true,
+      "may_be_stated_as": "As of 2026-08-02 on v4.11.0, the suite passed.",
+      "must_not_be_stated_as": "The suite passes.",
+      "rationale": "A check result describes a moment. The code changed and the release moved, so restating it in the present tense asserts something nobody verified. High confidence does not make it current."
+    },
+    {
+      "fact_id": "CF-2-stable-convention",
+      "content": "Authentication uses JWTs stored in httpOnly, Secure, SameSite=Strict cookies.",
+      "volatile": false,
+      "observed_at": "2026-03-11T14:00:00Z",
+      "observed_of_target": "v4.x",
+      "confidence": "high",
+      "source_reachable": true,
+      "staleness_trigger": "an architecture decision record superseding the auth design",
+      "trigger_fired": false,
+      "expected_disposition": "current",
+      "requires_revalidation": false,
+      "may_be_stated_as": "Authentication uses JWTs in httpOnly cookies.",
+      "rationale": "A documented architectural decision is not a perishable reading. Attaching an arbitrary expiry to it manufactures churn and trains the reader to ignore staleness markers."
+    },
+    {
+      "fact_id": "CF-3-missing-source",
+      "content": "The staging database runs Postgres 16.",
+      "volatile": true,
+      "observed_at": "2026-07-20T11:00:00Z",
+      "observed_of_target": "staging",
+      "confidence": "medium",
+      "source_reachable": false,
+      "staleness_trigger": "any infrastructure change",
+      "trigger_fired": false,
+      "expected_disposition": "unknown",
+      "requires_revalidation": true,
+      "may_be_stated_as": "The staging database version cannot be established right now.",
+      "must_not_be_stated_as": "The staging database runs Postgres 16.",
+      "rationale": "An unreachable source leaves the claim unknown. It does not license a guess, and it does not license retrying forever."
+    },
+    {
+      "fact_id": "CF-4-future-timestamp",
+      "content": "The release checklist was completed.",
+      "volatile": true,
+      "observed_at": "2027-01-04T08:00:00Z",
+      "observed_of_target": "v4.13.0",
+      "confidence": "high",
+      "source_reachable": true,
+      "staleness_trigger": "a new release",
+      "trigger_fired": false,
+      "expected_disposition": "unknown",
+      "requires_revalidation": true,
+      "anomaly": "observed_at is after the evaluation clock",
+      "may_be_stated_as": "This record carries a timestamp in the future and cannot be trusted.",
+      "must_not_be_stated_as": "The release checklist was completed.",
+      "rationale": "A future timestamp is a defect, not a very fresh fact. Ordering by recency would rank it first, which is exactly the wrong outcome."
+    },
+    {
+      "fact_id": "CF-5-contradicted",
+      "content": "The default request timeout is 30 seconds.",
+      "volatile": true,
+      "observed_at": "2026-06-01T10:00:00Z",
+      "observed_of_target": "v4.12.0",
+      "confidence": "high",
+      "source_reachable": true,
+      "staleness_trigger": "an edit to the client configuration",
+      "trigger_fired": false,
+      "conflict_with": {
+        "fact_id": "CF-5b-newer",
+        "content": "The default request timeout is 10 seconds.",
+        "observed_at": "2026-09-10T10:00:00Z",
+        "observed_of_target": "v4.13.0"
+      },
+      "expected_disposition": "unknown",
+      "requires_revalidation": true,
+      "retains_both_provenance": true,
+      "may_be_stated_as": "Two sources disagree on the timeout; the 2026-06-01 record says 30s and the 2026-09-10 record says 10s.",
+      "must_not_be_stated_as": "The default request timeout is 10 seconds.",
+      "rationale": "A newer reading is not automatically the resolution. Both records are retained until the owning source settles it; deleting the older one destroys the evidence that there was a disagreement."
+    },
+    {
+      "fact_id": "CF-6-superseded",
+      "content": "Release documentation lives under docs/versions/.",
+      "volatile": false,
+      "observed_at": "2026-02-14T09:00:00Z",
+      "observed_of_target": "v3.x",
+      "confidence": "high",
+      "source_reachable": true,
+      "staleness_trigger": "a documentation layout change",
+      "trigger_fired": true,
+      "superseded_by": {
+        "fact_id": "CF-6b-current",
+        "content": "Release documentation lives under docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/.",
+        "observed_at": "2026-09-01T09:00:00Z",
+        "observed_of_target": "v4.13.0"
+      },
+      "expected_disposition": "superseded",
+      "requires_revalidation": false,
+      "retains_both_provenance": true,
+      "may_be_stated_as": "Release documentation lives under docs/releases/; it previously lived under docs/versions/.",
+      "must_not_be_stated_as": "Release documentation lives under docs/versions/.",
+      "rationale": "Explicit supersession has a named replacement, which is what distinguishes it from an unresolved conflict. The old provenance is kept so the move remains traceable."
+    }
+  ],
+  "prohibited_behaviors": [
+    {
+      "id": "PB-1",
+      "behavior": "Promoting a stale fact to current because its confidence is high",
+      "guarded_by": "CF-1-stale-check"
+    },
+    {
+      "id": "PB-2",
+      "behavior": "Automatically deleting a stale, conflicting, or superseded fact",
+      "guarded_by": "CF-5-contradicted, CF-6-superseded"
+    },
+    {
+      "id": "PB-3",
+      "behavior": "Fabricating a confirmation for an unreachable source",
+      "guarded_by": "CF-3-missing-source"
+    },
+    {
+      "id": "PB-4",
+      "behavior": "Trusting a future timestamp as the most recent observation",
+      "guarded_by": "CF-4-future-timestamp"
+    },
+    {
+      "id": "PB-5",
+      "behavior": "Attaching an arbitrary expiry to a stable design fact",
+      "guarded_by": "CF-2-stable-convention"
+    }
+  ]
+}
