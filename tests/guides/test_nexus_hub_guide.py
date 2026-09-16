@@ -1140,8 +1140,9 @@ def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
     assert fx.index("fx-spend-tag--bad") < fx.index("fx-spend-tag--good"), (
         "the unaided context must come first"
     )
-    assert fx.index("fx-state--weak") < fx.index("fx-state--strong"), (
-        "the weaker lane must come before the stronger one"
+    # v4.4.6 rebuilt the scene as two lanes; the unaided one is still stated first
+    assert fx.index('data-lane="chat"') < fx.index('data-lane="agent"'), (
+        "the unaided lane must be shown before the assisted one"
     )
     assert fx.index('data-phase3-node="chatbot-handoff"') < fx.index(
         'data-phase3-node="agent-handoff"'

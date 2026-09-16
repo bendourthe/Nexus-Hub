@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Improved and fixed
+
+- The website guide's Foundations page renames three sections to state what they define rather than ask a question: "Generating a response", "Model class and size" and "Reasoning effort levels". The latter two gain a lead paragraph defining the term.
+- Signal dots in every Foundations network now leave from every input neuron instead of one. The path seeder read the low bits of a power-of-two-modulus LCG, whose period equals their bit width, so each dot drew the same entry node; it now reads the high bits and assigns entry neurons round-robin. Dots also travel roughly three times slower with evenly spread start offsets.
+- The network animation no longer freezes with the generated response. `.ml-playing` gated both the output board and the network, so holding the finished sentence also stopped the model. A separate `.ml-live` class keeps the network running through the hold.
+- Model class artwork differentiates the four classes: a wider node ladder, constant node radius and density-scaled edge weight, so Fast reads as a small sparse network and Frontier as a large dense one.
+- Reasoning effort artwork replaces the orbiting dot with a feedback circuit. A visible arc returns from the output layer to the input layer, and a marker travels one circuit per pass, so the picture shows the model handing its own draft back to itself and for how many rounds.
+- The Multimodal generation mode is removed from the Foundations lab, along with its three unused SVG symbols and its orphaned CSS.
+- The website guide gains a type system. Every text element carries a `data-ty` role (display, h1-h4, title, subtitle, lead, body, body-sm, quote, eyebrow, label, caption, micro, code, th, td, stat), and the role is the only place that role's font, size, weight, line height, letter spacing and colour are decided. The page previously rendered 39 distinct computed font sizes across 95 type combinations; it now renders 20 across 53, and no labelled element is overridden by a component rule.
+- Scene subtitles on the Foundations page are no longer indistinguishable from the headings above them. `.fx-subtitle` computed to 32.64px/700 against a 33px/700 `.section-title`, a 0.36px difference, in all six scenes. Figure captions that rendered larger than the content they labelled (23px uppercase over an 18px request) drop to the caption role.
+- Headings across all four pages are descriptive phrases rather than sentences or questions. "Three things make this more than a prompt library" becomes "Skills, hooks, and governance", "Every command, every scope, explained" becomes "Command reference", and the promotional hero line becomes "A skill harness for agentic AI platforms". Headings that merely repeated the eyebrow above them were differentiated.
+- Em dashes, curly quotes and the ellipsis character are removed from the guide's visible text and from the strings its scripts generate, per the project's ASCII-only punctuation rule.
+- Reasoning effort is now shown as a route from request to answer rather than a network with a feedback loop. All four levels travel the same speed, so a low effort level runs nearly straight and arrives first while higher levels wander and double back through loops and arrive later.
+- The world model no longer borrows the language model's picture. It renders as an isometric lattice of three stacked planes with signals travelling into depth, so a spatial model reads as spatial.
+- The response panels no longer leave 70-130px of dead space in two of three columns, varying by tab. The columns stretch to the row, the prompt column is wider so a request stops wrapping to three lines, and the network drawing absorbs the slack instead of letterboxing inside a fixed 150px box.
+
 ## [4.12.1] - 2026-09-16
 
 ### Added

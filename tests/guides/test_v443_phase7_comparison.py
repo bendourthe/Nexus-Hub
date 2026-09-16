@@ -63,28 +63,31 @@ def _scene(browser, width: int = 1440, **ctx_kw):
 
 
 LANES = """() => {
-  const lanes = [...document.querySelectorAll('#fx-agent-platform .fx-state')].map(a => ({
-    lane: a.dataset.lane,
-    node: a.dataset.phase3Node,
-    zones: [...a.querySelectorAll('.cv-zone')].map(z => ({
-      name: z.querySelector('.cv-zone-name').textContent.trim(),
-      state: z.querySelector('.cv-zone-state').textContent.trim().toLowerCase(),
-      reached: z.classList.contains('cv-zone--reached'),
-      dashed: getComputedStyle(z).borderStyle === 'dashed',
-      art: z.querySelectorAll('svg.cv-art').length,
-      changes: [...z.querySelectorAll('.cv-changes li')].map(l => l.textContent.trim()),
-    })),
-    parts: [...a.querySelectorAll('.fx-part dt')].map(d => d.textContent.trim()),
-  }));
-  const shared = document.querySelectorAll('#fx-agent-platform [data-phase3-node="shared-request"]');
-  return { lanes, shared: shared.length,
-           sharedText: shared[0] ? shared[0].querySelector('p').textContent.trim() : null,
-           tips: document.querySelectorAll('#fx-agent-platform .cv-tip').length,
-           svgText: document.querySelectorAll('#fx-agent-platform svg text, #fx-agent-platform svg tspan').length };
+  const card = sel => document.querySelector('#fx-agent-platform .ap2-card[data-lane=' + sel + ']');
+  const read = sel => {
+    const c = card(sel), svg = c.querySelector('.ap2-svg');
+    return {
+      lane: sel,
+      node: c.querySelector('.ap2-leaves').dataset.phase3Node,
+      tracks: svg.querySelectorAll('.ml-lane-track').length,
+      nodes: svg.querySelectorAll('.ml-nd').length,
+      ends: [...svg.querySelectorAll('.ml-endlab')].map(t => t.textContent.trim()),
+      bounds: c.querySelectorAll('[data-grammar=boundary]').length,
+      trails: svg.querySelectorAll('.ml-lane-trail').length,
+      chip: c.querySelector('.ap2-leaves').textContent.trim(),
+    };
+  };
+  return { lanes: [read('chat'), read('agent')] };
 }"""
 
 
-def test_both_lanes_show_the_same_two_zones(playwright_mod) -> None:
+def test_both_lanes_draw_the_same_kind_of_flow(playwright_mod) -> None:
+    """v4.4.6 draws both lanes as paths, in the reasoning figure's grammar.
+
+    The argument has not moved since this file was written: the lanes must be drawn the SAME way,
+    so the only thing a reader compares is how far each path goes and how it branches. A rebuild
+    that gave each lane a different KIND of diagram would look tidy and teach nothing.
+    """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
@@ -93,19 +96,15 @@ def test_both_lanes_show_the_same_two_zones(playwright_mod) -> None:
             ctx.close()
         finally:
             browser.close()
-    assert data["shared"] == 1, "there must be exactly one shared request"
-    assert "rate limiting" in data["sharedText"].lower(), data["sharedText"]
-    assert data["tips"] == 2, "the shared request must visibly split into both lanes"
-    assert data["svgText"] == 0, "the zone drawings must carry no SVG text"
-    assert [lane["lane"] for lane in data["lanes"]] == ["chatbot", "agentic"], data["lanes"]
+    chat, agent = data["lanes"]
     assert [lane["node"] for lane in data["lanes"]] == ["chatbot-handoff", "agent-handoff"], data["lanes"]
-    names = [[z["name"] for z in lane["zones"]] for lane in data["lanes"]]
-    assert names[0] == names[1], f"the lanes must show the same zones to be comparable: {names}"
-    assert len(names[0]) == 2, names
     for lane in data["lanes"]:
-        assert lane["parts"] == ["Boundary", "Action", "Outcome", "Leaves behind"], lane["parts"]
-        for zone in lane["zones"]:
-            assert zone["art"] == 1, f"every zone needs its own drawing: {zone}"
+        assert lane["tracks"] >= 1, lane
+        assert lane["trails"] >= 1, lane
+        assert lane["nodes"] >= 2, lane
+        assert lane["ends"][0] == "request", lane["ends"]
+    # both start from a request; only the agentic side fans into more than one path
+    assert agent["trails"] > chat["trails"], (chat["trails"], agent["trails"])
 
 
 def test_only_the_reach_differs_between_the_lanes(playwright_mod) -> None:
@@ -118,68 +117,74 @@ def test_only_the_reach_differs_between_the_lanes(playwright_mod) -> None:
         finally:
             browser.close()
     chat, agent = data["lanes"]
-    assert [z["reached"] for z in chat["zones"]] == [True, False], chat["zones"]
-    assert [z["reached"] for z in agent["zones"]] == [True, True], agent["zones"]
-    unreached = chat["zones"][1]
-    assert unreached["dashed"], "an unreached zone must be marked by its edge"
-    assert unreached["state"] == "untouched", unreached
-    assert "when permitted" in agent["zones"][1]["state"], agent["zones"][1]
-    assert agent["zones"][1]["changes"], "the reached work surface must show what changed"
-    assert not chat["zones"][1]["changes"], "the chatbot lane must not show work-surface changes"
+    # the chatbot path ends at a response; the agentic one carries on to a report
+    assert chat["ends"][-1] == "response", chat["ends"]
+    assert agent["ends"][-1] == "report", agent["ends"]
+    # only the agentic lane branches, and neither lane carries the boundary now
+    # that it lives on the shared key below both of them
+    assert chat["bounds"] == 0 and agent["bounds"] == 0, (chat["bounds"], agent["bounds"])
+    assert agent["trails"] > chat["trails"], (chat["trails"], agent["trails"])
+    # and the chatbot lane says plainly that it does not act
+    assert "no actions" in chat["chip"].lower(), chat["chip"]
+    assert "take actions" in agent["chip"].lower(), agent["chip"]
 
 
-def test_the_unreached_zone_keeps_full_text_contrast(playwright_mod) -> None:
-    """State is signalled by the edge and the label, never by fading the words."""
+def test_the_lane_chips_keep_full_text_contrast(playwright_mod) -> None:
+    """A state is never signalled by dimming text below AA (BG-13, BG-14).
+
+    The chatbot lane's "takes no actions" claim moved from a list row into the lane chip, so the
+    contrast rule moves with it.
+    """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
             ctx, page = _scene(browser)
-            worst = page.evaluate(
+            ratio = page.evaluate(
                 """() => {
-                  const lum = c => { const [r,g,b] = c.match(/[\\d.]+/g).slice(0,3).map(Number)
-                      .map(v => { v /= 255; return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); });
-                    return 0.2126*r + 0.7152*g + 0.0722*b; };
-                  const bgOf = el => { let n = el; while (n && n !== document.documentElement) {
-                      const c = getComputedStyle(n).backgroundColor;
-                      if (c && !/rgba\\(0, 0, 0, 0\\)|transparent/.test(c)) return c; n = n.parentElement; }
-                    return getComputedStyle(document.body).backgroundColor; };
-                  let worst = 99;
-                  document.querySelectorAll('#fx-agent-platform .cv-zone .cv-zone-name, #fx-agent-platform .cv-zone .cv-zone-state')
-                    .forEach(el => { const cs = getComputedStyle(el);
-                      if (parseFloat(cs.opacity) < 1) worst = 0;
-                      const a = lum(cs.color), b = lum(bgOf(el));
-                      const hi = Math.max(a,b), lo = Math.min(a,b);
-                      worst = Math.min(worst, (hi + 0.05) / (lo + 0.05)); });
-                  return +worst.toFixed(2);
+                  const el = document.querySelector('#fx-agent-platform .ap2-card[data-lane=chat] .ap2-leaves');
+                  const rgb = s => s.match(/[0-9.]+/g).slice(0, 3).map(Number);
+                  const lum = c => { const a = c.map(v => { v /= 255;
+                    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+                    return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2]; };
+                  let bg = [0, 0, 0];
+                  for (let n = el; n; n = n.parentElement) {
+                    const c = getComputedStyle(n).backgroundColor;
+                    if (c && c !== 'rgba(0, 0, 0, 0)') { bg = rgb(c); break; }
+                  }
+                  const fg = rgb(getComputedStyle(el).color);
+                  const [x, y] = [lum(fg), lum(bg)];
+                  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
                 }"""
             )
             ctx.close()
         finally:
             browser.close()
-    assert worst >= MIN_CONTRAST, f"a zone label drops to {worst}:1, below {MIN_CONTRAST}:1"
+    assert ratio >= MIN_CONTRAST, f"the chatbot chip measures {ratio:.2f}, floor {MIN_CONTRAST}"
 
+def test_the_flow_is_complete_without_motion(playwright_mod) -> None:
+    """Under reduced motion the scene must show its finished state, not an empty one.
 
-def test_the_split_is_choreographed_and_complete_without_motion(playwright_mod) -> None:
+    The paths draw by animating stroke-dashoffset from 1 to 0, so a reader with motion disabled
+    would otherwise be shown lanes with no paths in them at all.
+    """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
-            ctx, page = _scene(browser)
-            page.wait_for_function(
-                "() => { const s = window.NexusSeq.state(document.querySelector('#fx-agent-platform .fx-cv'));"
-                " return s && s.step === s.total; }"
-            )
-            total = page.evaluate(
-                "() => window.NexusSeq.state(document.querySelector('#fx-agent-platform .fx-cv')).total"
+            ctx, page = _scene(browser, reduced_motion="reduce")
+            data = page.evaluate(
+                """() => {
+                  const trails = [...document.querySelectorAll('#fx-agent-platform .ml-lane-trail')];
+                  return { total: trails.length,
+                           drawn: trails.filter(t => +t.getAttribute('stroke-dashoffset') <= 0.001).length,
+                           hidden: trails.filter(t => {
+                             const s = getComputedStyle(t);
+                             return s.display === 'none' || +s.opacity === 0 || s.visibility === 'hidden';
+                           }).length };
+                }"""
             )
             ctx.close()
-
-            rctx, rpage = _scene(browser, reduced_motion="reduce")
-            hidden = rpage.evaluate(
-                """() => [...document.querySelectorAll('#fx-agent-platform .fx-cv [data-seq]')]
-                     .filter(e => getComputedStyle(e).opacity !== '1').map(e => e.dataset.seq)"""
-            )
-            rctx.close()
         finally:
             browser.close()
-    assert total == 4, f"expected four steps: the request, then three reaches; got {total}"
-    assert hidden == [], f"steps {hidden} are unreadable under reduced motion"
+    assert data["total"] >= 5, data
+    assert data["hidden"] == 0, f"{data['hidden']} paths are hidden without motion"
+    assert data["drawn"] == data["total"], f"only {data['drawn']} of {data['total']} paths are drawn"

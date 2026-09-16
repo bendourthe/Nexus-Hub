@@ -112,7 +112,9 @@ def test_four_platforms_are_named_with_ledger_approved_marks(scene: str) -> None
 
 
 def test_the_copy_is_shorter_and_keeps_its_conditional_language(scene: str) -> None:
-    copy = scene[scene.index("</div>", scene.index('class="fx-title"')) : scene.index('class="fx-plats"')]
+    # v4.4.6 moved the platform marks into the lane cards, so the copy now runs
+    # from the title block to the figure
+    copy = scene[scene.index("</div>", scene.index('class="fx-title"')) : scene.index('class="fx-diagram')]
     prose = " ".join(re.sub(r"<[^>]+>", " ", copy).split())
     words = len(prose.split())
     assert words <= COPY_WORD_CEILING, f"the copy is {words} words, ceiling {COPY_WORD_CEILING}"
