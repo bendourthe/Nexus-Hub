@@ -140,6 +140,12 @@ The user prunes manually. This skill offers to mark an instinct `archived: true`
 | "This trajectory suggests a big rewrite would be better" | Large refinements are unauditable and unrevertable. Mint or patch the smallest id that moves the outcome; chain more ids later. A wholesale rewrite of instincts or of the base instructions hides which change caused the next failure, so rollback by id is impossible. |
 | "The correction obviously failed, so I can label it without asking" | Tone is not an outcome oracle. If no failing gate, revert, follow-up correction, or user confirmation proves the label, the item stays unlabeled and cannot be distilled. Unlabeled mixed traces have been measured to collapse later success. |
 
+## Carrying a confirmed observation through to proof
+
+Minting an instinct records what was noticed. It does not establish that acting on it helps. When a confirmed observation should become a checked change rather than a note, follow [references/verified-improvement-loop.md](references/verified-improvement-loop.md).
+
+That loop connects existing owners rather than adding an optimizer: it links the observation id to a minimized regression, a frozen rubric and split, a candidate diff, an independently checked replay result, an explicit approval or rejection, and a byte-exact rollback target. It adds no automatic base-instruction edit, no training, no background observer, and no scheduler, so every constraint on this page continues to hold inside it.
+
 ## Verification
 
 - [ ] Reading `.nexus/observations.jsonl` shows one JSON-per-line records with the four required fields (`ts`, `event`, `tool`, `prompt_sample`).
