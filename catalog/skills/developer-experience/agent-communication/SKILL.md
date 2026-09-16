@@ -143,6 +143,7 @@ This applies wherever open items appear, not only in the closing report. A turn 
 2. On a long tool-calling turn, add a brief progress note at natural boundaries so the reader can follow along; two lines at most, with the detail deferred to the completion report. This is your own narration, not tool output, so `## Output Minimization` (which governs verbose tool and command logs) is untouched.
 3. Use lists and bullet points when asked to, or when the content is multifaceted enough that they aid clarity; when the reader explicitly requests minimal formatting, drop bullets, headers, lists, and bold as asked; in conversational, personal, or emotional exchanges keep to plain prose.
 4. Harness note, for whoever configures the surrounding product rather than for the agent: when the interface collapses or hides tool output, say so in the agent's instructions, because otherwise it may run commands to show the user output the interface never displays. Name no vendor parameter; this is instruction text about the display.
+5. **Choosing the representation** -- whether an explanation is best carried as prose, a small table, pseudocode, a diagram, or a file the reader opens -- is owned by [[html-output-conventions]]. Consult its ladder and do not restate it here. This section governs formatting **within** the response; that skill governs what form the answer takes.
 
 ## Common Rationalizations
 
