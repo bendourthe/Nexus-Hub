@@ -51,6 +51,55 @@ REPLACE `YOUR_API_TOKEN` with the token from your account settings page (Setting
 curl -H "Authorization: Bearer YOUR_API_TOKEN" https://api.example.com/v1/status
 ```
 
+### 3.1 Say where to run it, and show what success looks like
+
+A command block on its own answers only one of the three questions a reader has. They also need to know **where** to run it and **how to tell it worked**. Without the first they guess at a terminal and a directory; without the third they cannot distinguish success from a silent failure, so they paste the output back and wait.
+
+Every runnable block therefore carries three parts:
+
+1. **Where to run it.** Name the program (PowerShell, Terminal, Git Bash, the app's console) and the working directory. Either `cd` inside the block or use a flag that makes the directory explicit, so the block is correct no matter where the reader's prompt happens to be.
+2. **The command**, obeying the placeholder rules in section 3.
+3. **What you should see**, as a separate block that looks like real output rather than a description of it.
+
+The expected-output block is the part most often skipped and the part that does the most work. Show the actual shape: a count, a summary line, a status word. Where a command legitimately prints nothing, say so with a marker rather than omitting the block, because "nothing happened" and "it did not run" look identical to someone who was not told which to expect.
+
+**Do not write this:**
+
+> Run `git tag -d backup/old` and then `git gc --prune=now`. That should clean it up.
+
+Three problems: no shell named, no directory, and "should clean it up" gives the reader nothing to check against.
+
+**Write this:**
+
+> **Where:** PowerShell, any directory.
+>
+> ```powershell
+> git -C "C:\Users\you\my-repo" tag -d backup/old
+> git -C "C:\Users\you\my-repo" gc --prune=now
+> ```
+>
+> **What you should see:**
+>
+> ```
+> Deleted tag 'backup/old' (was e86c3193)
+> Enumerating objects: 24518, done.
+> Counting objects: 100% (24518/24518), done.
+> ```
+>
+> Then confirm:
+>
+> ```powershell
+> git -C "C:\Users\you\my-repo" rev-list --all --count
+> ```
+>
+> ```
+> 1712          <- was 3386
+> ```
+
+Annotate a value the reader must compare against something, as the arrow does above. A bare number tells them what happened; a number next to its previous value tells them whether it worked.
+
+When a command is destructive or irreversible, state what is lost in one line immediately before the block, not in a paragraph after it.
+
 ## 4. Guided steps protocol
 
 - State prerequisites before step 1: what must already be installed, running, or open. A reader who discovers a prerequisite at step 6 has to start over.
@@ -208,6 +257,10 @@ Check a response against this list before sending it.
 - [ ] The first sentence states the outcome, not the process.
 - [ ] Every technical term a non-engineer would not know is defined in place.
 - [ ] Every command block runs exactly as pasted, or is preceded by a REPLACE line naming each token and how to find its value.
+- [ ] Every runnable block names where to run it: the program and the working directory (or a flag making the directory explicit).
+- [ ] Every runnable block is followed by an expected-output block that looks like real output, including a marker where the command prints nothing.
+- [ ] A value the reader must compare carries its comparison inline (for example, the previous count).
+- [ ] A destructive command states what is lost on the line immediately before the block.
 - [ ] No angle brackets, square brackets, or ALL-CAPS template tokens sit inside an unflagged command block.
 - [ ] Step sequences state prerequisites first, number every step, and give an expected result wherever success is not obvious.
 - [ ] A response answering a reported error re-issues the full remaining sequence, renumbered, with no "continue from above".

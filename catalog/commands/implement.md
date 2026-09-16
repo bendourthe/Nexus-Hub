@@ -49,6 +49,12 @@ This pre-flight is platform-agnostic. Public web research may refresh the map, b
 
 Before writing code, at plan entry and at every phase entry, `/implement` re-validates the plan against the codebase as it stands now and the plans queued around it, through `[[plan-queue-assessment]]`. A plan written months earlier is not assumed still correct. The result is written into the phase session history as evidence for the existing `## Plan delta` disposition, including when nothing drifted, because an unwritten check is indistinguishable from a skipped one. The rule lives in that skill; this dispatcher states the guarantee.
 
+## Worktree isolation and parallel plans (guarantee)
+
+`/implement` isolates a plan in its own **worktree**, not merely its own branch, so a second plan can start in a separate session without switching the shared checkout underneath a running one. It then reports which queued plans are parallel-capable, with a copy-paste block for launching each in a new session. On the final phase, after the merge is green and merged, it retires the worktree: branch fully merged, tree clean, directory and branch deleted, `git worktree list` confirmed clear.
+
+Mechanics belong to `[[using-git-worktrees]]`; ranking and overlap detection to `[[plan-queue-assessment]]`. This command owns neither, and the procedure lives in `implement-phase`. Where worktrees are unavailable, it falls back to a branch and says so.
+
 ## Phase lifecycle (guarantee)
 
 `/implement` enforces the same lifecycle `/plan` generates. Three guarantees, worth stating because they change what the reader should expect at a phase boundary:
