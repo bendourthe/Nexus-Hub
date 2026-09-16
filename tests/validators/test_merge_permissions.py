@@ -316,3 +316,80 @@ def test_manifest_records_what_this_version_shipped(tmp_path: Path, template: Pa
 
     shipped = json.loads(manifest.read_text(encoding="utf-8"))["shipped"]["CLAUDE"]
     assert shipped == ["Bash(ls *)", "Read"], "the manifest must record the template set"
+
+
+# --- UTF-8 BOM tolerance -----------------------------------------------------
+#
+# PowerShell 5.1's `Set-Content -Encoding utf8` emits a UTF-8 BOM (AGENTS.md
+# documents that trap for hook authors). Decoding such a file as plain "utf-8"
+# leaves a leading U+FEFF and json.loads fails with "Unexpected UTF-8 BOM".
+# That is what made the Gemini permission sync fail on a real Windows install
+# while every other platform succeeded, so reads use "utf-8-sig" and writes stay
+# plain "utf-8" -- the tool must tolerate a BOM without ever emitting one.
+
+BOM = "\ufeff"
+
+
+def _with_bom(path: Path) -> Path:
+    """Rewrite *path* with a leading UTF-8 BOM, as PowerShell 5.1 would."""
+    path.write_text(BOM + path.read_text(encoding="utf-8"), encoding="utf-8")
+    return path
+
+
+def _has_bom(path: Path) -> bool:
+    return path.read_bytes().startswith(b"\xef\xbb\xbf")
+
+
+def test_the_bom_control_actually_breaks_a_naive_reader() -> None:
+    """Without this, the tests below could pass for the wrong reason."""
+    with pytest.raises(json.JSONDecodeError):
+        json.loads(BOM + '{"a": 1}')
+    assert json.loads((BOM + '{"a": 1}').encode("utf-8").decode("utf-8-sig")) == {"a": 1}
+
+
+def test_reads_use_a_bom_tolerant_encoding() -> None:
+    assert mp._READ_ENCODING == "utf-8-sig"
+
+
+def test_settings_with_a_bom_still_merges(tmp_path: Path, template: Path) -> None:
+    settings = _with_bom(_settings(tmp_path, ["Read"]))
+    assert _has_bom(settings), "fixture did not actually get a BOM"
+    added, removed = mp.merge(template, settings, "permissions.allow")
+    assert added == 1 and removed == []
+    assert _allow(settings) == ["Bash(ls *)", "Read"]
+
+
+def test_template_with_a_bom_still_merges(tmp_path: Path, template: Path) -> None:
+    _with_bom(template)
+    settings = _settings(tmp_path, ["Read"])
+    added, _ = mp.merge(template, settings, "permissions.allow")
+    assert added == 1
+    assert _allow(settings) == ["Bash(ls *)", "Read"]
+
+
+def test_merging_never_leaves_a_bom_behind(tmp_path: Path, template: Path) -> None:
+    """Reads tolerate a BOM; writes must not propagate or introduce one."""
+    settings = _with_bom(_settings(tmp_path, ["Read"]))
+    mp.merge(template, settings, "permissions.allow")
+    assert not _has_bom(settings), "merge wrote a BOM back into the config"
+
+
+def test_manifest_with_a_bom_is_read_not_silently_discarded(
+    tmp_path: Path, template: Path
+) -> None:
+    """A BOM must not make a valid manifest look corrupt.
+
+    _read_manifest degrades to add-only on a decode error, so a BOM would have
+    silently disabled removal propagation -- the exact hardening the manifest
+    exists to deliver -- with no error surfaced anywhere.
+    """
+    manifest = _with_bom(_manifest(tmp_path, {"CLAUDE": ["Read", "Bash(gh api *)"]}))
+    settings = _settings(tmp_path, ["Read", "Bash(gh api *)"])
+    _, removed = mp.merge(
+        template, settings, "permissions.allow",
+        manifest_path=manifest, platform="CLAUDE",
+    )
+    assert removed == ["Bash(gh api *)"], (
+        "a BOM-prefixed manifest was treated as corrupt, silently degrading to "
+        "add-only and leaving the retired entry in place"
+    )
