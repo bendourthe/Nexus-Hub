@@ -15,7 +15,7 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 1 |
-| Warnings (WN) | 4 | 0 |
+| Warnings (WN) | 5 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 4 | 0 |
 
@@ -83,3 +83,11 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 ### Release disposition
 
 v4.12.0 was published on 2026-09-15 at tag `v4.12.0` (`0dabca77`) and reconciled into `develop` by the back-merge in PR #220. Post-publication verification of the downloaded artifacts passed for both published forms (1,929 manifest entries each, matching asset digest, successful provenance attestation). The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. Publication does not close the four warnings and four historical quality-gate gaps above, which the release preserves. Portable attribution integration passed PR #217 and post-merge run 34925451808; it does not close those independent items. No unresolved portable-code finding remains. See [release qualification](development/release-qualification.md) for the release evidence and queue impacts.
+
+#### WN-5: Windsurf documents .devin/rules as preferred, .windsurf as legacy
+
+**Source phase**: v4.12.1 release, platform-contract verification. **Plan reference**: /update release governance step 4. **Reason**: the vendor documentation fetched on 2026-09-16 now lists `.devin/rules/*.md` as the preferred workspace rules location and `.windsurf/rules/*.md` as a legacy fallback, following the Windsurf-to-Devin rebrand (docs.windsurf.com redirects to docs.devin.ai). Nexus-Hub installs to `.windsurf`.
+
+**Impact**: none today. The legacy path is still read, so existing installs keep working; this is a preference change, not a removal.
+
+**Owner**: Windsurf integration maintainer. **Status**: open. **Suggested next step**: migrate the Windsurf integration to `.devin/rules` in a minor release, keeping `.windsurf` for compatibility, and re-check whether the global `~/.codeium/windsurf/memories/global_rules.md` path moved in the same rebrand. Not changed in a patch release because it alters installed delivery paths.
