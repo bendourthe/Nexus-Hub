@@ -95,3 +95,133 @@ def test_research_skill_carries_a_complete_worked_quoting_example(path: Path):
     assert "**Rationale**" in section
     assert section.count('"') >= 2, "the example must show exactly one marked quotation"
     assert "agree" in section and "differ" in section
+
+
+# --- Open items are decision blocks (v4.13.0) --------------------------------
+#
+# A closing report that lists what was NOT done names a decision without saying
+# what it is about, what the choices are, or which one the agent would take. The
+# reader then reconstructs all three from a conversation they may not have
+# followed, using less context than the agent had. The contract therefore
+# requires four parts per Open item: what it is, why it is open, options with
+# consequences, and a recommendation with its reason.
+
+# The template carries only the trigger; the four-part procedure, the honesty
+# constraints and the worked counter-example live in the style guide, which is
+# not always-loaded instruction text.
+_DECISION_BLOCK_MARKER = "Open items carry options and a recommendation."
+
+
+@pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)
+def test_contract_requires_open_items_to_carry_options_and_a_recommendation(path: Path):
+    text = _read(path)
+    start = text.index("## Communication Contract")
+    end = text.find("\n## ", start + 1)
+    assert _DECISION_BLOCK_MARKER in text[start:end], (
+        f"{path.name} does not carry the decision-block rule in its contract"
+    )
+
+
+def test_decision_block_rule_is_byte_identical_across_the_roster():
+    """One rule, one wording. A paraphrase in one template is drift."""
+    variants = set()
+    for path in SUBSTANTIVE:
+        for line in _read(path).split("\n"):
+            if "Open items carry options and a recommendation" in line:
+                variants.add(line.strip())
+    assert len(variants) == 1, f"contract line diverged across templates: {variants}"
+
+
+def test_style_guide_specifies_the_table_shape():
+    """The shape is load-bearing: a recommendation written away from its option
+    makes the reader match it back to the list."""
+    text = _read(_STYLE_GUIDE)
+    assert "Shape: a line of prose, then a table of options" in text
+    assert "Keep the description **out** of the table" in text
+    assert "End every item with a horizontal rule." in text
+    assert "- recommended" in text
+    assert "numbered heading" in text.lower()
+
+
+def test_skill_carries_the_table_shape():
+    text = _read(_SKILL)
+    assert "Keep the description OUT of the table" in text
+    assert "- recommended" in text
+    assert "ONE clause" in text
+
+
+def test_style_guide_owns_the_decision_block_procedure():
+    text = _read(_STYLE_GUIDE)
+    assert "Every Open item is a decision block" in text
+    # The four required parts.
+    for part in ("What it is", "Why it is open", "Options", "recommendation"):
+        assert part in text, f"style guide omits the '{part}' part"
+    # Both honesty constraints.
+    assert "Do not manufacture options to fill the shape" in text
+    assert "re-litigate a decision the user already made" in text
+    # A worked counter-example, so the rule is demonstrated rather than asserted.
+    assert "What I did not do" in text, "style guide lacks the do-not-write example"
+
+
+def test_skill_mirrors_the_decision_block_rule():
+    text = _read(_SKILL)
+    assert "Write every Open item as a decision block" in text
+    assert "A recommendation, with its reason." in text
+    assert "never manufacture options" in text.lower()
+
+
+def test_decision_block_rule_has_teeth():
+    """Each predicate must fail when its target content is removed."""
+    for path, needle in (
+        (_STYLE_GUIDE, "Every Open item is a decision block"),
+        (_SKILL, "Write every Open item as a decision block"),
+        (SUBSTANTIVE[0], _DECISION_BLOCK_MARKER),
+    ):
+        mutated = _read(path).replace(needle, "")
+        assert needle not in mutated, f"predicate for {path.name} matches anything"
+
+
+# --- Command blocks name where to run and show expected output (v4.12.1) -----
+
+_COMMAND_MARKER = "name where to run them"
+
+
+@pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)
+def test_contract_requires_commands_to_name_where_and_show_output(path: Path):
+    text = _read(path)
+    start = text.index("## Communication Contract")
+    end = text.find("\n## ", start + 1)
+    section = text[start:end]
+    assert _COMMAND_MARKER in section, f"{path.name} lacks the where-to-run rule"
+    assert "show expected output" in section, f"{path.name} lacks the expected-output rule"
+
+
+def test_command_rule_is_byte_identical_across_the_roster():
+    variants = set()
+    for path in SUBSTANTIVE:
+        for line in _read(path).split("\n"):
+            if _COMMAND_MARKER in line:
+                variants.add(line.strip())
+    assert len(variants) == 1, f"command bullet diverged: {variants}"
+
+
+def test_style_guide_owns_the_command_block_procedure():
+    text = _read(_STYLE_GUIDE)
+    assert "Say where to run it, and show what success looks like" in text
+    assert "What you should see" in text
+    assert "look identical to someone who was not told which to expect" in text
+    assert "immediately before the block" in text
+
+
+def test_skill_mirrors_the_command_block_rule():
+    text = _read(_SKILL)
+    assert "Say where to run it, and show what success looks like" in text
+    assert "What you should see" in text
+
+
+def test_command_block_rule_has_teeth():
+    for path, needle in (
+        (_STYLE_GUIDE, "Say where to run it, and show what success looks like"),
+        (SUBSTANTIVE[0], _COMMAND_MARKER),
+    ):
+        assert needle not in _read(path).replace(needle, "")

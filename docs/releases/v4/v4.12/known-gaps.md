@@ -1,8 +1,8 @@
 # Known gaps - v4.12
 
 **Project**: Nexus-Hub
-**Status**: in-progress
-**Last updated**: 2026-09-14
+**Status**: released
+**Last updated**: 2026-09-15
 
 Release-scoped gaps for the sole-contributor-attribution plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -82,4 +82,14 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 ### Release disposition
 
-The v4.12.0 release preserves the four warnings and four historical quality-gate gaps above. Portable attribution integration passed PR #217 and post-merge run 34925451808; it does not close those independent items. No unresolved portable-code finding remains. See [release qualification](development/release-qualification.md) for the release evidence and queue impacts.
+v4.12.0 was published on 2026-09-15 at tag `v4.12.0` (`0dabca77`) and reconciled into `develop` by the back-merge in PR #220. Post-publication verification of the downloaded artifacts passed for both published forms (1,929 manifest entries each, matching asset digest, successful provenance attestation). The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. Publication does not close the four warnings and four historical quality-gate gaps above, which the release preserves. Portable attribution integration passed PR #217 and post-merge run 34925451808; it does not close those independent items. No unresolved portable-code finding remains. See [release qualification](development/release-qualification.md) for the release evidence and queue impacts.
+
+#### DF-1: Antigravity workflow surface retires on 2026-11-01
+
+**Source phase**: v4.12.1 release, platform-contract verification (2026-09-16). **Plan reference**: /update release governance step 4. **Reason**: the vendor documents retirement of the legacy workflow format on 2026-11-01 in favour of the Agent Skills standard. Nexus-Hub already emits every command as BOTH a skill and a workflow (`scripts/lib/integrations/antigravity.py` calls `commands_to_skills` alongside `commands_to_slash`), and the vendor states skills take precedence where both exist, so the skill copy is already what Antigravity executes.
+
+**Impact**: none before the retirement date, and none after it for the skills surface. No re-architecture is required for Antigravity to remain supported.
+
+**Why not now**: dropping workflow emission before the date would remove the slash surface for anyone still on a pre-retirement build. Shipping both is the correct posture until the date passes.
+
+**Owner**: Antigravity integration maintainer. **Status**: open, dated. **Suggested next step**: after 2026-11-01, remove the `commands_to_slash` workflow emission from the Antigravity integration, drop `commands_subdir`/`ide_commands_subdir` from its config, update the read-contract row, and re-run the platform-contract verification. Re-check the date against the vendor page before acting, in case retirement slips.

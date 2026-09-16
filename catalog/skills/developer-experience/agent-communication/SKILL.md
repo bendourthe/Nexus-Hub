@@ -64,6 +64,16 @@ Also use it on request: "summarize what you did", "explain this to me simply", "
 
 Full before/after examples: [`references/response-contract.md`](references/response-contract.md).
 
+### 3.1 Say where to run it, and show what success looks like
+
+A command block answers one of the three questions a reader has. They also need **where** to run it and **how to tell it worked**. Every runnable block carries three parts:
+
+1. **Where**: the program (PowerShell, Terminal, Git Bash) and the working directory - either `cd` inside the block or a flag that makes the directory explicit, so the block is correct wherever their prompt is.
+2. **The command**, obeying the placeholder rules in step 3.
+3. **What you should see**: a separate block that looks like real output, not a description of it.
+
+The expected-output block is the most-skipped and most useful part. Where a command legitimately prints nothing, say so with a marker rather than omitting the block: "nothing happened" and "it did not run" look identical to someone who was not told which to expect. Annotate a value the reader must compare (`1712   <- was 3386`). State what is lost on the line immediately before a destructive block, never in a paragraph after it.
+
 ### 4. Issue guided steps correctly
 
 1. State prerequisites before step 1.
@@ -81,6 +91,40 @@ Four parts, in order:
 - **Next**: the concrete next action, or that there is none.
 
 One optional plain-language context line may follow. Output-minimization rules never apply to this report.
+
+### 5.1 Write every Open item as a decision block
+
+A bare list of what was not done cannot be acted on. It names that a decision exists without saying what it is about, what the choices are, or which one you would take, so the reader has to reconstruct all three from a conversation they may not have followed.
+
+Each Open item carries four parts, in order:
+
+1. **What it is**, in plain language a non-engineer follows. Name what is at stake, not the mechanism.
+2. **Why it is open**: blocked on a decision, on someone else, on evidence, or on time.
+3. **Options**, usually two or three, each with its consequence. Include doing nothing where that is genuinely available, and say what it costs.
+4. **A recommendation, with its reason.** A menu with no recommendation hands the judgment to the reader, who has less context than you do.
+
+Write each item so it reads cold, without scrolling back.
+
+Keep the description OUT of the table. A table whose first row is a paragraph and whose later rows are choices gives the eye nothing to lock onto. Prose states the problem; the table compares the choices.
+
+```markdown
+### 1. Short title naming the problem
+
+One or two sentences: what it is and what it costs.
+
+| Option | Consequence |
+|---|---|
+| **Do the thing** - recommended | Why, in one clause |
+| Do nothing | What that costs |
+
+---
+```
+
+Each consequence cell is ONE clause. The table is a comparison, not an explanation; an option needing a paragraph has that paragraph above the table or nowhere. Exactly one option cell carries `- recommended`. End each item with a horizontal rule, because stacked tables with no break read as one long grid. Numbered headings let the reader answer "do 2 and 3" instead of quoting text.
+
+Two constraints keep it honest. Never manufacture options to fill the shape: where only one course exists, say so and say why. And never use the block to re-open a decision the user already made; absent new evidence, that is closed, not open.
+
+This applies wherever open items appear, not only in the closing report. A turn that ends on a question gives the question the same four parts.
 
 ### 6. Link detail instead of inlining it
 
@@ -109,16 +153,25 @@ One optional plain-language context line may follow. Output-minimization rules n
 | "The placeholder is obvious." | It is obvious to you because you derived it. `<container-name>` pasted verbatim produces a shell error, and the user's next message is a bug report about your command rather than progress on their task. If you can derive it, you were the only party who could, and you declined. |
 | "A longer report is more complete." | A report that buries "the migration is blocked" under nine paragraphs of implementation detail has communicated less than a four-line one. Length moves the important item below the fold; the reader acts on what they see, so unbounded completeness is a reliable way to hide the one thing that mattered. |
 | "This turn is just an interim update, so structure does not matter." | An interim update is the turn most likely to be read at a glance, because the reader is waiting. If "tests are running" is the last sentence of a technical dump, they will read the dump looking for an action item that is not there. |
+| "Listing what I did not do tells them what is open." | It tells them a decision exists and nothing else. The reader still has to work out what each item means, what the choices are, and which one you would pick - using less context than you have. A decision block answers all three in four lines. |
+| "They have been following along, so they know the background." | They have been reading conclusions while you read the evidence. Any Open item must read cold, because the person deciding may be doing it hours later, or may be someone else entirely. |
+| "Recommending a choice is overstepping; I should stay neutral." | Neutrality here is abdication. You hold the evidence, so withholding a recommendation pushes judgment onto the person with less of it. Recommend, give the reason, and make the alternative genuinely available. |
 | "The style guide covers this, so I do not need to." | The guide is a file on disk. It changes nothing unless the response you are composing right now follows it. Run the Verification checklist against the actual text before sending. |
 
 ## Verification
 
 - [ ] The first sentence of the response states the outcome, not the process.
 - [ ] Every command block runs exactly as pasted, or is preceded by a REPLACE line naming each token and how to find its value.
+- [ ] Every runnable block names the program and the working directory to run it in.
+- [ ] Every runnable block is followed by an expected-output block, including a marker when the command prints nothing.
+- [ ] A destructive command states what is lost immediately before the block.
 - [ ] No unflagged angle brackets, square brackets, or ALL-CAPS template tokens sit inside a command block.
 - [ ] A response answering a reported error re-issues every remaining step, renumbered, with no back-reference.
 - [ ] A task-ending response carries all four labeled parts: Completed, Verified, Open, Next.
 - [ ] The Open part is present even when its content is "nothing outstanding".
+- [ ] Every Open item states what it is in plain language, why it is open, options with consequences, and a recommendation with its reason.
+- [ ] No Open item is a bare "what I did not do" list, and none re-opens a decision the user already settled.
+- [ ] Where only one course is genuinely available, the item says so instead of inventing alternatives.
 - [ ] A turn ending with work still running opens with the status banner and stays under about 8 lines after it.
 - [ ] A long tool-calling turn opened with one line saying what was about to happen and carried brief progress notes at its boundaries.
 - [ ] Formatting matched the reader: lists where multifaceted or asked, plain prose where minimal formatting was requested or the exchange is conversational.

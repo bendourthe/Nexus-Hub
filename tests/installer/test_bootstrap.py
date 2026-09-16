@@ -37,6 +37,7 @@ from __future__ import annotations
 import hashlib
 import io
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -396,3 +397,92 @@ def test_ps_path_traversal_is_refused(tmp_path: Path) -> None:
     assert proc.returncode != 0
     combined = (proc.stdout + proc.stderr).lower()
     assert ".." in combined or "unsafe" in combined
+
+
+# --- Windows long-path cleanup (MAX_PATH regression) ------------------------
+#
+# The catalog reaches 298 characters repo-relative under
+# docs/releases/v4/v4.9/development/security-audit-benchmark/, whose ledger entry
+# filenames concatenate two SHA-256 hashes. Any install prefix pushes those past
+# the 260-character Win32 limit, so `Remove-Item -Recurse` on ~/.nexus-hub/src
+# fails -- and it reports "Could not find a part of the path" rather than a length
+# error, which sends the reader looking for a missing file. That broke a real
+# Windows install before these guards existed.
+
+
+def test_repo_has_paths_that_would_break_naive_windows_cleanup() -> None:
+    """The precondition behind the guard below. If this ever stops holding, the
+    long-path helper is no longer load-bearing and can be reconsidered."""
+    longest = max(
+        (len(p.relative_to(REPO_ROOT).as_posix()) for p in REPO_ROOT.rglob("*") if p.is_file()),
+        default=0,
+    )
+    assert longest > 200, (
+        f"longest tracked path is {longest} chars; the MAX_PATH guard assumes "
+        "the catalog still contains deep paths"
+    )
+
+
+def test_install_ps1_defines_a_long_path_safe_removal() -> None:
+    body = INSTALL_PS1.read_text(encoding="utf-8")
+    assert "function Remove-TreeLongPathSafe" in body, (
+        "install.ps1 must define a long-path-safe tree removal"
+    )
+    assert "robocopy" in body, "the helper must use robocopy, which is long-path aware"
+
+
+def test_install_ps1_does_not_clear_the_catalog_with_bare_remove_item() -> None:
+    """Regression guard: the src wipe must not go back to Remove-Item."""
+    body = INSTALL_PS1.read_text(encoding="utf-8")
+    assert "Remove-Item -Recurse -Force $src" not in body, (
+        "install.ps1 cleared ~/.nexus-hub/src with Remove-Item, which fails on "
+        "paths over MAX_PATH; use Remove-TreeLongPathSafe"
+    )
+    assert "Remove-TreeLongPathSafe -Path $src" in body
+
+
+@pytest.mark.skipif(not PWSH, reason="PowerShell not available")
+@pytest.mark.skipif(os.name != "nt", reason="MAX_PATH is a Windows limit")
+def test_ps_long_path_tree_is_actually_removed(tmp_path: Path) -> None:
+    """Exercise the shipped helper against a real over-MAX_PATH tree.
+
+    The function is pulled out of install.ps1 via the AST rather than retyped,
+    so this tests the code that ships.
+
+    The substantive precondition is the measured path length: a tree past 260
+    characters is over MAX_PATH by definition. Whether plain `Remove-Item`
+    happens to cope is recorded for diagnosis but NOT asserted, because it was
+    observed to fail at 449 characters and succeed at 502 on the same machine.
+    Gating on that flakiness would produce a test that fails for reasons
+    unrelated to the helper.
+    """
+    script = rf"""
+$ErrorActionPreference = 'Continue'
+$ast = [System.Management.Automation.Language.Parser]::ParseFile(
+    '{INSTALL_PS1.as_posix()}', [ref]$null, [ref]$null)
+$fns = $ast.FindAll({{ param($n)
+    $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+    $n.Name -in @('Remove-TreeLongPathSafe','Test-CommandExists') }}, $true)
+foreach ($f in $fns) {{ Invoke-Expression $f.Extent.Text }}
+
+$root = Join-Path '{tmp_path.as_posix()}' 'lp'
+$deep = $root
+1..6 | ForEach-Object {{ $deep = Join-Path $deep ('seg-' + ('x' * 40)) }}
+[System.IO.Directory]::CreateDirectory("\\?\$deep") | Out-Null
+$leaf = Join-Path $deep ('f-' + ('y' * 120) + '.json')
+[System.IO.File]::WriteAllText("\\?\$leaf", 'x')
+Write-Host "LEN=$($leaf.Length)"
+
+try {{ Remove-Item -LiteralPath $root -Recurse -Force -ErrorAction Stop }} catch {{ }}
+Write-Host "CONTROL_REMAINS=$(Test-Path -LiteralPath $root)"
+
+$ok = Remove-TreeLongPathSafe -Path $root
+Write-Host "HELPER_OK=$ok"
+Write-Host "HELPER_REMAINS=$(Test-Path -LiteralPath $root)"
+"""
+    proc = _run([PWSH, "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script])
+    out = proc.stdout
+    length = int(re.search(r"LEN=(\d+)", out).group(1))
+    assert length > 260, f"test tree is only {length} chars; it would not exercise MAX_PATH"
+    assert "HELPER_OK=True" in out, f"helper reported failure:\n{out}"
+    assert "HELPER_REMAINS=False" in out, f"helper left the tree behind:\n{out}"
