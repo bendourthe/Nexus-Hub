@@ -179,3 +179,49 @@ def test_decision_block_rule_has_teeth():
     ):
         mutated = _read(path).replace(needle, "")
         assert needle not in mutated, f"predicate for {path.name} matches anything"
+
+
+# --- Command blocks name where to run and show expected output (v4.12.1) -----
+
+_COMMAND_MARKER = "name where to run them"
+
+
+@pytest.mark.parametrize("path", SUBSTANTIVE, ids=lambda p: p.name)
+def test_contract_requires_commands_to_name_where_and_show_output(path: Path):
+    text = _read(path)
+    start = text.index("## Communication Contract")
+    end = text.find("\n## ", start + 1)
+    section = text[start:end]
+    assert _COMMAND_MARKER in section, f"{path.name} lacks the where-to-run rule"
+    assert "show expected output" in section, f"{path.name} lacks the expected-output rule"
+
+
+def test_command_rule_is_byte_identical_across_the_roster():
+    variants = set()
+    for path in SUBSTANTIVE:
+        for line in _read(path).split("\n"):
+            if _COMMAND_MARKER in line:
+                variants.add(line.strip())
+    assert len(variants) == 1, f"command bullet diverged: {variants}"
+
+
+def test_style_guide_owns_the_command_block_procedure():
+    text = _read(_STYLE_GUIDE)
+    assert "Say where to run it, and show what success looks like" in text
+    assert "What you should see" in text
+    assert "look identical to someone who was not told which to expect" in text
+    assert "immediately before the block" in text
+
+
+def test_skill_mirrors_the_command_block_rule():
+    text = _read(_SKILL)
+    assert "Say where to run it, and show what success looks like" in text
+    assert "What you should see" in text
+
+
+def test_command_block_rule_has_teeth():
+    for path, needle in (
+        (_STYLE_GUIDE, "Say where to run it, and show what success looks like"),
+        (SUBSTANTIVE[0], _COMMAND_MARKER),
+    ):
+        assert needle not in _read(path).replace(needle, "")

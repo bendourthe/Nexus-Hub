@@ -21,6 +21,44 @@ The complete, ordered procedure for the `implement-phase` skill. `SKILL.md` link
     On conflict (numerically last but prior phases unchecked), set `is_final_phase = false` and say so.
 7. **Pre-flight summary** - show plan, phase, status, prior-phases-complete, and final-phase (with a note that the release-readiness workflow runs after Phase 8 when final). Before requesting confirmation, follow the active instruction template's `Consequential Decisions` rule. Wait for confirmation before any code change.
 
+### Phase 0b: Isolate the plan in its own worktree
+
+A plan runs in a dedicated **worktree**, not merely a branch in the shared checkout. A branch alone serializes work: a second plan cannot start without switching the one checkout, and a switch underneath a running session silently changes the files it is editing.
+
+1. **Detect existing isolation first** and create the worktree through `[[using-git-worktrees]]`, which owns the mechanics (native tool before raw `git worktree`, setup detection, clean-baseline check). Do not re-derive that procedure here.
+2. **Name both consistently**: branch `feat/<version>-<slug>`, worktree directory `<repo-parent>/<repo-name>-<version>-<slug>`. A predictable directory is what lets the release step find and remove it later.
+3. **Already inside a worktree for this plan** -> continue in it; never nest a second one.
+4. **Worktrees unavailable** (no `git worktree`, or the user declines) -> fall back to a branch in the current checkout, say so in one line, and note that parallel plans are unavailable this session.
+
+Record the worktree path in the phase evidence file. The release step reads it to verify teardown, and a path recorded nowhere is a directory nobody removes.
+
+### Phase 0c: Report which other plans can run in parallel
+
+Immediately after the pre-flight summary, tell the user which queued plans could be started **now, in a separate session**, so parallel capacity is visible at the moment they are deciding what to work on.
+
+Delegate the assessment to `[[plan-queue-assessment]]`, which owns queue inventory, staleness, and ranking by parallel compatibility. This step owns only the handoff and the launch instructions. If that skill is unavailable, say so, mark the parallel report not covered, and continue with the phase; never reconstruct its ranking rules from memory.
+
+Report only plans it classifies as non-overlapping with the subject plan's touched paths. For each, emit a ready-to-use launch block:
+
+```markdown
+### Parallel-capable: v4.14.0 - <slug>
+
+Touches `catalog/skills/security/**`; no overlap with this plan.
+
+**Where:** a NEW terminal window, any directory.
+
+    claude
+
+Then paste:
+
+    /implement v4.14.0-<slug> in-full
+
+**What you should see:** a pre-flight summary naming that plan, and a new
+worktree at `<repo-parent>/<repo-name>-v4.14.0-<slug>`.
+```
+
+Two rules keep this honest. State the overlap basis (the shared paths, or their absence) rather than asserting compatibility, and when nothing qualifies say "no queued plan is parallel-capable against this one" instead of omitting the section - an absent report reads as "none checked".
+
 ## Phase 1: Pre-implementation review
 
 Read the full plan and the target phase in detail (goals, acceptance criteria, subtasks, files, dependencies). Check prerequisites (marked complete + `git log` references). Scan the codebase for files the phase touches. Report the goal, subtask count, likely-affected files, and prerequisite/dependency status before implementing.
@@ -177,6 +215,17 @@ Runs after 9.0, 9A, and 9B are complete and the evidence file has every required
 7. **Merge only when every required check is green AND the user approves.**
 8. **Verify the post-merge behavior.** Confirm the post-merge workflow performed only its intended smoke, publication, or provenance work and did NOT rerun the complete suite. A duplicate post-merge suite is a finding against the reconciliation in 9.0 duty 5.
 9. Quote the required-check results and the merge SHA under `## Publication and integration`.
+10. **Retire the worktree.** Only after the merge is confirmed green and merged:
+    1. Verify the branch is **fully merged** into the integration branch: `git branch --merged <base>` lists it, and `git log <base>..<branch>` is empty. An unmerged commit here means work is about to be deleted.
+    2. Verify the worktree has **no uncommitted or untracked work**: `git -C <worktree> status --porcelain` is empty. A non-empty result stops the teardown and is reported, never force-removed.
+    3. Remove the worktree and delete its directory through `[[using-git-worktrees]]`, which owns the mechanics.
+    4. Delete the local branch once its worktree is gone.
+    5. Run `git worktree prune`, then confirm `git worktree list` no longer shows the path and the directory is absent from disk.
+    6. Quote all of it under `## Worktree teardown` in the evidence file.
+
+    A plan that ships without this leaves a full checkout behind. After ten plans that is ten stale copies of the repository, each pinning objects and each capable of being edited by mistake. The teardown is the step that keeps parallel worktrees a temporary cost rather than a permanent one.
+
+    **Never remove a worktree before the merge is green and merged**, and never with `--force` to get past a dirty tree. Both convert an unfinished branch into deleted work.
 
 Never tag and never publish a release here; that is `/update release`.
 

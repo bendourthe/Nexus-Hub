@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "c89ec3703b5dbc35eb4b62d12fcf2eba7a956f6319ef74c83dbce9386a6766ae",
       "docs/handbooks/_sources/distribution/source.md": "0b4bfc5f7254911e278bb74cb0b160ed372013a57eaf63356b91fc610acce080",
       "docs/handbooks/_sources/distribution/design.css": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24",
-      "scripts/installer.ps1": "6d8d46c46122a7454d658d7d9b2fec8c369e1b8bc788e1d2bbc38218f51725df",
-      "scripts/installer.sh": "7edd2c8582fac9b5a73716655762170826f28b6798df51fb387c646c8a994ff4",
+      "scripts/installer.ps1": "5eec5251ccde57feb88e2f412996f1573e8d342a79d86b731017a7dab0518f34",
+      "scripts/installer.sh": "9d0be8888b62798d698a8e52b784dce6fe814dab28fc4ec812b45d3aa408c1be",
       "scripts/lib/integrations/runner.py": "7912fa31727da6bb9bf3877b3c68d9972d491f7f9cb96010d2a93acabd221833",
       "scripts/lib/integrations/_catalog_adapters.py": "3d92a49b0f0338461e6e029bd5301abc5cbce7451ac4e58014357ae998536de9",
       "scripts/lib/integrations/_owned.py": "aaeae3a0fe420ecabd4d5f863257454bc966e707d97e0fba4e7bba2ebc761f64",
@@ -31,8 +31,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.12/development/portable-attribution-handbook-content.md",
-      "evidence_sha256": "598617998397ce3cb38afad2fe3a4a42b813802560971ca1aa9b40c94507dbc8"
+      "evidence": "docs/releases/v4/v4.12/development/v4.12.1-distribution-handbook-content.md",
+      "evidence_sha256": "1da2cc310bc3d50b97ae740b70485136402f2f72ab6f3502e8385fa182be2920"
     },
     "build": {
       "status": "pass",
