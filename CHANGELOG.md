@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Worktrees may not live inside a vendor or tool directory.** `.claude/`, `.cursor/`, `.vscode/`, `.idea/`, `.codex/`, `.gemini/`, `.windsurf/` and `.agents/` belong to one product's configuration; a worktree is the work itself and is platform-agnostic. Placing one there implies that product owns it, breaks when the user switches tools, and buries a full checkout where nobody looks. `git check-ignore` passes on such paths, so the existing ignore gate did not catch it and this is a separate rule. Motivated by a real instance: a worktree at `.claude/worktrees/` held over a thousand lines of uncommitted work that became unreachable through git when the repository was moved, until its pointer was repaired. Covered by `tests/validators/test_plan_worktree_isolation.py`.
+
 ## [4.12.1] - 2026-09-16
 
 ### Added
