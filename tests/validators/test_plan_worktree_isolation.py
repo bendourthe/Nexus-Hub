@@ -172,3 +172,48 @@ def test_skill_verification_covers_the_three_rules() -> None:
 def test_claims_have_teeth(path: Path, needle: str) -> None:
     """Each predicate must fail when its target content is removed."""
     assert needle not in _read(path).replace(needle, "")
+
+
+# --- worktree placement (v4.12.1) -------------------------------------------
+#
+# A real instance motivated this rule: a worktree at `.claude/worktrees/...`
+# held 1,267 lines of uncommitted work. It was git-ignored, so the ignore gate
+# passed and the tracked-path rule did not apply. When the repository moved,
+# every worktree pointer broke and that work was unreachable through git until
+# the pointers were repaired.
+
+_WORKTREE_SKILL = (
+    _ROOT / "catalog" / "skills" / "workflow" / "using-git-worktrees" / "SKILL.md"
+)
+
+_VENDOR_DIRS = [".claude/", ".cursor/", ".vscode/", ".idea/", ".codex/", ".gemini/"]
+
+
+def test_worktree_skill_bars_vendor_directories() -> None:
+    t = _read(_WORKTREE_SKILL)
+    assert "Never place a worktree inside a vendor or tool directory" in t
+    assert "even when that directory is git-ignored" in t
+
+
+@pytest.mark.parametrize("vendor", _VENDOR_DIRS)
+def test_each_vendor_directory_is_named(vendor: str) -> None:
+    """A rule that names no directory is one nobody applies."""
+    assert vendor in _read(_WORKTREE_SKILL), f"vendor dir not named: {vendor}"
+
+
+def test_rule_explains_why_the_ignore_gate_is_insufficient() -> None:
+    """Without this, a reader assumes check-ignore already covers it."""
+    assert "the ignore gate alone does not catch this" in _read(_WORKTREE_SKILL)
+
+
+def test_rule_carries_its_motivating_instance() -> None:
+    assert "1,267 lines of uncommitted work" in _read(_WORKTREE_SKILL)
+
+
+def test_verification_covers_placement() -> None:
+    assert "NOT inside a vendor or tool directory" in _read(_WORKTREE_SKILL)
+
+
+def test_placement_rule_has_teeth() -> None:
+    needle = "Never place a worktree inside a vendor or tool directory"
+    assert needle not in _read(_WORKTREE_SKILL).replace(needle, "")
