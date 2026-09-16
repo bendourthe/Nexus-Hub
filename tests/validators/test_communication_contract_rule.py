@@ -132,6 +132,22 @@ def test_decision_block_rule_is_byte_identical_across_the_roster():
     assert len(variants) == 1, f"contract line diverged across templates: {variants}"
 
 
+def test_style_guide_specifies_the_table_shape():
+    """The shape is load-bearing: a recommendation written away from its option
+    makes the reader match it back to the list."""
+    text = _read(_STYLE_GUIDE)
+    assert "Shape: one table per Open item" in text
+    assert "Mark the recommended option **on its own row**" in text
+    assert "(Recommended)" in text
+    assert "numbered heading" in text
+
+
+def test_skill_carries_the_table_shape():
+    text = _read(_SKILL)
+    assert "two-column table under a numbered heading" in text
+    assert "(Recommended)" in text
+
+
 def test_style_guide_owns_the_decision_block_procedure():
     text = _read(_STYLE_GUIDE)
     assert "Every Open item is a decision block" in text

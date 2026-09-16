@@ -101,6 +101,10 @@ Each Open item therefore carries four parts, in this order:
 
 Write it so the item can be read cold, without scrolling back. Assume the reader has forgotten the intermediate steps.
 
+### Shape: one table per Open item
+
+Render each item as a two-column table. The first row carries the description; each remaining row is one option and its consequence. Mark the recommended option **on its own row**, so the reader never has to match a recommendation written elsewhere back to the list.
+
 **Do not write this:**
 
 > **What I did not do**
@@ -111,14 +115,23 @@ Three decisions are named and none is explained. The reader cannot choose withou
 
 **Write this:**
 
-> **Open: the fix has not reached users yet**
+> **1. The fix has not reached users yet**
 >
-> The bug is fixed in the working branch, but installs download from the published branch, so users still hit it.
->
-> - **Publish a release** - users get the fix now. Costs one release cycle.
-> - **Wait for the next scheduled release** - no extra work, but every install until then still fails.
->
-> Recommended: publish, because the failure blocks first-time installs and the change is small and already reviewed.
+> | | |
+> |---|---|
+> | **What** | The bug is fixed in the working branch, but installs download from the published branch, so anyone installing today still hits it. |
+> | **Publish a release** *(Recommended)* | Users get the fix now. Costs one release cycle. Recommended because the failure blocks first-time installs and the change is small and already reviewed. |
+> | **Wait for the next scheduled release** | No extra work, but every install until then still fails. |
+
+Rules for the table:
+
+- The **What** row states the problem and its consequence in plain language. It never names an internal mechanism the reader has not seen.
+- Each option row leads with the action, in bold, followed by what it costs or changes.
+- Exactly one row carries *(Recommended)*, and that row also carries the reason. A recommendation with no reason is an instruction.
+- Where doing nothing is genuinely available, it is one of the rows, with its cost stated.
+- Add a **Why open** row only when the reason is not obvious from the What row: blocked on a person, on evidence, or on time.
+
+Keep a numbered heading above each table so a reader can answer with "do 2 and 3" instead of quoting text back.
 
 Two constraints keep this honest. Do not manufacture options to fill the shape: where only one course is genuinely available, say so and say why. And do not use the block to re-litigate a decision the user already made; if they declined something and nothing has changed, it is closed, not open.
 
@@ -177,6 +190,8 @@ Check a response against this list before sending it.
 - [ ] A task-ending response carries all four labeled parts: Completed, Verified, Open, Next.
 - [ ] The Open part is present even when empty ("nothing outstanding").
 - [ ] Every Open item states what it is in plain language, why it is open, its options with consequences, and a recommendation with a reason.
+- [ ] Each Open item is a two-column table under a numbered heading, with the description in the first row and one option per row after it.
+- [ ] Exactly one option row carries (Recommended) and that same row carries the reason.
 - [ ] No Open item is a bare "what I did not do" list, and none re-opens a decision the user already made.
 - [ ] Options are real: where only one course is available the response says so rather than inventing alternatives.
 - [ ] Detail beyond about 5 lines is linked to a `docs/` file with a repository-relative link, and the question that was asked is still answered in the response.

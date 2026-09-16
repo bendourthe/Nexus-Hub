@@ -95,6 +95,15 @@ Each Open item carries four parts, in order:
 
 Write each item so it reads cold, without scrolling back.
 
+Render it as a two-column table under a numbered heading: the first row is the description, each later row is one option and its consequence, and exactly one row carries *(Recommended)* plus the reason. Marking the recommendation on its own row means the reader never has to match it back to a list. Numbered headings let them reply "do 2 and 3" instead of quoting text.
+
+| | |
+|---|---|
+| **What** | The problem and its consequence, in plain language. |
+| **Do the thing** *(Recommended)* | What it costs or changes, then why this one. |
+| **Do nothing** | Its cost, stated. Include this row whenever it is genuinely available. |
+
+
 Two constraints keep it honest. Never manufacture options to fill the shape: where only one course exists, say so and say why. And never use the block to re-open a decision the user already made; absent new evidence, that is closed, not open.
 
 This applies wherever open items appear, not only in the closing report. A turn that ends on a question gives the question the same four parts.
