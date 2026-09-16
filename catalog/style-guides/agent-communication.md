@@ -88,6 +88,79 @@ One optional line of plain-language context may follow, for a reader who does no
 
 Output-minimization rules never apply to this report. Suppress verbose logs, never the closing summary.
 
+### 5.1 Every Open item is a decision block
+
+A bare list of what was not done is a report the reader cannot act on. It tells them a decision exists without telling them what the decision is about, what the choices are, or which one you would take. The reader then has to reconstruct all of that from a conversation they may not have followed closely, which is precisely the work the report was supposed to save them.
+
+Each Open item therefore carries four parts, in this order:
+
+1. **What it is**, in plain language a non-engineer follows. Name the thing at stake, not the internal mechanism. "Users hitting this bug keep hitting it until we publish" beats "the fix is on develop, not main".
+2. **Why it is open**, in one line. Blocked on a decision, on someone else, on evidence, or on time.
+3. **Options**, usually two or three, each with its consequence. Include the do-nothing option whenever doing nothing is genuinely available, and say what it costs.
+4. **A recommendation**, with the reason. A menu with no recommendation pushes the judgment back onto the reader, who has less context than you do.
+
+Write it so the item can be read cold, without scrolling back. Assume the reader has forgotten the intermediate steps.
+
+### Shape: a line of prose, then a table of options
+
+Keep the description **out** of the table. A table whose first row is a paragraph and whose later rows are choices gives the eye nothing to lock onto, so the reader has to parse every row to find where the options start.
+
+```markdown
+### 1. Short title naming the problem
+
+One or two sentences: what it is and what it costs. Prose, not a table row.
+
+| Option | Consequence |
+|---|---|
+| **Do the thing** - recommended | Why, in one clause |
+| Do the other thing | Its cost, in one clause |
+| Do nothing | What that costs |
+
+---
+```
+
+Four things this buys, each of which was a real defect in the version before it:
+
+- **The description reads as prose**, visually separate from the choices, so the boundary is obvious at a glance.
+- **Consequences stay to one clause.** The table is a comparison, not an explanation; if an option needs a paragraph, that paragraph belongs above the table or nowhere.
+- **The recommendation sits in the option cell**, so it is never written away from the thing it recommends.
+- **A horizontal rule separates items.** Stacked tables with no break read as one long grid.
+
+Numbered headings let the reader answer "do 2 and 3" instead of quoting text back.
+
+**Do not write this:**
+
+> **What I did not do**
+>
+> I did not shorten the paths, cut a release, or push the commit. Each needs your call.
+
+Three decisions are named and none is explained. The reader cannot choose without first asking what each one means.
+
+**Write this:**
+
+> ### 1. The fix has not reached users
+>
+> The bug is fixed on the working branch, but installs download from the published branch. Anyone installing today still hits it.
+>
+> | Option | Consequence |
+> |---|---|
+> | **Cut a release** - recommended | Blocks first-time installs; change is small and already reviewed |
+> | Wait for the next release | Every install until then still fails |
+>
+> ---
+
+Rules:
+
+- The prose line states the problem and its cost in plain language, never an internal mechanism the reader has not seen.
+- Each option cell leads with the action in bold; each consequence cell is ONE clause.
+- Exactly one option carries `- recommended`, in its own cell, with the reason in that row's consequence.
+- Include a **Do nothing** row whenever that is genuinely available, with its cost.
+- End every item with a horizontal rule.
+
+Two constraints keep this honest. Do not manufacture options to fill the shape: where only one course is genuinely available, say so and say why. And do not use the block to re-litigate a decision the user already made; if they declined something and nothing has changed, it is closed, not open.
+
+This applies wherever open items are presented, not only in the closing report. When a turn ends on a question, the question gets the same four parts.
+
 ## 6. Docs deep-link rule
 
 - When a topic needs more than about 5 lines of technical detail, put the detail in a readable file under `docs/` and link it with a repository-relative Markdown link (see rule 13 in [`markdown.md`](markdown.md)). Keep the plain-language summary in the response.
@@ -140,6 +213,12 @@ Check a response against this list before sending it.
 - [ ] A response answering a reported error re-issues the full remaining sequence, renumbered, with no "continue from above".
 - [ ] A task-ending response carries all four labeled parts: Completed, Verified, Open, Next.
 - [ ] The Open part is present even when empty ("nothing outstanding").
+- [ ] Every Open item states what it is in plain language, why it is open, its options with consequences, and a recommendation with a reason.
+- [ ] Each Open item is a numbered heading, then prose stating the problem, then a table of options only.
+- [ ] Every consequence cell is one clause, and exactly one option cell carries "- recommended".
+- [ ] A horizontal rule separates each Open item from the next.
+- [ ] No Open item is a bare "what I did not do" list, and none re-opens a decision the user already made.
+- [ ] Options are real: where only one course is available the response says so rather than inventing alternatives.
 - [ ] Detail beyond about 5 lines is linked to a `docs/` file with a repository-relative link, and the question that was asked is still answered in the response.
 - [ ] A turn ending with work still running opens with the status banner and stays under about 8 lines after it.
 - [ ] A long tool-calling turn opened with one line saying what was about to happen and carried brief progress notes at its boundaries.
