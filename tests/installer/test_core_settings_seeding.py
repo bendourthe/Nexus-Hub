@@ -94,6 +94,33 @@ def _seed(tmp_path: Path, value: dict[str, object]) -> tuple[Path, bytes]:
 _DECODE = {"encoding": "utf-8", "errors": "replace"}
 
 
+def _function_source(fn) -> str:
+    """Return the source of one function, without `inspect.getsource`.
+
+    `inspect.getsource` resolves source through the module's loader. Under
+    pytest's assertion-rewriting importer that lookup fails on some
+    interpreter/pytest combinations (observed: Python 3.12 + pytest 7.4.4 on
+    Windows), raising `OSError: could not get source code` -- while the same
+    call succeeds on the same file outside pytest. That made this test fail for
+    a reason unrelated to the behavior it guards.
+
+    Reading the defining file directly and slicing from the function's own
+    `co_firstlineno` to the next dedent keeps the property that matters: the
+    assertion sees ONE function's body, so it cannot pass vacuously by matching
+    this test's own assertion text elsewhere in the file.
+    """
+    path = Path(inspect.getfile(fn))
+    lines = path.read_text(encoding="utf-8").splitlines()
+    start = fn.__code__.co_firstlineno - 1
+    indent = len(lines[start]) - len(lines[start].lstrip())
+    body = [lines[start]]
+    for line in lines[start + 1 :]:
+        if line.strip() and (len(line) - len(line.lstrip())) <= indent:
+            break
+        body.append(line)
+    return "\n".join(body)
+
+
 def _run_bash(tmp_path: Path, target: Path) -> subprocess.CompletedProcess[str]:
     harness = tmp_path / "core-settings-harness.sh"
     harness.write_text(_SH_HARNESS, encoding="utf-8", newline="\n")
@@ -407,7 +434,7 @@ def test_child_output_is_decoded_permissively() -> None:
     # Inspect the functions rather than the file text: a source-wide string
     # search would also match this test's own assertions and pass vacuously.
     for runner in (_run_bash, _run_powershell):
-        body = inspect.getsource(runner)
+        body = _function_source(runner)
         assert "**_DECODE," in body, (
             f"{runner.__name__} does not decode through _DECODE, so its output "
             "becomes None under UTF-8 mode when the child writes another code page"
