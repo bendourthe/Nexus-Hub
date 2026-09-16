@@ -28,6 +28,8 @@ itself caught.
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -48,7 +50,7 @@ _EVALUATOR_VALIDATION = (
 _EVAL_PIPELINE_AUDIT = _SKILLS / "ai-development" / "eval-pipeline-audit" / "SKILL.md"
 
 
-# ── fixture loading ───────────────────────────────────────────────────────────
+# -- fixture loading -----------------------------------------------------------
 
 
 @pytest.fixture(scope="module")
@@ -56,7 +58,7 @@ def judge_sensitivity() -> dict:
     return json.loads(_JUDGE_SENSITIVITY.read_text(encoding="utf-8"))
 
 
-# ── scorers under test ────────────────────────────────────────────────────────
+# -- scorers under test --------------------------------------------------------
 
 _SUBSTANTIVE = ("execution_evidence", "claim_support", "boundary_adherence")
 
@@ -124,7 +126,7 @@ def _cases(data: dict, direction: str) -> list[dict]:
     return [c for c in data["cases"] if c["expected_direction"] == direction]
 
 
-# ── fixture integrity ─────────────────────────────────────────────────────────
+# -- fixture integrity ---------------------------------------------------------
 
 
 class TestFixtureIntegrity:
@@ -172,7 +174,7 @@ class TestFixtureIntegrity:
         assert judge_sensitivity["splits"]["holdout_touched_count"] == 0
 
 
-# ── the executable sensitivity harness ────────────────────────────────────────
+# -- the executable sensitivity harness ----------------------------------------
 
 
 class TestJudgeSensitivityHarness:
@@ -250,7 +252,7 @@ class TestJudgeSensitivityHarness:
             )
 
 
-# ── document contracts (with teeth) ───────────────────────────────────────────
+# -- document contracts (with teeth) -------------------------------------------
 
 _EVALUATOR_CLAIMS = {
     "sensitivity_step": "Prove the judge notices a controlled loss",
@@ -312,3 +314,279 @@ class TestEvalPipelineAuditContract:
         """Routing, not an inline method, per the audit's own owner boundary."""
         text = _EVAL_PIPELINE_AUDIT.read_text(encoding="utf-8")
         assert "references/evaluator-validation.md`, Step 6" in text
+
+
+# == Phase 2: private agent traces ============================================
+
+_AGENT_SKILL = _SKILLS / "ai-development" / "ai-agent-development"
+_SPAN_CONTRACT = _AGENT_SKILL / "references" / "agent-span-contract.md"
+_TRACE_EXAMPLE = _AGENT_SKILL / "scripts" / "trace-example.py"
+_STEP_8 = _AGENT_SKILL / "references" / "step-8-instrument-for-observability.md"
+_AGENT_SKILL_MD = _AGENT_SKILL / "SKILL.md"
+_LOOP_SCHEMA = (
+    _SKILLS / "workflow" / "loop-engineering" / "references" / "loop-schema.md"
+)
+
+# Opt-In attributes in the pinned convention. Every one is payload-bearing.
+_PAYLOAD_ATTRIBUTES = (
+    "gen_ai.input.messages",
+    "gen_ai.output.messages",
+    "gen_ai.system_instructions",
+    "gen_ai.tool.definitions",
+)
+
+_ALLOWED_ERROR_CATEGORIES = {
+    "timeout",
+    "rate_limited",
+    "invalid_input",
+    "permission_denied",
+    "unavailable",
+    "internal_error",
+}
+
+
+@pytest.fixture(scope="module")
+def emitted_trace(tmp_path_factory: pytest.TempPathFactory) -> tuple[str, list[dict]]:
+    """Run the example into a fresh temporary directory and return its output."""
+    out = tmp_path_factory.mktemp("trace") / "trace.jsonl"
+    proc = subprocess.run(
+        [sys.executable, str(_TRACE_EXAMPLE), "--output", str(out)],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert proc.returncode == 0, f"example failed: {proc.stderr}"
+    raw = out.read_text(encoding="utf-8")
+    return raw, [json.loads(line) for line in raw.splitlines() if line.strip()]
+
+
+class TestTraceExampleBehavior:
+    def test_emits_records_with_one_root_and_no_orphans(
+        self, emitted_trace: tuple[str, list[dict]]
+    ) -> None:
+        _, records = emitted_trace
+        assert records, "no records emitted"
+        span_ids = {r["span_id"] for r in records}
+        roots = [r for r in records if r["parent_span_id"] is None]
+        orphans = [
+            r["span_id"]
+            for r in records
+            if r["parent_span_id"] and r["parent_span_id"] not in span_ids
+        ]
+        assert len(roots) == 1, f"expected exactly one root, got {len(roots)}"
+        assert not orphans, f"records reference a missing parent: {orphans}"
+
+    def test_identifier_widths_match_the_contract(
+        self, emitted_trace: tuple[str, list[dict]]
+    ) -> None:
+        _, records = emitted_trace
+        for record in records:
+            assert len(record["trace_id"]) == 32, "trace id must be 32 hex characters"
+            assert len(record["span_id"]) == 16, "span id must be 16 hex characters"
+            int(record["trace_id"], 16)
+            int(record["span_id"], 16)
+
+    def test_timestamps_are_utc_and_terminal_status_present(
+        self, emitted_trace: tuple[str, list[dict]]
+    ) -> None:
+        _, records = emitted_trace
+        for record in records:
+            assert record["start_time"].endswith("Z")
+            assert record["end_time"].endswith("Z")
+            assert record["status"] in {"OK", "ERROR"}
+
+    def test_records_declare_synthetic_provenance(
+        self, emitted_trace: tuple[str, list[dict]]
+    ) -> None:
+        _, records = emitted_trace
+        assert all(r["nexus.synthetic"] is True for r in records)
+
+    def test_no_sentinel_value_reaches_the_output(
+        self, emitted_trace: tuple[str, list[dict]]
+    ) -> None:
+        """The generator holds sentinels; none may survive to disk."""
+        raw, _ = emitted_trace
+        assert "SENTINEL" not in raw
+        assert "id_rsa" not in raw
+        assert "sk-live" not in raw
+
+    def test_no_payload_attribute_is_emitted(
+        self, emitted_trace: tuple[str, list[dict]]
+    ) -> None:
+        raw, _ = emitted_trace
+        for attribute in _PAYLOAD_ATTRIBUTES:
+            assert attribute not in raw, f"Opt-In payload attribute emitted: {attribute}"
+
+    def test_error_records_use_allowlisted_categories(
+        self, emitted_trace: tuple[str, list[dict]]
+    ) -> None:
+        _, records = emitted_trace
+        errored = [r for r in records if r["status"] == "ERROR"]
+        assert errored, "no error record emitted; the error path is unexercised"
+        for record in errored:
+            assert record["error.type"] in _ALLOWED_ERROR_CATEGORIES
+
+    def test_remote_and_local_invocations_use_distinct_span_kinds(
+        self, emitted_trace: tuple[str, list[dict]]
+    ) -> None:
+        """The CLIENT/INTERNAL split is the distinction most often lost."""
+        _, records = emitted_trace
+        invocations = {
+            r["span_kind"]
+            for r in records
+            if r["gen_ai.operation.name"] == "invoke_agent"
+        }
+        assert invocations == {"CLIENT", "INTERNAL"}
+
+    def test_no_plan_span_is_invented(
+        self, emitted_trace: tuple[str, list[dict]]
+    ) -> None:
+        """Planning boundaries are not observable here, so no plan span exists."""
+        _, records = emitted_trace
+        assert all(r["gen_ai.operation.name"] != "plan" for r in records)
+        assert any(
+            r.get("nexus.coverage.planning") == "not_observable" for r in records
+        )
+
+    def test_unavailable_reasoning_is_marked_not_fabricated(
+        self, emitted_trace: tuple[str, list[dict]]
+    ) -> None:
+        _, records = emitted_trace
+        assert any(
+            r.get("nexus.coverage.internal_reasoning") == "unavailable"
+            for r in records
+        )
+
+
+class TestTraceExampleRefusals:
+    """Negative controls: the example must refuse unsafe output paths."""
+
+    def test_refuses_an_existing_file(self, tmp_path: Path) -> None:
+        target = tmp_path / "already-here.jsonl"
+        target.write_text("do not overwrite me", encoding="utf-8")
+        proc = subprocess.run(
+            [sys.executable, str(_TRACE_EXAMPLE), "--output", str(target)],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        assert proc.returncode == 2
+        assert target.read_text(encoding="utf-8") == "do not overwrite me"
+
+    def test_refuses_a_missing_parent_directory(self, tmp_path: Path) -> None:
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(_TRACE_EXAMPLE),
+                "--output",
+                str(tmp_path / "nope" / "trace.jsonl"),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        assert proc.returncode == 2
+
+    def test_ships_no_payload_enable_flag(self) -> None:
+        """Documenting opt-in responsibility is not the same as building it."""
+        source = _TRACE_EXAMPLE.read_text(encoding="utf-8")
+        for flag in ("--include-payload", "--payloads", "--with-payload", "--unsafe"):
+            assert flag not in source
+
+    def test_uses_no_network_or_environment_capture(self) -> None:
+        source = _TRACE_EXAMPLE.read_text(encoding="utf-8")
+        for banned in ("import requests", "import socket", "urllib", "httpx", "os.environ"):
+            assert banned not in source
+
+
+def _code_blocks(markdown: str) -> str:
+    """Concatenate fenced code blocks only.
+
+    The prose deliberately quotes the removed patterns while explaining why
+    they were removed, so a whole-file search would flag the explanation.
+    """
+    out, inside = [], False
+    for line in markdown.splitlines():
+        if line.lstrip().startswith("```"):
+            inside = not inside
+            continue
+        if inside:
+            out.append(line)
+    return "\n".join(out)
+
+
+class TestObservabilityTeachingIsSafe:
+    """The old example leaked by truncating; truncation is not redaction."""
+
+    @pytest.mark.parametrize(
+        "leak",
+        ["str(args)[:200]", "str(result)[:200]", "str(e)", "uuid.uuid4().hex[:12]"],
+    )
+    def test_unsafe_logging_pattern_is_gone_from_the_example(self, leak: str) -> None:
+        code = _code_blocks(_STEP_8.read_text(encoding="utf-8"))
+        assert leak not in code
+
+    def test_the_code_block_extractor_has_teeth(self) -> None:
+        """A helper that returned nothing would pass every test above."""
+        code = _code_blocks(_STEP_8.read_text(encoding="utf-8"))
+        assert "def traced(func):" in code, "extractor returned no example code"
+        assert "Truncation is not redaction" not in code, "extractor leaked prose"
+
+    def test_step_8_links_the_contract_and_the_example(self) -> None:
+        text = _STEP_8.read_text(encoding="utf-8")
+        assert "agent-span-contract.md" in text
+        assert "trace-example.py" in text
+
+    def test_bundled_files_are_linked_from_the_owning_skill(self) -> None:
+        """Unlinked bundles are orphans to the recursive installer audit."""
+        text = _AGENT_SKILL_MD.read_text(encoding="utf-8")
+        assert "references/agent-span-contract.md" in text
+        assert "scripts/trace-example.py" in text
+
+
+class TestSpanContractDocument:
+    def test_pins_revision_and_states_development_status(self) -> None:
+        text = _SPAN_CONTRACT.read_text(encoding="utf-8")
+        assert "5ca9052bc796ef1e497200b1d558fd87a201f335" in text
+        assert "Development" in text
+
+    def test_declares_a_recheck_trigger(self) -> None:
+        assert "Recheck trigger" in _SPAN_CONTRACT.read_text(encoding="utf-8")
+
+    def test_marks_tool_attributes_unverified_rather_than_guessing(self) -> None:
+        """The tool-span table was not retrievable at the pinned revision."""
+        text = _SPAN_CONTRACT.read_text(encoding="utf-8")
+        assert "partially verified" in text.lower()
+        assert "An unverified attribute is unknown, not Recommended." in text
+
+    def test_disclaims_otlp_conformance(self) -> None:
+        text = _SPAN_CONTRACT.read_text(encoding="utf-8")
+        assert "not an OpenTelemetry implementation" in text
+
+    def test_states_truncation_is_not_redaction(self) -> None:
+        assert "Truncation is not redaction" in _SPAN_CONTRACT.read_text(encoding="utf-8")
+
+    def test_defers_egress_to_its_owner(self) -> None:
+        assert "egress-redaction" in _SPAN_CONTRACT.read_text(encoding="utf-8")
+
+    @pytest.mark.parametrize("needle", ["Truncation is not redaction", "Recheck trigger"])
+    def test_span_contract_claims_have_teeth(self, needle: str) -> None:
+        mutated = _SPAN_CONTRACT.read_text(encoding="utf-8").replace(needle, "")
+        assert needle not in mutated
+
+
+class TestLoopSchemaTraceHonesty:
+    def test_distinguishes_summary_from_internal_reasoning(self) -> None:
+        text = _LOOP_SCHEMA.read_text(encoding="utf-8")
+        assert "An available summary is not internal reasoning" in text
+
+    def test_distinguishes_observation_from_self_attestation(self) -> None:
+        text = _LOOP_SCHEMA.read_text(encoding="utf-8")
+        assert "A host-observed event is not a self-attestation" in text
+
+    def test_preserves_existing_optional_field_contract(self) -> None:
+        """The edit must not disturb budgets, freshness, or additive optionality."""
+        text = _LOOP_SCHEMA.read_text(encoding="utf-8")
+        assert "evidence_freshness" in text
+        assert "budgets" in text
+        assert "is additive: existing loop definitions stay valid without it" in text

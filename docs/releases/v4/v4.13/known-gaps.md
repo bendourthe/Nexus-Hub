@@ -15,7 +15,7 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 1 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 1 | 0 |
 
@@ -42,3 +42,9 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 **Source phase**: Phase 1. **Plan reference**: T004. **Reason**: `python scripts/ci/run.py --profile fast` reports `check_commit_attribution` FAIL with 3186 findings across 3377 scanned commits. The branch carried zero commits when this was observed, so every finding predates this plan.
 
 **Owner**: repository maintainer. **Status**: open. **Suggested next step**: address in a dedicated attribution-history change; this plan neither introduces nor widens the condition, and its own commits omit `Co-Authored-By` trailers per the project instruction.
+
+#### WN-2: Tool-span attributes unverified at the pinned revision
+
+**Source phase**: Phase 2. **Plan reference**: T005. **Reason**: the `gen_ai.tool.*` attribute table could not be retrieved at pinned revision `5ca9052bc796ef1e497200b1d558fd87a201f335`. The containing document truncates before that section and the standalone tool-spans path returns HTTP 404 at that revision. The `execute_tool` operation name itself is confirmed.
+
+**Owner**: `ai-agent-development` maintainer. **Status**: open. **Suggested next step**: the first consumer needing a `gen_ai.tool.*` attribute verifies it against the sibling inference/tool specification and adds it to `references/agent-span-contract.md` with its requirement level. Until then the contract marks those attributes unverified, and no requirement level was invented to fill the gap.
