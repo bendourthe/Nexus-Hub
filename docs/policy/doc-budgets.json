@@ -3,10 +3,11 @@
   "AGENTS.md": 9100,
   "CLAUDE.md": 270,
   "catalog/style-guides/markdown.md": 1660,
-  "templates/ai-instructions/base-claude.md": 2178,
-  "templates/ai-instructions/base-codex.md": 1881,
-  "templates/ai-instructions/base-cursor.md": 1850,
-  "templates/ai-instructions/base-gemini.md": 1871,
-  "templates/ai-instructions/base-opencode.md": 1850,
-  "_v4_12_attribution_justification": "The new user-attribution capability requires one shared preflight rule in every platform template. Only that concise section increases these ceilings; detailed procedures moved to the installed git-attribution style guide. No unrelated ceiling changed."
+  "templates/ai-instructions/base-claude.md": 2185,
+  "templates/ai-instructions/base-codex.md": 1888,
+  "templates/ai-instructions/base-cursor.md": 1857,
+  "templates/ai-instructions/base-gemini.md": 1878,
+  "templates/ai-instructions/base-opencode.md": 1857,
+  "_v4_12_attribution_justification": "The new user-attribution capability requires one shared preflight rule in every platform template. Only that concise section increases these ceilings; detailed procedures moved to the installed git-attribution style guide. No unrelated ceiling changed.",
+  "_v4_13_open_item_decision_block_justification": "Raised the five lockstep instruction-template ceilings by 7 words in v4.13.0. The Communication Contract closing-report bullet now also requires that each Open item carry options and a recommendation, because a bare list of undone work names a decision without saying what it is about, what the choices are, or which one the agent would take. The clause was condensed from 31 words to 7 by folding it into the existing Completed / Verified / Open / Next bullet and relocating the full procedure, the two honesty constraints and the worked counter-example to catalog/style-guides/agent-communication.md, which is not always-loaded. 7 words is the irreducible cost of carrying the rule at all."
 }

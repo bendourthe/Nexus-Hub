@@ -82,6 +82,23 @@ Four parts, in order:
 
 One optional plain-language context line may follow. Output-minimization rules never apply to this report.
 
+### 5.1 Write every Open item as a decision block
+
+A bare list of what was not done cannot be acted on. It names that a decision exists without saying what it is about, what the choices are, or which one you would take, so the reader has to reconstruct all three from a conversation they may not have followed.
+
+Each Open item carries four parts, in order:
+
+1. **What it is**, in plain language a non-engineer follows. Name what is at stake, not the mechanism.
+2. **Why it is open**: blocked on a decision, on someone else, on evidence, or on time.
+3. **Options**, usually two or three, each with its consequence. Include doing nothing where that is genuinely available, and say what it costs.
+4. **A recommendation, with its reason.** A menu with no recommendation hands the judgment to the reader, who has less context than you do.
+
+Write each item so it reads cold, without scrolling back.
+
+Two constraints keep it honest. Never manufacture options to fill the shape: where only one course exists, say so and say why. And never use the block to re-open a decision the user already made; absent new evidence, that is closed, not open.
+
+This applies wherever open items appear, not only in the closing report. A turn that ends on a question gives the question the same four parts.
+
 ### 6. Link detail instead of inlining it
 
 1. More than about 5 lines of technical detail belongs in a `docs/` file, linked with a repository-relative Markdown link.
@@ -109,6 +126,9 @@ One optional plain-language context line may follow. Output-minimization rules n
 | "The placeholder is obvious." | It is obvious to you because you derived it. `<container-name>` pasted verbatim produces a shell error, and the user's next message is a bug report about your command rather than progress on their task. If you can derive it, you were the only party who could, and you declined. |
 | "A longer report is more complete." | A report that buries "the migration is blocked" under nine paragraphs of implementation detail has communicated less than a four-line one. Length moves the important item below the fold; the reader acts on what they see, so unbounded completeness is a reliable way to hide the one thing that mattered. |
 | "This turn is just an interim update, so structure does not matter." | An interim update is the turn most likely to be read at a glance, because the reader is waiting. If "tests are running" is the last sentence of a technical dump, they will read the dump looking for an action item that is not there. |
+| "Listing what I did not do tells them what is open." | It tells them a decision exists and nothing else. The reader still has to work out what each item means, what the choices are, and which one you would pick - using less context than you have. A decision block answers all three in four lines. |
+| "They have been following along, so they know the background." | They have been reading conclusions while you read the evidence. Any Open item must read cold, because the person deciding may be doing it hours later, or may be someone else entirely. |
+| "Recommending a choice is overstepping; I should stay neutral." | Neutrality here is abdication. You hold the evidence, so withholding a recommendation pushes judgment onto the person with less of it. Recommend, give the reason, and make the alternative genuinely available. |
 | "The style guide covers this, so I do not need to." | The guide is a file on disk. It changes nothing unless the response you are composing right now follows it. Run the Verification checklist against the actual text before sending. |
 
 ## Verification
@@ -119,6 +139,9 @@ One optional plain-language context line may follow. Output-minimization rules n
 - [ ] A response answering a reported error re-issues every remaining step, renumbered, with no back-reference.
 - [ ] A task-ending response carries all four labeled parts: Completed, Verified, Open, Next.
 - [ ] The Open part is present even when its content is "nothing outstanding".
+- [ ] Every Open item states what it is in plain language, why it is open, options with consequences, and a recommendation with its reason.
+- [ ] No Open item is a bare "what I did not do" list, and none re-opens a decision the user already settled.
+- [ ] Where only one course is genuinely available, the item says so instead of inventing alternatives.
 - [ ] A turn ending with work still running opens with the status banner and stays under about 8 lines after it.
 - [ ] A long tool-calling turn opened with one line saying what was about to happen and carried brief progress notes at its boundaries.
 - [ ] Formatting matched the reader: lists where multifaceted or asked, plain prose where minimal formatting was requested or the exchange is conversational.

@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Communication contract: Open items are decision blocks.** A closing report may no longer end with a bare list of what was not done. Every Open item now states what it is in plain language, why it is open, its options with their consequences, and a recommendation with its reason. A list of undone work names a decision without saying what it is about, what the choices are, or which one the agent would take, leaving the reader to reconstruct all three with less context than the agent had. The invariant `## Communication Contract` block of all thirteen instruction templates carries the trigger in seven words; the four-part procedure, the two honesty constraints and a worked counter-example live in `catalog/style-guides/agent-communication.md`, with the working form in the `agent-communication` skill. Those seven words raised the five lockstep template ceilings in `docs/policy/doc-budgets.json` by 7, justified in that file: the clause was condensed from 31 words by relocating everything that is not the trigger to documentation that is not always-loaded. Two honesty constraints bound it: options are never manufactured to fill the shape, and the block is never used to re-open a decision the user already settled. Covered by `tests/validators/test_communication_contract_rule.py`.
+
+### Fixed
+
+- **Windows installs failed when a previous catalog was present.** The bootstrap cleared `~/.nexus-hub/src` with `Remove-Item -Recurse`, which cannot delete paths over the 260-character Win32 limit and reports "Could not find a part of the path" instead of a length error. `Remove-TreeLongPathSafe` now mirrors an empty directory over the target with robocopy, matching what `Safe-Folder-Copy` already does for arbitrary-depth skill trees, and the wipe fails loudly with a recovery instruction rather than continuing into an extract that cannot succeed. `install.sh` is unchanged; POSIX has no MAX_PATH.
+- **Permission sync failed on a settings file carrying a UTF-8 BOM.** PowerShell 5.1 writes one, and `merge_permissions.py` read every JSON file as plain `utf-8`, so Gemini permission sync aborted with "Unexpected UTF-8 BOM". Measured against a real config, both merge calls now succeed and `tools.allowed` gains 159 entries that were previously dropped silently. Reads go through `_READ_ENCODING = "utf-8-sig"`; writes stay plain `utf-8` so no BOM is ever introduced or propagated.
+- **A source-inspection test failed under pytest's assertion-rewriting importer.** `test_child_output_is_decoded_permissively` used `inspect.getsource`, which resolves through the module loader and raises `OSError: could not get source code` on some interpreter and pytest combinations while succeeding outside pytest. It now reads the defining file and slices one function by its own `co_firstlineno`, preserving the property that the assertion sees exactly one function body.
+
 ## [4.12.0] - 2026-09-14
 
 ### Added
