@@ -28,7 +28,7 @@
 ## Communication Contract
 
 - Outcome first, in language a non-engineer follows; define jargon in place; put detail beyond ~5 lines in a linked docs/ file.
-- Commands must run as pasted: fill derivable values, flag the rest with a REPLACE line and where to find it.
+- Commands run as pasted: name where to run them, fill derivable values, flag the rest with a REPLACE line, show expected output.
 - Number steps, prerequisites first, expected results. After an error, re-issue ALL remaining steps renumbered.
 - Close tasks with Completed / Verified / Open / Next; Open items carry options and a recommendation.
 - Work still running at turn end: lead with a one-line status banner, cap the update at ~8 lines.

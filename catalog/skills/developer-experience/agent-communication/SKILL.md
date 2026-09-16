@@ -64,6 +64,16 @@ Also use it on request: "summarize what you did", "explain this to me simply", "
 
 Full before/after examples: [`references/response-contract.md`](references/response-contract.md).
 
+### 3.1 Say where to run it, and show what success looks like
+
+A command block answers one of the three questions a reader has. They also need **where** to run it and **how to tell it worked**. Every runnable block carries three parts:
+
+1. **Where**: the program (PowerShell, Terminal, Git Bash) and the working directory - either `cd` inside the block or a flag that makes the directory explicit, so the block is correct wherever their prompt is.
+2. **The command**, obeying the placeholder rules in step 3.
+3. **What you should see**: a separate block that looks like real output, not a description of it.
+
+The expected-output block is the most-skipped and most useful part. Where a command legitimately prints nothing, say so with a marker rather than omitting the block: "nothing happened" and "it did not run" look identical to someone who was not told which to expect. Annotate a value the reader must compare (`1712   <- was 3386`). State what is lost on the line immediately before a destructive block, never in a paragraph after it.
+
 ### 4. Issue guided steps correctly
 
 1. State prerequisites before step 1.
@@ -152,6 +162,9 @@ This applies wherever open items appear, not only in the closing report. A turn 
 
 - [ ] The first sentence of the response states the outcome, not the process.
 - [ ] Every command block runs exactly as pasted, or is preceded by a REPLACE line naming each token and how to find its value.
+- [ ] Every runnable block names the program and the working directory to run it in.
+- [ ] Every runnable block is followed by an expected-output block, including a marker when the command prints nothing.
+- [ ] A destructive command states what is lost immediately before the block.
 - [ ] No unflagged angle brackets, square brackets, or ALL-CAPS template tokens sit inside a command block.
 - [ ] A response answering a reported error re-issues every remaining step, renumbered, with no back-reference.
 - [ ] A task-ending response carries all four labeled parts: Completed, Verified, Open, Next.
