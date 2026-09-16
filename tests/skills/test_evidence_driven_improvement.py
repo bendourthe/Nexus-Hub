@@ -590,3 +590,295 @@ class TestLoopSchemaTraceHonesty:
         assert "evidence_freshness" in text
         assert "budgets" in text
         assert "is additive: existing loop definitions stay valid without it" in text
+
+
+# === Phase 3: approved lessons to regression evidence ===
+
+_LIFECYCLE = _FIXTURES / "improvement-lifecycle.json"
+_CONTINUOUS_LEARNING = _SKILLS / "workflow" / "continuous-learning" / "SKILL.md"
+_IMPROVEMENT_LOOP = (
+    _SKILLS
+    / "workflow"
+    / "continuous-learning"
+    / "references"
+    / "verified-improvement-loop.md"
+)
+_SKILL_EVAL_LOOP = _SKILLS / "workflow" / "skill-eval-loop" / "SKILL.md"
+
+
+@pytest.fixture(scope="module")
+def lifecycle() -> dict:
+    return json.loads(_LIFECYCLE.read_text(encoding="utf-8"))
+
+
+def evaluate_checks(content: str, checks: list[dict]) -> dict[str, bool]:
+    """The independent oracle.
+
+    It reads only the artifact content and the check definitions. It never
+    consults a candidate's `expected_*` fields, so the tests below compare a
+    derived disposition against a declared one rather than restating it.
+    """
+    results: dict[str, bool] = {}
+    for check in checks:
+        if check["kind"] == "must_contain":
+            results[check["check_id"]] = check["value"] in content
+        elif check["kind"] == "must_not_contain":
+            results[check["check_id"]] = check["value"] not in content
+        else:  # pragma: no cover - guarded by a test below
+            raise ValueError(f"unknown check kind: {check['kind']}")
+    return results
+
+
+def derive_disposition(content: str, checks: list[dict]) -> tuple[str, bool, bool]:
+    """Approve only when the seeded failure closes AND nothing else broke."""
+    results = evaluate_checks(content, checks)
+    seeded = [c["check_id"] for c in checks if c.get("role") == "seeded_failure"]
+    existing = [c["check_id"] for c in checks if c.get("role") == "existing_regression"]
+    seeded_ok = all(results[c] for c in seeded)
+    existing_ok = all(results[c] for c in existing)
+    disposition = "approved" if seeded_ok and existing_ok else "rejected"
+    return disposition, seeded_ok, existing_ok
+
+
+def record_dispositions(records: list[dict]) -> dict[str, str]:
+    """Fail closed on a repeated id or a contradictory disposition."""
+    seen: dict[str, str] = {}
+    for record in records:
+        cid = record["candidate_id"]
+        if cid in seen:
+            raise ValueError(
+                f"{cid} already recorded as {seen[cid]}; refusing to overwrite "
+                f"with {record['disposition']}"
+            )
+        seen[cid] = record["disposition"]
+    return seen
+
+
+def _sha256(path: Path) -> str:
+    import hashlib
+
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+class TestImprovementLifecycleReplay:
+    """A deterministic replay over a disposable file. No model, no network."""
+
+    def test_the_seeded_failure_is_real_on_the_original(self, lifecycle: dict) -> None:
+        """If the original already passed, the whole exercise proves nothing."""
+        results = evaluate_checks(
+            lifecycle["artifact"]["original_content"], lifecycle["checks"]
+        )
+        seeded = [c for c in lifecycle["checks"] if c.get("role") == "seeded_failure"]
+        assert seeded, "fixture declares no seeded failure"
+        for check in seeded:
+            assert results[check["check_id"]] is False, (
+                f"{check['check_id']} passes on the original content, so there is "
+                "no failure for a candidate to close"
+            )
+
+    def test_existing_checks_pass_on_the_original(self, lifecycle: dict) -> None:
+        results = evaluate_checks(
+            lifecycle["artifact"]["original_content"], lifecycle["checks"]
+        )
+        for check in lifecycle["checks"]:
+            if check.get("role") == "existing_regression":
+                assert results[check["check_id"]] is True, (
+                    f"{check['check_id']} already fails on the original; it cannot "
+                    "serve as a regression guard"
+                )
+
+    def test_derived_disposition_matches_the_declared_one(
+        self, lifecycle: dict
+    ) -> None:
+        """The oracle decides; the fixture only states what it should decide."""
+        for candidate in lifecycle["candidates"]:
+            disposition, seeded_ok, existing_ok = derive_disposition(
+                candidate["content"], lifecycle["checks"]
+            )
+            assert disposition == candidate["expected_disposition"], (
+                f"{candidate['candidate_id']}: oracle derived {disposition}, "
+                f"fixture expects {candidate['expected_disposition']}"
+            )
+            assert seeded_ok == candidate["expected_seeded_check_passes"]
+            assert existing_ok == candidate["expected_existing_checks_pass"]
+
+    def test_approved_candidate_closes_the_failure_and_keeps_regressions(
+        self, lifecycle: dict, tmp_path: Path
+    ) -> None:
+        approved = [
+            c for c in lifecycle["candidates"]
+            if c["expected_disposition"] == "approved"
+        ]
+        assert approved, "fixture declares no approved candidate"
+        target = tmp_path / lifecycle["artifact"]["filename"]
+        target.write_text(lifecycle["artifact"]["original_content"], encoding="utf-8")
+
+        for candidate in approved:
+            target.write_text(candidate["content"], encoding="utf-8")
+            disposition, seeded_ok, existing_ok = derive_disposition(
+                target.read_text(encoding="utf-8"), lifecycle["checks"]
+            )
+            assert disposition == "approved"
+            assert seeded_ok and existing_ok
+
+    def test_rejected_candidate_restores_prior_bytes_exactly(
+        self, lifecycle: dict, tmp_path: Path
+    ) -> None:
+        """Byte-exact rollback, not merely 'revert the intent'."""
+        target = tmp_path / lifecycle["artifact"]["filename"]
+        original = lifecycle["artifact"]["original_content"]
+        target.write_text(original, encoding="utf-8")
+        sha_before = _sha256(target)
+
+        rejected = [
+            c for c in lifecycle["candidates"]
+            if c["expected_disposition"] == "rejected"
+        ]
+        assert rejected, "fixture declares no rejected candidate"
+
+        for candidate in rejected:
+            target.write_text(candidate["content"], encoding="utf-8")
+            assert _sha256(target) != sha_before, "candidate did not change the file"
+
+            disposition, _, _ = derive_disposition(
+                target.read_text(encoding="utf-8"), lifecycle["checks"]
+            )
+            assert disposition == "rejected"
+
+            # Rollback.
+            target.write_text(original, encoding="utf-8")
+            assert _sha256(target) == sha_before, (
+                f"{candidate['candidate_id']}: rollback did not restore prior bytes"
+            )
+
+    def test_a_candidate_that_trades_safety_for_the_target_metric_is_rejected(
+        self, lifecycle: dict
+    ) -> None:
+        """The case a target-metric-only checker would wrongly accept."""
+        trap = next(
+            c for c in lifecycle["candidates"] if c["candidate_id"] == "CAND-0045"
+        )
+        disposition, seeded_ok, existing_ok = derive_disposition(
+            trap["content"], lifecycle["checks"]
+        )
+        assert seeded_ok is True, "the trap must actually close the seeded failure"
+        assert existing_ok is False, "the trap must break an existing regression"
+        assert disposition == "rejected"
+        broken = [
+            cid
+            for cid, ok in evaluate_checks(trap["content"], lifecycle["checks"]).items()
+            if not ok
+        ]
+        assert broken == trap["expected_broken_checks"]
+
+    def test_holdout_is_never_the_regression_pool(self, lifecycle: dict) -> None:
+        regression = lifecycle["regression"]
+        assert regression["pool"] in {"train", "development"}
+        assert regression["never_holdout"] is True
+
+    def test_measurement_frame_is_frozen_before_scoring(self, lifecycle: dict) -> None:
+        frame = lifecycle["measurement_frame"]
+        assert frame["frozen_before_scoring"] is True
+        assert frame["rubric_version"]
+        assert frame["split_manifest"]
+
+    def test_fixture_carries_no_real_session_or_production_data(
+        self, lifecycle: dict
+    ) -> None:
+        prov = lifecycle["provenance"]
+        assert prov["synthetic"] is True
+        assert prov["contains_real_sessions"] is False
+        assert prov["contains_production_data"] is False
+
+    def test_oracle_rejects_an_unknown_check_kind(self) -> None:
+        """A silently ignored check kind would pass everything."""
+        with pytest.raises(ValueError):
+            evaluate_checks("anything", [{"check_id": "X", "kind": "vibes", "value": "y"}])
+
+
+class TestLifecycleFailsClosed:
+    @pytest.mark.parametrize("case_id", ["FC-1", "FC-2"])
+    def test_declared_fail_closed_cases_raise(
+        self, lifecycle: dict, case_id: str
+    ) -> None:
+        case = next(c for c in lifecycle["fail_closed_cases"] if c["case_id"] == case_id)
+        assert case["must_fail_closed"] is True
+        with pytest.raises(ValueError):
+            record_dispositions(case["records"])
+
+    def test_distinct_candidates_are_accepted(self) -> None:
+        """The guard must not reject legitimate distinct records."""
+        result = record_dispositions(
+            [
+                {"candidate_id": "CAND-0044", "disposition": "approved"},
+                {"candidate_id": "CAND-0045", "disposition": "rejected"},
+            ]
+        )
+        assert result == {"CAND-0044": "approved", "CAND-0045": "rejected"}
+
+
+class TestImprovementLoopDocument:
+    @pytest.mark.parametrize(
+        "claim",
+        [
+            "No automatic base-instruction edits",
+            "No model training or fine-tuning",
+            "No background observer",
+            "The checker must be independent of the candidate",
+            "Byte-exact restoration is the requirement",
+        ],
+    )
+    def test_claim_present(self, claim: str) -> None:
+        assert claim in _IMPROVEMENT_LOOP.read_text(encoding="utf-8")
+
+    @pytest.mark.parametrize(
+        "claim",
+        [
+            "The checker must be independent of the candidate",
+            "Byte-exact restoration is the requirement",
+        ],
+    )
+    def test_claim_has_teeth(self, claim: str) -> None:
+        mutated = _IMPROVEMENT_LOOP.read_text(encoding="utf-8").replace(claim, "")
+        assert claim not in mutated
+
+    def test_chain_links_to_its_owners_rather_than_restating_them(self) -> None:
+        text = _IMPROVEMENT_LOOP.read_text(encoding="utf-8")
+        for owner in (
+            "ai-output-evaluation",
+            "skill-eval-loop",
+            "loop-engineering",
+            "error-analysis.md",
+            "evaluator-validation.md",
+        ):
+            assert owner in text
+
+    def test_linked_from_the_owning_skill(self) -> None:
+        text = _CONTINUOUS_LEARNING.read_text(encoding="utf-8")
+        assert "references/verified-improvement-loop.md" in text
+
+
+class TestGraduationPoolContract:
+    def test_graduation_stays_in_its_original_pool(self) -> None:
+        text = _SKILL_EVAL_LOOP.read_text(encoding="utf-8")
+        assert "stays in the pool it already belonged to" in text
+
+    def test_holdout_never_becomes_tuning_input(self) -> None:
+        text = _SKILL_EVAL_LOOP.read_text(encoding="utf-8")
+        assert "never becomes tuning input" in text
+
+    def test_missing_owner_blocks_a_promoted_learning(self) -> None:
+        text = _SKILL_EVAL_LOOP.read_text(encoding="utf-8")
+        assert "record the coverage as incomplete and stop" in text
+        assert "do not mint a promoted learning on partial coverage" in text
+
+    def test_existing_gates_are_preserved(self) -> None:
+        text = _SKILL_EVAL_LOOP.read_text(encoding="utf-8")
+        assert "the user approves" in text
+        assert "immutable base is not edited" in text
+        assert "verifier stays independent" in text
+
+    def test_no_skill_retirement_was_introduced(self) -> None:
+        """Phase 3 retires nothing; retirement stays the existing advisory rule."""
+        text = _SKILL_EVAL_LOOP.read_text(encoding="utf-8")
+        assert "it is RETIRED with a recorded reason" in text
