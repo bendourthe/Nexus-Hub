@@ -407,7 +407,8 @@ class TestTraceExampleBehavior:
         """The generator holds sentinels; none may survive to disk."""
         raw, _ = emitted_trace
         assert "SENTINEL" not in raw
-        assert "id_rsa" not in raw
+        assert "private-key" not in raw
+        assert "/srv/secrets" not in raw
         assert "sk-live" not in raw
 
     def test_no_payload_attribute_is_emitted(
@@ -1052,3 +1053,226 @@ class TestCommunicationHandoff:
         text = _COMMS_STYLE_GUIDE.read_text(encoding="utf-8")
         assert "The smallest useful representation" not in text
         assert "html-output-conventions" not in text
+
+
+# === Phase 5: context fact freshness ===
+
+_FRESHNESS = _FIXTURES / "context-freshness.json"
+_PACK_BUILDER = _SKILLS / "workflow" / "context-pack-builder" / "SKILL.md"
+_CONTEXT_ENGINEERING = _SKILLS / "ai-development" / "context-engineering" / "SKILL.md"
+
+
+@pytest.fixture(scope="module")
+def freshness() -> dict:
+    return json.loads(_FRESHNESS.read_text(encoding="utf-8"))
+
+
+def derive_freshness(fact: dict, now: str, target: str) -> str:
+    """Decide a disposition from the record and a CONTROLLED clock.
+
+    Takes `now` as an argument rather than reading a wall clock, so the matrix
+    is reproducible on any host at any date. Order matters: a future timestamp
+    is checked before recency, and an unresolved conflict before volatility.
+    """
+    if fact["observed_at"] > now:
+        return "unknown"
+    if not fact["source_reachable"]:
+        return "unknown"
+    if "superseded_by" in fact:
+        return "superseded"
+    if "conflict_with" in fact:
+        return "unknown"
+    if not fact["volatile"]:
+        return "current"
+    if fact["trigger_fired"] or fact["observed_of_target"] != target:
+        return "historical"
+    return "current"
+
+
+class TestContextFreshnessMatrix:
+    def test_required_scenarios_are_present(self, freshness: dict) -> None:
+        ids = {f["fact_id"] for f in freshness["facts"]}
+        for required in (
+            "CF-1-stale-check",
+            "CF-2-stable-convention",
+            "CF-3-missing-source",
+            "CF-4-future-timestamp",
+            "CF-5-contradicted",
+            "CF-6-superseded",
+        ):
+            assert required in ids, f"missing scenario {required}"
+
+    def test_derived_disposition_matches_the_declared_one(
+        self, freshness: dict
+    ) -> None:
+        clock = freshness["evaluation_clock"]
+        for fact in freshness["facts"]:
+            derived = derive_freshness(fact, clock["now"], clock["target_identity"])
+            assert derived == fact["expected_disposition"], (
+                f"{fact['fact_id']}: derived {derived}, "
+                f"fixture expects {fact['expected_disposition']}"
+            )
+
+    def test_all_dispositions_are_declared_values(self, freshness: dict) -> None:
+        allowed = set(freshness["dispositions"])
+        for fact in freshness["facts"]:
+            assert fact["expected_disposition"] in allowed
+
+    def test_high_confidence_stale_fact_is_not_promoted_to_current(
+        self, freshness: dict
+    ) -> None:
+        """Confidence is agreement among past observations, not currency."""
+        fact = next(f for f in freshness["facts"] if f["fact_id"] == "CF-1-stale-check")
+        assert fact["confidence"] == "high"
+        assert fact["expected_disposition"] == "historical"
+        assert fact["requires_revalidation"] is True
+
+    def test_stable_fact_needs_no_arbitrary_expiry(self, freshness: dict) -> None:
+        fact = next(
+            f for f in freshness["facts"] if f["fact_id"] == "CF-2-stable-convention"
+        )
+        assert fact["volatile"] is False
+        assert fact["expected_disposition"] == "current"
+        assert fact["requires_revalidation"] is False
+
+    def test_stable_fact_is_older_than_the_stale_one(self, freshness: dict) -> None:
+        """Proves age alone does not drive the disposition."""
+        stable = next(
+            f for f in freshness["facts"] if f["fact_id"] == "CF-2-stable-convention"
+        )
+        stale = next(f for f in freshness["facts"] if f["fact_id"] == "CF-1-stale-check")
+        assert stable["observed_at"] < stale["observed_at"]
+        assert stable["expected_disposition"] == "current"
+        assert stale["expected_disposition"] == "historical"
+
+    def test_future_timestamp_is_unknown_not_freshest(self, freshness: dict) -> None:
+        clock = freshness["evaluation_clock"]
+        fact = next(
+            f for f in freshness["facts"] if f["fact_id"] == "CF-4-future-timestamp"
+        )
+        assert fact["observed_at"] > clock["now"]
+        assert fact["expected_disposition"] == "unknown"
+
+    def test_conflict_and_supersession_both_retain_provenance(
+        self, freshness: dict
+    ) -> None:
+        for fact_id in ("CF-5-contradicted", "CF-6-superseded"):
+            fact = next(f for f in freshness["facts"] if f["fact_id"] == fact_id)
+            assert fact["retains_both_provenance"] is True
+
+    def test_conflict_is_unresolved_while_supersession_is_resolved(
+        self, freshness: dict
+    ) -> None:
+        """A newer reading is not automatically the resolution."""
+        conflict = next(
+            f for f in freshness["facts"] if f["fact_id"] == "CF-5-contradicted"
+        )
+        superseded = next(
+            f for f in freshness["facts"] if f["fact_id"] == "CF-6-superseded"
+        )
+        assert conflict["expected_disposition"] == "unknown"
+        assert "conflict_with" in conflict and "superseded_by" not in conflict
+        assert superseded["expected_disposition"] == "superseded"
+        assert "superseded_by" in superseded
+
+    def test_volatile_facts_carry_a_forbidden_present_tense_statement(
+        self, freshness: dict
+    ) -> None:
+        for fact in freshness["facts"]:
+            if fact["expected_disposition"] != "current":
+                assert "must_not_be_stated_as" in fact, (
+                    f"{fact['fact_id']} is not current but names no forbidden phrasing"
+                )
+
+    def test_prohibited_behaviors_name_real_guards(self, freshness: dict) -> None:
+        ids = {f["fact_id"] for f in freshness["facts"]}
+        for behavior in freshness["prohibited_behaviors"]:
+            for guard in behavior["guarded_by"].split(", "):
+                assert guard in ids, f"{behavior['id']} names unknown fact {guard}"
+
+    def test_clock_is_controlled_not_wall_time(self, freshness: dict) -> None:
+        clock = freshness["evaluation_clock"]
+        assert clock["now"].endswith("Z")
+        assert clock["target_identity"]
+
+    def test_derivation_is_stable_under_a_different_evaluation_instant(
+        self, freshness: dict
+    ) -> None:
+        """A later clock must not silently flip a stable fact to stale."""
+        clock = freshness["evaluation_clock"]
+        later = "2026-12-31T00:00:00Z"
+        stable = next(
+            f for f in freshness["facts"] if f["fact_id"] == "CF-2-stable-convention"
+        )
+        assert (
+            derive_freshness(stable, later, clock["target_identity"]) == "current"
+        ), "a stable design fact decayed purely because time passed"
+
+
+class TestFreshnessOwner:
+    def test_procedure_is_optional_and_prose_first(self) -> None:
+        text = _PACK_BUILDER.read_text(encoding="utf-8")
+        assert "Fact Freshness and Revalidation" in text
+        assert "optional" in text.lower()
+        assert "prose-first" in text or "prose annotations" in text
+
+    def test_separates_creation_and_confidence_from_validity(self) -> None:
+        text = _PACK_BUILDER.read_text(encoding="utf-8")
+        assert "A high-confidence historical fact is still historical" in text
+
+    def test_no_universal_ttl_for_stable_facts(self) -> None:
+        text = _PACK_BUILDER.read_text(encoding="utf-8")
+        assert "Stable design facts need no arbitrary expiry" in text
+
+    def test_conflicts_retain_both_records(self) -> None:
+        text = _PACK_BUILDER.read_text(encoding="utf-8")
+        assert "Conflicts retain both provenance records" in text
+
+    def test_no_automatic_deletion_or_fabricated_confirmation(self) -> None:
+        text = _PACK_BUILDER.read_text(encoding="utf-8")
+        assert "No automatic deletion and no fabricated confirmation" in text
+
+    def test_defers_to_existing_owners(self) -> None:
+        text = _PACK_BUILDER.read_text(encoding="utf-8")
+        assert "loop-engineering" in text and "evidence_freshness" in text
+        assert "agent-memory" in text
+
+    def test_introduces_no_required_schema_change(self) -> None:
+        text = _PACK_BUILDER.read_text(encoding="utf-8")
+        assert "nothing here requires a schema version" in text
+        assert "existing packs stay readable unchanged" in text
+
+    @pytest.mark.parametrize(
+        "needle",
+        [
+            "A high-confidence historical fact is still historical",
+            "Conflicts retain both provenance records",
+        ],
+    )
+    def test_freshness_claims_have_teeth(self, needle: str) -> None:
+        mutated = _PACK_BUILDER.read_text(encoding="utf-8").replace(needle, "")
+        assert needle not in mutated
+
+
+class TestContextEngineeringHandoff:
+    def test_handoff_points_at_the_pack_owner(self) -> None:
+        text = _CONTEXT_ENGINEERING.read_text(encoding="utf-8")
+        assert "context-pack-builder" in text
+
+    def test_revalidation_is_decision_scoped_not_every_turn(self) -> None:
+        text = _CONTEXT_ENGINEERING.read_text(encoding="utf-8")
+        assert "not a mandatory full-memory reread at every turn" in text
+
+    def test_unreachable_source_has_no_endless_retry(self) -> None:
+        text = _CONTEXT_ENGINEERING.read_text(encoding="utf-8")
+        assert "No endless retries" in text
+
+    def test_existing_readers_are_unchanged(self) -> None:
+        text = _CONTEXT_ENGINEERING.read_text(encoding="utf-8")
+        assert "not a format change" in text
+
+    def test_handoff_does_not_duplicate_the_procedure(self) -> None:
+        """One owner per rule."""
+        text = _CONTEXT_ENGINEERING.read_text(encoding="utf-8")
+        assert "Four things to record" not in text
+        assert "Stable design facts need no arbitrary expiry" not in text
