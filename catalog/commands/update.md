@@ -28,7 +28,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
       Reply with a number or a scope name.
 
-- `release` first verifies the integration gate (below), then runs the focused scopes in order - `docs`, then `gitignore`, then `version`, then `changelog`, then `devlog`, then `refactor` **with `--canonicalize-layout` engaged** - then reconciles the version's known gaps, RE-CHECKS CI/CD conformance, regenerates the supply-chain manifest, cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
+- `release` first verifies the integration gate (below), then runs the focused scopes in order - `docs`, then `gitignore`, then `version`, then `changelog`, then `devlog`, then `refactor` **with `--canonicalize-layout` engaged** - then reconciles the version's known gaps, RE-CHECKS CI/CD conformance, regenerates the supply-chain manifest, cleans up, commits, lands the release on the integration branch, retires the branches and worktrees it consumed, then merges to the release branch, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
     - The CI/CD step is a CONFORMANCE RE-CHECK, not an authoring pass. The plan's final phase already ran the terminal reconciliation via `[[cicd-architect]]` before it published; by release time the pipeline is reconciled and this step confirms it still is. If it finds unreconciled drift, that is a finding against the plan's final phase, and the fix belongs there rather than in a release-time rewrite of the pipeline.
 
 ## Delegation
@@ -43,7 +43,7 @@ Dispatch the resolved scope to the retained skill(s). These targets are skills u
       refactor  -> docs-layout-refactor + project-refactor (per-version docs structure + archive normalization + empty-dir/duplicate/orphan/structure-complexity detectors; see the refactor scope below)
       config    -> update-config (built-in) + config-consistency-checker / nexus-hub doctor (see below)
       commit    -> code-commit-workflow
-      release   -> integration gate (see below) -> docs -> gitignore -> version -> changelog -> devlog -> refactor (docs structure + cleanliness, ALWAYS with --canonicalize-layout) -> known-gaps reconciliation -> CI/CD conformance re-check -> manifest, then clean up, commit, tag, push, publish GitHub Release (see below)
+      release   -> integration gate (see below) -> docs -> gitignore -> version -> changelog -> devlog -> refactor (docs structure + cleanliness, ALWAYS with --canonicalize-layout) -> known-gaps reconciliation -> CI/CD conformance re-check -> manifest, then clean up, commit, merge to integration branch, retire merged branches + worktrees, merge to release branch, tag, push, publish GitHub Release (see below)
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file owns only scope resolution and the release sequencing.
 
@@ -106,6 +106,32 @@ Two properties of the generator worth knowing at release time, both learned from
 If any of the four fails, STOP and say which one. Do not bump a version to "get the release moving": a version bump is the point after which every subsequent step assumes the release is happening, and unwinding it is more work than waiting.
 
 This ordering is the release-side half of the plan lifecycle. The plan's final phase owns publication and integration; `/update release` owns everything after the merge lands green. Neither reaches into the other.
+
+## release scope: the publication sequence (develop, then cleanup, then main)
+
+A release publishes in a fixed order. Each step exists because skipping it leaves a specific, observed defect behind.
+
+### 1. Land the release on the integration branch FIRST
+
+The release commit (version bump, changelog, manifest) lands on `develop` before `main` sees it. `main` is then fast-forwarded or merged FROM `develop`, so the two never diverge and `develop` is never a release behind.
+
+Merging the release straight to `main` is the failure this ordering prevents. It leaves `develop` missing the version bump and everything shipped with it, so the next plan branches from a tree that predates the release, and the gap is invisible until someone notices a file that "just shipped" is absent. That is not hypothetical: v4.12.1 merged to `main` only, and `develop` sat five commits behind until a branch cut from it turned up missing a test module.
+
+### 2. Clear what the release consumed, BEFORE tagging
+
+Once the release is on `develop` and its checks are green, retire the branches and worktrees it just integrated. Each check is fail-closed and stops the release rather than forcing past it:
+
+1. **Every merged plan branch** is deleted locally and on the remote. Verify with `git branch --merged <integration-branch>`; a branch absent from that list is NOT deleted, and its presence is reported instead.
+2. **Every worktree whose branch merged** is removed via `[[using-git-worktrees]]`, its directory deleted, and `git worktree prune` run. Before removal, `git -C <worktree> status --porcelain` MUST be empty; a dirty tree stops the teardown and is reported, never `--force`d away.
+3. **`git worktree list`** is re-read afterwards and must no longer show the removed paths.
+
+Ordering matters here too. Cleaning before the tag means the tagged tree reflects the repository a user will actually clone, and it means stale worktrees never accumulate across releases. Ten shipped releases that each skip this leave ten orphaned checkouts, each pinning objects and each indistinguishable from the real repository at a glance.
+
+### 3. Then merge to `main`, tag, push, publish
+
+`main` receives the already-integrated, already-cleaned result. The pre-tag branch assertion below is the last check before `git tag`.
+
+Self-gates: a repository with a single long-lived branch skips step 1 and merges nothing, and a release that consumed no worktree-backed plan skips step 2. Both are silent no-ops, not warnings.
 
 ## release scope: pre-tag branch assertion (the LAST check before `git tag`)
 
