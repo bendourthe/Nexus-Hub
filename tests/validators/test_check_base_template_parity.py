@@ -105,8 +105,8 @@ def test_communication_contract_divergence_fails(tmp_path: Path, runner) -> None
     mutate(
         tmp_path,
         "base-cursor.md",
-        "- Close tasks with Completed / Verified / Open / Next.",
-        "- Close tasks with Completed / Verified / Open / Later.",
+        "- Close tasks with Completed / Verified / Open / Next; Open items carry options and a recommendation.",
+        "- Close tasks with Completed / Verified / Open / Later; Open items carry options and a recommendation.",
     )
     result = runner(SCRIPT, tmp_path)
     assert result.returncode == 1
