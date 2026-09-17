@@ -170,8 +170,8 @@ def test_four_effort_allowances_finish_at_different_times(browser):
     p = open_scene(browser, motion='no-preference'); p.locator('.ml-reasoning').scroll_into_view_if_needed(); p.mouse.move(0,0)
     for elapsed,completed in [(850,1),(1400,2),(2100,3),(2100,4)]:
         p.clock.run_for(elapsed)
-        expect(p.locator('td[data-effort][data-done]')).to_have_count(completed)
-    counts=p.locator('td[data-effort] .ml-graph').evaluate_all('es=>es.map(e=>e.dataset.nodes)')
+        expect(p.locator('.ml-route-key li[data-done]')).to_have_count(completed)
+    counts=p.locator('.ml-route-key li .ml-graph').evaluate_all('es=>es.map(e=>e.dataset.nodes)')
     assert len(set(counts)) == 1
     p.close()
 
@@ -181,7 +181,7 @@ def test_routes_and_reduced_motion_stop_all_animations(browser):
     p.emulate_media(reduced_motion='reduce')
     expect(p.locator('#ml-language')).to_have_attribute('data-frame','5')
     expect(p.locator('#fx-model-lifecycle .ml-playing')).to_have_count(0)
-    expect(p.locator('td[data-effort][data-done]')).to_have_count(4)
+    expect(p.locator('.ml-route-key li[data-done]')).to_have_count(4)
     p.emulate_media(reduced_motion='no-preference'); p.locator('a[href="#home"]').first.click()
     expect(p.locator('#fx-model-lifecycle .ml-playing')).to_have_count(0)
     p.close()

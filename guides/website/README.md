@@ -1,26 +1,29 @@
 # Nexus Hub Interactive Guide
 
-This directory holds the public-facing Nexus Hub guide, its arcade-shooter Training data, and retained legacy fixtures. Everything reader-facing is self-contained, opens in a browser, and needs no build step. This `README.md` is for maintainers.
+This directory holds the public-facing Nexus Hub guide, its arcade-shooter Training data, and retained legacy fixtures. Everything reader-facing runs offline, opens in a browser, and needs no build step. This `README.md` is for maintainers.
 
 ## Contents
 
 | Item | What it is |
 |---|---|
-| `nexus-hub-guide.html` | Canonical interactive guide. One HTML file. The main entry point. |
+| `nexus-hub-guide.html` | Canonical interactive guide. The main entry point. |
+| `assets/ml-boat.webp` | The one photo held outside the HTML. Must travel with the guide. |
 | `example/training-scenes.json` | Maintainer source of truth for Training scenes. The guide inlines a verified copy. |
 | `example/glow-booth/` | Legacy regression fixture retained pending explicit removal approval. Not reader-facing. |
 | `example/glow-booth-shuffle-reference/` | Legacy comparison fixture retained pending explicit removal approval. Not reader-facing. |
 | `glow-booth.zip` | Legacy archive fixture retained pending explicit removal approval. Not a reader download. |
 | `example/trivia-quiz/` | Previous example. Stays on disk. Not taught in the published guide. |
 
-The guide is the single home for orientation, installation, Foundations, Training, and Cheatsheets. It remains one self-contained HTML file with no runtime network dependency.
+The guide is the single home for orientation, installation, Foundations, Training, and Cheatsheets. It is one HTML file plus the `assets/` folder beside it, and has no runtime network dependency.
 
 ## The interactive guide
 
-`nexus-hub-guide.html` is a single HTML file with zero runtime dependencies. No server, no CDN, no remote fonts, nothing to install.
+`nexus-hub-guide.html` has zero runtime dependencies. No server, no CDN, no remote fonts, nothing to install. Every asset is local: all but one are inline, and `assets/ml-boat.webp` sits beside the file.
+
+The living-room photo stays inline deliberately. The world-model demo uploads it into a WebGL texture, and under `file://` a sibling file counts as cross-origin, so `texImage2D` refuses it and the demo dies silently. The sailboat photo is only ever painted through an SVG `<image>`, never read back, so it can live outside the HTML and keeps the file under its byte budget.
 
 - **To open:** double-click the file. It opens in any modern browser and works fully offline. GitHub does not render HTML inline, so use Download raw file, then open the download.
-- **To share:** send that one file.
+- **To share:** send `nexus-hub-guide.html` together with the `assets/` folder beside it.
 - **Primary navigation:** Home, Foundations, Training, Cheatsheets. Installation is not a primary page. GitHub is an icon-only external link. Theme toggles light and dark and persists only those two values under `portfolio-theme`.
 
 URL grammar: `#<page-id>` for pages; `#training/<scene-id>` for Training; `#cheatsheets/<stop>` for Cheatsheets sections. A legacy `?beat=n` suffix is accepted and ignored. Compatibility: `#reference` and `#workflows` rewrite to `#cheatsheets`; `#explore`, `#plan`, `#build`, `#harden`, `#ship`, `#communicate` rewrite to `#cheatsheets/<id>`. `#home/install` scrolls to the Home install block. Unknown page ids rewrite to Home.

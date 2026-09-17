@@ -83,62 +83,37 @@ def test_there_is_exactly_one_harness_scene(guide_text: str) -> None:
     text = re.sub(r"<[^>]+>", " ", scene).lower()
     assert "does not replace the model" in text, "the honest scope qualifier is required"
     assert "only where the host exposes the registered event" in text
-    assert scene.count("data-phase3-claim") == 5, "the five repository-anchored claims must survive"
+    # v4.4.6 cut the claims table; the claims that rest on something in the repository
+    # moved onto the feature rows that state them
+    assert scene.count("data-phase3-claim") == 4, "the repository-anchored claims must survive"
 
 
-def test_the_flow_carries_the_analogy_and_the_platform_limits(playwright_mod) -> None:
-    """v4.4.4 replaced the nested rings with one flow, on the review's instruction.
+def test_the_layers_name_what_each_one_cannot_do(playwright_mod) -> None:
+    """v4.4.6 replaced the flow and its academic analogy with three layer cards.
 
-    The rings showed WHERE the layers sit; the review asked instead for a chart following a prompt
-    through the model and both harnesses, with the platform layer's limits named and the analogy it
-    supplied carried: a powerful brain, a graduate degree, decades of practical experience. The
-    nesting assertion retires with the rings, and what replaces it is stronger about the teaching:
-    the three layers appear in order, each with its own ports, and the middle one states its limits.
+    The analogy went with the mockup; what has to survive is the honest half of the comparison,
+    because a section that only lists what each layer adds is an advertisement. Every layer up to
+    the last must name a limit, and the platform's limits are the argument for the layer above it.
     """
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
             ctx, page = _scene(browser)
             data = page.evaluate(
-                """() => {
-                    const flow = document.querySelector('#fx-harness .hxf');
-                    const steps = [...flow.querySelectorAll('.hxf-step')].map(s => ({
-                      tag: s.querySelector('.hxf-tag').textContent.trim(),
-                      like: (s.querySelector('.hxf-like') || {textContent: ''}).textContent.trim(),
-                      layer: s.dataset.phase3HarnessLayer || null,
-                      ports: [...s.querySelectorAll('.hx-ports li')].map(l => l.textContent.trim()),
-                      limit: (s.querySelector('.hxf-limit') || {textContent: ''}).textContent.trim(),
-                      top: Math.round(s.getBoundingClientRect().top),
-                    }));
-                    return { steps, links: flow.querySelectorAll('.hxf-link').length,
-                             pointsDown: [...flow.querySelectorAll('.hxf-link span')]
-                               .every(t => parseFloat(getComputedStyle(t).borderTopWidth) >= 10) };
-                }"""
+                """() => [...document.querySelectorAll('#fx-harness .hx-col')].map(c => ({
+                     layer: c.dataset.layer,
+                     yes: [...c.querySelectorAll('.hx-side > li[data-tone=yes]')].length,
+                     no: [...c.querySelectorAll('.hx-side > li[data-tone=no]')].map(l => l.textContent.trim()),
+                   }))"""
             )
             ctx.close()
         finally:
             browser.close()
-    steps = data["steps"]
-    assert len(steps) == 5, [s["tag"] for s in steps]
-    assert data["links"] == 4 and data["pointsDown"], data
-    tops = [s["top"] for s in steps]
-    assert tops == sorted(tops), f"the flow must read top to bottom: {tops}"
-    layers = [s["layer"] for s in steps if s["layer"]]
-    assert layers == ["model", "platform", "nexus-hub"], layers
-    # the analogy the review supplied, on the three layers that have one
-    model, platform, nexus = steps[1], steps[2], steps[3]
-    assert "brain" in model["like"], model
-    assert "degree" in platform["like"], platform
-    assert "decades" in nexus["like"], nexus
-    # each harness layer names what it contributes
-    assert platform["ports"] == list(PLATFORM_PORTS), platform["ports"]
-    assert nexus["ports"] == list(NEXUS_PORTS), nexus["ports"]
-    # the platform layer's limits are named, which is what makes the outer layer necessary
-    assert platform["limit"], "the platform layer must state its limits"
-    lowered = platform["limit"].lower()
-    assert "limits" in lowered and "session" in lowered, platform["limit"]
-    assert not model["ports"] and not steps[0]["ports"], "only the harness layers carry ports"
-
+    by = {d["layer"]: d for d in data}
+    assert set(by) == {"model", "platform", "nexus"}, list(by)
+    assert by["model"]["no"], "the model must name what it cannot do alone"
+    assert by["platform"]["no"], "the platform harness must name its limits"
+    assert by["platform"]["yes"] >= 1, "and what it does add"
 
 def test_every_class_used_in_foundations_has_a_style_rule(guide_text: str) -> None:
     """The guard for the Phase 4 defect: markup that references a rule nobody defines.
