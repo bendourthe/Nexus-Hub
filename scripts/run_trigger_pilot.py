@@ -40,6 +40,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import random
 import re
 import shutil
@@ -56,6 +57,8 @@ PER_CALL_BUDGET_USD = 0.50
 PER_CALL_TIMEOUT_S = 180
 TOTAL_WALL_S = 120 * 60
 SEED = 4131
+
+FIXTURE_MARKER = ".nexus-pilot-fixture"
 
 MODELS = {"fast": "claude-haiku-4-5-20251001", "strong": "claude-opus-5"}
 
@@ -99,6 +102,7 @@ def parse_stream(raw: str, skill: str) -> dict:
         "duration_ms": None,
         "model_id": "",
         "saw_result": False,
+        "clean_result": False,
     }
     for line in raw.splitlines():
         line = line.strip()
@@ -121,20 +125,47 @@ def parse_stream(raw: str, skill: str) -> dict:
                 if isinstance(block, dict) and block.get("type") == "tool_use":
                     name = block.get("name", "")
                     out["tools_used"].append(name)
-                    payload = json.dumps(block.get("input", {}))
-                    if name == "Skill" and skill in payload:
+                    if name == "Skill" and _names_skill(block.get("input", {}), skill):
                         out["selected"] = True
 
         if event.get("type") == "result":
             out["saw_result"] = True
+            out["clean_result"] = not event.get("is_error") and not str(
+                event.get("subtype", "")
+            ).startswith("error")
             out["num_turns"] = event.get("num_turns")
-            out["cost_usd"] = float(event.get("total_cost_usd") or 0.0)
+            try:
+                out["cost_usd"] = float(event.get("total_cost_usd"))
+            except (TypeError, ValueError):
+                # Unknown cost is charged at the worst case, never at zero: a
+                # ledger that under-counts spend permits more of it.
+                out["cost_usd"] = PER_CALL_BUDGET_USD
+                out["note"] = "cost not reported; charged at the per-call budget"
             out["duration_ms"] = event.get("duration_ms")
 
-    # Only a completed run licenses "the skill was not selected".
-    if out["selected"] is None and out["saw_result"]:
+    # Only a CLEANLY completed run licenses "the skill was not selected". A run
+    # the per-call budget truncated never got the chance to invoke the skill, so
+    # it is evidence-missing, not a measured non-selection.
+    if out["selected"] is None and out["saw_result"] and out["clean_result"]:
         out["selected"] = False
     return out
+
+
+def _names_skill(tool_input: object, skill: str) -> bool:
+    """True only when the Skill call names THIS skill in a field that selects it.
+
+    The first version tested `skill in json.dumps(input)`, a substring match over
+    the whole serialized payload. That scores a selection when the model invokes
+    a DIFFERENT skill and merely mentions this one in a prompt argument, which
+    inflates the very number the pilot exists to measure.
+    """
+    if not isinstance(tool_input, dict):
+        return False
+    for key in ("command", "skill", "name"):
+        value = tool_input.get(key)
+        if isinstance(value, str) and value.strip().lstrip("/") == skill:
+            return True
+    return False
 
 
 def stage_variant(variant: str, fixture: Path, repo: Path, variant_b: dict) -> dict[str, str]:
@@ -151,19 +182,34 @@ def stage_variant(variant: str, fixture: Path, repo: Path, variant_b: dict) -> d
     """
     skills_root = fixture / ".claude" / "skills"
     if skills_root.exists():
+        # Only ever remove a directory this runner created. `--fixture .` inside
+        # a real project would otherwise delete that project's skills.
+        if not (fixture / FIXTURE_MARKER).is_file():
+            raise SystemExit(
+                f"refusing to clear {skills_root}: {fixture} carries no "
+                f"{FIXTURE_MARKER} marker, so it is not a runner-owned fixture"
+            )
         shutil.rmtree(skills_root)
     hashes: dict[str, str] = {}
     for name, rel in SKILLS.items():
         source = (repo / "catalog" / "skills" / rel / "SKILL.md").read_text(encoding="utf-8")
         if variant == "B":
             replacement = variant_b["descriptions"][name].replace("\\", "\\\\")
-            source = re.sub(
+            source, substitutions = re.subn(
                 r"^description:.*$",
                 "description: " + replacement,
                 source,
                 count=1,
                 flags=re.M,
             )
+            # A silent no-op here is the worst failure this runner has: both arms
+            # would be identical and the null result would measure nothing while
+            # looking exactly like a real one.
+            if substitutions != 1:
+                raise SystemExit(
+                    f"variant B staging failed for {name}: matched "
+                    f"{substitutions} description lines, expected exactly 1"
+                )
         dest = skills_root / name
         dest.mkdir(parents=True, exist_ok=True)
         (dest / "SKILL.md").write_text(source, encoding="utf-8")
@@ -252,9 +298,22 @@ def run_call(item: dict, fixture: Path, ledger: Ledger, repo: Path, variant_b: d
             check=False,
             cwd=str(fixture),
         )
-    except subprocess.TimeoutExpired:
+    except subprocess.TimeoutExpired as exc:
         result.status = "timeout"
-        result.note = f"exceeded {PER_CALL_TIMEOUT_S}s"
+        # A timed-out call still spent money. Recording 0.0 would let the
+        # aggregate ceiling permit more than it believes it has allowed, so the
+        # cost is read from whatever the stream managed to emit and otherwise
+        # charged at the per-call worst case.
+        partial = exc.stdout or ""
+        if isinstance(partial, bytes):
+            partial = partial.decode("utf-8", errors="replace")
+        observed = parse_stream(partial, item["skill"])
+        result.cost_usd = observed["cost_usd"] or PER_CALL_BUDGET_USD
+        result.tools_used = observed["tools_used"]
+        result.note = (
+            f"exceeded {PER_CALL_TIMEOUT_S}s; charged {result.cost_usd:.4f} "
+            "(observed, else the per-call budget). Selection is unknown."
+        )
         return result
 
     parsed = parse_stream(proc.stdout, item["skill"])
@@ -302,8 +361,30 @@ def main(argv: list[str] | None = None) -> int:
         print("error: the claude CLI is not on PATH; refusing to start", file=sys.stderr)
         return 2
 
+    # The frozen ceiling is a cap, not a default. argparse accepts any float, so
+    # without this an operator could raise the "frozen" limit from the command
+    # line, and a non-finite value would disable the spend check entirely:
+    # every comparison against nan is False, so the branch simply never fires.
+    if not math.isfinite(args.ceiling) or args.ceiling <= 0:
+        print(
+            f"error: --ceiling must be a positive finite number, got {args.ceiling!r}",
+            file=sys.stderr,
+        )
+        return 2
+    ceiling = min(args.ceiling, MAX_SPEND_USD)
+    if ceiling < args.ceiling:
+        print(
+            f"note: --ceiling {args.ceiling:.2f} exceeds the frozen "
+            f"{MAX_SPEND_USD:.2f} cap; using {ceiling:.2f}",
+            file=sys.stderr,
+        )
+
     fixture = args.fixture.resolve()
     fixture.mkdir(parents=True, exist_ok=True)
+    # Mark the fixture as runner-owned so staging may clear it later.
+    (fixture / FIXTURE_MARKER).write_text(
+        "Created by scripts/run_trigger_pilot.py. Safe to delete.\n", encoding="utf-8"
+    )
 
     repo = Path(__file__).resolve().parents[1]
     variant_b = json.loads((args.protocol / "pilot-variant-b.json").read_text(encoding="utf-8"))
@@ -311,7 +392,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.calibrate:
         matrix = matrix[: args.calibrate]
 
-    ledger = Ledger(args.ceiling, MAX_CALLS, TOTAL_WALL_S)
+    ledger = Ledger(ceiling, MAX_CALLS, TOTAL_WALL_S)
     results: list[CallResult] = []
     stopped = ""
 
@@ -331,7 +412,7 @@ def main(argv: list[str] | None = None) -> int:
 
     payload = {
         "seed": SEED,
-        "ceiling_usd": args.ceiling,
+        "ceiling_usd": ceiling,
         "calls_made": ledger.calls,
         "calls_planned": len(matrix),
         "total_spend_usd": round(ledger.spent, 4),

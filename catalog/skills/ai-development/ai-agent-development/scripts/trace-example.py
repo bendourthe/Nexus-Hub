@@ -20,7 +20,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import secrets
+import stat
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -153,16 +155,69 @@ def assert_no_payload(records: list[dict[str, object]]) -> None:
 
 
 def resolve_output(raw: str) -> Path:
-    """Accept only a new, regular file inside an existing real directory."""
+    """Accept only a new, regular file inside an existing directory, and say where it lands.
+
+    An adversarial pass showed the previous `parent.is_symlink()` check was
+    incomplete in two ways: `Path.is_symlink()` is False for a Windows junction
+    (IO_REPARSE_TAG_MOUNT_POINT), which any user can create without privilege,
+    and only the IMMEDIATE parent was ever inspected, so a redirected
+    grandparent went unexamined.
+
+    Refusing every redirected ancestor was tried and rejected as the fix. It
+    breaks the script's own documented use: on macOS `/tmp` is a symlink to
+    `/private/tmp` and `$TMPDIR` sits under `/var`, itself a symlink to
+    `/private/var`, so "a caller-owned temporary directory" would be refused on
+    the most ordinary platform. Comparing resolved against unresolved paths is
+    worse still, because `resolve()` also expands Windows 8.3 short names, so
+    a perfectly normal `C:\\Users\\RUNNER~1\\...` path would be rejected as
+    redirected.
+
+    The guard that actually protects the caller is the O_EXCL write in `main`,
+    which cannot clobber an existing file and will not follow a symlink at the
+    final component. Redirection of an ancestor is therefore DISCLOSED rather
+    than refused: the caller chose the path, and is told where the bytes really
+    went.
+    """
+    if "\x00" in raw:
+        raise ValueError("refusing a path containing a NUL byte")
     path = Path(raw)
     if path.is_symlink() or path.exists():
         raise ValueError(f"refusing to write an existing path: {path}")
     parent = path.parent
     if not parent.is_dir():
         raise ValueError(f"output directory does not exist: {parent}")
-    if parent.is_symlink():
-        raise ValueError(f"refusing a symlinked output directory: {parent}")
     return path
+
+
+def _is_reparse_point(path: Path) -> bool:
+    """True for a POSIX symlink or a Windows symlink/junction.
+
+    `os.path.islink` is False for a Windows junction, so the reparse-point
+    attribute is checked directly. Comparing resolved against unresolved paths
+    would be simpler and wrong: `resolve()` also expands 8.3 short names, so
+    an ordinary `C:\\Users\\RUNNER~1\\...` path would look redirected.
+    """
+    try:
+        info = os.lstat(path)
+    except OSError:
+        return False
+    if stat.S_ISLNK(info.st_mode):
+        return True
+    attributes = getattr(info, "st_file_attributes", 0)
+    return bool(attributes & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0))
+
+
+def describe_destination(destination: Path) -> str:
+    """Name the real location only when an ancestor genuinely redirects the write."""
+    absolute = Path(os.path.abspath(destination))
+    redirected = any(_is_reparse_point(ancestor) for ancestor in absolute.parents)
+    if not redirected:
+        return str(destination)
+    try:
+        real = absolute.parent.resolve(strict=True) / absolute.name
+    except OSError:
+        return str(destination)
+    return f"{destination} (an ancestor redirects; the bytes land at {real})"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -182,11 +237,30 @@ def main(argv: list[str] | None = None) -> int:
 
     records = build_records()
     assert_no_payload(records)
-    with destination.open("w", encoding="utf-8", newline="\n") as handle:
+    # "x" is O_EXCL: it refuses an existing path and will not follow a symlink
+    # at the final component, closing the window between the check above and
+    # this write in which the path could be swapped.
+    #
+    # It is strict in one surprising way, measured on Windows rather than
+    # assumed: an exclusive create through a directory junction fails with
+    # FileExistsError even when nothing is there. That is reported as a refusal,
+    # never as a traceback, and never by falling back to a truncating open,
+    # which would hand back the race this mode exists to close.
+    try:
+        handle = destination.open("x", encoding="utf-8", newline="\n")
+    except OSError as exc:
+        print(
+            f"error: cannot create {destination}: {exc.strerror or exc}. "
+            "A junctioned or otherwise redirected output directory can cause this "
+            "even when the file does not exist; use a plain directory.",
+            file=sys.stderr,
+        )
+        return 2
+    with handle:
         for record in records:
             handle.write(json.dumps(record, sort_keys=True) + "\n")
 
-    print(f"wrote {len(records)} synthetic records to {destination}")
+    print(f"wrote {len(records)} synthetic records to {describe_destination(destination)}")
     print("payloads, tool arguments, results, instructions and raw exceptions omitted")
     return 0
 

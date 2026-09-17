@@ -19,10 +19,12 @@ fixture whose baseline and degraded sides drifted together would keep passing
 and guard nothing, which is precisely the false-confidence failure the
 evaluation work exists to prevent.
 
-Document assertions follow the repository's established `*_has_teeth` pattern:
-each predicate runs against the real file and against a mutated copy with the
-target content removed, so a predicate that accidentally matches anything is
-itself caught.
+Document assertions follow the repository's `*_has_teeth` pattern through
+`assert_has_teeth`, which asserts the needle IS present in the real file before
+asserting it is gone from a mutated copy. The first half is the load-bearing
+one: an earlier version of these controls asserted only the second half, which
+is a property of `str.replace` and holds whether or not the needle was ever
+there, so a silently reworded guard still passed.
 """
 
 from __future__ import annotations
@@ -35,6 +37,39 @@ from pathlib import Path
 import pytest
 
 _ROOT = Path(__file__).resolve().parents[2]
+
+
+def _load_trace_example_module():
+    """Import the bundled trace script so its guards can be unit-tested directly.
+
+    The subprocess tests prove end-to-end behavior; these in-process checks
+    reach the branches a shell cannot express, such as a NUL byte in a path.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("_trace_example", _TRACE_EXAMPLE)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def assert_has_teeth(path: Path, needle: str) -> None:
+    """Prove a document guard is neither vacuous nor unfalsifiable.
+
+    An earlier version of this helper asserted only `needle not in
+    document.replace(needle, "")`. That is a property of `str.replace`, not of
+    the guard: it holds identically whether or not the needle was ever in the
+    file, so a guard whose needle had been silently reworded still passed. The
+    load-bearing half is the first assertion, which fails when the needle is
+    absent; the second then confirms removal is complete, which is not free
+    because an overlapping needle can reappear ("aabb".replace("ab", "") ==
+    "ab").
+    """
+    text = path.read_text(encoding="utf-8")
+    assert needle in text, f"vacuous guard: {needle!r} is absent from {path}"
+    mutated = text.replace(needle, "")
+    assert needle not in mutated, f"mutation left {needle!r} in place in {path}"
+
 
 _FIXTURES = _ROOT / "tests" / "fixtures" / "agent-improvement"
 _JUDGE_SENSITIVITY = _FIXTURES / "judge-sensitivity.json"
@@ -206,14 +241,32 @@ class TestJudgeSensitivityHarness:
                 )
 
     def test_constant_scorer_fails_the_fixture(self, judge_sensitivity: dict) -> None:
-        """Negative control: a scorer that detects nothing must not pass."""
-        separated = [
-            case
-            for case in _cases(judge_sensitivity, "degraded_lower")
-            if constant_scorer(case["degraded"]["response"])[case["target_criterion"]]
-            < constant_scorer(case["baseline"]["response"])[case["target_criterion"]]
-        ]
-        assert not separated, (
+        """Negative control: a scorer that detects nothing must not pass.
+
+        The earlier form asserted only that the constant scorer separated
+        nothing. That is a property of the constant scorer (`c < c` is false for
+        every input), not of the fixture, so it passed on an EMPTY fixture and on
+        one whose degraded side had collapsed onto its baseline. What carries the
+        meaning is the pair of verdicts together: the reference scorer must
+        separate these pairs and the constant scorer must not. A fixture that
+        stopped discriminating fails the first half.
+        """
+        pairs = _cases(judge_sensitivity, "degraded_lower")
+        assert pairs, "the fixture declares no degraded pairs, so it guards nothing"
+
+        def separates(scorer) -> list:
+            return [
+                case
+                for case in pairs
+                if scorer(case["degraded"]["response"])[case["target_criterion"]]
+                < scorer(case["baseline"]["response"])[case["target_criterion"]]
+            ]
+
+        assert len(separates(reference_scorer)) == len(pairs), (
+            "the reference scorer no longer separates every degraded pair; the "
+            "fixture has stopped discriminating and the control below is vacuous"
+        )
+        assert not separates(constant_scorer), (
             "a constant scorer separated a degraded pair; the fixture no longer "
             "distinguishes a sensitive judge from an insensitive one"
         )
@@ -256,8 +309,10 @@ class TestJudgeSensitivityHarness:
 
 _EVALUATOR_CLAIMS = {
     "sensitivity_step": "Prove the judge notices a controlled loss",
-    "inverted_diagnosis": "inverted",
-    "inconclusive_disposition": "inconclusive",
+    # Single words ("inverted", "inconclusive") occurred in unrelated checklist
+    # lines, so the governing guidance could be deleted with the tests green.
+    "inverted_diagnosis": "Insensitive and inverted are different diagnoses",
+    "inconclusive_disposition": "An inconclusive result is a real outcome",
     "backtest_optional": "optional confirmation, never a prerequisite",
     "no_composite": "Never sum criteria into a composite",
 }
@@ -276,9 +331,7 @@ class TestEvaluatorValidationContract:
 
     @pytest.mark.parametrize("claim", sorted(_EVALUATOR_CLAIMS))
     def test_claim_has_teeth(self, claim: str) -> None:
-        needle = _EVALUATOR_CLAIMS[claim]
-        mutated = _EVALUATOR_VALIDATION.read_text(encoding="utf-8").replace(needle, "")
-        assert needle not in mutated
+        assert_has_teeth(_EVALUATOR_VALIDATION, _EVALUATOR_CLAIMS[claim])
 
     def test_reused_rules_are_referenced_not_restated(self) -> None:
         """Step 6 must defer to earlier steps rather than duplicate them."""
@@ -295,9 +348,7 @@ class TestEvalPipelineAuditContract:
 
     @pytest.mark.parametrize("claim", sorted(_AUDIT_CLAIMS))
     def test_claim_has_teeth(self, claim: str) -> None:
-        needle = _AUDIT_CLAIMS[claim]
-        mutated = _EVAL_PIPELINE_AUDIT.read_text(encoding="utf-8").replace(needle, "")
-        assert needle not in mutated
+        assert_has_teeth(_EVAL_PIPELINE_AUDIT, _AUDIT_CLAIMS[claim])
 
     def test_ten_concern_inventory_is_preserved(self) -> None:
         """The audit must not grow an eleventh concern for sensitivity."""
@@ -488,6 +539,60 @@ class TestTraceExampleRefusals:
         )
         assert proc.returncode == 2
 
+    def test_refuses_a_nul_byte_in_the_path(self) -> None:
+        """A NUL made `Path.exists()` swallow a ValueError, so the path was accepted."""
+        module = _load_trace_example_module()
+        with pytest.raises(ValueError, match="NUL"):
+            module.resolve_output("trace\x00.jsonl")
+
+    def test_refuses_a_symlinked_target(self, tmp_path: Path) -> None:
+        """The final component must never be followed."""
+        real = tmp_path / "real.jsonl"
+        real.write_text("do not overwrite me", encoding="utf-8")
+        link = tmp_path / "link.jsonl"
+        try:
+            link.symlink_to(real)
+        except (OSError, NotImplementedError):
+            pytest.skip("this host does not permit creating a symlink")
+        proc = subprocess.run(
+            [sys.executable, str(_TRACE_EXAMPLE), "--output", str(link)],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        assert proc.returncode == 2
+        assert real.read_text(encoding="utf-8") == "do not overwrite me"
+
+    def test_a_redirected_ancestor_is_disclosed_rather_than_hidden(self, tmp_path: Path) -> None:
+        """A junction or symlink above the file must be named in the output.
+
+        Refusing every redirected ancestor was tried and rejected, because on
+        macOS `/tmp` and `$TMPDIR` are themselves symlinks and this script
+        documents a temporary directory as its intended destination. What is
+        required instead is that the caller is told where the bytes landed.
+        """
+        module = _load_trace_example_module()
+        real = tmp_path / "real"
+        real.mkdir()
+        link = tmp_path / "link"
+        try:
+            link.symlink_to(real, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            pytest.skip("this host does not permit creating a directory symlink")
+
+        described = module.describe_destination(link / "trace.jsonl")
+        assert "an ancestor redirects" in described
+
+    def test_an_ordinary_path_is_not_described_as_redirected(self, tmp_path: Path) -> None:
+        """Control for the test above: no false positive on a plain path.
+
+        Comparing a resolved path against an unresolved one would fail here on
+        Windows, where `resolve()` also expands 8.3 short names.
+        """
+        module = _load_trace_example_module()
+        described = module.describe_destination(tmp_path / "trace.jsonl")
+        assert "an ancestor redirects" not in described
+
     def test_ships_no_payload_enable_flag(self) -> None:
         """Documenting opt-in responsibility is not the same as building it."""
         source = _TRACE_EXAMPLE.read_text(encoding="utf-8")
@@ -572,8 +677,7 @@ class TestSpanContractDocument:
 
     @pytest.mark.parametrize("needle", ["Truncation is not redaction", "Recheck trigger"])
     def test_span_contract_claims_have_teeth(self, needle: str) -> None:
-        mutated = _SPAN_CONTRACT.read_text(encoding="utf-8").replace(needle, "")
-        assert needle not in mutated
+        assert_has_teeth(_SPAN_CONTRACT, needle)
 
 
 class TestLoopSchemaTraceHonesty:
@@ -840,8 +944,7 @@ class TestImprovementLoopDocument:
         ],
     )
     def test_claim_has_teeth(self, claim: str) -> None:
-        mutated = _IMPROVEMENT_LOOP.read_text(encoding="utf-8").replace(claim, "")
-        assert claim not in mutated
+        assert_has_teeth(_IMPROVEMENT_LOOP, claim)
 
     def test_chain_links_to_its_owners_rather_than_restating_them(self) -> None:
         text = _IMPROVEMENT_LOOP.read_text(encoding="utf-8")
@@ -1027,8 +1130,7 @@ class TestRepresentationOwner:
         ],
     )
     def test_ladder_claims_have_teeth(self, needle: str) -> None:
-        mutated = _HTML_CONVENTIONS.read_text(encoding="utf-8").replace(needle, "")
-        assert needle not in mutated
+        assert_has_teeth(_HTML_CONVENTIONS, needle)
 
 
 class TestCommunicationHandoff:
@@ -1250,8 +1352,7 @@ class TestFreshnessOwner:
         ],
     )
     def test_freshness_claims_have_teeth(self, needle: str) -> None:
-        mutated = _PACK_BUILDER.read_text(encoding="utf-8").replace(needle, "")
-        assert needle not in mutated
+        assert_has_teeth(_PACK_BUILDER, needle)
 
 
 class TestContextEngineeringHandoff:
@@ -1420,27 +1521,304 @@ class TestTriggerPilotDocumentMatchesItsData:
         assert "MEASURED_NO_CHANGE" in _PILOT_RESULTS_MD.read_text(encoding="utf-8")
 
     def test_disposition_claim_has_teeth(self) -> None:
-        text = _PILOT_RESULTS_MD.read_text(encoding="utf-8")
-        mutated = text.replace("MEASURED_NO_CHANGE", "")
-        assert "MEASURED_NO_CHANGE" not in mutated
+        assert_has_teeth(_PILOT_RESULTS_MD, "MEASURED_NO_CHANGE")
 
 
 class TestNothingWasPromoted:
     """`MEASURED_NO_CHANGE` means the candidate wording stayed out of the catalog."""
 
+    @staticmethod
+    def _was_promoted(document: str, candidate: str) -> bool:
+        """The predicate under test, so the control can run the same code."""
+        return candidate in document
+
     @pytest.mark.parametrize("skill", sorted(_SAMPLED_SKILLS))
     def test_candidate_description_did_not_reach_the_catalog(self, skill: str) -> None:
         candidate = json.loads(_PILOT_VARIANT_B.read_text(encoding="utf-8"))["descriptions"][skill]
         shipped = _SAMPLED_SKILLS[skill].read_text(encoding="utf-8")
-        assert candidate not in shipped
+        assert not self._was_promoted(shipped, candidate)
 
     @pytest.mark.parametrize("skill", sorted(_SAMPLED_SKILLS))
     def test_the_check_would_notice_a_promotion(self, skill: str) -> None:
-        """Mutation control: planting the candidate text must trip the check."""
+        """Run the SAME predicate against a planted copy; it must flip.
+
+        The earlier form asserted `candidate in (shipped + candidate)`, which is
+        true regardless of what the real check does. Calling the predicate is
+        what makes this a control: if `_was_promoted` were rewritten to return a
+        constant, one of the two assertions below fails.
+        """
         candidate = json.loads(_PILOT_VARIANT_B.read_text(encoding="utf-8"))["descriptions"][skill]
-        planted = _SAMPLED_SKILLS[skill].read_text(encoding="utf-8") + "\n" + candidate
-        assert candidate in planted
+        shipped = _SAMPLED_SKILLS[skill].read_text(encoding="utf-8")
+        assert not self._was_promoted(shipped, candidate)
+        assert self._was_promoted(shipped + chr(10) + candidate, candidate)
 
     def test_every_sampled_skill_still_exists(self) -> None:
         for path in _SAMPLED_SKILLS.values():
             assert path.is_file()
+
+
+# ---------------------------------------------------------------------------
+# Phase 7: defects an adversarial pass confirmed in the pilot runner.
+#
+# The runner spends real money and produces the evidence the phase rests on, so
+# each of these is a regression test for a way it could have reported a number
+# that was not measured, or spent more than the ceiling it claims to enforce.
+# ---------------------------------------------------------------------------
+
+
+def _runner():
+    """Import the pilot runner for in-process inspection. It is never executed.
+
+    The module must be registered in `sys.modules` before `exec_module`, because
+    its dataclasses resolve postponed annotations through the module entry.
+    """
+    import importlib.util
+
+    if "_run_trigger_pilot" in sys.modules:
+        return sys.modules["_run_trigger_pilot"]
+    spec = importlib.util.spec_from_file_location(
+        "_run_trigger_pilot", _ROOT / "scripts" / "run_trigger_pilot.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["_run_trigger_pilot"] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _stream(*events: dict) -> str:
+    return "\n".join(json.dumps(e) for e in events)
+
+
+_INIT = {"type": "system", "subtype": "init", "model": "m", "skills": ["a", "b"]}
+
+
+def _skill_call(**tool_input) -> dict:
+    return {
+        "type": "assistant",
+        "message": {"content": [{"type": "tool_use", "name": "Skill", "input": tool_input}]},
+    }
+
+
+class TestRunnerSelectionIsNotASubstringMatch:
+    """A mention of the skill is not a selection of it."""
+
+    def test_naming_the_skill_counts(self) -> None:
+        m = _runner()
+        parsed = m.parse_stream(
+            _stream(_INIT, _skill_call(command="context-engineering"),
+                    {"type": "result", "num_turns": 2, "total_cost_usd": 0.1}),
+            "context-engineering",
+        )
+        assert parsed["selected"] is True
+
+    def test_another_skill_mentioning_this_one_does_not_count(self) -> None:
+        """The defect: `skill in json.dumps(input)` scored this as a selection."""
+        m = _runner()
+        parsed = m.parse_stream(
+            _stream(
+                _INIT,
+                _skill_call(command="plan-before-code", prompt="ignore context-engineering here"),
+                {"type": "result", "num_turns": 2, "total_cost_usd": 0.1},
+            ),
+            "context-engineering",
+        )
+        assert parsed["selected"] is False
+
+    def test_a_leading_slash_still_counts(self) -> None:
+        m = _runner()
+        parsed = m.parse_stream(
+            _stream(_INIT, _skill_call(command="/context-engineering"),
+                    {"type": "result", "total_cost_usd": 0.1}),
+            "context-engineering",
+        )
+        assert parsed["selected"] is True
+
+
+class TestRunnerDistinguishesUnknownFromNegative:
+    def test_a_clean_run_with_no_skill_call_is_a_measured_non_selection(self) -> None:
+        m = _runner()
+        parsed = m.parse_stream(
+            _stream(_INIT, {"type": "result", "num_turns": 2, "total_cost_usd": 0.1}),
+            "context-engineering",
+        )
+        assert parsed["selected"] is False
+
+    def test_a_budget_truncated_run_is_evidence_missing(self) -> None:
+        """It never got the chance to invoke the skill, so it measured nothing."""
+        m = _runner()
+        parsed = m.parse_stream(
+            _stream(
+                _INIT,
+                {
+                    "type": "result",
+                    "subtype": "error_max_budget_exceeded",
+                    "is_error": True,
+                    "total_cost_usd": 0.5,
+                },
+            ),
+            "context-engineering",
+        )
+        assert parsed["selected"] is None
+
+    def test_no_result_event_at_all_is_evidence_missing(self) -> None:
+        m = _runner()
+        assert m.parse_stream(_stream(_INIT), "context-engineering")["selected"] is None
+
+
+class TestRunnerSpendAccounting:
+    def test_an_unreported_cost_is_charged_at_the_worst_case_not_zero(self) -> None:
+        """A ledger that under-counts spend permits more of it."""
+        m = _runner()
+        parsed = m.parse_stream(
+            _stream(_INIT, {"type": "result", "num_turns": 1, "total_cost_usd": None}),
+            "context-engineering",
+        )
+        assert parsed["cost_usd"] == m.PER_CALL_BUDGET_USD
+
+    def test_a_non_numeric_cost_does_not_crash_the_run(self) -> None:
+        m = _runner()
+        parsed = m.parse_stream(
+            _stream(_INIT, {"type": "result", "total_cost_usd": "not-a-number"}),
+            "context-engineering",
+        )
+        assert parsed["cost_usd"] == m.PER_CALL_BUDGET_USD
+
+    def test_the_ledger_refuses_a_call_that_would_breach_the_ceiling(self) -> None:
+        m = _runner()
+        ledger = m.Ledger(m.MAX_SPEND_USD, m.MAX_CALLS, m.TOTAL_WALL_S)
+        ledger.spent = m.MAX_SPEND_USD - 0.1
+        allowed, why = ledger.may_start()
+        assert allowed is False
+        assert "spend ceiling" in why
+
+
+class TestRunnerStagingCannotProduceIdenticalArms:
+    def test_a_description_that_does_not_match_is_a_hard_failure(self, tmp_path: Path) -> None:
+        """A silent no-op here would compare A with A and measure nothing."""
+        m = _runner()
+        repo = tmp_path / "repo"
+        for name, rel in m.SKILLS.items():
+            d = repo / "catalog" / "skills" / rel
+            d.mkdir(parents=True)
+            # No `description:` line anywhere, so the substitution cannot match.
+            (d / "SKILL.md").write_text("---\nname: " + name + "\n---\nbody\n", encoding="utf-8")
+
+        fixture = tmp_path / "fixture"
+        fixture.mkdir()
+        (fixture / m.FIXTURE_MARKER).write_text("marker", encoding="utf-8")
+        variant_b = {"descriptions": {name: "rewritten" for name in m.SKILLS}}
+
+        with pytest.raises(SystemExit, match="expected exactly 1"):
+            m.stage_variant("B", fixture, repo, variant_b)
+
+    def test_staging_refuses_a_directory_it_does_not_own(self, tmp_path: Path) -> None:
+        """`--fixture .` must not delete a real project's skills."""
+        m = _runner()
+        fixture = tmp_path / "someones-project"
+        (fixture / ".claude" / "skills" / "precious").mkdir(parents=True)
+        keep = fixture / ".claude" / "skills" / "precious" / "SKILL.md"
+        keep.write_text("do not delete me", encoding="utf-8")
+
+        with pytest.raises(SystemExit, match="not a runner-owned fixture"):
+            m.stage_variant("A", fixture, tmp_path, {"descriptions": {}})
+        assert keep.read_text(encoding="utf-8") == "do not delete me"
+
+
+# ---------------------------------------------------------------------------
+# Phase 7: the representation ladder gains the oracle it was missing.
+#
+# Two independent reviews found the same hole: `representation-cases.json`
+# declared an `expected_rung` per case that no code derived, so the fixture
+# could only be checked for internal self-consistency. A declared expectation
+# that nothing contradicts cannot catch a ladder that drifts. This mirrors what
+# `derive_disposition` (Phase 3) and `derive_freshness` (Phase 5) already do.
+# ---------------------------------------------------------------------------
+
+
+def derive_rung(signals: dict) -> str:
+    """Pick the lowest rung that carries the answer, from the ladder's own rules.
+
+    Transcribed from the ladder table in `html-output-conventions/SKILL.md`:
+
+    1. prose      -- one or two facts with no structure to show
+    2. table      -- a handful of items compared across two or three attributes
+    3. pseudocode -- the answer is a sequence, an algorithm, or a control flow
+    4. mermaid    -- a small graph; past roughly a dozen nodes rung 5 applies
+    5. html       -- state, interactivity, spatial complexity, a many-way
+                     comparison, or length past roughly 100 lines
+
+    This function never reads `expected_rung`. If it did, it would agree by
+    construction and prove nothing.
+    """
+    if (
+        signals["needs_interaction"]
+        or signals["needs_persistent_state"]
+        or signals["estimated_lines"] > 100
+        or signals["graph_nodes"] > 12
+        or signals["attributes"] > 3
+    ):
+        return "html"
+    if signals["graph_nodes"] > 0:
+        return "mermaid"
+    if signals["has_control_flow"]:
+        return "pseudocode"
+    # The discriminator between rungs 1 and 2 is whether there is structure to
+    # show, not how many rows there are: rung 1 is "one or two facts with NO
+    # STRUCTURE", and a two-item comparison across two attributes has structure.
+    # An earlier transcription used a row-count threshold and put REP-5, a 2x2
+    # comparison, on prose. The fixture caught it.
+    if signals["attributes"] >= 2:
+        return "table"
+    return "prose"
+
+
+class TestRepresentationLadderOracle:
+    """The derived rung must reproduce the declared one for every case."""
+
+    def test_every_case_carries_signals(self, representation: dict) -> None:
+        missing = [c["case_id"] for c in representation["cases"] if "signals" not in c]
+        assert not missing, f"cases without machine-readable signals: {missing}"
+
+    def test_derived_rung_matches_the_declared_one(self, representation: dict) -> None:
+        mismatches = [
+            (c["case_id"], c["expected_rung"], derive_rung(c["signals"]))
+            for c in representation["cases"]
+            if derive_rung(c["signals"]) != c["expected_rung"]
+        ]
+        assert not mismatches, f"declared rung disagrees with the ladder: {mismatches}"
+
+    def test_the_derived_rung_is_never_a_forbidden_one(self, representation: dict) -> None:
+        for case in representation["cases"]:
+            assert derive_rung(case["signals"]) not in case.get("must_not_be", [])
+
+    def test_the_near_miss_pair_is_separated_by_the_oracle(
+        self, representation: dict
+    ) -> None:
+        """The pair exists to catch a ladder that climbs on size alone.
+
+        REP-5 and REP-6 are both comparisons. Only REP-6 needs interaction and
+        state, and only REP-6 may reach HTML. A rule keyed on item count would
+        put them on the same rung.
+        """
+        by_id = {c["case_id"]: c for c in representation["cases"]}
+        assert derive_rung(by_id["REP-5-near-miss"]["signals"]) == "table"
+        assert derive_rung(by_id["REP-6-near-miss"]["signals"]) == "html"
+
+    def test_the_oracle_would_notice_an_unjustified_climb(
+        self, representation: dict
+    ) -> None:
+        """Mutation control: a static case must not reach HTML on size alone."""
+        by_id = {c["case_id"]: c for c in representation["cases"]}
+        inflated = dict(by_id["REP-1"]["signals"], facts=40)
+        assert derive_rung(inflated) == "table", (
+            "more rows alone must not justify an artifact; only interaction, "
+            "state, width, or length does"
+        )
+
+    def test_the_oracle_climbs_when_interaction_is_genuinely_required(
+        self, representation: dict
+    ) -> None:
+        """The opposite control: it must not be stuck below HTML either."""
+        by_id = {c["case_id"]: c for c in representation["cases"]}
+        interactive = dict(by_id["REP-1"]["signals"], needs_interaction=True)
+        assert derive_rung(interactive) == "html"

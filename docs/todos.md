@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 ## Evidence-driven agent improvement (v4.13.0)
 
-Phases 1-6 of the [v4.13.0 plan](releases/v4/v4.13/plans/v4.13.0-adoption-evidence-driven-agent-improvement.md) are implemented and locally committed on `feat/v4.13.0-evidence-driven-agent-improvement`, one commit per phase, no push. Phase 6 is MEASURED: the entry prerequisite resolved on capability once the CLI's structured output and budget flag were examined, the frozen 96-call pilot ran to completion at USD 20.6709 of USD 35.00 authorized, and the outcome is `MEASURED_NO_CHANGE` with nothing promoted (see [results](releases/v4/v4.13/development/trigger-pilot-results.md)). The control arm showed the shipped catalog under-triggers (1/8 fast, 3/8 strong on its own positive prompts) with zero false positives, and the pushier candidate made selection worse on both models. Phase 7 has not started. DF-1 and QG-1 are resolved; open items are WN-1, WN-2, WN-3 and WN-4 in the [v4.13 ledger](releases/v4/v4.13/known-gaps.md).
+Phases 1-7 of the [v4.13.0 plan](releases/v4/v4.13/plans/v4.13.0-adoption-evidence-driven-agent-improvement.md) are implemented and locally committed on `feat/v4.13.0-evidence-driven-agent-improvement`, one commit per phase, no push. Phase 6 measured the trigger pilot (96/96 calls, USD 20.6709, `MEASURED_NO_CHANGE`, nothing promoted). Phase 7 ran the ten final-phase duties; its two independent reviews found four real defects in work the earlier phases had already evidenced, including seven document controls that asserted a `str.replace` tautology and a Windows junction that defeated the distributed trace script's output guard. All are fixed with regression tests and recorded in [last-phase-evidence.md](releases/v4/v4.13/development/last-phase-evidence.md). Remaining: T034 publication, which needs explicit approval before the plan's single push. Open gaps are WN-2 through WN-6 in the [v4.13 ledger](releases/v4/v4.13/known-gaps.md); DF-1, QG-1, WN-1 and BG-1 to BG-6 are resolved.
 
 - [x] Phase 1 (A1): judge sensitivity foundation - frozen synthetic fixture, evaluator-validation Step 6, audit routing under concern 4.
 - [x] Phase 2 (A6): pinned agent span contract and a metadata-only runnable trace example; unsafe logging example replaced.
@@ -43,7 +43,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 | v4.11.1 comparison and plan prepared | 2 | 2 | 0 |
 | v4.11.1 implementation tasks complete | 9 | 25 | 16 |
 | v4.13.0 comparison and plan prepared | 2 | 2 | 0 |
-| v4.13.0 implementation tasks complete | 24 | 34 | 10 |
+| v4.13.0 implementation tasks complete | 33 | 34 | 1 |
 | v4.4.5 baseline guide/test files restored | 59 | 59 | 0 |
 | Exact production-file restorations | 3 | 3 | 0 |
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
