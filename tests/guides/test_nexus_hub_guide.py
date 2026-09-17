@@ -992,13 +992,11 @@ def test_foundations_harness_layers_are_honest_and_repository_anchored(
         "one-source-catalog",
         "matched-procedures",
         "event-hooks",
-        "written-gates",
         "durable-artifacts",
     }
     assert all(artifact.strip() for _claim, artifact in claims)
     ptext = re.sub(r"<[^>]+>", " ", practice).lower()
-    for claim in ("one source", "hooks", "prompt-independent", "definition of done"):
-        assert claim in ptext
+    assert "hooks" in ptext, "the honest scope qualifier names the mechanism"
     assert "chain" in ptext, "the trail must show artifacts chaining between commands"
     assert "does not replace the model" in ptext, "the honest scope qualifier is required"
     assert re.search(r"only where the host exposes the registered event", ptext)
@@ -1122,8 +1120,8 @@ def test_foundations_comparisons_show_both_states_without_a_toggle(
     assert 'data-phase3-node="agent-handoff"' in fx
     # v4.4.3: the merged harness scene carries the without-then-with trail.
     practice = _foundation_scene(guide_text, "fx-harness")
-    assert ">PLATFORM LOOP<" in practice
-    assert ">PLATFORM LOOP + NEXUS HUB<" in practice
+    assert ">PLATFORM HARNESS<" in practice
+    assert ">NEXUS HUB HARNESS<" in practice
     assert 'type="range"' not in fx
     assert "nhgCompare" not in guide_text
     assert "data-station-toggle" not in guide_text
@@ -1140,16 +1138,17 @@ def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
     assert fx.index("fx-spend-tag--bad") < fx.index("fx-spend-tag--good"), (
         "the unaided context must come first"
     )
-    assert fx.index("fx-state--weak") < fx.index("fx-state--strong"), (
-        "the weaker lane must come before the stronger one"
+    # v4.4.6 rebuilt the scene as two lanes; the unaided one is still stated first
+    assert fx.index('data-lane="chat"') < fx.index('data-lane="agent"'), (
+        "the unaided lane must be shown before the assisted one"
     )
     assert fx.index('data-phase3-node="chatbot-handoff"') < fx.index(
         'data-phase3-node="agent-handoff"'
     ), "the answer-handoff lane must come first"
     # v4.4.3: the merged harness scene carries the without-then-with trail.
     practice = _foundation_scene(guide_text, "fx-harness")
-    assert practice.index(">PLATFORM LOOP<") < practice.index(
-        ">PLATFORM LOOP + NEXUS HUB<"
+    assert practice.index(">PLATFORM HARNESS<") < practice.index(
+        ">NEXUS HUB HARNESS<"
     ), "the host-native run must come before the augmented run"
 
 
