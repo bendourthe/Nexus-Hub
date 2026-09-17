@@ -133,13 +133,15 @@ Modules covered `agent_memory`, `closure_gate`, `evaluation_methodology`, `eval_
 The fast profile flagged two findings introduced by Phase 2, both from the same cause:
 
 ```
-catalog/skills/.../scripts/trace-example.py:50:41: personal path leak: '/home/real-user'
-docs/releases/v4/v4.13/development/phase-2-evidence.md:88:21: personal path leak: '/home/real-user'
+catalog/skills/.../scripts/trace-example.py:50:41: personal path leak: <redacted home path>
+docs/releases/v4/v4.13/development/phase-2-evidence.md:88:21: personal path leak: <redacted home path>
 ```
 
-The sentinel exception string was written as `PermissionError: /home/real-user/.ssh/id_rsa SENTINEL`. That is shaped exactly like a real home-directory path, which is what the repository's personal-path guard exists to catch, so the guard was correct even though the value was synthetic.
+The sentinel exception string was a POSIX home-directory path ending in an SSH private key. That is shaped exactly like a real home-directory path, which is what the repository's personal-path guard exists to catch, so the guard was correct even though the value was synthetic.
 
 The sentinel was changed to `/srv/secrets/SENTINEL-private-key.pem`, which keeps its purpose (a filesystem path inside an exception string, proving the category-mapping discards it) without resembling a personal path. The guard now exits 0. The Phase 2 evidence file was updated with the corrected sentinel and the new script hash `2828b80a175029cc`, and the test assertion was widened to `private-key` and `/srv/secrets`.
+
+The guard findings above are quoted with the offending value redacted. An earlier revision of this file quoted it verbatim, which reintroduced the exact string the guard exists to catch and left `validate_no_personal_paths` failing while this file claimed it passed. Corrected during Phase 6.
 
 This is recorded here rather than silently amended into Phase 2, because the Phase 2 commit already exists and the correction happened during Phase 5.
 

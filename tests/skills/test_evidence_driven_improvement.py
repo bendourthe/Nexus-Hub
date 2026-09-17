@@ -1276,3 +1276,171 @@ class TestContextEngineeringHandoff:
         text = _CONTEXT_ENGINEERING.read_text(encoding="utf-8")
         assert "Four things to record" not in text
         assert "Stable design facts need no arbitrary expiry" not in text
+
+
+# ---------------------------------------------------------------------------
+# Phase 6: the measured trigger pilot
+#
+# Phase 6 promoted nothing, so the artifact under test is the measurement
+# itself. Two things can rot silently here. A results document can claim
+# numbers its own raw data does not support, and a "promote nothing"
+# disposition can be quietly contradicted by a later edit that lands variant
+# B's wording in the catalog anyway. Both are checked against the data rather
+# than against prose.
+# ---------------------------------------------------------------------------
+
+_PILOT_DIR = _ROOT / "docs" / "releases" / "v4" / "v4.13" / "development"
+_PILOT_RESULTS_JSON = _PILOT_DIR / "trigger-pilot-results.json"
+_PILOT_RESULTS_MD = _PILOT_DIR / "trigger-pilot-results.md"
+_PILOT_VARIANT_B = _PILOT_DIR / "pilot-variant-b.json"
+
+_SAMPLED_SKILLS = {
+    "plan-before-code": _ROOT / "catalog" / "skills" / "workflow" / "plan-before-code" / "SKILL.md",
+    "html-output-conventions": _ROOT
+    / "catalog"
+    / "skills"
+    / "developer-experience"
+    / "html-output-conventions"
+    / "SKILL.md",
+    "skill-description-authoring": _ROOT
+    / "catalog"
+    / "skills"
+    / "developer-experience"
+    / "skill-description-authoring"
+    / "SKILL.md",
+    "context-engineering": _ROOT
+    / "catalog"
+    / "skills"
+    / "ai-development"
+    / "context-engineering"
+    / "SKILL.md",
+}
+
+
+def _pilot_results() -> list[dict]:
+    return json.loads(_PILOT_RESULTS_JSON.read_text(encoding="utf-8"))["results"]
+
+
+def _positive_hits(rows: list[dict], tier: str, variant: str) -> int:
+    return sum(
+        1
+        for r in rows
+        if r["model_tier"] == tier
+        and r["variant"] == variant
+        and r["prompt_class"] == "positive"
+        and r["selected"] is True
+    )
+
+
+def _irrelevant_hits(rows: list[dict], tier: str, variant: str) -> int:
+    return sum(
+        1
+        for r in rows
+        if r["model_tier"] == tier
+        and r["variant"] == variant
+        and r["prompt_class"] in {"near-miss", "trivial-edit"}
+        and r["selected"] is True
+    )
+
+
+class TestTriggerPilotRunIntegrity:
+    """A partial run may not be reported as a measured result."""
+
+    def test_the_run_completed_the_frozen_matrix(self) -> None:
+        payload = json.loads(_PILOT_RESULTS_JSON.read_text(encoding="utf-8"))
+        assert payload["complete"] is True
+        assert payload["calls_made"] == payload["calls_planned"] == 96
+        assert not payload["stopped_early"]
+
+    def test_no_call_failed(self) -> None:
+        assert [r for r in _pilot_results() if r["status"] != "ok"] == []
+
+    def test_no_selection_is_evidence_missing(self) -> None:
+        """`None` means unknown; it must never be read as a non-selection."""
+        assert [r for r in _pilot_results() if r["selected"] is None] == []
+
+    def test_spend_stayed_under_the_authorized_ceiling(self) -> None:
+        payload = json.loads(_PILOT_RESULTS_JSON.read_text(encoding="utf-8"))
+        assert payload["total_spend_usd"] <= payload["ceiling_usd"]
+
+    def test_both_arms_ran_the_same_matrix(self) -> None:
+        rows = _pilot_results()
+        cells = {(r["model_tier"], r["variant"]) for r in rows}
+        assert len(cells) == 4
+        for tier, variant in cells:
+            assert len([r for r in rows if r["model_tier"] == tier and r["variant"] == variant]) == 24
+
+    def test_the_two_arms_differ_only_in_the_sampled_corpus(self) -> None:
+        """Variant B must actually be a different corpus from variant A."""
+        rows = _pilot_results()
+        a_hashes = {tuple(sorted(r["corpus_hashes"].items())) for r in rows if r["variant"] == "A"}
+        b_hashes = {tuple(sorted(r["corpus_hashes"].items())) for r in rows if r["variant"] == "B"}
+        assert len(a_hashes) == 1, "control corpus drifted mid-run"
+        assert len(b_hashes) == 1, "candidate corpus drifted mid-run"
+        assert a_hashes != b_hashes, "both arms ran the same corpus; the comparison is void"
+
+
+class TestTriggerPilotDocumentMatchesItsData:
+    """The narrative numbers are recomputed from the raw results."""
+
+    @pytest.mark.parametrize(
+        "tier,variant,positives,irrelevant",
+        [
+            ("fast", "A", 1, 0),
+            ("fast", "B", 0, 0),
+            ("strong", "A", 3, 0),
+            ("strong", "B", 1, 0),
+        ],
+    )
+    def test_reported_counts_are_the_measured_counts(
+        self, tier: str, variant: str, positives: int, irrelevant: int
+    ) -> None:
+        rows = _pilot_results()
+        assert _positive_hits(rows, tier, variant) == positives
+        assert _irrelevant_hits(rows, tier, variant) == irrelevant
+
+    def test_the_document_states_those_same_counts(self) -> None:
+        text = _PILOT_RESULTS_MD.read_text(encoding="utf-8")
+        for claim in ("**1 / 8**", "**0 / 8**", "**3 / 8**", "0 / 16"):
+            assert claim in text
+
+    def test_criterion_one_failure_is_derivable_not_asserted(self) -> None:
+        """B must actually lose positive selections on both models."""
+        rows = _pilot_results()
+        for tier in ("fast", "strong"):
+            assert _positive_hits(rows, tier, "B") < _positive_hits(rows, tier, "A")
+
+    def test_criterion_three_was_unreachable_by_construction(self) -> None:
+        """No reduction in irrelevant loading was available: A was already zero."""
+        rows = _pilot_results()
+        for tier in ("fast", "strong"):
+            assert _irrelevant_hits(rows, tier, "A") == 0
+
+    def test_disposition_is_recorded_as_measured_no_change(self) -> None:
+        assert "MEASURED_NO_CHANGE" in _PILOT_RESULTS_MD.read_text(encoding="utf-8")
+
+    def test_disposition_claim_has_teeth(self) -> None:
+        text = _PILOT_RESULTS_MD.read_text(encoding="utf-8")
+        mutated = text.replace("MEASURED_NO_CHANGE", "")
+        assert "MEASURED_NO_CHANGE" not in mutated
+
+
+class TestNothingWasPromoted:
+    """`MEASURED_NO_CHANGE` means the candidate wording stayed out of the catalog."""
+
+    @pytest.mark.parametrize("skill", sorted(_SAMPLED_SKILLS))
+    def test_candidate_description_did_not_reach_the_catalog(self, skill: str) -> None:
+        candidate = json.loads(_PILOT_VARIANT_B.read_text(encoding="utf-8"))["descriptions"][skill]
+        shipped = _SAMPLED_SKILLS[skill].read_text(encoding="utf-8")
+        assert candidate not in shipped
+
+    @pytest.mark.parametrize("skill", sorted(_SAMPLED_SKILLS))
+    def test_the_check_would_notice_a_promotion(self, skill: str) -> None:
+        """Mutation control: planting the candidate text must trip the check."""
+        candidate = json.loads(_PILOT_VARIANT_B.read_text(encoding="utf-8"))["descriptions"][skill]
+        planted = _SAMPLED_SKILLS[skill].read_text(encoding="utf-8") + "\n" + candidate
+        assert candidate in planted
+
+    def test_every_sampled_skill_still_exists(self) -> None:
+        for path in _SAMPLED_SKILLS.values():
+            assert path.is_file()
