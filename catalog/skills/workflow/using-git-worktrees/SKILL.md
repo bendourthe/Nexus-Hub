@@ -93,6 +93,10 @@ target="../$(basename "$(git rev-parse --show-toplevel)")-worktrees/$branch"
 git worktree add -b "$branch" "$target"
 ```
 
+**Never place a worktree inside a vendor or tool directory**, even when that directory is git-ignored. `.claude/`, `.cursor/`, `.vscode/`, `.idea/`, `.codex/`, `.gemini/`, `.windsurf/`, `.agents/` and their siblings belong to one product's configuration. A worktree is the work itself, and the work is platform-agnostic: putting it under a vendor path implies that product owns it, breaks when the user switches tools, and buries a full checkout somewhere nobody thinks to look. `git check-ignore` passes on these paths, so the ignore gate alone does not catch this; the vendor-directory rule is a separate check.
+
+A real instance: a worktree at `.claude/worktrees/guide-foundations-ml` sat inside the repository, inside a vendor directory, and held 1,267 lines of uncommitted work. When the repository was later moved, every worktree pointer broke, and that work became unreachable through git until the pointers were repaired. Neither the ignore gate nor the tracked-path rule below would have prevented it.
+
 Never create a worktree inside a path that is tracked by git. A worktree placed in a tracked directory pollutes `git status` in the main checkout and risks committing the entire nested checkout. The `git check-ignore -q` gate is the verification that prevents this; do not skip it for in-repo placements.
 
 ## Step 3: Auto-Detect and Run Project Setup
@@ -159,6 +163,8 @@ Run the project's test (and, if fast, build) command in the new worktree and con
 - [ ] Project setup ran in the new worktree (dependencies installed, required local files present).
 - [ ] The existing test suite was run in the new worktree and the baseline is clean before any feature work began.
 - [ ] No worktree was created from inside an existing worktree or a submodule.
+- [ ] The worktree is NOT inside a vendor or tool directory (`.claude/`, `.cursor/`, `.vscode/`, `.idea/`, `.codex/`, `.gemini/`, `.windsurf/`, `.agents/`), regardless of git-ignore status.
+- [ ] A sibling path outside the repository was used, or the in-repo fallback was justified AND passed `git check-ignore -q`.
 
 ## Related Skills
 

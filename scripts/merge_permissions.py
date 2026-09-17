@@ -56,6 +56,20 @@ import sys
 from pathlib import Path
 from typing import Any
 
+# Reads are BOM-tolerant; writes are not. The asymmetry is deliberate.
+#
+# A settings.json written by PowerShell 5.1 via `Set-Content -Encoding utf8`
+# carries a UTF-8 BOM (AGENTS.md documents that trap for hook authors). Decoding
+# such a file as plain "utf-8" leaves a leading U+FEFF, and json.loads then fails
+# with "Unexpected UTF-8 BOM (decode using utf-8-sig)" -- which is what made the
+# Gemini permission sync fail on a real Windows install while every other
+# platform succeeded.
+#
+# "utf-8-sig" strips a BOM when present and is a no-op when absent, so it is safe
+# for every file we read regardless of who wrote it. Writes stay plain "utf-8" so
+# this tool never ADDS a BOM and never propagates one it just stripped.
+_READ_ENCODING = "utf-8-sig"
+
 
 def _strip_metadata(node: Any) -> Any:
     """Recursively drop ``_``-prefixed documentation keys from a template."""
@@ -108,7 +122,7 @@ def _load_manifest(manifest_path: Path) -> dict[str, list[str]]:
     if not manifest_path.exists():
         return {}
     try:
-        data = json.loads(manifest_path.read_text(encoding="utf-8"))
+        data = json.loads(manifest_path.read_text(encoding=_READ_ENCODING))
     except (OSError, json.JSONDecodeError):
         return {}
     if not isinstance(data, dict):
@@ -142,7 +156,7 @@ def _backup(settings_path: Path) -> Path:
 
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     backup_path = settings_path.with_name(settings_path.name + f".bak.{stamp}")
-    backup_path.write_text(settings_path.read_text(encoding="utf-8"), encoding="utf-8")
+    backup_path.write_bytes(settings_path.read_bytes())
     return backup_path
 
 
@@ -178,7 +192,7 @@ def set_true(settings_path: Path, key: str, backup: bool = True) -> bool:
       shipped a *set* of them, so there is nothing a later version could safely retire.
     """
     if settings_path.exists():
-        doc = json.loads(settings_path.read_text(encoding="utf-8"))
+        doc = json.loads(settings_path.read_text(encoding=_READ_ENCODING))
         if not isinstance(doc, dict):
             raise ValueError(f"{settings_path} does not contain a JSON object")
     else:
@@ -212,13 +226,13 @@ def merge(
     longer does. An entry the user added by hand is never in the manifest, so it can
     never be removed. Without a manifest, no removal happens at all.
     """
-    template = _strip_metadata(json.loads(template_path.read_text(encoding="utf-8")))
+    template = _strip_metadata(json.loads(template_path.read_text(encoding=_READ_ENCODING)))
     template_entries = _get_path(template, key) or []
     if not isinstance(template_entries, list):
         raise ValueError(f"template key {key!r} is not an array")
 
     if settings_path.exists():
-        existing_doc = json.loads(settings_path.read_text(encoding="utf-8"))
+        existing_doc = json.loads(settings_path.read_text(encoding=_READ_ENCODING))
         if not isinstance(existing_doc, dict):
             raise ValueError(f"{settings_path} does not contain a JSON object")
         existing_entries = _get_path(existing_doc, key) or []
@@ -323,11 +337,11 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         if args.count_only:
-            template = _strip_metadata(json.loads(args.template.read_text(encoding="utf-8")))
+            template = _strip_metadata(json.loads(args.template.read_text(encoding=_READ_ENCODING)))
             template_entries = set(_get_path(template, args.key) or [])
             if args.settings.exists():
                 existing = set(
-                    _get_path(json.loads(args.settings.read_text(encoding="utf-8")), args.key)
+                    _get_path(json.loads(args.settings.read_text(encoding=_READ_ENCODING)), args.key)
                     or []
                 )
             else:
