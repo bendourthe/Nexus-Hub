@@ -197,6 +197,15 @@ def scan_push(payload: bytes) -> None:
         if old.strip("0"):
             git("cat-file", "-e", old)  # missing remote baseline must not silently pass
             revs.append("^" + old)
+        else:
+            # A ref the remote does not have yet. With no baseline, `git log new`
+            # walks the whole history and reports commits this push does not
+            # introduce, so a branch cut from a trunk carrying any pre-guard
+            # trailer is unpushable for reasons it did not create. Exclude what
+            # the remote already holds. Stale remote-tracking refs only widen
+            # the scan, never narrow it, so the failure direction stays safe,
+            # and a repository with no remote-tracking refs still scans in full.
+            revs += ["--not", "--remotes"]
         records = git(
             "log", "--format=%an%x00%ae%x00%cn%x00%ce%x00%B%x00", *revs
         ).split("\x00")
