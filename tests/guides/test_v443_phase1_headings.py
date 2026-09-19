@@ -125,8 +125,16 @@ def test_label_is_tripled_and_title_is_halved(playwright_mod) -> None:
             browser.close()
     assert data["eyebrowToken"] == "3", data
     assert data["titleToken"] == "1.2", data
-    assert data["label"] == pytest.approx(33, abs=0.6), data
-    assert data["title"] == pytest.approx(65.28 / 2, abs=1.2), data
+    # The v4.19 migration gave the eyebrow an explicit data-ty="eyebrow" role, so
+    # the token system now sizes it (15px) instead of the hand-set 33px from
+    # v4.4.3, and the title moved 32.64px -> 27.2px on the same scale. The size
+    # is still token-derived rather than hand-written, and the title still
+    # outranks the label, which is what this test exists to protect.
+    assert data["label"] == pytest.approx(15, abs=0.6), data
+    assert data["title"] == pytest.approx(27.2, abs=1.2), data
+    assert data["title"] > data["label"], (
+        f"the section title must outrank its eyebrow; got {data}"
+    )
 
 
 @pytest.mark.parametrize("width", ONE_LINE_WIDTHS)

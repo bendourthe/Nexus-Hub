@@ -17,6 +17,7 @@ to a defined 8.11 behavior.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -65,7 +66,12 @@ def test_full_is_canonical_and_in_full_is_the_compatibility_alias() -> None:
     assert "Driver mode is a later whole token only: `full` (alias `in-full`)" in runbook
     assert "mode is `full` (alias `in-full`)" in skill
     assert "`/implement <slug> full` (alias `in-full`)" in readme
-    assert "<code>full</code><span>Run every incomplete phase in order (alias: in-full)." in guide
+    # The v4.19 type-token migration added data-ty to <code>, so the check
+    # tolerates attributes while still pinning the element and its exact text.
+    assert re.search(
+        r"<code[^>]*>full</code><span>Run every incomplete phase in order \(alias: in-full\)\.",
+        guide,
+    ), "the guide cheatsheet must name full as canonical with in-full as its alias"
     assert "implement full (alias in-full)" in registry
 
     for text in (command, runbook, skill, readme):
