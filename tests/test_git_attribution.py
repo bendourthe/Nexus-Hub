@@ -541,3 +541,50 @@ def test_uninstall_does_not_overwrite_later_user_config(sandbox):
         run("git", "config", "--global", "--get", "core.hooksPath").stdout.strip()
         == "different"
     )
+
+
+def test_new_branch_push_scans_what_it_adds_not_the_whole_history(sandbox):
+    """Pushing a ref the remote lacks scans that branch's own commits.
+
+    With no remote baseline the guard walked the entire history, so a branch cut
+    from a trunk carrying any pre-guard trailer was unpushable for reasons it did
+    not create. The second half is the half that matters: narrowing the range must
+    not stop the guard catching a trailer the branch itself introduces.
+    """
+    run, _, home = sandbox
+    remote = home / "remote.git"
+    run("git", "init", "--bare", "-q", str(remote))
+
+    # Published trunk history from before the guard existed, trailer and all.
+    run("git", "commit", "--allow-empty", "-m", "Trunk one")
+    run(
+        "git",
+        "commit",
+        "--allow-empty",
+        "-m",
+        "Trunk two\n\nCo-Authored-By: Claude <c@anthropic.com>",
+    )
+    run("git", "remote", "add", "origin", str(remote))
+    run("git", "push", "-q", "origin", "HEAD:refs/heads/develop")
+    run("git", "fetch", "-q", "origin")
+
+    guard(run, "install")
+
+    # A clean branch on top of that history pushes as a new ref. Before the
+    # range was bounded this failed on "Trunk two", which the push does not add.
+    run("git", "checkout", "-q", "-b", "feature")
+    run("git", "commit", "--allow-empty", "-m", "Clean work")
+    run("git", "push", "-q", "origin", "feature:refs/heads/feature")
+
+    # A trailer this branch introduces is still refused, also as a new ref.
+    run(
+        "git",
+        "commit",
+        "--no-verify",
+        "--allow-empty",
+        "-m",
+        "Dirty\n\nCo-Authored-By: Claude <c@anthropic.com>",
+    )
+    result = run("git", "push", "origin", "feature:refs/heads/second", code=None)
+    assert result.returncode != 0 and "attribution trailers" in result.stderr
+    assert "second" not in run("git", "ls-remote", str(remote)).stdout
