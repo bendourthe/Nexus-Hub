@@ -108,6 +108,8 @@ def test_scene_titles_come_before_their_subtitles(playwright_mod) -> None:
                       titleFirstInDom: (h2.compareDocumentPosition(sub) & Node.DOCUMENT_POSITION_FOLLOWING) ? true : false,
                       labelStyle: ['color','fontWeight','letterSpacing','textTransform','lineHeight'].every(k => hs[k] === getComputedStyle(document.querySelector('#page-home .eyebrow'))[k]),
                       subtitleStyle: ['color','fontWeight','letterSpacing','textTransform'].every(k => cs[k] === getComputedStyle(document.querySelector('#page-home .section-title'))[k]),
+                      titleStyle: Object.fromEntries(['color','fontWeight','letterSpacing','textTransform','fontSize'].map(k => [k, hs[k]])),
+                      subtitleStyleProps: Object.fromEntries(['color','fontWeight','letterSpacing','textTransform','fontSize'].map(k => [k, cs[k]])),
                       marker: getComputedStyle(h2,'::before').content !== 'none',
                       notALabel: cs.textTransform === 'none',
                       sameLeft: Math.abs(h2.getBoundingClientRect().left - sub.getBoundingClientRect().left) < 2,
@@ -120,9 +122,17 @@ def test_scene_titles_come_before_their_subtitles(playwright_mod) -> None:
     for row in rows:
         assert row["title"] and row["subtitle"], row
         assert row["titleFirstOnScreen"] and row["titleFirstInDom"], row
-        assert row["labelStyle"] and row["subtitleStyle"] and row["marker"], row
+        assert row["marker"], row
         assert row["notALabel"], f"the subtitle must not render as an uppercase label: {row}"
         assert row["sameLeft"], row
+
+    # v4.19 stopped styling scene titles as Home eyebrows. The surviving rule is
+    # internal consistency: every scene must present its title and subtitle
+    # identically, so one scene cannot drift away from the rest unnoticed.
+    title_styles = {tuple(sorted(r["titleStyle"].items())) for r in rows}
+    subtitle_styles = {tuple(sorted(r["subtitleStyleProps"].items())) for r in rows}
+    assert len(title_styles) == 1, f"scene titles are not styled alike: {title_styles}"
+    assert len(subtitle_styles) == 1, f"scene subtitles are not styled alike: {subtitle_styles}"
 
 
 # ------------------------------------------------------------------ balance and containment

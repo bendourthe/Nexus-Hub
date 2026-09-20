@@ -222,7 +222,10 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
     # v4.4.1 rendered h2 at 1.7rem (27.2px); v4.4.2 tuned the token to 2.4 (65.3px); the v4.4.3
     # review halved it to 1.2 (32.6px) and tripled the label instead. The RENDERED size is now
     # per-container, because NexusFit shrinks anything that would wrap, so only the base is shared.
-    assert 32 <= sizes[0] <= 34, sizes[0]
+    # v4.19 moved the shared title base again, 32.64px -> 27.2px, on the new
+    # --ty-h2 scale. One SHARED size across all four pages is the contract;
+    # the value is the design's to choose and is pinned so a drift still fails.
+    assert 26 <= sizes[0] <= 28, sizes[0]
     assert fitted, "no active-page titles measured"
     for row in fitted:
         assert row["now"] <= row["base"] + 0.5, row
