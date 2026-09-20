@@ -1,6 +1,6 @@
 # Decision: Per-version documentation ages out of `development/history/` on a two-minor rule, advisory not enforced
 
-Status: implemented - `development/history/` subtrees archive two minors behind current; plans, comparisons, known-gaps, CI fixtures, and contract docs never age out; a report-only checker makes drift visible without blocking a release
+Status: implemented - THRESHOLD SUPERSEDED 2026-09-20, now one minor behind, see [2026-09-20-archive-history-one-minor-behind.md](2026-09-20-archive-history-one-minor-behind.md); everything else stands: `development/history/` subtrees archive behind current; plans, comparisons, known-gaps, CI fixtures, and contract docs never age out; a report-only checker makes drift visible without blocking a release
 
 ## Problem
 

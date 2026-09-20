@@ -1,10 +1,10 @@
 # Session history - v4.10.0 Phase 5
 
-**Plan**: [v4.10.0-plan-queue-continuity](../../plans/v4.10.0-plan-queue-continuity.md)
+**Plan**: [v4.10.0-plan-queue-continuity](../../../../../releases/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md)
 **Phase**: 5 - Release review and assisted renumber
 **Date**: 2026-09-10
 **Branch**: `feat/v4.10.0-plan-queue-continuity`
-**Evidence**: [phase-5-release-and-renumber.md](../phase-5-release-and-renumber.md)
+**Evidence**: [phase-5-release-and-renumber.md](../../../../../releases/v4/v4.10/development/phase-5-release-and-renumber.md)
 
 ## Subtasks completed
 

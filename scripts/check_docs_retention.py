@@ -4,7 +4,7 @@
 `docs/policy/docs-retention.md` says a minor version's `development/history/`
 subtree moves from `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`
 to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/` once that minor
-is two or more minors behind the current one. This reports drift against that
+is behind the current one. This reports drift against that
 rule and names the destination.
 
 A path-based checker whose scan root has been renamed reports "nothing due"
@@ -47,8 +47,8 @@ if str(_LIB) not in sys.path:
 
 from output_paging import OversizedLineError, emit_paged  # noqa: E402
 
-# docs/policy/docs-retention.md: two or more minors behind current.
-ARCHIVE_AFTER_MINORS = 2
+# docs/policy/docs-retention.md: any minor behind the current one.
+ARCHIVE_AFTER_MINORS = 1
 
 # Only `development/history/` ages out, NOT `development/` wholesale. The v3.18.0
 # Phase 5 archive pass found that `development/` also holds live content: CI
@@ -123,7 +123,7 @@ def find_candidates(root: Path, current: tuple[int, int]) -> list[tuple[Path, st
             minor = int(match.group("minor"))
 
             # An older major is entirely archivable; within the current major,
-            # apply the two-minor distance.
+            # every minor below the current one is archivable.
             if major == current_major:
                 if current_minor - minor < ARCHIVE_AFTER_MINORS:
                     continue

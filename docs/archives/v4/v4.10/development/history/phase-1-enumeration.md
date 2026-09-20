@@ -1,10 +1,10 @@
 # Session history - v4.10.0 Phase 1
 
-**Plan**: [v4.10.0-plan-queue-continuity](../../plans/v4.10.0-plan-queue-continuity.md)
+**Plan**: [v4.10.0-plan-queue-continuity](../../../../../releases/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md)
 **Phase**: 1 - Queue enumeration and baseline
 **Date**: 2026-09-10
 **Branch**: `feat/v4.10.0-plan-queue-continuity`
-**Evidence**: [phase-1-enumeration.md](../phase-1-enumeration.md)
+**Evidence**: [phase-1-enumeration.md](../../../../../releases/v4/v4.10/development/phase-1-enumeration.md)
 
 ## Context
 
