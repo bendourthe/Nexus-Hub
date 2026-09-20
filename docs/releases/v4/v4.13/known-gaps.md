@@ -61,7 +61,13 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 
 **Cost observed**: diagnosing two unnamed failures took two full profile runs and two standalone suite runs, roughly four hours, to establish something the runner already knows. It constructs `status="timeout"` and `reason=f"exceeded {cmd.timeout}s"` and never prints either.
 
-**Owner**: repository maintainer, via `[[cicd-architect]]`. **Status**: open. **Suggested next step**: print the timeout the same way a failure is printed, for example `[TIME] <name> (<duration>s) exceeded <cap>s`. Proposed and deliberately NOT applied in this phase: `scripts/ci/run.py` is pipeline infrastructure, and this phase's own rule is that a pipeline change requires explicit per-change approval, which was not given.
+**Wider than first recorded**: reading the code found FOUR early-return paths that all skip the rendering block at line 122, not one. Working directory not found (line 65), executable not on PATH (line 73), timeout (line 100), and `OSError` on launch (line 109). All four satisfy `counts_as_failure`, so any of them fails the run silently. The missing-executable case is arguably worse than the timeout, because an environment problem is then indistinguishable from a test problem.
+
+**Owner**: repository maintainer, via `[[cicd-architect]]`. **Status**: open, approach approved, scheduled outside this plan.
+
+**Agreed solution (maintainer, 2026-09-17)**: move rendering out of `run_command` into `run_group`, driven by the `CommandResult`, so one renderer covers every status including all four early returns; and capture `TimeoutExpired.stdout`/`.stderr` so a killed step still shows its last lines. Chosen over patching each early return individually, because that fixes four instances of a class while this removes the class. Risk is low: `run_command` has one production caller, and the nine test call sites in `tests/ci/test_ci_engine.py` assert on the returned object rather than on stdout.
+
+**Deliberately not applied in v4.13.0**: the release is finished and validated, and touching the gate engine would require re-running a 2.4-hour gate to prove the gate still works. Scheduled as its own focused change against `develop` after v4.13.0 merges, with a regression test asserting that each of the four statuses prints its name and reason.
 
 #### QG-3: The `full` profile's test budgets are exceeded on a loaded workstation
 
