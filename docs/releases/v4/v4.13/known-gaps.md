@@ -69,13 +69,21 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 
 **Deliberately not applied in v4.13.0**: the release is finished and validated, and touching the gate engine would require re-running a 2.4-hour gate to prove the gate still works. Scheduled as its own focused change against `develop` after v4.13.0 merges, with a regression test asserting that each of the four statuses prints its name and reason.
 
-#### QG-3: The `full` profile's test budgets are exceeded on a loaded workstation
+#### QG-3: The `tests` group has no enforceable time bound when a step spawns a process tree
 
-**Source phase**: Phase 7. **Plan reference**: T033. **Reason**: `hook-tests` (cap 1800s) measured 1961.5s and `repo-tests` (cap 4500s) measured 5970.3s on the development host, so the `tests` group cannot pass there even though every assertion passes. `scripts/ci/profiles.py` records a measured Windows baseline of 3341.7s for `repo-tests`; this host ran 79 percent above it while other workloads were resident.
+**Source phase**: Phase 7. **Plan reference**: T033. **Corrected 2026-09-20**: this entry originally recorded a slow host. Two different problems were being read as one, and the second is worse than the first.
 
-**Evidence**: 1319 passed / 35 skipped and 5805 passed / 101 skipped / 0 failed when the two suites are run directly.
+**The budget overrun is real.** `hook-tests` (cap 1800s) measured 1961.5s and `repo-tests` (cap 4500s) measured 5970.3s on the development host, against the measured Windows baseline of 3341.7s for `repo-tests` that `scripts/ci/profiles.py` records; this host ran 79 percent above it while other workloads were resident. Every assertion passed: 1319 passed / 35 skipped and 5805 passed / 101 skipped / 0 failed when the two suites run directly.
 
-**Owner**: repository maintainer, via `[[cicd-architect]]`. **Status**: open. **Suggested next step**: decide deliberately whether the caps describe CI runners only, in which case document that a contended workstation is expected to exceed them, or whether local runs are meant to fit, in which case the budget needs re-measuring on a quiet machine. Do NOT raise the cap from a contended host's timing: that tunes a shared guard to the slowest observation and removes the protection the cap exists to provide. Not caused by this plan, which added roughly 180 tests running in about one second against a 2600-second overshoot.
+**The cap cannot fire at all for a tree-spawning step.** A later `--profile full --only tests` run reached 340 minutes without printing a single step result, against a combined cap of 105 minutes. A cap that is never reached is not a cap being exceeded, which is why the original wording would send a reader to re-measure on a quiet machine and find nothing wrong.
+
+**Root cause**: `scripts/ci/run.py` bounds each step with `subprocess.run(capture_output=True, timeout=cmd.timeout)`. On timeout, `subprocess.run` kills the direct child and then calls `communicate()` a SECOND time with no timeout to reap it. Killing a child does not kill its descendants on Windows, so a grandchild holding the inherited stdout pipe keeps it open, EOF never arrives, and that second call blocks permanently. The installer tests spawn real installers; the process observed at the 340-minute mark was `test_real_workspace_installer_3`. CI survives this only because the job-level limit kills the runner instead, so the defect is invisible there.
+
+**Evidence**: [`development/repro/ci-runner-timeout-hang.py`](development/repro/ci-runner-timeout-hang.py) reduces it to the part that matters and prints a verdict. Observed: a 5-second timeout did not return after 30 seconds.
+
+**Owner**: repository maintainer, via `[[cicd-architect]]`. **Status**: open.
+
+**Suggested next step**: fix this together with QG-2 in ONE change, because both live in `run_command`'s result handling and fixing them separately touches the same function twice. Give the subprocess temp files instead of pipes: with no inherited pipe there is nothing to block on, `TimeoutExpired` returns promptly, the kill is effective, and the partial output stays readable from the file, which is exactly the output QG-2 says a killed step must print. Add a regression test asserting that a tree-spawning step is killed, reports `timeout`, and prints its partial output. Separately, and still open, decide whether the caps describe CI runners only, in which case document that a contended workstation is expected to exceed them, or whether local runs are meant to fit, in which case re-measure on a quiet machine. Do NOT raise the cap from a contended host's timing: that tunes a shared guard to the slowest observation and removes the protection the cap exists to provide. Neither problem is caused by this plan, which added roughly 180 tests running in about one second.
 
 ### Resolved Items
 
