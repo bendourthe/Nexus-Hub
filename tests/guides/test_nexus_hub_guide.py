@@ -2,7 +2,7 @@
 
 v4.2.2 rebuild gate. Baseline assertions pass against the rebuilt shell;
 assertions owned by a later rebuild phase use strict xfail until that phase
-removes the marker (plan: docs/releases/v4/v4.2/plans/
+removes the marker (plan: docs/archives/v4/v4.2/plans/
 v4.2.2-guide-cinematic-rebuild.md).
 """
 

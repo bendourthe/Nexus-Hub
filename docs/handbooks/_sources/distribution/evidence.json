@@ -31,17 +31,17 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.12/development/v4.12.1-distribution-handbook-content.md",
+      "evidence": "docs/archives/v4/v4.12/development/v4.12.1-distribution-handbook-content.md",
       "evidence_sha256": "1da2cc310bc3d50b97ae740b70485136402f2f72ab6f3502e8385fa182be2920"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.12/development/portable-attribution-handbook-build.json",
+      "evidence": "docs/archives/v4/v4.12/development/portable-attribution-handbook-build.json",
       "evidence_sha256": "042069917bcef67964fbc9de316045cd9c05877a15c40e745400b41abf414070"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.12/development/portable-attribution-handbook-rendered.json",
+      "evidence": "docs/archives/v4/v4.12/development/portable-attribution-handbook-rendered.json",
       "evidence_sha256": "44e194c65e2bc5bb901e2d7cf282c652ec640a370e9a65157f49fc20cdcbed79",
       "browser": "Chromium 151.0.7922.34",
       "output_sha256": "8463c66d85d0d354374b89ceb2a10ddf8c9fe5138a866ad13606776d763cc557"

@@ -63,7 +63,7 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 **Source phase**: Phase 4. **Plan reference**: T019, functional-verification deep-pass Step 6. **Reason**: a separate reviewer returned the PR-ref finding, then its turn was stopped by an automated security filter before remaining exercise results were returned.
 
-**Owner**: Repository owner and authorized independent reviewer. **Suggested next step**: obtain the remaining independent review through the supported review process before assigning a clean adversarial verdict. Existing ordinary tests and the returned finding remain valid evidence for their own scopes. See [review status](development/ADVERSARIAL-REPORT.md).
+**Owner**: Repository owner and authorized independent reviewer. **Suggested next step**: obtain the remaining independent review through the supported review process before assigning a clean adversarial verdict. Existing ordinary tests and the returned finding remain valid evidence for their own scopes. See [review status](../../../archives/v4/v4.12/development/ADVERSARIAL-REPORT.md).
 
 #### QG-4: Windows whole-repository profile timed out
 
@@ -82,7 +82,7 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 ### Release disposition
 
-v4.12.0 was published on 2026-09-15 at tag `v4.12.0` (`0dabca77`) and reconciled into `develop` by the back-merge in PR #220. Post-publication verification of the downloaded artifacts passed for both published forms (1,929 manifest entries each, matching asset digest, successful provenance attestation). The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. Publication does not close the four warnings and four historical quality-gate gaps above, which the release preserves. Portable attribution integration passed PR #217 and post-merge run 34925451808; it does not close those independent items. No unresolved portable-code finding remains. See [release qualification](development/release-qualification.md) for the release evidence and queue impacts.
+v4.12.0 was published on 2026-09-15 at tag `v4.12.0` (`0dabca77`) and reconciled into `develop` by the back-merge in PR #220. Post-publication verification of the downloaded artifacts passed for both published forms (1,929 manifest entries each, matching asset digest, successful provenance attestation). The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. Publication does not close the four warnings and four historical quality-gate gaps above, which the release preserves. Portable attribution integration passed PR #217 and post-merge run 34925451808; it does not close those independent items. No unresolved portable-code finding remains. See [release qualification](../../../archives/v4/v4.12/development/release-qualification.md) for the release evidence and queue impacts.
 
 #### DF-1: Antigravity workflow surface retires on 2026-11-01
 

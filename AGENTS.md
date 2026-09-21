@@ -484,7 +484,7 @@ python scripts/ci/run.py --profile full    # the complete gate CI's `validate` j
 python scripts/ci/run.py --profile fast --list   # show the steps without running them
 ```
 
-Prefer these over transcribing a `Makefile` target by hand. `make` is not present on every supported development host (notably a stock Windows workstation), and the `validate` target maintains a hand-kept step list that the profile already contains as a superset. During v4.8.0 a contributor without `make` ran the target's steps individually, each passed, and the pull request still failed `validate` on a step that had last run several phases earlier: the composite claim was never true at one revision. One command against one list is what prevents that. See `WN-D` and the `## Full-suite testing and stabilization` section of `docs/releases/v4/v4.8/development/last-phase-evidence.md`.
+Prefer these over transcribing a `Makefile` target by hand. `make` is not present on every supported development host (notably a stock Windows workstation), and the `validate` target maintains a hand-kept step list that the profile already contains as a superset. During v4.8.0 a contributor without `make` ran the target's steps individually, each passed, and the pull request still failed `validate` on a step that had last run several phases earlier: the composite claim was never true at one revision. One command against one list is what prevents that. See `WN-D` and the `## Full-suite testing and stabilization` section of `docs/archives/v4/v4.8/development/last-phase-evidence.md`.
 
 ## Branching and Release Workflow
 

@@ -6,7 +6,7 @@
 
 ## v4.5.0 - anti-cliche-and-agent-security
 
-**Plan**: [v4.5.0-anti-cliche-and-agent-security.md](plans/v4.5.0-anti-cliche-and-agent-security.md)
+**Plan**: [v4.5.0-anti-cliche-and-agent-security.md](../../../archives/v4/v4.5/plans/v4.5.0-anti-cliche-and-agent-security.md)
 **Base**: `develop` at `8a426441` (the v4.4.5 back-merge)
 
 ### Summary

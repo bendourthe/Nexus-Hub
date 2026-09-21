@@ -1,7 +1,7 @@
 # Development log: Phase 1 attribution checker
 
 **Date**: 2026-09-14
-**Objective**: Implement T001-T005 of the [v4.12 attribution plan](../../../../../releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md), with local evidence before any rewrite.
+**Objective**: Implement T001-T005 of the [v4.12 attribution plan](../../../../../archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md), with local evidence before any rewrite.
 **Outcome**: Inventory, policy, proposed decision, checker and fixture tests prepared for one local phase commit. No v4.12 branch push, PR or remote CI run.
 
 ## 1. Starting State
@@ -47,7 +47,7 @@ See the required disposition below. The corrections change verification wording,
 
 ## Plan delta
 
-**False assumption, corrected without expanding scope.** GitHub currently maps both old maintainer name variants at the Gmail address to bendourthe. GraphQL confirms Cursor and Claude co-author accounts; Dependabot remains a separate author. Broad `--grep=cursoragent` also matches ordinary planning prose and is not a valid zero-trailer assertion. The dated inventory and policy replace those assumptions with observed mappings; T008 now checks structured fields while preserving prose. Phase 2 must preserve the backup and all ref names, Phase 3 must reject future unknown identities, and Phase 4 still requires explicit publication approval and GitHub UI evidence. The [queue assessment](../../../../../releases/v4/v4.12/development/phase-1-queue-assessment.md) records 103 readable plans, unknown statuses and shared-file/ref ordering constraints. No Phase 1 prerequisite is blocked.
+**False assumption, corrected without expanding scope.** GitHub currently maps both old maintainer name variants at the Gmail address to bendourthe. GraphQL confirms Cursor and Claude co-author accounts; Dependabot remains a separate author. Broad `--grep=cursoragent` also matches ordinary planning prose and is not a valid zero-trailer assertion. The dated inventory and policy replace those assumptions with observed mappings; T008 now checks structured fields while preserving prose. Phase 2 must preserve the backup and all ref names, Phase 3 must reject future unknown identities, and Phase 4 still requires explicit publication approval and GitHub UI evidence. The [queue assessment](../../../../../archives/v4/v4.12/development/phase-1-queue-assessment.md) records 103 readable plans, unknown statuses and shared-file/ref ordering constraints. No Phase 1 prerequisite is blocked.
 
 ## 6. Assumptions Made
 

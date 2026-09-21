@@ -1,6 +1,6 @@
 # Development log: Phase 4 final qualification
 
-**Date**: 2026-09-14. **Objective**: Complete local final-phase duties and prepare a concrete publication decision for the [v4.12 plan](../../../../../releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md). **Status**: local implementation and CI-aligned qualification complete; publication and public contributor proof pending.
+**Date**: 2026-09-14. **Objective**: Complete local final-phase duties and prepare a concrete publication decision for the [v4.12 plan](../../../../../archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md). **Status**: local implementation and CI-aligned qualification complete; publication and public contributor proof pending.
 
 ## 1. Starting State
 
@@ -40,7 +40,7 @@ The first Windows full profile completed 46 commands successfully but the whole 
 
 ## 4. Known Issues
 
-The [ledger](../../../../../releases/v4/v4.12/known-gaps.md) records existing lint/reporting/settings drift, the read-only PR-ref limitation, pending publication/UI proof and incomplete independent adversarial coverage. The [final evidence](../../../../../releases/v4/v4.12/development/last-phase-evidence.md) separates these from ordinary functional tests. Historical signed objects and original provenance remain in the backup; rewriting does not re-sign or re-attest them. No macOS native execution is claimed on this Windows/Linux workstation.
+The [ledger](../../../../../releases/v4/v4.12/known-gaps.md) records existing lint/reporting/settings drift, the read-only PR-ref limitation, pending publication/UI proof and incomplete independent adversarial coverage. The [final evidence](../../../../../archives/v4/v4.12/development/last-phase-evidence.md) separates these from ordinary functional tests. Historical signed objects and original provenance remain in the backup; rewriting does not re-sign or re-attest them. No macOS native execution is claimed on this Windows/Linux workstation.
 
 ## 5. Plan Discrepancies
 

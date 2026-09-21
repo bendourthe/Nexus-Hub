@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** v4.12.0 [sole-contributor attribution](releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md) is released: published at tag `v4.12.0` (`0dabca77`), downloaded-artifact verification passed for the release asset and the GitHub source archive, and the release is reconciled into `develop` by the back-merge in PR #220. The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. The GitHub Code-sidebar contributor count remains the one open public-view item (T021 and QG-2); Insights already shows only bendourthe. Warnings WN-1 to WN-4 and quality-gate gaps QG-1 to QG-4 stay open in the [v4.12 ledger](releases/v4/v4.12/known-gaps.md).
+**Active work:** v4.12.0 [sole-contributor attribution](archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md) is released: published at tag `v4.12.0` (`0dabca77`), downloaded-artifact verification passed for the release asset and the GitHub source archive, and the release is reconciled into `develop` by the back-merge in PR #220. The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. The GitHub Code-sidebar contributor count remains the one open public-view item (T021 and QG-2); Insights already shows only bendourthe. Warnings WN-1 to WN-4 and quality-gate gaps QG-1 to QG-4 stay open in the [v4.12 ledger](releases/v4/v4.12/known-gaps.md).
 **Last refreshed:** 2026-09-15
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -26,9 +26,9 @@ Phases 1-7 of the [v4.13.0 plan](releases/v4/v4.13/plans/v4.13.0-adoption-eviden
 
 ## Portable attribution extension
 
-Local feature implementation and qualification are complete: all 47 Linux full-profile commands and 15 Windows fast-profile commands pass, with real Windows and Linux installer verification. Normal integration passed through PR #217 and post-merge run 34925451808; v4.12.0 is published and its downloaded artifacts are verified, recorded in the [portable evidence](releases/v4/v4.12/development/portable-attribution-evidence.md). The public Code contributor display remains open independently.
+Local feature implementation and qualification are complete: all 47 Linux full-profile commands and 15 Windows fast-profile commands pass, with real Windows and Linux installer verification. Normal integration passed through PR #217 and post-merge run 34925451808; v4.12.0 is published and its downloaded artifacts are verified, recorded in the [portable evidence](archives/v4/v4.12/development/portable-attribution-evidence.md). The public Code contributor display remains open independently.
 
-- [x] Implemented approved v4.12 Phase 5: installable Git attribution guard, both installers, all platform instructions, installed-behavior verification and release preparation. See [the active plan](releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md).
+- [x] Implemented approved v4.12 Phase 5: installable Git attribution guard, both installers, all platform instructions, installed-behavior verification and release preparation. See [the active plan](archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md).
 
 ## Scores
 

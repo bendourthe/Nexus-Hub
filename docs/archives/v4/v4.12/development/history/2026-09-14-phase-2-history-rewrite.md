@@ -1,12 +1,12 @@
 # Development log: Phase 2 isolated history rewrite
 
 **Date**: 2026-09-14
-**Objective**: Complete T006-T009 of the [v4.12 plan](../../../../../releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md) locally, preserving recoverable original history.
+**Objective**: Complete T006-T009 of the [v4.12 plan](../../../../../archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md) locally, preserving recoverable original history.
 **Outcome**: All 139 captured refs were rewritten in a separate repository; 1,697 commits pass attribution checks and preservation comparisons. No remote history changed.
 
 ## 1. Starting State
 
-Original Phase 1 commit: `1b8f94df618fa1d2bba84eb51ca82356c1394201`. The working tree was clean before backup. Rewritten Phase 1 commit: `0dd54bad647345d0602f31d20e535faccd1c2374`. The [backup record](../../../../../releases/v4/v4.12/development/rewrite-backup.md) names the verified original mirror, active rewritten worktree, recovery command and disabled push destination.
+Original Phase 1 commit: `1b8f94df618fa1d2bba84eb51ca82356c1394201`. The working tree was clean before backup. Rewritten Phase 1 commit: `0dd54bad647345d0602f31d20e535faccd1c2374`. The [backup record](../../../../../archives/v4/v4.12/development/rewrite-backup.md) names the verified original mirror, active rewritten worktree, recovery command and disabled push destination.
 
 ## 2. Chronological Steps
 
@@ -43,7 +43,7 @@ The Windows long-path setting was an environment repair on the isolated copy. Ph
 
 ## Plan delta
 
-**No delta.** Phase 1's refreshed policy and T008 verification apply unchanged. Phase 2 re-enumerated 103 readable plans; no source or CI files changed between phase entries. The repository-wide ref snapshot constraint remains: Phase 3 may modify the rewritten candidate locally, while Phase 4 must compare current GitHub tips with the captured manifest before any approved publication. The full plan-entry membership and shared-file assessment remains in [Phase 1 queue assessment](../../../../../releases/v4/v4.12/development/phase-1-queue-assessment.md); current inventory is retained externally as `phase2-queue.json`. The current session model remains in use; no lower-tier substitution occurred.
+**No delta.** Phase 1's refreshed policy and T008 verification apply unchanged. Phase 2 re-enumerated 103 readable plans; no source or CI files changed between phase entries. The repository-wide ref snapshot constraint remains: Phase 3 may modify the rewritten candidate locally, while Phase 4 must compare current GitHub tips with the captured manifest before any approved publication. The full plan-entry membership and shared-file assessment remains in [Phase 1 queue assessment](../../../../../archives/v4/v4.12/development/phase-1-queue-assessment.md); current inventory is retained externally as `phase2-queue.json`. The current session model remains in use; no lower-tier substitution occurred.
 
 ## 6. Assumptions Made
 
