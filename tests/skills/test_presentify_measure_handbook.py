@@ -184,6 +184,70 @@ def test_svg_secondary_floor_is_measured_after_scale(output):
     assert any("undersized label" in error for error in result["errors"])
 
 
+def _slide_body_px(page: Path, px: float) -> None:
+    """Force the SLIDE's body type to a chosen rendered size.
+
+    Injecting markup into `[data-dv-slide]` does not work: the presentation view
+    builds its slides at runtime, so an injected element is never measured (the
+    probe reported only the heading and body). A slide-scoped stylesheet rule is
+    what actually reaches the measured tree, which is the mechanism the page-floor
+    tests already use.
+    """
+    page.write_text(
+        page.read_text(encoding="utf-8").replace(
+            "</style>",
+            f"</style><style>[data-dv-slide] p{{font-size:{px}px!important}}</style>",
+            1,
+        ),
+        encoding="utf-8",
+    )
+
+
+def _measure_at(output, size):
+    return measurement.measure(
+        output, {"section_ids": ["one"], "slide_ids": ["one"]}, DETECTOR, [size]
+    )
+
+
+def test_stage_floor_fires_where_the_page_floor_passes(output):
+    """The stage floor is a SECOND floor, not a restatement of the page floor.
+
+    On a 1920x1080 viewport the stage measures 1012px, so the floor is 2% =
+    20.24px. Body type at 18px clears the page body floor of 16 - the existing
+    gate is satisfied and says nothing - while being too small to read across a
+    room. Asserting that NO "undersized body" error accompanies it is what proves
+    the two gates are independent rather than one gate counted twice.
+    """
+    _slide_body_px(output, 18)
+    result = _measure_at(output, (1920, 1080))
+    assert result["status"] == "fail", result
+    assert any("slide-stage floor" in e for e in result["errors"]), result["errors"]
+    assert not any("undersized body" in e for e in result["errors"]), (
+        "18px clears the page body floor of 16; if that fired, this test is no "
+        "longer isolating the stage floor"
+    )
+
+
+def test_stage_floor_is_relative_to_the_stage_not_absolute(output):
+    """The same 18px passes on a shorter stage, which is the contract's point.
+
+    A 1366x768 viewport yields a 700px stage and therefore a 14px floor, so
+    identical type is compliant there. A floor expressed in px could not behave
+    this way, and pinning it here stops a future edit from "simplifying" the
+    fraction into a constant.
+    """
+    _slide_body_px(output, 18)
+    result = _measure_at(output, (1366, 768))
+    assert not any("slide-stage floor" in e for e in result["errors"]), result["errors"]
+
+
+def test_stage_floor_passes_compliant_stage_type(output):
+    """Negative control: silent on type that clears the floor on a tall stage."""
+    _slide_body_px(output, 24)
+    result = _measure_at(output, (1920, 1080))
+    assert not any("slide-stage floor" in e for e in result["errors"]), result["errors"]
+
+
 def test_unavailable_detector_is_unverified(output):
     result = measurement.measure(
         output,

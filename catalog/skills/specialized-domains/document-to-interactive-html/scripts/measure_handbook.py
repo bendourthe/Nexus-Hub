@@ -29,6 +29,15 @@ VIEWPORTS = [
 # A larger heading floor may be declared by the visual brief; it is not universal.
 FONT_FLOORS = {"heading": 16, "body": 16, "label": 13, "interactive": 12}
 
+# responsive-typography.md section 4.1 owns this one, and it is deliberately NOT
+# expressed in px. The floors above are reading-page floors set for a document at
+# desk distance; a stage is read across a room, so its floor is a share of the
+# stage height and therefore holds at any canvas size. It is measured here rather
+# than in visual_qa_score.py because the value that matters is the RENDERED size
+# after the stage's transform, which markup alone cannot decide - the reason that
+# script's slide-type checks stop at declared sizes and name this a render probe.
+SLIDE_STAGE_FLOOR_FRACTION = 0.02
+
 # Ceilings on RENDERED size, per named role. The floor gate above is one-sided,
 # so text rendering far ABOVE the document scale passed silently - which is
 # exactly how the SVG scaling trap escapes: an SVG multiplies its authored
@@ -626,6 +635,32 @@ def measure(
                                     report["errors"].append(
                                         f"{identity}: undersized {font['role']}: {font['px']:.2f}px"
                                     )
+                                # The stage floor is a SECOND, stricter floor that
+                                # applies only while the slide is the measured root,
+                                # because 2% of a stage means nothing on a scrolling
+                                # page. Both can fire on one text node: the page floor
+                                # says it is too small to read at a desk, this says it
+                                # is too small to read across a room.
+                                if view == "presentation":
+                                    # The basis is the VIEWPORT height, not the
+                                    # slide element's clientHeight. On a stage
+                                    # that reflows and scrolls - compact mode at
+                                    # 390x844 measured a 4070px element - the
+                                    # element's height is the content's, and 2%
+                                    # of it (81px) is a floor no type can meet.
+                                    # The contract's own arithmetic settles it:
+                                    # "on a 1080px stage, 21.6px" is 2% of the
+                                    # viewport. A scrolling desktop stage is a
+                                    # separate error already reported above.
+                                    stage_floor = height * SLIDE_STAGE_FLOOR_FRACTION
+                                    if stage_floor and font["px"] + 0.1 < stage_floor:
+                                        report["errors"].append(
+                                            f"{identity}/{width}x{height}: text below the "
+                                            f"slide-stage floor: {font['px']:.2f}px under "
+                                            f"{stage_floor:.2f}px "
+                                            f"({SLIDE_STAGE_FLOOR_FRACTION:.0%} of the "
+                                            f"{height}px stage) -- {font['text']!r}"
+                                        )
                                 # The other side of the same gate.
                                 named = font.get("typeRole")
                                 if named is not None:

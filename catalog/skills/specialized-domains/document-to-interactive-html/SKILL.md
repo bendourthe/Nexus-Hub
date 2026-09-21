@@ -406,6 +406,7 @@ whether the count is right for a document is the author's call.
 | A label straddling an SVG shape it does not belong to | this skill (`measure_handbook.py`) |
 | A declared `position` that does not compute, and focus restoration after Escape | this skill |
 | Rendered type size, contrast, and print-surface contrast | this skill |
+| Stage type floor: no rendered text below 2% of the slide stage height | this skill (`measure_handbook.py`), rule in `references/responsive-typography.md` section 4.1 |
 | Brand-mark visibility and chart deformation | this skill |
 | Figure fidelity to its source, and the illustrative-vs-evidential split | `references/figure-reconstruction.md` |
 | Diagram geometry, axes, ticks, annotation placement | `references/svg-diagram-quality.md` |

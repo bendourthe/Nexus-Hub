@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **A slide stage now has its own type floor, measured after the stage's transform.** `references/responsive-typography.md` section 4.1 has required that no rendered text on an active slide stage falls below 2% of the stage height, and rubric criterion 12(e) cited it, but nothing measured it. `measure_handbook.py` now gates it in the presentation view, where each `[data-dv-slide]` is already the measured root so the stage height is in hand. It is a SECOND floor beside the page floors rather than a replacement: on a 1080px viewport the floor is 21.6px, so body type at 18px clears the page body floor of 16 and still fails here, which is the whole case the rule exists for. Deliberately NOT added to `visual_qa_score.py`, because that script's own `check_slide_type_variety` already records why a rendered share of stage height is a render probe rather than a structural check. Covered by three tests in `tests/skills/test_presentify_measure_handbook.py`, including a stage-relativity test that stops the fraction being simplified into a px constant, and mutation-checked by disabling the gate. Evidence: `docs/releases/v4/v4.9/development/v4.9.2-stage-floor-evidence.md`.
+
+---
+
 ## [4.13.0] - 2026-09-21
 
 ### Added
