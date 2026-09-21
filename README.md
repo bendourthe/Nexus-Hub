@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.12.1 -->
+<!-- nexus-hub-version: 4.13.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 337 skills, 19 commands, 35 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -34,6 +34,24 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.13.0
+
+**Skill selection is now measured, and the measurement disagreed with the guidance.** A frozen 96-call pilot ran four catalog skills against two model tiers and 24 classified prompts for a measured USD 20.67. The candidate wording failed its acceptance criteria on both tiers, so nothing was promoted and the result is recorded as `MEASURED_NO_CHANGE`. The control arm is the larger finding: the shipped catalog selected its own skills on 1 of 8 prompts (fast) and 3 of 8 (strong) squarely in their territory, with zero false positives across 32 look-alikes. `AGENTS.md` prescribes pushier descriptions with SKIP clauses as the remedy for under-triggering; that remedy measured **worse** on both models. It is now recorded as evidence-contradicted and left as an open gap rather than acted on.
+
+**Five capabilities ship with negative controls that fail when the guarded behavior is removed.** A judge-sensitivity harness, private agent-trace guidance, a reversible-improvement recipe connecting confirmed observations to checked regression evidence, a smallest-useful-representation ladder, and optional context-fact freshness with revalidation. Seven earlier guards were found asserting a tautology (`needle not in text.replace(needle, "")` holds whether or not the needle was ever there) and now assert presence before asserting removal.
+
+**A release lands on the integration branch before the release branch, and clears what it consumed before tagging.** `/update release` previously merged to `main` and stopped, leaving `develop` a release behind. The cleanup is fail-closed: a branch absent from `git branch --merged` is not deleted, and a worktree with a dirty status stops the release rather than being force-removed.
+
+**The website guide gains a type system, and the Foundations scenes are redrawn.** Every text element carries a `data-ty` role that is the only place its size, weight, line height and colour are decided; the page went from 39 distinct computed font sizes across 95 combinations to 20 across 53. Agentic Platforms and Harnesses are redrawn as SVG scenes that argue their point by structure rather than assertion. Three regressions the migration left behind were caught by diffing rendered output before and after, not by reading the stylesheet, and two more elements overflowed only under CI's Linux font metrics, which run about 19 percent wider than the Windows metrics they were tuned against.
+
+**Per-version session history now archives one minor behind instead of two.** Only the current minor keeps its history in `docs/releases/`. This reverses an alternative the retention record had explicitly rejected, and the new record says so plainly rather than presenting the reversal as a technical finding. v4.7 through v4.12 moved: six subtrees, 51 files, 77 links repaired.
+
+**Honest limit.** Two known gaps remain open in the release gate itself, and they are the same defect surface. A step that times out prints no line naming it, and the timeout cannot fire at all for a step whose tests spawn a process tree, because the post-kill `communicate()` blocks on a pipe the surviving descendants still hold. Both are recorded with a runnable repro and are scheduled as one change rather than patched separately.
+
+Catalog counts are unchanged at **337 skills**, **19 commands**, **35 hooks**, and **23 agents**. This release changes no opt-in capability, installer flag, or host surface.
 
 ---
 
