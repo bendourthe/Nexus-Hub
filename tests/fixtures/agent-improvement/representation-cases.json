@@ -1,0 +1,192 @@
+{
+  "fixture_id": "representation-cases-v1",
+  "schema_version": "1.0.0",
+  "purpose": "Give the representation ladder unambiguous scenario expectations, including the two near-misses where the owners previously disagreed.",
+  "provenance": {
+    "synthetic": true,
+    "authored_for": "v4.13.0 Phase 4 (candidate A4)",
+    "evidence_class": "owner_consistency_only",
+    "not_evidence_of": "measured human comprehension, reading speed, or preference"
+  },
+  "owner": "catalog/skills/developer-experience/html-output-conventions/SKILL.md",
+  "ladder": [
+    "prose",
+    "table",
+    "pseudocode",
+    "mermaid",
+    "html"
+  ],
+  "cases": [
+    {
+      "case_id": "REP-1",
+      "request": "What are the three retry settings and their defaults?",
+      "shape": "a handful of items compared across two attributes",
+      "expected_rung": "table",
+      "must_not_be": [
+        "html"
+      ],
+      "rationale": "Three rows on two attributes are read faster inline than in any artifact. Rendering them as a file adds a click and removes nothing.",
+      "signals": {
+        "facts": 3,
+        "attributes": 2,
+        "has_control_flow": false,
+        "graph_nodes": 0,
+        "needs_interaction": false,
+        "needs_persistent_state": false,
+        "estimated_lines": 5
+      }
+    },
+    {
+      "case_id": "REP-2",
+      "request": "How does the retry loop decide to give up?",
+      "shape": "a sequence with control flow",
+      "expected_rung": "pseudocode",
+      "must_not_be": [
+        "html"
+      ],
+      "rationale": "The answer is an algorithm. Pseudocode shows the branch and the termination condition directly.",
+      "signals": {
+        "facts": 1,
+        "attributes": 0,
+        "has_control_flow": true,
+        "graph_nodes": 0,
+        "needs_interaction": false,
+        "needs_persistent_state": false,
+        "estimated_lines": 12
+      }
+    },
+    {
+      "case_id": "REP-3",
+      "request": "What are the states a request moves through?",
+      "shape": "a small graph of four states",
+      "expected_rung": "mermaid",
+      "must_not_be": [
+        "html",
+        "ascii_box_diagram"
+      ],
+      "rationale": "A small graph renders natively and stays accessible. An ASCII box diagram misaligns across fonts and breaks for screen readers.",
+      "signals": {
+        "facts": 4,
+        "attributes": 0,
+        "has_control_flow": false,
+        "graph_nodes": 4,
+        "needs_interaction": false,
+        "needs_persistent_state": false,
+        "estimated_lines": 10
+      }
+    },
+    {
+      "case_id": "REP-4",
+      "request": "Build a view where I can filter the eleven candidate designs and toggle each one's constraints.",
+      "shape": "interactive state across a many-way comparison",
+      "expected_rung": "html",
+      "must_not_be": [
+        "prose",
+        "table"
+      ],
+      "rationale": "Filtering and toggling are interaction. No inline rung carries persistent state the reader manipulates.",
+      "signals": {
+        "facts": 11,
+        "attributes": 6,
+        "has_control_flow": false,
+        "graph_nodes": 0,
+        "needs_interaction": true,
+        "needs_persistent_state": true,
+        "estimated_lines": 140
+      }
+    },
+    {
+      "case_id": "REP-5-near-miss",
+      "request": "Compare the two cache strategies on hit rate and memory.",
+      "shape": "short static comparison, two items, two attributes",
+      "expected_rung": "table",
+      "must_not_be": [
+        "html"
+      ],
+      "near_miss_of": "html",
+      "rationale": "NEAR MISS. A comparison request is not automatically an artifact request. Two items on two attributes stay inline; climbing to HTML here produces a file the reader must open to learn four numbers.",
+      "guards_against": "Treating the word 'compare' as a trigger for the artifact template.",
+      "signals": {
+        "facts": 2,
+        "attributes": 2,
+        "has_control_flow": false,
+        "graph_nodes": 0,
+        "needs_interaction": false,
+        "needs_persistent_state": false,
+        "estimated_lines": 4
+      }
+    },
+    {
+      "case_id": "REP-6-near-miss",
+      "request": "I want to compare the two deployment states side by side and switch between them as I read.",
+      "shape": "state comparison the reader manipulates while reading",
+      "expected_rung": "html",
+      "must_not_be": [
+        "prose",
+        "table"
+      ],
+      "near_miss_of": "prose",
+      "rationale": "NEAR MISS in the other direction. 'Smallest useful' is not 'smallest'. Switching between states while reading is interaction, and collapsing it to prose removes the thing that was asked for.",
+      "guards_against": "Over-applying the ladder until every answer becomes a paragraph.",
+      "signals": {
+        "facts": 6,
+        "attributes": 3,
+        "has_control_flow": false,
+        "graph_nodes": 0,
+        "needs_interaction": true,
+        "needs_persistent_state": true,
+        "estimated_lines": 60
+      }
+    },
+    {
+      "case_id": "REP-7",
+      "request": "Show how the six services depend on each other.",
+      "shape": "connection topology",
+      "expected_rung": "mermaid",
+      "must_not_be": [
+        "prose",
+        "responsibility_list"
+      ],
+      "rationale": "A list of the six service names and their responsibilities explains ownership but not topology. A reader asking how parts connect is not served by a list of the parts.",
+      "guards_against": "Substituting a textual responsibility list for an accessible spatial graphic.",
+      "signals": {
+        "facts": 6,
+        "attributes": 0,
+        "has_control_flow": false,
+        "graph_nodes": 6,
+        "needs_interaction": false,
+        "needs_persistent_state": false,
+        "estimated_lines": 15
+      }
+    }
+  ],
+  "invariants": [
+    {
+      "invariant_id": "INV-1",
+      "statement": "A short answer must not require creating or opening a file.",
+      "applies_to": [
+        "REP-1",
+        "REP-2",
+        "REP-3",
+        "REP-5-near-miss"
+      ]
+    },
+    {
+      "invariant_id": "INV-2",
+      "statement": "Decorative ASCII box diagrams are excluded at every rung.",
+      "applies_to": [
+        "REP-3",
+        "REP-7"
+      ]
+    },
+    {
+      "invariant_id": "INV-3",
+      "statement": "Reaching the HTML rung does not relax any HTML rule: no color-only meaning, offline self-contained delivery, responsive layout, and the full artifact quality pass still apply.",
+      "applies_to": [
+        "REP-4",
+        "REP-6-near-miss"
+      ]
+    }
+  ],
+  "signals_note": "Machine-readable restatement of each case's `shape`, authored from the request and shape prose without reference to `expected_rung`. `derive_rung` in tests/skills/test_evidence_driven_improvement.py consumes these and must independently reproduce `expected_rung`; before they existed, no test read request, shape or rationale at all, so a declared expectation could not disagree with anything."
+}

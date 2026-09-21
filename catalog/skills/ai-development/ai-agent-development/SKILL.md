@@ -74,6 +74,8 @@ Full walkthrough: [step-7-evaluate-and-test-agents.md](references/step-7-evaluat
 
 Full walkthrough: [step-8-instrument-for-observability.md](references/step-8-instrument-for-observability.md) (load this step when you reach it).
 
+Span names, kinds, and the default privacy rules are owned by [references/agent-span-contract.md](references/agent-span-contract.md). Run [scripts/trace-example.py](scripts/trace-example.py) for a metadata-only synthetic trace you can inspect locally.
+
 ## Best Practices
 
 - **Start simple**: Begin with a ReAct loop; add complexity only when needed
@@ -131,6 +133,8 @@ Cross-links:
 - [references/multimodal-ingestion.md](references/multimodal-ingestion.md) - Agent multimodal input patterns: the two ingestion shapes (in-memory bytes vs. filesystem path), supported media families, and mixed prompt lists. Agent input, as distinct from output evaluation.
 - [references/sdk-structured-output.md](references/sdk-structured-output.md) - Constraining agent output to a Pydantic schema (the response-contract pattern), its failure modes, and the retry-then-fail-closed recovery. Output constraint, as distinct from output evaluation.
 - [references/recursive-context-harness.md](references/recursive-context-harness.md) - Recursive context-harness pattern: context as a program variable in a persistent kernel, tool use as code over that variable, recursive delegation as async calls returning handles. When to consider it versus a catalog skill or a one-shot host session. Load on demand; do not inline it into this body.
+- [references/agent-span-contract.md](references/agent-span-contract.md) - Agent operation-to-span mapping pinned to an upstream convention at Development status: operation names, the CLIENT/INTERNAL split on local versus remote invocation, attribute requirement levels, the payload-absent-by-default privacy contract, the `nexus.*` local namespace, and what a trace does not prove.
+- [scripts/trace-example.py](scripts/trace-example.py) - Runnable standard-library demonstration emitting synthetic metadata-only trace records with valid parent links. Holds sentinel payload and exception values that must never reach its output. No network, no payload flag, no export path; refuses to overwrite an existing or symlinked output.
 
 ## Related Skills
 

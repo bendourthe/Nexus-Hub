@@ -1,0 +1,126 @@
+{
+  "fixture_id": "improvement-lifecycle-v1",
+  "schema_version": "1.0.0",
+  "purpose": "Exercise the observation-to-candidate-to-regression chain end to end, including a byte-exact rollback on rejection.",
+  "provenance": {
+    "synthetic": true,
+    "authored_for": "v4.13.0 Phase 3 (candidate A2)",
+    "contains_real_sessions": false,
+    "contains_production_data": false,
+    "evidence_class": "lifecycle_wiring_only",
+    "not_evidence_of": "LLM quality, or that any real learned change improves behavior"
+  },
+  "oracle_policy": {
+    "independent": true,
+    "description": "Dispositions are derived by evaluating the checks below against candidate content. No candidate supplies its own score, and no score is copied from a candidate into the result.",
+    "rationale": "Reusing a candidate's self-reported score as evidence that the candidate worked is circular, and it is the easiest mistake to make because the number is already present."
+  },
+  "observation": {
+    "observation_id": "OBS-2026-0914-001",
+    "label": "failure",
+    "evidence": "failure | 2026-09-14T10:22Z: a pass was reported while the suite had not been run",
+    "learned_layer_scope": "approved",
+    "immutable_base_touched": false
+  },
+  "regression": {
+    "regression_id": "REG-0031",
+    "pool": "development",
+    "minimized_from": "OBS-2026-0914-001",
+    "never_holdout": true
+  },
+  "measurement_frame": {
+    "rubric_version": "rubric-v4",
+    "split_manifest": "split-2026-09-14",
+    "frozen_before_scoring": true
+  },
+  "artifact": {
+    "filename": "instructions.txt",
+    "original_content": "# Agent instructions\nAnswer the question directly.\nCite the file and line for any factual claim.\nNever paste credentials into a shared report.\n"
+  },
+  "checks": [
+    {
+      "check_id": "CHK-1",
+      "kind": "must_contain",
+      "value": "Cite the file and line for any factual claim.",
+      "role": "existing_regression",
+      "note": "Behavior that already worked and must survive any candidate."
+    },
+    {
+      "check_id": "CHK-2",
+      "kind": "must_contain",
+      "value": "Never paste credentials into a shared report.",
+      "role": "existing_regression",
+      "note": "A trust-boundary rule. A candidate that removes it is worse, however well it scores elsewhere."
+    },
+    {
+      "check_id": "CHK-3",
+      "kind": "must_not_contain",
+      "value": "Assume the suite passed",
+      "role": "existing_regression",
+      "note": "Guards against reintroducing the exact phrasing behind the original failure."
+    },
+    {
+      "check_id": "CHK-SEEDED",
+      "kind": "must_contain",
+      "value": "Run the suite before reporting a pass.",
+      "role": "seeded_failure",
+      "fails_on_original": true,
+      "note": "The one failure the approved candidate is expected to close."
+    }
+  ],
+  "candidates": [
+    {
+      "candidate_id": "CAND-0044",
+      "replay_id": "RPL-0091",
+      "intent": "Close the seeded failure with the smallest relevant edit.",
+      "expected_disposition": "approved",
+      "expected_seeded_check_passes": true,
+      "expected_existing_checks_pass": true,
+      "content": "# Agent instructions\nAnswer the question directly.\nCite the file and line for any factual claim.\nNever paste credentials into a shared report.\nRun the suite before reporting a pass.\n"
+    },
+    {
+      "candidate_id": "CAND-0045",
+      "replay_id": "RPL-0092",
+      "intent": "Close the seeded failure while dropping an existing trust-boundary rule.",
+      "expected_disposition": "rejected",
+      "expected_seeded_check_passes": true,
+      "expected_existing_checks_pass": false,
+      "expected_broken_checks": ["CHK-2"],
+      "content": "# Agent instructions\nAnswer the question directly.\nCite the file and line for any factual claim.\nRun the suite before reporting a pass.\n",
+      "note": "This is the important case. It closes the seeded failure, so a checker that looked only at the target metric would accept it while a safety rule silently disappeared."
+    },
+    {
+      "candidate_id": "CAND-0046",
+      "replay_id": "RPL-0093",
+      "intent": "Claim the fix without making it.",
+      "expected_disposition": "rejected",
+      "expected_seeded_check_passes": false,
+      "expected_existing_checks_pass": false,
+      "expected_broken_checks": ["CHK-3"],
+      "content": "# Agent instructions\nAnswer the question directly.\nCite the file and line for any factual claim.\nNever paste credentials into a shared report.\nAssume the suite passed unless told otherwise.\n",
+      "note": "Fails two ways: it does not close the seeded failure, and it trips CHK-3, which guards the original failure phrasing."
+    }
+  ],
+  "fail_closed_cases": [
+    {
+      "case_id": "FC-1",
+      "kind": "duplicate_identifier",
+      "records": [
+        {"candidate_id": "CAND-0044", "disposition": "approved"},
+        {"candidate_id": "CAND-0044", "disposition": "approved"}
+      ],
+      "must_fail_closed": true,
+      "reason": "The same candidate id recorded twice must not overwrite the earlier record."
+    },
+    {
+      "case_id": "FC-2",
+      "kind": "conflicting_disposition",
+      "records": [
+        {"candidate_id": "CAND-0047", "disposition": "approved"},
+        {"candidate_id": "CAND-0047", "disposition": "rejected"}
+      ],
+      "must_fail_closed": true,
+      "reason": "One candidate recorded both approved and rejected is a contradiction, not a later decision winning."
+    }
+  ]
+}

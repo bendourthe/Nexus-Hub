@@ -108,6 +108,14 @@ For long sessions, plan explicit context refresh points between phases:
 
 Context refreshes prevent earlier decisions from silently influencing later outputs.
 
+A refresh reloads context. It does not establish that the reloaded facts are still true. When assembled context carries a **time-sensitive** fact that will affect the decision now being made -- a check result, a deployment state, a version, a test outcome -- revalidate it before asserting it as current, following the optional freshness procedure in [[context-pack-builder]].
+
+Three boundaries keep that from becoming busywork:
+
+- **Revalidate what the decision depends on, not everything.** This is not a mandatory full-memory reread at every turn. A stable architectural fact does not need rechecking because a turn elapsed; a deployment claim does, before it is acted on.
+- **An unreachable source leaves the claim unknown or historical.** State it as such and move on. No endless retries, and no upgrade from "probably still true" to "true".
+- **Nothing here changes what readers consume.** Existing pack readers and memory files stay as they are; this is a revalidation habit at the assembly boundary, not a format change.
+
 ## Information Hierarchy
 
 When loading multiple pieces of information, order them by importance to the current task:

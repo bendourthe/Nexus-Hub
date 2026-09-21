@@ -579,6 +579,12 @@ DEV_ONLY_SCRIPTS = {
     # Runs in the fast and full profiles; an end-user ~/.nexus-hub/scripts/ has
     # no git worktree to scan.
     "check_merge_conflict_markers.py",
+    # Repo-internal trigger-pilot runner (v4.13.0): drives the frozen skill-
+    # trigger pilot by invoking the `claude` CLI up to 96 times against two
+    # model tiers, enforcing an aggregate spend ceiling. It COSTS MONEY and
+    # makes network calls, so it must never reach an end-user
+    # ~/.nexus-hub/scripts/, and it is referenced by no CI profile.
+    "run_trigger_pilot.py",
     # Repo-internal retention reporter (v3.18.0): reports per-version
     # development/ subtrees due for archival per docs/policy/docs-retention.md.
     # Advisory (always exit 0), runs in make validate; meaningless in an

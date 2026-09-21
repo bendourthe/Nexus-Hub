@@ -66,9 +66,9 @@ def test_old_version_is_reported(tmp_path: Path) -> None:
     )
 
 
-def test_current_and_previous_minor_are_silent(tmp_path: Path) -> None:
-    """One minor behind is inside the threshold; the previous release is still hot."""
-    root = _make_repo(tmp_path, "3.17.6", ["v3.17", "v3.16"])
+def test_current_minor_is_silent(tmp_path: Path) -> None:
+    """Only the current minor is exempt. Sweeping it would move work in progress."""
+    root = _make_repo(tmp_path, "3.17.6", ["v3.17"])
 
     proc = _run(root)
 
@@ -77,14 +77,20 @@ def test_current_and_previous_minor_are_silent(tmp_path: Path) -> None:
     assert "nothing due for archival" in proc.stdout
 
 
-def test_threshold_boundary_is_exactly_two_minors(tmp_path: Path) -> None:
-    """v3.15 is two behind v3.17 and reported; v3.16 is one behind and is not."""
-    root = _make_repo(tmp_path, "3.17.6", ["v3.15", "v3.16"])
+def test_threshold_boundary_is_exactly_one_minor(tmp_path: Path) -> None:
+    """v3.16 is one behind v3.17 and reported; the current minor never is.
+
+    Pins the 2026-09-20 threshold change. The boundary is the whole point of the
+    rule, so it is asserted from both sides: one behind must appear, and the
+    current minor must not, because archiving the active version would move
+    history out from under the work in progress.
+    """
+    root = _make_repo(tmp_path, "3.17.6", ["v3.16", "v3.17"])
 
     proc = _run(root)
 
-    assert "v3.15/development/history" in proc.stdout
-    assert "v3.16/development/history" not in proc.stdout
+    assert "v3.16/development/history" in proc.stdout
+    assert "v3.17/development/history" not in proc.stdout
 
 
 def test_already_archived_version_is_not_reported(tmp_path: Path) -> None:
@@ -99,7 +105,7 @@ def test_already_archived_version_is_not_reported(tmp_path: Path) -> None:
 
 
 def test_older_major_is_reported_entirely(tmp_path: Path) -> None:
-    """An earlier major is wholly historical; the two-minor distance does not apply."""
+    """An earlier major is wholly historical; the minor distance does not apply."""
     root = _make_repo(tmp_path, "3.17.6", ["v2.4"])
 
     proc = _run(root)

@@ -16,9 +16,9 @@ When a version is released, its `development/history/` files **stay exactly wher
 
 Nothing is rewritten, merged, or summarized at this step. "Consolidate" means consolidating *navigation*, not content. A merged summary would destroy the per-phase troubleshooting detail that makes the history worth keeping.
 
-### 3. ARCHIVE at two minors behind
+### 3. ARCHIVE at one minor behind
 
-When a minor version falls **two or more minors behind the current one**, its `development/history/` subtree moves from `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/` to:
+When a minor version falls **behind the current one**, its `development/history/` subtree moves from `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/` to:
 
 ```text
 docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/
@@ -26,7 +26,7 @@ docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/
 
 This is the canonical archive layout that [`docs-layout-refactor`](../../catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md) already owns and that `docs/archives/v0/`, `docs/archives/v1/`, and `docs/archives/v2/` already use. Files move, references are repaired, and **nothing is deleted**.
 
-Two minors is the threshold because it keeps the previous release's history reachable without a directory change while the current one is still stabilizing. At v3.17, that makes v3.15 and older archivable and leaves v3.16 and v3.17 in place.
+One minor is the threshold because a release's per-phase history stops changing the moment that release closes. The original rule kept the previous release's history in the working tree for an extra cycle on the theory that the current version was still stabilizing and might need to reach back into it without a directory change. That protected a real case -- a patch release revisiting the prior release's decisions -- but it protected it by keeping files in the active tree, when the DEVLOG line the move repoints already reaches them. The consultation still works; it costs one directory hop. Weighed against a full extra cycle of accumulated history in the working tree, the hop is the cheaper side. At v4.13, that makes v4.12 and older archivable and leaves only v4.13 in place.
 
 **Only `history/` ages out, not `development/` wholesale.** The first archive pass (v3.18.0 Phase 5) discovered why this distinction is load-bearing: `development/` in this repository also holds live content.
 
