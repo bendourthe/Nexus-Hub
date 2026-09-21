@@ -190,6 +190,39 @@ A `map` or `diagram` (and any figure carrying an `annotated: true` signal from p
 
 `photo` and `screenshot` images with NO author annotations always render as originals (lightbox-enabled, caption preserved). `decorative` images may be omitted from the output ONLY with a skip entry the coverage reconciliation can read (e.g. an HTML comment `decorative-skip: <alt> (page N) - repeated logo`).
 
+## 5a. Source-detail ledger, and the derived-summary handoff
+
+Part 5 path 1 rebuilds a diagram only when the rebuild preserves every label, region, node, edge and relationship, and `SKILL.md` step 4 states the same invariant as "only when every label survives". That invariant is unchanged by this section. What follows makes the preservation INSPECTABLE, and gives deliberate simplification a separate, clearly-labelled home instead of letting it erode the faithful path.
+
+**Every path-1 or path-2 reconstruction carries a source-detail ledger.** One row per source node or relationship, written beside the read-the-figure worksheet in the same adjacent HTML comment, with four columns:
+
+| Source id | Output | Rationale | Approval |
+|---|---|---|---|
+| the identifier the SOURCE uses, or a stable description where it has none | `retained`, `merged` (naming what it merged with), `omitted`, or `unresolved` | why, in one clause | the authorization this rests on, or `-` where none is needed |
+
+The ledger is a per-figure record in the figure's own comment. It is NOT a persistent schema, a database, or a cross-document index, and nothing reads it programmatically: its reader is the next person asking whether the figure tells the truth about its source.
+
+**A faithful reconstruction permits no silent omission.** `retained` and `merged` are the only outputs it may carry, plus `unresolved` under the rule below. A single `omitted` row disqualifies the figure from the faithful path; it does not license the omission. This is the whole reason the ledger exists on the faithful path, where by definition nothing should be missing: a ledger that can only say "retained" is still what proves somebody checked.
+
+**`merged` is permitted and must name its partner.** Two source nodes drawn as one is a modelling decision a reader can accept or reject; two source nodes drawn as one WITHOUT saying so is a claim the source did not make. Merging that changes the relationship being taught is an omission wearing a different label, and belongs on the derived path.
+
+**An unreadable source element is marked `unresolved`, never invented.** If a label cannot be read off the source, the row says so and the rendered figure shows the element as unresolved in its own visible treatment. Reconstructing a plausible value is the failure this protocol exists to prevent, and it is worse than a visible gap because it is not visible.
+
+**Approval is requested only for a substantive omission that is not already authorized.** A decorative flourish, a duplicated legend key, or a redundant gridline needs no approval and no ceremony. A node, a relationship, a labelled quantity, or anything the figure's claim depends on needs one, and the ledger records which authorization it rests on. Asking for approval to drop a drop-shadow trains the reader to approve without looking.
+
+### The derived-summary handoff
+
+A dense source sometimes cannot be both faithful and legible in one figure. The answer is TWO artifacts against the same source, not one compromised artifact:
+
+- **The faithful rendition** takes one of part 5's three paths, carries a ledger with no `omitted` rows, and passes the lossless-reconstruction gate.
+- **The derived summary** is a separate figure, labelled in its VISIBLE caption as a derived explanation rather than a reproduction. It carries its own provenance set and its own ledger, in which `omitted` rows are expected and each carries its rationale and approval.
+
+Three constraints on the summary, each of which is what stops it becoming a way around the gate:
+
+- **It preserves access to the complete source or the faithful rendition**, through the existing view-original toggle and disclosure contracts. A summary that is the only thing the reader can reach has replaced the source rather than explaining it.
+- **It never passes the lossless-reconstruction gate, and must not be presented as though it had.** It is not `provenance: "reconstructed-from-image"`. A summary carrying the faithful path's provenance is a mislabelled figure, which is the one failure mode this handoff could introduce if the labelling were left implicit.
+- **It reuses the existing contracts rather than inventing parallel ones** - disclosure and the view-original toggle here, motion in `interactive-features.md`, and the accessible-text complement rule in part 5. No generic importer, and no new ledger format for the summary: it is the same four columns.
+
 ## 6. Model round-trip
 
 The protocol UPDATES the model JSON so downstream stages (design, authoring, and the Phase 5-style coverage reconciliation) work from one source of truth:

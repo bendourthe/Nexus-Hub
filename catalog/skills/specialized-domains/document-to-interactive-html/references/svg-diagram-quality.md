@@ -34,6 +34,59 @@ primary/secondary rule above, which the gate reads as intent rather than drift
 because the secondary also carries lower opacity.
 
 
+## Structure follows the relationship, not the decoration
+
+Every rule below is about execution: markers, dashes, endpoints, fit. They all
+assume the structure is already right. It usually is not, because the structure
+is chosen first and chosen fastest - a row of boxes and arrows is the default any
+diagram falls into when nobody asked what relationship it teaches.
+
+**Name the relationship in one sentence, then pick the structure that makes it
+visible.** If the sentence will not come, the figure has no argument yet and no
+amount of arrowhead discipline will give it one. Three cases worth working
+through, chosen because each has an obvious wrong default:
+
+**A queue.** The relationship is arrival against capacity, and the outcomes that
+follow from the gap between them. The wrong default is a left-to-right pipeline,
+which draws the happy path and hides the only thing the figure is about: what
+happens when arrival exceeds capacity. The structure must show arrival and
+capacity as separately readable quantities, and the outcomes - served, waiting,
+turned away - as consequences of their relationship rather than as further boxes
+in the row. Whether that is a stacked band, two paired axes, or something else is
+the author's call; what is not optional is that a reader can see the gap.
+
+**A diverging policy decision.** The relationship is one input leading to
+mutually exclusive outcomes under stated conditions. The wrong default is
+unlabelled branches, which look complete while omitting the whole content: the
+reader sees that a decision happens and cannot see what decides it. **Every
+branch carries its condition as text on or beside the branch**, and the
+conditions are exhaustive and mutually exclusive, or the figure is asserting a
+decision procedure it has not got. A branch that cannot be labelled is a branch
+the author has not resolved, and marking it unresolved is honest where inventing
+a label is not.
+
+**Trust boundaries with relationships that cross them.** The relationship is
+which side of a boundary each participant sits on, and what crosses. The wrong
+default is a cluster of boxes with a dashed rectangle drawn round some of them,
+which states the grouping and leaves the crossings as ordinary arrows
+indistinguishable from the internal ones. The boundary must be a visible edge
+that every crossing relationship visibly crosses, and each crossing must be
+distinguishable from a relationship that stays inside - by direction, by
+annotation, or by a stated difference in treatment. A reader should be able to
+enumerate the crossings without counting boxes.
+
+What these examples do NOT prescribe: a connector shape, a node count, a type
+size, or a palette. Those belong to the rules below, to
+`references/responsive-typography.md`, and to the contrast and brand owners named
+in `SKILL.md` - restating them here would create a second source for a rule that
+already has one.
+
+What they DO carry forward, in every case: the SVG stays semantic, its effective
+text stays readable at the size it renders, endpoints stay unambiguous per rule
+3, and the figure keeps a text alternative that conveys the same relationship for
+a reader who cannot see it. A structure that only works as a picture is not
+finished.
+
 ## 1. Arrowheads are `<marker>` elements
 
 An arrowhead is declared once as a `<marker>` in `<defs>` and attached with `marker-end` (or `marker-start` / `marker-mid`). It is never a separate hand-placed triangle path.

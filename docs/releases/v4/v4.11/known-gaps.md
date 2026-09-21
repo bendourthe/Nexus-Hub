@@ -247,6 +247,18 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **What a correct check needs**: ask whether anything is LISTENING rather than whether something changed. Walk from the control up through its ancestors collecting click listeners through the Chrome DevTools Protocol, and report a control with no listener anywhere in its chain and no native form or anchor behavior. That distinguishes this defect exactly, since the moved buttons have no listening ancestor while working delegated controls do, and it is immune to idempotency. It must also iterate EVERY slide, not just the first.
 - **Why it was not built now**: that is materially more machinery than the activate-and-observe sketch it replaces, and shipping the rejected version would have been worse than shipping nothing. A gate that fires on working reset buttons is how the `text-overlap` false positive (WN-5) came to delete working navigation three times.
 
+#### MT-10 - The new geometry checks cover none of this repository's own diagrams
+
+**Source phase**: v4.11.1 Phase 5 (T013). **Plan reference**: v4.11.1 5.1.
+
+**Reason**: `check_svg_label_occlusion` and `check_svg_connector_routing` decide a declared, narrow envelope: axis-aligned `rect`, `text` with numeric anchors, `line` and `polyline`/`polygon`, under `translate()` and `scale()` only. Everything else marks the SVG unchecked rather than guessing coordinates, which is the behaviour the plan required. The consequence, measured rather than assumed: scoring `docs/handbooks/distribution.html` returns `unchecked` for BOTH checks across all five of its SVGs, each reported as "carries geometry this check cannot decide". Hand-authored diagrams in this repository use `<path>`, so the coverage on real artifacts is currently zero.
+
+**Evidence**: `unchecked_checks = 2` on the distribution handbook; the page's only high-severity finding is the pre-existing `image-sizing`, so the new checks changed no verdict. The three-fixture smoke and the 13 tests exercise the envelope that IS supported.
+
+**Owner**: repository maintainer. **Status**: open, and deliberately not fixed here.
+
+**Suggested next step**: decide whether the envelope should grow to straight-line `<path>` segments (`M`/`L`/`H`/`V` only, which `_path_points` already parses for the arrowhead check), or whether these checks are intended for authored diagrams that follow the shape vocabulary and the handbooks should move toward it. Do NOT widen the envelope by approximating curves: an approximated coordinate produces a confident wrong verdict, which is worse than the honest `unchecked` this ships with.
+
 #### QG-2 - CLOSED AS UNMET: two of three sustained across six rounds, carried forward
 
 - **Source phase**: Phase 6, T020.

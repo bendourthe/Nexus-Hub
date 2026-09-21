@@ -1193,3 +1193,170 @@ def test_the_placement_taxonomy_and_scrim_recipe_are_documented():
     # The scrim is mandatory and numeric, not "use a dark overlay".
     assert "82%" in text and "scrim" in text
     assert "IMAGERY PLACEMENTS" in text, "the record format must be specified"
+
+
+# --- 1e. (v4.11.1 Phase 5) geometry: occlusion and connector routing ---------
+#
+# Paint order and routing are decidable from markup for the narrow shapes these
+# checks declare support for. Anything outside that - curves, filters, clipping,
+# external use, rotate/skew/matrix - must come back UNCHECKED rather than as a
+# guess or a clean pass, which is what the coverage assertions below pin.
+
+
+def _svg_page(body: str) -> str:
+    return f"<html><body>{body}</body></html>"
+
+
+def _status(result: dict, criterion: str) -> str:
+    return next(f["status"] for f in result["findings"] if f["criterion"] == criterion)
+
+
+def test_label_occluded_by_later_unrelated_mark_is_flagged():
+    page = _svg_page(
+        '<svg viewBox="0 0 200 100"><text x="50" y="50">Throughput</text>'
+        '<rect class="panel" x="20" y="20" width="120" height="60" fill="#333"/></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-label-occlusion") == "fail"
+
+
+def test_clean_paint_order_is_not_flagged():
+    """The near-miss: the same two marks, drawn in the order that works."""
+    page = _svg_page(
+        '<svg viewBox="0 0 200 100">'
+        '<rect class="panel" x="20" y="20" width="120" height="60" fill="#333"/>'
+        '<text x="50" y="50">Throughput</text></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-label-occlusion") == "pass"
+
+
+def test_intentional_contained_badge_is_exempt_on_positive_evidence():
+    """A badge is exempt because it SAYS it is one, never because it is small."""
+    page = _svg_page(
+        '<svg viewBox="0 0 200 100"><text x="50" y="50">Queue</text>'
+        '<rect class="badge count" x="40" y="40" width="30" height="20" fill="#333"/></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-label-occlusion") == "pass"
+
+
+def test_small_unlabelled_cover_is_still_occlusion():
+    """The size heuristic the plan forbids, asserted as absent.
+
+    This rect is the same size as the badge above and carries no role saying so.
+    If a future edit exempts marks by size, this test fails - which is the point,
+    because the labels most easily lost are the small ones.
+    """
+    page = _svg_page(
+        '<svg viewBox="0 0 200 100"><text x="50" y="50">Queue</text>'
+        '<rect class="panel" x="40" y="40" width="30" height="20" fill="#333"/></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-label-occlusion") == "fail"
+
+
+def test_transparent_later_mark_does_not_occlude():
+    page = _svg_page(
+        '<svg viewBox="0 0 200 100"><text x="50" y="50">Queue</text>'
+        '<rect class="panel" x="20" y="20" width="120" height="60" fill="none"/></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-label-occlusion") == "pass"
+
+
+def test_translated_group_is_placed_before_comparison():
+    """Occlusion under a supported transform, which is where naive checks miss."""
+    page = _svg_page(
+        '<svg viewBox="0 0 200 100">'
+        '<g transform="translate(10,10)"><text x="40" y="40">Queue</text></g>'
+        '<rect class="panel" x="20" y="20" width="120" height="60" fill="#333"/></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-label-occlusion") == "fail"
+
+
+def test_connector_crossing_an_unrelated_node_is_flagged():
+    page = _svg_page(
+        '<svg viewBox="0 0 300 100">'
+        '<rect class="mid" x="120" y="30" width="60" height="40" fill="#333"/>'
+        '<line class="edge" x1="10" y1="50" x2="290" y2="50"/></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "fail"
+
+
+def test_connector_attaching_at_a_node_is_not_flagged():
+    """The near-miss: an endpoint inside a node is attachment, not a crossing."""
+    page = _svg_page(
+        '<svg viewBox="0 0 300 100">'
+        '<rect class="mid" x="120" y="30" width="60" height="40" fill="#333"/>'
+        '<line class="edge" x1="10" y1="50" x2="150" y2="50"/></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "pass"
+
+
+def test_unsupported_geometry_is_unchecked_not_passed():
+    """A curve must not be approximated, and must not read as clean."""
+    page = _svg_page(
+        '<svg viewBox="0 0 200 100"><path d="M10 10 C 20 20, 40 20, 50 10"/>'
+        '<text x="50" y="50">Queue</text></svg>'
+    )
+    result = scorer.score_html(page)
+    assert _status(result, "svg-label-occlusion") == "unchecked"
+    assert _status(result, "svg-connector-routing") == "unchecked"
+    assert result["unchecked_checks"] >= 2
+
+
+def test_unsupported_transform_is_unchecked_not_guessed():
+    page = _svg_page(
+        '<svg viewBox="0 0 200 100">'
+        '<g transform="rotate(30)"><text x="40" y="40">Queue</text></g>'
+        '<rect class="panel" x="20" y="20" width="120" height="60" fill="#333"/></svg>'
+    )
+    result = scorer.score_html(page)
+    assert _status(result, "svg-label-occlusion") == "unchecked"
+    finding = next(
+        f for f in result["findings"] if f["criterion"] == "svg-label-occlusion"
+    )
+    assert "coverage" in finding, "an unchecked verdict must say what it skipped"
+
+
+def test_unchecked_coverage_does_not_flip_page_pass():
+    """Backward compatibility: page_pass reads severity, and unchecked has none."""
+    page = _svg_page('<svg viewBox="0 0 200 100"><path d="M10 10 L 50 50"/></svg>')
+    result = scorer.score_html(page)
+    assert result["page_pass"] is True
+    assert result["unchecked_checks"] >= 1
+
+
+def test_oversized_svg_is_unchecked_rather_than_traversed():
+    """The per-SVG byte cap, hit before any coordinate work."""
+    filler = "<rect x='0' y='0' width='1' height='1'/>" * 30000
+    page = _svg_page(f'<svg viewBox="0 0 200 100">{filler}</svg>')
+    result = scorer.score_html(page)
+    assert _status(result, "svg-label-occlusion") == "unchecked"
+
+
+def test_hostile_input_hits_the_resource_contract_within_its_cap():
+    """The real scorer, in a subprocess, capped at 10 seconds.
+
+    The failure this guards is one that does not return, so asserting on a
+    function call in-process would hang the suite rather than fail it. A deeply
+    nested SVG is the cheapest shape that would defeat an unbounded traversal.
+    """
+    import subprocess
+    import sys
+    import textwrap
+
+    program = textwrap.dedent(
+        f"""
+        import sys
+        sys.path.insert(0, {str(_SCORER_PATH.parent)!r})
+        import visual_qa_score as scorer
+        body = "<g>" * 300 + "<text x='1' y='1'>deep</text>" + "</g>" * 300
+        page = "<html><body><svg viewBox='0 0 10 10'>" + body + "</svg></body></html>"
+        result = scorer.score_html(page)
+        status = [f["status"] for f in result["findings"]
+                  if f["criterion"] == "svg-label-occlusion"][0]
+        print(status)
+        """
+    )
+    proc = subprocess.run(
+        [sys.executable, "-c", program], capture_output=True, text=True, timeout=10
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip() == "unchecked", proc.stdout

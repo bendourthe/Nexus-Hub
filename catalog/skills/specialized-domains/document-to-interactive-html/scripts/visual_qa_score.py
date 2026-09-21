@@ -46,6 +46,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 from html.parser import HTMLParser
@@ -855,6 +856,364 @@ def check_svg_arrowheads(
         "svg-arrowhead", "pass", "structural",
         f"{len(blocks)} inline SVG(s): no stray triangle arrowheads, markers "
         "applied consistently",
+    )
+
+
+# --- T013 geometry: resource contract -------------------------------------
+# Bounds on the geometry path, declared rather than discovered. Each one has a
+# cheap detector that runs BEFORE any coordinate work, so an over-limit input
+# costs a length check rather than a traversal. Reaching a limit yields
+# localized unchecked coverage; it never truncates and never reports a pass.
+GEOMETRY_MAX_HTML_BYTES = 16 * 1024 * 1024
+GEOMETRY_MAX_SVG_BYTES = 1024 * 1024
+GEOMETRY_MAX_SVG_ELEMENTS = 4096
+GEOMETRY_MAX_DEPTH = 64
+GEOMETRY_MAX_COMPARISONS = 1_000_000
+
+# Transforms whose effect on axis-aligned geometry is exactly representable by
+# offset and scale. Anything else (rotate, skew, matrix, or a transform this
+# parser cannot read) makes the SVG unchecked for the geometry checks.
+_GEOM_TRANSFORM_RE = re.compile(
+    r"(translate|scale)\s*\(\s*([-+0-9.eE]+)\s*(?:[, ]\s*([-+0-9.eE]+))?\s*\)"
+)
+_GEOM_ANY_TRANSFORM_RE = re.compile(r"([a-zA-Z]+)\s*\(")
+# Features that put an element's painted geometry outside what this parser can
+# decide. Presence anywhere in the SVG marks it unchecked.
+_GEOM_UNSUPPORTED_RE = re.compile(
+    r"<(?:path|use|foreignObject|image|clipPath|mask|filter|textPath)\b"
+    r"|\b(?:clip-path|mask|filter)\s*[:=]"
+    r"|\bcalc\s*\(",
+    re.IGNORECASE,
+)
+# Positive evidence that a mark sitting on a label is an intentional badge.
+# A role or class must SAY so; size is never evidence.
+_GEOM_BADGE_RE = re.compile(
+    r"\b(?:badge|chip|pill|tag|marker-label|callout)\b", re.IGNORECASE
+)
+
+
+def _geom_number(value: str | None) -> float | None:
+    """A finite float, or None for absent, non-numeric, unit-bearing or infinite."""
+    if value is None:
+        return None
+    try:
+        out = float(value.strip())
+    except (TypeError, ValueError):
+        return None
+    return out if math.isfinite(out) else None
+
+
+def _geom_transform(node: Any) -> tuple[float, float, float, float] | None:
+    """(dx, dy, sx, sy) for a node's own transform, or None when unsupported."""
+    raw = node.get("transform")
+    if not raw:
+        return (0.0, 0.0, 1.0, 1.0)
+    names = {m.group(1).lower() for m in _GEOM_ANY_TRANSFORM_RE.finditer(raw)}
+    if names - {"translate", "scale"}:
+        return None
+    dx = dy = 0.0
+    sx = sy = 1.0
+    for match in _GEOM_TRANSFORM_RE.finditer(raw):
+        kind = match.group(1).lower()
+        first = _geom_number(match.group(2))
+        second = _geom_number(match.group(3)) if match.group(3) else None
+        if first is None:
+            return None
+        if kind == "translate":
+            dx += first
+            dy += second if second is not None else 0.0
+        else:
+            sx *= first
+            sy *= second if second is not None else first
+    if not all(math.isfinite(v) for v in (dx, dy, sx, sy)):
+        return None
+    return (dx, dy, sx, sy)
+
+
+class _GeomUnchecked(Exception):
+    """Raised when an SVG cannot be decided; carries the reason."""
+
+
+def _geom_walk(svg: Any) -> list[tuple[Any, tuple[float, float, float, float], int]]:
+    """Every element with its accumulated offset/scale, bounded by the contract."""
+    out: list[tuple[Any, tuple[float, float, float, float], int]] = []
+    stack: list[tuple[Any, tuple[float, float, float, float], int]] = [
+        (svg, (0.0, 0.0, 1.0, 1.0), 0)
+    ]
+    while stack:
+        node, (dx, dy, sx, sy), depth = stack.pop()
+        if depth > GEOMETRY_MAX_DEPTH:
+            raise _GeomUnchecked(f"nesting deeper than {GEOMETRY_MAX_DEPTH}")
+        if len(out) > GEOMETRY_MAX_SVG_ELEMENTS:
+            raise _GeomUnchecked(f"more than {GEOMETRY_MAX_SVG_ELEMENTS} elements")
+        own = _geom_transform(node)
+        if own is None:
+            raise _GeomUnchecked(f"unsupported transform {node.get('transform')!r}")
+        odx, ody, osx, osy = own
+        here = (dx + odx * sx, dy + ody * sy, sx * osx, sy * osy)
+        out.append((node, here, depth))
+        # Children are pushed REVERSED so the LIFO stack yields them in document
+        # order. Paint order is the entire basis of the occlusion check, so a
+        # traversal that reverses siblings inverts every verdict it produces -
+        # which is exactly what the first smoke run showed.
+        for child in reversed(list(node)):
+            stack.append((child, here, depth + 1))
+    return out
+
+
+def _geom_rects(
+    walked: list[tuple[Any, tuple[float, float, float, float], int]]
+) -> list[dict[str, Any]]:
+    """Axis-aligned rects in user space, in document order."""
+    rects = []
+    for order, (node, (dx, dy, sx, sy), _) in enumerate(walked):
+        if _local(node.tag) != "rect":
+            continue
+        x = _geom_number(node.get("x") or "0")
+        y = _geom_number(node.get("y") or "0")
+        w = _geom_number(node.get("width"))
+        h = _geom_number(node.get("height"))
+        if None in (x, y, w, h) or w <= 0 or h <= 0:
+            continue
+        style = (node.get("style") or "") + " " + (node.get("fill") or "")
+        opacity = _geom_number(node.get("opacity") or node.get("fill-opacity") or "1")
+        transparent = (
+            "fill:none" in style.replace(" ", "").lower()
+            or (node.get("fill") or "").strip().lower() == "none"
+            or (opacity is not None and opacity < 0.9)
+        )
+        rects.append({
+            "order": order,
+            "x0": x * sx + dx, "y0": y * sy + dy,
+            "x1": (x + w) * sx + dx, "y1": (y + h) * sy + dy,
+            "opaque": not transparent,
+            "identity": (node.get("class") or "") + " " + (node.get("role") or "")
+                        + " " + (node.get("id") or ""),
+            "node": node,
+        })
+    return rects
+
+
+def _geom_labels(
+    walked: list[tuple[Any, tuple[float, float, float, float], int]]
+) -> list[dict[str, Any]]:
+    """<text> anchors in user space. A label with no numeric anchor is skipped."""
+    labels = []
+    for order, (node, (dx, dy, sx, sy), _) in enumerate(walked):
+        if _local(node.tag) != "text":
+            continue
+        x = _geom_number(node.get("x"))
+        y = _geom_number(node.get("y"))
+        if x is None or y is None:
+            continue
+        text = "".join(node.itertext()).strip()
+        if not text:
+            continue
+        labels.append({
+            "order": order,
+            "x": x * sx + dx, "y": y * sy + dy,
+            "text": text[:48],
+            "ancestry": node,
+        })
+    return labels
+
+
+def _geom_segments(
+    walked: list[tuple[Any, tuple[float, float, float, float], int]]
+) -> list[dict[str, Any]]:
+    """Straight and orthogonal connector segments in user space."""
+    segments = []
+    for order, (node, (dx, dy, sx, sy), _) in enumerate(walked):
+        tag = _local(node.tag)
+        pts: list[tuple[float, float]] = []
+        if tag == "line":
+            coords = [_geom_number(node.get(k)) for k in ("x1", "y1", "x2", "y2")]
+            if None in coords:
+                continue
+            pts = [(coords[0], coords[1]), (coords[2], coords[3])]
+        elif tag in {"polyline", "polygon"}:
+            raw = (node.get("points") or "").replace(",", " ").split()
+            nums = [_geom_number(v) for v in raw]
+            if not nums or None in nums or len(nums) % 2:
+                continue
+            pts = list(zip(nums[0::2], nums[1::2]))
+        else:
+            continue
+        placed = [(x * sx + dx, y * sy + dy) for x, y in pts]
+        for start, end in zip(placed, placed[1:]):
+            segments.append({
+                "order": order, "start": start, "end": end,
+                "identity": (node.get("class") or "") + " " + (node.get("id") or ""),
+            })
+    return segments
+
+
+def _geom_inside(px: float, py: float, rect: dict[str, Any]) -> bool:
+    return rect["x0"] <= px <= rect["x1"] and rect["y0"] <= py <= rect["y1"]
+
+
+def _geom_related(a: str, b: str) -> bool:
+    """Two marks are related when they share a non-trivial identity token."""
+    left = {tok for tok in re.split(r"[\s-]+", a.lower()) if len(tok) > 2}
+    right = {tok for tok in re.split(r"[\s-]+", b.lower()) if len(tok) > 2}
+    return bool(left & right)
+
+
+def _geom_prepare(html: str) -> tuple[list[tuple[str, Any]], list[str]]:
+    """Parsed SVGs cleared for geometry work, plus one reason per skipped SVG."""
+    cleared: list[tuple[str, Any]] = []
+    skipped: list[str] = []
+    for index, block in enumerate(_svg_blocks(html), start=1):
+        if len(block.encode("utf-8", "ignore")) > GEOMETRY_MAX_SVG_BYTES:
+            skipped.append(f"svg {index}: larger than {GEOMETRY_MAX_SVG_BYTES} bytes")
+            continue
+        if _GEOM_UNSUPPORTED_RE.search(block):
+            skipped.append(f"svg {index}: carries geometry this check cannot decide")
+            continue
+        parsed = _parse_svg(block)
+        if parsed is None:
+            skipped.append(f"svg {index}: not well-formed, or declares a DOCTYPE/ENTITY")
+            continue
+        cleared.append((f"svg {index}", parsed))
+    return cleared, skipped
+
+
+def _geom_finding(
+    criterion: str,
+    problems: list[str],
+    skipped: list[str],
+    checked: int,
+    pass_evidence: str,
+) -> dict[str, Any]:
+    """One finding, with unchecked coverage recorded rather than implied."""
+    if problems:
+        entry = _finding(
+            criterion, "fail", "structural",
+            f"{len(problems)} finding(s): " + "; ".join(problems[:3]),
+            "high",
+        )
+    elif checked == 0:
+        # Nothing was decidable. This is NOT a pass: the optional coverage field
+        # and the "unchecked" status are what stop an over-limit or
+        # unsupported-geometry input reading as a clean verdict. No severity, so
+        # page_pass (which reads severity only) is unchanged for consumers.
+        entry = _finding(
+            criterion, "unchecked", "structural",
+            "no svg in this page could be decided by this check"
+            + (f" ({skipped[0]})" if skipped else ""),
+        )
+    else:
+        entry = _finding(criterion, "pass", "structural", pass_evidence)
+    if skipped:
+        entry["coverage"] = {"unchecked": skipped[:8], "checked_svgs": checked}
+    return entry
+
+
+def check_svg_label_occlusion(html: str) -> dict[str, Any]:
+    """No label is covered by a later opaque mark that does not belong to it.
+
+    Paint order decides what a reader sees: a label drawn before an opaque rect
+    that covers its anchor is invisible however correct the markup looks. The
+    exemption for an intentional badge requires POSITIVE evidence - a role or
+    class naming it, and containment - because a size heuristic would hide the
+    occlusion of exactly the small labels most likely to be lost.
+    """
+    if len(html.encode("utf-8", "ignore")) > GEOMETRY_MAX_HTML_BYTES:
+        return _geom_finding(
+            "svg-label-occlusion", [], [f"page larger than {GEOMETRY_MAX_HTML_BYTES} bytes"], 0, ""
+        )
+    cleared, skipped = _geom_prepare(html)
+    problems: list[str] = []
+    checked = 0
+    budget = GEOMETRY_MAX_COMPARISONS
+    for name, svg in cleared:
+        try:
+            walked = _geom_walk(svg)
+        except _GeomUnchecked as exc:
+            skipped.append(f"{name}: {exc}")
+            continue
+        rects, labels = _geom_rects(walked), _geom_labels(walked)
+        if budget < len(rects) * len(labels):
+            skipped.append(f"{name}: geometry comparisons above the budget")
+            continue
+        budget -= len(rects) * len(labels)
+        checked += 1
+        for label in labels:
+            for rect in rects:
+                if rect["order"] <= label["order"] or not rect["opaque"]:
+                    continue
+                if not _geom_inside(label["x"], label["y"], rect):
+                    continue
+                badge = bool(_GEOM_BADGE_RE.search(rect["identity"])) and _geom_inside(
+                    label["x"], label["y"], rect
+                )
+                if badge or _geom_related(rect["identity"], label["text"]):
+                    continue
+                problems.append(
+                    f"{name}: label {label['text']!r} is covered by a later opaque "
+                    f"mark that does not belong to it"
+                )
+                break
+    return _geom_finding(
+        "svg-label-occlusion", problems, skipped, checked,
+        f"no label is occluded by a later unrelated mark across {checked} svg(s)",
+    )
+
+
+def check_svg_connector_routing(html: str) -> dict[str, Any]:
+    """No connector segment passes through a node it does not connect.
+
+    A connector crossing an unrelated node reads as touching it, which asserts a
+    relationship the figure does not have. Only straight and orthogonal segments
+    are decided; a curve marks the svg unchecked rather than being approximated.
+    """
+    if len(html.encode("utf-8", "ignore")) > GEOMETRY_MAX_HTML_BYTES:
+        return _geom_finding(
+            "svg-connector-routing", [], [f"page larger than {GEOMETRY_MAX_HTML_BYTES} bytes"], 0, ""
+        )
+    cleared, skipped = _geom_prepare(html)
+    problems: list[str] = []
+    checked = 0
+    budget = GEOMETRY_MAX_COMPARISONS
+    for name, svg in cleared:
+        try:
+            walked = _geom_walk(svg)
+        except _GeomUnchecked as exc:
+            skipped.append(f"{name}: {exc}")
+            continue
+        rects, segments = _geom_rects(walked), _geom_segments(walked)
+        if budget < len(rects) * len(segments):
+            skipped.append(f"{name}: geometry comparisons above the budget")
+            continue
+        budget -= len(rects) * len(segments)
+        checked += 1
+        for seg in segments:
+            (x0, y0), (x1, y1) = seg["start"], seg["end"]
+            orthogonal = abs(x1 - x0) < 1e-9 or abs(y1 - y0) < 1e-9
+            for rect in rects:
+                if _geom_related(rect["identity"], seg["identity"]):
+                    continue
+                # An endpoint touching a node is how a connector ATTACHES.
+                if _geom_inside(x0, y0, rect) or _geom_inside(x1, y1, rect):
+                    continue
+                mid = ((x0 + x1) / 2.0, (y0 + y1) / 2.0)
+                crosses = _geom_inside(mid[0], mid[1], rect)
+                if not crosses and orthogonal:
+                    crosses = (
+                        min(x0, x1) <= rect["x0"] and max(x0, x1) >= rect["x1"]
+                        and rect["y0"] <= y0 <= rect["y1"]
+                    ) or (
+                        min(y0, y1) <= rect["y0"] and max(y0, y1) >= rect["y1"]
+                        and rect["x0"] <= x0 <= rect["x1"]
+                    )
+                if crosses:
+                    problems.append(
+                        f"{name}: a connector passes through a node it does not connect"
+                    )
+                    break
+    return _geom_finding(
+        "svg-connector-routing", problems, skipped, checked,
+        f"no connector crosses an unrelated node across {checked} svg(s)",
     )
 
 
@@ -1886,6 +2245,8 @@ def score_html(
     findings.append(check_svg_arrowheads(stripped, rules))
     findings.append(check_svg_viewport_fit(stripped, rules))
     findings.append(check_svg_marker_integrity(stripped, rules))
+    findings.append(check_svg_label_occlusion(stripped))
+    findings.append(check_svg_connector_routing(stripped))
 
     # 13. The three defect classes only a render surfaces (rule 7).
     findings.append(check_render_only_defects(stripped, rules))
@@ -1927,6 +2288,9 @@ def score_html(
         "root_font_is_fluid": root_is_fluid,
         "findings": findings,
         "high_severity": high,
+        "unchecked_checks": sum(
+            1 for finding in findings if finding.get("status") == "unchecked"
+        ),
         "page_pass": high == 0,
         "note": (
             "structural-only: agent-vision criteria (crop, dead space, "
