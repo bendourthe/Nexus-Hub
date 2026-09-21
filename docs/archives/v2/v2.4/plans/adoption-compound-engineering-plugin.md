@@ -9,7 +9,7 @@
 
 ## Overview
 
-This plan operationalizes [docs/archives/v2/v2.3/comparison-compound-engineering-plugin.md](../../v2.3.0/comparison-compound-engineering-plugin.md). The compound-engineering plugin (Every Inc) is the closest structural analog to Nexus-Hub compared to date: both are multi-platform AI-assistant harnesses. The comparison surfaced 13 adoption candidates (A1-A13) clustered around a closed knowledge loop (capture solved problems -> feed planning), a multi-agent persona review pipeline, and a set of internal-build conveniences. Every adopted item is local catalog content (markdown skills + re-authored generic agents) or a local script reusing the user's own model CLI and local logs: zero new outbound calls, zero new credentials, zero new third-party data processors. CE's vendor-integrated skills (Gemini image generation, Slack, Proof, Riffrec, XcodeBuildMCP) fail the MCP Registry Policy and are listed in the out-of-scope appendix, not adopted.
+This plan operationalizes [docs/archives/v2/v2.3/comparison-compound-engineering-plugin.md](../../v2.3/comparison-compound-engineering-plugin.md). The compound-engineering plugin (Every Inc) is the closest structural analog to Nexus-Hub compared to date: both are multi-platform AI-assistant harnesses. The comparison surfaced 13 adoption candidates (A1-A13) clustered around a closed knowledge loop (capture solved problems -> feed planning), a multi-agent persona review pipeline, and a set of internal-build conveniences. Every adopted item is local catalog content (markdown skills + re-authored generic agents) or a local script reusing the user's own model CLI and local logs: zero new outbound calls, zero new credentials, zero new third-party data processors. CE's vendor-integrated skills (Gemini image generation, Slack, Proof, Riffrec, XcodeBuildMCP) fail the MCP Registry Policy and are listed in the out-of-scope appendix, not adopted.
 
 Phase sequencing follows the MCP Registry Policy decision tree (reverse-engineer-first). See Section 9.4 of the source comparison for the ordering rationale: skill-native items ship first (Phases 1-4), then `re-full` internal builds (Phase 5), then `re-partial` internal builds (Phase 6). The `drop-outright` items do not appear in any phase; they are recorded in the out-of-scope appendix following the N-item convention.
 
@@ -661,6 +661,6 @@ These map to the comparison's Section 13 N-items. They do not appear in any phas
 
 ## Source references
 
-- Comparison: [docs/archives/v2/v2.3/comparison-compound-engineering-plugin.md](../../v2.3.0/comparison-compound-engineering-plugin.md) (Adoption Plan Section 11; Security/RE Assessment Section 9).
+- Comparison: [docs/archives/v2/v2.3/comparison-compound-engineering-plugin.md](../../v2.3/comparison-compound-engineering-plugin.md) (Adoption Plan Section 11; Security/RE Assessment Section 9).
 - Ingested gaps: [docs/archives/v2/v2.3/known-gaps.md](../../v2.3.0/known-gaps.md) (all 15 open items).
 - Governing policy: `AGENTS.md` MCP Registry Policy + Installer-Aware-Changes rules.

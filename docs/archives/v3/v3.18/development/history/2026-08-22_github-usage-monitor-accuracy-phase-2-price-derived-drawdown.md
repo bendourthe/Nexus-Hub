@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/v3.18.1-github-usage-monitor-accuracy`
-**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../plans/v3.18.1-github-usage-monitor-accuracy.md)
+**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../../../releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)
 **Phase**: 2 - Price-derived drawdown
 **Environment**: Windows 11, Git Bash, Node with `vitest` 4.1.10
 **Outcome**: The drawdown weight is derived per line item from that item's own `pricePerUnit` relative to the standard Linux rate observed in the same payload. There is no multiplier table left to go stale, and exhaustion now renders as exhaustion rather than as a meter stalled below the cap.

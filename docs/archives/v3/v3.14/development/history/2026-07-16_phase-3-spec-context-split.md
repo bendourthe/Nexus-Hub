@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-16
 **Branch**: `feat/codex-lb-adoption` (off `develop`)
-**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../plans/v3.14.0-codex-lb-adoption.md), Phase 3 of 6 (not the final phase)
+**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../../../../releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md), Phase 3 of 6 (not the final phase)
 **Scope**: one body-only skill edit + `CHANGELOG.md` + the v3.14 ledger/devlog/history docs. No new skill, no frontmatter change, no registry update.
 
 ## Goal

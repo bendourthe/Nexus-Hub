@@ -1,7 +1,7 @@
 # Session History -- v3.3.0 adoption-loop-engineering Phase 2: Goal-based stopping and the independent-evaluator pattern
 
 **Date**: 2026-06-11
-**Plan**: [`docs/releases/v3/v3.3/plans/adoption-loop-engineering.md`](../../plans/adoption-loop-engineering.md)
+**Plan**: [`docs/releases/v3/v3.3/plans/adoption-loop-engineering.md`](../../../../../releases/v3/v3.3/plans/adoption-loop-engineering.md)
 **Phase**: 2 of 4 -- Goal-based stopping + independent-evaluator pattern
 **Branch**: `feat/adoption-loop-engineering` (Phase 1 already merged in; the branch was synced with `develop` at v3.2.2 before this phase)
 **Outcome**: complete; all Phase 2 sub-tasks closed and the Phase 2 exit checklist is checked.

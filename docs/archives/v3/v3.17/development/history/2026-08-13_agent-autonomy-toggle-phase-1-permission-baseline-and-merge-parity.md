@@ -1,7 +1,7 @@
 # Session History - v3.17.0 Phase 1: permission-baseline hardening and cross-platform merge parity
 
 **Date**: 2026-08-13
-**Plan**: [docs/releases/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md](../../plans/v3.17.0-agent-autonomy-toggle.md)
+**Plan**: [docs/releases/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md](../../../../../releases/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md)
 **Phase**: 1 of 6 (not final; Phase 6 is the terminal refactor / reconciliation / CI phase)
 **Branch**: `feat/v3.17.0-agent-autonomy-toggle`, created off `develop` at `5244f3cd`. Phase 1 began directly on `develop` (checkpoint `9023e6c9`, already pushed); mid-session the maintainer directed that all v3.17.0 work be separated onto its own feature branch so it cannot ride the pending v3.16.7 presentify release.
 **Prior state**: checkpoint commit `9023e6c9` carried sub-tasks 1.1, 1.1b, 1.3, amendment A3 bug 2, and A3 bug 1 on the bash side only. This session closed the remainder.

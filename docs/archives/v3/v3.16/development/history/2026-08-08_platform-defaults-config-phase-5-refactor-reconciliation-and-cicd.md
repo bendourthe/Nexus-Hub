@@ -1,7 +1,7 @@
 # Session History - v3.16.0 Phase 5: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 
 **Date**: 2026-08-08
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../plans/v3.16.0-platform-defaults-config.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../../../../releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md)
 **Phase**: 5 of 5 - **the final phase** (release-readiness workflow ran)
 **Branch**: `feat/platform-defaults-config`
 **Outcome**: Complete. All quality gates passed. No version bump, tag, merge, or push performed in-phase.

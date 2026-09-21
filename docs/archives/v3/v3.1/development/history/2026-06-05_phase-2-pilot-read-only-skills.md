@@ -1,7 +1,7 @@
 # Session History -- v3.1.0 adoption-dynamic-workflows Phase 2: Pilot on high-value read-only skills (skill-native)
 
 **Date**: 2026-06-05
-**Plan**: [docs/releases/v3/v3.1/plans/adoption-dynamic-workflows.md](../../plans/adoption-dynamic-workflows.md)
+**Plan**: [docs/releases/v3/v3.1/plans/adoption-dynamic-workflows.md](../../../../../releases/v3/v3.1/plans/adoption-dynamic-workflows.md)
 **Phase**: 2 of 3 -- Pilot on high-value read-only skills (skill-native)
 **Branch**: `feat/adoption-dynamic-workflows`
 **Outcome**: Complete. Both sub-tasks (T004-T005) closed plus stabilization (T006); catalog validators green and the skill-security scanner is clean on both pilot bundles.

@@ -4,7 +4,7 @@
 **Scope**: Phase 1 of [docs/archives/v2/v2.0/plans/adoption-spec-kit.md](../../../v2.0.0/plans/adoption-spec-kit.md)
 **Outcome**: Foundation laid for the spec-driven-development adoption (G1 + G2 from the source comparison). New `project-constitution` skill, `/constitution` command, `catalog/templates/constitution-template.md`, and standardized `[NEEDS CLARIFICATION]` marker convention with 3-marker hard limit. All validation passes.
 **Plan reference**: [docs/archives/v2/v2.0/plans/adoption-spec-kit.md](../../../v2.0.0/plans/adoption-spec-kit.md) Phase 1
-**Source comparison**: [docs/archives/v2/v2.0/comparison-spec-kit.md](../../../v2.0.0/comparison-spec-kit.md) adoption candidates G1 and G2
+**Source comparison**: [docs/archives/v2/v2.0/comparison-spec-kit.md](../../../v2.0/comparison-spec-kit.md) adoption candidates G1 and G2
 
 ## Goal recap
 

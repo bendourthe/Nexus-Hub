@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-16
 **Branch**: `feat/v3.17.4-org-knowledge-layer`
-**Plan**: [`docs/releases/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md`](../../plans/v3.17.4-org-knowledge-layer.md)
+**Plan**: [`docs/releases/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md`](../../../../../releases/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md)
 **Phase**: 5 - Lifecycle Integration and Docs
 **Environment**: Windows PowerShell, Python 3.12.10, pytest, ShellCheck; GNU Make unavailable
 **Outcome**: Organization knowledge is now diagnosed, repaired, synchronized, selectively removed, and documented through the complete install lifecycle. Phase-specific validation is green and Phase 6 remains the final reconciliation and CI/CD phase.

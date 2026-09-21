@@ -1,7 +1,7 @@
 # Session History - v3.9.0 presentify-interactive-html Phase 1: Local multi-format extraction
 
 **Date**: 2026-06-25
-**Plan**: [`../../plans/presentify-interactive-html.md`](../../plans/presentify-interactive-html.md) Phase 1 (content-model schema + lazy-import extractor + extraction runbook + stabilization)
+**Plan**: [`../../plans/presentify-interactive-html.md`](../../../../../releases/v3/v3.9/plans/presentify-interactive-html.md) Phase 1 (content-model schema + lazy-import extractor + extraction runbook + stabilization)
 **Branch**: `develop`
 **Outcome**: Complete. All four sub-tasks (1.1-1.4) done; Phase 1 exit checklist satisfied; quality gate GO. This is the first of four phases; the skill is intentionally not yet registered (no SKILL.md until Phase 3), so the release-readiness workflow was NOT triggered.
 

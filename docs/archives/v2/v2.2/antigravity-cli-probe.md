@@ -111,7 +111,7 @@ These were flagged `WN` (warning, not blocker) in known-gaps.md; the integration
 - Google Developers Blog, "An important update: transitioning Gemini CLI to Antigravity CLI" (2026-05-21): https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/
 - Existing integration: [scripts/lib/integrations/antigravity.py](../../scripts/lib/integrations/antigravity.py)
 - Phase 2 plan reference: [docs/archives/v2/v2.2/plans/codegraph-and-antigravity.md](plans/codegraph-and-antigravity.md) sub-tasks 2.1 (T007), 2.2 (T008), 2.6 (T012)
-- v2.3.0 Phase 9 plan reference: [docs/archives/v2/v2.3/plans/adoption-ecc-cybersec-skills.md](../v2.3.0/plans/adoption-ecc-cybersec-skills.md) sub-tasks T032 (WN-2), T033 (WN-3), T034 (WN-4)
+- v2.3.0 Phase 9 plan reference: [docs/archives/v2/v2.3/plans/adoption-ecc-cybersec-skills.md](../v2.3/plans/adoption-ecc-cybersec-skills.md) sub-tasks T032 (WN-2), T033 (WN-3), T034 (WN-4)
 
 ## 11. v2.3.0 Phase 9 verification against public Antigravity CLI docs (2026-05-29)
 

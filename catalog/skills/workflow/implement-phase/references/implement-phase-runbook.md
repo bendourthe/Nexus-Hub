@@ -41,7 +41,7 @@ Delegate the assessment to `[[plan-queue-assessment]]`, which owns queue invento
 Report only plans it classifies as non-overlapping with the subject plan's touched paths. For each, emit a ready-to-use launch block:
 
 ```markdown
-### Parallel-capable: v4.14.0 - <slug>
+### Parallel-capable: v4.17.0 - <slug>
 
 Touches `catalog/skills/security/**`; no overlap with this plan.
 
@@ -51,10 +51,10 @@ Touches `catalog/skills/security/**`; no overlap with this plan.
 
 Then paste:
 
-    /implement v4.14.0-<slug> in-full
+    /implement v4.17.0-<slug> in-full
 
 **What you should see:** a pre-flight summary naming that plan, and a new
-worktree at `<repo-parent>/<repo-name>-v4.14.0-<slug>`.
+worktree at `<repo-parent>/<repo-name>-v4.17.0-<slug>`.
 ```
 
 Two rules keep this honest. State the overlap basis (the shared paths, or their absence) rather than asserting compatibility, and when nothing qualifies say "no queued plan is parallel-capable against this one" instead of omitting the section - an absent report reads as "none checked".

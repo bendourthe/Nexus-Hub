@@ -1,7 +1,7 @@
 # Session History - v3.16.1 Phase 2: Evaluation pipeline audit skill
 
 **Date**: 2026-08-08
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md](../../plans/v3.16.1-evals-and-selective-installation.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md](../../../../../releases/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md)
 **Phase**: 2 of 8 (not the final phase; no release-readiness workflow ran)
 **Branch**: `feat/v3.16.1-evals-and-selective-installation`
 **Outcome**: Complete. Quality gates passed; two pre-existing catalog defects found and recorded.

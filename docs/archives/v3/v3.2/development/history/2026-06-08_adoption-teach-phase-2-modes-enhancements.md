@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-teach Phase 2: Modes + interaction enhancements
 
 **Date**: 2026-06-08
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-teach.md`](../../plans/adoption-teach.md)
+**Plan**: [`docs/releases/v3/v3.2/plans/adoption-teach.md`](../../../../../releases/v3/v3.2/plans/adoption-teach.md)
 **Phase**: 2 of 3 -- modes + interaction enhancements
 **Branch**: `feat/adoption-teach`
 **Outcome**: complete; all four sub-tasks (T004-T007) closed, all quality gates green.

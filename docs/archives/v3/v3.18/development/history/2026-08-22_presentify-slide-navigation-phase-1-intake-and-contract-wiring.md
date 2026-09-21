@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/presentify-slide-navigation`
-**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md`](../../plans/v3.18.3-presentify-slide-navigation.md)
+**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md`](../../../../../releases/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md)
 **Phase**: 1 - Navigation-mode intake and contract wiring
 **Environment**: Windows 11, Git Bash and PowerShell, Python 3.12.10, pytest; GNU Make unavailable, so `make validate` was executed as its constituent commands
 **Outcome**: The navigation-mode axis exists end to end at the intake layer. `--nav <scroll|slides>` is documented on both the command and the skill, the Round 1 output-aspect question is now a merged canvas-and-navigation question that keeps the round at exactly four questions, and the fallback / no-memory / design-record / one-mode invariants are stated word-for-word on both surfaces. The three registry surfaces are in sync. Every gate is green.

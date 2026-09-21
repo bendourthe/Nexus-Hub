@@ -1,7 +1,7 @@
 # Session History - v3.16.1 Phase 3: Error analysis and evaluator calibration
 
 **Date**: 2026-08-08
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md](../../plans/v3.16.1-evals-and-selective-installation.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md](../../../../../releases/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md)
 **Phase**: 3 of 8 (not the final phase; no release-readiness workflow ran)
 **Branch**: `feat/v3.16.1-evals-and-selective-installation`
 **Outcome**: Complete. All quality gates passed; no new known gaps.

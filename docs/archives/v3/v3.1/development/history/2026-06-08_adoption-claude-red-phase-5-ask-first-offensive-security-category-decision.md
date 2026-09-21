@@ -1,7 +1,7 @@
 # Session History -- v3.1.0 adoption-claude-red Phase 5: Ask-First offensive-security category decision
 
 **Date**: 2026-06-08
-**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../plans/adoption-claude-red.md)
+**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../../../../releases/v3/v3.1/plans/adoption-claude-red.md)
 **Phase**: 5 of 5 -- Ask-First category decision (final phase)
 **Branch**: `feat/adoption-claude-red` (continued from Phase 4 tip)
 **Outcome**: complete; both sub-tasks (T012-T013) closed. All catalog gates green; the only test failures are 3 pre-existing Windows-host ENV bash-installer tests (CI-green, documented WN-v31cr-6). As the final phase, this triggers the release-readiness workflow; the v3.1.0 version bump / tag is held for the develop->main release (owned by `/update version`), since v3.1.0 also includes the in-progress dynamic-workflows sub-plan.

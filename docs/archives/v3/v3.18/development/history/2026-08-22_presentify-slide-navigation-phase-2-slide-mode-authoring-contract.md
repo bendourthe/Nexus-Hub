@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/presentify-slide-navigation`
-**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md`](../../plans/v3.18.3-presentify-slide-navigation.md)
+**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md`](../../../../../releases/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md)
 **Phase**: 2 - Slide-mode authoring contract
 **Environment**: Windows 11, Git Bash and PowerShell, Python 3.12.10, pytest, Playwright with bundled Chromium (READY_PLAYWRIGHT); GNU Make unavailable, so `make validate` was executed as its constituent commands
 **Outcome**: `references/slide-navigation.md` exists (132 lines, pure ASCII, all eight rule areas binary-checkable), Step 6 branches on the resolved mode through a compact Navigation-mode bullet, the Phase 1 deferred pointer (DF-1) is closed, and a hand-authored five-slide sample page passes a 42-check headless keyboard walkthrough covering rules 1 through 7, including deep links, reduced motion, and the no-JS fallback.

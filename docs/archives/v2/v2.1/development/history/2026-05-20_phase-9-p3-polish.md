@@ -4,7 +4,7 @@
 **Scope**: Phase 9 of [docs/archives/v2/v2.1/plans/adoption-spec-kit.md](../../plans/adoption-spec-kit.md)
 **Outcome**: Four P3-polish artifacts shipped against the v2.1.0 baseline rather than deferred to a v2.1.x patch: a 2679-word Spec-Driven Development methodology essay at `docs/archive/v2/v2.1/spec-driven-methodology.md`; a `.devcontainer/` scaffold with `devcontainer.json` and `post-create.sh`; an executable markdownlint config at `catalog/style-guides/markdownlint-cli2.jsonc` paired with a `## Automated enforcement` section in `catalog/style-guides/markdown.md`; and a `tests/installer/` pytest suite (`test_registrar_path_traversal.py` + `_path_safety.py`) with 19 assertions codifying the installer's path-resolution invariant. One DEVIATION recorded against the plan's Phase 9.4 "no Makefile change needed" assertion: the conditional `if [ -d tests ]; then python -m pytest -q tests; fi` line was appended to the `test:` target so the new suite runs alongside the extension tests. No new skills, commands, or templates; no `data/` registry changes. All verification gates pass: bundle audit 0 errors / 0 warnings across 210 bundles, 19/19 installer tests, 96 extension tests unchanged.
 **Plan reference**: [docs/archives/v2/v2.1/plans/adoption-spec-kit.md](../../plans/adoption-spec-kit.md) Phase 9
-**Source comparison**: [docs/archives/v2/v2.0/comparison-spec-kit.md](../../../v2.0.0/comparison-spec-kit.md)
+**Source comparison**: [docs/archives/v2/v2.0/comparison-spec-kit.md](../../../v2.0/comparison-spec-kit.md)
 
 ## Goal recap
 

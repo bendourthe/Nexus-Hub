@@ -5,7 +5,7 @@
 **Slug**: adoption-spec-kit
 **Plan Type**: Feature / Enhancement (comparison adoption)
 **Created**: 2026-06-16
-**Source comparison**: [docs/releases/v3/v3.6/comparisons/v3.6.0-comparison-spec-kit.md](../comparison-spec-kit.md)
+**Source comparison**: [docs/releases/v3/v3.6/comparisons/v3.6.0-comparison-spec-kit.md](../../../../archives/v2/v2.0/comparison-spec-kit.md)
 **Goal**: Operationalize the policy-clean recommendations from the v3.5.0 Spec Kit re-comparison -- folding spec-kit's post-v2.0.0 extensibility *disciplines* into Nexus-Hub's local-first equivalents -- and make the two deliberate declines durable, without adding any new outbound call, credential, or third-party data processor.
 
 ## Overview

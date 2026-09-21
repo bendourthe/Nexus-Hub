@@ -13,7 +13,7 @@
 >
 > **Release retarget**: the work originally scoped for v0.9.8 grew into a major-version event (MCP Registry Policy bake-in, a new authoritative reverse-engineering matrix, 2 new internal MCPs, 3 new skills, `/compare-project` command-level workflow change, breaking registry removals). It now targets **v1.0.0** as the first stable release milestone. The version-bump sweep therefore goes `0.9.7 → 1.0.0`, skipping the intermediate 0.9.8.
 >
-> **Successor plan**: [`docs/archives/v1/v1.0/plans/security-hardening-v100.md`](../../v1.0.0/plans/security-hardening-v100.md) (generated via `/generate-plan` from the v1.0.0 scratch plan — see that file's Phase 0 for the authoring trail).
+> **Successor plan**: [`docs/archives/v1/v1.0/plans/security-hardening-v100.md`](../../../v1/v1.0/plans/security-hardening-v100.md) (generated via `/generate-plan` from the v1.0.0 scratch plan — see that file's Phase 0 for the authoring trail).
 >
 > This file is kept unchanged below for historical record. The body content does NOT reflect current project direction; refer to the successor plan.
 
@@ -571,7 +571,7 @@ Success looks like: all 6 adoption items merged to `main`; `make validate` + `ma
 > - **Added**: `code-semantic-search` skill; `claude-context` MCP registry entry; `skill_server_benchmark.py` script and `benchmark` Makefile target; pytest coverage for the benchmark.
 > - **Changed**: `rag-implementation/SKILL.md` now names Milvus/Zilliz vector stores, VoyageAI/Ollama/Gemini embedding providers, AST-aware chunking, and Merkle-tree incremental indexing, with `zilliztech/claude-context` cited as the canonical OSS reference. `context-manager/SKILL.md` and `context-engineering/SKILL.md` cross-link to `code-semantic-search`.
 >
-> Reference the triggering comparison report: "Adoption derived from [docs/v0.9.7/comparison-claude-context.md](docs/v0.9.7/comparison-claude-context.md) (6 items, P0 through P3)."
+> Reference the triggering comparison report: "Adoption derived from [docs/v0.9.7/comparison-claude-context.md](../comparison-claude-context.md) (6 items, P0 through P3)."
 >
 > Acceptance criteria: `## [Unreleased]` is empty; `## [0.9.8] - <date>` has all bullets; Keep-a-Changelog format preserved.
 

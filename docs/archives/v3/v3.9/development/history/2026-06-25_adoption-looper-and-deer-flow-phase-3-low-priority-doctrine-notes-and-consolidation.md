@@ -1,7 +1,7 @@
 # Session History - v3.9.0 adoption-looper-and-deer-flow Phase 3: Low-priority doctrine notes and consolidation
 
 **Date**: 2026-06-25
-**Plan**: [`../../plans/adoption-looper-and-deer-flow.md`](../../plans/adoption-looper-and-deer-flow.md) Phase 3 (D1 + D2 + RE-matrix declines + registry decision + CHANGELOG + known-gaps, skill-native)
+**Plan**: [`../../plans/adoption-looper-and-deer-flow.md`](../../../../../releases/v3/v3.9/plans/adoption-looper-and-deer-flow.md) Phase 3 (D1 + D2 + RE-matrix declines + registry decision + CHANGELOG + known-gaps, skill-native)
 **Branch**: `develop`
 **Outcome**: Complete. All Phase 3 exit-checklist items satisfied; quality gate GO. Final phase of this plan, but v3.9.0 is NOT yet release-ready (a second v3.9.0 plan, `presentify-interactive-html`, is still unimplemented), so the release-readiness workflow was deliberately NOT triggered - see Next.
 
@@ -51,4 +51,4 @@ Fold in the two low-priority doctrine notes the cross-model agent-runtime compar
 
 ## Next
 
-This plan (`adoption-looper-and-deer-flow`) is COMPLETE: all three phases shipped, every exit checklist satisfied, Definition of Done met. v3.9.0 is NOT yet release-ready - the second v3.9.0 plan [`presentify-interactive-html`](../../plans/presentify-interactive-html.md) is still unimplemented and the Foundations guide page sits in `## [Unreleased]`. When all v3.9.0 workstreams are done, run `/update release` (it bumps every version-carrying surface via `check_version_sync.py`, finalizes the changelog, commits, merges `develop` -> `main`, tags `v3.9.0`, pushes, and publishes the GitHub Release). The DEVLOG entry is deferred to that release step, consistent with Phases 1-2 (which added session histories, not DEVLOG entries).
+This plan (`adoption-looper-and-deer-flow`) is COMPLETE: all three phases shipped, every exit checklist satisfied, Definition of Done met. v3.9.0 is NOT yet release-ready - the second v3.9.0 plan [`presentify-interactive-html`](../../../../../releases/v3/v3.9/plans/presentify-interactive-html.md) is still unimplemented and the Foundations guide page sits in `## [Unreleased]`. When all v3.9.0 workstreams are done, run `/update release` (it bumps every version-carrying surface via `check_version_sync.py`, finalizes the changelog, commits, merges `develop` -> `main`, tags `v3.9.0`, pushes, and publishes the GitHub Release). The DEVLOG entry is deferred to that release step, consistent with Phases 1-2 (which added session histories, not DEVLOG entries).

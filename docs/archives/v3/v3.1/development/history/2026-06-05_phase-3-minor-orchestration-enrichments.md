@@ -1,7 +1,7 @@
 # Session History -- v3.1.0 adoption-dynamic-workflows Phase 3: Minor orchestration enrichments (skill-native)
 
 **Date**: 2026-06-05
-**Plan**: [docs/releases/v3/v3.1/plans/adoption-dynamic-workflows.md](../../plans/adoption-dynamic-workflows.md)
+**Plan**: [docs/releases/v3/v3.1/plans/adoption-dynamic-workflows.md](../../../../../releases/v3/v3.1/plans/adoption-dynamic-workflows.md)
 **Phase**: 3 of 3 (final phase of the plan) -- Minor orchestration enrichments (skill-native)
 **Branch**: `feat/adoption-dynamic-workflows`
 **Outcome**: Complete. All three sub-tasks (T007-T009) closed. Treated as a NON-release final phase (no version bump / release-readiness workflow) because v3.1.0 is a multi-plan release with the sibling `adoption-claude-red` sub-plan still pending; the version bump is deferred to `/update version` at release time per the master roadmap. Catalog validators green; skill-security scanner clean on both edited skills.

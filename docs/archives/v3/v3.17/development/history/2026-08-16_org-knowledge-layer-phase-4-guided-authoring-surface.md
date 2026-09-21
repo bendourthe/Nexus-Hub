@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-16
 **Branch**: `feat/v3.17.4-org-knowledge-layer`
-**Plan**: [`docs/releases/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md`](../../plans/v3.17.4-org-knowledge-layer.md)
+**Plan**: [`docs/releases/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md`](../../../../../releases/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md)
 **Phase**: 4 - Guided Authoring Surface
 **Environment**: Windows PowerShell, Python 3.12.10, pytest, Ruff, and ShellCheck; GNU Make unavailable
 

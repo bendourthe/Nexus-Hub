@@ -1,7 +1,7 @@
 # Session History - v3.10.0 adoption-ruflo Phase 2: Prompt-injection-defense skill
 
 **Date**: 2026-06-30
-**Plan**: [`../../plans/adoption-ruflo.md`](../../plans/adoption-ruflo.md) Phase 2 (A4 prompt-injection-defense skill; skill-native, P1)
+**Plan**: [`../../plans/adoption-ruflo.md`](../../../../../releases/v3/v3.10/plans/adoption-ruflo.md) Phase 2 (A4 prompt-injection-defense skill; skill-native, P1)
 **Branch**: `develop`
 **Outcome**: Complete. All Phase 2 exit-checklist items satisfied; quality gate GO. Phase 2 of 6; not the final phase, so no release-readiness run.
 

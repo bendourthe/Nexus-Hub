@@ -2,7 +2,7 @@
 
 **Generated**: 2026-05-21 (Phase 1 close, v2.2.0)
 **Mode**: audit-only -- no files moved
-**Plan reference**: [docs/archives/v2/v2.2/plans/codegraph-and-antigravity.md](../v2.2.0/plans/codegraph-and-antigravity.md) Phase 1 sub-task 8.5
+**Plan reference**: [docs/archives/v2/v2.2/plans/codegraph-and-antigravity.md](../v2.2/plans/codegraph-and-antigravity.md) Phase 1 sub-task 8.5
 
 ## Categorization summary
 

@@ -1,7 +1,7 @@
 # Session History - v3.16.5 Phase 3: the real render loop
 
 **Date**: 2026-08-11
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../plans/v3.16.5-presentify-visual-overhaul.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../../../../releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md)
 **Phase**: 3 of 7 (not the terminal phase) - the plan's designated enforcement keystone
 **Branch**: `feat/v3.16.5-presentify-visual-overhaul`, worktree at `.claude/worktrees/v3.16.5-presentify`
 **Model**: Opus 5 (strong tier). The plan recommends **frontier at MAX effort** for this phase, its highest recommendation. The delta was surfaced with the environment probe as context - Playwright already worked, so 3.1 and 3.4 were verification rather than exploration - and the maintainer chose to proceed on the session model.

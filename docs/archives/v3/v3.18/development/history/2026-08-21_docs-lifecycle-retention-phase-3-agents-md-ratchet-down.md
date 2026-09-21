@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-21
 **Branch**: `feat/docs-lifecycle-retention`
-**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md`](../../plans/v3.18.0-docs-lifecycle-retention.md)
+**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md`](../../../../../releases/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md)
 **Phase**: 3 - AGENTS.md MT-1 ratchet-down
 **Environment**: Windows 11, Git Bash and PowerShell, Python 3.12, pytest; GNU Make unavailable, so `make` targets were executed as their constituent commands
 **Outcome**: `AGENTS.md` went from 9,715 to 7,742 words with 2,211 words relocated verbatim, its ceiling ratcheted 10,060 to 8,150, and MT-1 is RESOLVED. Two link breakages inherent to relocation were found and repaired, one of them by reading the file rather than by the link checker.

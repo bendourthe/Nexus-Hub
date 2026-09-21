@@ -70,7 +70,7 @@
 
 ## Migration notes
 
-Upgrading from v0.9.6? Read [`docs/v0.9.6/opus-4-7-migration.md`](v0.9.6/opus-4-7-migration.md) - the TL;DR's four must-do items capture most of the value.
+Upgrading from v0.9.6? Read [`docs/v0.9.6/opus-4-7-migration.md`](opus-4-7-migration.md) - the TL;DR's four must-do items capture most of the value.
 
 - **No breaking API changes.** No data migration.
 - **`~/.claude/settings.json` effortLevel**: v0.9.7 keeps `xhigh` as the shipped default, unchanged from v0.9.6. De-escalate to `high` for cost-sensitive concurrent work via `/effort high` or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable.
@@ -125,7 +125,7 @@ Do not run steps 4 or 5 until explicitly approved. Step 3 (local tag) is safe to
 ## Further reading
 
 - Full changelog: [CHANGELOG.md](../../CHANGELOG.md) v0.9.7 section
-- Migration guide: [docs/v0.9.6/opus-4-7-migration.md](../v0.9.6/opus-4-7-migration.md)
+- Migration guide: [docs/v0.9.6/opus-4-7-migration.md](opus-4-7-migration.md)
 - Session histories (per-phase detail): [docs/v0.9.7/development/history/](development/history/)
 - Implementation plan: [docs/v0.9.7/implementation-plan.md](implementation-plan.md)
 - Source gap analyses: `docs/v0.9.6/comparison-*.md`

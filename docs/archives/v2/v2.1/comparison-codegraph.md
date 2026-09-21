@@ -140,7 +140,7 @@ Both projects merge into existing `permissions.allow` arrays without clobbering 
 | # | Capability | Nexus-Hub reference | Notes |
 |---|---|---|---|
 | S1 | 206-skill catalog across 22 categories | [data/SKILL_INDEX.md](data/SKILL_INDEX.md) | CodeGraph has 0 skills - it's a tool, not a catalog |
-| S2 | MCP Registry Policy + Reverse-Engineering Matrix | [AGENTS.md](AGENTS.md), [docs/policy/mcp-reverse-engineering-matrix.md](docs/policy/mcp-reverse-engineering-matrix.md) | CodeGraph has no policy framework |
+| S2 | MCP Registry Policy + Reverse-Engineering Matrix | [AGENTS.md](AGENTS.md), [docs/policy/mcp-reverse-engineering-matrix.md](../../../policy/mcp-reverse-engineering-matrix.md) | CodeGraph has no policy framework |
 | S3 | 9-platform integration registry | [scripts/lib/integrations/](scripts/lib/integrations/) | More than 2x CodeGraph's 4 platforms |
 | S4 | Spec-driven development workflow (`/constitution`, `/analyze-spec`, `/clarify-spec`, `/tasks-to-issues`) | [catalog/commands/](catalog/commands/) | CodeGraph has no SDD discipline |
 | S5 | Hook framework with 14 hooks + test suite | [catalog/hooks/](catalog/hooks/) | CodeGraph writes one hook on install (auto-sync); no general hook concept |

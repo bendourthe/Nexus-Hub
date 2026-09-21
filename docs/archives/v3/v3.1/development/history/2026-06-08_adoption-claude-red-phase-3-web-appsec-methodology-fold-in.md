@@ -1,7 +1,7 @@
 # Session History -- v3.1.0 adoption-claude-red Phase 3: Web AppSec methodology fold-in
 
 **Date**: 2026-06-08
-**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../plans/adoption-claude-red.md)
+**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../../../../releases/v3/v3.1/plans/adoption-claude-red.md)
 **Phase**: 3 of 5 -- web AppSec methodology fold-in
 **Branch**: `feat/adoption-claude-red` (continued from Phase 2 tip `4595ee5`)
 **Outcome**: complete; all three sub-tasks (T007-T009) closed, all quality gates green.

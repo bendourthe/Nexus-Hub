@@ -1,7 +1,7 @@
 # Session History - v3.16.2 Phase 1: Loop schema gates, evidence freshness, and instance state
 
 **Date**: 2026-08-09
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.2-loop-longevity-and-doctor-preflight.md](../../plans/v3.16.2-loop-longevity-and-doctor-preflight.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.2-loop-longevity-and-doctor-preflight.md](../../../../../releases/v3/v3.16/plans/v3.16.2-loop-longevity-and-doctor-preflight.md)
 **Phase**: 1 of 6 (not the final phase; no release-readiness workflow ran)
 **Branch**: `develop`
 **Outcome**: Complete. Quality gate GO.

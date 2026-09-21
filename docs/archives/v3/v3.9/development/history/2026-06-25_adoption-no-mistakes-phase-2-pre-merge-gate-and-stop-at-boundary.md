@@ -1,7 +1,7 @@
 # Session History - v3.9.0 adoption-no-mistakes Phase 2: Pre-merge gate and stop-at-boundary doctrine
 
 **Date**: 2026-06-25
-**Plan**: [`../../plans/adoption-no-mistakes.md`](../../plans/adoption-no-mistakes.md) Phase 2 (N2 canonical pre-merge gate, N6 stop-at-the-human-decision-boundary; skill-native)
+**Plan**: [`../../plans/adoption-no-mistakes.md`](../../../../../releases/v3/v3.9/plans/adoption-no-mistakes.md) Phase 2 (N2 canonical pre-merge gate, N6 stop-at-the-human-decision-boundary; skill-native)
 **Branch**: `develop`
 **Outcome**: Complete. All Phase 2 exit-checklist items satisfied; quality gate GO. Phase 2 of 3; not the final phase, so no release-readiness run.
 

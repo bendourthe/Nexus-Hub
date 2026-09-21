@@ -1,7 +1,7 @@
 # Session History - v3.16.8 Phases 1-2: Unicode validator coverage, fix mode, and workflow wiring
 
 **Date**: 2026-08-14
-**Plan**: [plans/v3.16.8-adoption-watermark-hygiene.md](../../plans/v3.16.8-adoption-watermark-hygiene.md)
+**Plan**: [plans/v3.16.8-adoption-watermark-hygiene.md](../../../../../releases/v3/v3.16/plans/v3.16.8-adoption-watermark-hygiene.md)
 **Phase**: 1 and 2 of 3 (Phase 3, the terminal refactor / reconciliation / CI-CD phase, is not started)
 **Branch**: `feat/v3.16.8-adoption-watermark-hygiene`
 **Status**: COMPLETE for both phases. Two pre-existing suite failures remain open and are documented as not introduced here.

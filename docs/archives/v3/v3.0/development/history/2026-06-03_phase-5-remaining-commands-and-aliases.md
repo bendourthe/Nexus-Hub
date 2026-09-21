@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 5: Remaining commands + permanent aliases
 
 **Date**: 2026-06-03
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
 **Phase**: 5 of 10 -- Remaining commands + permanent aliases
 **Outcome**: complete; all sub-tasks (T018-T025) closed, all applicable quality gates green.
 

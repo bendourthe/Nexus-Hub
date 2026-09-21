@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `develop`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md`](../../plans/v3.19.2-rtk-and-meterless.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md`](../../../../../releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md)
 **Phase**: 3 - Memory hardening
 **Environment**: Windows 11, PowerShell, Python 3.12, pytest
 **Outcome**: Every new memory write must name a source. Mutations append to a changelog. Superseded rows stay readable. Maintenance is preview-first and copies a backup. Ready for Phase 4.

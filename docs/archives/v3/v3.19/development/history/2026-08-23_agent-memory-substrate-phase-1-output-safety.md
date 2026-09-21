@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.19.1-agent-memory-substrate`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md`](../../plans/v3.19.1-agent-memory-substrate.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md`](../../../../../releases/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md)
 **Phase**: 1 - Output-safety foundation
 **Environment**: Windows 11, PowerShell, Python 3.12.10, pytest, coverage; GNU Make unavailable, so validation ran as its constituent commands
 **Outcome**: A dated per-CLI truncation contract exists, a shared paging helper pages agent-consumed output under both a byte cap and a line cap, printed next-part commands resolve to a real file, and `check_docs_retention.py` is the first consumer. Every required gate for this phase passed.

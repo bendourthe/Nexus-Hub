@@ -1,7 +1,7 @@
 # Session History -- v3.1.0 adoption-dynamic-workflows Phase 1: Workflow-bundle convention (skill-native)
 
 **Date**: 2026-06-05
-**Plan**: [docs/releases/v3/v3.1/plans/adoption-dynamic-workflows.md](../../plans/adoption-dynamic-workflows.md)
+**Plan**: [docs/releases/v3/v3.1/plans/adoption-dynamic-workflows.md](../../../../../releases/v3/v3.1/plans/adoption-dynamic-workflows.md)
 **Phase**: 1 of 3 -- Workflow-bundle convention (skill-native)
 **Branch**: `feat/adoption-dynamic-workflows`
 **Outcome**: Complete. All three sub-tasks (T001-T003) closed; catalog validators green.

@@ -1,7 +1,7 @@
 # Session History - v3.16.0 Phase 4: Freshness governance and documentation
 
 **Date**: 2026-08-08
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../plans/v3.16.0-platform-defaults-config.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../../../../releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md)
 **Phase**: 4 of 5 (not the final phase)
 **Branch**: `feat/platform-defaults-config`
 **Outcome**: Complete. All four quality gates passed. No production code changed.

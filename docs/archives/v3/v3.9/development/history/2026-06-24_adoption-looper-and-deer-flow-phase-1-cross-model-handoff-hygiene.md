@@ -1,7 +1,7 @@
 # Session History - v3.9.0 adoption-looper-and-deer-flow Phase 1: Cross-model handoff hygiene
 
 **Date**: 2026-06-24
-**Plan**: [`../../plans/adoption-looper-and-deer-flow.md`](../../plans/adoption-looper-and-deer-flow.md) Phase 1 (L1 + L3 + L5 cross-model half, skill-native)
+**Plan**: [`../../plans/adoption-looper-and-deer-flow.md`](../../../../../releases/v3/v3.9/plans/adoption-looper-and-deer-flow.md) Phase 1 (L1 + L3 + L5 cross-model half, skill-native)
 **Branch**: `develop`
 **Outcome**: Complete. All Phase 1 exit-checklist items satisfied; quality gate GO. Phase 1 of 3; not the final phase, so no release-readiness run.
 

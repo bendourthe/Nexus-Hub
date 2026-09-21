@@ -1,7 +1,7 @@
 # Session History - v3.16.3 Phase 2: Allowance and drawdown truth
 
 **Date**: 2026-08-09
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.3-github-usage-monitor-ux.md](../../plans/v3.16.3-github-usage-monitor-ux.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.3-github-usage-monitor-ux.md](../../../../../releases/v3/v3.16/plans/v3.16.3-github-usage-monitor-ux.md)
 **Phase**: 2 of 6 (not the final phase; no release-readiness workflow ran)
 **Branch**: `develop`
 **Outcome**: Complete. Quality gate GO. Percentages ship, weighted and labelled.
@@ -18,7 +18,7 @@ Getting there required live measurement against a real account, because every qu
 
 ### 2.1 - Re-verification, and four corrections to the plan
 
-Full evidence in [github-entitlement-probe.md](../github-entitlement-probe.md).
+Full evidence in [github-entitlement-probe.md](../../../../../releases/v3/v3.16/development/github-entitlement-probe.md).
 
 Confirmed: **no documented endpoint serves an entitlement.** Every field of `/settings/billing/usage`, `/usage/summary`, the AI-credit and premium-request endpoints, and the Budgets API was checked. `consumed_amount` on Budgets is spend against a user-defined budget, not usage against an allowance - checked and rejected explicitly so a future contributor does not re-check it.
 

@@ -1,7 +1,7 @@
 # Session History -- v3.7.0 install-ux-overhaul Phase 1: self-fetching bootstrap + dependency prechecks
 
 **Date**: 2026-06-17
-**Plan**: [`docs/releases/v3/v3.7/plans/install-ux-overhaul.md`](../../plans/install-ux-overhaul.md)
+**Plan**: [`docs/releases/v3/v3.7/plans/install-ux-overhaul.md`](../../../../../releases/v3/v3.7/plans/install-ux-overhaul.md)
 **Phase**: 1 of 5 -- Self-fetching bootstrap + dependency prechecks
 **Branch**: `feat/installer-bootstrap` (off `develop`)
 **Outcome**: complete. All three sub-tasks (1.1 contract, 1.2 implementation, 1.3 tests/stabilization) closed; every locally-runnable Stability Gate item is green and the bash end-to-end gate is wired into CI (authoritative under WN-v36-1).

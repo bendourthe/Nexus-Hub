@@ -1,7 +1,7 @@
 # Session History - v3.16.7 Phase 4: Terminal refactor, reconciliation, CI/CD, release readiness
 
 **Date**: 2026-08-13
-**Plan**: [plans/v3.16.7-presentify-first-shot-hardening.md](../../plans/v3.16.7-presentify-first-shot-hardening.md)
+**Plan**: [plans/v3.16.7-presentify-first-shot-hardening.md](../../../../../releases/v3/v3.16/plans/v3.16.7-presentify-first-shot-hardening.md)
 **Phase**: 4 of 4 (the terminal phase, so the mandatory 9.0 gate and the release-readiness workflow ran)
 **Branch**: `feat/v3.16.7-presentify-first-shot-hardening`
 **Status**: COMPLETE. Release-ready, awaiting `/update release`.

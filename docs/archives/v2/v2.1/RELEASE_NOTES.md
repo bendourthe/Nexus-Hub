@@ -7,7 +7,7 @@
 
 ## Highlights
 
-v2.1.0 makes Spec-Driven Development (SDD) a first-class workflow in Nexus-Hub. The release adopts 11 capabilities surfaced by the v2.0.0 cross-project comparison (see [`docs/archives/v2/v2.0/comparison-spec-kit.md`](../v2.0.0/comparison-spec-kit.md)) -- from constitution-as-governance to a cross-artifact spec analyzer to a sequential 5-question clarification loop. All adoption items are classified `skill-native` under the MCP Registry Policy: no new outbound calls, no new credentials, no new third-party data processors, no new runtime dependencies.
+v2.1.0 makes Spec-Driven Development (SDD) a first-class workflow in Nexus-Hub. The release adopts 11 capabilities surfaced by the v2.0.0 cross-project comparison (see [`docs/archives/v2/v2.0/comparison-spec-kit.md`](../v2.0/comparison-spec-kit.md)) -- from constitution-as-governance to a cross-artifact spec analyzer to a sequential 5-question clarification loop. All adoption items are classified `skill-native` under the MCP Registry Policy: no new outbound calls, no new credentials, no new third-party data processors, no new runtime dependencies.
 
 The release ships:
 
@@ -173,5 +173,5 @@ The runner is also installed at `~/.nexus-hub/scripts/lib/integrations/runner.py
 
 - **Plan**: [`plans/adoption-spec-kit.md`](plans/adoption-spec-kit.md) -- the full 10-phase plan with per-phase Stability Gates and Exit Checklists.
 - **CHANGELOG**: [`../../CHANGELOG.md`](../../CHANGELOG.md) -- the `## [2.1.0]` block.
-- **Source comparison**: [`../v2.0.0/comparison-spec-kit.md`](../v2.0.0/comparison-spec-kit.md) -- the per-candidate scoring, the MCP Registry Policy classification, and the sequencing rationale.
+- **Source comparison**: [`../v2.0.0/comparison-spec-kit.md`](../v2.0/comparison-spec-kit.md) -- the per-candidate scoring, the MCP Registry Policy classification, and the sequencing rationale.
 - **Known gaps**: [`known-gaps.md`](known-gaps.md) -- open items and resolved entries.

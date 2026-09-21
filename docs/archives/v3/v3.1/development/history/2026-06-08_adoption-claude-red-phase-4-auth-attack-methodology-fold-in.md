@@ -1,7 +1,7 @@
 # Session History -- v3.1.0 adoption-claude-red Phase 4: Auth attack methodology fold-in
 
 **Date**: 2026-06-08
-**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../plans/adoption-claude-red.md)
+**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../../../../releases/v3/v3.1/plans/adoption-claude-red.md)
 **Phase**: 4 of 5 -- auth attack methodology fold-in
 **Branch**: `feat/adoption-claude-red` (continued from Phase 3 tip `437026f`)
 **Outcome**: complete; both sub-tasks (T010-T011) closed, all quality gates green.

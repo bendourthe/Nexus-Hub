@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 2: skill-native adoptions (reverse-engineer-first)
 
 **Date**: 2026-06-03
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
 **Phase**: 2 of 10 -- skill-native adoptions (reverse-engineer-first)
 **Outcome**: complete; all five sub-tasks (T005-T009) closed, all quality gates green.
 

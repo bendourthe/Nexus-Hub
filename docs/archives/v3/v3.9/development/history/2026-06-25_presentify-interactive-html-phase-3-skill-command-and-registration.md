@@ -1,7 +1,7 @@
 # Session History - v3.9.0 presentify-interactive-html Phase 3: SKILL.md, command, and registration
 
 **Date**: 2026-06-25
-**Plan**: [`../../plans/presentify-interactive-html.md`](../../plans/presentify-interactive-html.md) Phase 3 (conformant SKILL.md + `/presentify` command + the three registries + AGENTS.md / README.md headline counts + stabilization)
+**Plan**: [`../../plans/presentify-interactive-html.md`](../../../../../releases/v3/v3.9/plans/presentify-interactive-html.md) Phase 3 (conformant SKILL.md + `/presentify` command + the three registries + AGENTS.md / README.md headline counts + stabilization)
 **Branch**: `develop`
 **Outcome**: Complete. All three sub-tasks (3.1-3.3) done plus 3.4 stabilization; Phase 3 exit checklist satisfied; quality gate GO. Phase 3 is NOT the plan's final phase (Phase 4 remains), so the release-readiness workflow was NOT triggered.
 

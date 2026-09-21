@@ -1,7 +1,7 @@
 # Session History - v3.16.3 Phase 6: Architecture refactor, known-gaps reconciliation, and CI/CD
 
 **Date**: 2026-08-09
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.3-github-usage-monitor-ux.md](../../plans/v3.16.3-github-usage-monitor-ux.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.3-github-usage-monitor-ux.md](../../../../../releases/v3/v3.16/plans/v3.16.3-github-usage-monitor-ux.md)
 **Phase**: 6 of 6 - **terminal phase**
 **Branch**: `develop`
 **Outcome**: Complete. Quality gate GO. Release readiness verified; `/update release` **not** invoked and nothing tagged or pushed.

@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 10: Live verification + release readiness (v3.0.0 release)
 
 **Date**: 2026-06-04
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
 **Phase**: 10 of 10 -- Live verification + release readiness (FINAL)
 **Outcome**: complete; all sub-tasks (T044-T049) closed; full gate green at v3.0.0; release prepared (commit + annotated tag) pending the user's push/tag confirmation.
 

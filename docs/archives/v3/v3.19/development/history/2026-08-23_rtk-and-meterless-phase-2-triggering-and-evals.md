@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `develop`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md`](../../plans/v3.19.2-rtk-and-meterless.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md`](../../../../../releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md)
 **Phase**: 2 - Triggering confidence and eval discipline
 **Environment**: Windows 11, PowerShell, Python 3.12, pytest
 **Outcome**: Skill descriptions now teach match-confidence bands and a clarification ceiling. Eval loops require a locked corpus, per-slice floors, and no silent threshold lowering. The compressor harness enforces those floors. A docs-convention checker gates the active minor. Ready for Phase 3.

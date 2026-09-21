@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/v3.19.0-code-intelligence-hardening`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md`](../../plans/v3.19.0-code-intelligence-hardening.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md`](../../../../../releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md)
 **Phase**: 4 - Edit-safety verdicts
 **Environment**: Windows 11, PowerShell, Python 3.12.10, pytest, coverage, Ruff; GNU Make unavailable, so repository targets were executed as their constituent commands
 **Outcome**: `nexus-code-search` now exposes exactly three read-only mutation preflights: `code_edit_safety`, `code_delete_safety`, and `code_rename_safety`. Each returns one ordered verdict, one non-empty recommended action, and concrete indexed caller/importer/reference, test-presence, complexity-proxy, and index-health evidence while honestly reporting unavailable cross-repository visibility and insufficient index data.

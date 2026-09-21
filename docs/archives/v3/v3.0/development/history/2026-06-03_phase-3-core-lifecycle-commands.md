@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 3: Core lifecycle commands I (describe, plan, implement, test)
 
 **Date**: 2026-06-03
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
 **Phase**: 3 of 10 -- core lifecycle commands I
 **Outcome**: complete; all five sub-tasks (T010-T014) closed, all applicable quality gates green.
 

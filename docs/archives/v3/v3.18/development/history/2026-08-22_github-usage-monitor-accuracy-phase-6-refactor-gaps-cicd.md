@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/v3.18.1-github-usage-monitor-accuracy`
-**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../plans/v3.18.1-github-usage-monitor-accuracy.md)
+**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../../../releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)
 **Phase**: 6 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD (terminal phase)
 **Environment**: Windows 11, Git Bash, Node 22 / `vitest` 4.1.10, Python 3.12, ShellCheck; GNU Make unavailable, so `make` targets were run as their constituent commands
 **Outcome**: Extension at 0.4.0 with the behavior change announced leading the CHANGELOG entry. Every gate passes, the VSIX packages and verifies, gaps are reconciled with zero release blockers, and CI needed no change for a documented reason.

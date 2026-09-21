@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-31
 **Scope**: the v4.4.0 platform rail, five new Foundations lessons, playable Asteroids surface, cumulative file explorer, and cross-page navigation in `guides/website/nexus-hub-guide.html`.
-**Method**: the anti-slop gates in `catalog/skills/developer-experience/hallmark-design/SKILL.md`, applied to the final HTML and the 32 Phase 6 rendered captures. The [v4.2 audit](../../../v4.2/development/guide-rebuild/hallmark-audit.md) is a historical baseline and was not modified.
+**Method**: the anti-slop gates in `catalog/skills/developer-experience/hallmark-design/SKILL.md`, applied to the final HTML and the 32 Phase 6 rendered captures. The [v4.2 audit](../../../../../archives/v4/v4.2/development/guide-rebuild/hallmark-audit.md) is a historical baseline and was not modified.
 **Verdict**: PASS. No new hallmark blocker remains.
 
 ## New and Rebuilt Surfaces

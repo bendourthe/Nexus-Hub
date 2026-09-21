@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `develop`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md`](../../plans/v3.19.2-rtk-and-meterless.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md`](../../../../../releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md)
 **Phase**: 1 - Supply-chain hardening
 **Environment**: Windows 11, PowerShell, Python 3.12, pytest
 **Outcome**: Standalone bootstrap verifies SHA-256 when pinned and refuses path-traversal archives on both POSIX and Windows. A repo-internal AST guard fails CI if the context compressor grows a network import. Ready for Phase 2.

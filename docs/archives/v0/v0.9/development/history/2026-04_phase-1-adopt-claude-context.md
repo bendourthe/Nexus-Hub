@@ -49,7 +49,7 @@ Context: the plan's Phase 1 addresses the P0 tier of the adoption report - the t
 
 **Plan specification**: Six checks before advancing to Phase 2 - (1) skills.json count unchanged at 184, (2) bundles.json + workflows.json parse cleanly, (3) templates.json parses with explicit UTF-8, (4) file line count <=1100, (5) markdown link audit for the new `github.com/zilliztech/claude-context` URL, (6) cross-platform installer dry-run into a throwaway target.
 
-**What happened**: Checks (1)-(5) all passed via Python one-liners (since `make` is not on the session PATH, the core JSON-integrity invariants `make validate` guards were executed inline). Check (6) was not run against a literal throwaway target. Rationale: the edit is a content-only change inside `catalog/skills/` - a path already recursively distributed by both installers (`scripts/installer.sh:692,732,745,1095,1136,1151` all invoke `safe_folder_copy "$repo_root/catalog/skills" ...` across Claude / Gemini / Codex at global and workspace scopes). Behavior is identical to every prior skill-content edit; distribution-path verification would be redundant overhead. The plan's sub-task 1.3 step 7 explicitly permits this skip when documented in the commit note, so it is captured here and in [docs/DEVLOG.md](../../../DEVLOG.md) rather than as an open follow-up.
+**What happened**: Checks (1)-(5) all passed via Python one-liners (since `make` is not on the session PATH, the core JSON-integrity invariants `make validate` guards were executed inline). Check (6) was not run against a literal throwaway target. Rationale: the edit is a content-only change inside `catalog/skills/` - a path already recursively distributed by both installers (`scripts/installer.sh:692,732,745,1095,1136,1151` all invoke `safe_folder_copy "$repo_root/catalog/skills" ...` across Claude / Gemini / Codex at global and workspace scopes). Behavior is identical to every prior skill-content edit; distribution-path verification would be redundant overhead. The plan's sub-task 1.3 step 7 explicitly permits this skip when documented in the commit note, so it is captured here and in [docs/DEVLOG.md](../../../../../DEVLOG.md) rather than as an open follow-up.
 
 ---
 
@@ -58,7 +58,7 @@ Context: the plan's Phase 1 addresses the P0 tier of the adoption report - the t
 | File | Change | Why |
 |---|---|---|
 | [catalog/skills/ai-development/rag-implementation/SKILL.md](../../../../catalog/skills/ai-development/rag-implementation/SKILL.md) | +23 lines (content-only additions in 4 locations) | Phase 1 sub-tasks 1.1 and 1.2 |
-| [docs/DEVLOG.md](../../../DEVLOG.md) | +1 top-level entry dated 2026-04-24 | Post-phase 8.2 |
+| [docs/DEVLOG.md](../../../../../DEVLOG.md) | +1 top-level entry dated 2026-04-24 | Post-phase 8.2 |
 | [CHANGELOG.md](../../../../CHANGELOG.md) | +1 bullet under `[Unreleased]` `### Changed` | Post-phase 8.3 |
 | [docs/v0.9.7/development/history/2026-04_phase-1-adopt-claude-context.md](2026-04_phase-1-adopt-claude-context.md) | New | Post-phase 8.4 (this file) |
 

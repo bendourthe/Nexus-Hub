@@ -14,7 +14,7 @@
 - **Starting commit**: `07464732`
 - **Environment**: Windows PowerShell, Python 3.12.10, Node.js 24.13.0, npm 11.6.2
 - **Prior session reference**: [Phase 4 deny layer and hook independence](2026-08-14_agent-autonomy-toggle-phase-4-deny-layer-and-hook-independence.md)
-- **Plan reference**: [v3.17.0 agent autonomy toggle](../../plans/v3.17.0-agent-autonomy-toggle.md)
+- **Plan reference**: [v3.17.0 agent autonomy toggle](../../../../../releases/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md)
 
 Phase 4 had committed the enforcing deny layer locally. Phase 5 began from that clean checkpoint and implemented the remaining user surfaces, documentation, decision guidance, tests, and CI coverage without pushing the feature branch.
 

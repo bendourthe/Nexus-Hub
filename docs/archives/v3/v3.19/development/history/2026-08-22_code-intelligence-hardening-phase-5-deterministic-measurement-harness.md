@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/v3.19.0-code-intelligence-hardening`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md`](../../plans/v3.19.0-code-intelligence-hardening.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md`](../../../../../releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md)
 **Phase**: 5 - Deterministic measurement harness
 **Environment**: Windows 11, PowerShell, Python 3.12.10, pytest, Ruff, ShellCheck; GNU Make unavailable, so repository targets were executed as their constituent commands
 **Outcome**: `nexus-code-search` now has a repository-only, credential-free benchmark that runs four fixed task shapes through the real index and MCP dispatch, reports cost and quality together, and gates precision, recall, and mean reciprocal rank against a committed baseline. Both installers remove the benchmark tree before installing the extension.

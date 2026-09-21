@@ -1,7 +1,7 @@
 # Session History - v3.16.6 Phase 1: presentify coverage-depth (verbosity) intake axis
 
 **Date**: 2026-08-12
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.6-presentify-verbosity-intake.md](../../plans/v3.16.6-presentify-verbosity-intake.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.6-presentify-verbosity-intake.md](../../../../../releases/v3/v3.16/plans/v3.16.6-presentify-verbosity-intake.md)
 **Phase**: 1 of 2 (not final; Phase 2 is the terminal refactor / reconciliation / CI phase)
 **Branch**: `feat/v3.16.6-presentify-verbosity-intake` (off `develop` at `8016cc13`, which carries the released v3.16.5 - the plan's hard prerequisite)
 

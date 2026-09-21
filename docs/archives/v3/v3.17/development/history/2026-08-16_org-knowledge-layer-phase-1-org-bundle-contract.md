@@ -14,7 +14,7 @@
 - **Starting commit**: `58b4a82a`
 - **Environment**: Windows PowerShell, Python 3.12.10, Node.js 24.13.0, npm 11.6.2; GNU Make unavailable
 - **Prior session reference**: First implementation session for v3.17.3
-- **Plan reference**: [v3.17.4 org knowledge layer](../../plans/v3.17.4-org-knowledge-layer.md)
+- **Plan reference**: [v3.17.4 org knowledge layer](../../../../../releases/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md)
 
 The approved plan began with no Phase 1 prerequisite. The implementation stayed on the confirmed feature branch and used the plan's `strong` tier, with effort raised from `medium` to `high` after re-scoring the schema, path-containment, unreadable-file, and concurrent-validation failure modes.
 

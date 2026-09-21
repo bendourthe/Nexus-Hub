@@ -1,7 +1,7 @@
 # Session History -- v3.1.0 adoption-claude-red Phase 2: Scanner allowlist prerequisite gate
 
 **Date**: 2026-06-08
-**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../plans/adoption-claude-red.md)
+**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../../../../releases/v3/v3.1/plans/adoption-claude-red.md)
 **Phase**: 2 of 5 -- scanner allowlist prerequisite gate
 **Branch**: `feat/adoption-claude-red` (continued from Phase 1 tip `3c815fe`)
 **Outcome**: complete; both sub-tasks (T005-T006) closed, all quality gates green.

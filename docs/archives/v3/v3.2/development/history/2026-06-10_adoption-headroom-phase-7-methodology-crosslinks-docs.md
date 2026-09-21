@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 7: Methodology cross-links + docs
 
 **Date**: 2026-06-10
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
+**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
 **Phase**: 7 of 7 -- Methodology cross-links + docs (re-partial); the final phase of the plan
 **Branch**: `feat/adoption-headroom` (continuing from Phase 6)
 **Outcome**: complete; all three sub-tasks (T021-T023) closed, all quality gates green (GO). adoption-headroom is now complete end-to-end. DF-v32hr-11 resolved; no new Phase 7 deferrals.

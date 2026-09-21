@@ -1,7 +1,7 @@
 # Session History - v3.16.5 errata pass (render-session lessons E1-E10)
 
 **Date**: 2026-08-11
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../plans/v3.16.5-presentify-visual-overhaul.md), the `## Errata: render-session lessons` section
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../../../../releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md), the `## Errata: render-session lessons` section
 **Scope**: not a plan phase. An errata pass executed immediately after Phase 3, because E1-E5 correct artifacts Phases 1 and 2 had already committed and the plan directs them to run inside Phase 3.
 **Branch**: `feat/v3.16.5-presentify-visual-overhaul` (worktree)
 **Model**: Opus 5

@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.19.1-agent-memory-substrate`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md`](../../plans/v3.19.1-agent-memory-substrate.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md`](../../../../../releases/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md)
 **Phase**: 6 - Architecture refactor, known-gaps reconciliation, and CI/CD
 **Environment**: Windows 11, PowerShell, Python 3.12.10, pytest
 **Outcome**: Layout stays as-is (no moves). The three-part guarantee is audited and dated. Known gaps are reconciled. Network-blocked CI is in place. Ready for `/update release`.

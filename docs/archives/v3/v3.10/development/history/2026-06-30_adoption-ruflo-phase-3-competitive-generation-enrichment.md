@@ -1,7 +1,7 @@
 # Session History - v3.10.0 adoption-ruflo Phase 3: Competitive-generation enrichment + A6 decision
 
 **Date**: 2026-06-30
-**Plan**: [`../../plans/adoption-ruflo.md`](../../plans/adoption-ruflo.md) Phase 3 (A5 iterative competition enrichment; A6 SPARC-note decision; skill-native, P2 / optional P3)
+**Plan**: [`../../plans/adoption-ruflo.md`](../../../../../releases/v3/v3.10/plans/adoption-ruflo.md) Phase 3 (A5 iterative competition enrichment; A6 SPARC-note decision; skill-native, P2 / optional P3)
 **Branch**: `develop`
 **Outcome**: Complete. All Phase 3 exit-checklist items satisfied; quality gate GO. Phase 3 of 6; not the final phase, so no release-readiness run.
 

@@ -1,7 +1,7 @@
 # Session History -- v3.7.0 install-ux-overhaul Phase 4: interactive guide + docs redesign
 
 **Date**: 2026-06-17
-**Plan**: [`docs/releases/v3/v3.7/plans/install-ux-overhaul.md`](../../plans/install-ux-overhaul.md)
+**Plan**: [`docs/releases/v3/v3.7/plans/install-ux-overhaul.md`](../../../../../releases/v3/v3.7/plans/install-ux-overhaul.md)
 **Phase**: 4 of 5 -- Interactive guide + docs redesign
 **Branch**: `feat/installer-bootstrap` (off `develop`)
 **Outcome**: complete. All three sub-tasks (4.1 guide Setup page, 4.2 README + AGENTS, 4.3 verification) closed; the Stability Gate is met and every locally-runnable validator is green for the changed files.

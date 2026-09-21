@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 4: Runtime integration + retire rtk
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
+**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
 **Phase**: 4 of 7 -- Runtime integration + retire rtk (re-full)
 **Branch**: `feat/adoption-headroom` (continuing from Phase 3)
 **Outcome**: complete; all four sub-tasks (T012-T015) closed, all quality gates green (GO).

@@ -6,7 +6,7 @@
 **Plan Type**: Feature / Enhancement (security hardening + major-version release)
 **Created**: 2026-04-24
 **Source scratch plan**: `~/.claude/plans/recursive-yawning-willow.md`
-**Supersedes**: [docs/v0.9.7/plans/adoption-claude-context.md](../../v0.9.7/plans/adoption-claude-context.md) (ABANDONED — Phases 3–5 reverse-engineered into this plan's Phases 8–10; Phase 6 absorbed here)
+**Supersedes**: [docs/v0.9.7/plans/adoption-claude-context.md](../../../v0/v0.9/plans/adoption-claude-context.md) (ABANDONED — Phases 3–5 reverse-engineered into this plan's Phases 8–10; Phase 6 absorbed here)
 **Goal**: Ship a DevAI-Hub v1.0.0 that is audit-clean and safe for regulated-industry / high-trust environments — local-only MCP registry, reverse-engineering-first governance policy, 2 new internal MCPs that replace dropped third-party servers, 3 new skills that capture reverse-engineered knowledge without external attribution, and a `/compare-project` command that enforces the same ordering on every future comparison.
 
 ---

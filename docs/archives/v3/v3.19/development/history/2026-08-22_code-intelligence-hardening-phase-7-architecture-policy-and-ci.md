@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/v3.19.0-code-intelligence-hardening`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md`](../../plans/v3.19.0-code-intelligence-hardening.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md`](../../../../../releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md)
 **Phase**: 7 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 **Environment**: Windows 11, PowerShell, Python 3.12.10, pytest, pytest-cov, Ruff; GNU Make unavailable, so repository targets were executed as their constituent commands
 **Outcome**: The seven-phase code-intelligence plan is locally complete. Profile policy is separated from the MCP transport, the offline contract has executable static and process-level guards, the benchmark is repeatable on Windows OneDrive workspaces, CI runs the full extension suite and regression benchmark inside a container with networking disabled, and the v3.19 gap ledger is finalized with no open items.

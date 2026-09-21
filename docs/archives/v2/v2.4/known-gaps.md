@@ -5,7 +5,7 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 **Plan**: [docs/archives/v2/v2.4/plans/adoption-compound-engineering-plugin.md](plans/adoption-compound-engineering-plugin.md)
 **Status**: complete (Phases 1-8 of 8 closed; Phase 8 - live verification + release readiness; v2.4.0 release-ready). All 13 A-items shipped; all 15 ingested v2.3.0 gaps resolved (11) or dated-deferred (4). Catalog green: make validate exit 0; 1056 tests passed / 4 skipped / 0 failed; code-search eval recall 100% / precision 100%; zero new outbound verified.
 **Last updated**: 2026-06-02 (Phase 8 close / v2.4.0 release readiness)
-**Transferred**: 2026-06-02 -- all open items (NI-v24-1, DF-v24-7, WN-v24-2, DF-v24-8, DF-v24-9, DF-v24-10, WN-v24-3) ingested into the v3.0.0 plan [command-consolidation-skill-security](../v3.0.0/plans/command-consolidation-skill-security.md) and moved to the Resolved table below with `Resolved in: transferred to v3.0.0 plan`. They are not yet fixed -- only re-homed to the v3.0.0 tracking surface; resolution happens when the corresponding v3.0.0 sub-tasks (Phases 6, 9, 10) are implemented. DF-v24-8 still subsumes DF-v24-1/2/3/4/6 and carries DF-v23-7; DF-v24-9 carries DF-v23-8; DF-v24-10 subsumes DF-v24-5 and carries DF-v23-6; WN-v24-3 carries WN-v23-5.
+**Transferred**: 2026-06-02 -- all open items (NI-v24-1, DF-v24-7, WN-v24-2, DF-v24-8, DF-v24-9, DF-v24-10, WN-v24-3) ingested into the v3.0.0 plan [command-consolidation-skill-security](../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md) and moved to the Resolved table below with `Resolved in: transferred to v3.0.0 plan`. They are not yet fixed -- only re-homed to the v3.0.0 tracking surface; resolution happens when the corresponding v3.0.0 sub-tasks (Phases 6, 9, 10) are implemented. DF-v24-8 still subsumes DF-v24-1/2/3/4/6 and carries DF-v23-7; DF-v24-9 carries DF-v23-8; DF-v24-10 subsumes DF-v24-5 and carries DF-v23-6; WN-v24-3 carries WN-v23-5.
 
 ## Summary
 
@@ -25,7 +25,7 @@ _Phase 1 resolved 2 of the 15 ingested v2.3.0 gaps (WN-v23-1 count drift, BG-v23
 
 ## Open Items
 
-> **TRANSFERRED to the v3.0.0 plan on 2026-06-02.** All items in this section were ingested into [command-consolidation-skill-security](../v3.0.0/plans/command-consolidation-skill-security.md) (Phases 6, 9, 10) and re-homed to the Resolved table below. Open count is now 0. The detailed entries are retained here for their reasons and next-steps (also restated in the v3.0.0 plan task prompts). Do not treat these as open against v2.4.0.
+> **TRANSFERRED to the v3.0.0 plan on 2026-06-02.** All items in this section were ingested into [command-consolidation-skill-security](../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md) (Phases 6, 9, 10) and re-homed to the Resolved table below. Open count is now 0. The detailed entries are retained here for their reasons and next-steps (also restated in the v3.0.0 plan task prompts). Do not treat these as open against v2.4.0.
 
 ### NI-v24-1 -- validate_solution_frontmatter.ps1 PowerShell sibling intentionally not created
 
@@ -144,7 +144,7 @@ _Phase 1 resolved 2 of the 15 ingested v2.3.0 gaps (WN-v23-1 count drift, BG-v23
 
 | ID | Title | Category | Resolved in | Detail |
 |---|---|---|---|---|
-| NI-v24-1 | validate_solution_frontmatter.ps1 PowerShell sibling intentionally not created | NI | transferred to v3.0.0 plan | Carried into [command-consolidation-skill-security](../v3.0.0/plans/command-consolidation-skill-security.md) Phase 9, sub-task T042 (confirm/close the convention-based no-action decision; recommend keeping the single cross-platform .py validator). |
+| NI-v24-1 | validate_solution_frontmatter.ps1 PowerShell sibling intentionally not created | NI | transferred to v3.0.0 plan | Carried into [command-consolidation-skill-security](../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md) Phase 9, sub-task T042 (confirm/close the convention-based no-action decision; recommend keeping the single cross-platform .py validator). |
 | DF-v24-7 | Remaining code-search language extractors + framework/parameter parity | DF | transferred to v3.0.0 plan | Carried into command-consolidation-skill-security Phase 9, sub-task T040 (Swift + Kotlin extractor batch next, each clearing the 80% recall gate). |
 | WN-v24-2 | Some grandfathered skills carry both `## Quality Checklist` and `## Verification` | WN | transferred to v3.0.0 plan | Carried into command-consolidation-skill-security Phase 9, sub-task T041 (merge duplicate headings into the single canonical Verification checklist). |
 | DF-v24-8 | Live skill-eval-loop trigger runs (subsumes DF-v24-1/2/3/4/6; carries DF-v23-7) | DF | transferred to v3.0.0 plan | Carried into command-consolidation-skill-security Phase 10, sub-task T045 (run if a model CLI is available, else re-defer with a dated reason). |

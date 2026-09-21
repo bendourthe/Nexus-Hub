@@ -1,7 +1,7 @@
 # Session History - v3.16.2 Phase 6: Architecture refactor, known-gaps reconciliation, and CI/CD
 
 **Date**: 2026-08-09
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.2-loop-longevity-and-doctor-preflight.md](../../plans/v3.16.2-loop-longevity-and-doctor-preflight.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.2-loop-longevity-and-doctor-preflight.md](../../../../../releases/v3/v3.16/plans/v3.16.2-loop-longevity-and-doctor-preflight.md)
 **Phase**: 6 of 6 - **TERMINAL PHASE**
 **Branch**: `develop` (not pushed)
 **Outcome**: Complete. Quality gate GO. Release readiness handed to `/update release`; **nothing tagged, nothing pushed**.

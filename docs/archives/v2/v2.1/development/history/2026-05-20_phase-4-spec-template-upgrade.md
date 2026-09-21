@@ -4,7 +4,7 @@
 **Scope**: Phase 4 of [docs/archives/v2/v2.1/plans/adoption-spec-kit.md](../../plans/adoption-spec-kit.md)
 **Outcome**: Spec template + spec-driven-development skill upgraded to enforce P1/P2/P3 user-story priorities, Independent Test criteria, and FR-### / SC-### identifier schemes. New `catalog/templates/spec-template.md` shipped; `catalog/skills/developer-experience/spec-driven-development/SKILL.md` gained two new body subsections, two new Common Rationalizations rebuttals, and two new Related Skills cross-links. All validation passes.
 **Plan reference**: [docs/archives/v2/v2.1/plans/adoption-spec-kit.md](../../plans/adoption-spec-kit.md) Phase 4
-**Source comparison**: [docs/archives/v2/v2.0/comparison-spec-kit.md](../../../v2.0.0/comparison-spec-kit.md)
+**Source comparison**: [docs/archives/v2/v2.0/comparison-spec-kit.md](../../../v2.0/comparison-spec-kit.md)
 
 ## Goal recap
 

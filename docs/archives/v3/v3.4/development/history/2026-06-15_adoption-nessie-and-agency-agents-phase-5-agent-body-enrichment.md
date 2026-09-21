@@ -1,7 +1,7 @@
 # Session History - v3.4.0 adoption-nessie-and-agency-agents Phase 5: selective agent-body enrichment
 
 **Date**: 2026-06-15
-**Plan**: [`../../plans/adoption-nessie-and-agency-agents.md`](../../plans/adoption-nessie-and-agency-agents.md) Phase 5 (A2, skill-native)
+**Plan**: [`../../plans/adoption-nessie-and-agency-agents.md`](../../../../../releases/v3/v3.4/plans/adoption-nessie-and-agency-agents.md) Phase 5 (A2, skill-native)
 **Branch**: `develop`
 **Outcome**: Implementation complete; quality gate GO. This is the plan's final phase (5 of 5), so release readiness via `/update release` follows (gated on user confirmation; no tag or push made automatically).
 

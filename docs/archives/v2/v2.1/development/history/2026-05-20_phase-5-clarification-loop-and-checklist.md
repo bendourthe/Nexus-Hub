@@ -4,7 +4,7 @@
 **Scope**: Phase 5 of [docs/archives/v2/v2.1/plans/adoption-spec-kit.md](../../plans/adoption-spec-kit.md)
 **Outcome**: New `/clarify-spec` command landed at `catalog/commands/clarify-spec.md` with the sequential 5-question clarification loop, Recommended-option contract, 10-category ambiguity taxonomy, and atomic save-per-answer; new `catalog/templates/spec-quality-checklist.md` landed with Content Quality / Requirement Completeness / Feature Readiness sections; `catalog/skills/developer-experience/idea-refine/SKILL.md`, `catalog/skills/developer-experience/spec-driven-development/SKILL.md`, and `catalog/commands/generate-plan.md` all updated with body-only edits wiring the new surfaces into the SDD workflow. All validation passes.
 **Plan reference**: [docs/archives/v2/v2.1/plans/adoption-spec-kit.md](../../plans/adoption-spec-kit.md) Phase 5
-**Source comparison**: [docs/archives/v2/v2.0/comparison-spec-kit.md](../../../v2.0.0/comparison-spec-kit.md)
+**Source comparison**: [docs/archives/v2/v2.0/comparison-spec-kit.md](../../../v2.0/comparison-spec-kit.md)
 
 ## Goal recap
 
