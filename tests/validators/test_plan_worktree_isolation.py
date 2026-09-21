@@ -172,3 +172,113 @@ def test_skill_verification_covers_the_three_rules() -> None:
 def test_claims_have_teeth(path: Path, needle: str) -> None:
     """Each predicate must fail when its target content is removed."""
     assert needle not in _read(path).replace(needle, "")
+
+
+# --- worktree placement (v4.12.1) -------------------------------------------
+#
+# A real instance motivated this rule: a worktree at `.claude/worktrees/...`
+# held 1,267 lines of uncommitted work. It was git-ignored, so the ignore gate
+# passed and the tracked-path rule did not apply. When the repository moved,
+# every worktree pointer broke and that work was unreachable through git until
+# the pointers were repaired.
+
+_WORKTREE_SKILL = (
+    _ROOT / "catalog" / "skills" / "workflow" / "using-git-worktrees" / "SKILL.md"
+)
+
+_VENDOR_DIRS = [".claude/", ".cursor/", ".vscode/", ".idea/", ".codex/", ".gemini/"]
+
+
+def test_worktree_skill_bars_vendor_directories() -> None:
+    t = _read(_WORKTREE_SKILL)
+    assert "Never place a worktree inside a vendor or tool directory" in t
+    assert "even when that directory is git-ignored" in t
+
+
+@pytest.mark.parametrize("vendor", _VENDOR_DIRS)
+def test_each_vendor_directory_is_named(vendor: str) -> None:
+    """A rule that names no directory is one nobody applies."""
+    assert vendor in _read(_WORKTREE_SKILL), f"vendor dir not named: {vendor}"
+
+
+def test_rule_explains_why_the_ignore_gate_is_insufficient() -> None:
+    """Without this, a reader assumes check-ignore already covers it."""
+    assert "the ignore gate alone does not catch this" in _read(_WORKTREE_SKILL)
+
+
+def test_rule_carries_its_motivating_instance() -> None:
+    assert "1,267 lines of uncommitted work" in _read(_WORKTREE_SKILL)
+
+
+def test_verification_covers_placement() -> None:
+    assert "NOT inside a vendor or tool directory" in _read(_WORKTREE_SKILL)
+
+
+def test_placement_rule_has_teeth() -> None:
+    needle = "Never place a worktree inside a vendor or tool directory"
+    assert needle not in _read(_WORKTREE_SKILL).replace(needle, "")
+
+
+# --- release publication sequence (v4.12.1) ---------------------------------
+#
+# v4.12.1 merged to main only. develop sat five commits behind until a branch
+# cut from it turned up missing a test module that had just shipped. The order
+# below is what prevents that, and the cleanup step is what stops worktrees
+# accumulating one per release.
+
+_UPDATE = _ROOT / "catalog" / "commands" / "update.md"
+
+
+def test_release_lands_on_the_integration_branch_first() -> None:
+    t = _read(_UPDATE)
+    assert "Land the release on the integration branch FIRST" in t
+    assert "before `main` sees it" in t
+
+
+def test_the_straight_to_main_failure_is_named() -> None:
+    """A rule whose failure mode is unstated is the first one skipped."""
+    t = _read(_UPDATE)
+    assert "Merging the release straight to `main` is the failure this ordering prevents" in t
+    assert "v4.12.1 merged to `main` only" in t
+
+
+def test_cleanup_happens_before_tagging() -> None:
+    t = _read(_UPDATE)
+    assert "Clear what the release consumed, BEFORE tagging" in t
+
+
+@pytest.mark.parametrize(
+    "needle",
+    [
+        "git branch --merged",              # merged-branch proof
+        "status --porcelain` MUST be empty",  # clean-tree proof
+        "git worktree prune",               # records pruned
+        "never `--force`d away",            # no forcing past a dirty tree
+    ],
+)
+def test_cleanup_step_is_fail_closed(needle: str) -> None:
+    t = _read(_UPDATE)
+    assert needle in t, f"cleanup step omits: {needle}"
+
+
+def test_main_receives_the_cleaned_result_last() -> None:
+    t = _read(_UPDATE)
+    assert "Then merge to `main`, tag, push, publish" in t
+
+
+def test_sequence_self_gates_for_simple_repositories() -> None:
+    """A single-branch repo must not be blocked by a two-branch rule."""
+    t = _read(_UPDATE)
+    assert "Self-gates" in t
+    assert "silent no-ops, not warnings" in t
+
+
+def test_flow_summary_shows_the_order() -> None:
+    """The one-line summary is what most readers see; it must not contradict."""
+    t = _read(_UPDATE)
+    assert "merge to integration branch, retire merged branches + worktrees, merge to release branch" in t
+
+
+def test_publication_sequence_has_teeth() -> None:
+    needle = "Land the release on the integration branch FIRST"
+    assert needle not in _read(_UPDATE).replace(needle, "")

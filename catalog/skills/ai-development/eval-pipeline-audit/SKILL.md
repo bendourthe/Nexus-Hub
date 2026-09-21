@@ -44,7 +44,7 @@ Walk all ten concerns in order and record what exists. Do not skip ahead to reco
 | 1 | Objectives | A written statement of what "good" means, and the decision each score informs | - |
 | 2 | Datasets | The evaluation cases, their count, and what they are meant to cover | `dataset_manifest` |
 | 3 | Split provenance | How data divides into tune and held-out portions, and how often the held-out portion has been used | `split_manifest` |
-| 4 | Evaluators | What produces each score: a rubric, a model judge, a deterministic check, or a human | `evaluator_result` |
+| 4 | Evaluators | What produces each score: a rubric, a model judge, a deterministic check, or a human -- and whether it has been shown to notice a deliberate loss of quality | `evaluator_result` |
 | 5 | Thresholds | The pass bar, who set it, and what evidence set it there | - |
 | 6 | Traces | Whether real executions are captured, and how they were sampled | `trace_sample` |
 | 7 | Human labels | Ground-truth annotations, who produced them, and whether review was blind | `human_annotation` |
@@ -55,6 +55,17 @@ Walk all ten concerns in order and record what exists. Do not skip ahead to reco
 Record each as **present**, **partial**, or **absent**, with the evidence you saw. "They said they have a test set" is not evidence; a file, a count, and a field are.
 
 The artifact names come from the shared evaluation artifact contract. A project that has never heard of that contract still has these things or lacks them; the names give the audit a stable vocabulary, not a prerequisite.
+
+#### Sensitivity evidence under concern 4
+
+Concern 4 is not satisfied by the existence of an evaluator. Ask the further question: has anyone shown this scorer moves when quality drops? Record it as **present** only when the project can show baseline/degraded pairs, a criterion and direction fixed before scoring, and a per-criterion result. The procedure and its pass conditions belong to `[[ai-output-evaluation]]` (`references/evaluator-validation.md`, Step 6); do not restate them in the report.
+
+Two distinctions decide the status, and both are routinely collapsed:
+
+- **A constant judge is not validated because a fixture schema passes.** A scorer returning the same value for every input satisfies any structural check and detects nothing. Schema validity is evidence about the file, not about the scorer.
+- **A verified recipe is not a measured judge result.** Deterministic fixtures prove the sensitivity procedure is wired and its directions are stated. Only a run against the live evaluator proves that evaluator is sensitive. Record which of the two the project actually holds.
+
+Where a judge gates a merge, a deploy, or the acceptance of an improvement, a measured sensitivity result is **mandatory** before that gate is trusted; a recipe alone leaves concern 4 **partial** and the gate unvalidated.
 
 ### Step 2: Build the gap matrix
 
@@ -69,7 +80,7 @@ One row per concern. Severity is determined by consequence, not by how far the f
 
 Severity rules, applied in order:
 
-- **BLOCKING** - the pipeline can report a passing score while the system is broken. Any of: no held-out split when a threshold gates a release; an unvalidated judge used as a gate; retrieval never measured in a RAG system; no regression cases despite known past failures.
+- **BLOCKING** - the pipeline can report a passing score while the system is broken. Any of: no held-out split when a threshold gates a release; an unvalidated judge used as a gate, which includes a judge with no measured sensitivity result behind it; retrieval never measured in a RAG system; no regression cases despite known past failures.
 - **HIGH** - the pipeline gives a real signal but a known failure mode is invisible to it. Typically: failure-biased sampling reported as a base rate, no human labels behind a judge, thresholds with no recorded rationale.
 - **MEDIUM** - the pipeline is sound but expensive, slow, or awkward to maintain.
 
@@ -84,6 +95,7 @@ Never fix a gap inline by explaining the method. Hand it to the owner:
 | Retrieval quality never measured, or measured after generation | `[[rag-implementation]]` (its `references/evaluation.md`) |
 | Failures never classified; no taxonomy; no regression cases | `[[ai-output-evaluation]]` (`references/error-analysis.md`) |
 | Judge never validated against labels; thresholds tuned on the test split | `[[ai-output-evaluation]]` (`references/evaluator-validation.md`) |
+| Judge never shown to notice a deliberate degradation, or only a fixture recipe exists where a gate needs a measured result | `[[ai-output-evaluation]]` (`references/evaluator-validation.md`, Step 6) |
 | Rubric has no dimensions, no evidence requirement, or unmitigated bias | `[[ai-output-evaluation]]` |
 | Evaluation set too small or unrepresentative | `[[ai-output-evaluation]]` (`references/synthetic-data.md`) |
 | Human review is unblinded, unadjudicated, or has no schema | `[[ai-output-evaluation]]` (`references/review-interface.md`) |

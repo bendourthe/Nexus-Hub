@@ -50,66 +50,60 @@ def _open(browser, width: int = 1440, **ctx):
     return context, page, requests
 
 
-def test_harness_diagram_is_layered_and_choreographed(playwright_mod) -> None:
-    """v4.4.3 merged the two harness scenes and rebuilt the figure in HTML.
+def test_harness_shows_three_layers_in_order(playwright_mod) -> None:
+    """v4.4.6 rebuilt the scene as three cards; the reveal choreography retired with the old figure.
 
-    The two-instance rule went with the merge: there is one figure now, so there is no static
-    second copy to compare it against. Everything else is unchanged and still asserted here --
-    three nested layers, all nine ports, a timeline that advances monotonically to its end, and an
-    end state where every stop including the output is lit.
+    What the choreography protected was that the layers arrive in order and none of them is hidden.
+
+    The scene is a nested graph now: the model is the innermost box, the platform harness wraps it
+    and the Nexus Hub harness wraps that. DOM order is therefore outermost-first, and the reading
+    order is carried by the numbering, 1 at the innermost box. Containment is a stronger claim than
+    the left-to-right ordering this used to assert, so that is what it checks.
     """
-    root = "document.querySelector('#fx-harness .hx')"
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         _ctx, page, _req = _open(browser)
         try:
-            structure = page.evaluate(
-                f"""() => {{
-                    const r = {root};
-                    const layers = [...r.querySelectorAll('[data-phase3-harness-layer]')].map(g => g.dataset.phase3HarnessLayer);
-                    const ports = [...r.querySelectorAll('.hx-ports li')].map(t => t.textContent.trim());
-                    // v4.4.4: the journey became the flow, so the steps are the flow's own.
-                    return {{ layers, ports, total: window.NexusSeq.state(r).total }};
-                }}"""
-            )
             page.locator("#fx-harness").scroll_into_view_if_needed()
-            page.wait_for_function(f"() => window.NexusSeq.state({root}).running === true")
-            seen = []
-            for _ in range(120):
-                st = page.evaluate(f"() => window.NexusSeq.state({root})")
-                seen.append(st["step"])
-                if st["step"] >= st["total"]:
-                    break
-                page.wait_for_timeout(150)
-            end = page.evaluate(
-                f"""() => {{ const r = {root}; return {{
-                    stops: r.querySelectorAll('.hxf-step.is-on').length,
-                    out: r.querySelector('.hxf-step--out').classList.contains('is-on') }}; }}"""
+            page.wait_for_timeout(220)
+            data = page.evaluate(
+                """() => {
+                    const cards = [...document.querySelectorAll('#fx-harness .hx-col')];
+                    return { layers: cards.map(c => c.dataset.layer),
+                             names: cards.map(c => c.querySelector('header b').textContent.trim()),
+                             hidden: cards.filter(c => {
+                               const s = getComputedStyle(c);
+                               return s.display === 'none' || +s.opacity === 0;
+                             }).length,
+                             nested: cards[0].contains(cards[1]) && cards[1].contains(cards[2]) };
+                }"""
             )
         finally:
             browser.close()
-    assert set(structure["layers"]) == {"model", "platform", "nexus-hub"}
-    for port in ("context", "tools", "permissions", "execution", "observations", "skills", "hooks", "gates", "artifacts"):
-        assert port in structure["ports"], port
-    assert len(structure["ports"]) == 9, structure["ports"]
-    assert structure["total"] == 5, "five flow steps, from the prompt to the verified work"
-    assert seen == sorted(seen) and seen[-1] == 5, seen
-    assert end["stops"] == 5 and end["out"], end
+    assert data["layers"] == ["nexus", "platform", "model"], data["layers"]
+    assert data["names"] == ["Nexus Hub harness", "Platform harness", "Model"], data["names"]
+    assert data["hidden"] == 0, "no layer may be hidden"
+    assert data["nested"], "each layer must be built around the one inside it"
 
 
-def test_harness_choreography_end_state_under_reduced_motion(playwright_mod) -> None:
+def test_harness_is_complete_without_motion(playwright_mod) -> None:
+    """Nothing in the scene may depend on an animation that never runs."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         _ctx, page, _req = _open(browser, reduced_motion="reduce")
         try:
             page.locator("#fx-harness").scroll_into_view_if_needed()
-            page.wait_for_function(
-                "() => { const s = window.NexusSeq.state(document.querySelector('#fx-harness .hx')); return s.step === s.total; }"
+            page.wait_for_timeout(220)
+            shown = page.evaluate(
+                """() => [...document.querySelectorAll('#fx-harness .hx-col, #fx-harness .hx-eq,"""
+                """ #fx-harness .hx-span')].filter(e => {
+                     const s = getComputedStyle(e);
+                     return s.display !== 'none' && +s.opacity > 0 && s.visibility !== 'hidden';
+                   }).length"""
             )
-            lit = page.evaluate("() => document.querySelectorAll('#fx-harness .hx .seq-rise.is-on').length")
         finally:
             browser.close()
-    assert lit == 5, lit
+    assert shown == 5, shown
 
 
 @pytest.mark.parametrize("width", WIDTHS)
@@ -127,7 +121,7 @@ def test_harness_text_stays_inside_its_own_box(playwright_mod, width: int) -> No
                 """() => {
                     const out = [];
                     const fig = document.querySelector('#fx-harness .hx');
-                    if (!fig) return ['the merged harness figure is missing'];
+                    if (!fig) return ['the harness figure is missing'];
                     fig.querySelectorAll('*').forEach(el => {
                         if (el.children.length) return;
                         const box = el.getBoundingClientRect();

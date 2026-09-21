@@ -77,135 +77,91 @@ def _page(browser, width: int = 1440):
 # --------------------------------------------------------------- Phase 6, Agentic Platforms
 
 
-def test_the_equation_names_what_agentic_means(guide_text: str) -> None:
-    """The mockup's single most useful sentence, which this scene did not have."""
+def test_the_scene_names_what_agentic_means(guide_text: str) -> None:
+    """v4.4.6 dropped the model-plus-harness equation block.
+
+    Its point - that "agentic" describes what surrounds the model, not a different model - is now
+    carried by the subtitle and the lead, so that is what this asserts.
+    """
     scene = _scene_text(guide_text, "fx-agent-platform")
-    assert 'data-ap-block="equation"' in scene, "the model-plus-harness equation is missing"
-    lowered = scene.lower()
-    assert "describes what a system does, not a special kind of model" in lowered, (
-        "the equation must say that agentic is a behaviour, not a model class"
-    )
-    assert scene.index('data-ap-block="equation"') < scene.index('id="cv-compare"'), (
-        "the equation has to be read before the two lanes it explains"
+    assert "Same model. Very different capabilities." in scene, "the subtitle must state the claim"
+    assert "wraps the same model" in scene, "the lead must say the model is the same in both lanes"
+    assert scene.index("Same model.") < scene.index('class="ap2-card"'), (
+        "the claim must arrive before the comparison that demonstrates it"
     )
 
+def test_the_boundary_marks_the_actions_it_gates(guide_text: str) -> None:
+    """v4.4.6 dropped the tool strip; it listed the same six actions as the key below it.
 
-def test_all_three_boundary_settings_are_visible_with_their_outcomes(playwright_mod) -> None:
-    """In the mockup these are buttons, and the refusal lesson only fires if one is pressed."""
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        try:
-            ctx, page = _page(browser)
-            data = page.evaluate(
-                """() => {
-                    const items = [...document.querySelectorAll('#fx-agent-platform .ap-bset li')];
-                    return items.map(li => ({
-                      name: li.querySelector('b').textContent.trim(),
-                      outcome: li.querySelector('em').textContent.trim(),
-                      painted: li.getBoundingClientRect().height > 10,
-                      stop: li.classList.contains('ap-bset--stop'),
-                    }));
-                }"""
-            )
-            ctx.close()
-        finally:
-            browser.close()
-    assert len(data) == 3, data
-    assert all(item["painted"] and item["outcome"] for item in data), data
-    assert [item["name"] for item in data] == ["Read only", "Ask before edits", "Scoped edits"]
-    refused = next(item for item in data if item["stop"])
-    assert "reports" in refused["outcome"].lower(), (
-        "the read-only setting must teach that the platform REPORTS the boundary rather than "
-        f"routing around it: {refused['outcome']}"
-    )
-
-
-def test_the_anatomy_names_six_parts_without_importing_the_map(guide_text: str) -> None:
+    Permission is now shown where it belongs: the boundary marks the half of the key that can
+    change the work, so a reader cannot read that half without reading what gates it.
+    """
     scene = _scene_text(guide_text, "fx-agent-platform")
-    assert 'data-ap-block="anatomy"' in scene
-    for part in ("Planner", "Specialists", "Tools", "Boundary", "Observations", "Verifier"):
-        assert f"<dt>{part}</dt>" in scene, f"the anatomy is missing {part}"
-    assert "<svg" not in scene.split('data-ap-block="anatomy"')[1], (
-        "the mockup's absolutely-positioned system map must not come with the list"
+    assert scene.count('data-grammar="boundary"') == 1, "exactly one boundary"
+    assert scene.index('data-kind="write"') <= scene.index('data-grammar="boundary"') + 40, (
+        "the boundary must mark the write half of the key"
     )
+    write = scene[scene.index('data-kind="write"'):]
+    assert "permission and tool boundary" in write.lower()
+    assert "stays conditional" in scene, "the conditional sentence must survive the cut"
 
+def test_one_key_covers_the_whole_scene(guide_text: str) -> None:
+    """v4.4.6 replaced the two per-card statement lists with one shared key.
 
-# --------------------------------------------------------------- Phase 7, Harnesses
+    Two lists meant the same icon appeared in one lane and not the other, so a reader could not
+    tell whether a colour meant the same thing on both sides. The key is split by the distinction
+    the section is actually about: whether an action can change the work.
+    """
+    scene = _scene_text(guide_text, "fx-agent-platform")
+    assert scene.count('class="ap2-legend"') == 1, "exactly one key"
+    assert 'data-kind="read"' in scene and 'data-kind="write"' in scene
+    assert "ap2-can" not in scene, "the per-card lists must not come back"
+    read = scene[scene.index('data-kind="read"'):scene.index('data-kind="write"')]
+    write = scene[scene.index('data-kind="write"'):]
+    # the read half must not claim anything that writes, and vice versa
+    for word in ("edits a file", "runs a command", "creates a file"):
+        assert word in write and word not in read, word
+    for word in ("reads a file", "searches the web"):
+        assert word in read, word
 
+def test_the_harness_scene_reaches_across_platforms(guide_text: str) -> None:
+    """The portability claim is the reason the outer layer exists, so it must be shown, not asserted.
 
-def test_every_harness_layer_states_a_limit_or_a_guarantee(guide_text: str) -> None:
-    """The scene used to state only the platform layer's limits.
-
-    That made the platform look like the only layer with a weakness, when the model cannot
-    reach a tool at all and the outer layer's hooks fire only where a host exposes the event.
+    v4.4.6 replaced the layer table with three cards and a band naming the platforms the one
+    harness installs into. The band is what carries the claim now.
     """
     scene = _scene_text(guide_text, "fx-harness")
-    assert scene.count("hxf-limit") == 3, (
-        f"expected a stated limit or guarantee on all three layers, found {scene.count('hxf-limit')}"
-    )
-    lowered = scene.lower()
-    assert "why it needs the next layer" in lowered, "the model layer states nothing"
-    assert "its limits" in lowered, "the platform layer states nothing"
-    assert "what it preserves" in lowered, "the outer layer states nothing"
+    band = scene[scene.index('class="hx-span"'):]
+    for host in ("Claude Code", "Codex", "Cursor", "Antigravity"):
+        assert host in band, f"{host} must be named in the cross-platform band"
+    assert "nexus-mark" in band, "the one harness must be drawn around the platforms it spans"
+    low = band.lower()
+    assert "same skills" in low and "same guardrails" in low, band[:200]
 
+def test_the_harness_layers_are_ordered_and_distinct(guide_text: str) -> None:
+    """v4.4.6 cut the five-step work sequence; the three layers carry the order now.
 
-def test_the_work_sequence_shows_five_steps_with_nothing_to_run(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        try:
-            ctx, page = _page(browser)
-            data = page.evaluate(
-                """() => {
-                    const steps = [...document.querySelectorAll('#fx-harness .hxw-steps li')];
-                    return {
-                      names: steps.map(s => s.querySelector('b').textContent.trim()),
-                      painted: steps.every(s => s.getBoundingClientRect().height > 10),
-                      buttons: document.querySelectorAll('#fx-harness button').length,
-                    };
-                }"""
-            )
-            ctx.close()
-        finally:
-            browser.close()
-    assert len(data["names"]) == 5, data["names"]
-    assert data["painted"], "every step must be on the page, not waiting for a run"
-    assert data["buttons"] == 0, "the mockup's run button came along"
-    assert data["names"][0].lower().startswith("load"), data["names"]
-    assert "chain" in data["names"][-1].lower(), data["names"]
+    The sequence spelled out what the outer loop does per job. The scene's job is the comparison
+    between the layers, and the sequence was competing with it for the reader's attention.
+    """
+    scene = _scene_text(guide_text, "fx-harness")
+    # the layers nest, so source order runs outermost-first
+    order = [scene.index(f'data-layer="{k}"') for k in ("nexus", "platform", "model")]
+    assert order == sorted(order), "the layers must nest, outermost first"
+    assert scene.count('class="hx-col"') == 3, "three layers, no more"
+    assert "hx-feats" in scene, "the outer layer must list what it adds"
 
+def test_the_scope_qualifiers_survive_the_cut(guide_text: str) -> None:
+    """The two statements that keep this section honest are the ones easiest to lose in a trim.
 
-def test_the_artifact_chain_is_shown_rather_than_claimed(playwright_mod) -> None:
-    """The scene asserted that artifacts chain. The mockup shows the chain, so now it does."""
-    with playwright_mod() as pw:
-        browser = pw.chromium.launch()
-        try:
-            ctx, page = _page(browser)
-            data = page.evaluate(
-                """() => {
-                    const chips = [...document.querySelectorAll('#fx-harness .hx-chip')];
-                    const rows = [...document.querySelectorAll('#fx-harness .hx-row b')];
-                    return { chips: chips.map(c => c.textContent.trim()),
-                             lefts: chips.map(c => Math.round(c.getBoundingClientRect().left)),
-                             tops: chips.map(c => Math.round(c.getBoundingClientRect().top)),
-                             rows: rows.map(r => r.textContent.trim()) };
-                }"""
-            )
-            ctx.close()
-        finally:
-            browser.close()
-    assert data["chips"] == ["skill", "plan", "gate", "evidence"], data["chips"]
-    # Sorted left offsets are NOT enough: four identical offsets sort fine, and that is
-    # exactly what a stacked chain produces. The first run of this phase shipped one chip per
-    # line at full width and this assertion passed. One row with strictly increasing offsets
-    # is the property that failed, so it is the property measured.
-    assert len(set(data["tops"])) == 1, (
-        f"the chain must read across one row, not stack: tops {data['tops']}"
-    )
-    assert data["lefts"] == sorted(data["lefts"]) and len(set(data["lefts"])) == 4, (
-        f"a chain has to read in one direction, one chip at a time: {data['lefts']}"
-    )
-    assert len(data["rows"]) == 4, f"two rows per lane, both lanes: {data['rows']}"
-
+    Nexus Hub replaces neither the model nor the platform runtime, and hooks only fire where the
+    host exposes the event. Both are claims against Nexus Hub's own interest, which is exactly why
+    a shorter scene must keep them.
+    """
+    scene = _scene_text(guide_text, "fx-harness").lower()
+    assert "does not replace the model" in scene
+    assert "does not replace the platform runtime" in scene
+    assert "only where the host exposes the registered event" in scene
 
 def test_neither_rebuilt_scene_overflows_at_any_width(playwright_mod) -> None:
     with playwright_mod() as pw:

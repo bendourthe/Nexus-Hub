@@ -247,15 +247,19 @@ import re as _re
 _FIXTURE = _ROOT / "tests" / "guides" / "fixtures" / "v412-home-copy.json"
 _HOOKS_DIR = _ROOT / "catalog" / "hooks"
 
+# The v4.19 redraw ran an editorial pass over the Home headings, trading long
+# descriptive sentences for short labels. The ORDER is the contract this guards;
+# the wording is the guide's to choose and is pinned here exactly so a silent
+# drift still fails.
 EXPECTED_HOME_ORDER = [
-    "Upgrade any agentic AI platform with an autonomous team of world experts",
-    "What raw prompting cannot deliver",
-    "One command, then an assistant restart",
-    "Three things make this more than a prompt library",
-    "Adds an extra layer of security",
+    "A skill harness for agentic AI platforms",
+    "Limits of raw prompting",
+    "One-command install",
+    "Skills, hooks, and governance",
+    "Security guardrails",
     "Raw prompting vs Nexus Hub",
-    "Install once, work anywhere",
-    "One governed loop, from first look to shipped",
+    "Platform coverage",
+    "The development loop",
 ]
 
 
@@ -318,7 +322,10 @@ def test_home_hero_statement_is_centred_and_exact(playwright_mod) -> None:
     # The gradient paints through text-fill-color while `color` stays a real, measurable colour.
     assert data["gradFill"] in ("rgba(0, 0, 0, 0)", "transparent")
     assert data["gradColor"] not in ("rgba(0, 0, 0, 0)", "transparent")
-    assert 38 <= data["subSize"] <= 46, data["subSize"]
+    # The hero statement is now sized by the --ty-h1 token, whose ceiling is
+    # 2.3rem (36.8px). The floor is set below the observed value rather than at
+    # it, so this stays a 'the hero must read large' check and not a snapshot.
+    assert 36 <= data["subSize"] <= 46, data["subSize"]
     assert not data["tagline"] and not data["credits"]
 
 

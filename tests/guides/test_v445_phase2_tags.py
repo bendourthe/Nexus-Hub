@@ -30,11 +30,14 @@ REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 WIDTHS = (1440, 1024, 720, 480, 320)
 
 # Selector -> whether it is a block tag (doubled) or an in-cell descriptor (left alone).
+# .fx-boundary-tag was dropped in the v4.19 Agentic Platforms redraw along with
+# the markup that carried it; the scene still states "acts through one permission
+# and tool boundary" in prose, so the meaning survived and only the tag element
+# went. Its CSS rule is now orphaned and is left alone rather than re-styled.
 BLOCK_TAGS = (
     ".pe-tag",
     ".fx-ctx-tag",
     ".fx-spend-tag",
-    ".fx-boundary-tag",
     ".ann-legend-row dt",
 )
 IN_CELL = (".cx-kind", ".fx-mat-name")

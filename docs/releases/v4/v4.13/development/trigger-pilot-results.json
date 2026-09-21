@@ -1,0 +1,2361 @@
+{
+  "seed": 4131,
+  "ceiling_usd": 35.0,
+  "calls_made": 96,
+  "calls_planned": 96,
+  "total_spend_usd": 20.6709,
+  "stopped_early": "",
+  "complete": true,
+  "results": [
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-n2",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Read"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.50007475,
+      "duration_ms": 10687,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-n1",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Glob"
+      ],
+      "skills_available": 13,
+      "num_turns": 3,
+      "cost_usd": 0.502485,
+      "duration_ms": 13385,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-p1",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": true,
+      "tools_used": [
+        "Skill",
+        "PowerShell"
+      ],
+      "skills_available": 13,
+      "num_turns": 4,
+      "cost_usd": 0.56094575,
+      "duration_ms": 34917,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-p2",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.061986450000000005,
+      "duration_ms": 8849,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.0562101,
+      "duration_ms": 5802,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-n2",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 3,
+      "cost_usd": 0.50068425,
+      "duration_ms": 11973,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-n1",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.05745335000000001,
+      "duration_ms": 8192,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Bash",
+        "Glob"
+      ],
+      "skills_available": 13,
+      "num_turns": 4,
+      "cost_usd": 0.538761,
+      "duration_ms": 9558,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-n2",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "skills_available": 17,
+      "num_turns": 4,
+      "cost_usd": 0.0803498,
+      "duration_ms": 15100,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-n1",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.0562471,
+      "duration_ms": 4989,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-p2",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Glob"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.52019225,
+      "duration_ms": 21094,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "PowerShell",
+        "Glob"
+      ],
+      "skills_available": 13,
+      "num_turns": 4,
+      "cost_usd": 0.08039714999999999,
+      "duration_ms": 10691,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-p1",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 2,
+      "cost_usd": 0.46426775,
+      "duration_ms": 19068,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "PowerShell",
+        "PowerShell",
+        "Bash",
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 6,
+      "cost_usd": 0.09451065,
+      "duration_ms": 17637,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-n2",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "PowerShell"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.07275895,
+      "duration_ms": 9408,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.055521100000000004,
+      "duration_ms": 3574,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash"
+      ],
+      "skills_available": 17,
+      "num_turns": 2,
+      "cost_usd": 0.45678325,
+      "duration_ms": 9772,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-n2",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Read",
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 3,
+      "cost_usd": 0.5004085,
+      "duration_ms": 11873,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-p1",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.05683785000000001,
+      "duration_ms": 6646,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-p1",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Glob",
+        "Read",
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 5,
+      "cost_usd": 0.07508445,
+      "duration_ms": 17204,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Read",
+        "Glob",
+        "Glob",
+        "Bash",
+        "PowerShell"
+      ],
+      "skills_available": 13,
+      "num_turns": 6,
+      "cost_usd": 0.09363635000000001,
+      "duration_ms": 13227,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-n1",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.0561521,
+      "duration_ms": 6062,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-p2",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Bash",
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 3,
+      "cost_usd": 0.5003425,
+      "duration_ms": 12492,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-n1",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Glob",
+        "Read"
+      ],
+      "skills_available": 17,
+      "num_turns": 4,
+      "cost_usd": 0.221173,
+      "duration_ms": 16658,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-p1",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash"
+      ],
+      "skills_available": 17,
+      "num_turns": 2,
+      "cost_usd": 0.47285900000000003,
+      "duration_ms": 24085,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.055976349999999994,
+      "duration_ms": 4089,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-p2",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.058161349999999994,
+      "duration_ms": 9423,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-p2",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": true,
+      "tools_used": [
+        "Glob",
+        "Bash",
+        "AskUserQuestion",
+        "Skill",
+        "Read",
+        "Edit"
+      ],
+      "skills_available": 17,
+      "num_turns": 8,
+      "cost_usd": 0.5281845,
+      "duration_ms": 59847,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Grep",
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 3,
+      "cost_usd": 0.499067,
+      "duration_ms": 16973,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-p1",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": true,
+      "tools_used": [
+        "Glob",
+        "Read",
+        "Read",
+        "AskUserQuestion",
+        "Skill",
+        "Edit"
+      ],
+      "skills_available": 17,
+      "num_turns": 7,
+      "cost_usd": 0.51000625,
+      "duration_ms": 71086,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-n2",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.0551726,
+      "duration_ms": 3386,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.38520725,
+      "duration_ms": 3115,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-n2",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 3,
+      "cost_usd": 0.16556449999999998,
+      "duration_ms": 9587,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.05659385,
+      "duration_ms": 5184,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Glob"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.1717825,
+      "duration_ms": 10765,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-p2",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 2,
+      "cost_usd": 0.1376515,
+      "duration_ms": 26349,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-n2",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.057171599999999996,
+      "duration_ms": 6066,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Glob",
+        "Read",
+        "AskUserQuestion",
+        "Read",
+        "Grep",
+        "Bash",
+        "Read",
+        "Grep"
+      ],
+      "skills_available": 13,
+      "num_turns": 10,
+      "cost_usd": 0.5314012499999999,
+      "duration_ms": 34765,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-p2",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Glob",
+        "Read"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.50823575,
+      "duration_ms": 12397,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-n1",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.39510325,
+      "duration_ms": 7832,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-n1",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Grep",
+        "Bash"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.5147725,
+      "duration_ms": 16240,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Bash",
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 4,
+      "cost_usd": 0.0777702,
+      "duration_ms": 9442,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Read",
+        "Glob",
+        "Bash"
+      ],
+      "skills_available": 17,
+      "num_turns": 4,
+      "cost_usd": 0.07909,
+      "duration_ms": 9937,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-n1",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.056524349999999994,
+      "duration_ms": 5875,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-n2",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.0555976,
+      "duration_ms": 3237,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-p2",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Bash",
+        "Read",
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 5,
+      "cost_usd": 0.29134,
+      "duration_ms": 36554,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Bash",
+        "PowerShell",
+        "PowerShell"
+      ],
+      "skills_available": 17,
+      "num_turns": 5,
+      "cost_usd": 0.086217,
+      "duration_ms": 10848,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Grep",
+        "Glob"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.17099725,
+      "duration_ms": 10419,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-n2",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Glob"
+      ],
+      "skills_available": 13,
+      "num_turns": 3,
+      "cost_usd": 0.07133315000000001,
+      "duration_ms": 10072,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Grep",
+        "Edit"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.5018315,
+      "duration_ms": 7791,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-p1",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Bash",
+        "AskUserQuestion"
+      ],
+      "skills_available": 17,
+      "num_turns": 4,
+      "cost_usd": 0.08699189999999998,
+      "duration_ms": 26490,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-p1",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.0559346,
+      "duration_ms": 5215,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-p2",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Read",
+        "Read",
+        "Read",
+        "Read"
+      ],
+      "skills_available": 13,
+      "num_turns": 6,
+      "cost_usd": 0.07392615,
+      "duration_ms": 10711,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Glob",
+        "Bash",
+        "PowerShell"
+      ],
+      "skills_available": 17,
+      "num_turns": 5,
+      "cost_usd": 0.0869524,
+      "duration_ms": 11342,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-p1",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 3,
+      "cost_usd": 0.5147692500000001,
+      "duration_ms": 24463,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-p2",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.057882850000000007,
+      "duration_ms": 8242,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "PowerShell",
+        "Read",
+        "Glob"
+      ],
+      "skills_available": 17,
+      "num_turns": 4,
+      "cost_usd": 0.5469752500000001,
+      "duration_ms": 11684,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-p1",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": true,
+      "tools_used": [
+        "Skill"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.1769855,
+      "duration_ms": 28537,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-p1",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.059266349999999995,
+      "duration_ms": 15809,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-p2",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Bash",
+        "Read"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.50757725,
+      "duration_ms": 18291,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Read",
+        "Bash",
+        "PowerShell",
+        "Glob"
+      ],
+      "skills_available": 17,
+      "num_turns": 5,
+      "cost_usd": 0.08593655,
+      "duration_ms": 9715,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.05582385,
+      "duration_ms": 4835,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-p1",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": true,
+      "tools_used": [
+        "Skill"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.070014,
+      "duration_ms": 15309,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-n2",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.39602625,
+      "duration_ms": 7550,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 3,
+      "cost_usd": 0.505367,
+      "duration_ms": 13948,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-p2",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.060549599999999995,
+      "duration_ms": 16339,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Glob"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.1752745,
+      "duration_ms": 10085,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-p2",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Glob",
+        "Read"
+      ],
+      "skills_available": 13,
+      "num_turns": 4,
+      "cost_usd": 0.2377295,
+      "duration_ms": 27817,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-p1",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.0560096,
+      "duration_ms": 3774,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Bash",
+        "PowerShell",
+        "PowerShell"
+      ],
+      "skills_available": 13,
+      "num_turns": 5,
+      "cost_usd": 0.0856348,
+      "duration_ms": 10646,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-n1",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.0566321,
+      "duration_ms": 5586,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-p2",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.057790100000000004,
+      "duration_ms": 9752,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-p2",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.059212350000000004,
+      "duration_ms": 11793,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-p1",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.05664285,
+      "duration_ms": 6978,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-n1",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Grep",
+        "Glob"
+      ],
+      "skills_available": 13,
+      "num_turns": 3,
+      "cost_usd": 0.17903775,
+      "duration_ms": 16052,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-n2",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "PowerShell",
+        "Read",
+        "PowerShell",
+        "PowerShell"
+      ],
+      "skills_available": 17,
+      "num_turns": 5,
+      "cost_usd": 0.31220125,
+      "duration_ms": 36443,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-n1",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.05693835,
+      "duration_ms": 6367,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-n2",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.06772550000000001,
+      "duration_ms": 9396,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 3,
+      "cost_usd": 0.49424125,
+      "duration_ms": 12402,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-n1",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.3924257500000001,
+      "duration_ms": 5268,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Grep",
+        "Read",
+        "Edit"
+      ],
+      "skills_available": 13,
+      "num_turns": 5,
+      "cost_usd": 0.2656225,
+      "duration_ms": 13068,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-n1",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.0572645,
+      "duration_ms": 4475,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-n1",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.0607325,
+      "duration_ms": 6559,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Glob"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.165242,
+      "duration_ms": 9071,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.05568735000000001,
+      "duration_ms": 3218,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-p2",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 17,
+      "num_turns": 1,
+      "cost_usd": 0.0576496,
+      "duration_ms": 8139,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-p1",
+      "prompt_class": "positive",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "Bash",
+        "Glob",
+        "Read",
+        "AskUserQuestion",
+        "Write"
+      ],
+      "skills_available": 17,
+      "num_turns": 6,
+      "cost_usd": 0.52395625,
+      "duration_ms": 88021,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-t2",
+      "prompt_class": "trivial-edit",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "PowerShell",
+        "Read",
+        "Glob"
+      ],
+      "skills_available": 13,
+      "num_turns": 4,
+      "cost_usd": 0.21513374999999998,
+      "duration_ms": 13125,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-n1",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [],
+      "skills_available": 13,
+      "num_turns": 1,
+      "cost_usd": 0.056682100000000006,
+      "duration_ms": 6290,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "PowerShell",
+        "PowerShell"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.1743025,
+      "duration_ms": 18193,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "skill-description-authoring",
+      "prompt_id": "sda-t1",
+      "prompt_class": "trivial-edit",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Glob"
+      ],
+      "skills_available": 17,
+      "num_turns": 2,
+      "cost_usd": 0.0643842,
+      "duration_ms": 6520,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "context-engineering",
+      "prompt_id": "ctx-n2",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "PowerShell"
+      ],
+      "skills_available": 13,
+      "num_turns": 2,
+      "cost_usd": 0.06569865,
+      "duration_ms": 12357,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-n1",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Glob",
+        "Glob",
+        "Glob",
+        "Glob",
+        "Bash"
+      ],
+      "skills_available": 17,
+      "num_turns": 6,
+      "cost_usd": 0.07881555,
+      "duration_ms": 10174,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "html-output-conventions",
+      "prompt_id": "hoc-n2",
+      "prompt_class": "near-miss",
+      "variant": "B",
+      "model_tier": "fast",
+      "model_id": "claude-haiku-4-5-20251001",
+      "selected": false,
+      "tools_used": [
+        "Bash"
+      ],
+      "skills_available": 13,
+      "num_turns": 2,
+      "cost_usd": 0.06372825,
+      "duration_ms": 7429,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-n2",
+      "prompt_class": "near-miss",
+      "variant": "A",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "PowerShell",
+        "PowerShell"
+      ],
+      "skills_available": 17,
+      "num_turns": 3,
+      "cost_usd": 0.17691574999999998,
+      "duration_ms": 17596,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "226601c418d39e63",
+        "html-output-conventions": "7cb74d1ab96cd9df",
+        "skill-description-authoring": "8e21a236dde51700",
+        "context-engineering": "1cefc85ed7dc823f"
+      }
+    },
+    {
+      "skill": "plan-before-code",
+      "prompt_id": "pbc-p1",
+      "prompt_class": "positive",
+      "variant": "B",
+      "model_tier": "strong",
+      "model_id": "claude-opus-5",
+      "selected": false,
+      "tools_used": [
+        "PowerShell",
+        "PowerShell",
+        "Read",
+        "Read",
+        "AskUserQuestion"
+      ],
+      "skills_available": 13,
+      "num_turns": 6,
+      "cost_usd": 0.3037575,
+      "duration_ms": 41215,
+      "status": "ok",
+      "note": "",
+      "corpus_hashes": {
+        "plan-before-code": "061a6d00438efb8d",
+        "html-output-conventions": "e713684918ef726a",
+        "skill-description-authoring": "d837173d453f1b19",
+        "context-engineering": "2daadc2843a64d1e"
+      }
+    }
+  ]
+}

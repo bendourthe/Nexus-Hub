@@ -83,7 +83,7 @@ def test_the_guardrails_segment_is_renamed_and_centred(playwright_mod) -> None:
         finally:
             browser.close()
     assert data["label"] == "Guardrails & Safety", data["label"]
-    assert data["title"] == "Adds an extra layer of security", data["title"]
+    assert data["title"] == "Security guardrails", data["title"]
     assert data["platforms"] == ["Claude", "ChatGPT", "Cursor", "Gemini"]
     assert data["allCentred"], "both ring headers and their subtexts must be centred"
     assert data["hooksAlignment"] == "center", "the guardrail descriptions must be centred"
@@ -116,7 +116,7 @@ def test_the_command_segment_is_renamed(playwright_mod) -> None:
         finally:
             browser.close()
     assert data["label"] == "One Harness, Multiple Platforms", data["label"]
-    assert data["title"] == "Install once, work anywhere", data["title"]
+    assert data["title"] == "Platform coverage", data["title"]
     assert data["headers"] == ["Generic Platforms", "Nexus Hub", "What it adds"], data["headers"]
     # the stacked-layout labels must follow the header rename, or a phone reads the old names
     assert data["stacked"] == ["Generic Platforms", "Nexus Hub", "What it adds"], data["stacked"]

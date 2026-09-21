@@ -84,6 +84,50 @@ The Distilled Facts above are prose bullets with an inline source, which is the 
 
 This is an OPTIONAL shape for the persisted entries, not a required pack format. It is a schema only: it does NOT introduce an extraction runtime. Any LLM-driven extraction that populates these fields is the caller's choice and lives outside this skill, which still only reads digests and writes Markdown.
 
+## Optional: Fact Freshness and Revalidation
+
+A pack records what was true when it was written. Nothing in the format above says whether a fact is still true, and the two fields that look like they might are the two that do not:
+
+- **`created` is when the fact was recorded**, not when it was last confirmed. A fact recorded in March and never rechecked is a March fact in September.
+- **`confidence` is how settled the fact was**, not how current it is. Confirming something across five sessions raises confidence and says nothing about whether the code changed last week. **A high-confidence historical fact is still historical.**
+
+This procedure is **optional** and prose-first. Annotate a fact in its existing bullet before reaching for a new field; nothing here requires a schema version, a field addition, or a memory-store migration, and existing packs stay readable unchanged.
+
+### Four things to record
+
+Only for facts where currency actually affects a decision:
+
+1. **When it was observed or last verified** -- distinct from when it was recorded.
+2. **What it was true of** -- the version, branch, environment, or target identity. A fact about `v4.11` on staging is not a fact about `v4.13` in production.
+3. **What would make it stale** -- the concrete event that should trigger a recheck, such as a release, a migration, or an edit to the file it describes.
+4. **Its current disposition** -- one of the four below.
+
+| Disposition | Meaning | How to state it |
+|---|---|---|
+| **current** | verified against the present target | state it plainly |
+| **historical** | true when observed, not revalidated since | state it with its observation time and target |
+| **unknown** | the source is unreachable or the answer cannot be established now | say so; do not infer |
+| **superseded** | a newer source replaced it | state the new fact, keep the old provenance |
+
+### Which facts need this
+
+Not all of them, and the distinction is the point:
+
+- **Stable design facts need no arbitrary expiry.** "Authentication uses JWTs in httpOnly cookies" is an architectural decision, not a perishable reading. Attaching a TTL to it manufactures churn and trains the reader to ignore staleness markers.
+- **Transient claims need current evidence before being asserted as current.** A check result, a deployment state, a test outcome, a version number, a queue depth: these describe a moment. Restating one as present-tense fact without rechecking is the failure this procedure exists to prevent.
+
+The test is not the fact's age. It is whether the world it describes can change without anyone editing the pack.
+
+### Rules
+
+- **Never promote a stale fact to current on confidence alone.** Confidence is about agreement among past observations; currency is about the present.
+- **An unreachable source leaves the claim `unknown` or `historical`.** It does not license a guess, and it does not license retrying forever.
+- **A future timestamp is a defect, not a very fresh fact.** Treat it as unknown and record the anomaly rather than trusting a clock.
+- **Conflicts retain both provenance records.** When a newer source contradicts an older one, keep both until the owning source resolves it. Deleting the older record destroys the evidence that there was a disagreement.
+- **No automatic deletion and no fabricated confirmation.** Marking a fact stale is a status change, not a removal, and "probably still true" is not a verification.
+
+Freshness semantics are shared with `[[loop-engineering]]`'s `evidence_freshness`; reuse that meaning rather than defining a second one. Provenance and supersession rules belong to `[[agent-memory]]`. This section decides when to ask the question, not how those owners answer it.
+
 ## Instructions
 
 ### 1. Gather the inputs (read-only)

@@ -15,13 +15,42 @@ tools_required: [Read, Write, Edit]
 
 # HTML Output Conventions
 
-Prefer HTML over Markdown for human-facing artifacts that will actually be read, compared, or interacted with. Markdown is the right default for short prose; it stops being the right default the moment an artifact needs a table, an SVG, an interactive control, spatial data, or simply runs long enough that a reader cannot scan it. This skill gives the agent a decision rule and four runnable templates so the choice is deliberate, not habitual.
+Prefer HTML over Markdown for human-facing **artifacts** that will actually be read, compared, or interacted with. Markdown is the right default for short prose; it stops being the right default the moment an artifact needs a table, an SVG, an interactive control, spatial data, or simply runs long enough that a reader cannot scan it. This skill gives the agent a decision rule and four runnable templates so the choice is deliberate, not habitual.
+
+That preference governs artifacts. It does not govern **answering a question in the conversation**, where the smallest representation that answers it wins and producing a file can cost the reader more than it gives them. Start from the ladder below, and reach the decision table when the answer is genuinely an artifact.
 
 This skill composes with `hallmark-design`: this skill decides *whether* a surface should be HTML; `hallmark-design` ensures the HTML actually looks designed rather than AI-generated. Run both on any human-facing surface.
 
 ## When to Use This Skill
 
 Use this skill whenever the agent is about to produce a human-facing artifact and could choose HTML or Markdown: review outputs, specs, comparisons, incident reports, design prototypes, dashboards, and the session replay timeline.
+
+## The smallest useful representation
+
+Climb this ladder and stop at the first rung that answers the question. Each rung is more capable and more expensive than the one before it, and the cost is paid by the reader, not the agent.
+
+| Rung | Use it when | Example |
+|---|---|---|
+| 1. **Prose** | One or two facts with no structure to show | "The timeout is 30 seconds, set in `client.py:44`." |
+| 2. **Small table** | A handful of items compared across two or three attributes | Three config options and their defaults |
+| 3. **Pseudocode or a short code block** | The answer is a sequence, an algorithm, or a control flow | How a retry loop decides to give up |
+| 4. **Mermaid diagram** | The answer is a small graph: a handful of states, steps, or dependencies | A four-state request lifecycle |
+| 5. **HTML artifact** | State, interactivity, spatial complexity, many-way comparison, or length past roughly 100 lines | The decision table below |
+
+**A short answer must not require creating or opening a file.** A reader who asked a question in conversation and received a path to open has been handed work. The file is justified when it carries something the conversation genuinely cannot: interaction, persistent state, a layout the reader will navigate rather than read once, or a comparison too wide to scan inline.
+
+### What each rung does not do
+
+- **A small table is not a downgrade.** Three rows compared on two attributes are read faster inline than in any artifact. Rendering them as HTML adds a click and removes nothing.
+- **Pseudocode and code/file responsibility lists are textual explanations.** They explain a sequence or an ownership split well. They are **not** substitutes for an accessible spatial graphic: a reader who needs to see how six components connect is not served by a bulleted list of their names, and neither is a screen-reader user served by a picture with no text alternative.
+- **Mermaid covers the small graph, not the designed diagram.** Past roughly a dozen nodes, or where layout carries meaning, it stops being the cheap option and rung 5 applies.
+- **Decorative ASCII box diagrams remain excluded at every rung.** They misalign across fonts and break for screen readers. A diagram is Mermaid or SVG; the exclusion in the anti-patterns below is unchanged by this ladder.
+
+### Climbing past a rung
+
+Climb when the rung genuinely cannot carry the answer, and say what forced it. "This needs interactive filtering" and "this is an eleven-way comparison" are reasons. "It will look more thorough" is not; an artifact produced to look thorough costs the reader a file open and returns nothing.
+
+Every rule for rung 5 continues to apply once you are there: no color-only meaning, offline self-contained delivery, the responsive layout rules, and the full artifact quality pass. The ladder changes when you reach HTML, never what HTML must satisfy.
 
 ## HTML vs Markdown decision table
 
@@ -51,6 +80,7 @@ All four templates are self-contained (no external CSS/JS, no CDN) so they are r
 
 - **No ASCII diagrams.** When a diagram is needed, use inline SVG, not box-drawing characters. ASCII diagrams break on reflow, are inaccessible to screen readers, and read as a teletype artifact.
 - **No defaulting to Markdown when an HTML artifact would actually be read.** If the content matches an HTML row in the decision table above, do not fall back to Markdown out of habit.
+- **No climbing to HTML for a small static explanation.** The mirror of the rule above. A three-row table or a four-state diagram that answers the question inline does not become better by being a file; it becomes a file the reader has to open. Name what forced the climb, or stay on the rung that answers it.
 - **No color-only meaning.** Severity, status, and category must carry a text label or shape in addition to color (see the diff template).
 - **No external dependencies in a shared artifact.** Keep templates self-contained so the file opens anywhere and persists cleanly.
 
@@ -75,6 +105,9 @@ For handbook, presentation or cross-format document work, apply `[[hallmark-desi
 |---|---|
 | "Markdown is simpler, I'll just use it for this comparison" | A 4-way comparison rendered as Markdown tables is hard to scan once it passes ~100 lines; the grid comparison template is what makes the data actually readable instead of defaulting to the format that gets skimmed past. |
 | "An ASCII diagram conveys the structure fine" | ASCII diagrams misalign across fonts and break for screen readers; the decision table calls for SVG precisely because the ASCII version is an accessibility and rendering failure. |
+| "An HTML artifact will look more thorough than a three-row table" | Looking thorough is not a reason the reader benefits from. A small static comparison read inline costs one glance; the same content as a file costs an open, a scroll and a return. Climb only when the rung genuinely cannot carry the answer, and say what forced it. |
+| "They asked a question, but a dashboard would be a better answer" | A question asked in conversation is answered in conversation unless the answer needs interaction, persistent state, or a layout to navigate. Handing back a path to open is handing back work. |
+| "I will list the components and their responsibilities instead of drawing the diagram" | A responsibility list explains ownership; it does not show connection topology. When the reader needs to see how parts connect, a text list is the cheap substitute that omits the thing they asked for, and it is no more accessible than the diagram it replaced. |
 | "I'll pull in a CDN stylesheet to make it look nice" | A non-self-contained artifact breaks when shared offline and can leak an outbound request; the templates are self-contained so the file works as a standalone link with no network call. |
 | "It's just an internal artifact, accessibility can slide" | Color-only severity and missing focus states fail keyboard and screen-reader users on the very review surfaces this skill targets; the templates bake in labels and focus states for that reason. |
 

@@ -270,6 +270,21 @@ A compressor eval that only checks mean character reduction is the exact failure
 
 **Graduation: capability case to regression case.** An eval case is a CAPABILITY case for as long as the skill fails it -- it describes something the skill cannot yet do, and its failure is information rather than a defect. Once it passes on N consecutive runs (N is a parameter; default 3), it GRADUATES into the regression set, and from that point a failure is a regression that fails the gate. One consecutive-pass count is not graduation, because a single pass does not distinguish a fixed capability from a lucky sample. A graduated case is never edited to keep it passing: if it no longer reflects intended behavior, it is RETIRED with a recorded reason, which is a visible decision, whereas rewriting the case to match new output is how a regression set stops testing anything. Retirement follows rule 1 above (append-only at the example level, with a corpus version bump), and graduation must not touch the held-out split -- see [`ai-output-evaluation/references/evaluator-validation.md`](../../developer-experience/ai-output-evaluation/references/evaluator-validation.md) for that hygiene.
 
+**A graduating case stays in the pool it already belonged to.** A capability case drawn from the train or development pool graduates within that pool. It does not move into the held-out split on promotion, because a case the tuning loop has already seen is not an unseen measurement however it is relabelled. Held-out cases run in the other direction too: a held-out case never becomes tuning input, not for candidate generation, not for threshold selection, and not for choosing which description to keep.
+
+**Where the case came from a confirmed local observation**, the promotion is one link in a longer chain owned by [`continuous-learning/references/verified-improvement-loop.md`](../continuous-learning/references/verified-improvement-loop.md). Carry that chain's stable identifiers onto the eval record rather than minting parallel ones:
+
+| Chain identifier | Recorded on |
+|---|---|
+| `observation_id` | the instinct that motivated the case |
+| `regression_id` | the graduated case |
+| `candidate_id`, `replay_id` | the paired run that checked it |
+| `rollback_ref` | the prior bytes, captured before the edit |
+
+Record the rejected candidates too. A loop that keeps only its accepted records reads as though every hypothesis worked, and the rejections are where the evidence about the method actually lives.
+
+Every gate in this file continues to apply inside that chain: the user approves, the immutable base is not edited, and the verifier stays independent of the candidate. **If an owner in the chain is unavailable, record the coverage as incomplete and stop.** Do not reconstruct the missing owner's rules from memory, and do not mint a promoted learning on partial coverage; an unavailable verifier makes the result unproven, not approved.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

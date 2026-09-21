@@ -12,6 +12,18 @@ Refreshing this file to the active plan (rather than appending another version's
 
 ---
 
+## Evidence-driven agent improvement (v4.13.0)
+
+Phases 1-7 of the [v4.13.0 plan](releases/v4/v4.13/plans/v4.13.0-adoption-evidence-driven-agent-improvement.md) are implemented and locally committed on `feat/v4.13.0-evidence-driven-agent-improvement`, one commit per phase, no push. Phase 6 measured the trigger pilot (96/96 calls, USD 20.6709, `MEASURED_NO_CHANGE`, nothing promoted). Phase 7 ran the ten final-phase duties; its two independent reviews found four real defects in work the earlier phases had already evidenced, including seven document controls that asserted a `str.replace` tautology and a Windows junction that defeated the distributed trace script's output guard. All are fixed with regression tests and recorded in [last-phase-evidence.md](releases/v4/v4.13/development/last-phase-evidence.md). Remaining: T034 publication, which needs explicit approval before the plan's single push. Open gaps are WN-2 through WN-6 in the [v4.13 ledger](releases/v4/v4.13/known-gaps.md); DF-1, QG-1, WN-1 and BG-1 to BG-6 are resolved.
+
+- [x] Phase 1 (A1): judge sensitivity foundation - frozen synthetic fixture, evaluator-validation Step 6, audit routing under concern 4.
+- [x] Phase 2 (A6): pinned agent span contract and a metadata-only runnable trace example; unsafe logging example replaced.
+- [x] Phase 3 (A2): observation-to-regression chain with an independent oracle and byte-exact rollback.
+- [x] Phase 4 (A4): smallest-useful-representation ladder with both near-misses guarded.
+- [x] Phase 5 (A5): optional context-fact freshness procedure and controlled-clock disposition matrix.
+- [ ] Phase 6 (A3): bounded trigger pilot - BLOCKED on the entry prerequisite; requires a separately scoped runner decision.
+- [ ] Phase 7: architecture refactor, known-gaps reconciliation, CI/CD and integration.
+
 ## Portable attribution extension
 
 Local feature implementation and qualification are complete: all 47 Linux full-profile commands and 15 Windows fast-profile commands pass, with real Windows and Linux installer verification. Normal integration passed through PR #217 and post-merge run 34925451808; v4.12.0 is published and its downloaded artifacts are verified, recorded in the [portable evidence](releases/v4/v4.12/development/portable-attribution-evidence.md). The public Code contributor display remains open independently.
@@ -31,7 +43,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 | v4.11.1 comparison and plan prepared | 2 | 2 | 0 |
 | v4.11.1 implementation tasks complete | 9 | 25 | 16 |
 | v4.13.0 comparison and plan prepared | 2 | 2 | 0 |
-| v4.13.0 implementation tasks complete | 0 | 34 | 34 |
+| v4.13.0 implementation tasks complete | 33 | 34 | 1 |
 | v4.4.5 baseline guide/test files restored | 59 | 59 | 0 |
 | Exact production-file restorations | 3 | 3 | 0 |
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
