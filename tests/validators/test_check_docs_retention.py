@@ -1,7 +1,7 @@
 """Tests for scripts/check_docs_retention.py (v3.18.0 Phase 4).
 
-The checker reports per-version `development/history/` subtrees that are two or
-more minors behind the current version and not yet archived. Only `history/` ages
+The checker reports per-version `development/history/` subtrees at least one
+minor behind the current version and still containing files. Only `history/` ages
 out: the v3.18.0 Phase 5 archive pass found that `development/` also holds CI
 fixtures a workflow executes and contract documents shipped hooks cite by path.
 
@@ -94,14 +94,31 @@ def test_threshold_boundary_is_exactly_one_minor(tmp_path: Path) -> None:
 
 
 def test_already_archived_version_is_not_reported(tmp_path: Path) -> None:
-    """The report is about work outstanding, not about history that exists."""
+    """An empty source is complete when the archived history exists."""
     root = _make_repo(tmp_path, "3.17.6", ["v3.15"])
-    (root / "docs" / "archives" / "v3" / "v3.15" / "development" / "history").mkdir(parents=True)
+    source = root / "docs" / "releases" / "v3" / "v3.15" / "development" / "history"
+    archive = root / "docs" / "archives" / "v3" / "v3.15" / "development" / "history"
+    archive.mkdir(parents=True)
+    (archive / "note.md").write_text((source / "note.md").read_text(encoding="utf-8"), encoding="utf-8")
+    (source / "note.md").unlink()
 
     proc = _run(root)
 
     assert proc.returncode == 0, proc.stderr
     assert "WARN" not in proc.stdout, proc.stdout
+
+
+def test_late_history_is_reported_when_archive_directory_exists(tmp_path: Path) -> None:
+    root = _make_repo(tmp_path, "3.17.6", ["v3.15"])
+    archive = root / "docs" / "archives" / "v3" / "v3.15" / "development" / "history"
+    archive.mkdir(parents=True)
+    (archive / "earlier.md").write_text("# earlier\n", encoding="utf-8")
+
+    proc = _run(root)
+
+    assert proc.returncode == 0, proc.stderr
+    assert "docs/releases/v3/v3.15/development/history" in proc.stdout
+    assert "1 file(s)" in proc.stdout
 
 
 def test_older_major_is_reported_entirely(tmp_path: Path) -> None:

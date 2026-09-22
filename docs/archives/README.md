@@ -25,14 +25,20 @@ This mirrors the active version layout. Archived content is **frozen history**: 
 | **v1** | v1.0.0, v1.1.5, v1.3.0 | 24 | Skills-catalog maturation: bundled-resources convention, skill-eval-loop, security hardening |
 | **v2** | v2.0.0, v2.1.0, v2.2.0, v2.3.0, v2.4.0 | 112 | Nexus-Hub rename, spec-driven methodology, integration registry, code-graph, antigravity transition, compound-engineering / persona-review pipeline |
 | **v3** *(prior major, partial)* | `development/history/` subtrees only, v3.0 through v3.21 | 355 | Per-version session histories aged out under the retention policy, completed for the whole v3 line on 2026-09-06. The v3 line is NOT whole-major archived - its plans, comparisons, and known-gaps stay in the active tree. |
-| **v4** *(current major, partial)* | `development/history/` subtrees v4.0 through v4.5, plus the v4.1 handbook snapshot | 122 | Per-version session histories aged out under the retention policy on 2026-09-06, in the same pass that completed v3. v4.6 and v4.7 stay in the active tree (inside the two-minor threshold). Plans, comparisons, known-gaps, and the non-history `development/` content - CI contracts, guide-rebuild artifacts, last-phase evidence - all remain under `docs/releases/v4/`. |
+| **v4** *(current major, partial)* | `development/history/` subtrees v4.0-v4.5 and v4.7-v4.12, plus the v4.1 handbook snapshot | 317 | Closed session histories aged out under the one-minor retention threshold. Plans, comparisons, known-gaps, and non-history `development/` content remain under `docs/releases/v4/`. |
 
 ## Archival policy
 
 Two distinct rules put content here, and conflating them is the easy mistake:
 
 1. **Whole-major archival** - a prior major is archived once the next major has a released version. The current major (`v4`) and any in-flight version directories are never archived this way.
-2. **Per-version `development/` retention** (added v3.18.0) - within the CURRENT major, a minor two or more behind current has its `development/history/` subtree archived to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`. Only `history/` ages out: the rest of `development/` holds live CI fixtures and contract documents that shipped code cites by path. Its `plans/`, `comparisons/`, and `known-gaps.md` never age out and stay in the active tree. `scripts/check_docs_retention.py` reports what is due (advisory, always exits 0); the full rule is `docs/policy/docs-retention.md`.
+2. **Per-version `development/` retention** (added v3.18.0) - within the current major, a minor behind the current one has its `development/history/` subtree archived to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`. Only `history/` ages out: the rest of `development/` holds live CI fixtures and contract documents that shipped code cites by path. Its `plans/`, `comparisons/`, and `known-gaps.md` never age out and stay in the active tree. `scripts/check_docs_retention.py` reports what is due (advisory, always exits 0); the full rule is `docs/policy/docs-retention.md`.
+
+## Incremental archive additions
+
+| Archived path | Source path | Source version | Archived on |
+|---|---|---|---|
+| `v4/v4.10/development/history/2026-09-22-phase-7-final-qualification.md` | `docs/releases/v4/v4.10/development/history/2026-09-22-phase-7-final-qualification.md` | v4.10.1 | 2026-09-22 |
 
 Both are performed by `/refactor-docs` (the `docs-layout-refactor` skill) with reference repair; see the most recent `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/docs-cleanup-report.md` for the audit trail of each run.
 
