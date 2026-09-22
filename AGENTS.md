@@ -226,7 +226,7 @@ Two rules matter even if you read nothing else: every bundled file MUST be refer
 
 ### 4. Register the skill
 
-After creating SKILL.md, update these three files:
+After creating SKILL.md, update all five catalog-state files:
 
 **`data/SKILL_INDEX.md`** -- add one row to the table:
 ```
@@ -235,7 +235,13 @@ After creating SKILL.md, update these three files:
 
 **`data/skills.json`** -- add one entry to the `"skills"` array following the existing schema (name, title, description, long_description, summary_l0, overview_l1, version, author, category, language, tags, priority, based_on, tools_required, path, file, size, downloads, status, security).
 
-**`data/marketplace.json`** -- increment `skill_count` in the relevant category entry and update `"total_skills"` in `statistics`.
+**`data/marketplace.json`** -- increment `skill_count` in the relevant category entry.
+
+**`data/bundles.json`** -- add the skill to at least one capability module or bundle so focused installs can reach it.
+
+**Derived counts in `data/skills.json`** -- update `statistics.total_skills` and the matching `statistics.categories` entry. Also update the `**Total: N skills across M categories**` line in `data/SKILL_INDEX.md`; these are derived surfaces, but the catalog is deliberately hand-edited for reviewable diffs.
+
+Run `python scripts/check_registry_entries.py --emit <skill-name>` to print an index row and JSON fields, then run `python scripts/check_registry_entries.py --check --strict`. The checker validates membership, entry shape, bundle reachability, per-category and aggregate counts, and frontmatter text agreement.
 
 ### 5. Validate
 

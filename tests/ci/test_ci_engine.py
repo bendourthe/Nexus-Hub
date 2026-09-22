@@ -108,16 +108,35 @@ def test_every_command_declares_a_timeout():
                 assert cmd.timeout > 0, f"{group.name}/{cmd.name} has no timeout"
 
 
-def test_repository_suite_timeout_covers_the_measured_windows_baseline():
-    """The CI safety cap covers its measured runner, not every local host."""
-    repo_tests = next(
-        command
-        for group in groups_for("full")
-        if group.name == "tests"
-        for command in group.commands
-        if command.name == "repo-tests"
-    )
-    assert repo_tests.timeout >= 4500
+def test_repository_suite_is_partitioned_without_coverage_gaps():
+    """Every collected test domain is bounded without one monolithic timeout."""
+    commands = next(group for group in groups_for("full") if group.name == "tests").commands
+    repo_commands = [command for command in commands if command.name.startswith("repo-tests-")]
+    configured_targets = [
+        arg
+        for command in repo_commands
+        for arg in command.argv[3:]
+        if arg != "-q"
+    ]
+    tests_root = REPO_ROOT / "tests"
+    actual_files: list[str] = []
+    for target in configured_targets:
+        target_path = REPO_ROOT / target
+        candidates = [target_path] if target_path.is_file() else target_path.rglob("test_*.py")
+        actual_files.extend(
+            path.relative_to(REPO_ROOT).as_posix()
+            for path in candidates
+            if "fixtures" not in path.relative_to(tests_root).parts
+        )
+    expected_files = [
+        path.relative_to(REPO_ROOT).as_posix()
+        for path in tests_root.rglob("test_*.py")
+        if "fixtures" not in path.relative_to(tests_root).parts
+    ]
+
+    assert sorted(actual_files) == sorted(expected_files)
+    assert len(actual_files) == len(set(actual_files))
+    assert all(command.timeout <= 4500 for command in repo_commands)
 
 
 def test_no_command_is_a_shell_string():

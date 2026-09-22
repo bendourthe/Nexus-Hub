@@ -1,8 +1,8 @@
 # Known Gaps - v4.11
 
 **Project**: Nexus-Hub
-**Status**: open. Seeded 2026-09-12 by moving the interactive-handbooks ledger out of `v4.9`, where it had been recorded while the plan still carried the v4.11.0 number. The plan was renumbered to v4.11.0 on the belief that v4.10.0 had been completed AND released in parallel. The release half of that turned out to be false: at v4.11.0 release time the newest tag was v4.9.0, no v4.10.0 tag or GitHub Release ever existed, and no `## [4.10.0]` changelog section was ever written. The v4.10.0 work was merged but never shipped, so it ships inside v4.11.0 and the 4.10.0 number is skipped rather than retrofitted. This ledger follows the plan rather than the number it was written under. The v4.9 ledger retains the v4.9.0 security-audit work and the post-v4.8.0 prompting follow-up, which are unrelated and keep their owners.
-**Last updated**: 2026-09-13
+**Status**: released family with bounded open gaps. v4.11.0 was published at tag `v4.11.0` (`0f68fa1a`) and v4.11.2 at tag `v4.11.2` (`dfe302fb`). No v4.11.1 tag exists; its cache-and-diagram implementation is complete locally and awaits the shared historical-closure integration. The v4.10.0 work shipped inside v4.11.0, so the missing v4.10.0 tag remains an intentional skipped number rather than an unpublished release. Open entries below remain explicit hosted-scan, feature-boundary, or manual-validation limitations.
+**Last updated**: 2026-09-22
 
 ## Carried into v4.11.0 from earlier cycles - CodeQL backlog
 
@@ -13,17 +13,19 @@
 - **The five high alerts are `py/overly-permissive-file`, all test-only.** `tests/skills/test_target_manifest.py` (302, 384, 400, 417) chmods temporary fixtures so the code under test can execute them; `tests/skills/test_safe_artifact.py:390` sets `0o640` on a `tmp_path` file because the permission mode is the INPUT the test asserts `atomic_write_bytes` handles correctly. No shipped artifact, credential, or user-facing path is involved.
 - **Deliberately NOT dismissed at release time.** CodeQL is not a required check for `main`, so these never blocked the release. Dismissing five high-severity alerts to clear a red mark during a release is how a real finding gets waved through beside four harmless ones; they are recorded here to be triaged on their own merits instead.
 - **Next step**: triage each of the eight against the `used in tests` / false-positive / real-finding split, in a change that is not a release. Confirm in particular that `test_safe_artifact.py:390` is asserting behaviour rather than masking it.
-- **Status**: open, carried forward.
+- **Status**: remediation implemented 2026-09-22; hosted CodeQL confirmation remains pending. Alerts 278-282 were deliberate test fixtures, but the current GitHub token lacks the administrative scope required to dismiss them. Their fixture modes now use owner-only execution or owner-read-only preservation, removing the flagged permissive modes without weakening the tests. Alerts 283-284 were removed by expressing the cleanup assertion through nested context managers, and alert 285 was removed by making the existing adapter/base import boundary lazy in both directions. The affected suite passes 138 tests with nine platform skips; the alert states are not claimed closed until CodeQL analyzes the integrated revision.
 
 ## v4.11.2 - adoption-document-and-deck-quality
 ### WN-1 - Every release invalidates the distribution handbook
+
+- **Status**: resolved 2026-09-22. The release workflow now refreshes mapped handbooks before version mutation and the version-upgrade skill, `/update`, and `/implement` all carry the pre-version handbook rule. This keeps the input-sensitive gate intact while moving the rebuild ahead of the pull request instead of discovering it as a CI failure.
 
 - **Observed three times in two days**: v4.11.0's release PR, the plan_status.py registration (#207), and v4.11.2's release PR. Each time `check_handbooks` failed `validate`, each time the fix was identical, and each time the rebuilt output was BYTE-IDENTICAL.
 - **Cause**: the `distribution` handbook declares `scripts/installer.sh` and `scripts/installer.ps1` as inputs, and every release bumps a version string in both. The gate hashes the builder and the inputs, not just the output, which is what makes "the same sources now describe different code" visible - so this is the gate working as designed, not a defect in it.
 - **Cost**: a mandatory rebuild-and-refresh on every release and on every installer edit, discovered only after CI fails rather than before the PR opens.
 - **Why it is recorded rather than fixed here**: the obvious fix - excluding the installers from the handbook's inputs - would blind the gate to the case it exists for, which is an installer change that really does make the handbook wrong. The version string is the only part that churns without changing meaning, and distinguishing it needs the gate to understand content rather than bytes.
 - **Suggested next step**: have `/update release` rebuild mapped handbooks and refresh their evidence as a step BEFORE the release commit, in the same pass that regenerates `MANIFEST.sha256`. That converts a recurring CI failure into a routine regeneration, without weakening what the gate checks.
-- **Status**: open, carried forward.
+- **Status**: resolved 2026-09-22 by the pre-version handbook refresh rule described above.
 
 
 **Status**: implementation complete, 7 of 7 phases. Nineteen checks across two

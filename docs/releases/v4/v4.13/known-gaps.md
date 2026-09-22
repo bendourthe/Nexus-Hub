@@ -1,8 +1,8 @@
 # Known gaps - v4.13
 
 **Project**: Nexus-Hub
-**Status**: in-progress
-**Last updated**: 2026-09-21
+**Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Four bounded warning-class findings remain owned for future consumers or measurement work.
+**Last updated**: 2026-09-22
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -15,7 +15,7 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 1 |
 | Bugs / regressions (BG) | 0 | 6 |
-| Warnings (WN) | 5 | 1 |
+| Warnings (WN) | 4 | 2 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 3 |
 
@@ -51,11 +51,17 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 
 #### WN-6: Symlink refusal is unproven on Windows without developer mode
 
+**Status**: RESOLVED 2026-09-22 for the declared cross-platform contract. PR #230's Ubuntu `tests` job passed, and a direct WSL2 Ubuntu standard-library probe executed the same two cases: the script returned exit 2 without overwriting a symlink target, and `describe_destination` disclosed the redirected ancestor. Windows developer mode is not required to prove the Linux/macOS path; Windows retains its native junction coverage.
+
 **Source phase**: Phase 7. **Plan reference**: T030. **Reason**: two new tests covering the trace script's symlinked-target refusal and its redirected-ancestor disclosure `skip` on a Windows host that does not permit creating a symlink. They run on the Linux and macOS CI legs.
 
-**Owner**: `ai-agent-development`. **Status**: open. **Suggested next step**: confirm the two tests execute rather than skip in the CI `tests` job; if the Windows leg must cover them, the runner needs developer mode or an elevated step, which is a CI change outside this plan.
+**Owner**: `ai-agent-development`. **Status**: resolved 2026-09-22 by the Linux proof recorded above. Windows continues to exercise its native junction path and does not need developer mode for the cross-platform contract to be complete.
 
 ### Resolved Items
+
+#### WN-6: Symlink refusal on a host that permits symlinks - RESOLVED
+
+The exact target-refusal and redirected-ancestor assertions passed on WSL2 Ubuntu against the shipped `trace-example.py`; PR #230's Ubuntu repository test job also passed. The earlier Windows skip remains honest host-specific accounting rather than missing product coverage.
 
 #### QG-2: A timed-out CI step reports nothing at all - RESOLVED
 

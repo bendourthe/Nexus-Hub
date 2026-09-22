@@ -1,8 +1,8 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** v4.12.0 [sole-contributor attribution](archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md) is released: published at tag `v4.12.0` (`0dabca77`), downloaded-artifact verification passed for the release asset and the GitHub source archive, and the release is reconciled into `develop` by the back-merge in PR #220. The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. The GitHub Code-sidebar contributor count remains the one open public-view item (T021 and QG-2); Insights already shows only bendourthe. Warnings WN-1 to WN-4 and quality-gate gaps QG-1 to QG-4 stay open in the [v4.12 ledger](releases/v4/v4.12/known-gaps.md).
-**Last refreshed:** 2026-09-15
+**Active work:** v4.10.1 [eval isolation and adaptive compaction](releases/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md) and v4.11.1 [cache accounting and diagram quality](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md) are locally complete. Their only remaining plan tasks are publication and integration into `develop`; the shared closure branch also resolves the fast-profile registry blind spot and the live repository-description drift without changing the deliberately open vendor and host-rendering limitations.
+**Last refreshed:** 2026-09-22
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -11,18 +11,6 @@ Refreshing this file to the active plan (rather than appending another version's
 - [ ] Implement the queued [v4.11.0 master interactive-handbooks plan](releases/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md). All source analyses and approved-build lessons, including final fullscreen, motion sequencing, headerless layout, PowerPoint export and standalone sharing, are consolidated into R01-R30, conflict resolutions and 31 mapped tasks. Implementation remains 0/7 phases and 0/31 tasks; earlier isolated command/skill drafts require reconciliation before adoption. The active guide work remains unchanged.
 
 ---
-
-## Evidence-driven agent improvement (v4.13.0)
-
-Phases 1-7 of the [v4.13.0 plan](releases/v4/v4.13/plans/v4.13.0-adoption-evidence-driven-agent-improvement.md) are implemented and locally committed on `feat/v4.13.0-evidence-driven-agent-improvement`, one commit per phase, no push. Phase 6 measured the trigger pilot (96/96 calls, USD 20.6709, `MEASURED_NO_CHANGE`, nothing promoted). Phase 7 ran the ten final-phase duties; its two independent reviews found four real defects in work the earlier phases had already evidenced, including seven document controls that asserted a `str.replace` tautology and a Windows junction that defeated the distributed trace script's output guard. All are fixed with regression tests and recorded in [last-phase-evidence.md](releases/v4/v4.13/development/last-phase-evidence.md). Remaining: T034 publication, which needs explicit approval before the plan's single push. Open gaps are WN-2 through WN-6 in the [v4.13 ledger](releases/v4/v4.13/known-gaps.md); DF-1, QG-1, WN-1 and BG-1 to BG-6 are resolved.
-
-- [x] Phase 1 (A1): judge sensitivity foundation - frozen synthetic fixture, evaluator-validation Step 6, audit routing under concern 4.
-- [x] Phase 2 (A6): pinned agent span contract and a metadata-only runnable trace example; unsafe logging example replaced.
-- [x] Phase 3 (A2): observation-to-regression chain with an independent oracle and byte-exact rollback.
-- [x] Phase 4 (A4): smallest-useful-representation ladder with both near-misses guarded.
-- [x] Phase 5 (A5): optional context-fact freshness procedure and controlled-clock disposition matrix.
-- [ ] Phase 6 (A3): bounded trigger pilot - BLOCKED on the entry prerequisite; requires a separately scoped runner decision.
-- [ ] Phase 7: architecture refactor, known-gaps reconciliation, CI/CD and integration.
 
 ## Portable attribution extension
 
@@ -40,10 +28,12 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 | v4.11.0 interactive-handbook tasks complete | 31 | 31 | 0 |
 | v4.11.0 accepted native authoring families | 2 | 3 | 1 |
 | v4.10.0 implementation tasks complete | 26 | 26 | 0 |
+| v4.10.1 implementation tasks complete | 33 | 34 | 1 |
 | v4.11.1 comparison and plan prepared | 2 | 2 | 0 |
-| v4.11.1 implementation tasks complete | 9 | 25 | 16 |
+| v4.11.1 implementation tasks complete | 24 | 25 | 1 |
 | v4.13.0 comparison and plan prepared | 2 | 2 | 0 |
-| v4.13.0 implementation tasks complete | 33 | 34 | 1 |
+| v4.17.3 harness-economics comparison and plan prepared | 2 | 2 | 0 |
+| v4.13.0 implementation tasks complete | 34 | 34 | 0 |
 | v4.4.5 baseline guide/test files restored | 59 | 59 | 0 |
 | Exact production-file restorations | 3 | 3 | 0 |
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
@@ -51,23 +41,23 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 | v4.4.2 local phase commits | 8 | 8 | 0 |
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
-| Catalog skills | 336 | 336 | 0 |
+| Catalog skills | 337 | 337 | 0 |
 | Canonical guide bytes (strict ceiling 500,000) | 497,896 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
 
-## Queued work - v4.10.0 plan-queue continuity and re-sequencing
+## Current closure - v4.10.1 eval isolation and adaptive compaction
 
-- [ ] Implement the [v4.10.0 plan-queue continuity plan](releases/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md): make /compare, /plan, /implement and /update release each account for the other queued plans, and add a ranked re-ordering recommendation with an assisted renumber behind explicit confirmation. Authored 2026-09-10; 25/26 tasks; all five build phases and every Phase 6 last-phase duty landed 2026-09-10. Remaining: the single publication, which awaits explicit approval. One skill and one enumeration script own the rule; the four commands delegate. Sequenced first deliberately, so its own ordering recommendation can sequence the rest of the queue rather than being applied after the fact.
+- [ ] Publish and integrate the completed [v4.10.1 adoption plan](releases/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md). Phases 1-6 and Phase 7 duties T025-T033 are complete; T034 is the single remaining publication task.
 
-## Queued work - v4.11.1 cache accounting and diagram quality
+## Current closure - v4.11.1 cache accounting and diagram quality
 
-- [ ] Implement the published [v4.11.1 adoption plan](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md). Published to develop through [PR #194](https://github.com/bendourthe/Nexus-Hub/pull/194) on 2026-09-09; implementation is 3/6 phases and 9/25 tasks complete, reconciled from the preserved local cache branch on 2026-09-14; Phases 4-6 remain open. Correct cache accounting first, then extend existing prompt and diagram owners; preserve separate v4.11.0 handbook and v4.13 evaluation responsibilities.
+- [ ] Publish and integrate the completed [v4.11.1 adoption plan](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md). All six phases and final duties T016-T024 are complete; T025 is the single remaining publication task. The Tier 3 pass records the honest `MT-10` limitation: current repository diagrams use `<path>`, outside the narrow geometry envelope, so the new checks return `unchecked` rather than guessing.
 
-## Queued work - v4.13.0 evidence-driven agent improvement
+## Queued work - v4.17.3 harness economics and portable engineering systems
 
-- [ ] Qualify an existing native runner for the two-model trigger pilot before starting the seven-phase, 34-task implementation plan: prove observed skill loading, bounded calls/time/spend, and isolated synthetic context. Planning documents are in [PR #189](https://github.com/bendourthe/Nexus-Hub/pull/189); keyword-only evaluators do not satisfy the prerequisite. The v4.9 audit and handbook work retain their existing owners.
+- [ ] Implement the approved [v4.17.3 adoption plan](releases/v4/v4.17/plans/v4.17.3-adoption-harness-economics-and-portable-engineering-system.md), seeded by the [completed comparison](releases/v4/v4.17/comparisons/v4.17.3-comparison-harness-economics-and-portable-engineering-system.md). The queued plan defines five phases and 52 tasks for explicit unattended-loop outcomes, a serial repository-local harness evaluator with enforceable live-run gates, and provider-aware shared project instructions with one platform-neutral `base-agents.md` owner. Implementation is 0/5 phases and 0/52 tasks.
 
 ## Current work - v4.4.5 visual refinement
 

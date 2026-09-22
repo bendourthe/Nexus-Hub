@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released
-**Last updated**: 2026-09-15
+**Last updated**: 2026-09-22
 
 Release-scoped gaps for the sole-contributor-attribution plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -15,17 +15,19 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 1 |
-| Warnings (WN) | 4 | 0 |
+| Warnings (WN) | 2 | 2 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 4 | 0 |
+| Quality-gate gaps (QG) | 3 | 1 |
 
 ### Open Items
 
 #### WN-1: Existing CI-profile lint findings
 
+**Status**: RESOLVED 2026-09-22. `Mapping` and `Sequence` now come from `collections.abc`, and the PowerShell parser command joins a named parts tuple rather than a literal list. `python -m ruff check scripts/ci/profiles.py --output-format concise` and all 65 CI engine tests pass.
+
 **Source phase**: Phase 3. **Plan reference**: T013. **Reason**: the parent profile already contains these unrelated lint findings.
 
-**Owner**: CI profile maintainer. **Status**: open. **Next step**: address UP035 at the existing typing imports and FLY002 in `_PS_AST_PARSE` during the next CI-profile maintenance change.
+**Owner**: CI profile maintainer. **Status**: resolved 2026-09-22 by the focused changes and verification recorded above.
 
 Phase 3 confirmed both findings against the parent commit before its one-command change. No new checker or test-module lint finding remains. Evidence: external `phase3-baseline-lint.json`; this does not waive the final functional validation gate.
 
@@ -36,6 +38,8 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 **Owner**: CI maintainer. **Suggested next step**: in the queued CI-maintenance scope, lock tooling and generate/upload detailed reports with explicit seven-day retention, preserving required contexts and fail-closed job selection. No unrelated pipeline migration was applied in this release.
 
 #### WN-3: Repository description count drift
+
+**Status**: RESOLVED 2026-09-22. The live repository description now states 337 skills and matches the current catalog. The original observation below is retained as failure evidence.
 
 **Source phase**: Phase 4. **Plan reference**: T017. **Reason**: live GitHub description reports 336 skills while the current catalog has 337.
 
@@ -67,11 +71,25 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 #### QG-4: Windows whole-repository profile timed out
 
+**Status**: RESOLVED 2026-09-22. The original timeout below remains immutable evidence. The current full profile partitions repository tests at stable ownership boundaries without raising a timeout; exact-file guards prove every repository test is covered once. The corrected Windows run passed all 59 commands with zero failures, skips, or advisories in 7,208.2 seconds.
+
 **Source phase**: Phase 4. **Plan reference**: T022. **Reason**: the Windows full profile completed 46 commands successfully, but `repo-tests` exceeded its unchanged 4,500-second limit. Its timeout receipt contains no completed repository-test totals. The passing hook and extension groups do not turn that run into a pass.
 
 **Owner**: CI maintainer. **Suggested next step**: retain `phase4-full/summary.json` and investigate the current Windows whole-repository runtime before claiming that host's full profile qualified. The documented 3,341.7-second baseline dates to August 28 and predates newer benchmark tests; this is a workload hypothesis, not a measured cause. Current CI runs the full repository suite on Ubuntu and separately pins Windows-specific coverage to PowerShell 5.1. Linux full-profile and exact Windows CI-group results are recorded separately in the final evidence; neither retroactively changes the original Windows non-pass. No test limit was increased.
 
 ### Resolved
+
+#### WN-1: Existing CI-profile lint findings
+
+The two named findings were repaired without changing the generated PowerShell command or the profile contract. The focused lint check and owning CI engine module pass on the corrected tree.
+
+#### WN-3: Repository description count drift
+
+The repository setting was updated on 2026-09-22 from 336 to 337 skills. The public Code page and the repository API both expose the corrected description; the existing release-precondition check continues to detect future drift.
+
+#### QG-4: Windows whole-repository profile timed out
+
+The original 4,500-second monolithic timeout was retained. Repository tests are now partitioned by stable owner, with separate bounded commands for skills, installers, integration concerns, plans, CI, guides, and governance. Both coverage guards pass, and the complete corrected Windows profile passed 59 commands in 7,208.2 seconds without increasing a timeout.
 
 #### BG-1: Directory membership changes could evade a timestamp-only check
 
@@ -82,7 +100,7 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 ### Release disposition
 
-v4.12.0 was published on 2026-09-15 at tag `v4.12.0` (`0dabca77`) and reconciled into `develop` by the back-merge in PR #220. Post-publication verification of the downloaded artifacts passed for both published forms (1,929 manifest entries each, matching asset digest, successful provenance attestation). The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. Publication does not close the four warnings and four historical quality-gate gaps above, which the release preserves. Portable attribution integration passed PR #217 and post-merge run 34925451808; it does not close those independent items. No unresolved portable-code finding remains. See [release qualification](../../../archives/v4/v4.12/development/release-qualification.md) for the release evidence and queue impacts.
+v4.12.0 was published on 2026-09-15 at tag `v4.12.0` (`0dabca77`) and reconciled into `develop` by the back-merge in PR #220. Post-publication verification of the downloaded artifacts passed for both published forms (1,929 manifest entries each, matching asset digest, successful provenance attestation). The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. Publication does not close the two open warnings and three open quality-gate gaps above; resolved historical entries remain visible rather than being rewritten. Portable attribution integration passed PR #217 and post-merge run 34925451808; it does not close those independent items. No unresolved portable-code finding remains. See [release qualification](../../../archives/v4/v4.12/development/release-qualification.md) for the release evidence and queue impacts.
 
 #### DF-1: Antigravity workflow surface retires on 2026-11-01
 

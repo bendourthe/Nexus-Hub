@@ -340,7 +340,7 @@ def test_a_relative_git_path_is_refused(tree: Path) -> None:
 def test_a_git_inside_the_target_is_refused(tree: Path) -> None:
     shadow = tree / "git.exe"
     shadow.write_bytes(b"MZ")
-    os.chmod(shadow, 0o755)
+    os.chmod(shadow, 0o700)
     assert tm.resolve_trusted_git(shadow, forbidden_roots=(tree,)) is None
 
 
@@ -422,7 +422,7 @@ def test_a_repository_controlled_hook_never_runs(tmp_path: Path) -> None:
         hook.write_text(
             f"#!/bin/sh\ntouch '{marker}'\n", encoding="utf-8"
         )
-        os.chmod(hook, 0o755)
+        os.chmod(hook, 0o700)
 
     tm.build_target_manifest(root, git_path=Path(_GIT))
     assert not marker.exists(), "a repository-controlled hook executed"
@@ -438,7 +438,7 @@ def test_a_repository_controlled_fsmonitor_never_runs(tmp_path: Path) -> None:
 
     spy = tmp_path / "spy.sh"
     spy.write_text(f"#!/bin/sh\ntouch '{marker}'\n", encoding="utf-8")
-    os.chmod(spy, 0o755)
+    os.chmod(spy, 0o700)
     with (root / ".git" / "config").open("a", encoding="utf-8") as handle:
         handle.write(f"\n[core]\n\tfsmonitor = {spy.as_posix()}\n")
 
@@ -455,7 +455,7 @@ def test_a_repository_controlled_external_diff_never_runs(tmp_path: Path) -> Non
 
     spy = tmp_path / "diffspy.sh"
     spy.write_text(f"#!/bin/sh\ntouch '{marker}'\n", encoding="utf-8")
-    os.chmod(spy, 0o755)
+    os.chmod(spy, 0o700)
     (root / "tracked.py").write_text("x = 1\n", encoding="utf-8")
     subprocess.run([_GIT, "add", "tracked.py"], cwd=root, check=True, capture_output=True)
     with (root / ".git" / "config").open("a", encoding="utf-8") as handle:

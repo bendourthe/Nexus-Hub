@@ -1,8 +1,8 @@
 # Known Gaps - v4.9
 
 **Project**: Nexus-Hub
-**Status**: open; seeded 2026-09-08 from post-v4.8.0 work. The v4.8 ledger is finalized, so findings after that release land here rather than reopening it.
-**Last updated**: 2026-09-10 (v4.9.1 Phase 6 native authoring gate at 1 of 3)
+**Status**: released; PR #190 integrated the v4.9.0 audit work and its hosted platform gates. The remaining prompting-profile entries are source-availability limitations, and WN-1 is private workstation residue rather than distributed or release-blocking work.
+**Last updated**: 2026-09-22
 
 ## Open Items - found 2026-09-08 during post-v4.8.0 follow-up
 

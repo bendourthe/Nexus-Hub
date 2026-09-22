@@ -8,16 +8,16 @@
     "scripts/dual_view.py": "cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2"
   },
   "output": "docs/handbooks/overview.html",
-  "output_sha256": "c16b69de18b92760e101c7f8ddbe95d566c0058fdfbf14d5657255584a659799",
+  "output_sha256": "d061c7bf54f5a86aa9fb04ff46bc2aae412321c7bf9a9b06c1c845e6ec8be7ca",
   "schema_version": 1,
   "sources": {
     "docs/handbooks/_sources/overview/authoring-composition.html": "e38964521614c8c0317a63d2890685e2ffed10ef2625e6d181bf994db6a4ec6c",
     "docs/handbooks/_sources/overview/delivery-composition.html": "c7ab0ca77c7f6468d1914f17338d72a33ffe560888fb4573bafe6fe6ce5c9259",
-    "docs/handbooks/_sources/overview/design.css": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24",
-    "docs/handbooks/_sources/overview/model.json": "f5d3c133109e6a5f498037d67228d70255a118adca6663ad7c31c223c3a48580",
+    "docs/handbooks/_sources/overview/design.css": "e3015529f81584ab0578e365c42644854d9566bfeb45035e094044b503e16921",
+    "docs/handbooks/_sources/overview/model.json": "6d7f14e9d6da81913906829e60343d6f92309e917e0c6a3252f2166318340807",
     "docs/handbooks/_sources/overview/proof-composition.html": "5450a7264da18cccd1423951768e9a271cb42211545464ef035dde2a2d75958f",
     "docs/handbooks/_sources/overview/purpose-composition.html": "511907f9123cb68a61b67a38d7d06ddb67642e5f2871cb84410707b1d7a62beb",
-    "docs/handbooks/_sources/overview/source.md": "23c8a608f9204b67f3ab130891b055bd4946f1e1c7c7d597542773d8bc7721cf",
+    "docs/handbooks/_sources/overview/source.md": "20f7b918a2614a9ebd7d675f0cd55431635e2f65feedd4c10aef51c602aab40c",
     "docs/handbooks/_sources/overview/validation-composition.html": "4769181873d4f9b290a783d44986a9382771a90d7c9a4d548de46e8d0d44461f"
   }
 }

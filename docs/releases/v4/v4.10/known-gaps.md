@@ -1,12 +1,14 @@
-# Known gaps - v4.10.0
+# Known gaps - v4.10
+
+**Status**: implementation closure complete. v4.10.0 merged into `develop` in PR #198 and shipped inside v4.11.0 without a retroactive v4.10.0 tag. v4.10.1 implementation and local qualification are complete; publication is tracked as T034 in its plan.
 
 Unfinished work, deferrals, and defects found during v4.10.0 that did not reach a clean state. Open items carry forward into the next plan's ingest.
 
-**Last updated**: 2026-09-21
+**Last updated**: 2026-09-22
 
 ## Open Items - found 2026-09-10 during v4.10.0 implementation
 
-**Summary**: 8 open (1 DF, 3 WN, 2 MT, 2 EV). WN-3 resolved 2026-09-12.
+**Summary**: 5 open (0 DF, 2 WN, 1 MT, 2 EV). WN-3 resolved 2026-09-12; DF-1, WN-2, and MT-1 resolved 2026-09-22 during v4.10.1 closure.
 
 ## Open Items - found 2026-09-21 during v4.10.1 implementation
 
@@ -36,6 +38,8 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 
 ### DF-1 - Skill registration is documented as three files, but five carry catalog state
 
+**Status**: RESOLVED 2026-09-22. `AGENTS.md` now names all five catalog-state surfaces, their derived counts, and the existing emit/check commands. `check_registry_entries.py` now validates the `skills.json` aggregate statistics and `SKILL_INDEX.md` total line in addition to its existing membership, shape, reachability, and marketplace census checks.
+
 - **Source phase**: Phase 2 (T006), surfaced in Phase 5 (T016).
 - **Plan reference**: v4.10.0 Phase 2, "Register the skill".
 - **What was observed**: `AGENTS.md` instructs a new skill to update `data/SKILL_INDEX.md`, `data/skills.json`, and `data/marketplace.json`. Doing exactly that left the catalog inconsistent with itself **four separate times**, each caught by a different gate and none by the per-phase `fast` profile:
@@ -57,6 +61,8 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 
 ### WN-2 - The fast profile does not reach `tests/validators/`
 
+**Status**: RESOLVED 2026-09-22. The fast profile now runs the standard-library `check_registry_entries.py --check --strict` gate directly. It covers the aggregate registry drift that escaped the earlier phase gates without turning the fast profile into a pytest suite or adding network/install work.
+
 - **Source phase**: Phase 5 (T016).
 - **Plan reference**: v4.10.0 execution contract, which nominates `--profile fast` as the per-phase local gate.
 - **What was observed**: DF-1 was introduced in Phase 2 and survived three subsequent phase gates. Every one of those gates ran `--profile fast` and the bundle audit, and both passed while the catalog disagreed with itself. Only a full `tests/validators/` run (1520 tests, about 3m24s) caught it.
@@ -64,6 +70,8 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **Suggested next step**: consider a narrow `registry-consistency` step in the `fast` profile that runs only `tests/validators/test_registry_consistency.py` (0.31s), rather than the whole validators tree. Decide it as a CI/CD change with its own approval, not as a side effect of a content plan.
 
 ### MT-1 - The repository description still states the old catalog size
+
+**Status**: RESOLVED 2026-09-22. The live repository description now states 337 skills, matching `README.md`, and `check_release_preconditions.py --repo-settings` remains the drift detector.
 
 - **Source phase**: Phase 6 (T020).
 - **Plan reference**: v4.10.0 Phase 6, git-tree hygiene.
@@ -89,6 +97,9 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 
 ## Resolved during this version
 
+- **DF-1, incomplete skill-registration instructions** - RESOLVED 2026-09-22 by documenting every catalog-state surface and extending the existing strict registry checker to aggregate counts. Focused proof: 90 registry-checker and CI-engine tests passed.
+- **WN-2, fast-profile registry blind spot** - RESOLVED 2026-09-22 by adding the cheap strict registry checker to the fast profile. The profile still contains no pytest, install, or network step.
+- **MT-1, repository description count drift** - RESOLVED 2026-09-22 through the GitHub repository setting. The public Code page now reports 337 curated skills in the description.
 - **WN-3, `tests/skills/test_target_manifest.py` red on `develop`** - RESOLVED 2026-09-12 by PR #199. The 11 failures were not a defect in the module or on `develop`: they are a property of a host whose only git is hard-linked, which `resolve_trusted_git` correctly refuses. The fixture asserted that git EXISTS rather than that it QUALIFIES. The marker now skips with the measured reason. This gap's predicted consequence did NOT occur: it expected the integration pull request to show the same 11 failures, but PR #198 was green twice, because GitHub runners ship a single-link git. Coverage is unaffected - putting the conforming `bin/git.exe` first on PATH restores `53 passed, 2 skipped` locally.
 - **Touched-path extraction returned zero for three of five live plans** (Phase 2, T007). The extractor read only backtick-quoted paths while three plans use bare trailing paths, which would have produced a false "no impact" for every pair involving them. Fixed and pinned by three tests.
 - **`data/skills.json` statistics block disagreed with its own entry list** (Phase 5). Fixed by deriving both counts from the entries. The instruction that produced the error remains open as DF-1.

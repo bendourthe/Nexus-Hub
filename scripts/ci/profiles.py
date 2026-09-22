@@ -22,8 +22,8 @@ from __future__ import annotations
 import os
 import shutil
 import sys
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Mapping, Sequence
 
 #: Host classes a command can be scoped to. `posix` is the union of linux and
 #: macos, kept because most shell tooling cares about that boundary rather than
@@ -255,10 +255,84 @@ TESTS = Group(
         # A contended workstation may exceed them; do not tune shared limits
         # from that observation. Recalibrate only from quiet CI measurements.
         _pytest("hook-tests", "catalog/hooks/tests", timeout=1800),
-        # The Windows suite has a measured 3341.7s passing baseline. A 3600s
-        # limit left only 7.7% variance and timed out a subsequent green-path
-        # run, so retain enough host/filesystem headroom to report assertions.
-        _pytest("repo-tests", "tests", timeout=4500),
+        # Keep the repository corpus complete but split it at stable ownership
+        # boundaries. The former monolith could time out after an hour while
+        # naming only a percentage; these partitions retain every collected
+        # root/domain target and identify the slow owner without raising a cap.
+        _pytest("repo-tests-skills", "tests/skills", timeout=2700),
+        _pytest("repo-tests-installer", "tests/installer", timeout=1800),
+        _pytest(
+            "repo-tests-integrations-platform-a",
+            "tests/integrations/test_aider_windsurf.py",
+            "tests/integrations/test_antigravity.py",
+            "tests/integrations/test_antigravity_commands.py",
+            "tests/integrations/test_codex.py",
+            "tests/integrations/test_codex_invocation_policy.py",
+            "tests/integrations/test_codex_native.py",
+            "tests/integrations/test_consult.py",
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-integrations-platform-b",
+            "tests/integrations/test_copilot_hermes_native.py",
+            "tests/integrations/test_copilot_skills_surface.py",
+            "tests/integrations/test_cursor.py",
+            "tests/integrations/test_hermes.py",
+            "tests/integrations/test_kimi_native.py",
+            "tests/integrations/test_kimi_qwen_openclaw.py",
+            "tests/integrations/test_opencode.py",
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-integrations-adapter-contracts",
+            "tests/integrations/test_base_writeresult.py",
+            "tests/integrations/test_catalog_adapters.py",
+            "tests/integrations/test_contract.py",
+            "tests/integrations/test_cross_platform_flatten.py",
+            "tests/integrations/test_global_command_surface.py",
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-integrations-repository-contracts",
+            "tests/integrations/test_harness_audit.py",
+            "tests/integrations/test_nexus_ai_version.py",
+            "tests/integrations/test_registry.py",
+            "tests/integrations/test_result.py",
+            "tests/integrations/test_runner_target_root.py",
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-integrations-install",
+            "tests/integrations/test_hooks_supported_gate.py",
+            "tests/integrations/test_install_summary.py",
+            "tests/integrations/test_install_workspace.py",
+            "tests/integrations/test_legacy_cleanups.py",
+            "tests/integrations/test_markdown_integration.py",
+            "tests/integrations/test_owned_file_modes.py",
+            "tests/integrations/test_parity_with_legacy_installer.py",
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-integrations-lifecycle",
+            "tests/integrations/test_lifecycle.py",
+            "tests/integrations/test_lifecycle_block_rendering.py",
+            "tests/integrations/test_selective_install.py",
+            "tests/integrations/test_settings_hooks.py",
+            "tests/integrations/test_teardown.py",
+            timeout=1800,
+        ),
+        _pytest("repo-tests-plans", "tests/plans", timeout=900),
+        _pytest("repo-tests-ci", "tests/ci", timeout=900),
+        _pytest("repo-tests-guides", "tests/guides", timeout=1800),
+        _pytest(
+            "repo-tests-governance",
+            "tests/validators",
+            "tests/verification",
+            "tests/workflows",
+            "tests/test_git_attribution.py",
+            "tests/test_removed_autonomy_surface.py",
+            timeout=2700,
+        ),
     ),
 )
 
@@ -347,19 +421,18 @@ SHELL_LINT = Group(
 #: because in an argv list that mistake silently merges two arguments into one
 #: and the failure appears far from its cause. Joining explicitly says the
 #: concatenation is intended.
-_PS_AST_PARSE = " ".join(
-    [
-        "$f=$false;",
-        "@(Get-ChildItem catalog/hooks -Filter *.ps1 -File) +",
-        "@(Get-ChildItem scripts -Filter *.ps1 -File) +",
-        "@(Get-ChildItem . -Filter install.ps1 -File) | ForEach-Object {",
-        "$e=$null;",
-        "$null=[System.Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$null,[ref]$e);",
-        'if ($e -and $e.Count -gt 0) { Write-Host "FAIL $($_.Name)"; $f=$true }',
-        'else { Write-Host "OK   $($_.Name)" } };',
-        "if ($f) { exit 1 }",
-    ]
+_PS_AST_PARSE_PARTS = (
+    "$f=$false;",
+    "@(Get-ChildItem catalog/hooks -Filter *.ps1 -File) +",
+    "@(Get-ChildItem scripts -Filter *.ps1 -File) +",
+    "@(Get-ChildItem . -Filter install.ps1 -File) | ForEach-Object {",
+    "$e=$null;",
+    "$null=[System.Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$null,[ref]$e);",
+    'if ($e -and $e.Count -gt 0) { Write-Host "FAIL $($_.Name)"; $f=$true }',
+    'else { Write-Host "OK   $($_.Name)" } };',
+    "if ($f) { exit 1 }",
 )
+_PS_AST_PARSE = " ".join(_PS_AST_PARSE_PARTS)
 
 POWERSHELL_PARSE = Group(
     name="powershell-parse",
@@ -454,7 +527,21 @@ INTERPRETERS = Group(
 
 PROFILES: dict[str, tuple[Group, ...]] = {
     # Cheapest useful signal. No test suite, no install, no network.
-    "fast": (CATALOG_PARSE, HYGIENE, INTERPRETERS, WORKFLOWS, VERSION),
+    # CATALOG adds the complete skill and security scans, so keep it in full.
+    # The one cheap registry census command closes the fast-profile drift gap
+    # without turning this profile into a pytest suite.
+    "fast": (
+        CATALOG_PARSE,
+        HYGIENE,
+        INTERPRETERS,
+        Group(
+            name="registry-consistency",
+            scope_key="catalog",
+            commands=(_py("check_registry_entries", "--check", "--strict", timeout=300),),
+        ),
+        WORKFLOWS,
+        VERSION,
+    ),
     # Everything provable on this host.
     "full": (
         CATALOG_PARSE,
