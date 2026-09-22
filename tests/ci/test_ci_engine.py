@@ -19,6 +19,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -107,15 +108,35 @@ def test_every_command_declares_a_timeout():
                 assert cmd.timeout > 0, f"{group.name}/{cmd.name} has no timeout"
 
 
-def test_repository_suite_timeout_covers_the_measured_windows_baseline():
-    repo_tests = next(
-        command
-        for group in groups_for("full")
-        if group.name == "tests"
-        for command in group.commands
-        if command.name == "repo-tests"
-    )
-    assert repo_tests.timeout >= 4500
+def test_repository_suite_is_partitioned_without_coverage_gaps():
+    """Every collected test domain is bounded without one monolithic timeout."""
+    commands = next(group for group in groups_for("full") if group.name == "tests").commands
+    repo_commands = [command for command in commands if command.name.startswith("repo-tests-")]
+    configured_targets = [
+        arg
+        for command in repo_commands
+        for arg in command.argv[3:]
+        if arg != "-q"
+    ]
+    tests_root = REPO_ROOT / "tests"
+    actual_files: list[str] = []
+    for target in configured_targets:
+        target_path = REPO_ROOT / target
+        candidates = [target_path] if target_path.is_file() else target_path.rglob("test_*.py")
+        actual_files.extend(
+            path.relative_to(REPO_ROOT).as_posix()
+            for path in candidates
+            if "fixtures" not in path.relative_to(tests_root).parts
+        )
+    expected_files = [
+        path.relative_to(REPO_ROOT).as_posix()
+        for path in tests_root.rglob("test_*.py")
+        if "fixtures" not in path.relative_to(tests_root).parts
+    ]
+
+    assert sorted(actual_files) == sorted(expected_files)
+    assert len(actual_files) == len(set(actual_files))
+    assert all(command.timeout <= 4500 for command in repo_commands)
 
 
 def test_no_command_is_a_shell_string():
@@ -198,12 +219,60 @@ def test_a_timeout_is_a_failure_not_a_pass():
     assert "exceeded 1s" in result.reason
 
 
+def test_timeout_kills_process_tree_and_preserves_partial_output(tmp_path, capsys):
+    marker = tmp_path / "child-survived.txt"
+    child_code = (
+        "import pathlib,time;"
+        "time.sleep(2.5);"
+        f"pathlib.Path({str(marker)!r}).write_text('alive', encoding='utf-8')"
+    )
+    parent_code = (
+        "import subprocess,sys,time;"
+        "print('partial-output', flush=True);"
+        f"subprocess.Popen([sys.executable, '-c', {child_code!r}]);"
+        "time.sleep(30)"
+    )
+    command = Command(name="tree-timeout", argv=[PY, "-c", parent_code], timeout=1)
+
+    started = time.monotonic()
+    group = Group(name="timeout-group", commands=(command,))
+    group_result = run_mod.run_group(
+        group, detect_platform(), _all_scopes(), REPO_ROOT, [], quiet=True
+    )
+    result = group_result.commands[0]
+    duration = time.monotonic() - started
+    time.sleep(2)
+
+    assert duration < 2
+    assert result.status == "timeout"
+    assert "partial-output" in result.output
+    assert "tree-timeout" in capsys.readouterr().out
+    assert not marker.exists()
+
+
 def test_a_missing_executable_is_a_failure_not_a_pass():
     """A missing tool and a passing tool must never look the same."""
     missing = Command(name="ghost", argv=["definitely-not-a-real-binary-xyz"], timeout=30)
     result = run_mod.run_command(missing, REPO_ROOT, [], quiet=True)
     assert result.status == "missing"
     assert result.counts_as_failure
+
+
+def test_an_explicitly_optional_missing_vendor_cli_is_a_visible_skip(capsys):
+    optional = Command(
+        name="optional-vendor",
+        argv=["definitely-not-a-real-binary-xyz"],
+        timeout=30,
+        skip_if_missing=True,
+    )
+    result = run_mod.run_command(optional, REPO_ROOT, [], quiet=True)
+    run_mod._render_command_result(result, quiet=True)
+
+    assert result.status == "skip"
+    assert not result.counts_as_failure
+    rendered = capsys.readouterr().out
+    assert "[SKIP] optional-vendor" in rendered
+    assert "executable not found on PATH" in rendered
 
 
 def test_a_missing_working_directory_is_a_failure():
@@ -258,6 +327,42 @@ def test_a_group_keeps_running_after_a_failure():
     group = Group(name="g", commands=(_fail("first"), _fail("second")))
     result = run_mod.run_group(group, detect_platform(), _all_scopes(), REPO_ROOT, [], quiet=True)
     assert [c.status for c in result.commands] == ["fail", "fail"]
+
+
+def test_group_renders_missing_working_directory(capsys):
+    command = Command(name="nowhere", argv=[PY, "-c", "pass"], cwd="no/such/dir", timeout=30)
+    group = Group(name="g", commands=(command,))
+
+    run_mod.run_group(group, detect_platform(), _all_scopes(), REPO_ROOT, [], quiet=True)
+
+    output = capsys.readouterr().out
+    assert "[MISSING] nowhere" in output
+    assert "working directory not found" in output
+
+
+def test_group_renders_missing_executable(capsys):
+    command = Command(name="ghost", argv=["definitely-not-a-real-binary-xyz"], timeout=30)
+    group = Group(name="g", commands=(command,))
+
+    run_mod.run_group(group, detect_platform(), _all_scopes(), REPO_ROOT, [], quiet=True)
+
+    output = capsys.readouterr().out
+    assert "[MISSING] ghost" in output
+    assert "executable not found on PATH" in output
+
+
+def test_group_renders_launch_error(monkeypatch, capsys):
+    def fail_to_launch(*args, **kwargs):
+        raise PermissionError("launch blocked")
+
+    monkeypatch.setattr(run_mod.subprocess, "Popen", fail_to_launch)
+    group = Group(name="g", commands=(_ok("blocked"),))
+
+    run_mod.run_group(group, detect_platform(), _all_scopes(), REPO_ROOT, [], quiet=True)
+
+    output = capsys.readouterr().out
+    assert "[MISSING] blocked" in output
+    assert "PermissionError: launch blocked" in output
 
 
 def test_off_platform_commands_are_recorded_as_skips_not_omitted():
@@ -433,6 +538,14 @@ def test_real_cli_list_mode_runs_offline_for_every_profile(profile: str):
     )
     assert proc.returncode == 0, proc.stderr
     assert f"profile: {profile}" in proc.stdout
+
+
+def test_full_profile_includes_optional_claude_plugin_validation():
+    group = next(group for group in groups_for("full") if group.name == "claude-plugin")
+    assert len(group.commands) == 1
+    command = group.commands[0]
+    assert list(command.argv) == ["claude", "plugin", "validate", "."]
+    assert command.skip_if_missing is True
 
 
 def test_the_engine_needs_no_ci_provider_environment():

@@ -226,7 +226,7 @@ Two rules matter even if you read nothing else: every bundled file MUST be refer
 
 ### 4. Register the skill
 
-After creating SKILL.md, update these three files:
+After creating SKILL.md, update all five catalog-state files:
 
 **`data/SKILL_INDEX.md`** -- add one row to the table:
 ```
@@ -235,7 +235,13 @@ After creating SKILL.md, update these three files:
 
 **`data/skills.json`** -- add one entry to the `"skills"` array following the existing schema (name, title, description, long_description, summary_l0, overview_l1, version, author, category, language, tags, priority, based_on, tools_required, path, file, size, downloads, status, security).
 
-**`data/marketplace.json`** -- increment `skill_count` in the relevant category entry and update `"total_skills"` in `statistics`.
+**`data/marketplace.json`** -- increment `skill_count` in the relevant category entry.
+
+**`data/bundles.json`** -- add the skill to at least one capability module or bundle so focused installs can reach it.
+
+**Derived counts in `data/skills.json`** -- update `statistics.total_skills` and the matching `statistics.categories` entry. Also update the `**Total: N skills across M categories**` line in `data/SKILL_INDEX.md`; these are derived surfaces, but the catalog is deliberately hand-edited for reviewable diffs.
+
+Run `python scripts/check_registry_entries.py --emit <skill-name>` to print an index row and JSON fields, then run `python scripts/check_registry_entries.py --check --strict`. The checker validates membership, entry shape, bundle reachability, per-category and aggregate counts, and frontmatter text agreement.
 
 ### 5. Validate
 
@@ -409,6 +415,30 @@ Nexus-Hub is a **template repository**. Nothing you add is "live" until a user r
 **Entry points (v3.7.0 install-UX overhaul)**: a clean machine installs via the one-line bootstrap -- `curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash` (macOS/Linux; `wget -qO-` fallback) or `irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex` (Windows). The root `install.sh` / `install.ps1` are dual-mode: run standalone they precheck dependencies, download the `main` tarball into `~/.nexus-hub/src`, and hand off to `scripts/installer.{sh,ps1}`; run inside a checkout they delegate exactly as before. The core installers (`scripts/installer.{sh,ps1}`) are **unchanged** by the bootstrap and still do all of the distribution work documented below -- the bootstrap only materializes the tree they run from, so the distribution channels and copy rules in this section are unaffected. `nexus-hub upgrade` (the CLI installed to `~/.nexus-hub/bin/`) re-runs this same idempotent bootstrap. Installs are no-prompt: global scope across every detected platform by default, with `--workspace` / `--platforms` / `--yes` for power users and CI (absent platforms skip-with-note; conflict-only overwrite confirmation).
 
 **Golden rule**: every change you propose must be shaped so that after the next installer run, it reaches Claude Code, Cursor, Codex, Gemini/Antigravity, OpenCode, and Copilot -- on Windows, macOS, and Linux -- without any manual step on the user's part.
+
+### Runtime integration debugging entry points
+
+When debugging or changing one runtime, open the file below first. These rows are derived from the registered integration classes in `scripts/lib/integrations/`; `docs/policy/platform-read-contracts.json` remains the source of truth for what each runtime reads, while this table identifies where its Nexus-Hub behavior starts. Aider, Antigravity 1.0, and Hermes have registered adapters but no `contract_checks` entry, so their rows make no read-path claim.
+
+| Runtime | Registry key | Open first |
+|---|---|---|
+| Aider | `aider` | `scripts/lib/integrations/aider.py` |
+| Antigravity 1.0 (Google) | `antigravity` | `scripts/lib/integrations/antigravity.py` |
+| Antigravity 2.0 + CLI (Google) | `antigravity2` | `scripts/lib/integrations/antigravity.py` |
+| Claude Code (Anthropic) | `claude` | `scripts/lib/integrations/claude.py` |
+| Codex (OpenAI) | `codex` | `scripts/lib/integrations/codex.py` |
+| GitHub Copilot (Microsoft) | `copilot` | `scripts/lib/integrations/copilot.py` |
+| Cursor | `cursor` | `scripts/lib/integrations/cursor.py` |
+| Gemini (Google) | `gemini` | `scripts/lib/integrations/gemini.py` |
+| Gemini CLI (Google, ENTERPRISE-ONLY post-2026-06-18) | `gemini-cli` | `scripts/lib/integrations/gemini_cli.py` |
+| Hermes | `hermes` | `scripts/lib/integrations/hermes.py` |
+| Kimi Code CLI | `kimi` | `scripts/lib/integrations/kimi.py` |
+| Nexus-AI (Local Desktop Studio) | `nexus-ai` | `scripts/lib/integrations/nexus_ai.py` |
+| OpenClaw | `openclaw` | `scripts/lib/integrations/openclaw.py` |
+| OpenCode | `opencode` | `scripts/lib/integrations/opencode.py` |
+| Pi | `pi` | `scripts/lib/integrations/pi.py` |
+| Qwen Code | `qwen` | `scripts/lib/integrations/qwen.py` |
+| Devin Desktop / Windsurf | `windsurf` | `scripts/lib/integrations/windsurf.py` |
 
 ### Distribution channels the installer uses
 

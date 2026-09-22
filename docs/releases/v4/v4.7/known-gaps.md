@@ -1,8 +1,8 @@
 # Known Gaps - v4.7
 
 **Project**: Nexus-Hub
-**Status**: v4.7.0 in progress on `feat/v4.7.0-model-behavior-and-distribution-integrity`; phases 1 to 7 complete locally on `feat/v4.7.0-model-behavior-and-distribution-integrity`; published to `develop` in PR #167 (merge `ca8e663e`, 2026-09-05); awaiting `/update release`
-**Last updated**: 2026-09-05 (v4.7.0 Phase 7)
+**Status**: released. v4.7.0 was published on 2026-09-06 at tag `v4.7.0` (`667cc465`) after integration in PR #167 (`ca8e663e`). Open ledger entries remain bounded deferrals, warnings, and manual coverage rather than unpublished implementation.
+**Last updated**: 2026-09-22
 
 ## v4.7.0 - model-behavior-and-distribution-integrity (with the gpt-6-astra-prompting amendments folded in)
 

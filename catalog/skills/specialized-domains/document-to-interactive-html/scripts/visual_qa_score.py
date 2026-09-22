@@ -50,6 +50,7 @@ import math
 import re
 import sys
 from html.parser import HTMLParser
+from itertools import pairwise
 from pathlib import Path
 from typing import Any
 
@@ -1040,7 +1041,7 @@ def _geom_segments(
         else:
             continue
         placed = [(x * sx + dx, y * sy + dy) for x, y in pts]
-        for start, end in zip(placed, placed[1:]):
+        for start, end in pairwise(placed):
             segments.append({
                 "order": order, "start": start, "end": end,
                 "identity": (node.get("class") or "") + " " + (node.get("id") or ""),

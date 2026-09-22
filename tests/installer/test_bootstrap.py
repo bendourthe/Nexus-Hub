@@ -401,26 +401,9 @@ def test_ps_path_traversal_is_refused(tmp_path: Path) -> None:
 
 # --- Windows long-path cleanup (MAX_PATH regression) ------------------------
 #
-# The catalog reaches 298 characters repo-relative under
-# docs/releases/v4/v4.9/development/security-audit-benchmark/, whose ledger entry
-# filenames concatenate two SHA-256 hashes. Any install prefix pushes those past
-# the 260-character Win32 limit, so `Remove-Item -Recurse` on ~/.nexus-hub/src
-# fails -- and it reports "Could not find a part of the path" rather than a length
-# error, which sends the reader looking for a missing file. That broke a real
-# Windows install before these guards existed.
-
-
-def test_repo_has_paths_that_would_break_naive_windows_cleanup() -> None:
-    """The precondition behind the guard below. If this ever stops holding, the
-    long-path helper is no longer load-bearing and can be reconsidered."""
-    longest = max(
-        (len(p.relative_to(REPO_ROOT).as_posix()) for p in REPO_ROOT.rglob("*") if p.is_file()),
-        default=0,
-    )
-    assert longest > 200, (
-        f"longest tracked path is {longest} chars; the MAX_PATH guard assumes "
-        "the catalog still contains deep paths"
-    )
+# A catalog path once reached 298 characters repo-relative and broke a real
+# Windows install. The functional test below constructs an over-MAX_PATH tree
+# directly, so protection does not disappear when repository paths get shorter.
 
 
 def test_install_ps1_defines_a_long_path_safe_removal() -> None:

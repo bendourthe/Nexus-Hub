@@ -1,6 +1,6 @@
 """v4.7.0 amendment Phase 1 (T040): the Astra routing decision is recorded where the plan said it would be.
 
-- The snapshot's newest refresh note names ``gpt-6-astra`` and cites both OpenAI pages.
+- The snapshot's newest note names GPT-6 Astra and its OpenAI sources cite both pages.
 - The main plan's sub-task 2.2 and 5.3 prompts cite the GPT-6 Astra guide as a second vendor source.
 - The decision note exists and carries both quoted pages.
 """
@@ -23,7 +23,7 @@ SNAPSHOT = (
 MAIN_PLAN = (
     REPO
     / "docs"
-    / "releases"
+    / "archives"
     / "v4"
     / "v4.7"
     / "plans"
@@ -32,7 +32,7 @@ MAIN_PLAN = (
 DECISION = (
     REPO
     / "docs"
-    / "releases"
+    / "archives"
     / "v4"
     / "v4.7"
     / "development"
@@ -44,16 +44,15 @@ GUIDE_URL = (
 )
 
 
-def _newest_refresh_note() -> str:
-    notes = json.loads(SNAPSHOT.read_text(encoding="utf-8"))["notes"]
-    refresh_keys = [k for k in notes if k.startswith("refresh_")]
-    return notes[max(refresh_keys)]
+def _snapshot() -> dict:
+    return json.loads(SNAPSHOT.read_text(encoding="utf-8"))
 
 
-def test_newest_refresh_note_records_the_astra_decision_with_both_pages():
-    note = _newest_refresh_note()
-    assert "gpt-6-astra" in note
-    assert CATALOG_URL in note and GUIDE_URL in note
+def test_newest_note_and_sources_record_the_astra_decision():
+    snapshot = _snapshot()
+    assert "GPT-6 Astra" in snapshot["notes"][-1]
+    assert CATALOG_URL in snapshot["sources"]["OpenAI"]
+    assert GUIDE_URL in snapshot["sources"]["OpenAI"]
 
 
 def test_main_plan_prompts_cite_the_astra_guide_twice():

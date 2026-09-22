@@ -8,7 +8,7 @@
       "scripts/installer.ps1": "b6536a455c29580379946643d723ad1532a365256da0150a8024cf9b498e323f",
       "scripts/installer.sh": "c16049f714062a1111a464af67e123fa147c183150e2f526467e3b0445b38341",
       "scripts/lib/integrations/runner.py": "7912fa31727da6bb9bf3877b3c68d9972d491f7f9cb96010d2a93acabd221833",
-      "scripts/lib/integrations/_catalog_adapters.py": "3d92a49b0f0338461e6e029bd5301abc5cbce7451ac4e58014357ae998536de9",
+      "scripts/lib/integrations/_catalog_adapters.py": "c86e46c37fd33edca2d631fdd5e80a8ea2940ed1c31f43f306fd4dc3b589decb",
       "scripts/lib/integrations/_owned.py": "aaeae3a0fe420ecabd4d5f863257454bc966e707d97e0fba4e7bba2ebc761f64",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "6c6fe8535e5be98a5bd92118d6f27847dbe5edb04da52bfea78741eb0e3962d4",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2",

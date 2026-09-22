@@ -16,6 +16,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 PLUGIN_JSON = REPO_ROOT / ".claude-plugin" / "plugin.json"
 MARKETPLACE_JSON = REPO_ROOT / ".claude-plugin" / "marketplace.json"
 CATALOG_SKILLS = REPO_ROOT / "catalog" / "skills"
+CATALOG_AGENTS = REPO_ROOT / "catalog" / "agents"
 
 
 def _load(path: Path) -> dict:
@@ -47,9 +48,12 @@ def test_plugin_json_points_at_catalog_commands_and_agents() -> None:
     assert data["name"] == "nexus-hub"
     assert data["version"]
     assert data["commands"] == "./catalog/commands"
-    assert data["agents"] == "./catalog/agents"
+    expected_agents = [
+        f"./catalog/agents/{path.name}" for path in sorted(CATALOG_AGENTS.glob("*.md"))
+    ]
+    assert data["agents"] == expected_agents
     assert (REPO_ROOT / "catalog" / "commands").is_dir()
-    assert (REPO_ROOT / "catalog" / "agents").is_dir()
+    assert len(expected_agents) == 23
     assert "hooks" not in data
     assert "mcpServers" not in data
 

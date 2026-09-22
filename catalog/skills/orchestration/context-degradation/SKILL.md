@@ -102,7 +102,7 @@ Context degradation manifests in 5 distinct patterns. Identifying the correct pa
 | 70-85% | High | Active compression recommended |
 | 85-100% | Critical | Immediate session handoff or compression |
 
-**Companion guidance for compression and handoff decisions**: the percentages above describe *severity*; deciding which tool to reach for when you hit Orange or Red is a separate call. See the **Proactive steering with `/compact focus on X, drop Y`** subsection of [context-compression/SKILL.md](../context-compression/SKILL.md) for the steerable-compaction syntax used at the Orange threshold, and [guides/reference/SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) for the continue / `/rewind` / `/clear` / `/compact` / delegate decision tree that decides when compression is the wrong tool.
+**Companion guidance for compression and handoff decisions**: the percentages above describe *severity*; deciding whether compaction should fire is a separate call owned by `[[context-compression]]`. Apply its linked fire/suppress rubric rather than treating an Orange or Red threshold as permission to compact. See the **Proactive steering with `/compact focus on X, drop Y`** subsection of [context-compression/SKILL.md](../context-compression/SKILL.md) for that handoff and syntax, and [guides/reference/SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) for the continue / `/rewind` / `/clear` / `/compact` / delegate decision tree.
 
 ### Step 3: Apply Mitigation
 

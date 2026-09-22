@@ -117,6 +117,12 @@ def _covers(target: str, path: Path) -> bool:
     return rel == target or rel.startswith(target.rstrip("/") + "/")
 
 
+def _reaches_directory(target: str, directory: Path) -> bool:
+    """True when a target collects the directory or an explicit descendant."""
+    rel = directory.relative_to(REPO_ROOT).as_posix().rstrip("/")
+    return _covers(target, directory) or target.startswith(rel + "/")
+
+
 def test_ci_yml_exists() -> None:
     assert CI.is_file(), "ci.yml is missing; this guard has nothing to check"
 
@@ -157,7 +163,7 @@ def test_every_test_directory_is_collected_by_ci() -> None:
     uncovered = [
         d.relative_to(REPO_ROOT).as_posix()
         for d in dirs
-        if not any(_covers(t, d) or _covers(t, d / "x") for t in targets)
+        if not any(_reaches_directory(t, d) for t in targets)
     ]
     assert not uncovered, f"test directories not reachable from any CI pytest step: {sorted(uncovered)}"
 
