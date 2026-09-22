@@ -135,8 +135,8 @@ def find_candidates(root: Path, current: tuple[int, int]) -> list[tuple[Path, st
                 continue
 
             destination = f"{ARCHIVES_ROOT}/{major_name}/{minor_dir.name}/{AGING_SUBDIR}/"
-            if (root / destination).is_dir():
-                continue  # already archived
+            if not any(p.is_file() or p.is_symlink() for p in source.rglob("*")):
+                continue  # empty source; its files have already been archived
 
             out.append((source, minor_dir.name, destination))
 

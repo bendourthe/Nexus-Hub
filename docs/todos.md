@@ -50,6 +50,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Current closure - v4.10.1 eval isolation and adaptive compaction
 
 - [x] Published and integrated the completed [v4.10.1 adoption plan](releases/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md) through PR #232, merged to `develop` at `c54dbeb4`. T034 is complete; no retroactive v4.10.1 tag is planned.
+- [x] Archive the late Phase 7 history in `docs/archives/v4/v4.10/development/history/` and repair the retention check that missed source files when the destination already existed; 19 focused tests and the link baseline pass.
 
 ## Current closure - v4.11.1 cache accounting and diagram quality
 
