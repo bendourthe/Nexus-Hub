@@ -184,6 +184,15 @@ jobs:
         if: always()
         run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
 
+      - name: Retain validation reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-validation-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
+
   shellcheck:
     # Required status check. Runs unconditionally.
     runs-on: ubuntu-latest
@@ -216,6 +225,15 @@ jobs:
       - name: Publish the run summary
         if: always()
         run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain shell reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-shell-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
 
   tests:
     # Each pytest invocation is scoped to its own tree so pytest does not adopt
@@ -266,6 +284,15 @@ jobs:
         if: always()
         run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
 
+      - name: Retain test reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-test-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
+
   guide-render:
     # The complete repo test job intentionally carries no browser, so the
     # guide's browser contracts skip-with-note there. This focused job installs
@@ -307,7 +334,16 @@ jobs:
         # a quiet skip inside an otherwise green test run.
         env:
           NEXUS_REQUIRE_RENDER: '1'
-        run: python -m pytest -q tests/guides/ tests/verification/test_visual_defect_detector.py
+        run: python -m pytest -q tests/guides/ tests/verification/test_visual_defect_detector.py --junitxml=reports/junit/guide-render.xml
+
+      - name: Retain guide browser report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-guide-render-report
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
 
   tests-windows:
     # Windows PowerShell 5.1 BEHAVIOR, which pwsh 7 cannot substitute for.
@@ -362,12 +398,22 @@ jobs:
                            tests/integrations/test_kimi_native.py `
                            tests/integrations/test_settings_hooks.py `
                            tests/integrations/test_catalog_adapters.py `
-                           tests/integrations/test_codex_invocation_policy.py -q
+                           tests/integrations/test_codex_invocation_policy.py -q `
+                           --junitxml=reports/junit/windows-native.xml
 
       - name: Publish the run summary
         if: always()
         shell: bash
         run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain Windows reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-windows-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
 
   bootstrap:
     # Exercise the dual-mode self-fetching bootstrap end to end on a clean
