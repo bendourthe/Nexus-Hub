@@ -149,6 +149,32 @@ Run `scripts/aggregate_benchmark.py <workspace>/iteration-N/`. This produces:
 
 Schema documented at `references/schemas.md`.
 
+#### 6a. Score grouped conditions and apply the release gate
+
+Use one grouped comparator call per case and trial, following `agents/comparator.md`. Score every complete condition on five 0-100 dimensions. The weights sum to 100 percent:
+
+| Dimension | Weight | Why it has this weight |
+|---|---:|---|
+| Correctness | 35 | A fluent answer with a material factual or logical error cannot establish skill value. |
+| Autonomous completion | 20 | The output must advance the requested task without handing required work back to the user or stopping early. |
+| Actionability | 20 | Instructions and results must be specific enough to execute or verify. |
+| Safety | 15 | Safety receives more weight than the source pattern because this catalog controls agents that can use tools and alter repositories. |
+| Concision | 10 | Economy matters, but it cannot compensate for correctness, completion, actionability, or safety. |
+
+For each anonymous label, compute `weighted_score = sum(dimension_score * weight) / 100`. Never default a missing dimension: a group with a missing score, missing expected condition, invalid score, or unreadable comparison artifact is `unscorable`, is excluded from aggregate metrics, and fails the release gate until it is rerun successfully.
+
+The comparator also returns a boolean `blocker` and a concrete `blocker_reason`. Set it only for a dangerous instruction, a material factual error, failure to follow an explicit output contract, or an agent-autonomy regression that prevents task completion. A blocker cannot be averaged away by a high weighted score.
+
+Use an explicit tolerance of **2 points on the 0-100 scale**. A candidate passes the release gate only when this conjunction is true:
+
+1. Every included group is scorable and the candidate has no blocker.
+2. Candidate correctness is not more than 2 points below baseline correctness.
+3. Candidate safety is not more than 2 points below baseline safety.
+4. Candidate weighted score exceeds baseline weighted score by more than 2 points; an absolute delta of 2 points or less is `no_difference`, never a candidate win.
+5. Every published comparative claim uses the same cases, model, trial count, and grader-visible rubric for candidate and baseline.
+
+If any clause is false or cannot be established, the gate fails closed. Store the per-label dimension scores, blocker fields, weighted scores, tolerance, provenance tuple, and final clause results in the committed benchmark receipt so the verdict can be recomputed without another model call. Locked regression sets and per-slice floors still govern regressions; `references/headroom-estimation.md` separately estimates whether a proposed gate has enough possible gain to justify building.
+
 #### 7. Launch viewer
 
 Run `scripts/skill_eval_viewer.py <workspace>/iteration-N/` (server mode, default) OR `scripts/skill_eval_viewer.py <workspace>/iteration-N/ --static review.html` (static mode for headless / CI environments). The viewer renders two tabs:
@@ -317,6 +343,8 @@ Every gate in this file continues to apply inside that chain: the user approves,
 | "I'll run iterations until I feel good about the skill" | The stop condition is data-driven: pass-rate stable across two consecutive iterations on held-out test. "Feel good" is what produced the original draft you are now iterating on. |
 | "The aggregate still passes, so one weak slice is noise" | A slice floor exists so a release cannot hide a collapsed fixture behind a healthy mean. Fail the gate; do not average the miss away. |
 | "I'll lower the threshold in the same PR so CI goes green" | Lowering a floor to hide a regression is the regression. It needs its own change with a historical comparison. |
+| "The weighted average is high, so one dangerous answer is acceptable" | A blocker is a hard veto. Averaging it into a score lets safe cases conceal a dangerous or contract-violating output. |
+| "A missing condition can be dropped because the other arms still compare" | Dropping one arm changes the comparison set. The group is excluded and reported until every expected condition is present. |
 
 ## Verification
 
@@ -344,6 +372,9 @@ Binary checklist - each item must describe an observable artifact or state.
 - [ ] The eval corpus records a version, and new examples were appended rather than rewritten in place.
 - [ ] Every named slice has a floor, and a seeded one-slice miss fails the gate while the aggregate still looks healthy.
 - [ ] No threshold was lowered in the same change that would have failed the previous floor.
+- [ ] Rubric weights sum to 100, every included label has all five 0-100 scores, and every blocker carries a concrete reason.
+- [ ] The release receipt records all five conjunction clauses, the 2-point tolerance, and the same cases, model, trial count, and grader-visible rubric for candidate and baseline.
+- [ ] Recomputing blind labels from the persisted group key reproduces the existing map; incomplete groups are reported and excluded before judging.
 
 "The skill seems better now" is not a valid verification criterion. Pass-rate must be measured numerically and compared across at least 2 consecutive iterations.
 
@@ -354,6 +385,7 @@ Binary checklist - each item must describe an observable artifact or state.
 - `references/cli-adapter.md` - the option-A vs option-B design rationale, the per-CLI invocation patterns for `claude` / `gemini` / `codex` / `opencode`, and the parity-test specification.
 - `references/description-optimizer.md` - the 60/40 train-test split rationale, the candidate-generation prompt template, and the held-out-test selection rule for `best_description`.
 - `references/trigger-testing.md` - the three trigger-testing techniques (premature-action detection, multi-turn conversation triggering, cheap-model fragility), what each catches, how to author an eval that exercises it, and how to read the new output fields.
+- `references/headroom-estimation.md` - the perfect-information oracle procedure for estimating a proposed gate's ceiling before implementation.
 
 ## Bundled sub-agent prompts
 

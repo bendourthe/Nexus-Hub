@@ -1,6 +1,6 @@
-"""Tests for the v1.1.5 skill-eval-loop dispatchers (Phase 5 / A6 + A7).
+"""Tests for the skill-eval-loop dispatchers and evaluation contracts.
 
-Covers three things:
+Covers four things:
 
 1. CLI-adapter parity invariant: `scripts/optimize_skill_description.py`
    dispatches to claude / gemini / codex / opencode via per-CLI branches; no
@@ -15,6 +15,10 @@ Covers three things:
    produces benchmark.json from a fixture iteration directory; the static
    viewer renders without errors.
 
+4. Release-gate and blinding contract: weights sum to 100, the tolerance is
+   numeric, group-key labels reproduce exactly, incomplete groups are excluded,
+   and the judge-visible rubric cannot see condition or gate vocabulary.
+
 Run from the repo root:
     python -m pytest catalog/hooks/tests/test_eval_loop.py -v
 """
@@ -22,6 +26,7 @@ Run from the repo root:
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 import re
 import subprocess
@@ -43,6 +48,9 @@ _CLI_ADAPTER = (
     / "references"
     / "cli-adapter.md"
 )
+_EVAL_LOOP_SKILL = _CLI_ADAPTER.parent.parent / "SKILL.md"
+_COMPARATOR = _CLI_ADAPTER.parent.parent / "agents" / "comparator.md"
+_HEADROOM = _CLI_ADAPTER.parent / "headroom-estimation.md"
 
 _SUPPORTED_CLIS = ("claude", "gemini", "codex", "opencode")
 _ISOLATED_CLIS = ("claude", "codex")
@@ -772,6 +780,98 @@ class TestPrematureActionInBenchmark:
         assert bench["by_eval"]["eval-001"]["with_skill"]["premature_action"] is True
         # The baseline run has no skill to load, so it defaults to False.
         assert bench["by_eval"]["eval-001"]["without_skill"]["premature_action"] is False
+
+
+class TestReleaseGateAndBlindingContract:
+    """v4.10.1 Phase 6: weighted gate, deterministic labels, and headroom."""
+
+    @staticmethod
+    def _blind_labels(group_key: str, conditions: list[str]) -> dict[str, str]:
+        ranked = sorted(
+            conditions,
+            key=lambda condition: (
+                hashlib.sha256(
+                    f"{group_key}\0{condition}".encode("utf-8")
+                ).hexdigest(),
+                condition,
+            ),
+        )
+        return {chr(ord("A") + index): condition for index, condition in enumerate(ranked)}
+
+    def test_weights_sum_to_100_and_tolerance_is_numeric(self) -> None:
+        text = _EVAL_LOOP_SKILL.read_text(encoding="utf-8")
+        rows = re.findall(
+            r"\| (Correctness|Autonomous completion|Actionability|Safety|Concision) \| (\d+) \|",
+            text,
+        )
+        assert dict(rows) == {
+            "Correctness": "35",
+            "Autonomous completion": "20",
+            "Actionability": "20",
+            "Safety": "15",
+            "Concision": "10",
+        }
+        assert sum(int(weight) for _, weight in rows) == 100
+        assert "2 points on the 0-100 scale" in text
+        assert "only when this conjunction is true" in text
+        assert "fails closed" in text
+
+    def test_same_group_key_reproduces_the_fixed_label_map(self) -> None:
+        group_key = "eval-007:trial-03"
+        conditions = ["with_skill", "without_skill", "raw_memory"]
+        first = self._blind_labels(group_key, conditions)
+        resumed = self._blind_labels(group_key, list(reversed(conditions)))
+        assert first == resumed == {
+            "A": "raw_memory",
+            "B": "with_skill",
+            "C": "without_skill",
+        }
+
+        contract = _COMPARATOR.read_text(encoding="utf-8")
+        assert "group_key + NUL + condition_name" in contract
+        assert 'algorithm: "sha256-v1"' in contract
+        assert "Do not use a random source" in contract
+
+    def test_incomplete_group_is_reported_and_excluded(self) -> None:
+        text = _COMPARATOR.read_text(encoding="utf-8")
+        assert "missing or invalid" in text
+        assert "stderr" in text
+        assert "excluded comparison receipt" in text
+        assert "do not invoke the comparator" in text
+
+    def test_judge_region_excludes_release_gate_vocabulary(self) -> None:
+        text = _COMPARATOR.read_text(encoding="utf-8")
+        start = "<!-- BEGIN JUDGE RUBRIC -->"
+        end = "<!-- END JUDGE RUBRIC -->"
+        assert text.count(start) == text.count(end) == 1
+        region = text.split(start, 1)[1].split(end, 1)[0].lower()
+        for required in (
+            "correctness",
+            "autonomous_completion",
+            "actionability",
+            "safety",
+            "concision",
+            "blocker_reason",
+        ):
+            assert required in region
+        for forbidden in (
+            "release gate",
+            "with_skill",
+            "without_skill",
+            "raw_memory",
+            "baseline",
+            "candidate",
+        ):
+            assert forbidden not in region
+
+    def test_headroom_reference_states_oracle_method_and_limit(self) -> None:
+        text = _HEADROOM.read_text(encoding="utf-8")
+        assert "perfect-information oracle" in text
+        assert "oracle_gain = oracle_score - current_policy_score" in text
+        assert "11.5 points" in text
+        assert "fixed opportunity" in text
+        assert "fully adaptive policy" in text
+        assert "Locked regression sets and per-slice floors" in text
 
 
 if __name__ == "__main__":
