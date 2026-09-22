@@ -1724,7 +1724,7 @@ WEBSITE_README = _ROOT / "guides" / "website" / "README.md"
 CONTENT_MAP = (
     _ROOT
     / "docs"
-    / "releases"
+    / "archives"
     / "v4"
     / "v4.2"
     / "development"
