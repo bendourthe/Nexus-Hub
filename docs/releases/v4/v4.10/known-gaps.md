@@ -2,11 +2,27 @@
 
 Unfinished work, deferrals, and defects found during v4.10.0 that did not reach a clean state. Open items carry forward into the next plan's ingest.
 
-**Last updated**: 2026-09-12
+**Last updated**: 2026-09-21
 
 ## Open Items - found 2026-09-10 during v4.10.0 implementation
 
-**Summary**: 6 open (1 DF, 3 WN, 2 MT). WN-3 resolved 2026-09-12.
+**Summary**: 8 open (1 DF, 3 WN, 2 MT, 2 EV). WN-3 resolved 2026-09-12.
+
+## Open Items - found 2026-09-21 during v4.10.1 implementation
+
+### EV-1 - Gemini CLI has no documented all-configuration isolation flag
+
+- **Source phase**: v4.10.1 Phase 2 (T005-T009).
+- **What was observed**: the official CLI documents `-e none` for disabling extensions and `--model` for model selection, but separately documents system, user, project, environment, and command-line configuration layers. No flag in the checked official reference excludes them as a whole.
+- **Current behavior**: provider-backed skill evals requested with `--cli gemini` fail closed before spawning the CLI. Their results are not represented as isolated or comparable.
+- **Suggested next step**: re-check the official Gemini CLI configuration reference during platform-contract verification. Enable the branch only when the vendor documents a complete configuration-source exclusion.
+
+### EV-2 - OpenCode has no documented all-configuration isolation flag
+
+- **Source phase**: v4.10.1 Phase 2 (T005-T009).
+- **What was observed**: the official CLI documents `--pure` as disabling external plugins and documents config path overrides, but no checked flag excludes all operator configuration, instructions, and saved settings.
+- **Current behavior**: provider-backed skill evals requested with `--cli opencode` fail closed before spawning the CLI. Their results are not represented as isolated or comparable.
+- **Suggested next step**: re-check the official OpenCode CLI reference during platform-contract verification. Enable the branch only when the vendor documents a complete configuration-source exclusion.
 
 ### WN-3 - `tests/skills/test_target_manifest.py` is red on `develop`
 

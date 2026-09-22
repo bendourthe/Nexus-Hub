@@ -41,9 +41,8 @@ The pytest at catalog/hooks/tests/test_eval_loop.py::TestOptimizerDryRun
 asserts the dry-run output schema.
 
 Trigger-testing techniques (v2.3.0 / Phase 4):
-    `--model <name>` runs the trigger-rate estimation against a faster / cheaper
-    model (e.g. `--model haiku`) to surface descriptions that only trigger on
-    stronger models (a per-eval `model` field in evals.json overrides it).
+    `--model <name>` pins every provider-backed arm to the same model. A per-eval
+    `model` field may repeat that pin but cannot override it.
     `detect_premature_action()` flags a with_skill run that invoked another tool
     before loading the Skill, and `evaluate_multi_turn()` replays an ordered
     `turns` list and asserts the skill triggers at the designated turn. These
@@ -66,6 +65,10 @@ from typing import Any
 
 
 _SUPPORTED_CLIS = ("claude", "gemini", "codex", "opencode")
+_ISOLATION_LIMITATIONS = {
+    "gemini": "configuration isolation is not documented",
+    "opencode": "configuration isolation is not documented",
+}
 _DEFAULT_SEED = 42
 _DEFAULT_TRAIN_FRACTION = 0.6
 
@@ -123,7 +126,7 @@ def split_train_test(
 def build_cli_command(
     cli: str, prompt: str, skill_path: Path | None, model: str | None = None
 ) -> list[str]:
-    """Construct the argv for `cli`, optionally loading a skill and pinning a model.
+    """Construct an isolated argv for `cli` with a required model pin.
 
     Each branch references ONLY its matching CLI binary. Command construction is
     split out from `invoke_cli` so the cheap-model flag threading (T015) and the
@@ -134,36 +137,57 @@ def build_cli_command(
     in any of them.
     """
     assert cli in _SUPPORTED_CLIS, f"unsupported cli: {cli}"
+    if not model:
+        raise ValueError("provider-backed evals require a pinned model")
+    if cli in _ISOLATION_LIMITATIONS:
+        raise RuntimeError(f"{cli} {_ISOLATION_LIMITATIONS[cli]}; eval run refused")
 
     if cli == "claude":
-        cmd = ["claude", "-p", prompt]
+        cmd = [
+            "claude",
+            "-p",
+            prompt,
+            "--setting-sources",
+            "",
+            "--model",
+            model,
+        ]
         if skill_path is not None:
             cmd.extend(["--skill", str(skill_path)])
-        if model:
-            cmd.extend(["--model", model])
         return cmd
     if cli == "gemini":
-        cmd = ["gemini", "--workflow", prompt]
-        if skill_path is not None:
-            cmd.extend(["--skill-file", str(skill_path)])
-        if model:
-            cmd.extend(["--model", model])
-        return cmd
+        raise AssertionError("unreachable: gemini isolation preflight")
     if cli == "codex":
-        cmd = ["codex", "exec", prompt]
+        cmd = [
+            "codex",
+            "exec",
+            "--ignore-user-config",
+            "--ignore-rules",
+            "--ephemeral",
+            "--model",
+            model,
+            prompt,
+        ]
         if skill_path is not None:
             cmd.extend(["--prompt", str(skill_path)])
-        if model:
-            cmd.extend(["--model", model])
         return cmd
     if cli == "opencode":
-        cmd = ["opencode", "run", prompt]
-        if skill_path is not None:
-            cmd.extend(["--skill", str(skill_path)])
-        if model:
-            cmd.extend(["--model", model])
-        return cmd
+        raise AssertionError("unreachable: opencode isolation preflight")
     raise AssertionError(f"unreachable: cli={cli}")
+
+
+def resolve_pinned_model(
+    run_model: str | None, eval_model: Any, *, eval_id: str
+) -> str:
+    """Return the run pin or reject an eval entry that tries to change it."""
+    if not run_model:
+        raise ValueError("provider-backed evals require a pinned model")
+    if eval_model is not None and eval_model != run_model:
+        raise ValueError(
+            f"{eval_id}: eval model {eval_model!r} conflicts with pinned run model "
+            f"{run_model!r}"
+        )
+    return run_model
 
 
 def invoke_cli(
@@ -228,7 +252,9 @@ def run_raw_memory_condition(
     except (OSError, UnicodeError):
         return None
     prompt = build_raw_memory_prompt(eval_entry, raw_memory)
-    selected_model = eval_entry.get("model") or model
+    selected_model = resolve_pinned_model(
+        model, eval_entry.get("model"), eval_id=eval_id
+    )
     result = invoke_cli(cli, prompt, None, selected_model)
 
     outputs_dir = iteration_dir / eval_id / "raw_memory" / "outputs"
@@ -237,6 +263,7 @@ def run_raw_memory_condition(
     (outputs_dir / "response.txt").write_text(response, encoding="utf-8")
     metadata = {
         "cli": cli,
+        "model": selected_model,
         "skill_loaded": False,
         "memory_injected": True,
         "started_at": result.get("started_at"),
@@ -306,7 +333,9 @@ def estimate_trigger_rate(
         total = 0
         for q in queries:
             should_trigger = bool(q.get("should_trigger", True))
-            q_model = q.get("model") or model
+            q_model = resolve_pinned_model(
+                model, q.get("model"), eval_id=str(q.get("id", "<unknown>"))
+            )
             for _ in range(repeats):
                 result = invoke_cli(cli, q["query"], skill_path, q_model)
                 triggered = _detect_trigger(result["stdout"], description_under_test)
@@ -466,7 +495,11 @@ def evaluate_multi_turn(
     """
     turns = eval_entry.get("turns") or []
     expected_turn = int(eval_entry.get("trigger_turn", len(turns)))
-    q_model = eval_entry.get("model") or model
+    q_model = resolve_pinned_model(
+        model,
+        eval_entry.get("model"),
+        eval_id=str(eval_entry.get("id", "<unknown>")),
+    )
 
     per_turn_triggers: list[bool] = []
     for turn_prompt in turns:
@@ -520,6 +553,7 @@ def generate_candidates(
     description: str,
     train_passes: list[str],
     train_failures: list[str],
+    model: str | None = None,
 ) -> list[str]:
     """Ask the CLI to propose 3 candidate descriptions. Falls back to [description] on parse failure."""
     prompt = _CANDIDATE_PROMPT_TEMPLATE.format(
@@ -527,7 +561,7 @@ def generate_candidates(
         train_passes="\n".join(f"- {q}" for q in train_passes) or "- (none)",
         train_failures="\n".join(f"- {q}" for q in train_failures) or "- (none)",
     )
-    result = invoke_cli(cli, prompt, skill_path=None)
+    result = invoke_cli(cli, prompt, skill_path=None, model=model)
     try:
         candidates = json.loads(result["stdout"])
         if not isinstance(candidates, list):
@@ -576,7 +610,9 @@ def run_iteration(
     ]
     train_failures = [q["query"] for q in train if q["query"] not in train_passes]
 
-    candidate_strs = generate_candidates(cli, description, train_passes, train_failures)
+    candidate_strs = generate_candidates(
+        cli, description, train_passes, train_failures, model
+    )
     candidates = []
     for cand in candidate_strs:
         candidates.append(
@@ -600,6 +636,7 @@ def run_iteration(
 
     return {
         "skill_path": str(skill_path),
+        "model": model,
         "split": {
             "train_ids": [q["id"] for q in train],
             "test_ids": [q["id"] for q in test],
@@ -685,8 +722,8 @@ def main() -> int:
     parser.add_argument(
         "--model",
         default=None,
-        help="Run trigger-rate estimation against this (e.g. cheaper/faster) model; "
-        "a per-eval `model` field overrides it. Default: the CLI's default model.",
+        help="Required model pin for every provider-backed eval arm; a conflicting "
+        "per-eval model is rejected.",
     )
     parser.add_argument("--dry-run", action="store_true", help="Print plan and exit; no CLI calls")
     parser.add_argument(
@@ -707,6 +744,20 @@ def main() -> int:
         return 1
 
     evals = load_evals(args.evals)
+
+    if not args.dry_run and not args.model:
+        print(
+            "Error: provider-backed evals require --model with an explicit pin",
+            file=sys.stderr,
+        )
+        return 2
+
+    if not args.dry_run and args.cli in _ISOLATION_LIMITATIONS:
+        print(
+            f"Error: {args.cli} {_ISOLATION_LIMITATIONS[args.cli]}; eval run refused",
+            file=sys.stderr,
+        )
+        return 2
 
     if args.run_raw_memory:
         if args.dry_run or args.iteration_dir is None:

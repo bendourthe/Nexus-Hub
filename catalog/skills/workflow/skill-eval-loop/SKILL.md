@@ -89,7 +89,13 @@ For each `eval-XXX` in `evals.json`, spawn the two standard runs in the same ite
         └── run_metadata.json
 ```
 
-Both runs must use the same CLI (the one declared in step 1). The "with_skill" run loads the target skill via the CLI's skill-loading mechanism (Claude Code: `--skill <path>`; Gemini: `--workflow`; Codex: `--prompt`; OpenCode: `--skill` - the dispatcher in `references/cli-adapter.md` documents per-CLI invocations). The "without_skill" run is the same prompt with no skill. Run them **in parallel within the same turn** when the harness supports it; serial is acceptable when it does not.
+Both runs must use the same CLI (the one declared in step 1). The "with_skill" run loads the target skill through the runner contract in `references/cli-adapter.md`; the "without_skill" run uses the same prompt and pinned model with no target skill. The adapter documents which runners can satisfy full configuration isolation and which fail closed. Run paired arms **in parallel within the same turn** when the harness supports it; serial is acceptable when it does not.
+
+##### Prevent baseline self-contamination
+
+Nexus-Hub installs globally by default across every detected platform. Without runner configuration isolation, the operator's installed catalog remains live in both the candidate and BASELINE arms, so the skill under test is present in the control and the comparison measures the skill against itself. This failure returns a plausible number rather than an error.
+
+Every provider-backed arm must use the isolation and model-pin contract in `references/cli-adapter.md`. A runner with no documented all-configuration isolation fails closed. Paired results produced before this contract were measured without isolation and are not comparable to results produced after it. Re-capture any locked regression baseline or per-slice floor produced by the skill-eval loop before using it as a gate; never silently re-baseline it. A repository inventory on 2026-09-21 found no committed paired skill-eval result or skill-eval-loop baseline to re-capture. The context-compressor and code-search baseline files belong to separate deterministic harnesses and are not affected.
 
 When the eval entry declares a readable `raw_memory` path, create `raw_memory/` beside those two directories and run a third condition through the same dispatcher, CLI, model, settings, and eval query. Do not load the target skill in this condition; append the declared file verbatim as prior notes and record `skill_loaded: false` plus `memory_injected: true`. The notes must contain the same prior experience distilled into SKILL.md, not a newly authored substitute.
 

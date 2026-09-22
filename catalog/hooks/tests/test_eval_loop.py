@@ -34,8 +34,19 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 _OPTIMIZER = _REPO_ROOT / "scripts" / "optimize_skill_description.py"
 _AGGREGATOR = _REPO_ROOT / "scripts" / "aggregate_benchmark.py"
 _VIEWER = _REPO_ROOT / "scripts" / "skill_eval_viewer.py"
+_CLI_ADAPTER = (
+    _REPO_ROOT
+    / "catalog"
+    / "skills"
+    / "workflow"
+    / "skill-eval-loop"
+    / "references"
+    / "cli-adapter.md"
+)
 
 _SUPPORTED_CLIS = ("claude", "gemini", "codex", "opencode")
+_ISOLATED_CLIS = ("claude", "codex")
+_LIMITED_CLIS = ("gemini", "opencode")
 _DISPATCHER_SCRIPTS = (_OPTIMIZER,)
 
 
@@ -111,6 +122,55 @@ class TestEvalLoopCLIAdapter:
         assert f'if cli == "{cli}":' in source, (
             f"optimize_skill_description.py: missing `if cli == \"{cli}\":` branch"
         )
+
+    def test_reference_branch_set_matches_runtime(self) -> None:
+        text = _CLI_ADAPTER.read_text(encoding="utf-8")
+        documented = set(re.findall(r"\*\*Runner\*\*: `([^`]+)`", text))
+
+        assert documented == set(_SUPPORTED_CLIS), (
+            f"CLI adapter branch mismatch: runtime={set(_SUPPORTED_CLIS)}, "
+            f"reference={documented}"
+        )
+
+    @pytest.mark.parametrize("cli", _ISOLATED_CLIS)
+    def test_isolated_cli_has_required_flags_and_model_pin(
+        self, optimizer_module, cli: str
+    ) -> None:
+        cmd = optimizer_module.build_cli_command(
+            cli, "do a thing", Path("SKILL.md"), model="pinned-model"
+        )
+
+        assert cmd.count("--model") == 1
+        assert cmd[cmd.index("--model") + 1] == "pinned-model"
+        if cli == "claude":
+            assert "--setting-sources" in cmd
+            assert cmd[cmd.index("--setting-sources") + 1] == ""
+        else:
+            assert "--ignore-user-config" in cmd
+            assert "--ignore-rules" in cmd
+            assert "--ephemeral" in cmd
+
+    @pytest.mark.parametrize("cli", _LIMITED_CLIS)
+    def test_unisolated_cli_fails_closed(self, optimizer_module, cli: str) -> None:
+        with pytest.raises(RuntimeError, match=f"{cli}.*isolation"):
+            optimizer_module.build_cli_command(
+                cli, "do a thing", Path("SKILL.md"), model="pinned-model"
+            )
+
+    @pytest.mark.parametrize("cli", _SUPPORTED_CLIS)
+    def test_reference_records_isolation_or_sourced_limitation(self, cli: str) -> None:
+        text = _CLI_ADAPTER.read_text(encoding="utf-8")
+        match = re.search(
+            rf"\*\*Runner\*\*: `{cli}`(?P<body>.*?)(?=\n### |\n## Parity-test)",
+            text,
+            flags=re.DOTALL,
+        )
+
+        assert match is not None, f"missing reference section for {cli}"
+        body = match.group("body")
+        assert "**Isolation status**:" in body
+        assert "**Model pin**:" in body
+        assert "**Official source**:" in body
 
 
 # ── 2. Optimizer dry-run schema ──────────────────────────────────────────────
@@ -338,7 +398,11 @@ class TestRawMemoryDispatch:
 
         monkeypatch.setattr(optimizer_module, "invoke_cli", fake_invoke)
         run_dir = optimizer_module.run_raw_memory_condition(
-            "claude", evals_path, entry, tmp_path / "iteration-1"
+            "claude",
+            evals_path,
+            entry,
+            tmp_path / "iteration-1",
+            model="fixture-model",
         )
 
         assert run_dir == tmp_path / "iteration-1" / "eval-raw" / "raw_memory"
@@ -617,18 +681,58 @@ class TestMultiTurnTriggering:
 class TestCheapModelThreading:
     """T015: the --model flag threads through the dispatcher into every CLI branch."""
 
-    @pytest.mark.parametrize("cli", _SUPPORTED_CLIS)
+    @pytest.mark.parametrize("cli", _ISOLATED_CLIS)
     def test_build_cli_command_threads_model(self, optimizer_module, cli: str) -> None:
         cmd = optimizer_module.build_cli_command(cli, "do a thing", Path("SKILL.md"), model="haiku")
         assert cmd[0] == cli
         assert "--model" in cmd
         assert "haiku" in cmd
 
-    @pytest.mark.parametrize("cli", _SUPPORTED_CLIS)
-    def test_build_cli_command_omits_model_by_default(self, optimizer_module, cli: str) -> None:
-        cmd = optimizer_module.build_cli_command(cli, "do a thing", Path("SKILL.md"))
-        assert cmd[0] == cli
-        assert "--model" not in cmd
+    @pytest.mark.parametrize("cli", _ISOLATED_CLIS)
+    def test_build_cli_command_rejects_missing_model(self, optimizer_module, cli: str) -> None:
+        with pytest.raises(ValueError, match="pinned model"):
+            optimizer_module.build_cli_command(cli, "do a thing", Path("SKILL.md"))
+
+    def test_conflicting_eval_model_is_rejected(self, optimizer_module) -> None:
+        with pytest.raises(ValueError, match="conflicts with pinned run model"):
+            optimizer_module.resolve_pinned_model(
+                "run-model", "different-model", eval_id="eval-001"
+            )
+
+    def test_matching_eval_model_keeps_run_pin(self, optimizer_module) -> None:
+        assert (
+            optimizer_module.resolve_pinned_model(
+                "run-model", "run-model", eval_id="eval-001"
+            )
+            == "run-model"
+        )
+
+    def test_cli_rejects_unisolated_runner_before_invocation(
+        self, fixture_skill_and_evals: tuple[Path, Path]
+    ) -> None:
+        skill_md, evals = fixture_skill_and_evals
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(_OPTIMIZER),
+                "--skill",
+                str(skill_md),
+                "--evals",
+                str(evals),
+                "--cli",
+                "gemini",
+                "--model",
+                "fixture-model",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+
+        assert result.returncode == 2
+        assert "gemini configuration isolation is not documented" in result.stderr
+        assert "Traceback" not in result.stderr
 
     def test_model_flag_surfaces_in_dry_run(self, fixture_skill_and_evals: tuple[Path, Path]) -> None:
         skill_md, evals = fixture_skill_and_evals
