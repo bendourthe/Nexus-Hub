@@ -62,7 +62,7 @@ The third was performed while cache-and-diagram was **mid-implementation**, with
 Every class below was observed at least once across the three operations. This list is the acceptance surface for Phase 5.
 
 1. **Intra-tree version strings** - `**Version**:`, `**Filename**:`, and body prose inside the moved plan and comparison.
-2. **Relative plan links** - `[text](../../v4.11/plans/v4.11.0-....md)` from a sibling version tree.
+2. **Relative plan links** - link text paired with a sibling-relative target such as `../../v4.11/plans/v4.11.0-example.md`.
 3. **Link-reference definitions** - `[N8]: ../../../../../docs/releases/v4/v4.11/plans/....md`, which a link-text-only scan misses entirely.
 4. **Self-referential paths inside a plan's own task lines** - 26 task lines in this plan each name a `docs/releases/v4/v4.10/development/...` output path.
 5. **Tracker dashboard rows** - `| v4.11.0 implementation tasks complete | ... |` in `docs/todos.md`.
