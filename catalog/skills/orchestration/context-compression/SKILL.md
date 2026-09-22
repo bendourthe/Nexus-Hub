@@ -2,7 +2,7 @@
 name: context-compression
 description: Minimize tokens per task in long-running agent sessions while preserving critical information. Use when hitting context limits, preparing session handoffs, or managing verbose tool outputs.
 summary_l0: "Minimize tokens per task while preserving critical information in agent sessions"
-overview_l1: "This skill minimizes tokens per task in long-running agent sessions while preserving critical information. Use it when hitting context limits, preparing session handoffs, managing verbose tool outputs, or needing to extend effective session duration. Key capabilities include selective context retention (keeping decisions, discarding exploration), tool output compression and summarization, session handoff document generation, token budget tracking and forecasting, verbose log suppression strategies, critical information extraction from large outputs, and checkpoint-based context management. The expected output is compressed context with retained critical information, token usage reports, and session handoff documents. Trigger phrases: context compression, token limit, session handoff, compress context, reduce tokens, verbose output, session management, context budget."
+overview_l1: "This skill minimizes tokens per task in long-running agent sessions while preserving critical information. Use it when hitting context limits, preparing session handoffs, managing verbose tool outputs, or needing to extend effective session duration. Key capabilities include selective context retention (discarding superseded exploration while preserving eliminating evidence), tool output compression and summarization, session handoff document generation, token budget tracking and forecasting, verbose log suppression strategies, critical information extraction from large outputs, and checkpoint-based context management. The expected output is compressed context with retained critical information, token usage reports, and session handoff documents. Trigger phrases: context compression, token limit, session handoff, compress context, reduce tokens, verbose output, session management, context budget."
 ---
 
 # Context Compression
@@ -83,7 +83,7 @@ Is this an emergency (context at 90%+)?
 
 See also: [SESSION_LIFECYCLE_DECISIONS.md](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) for the companion decision tree on continue vs `/rewind` vs `/clear` vs `/compact`.
 
-The approaches A / B / C above choose *how* to compress. The decision of *when and how aggressively* to compress also matters. Default posture: **steer compaction proactively rather than waiting for autocompact**.
+The approaches A / B / C above choose *how* to compress. The decision of *whether and when* to compress also matters. Apply the evidence-gated [compaction fire/suppress rubric](references/compaction-rubric.md) before choosing an approach. This skill owns that decision; `[[context-degradation]]` owns degradation severity.
 
 **When to steer proactively** (before engaging any of the A/B/C approaches):
 
@@ -92,6 +92,10 @@ The approaches A / B / C above choose *how* to compress. The decision of *when a
 - You want to shed closed-thread content while keeping the live thread fully intact.
 
 Waiting for autocompact is the **bad-compact failure mode**: the automatic trigger fires mid-reasoning, drops context Claude was about to use, and quality tanks for the next several turns. See `guides/reference/TOKEN_OPTIMIZATION.md` for the recognition signals.
+
+#### Retain eliminating evidence
+
+Discard only exploration that has been superseded and no longer constrains the work. Preserve dead-end queries, failed hypotheses, and negative results when they eliminate paths the agent would otherwise retry. As comparison insight S5 records, a trajectory is not summarizable when its value is dispersed across many small inferences, including a list of dead-end queries needed to avoid retries or negative results that constrain the hypothesis space. See the [v4.10.1 comparison](../../../../docs/releases/v4/v4.10/comparisons/v4.10.1-comparison-eval-isolation-and-adaptive-compaction.md#section-4---evidence-and-insights).
 
 **Syntax**: `/compact focus on <current work>, drop <closed threads>`
 
@@ -337,7 +341,7 @@ After compressing, verify no critical information was lost.
 |---|---|
 | "I will just keep going; the context window is not full yet." | Quality degrades well before the hard limit -- around 70-80% capacity the agent starts dropping earlier decisions silently. Waiting for a hard truncation means you compress under duress, with no chance to validate what was lost. |
 | "Summarizing in my head is enough; I do not need to write a handoff file." | An in-context summary evaporates the moment the session compacts or ends. Only a summary written to a file survives a `/clear`, a crash, or a handoff to another session. |
-| "I will compress aggressively and drop the tool outputs to save the most tokens." | Discarding raw exploration is fine, but dropping a file-modification record or a decision rationale means the next turn re-derives (and may re-break) work already done. Compress exploration, never the decisions and file changes. |
+| "I will compress aggressively and drop the tool outputs to save the most tokens." | Discard only superseded exploration. Dead ends and negative results can be eliminating evidence; dropping them makes the next turn retry paths already ruled out. |
 
 ## Verification
 
