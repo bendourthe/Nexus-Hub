@@ -33,7 +33,7 @@ _SECURITY = [
 _DECISION = (
     _ROOT
     / "docs"
-    / "releases"
+    / "archives"
     / "v4"
     / "v4.7"
     / "development"
