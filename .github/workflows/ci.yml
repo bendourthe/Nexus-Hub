@@ -688,8 +688,8 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install the Claude Code host without lifecycle scripts
-        run: npm install --global --ignore-scripts @anthropic-ai/claude-code
+      - name: Install the Claude Code host with its native binary
+        run: npm install --global @anthropic-ai/claude-code
 
       - name: Install and verify Nexus-Hub from an isolated host configuration
         env:

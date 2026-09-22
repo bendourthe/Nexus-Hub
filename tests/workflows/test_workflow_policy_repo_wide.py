@@ -263,7 +263,8 @@ def test_claude_plugin_load_job_is_bounded_isolated_and_job_filtered() -> None:
     assert checkout.get("with", {}).get("persist-credentials") is False
 
     commands = "\n".join(str(step.get("run", "")) for step in job["steps"])
-    assert "npm install --global --ignore-scripts @anthropic-ai/claude-code" in commands
+    assert "npm install --global @anthropic-ai/claude-code" in commands
+    assert "--ignore-scripts @anthropic-ai/claude-code" not in commands
     assert "CLAUDE_CONFIG_DIR" in str(job)
     assert "runner.temp" in str(job)
     assert "claude plugin marketplace add ./" in commands
