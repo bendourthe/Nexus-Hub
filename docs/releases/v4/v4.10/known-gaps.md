@@ -1,6 +1,6 @@
 # Known gaps - v4.10
 
-**Status**: implementation closure complete. v4.10.0 merged into `develop` in PR #198 and shipped inside v4.11.0 without a retroactive v4.10.0 tag. v4.10.1 implementation and local qualification are complete; publication is tracked as T034 in its plan.
+**Status**: implementation and publication closure complete. v4.10.0 merged into `develop` in PR #198 and shipped inside v4.11.0 without a retroactive v4.10.0 tag. v4.10.1 merged into `develop` through PR #232 at `c54dbeb4`; T034 is complete, and no retroactive v4.10.1 tag is planned. The five bounded items below remain known limitations, not unfinished plan tasks.
 
 Unfinished work, deferrals, and defects found during v4.10.0 that did not reach a clean state. Open items carry forward into the next plan's ingest.
 
