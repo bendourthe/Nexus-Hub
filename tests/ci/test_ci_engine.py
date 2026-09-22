@@ -19,6 +19,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -108,6 +109,7 @@ def test_every_command_declares_a_timeout():
 
 
 def test_repository_suite_timeout_covers_the_measured_windows_baseline():
+    """The CI safety cap covers its measured runner, not every local host."""
     repo_tests = next(
         command
         for group in groups_for("full")
@@ -198,6 +200,37 @@ def test_a_timeout_is_a_failure_not_a_pass():
     assert "exceeded 1s" in result.reason
 
 
+def test_timeout_kills_process_tree_and_preserves_partial_output(tmp_path, capsys):
+    marker = tmp_path / "child-survived.txt"
+    child_code = (
+        "import pathlib,time;"
+        "time.sleep(2.5);"
+        f"pathlib.Path({str(marker)!r}).write_text('alive', encoding='utf-8')"
+    )
+    parent_code = (
+        "import subprocess,sys,time;"
+        "print('partial-output', flush=True);"
+        f"subprocess.Popen([sys.executable, '-c', {child_code!r}]);"
+        "time.sleep(30)"
+    )
+    command = Command(name="tree-timeout", argv=[PY, "-c", parent_code], timeout=1)
+
+    started = time.monotonic()
+    group = Group(name="timeout-group", commands=(command,))
+    group_result = run_mod.run_group(
+        group, detect_platform(), _all_scopes(), REPO_ROOT, [], quiet=True
+    )
+    result = group_result.commands[0]
+    duration = time.monotonic() - started
+    time.sleep(2)
+
+    assert duration < 2
+    assert result.status == "timeout"
+    assert "partial-output" in result.output
+    assert "tree-timeout" in capsys.readouterr().out
+    assert not marker.exists()
+
+
 def test_a_missing_executable_is_a_failure_not_a_pass():
     """A missing tool and a passing tool must never look the same."""
     missing = Command(name="ghost", argv=["definitely-not-a-real-binary-xyz"], timeout=30)
@@ -258,6 +291,42 @@ def test_a_group_keeps_running_after_a_failure():
     group = Group(name="g", commands=(_fail("first"), _fail("second")))
     result = run_mod.run_group(group, detect_platform(), _all_scopes(), REPO_ROOT, [], quiet=True)
     assert [c.status for c in result.commands] == ["fail", "fail"]
+
+
+def test_group_renders_missing_working_directory(capsys):
+    command = Command(name="nowhere", argv=[PY, "-c", "pass"], cwd="no/such/dir", timeout=30)
+    group = Group(name="g", commands=(command,))
+
+    run_mod.run_group(group, detect_platform(), _all_scopes(), REPO_ROOT, [], quiet=True)
+
+    output = capsys.readouterr().out
+    assert "[MISSING] nowhere" in output
+    assert "working directory not found" in output
+
+
+def test_group_renders_missing_executable(capsys):
+    command = Command(name="ghost", argv=["definitely-not-a-real-binary-xyz"], timeout=30)
+    group = Group(name="g", commands=(command,))
+
+    run_mod.run_group(group, detect_platform(), _all_scopes(), REPO_ROOT, [], quiet=True)
+
+    output = capsys.readouterr().out
+    assert "[MISSING] ghost" in output
+    assert "executable not found on PATH" in output
+
+
+def test_group_renders_launch_error(monkeypatch, capsys):
+    def fail_to_launch(*args, **kwargs):
+        raise PermissionError("launch blocked")
+
+    monkeypatch.setattr(run_mod.subprocess, "Popen", fail_to_launch)
+    group = Group(name="g", commands=(_ok("blocked"),))
+
+    run_mod.run_group(group, detect_platform(), _all_scopes(), REPO_ROOT, [], quiet=True)
+
+    output = capsys.readouterr().out
+    assert "[MISSING] blocked" in output
+    assert "PermissionError: launch blocked" in output
 
 
 def test_off_platform_commands_are_recorded_as_skips_not_omitted():

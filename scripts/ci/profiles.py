@@ -237,6 +237,9 @@ TESTS = Group(
     name="tests",
     scope_key="tests",
     commands=(
+        # These are enforceable CI safety bounds, not local performance SLOs.
+        # A contended workstation may exceed them; do not tune shared limits
+        # from that observation. Recalibrate only from quiet CI measurements.
         _pytest("hook-tests", "catalog/hooks/tests", timeout=1800),
         # The Windows suite has a measured 3341.7s passing baseline. A 3600s
         # limit left only 7.7% variance and timed out a subsequent green-path

@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-09-16
+**Last updated**: 2026-09-21
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -17,7 +17,7 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 | Bugs / regressions (BG) | 0 | 6 |
 | Warnings (WN) | 5 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 2 | 1 |
+| Quality-gate gaps (QG) | 0 | 3 |
 
 ### Open Items
 
@@ -55,7 +55,9 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 
 **Owner**: `ai-agent-development`. **Status**: open. **Suggested next step**: confirm the two tests execute rather than skip in the CI `tests` job; if the Windows leg must cover them, the runner needs developer mode or an elevated step, which is a CI change outside this plan.
 
-#### QG-2: A timed-out CI step reports nothing at all
+### Resolved Items
+
+#### QG-2: A timed-out CI step reports nothing at all - RESOLVED
 
 **Source phase**: Phase 7. **Plan reference**: T029, T033. **Reason**: in `scripts/ci/run.py`, the `subprocess.TimeoutExpired` handler returns at line 100, before the `[ok ] / [FAIL]` rendering block at line 122. A step killed by its timeout therefore increments the failed count while naming neither itself nor its reason. The entire output of a two-step failure is `FAIL: 0 passed, 2 failed, 0 skipped, 0 advisory in 6300.2s`.
 
@@ -63,13 +65,15 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 
 **Wider than first recorded**: reading the code found FOUR early-return paths that all skip the rendering block at line 122, not one. Working directory not found (line 65), executable not on PATH (line 73), timeout (line 100), and `OSError` on launch (line 109). All four satisfy `counts_as_failure`, so any of them fails the run silently. The missing-executable case is arguably worse than the timeout, because an environment problem is then indistinguishable from a test problem.
 
-**Owner**: repository maintainer, via `[[cicd-architect]]`. **Status**: open, approach approved, scheduled outside this plan.
+**Owner**: repository maintainer, via `[[cicd-architect]]`. **Status**: resolved 2026-09-21.
+
+**Resolution evidence**: `scripts/ci/run.py` now renders every `CommandResult` from the single production caller, `run_group`, so missing working directories, missing executables, launch errors, ordinary failures and timeouts all name the step and reason. `tests/ci/test_ci_engine.py` covers each formerly silent early return through that caller.
 
 **Agreed solution (maintainer, 2026-09-17)**: move rendering out of `run_command` into `run_group`, driven by the `CommandResult`, so one renderer covers every status including all four early returns; and capture `TimeoutExpired.stdout`/`.stderr` so a killed step still shows its last lines. Chosen over patching each early return individually, because that fixes four instances of a class while this removes the class. Risk is low: `run_command` has one production caller, and the nine test call sites in `tests/ci/test_ci_engine.py` assert on the returned object rather than on stdout.
 
 **Deliberately not applied in v4.13.0**: the release is finished and validated, and touching the gate engine would require re-running a 2.4-hour gate to prove the gate still works. Scheduled as its own focused change against `develop` after v4.13.0 merges, with a regression test asserting that each of the four statuses prints its name and reason.
 
-#### QG-3: The `tests` group has no enforceable time bound when a step spawns a process tree
+#### QG-3: The `tests` group has no enforceable time bound when a step spawns a process tree - RESOLVED
 
 **Source phase**: Phase 7. **Plan reference**: T033. **Corrected 2026-09-20**: this entry originally recorded a slow host. Two different problems were being read as one, and the second is worse than the first.
 
@@ -83,11 +87,11 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 
 **Evidence**: [`development/repro/ci-runner-timeout-hang.py`](development/repro/ci-runner-timeout-hang.py) reduces it to the part that matters and prints a verdict. Observed: a 5-second timeout did not return after 30 seconds. This is the load-bearing evidence precisely because it is uncontaminated, deterministic, and runs in half a minute on any host.
 
-**Owner**: repository maintainer, via `[[cicd-architect]]`. **Status**: open.
+**Owner**: repository maintainer, via `[[cicd-architect]]`. **Status**: resolved 2026-09-21.
+
+**Resolution evidence**: command output now goes to temporary files rather than inherited pipes, each command starts in its own process group, and timeout handling terminates the process tree before reading partial output. `test_timeout_kills_process_tree_and_preserves_partial_output` fails on the old implementation and now proves prompt return, `timeout` status, retained partial output, named rendering and no surviving child. The timeout-policy question is also settled in `scripts/ci/profiles.py`: the caps are CI safety bounds calibrated from quiet runner measurements, not local performance SLOs, and a contended workstation is not a reason to raise them.
 
 **Suggested next step**: fix this together with QG-2 in ONE change, because both live in `run_command`'s result handling and fixing them separately touches the same function twice. Give the subprocess temp files instead of pipes: with no inherited pipe there is nothing to block on, `TimeoutExpired` returns promptly, the kill is effective, and the partial output stays readable from the file, which is exactly the output QG-2 says a killed step must print. Add a regression test asserting that a tree-spawning step is killed, reports `timeout`, and prints its partial output. Separately, and still open, decide whether the caps describe CI runners only, in which case document that a contended workstation is expected to exceed them, or whether local runs are meant to fit, in which case re-measure on a quiet machine. Do NOT raise the cap from a contended host's timing: that tunes a shared guard to the slowest observation and removes the protection the cap exists to provide. Neither problem is caused by this plan, which added roughly 180 tests running in about one second.
-
-### Resolved Items
 
 #### DF-1: Phase 6 trigger pilot deferred as UNMEASURED -- RESOLVED (measured)
 

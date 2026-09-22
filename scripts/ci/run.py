@@ -21,8 +21,10 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
+import signal
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -56,6 +58,35 @@ def _tool_versions() -> dict[str, str]:
     return tools
 
 
+def _read_capture(stream) -> str:
+    stream.flush()
+    stream.seek(0)
+    return stream.read().decode("utf-8", errors="replace")
+
+
+def _terminate_process_tree(proc: subprocess.Popen) -> None:
+    """Stop a timed-out command and every child that inherited its handles."""
+    if os.name == "nt":
+        subprocess.run(
+            ["taskkill", "/PID", str(proc.pid), "/T", "/F"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+            timeout=10,
+        )
+    else:
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+
+    try:
+        proc.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait()
+
+
 def run_command(cmd: Command, repo_root: Path, secrets: list[str], quiet: bool) -> CommandResult:
     """Execute one command, capturing output and never raising."""
     cwd = (repo_root / cmd.cwd).resolve()
@@ -86,46 +117,46 @@ def run_command(cmd: Command, repo_root: Path, secrets: list[str], quiet: bool) 
     env.setdefault("PYTHONIOENCODING", "utf-8")
     env.setdefault("PYTHONUTF8", "1")
 
-    try:
-        proc = subprocess.run(
-            list(cmd.argv),
-            cwd=str(cwd),
-            capture_output=True,
-            text=True,
-            timeout=cmd.timeout,
-            env=env,
-            encoding="utf-8",
-            errors="replace",
-        )
-    except subprocess.TimeoutExpired:
-        return CommandResult(
-            name=cmd.name,
-            group="",
-            status="timeout",
-            duration_s=time.monotonic() - started,
-            reason=f"exceeded {cmd.timeout}s",
-        )
-    except OSError as exc:
-        return CommandResult(
-            name=cmd.name,
-            group="",
-            status="missing",
-            duration_s=time.monotonic() - started,
-            reason=f"{type(exc).__name__}: {exc}",
-        )
+    with tempfile.TemporaryFile() as stdout_file, tempfile.TemporaryFile() as stderr_file:
+        popen_kwargs = {"start_new_session": True} if os.name != "nt" else {
+            "creationflags": subprocess.CREATE_NEW_PROCESS_GROUP
+        }
+        try:
+            proc = subprocess.Popen(
+                list(cmd.argv),
+                cwd=str(cwd),
+                stdout=stdout_file,
+                stderr=stderr_file,
+                env=env,
+                **popen_kwargs,
+            )
+            proc.wait(timeout=cmd.timeout)
+        except subprocess.TimeoutExpired:
+            _terminate_process_tree(proc)
+            duration = time.monotonic() - started
+            output = reporting.redact(_read_capture(stdout_file) + _read_capture(stderr_file), secrets)
+            return CommandResult(
+                name=cmd.name,
+                group="",
+                status="timeout",
+                duration_s=duration,
+                reason=f"exceeded {cmd.timeout}s",
+                output=output,
+            )
+        except OSError as exc:
+            return CommandResult(
+                name=cmd.name,
+                group="",
+                status="missing",
+                duration_s=time.monotonic() - started,
+                reason=f"{type(exc).__name__}: {exc}",
+            )
+
+        output = reporting.redact(_read_capture(stdout_file) + _read_capture(stderr_file), secrets)
 
     duration = time.monotonic() - started
-    output = reporting.redact((proc.stdout or "") + (proc.stderr or ""), secrets)
     passed = proc.returncode == 0
     status = "pass" if passed else ("advisory-fail" if cmd.advisory else "fail")
-
-    if not quiet or not passed:
-        mark = "ok  " if passed else "FAIL"
-        print(f"  [{mark}] {cmd.name} ({duration:.1f}s)")
-        if not passed:
-            tail = output.rstrip().splitlines()[-12:]
-            for line in tail:
-                print(f"         {line}")
 
     return CommandResult(
         name=cmd.name,
@@ -136,6 +167,24 @@ def run_command(cmd: Command, repo_root: Path, secrets: list[str], quiet: bool) 
         output=output,
         reason="" if passed else f"exit {proc.returncode}",
     )
+
+
+def _render_command_result(outcome: CommandResult, quiet: bool) -> None:
+    if quiet and outcome.status == "pass":
+        return
+
+    mark = {
+        "pass": "ok  ",
+        "fail": "FAIL",
+        "advisory-fail": "WARN",
+        "timeout": "TIMEOUT",
+        "missing": "MISSING",
+    }[outcome.status]
+    reason = f"; {outcome.reason}" if outcome.reason else ""
+    print(f"  [{mark}] {outcome.name} ({outcome.duration_s:.1f}s{reason})")
+    if outcome.status != "pass":
+        for line in outcome.output.rstrip().splitlines()[-12:]:
+            print(f"         {line}")
 
 
 def run_group(
@@ -179,6 +228,7 @@ def run_group(
     for cmd in applicable:
         outcome = run_command(cmd, repo_root, secrets, quiet)
         outcome.group = group.name
+        _render_command_result(outcome, quiet)
         result.commands.append(outcome)
         if outcome.counts_as_failure:
             result.status = "fail"
