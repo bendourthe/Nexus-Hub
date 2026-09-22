@@ -154,6 +154,8 @@ None.
 
 ##### DF-1 - Report artifacts are published to the run summary, not uploaded
 
+**Follow-up status, 2026-09-22**: The existing pinned `actions/upload-artifact` reference now uploads seven-day report bundles from the validation, shell, test, Windows, post-merge, and release-readiness jobs; the guide-render job also emits and uploads JUnit. The local workflow contract passed 63 tests, the fast profile passed 16 checks, and the guide command wrote JUnit after 380 passing tests and one optional skip. This gap remains open until a pull-request run proves that the artifacts are retained on GitHub.
+
 - **Source phase**: Phase 7 - Nexus-Hub workflow migration
 - **Plan reference**: `docs/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` (T049)
 - **Reason**: The lifecycle contract section 6 asks for detailed reports uploaded with `if: always()` and a short explicit retention period. Uploading requires `actions/upload-artifact`, and every third-party action in this repository is pinned to a full 40-character commit SHA. That SHA has to be FETCHED from the vendor; it cannot be recalled or inferred. Nexus-Hub has made exactly this mistake before, in the opposite direction: the `.kimi/agent.yaml` companion shipped in v3.15.0 was fabricated rather than found, and had to be dropped. Writing a plausible-looking SHA would break every run at once, and writing a floating `@v4` tag would violate the pinning rule the same phase asserts.
