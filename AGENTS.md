@@ -410,6 +410,30 @@ Nexus-Hub is a **template repository**. Nothing you add is "live" until a user r
 
 **Golden rule**: every change you propose must be shaped so that after the next installer run, it reaches Claude Code, Cursor, Codex, Gemini/Antigravity, OpenCode, and Copilot -- on Windows, macOS, and Linux -- without any manual step on the user's part.
 
+### Runtime integration debugging entry points
+
+When debugging or changing one runtime, open the file below first. These rows are derived from the registered integration classes in `scripts/lib/integrations/`; `docs/policy/platform-read-contracts.json` remains the source of truth for what each runtime reads, while this table identifies where its Nexus-Hub behavior starts. Aider, Antigravity 1.0, and Hermes have registered adapters but no `contract_checks` entry, so their rows make no read-path claim.
+
+| Runtime | Registry key | Open first |
+|---|---|---|
+| Aider | `aider` | `scripts/lib/integrations/aider.py` |
+| Antigravity 1.0 (Google) | `antigravity` | `scripts/lib/integrations/antigravity.py` |
+| Antigravity 2.0 + CLI (Google) | `antigravity2` | `scripts/lib/integrations/antigravity.py` |
+| Claude Code (Anthropic) | `claude` | `scripts/lib/integrations/claude.py` |
+| Codex (OpenAI) | `codex` | `scripts/lib/integrations/codex.py` |
+| GitHub Copilot (Microsoft) | `copilot` | `scripts/lib/integrations/copilot.py` |
+| Cursor | `cursor` | `scripts/lib/integrations/cursor.py` |
+| Gemini (Google) | `gemini` | `scripts/lib/integrations/gemini.py` |
+| Gemini CLI (Google, ENTERPRISE-ONLY post-2026-06-18) | `gemini-cli` | `scripts/lib/integrations/gemini_cli.py` |
+| Hermes | `hermes` | `scripts/lib/integrations/hermes.py` |
+| Kimi Code CLI | `kimi` | `scripts/lib/integrations/kimi.py` |
+| Nexus-AI (Local Desktop Studio) | `nexus-ai` | `scripts/lib/integrations/nexus_ai.py` |
+| OpenClaw | `openclaw` | `scripts/lib/integrations/openclaw.py` |
+| OpenCode | `opencode` | `scripts/lib/integrations/opencode.py` |
+| Pi | `pi` | `scripts/lib/integrations/pi.py` |
+| Qwen Code | `qwen` | `scripts/lib/integrations/qwen.py` |
+| Devin Desktop / Windsurf | `windsurf` | `scripts/lib/integrations/windsurf.py` |
+
 ### Distribution channels the installer uses
 
 | Artifact you add/modify | Installer edit required? | Platforms reached |
