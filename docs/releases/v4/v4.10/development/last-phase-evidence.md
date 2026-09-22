@@ -405,4 +405,14 @@ Focused stabilization also passed: registry and CI consumers, 90 tests; workflow
 
 ## Publication and integration
 
-Pending. Resolved model: develop plus main, with `develop` as the protected integration target. Remote: `origin` (`bendourthe/Nexus-Hub`). Source branch: `feat/v4.10.1-eval-isolation-and-compaction`. The user's instruction to finish, merge, and clean the v4.0-v4.13 work authorizes the plan's first publication and integration after the local full gate passes. Required checks and the post-merge run will be recorded here from terminal GitHub results.
+Completed 2026-09-22 through [PR #232](https://github.com/bendourthe/Nexus-Hub/pull/232). The source branch `feat/v4.10.1-eval-isolation-and-compaction` targeted protected `develop`; GitHub merged it as `c54dbeb4e68296ac95ec3adb79777b4d674503c5` after the final check set was terminal green.
+
+The failed PR iterations remain part of the evidence rather than being rewritten as success:
+
+1. `claude-plugin-load` failed because `npm install --global --ignore-scripts @anthropic-ai/claude-code` no longer installs the required native binary. Commit `a547f01a` removed the contradictory flag; a fresh isolated install reported Claude Code 2.1.280, and the final hosted job passed.
+2. Presentify `verify` failed Ruff RUF007 on successive SVG segment pairs. Commit `871ea4ee` used `itertools.pairwise`; the exact Ruff command passed and 214 Presentify scorer tests passed before publication.
+3. `validate` failed because the overview handbook evidence file carried a stale SHA-256 for its final content-review artifact. Commit `197ca22d` rebound that immutable review; both handbooks verified, 33 handbook tests passed, and the docs profile passed 8/8 before publication.
+
+The final PR revision passed `changes`, `validate`, `shellcheck`, `tests` (14m42s), `tests-windows` (20m40s), all three bootstrap jobs, all three install-smoke jobs, all three installer-smoke jobs, `claude-plugin-load`, `guide-render` (7m42s), `ci-required`, both CodeQL language analyses plus the aggregate CodeQL check, Doc Co-location, and Presentify `detect` and `verify`. Presentify `render` was skipped by its declared change detector, not treated as executed.
+
+Post-merge run [35789442554](https://github.com/bendourthe/Nexus-Hub/actions/runs/35789442554) passed on merge commit `c54dbeb4`. Its only jobs were `provenance` and `smoke`; the smoke job ran the fast profile against the merged tree, and the workflow did not rerun the complete suite. T034 is complete. Release publication remains separate, and no retroactive v4.10.1 tag is planned for this historical closure.

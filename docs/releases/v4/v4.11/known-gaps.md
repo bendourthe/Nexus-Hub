@@ -1,7 +1,7 @@
 # Known Gaps - v4.11
 
 **Project**: Nexus-Hub
-**Status**: released family with bounded open gaps. v4.11.0 was published at tag `v4.11.0` (`0f68fa1a`) and v4.11.2 at tag `v4.11.2` (`dfe302fb`). No v4.11.1 tag exists; its cache-and-diagram implementation is complete locally and awaits the shared historical-closure integration. The v4.10.0 work shipped inside v4.11.0, so the missing v4.10.0 tag remains an intentional skipped number rather than an unpublished release. Open entries below remain explicit hosted-scan, feature-boundary, or manual-validation limitations.
+**Status**: released family with bounded open gaps. v4.11.0 was published at tag `v4.11.0` (`0f68fa1a`) and v4.11.2 at tag `v4.11.2` (`dfe302fb`). No v4.11.1 tag exists; its cache-and-diagram implementation merged into `develop` through PR #232 at `c54dbeb4`, completing T025 as historical closure inside the later released family. The v4.10.0 work shipped inside v4.11.0, so the missing v4.10.0 tag remains an intentional skipped number rather than an unpublished release. Open entries below remain explicit hosted-scan, feature-boundary, or manual-validation limitations.
 **Last updated**: 2026-09-22
 
 ## Carried into v4.11.0 from earlier cycles - CodeQL backlog
@@ -78,7 +78,7 @@ passes.
 
 ## v4.11.0 - interactive-handbooks-and-presentation-default
 
-**Status**: Phases 1-6 complete (21 of 31 tasks); Phase 7 open and in progress. The line below was written mid-Phase-6 and its detail is retained as the record of that round; the phase closed with QG-2 recorded as UNMET and carried forward, not waived. No accepted gate bypass. Native sandbox writes, Chromium and explicit installed-skill loading work. A cross-profile probe exposed discarded deny rules in CLI 0.153.4; temporary CLI 0.154.0 applies the configured denials and passes all five tested forbidden reads. The current affected suite passes 510 tests and all 30 catalog checks. One of three native authoring families is independently accepted: the report. The latest repository fails branding placement and semantic process motion; the previous presentation fails native chart-title contrast. Corrected shared guidance is under fresh serialized qualification with frozen inputs, predeclared time limits and three internal repairs. Original failed artifacts remain unchanged. Full feature/design and native export qualification, the Phase 6 commit and Phase 7 integration remain open. See [Phase 6 evidence](development/interactive-handbooks/phase-6-evidence.md).
+**Status**: COMPLETE AND RELEASED - 7/7 phases and 31/31 tasks. PR #202 merged into `develop` as `48bf552a`, and tag `v4.11.0` was published at `0f68fa1a`. The paragraphs below retain the mid-Phase-6 failure record rather than rewriting it as success; QG-2 closed as unmet and remains a bounded limitation. See [Phase 6 evidence](development/interactive-handbooks/phase-6-evidence.md) and the plan's current completion status.
 
 ### Summary
 

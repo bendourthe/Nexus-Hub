@@ -1,14 +1,14 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** v4.10.1 [eval isolation and adaptive compaction](releases/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md) and v4.11.1 [cache accounting and diagram quality](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md) are locally complete. Their only remaining plan tasks are publication and integration into `develop`; the shared closure branch also resolves the fast-profile registry blind spot and the live repository-description drift without changing the deliberately open vendor and host-rendering limitations.
+**Active work:** No v4.0-v4.13 implementation or publication task remains open. The shared historical-closure work for v4.10.1 and v4.11.1 merged into `develop` through PR #232 at `c54dbeb4`; bounded vendor, hosted-scan, and manual-rendering limitations remain in their known-gaps ledgers rather than as unfinished plan tasks.
 **Last refreshed:** 2026-09-22
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
-- [ ] Implement the queued [v4.11.0 master interactive-handbooks plan](releases/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md). All source analyses and approved-build lessons, including final fullscreen, motion sequencing, headerless layout, PowerPoint export and standalone sharing, are consolidated into R01-R30, conflict resolutions and 31 mapped tasks. Implementation remains 0/7 phases and 0/31 tasks; earlier isolated command/skill drafts require reconciliation before adoption. The active guide work remains unchanged.
+- [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
 
 ---
 
@@ -28,9 +28,9 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 | v4.11.0 interactive-handbook tasks complete | 31 | 31 | 0 |
 | v4.11.0 accepted native authoring families | 2 | 3 | 1 |
 | v4.10.0 implementation tasks complete | 26 | 26 | 0 |
-| v4.10.1 implementation tasks complete | 33 | 34 | 1 |
+| v4.10.1 implementation tasks complete | 34 | 34 | 0 |
 | v4.11.1 comparison and plan prepared | 2 | 2 | 0 |
-| v4.11.1 implementation tasks complete | 24 | 25 | 1 |
+| v4.11.1 implementation tasks complete | 25 | 25 | 0 |
 | v4.13.0 comparison and plan prepared | 2 | 2 | 0 |
 | v4.17.3 harness-economics comparison and plan prepared | 2 | 2 | 0 |
 | v4.13.0 implementation tasks complete | 34 | 34 | 0 |
@@ -49,11 +49,11 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 ## Current closure - v4.10.1 eval isolation and adaptive compaction
 
-- [ ] Publish and integrate the completed [v4.10.1 adoption plan](releases/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md). Phases 1-6 and Phase 7 duties T025-T033 are complete; T034 is the single remaining publication task.
+- [x] Published and integrated the completed [v4.10.1 adoption plan](releases/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md) through PR #232, merged to `develop` at `c54dbeb4`. T034 is complete; no retroactive v4.10.1 tag is planned.
 
 ## Current closure - v4.11.1 cache accounting and diagram quality
 
-- [ ] Publish and integrate the completed [v4.11.1 adoption plan](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md). All six phases and final duties T016-T024 are complete; T025 is the single remaining publication task. The Tier 3 pass records the honest `MT-10` limitation: current repository diagrams use `<path>`, outside the narrow geometry envelope, so the new checks return `unchecked` rather than guessing.
+- [x] Published and integrated the completed [v4.11.1 adoption plan](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md), through PR #232 at `c54dbeb4`. T025 is complete. The honest `MT-10` limitation remains open: current repository diagrams use `<path>`, outside the narrow geometry envelope, so the new checks return `unchecked` rather than guessing.
 
 ## Queued work - v4.17.3 harness economics and portable engineering systems
 
@@ -106,11 +106,11 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [x] Keep prompt text plain until its matching box activates, slow both annotation sequences, and compact attachment thumbnails beside their labels; 145 focused tests, 12 layout checks, four timing cases, and 36 preview interactions pass, with one test skipped. See [verification](releases/v4/v4.4/development/guide-visual-refinement/prompt-animation-and-attachments/verification.md).
 
-- [ ] Fix the pre-existing two-pixel internal overflow in Agentic Platforms at 320 pixels, reproduced before and after the context-preview change. See [baseline evidence](releases/v4/v4.4/development/guide-visual-refinement/context-previews/baseline-overflow.json).
+- [x] Fix the pre-existing two-pixel internal overflow in Agentic Platforms at 320 pixels. The current guide passes `test_all_pages_meet_contrast_and_overflow_matrix`; retain the [original baseline evidence](releases/v4/v4.4/development/guide-visual-refinement/context-previews/baseline-overflow.json).
 
-- [ ] Improve the pre-existing Home guardrail pill contrast in light mode (4.462:1 against a 4.5:1 target). See [baseline evidence](releases/v4/v4.4/development/guide-visual-refinement/models-rebuild/baseline-sweep.json).
+- [x] Improve the pre-existing Home guardrail pill contrast in light mode. The current guide passes `test_all_pages_meet_contrast_and_overflow_matrix`; retain the [original 4.462:1 baseline evidence](releases/v4/v4.4/development/guide-visual-refinement/models-rebuild/baseline-sweep.json).
 
-- [ ] Reconcile five pre-existing guide assertions for the approved prompt labels/highlights, Home session dialogue, and the cx-png marker. All failures reproduce before the Models rebuild; see [verification](releases/v4/v4.4/development/guide-visual-refinement/models-rebuild/verification.md).
+- [x] Reconcile five pre-existing guide assertions for the approved prompt labels/highlights, Home session dialogue, and the cx-png marker. The current focused guide set passes 126 tests with one expected optional skip; retain the [original failure record](releases/v4/v4.4/development/guide-visual-refinement/models-rebuild/verification.md).
 
 ## Plan - v4.4.6 Guide Learning Experience [SUPERSEDED BY USER]
 
@@ -128,7 +128,7 @@ Historical implementation record only: the user rejected this content/structure 
 
 ---
 
-## Plan - v4.4.1 Guide Visual and Arcade Rebuild [MERGED TO DEVELOP 2026-09-02, PR #154; release pending]
+## Plan - v4.4.1 Guide Visual and Arcade Rebuild [MERGED TO DEVELOP 2026-09-02, PR #154; superseded by final v4.4.5 guide state]
 
 - [x] Phase 1 - Contracts, asset provenance, and byte budget
 - [x] Phase 2 - Home identity, platform rail, and workflow loop
@@ -136,9 +136,9 @@ Historical implementation record only: the user rejected this content/structure 
 - [x] Phase 4 - Foundations Models, Agentic Platform, comparison, and harnesses
 - [x] Phase 5 - Deterministic arcade-shooter engine
 - [x] Phase 6 - Training workspace, fullscreen, and integrated loop
-- [x] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration (local duties; publication in progress)
+- [x] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration (local duties and integration complete)
 
-## Plan - v4.4.2 Guide Production-Ready Rebuild [PUBLISHED FOR INTEGRATION 2026-09-02]
+## Plan - v4.4.2 Guide Production-Ready Rebuild [MERGED TO DEVELOP 2026-09-02, PR #156; superseded by final v4.4.5 guide state]
 
 Plan: [v4.4.2-guide-production-ready-rebuild.md](releases/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md). Branch cut from `develop` at `46f18986` on 2026-09-02.
 
@@ -149,7 +149,7 @@ Plan: [v4.4.2-guide-production-ready-rebuild.md](releases/v4/v4.4/plans/v4.4.2-g
 - [x] Phase 5 - Arena engine v2
 - [x] Phase 6 - Training fullscreen three-pane presentation
 - [x] Phase 7 - Integrated verification and documentation
-- [x] Phase 8 - Architecture refactor, known-gaps, CI/CD, and publication (local duties and GO; integration PR open, merge on green)
+- [x] Phase 8 - Architecture refactor, known-gaps, CI/CD, and publication (local duties, PR, and integration complete)
 
 ### What this plan changes, in one paragraph
 
@@ -171,7 +171,7 @@ One rule: this dashboard describes the current branch and the active plan. When 
 
 ## Approved interactive authoring follow-up
 
-Scoped command/skill update: 3/3 items complete; see [implementation and verification](releases/v4/v4.11/development/approved-authoring-contract.md). Work is isolated on `feat/approved-interactive-authoring`. The historical guide dashboard above is inherited from the integration base and is not modified by this task.
+Historical command/skill draft: 3/3 local items were completed, then reconciled as candidates into the authoritative [v4.11.0 master plan](releases/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md). The draft branch is no longer an active implementation owner; the released master plan and its known-gaps ledger govern current status.
 
-- [ ] Review and integrate the scoped authoring-contract changes through the normal branch workflow.
-- [ ] Complete the separately queued v4.9 reusable runtime, assembler, and cross-project qualification phases; this contract update does not complete those phases.
+- [x] Reconcile the scoped authoring-contract candidates into the master interactive-handbooks plan; v4.11.0 completed 7/7 phases and 31/31 tasks through PR #202.
+- [x] Complete the reusable runtime, assembler, and cross-project qualification plan after its move from v4.9 to v4.11.0; the released plan records its bounded qualification limits in the v4.11 known-gaps ledger.
