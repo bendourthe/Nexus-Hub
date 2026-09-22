@@ -239,6 +239,23 @@ def test_a_missing_executable_is_a_failure_not_a_pass():
     assert result.counts_as_failure
 
 
+def test_an_explicitly_optional_missing_vendor_cli_is_a_visible_skip(capsys):
+    optional = Command(
+        name="optional-vendor",
+        argv=["definitely-not-a-real-binary-xyz"],
+        timeout=30,
+        skip_if_missing=True,
+    )
+    result = run_mod.run_command(optional, REPO_ROOT, [], quiet=True)
+    run_mod._render_command_result(result, quiet=True)
+
+    assert result.status == "skip"
+    assert not result.counts_as_failure
+    rendered = capsys.readouterr().out
+    assert "[SKIP] optional-vendor" in rendered
+    assert "executable not found on PATH" in rendered
+
+
 def test_a_missing_working_directory_is_a_failure():
     cmd = Command(name="nowhere", argv=[PY, "-c", "pass"], cwd="no/such/dir", timeout=30)
     result = run_mod.run_command(cmd, REPO_ROOT, [], quiet=True)
@@ -502,6 +519,14 @@ def test_real_cli_list_mode_runs_offline_for_every_profile(profile: str):
     )
     assert proc.returncode == 0, proc.stderr
     assert f"profile: {profile}" in proc.stdout
+
+
+def test_full_profile_includes_optional_claude_plugin_validation():
+    group = next(group for group in groups_for("full") if group.name == "claude-plugin")
+    assert len(group.commands) == 1
+    command = group.commands[0]
+    assert list(command.argv) == ["claude", "plugin", "validate", "."]
+    assert command.skip_if_missing is True
 
 
 def test_the_engine_needs_no_ci_provider_environment():

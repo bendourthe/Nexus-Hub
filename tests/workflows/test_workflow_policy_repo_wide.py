@@ -248,6 +248,30 @@ def test_required_check_workflows_do_not_event_filter(path: Path) -> None:
             )
 
 
+def test_claude_plugin_load_job_is_bounded_isolated_and_job_filtered() -> None:
+    data = load(WORKFLOW_DIR / "ci.yml")
+    job = data["jobs"]["claude-plugin-load"]
+
+    assert job["needs"] == "changes"
+    condition = str(job.get("if", ""))
+    assert "!cancelled()" in condition
+    assert "needs.changes.outputs.relevant != 'false'" in condition
+    assert job["permissions"] == {"contents": "read"}
+    assert 1 <= job["timeout-minutes"] <= MAX_TIMEOUT_MINUTES
+
+    checkout = next(step for step in job["steps"] if "actions/checkout@" in step.get("uses", ""))
+    assert checkout.get("with", {}).get("persist-credentials") is False
+
+    commands = "\n".join(str(step.get("run", "")) for step in job["steps"])
+    assert "npm install --global --ignore-scripts @anthropic-ai/claude-code" in commands
+    assert "CLAUDE_CONFIG_DIR" in str(job)
+    assert "runner.temp" in str(job)
+    assert "claude plugin marketplace add ./" in commands
+    assert "claude plugin install nexus-hub@nexus-hub" in commands
+    assert "claude plugin list --json" in commands
+    assert 'matches[0].get("enabled") is not True' in commands
+
+
 @pytest.mark.parametrize("path", ALL)
 def test_focused_workflows_filter_by_path(path: Path) -> None:
     """A workflow with no required check should scope itself to its own tree.

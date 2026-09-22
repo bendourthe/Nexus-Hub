@@ -13,7 +13,8 @@ environment variable, and `--base` takes an ordinary git revision.
 Exit status is 0 only when every required command passed. An advisory command
 that fails is reported and does not change the status; a command that times out,
 crashes, or cannot be found DOES, because "the tool is missing" and "the tool
-passed" must never look the same.
+passed" must never look the same. The only exception is a command that explicitly
+declares an unavailable optional vendor CLI as a visible skip.
 """
 
 from __future__ import annotations
@@ -104,7 +105,7 @@ def run_command(cmd: Command, repo_root: Path, secrets: list[str], quiet: bool) 
         return CommandResult(
             name=cmd.name,
             group="",
-            status="missing",
+            status="skip" if cmd.skip_if_missing else "missing",
             reason=f"executable not found on PATH: {cmd.argv[0]}",
             duration_s=time.monotonic() - started,
         )
@@ -179,6 +180,7 @@ def _render_command_result(outcome: CommandResult, quiet: bool) -> None:
         "advisory-fail": "WARN",
         "timeout": "TIMEOUT",
         "missing": "MISSING",
+        "skip": "SKIP",
     }[outcome.status]
     reason = f"; {outcome.reason}" if outcome.reason else ""
     print(f"  [{mark}] {outcome.name} ({outcome.duration_s:.1f}s{reason})")

@@ -177,7 +177,7 @@ jobs:
         # release being cut.
         run: |
           python scripts/ci/run.py --profile full \
-            --only catalog-parse,hygiene,interpreters,catalog,security,workflows,platform-contracts,docs,version \
+            --only catalog-parse,hygiene,interpreters,catalog,security,workflows,claude-plugin,platform-contracts,docs,version \
             --reports-dir reports
 
       - name: Publish the run summary
@@ -671,6 +671,48 @@ jobs:
           python -m pip install --quiet pytest PyYAML
           python -m pytest -q tests/test_git_attribution.py -k 'not powershell'
 
+  claude-plugin-load:
+    # This catches the achieved-property defect that manifest schema checks,
+    # declared path contracts, and AST parsing cannot: a real host can reject
+    # the catalog while every declared property remains valid. The
+    # session-summary.ps1 precedent was dead on Windows for four minor versions
+    # because no host parsed it; this job exercises the equivalent load layer.
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          persist-credentials: false
+
+      - name: Install the Claude Code host without lifecycle scripts
+        run: npm install --global --ignore-scripts @anthropic-ai/claude-code
+
+      - name: Install and verify Nexus-Hub from an isolated host configuration
+        env:
+          CLAUDE_CONFIG_DIR: ${{ runner.temp }}/nexus-claude-plugin-${{ github.run_id }}-${{ github.job }}
+        run: |
+          set -euo pipefail
+          mkdir -p "${CLAUDE_CONFIG_DIR}"
+          claude plugin marketplace add ./
+          claude plugin install nexus-hub@nexus-hub
+          listing="${CLAUDE_CONFIG_DIR}/plugin-list.json"
+          claude plugin list --json | tee "${listing}"
+          python - "${listing}" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          installed = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          matches = [item for item in installed if item.get("id") == "nexus-hub@nexus-hub"]
+          if len(matches) != 1 or matches[0].get("enabled") is not True:
+              raise SystemExit("nexus-hub@nexus-hub is not installed and enabled")
+          print("OK: nexus-hub@nexus-hub is installed and enabled")
+          PY
+
   # ONE aggregate required context for the whole workflow.
   #
   # GitHub evaluates a job-level `if:` BEFORE matrix expansion, so a SKIPPED
@@ -713,6 +755,7 @@ jobs:
       - bootstrap-windows
       - install-smoke
       - installer-smoke
+      - claude-plugin-load
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -729,6 +772,7 @@ jobs:
           R_bootstrap_windows: ${{ needs['bootstrap-windows'].result }}
           R_install_smoke: ${{ needs['install-smoke'].result }}
           R_installer_smoke: ${{ needs['installer-smoke'].result }}
+          R_claude_plugin_load: ${{ needs['claude-plugin-load'].result }}
         run: |
           set -uo pipefail
           failed=""

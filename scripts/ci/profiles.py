@@ -64,6 +64,8 @@ class Command:
     platforms: tuple[str, ...] = ()
     #: A failure is reported but does not fail the group or the run.
     advisory: bool = False
+    #: An unavailable optional vendor CLI is a visible skip, never a silent pass.
+    skip_if_missing: bool = False
     #: Extra environment for this command only.
     env: Mapping[str, str] = field(default_factory=dict)
 
@@ -178,6 +180,18 @@ WORKFLOWS = Group(
     commands=(
         _py("validate_workflow_security", timeout=300),
         _py("check_required_check_coverage", timeout=120),
+    ),
+)
+
+CLAUDE_PLUGIN = Group(
+    name="claude-plugin",
+    commands=(
+        Command(
+            name="claude plugin validate",
+            argv=["claude", "plugin", "validate", "."],
+            timeout=120,
+            skip_if_missing=True,
+        ),
     ),
 )
 
@@ -449,6 +463,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
         CATALOG,
         SECURITY,
         WORKFLOWS,
+        CLAUDE_PLUGIN,
         PLATFORM_CONTRACTS,
         DOCS,
         VERSION,
