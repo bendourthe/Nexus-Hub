@@ -920,7 +920,7 @@ def _foundation_scene(guide_text: str, scene_id: str) -> str:
     return scene.group(0)
 
 
-def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> None:
+def test_foundations_phase3_has_six_title_lead_scenes(guide_text: str) -> None:
     fx = _foundations_markup(guide_text)
     # v4.4.3 merged the two harness scenes into one, on the review's instruction that a reader
     # needs one picture of where the two loops sit rather than two to superimpose.
@@ -928,12 +928,13 @@ def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> 
     # instruction that one segment should carry the idea.
     assert fx.count('class="fx-scene') == 6, "expected six Foundations scenes"
     assert fx.count('class="fx-title"') == 6
-    assert fx.count('class="fx-subtitle"') == 6
+    assert fx.count('class="fx-subtitle"') == 5
+    assert fx.count('class="ml-definition"') == 1
     expected = [
         "Tokens",
+        "Models",
         "Prompt Engineering",
         "Context Engineering",
-        "Models",
         "Agentic Platforms",
         "Harnesses",
     ]
