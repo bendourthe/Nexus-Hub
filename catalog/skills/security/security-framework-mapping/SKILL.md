@@ -122,6 +122,10 @@ Before finalizing, check three things:
 2. **The mapping is defensible in one sentence.** If you cannot say "this skill teaches X, which ATT&CK calls T1003.001 because LSASS dumping is the operation involved", drop the mapping.
 3. **The reference file does not copy framework prose.** Quote IDs and short titles only; long descriptions belong on the public site (Reverse-Engineering Attribution Rule).
 
+### 6. Re-verify declared mappings
+
+At every release, inventory all `owasp_agentic` tags and open the current official OWASP document. For every declared identifier, compare its current title and risk with the skill's `references/standards.md` rationale, then read the `SKILL.md` instructions and name the concrete action that addresses it. Record the source version, date, skill, identifier, body evidence, and supported or unverified verdict in release-scoped development evidence. If a body no longer teaches the control, correct the instruction only when that behavior is in scope; otherwise remove the tag and rebuild `docs/framework-coverage.md`. A keyword match, a standards paragraph, and the automated shape test cannot certify this semantic judgment.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
