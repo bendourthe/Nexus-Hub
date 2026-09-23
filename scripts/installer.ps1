@@ -378,7 +378,8 @@ function Write-PlatformChecklist {
             Write-ChecklistRow -Label $s.Label -State "ok" -Detail $entry.path
         }
         else {
-            Write-ChecklistRow -Label $s.Label -State "warn" -Detail "install reported an issue"
+            $reason = if ($entry.reason) { $entry.reason } else { "install reported an issue" }
+            Write-ChecklistRow -Label $s.Label -State "warn" -Detail $reason
         }
     }
 }

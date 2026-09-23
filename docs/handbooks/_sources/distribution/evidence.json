@@ -5,11 +5,11 @@
       "docs/handbooks/_sources/distribution/model.json": "c89ec3703b5dbc35eb4b62d12fcf2eba7a956f6319ef74c83dbce9386a6766ae",
       "docs/handbooks/_sources/distribution/source.md": "0b4bfc5f7254911e278bb74cb0b160ed372013a57eaf63356b91fc610acce080",
       "docs/handbooks/_sources/distribution/design.css": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24",
-      "scripts/installer.ps1": "b6536a455c29580379946643d723ad1532a365256da0150a8024cf9b498e323f",
-      "scripts/installer.sh": "c16049f714062a1111a464af67e123fa147c183150e2f526467e3b0445b38341",
-      "scripts/lib/integrations/runner.py": "723bb8007ad75e0b0c5646fc04c1ac45dc793f6fac1f175a4b16f32f6dc44f62",
+      "scripts/installer.ps1": "b2073d9fb9c2f036a0988188c9a2dfce0bdfeeae1eab346373cf05529324d802",
+      "scripts/installer.sh": "7db0c4f7e2921bbd0932fe367e621639ee8b3d3282e0ce9799495d396bfe218d",
+      "scripts/lib/integrations/runner.py": "e20baec4d79137e1c819495dea7f08f122b5f7d5da43c7e86027de2c881f7b6b",
       "scripts/lib/integrations/_catalog_adapters.py": "c86e46c37fd33edca2d631fdd5e80a8ea2940ed1c31f43f306fd4dc3b589decb",
-      "scripts/lib/integrations/_owned.py": "aaeae3a0fe420ecabd4d5f863257454bc966e707d97e0fba4e7bba2ebc761f64",
+      "scripts/lib/integrations/_owned.py": "1587357664626dc18f299f0abd85d2d31a8fe94a705611a7d52fe734f1465e90",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "6c6fe8535e5be98a5bd92118d6f27847dbe5edb04da52bfea78741eb0e3962d4",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2",
       "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js": "336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6",
@@ -31,8 +31,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.13/development/distribution-handbook-target-isolation-review.md",
-      "evidence_sha256": "fceb388520a8ea01d5b35198b73588d3b2204040698a1c8a365f21fa76de4e9b"
+      "evidence": "docs/archives/v4/v4.3/development/ownership-handbook-refresh.md",
+      "evidence_sha256": "5f62126be10e88525e23dbd9aec5092f0708a9bed4a9580ed28fb144f43c0115"
     },
     "build": {
       "status": "pass",

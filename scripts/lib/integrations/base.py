@@ -307,7 +307,8 @@ class IntegrationBase:
             lines.append("| Action | Path |")
             lines.append("|--------|------|")
             for fa in result.files:
-                lines.append(f"| `{fa.action}` | `{fa.path}` |")
+                reason = f" ({fa.reason})" if fa.reason else ""
+                lines.append(f"| `{fa.action}` | `{fa.path}`{reason} |")
         lines.append("")
         template_rel = self.config.get("instruction_template")
         instruction_file = self.config.get("instruction_file")

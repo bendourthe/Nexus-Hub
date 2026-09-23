@@ -291,6 +291,7 @@ TESTS = Group(
             "tests/integrations/test_contract.py",
             "tests/integrations/test_cross_platform_flatten.py",
             "tests/integrations/test_global_command_surface.py",
+            "tests/integrations/test_owned_root_preflight.py",
             timeout=1800,
         ),
         _pytest(

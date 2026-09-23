@@ -42,10 +42,12 @@ class FileAction:
 
     `path` is the absolute or repo-relative path as a string (callers should
     pass `str(Path(...))`). `action` MUST be one of `VALID_ACTIONS`.
+    `reason` distinguishes a refusal from an ordinary kept user file.
     """
 
     path: str
     action: Action
+    reason: str | None = None
 
     def __post_init__(self) -> None:
         if self.action not in VALID_ACTIONS:
