@@ -33,6 +33,8 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 #### WN-2: Existing CI reporting and tooling-lock differences
 
+**Follow-up status, 2026-09-22**: Report upload and direct guide/Windows JUnit generation are implemented and locally checked; hosted artifact verification remains pending. Tool versions are still not locked across the CI workflows and editable extension extras. Do not close this combined warning on the strength of the reporting half alone.
+
 **Source phase**: Phase 4. **Plan reference**: T018. **Reason**: the canonical comparison finds incomplete tool version-locking and incomplete JUnit/coverage/report-bundle retention across existing CI legs. This overlaps v4.4 WN-446-1; it is not introduced by attribution enforcement.
 
 **Owner**: CI maintainer. **Suggested next step**: in the queued CI-maintenance scope, lock tooling and generate/upload detailed reports with explicit seven-day retention, preserving required contexts and fail-closed job selection. No unrelated pipeline migration was applied in this release.
@@ -58,6 +60,8 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 **Owner**: Repository owner. **Suggested next step**: approve the explicit writable-ref publication scope only with this limitation understood; observe both default-branch contributor surfaces afterward. If purging every GitHub-held ref is required, obtain GitHub's supported administrative disposition separately. Do not promise old SHA disappearance or a clean GitHub mirror that fetches PR refs.
 
 #### QG-2: GitHub contributor-view confirmation pending
+
+**Recheck, 2026-09-22**: The live contributors API now returns only `bendourthe` (1,753 contributions), and the statistics API also returns only `bendourthe` (1,394 non-merge commits). The public Code page's static response omits its dynamic contributor count, and no browser surface is available on this host. The rendered Code sidebar is therefore still unverified; the earlier five-contributor screenshot remains the last direct visual evidence. No new history rewrite is justified by these API results.
 
 **Source phase**: Phase 4. **Plan reference**: T021-T023. **Reason**: the owner approved publication, all 120 reviewed writable refs were updated, both protections were restored exactly, and all five required checks passed. The fresh public clone scans 1,687 commits with zero findings. At `20260914T232622Z`, the contributor API still returned `bendourthe` (1655), `dependabot[bot]` (8), while the Insights default-main graph data contained only `bendourthe` (1,345 non-merge commits). Subsequent user screenshot 1 confirms Insights with Period: All, main, excluding merge commits, showing only bendourthe with 1,345 commits. Screenshot 2 confirms the published ba468f5 tip and a Code sidebar labeled Contributors 5. The other account names cannot be established from the avatars alone. The live API recheck still lists bendourthe and dependabot[bot], while the statistics endpoint lists only bendourthe. The rendered Code result therefore fails the one-contributor criterion; Insights passes. This discrepancy is consistent with GitHub's documented refresh delay, but the Code result is not yet resolved.
 

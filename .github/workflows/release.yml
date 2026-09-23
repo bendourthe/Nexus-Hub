@@ -64,6 +64,15 @@ jobs:
         if: always()
         run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
 
+      - name: Retain release-readiness reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-readiness-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Report the tagged version
         if: always()
         run: |

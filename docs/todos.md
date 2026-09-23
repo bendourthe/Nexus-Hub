@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** No v4.0-v4.13 implementation or publication task remains open. The shared historical-closure work for v4.10.1 and v4.11.1 merged into `develop` through PR #232 at `c54dbeb4`; bounded vendor, hosted-scan, and manual-rendering limitations remain in their known-gaps ledgers rather than as unfinished plan tasks.
+**Active work:** The v4.10.1 and v4.11.1 plan closures are integrated through PR #232; the late v4.10 history archive merged through PR #234. Cross-version CI report retention is implemented locally but awaits hosted verification. Dependency locks, unprotected GitHub branches, and bounded vendor or manual evidence remain open in their known-gaps ledgers. The v4.0 CI plan's 62 unticked historical task boxes require task-level reconciliation before they can be counted as verified completion.
 **Last refreshed:** 2026-09-22
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -9,6 +9,7 @@ This dashboard tracks the work in flight right now. It is deliberately short. Fi
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
 - [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
+- [ ] Publish and verify the cross-version CI report-retention change: seven jobs upload seven-day bundles, direct guide and Windows native tests emit JUnit, 63 workflow-contract tests and the 16-check fast profile pass locally, and the guide command wrote JUnit after 380 passing tests and one optional skip. Hosted artifact visibility is still pending.
 
 ---
 

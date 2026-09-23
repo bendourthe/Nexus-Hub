@@ -1,7 +1,7 @@
 # Known gaps - v4.13
 
 **Project**: Nexus-Hub
-**Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Four bounded warning-class findings remain owned for future consumers or measurement work.
+**Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Four bounded warning-class findings remain owned for future consumers or measurement work, and one post-release GitHub branch-protection gap awaits the repository owner's decision.
 **Last updated**: 2026-09-22
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
@@ -17,9 +17,15 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 | Bugs / regressions (BG) | 0 | 6 |
 | Warnings (WN) | 4 | 2 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 0 | 3 |
+| Quality-gate gaps (QG) | 1 | 3 |
 
 ### Open Items
+
+#### QG-4: Integration and release branches have no GitHub protection
+
+**Observed, 2026-09-22**: GitHub's branch-protection API returns "Branch not protected" for both `develop` and `main`, and the repository rulesets API returns no rulesets. PR #234 merged while its Linux and Windows test jobs were still running; the later Linux result passed, and Windows remained in progress at this check. The repository's required-check manifest and unconditional aggregate job describe the intended gate, but a workflow file cannot require GitHub to wait for it without an external branch rule.
+
+**Owner**: repository owner. **Status**: open pending an explicit security-setting choice. **Suggested next step**: protect both branches with pull-request-only merges, the appropriate aggregate required checks, and force-push/deletion blocks; then submit a test pull request and verify merge is held until the checks complete. Do not represent the current unprotected merges as protected integration.
 
 #### WN-2: Tool-span attributes unverified at the pinned revision
 

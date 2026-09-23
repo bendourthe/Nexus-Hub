@@ -289,6 +289,38 @@ def test_summary_publication_survives_a_failure():
         )
 
 
+@pytest.mark.parametrize(
+    ("path", "job_names"),
+    [
+        (CI, ("validate", "shellcheck", "tests", "guide-render", "tests-windows")),
+        (POST_MERGE, ("smoke",)),
+        (RELEASE, ("release-readiness",)),
+    ],
+)
+def test_profile_and_guide_jobs_retain_reports_on_failure(path: Path, job_names: tuple[str, ...]):
+    jobs = load(path)["jobs"]
+    for job_name in job_names:
+        steps = jobs[job_name]["steps"]
+        uploads = [step for step in steps if str(step.get("uses", "")).startswith("actions/upload-artifact@")]
+        assert len(uploads) == 1, f"{path.name}/{job_name} needs one report upload"
+        upload = uploads[0]
+        assert upload.get("if") == "always()"
+        assert upload["with"]["retention-days"] == 7
+        assert upload["with"]["path"] == "reports/"
+
+
+def test_guide_render_emits_junit_for_the_uploaded_report():
+    steps = load(CI)["jobs"]["guide-render"]["steps"]
+    test_step = next(step for step in steps if "tests/guides/" in str(step.get("run", "")))
+    assert "--junitxml=reports/junit/guide-render.xml" in test_step["run"]
+
+
+def test_windows_native_tests_emit_junit_for_the_uploaded_report():
+    steps = load(CI)["jobs"]["tests-windows"]["steps"]
+    test_step = next(step for step in steps if "test_codex_native.py" in str(step.get("run", "")))
+    assert "--junitxml=reports/junit/windows-native.xml" in test_step["run"]
+
+
 # ---------------------------------------------------------------------------
 # Security and cost controls.
 # ---------------------------------------------------------------------------

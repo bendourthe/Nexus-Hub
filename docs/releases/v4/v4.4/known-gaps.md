@@ -358,6 +358,8 @@ Status: local implementation complete through Phase 6; final verification and ex
 | WN-446-2 | Historical CodeQL CQ-1 has no fresh remote rescan; removal of the flagged construct alone does not close the alert | Security/CI maintainer | Re-evaluate the current head on the next authorized remote scan and record the result. |
 | QG-446-1 | Full native profile: 40 command passes, three failures and one repository-test timeout. Encoding is now fixed; default Bash resolution and the unrelated v4.9 path scan remain separately classified. Complete local green gate is not established | Implementer / repository maintainer | Use [terminal disposition](development/guide-learning-experience/phase-7/full-profile-disposition.md) to isolate the repository-test stall and close remaining environment/scope findings. Do not infer the historical QG-1 assertion failures from absent current output. T027 remains open. |
 
+WN-446-1 follow-up, 2026-09-22: the current guide-render job now writes JUnit and uploads it with seven-day retention, and the same local guide command produced 380 passed, one optional skip, and a JUnit file. Hosted artifact retention remains to be observed before this historical gap is marked resolved; the rejected v4.4.6 redesign remains superseded.
+
 ### Resolved
 
 | ID | Title | Resolved in | Notes |
