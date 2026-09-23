@@ -61,6 +61,8 @@
 
 **Producer follow-up**: The existing CI-engine test command now emits scoped coverage XML, and the existing catalog security scan emits SARIF at its unchanged high-severity threshold. The [producer evidence](../../../archives/v4/v4.3/development/ci-report-producer-evidence.md) records local output and the hosted gate. DF-3 remains open until both files are observed in the hosted aggregate.
 
+**First hosted run**: PR #243's Linux tests job failed because its scoped install omitted pytest-cov, despite the plugin being pinned in the universal lock. The [failed-run repair record](../../../archives/v4/v4.3/development/ci-report-producer-hosted-repair.md) preserves that result and the locally tested dependency correction. Hosted replacement evidence is still pending.
+
 ##### DF-4 - OpenClaw tool interception requires a typed plugin
 
 - **Source phase**: Phase 5 platform-contract verification

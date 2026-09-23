@@ -255,7 +255,7 @@ jobs:
         # tests use pytest.importorskip, so without them the TOML and YAML
         # coverage would SILENTLY SKIP -- a green run proving nothing about two
         # of the four writable formats.
-        run: pip install pytest tomlkit PyYAML
+        run: pip install pytest pytest-cov tomlkit PyYAML
 
       - name: Install extension packages
         run: |
