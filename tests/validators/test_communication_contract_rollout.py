@@ -3,9 +3,8 @@
 `scripts/check_base_template_parity.py` byte-locks invariant contracts across the five
 lockstep templates only. The other seven substantive templates (the guardrails
 five, `base-google-shared.md`, and `generic-instructions.md`) are outside that
-guard's roster by design, so nothing else would notice if the rollout skipped
-one. This is the exact defect class AGENTS.md warns about for the non-lockstep
-seven, and it is why this file exists.
+guard's roster by design. This focused suite runs in the repository validation
+gate so a skipped rollout fails before release.
 
 Per the test-retention policy in AGENTS.md, the non-lockstep templates are
 covered by ONE data-driven aggregate test rather than seven near-identical
@@ -112,7 +111,7 @@ def test_surface_note_stubs_are_left_alone(name: str) -> None:
 
 
 def test_contract_body_is_identical_across_every_substantive_template() -> None:
-    """Stronger than the parity gate: all 12, not just the lockstep five.
+    """Stronger than the parity gate: all 13, not just the lockstep five.
 
     The parity gate cannot be widened to 12 (the guardrails templates
     legitimately differ elsewhere), but the contract section itself has no valid

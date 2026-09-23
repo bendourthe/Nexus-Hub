@@ -57,6 +57,12 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [x] Published and integrated the completed [v4.11.1 adoption plan](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md), through PR #232 at `c54dbeb4`. T025 is complete. The honest `MT-10` limitation remains open: current repository diagrams use `<path>`, outside the narrow geometry envelope, so the new checks return `unchecked` rather than guessing.
 
+## Current closure - v4.0 inherited gaps
+
+- [x] Locally close agent-communication DF-1 and MT-3 with the 13-template release gate and an actual Python 3.11 grammar check; 127 focused tests and the 17-command native fast profile pass.
+- [x] Reconcile BG-6 with the v3.18 withdrawal decision: the deleted drawdown ledger stays deleted by design, and the superseded decision record now gives the exact Git-history recovery command instead of dead links.
+- [ ] Publish the v4.0 gap-guard branch after the CI-report branch is integrated and verify its hosted result. MT-1 remains a bounded prose-compliance limitation.
+
 ## Queued work - v4.17.3 harness economics and portable engineering systems
 
 - [ ] Implement the approved [v4.17.3 adoption plan](releases/v4/v4.17/plans/v4.17.3-adoption-harness-economics-and-portable-engineering-system.md), seeded by the [completed comparison](releases/v4/v4.17/comparisons/v4.17.3-comparison-harness-economics-and-portable-engineering-system.md). The queued plan defines five phases and 52 tasks for explicit unattended-loop outcomes, a serial repository-local harness evaluator with enforceable live-run gates, and provider-aware shared project instructions with one platform-neutral `base-agents.md` owner. Implementation is 0/5 phases and 0/52 tasks.

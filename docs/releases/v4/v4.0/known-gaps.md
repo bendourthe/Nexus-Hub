@@ -30,10 +30,10 @@ The burden is therefore opt-in but real: a project that WANTS the new shape runs
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 1 | 1 |
+| Deferred (DF) | 0 | 2 |
 | Bugs / regressions (BG) | 0 | 3 |
-| Warnings (WN) | 0 | 0 |
-| Missing tests / coverage gaps (MT) | 2 | 1 |
+| Warnings (WN) | 0 | 1 |
+| Missing tests / coverage gaps (MT) | 1 | 2 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
@@ -44,12 +44,12 @@ None.
 
 #### Deferred
 
-##### DF-1 - The non-lockstep seven templates are not byte-locked by the release gate
+##### DF-1 (resolved) - The non-lockstep templates lacked a release-gate contract check
 
 - **Source phase**: Phase 3 - Instruction-template rollout and parity gate
 - **Plan reference**: `docs/v4/v4.0/plans/v4.0.0-agent-communication-overhaul.md` (sub-task 3.3 failure modes)
-- **Reason**: `scripts/check_base_template_parity.py` has a five-file roster by design. The guardrails five, `base-google-shared.md`, and `generic-instructions.md` legitimately differ from the lockstep five elsewhere in the file, so widening the roster would produce false failures on content that is correct. The contract section itself has no valid per-platform variation, so drift there IS checkable, and `tests/validators/test_communication_contract_rollout.py::test_contract_body_is_identical_across_every_substantive_template` checks it across all 12. That is stronger than the plan anticipated (it compares bodies, not just headings), but it runs in the pytest suite rather than in the `make validate` chain, so a drift is caught at test time rather than at release-gate time.
-- **Suggested next step**: If the validator chain should own this, extract the body-identity comparison into a small repo-internal script under `scripts/` and add it to the `validate` target, leaving the parity gate's five-file roster untouched. The test already contains the comparison logic, so this is a move, not a rewrite.
+- **Original reason**: `scripts/check_base_template_parity.py` has a five-file roster by design. The other substantive templates legitimately differ elsewhere, but their contract section has no valid per-platform variation. The pytest suite checked body identity without being part of `make validate`.
+- **Resolution on 2026-09-22**: The existing aggregate suite now runs in `make validate` and the native full profile's `platform-contracts` group. Its roster classifies all 17 templates and compares contract bodies across all 13 substantive templates; 36 focused tests pass. The five-file byte-lock roster stays unchanged.
 
 #### Bugs / Regressions
 
@@ -57,13 +57,14 @@ None open.
 
 #### Warnings
 
-##### WN-2 - A concurrent branch adds a thirteenth instruction template that will need the lifecycle block
+##### WN-2 (resolved) - A concurrent branch added a thirteenth instruction template
 
 - **Source phase**: Phase 8 - Architecture refactor, known-gaps reconciliation, and CI/CD
 - **What was observed**: during Phase 8 the working tree acquired unrelated in-progress work from a concurrent session (a `pi` platform integration and a `grill` command), including an untracked `templates/ai-instructions/base-pi.md`. That file is NOT on `develop` and is not part of this plan; only files tracing to this plan were staged, and this plan's eight commits contain none of it.
 - **Why it is recorded here**: `tests/skills/test_cicd_lifecycle_contract.py::test_template_roster_matches_the_directory` failed against that dirty worktree, which is the guard working exactly as designed - a new template must be classified or it silently escapes the lifecycle rollout. The failure does not exist on `develop`, where the file is absent.
 - **What the other branch must do when it lands**: classify `base-pi.md` in the roster (substantive or surface-note stub) and, if substantive, add the `## Plan Lifecycle and CI/CD` block body-identical to the other twelve. The assertion message names both obligations.
 - **Suggested next step**: none for this plan. This is a note for whoever merges the `pi` integration, so the failure reads as an expected checklist item rather than a mystery.
+- **Resolution on 2026-09-22**: `base-pi.md` is in the substantive roster and has the lifecycle block. The lifecycle contract suite passes 55 tests, including roster classification and body checks.
 
 
 None.
@@ -77,11 +78,11 @@ None.
 - **Reason**: Prose tone is not machine-checkable at `PreToolUse` time. The tests in this version prove that the contract is PRESENT and IDENTICAL everywhere it should be; nothing proves that a given response OBEYED it. This was considered and rejected as a hook gate in `docs/decisions/implemented/policy/2026-08-18-agent-communication-contract.md`; the gap is recorded here so it is visible rather than implied.
 - **Suggested next step**: The mechanically checkable subset is narrow but real: a response containing a fenced command block with an unflagged `<...>`, `[...]`, or ALL-CAPS template token is detectable by pattern. If a future version wants partial enforcement, that single rule is the one worth automating; the rest stays advisory.
 
-##### MT-3 - Nothing locally enforces the CI Python floor
+##### MT-3 (resolved) - The local gate did not enforce the CI Python floor
 
 - **Source phase**: Phase 5 - Architecture refactor, known-gaps reconciliation, and CI/CD
 - **Reason**: CI runs Python 3.11.16; this workstation runs 3.12.10. Syntax accepted by the newer interpreter and rejected by the older one passes every local gate and fails in CI at import time, taking out a whole job rather than one test. This is not hypothetical: it happened on this branch (BG-3 below). No local check, hook, or validator asserts that repository Python parses under the CI version.
-- **Suggested next step**: A cheap guard exists. `ast.parse(src, feature_version=(3, 11))` over the repository's `.py` files detects exactly this class in well under a second and needs no extra dependency, no second interpreter, and no outbound call. It would fit the `validate` chain beside the other repo-internal guards. Declaring the floor in one place (it is currently implicit in the CI `setup-python` version) is the prerequisite.
+- **Resolution on 2026-09-22**: `scripts/check_python_floor.py` parses all tracked Python files using an actual Python 3.11 interpreter and runs in `make validate` and the native fast/full profiles. Its regression controls pass: compatible syntax succeeds, a Python 3.12-only multiline f-string fails, and invalid UTF-8 fails. All 790 tracked files pass the 3.11 scan. A newer interpreter's `ast.parse(..., feature_version=(3, 11))` accepted that same f-string, disproving the original suggested shortcut; the guard fails clearly when Python 3.11 is not installed.
 
 #### Quality-Gate Gaps
 
@@ -207,7 +208,7 @@ None.
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 0 | 5 |
+| Bugs / regressions (BG) | 0 | 6 |
 | Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -259,13 +260,12 @@ None.
 - **The test suite hides it rather than catching it**: `catalog/hooks/tests/test_old_version_docs_guard.py` skips every Bash-leg case with `jq is required by the Bash hook`. On this workstation that suite reports `22 passed, 27 skipped` - green - while the entire Bash half of the sibling-parity contract goes unexercised. A skip standing in for an absent dependency is indistinguishable in the summary line from a passing assertion.
 - **Resolution**: `old-version-docs-guard.sh` now falls back to `python3`/`python` for JSON parsing when `jq` is absent, which every supported platform already requires. The test fixture's skip condition was the other half of the defect: it gated on `jq` alone, so the entire Bash leg silently retired on any host without it. It now skips only when NEITHER parser is present. On this workstation that turns `22 passed, 27 skipped` into `46 passed, 0 skipped` -- the Bash leg is genuinely exercised for the first time here. Other bash hooks that gate on `jq` are NOT changed by this entry; they are a separate sweep, and this fix is deliberately scoped to the hook this plan touched.
 
-##### BG-6 - PARTIALLY RESOLVED - two dead documentation links predated the migration; one is repaired
+##### BG-6 (resolved) - two dead documentation links predated the migration
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
 - **What was observed**: `docs/releases/v3/v3.18/development/github-drawdown-ledger.md` and `docs/releases/v3/v3.2/comparison-loop-engineering.md` are referenced but exist nowhere in the repository. Both appear in the pre-move baseline, so neither was caused by this migration. The referring link text was updated to the new container so it no longer names a directory that no longer exists; the targets themselves were not invented.
 - **Resolution of the first**: `comparison-loop-engineering.md` does exist, at `docs/releases/v3/v3.2/comparisons/v3.2.0-comparison-loop-engineering.md`. The stale reference used the pre-convention flat form; it now points at the real file and resolves.
-- **Still open, the second**: `github-drawdown-ledger.md` was added by commit `5b070c3b` under `docs/v3/v3.18/development/` and exists nowhere in the tree today. Only `v3.18/development/history/` was archived, so the file was DELETED rather than archived - which is itself a finding about that retention pass, not about this migration. It is cited as evidence by an implemented decision record, so the citation was left in place rather than silently re-aimed at a different document.
-- **Suggested next step**: recover the file from `5b070c3b` into `docs/archives/v3/v3.18/development/` so the decision record's evidence is readable again, or amend the record to state that its evidence was lost and why. Do not create a placeholder file to silence the checker.
+- **Resolution of the second**: The v3.18.2 withdrawal decision explicitly required deletion of the GitHub usage monitor, its policy, and its ledger. Restoring the ledger would reverse that decision. The superseded weighting decision now states why the files are absent, preserves the falsifier, and gives the exact `git show` command to recover the ledger from commit `5b070c3b`; its dead links were removed.
 
 
 #### Warnings
