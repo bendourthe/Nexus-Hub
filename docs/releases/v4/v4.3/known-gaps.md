@@ -29,7 +29,9 @@
 - **Evidence**: The 23-field comparison found large validation command lists embedded directly in workflow jobs even though `ci/run.py` exposes repository-native profiles.
 - **Impact**: Local and remote gates can drift because some CI behavior is defined only inside workflow YAML instead of the shared profile contract.
 - **Owner**: Next CI/CD lifecycle plan.
-- **Next step**: Inventory each inline validator, migrate it incrementally into the smallest owning `ci/run.py` profile, and prove local and workflow parity before removing the YAML body.
+- **Next step**: Prove hosted parity for the migrated general validators and confirm the remaining inline smoke flows are not duplicate profile contracts.
+
+**Local follow-up**: The general inline validator bodies have moved into `full` or `platform` groups, with explicit-only selection for Chromium and pre-commit. The remaining inline steps are event orchestration, tool setup, artifact publication, or real host/bootstrap/installer smoke flows. The [reconciliation audit](../../../archives/v4/v4.3/development/ci-profile-followup-reconciliation.md) records the classification. Hosted parity remains pending, so DF-1 stays open.
 
 ##### DF-2 - Pip caches are not keyed by dependency manifests
 
@@ -38,7 +40,9 @@
 - **Evidence**: Several workflow setup and cache steps use workflow files as dependency keys because the corresponding test environments do not have dedicated dependency manifests.
 - **Impact**: Dependency changes can reuse stale caches or require unrelated workflow edits to invalidate them, weakening cache determinism.
 - **Owner**: Next CI/CD lifecycle plan.
-- **Next step**: Add scoped dependency manifests for the affected environments, key caches to those manifests, and validate cold and warm cache behavior on every supported runner.
+- **Next step**: Observe cold and warm cache behavior for the scoped guide and Windows manifests on the supported hosted runners.
+
+**Local follow-up**: Guide-render and Windows test jobs now install through scoped manifests under the universal Python 3.11 constraints and key pip caches to both inputs. Workflow tests pass; cold and warm hosted cache behavior remains pending, so DF-2 stays open.
 
 ##### DF-3 - Report profile does not aggregate or publish structured evidence
 
@@ -47,7 +51,9 @@
 - **Evidence**: The repository-native `report` profile is empty, and CI does not aggregate coverage, security, or SARIF outputs into bounded-retention artifacts.
 - **Impact**: A green gate lacks one durable report package for later review, trend analysis, and failure diagnosis.
 - **Owner**: Next CI/CD lifecycle plan.
-- **Next step**: Define the report schema, populate the `report` profile, publish unconditional success-or-failure evidence with explicit seven-day retention, and verify artifact contents on a pull request.
+- **Next step**: Inspect the hosted aggregate artifact and separately decide which coverage and SARIF producers should feed it; absent report types cannot be credited as collected evidence.
+
+**Local follow-up**: The report profile now validates and aggregates existing receipts into a hash/type index; a pull request job downloads those receipts and uploads one seven-day package after success or failure. Local tests passed. Hosted artifact inspection is pending, and the current workflow produces no coverage or SARIF files, so DF-3 remains open rather than counting their absence as evidence.
 
 ##### DF-4 - OpenClaw tool interception requires a typed plugin
 

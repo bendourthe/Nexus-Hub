@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** The v4.10.1 and v4.11.1 plan closures are integrated through PR #232; the late v4.10 history archive merged through PR #234. Cross-version CI report retention merged through PR #235, the v4.0 gap guards and v4.11 SVG routing correction merged through PR #236, the v4.8 development prerequisite and v4.13 trigger-audit follow-ups merged through PR #237, the CI tool locks merged through PR #238, and the pinned v4.13 tool-span contract merged through PR #239, all with green hosted and post-merge checks. The v4.3 ownership-guard follow-up is qualified locally pending publication. Unprotected GitHub branches and bounded vendor or manual evidence remain open in their known-gaps ledgers. The v4.0 CI plan's 62 unticked historical task boxes require task-level reconciliation before they can be counted as verified completion.
+**Active work:** The v4.10.1 and v4.11.1 plan closures are integrated through PR #232; the late v4.10 history archive merged through PR #234. Cross-version CI report retention merged through PR #235, the v4.0 gap guards and v4.11 SVG routing correction merged through PR #236, the v4.8 development prerequisite and v4.13 trigger-audit follow-ups merged through PR #237, the CI tool locks merged through PR #238, the pinned v4.13 tool-span contract merged through PR #239, and the v4.3 ownership-guard repair merged through PR #240, all with green hosted and post-merge checks. The v4.3 CI profile, cache, and report follow-ups are qualified locally pending hosted publication; coverage and SARIF producers remain absent. Unprotected GitHub branches and bounded vendor or manual evidence remain open in their known-gaps ledgers. The v4.0 CI plan's 62 unticked historical task boxes require task-level reconciliation before they can be counted as verified completion.
 **Last refreshed:** 2026-09-22
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -20,7 +20,10 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Verify the v4.13 WN-2 tool-span attributes against the same pinned sibling specification and exercise the trace example: 184 passed, two host skips, docs 8/8, fast 17/17.
 - [x] Publish and verify the v4.13 WN-2 span-contract follow-up: PR #239 passed all hosted checks and post-merge run 35813788600.
 - [x] Qualify the v4.3 DF-5 ownership-guard repair locally: 668 adapter and installer tests passed, fast 17/17 passed, and a real CLI dry-run refused a linked `.copilot` root with zero external writes.
-- [ ] Publish and verify the v4.3 DF-5 ownership-guard repair.
+- [x] Publish and verify the v4.3 DF-5 ownership-guard repair: PR #240 passed all hosted checks and post-merge run 35817524653.
+- [x] Qualify the v4.3 CI follow-up locally: general inline validators moved into profiles, guide and Windows pip caches keyed to scoped manifests, and the report profile plus aggregate job passed 256 CI/workflow tests with 17 skips, fast 17/17, and docs 8/8.
+- [ ] Publish the v4.3 CI follow-up and inspect hosted parity, cold and warm caches, and the seven-day aggregate artifact before closing DF-1 or DF-2.
+- [ ] Design and produce coverage and SARIF evidence if DF-3 is to cover those report types; the current aggregate index does not make absent files present.
 - [x] Close v4.4 WN-446-1 against PR #235's hosted `ci-guide-render-report` and seven-day expiry; the rejected v4.4.6 guide remains superseded.
 
 ---
