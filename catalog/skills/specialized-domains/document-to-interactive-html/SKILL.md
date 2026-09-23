@@ -259,6 +259,8 @@ verified, shareable interactive .html
 
 For retained handbooks, run [scripts/measure_handbook.py](scripts/measure_handbook.py) with the independently frozen `--inventory` and the installed `functional-verification/scripts/detect_visual_defects.py` passed as `--detector`. It measures every reading section and logical slide at the named viewports and breakpoint neighbors, records initial/mid/final presentation states and actual transformed font sizes, and separately checks no-JS/print and fullscreen-denial/Escape behavior. It never grades source semantics or positive design; those remain separate reviewed gates. Missing metadata or browser capability stays unverified.
 
+Map source-backed slide numbers in the independent inventory as `source_values` per `references/dual-view-handbooks.md` before claiming temporal-value coverage. The browser guard observes visible DOM-text mutations during each active slide; absent mappings report `unchecked`, and canvas-only or unmapped values receive no temporal verdict.
+
 ## Verification
 
 Binary checklist - each item describes an observable artifact or state.

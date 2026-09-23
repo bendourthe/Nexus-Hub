@@ -106,6 +106,72 @@ def test_paused_reading_animation_does_not_block_presentation_settle(output):
     assert result["coverage"]["measured_states"] == 4
 
 
+def _add_source_value(output, transient=False):
+    script = (
+        "<script>window.addEventListener('load',()=>{"
+        "const slide=document.querySelector('[data-dv-slide=\"one\"]');"
+        "const value=document.createElement('p');value.id='source-value';"
+        "value.textContent='31';slide.append(value);"
+    )
+    if transient:
+        script += (
+            "slide.addEventListener('dv:activate',()=>{"
+            "setTimeout(()=>{value.textContent='11';"
+            "setTimeout(()=>{value.textContent='31'},60)},80)});"
+        )
+    script += "});</script>"
+    output.write_text(
+        output.read_text(encoding="utf-8").replace("</html>", script + "</html>"),
+        encoding="utf-8",
+    )
+
+
+def _source_value_inventory():
+    return {
+        "section_ids": ["one"],
+        "slide_ids": ["one"],
+        "source_values": [
+            {"slide_id": "one", "selector": "#source-value", "text": "31"}
+        ],
+    }
+
+
+def test_static_source_value_passes_temporal_guard(output):
+    _add_source_value(output)
+    result = run(output, **_source_value_inventory())
+    assert result["status"] == "pass", result["errors"]
+    assert result["source_value_guard"]["status"] == "pass"
+
+
+def test_brief_wrong_source_value_fails_between_settled_checkpoints(output):
+    _add_source_value(output, transient=True)
+    result = run(output, **_source_value_inventory())
+    assert result["status"] == "fail", result["errors"]
+    assert any("source value" in error and "11" in error for error in result["errors"])
+    assert result["source_value_guard"]["status"] == "fail"
+
+
+def test_source_value_guard_is_unchecked_without_independent_mapping(output):
+    _add_source_value(output, transient=True)
+    result = run(output)
+    assert result["status"] == "pass", result["errors"]
+    assert result["source_value_guard"]["status"] == "unchecked"
+
+
+def test_missing_mapped_source_value_is_unverified(output):
+    result = run(output, **_source_value_inventory())
+    assert result["status"] == "unverified"
+    assert "source value" in " ".join(result["errors"])
+
+
+def test_source_value_sub_verdict_survives_an_unrelated_layout_failure(output):
+    _add_source_value(output)
+    _inject_style(output, "[data-dv-slide] p{font-size:8px!important}")
+    result = run(output, **_source_value_inventory())
+    assert result["status"] == "fail"
+    assert result["source_value_guard"]["status"] == "pass"
+
+
 @pytest.mark.parametrize(
     "css,error",
     [
