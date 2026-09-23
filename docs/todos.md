@@ -1,8 +1,8 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** PRs #252 through #257 passed protected integration and post-merge checks. The 62 historical v4.0 CI tasks are reconciled in archived evidence, and the v4.4 guide repairs and bounded v4.11 temporal guard are archived. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
-**Closeout boundary:** The former 47 pre-existing changes remain on a local review branch. Model-map integration is tracked in PR #259; three future-plan branches, recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim.
+**Active work:** Historical v4.0-v4.13 plan tasks are integrated. PR #259 passed protected integration and post-merge smoke and provenance; its premature v3.18 and v3.5 archive moves were reversed and its model-map guard merged. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Closeout boundary:** The former 47 pre-existing changes remain on a local review branch. Three future-plan branches, recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim.
 **Last refreshed:** 2026-09-23
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
