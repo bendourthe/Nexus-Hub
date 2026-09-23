@@ -412,7 +412,7 @@ def test_the_required_jobs_are_never_gated_by_the_classifier():
 )
 def test_python_install_workflows_use_the_universal_constraints(name: str):
     workflow = load(WORKFLOW_DIR / f"{name}.yml")
-    assert workflow["env"]["PIP_CONSTRAINT"] == "scripts/ci/requirements-py311.txt"
+    assert workflow["env"]["PIP_CONSTRAINT"] == "${{ github.workspace }}/scripts/ci/requirements-py311.txt"
     for job in workflow["jobs"].values():
         for step in job.get("steps", []):
             options = step.get("with", {})

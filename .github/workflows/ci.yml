@@ -48,7 +48,7 @@ permissions:
   contents: read
 
 env:
-  PIP_CONSTRAINT: scripts/ci/requirements-py311.txt
+  PIP_CONSTRAINT: ${{ github.workspace }}/scripts/ci/requirements-py311.txt
 
 # Cancel superseded runs of the same ref (the single largest action-minute
 # saver) so only the latest commit on a pull request runs.
