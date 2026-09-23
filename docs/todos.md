@@ -54,6 +54,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Record the model-map placement guard and non-final-phase test-scoping decisions in the living decision tree, with their alternatives, accepted trade-offs, and executable owners.
 - [ ] Map real handbook source values before claiming artifact-level temporal coverage; the current repository handbook returns `source_value_guard: unchecked`.
 - [ ] Resolve v4.13 BG-7's per-call spend overshoot and rerun a newly frozen trigger pilot only after the approved USD 35 hard ceiling is enforceable; the 2026-09-23 attempt stopped after two unknown-selection calls.
+- [x] Qualify a local v4.13 BG-7 safety repair: reject non-finite or missing cost as free, persist an in-flight receipt before each call, and stop after an observed per-call overrun; this does not satisfy the USD 35 hard ceiling or authorize a live rerun.
 
 ---
 
