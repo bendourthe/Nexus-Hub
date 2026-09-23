@@ -1,7 +1,7 @@
 # Known Gaps - v4.8
 
 **Project**: Nexus-Hub
-**Status**: FINALIZED for the v4.8.0 release. The adoption plan merged as PR #183 (`191e536a`) and the post-merge gap sweep as PR #184 (`49d408e7`), both green on every required check. Of the seven items this cycle opened, six are resolved and one is open: the org-CLI half of `WN-I`, an intermittent Windows failure with four causes ruled out and its next diagnostic step recorded. Carried forward unchanged: `WN-A` (guide byte headroom), `WN-C` (`make test` install prerequisite), and the eight v4.4 items, each given an explicit touched-or-not verdict in `development/last-phase-evidence.md`.
+**Status**: FINALIZED for the v4.8.0 release. The adoption plan merged as PR #183 (`191e536a`) and the post-merge gap sweep as PR #184 (`49d408e7`), both green on every required check. At that release checkpoint, six of seven new items were resolved and the org-CLI half of `WN-I` remained open; its later resolution is recorded below. Carried forward at that checkpoint: `WN-A` (guide byte headroom), `WN-C` (`make test` install prerequisite), and the eight v4.4 items, each given an explicit touched-or-not verdict in `development/last-phase-evidence.md`. `WN-C` was resolved in the 2026-09-22 follow-up below.
 **Last updated**: 2026-09-07
 
 ## Open Items - found 2026-09-06 while verifying this session's work
@@ -23,6 +23,7 @@
 - **Why it is worth recording**: the prerequisite is named only in the individual extension READMEs, and there is no `make install` or `make dev` target. A contributor running the repository's own documented test command on a fresh clone gets three broken suites and three unrelated-looking error shapes, none of which points at the missing install.
 - **Suggested next step**: either add a `make dev` target that performs the six editable installs and reference it from the `test` target's help text, or have those three suites skip with an explanatory reason when their package or the AST backend is not importable (`pytest.importorskip`). The second option keeps `make test` honest on any machine; the first keeps coverage. They are not exclusive.
 - **Not changed here**: the tests are correct given the documented install, so silencing them would trade a confusing failure for silent non-coverage. This is a deliberate design choice for a maintainer, not a repair.
+- **RESOLVED 2026-09-22 (post-release)**: `make dev` now performs the six editable development-extra installs, and `make test` names that prerequisite in its help text. The README gives the same command directly for Windows hosts without `make`. A contract test compares both command surfaces against every extension `pyproject.toml`; pip's six-extra dry run resolved successfully on Windows. `make test` itself remains unchanged and still provides full coverage after setup.
 
 #### WN-B - `test_file_size_budget` measured the checkout, not the artifact (fixed here)
 

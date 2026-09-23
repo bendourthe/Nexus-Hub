@@ -633,6 +633,12 @@ Maintainers can opt into the [repository attribution hook](.githooks/README.md).
 
 Validation logic lives in the repository, not in the workflow files, so what CI runs is exactly what you can run:
 
+Before running `make test` on a fresh clone, run `make dev` to install all six extension development extras. On a Windows host without `make`, run the same install directly:
+
+```powershell
+python -m pip install --quiet -e "extensions/nexus-skill-server/[dev]" -e "extensions/nexus-code-search/[dev]" -e "extensions/nexus-web-fetch/[dev]" -e "extensions/nexus-skill-scanner/[dev]" -e "extensions/nexus-context-compressor/[dev]" -e "extensions/nexus-memory/[dev]"
+```
+
 ```bash
 make ci-fast       # seconds: parses, hygiene, workflow security, version sync
 make ci-full       # minutes: every validator, the whole test tree, extensions

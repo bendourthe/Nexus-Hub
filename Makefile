@@ -1,4 +1,4 @@
-.PHONY: all validate lint build-catalog test scan eval trigger-evals compress-eval benchmark clean help \n        ci-fast ci-full ci-platform ci-report ci-release
+.PHONY: all validate lint build-catalog dev test scan eval trigger-evals compress-eval benchmark clean help \n        ci-fast ci-full ci-platform ci-report ci-release
 
 all: validate lint ## Run validation and linting
 
@@ -90,7 +90,10 @@ build-catalog: ## Rebuild skills.json and templates.json from source
 	@python infrastructure/tools/build_templates_catalog.py
 	@echo "Catalogs rebuilt."
 
-test: ## Run MCP skill server + repo-level pytest suites
+dev: ## Install all six extension development extras before local tests
+	@python -m pip install --quiet -e "extensions/nexus-skill-server/[dev]" -e "extensions/nexus-code-search/[dev]" -e "extensions/nexus-web-fetch/[dev]" -e "extensions/nexus-skill-scanner/[dev]" -e "extensions/nexus-context-compressor/[dev]" -e "extensions/nexus-memory/[dev]"
+
+test: ## Run extension and repo pytest suites after make dev
 	@echo "Running tests..."
 	@cd extensions/nexus-skill-server && python -m pytest -q
 	@cd extensions/nexus-code-search && python -m pytest -q
