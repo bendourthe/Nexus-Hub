@@ -106,7 +106,7 @@ v4.2.1's UI was never published. The v4.2.2 plan (`plans/v4.2.2-guide-cinematic-
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 2 | 0 |
+| Deferred (DF) | 1 | 1 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
@@ -123,15 +123,17 @@ v4.2.1's UI was never published. The v4.2.2 plan (`plans/v4.2.2-guide-cinematic-
 - **Reason**: Inherited from v4.2.1 DF-1. No cohort of five participants exists to run a workshop against. Rendered QA, WCAG AA contrast, keyboard, and reduced-motion checks were all run and are recorded; the workshop specifically was not, and is not claimed.
 - **Suggested next step**: When a cohort is available, run the eight-step Training walkthrough with five people and record where they stall. Until then this stays open rather than being marked satisfied by proxy evidence.
 
+### Resolved
+
+#### Deferred
+
 ##### DF-1 - Unicode-safety validator does not scan `.html`, so the guide is outside the sanitize gate
 
 - **Source phase**: Phase 1 - Design brief, design system, shell, and render harness
 - **Plan reference**: `docs/archives/v4/v4.2/plans/v4.2.2-guide-cinematic-rebuild.md` T003
-- **Reason**: `scripts/validate_unicode_safety.py` `TEXT_EXTENSIONS` excludes `.html`; the rebuilt guide relies on HTML entities and review instead. Extending the validator is outside this plan's changed-line scope.
-- **Reconciliation evidence**: On 2026-08-31, `scripts/validate_unicode_safety.py` still omitted `.html` from `TEXT_EXTENSIONS`, so the visual HTML detector did not close this text-sanitization gap.
-- **Suggested next step**: A future patch adds `.html` (or a guide-specific entity allowlist) to the validator and grandfathers existing archives.
-
-### Resolved
+- **Evidence at deferral**: `scripts/validate_unicode_safety.py` excluded `.html`; the rebuilt guide relied on HTML entities and review. The visual HTML detector did not close this text-sanitization gap on 2026-08-31.
+- **Resolution**: Active `.html` files and HTML entities now enter the Unicode safety gate; archived files remain exempt. The [post-release evidence](../../../archives/v4/v4.2/development/unicode-validator-gap-reconciliation.md) records 45 passed, 1 skipped, and a clean 2,842-file strict scan.
+- **Resolved in**: post-release validator repair on 2026-09-22, pending protected-branch publication.
 
 #### Missing Tests
 
@@ -154,7 +156,7 @@ v4.2.1's UI was never published. The v4.2.2 plan (`plans/v4.2.2-guide-cinematic-
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 2 | 0 |
+| Deferred (DF) | 1 | 1 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
@@ -162,17 +164,9 @@ v4.2.1's UI was never published. The v4.2.2 plan (`plans/v4.2.2-guide-cinematic-
 
 ### Open Items
 
-DF-1 and DF-2 remain open from v4.2.2. MT-1 is resolved below by functional browser evidence added in v4.4.0.
+DF-2 remains open from v4.2.2. DF-1 is resolved below by the post-release validator repair; MT-1 is resolved by functional browser evidence added in v4.4.0.
 
 #### Deferred
-
-##### DF-1 - Unicode-safety validator does not scan `.html`, and misses wrong-script glyphs
-
-- **Source phase**: carried from v4.2.2 DF-1; re-confirmed in v4.2.3 Phase 7
-- **Plan reference**: `docs/archives/v4/v4.2/plans/v4.2.3-guide-refinement.md` T026
-- **Reason**: `scripts/validate_unicode_safety.py` excludes `.html` from `TEXT_EXTENSIONS`, so the guide is outside the gate entirely. This cycle also showed the validator misses a second class in files it DOES scan: writing the v4.2.3 plan introduced a stray CJK character (U+6539) into a `.md` file, the validator scanned it and reported "repaired 0 files", and a separate scan caught it. The tool flags invisible characters and smart punctuation, not a valid-but-wrong-script glyph.
-- **Reconciliation evidence**: On 2026-08-31, `.html` remained absent from `TEXT_EXTENSIONS` and no script-range check was present, so both parts of this gap remain open.
-- **Suggested next step**: add `.html` to `TEXT_EXTENSIONS` (grandfathering existing archives), and add a script-range check that flags characters outside the expected scripts for an English document.
 
 ##### DF-2 - The five-person workshop validation was not run
 
@@ -182,6 +176,16 @@ DF-1 and DF-2 remain open from v4.2.2. MT-1 is resolved below by functional brow
 - **Suggested next step**: when a cohort is available, run the eight-step Training walkthrough with five people and record where they stall.
 
 ### Resolved
+
+#### Deferred
+
+##### DF-1 - Unicode-safety validator does not scan `.html`, and misses wrong-script glyphs
+
+- **Source phase**: carried from v4.2.2 DF-1; re-confirmed in v4.2.3 Phase 7
+- **Plan reference**: `docs/archives/v4/v4.2/plans/v4.2.3-guide-refinement.md` T026
+- **Evidence at deferral**: `.html` was excluded from the gate, and a stray CJK letter (U+6539) in an English `.md` plan passed the validator until a separate scan found it.
+- **Resolution**: The validator reports non-Latin letters in active English Markdown and HTML without guessing replacements, including encoded HTML references. The [post-release evidence](../../../archives/v4/v4.2/development/unicode-validator-gap-reconciliation.md) records the archive exemption and strict repository scan.
+- **Resolved in**: post-release validator repair on 2026-09-22, pending protected-branch publication.
 
 #### Missing Tests
 
