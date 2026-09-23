@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import replace
+from pathlib import Path
 
 from scripts.lib.integrations import cursor as cursor_module
 from scripts.lib.integrations import get
@@ -139,6 +140,35 @@ def test_cursor_posix_registration_uses_bash(
     assert all("bash " in command and ".sh" in command and ".ps1" not in command for command in commands)
     assert "python" in data["hooks"]["sessionStart"][0]["command"]
     assert "nexus_git_attribution.py" in data["hooks"]["sessionStart"][0]["command"]
+
+
+def test_explicit_workspace_cursor_hook_uses_installed_home_helper(
+    install_ctx: InstallContext, monkeypatch, tmp_path: Path
+):
+    home = tmp_path / "home"
+    home.mkdir()
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: home))
+    ctx = replace(install_ctx, explicit_target=True)
+    cursor_root = ctx.target_root / ".cursor"
+    CursorIntegration()._write_hooks_json(cursor_root, cursor_root / "hooks", ctx, "workspace")
+    data = json.loads((cursor_root / "hooks.json").read_text(encoding="utf-8"))
+    command = data["hooks"]["sessionStart"][0]["command"]
+    assert (home / ".nexus-hub/scripts/nexus_git_attribution.py").as_posix() in command
+    assert (ctx.target_root / ".nexus-hub/scripts/nexus_git_attribution.py").as_posix() not in command
+
+
+def test_explicit_global_cursor_hook_uses_isolated_helper(
+    install_ctx: InstallContext, monkeypatch, tmp_path: Path
+):
+    home = tmp_path / "home"
+    home.mkdir()
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: home))
+    ctx = replace(install_ctx, scope="global", explicit_target=True)
+    cursor_root = ctx.target_root / ".cursor"
+    CursorIntegration()._write_hooks_json(cursor_root, cursor_root / "hooks", ctx, "global")
+    data = json.loads((cursor_root / "hooks.json").read_text(encoding="utf-8"))
+    command = data["hooks"]["sessionStart"][0]["command"]
+    assert (ctx.target_root / ".nexus-hub/scripts/nexus_git_attribution.py").as_posix() in command
 
 
 def test_cursor_stop_carries_the_completion_notification(install_ctx: InstallContext):

@@ -181,7 +181,7 @@ def _note(message: str) -> None:
     print(f"note: org-knowledge: {message}", file=sys.stderr)
 
 
-def _expand(path: str | Path) -> Path:
+def _expand(path: str | Path, home: Path | None = None) -> Path:
     """Expand ``~`` through ``Path.home()`` so isolated tests stay isolated.
 
     ``os.path.expanduser`` reads process environment variables and can escape a
@@ -190,10 +190,11 @@ def _expand(path: str | Path) -> Path:
     """
 
     raw = str(path)
+    root = Path.home() if home is None else home
     if raw == "~":
-        return Path.home()
+        return root
     if raw.startswith("~/") or raw.startswith("~\\"):
-        return Path.home() / raw[2:]
+        return root / raw[2:]
     return Path(raw)
 
 
@@ -440,10 +441,11 @@ def _install_home() -> Path:
     return Path(override).expanduser() if override else Path.home() / ".nexus-hub"
 
 
-def _connected_bundle() -> tuple[Path | None, str | None]:
+def _connected_bundle(home: Path | None = None) -> tuple[Path | None, str | None]:
     """Resolve the connected bundle, distinguishing no connection from damage."""
 
-    connection = _install_home() / "org" / "connection.json"
+    install_home = _install_home() if home is None else home / ".nexus-hub"
+    connection = install_home / "org" / "connection.json"
     if not connection.exists():
         return None, None
     try:
@@ -454,9 +456,9 @@ def _connected_bundle() -> tuple[Path | None, str | None]:
         return None, "connection state must be a JSON object"
     source_type = state.get("source_type")
     if source_type == "git":
-        return _install_home() / "org" / "repo", None
+        return install_home / "org" / "repo", None
     if source_type == "dir" and isinstance(state.get("source"), str):
-        return _expand(state["source"]), None
+        return _expand(state["source"], home), None
     return None, "connection state declares an unsupported source"
 
 
@@ -719,7 +721,8 @@ def _declared_rules_root(integration: Any, ctx: Any) -> Path | None:
         parent = integration.config.get("global_dir")
         if parent is None:
             return None
-        return _expand(parent) / subdir
+        home = Path(getattr(ctx, "global_root", Path.home()))
+        return _expand(parent, home) / subdir
     parent = integration.config.get("workspace_dir")
     if parent is None:
         return None
@@ -795,7 +798,8 @@ def seed_org_knowledge(integration_key: str, ctx: Any) -> list[FileAction]:
     from . import get
     from .result import FileAction
 
-    bundle_path, connection_error = _connected_bundle()
+    home = Path(ctx.target_root) if getattr(ctx, "scope", None) == "global" and getattr(ctx, "explicit_target", False) else None
+    bundle_path, connection_error = _connected_bundle(home)
     if bundle_path is None and connection_error is None:
         manifest = getattr(ctx, "manifest", None)
         actions = remove_org_knowledge(integration_key, ctx)

@@ -82,13 +82,13 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
         result = WriteResult()
-        codex_root = (Path.home() / ".codex").resolve()
+        codex_root = (ctx.global_root / ".codex").resolve()
         self._ensure_dir(codex_root, ctx)
         action = self._write_instruction(codex_root, ctx)  # ~/.codex/AGENTS.md
         if action is not None:
             result.files.append(action)
         if not ctx.instruction_only:
-            agents_root = (Path.home() / ".agents").resolve()
+            agents_root = (ctx.global_root / ".agents").resolve()
             result.files.extend(self._mirror_codex(codex_root, agents_root, ctx))
             result.files.extend(self._install_native(codex_root, ctx, scope="global"))
             result.notes.extend(self._trust_notes())
@@ -250,5 +250,5 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
 
     def _codex_roots(self, ctx: InstallContext) -> list[Path]:
         if ctx.scope == "global":
-            return [(Path.home() / ".codex").resolve()]
+            return [(ctx.global_root / ".codex").resolve()]
         return [(ctx.target_root / ".codex").resolve()]

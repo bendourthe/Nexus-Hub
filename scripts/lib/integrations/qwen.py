@@ -94,7 +94,7 @@ class QwenIntegration(MarkdownIntegration, SkillsIntegration, SettingsHooksMixin
         workspace-scope project surfaces are unaffected).
         """
         result = WriteResult()
-        qwen_root = (Path.home() / ".qwen").resolve()
+        qwen_root = (ctx.global_root / ".qwen").resolve()
         if not qwen_root.exists():
             ctx.manifest.log(
                 self.key, "~/.qwen not found; skipping global Qwen surfaces"
@@ -130,5 +130,5 @@ class QwenIntegration(MarkdownIntegration, SkillsIntegration, SettingsHooksMixin
     @staticmethod
     def _qwen_roots(ctx: InstallContext) -> list[Path]:
         if ctx.scope == "global":
-            return [(Path.home() / ".qwen").resolve()]
+            return [(ctx.global_root / ".qwen").resolve()]
         return [(ctx.target_root / ".qwen").resolve()]

@@ -1279,6 +1279,17 @@ def test_connector_crossing_an_unrelated_node_is_flagged():
     assert _status(scorer.score_html(page), "svg-connector-routing") == "fail"
 
 
+def test_chart_gridline_behind_opaque_bar_is_not_a_connector_crossing():
+    """An underlay covered by a later bar is not a visible routed connector."""
+    page = _svg_page(
+        '<svg viewBox="0 0 300 100">'
+        '<line x1="10" y1="50" x2="290" y2="50" opacity="0.25"/>'
+        '<rect class="bar" x="120" y="30" width="60" height="40" fill="#333"/>'
+        '</svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "pass"
+
+
 def test_connector_attaching_at_a_node_is_not_flagged():
     """The near-miss: an endpoint inside a node is attachment, not a crossing."""
     page = _svg_page(

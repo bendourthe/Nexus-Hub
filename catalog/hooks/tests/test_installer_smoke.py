@@ -615,6 +615,8 @@ DEV_ONLY_SCRIPTS = {
     # check_version_sync.py (which IS distributed) this guard is deliberately
     # not copied by the installers.
     "check_base_template_parity.py",
+    # Repo-only CI-floor grammar guard; installed users do not have the tracked source tree.
+    "check_python_floor.py",
     # Repo-internal platform read-contract checker (v3.12.1): verifies the
     # installer code matches docs/policy/platform-read-contracts.md. Runs in
     # `make validate` and CI; an end user has no catalog source to check, so

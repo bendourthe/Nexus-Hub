@@ -201,6 +201,7 @@ PLATFORM_CONTRACTS = Group(
     commands=(
         _py("check_installer_parity", timeout=300),
         _py("check_base_template_parity", timeout=120),
+        _pytest("instruction-contracts", "tests/validators/test_communication_contract_rollout.py", timeout=120),
         _py("verify_platform_contracts", timeout=300),
         _py("check_platform_contract_freshness", timeout=120),
         _py("sync_platform_defaults", "--check", timeout=120),
@@ -514,6 +515,7 @@ RELEASE_CHECKS = Group(
 INTERPRETERS = Group(
     name="interpreters",
     commands=(
+        _py("check_python_floor", timeout=120),
         # Nexus-Hub registers hooks as `bash <script>` and the HOST performs that
         # launch, so a host whose `bash` cannot execute a script leaves every hook
         # silently inert. No other group can see this: they all run Python

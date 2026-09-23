@@ -624,7 +624,7 @@ class OpenClawIntegration(MarkdownIntegration, SkillsIntegration):
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
         """Install into the configured default workspace when OpenClaw is detected."""
-        openclaw_root = (Path.home() / ".openclaw").resolve()
+        openclaw_root = (ctx.global_root / ".openclaw").resolve()
         try:
             _, state_dir, config_path, _config_required = _openclaw_locations(
                 openclaw_root
@@ -657,6 +657,21 @@ class OpenClawIntegration(MarkdownIntegration, SkillsIntegration):
                 f"OpenClaw config ({config_path}) is unusable: {exc}; "
                 "global workspace surfaces skipped"
             )
+            ctx.manifest.log(self.key, message)
+            result.mark_not_detected(message)
+            return result
+        if ctx.explicit_target and not workspace.resolve().is_relative_to(ctx.target_root.resolve()):
+            result = WriteResult()
+            message = f"OpenClaw workspace {workspace} is outside explicit target; global workspace surfaces skipped"
+            ctx.manifest.log(self.key, message)
+            result.mark_not_detected(message)
+            return result
+        if ctx.explicit_target and any(
+            not path.is_relative_to(ctx.target_root.resolve())
+            for path in (state_dir, config_path)
+        ):
+            result = WriteResult()
+            message = "OpenClaw state or config path escapes explicit target; global workspace surfaces skipped"
             ctx.manifest.log(self.key, message)
             result.mark_not_detected(message)
             return result

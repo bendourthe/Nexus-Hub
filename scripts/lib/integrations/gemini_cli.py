@@ -59,7 +59,7 @@ class GeminiCliIntegration(
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
         result = super().install_global(ctx)
-        root = (Path.home() / ".gemini").resolve()
+        root = (ctx.global_root / ".gemini").resolve()
         result.files.extend(self._write_toml_commands(root / "commands", ctx))
         if not ctx.instruction_only:
             result.extend(self._install_settings_hooks(root, ctx, scope="global"))
@@ -85,5 +85,5 @@ class GeminiCliIntegration(
     @staticmethod
     def _gemini_roots(ctx: InstallContext) -> list[Path]:
         if ctx.scope == "global":
-            return [(Path.home() / ".gemini").resolve()]
+            return [(ctx.global_root / ".gemini").resolve()]
         return [(ctx.target_root / ".gemini").resolve()]

@@ -56,6 +56,10 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/check_memory_provenance.py
 	@echo "Checking base-*.md lockstep parity (claude/codex/cursor/gemini/opencode)..."
 	@python scripts/check_base_template_parity.py
+	@echo "Checking communication and documentation contracts across instruction templates..."
+	@python -m pytest tests/validators/test_communication_contract_rollout.py -q
+	@echo "Checking tracked Python source against the CI grammar floor..."
+	@python scripts/check_python_floor.py
 	@echo "Checking per-model prompting profile layer (structural schema gate)..."
 	@python scripts/verify_model_prompting_profiles.py
 # NOTE: scripts/check_model_prompting_freshness.py is deliberately NOT run here.

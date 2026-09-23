@@ -54,10 +54,9 @@ Evidence for weighting existing at all: measured 2026-08-19 against a private re
 
 **This decision does not grant more than it claims.** The figure is still a reconstruction. GitHub publishes no included-minute multiplier, the allowance itself remains plan-table-derived because no endpoint returns it, and price-ratio weighting cannot be separated from the legacy table by any saturated month.
 
-**The falsifier is written down.** `docs/v3/v3.18/development/github-drawdown-ledger.md` states it: an unsaturated month whose non-Linux share exceeds 15% and whose displayed value matches unweighted raw minutes would refute this decision. `src/providers/reconciliation.ts` classifies each observed month and refuses to count a saturated or Linux-dominated month as support, which is the specific error behind two of the three prior revisions.
+**The falsifier was written down.** The withdrawn ledger in commit `5b070c3b` states it: an unsaturated month whose non-Linux share exceeds 15% and whose displayed value matches unweighted raw minutes would refute this decision. Recover that historical evidence with `git show 5b070c3b:docs/v3/v3.18/development/github-drawdown-ledger.md`. The withdrawn `src/providers/reconciliation.ts` classified each observed month and refused to count a saturated or Linux-dominated month as support, which was the specific error behind two of the three prior revisions.
 
 ## Related
 
-- [`docs/policy/github-actions-minute-consumption.md`](../../../policy/github-actions-minute-consumption.md)
-- [`docs/releases/v3/v3.18/development/github-drawdown-ledger.md`](../../../releases/v3/v3.18/development/github-drawdown-ledger.md)
+- The GitHub Actions policy and drawdown ledger were intentionally deleted with the extension; the ledger remains recoverable from commit `5b070c3b` using the command above.
 - [`docs/releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)

@@ -50,7 +50,7 @@ class HermesIntegration(SkillsIntegration):
         add ``~/.agents/skills`` to the user-owned ``skills.external_dirs`` list.
         """
         result = WriteResult()
-        hermes_root = (Path.home() / ".hermes").resolve()
+        hermes_root = (ctx.global_root / ".hermes").resolve()
         if not hermes_root.exists():
             ctx.manifest.log(self.key, "~/.hermes not found; skipping global Hermes surfaces")
             result.mark_not_detected("Hermes (~/.hermes) not found; global skills skipped")
