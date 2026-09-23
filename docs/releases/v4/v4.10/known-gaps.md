@@ -1,14 +1,14 @@
 # Known gaps - v4.10
 
-**Status**: implementation and publication closure complete. v4.10.0 merged into `develop` in PR #198 and shipped inside v4.11.0 without a retroactive v4.10.0 tag. v4.10.1 merged into `develop` through PR #232 at `c54dbeb4`; T034 is complete, and no retroactive v4.10.1 tag is planned. The five bounded items below remain known limitations, not unfinished plan tasks.
+**Status**: implementation and publication closure complete. v4.10.0 merged into `develop` in PR #198 and shipped inside v4.11.0 without a retroactive v4.10.0 tag. v4.10.1 merged into `develop` through PR #232 at `c54dbeb4`; T034 is complete, and no retroactive v4.10.1 tag is planned. Four bounded items below remain known limitations, not unfinished plan tasks.
 
 Unfinished work, deferrals, and defects found during v4.10.0 that did not reach a clean state. Open items carry forward into the next plan's ingest.
 
-**Last updated**: 2026-09-22
+**Last updated**: 2026-09-23
 
 ## Open Items - found 2026-09-10 during v4.10.0 implementation
 
-**Summary**: 5 open (0 DF, 2 WN, 1 MT, 2 EV). WN-3 resolved 2026-09-12; DF-1, WN-2, and MT-1 resolved 2026-09-22 during v4.10.1 closure.
+**Summary**: 4 open (0 DF, 1 WN, 1 MT, 2 EV). WN-3 resolved 2026-09-12; DF-1, WN-2, and MT-1 resolved 2026-09-22 during v4.10.1 closure; WN-1 resolved 2026-09-23.
 
 ## Open Items - found 2026-09-21 during v4.10.1 implementation
 
@@ -52,6 +52,8 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **Suggested next step**: update the "Register the skill" section of `AGENTS.md` to name all five files and both derived-count surfaces, and to point at `python scripts/check_registry_entries.py --emit <skill>`, which prints a paste-ready entry with the correct field shapes and would have prevented three of the four errors above. Prefer deriving counts from the entry list over incrementing by hand.
 
 ### WN-1 - The residual-reference check scans Markdown only
+
+**Status**: RESOLVED 2026-09-23 by PR #262, merged at `30ecff7b`; post-merge run 35925138595 passed smoke and provenance. The scanner now checks repository Markdown and JSON under `docs/`, but deliberately excludes generated `data/` inventories and other file types. A sealed JSON record can be exempted only by an explicit, printed `--skip` prefix. Two failing-first tests cover the JSON survivor and the sealed-record exemption; the owning module passed 17 tests. A real-tree scan found 85 historical `v4.10.0` references, including the previously missed `v4.9-layout-public.json` as its sole JSON hit. The [archived qualification](../../../archives/v4/v4.10/development/residual-reference-json/verification.md) preserves the boundary and evidence; it does not claim a repository-wide scan of every file type.
 
 - **Source phase**: Phase 5 (T015, T016).
 - **Plan reference**: v4.10.0 D6, "residual-reference check that fails on a single survivor".
