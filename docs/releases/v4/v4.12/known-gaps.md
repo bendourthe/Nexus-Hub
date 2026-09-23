@@ -14,7 +14,7 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 1 | 1 |
+| Bugs / regressions (BG) | 0 | 2 |
 | Warnings (WN) | 1 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 2 | 2 |
@@ -24,6 +24,8 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 #### BG-2: New-branch push could trust another remote's history
 
 **Source**: Independent v4.12 follow-up review. **Introduced later**: `8e9bb9d9`. **Owner**: Attribution guard maintainer. A forbidden pre-guard trailer on one remote was allowed through the installed hook when pushed to a second empty destination because the new-branch scan excluded all local remote-tracking refs. The [repair evidence](../../../archives/v4/v4.12/development/attribution-remote-boundary-repair.md) records the failing reproduction, the destination-specific candidate, and local tests. **Status**: open until hosted CI, merge, and post-merge verification of the repair.
+
+**Resolution, 2026-09-22**: PR #244 passed all 18 final hosted jobs, merged at `07e31f95`, and post-merge run 35828234631 passed smoke and provenance. The [hosted qualification](../../../archives/v4/v4.12/development/attribution-remote-boundary-hosted-qualification.md) limits this closure to the Git pre-push destination boundary. BG-2 is resolved; the original open status above records the pre-publication gate.
 
 #### WN-1: Existing CI-profile lint findings
 
@@ -79,6 +81,8 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 **Status**: RESOLVED 2026-09-22 for the review obligation, not a clean-code verdict. An independent follow-up reviewer reproduced the new-branch destination bypass recorded as BG-2 and exercised a clean 821-ref destination control. The [repair evidence](../../../archives/v4/v4.12/development/attribution-remote-boundary-repair.md) records the finding and local candidate. BG-2 remains open until hosted and post-merge proof.
 
+**Publication follow-up**: BG-2's hosted and post-merge proof is complete in PR #244. The independent review remains a finding-based review, not a global clean verdict.
+
 **Source phase**: Phase 4. **Plan reference**: T019, functional-verification deep-pass Step 6. **Reason**: a separate reviewer returned the PR-ref finding, then its turn was stopped by an automated security filter before remaining exercise results were returned.
 
 **Historical owner and next step**: Repository owner and authorized independent reviewer were to obtain the remaining review before assigning a clean adversarial verdict. Existing ordinary tests and the earlier PR-ref finding remain evidence for their own scopes. See [original review status](../../../archives/v4/v4.12/development/ADVERSARIAL-REPORT.md).
@@ -92,6 +96,14 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 **Owner**: CI maintainer. **Suggested next step**: retain `phase4-full/summary.json` and investigate the current Windows whole-repository runtime before claiming that host's full profile qualified. The documented 3,341.7-second baseline dates to August 28 and predates newer benchmark tests; this is a workload hypothesis, not a measured cause. Current CI runs the full repository suite on Ubuntu and separately pins Windows-specific coverage to PowerShell 5.1. Linux full-profile and exact Windows CI-group results are recorded separately in the final evidence; neither retroactively changes the original Windows non-pass. No test limit was increased.
 
 ### Resolved
+
+#### BG-2: New-branch push could trust another remote's history
+
+PR #244's destination-specific guard passed hosted Linux and Windows validation and post-merge smoke/provenance. The original failing push and the qualified repair are preserved in the linked evidence above.
+
+#### QG-3: Independent adversarial review incomplete
+
+The independent follow-up found BG-2 and exercised its clean high-ref control. The review obligation closed with a finding, not a clean-code declaration.
 
 #### WN-1: Existing CI-profile lint findings
 

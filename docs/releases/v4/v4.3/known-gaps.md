@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: finalized for the v4.3.0 release
-**Finalized**: 2026-08-31, at `/update release`. Two deferred items and two warnings below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. DF-1, DF-2, and DF-5 were resolved post-release. One warning was resolved during v4.4.0 Phase 7 reconciliation; the four resolved bugs and one resolved coverage gap were fixed within this release.
-**Last updated**: 2026-09-22 (DF-1 and DF-2 hosted follow-up)
+**Finalized**: 2026-08-31, at `/update release`. One deferred item and two warnings below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. DF-1, DF-2, DF-3, and DF-5 were resolved post-release. One warning was resolved during v4.4.0 Phase 7 reconciliation; the four resolved bugs and one resolved coverage gap were fixed within this release.
+**Last updated**: 2026-09-22 (DF-3 hosted follow-up)
 
 ## v4.3.0 - agentic-verification-discipline
 
@@ -12,7 +12,7 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 2 | 3 |
+| Deferred (DF) | 1 | 4 |
 | Bugs / regressions (BG) | 0 | 4 |
 | Warnings (WN) | 2 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
@@ -62,6 +62,8 @@
 **Producer follow-up**: The existing CI-engine test command now emits scoped coverage XML, and the existing catalog security scan emits SARIF at its unchanged high-severity threshold. The [producer evidence](../../../archives/v4/v4.3/development/ci-report-producer-evidence.md) records local output and the hosted gate. DF-3 remains open until both files are observed in the hosted aggregate.
 
 **First hosted run**: PR #243's Linux tests job failed because its scoped install omitted pytest-cov, despite the plugin being pinned in the universal lock. The [failed-run repair record](../../../archives/v4/v4.3/development/ci-report-producer-hosted-repair.md) preserves that result and the locally tested dependency correction. Hosted replacement evidence is still pending.
+
+**Resolution, 2026-09-22**: PR #243's replacement run passed all required jobs and uploaded an aggregate with five source receipts, real CI-engine coverage XML and catalog-scanner SARIF at verified hashes and typed index entries. The seven-day artifact expiry and passing post-merge smoke/provenance are recorded in the [hosted qualification](../../../archives/v4/v4.3/development/ci-report-producer-hosted-qualification.md). DF-3 is resolved; the earlier pending statements remain historical staging evidence.
 
 ##### DF-4 - OpenClaw tool interception requires a typed plugin
 
