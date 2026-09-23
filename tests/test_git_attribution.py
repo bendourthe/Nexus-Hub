@@ -588,3 +588,48 @@ def test_new_branch_push_scans_what_it_adds_not_the_whole_history(sandbox):
     result = run("git", "push", "origin", "feature:refs/heads/second", code=None)
     assert result.returncode != 0 and "attribution trailers" in result.stderr
     assert "second" not in run("git", "ls-remote", str(remote)).stdout
+
+
+def test_new_branch_push_does_not_trust_another_remotes_history(sandbox):
+    run, _, home = sandbox
+    upstream = home / "upstream.git"
+    destination = home / "destination.git"
+    for remote in (upstream, destination):
+        run("git", "init", "--bare", "-q", str(remote))
+    run(
+        "git",
+        "commit",
+        "--allow-empty",
+        "-m",
+        "Pre-guard\n\nCo-Authored-By: Claude <c@anthropic.com>",
+    )
+    run("git", "remote", "add", "upstream", str(upstream))
+    run("git", "push", "-q", "upstream", "HEAD:refs/heads/main")
+    run("git", "fetch", "-q", "upstream")
+    guard(run, "install")
+
+    result = run("git", "push", str(destination), "HEAD:refs/heads/main", code=None)
+    assert result.returncode != 0 and "attribution trailers" in result.stderr
+    assert not run("git", "ls-remote", str(destination)).stdout
+
+
+def test_new_branch_push_does_not_trust_stale_destination_tracking_ref(sandbox):
+    run, _, home = sandbox
+    destination = home / "destination.git"
+    run("git", "init", "--bare", "-q", str(destination))
+    run(
+        "git",
+        "commit",
+        "--allow-empty",
+        "-m",
+        "Pre-guard\n\nCo-Authored-By: Claude <c@anthropic.com>",
+    )
+    run("git", "remote", "add", "destination", str(destination))
+    run("git", "push", "-q", "destination", "HEAD:refs/heads/main")
+    run("git", "fetch", "-q", "destination")
+    run("git", "--git-dir", str(destination), "update-ref", "-d", "refs/heads/main")
+    guard(run, "install")
+
+    result = run("git", "push", "destination", "HEAD:refs/heads/main", code=None)
+    assert result.returncode != 0 and "attribution trailers" in result.stderr
+    assert not run("git", "ls-remote", str(destination)).stdout

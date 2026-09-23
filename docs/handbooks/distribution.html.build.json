@@ -8,16 +8,16 @@
     "scripts/dual_view.py": "cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2"
   },
   "output": "docs/handbooks/distribution.html",
-  "output_sha256": "8463c66d85d0d354374b89ceb2a10ddf8c9fe5138a866ad13606776d763cc557",
+  "output_sha256": "4d2a4ae4f52b2511c62e98475bc7d14ed32928111bccf71ebba78ecd7d360716",
   "schema_version": 1,
   "sources": {
-    "docs/handbooks/_sources/distribution/design.css": "4fcaa8059c7de97a989a27278a7ba8639adb0022e28f0605cd8269cb4b155c24",
+    "docs/handbooks/_sources/distribution/design.css": "4d2975128abe327205e8b3c4fd62d351644221e9e03bfbaa539986f3cc1b9a70",
     "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
-    "docs/handbooks/_sources/distribution/model.json": "c89ec3703b5dbc35eb4b62d12fcf2eba7a956f6319ef74c83dbce9386a6766ae",
+    "docs/handbooks/_sources/distribution/model.json": "cb159c54534bb7cdafeb11f179ae55a14404c17f87ec101e2514984ec3d4f87e",
     "docs/handbooks/_sources/distribution/ownership-composition.html": "31df6a101328862f4e525a8b79cec45cb531d3404a8c97a108b48fca4ff231e3",
     "docs/handbooks/_sources/distribution/route-composition.html": "349e1382529a541ee001f589b96194205c6e0854037bae2d240f54749b6d1cb3",
     "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
-    "docs/handbooks/_sources/distribution/source.md": "0b4bfc5f7254911e278bb74cb0b160ed372013a57eaf63356b91fc610acce080",
+    "docs/handbooks/_sources/distribution/source.md": "0bfab7469f5d7caf4aada264bef53ebb121acedba981983b8ad1d924b5ab8103",
     "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779"
   }
 }

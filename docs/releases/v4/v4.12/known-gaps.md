@@ -14,12 +14,16 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 0 | 1 |
+| Bugs / regressions (BG) | 1 | 1 |
 | Warnings (WN) | 1 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 3 | 1 |
+| Quality-gate gaps (QG) | 2 | 2 |
 
 ### Open Items
+
+#### BG-2: New-branch push could trust another remote's history
+
+**Source**: Independent v4.12 follow-up review. **Introduced later**: `8e9bb9d9`. **Owner**: Attribution guard maintainer. A forbidden pre-guard trailer on one remote was allowed through the installed hook when pushed to a second empty destination because the new-branch scan excluded all local remote-tracking refs. The [repair evidence](../../../archives/v4/v4.12/development/attribution-remote-boundary-repair.md) records the failing reproduction, the destination-specific candidate, and local tests. **Status**: open until hosted CI, merge, and post-merge verification of the repair.
 
 #### WN-1: Existing CI-profile lint findings
 
@@ -73,9 +77,11 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 #### QG-3: Independent adversarial review incomplete
 
+**Status**: RESOLVED 2026-09-22 for the review obligation, not a clean-code verdict. An independent follow-up reviewer reproduced the new-branch destination bypass recorded as BG-2 and exercised a clean 821-ref destination control. The [repair evidence](../../../archives/v4/v4.12/development/attribution-remote-boundary-repair.md) records the finding and local candidate. BG-2 remains open until hosted and post-merge proof.
+
 **Source phase**: Phase 4. **Plan reference**: T019, functional-verification deep-pass Step 6. **Reason**: a separate reviewer returned the PR-ref finding, then its turn was stopped by an automated security filter before remaining exercise results were returned.
 
-**Owner**: Repository owner and authorized independent reviewer. **Suggested next step**: obtain the remaining independent review through the supported review process before assigning a clean adversarial verdict. Existing ordinary tests and the returned finding remain valid evidence for their own scopes. See [review status](../../../archives/v4/v4.12/development/ADVERSARIAL-REPORT.md).
+**Historical owner and next step**: Repository owner and authorized independent reviewer were to obtain the remaining review before assigning a clean adversarial verdict. Existing ordinary tests and the earlier PR-ref finding remain evidence for their own scopes. See [original review status](../../../archives/v4/v4.12/development/ADVERSARIAL-REPORT.md).
 
 #### QG-4: Windows whole-repository profile timed out
 
@@ -108,7 +114,7 @@ The original 4,500-second monolithic timeout was retained. Repository tests are 
 
 ### Release disposition
 
-v4.12.0 was published on 2026-09-15 at tag `v4.12.0` (`0dabca77`) and reconciled into `develop` by the back-merge in PR #220. Post-publication verification of the downloaded artifacts passed for both published forms (1,929 manifest entries each, matching asset digest, successful provenance attestation). The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. Publication does not close the two open warnings and three open quality-gate gaps above; resolved historical entries remain visible rather than being rewritten. Portable attribution integration passed PR #217 and post-merge run 34925451808; it does not close those independent items. No unresolved portable-code finding remains. See [release qualification](../../../archives/v4/v4.12/development/release-qualification.md) for the release evidence and queue impacts.
+v4.12.0 was published on 2026-09-15 at tag `v4.12.0` (`0dabca77`) and reconciled into `develop` by the back-merge in PR #220. Post-publication verification of the downloaded artifacts passed for both published forms (1,929 manifest entries each, matching asset digest, successful provenance attestation). The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. The publication result is historical; post-release findings and resolutions are tracked above. Portable attribution integration passed PR #217 and post-merge run 34925451808. See [release qualification](../../../archives/v4/v4.12/development/release-qualification.md) for the release evidence and queue impacts.
 
 #### DF-1: Antigravity workflow surface retires on 2026-11-01
 

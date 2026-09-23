@@ -667,6 +667,12 @@ def measure(
                                     ceiling = inventory.get("type_ceilings", {}).get(
                                         named, TYPE_CEILINGS.get(named)
                                     )
+                                    if view == "presentation" and ceiling:
+                                        # A tall stage can require type larger than
+                                        # the reading-page ceiling for the same role.
+                                        ceiling = max(
+                                            ceiling, height * SLIDE_STAGE_FLOOR_FRACTION
+                                        )
                                     if ceiling and font["px"] > ceiling + 0.1:
                                         report["errors"].append(
                                             f"{identity}: oversized {named}: "

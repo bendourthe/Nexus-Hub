@@ -1,0 +1,10 @@
+{
+  "status": "pass",
+  "output_sha256": "4d2a4ae4f52b2511c62e98475bc7d14ed32928111bccf71ebba78ecd7d360716",
+  "browser": "Chromium 151.0.7922.34",
+  "measured_states": 200,
+  "errors": 0,
+  "no_js_print": "pass",
+  "fullscreen_fallback": "pass",
+  "qualitative_review": "Reading page inspected at 1440 by 900; the changed ownership text is visible and unclipped."
+}

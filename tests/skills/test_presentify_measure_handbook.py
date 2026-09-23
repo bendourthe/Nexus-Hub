@@ -248,6 +248,27 @@ def test_stage_floor_passes_compliant_stage_type(output):
     assert not any("slide-stage floor" in e for e in result["errors"]), result["errors"]
 
 
+def test_slide_caption_ceiling_cannot_be_below_its_stage_floor(output):
+    source = output.read_text(encoding="utf-8")
+    assert "<p>" in source
+    output.write_text(source.replace("<p>", '<p data-type-role="caption">'), encoding="utf-8")
+    _slide_body_px(output, 26)
+
+    result = _measure_at(output, (2560, 1300))
+    assert not any("slide-stage floor" in error for error in result["errors"])
+    assert not any("oversized caption" in error for error in result["errors"])
+
+    output.write_text(
+        output.read_text(encoding="utf-8").replace(
+            "[data-dv-slide] p{font-size:26px!important}",
+            "[data-dv-slide] p{font-size:60px!important}",
+        ),
+        encoding="utf-8",
+    )
+    oversized = _measure_at(output, (2560, 1300))
+    assert any("oversized caption" in error for error in oversized["errors"])
+
+
 def test_unavailable_detector_is_unverified(output):
     result = measurement.measure(
         output,
