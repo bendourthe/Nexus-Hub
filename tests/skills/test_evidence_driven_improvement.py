@@ -32,6 +32,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
 import pytest
@@ -1610,6 +1611,7 @@ class TestRunnerSelectionIsNotASubstringMatch:
             "context-engineering",
         )
         assert parsed["selected"] is True
+        assert parsed["skill_selectors"] == [{"command": "context-engineering"}]
 
     def test_another_skill_mentioning_this_one_does_not_count(self) -> None:
         """The defect: `skill in json.dumps(input)` scored this as a selection."""
@@ -1623,6 +1625,8 @@ class TestRunnerSelectionIsNotASubstringMatch:
             "context-engineering",
         )
         assert parsed["selected"] is False
+        assert parsed["skill_selectors"] == [{"command": "plan-before-code"}]
+        assert "ignore context-engineering here" not in json.dumps(parsed)
 
     def test_a_leading_slash_still_counts(self) -> None:
         m = _runner()
@@ -1632,6 +1636,77 @@ class TestRunnerSelectionIsNotASubstringMatch:
             "context-engineering",
         )
         assert parsed["selected"] is True
+        assert parsed["skill_selectors"] == [{"command": "context-engineering"}]
+
+    def test_non_skill_selector_is_redacted(self) -> None:
+        m = _runner()
+        parsed = m.parse_stream(
+            _stream(
+                _INIT,
+                _skill_call(command="private notes: example@example.com"),
+                {"type": "result", "total_cost_usd": 0.1},
+            ),
+            "context-engineering",
+        )
+        assert parsed["selected"] is False
+        assert parsed["skill_selectors"] == [{"command": "<invalid>"}]
+        assert "example@example.com" not in json.dumps(parsed)
+
+    def test_saved_row_retains_only_selector_evidence(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        monkeypatch.setattr(m, "stage_variant", lambda *args: {})
+        monkeypatch.setattr(m, "build_command", lambda *args: ["claude"])
+        monkeypatch.setattr(
+            m.subprocess,
+            "run",
+            lambda *args, **kwargs: subprocess.CompletedProcess(
+                args=["claude"],
+                returncode=0,
+                stdout=_stream(
+                    _INIT,
+                    _skill_call(command="plan-before-code", prompt="private prompt text"),
+                    {"type": "result", "total_cost_usd": 0.1},
+                ),
+            ),
+        )
+        item = {
+            "skill": "context-engineering",
+            "prompt_id": "p1",
+            "prompt_class": "positive",
+            "variant": "A",
+            "model_tier": "fast",
+            "prompt": "private prompt text",
+        }
+        row = asdict(m.run_call(item, tmp_path, None, tmp_path, {}))
+        assert row["skill_selectors"] == [{"command": "plan-before-code"}]
+        assert row["selected"] is False
+        assert "private prompt text" not in json.dumps(row)
+
+    def test_timeout_row_retains_observed_selector(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        monkeypatch.setattr(m, "stage_variant", lambda *args: {})
+        monkeypatch.setattr(m, "build_command", lambda *args: ["claude"])
+
+        def timeout(*args, **kwargs):
+            raise subprocess.TimeoutExpired(
+                cmd=["claude"],
+                timeout=m.PER_CALL_TIMEOUT_S,
+                output=_stream(_INIT, _skill_call(command="context-engineering")),
+            )
+
+        monkeypatch.setattr(m.subprocess, "run", timeout)
+        item = {
+            "skill": "context-engineering",
+            "prompt_id": "p1",
+            "prompt_class": "positive",
+            "variant": "A",
+            "model_tier": "fast",
+            "prompt": "private prompt text",
+        }
+        row = asdict(m.run_call(item, tmp_path, None, tmp_path, {}))
+        assert row["skill_selectors"] == [{"command": "context-engineering"}]
+        assert row["selected"] is None
+        assert row["status"] == "timeout"
 
 
 class TestRunnerDistinguishesUnknownFromNegative:
