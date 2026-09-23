@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: finalized for the v4.3.0 release
-**Finalized**: 2026-08-31, at `/update release`. Four deferred items and two warnings below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. DF-5 was resolved post-release. One warning was resolved during v4.4.0 Phase 7 reconciliation; the four resolved bugs and one resolved coverage gap were fixed within this release.
-**Last updated**: 2026-09-22 (DF-5 post-release follow-up)
+**Finalized**: 2026-08-31, at `/update release`. Two deferred items and two warnings below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. DF-1, DF-2, and DF-5 were resolved post-release. One warning was resolved during v4.4.0 Phase 7 reconciliation; the four resolved bugs and one resolved coverage gap were fixed within this release.
+**Last updated**: 2026-09-22 (DF-1 and DF-2 hosted follow-up)
 
 ## v4.3.0 - agentic-verification-discipline
 
@@ -12,7 +12,7 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 4 | 1 |
+| Deferred (DF) | 2 | 3 |
 | Bugs / regressions (BG) | 0 | 4 |
 | Warnings (WN) | 2 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
@@ -33,6 +33,8 @@
 
 **Local follow-up**: The general inline validator bodies have moved into `full` or `platform` groups, with explicit-only selection for Chromium and pre-commit. The remaining inline steps are event orchestration, tool setup, artifact publication, or real host/bootstrap/installer smoke flows. The [reconciliation audit](../../../archives/v4/v4.3/development/ci-profile-followup-reconciliation.md) records the classification. Hosted parity remains pending, so DF-1 stays open.
 
+**Resolution, 2026-09-22**: PR #241 passed its final hosted Linux, Windows, guide-render, bootstrap, smoke, and aggregate jobs with the migrated profile commands. Post-merge run 35820761181 passed smoke and provenance. The remaining inline host exercises are not duplicate validator lists. DF-1 is resolved; the original deferred observation and local candidate statement remain as historical evidence.
+
 ##### DF-2 - Pip caches are not keyed by dependency manifests
 
 - **Source phase**: Phase 5 CI/CD contract comparison
@@ -44,6 +46,8 @@
 
 **Local follow-up**: Guide-render and Windows test jobs now install through scoped manifests under the universal Python 3.11 constraints and key pip caches to both inputs. Workflow tests pass; cold and warm hosted cache behavior remains pending, so DF-2 stays open.
 
+**Resolution, 2026-09-22**: PR #241 observed cold setup and then exact guide pip and Chromium cache-key hits on its successful replacement run. PR #242's successful Windows job restored the exact scoped pip key `setup-python-Windows-x64-python-3.11.9-pip-f066af2960521d92592a4da5c4f629db6dfb0baded091afaeab4661581e0ef84`. The hosted results prove manifest-keyed cold and warm behavior for the supported guide and Windows runners. DF-2 is resolved.
+
 ##### DF-3 - Report profile does not aggregate or publish structured evidence
 
 - **Source phase**: Phase 5 CI/CD contract comparison
@@ -54,6 +58,10 @@
 - **Next step**: Inspect the hosted aggregate artifact and separately decide which coverage and SARIF producers should feed it; absent report types cannot be credited as collected evidence.
 
 **Local follow-up**: The report profile now validates and aggregates existing receipts into a hash/type index; a pull request job downloads those receipts and uploads one seven-day package after success or failure. Local tests passed. Hosted artifact inspection is pending, and the current workflow produces no coverage or SARIF files, so DF-3 remains open rather than counting their absence as evidence.
+
+**Producer follow-up**: The existing CI-engine test command now emits scoped coverage XML, and the existing catalog security scan emits SARIF at its unchanged high-severity threshold. The [producer evidence](../../../archives/v4/v4.3/development/ci-report-producer-evidence.md) records local output and the hosted gate. DF-3 remains open until both files are observed in the hosted aggregate.
+
+**First hosted run**: PR #243's Linux tests job failed because its scoped install omitted pytest-cov, despite the plugin being pinned in the universal lock. The [failed-run repair record](../../../archives/v4/v4.3/development/ci-report-producer-hosted-repair.md) preserves that result and the locally tested dependency correction. Hosted replacement evidence is still pending.
 
 ##### DF-4 - OpenClaw tool interception requires a typed plugin
 

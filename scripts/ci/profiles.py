@@ -163,7 +163,18 @@ CATALOG = Group(
         _py("build_framework_coverage", "--check", timeout=300),
         _py("run_trigger_evals", "--gate", timeout=600),
         _py("check_registry_entries", "--check", "--strict", timeout=300),
-        _py("scan_skill_security", "catalog/skills", "catalog/mcp-configs", "--fail-on", "high", timeout=600),
+        _py(
+            "scan_skill_security",
+            "catalog/skills",
+            "catalog/mcp-configs",
+            "--fail-on",
+            "high",
+            "--format",
+            "sarif",
+            "--output",
+            "reports/skill-security.sarif",
+            timeout=600,
+        ),
     ),
 )
 
@@ -326,7 +337,13 @@ TESTS = Group(
             timeout=1800,
         ),
         _pytest("repo-tests-plans", "tests/plans", timeout=900),
-        _pytest("repo-tests-ci", "tests/ci", timeout=900),
+        _pytest(
+            "repo-tests-ci",
+            "tests/ci",
+            "--cov=scripts.ci",
+            "--cov-report=xml:reports/coverage-ci.xml",
+            timeout=900,
+        ),
         _pytest("repo-tests-guides", "tests/guides", timeout=1800),
         _pytest(
             "repo-tests-governance",

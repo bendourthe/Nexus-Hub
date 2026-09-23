@@ -169,6 +169,13 @@ def test_validation_job_installs_its_profile_test_runner():
     assert "pip install pre-commit pytest" in commands
 
 
+def test_tests_job_installs_the_coverage_plugin_its_profile_uses():
+    job = load(CI)["jobs"]["tests"]
+    install = next(step for step in job["steps"] if step.get("name") == "Install test dependencies")
+    assert "pytest-cov" in install["run"].split()
+    assert any("--cov=scripts.ci" in command.argv for command in profile_group("tests").commands)
+
+
 def test_ci_does_not_re_declare_the_validator_list():
     """The defect this prevents is silent and has happened here before.
 

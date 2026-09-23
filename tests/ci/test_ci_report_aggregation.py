@@ -25,6 +25,8 @@ def test_report_aggregates_job_receipts_and_indexes_files(tmp_path: Path) -> Non
     _summary(artifact / "summary.json")
     (artifact / "junit").mkdir()
     (artifact / "junit" / "tests.xml").write_text("<testsuite/>", encoding="utf-8")
+    (artifact / "coverage-ci.xml").write_text("<coverage/>", encoding="utf-8")
+    (artifact / "skill-security.sarif").write_text("{}", encoding="utf-8")
 
     result = run_profile(
         "report", reports_dir=tmp_path, expected_artifacts={"ci-test-reports": "success"}
@@ -37,8 +39,13 @@ def test_report_aggregates_job_receipts_and_indexes_files(tmp_path: Path) -> Non
     assert {entry["path"] for entry in index["artifacts"][0]["files"]} == {
         "inputs/ci-test-reports/summary.json",
         "inputs/ci-test-reports/junit/tests.xml",
+        "inputs/ci-test-reports/coverage-ci.xml",
+        "inputs/ci-test-reports/skill-security.sarif",
     }
     assert all(len(entry["sha256"]) == 64 for entry in index["artifacts"][0]["files"])
+    kinds = {entry["path"]: entry["kind"] for entry in index["artifacts"][0]["files"]}
+    assert kinds["inputs/ci-test-reports/coverage-ci.xml"] == "coverage"
+    assert kinds["inputs/ci-test-reports/skill-security.sarif"] == "sarif"
 
 
 def test_report_accepts_an_expected_skipped_job(tmp_path: Path) -> None:
