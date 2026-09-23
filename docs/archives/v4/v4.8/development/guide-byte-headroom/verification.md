@@ -18,3 +18,7 @@ Gemini also had duplicate geometry, but moving its mask and filters inside a sha
 ## Closure gate
 
 Keep WN-A open until the protected pull request passes required checks, merges to `develop`, and its post-merge smoke and provenance jobs pass. Do not archive the whole v4.8 release tree while other gaps remain open.
+
+## Publication result
+
+PR #267 passed 21 hosted checks with no failures, merged to `develop` as `dc439012` on 2026-09-23, and post-merge run 35935340043 passed both smoke and provenance. WN-A is closed at that integration checkpoint. The local browser comparison above remains the visual evidence; the hosted jobs do not repeat screenshot review. Other v4.8 gaps still prevent archiving the whole release tree.
