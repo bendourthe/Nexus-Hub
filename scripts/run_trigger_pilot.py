@@ -47,7 +47,7 @@ import shutil
 import subprocess
 import sys
 import time
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 # Frozen caps. These mirror the protocol document; the runner does not invent them.
