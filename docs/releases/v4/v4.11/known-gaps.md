@@ -263,6 +263,8 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 
 **Suggested next step**: qualify the checks on an actual authored connector diagram, then decide whether exact straight-line `<path>` segments (`M`/`L`/`H`/`V`) are needed or whether the diagram should use the declared shape vocabulary. Do not expand the envelope merely to score navigation icons, and do not approximate curves: a confident wrong verdict is worse than `unchecked`.
 
+**Authored-diagram qualification, 2026-09-23**: The retained Phase 6 report pilot has two process-diagram layouts, each repeated once, with four labeled boxes, three straight `<path>` connectors, and one cubic return path. Both checks return `unchecked` with zero checked SVGs even when each diagram is scored alone. The [archived qualification](../../../archives/v4/v4.11/development/authored-connector-geometry-qualification.md) records the artifact and outcome. MT-10 remains open: supporting only exact straight paths would not decide either mixed-path diagram, so any extension first needs a truthful partial-coverage contract or exact full-path treatment with a negative crossing control. No curve approximation or pass claim follows from this result.
+
 #### QG-2 - CLOSED AS UNMET: two of three sustained across six rounds, carried forward
 
 - **Source phase**: Phase 6, T020.

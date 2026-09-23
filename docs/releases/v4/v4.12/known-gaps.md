@@ -14,7 +14,7 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 1 | 2 |
+| Bugs / regressions (BG) | 0 | 3 |
 | Warnings (WN) | 1 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 2 | 2 |
@@ -32,6 +32,8 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 **Source**: 2026-09-23 worktree cleanup. **Owner**: Attribution guard maintainer. Workspace installation wrote each shared Git hook wrapper with an absolute path to the Python source in the checkout that ran the installer. Checking the guard from a second worktree failed the wrapper comparison, and removing the installer worktree would leave the shared hooks pointing to a deleted executable. A real linked-worktree regression failed before the repair and passed after the guard was copied into the shared Git hooks directory with a recorded digest. The [repair evidence](../../../archives/v4/v4.12/development/attribution-hook-lifetime-repair.md) records the boundary and verification. **Status**: local candidate; 45 attribution tests passed with one host skip, plus docs 8/8 and fast 17/17. Open until hosted CI, merge, post-merge verification, and safe removal of the installer worktree pass.
 
 **Publication and remaining boundary, 2026-09-23**: PR #249 passed 24 hosted checks with one intentional skip, merged at `fcaab352`, and post-merge run 35838028055 passed smoke and provenance. The clean installer worktree was removed; the surviving installed guard passed its integrity check and rejected a forbidden attribution trailer. A newly rebased Windows worktree then exposed a further false version mismatch between equivalent LF and CRLF source checkouts. The [line-ending repair](../../../archives/v4/v4.12/development/attribution-hook-eol-repair.md) has a two-way failing-first regression and retains byte-exact verification of the installed copy. BG-3 remains open until that follow-up passes hosted checks, merges, and survives final worktree cleanup.
+
+**Resolution, 2026-09-23**: PR #250 passed 24 hosted checks with one intentional skip, merged at `4753784d`, and post-merge run 35841622725 passed smoke and provenance. The clean repair worktree was removed. From the surviving Windows worktree, the source guard check returned VERIFIED despite its different checkout line endings, and the installed `commit-msg` entry point rejected a forbidden attribution trailer. The 47-test attribution suite, one host skip, fast 17/17, docs 8/8, and 200-state handbook measure are retained in the [repair evidence](../../../archives/v4/v4.12/development/attribution-hook-eol-repair.md). BG-3 is resolved for the installed Git-hook boundary; direct hosting API writes remain outside this guard.
 
 #### WN-1: Existing CI-profile lint findings
 
