@@ -45,7 +45,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Reconcile the 62 historical v4.0 CI plan tasks against eight phase histories, implementation commits, 313 current CI/lifecycle tests, PR #124's original post-merge failure, and later corrective publication; preserve original task boxes and archive the audit.
 - [x] Publish the v4.0 CI task reconciliation through PR #254; post-merge run 35894321320 passed smoke and provenance at `8b218de1`, and its clean worktree and merged local branch were removed.
 - [x] Resolve v4.4 BG-48 locally: remove the hostile sentence from shipped scene data, preserve source/inline parity, and prove hostile text stays inert in a test-created browser page; 131 focused tests passed with one optional skip and the changed-path fast profile passed 14/14.
-- [ ] Publish the v4.4 BG-48 guide repair through a protected PR and verify its post-merge result.
+- [x] Publish the v4.4 BG-48 guide repair through protected PR #255; post-merge run 35897196668 passed smoke and provenance at `20bc793b`.
 - [x] Resolve v4.4 BG-46/BG-47 locally: shorten the mobile Training heading, compact the fullscreen idle reply, preserve the completed-state coverage floor, pass 154 affected tests with one optional skip and fast 17/17, and archive six inspected screenshots with a verification record.
 - [ ] Publish the v4.4 BG-46/BG-47 layout follow-up through a protected PR and verify its post-merge result.
 - [ ] Resolve v4.13 BG-7's per-call spend overshoot and rerun a newly frozen trigger pilot only after the approved USD 35 hard ceiling is enforceable; the 2026-09-23 attempt stopped after two unknown-selection calls.
