@@ -243,12 +243,14 @@ the counts were recomputed from the merged catalog in this landing and now sum t
 
 ### Missing tests / coverage gaps (MT)
 
-#### MT-1 - capture_screenshot.py is not unit-tested
+#### MT-1 - capture_screenshot.py was not unit-tested - RESOLVED 2026-09-23
 
 - **Source phase**: Phase 4 (4.2)
 - **Plan reference**: `docs/releases/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-task 4.2
 - **Reason**: `capture_screenshot.py` drives a headless Chromium-family browser, which is not reliably present in CI or on the dev host, so it is documented and degrades gracefully (exit 3 with an install hint) rather than unit-tested. The perceptual-diff core (`perceptual_diff.py`) IS fully tested (7 cases, Pillow-gated), and `Pillow` was added to the CI tests job so those run.
 - **Suggested next step**: Add a browser-gated smoke test in a CI job that installs a headless browser, or exercise it in the Phase 7 end-of-shift orchestrator's visual-regression step when a browser is available.
+
+**Resolution**: `tests/skills/test_capture_screenshot.py` now exercises browser selection, URL and local-file conversion, CLI no-browser behavior, exact capture arguments, a produced screenshot, and process failure, timeout, and missing-output exits. All 12 tests passed in 0.43 seconds; focused coverage measured 39 of 41 statements (95%) in the capture helper. Both visual-regression script suites passed 19 of 19 tests. A separate local end-to-end invocation used installed Chrome on a repository HTML page and produced a valid 46,648-byte PNG. This proves the helper on this Windows host, not a browser-installed hosted CI leg.
 
 ## Plan retarget, 2026-09-08
 
