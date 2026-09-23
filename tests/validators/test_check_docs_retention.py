@@ -141,20 +141,66 @@ def test_future_version_directory_is_not_reported(tmp_path: Path) -> None:
     assert "WARN" not in proc.stdout, proc.stdout
 
 
-def test_version_without_a_development_subtree_is_skipped(tmp_path: Path) -> None:
-    """Only development/ ages out; plans/ and known-gaps.md never do."""
+def test_plans_of_an_OPEN_minor_never_age_out(tmp_path: Path) -> None:
+    """The age rule sweeps only development/; an open minor keeps its plans.
+
+    Retitled and tightened by the state-3b change. This previously asserted that
+    plans/ are exempt unconditionally, which stopped being true: age alone still
+    never retires a plan, but CLOSURE does. The in-progress marker below is what
+    keeps this minor exempt; the companion tests cover the other side.
+    """
     root = _make_repo(tmp_path, "3.17.6", [])
     plans = root / "docs" / "releases" / "v3" / "v3.10" / "plans"
     plans.mkdir(parents=True)
     (plans / "v3.10.0-thing.md").write_text("# plan\n", encoding="utf-8")
-    (root / "docs" / "releases" / "v3" / "v3.10" / "known-gaps.md").write_text("# gaps\n", encoding="utf-8")
+    (root / "docs" / "releases" / "v3" / "v3.10" / "known-gaps.md").write_text(
+        "# gaps\n\n**Status**: in-progress\n", encoding="utf-8"
+    )
 
     proc = _run(root)
 
     assert proc.returncode == 0, proc.stderr
     assert "WARN" not in proc.stdout, (
-        "plans/ and known-gaps.md are exempt; only development/ is swept"
+        "an open minor keeps its plans regardless of age; only development/ is swept"
     )
+
+
+def test_a_fully_closed_minor_reports_its_plans_for_archival(tmp_path: Path) -> None:
+    """State 3b: closure retires a plan where age does not."""
+    root = _make_repo(tmp_path, "3.17.6", [])
+    plans = root / "docs" / "releases" / "v3" / "v3.10" / "plans"
+    plans.mkdir(parents=True)
+    (plans / "v3.10.0-thing.md").write_text("# plan\n", encoding="utf-8")
+    (root / "docs" / "releases" / "v3" / "v3.10" / "known-gaps.md").write_text(
+        "# gaps\n\n**Status**: finalized\n", encoding="utf-8"
+    )
+
+    proc = _run(root)
+
+    assert proc.returncode == 0, proc.stderr
+    assert "docs/releases/v3/v3.10 closed" in proc.stdout
+    assert "docs/archives/v3/v3.10" in proc.stdout
+    assert "known-gaps.md stays" in proc.stdout, (
+        "known-gaps.md stays active so the next plan reads it without a hop"
+    )
+
+
+def test_an_unchecked_task_line_holds_a_minor_open(tmp_path: Path) -> None:
+    """A finalized register does not close a minor whose plan has open tasks."""
+    root = _make_repo(tmp_path, "3.17.6", [])
+    plans = root / "docs" / "releases" / "v3" / "v3.10" / "plans"
+    plans.mkdir(parents=True)
+    (plans / "v3.10.0-thing.md").write_text(
+        "# plan\n\n- [ ] T001 undone\n", encoding="utf-8"
+    )
+    (root / "docs" / "releases" / "v3" / "v3.10" / "known-gaps.md").write_text(
+        "# gaps\n\n**Status**: finalized\n", encoding="utf-8"
+    )
+
+    proc = _run(root)
+
+    assert proc.returncode == 0, proc.stderr
+    assert "v3.10 closed" not in proc.stdout, proc.stdout
 
 
 def test_absent_docs_tree_exits_zero(tmp_path: Path) -> None:

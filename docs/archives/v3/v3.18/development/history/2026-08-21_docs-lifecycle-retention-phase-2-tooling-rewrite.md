@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-21
 **Branch**: `feat/docs-lifecycle-retention`
-**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md`](../../../../../releases/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md)
+**Plan**: [`docs/archives/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md`](../../../../../archives/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md)
 **Phase**: 2 - Tooling rewrite for the index format
 **Environment**: Windows 11, Git Bash and PowerShell, Python 3.12, pytest, ShellCheck; GNU Make unavailable, so `make` targets were executed as their constituent commands
 **Outcome**: Every writer of `docs/DEVLOG.md` now produces the index format, and the format is held mechanically rather than only by prose. Two defects outside the plan's sub-task list were found and fixed, one of which explains the anomalous DEVLOG growth the plan had recorded without a cause.

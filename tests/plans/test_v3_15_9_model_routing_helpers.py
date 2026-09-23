@@ -181,3 +181,65 @@ def test_bundle_references_cross_platform_helpers_and_snapshot() -> None:
     for directory, basename in bundled_files:
         assert basename in skill
         assert (SKILL_DIR / directory / basename).is_file()
+
+
+def _snapshot_dict() -> dict:
+    return json.loads(SNAPSHOT.read_text(encoding="utf-8"))
+
+
+def test_diff_reports_nothing_when_placements_match() -> None:
+    """The snapshot compared against itself is the clean baseline."""
+    snapshot = MODEL_MAP.validate_map(_snapshot_dict())
+    assert MODEL_MAP.diff_placements(snapshot, snapshot) == []
+
+
+def test_diff_detects_a_swapped_tier_column(tmp_path: Path) -> None:
+    """Shape validation passes a reshuffled column; diff must not.
+
+    Regression for the v4.16.3 drift, where a fresh /plan run inverted the
+    Anthropic column (opus-5 to frontier, fable-5-1 to standard) and shipped
+    because validate grades shape only.
+    """
+    data = _snapshot_dict()
+    tiers = data["tiers"]
+    tiers["frontier"]["Anthropic"], tiers["standard"]["Anthropic"] = (
+        tiers["standard"]["Anthropic"],
+        tiers["frontier"]["Anthropic"],
+    )
+    candidate = tmp_path / "candidate.json"
+    candidate.write_text(json.dumps(data), encoding="utf-8")
+
+    # Shape validation still passes, which is precisely the gap diff closes.
+    assert MODEL_MAP.validate_map(json.loads(candidate.read_text(encoding="utf-8")))
+
+    moves = MODEL_MAP.diff_placements(
+        MODEL_MAP.load_map(candidate), MODEL_MAP.validate_map(_snapshot_dict())
+    )
+    assert {(m["model"], m["from_tier"], m["to_tier"]) for m in moves} == {
+        ("claude-fable-5-1", "frontier", "standard"),
+        ("claude-sonnet-5", "standard", "frontier"),
+    }
+
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT), "diff", str(candidate)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 3
+    assert "Reclassification" in result.stderr
+
+
+def test_diff_ignores_a_newly_introduced_model_id(tmp_path: Path) -> None:
+    """A brand-new id has no prior placement, so it is not a reclassification."""
+    data = _snapshot_dict()
+    data["tiers"]["fast"]["Google"] = "gemini-4.0-flash-lite"
+    candidate = tmp_path / "candidate.json"
+    candidate.write_text(json.dumps(data), encoding="utf-8")
+
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT), "diff", str(candidate)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0
+    assert json.loads(result.stdout)["reclassified"] == []

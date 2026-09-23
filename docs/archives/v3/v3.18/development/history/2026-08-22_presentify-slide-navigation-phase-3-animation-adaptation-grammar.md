@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/presentify-slide-navigation`
-**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md`](../../../../../releases/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md)
+**Plan**: [`docs/archives/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md`](../../../../../archives/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md)
 **Phase**: 3 - Animation adaptation grammar
 **Environment**: Windows 11, Git Bash and PowerShell, Python 3.12.10, Node (syntax gate), pytest, Playwright headless Chromium; GNU Make unavailable, so `make validate` was executed as its constituent commands
 **Outcome**: The three-way slide-mode animation grammar exists in `interactive-features.md` with a 14-row mapping table exhaustive over every pattern the reference names; `scroll-scrub.md` carries the "Cinematic without scroll" section (fragment-stepped camera, ambient holds, trigger-only delta); and `scroll-scrub-engine.js` gained the `driver: 'scroll' | 'step'` abstraction with a `goTo` API - during which one real engine bug (the initial layer never painting under the step driver) was found by the render checks and fixed. A three-slide demo deck passes 24 real headless checks across all three grammar classes, reduced motion, and the step driver.

@@ -1,7 +1,7 @@
 # Session History - v3.5.0 adoption-loopmaxxing-and-autoresearch Phase 2: metric-optimization archetype + per-iteration budget + oracle carve-out
 
 **Date**: 2026-06-15
-**Plan**: [`../../plans/adoption-loopmaxxing-and-autoresearch.md`](../../../../../releases/v3/v3.5/plans/adoption-loopmaxxing-and-autoresearch.md) Phase 2 (G5 + R2 + R3, all skill-native)
+**Plan**: [`../../plans/adoption-loopmaxxing-and-autoresearch.md`](../../../../../archives/v3/v3.5/plans/adoption-loopmaxxing-and-autoresearch.md) Phase 2 (G5 + R2 + R3, all skill-native)
 **Branch**: `feat/loop-engineering-enrichment`
 **Outcome**: Implementation complete; quality gate GO. Phase 2 of 3, so Phase 3 (observability fields, retries-then-handoff default, "loopmaxxing" label) follows. No release work this phase.
 

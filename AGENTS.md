@@ -495,7 +495,7 @@ Two further traps, both fail-open:
 
 ## Documentation Retention
 
-Per-version docs age out on a stated rule instead of accumulating: a minor two or more behind current has its `development/` subtree archived to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/development/`, while `plans/`, `comparisons/`, `known-gaps.md`, and the non-versioned subtrees never age out. `scripts/check_docs_retention.py` reports drift and always exits 0; `[[docs-layout-refactor]]` performs the move. Full policy: [`docs/policy/docs-retention.md`](docs/policy/docs-retention.md).
+Per-version docs age out on a stated rule instead of accumulating: a minor two or more behind current has its `development/` subtree archived to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/development/`, while `plans/` and `comparisons/` move on closure; `known-gaps.md` and non-versioned subtrees never move. `scripts/check_docs_retention.py` reports drift and always exits 0; `[[docs-layout-refactor]]` performs the move. Full policy: [`docs/policy/docs-retention.md`](docs/policy/docs-retention.md).
 
 ## Running Validation
 

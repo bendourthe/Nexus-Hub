@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/presentify-slide-navigation`
-**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md`](../../../../../releases/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md)
+**Plan**: [`docs/archives/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md`](../../../../../archives/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md)
 **Phase**: 5 of 5 - Architecture refactor, known-gaps reconciliation, and CI/CD
 **Environment**: Windows 11, Git Bash and PowerShell, Python 3.12.10, ruff 0.16.1, pytest; GNU Make unavailable, so `make validate` was executed as its constituent commands
 **Outcome**: The layout audit is a clean no-op (no moves, no deprecations, zero dangling wikilinks across all 8 shipped artifacts). The whole v3.18 ledger is reconciled from six open items down to **one**, the material finding being three gaps still marked open against an extension a later release deleted. CI needs no change and that was verified rather than assumed, including a ruff gate on the edited scorer that had not been run before. Ten gates pass with directly-captured exit codes.

@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/v3.18.1-github-usage-monitor-accuracy`
-**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../../../releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)
+**Plan**: [`docs/archives/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../../../archives/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)
 **Phase**: 3 - Self-validating reconciliation ledger
 **Environment**: Windows 11, Git Bash, Node with `vitest` 4.1.10
 **Outcome**: Monthly evidence is classified by a pure, tested function that refuses to treat a saturated meter or a Linux-dominated month as agreement. Three months are recorded in a committed ledger with the falsifier that would overturn the shipped model stated up front.

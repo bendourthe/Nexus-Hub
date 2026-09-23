@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-21
 **Branch**: `feat/docs-lifecycle-retention`
-**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md`](../../../../../releases/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md)
+**Plan**: [`docs/archives/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md`](../../../../../archives/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md)
 **Phase**: 1 - DEVLOG conversion and archive
 **Environment**: Windows 11, Git Bash and PowerShell, Python 3.12, pytest; GNU Make unavailable, so `make` targets were executed as their constituent commands
 **Outcome**: `docs/DEVLOG.md` is a 99-line per-release index against a 150-line gate. The prior 5,615-line body is archived and verified content-identical against git's own object. Every reference that described DEVLOG as a narrative log now describes the index. One pre-existing environment-dependent test failure was found and is unrelated to this phase.

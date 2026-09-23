@@ -87,8 +87,14 @@ def test_phase_gate_keeps_four_static_gates_and_adds_proportional_smoke(runbook:
     gate = _phase_7(runbook)
     assert "Evaluate five gates" in gate
     for existing_gate in (
-        "all tests passing (0 failures)",
-        "line coverage >= 80%",
+        # Gates 1 and 2 were rescoped when non-final phases moved to a
+        # blast-radius run: the pass bar is still zero failures, but over this
+        # phase's scope, and the >= 80% project threshold is asserted once in
+        # 9B rather than in every phase. Gates 3 and 4 are unchanged.
+        "0 failures",
+        "blast-radius scope",
+        "coverage not regressed on the files Phase 2 touched",
+        "asserted once, in 9B",
         "0 lint errors",
         "build/compile succeeds",
     ):

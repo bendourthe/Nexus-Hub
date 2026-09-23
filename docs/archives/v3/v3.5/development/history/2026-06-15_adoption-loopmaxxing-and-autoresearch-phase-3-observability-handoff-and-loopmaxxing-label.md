@@ -1,7 +1,7 @@
 # Session History - v3.5.0 adoption-loopmaxxing-and-autoresearch Phase 3: observability fields, retries-then-handoff default, "loopmaxxing" label
 
 **Date**: 2026-06-15
-**Plan**: [`../../plans/adoption-loopmaxxing-and-autoresearch.md`](../../../../../releases/v3/v3.5/plans/adoption-loopmaxxing-and-autoresearch.md) Phase 3 (G3 + G4 + G6, all skill-native)
+**Plan**: [`../../plans/adoption-loopmaxxing-and-autoresearch.md`](../../../../../archives/v3/v3.5/plans/adoption-loopmaxxing-and-autoresearch.md) Phase 3 (G3 + G4 + G6, all skill-native)
 **Branch**: `feat/loop-engineering-enrichment`
 **Outcome**: Implementation complete; quality gate GO. Final phase of 3, so release-readiness routing follows (deferred to the user; no tag or push made automatically).
 
