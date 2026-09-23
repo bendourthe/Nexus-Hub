@@ -46,7 +46,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Publish the v4.0 CI task reconciliation through PR #254; post-merge run 35894321320 passed smoke and provenance at `8b218de1`, and its clean worktree and merged local branch were removed.
 - [x] Resolve v4.4 BG-48 locally: remove the hostile sentence from shipped scene data, preserve source/inline parity, and prove hostile text stays inert in a test-created browser page; 131 focused tests passed with one optional skip and the changed-path fast profile passed 14/14.
 - [ ] Publish the v4.4 BG-48 guide repair through a protected PR and verify its post-merge result.
-- [x] Qualify a bounded v4.11 MT-5 temporal guard locally: 58 measurement tests and five final focused controls passed; exact source-mapped DOM text is observed between settled frames, while absent mappings remain unchecked.
+- [x] Qualify a bounded v4.11 MT-5 temporal guard locally: 59 measurement tests and six focused controls passed; exact source-mapped DOM text is observed between settled frames, while absent mappings remain unchecked.
 - [ ] Publish the v4.11 MT-5 temporal guard through a protected PR, then map real handbook source values before claiming artifact-level coverage.
 - [ ] Resolve v4.13 BG-7's per-call spend overshoot and rerun a newly frozen trigger pilot only after the approved USD 35 hard ceiling is enforceable; the 2026-09-23 attempt stopped after two unknown-selection calls.
 

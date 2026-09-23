@@ -477,8 +477,9 @@ DECK_INTEGRITY = r"""(slide) => {
 }"""
 
 # Only independently mapped, DOM-rendered source values are in this envelope.
-# MutationObserver sees brief text changes between the existing state samples;
-# an unmapped value must remain unchecked rather than receive a false pass.
+# MutationObserver sees brief text changes and animation-frame sampling catches
+# a value revealed only by style changes between the existing state samples.
+# An unmapped value must remain unchecked rather than receive a false pass.
 SOURCE_VALUE_WATCH = r"""(specs) => {
   window.__nexusSourceValueWatch = specs.map(spec => {
     const slide = [...document.querySelectorAll('[data-dv-slide]')]
@@ -500,6 +501,13 @@ SOURCE_VALUE_WATCH = r"""(specs) => {
     };
     watch.observer = new MutationObserver(watch.capture);
     watch.observer.observe(slide, {subtree:true,childList:true,characterData:true});
+    watch.running = true;
+    const frame = () => {
+      if (!watch.running) return;
+      watch.capture();
+      watch.frame = requestAnimationFrame(frame);
+    };
+    watch.frame = requestAnimationFrame(frame);
     return watch;
   });
   return window.__nexusSourceValueWatch.filter(watch => watch.error).map(watch => watch.error);
@@ -509,6 +517,8 @@ SOURCE_VALUE_RESULT = r"""(slideId) => window.__nexusSourceValueWatch
   .filter(watch => watch.spec.slide_id === slideId)
   .map(watch => {
     watch.capture();
+    watch.running = false;
+    cancelAnimationFrame(watch.frame);
     watch.observer.disconnect();
     return {selector:watch.spec.selector, expected:watch.spec.text,
       observed_changes:watch.count, wrong:watch.wrong};

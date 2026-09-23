@@ -106,7 +106,7 @@ def test_paused_reading_animation_does_not_block_presentation_settle(output):
     assert result["coverage"]["measured_states"] == 4
 
 
-def _add_source_value(output, transient=False):
+def _add_source_value(output, transient=False, reveal_transient=False):
     script = (
         "<script>window.addEventListener('load',()=>{"
         "const slide=document.querySelector('[data-dv-slide=\"one\"]');"
@@ -118,6 +118,14 @@ def _add_source_value(output, transient=False):
             "slide.addEventListener('dv:activate',()=>{"
             "setTimeout(()=>{value.textContent='11';"
             "setTimeout(()=>{value.textContent='31'},60)},80)});"
+        )
+    if reveal_transient:
+        script += (
+            "slide.addEventListener('dv:activate',()=>{value.style.opacity='0';"
+            "setTimeout(()=>{value.textContent='11'},60);"
+            "setTimeout(()=>{value.style.opacity='1'},100);"
+            "setTimeout(()=>{value.style.opacity='0'},200);"
+            "setTimeout(()=>{value.textContent='31';value.style.opacity='1'},240)});"
         )
     script += "});</script>"
     output.write_text(
@@ -149,6 +157,13 @@ def test_brief_wrong_source_value_fails_between_settled_checkpoints(output):
     assert result["status"] == "fail", result["errors"]
     assert any("source value" in error and "11" in error for error in result["errors"])
     assert result["source_value_guard"]["status"] == "fail"
+
+
+def test_value_revealed_without_text_mutation_is_sampled(output):
+    _add_source_value(output, reveal_transient=True)
+    result = run(output, **_source_value_inventory())
+    assert result["status"] == "fail", result["errors"]
+    assert any("source value" in error and "11" in error for error in result["errors"])
 
 
 def test_source_value_guard_is_unchecked_without_independent_mapping(output):
