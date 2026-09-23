@@ -15,7 +15,7 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 1 |
-| Warnings (WN) | 2 | 2 |
+| Warnings (WN) | 1 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 3 | 1 |
 
@@ -36,6 +36,8 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 **Follow-up status, 2026-09-22**: PR #235 merged report upload and direct guide/Windows JUnit generation. Hosted run 35799198474 exposed five seven-day report artifacts, and post-merge run 35801251735 passed smoke and provenance. Tool versions are still not locked across the CI workflows and editable extension extras. This combined warning remains open for the locking half.
 
 **Locking candidate, 2026-09-22**: A universal Python 3.11 constraints file now pins CI-only tools and every optional dependency from the six extension manifests; pip installs in five workflows consume it, and two offline Docker builds receive it through a named context. The Claude Code npm install, ShellCheck apt package, Docker Python base digest, and code-search Git package are pinned to observed versions. Pip resolved the six editable development extras under the constraints, the regenerated 495-line lock matched the committed package set, 95 workflow/security tests passed, and pinned no-network Docker suites passed 54 memory and 380 code-search tests. This is local candidate evidence only; the warning remains open until the lock branch's hosted jobs and merged result pass.
+
+**RESOLVED 2026-09-22 (post-release)**: PR #238 merged the tool locks at `3ee00582` after the Linux, Windows, guide, offline extension, Presentify, and aggregate checks passed. Its post-merge run 35810094225 passed smoke and provenance. The first hosted attempt failed because a relative pip constraints path was not visible to pre-commit's isolated environment; the final head uses an absolute workspace path and passed the rerun. The original failed run remains evidence of that repair, not a claimed pass.
 
 **Source phase**: Phase 4. **Plan reference**: T018. **Reason**: the canonical comparison finds incomplete tool version-locking and incomplete JUnit/coverage/report-bundle retention across existing CI legs. This overlaps v4.4 WN-446-1; it is not introduced by attribution enforcement.
 
