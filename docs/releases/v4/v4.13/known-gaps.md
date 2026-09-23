@@ -1,7 +1,7 @@
 # Known gaps - v4.13
 
 **Project**: Nexus-Hub
-**Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Four bounded warning-class findings remain owned for future consumers or measurement work, and one post-release GitHub branch-protection gap awaits the repository owner's decision.
+**Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Three bounded warning-class findings remain owned for future measurement work, and one post-release GitHub branch-protection gap awaits the repository owner's decision.
 **Last updated**: 2026-09-22
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
@@ -15,7 +15,7 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 1 |
 | Bugs / regressions (BG) | 0 | 6 |
-| Warnings (WN) | 4 | 2 |
+| Warnings (WN) | 3 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 1 | 3 |
 
@@ -27,11 +27,11 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 
 **Owner**: repository owner. **Status**: open pending an explicit security-setting choice. **Suggested next step**: protect both branches with pull-request-only merges, the appropriate aggregate required checks, and force-push/deletion blocks; then submit a test pull request and verify merge is held until the checks complete. Do not represent the current unprotected merges as protected integration.
 
-#### WN-2: Tool-span attributes unverified at the pinned revision
+#### WN-2: Tool-span attributes unverified at the pinned revision - RESOLVED 2026-09-22
 
 **Source phase**: Phase 2. **Plan reference**: T005. **Reason**: the `gen_ai.tool.*` attribute table could not be retrieved at pinned revision `5ca9052bc796ef1e497200b1d558fd87a201f335`. The containing document truncates before that section and the standalone tool-spans path returns HTTP 404 at that revision. The `execute_tool` operation name itself is confirmed.
 
-**Owner**: `ai-agent-development` maintainer. **Status**: open. **Suggested next step**: the first consumer needing a `gen_ai.tool.*` attribute verifies it against the sibling inference/tool specification and adds it to `references/agent-span-contract.md` with its requirement level. Until then the contract marks those attributes unverified, and no requirement level was invented to fill the gap.
+**Resolution**: the agent-spans page links to `docs/gen-ai/gen-ai-spans.md#execute-tool-span` at the same pinned revision. That sibling table verifies `gen_ai.tool.name` as Required, call ID, description, and type as Recommended if available, and arguments and result as Opt-In. The contract now names those levels, keeps arguments, results, and descriptions absent from default traces, and has a regression assertion for the pinned sibling link and field levels. The original retrieval failure above remains historical evidence.
 
 #### WN-3: The shipped catalog under-triggers on its own positive prompts
 

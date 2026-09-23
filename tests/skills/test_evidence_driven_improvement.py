@@ -385,6 +385,8 @@ _PAYLOAD_ATTRIBUTES = (
     "gen_ai.output.messages",
     "gen_ai.system_instructions",
     "gen_ai.tool.definitions",
+    "gen_ai.tool.call.arguments",
+    "gen_ai.tool.call.result",
 )
 
 _ALLOWED_ERROR_CATEGORIES = {
@@ -469,6 +471,18 @@ class TestTraceExampleBehavior:
         raw, _ = emitted_trace
         for attribute in _PAYLOAD_ATTRIBUTES:
             assert attribute not in raw, f"Opt-In payload attribute emitted: {attribute}"
+
+    def test_tool_spans_name_the_tool_without_descriptions_or_payloads(
+        self, emitted_trace: tuple[str, list[dict]]
+    ) -> None:
+        _, records = emitted_trace
+        tool_spans = [r for r in records if r["gen_ai.operation.name"] == "execute_tool"]
+        assert tool_spans
+        for record in tool_spans:
+            assert record["gen_ai.tool.name"]
+            assert "gen_ai.tool.description" not in record
+            assert "gen_ai.tool.call.arguments" not in record
+            assert "gen_ai.tool.call.result" not in record
 
     def test_error_records_use_allowlisted_categories(
         self, emitted_trace: tuple[str, list[dict]]
@@ -660,11 +674,13 @@ class TestSpanContractDocument:
     def test_declares_a_recheck_trigger(self) -> None:
         assert "Recheck trigger" in _SPAN_CONTRACT.read_text(encoding="utf-8")
 
-    def test_marks_tool_attributes_unverified_rather_than_guessing(self) -> None:
-        """The tool-span table was not retrievable at the pinned revision."""
+    def test_tool_attributes_have_pinned_levels_and_safe_defaults(self) -> None:
         text = _SPAN_CONTRACT.read_text(encoding="utf-8")
-        assert "partially verified" in text.lower()
-        assert "An unverified attribute is unknown, not Recommended." in text
+        assert "docs/gen-ai/gen-ai-spans.md#execute-tool-span" in text
+        assert "`gen_ai.tool.name` as Required" in text
+        assert "`gen_ai.tool.call.id`, `gen_ai.tool.description`, and `gen_ai.tool.type` as Recommended if available" in text
+        assert "`gen_ai.tool.call.arguments` and `gen_ai.tool.call.result` as Opt-In" in text
+        assert "Do not add arguments, results, or descriptions to default traces" in text
 
     def test_disclaims_otlp_conformance(self) -> None:
         text = _SPAN_CONTRACT.read_text(encoding="utf-8")
