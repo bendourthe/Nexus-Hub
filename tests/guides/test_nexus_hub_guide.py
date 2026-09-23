@@ -621,9 +621,8 @@ def test_home_hero_restores_the_v412_subtitle_and_lead(guide_text: str) -> None:
 def test_home_lists_the_five_approved_platforms_from_ledger_bytes(guide_text: str) -> None:
     """v4.4.1 Phase 2 replaces the six-item rail, and every mark must be an APPROVED byte sequence.
 
-    The hash comparison runs against the raw embedded substring before any normalization, so a
-    re-fetched, re-minified, or hand-edited mark fails here instead of shipping an unreviewed
-    third-party asset into a published page.
+    The hash comparison resolves only an exact local sprite reference, then compares the
+    approved SVG bytes. Re-fetched or hand-edited third-party artwork still fails.
     """
     import hashlib
 
@@ -668,6 +667,25 @@ def test_home_lists_the_five_approved_platforms_from_ledger_bytes(guide_text: st
         embedded = re.search(r"(<svg[\s\S]*?</svg>)", body)
         assert embedded, f"{platform} has no inline geometry"
         blob = embedded.group(1)
+        inner = re.sub(r'^<svg[^>]*>|</svg>$', '', blob)
+        use = re.fullmatch(r'<use href="#([a-z0-9-]+)"/>', inner)
+        if use:
+            symbol_id = use.group(1)
+            symbols = re.findall(
+                rf'(<symbol id="{re.escape(symbol_id)}"[^>]*>)([\s\S]*?)</symbol>',
+                guide_text,
+            )
+            assert len(symbols) == 1, f"{platform} must resolve to one local symbol"
+            root = re.match(r'<svg[^>]*>', blob)
+            assert root is not None
+            viewbox = re.search(r'viewBox="([^"]+)"', root.group(0))
+            fill = re.search(r'fill="([^"]+)"', root.group(0))
+            assert viewbox is not None
+            expected = f'<symbol id="{symbol_id}" viewBox="{viewbox.group(1)}"'
+            if fill is not None:
+                expected += f' fill="{fill.group(1)}"'
+            assert symbols[0][0] == expected + '>', f"{platform} symbol styling changed"
+            blob = blob.replace(use.group(0), symbols[0][1])
         assert "<image" not in blob and "base64," not in blob, f"{platform} embeds a raster"
         assert "http" not in blob.replace('xmlns="http://www.w3.org/2000/svg"', ""), (
             f"{platform} references an external URL"
@@ -676,14 +694,35 @@ def test_home_lists_the_five_approved_platforms_from_ledger_bytes(guide_text: st
         assert hashlib.sha256(blob.encode("utf-8")).hexdigest() == hashlib.sha256(
             staged.encode("utf-8")
         ).hexdigest(), (
-            f"{platform} embedded bytes do not match the approved staged asset {stem}.svg; "
+            f"{platform} resolved bytes do not match the approved staged asset {stem}.svg; "
             "re-approval is required rather than a ledger update"
+        )
+
+    for stem, symbol_id in (
+        ("claude", "nh-guide-claude"),
+        ("chatgpt", "nh-guide-chatgpt"),
+        ("cursor", "hxm2"),
+    ):
+        marks = re.findall(
+            rf'<span[^>]*data-mark="{stem}"[^>]*>(<svg[\s\S]*?</svg>)</span>',
+            guide_text,
+        )
+        assert len(marks) == 2 and all(
+            f'<use href="#{symbol_id}"/>' in mark for mark in marks
         )
 
     # The opaque shell and the text-treatment fallback both retired with the six-item rail.
     assert "platform-mark-shell" not in home
     assert "platform-item--text" not in home
     assert "OpenCode" not in home, "OpenCode and its instruction-file note were removed in v4.4.1"
+
+
+def test_shared_platform_symbol_viewbox_change_fails_approval(guide_text: str) -> None:
+    original = '<symbol id="nh-guide-claude" viewBox="0 0 100 100"'
+    assert original in guide_text
+    changed = guide_text.replace(original, original.replace("100 100", "101 100"), 1)
+    with pytest.raises(AssertionError, match="symbol styling changed"):
+        test_home_lists_the_five_approved_platforms_from_ledger_bytes(changed)
 
 
 def test_platform_mark_attribution_lives_in_the_site_footer(guide_text: str) -> None:

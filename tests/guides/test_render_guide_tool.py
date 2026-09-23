@@ -106,9 +106,8 @@ HOME_RUNTIME_METRICS = r"""
       ...rectFor(item),
     })),
     officialMarks: Array.from(
-      // v4.4.1 Phase 2: `platform-mark` moved to the wrapper so each approved SVG stays
-      // byte-verbatim and hash-checkable. All five marks are official geometry now, so the
-      // old data-logo-source split no longer distinguishes anything.
+      // The wrapper keeps all five approved SVG marks measurable. The asset test resolves
+      // local sprite references before hashing their reviewed geometry.
       document.querySelectorAll('.platform-mark > svg'),
     ).map((mark) => {
       const geometry = mark.getBBox();

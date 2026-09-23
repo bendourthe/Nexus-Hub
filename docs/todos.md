@@ -16,6 +16,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Publish and verify the v4.8 WN-C follow-up on merged `develop` through PR #237 and post-merge run 35808379460.
 - [x] Reconcile v4.8 WN-I with the v4.9 Windows-held-handle fix and focused regression coverage; preserve the original intermittent failure record and its limits.
 - [x] Audit v4.8 WN-F's 15 OWASP-tagged skills against current source and body actions, archive the 24-mapping snapshot, and add a manual release-time re-verification handoff.
+- [ ] Publish and verify the v4.8 WN-A guide-byte optimization: retain the 500,000-byte ceiling, preserve approved logo geometry, and confirm the four near-zero-difference browser renders on the integrated result.
 - [x] Mitigate v4.13 WN-5 for future trigger pilots: persist bounded `Skill` selector evidence in normal and timeout rows without retaining prompt payloads; the original 96 calls remain unauditable.
 - [x] Close v4.9 MT-2 with named cross-host proof: the nine Windows-skipped filesystem cases all passed on Ubuntu WSL, and the Windows run passed its applicable 90 cases.
 - [x] Qualify the v4.12 WN-2 tool-lock candidate locally: a universal all-extras Python lock, pinned npm/apt/Docker inputs, 95 workflow/security checks, constrained pip resolution, and 54 plus 380 no-network Docker passes.
@@ -90,7 +91,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
 | Catalog skills | 337 | 337 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 497,896 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 495,467 | < 500,000 | locally qualified; publication pending |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
