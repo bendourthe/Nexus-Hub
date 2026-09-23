@@ -409,6 +409,13 @@ def test_desktop_presentation_fills_the_window(playwright_mod, size) -> None:
         page = browser.new_page(viewport={"width": width, "height": height})
         try:
             _present(page, "presentify")
+            # The idle terminal is intentionally compact; full-window coverage
+            # applies once the reply occupies its bounded scroll area.
+            page.emulate_media(reduced_motion="reduce")
+            page.locator('[data-nht="run"]').click()
+            page.wait_for_function(
+                "document.querySelector('[data-nht=\"run\"]').textContent === 'Run again'"
+            )
             data = _coverage(page)
             columns = page.evaluate(
                 "() => getComputedStyle(document.querySelector('.nht.is-present .nht-slide')).gridTemplateColumns.trim().split(/\\s+/).length"

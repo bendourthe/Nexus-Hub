@@ -22,7 +22,7 @@
     {
       "id": "describe",
       "stage": "Understand",
-      "title": "Map the game before changing it",
+      "title": "Trace the damage",
       "intent": "You ask the assistant to trace what actually happens when an enemy shot reaches the ship, before touching anything.",
       "command": "/describe full",
       "tools": [
