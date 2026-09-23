@@ -2,7 +2,7 @@
 
 **Date**: 2026-09-23. **Scope**: 15 `owasp_agentic`-tagged skills, 24 declared identifiers on merged `develop` at `61be98de`. **Source**: [OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/) and its linked 57-page 2026 document. This is a manual snapshot, not an automated semantic proof or a claim that future edits remain covered.
 
-Each row compares the declared identifier and its `references/standards.md` rationale with an actionable instruction in the skill body. The OWASP document still lists ASI01 through ASI10 with the titles used by the catalog. No tag was added or removed in this audit.
+Each row compares the declared identifier and its `references/standards.md` rationale with an actionable instruction in the skill body. All ten identifiers still resolve in the OWASP document. The catalog uses abbreviated labels for ASI02 and ASI05 rather than the PDF's full headings; those labels do not change the mapped risk. No tag was added or removed in this audit.
 
 | Skill | Declared ASI IDs | Body action supporting the mapping | Verdict |
 |---|---|---|---|
