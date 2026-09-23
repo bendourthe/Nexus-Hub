@@ -414,6 +414,16 @@ DECK_INTEGRITY = r"""(slide) => {
    }
  }
 
+ // The figure runtime delegates series clicks from document but resolves the
+ // clicked button's nearest chart figure before changing its marks. A button
+ // moved outside that figure remains visible and focusable yet cannot work.
+ // Listener presence alone cannot catch it because document always listens.
+ for (const control of slide.querySelectorAll('button[data-dv-series]')) {
+   if (!control.closest('figure[data-dv-figure]')) {
+     findings.push({rule: 'series-control-outside-figure', selector: name(control)});
+   }
+ }
+
  // ---- an element left invisible after the animation window ----------------
  for (const e of slide.querySelectorAll('*')) {
    const own = [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
