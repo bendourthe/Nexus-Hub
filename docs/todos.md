@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** The v4.10.1 and v4.11.1 plan closures are integrated through PR #232; the late v4.10 history archive merged through PR #234. Cross-version CI report retention merged through PR #235, the v4.0 gap guards and v4.11 SVG routing correction merged through PR #236, the v4.8 development prerequisite and v4.13 trigger-audit follow-ups merged through PR #237, the CI tool locks merged through PR #238, the pinned v4.13 tool-span contract merged through PR #239, the v4.3 ownership-guard repair merged through PR #240, the CI profile/cache/report follow-up merged through PR #241, and the v4.2 Unicode validator repair merged through PR #242, all with green hosted and post-merge checks. CI-engine coverage XML and catalog-scanner SARIF are qualified locally and await hosted publication; the attribution guard's new-branch push bypass has a local repair under verification. Unprotected GitHub branches and bounded vendor or manual evidence remain open in their known-gaps ledgers. The v4.0 CI plan's 62 unticked historical task boxes require task-level reconciliation before they can be counted as verified completion.
+**Active work:** The v4.10.1 and v4.11.1 plan closures are integrated through PR #232; the late v4.10 history archive merged through PR #234. Cross-version CI report retention merged through PR #235, the v4.0 gap guards and v4.11 SVG routing correction merged through PR #236, the v4.8 development prerequisite and v4.13 trigger-audit follow-ups merged through PR #237, the CI tool locks merged through PR #238, the pinned v4.13 tool-span contract merged through PR #239, the v4.3 ownership-guard repair merged through PR #240, the CI profile/cache/report follow-up merged through PR #241, the v4.2 Unicode validator repair merged through PR #242, the coverage/SARIF report producers merged through PR #243, and the attribution push-destination repair merged through PR #244, all with green hosted and post-merge checks. The interrupted v4.2 local report archive is green in PR #245. Unprotected GitHub branches and bounded vendor or manual evidence remain open in their known-gaps ledgers. The v4.0 CI plan's 62 unticked historical task boxes require task-level reconciliation before they can be counted as verified completion.
 **Last refreshed:** 2026-09-22
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -26,8 +26,10 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Observe a warm Windows pip cache hit on PR #242 and close v4.3 DF-1/DF-2 after the hosted profile and cache checks passed.
 - [x] Publish the v4.2 Unicode validator gap repair through PR #242; all hosted checks and post-merge run 35822538895 passed.
 - [x] Produce local CI-engine coverage XML and catalog-scanner SARIF from the existing profile commands; 107 CI tests passed, the scoped coverage report recorded an 0.8832 line rate, and the scanner emitted 48 below-threshold findings in SARIF 2.1.0.
-- [ ] Publish and inspect both real report types in the seven-day hosted aggregate before closing v4.3 DF-3.
-- [ ] Publish the v4.12 attribution push-destination repair after focused and rendered handbook verification, then close BG-2 only after hosted and post-merge checks.
+- [x] Publish and inspect both real report types in PR #243's seven-day hosted aggregate; the replacement run passed 30 checks with one intentional skip, and post-merge run 35826047174 passed.
+- [x] Merge PR #244 after its refreshed run passed all 18 jobs; post-merge run 35828234631 passed smoke and provenance.
+- [ ] Reconcile the v4.12 BG-2 ledger against PR #244 and its post-merge proof.
+- [ ] Merge PR #245 and preserve its interrupted full-profile report before clearing the unregistered Unicode folder; the separate cache-only folder cannot be removed under current tool policy.
 - [x] Close v4.4 WN-446-1 against PR #235's hosted `ci-guide-render-report` and seven-day expiry; the rejected v4.4.6 guide remains superseded.
 
 ---

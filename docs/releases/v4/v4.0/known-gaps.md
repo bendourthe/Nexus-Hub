@@ -143,7 +143,7 @@ None.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 2 | 0 |
+| Deferred (DF) | 0 | 2 |
 | Bugs / regressions (BG) | 0 | 1 |
 | Warnings (WN) | 3 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
@@ -157,6 +157,8 @@ None.
 
 **Follow-up status, 2026-09-22**: The existing pinned `actions/upload-artifact` reference now uploads seven-day report bundles from the validation, shell, test, Windows, post-merge, and release-readiness jobs; the guide-render job also emits and uploads JUnit. The local workflow contract passed 63 tests, the fast profile passed 16 checks, and the guide command wrote JUnit after 380 passing tests and one optional skip. This gap remains open until a pull-request run proves that the artifacts are retained on GitHub.
 
+**Resolution, 2026-09-22**: PR #235 passed hosted run 35799198474 with five uploaded report artifacts and post-merge run 35801251735. PR #243 then published a seven-day aggregate containing five source receipts, coverage XML, and SARIF, with the exact hashes and expiry recorded in the [v4.3 hosted qualification](../../../archives/v4/v4.3/development/ci-report-producer-hosted-qualification.md). The original summary-only behavior below remains historical evidence; DF-1 is resolved.
+
 - **Source phase**: Phase 7 - Nexus-Hub workflow migration
 - **Plan reference**: `docs/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` (T049)
 - **Reason**: The lifecycle contract section 6 asks for detailed reports uploaded with `if: always()` and a short explicit retention period. Uploading requires `actions/upload-artifact`, and every third-party action in this repository is pinned to a full 40-character commit SHA. That SHA has to be FETCHED from the vendor; it cannot be recalled or inferred. Nexus-Hub has made exactly this mistake before, in the opposite direction: the `.kimi/agent.yaml` companion shipped in v3.15.0 was fabricated rather than found, and had to be dropped. Writing a plausible-looking SHA would break every run at once, and writing a floating `@v4` tag would violate the pinning rule the same phase asserts.
@@ -164,6 +166,8 @@ None.
 - **Suggested next step**: fetch the current `actions/upload-artifact` release SHA from the vendor, add one upload step per lifecycle workflow with `if: always()` and `retention-days: 7`, and remove the exemption. `scripts/validate_workflow_security.py` already fails an `upload-artifact` step that omits `retention-days`, so the guard is in place before the feature is.
 
 ##### DF-2 - The `full` profile has not been run end to end on this host
+
+**Resolution, 2026-09-22**: After the full profile was partitioned at stable repository-test ownership boundaries, a Windows run on this development host completed all 59 commands in 7,208.2 seconds with zero failures, skips, or advisories. The [v4.12 quality-gate ledger](../v4.12/known-gaps.md) preserves the earlier timeout separately. This resolves the missing aggregate-invocation proof, not the original slow-run failure.
 
 - **Source phase**: Phase 6 and Phase 7
 - **Reason**: `python scripts/ci/run.py --profile full` was started and had not completed after roughly 50 minutes on this workstation. The profile runs the whole `catalog/hooks/tests` tree, the whole `tests/` tree, and six extension suites in sequence; `tests/skills` plus `tests/validators` alone take 9.5 minutes, and the extension suites require their packages to be pip-installed. The per-command timeouts (1800s for hooks, 3600s for the repo suite, 900s per extension) bound the worst case at roughly 2.5 hours, so it is slow rather than hung.
