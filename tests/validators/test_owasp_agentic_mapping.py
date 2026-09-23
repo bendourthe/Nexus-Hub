@@ -25,6 +25,7 @@ CATALOG_SKILLS = REPO_ROOT / "catalog" / "skills"
 COVERAGE_MD = REPO_ROOT / "docs" / "framework-coverage.md"
 NAVIGATOR_LAYER = REPO_ROOT / "docs" / "attack-navigator-layer.json"
 MAPPING_SKILL = CATALOG_SKILLS / "security" / "security-framework-mapping"
+VERSION_UPGRADE_SKILL = CATALOG_SKILLS / "workflow" / "version-upgrade" / "SKILL.md"
 DECISION_RECORD = (
     REPO_ROOT
     / "docs"
@@ -163,6 +164,21 @@ def test_mapping_skill_documents_seven_frameworks() -> None:
     assert "seven public taxonomies" in body
     assert "owasp_agentic" in body
     assert "## The Six Frameworks" not in body
+
+
+def test_release_workflow_requires_manual_owasp_mapping_review() -> None:
+    release = VERSION_UPGRADE_SKILL.read_text(encoding="utf-8")
+    mapping = (MAPPING_SKILL / "SKILL.md").read_text(encoding="utf-8")
+    assert "### Step 0b: Framework mapping gate" in release
+    checkpoint = release.split("### Step 0b: Framework mapping gate", 1)[1].split(
+        "\n### Step 1:", 1
+    )[0]
+    assert "[[security-framework-mapping]]" in checkpoint
+    assert "owasp_agentic" in checkpoint
+    assert "SKILL.md body" in checkpoint
+    assert "manual" in checkpoint.lower()
+    assert "### 6. Re-verify declared mappings" in mapping
+    assert "every declared identifier" in mapping
 
 
 def test_mapping_skill_standards_lists_all_ten_official_titles() -> None:

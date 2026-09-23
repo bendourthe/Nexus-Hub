@@ -66,6 +66,8 @@
 - **Suggested next step**: treat framework-tag re-verification as periodic human work owned by [[platform-contract-verification]], which already re-verifies external contracts before a release, rather than as a gate. The same step covers the related exposure that OWASP will version the framework and can renumber or retitle an entry, making every tag stale at once with no local signal.
 - **Recorded in**: the decision record's `## Consequences` section states this residual gap; this entry is its ledger counterpart so the next plan ingests it.
 
+**Process resolution, 2026-09-23**: The [archived 15-skill audit](../../../archives/v4/v4.8/development/owasp-body-mapping-audit.md) compared all 24 declared ASI mappings with the current OWASP 2026 source, their standards rationales, and concrete body actions; none was unsupported at this snapshot. `security-framework-mapping` now owns a manual per-release re-verification, and `version-upgrade` invokes it before coverage is claimed. The test protects that handoff, not the semantic verdict; edits after this audit can still invalidate a mapping until the next review.
+
 ### Deferred (DF)
 
 #### DF-1 - The Goal's "every review deliverable names its verifier class" reached the evaluation skill but no review skill

@@ -15,6 +15,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Close v4.8 WN-C locally: `make dev` installs all six extension development extras, the README supplies the direct Windows command, pip resolves it in dry-run mode, and the 16-check native fast profile passes.
 - [x] Publish and verify the v4.8 WN-C follow-up on merged `develop` through PR #237 and post-merge run 35808379460.
 - [x] Reconcile v4.8 WN-I with the v4.9 Windows-held-handle fix and focused regression coverage; preserve the original intermittent failure record and its limits.
+- [x] Audit v4.8 WN-F's 15 OWASP-tagged skills against current source and body actions, archive the 24-mapping snapshot, and add a manual release-time re-verification handoff.
 - [x] Mitigate v4.13 WN-5 for future trigger pilots: persist bounded `Skill` selector evidence in normal and timeout rows without retaining prompt payloads; the original 96 calls remain unauditable.
 - [x] Close v4.9 MT-2 with named cross-host proof: the nine Windows-skipped filesystem cases all passed on Ubuntu WSL, and the Windows run passed its applicable 90 cases.
 - [x] Qualify the v4.12 WN-2 tool-lock candidate locally: a universal all-extras Python lock, pinned npm/apt/Docker inputs, 95 workflow/security checks, constrained pip resolution, and 54 plus 380 no-network Docker passes.
