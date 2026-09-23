@@ -446,7 +446,10 @@ def check() -> int:
     source = Path(__file__).resolve()
     if (
         source != durable_script
-        and hashlib.sha256(source.read_bytes()).hexdigest() != state["script_sha256"]
+        # Git may check out the same source blob with LF or CRLF in another
+        # worktree. The installed copy still has the byte-exact digest above.
+        and source.read_bytes().replace(b"\r\n", b"\n")
+        != durable_script.read_bytes().replace(b"\r\n", b"\n")
     ):
         raise GuardError("Attribution guard version differs. Reinstall the guard.")
     try:
