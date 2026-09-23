@@ -1,0 +1,12 @@
+{
+  "frozen": "2026-09-23",
+  "variant": "B",
+  "definition": "Only the four description lines differ from control A. Each begins with an explicit instruction to invoke the named skill on a matching task, then states its purpose and exclusions.",
+  "descriptions": {
+    "plan-before-code": "Invoke the plan-before-code skill for a non-trivial change that needs an approach before implementation. Explore the codebase, size the task, and design the implementation before editing. Use for cross-module features, migrations, root-cause bug work, and unfamiliar codebases. SKIP a factual explanation, a test-only request, or a single mechanical edit.",
+    "html-output-conventions": "Invoke the html-output-conventions skill when deciding whether a human-facing deliverable should be HTML rather than Markdown. Use for an interactive page, navigable report, filterable comparison, or shareable artifact someone will open. SKIP a short factual answer, one-sentence summary, or mechanical text edit.",
+    "skill-description-authoring": "Invoke the skill-description-authoring skill when writing or repairing a SKILL.md description so a skill triggers on the right requests. Use for under-triggering, over-triggering, trigger wording, match confidence, and SKIP boundaries. SKIP catalog counts, unrelated frontmatter fields, simple capitalization, and a request to use a nonexistent skill; name that missing delegate instead.",
+    "context-engineering": "Invoke the context-engineering skill when planning what information an AI session loads, carries, or drops. Use when a session runs out of context, a multi-phase job loses earlier detail, or the user asks how to structure the working context. SKIP a model-token-limit fact, a file deletion, or a single small edit."
+  },
+  "unchanged": "Every non-description byte of every sampled skill and every other file in the staged corpus is identical to control A."
+}
