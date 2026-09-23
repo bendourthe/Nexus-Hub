@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #190 integrated the v4.9.0 audit work and its hosted platform gates. The remaining prompting-profile entries are source-availability limitations, and WN-1 is private workstation residue rather than distributed or release-blocking work.
-**Last updated**: 2026-09-22
+**Last updated**: 2026-09-23
 
 ## Open Items - found 2026-09-08 during post-v4.8.0 follow-up
 
@@ -16,6 +16,8 @@
     - **`gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`**: OpenAI's prompt-engineering guide documents `gpt-6-astra` (already profiled) and reasoning-versus-GPT guidance generally. It names no member of the 5.6 family, so there is nothing model-specific to record.
 - **Why this is the correct outcome, not a shortfall**: the runbook is explicit that no primary source found means zero claims rather than a guess, because an unsourced claim in the layer is indistinguishable from a hallucinated one and every later phase treats recorded claims as verified input. All four are reported UNVERIFIED by `verify_model_prompting_profiles.py`, which treats that as tracked rather than as a gate failure.
 - **Suggested next step**: re-check at the next `/tune-prompting` run. A vendor publishing a per-model page is the trigger; nothing else changes the answer. Do not fill these from the general guidance, which would silently convert model-agnostic advice into a model-specific claim.
+
+**Source recheck, 2026-09-23**: The original observation above remains the record of the 2026-09-08 sweep, but its statement that OpenAI names no GPT-5.6 member is no longer current. [OpenAI's GPT-5.6 guide](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6) now names Sol, Terra, and Luna and differentiates their workload and cost positioning; its prompting advice is framed for the GPT-5.6 family, not as distinct instructions for each member. [Anthropic's prompting reference](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) still has no dedicated Haiku 4.5 prompting page, although it names Haiku in a shared context-awareness subsection. No per-model profile was written or re-stamped in this source-only recheck. MT-1 remains open for a qualified `/tune-prompting` pass rather than treating family guidance or model-selection advice as a verified per-model prompting difference.
 
 ### Warnings (WN)
 
