@@ -870,6 +870,8 @@ GEOMETRY_MAX_SVG_BYTES = 1024 * 1024
 GEOMETRY_MAX_SVG_ELEMENTS = 4096
 GEOMETRY_MAX_DEPTH = 64
 GEOMETRY_MAX_COMPARISONS = 1_000_000
+GEOMETRY_MAX_PATH_TOKENS = 4096
+GEOMETRY_MAX_CURVE_DEPTH = 12
 
 # Transforms whose effect on axis-aligned geometry is exactly representable by
 # offset and scale. Anything else (rotate, skew, matrix, or a transform this
@@ -881,10 +883,13 @@ _GEOM_ANY_TRANSFORM_RE = re.compile(r"([a-zA-Z]+)\s*\(")
 # Features that put an element's painted geometry outside what this parser can
 # decide. Presence anywhere in the SVG marks it unchecked.
 _GEOM_UNSUPPORTED_RE = re.compile(
-    r"<(?:path|use|foreignObject|image|clipPath|mask|filter|textPath)\b"
+    r"<(?:use|foreignObject|image|clipPath|mask|filter|textPath)\b"
     r"|\b(?:clip-path|mask|filter)\s*[:=]"
     r"|\bcalc\s*\(",
     re.IGNORECASE,
+)
+_GEOM_PATH_TOKEN_RE = re.compile(
+    r"[MLHVCZ]|[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
 )
 # Positive evidence that a mark sitting on a label is an intentional badge.
 # A role or class must SAY so; size is never evidence.
@@ -952,6 +957,8 @@ def _geom_walk(svg: Any) -> list[tuple[Any, tuple[float, float, float, float], i
             raise _GeomUnchecked(f"unsupported transform {node.get('transform')!r}")
         odx, ody, osx, osy = own
         here = (dx + odx * sx, dy + ody * sy, sx * osx, sy * osy)
+        if not all(math.isfinite(value) for value in here):
+            raise _GeomUnchecked("transform exceeds finite geometry")
         out.append((node, here, depth))
         # Children are pushed REVERSED so the LIFO stack yields them in document
         # order. Paint order is the entire basis of the occlusion check, so a
@@ -960,6 +967,92 @@ def _geom_walk(svg: Any) -> list[tuple[Any, tuple[float, float, float, float], i
         for child in reversed(list(node)):
             stack.append((child, here, depth + 1))
     return out
+
+
+def _geom_painted(
+    walked: list[tuple[Any, tuple[float, float, float, float], int]]
+) -> list[tuple[Any, tuple[float, float, float, float], int]]:
+    """Exclude definitions without losing their traversal/resource cost."""
+    painted = []
+    hidden_depth: int | None = None
+    for item in walked:
+        node, _, depth = item
+        if hidden_depth is not None:
+            if depth > hidden_depth:
+                continue
+            hidden_depth = None
+        if _local(node.tag) in {"defs", "marker", "symbol"}:
+            hidden_depth = depth
+            continue
+        painted.append(item)
+    return painted
+
+
+def _geom_path_parts(raw: str | None) -> list[tuple[str, tuple[tuple[float, float], ...]]]:
+    """Parse the bounded absolute SVG path subset; reject all other syntax."""
+    if not raw:
+        raise _GeomUnchecked("path has no data")
+    matches = list(_GEOM_PATH_TOKEN_RE.finditer(raw))
+    if len(matches) > GEOMETRY_MAX_PATH_TOKENS:
+        raise _GeomUnchecked("path token count above the budget")
+    offset = 0
+    for match in matches:
+        if re.fullmatch(r"[\s,]*", raw[offset:match.start()]) is None:
+            raise _GeomUnchecked("unsupported path syntax")
+        offset = match.end()
+    if re.fullmatch(r"[\s,]*", raw[offset:]) is None:
+        raise _GeomUnchecked("unsupported path syntax")
+    tokens = [match.group() for match in matches]
+    if not tokens or tokens[0] != "M":
+        raise _GeomUnchecked("path must begin with absolute M")
+    parts: list[tuple[str, tuple[tuple[float, float], ...]]] = []
+    current: tuple[float, float] | None = None
+    origin: tuple[float, float] | None = None
+    index = 0
+    counts = {"M": 2, "L": 2, "H": 1, "V": 1, "C": 6, "Z": 0}
+    while index < len(tokens):
+        command = tokens[index]
+        index += 1
+        if command not in counts:
+            raise _GeomUnchecked("unsupported or repeated path command")
+        count = counts[command]
+        values = tokens[index:index + count]
+        if len(values) != count or any(value in counts for value in values):
+            raise _GeomUnchecked("incomplete path command")
+        coords = [_geom_number(value) for value in values]
+        if None in coords:
+            raise _GeomUnchecked("non-finite path coordinate")
+        index += count
+        if index < len(tokens) and tokens[index] not in counts:
+            raise _GeomUnchecked("implicit path repetition is unsupported")
+        if command == "M":
+            current = (coords[0], coords[1])
+            origin = current
+        elif command == "Z":
+            if current is None or origin is None:
+                raise _GeomUnchecked("closepath without moveto")
+            parts.append(("line", (current, origin)))
+            current = origin
+        else:
+            if current is None:
+                raise _GeomUnchecked("drawing command without moveto")
+            if command == "L":
+                end = (coords[0], coords[1])
+            elif command == "H":
+                end = (coords[0], current[1])
+            elif command == "V":
+                end = (current[0], coords[0])
+            else:
+                control = ((coords[0], coords[1]), (coords[2], coords[3]))
+                end = (coords[4], coords[5])
+                parts.append(("cubic", (current, *control, end)))
+                current = end
+                continue
+            parts.append(("line", (current, end)))
+            current = end
+    if not parts:
+        raise _GeomUnchecked("path has no drawn segments")
+    return parts
 
 
 def _geom_rects(
@@ -983,10 +1076,14 @@ def _geom_rects(
             or (node.get("fill") or "").strip().lower() == "none"
             or (opacity is not None and opacity < 0.9)
         )
+        x0, y0 = x * sx + dx, y * sy + dy
+        x1, y1 = (x + w) * sx + dx, (y + h) * sy + dy
+        if not all(math.isfinite(value) for value in (x0, y0, x1, y1)):
+            raise _GeomUnchecked("rect exceeds finite geometry")
         rects.append({
             "order": order,
-            "x0": x * sx + dx, "y0": y * sy + dy,
-            "x1": (x + w) * sx + dx, "y1": (y + h) * sy + dy,
+            "x0": min(x0, x1), "y0": min(y0, y1),
+            "x1": max(x0, x1), "y1": max(y0, y1),
             "opaque": not transparent,
             "identity": (node.get("class") or "") + " " + (node.get("role") or "")
                         + " " + (node.get("id") or ""),
@@ -1010,9 +1107,12 @@ def _geom_labels(
         text = "".join(node.itertext()).strip()
         if not text:
             continue
+        placed = (x * sx + dx, y * sy + dy)
+        if not all(math.isfinite(value) for value in placed):
+            raise _GeomUnchecked("label exceeds finite geometry")
         labels.append({
             "order": order,
-            "x": x * sx + dx, "y": y * sy + dy,
+            "x": placed[0], "y": placed[1],
             "text": text[:48],
             "ancestry": node,
         })
@@ -1022,10 +1122,23 @@ def _geom_labels(
 def _geom_segments(
     walked: list[tuple[Any, tuple[float, float, float, float], int]]
 ) -> list[dict[str, Any]]:
-    """Straight and orthogonal connector segments in user space."""
+    """Supported straight and cubic connector segments in user space."""
     segments = []
     for order, (node, (dx, dy, sx, sy), _) in enumerate(walked):
         tag = _local(node.tag)
+        if tag == "path":
+            if not node.get("data-edge"):
+                raise _GeomUnchecked("visible path lacks connector identity")
+            for kind, points in _geom_path_parts(node.get("d")):
+                placed = tuple((x * sx + dx, y * sy + dy) for x, y in points)
+                if not all(math.isfinite(value) for point in placed for value in point):
+                    raise _GeomUnchecked("path exceeds finite geometry")
+                segments.append({
+                    "order": order, "start": placed[0], "end": placed[-1],
+                    "control": placed, "kind": "path-line" if kind == "line" else kind,
+                    "identity": node.get("data-edge") or "",
+                })
+            continue
         pts: list[tuple[float, float]] = []
         if tag == "line":
             coords = [_geom_number(node.get(k)) for k in ("x1", "y1", "x2", "y2")]
@@ -1041,9 +1154,12 @@ def _geom_segments(
         else:
             continue
         placed = [(x * sx + dx, y * sy + dy) for x, y in pts]
+        if not all(math.isfinite(value) for point in placed for value in point):
+            raise _GeomUnchecked("segment exceeds finite geometry")
         for start, end in pairwise(placed):
             segments.append({
                 "order": order, "start": start, "end": end,
+                "kind": "line",
                 "identity": (node.get("class") or "") + " " + (node.get("id") or ""),
             })
     return segments
@@ -1051,6 +1167,93 @@ def _geom_segments(
 
 def _geom_inside(px: float, py: float, rect: dict[str, Any]) -> bool:
     return rect["x0"] <= px <= rect["x1"] and rect["y0"] <= py <= rect["y1"]
+
+
+def _geom_midpoint(
+    left: tuple[float, float], right: tuple[float, float]
+) -> tuple[float, float]:
+    return (left[0] / 2 + right[0] / 2, left[1] / 2 + right[1] / 2)
+
+
+def _geom_line_crosses(
+    start: tuple[float, float], end: tuple[float, float], rect: dict[str, Any]
+) -> bool | None:
+    """Exact line/box interval; a boundary-only contact is undecidable."""
+    low, high = 0.0, 1.0
+    tolerance = 1e-9
+    for value, delta, minimum, maximum in (
+        (start[0], end[0] - start[0], rect["x0"], rect["x1"]),
+        (start[1], end[1] - start[1], rect["y0"], rect["y1"]),
+    ):
+        if delta == 0:
+            if value < minimum - tolerance or value > maximum + tolerance:
+                return False
+            if not minimum + tolerance < value < maximum - tolerance:
+                return None
+            continue
+        first, second = (minimum - value) / delta, (maximum - value) / delta
+        low = max(low, min(first, second))
+        high = min(high, max(first, second))
+    if high < low - tolerance:
+        return False
+    if high - low <= tolerance:
+        return None
+    midpoint = (low + high) / 2
+    x = start[0] + midpoint * (end[0] - start[0])
+    y = start[1] + midpoint * (end[1] - start[1])
+    if not all(math.isfinite(value) for value in (x, y)):
+        return None
+    if rect["x0"] + tolerance < x < rect["x1"] - tolerance and rect[
+        "y0"
+    ] + tolerance < y < rect["y1"] - tolerance:
+        return True
+    return None
+
+
+def _geom_cubic_crosses(
+    control: tuple[tuple[float, float], ...], rect: dict[str, Any], budget: list[int]
+) -> bool | None:
+    """Prove clear/crossing by Bézier hulls; return None at the precision cap."""
+    stack = [(control, 0)]
+    tolerance = 1e-9
+    uncertain = False
+    while stack:
+        points, depth = stack.pop()
+        budget[0] -= 1
+        if budget[0] < 0:
+            uncertain = True
+            break
+        if not all(math.isfinite(value) for point in points for value in point):
+            uncertain = True
+            continue
+        xs = [point[0] for point in points]
+        ys = [point[1] for point in points]
+        if (
+            max(xs) < rect["x0"] - tolerance
+            or min(xs) > rect["x1"] + tolerance
+            or max(ys) < rect["y0"] - tolerance
+            or min(ys) > rect["y1"] + tolerance
+        ):
+            continue
+        if all(
+            rect["x0"] + tolerance < x < rect["x1"] - tolerance
+            and rect["y0"] + tolerance < y < rect["y1"] - tolerance
+            for x, y in points
+        ):
+            return True
+        if depth >= GEOMETRY_MAX_CURVE_DEPTH:
+            uncertain = True
+            continue
+        p0, p1, p2, p3 = points
+        a = _geom_midpoint(p0, p1)
+        b = _geom_midpoint(p1, p2)
+        c = _geom_midpoint(p2, p3)
+        d = _geom_midpoint(a, b)
+        e = _geom_midpoint(b, c)
+        mid = _geom_midpoint(d, e)
+        stack.append(((mid, e, c, p3), depth + 1))
+        stack.append(((p0, a, d, mid), depth + 1))
+    return None if uncertain else False
 
 
 def _geom_related(a: str, b: str) -> bool:
@@ -1129,11 +1332,18 @@ def check_svg_label_occlusion(html: str) -> dict[str, Any]:
     budget = GEOMETRY_MAX_COMPARISONS
     for name, svg in cleared:
         try:
-            walked = _geom_walk(svg)
+            walked = _geom_painted(_geom_walk(svg))
+            rects, labels = _geom_rects(walked), _geom_labels(walked)
         except _GeomUnchecked as exc:
             skipped.append(f"{name}: {exc}")
             continue
-        rects, labels = _geom_rects(walked), _geom_labels(walked)
+        first_label = min((label["order"] for label in labels), default=None)
+        if first_label is not None and any(
+            order > first_label and _local(node.tag) == "path"
+            for order, (node, _, _) in enumerate(walked)
+        ):
+            skipped.append(f"{name}: path painted after a label")
+            continue
         if budget < len(rects) * len(labels):
             skipped.append(f"{name}: geometry comparisons above the budget")
             continue
@@ -1180,16 +1390,18 @@ def check_svg_connector_routing(html: str) -> dict[str, Any]:
     budget = GEOMETRY_MAX_COMPARISONS
     for name, svg in cleared:
         try:
-            walked = _geom_walk(svg)
+            walked = _geom_painted(_geom_walk(svg))
+            rects, segments = _geom_rects(walked), _geom_segments(walked)
         except _GeomUnchecked as exc:
             skipped.append(f"{name}: {exc}")
             continue
-        rects, segments = _geom_rects(walked), _geom_segments(walked)
         if budget < len(rects) * len(segments):
             skipped.append(f"{name}: geometry comparisons above the budget")
             continue
         budget -= len(rects) * len(segments)
-        checked += 1
+        curve_budget = [budget]
+        uncertain = False
+        svg_problems: list[str] = []
         for seg in segments:
             (x0, y0), (x1, y1) = seg["start"], seg["end"]
             orthogonal = abs(x1 - x0) < 1e-9 or abs(y1 - y0) < 1e-9
@@ -1203,21 +1415,38 @@ def check_svg_connector_routing(html: str) -> dict[str, Any]:
                 # An endpoint touching a node is how a connector ATTACHES.
                 if _geom_inside(x0, y0, rect) or _geom_inside(x1, y1, rect):
                     continue
-                mid = ((x0 + x1) / 2.0, (y0 + y1) / 2.0)
-                crosses = _geom_inside(mid[0], mid[1], rect)
-                if not crosses and orthogonal:
-                    crosses = (
-                        min(x0, x1) <= rect["x0"] and max(x0, x1) >= rect["x1"]
-                        and rect["y0"] <= y0 <= rect["y1"]
-                    ) or (
-                        min(y0, y1) <= rect["y0"] and max(y0, y1) >= rect["y1"]
-                        and rect["x0"] <= x0 <= rect["x1"]
-                    )
+                if seg["kind"] == "cubic":
+                    crosses = _geom_cubic_crosses(seg["control"], rect, curve_budget)
+                    if crosses is None:
+                        uncertain = True
+                        continue
+                elif seg["kind"] == "path-line":
+                    crosses = _geom_line_crosses((x0, y0), (x1, y1), rect)
+                    if crosses is None:
+                        uncertain = True
+                        continue
+                else:
+                    mid = _geom_midpoint((x0, y0), (x1, y1))
+                    crosses = _geom_inside(mid[0], mid[1], rect)
+                    if not crosses and orthogonal:
+                        crosses = (
+                            min(x0, x1) <= rect["x0"] and max(x0, x1) >= rect["x1"]
+                            and rect["y0"] <= y0 <= rect["y1"]
+                        ) or (
+                            min(y0, y1) <= rect["y0"] and max(y0, y1) >= rect["y1"]
+                            and rect["x0"] <= x0 <= rect["x1"]
+                        )
                 if crosses:
-                    problems.append(
+                    svg_problems.append(
                         f"{name}: a connector passes through a node it does not connect"
                     )
                     break
+        budget = curve_budget[0]
+        if uncertain and not svg_problems:
+            skipped.append(f"{name}: cubic intersection unresolved within the budget")
+            continue
+        checked += 1
+        problems.extend(svg_problems)
     return _geom_finding(
         "svg-connector-routing", problems, skipped, checked,
         f"no connector crosses an unrelated node across {checked} svg(s)",
