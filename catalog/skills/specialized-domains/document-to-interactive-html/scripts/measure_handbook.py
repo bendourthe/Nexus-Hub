@@ -476,6 +476,54 @@ DECK_INTEGRITY = r"""(slide) => {
  return findings;
 }"""
 
+# Only independently mapped, DOM-rendered source values are in this envelope.
+# MutationObserver sees brief text changes and animation-frame sampling catches
+# a value revealed only by style changes between the existing state samples.
+# An unmapped value must remain unchecked rather than receive a false pass.
+SOURCE_VALUE_WATCH = r"""(specs) => {
+  window.__nexusSourceValueWatch = specs.map(spec => {
+    const slide = [...document.querySelectorAll('[data-dv-slide]')]
+      .find(node => node.dataset.dvSlide === spec.slide_id);
+    const matches = slide ? slide.querySelectorAll(spec.selector) : [];
+    if (matches.length !== 1) {
+      return {spec, error: `source value ${spec.slide_id} ${spec.selector} matched ${matches.length} elements`};
+    }
+    const watch = {spec, count: 0, wrong: [], last: null};
+    watch.capture = () => {
+      const current = slide.querySelectorAll(spec.selector);
+      if (current.length !== 1 || slide.hidden ||
+          !current[0].checkVisibility({checkOpacity:true,checkVisibilityCSS:true})) return;
+      const text = current[0].textContent.trim();
+      if (text === watch.last) return;
+      watch.last = text;
+      watch.count++;
+      if (text !== spec.text && watch.wrong.length < 3) watch.wrong.push(text);
+    };
+    watch.observer = new MutationObserver(watch.capture);
+    watch.observer.observe(slide, {subtree:true,childList:true,characterData:true});
+    watch.running = true;
+    const frame = () => {
+      if (!watch.running) return;
+      watch.capture();
+      watch.frame = requestAnimationFrame(frame);
+    };
+    watch.frame = requestAnimationFrame(frame);
+    return watch;
+  });
+  return window.__nexusSourceValueWatch.filter(watch => watch.error).map(watch => watch.error);
+}"""
+
+SOURCE_VALUE_RESULT = r"""(slideId) => window.__nexusSourceValueWatch
+  .filter(watch => watch.spec.slide_id === slideId)
+  .map(watch => {
+    watch.capture();
+    watch.running = false;
+    cancelAnimationFrame(watch.frame);
+    watch.observer.disconnect();
+    return {selector:watch.spec.selector, expected:watch.spec.text,
+      observed_changes:watch.count, wrong:watch.wrong};
+  })"""
+
 
 def measure(
     html: Path,
@@ -490,6 +538,7 @@ def measure(
         "errors": [],
         "qualitative_review": "required separately",
         "verification_scope": "rendered geometry, inventory and declared browser behaviors",
+        "source_value_guard": {"status": "unchecked", "observations": [], "findings": []},
     }
     sections, slides = inventory.get("section_ids"), inventory.get("slide_ids")
     if (
@@ -509,6 +558,25 @@ def measure(
             "independent unique slide_ids required; [] means explicit opt-out"
         )
         return report
+    source_values = inventory.get("source_values", [])
+    if not isinstance(source_values, list) or any(
+        not isinstance(spec, dict)
+        or spec.get("slide_id") not in slides
+        or not isinstance(spec.get("selector"), str)
+        or not spec["selector"]
+        or not isinstance(spec.get("text"), str)
+        or not spec["text"]
+        for spec in source_values
+    ):
+        report["errors"].append("source value inventory is malformed")
+        return report
+    if len({(spec["slide_id"], spec["selector"]) for spec in source_values}) != len(
+        source_values
+    ):
+        report["errors"].append("source value inventory contains duplicate selectors")
+        return report
+    if source_values:
+        report["source_value_guard"]["status"] = "unverified"
     try:
         from playwright.sync_api import sync_playwright
 
@@ -549,6 +617,10 @@ def measure(
                     )
                 if not slides and page.locator("[data-dv-deck],[data-dv-open]").count():
                     raise ValueError("opt-out contains presentation elements")
+                if source_values:
+                    errors = page.evaluate(SOURCE_VALUE_WATCH, source_values)
+                    if errors:
+                        raise ValueError("; ".join(errors))
                 for label in inventory.get("expected_labels", []):
                     if label not in page.locator("[data-dv-page]").inner_text():
                         report["errors"].append("missing source label: " + label)
@@ -719,6 +791,23 @@ def measure(
                                         f"{hit['selector']}"
                                         + (f" -- {hit['text']!r}" if hit.get("text") else "")
                                     )
+                                if source_values:
+                                    for observed in page.evaluate(SOURCE_VALUE_RESULT, identity):
+                                        report["source_value_guard"]["observations"].append(
+                                            {"slide_id": identity, "viewport": [width, height], **observed}
+                                        )
+                                        if not observed["observed_changes"]:
+                                            finding = (
+                                                f"{identity}: source value {observed['selector']} was never visible"
+                                            )
+                                            report["errors"].append(finding)
+                                            report["source_value_guard"]["findings"].append(finding)
+                                        for wrong in observed["wrong"]:
+                                            finding = (
+                                                f"{identity}: source value {observed['selector']} displayed {wrong!r}; expected {observed['expected']!r}"
+                                            )
+                                            report["errors"].append(finding)
+                                            report["source_value_guard"]["findings"].append(finding)
                             row["detector_findings"] = found["findings"]
                             report["errors"].extend(
                                 f"{identity}: {f['rule']}"
@@ -794,6 +883,10 @@ def measure(
                 page.close()
             browser.close()
         report["status"] = "fail" if report["errors"] else "pass"
+        if source_values:
+            report["source_value_guard"]["status"] = (
+                "fail" if report["source_value_guard"]["findings"] else "pass"
+            )
     except Exception as exc:  # noqa: BLE001 - unavailable renderer is an explicit non-pass
         report["errors"].append(str(exc))
     sizes = [f["px"] for row in report["rows"] for f in row["fonts"]]

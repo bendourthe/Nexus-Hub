@@ -51,6 +51,8 @@ MT-5 was transferred into this plan from v4.11.0 on the expectation that Phase
 - **Next step**: sample the rendered series at two or three points inside the animation window and assert every displayed value lies within the source data's range. The per-slide walk added in Phase 4 already establishes the timing discipline this needs.
 - **Status**: open, carried forward, narrowed.
 
+**Bounded temporal guard, 2026-09-23**: `measure_handbook.py` now watches DOM-text mutations and animation frames for exact source values named in its independent per-slide inventory. A brief wrong value between the settled samples, including one revealed by a style-only change, fails; absent mappings report `source_value_guard: unchecked`, and missing or ambiguous selectors are unverified. The [archived qualification](../../../archives/v4/v4.11/development/temporal-source-values/verification.md) records six focused controls and a 59-test module run. MT-5 remains open for actual handbook mappings and canvas-painted or otherwise unmapped numbers; a range-only check would not catch the observed in-range fabrication.
+
 ### Deliberately attested rather than gated
 
 Four tells from the source document have no mechanical check and are recorded as
