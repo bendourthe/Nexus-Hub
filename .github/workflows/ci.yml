@@ -47,6 +47,9 @@ on:
 permissions:
   contents: read
 
+env:
+  PIP_CONSTRAINT: scripts/ci/requirements-py311.txt
+
 # Cancel superseded runs of the same ref (the single largest action-minute
 # saver) so only the latest commit on a pull request runs.
 concurrency:
@@ -150,7 +153,9 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
-          cache-dependency-path: '.pre-commit-config.yaml'
+          cache-dependency-path: |
+            .pre-commit-config.yaml
+            scripts/ci/requirements-py311.txt
 
       - name: Install pre-commit
         run: pip install pre-commit pytest
@@ -205,7 +210,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install ShellCheck
-        run: sudo apt-get install -y shellcheck
+        run: sudo apt-get install -y shellcheck=0.9.0-1
 
       - name: Lint catalog shell scripts
         # Not in the profile: the catalog glob is a repository-shaped check
@@ -250,7 +255,9 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
-          cache-dependency-path: 'extensions/*/pyproject.toml'
+          cache-dependency-path: |
+            extensions/*/pyproject.toml
+            scripts/ci/requirements-py311.txt
 
       - name: Install test dependencies
         # tomlkit and PyYAML are the optional seeding dependencies for platform
@@ -309,7 +316,9 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
-          cache-dependency-path: '.github/workflows/ci.yml'
+          cache-dependency-path: |
+            .github/workflows/ci.yml
+            scripts/ci/requirements-py311.txt
 
       - name: Install guide render test dependencies
         run: pip install pytest playwright
@@ -373,7 +382,9 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
-          cache-dependency-path: '.github/workflows/ci.yml'
+          cache-dependency-path: |
+            .github/workflows/ci.yml
+            scripts/ci/requirements-py311.txt
 
       - name: Install test dependencies
         run: pip install pytest PyYAML
@@ -735,7 +746,7 @@ jobs:
           persist-credentials: false
 
       - name: Install the Claude Code host with its native binary
-        run: npm install --global @anthropic-ai/claude-code
+        run: npm install --global @anthropic-ai/claude-code@2.1.280
 
       - name: Install and verify Nexus-Hub from an isolated host configuration
         env:

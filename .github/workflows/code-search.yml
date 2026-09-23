@@ -16,6 +16,8 @@ on:
     paths:
       - 'extensions/nexus-code-search/**'
       - '.github/workflows/code-search.yml'
+      - 'scripts/ci/requirements.in'
+      - 'scripts/ci/requirements-py311.txt'
 
 # Cancel superseded runs of the same ref so only the latest commit's run
 # survives (the single largest action-minute saver).
@@ -39,11 +41,14 @@ jobs:
 
       - name: Build the offline test image
         run: |
-          docker build --tag nexus-code-search-offline --file - extensions/nexus-code-search <<'DOCKERFILE'
-          FROM python:3.11-slim
+          docker build --tag nexus-code-search-offline --build-context ci=scripts/ci --file - extensions/nexus-code-search <<'DOCKERFILE'
+          # syntax=docker/dockerfile:1
+          FROM python:3.11-slim@sha256:da047cb8f9d1d98e5c070f5300ba9f7274e33b8fc0e5be5ed88740aed1b95ba9
           WORKDIR /workspace
+          COPY --from=ci requirements-py311.txt /package/requirements-py311.txt
+          ENV PIP_CONSTRAINT=/package/requirements-py311.txt
           RUN apt-get update \
-              && apt-get install --yes --no-install-recommends git \
+              && apt-get install --yes --no-install-recommends git=1:2.47.3-0+deb13u1 \
               && rm -rf /var/lib/apt/lists/*
           COPY pyproject.toml README.md /package/
           COPY src /package/src

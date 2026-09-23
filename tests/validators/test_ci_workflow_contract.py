@@ -406,6 +406,61 @@ def test_the_required_jobs_are_never_gated_by_the_classifier():
         )
 
 
+@pytest.mark.parametrize(
+    "name",
+    ("ci", "post-merge", "presentify-extractor", "supply-chain-watch", "nexus-memory"),
+)
+def test_python_install_workflows_use_the_universal_constraints(name: str):
+    workflow = load(WORKFLOW_DIR / f"{name}.yml")
+    assert workflow["env"]["PIP_CONSTRAINT"] == "scripts/ci/requirements-py311.txt"
+    for job in workflow["jobs"].values():
+        for step in job.get("steps", []):
+            options = step.get("with", {})
+            if options.get("cache") == "pip":
+                assert "scripts/ci/requirements-py311.txt" in options["cache-dependency-path"]
+
+
+@pytest.mark.parametrize("name", ("code-search", "nexus-memory"))
+def test_offline_extension_builds_receive_the_same_constraints(name: str):
+    text = (WORKFLOW_DIR / f"{name}.yml").read_text(encoding="utf-8")
+    paths = triggers(WORKFLOW_DIR / f"{name}.yml")["pull_request"]["paths"]
+    assert "scripts/ci/requirements.in" in paths
+    assert "scripts/ci/requirements-py311.txt" in paths
+    assert "--build-context ci=scripts/ci" in text
+    assert "FROM python:3.11-slim@sha256:da047cb8f9d1d98e5c070f5300ba9f7274e33b8fc0e5be5ed88740aed1b95ba9" in text
+    assert "COPY --from=ci requirements-py311.txt /package/requirements-py311.txt" in text
+    assert "ENV PIP_CONSTRAINT=/package/requirements-py311.txt" in text
+    if name == "code-search":
+        assert "git=1:2.47.3-0+deb13u1" in text
+
+
+def test_presentify_lock_changes_reach_its_path_detector():
+    text = (WORKFLOW_DIR / "presentify-extractor.yml").read_text(encoding="utf-8")
+    assert r"scripts/ci/requirements(\.in|-py311\.txt)$" in text
+
+
+def test_non_python_ci_tools_have_explicit_versions():
+    text = CI.read_text(encoding="utf-8")
+    assert "apt-get install -y shellcheck=0.9.0-1" in text
+    assert "npm install --global @anthropic-ai/claude-code@2.1.280" in text
+
+
+def test_direct_ci_tools_are_pinned_in_the_universal_constraints():
+    source = (REPO_ROOT / "scripts/ci/requirements.in").read_text(encoding="utf-8")
+    lock = (REPO_ROOT / "scripts/ci/requirements-py311.txt").read_text(encoding="utf-8")
+    direct = {
+        line.strip().split("==", 1)[0].lower()
+        for line in source.splitlines()
+        if line.strip() and not line.startswith("#")
+    }
+    pinned = {
+        line.split("==", 1)[0].lower()
+        for line in lock.splitlines()
+        if line and not line[0].isspace() and not line.startswith("#") and "==" in line
+    }
+    assert direct <= pinned
+
+
 # ---------------------------------------------------------------------------
 # Repo-wide property: no guard that runs locally is missing from CI.
 #

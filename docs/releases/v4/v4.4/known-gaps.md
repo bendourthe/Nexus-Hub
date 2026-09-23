@@ -360,6 +360,8 @@ Status: local implementation complete through Phase 6; final verification and ex
 
 WN-446-1 follow-up, 2026-09-22: the current guide-render job now writes JUnit and uploads it with seven-day retention, and the same local guide command produced 380 passed, one optional skip, and a JUnit file. Hosted artifact retention remains to be observed before this historical gap is marked resolved; the rejected v4.4.6 redesign remains superseded.
 
+WN-446-1 RESOLVED 2026-09-22 (post-release): PR #235's hosted run 35799198474 exposed `ci-guide-render-report` with expiry `2026-09-29T23:57:16Z`, alongside test, validation, shell, and Windows report artifacts with seven-day retention. Its post-merge smoke/provenance run 35801251735 passed. The original row and pending checkpoint above remain historical evidence, not the current disposition. No rejected v4.4.6 redesign was restored.
+
 ### Resolved
 
 | ID | Title | Resolved in | Notes |

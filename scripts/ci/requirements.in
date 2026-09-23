@@ -1,0 +1,14 @@
+# CI-only Python tools. The generated lock resolves all extras from all six extension pyproject.toml files for Python 3.11 across platforms.
+openpyxl
+pdfplumber
+pip
+pip-audit
+playwright
+pre-commit
+pypdf
+PyYAML
+pytest
+python-docx
+python-pptx
+tomlkit
+uv==0.11.19
