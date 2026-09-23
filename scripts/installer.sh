@@ -227,7 +227,8 @@ notes = plat.get("notes") or []
 surfaces = plat.get("surfaces", {}) or {}
 print("META\t%s\t%d\t%d" % (det_s, len(surfaces), len(notes)))
 for skey, entry in surfaces.items():
-    print("ROW\t%s\t%s\t%s" % (skey, entry.get("status", ""), entry.get("path", "")))
+    reason = str(entry.get("reason", "")).replace("\t", " ").replace("\n", " ")
+    print("ROW\t%s\t%s\t%s\t%s" % (skey, entry.get("status", ""), entry.get("path", ""), reason))
 PYEOF
 )"
     local detected surface_count note_count
@@ -251,17 +252,18 @@ PYEOF
 
     [ -n "$provider" ] && write_header "$provider"
     write_item "$display" "$GRAY"
-    local surface line status path label
+    local surface line status path reason label
     for surface in $CHECKLIST_ORDER; do
         line="$(printf '%s\n' "$extract" | awk -F'\t' -v s="$surface" '$1=="ROW" && $2==s {print; exit}')"
         [ -z "$line" ] && continue
         status="$(printf '%s\n' "$line" | cut -f3)"
         path="$(printf '%s\n' "$line" | cut -f4)"
+        reason="$(printf '%s\n' "$line" | cut -f5)"
         label="$(checklist_label "$surface")"
         if [ "$status" = "installed" ]; then
             write_checklist_row "$label" "ok" "$path"
         else
-            write_checklist_row "$label" "warn" "install reported an issue"
+            write_checklist_row "$label" "warn" "${reason:-install reported an issue}"
         fi
     done
 }

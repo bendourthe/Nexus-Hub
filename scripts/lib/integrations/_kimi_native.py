@@ -67,7 +67,6 @@ from ._hooks_common import (
     sibling_scripts,
 )
 from ._owned import write_owned_file
-from .base import IntegrationBase
 from .result import FileAction
 
 # Kimi hook events, per the official event reference. The catalog's events all
@@ -164,7 +163,12 @@ def agent_is_loadable(source_name: str, markdown: str) -> str | None:
 
 
 def agents_to_kimi(
-    ctx, key: str, src_agents_dir: Path, dst_agents_dir: Path
+    ctx,
+    key: str,
+    src_agents_dir: Path,
+    dst_agents_dir: Path,
+    *,
+    managed_root: Path | None = None,
 ) -> list[FileAction]:
     """Copy ``catalog/agents/*.md`` to Kimi's agents directory, unchanged.
 
@@ -178,7 +182,6 @@ def agents_to_kimi(
     if not src_agents_dir.exists():
         ctx.manifest.log(key, f"missing-tree: {src_agents_dir}")
         return [FileAction(path=str(src_agents_dir), action="not-found")]
-    IntegrationBase._ensure_dir(dst_agents_dir, ctx)
     actions: list[FileAction] = []
     for md in sorted(src_agents_dir.glob("*.md")):
         content = md.read_bytes()
@@ -186,7 +189,15 @@ def agents_to_kimi(
         if reason is not None:
             ctx.manifest.log(key, f"skip agent ({reason}): {md.name}")
             continue
-        actions.append(write_owned_file(ctx, key, dst_agents_dir / md.name, content))
+        actions.append(
+            write_owned_file(
+                ctx,
+                key,
+                dst_agents_dir / md.name,
+                content,
+                managed_root=managed_root or dst_agents_dir.parent,
+            )
+        )
     return actions
 
 

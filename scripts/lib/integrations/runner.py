@@ -65,7 +65,8 @@ def _render_write_result(integration_key: str, result: WriteResult, quiet: bool)
         return
     for fa in result.files:
         prefix = _ACTION_PREFIX.get(fa.action, "[?]")
-        print(f"  {prefix} {fa.action:<10} {fa.path}")
+        reason = f" ({fa.reason})" if fa.reason else ""
+        print(f"  {prefix} {fa.action:<10} {fa.path}{reason}")
     for note in result.notes:
         print(f"  (note) {note}")
 
@@ -203,15 +204,24 @@ def _build_platform_summary(key: str, integ, result: WriteResult) -> dict:
         surface = _classify_surface(fa.path, instruction_file)
         if surface is None:
             continue
-        entry = grouped.setdefault(surface, {"roots": [], "present": False})
+        entry = grouped.setdefault(
+            surface, {"roots": [], "present": False, "refused": False, "reason": ""}
+        )
         entry["roots"].append(_surface_root(fa.path, surface))
+        if fa.reason and fa.reason.startswith("refuse-"):
+            entry["refused"] = True
+            if not entry["reason"]:
+                entry["reason"] = fa.reason
         if fa.action in _PRESENT_ACTIONS:
             entry["present"] = True
 
     surfaces = {
         surface: {
-            "status": "installed" if entry["present"] else "error",
+            "status": (
+                "installed" if entry["present"] and not entry["refused"] else "error"
+            ),
             "path": _join_distinct(entry["roots"]),
+            **({"reason": entry["reason"]} if entry["reason"] else {}),
         }
         for surface, entry in grouped.items()
     }
@@ -220,7 +230,14 @@ def _build_platform_summary(key: str, integ, result: WriteResult) -> dict:
         "display_name": getattr(integ, "display_name", key),
         "detected": result.detected,
         "surfaces": surfaces,
-        "notes": list(result.notes),
+        "notes": list(result.notes)
+        + list(
+            dict.fromkeys(
+                fa.reason
+                for fa in result.files
+                if fa.reason and fa.reason.startswith("refuse-")
+            )
+        ),
     }
 
 
@@ -791,7 +808,8 @@ def cmd_repair(args: argparse.Namespace) -> int:
             print(f"[repair] {len(result.files)} action(s)")
             for fa in result.files:
                 prefix = _ACTION_PREFIX.get(fa.action, "[?]")
-                print(f"  {prefix} {fa.action:<10} {fa.path}")
+                reason = f" ({fa.reason})" if fa.reason else ""
+                print(f"  {prefix} {fa.action:<10} {fa.path}{reason}")
             for note in result.notes:
                 print(f"  (note) {note}")
     if not args.dry_run:

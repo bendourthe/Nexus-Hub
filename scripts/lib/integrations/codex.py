@@ -43,7 +43,7 @@ from ._codex_native import (
     merge_hooks_json,
     prune_hooks_json,
 )
-from ._owned import remove_dir_if_empty
+from ._owned import refuse_managed_redirect, remove_dir_if_empty
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import FileAction, WriteResult
 
@@ -82,7 +82,14 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
         result = WriteResult()
-        codex_root = (ctx.global_root / ".codex").resolve()
+        raw_codex_root = ctx.global_root / ".codex"
+        refusal = refuse_managed_redirect(
+            ctx, self.key, raw_codex_root / "AGENTS.md", raw_codex_root
+        )
+        if refusal is not None:
+            result.files.append(refusal)
+            return result
+        codex_root = raw_codex_root.resolve()
         self._ensure_dir(codex_root, ctx)
         action = self._write_instruction(codex_root, ctx)  # ~/.codex/AGENTS.md
         if action is not None:
@@ -103,7 +110,14 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
         if action is not None:
             result.files.append(action)
         if not ctx.instruction_only:
-            codex_root = (ctx.target_root / ".codex").resolve()
+            raw_codex_root = ctx.target_root / ".codex"
+            refusal = refuse_managed_redirect(
+                ctx, self.key, raw_codex_root / "agents" / "nexus-hub-probe", raw_codex_root
+            )
+            if refusal is not None:
+                result.files.append(refusal)
+                return result
+            codex_root = raw_codex_root.resolve()
             agents_root = (ctx.target_root / ".agents").resolve()
             self._ensure_dir(codex_root, ctx)
             result.files.extend(self._mirror_codex(codex_root, agents_root, ctx))
@@ -178,6 +192,9 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
                 self.key,
                 ctx.repo_root / "catalog" / "agents",
                 codex_root / self.config["agents_subdir"],
+                managed_root=(
+                    ctx.global_root if scope == "global" else ctx.target_root
+                ) / ".codex",
             )
         )
         actions.extend(self._install_hooks(codex_root, ctx, scope))

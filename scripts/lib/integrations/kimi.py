@@ -53,7 +53,7 @@ from ._kimi_native import (
     prune_config_hooks,
     render_hooks_block,
 )
-from ._owned import remove_dir_if_empty
+from ._owned import refuse_managed_redirect, remove_dir_if_empty
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import FileAction, WriteResult
 
@@ -99,10 +99,22 @@ class KimiIntegration(MarkdownIntegration, SkillsIntegration):
         ``.kimi-code/local.toml`` and documents only a ``[workspace]`` table, so
         there is no supported project hook path to write.
         """
+        raw_kimi_root = ctx.target_root / self.config["workspace_dir"]
+        refusal = refuse_managed_redirect(
+            ctx, self.key, raw_kimi_root / "AGENTS.md", raw_kimi_root
+        )
+        if refusal is not None:
+            return WriteResult(files=[refusal])
         result = super().install_workspace(ctx)
         if not ctx.instruction_only:
             kimi_root = (ctx.target_root / self.config["workspace_dir"]).resolve()
-            result.files.extend(self._install_agents(kimi_root, ctx))
+            result.files.extend(
+                self._install_agents(
+                    kimi_root,
+                    ctx,
+                    managed_root=ctx.target_root / self.config["workspace_dir"],
+                )
+            )
         return result
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
@@ -113,7 +125,8 @@ class KimiIntegration(MarkdownIntegration, SkillsIntegration):
         is skipped (the workspace-scope ``.kimi-code/`` surfaces are unaffected).
         """
         result = WriteResult()
-        kimi_root = (ctx.global_root / ".kimi-code").resolve()
+        raw_kimi_root = ctx.global_root / ".kimi-code"
+        kimi_root = raw_kimi_root.resolve()
         if not kimi_root.exists():
             ctx.manifest.log(
                 self.key, "~/.kimi-code not found; skipping global Kimi surfaces"
@@ -123,25 +136,38 @@ class KimiIntegration(MarkdownIntegration, SkillsIntegration):
             )
             return result
         result.detected = True
+        refusal = refuse_managed_redirect(
+            ctx, self.key, raw_kimi_root / "AGENTS.md", raw_kimi_root
+        )
+        if refusal is not None:
+            result.files.append(refusal)
+            return result
         self._ensure_dir(kimi_root, ctx)
         action = self._write_instruction(kimi_root, ctx)
         if action is not None:
             result.files.append(action)
         if not ctx.instruction_only:
             result.files.extend(self._mirror_catalog(kimi_root, ctx))
-            result.files.extend(self._install_agents(kimi_root, ctx))
+            result.files.extend(
+                self._install_agents(
+                    kimi_root, ctx, managed_root=ctx.global_root / ".kimi-code"
+                )
+            )
             result.extend(self._install_hooks(kimi_root, ctx))
         return result
 
     # ----- native agent + hook surfaces (v3.15.8) --------------------------
 
-    def _install_agents(self, kimi_root: Path, ctx: InstallContext) -> list[FileAction]:
+    def _install_agents(
+        self, kimi_root: Path, ctx: InstallContext, *, managed_root: Path | None = None
+    ) -> list[FileAction]:
         """Copy the catalog agents into Kimi's agents directory, unchanged."""
         return agents_to_kimi(
             ctx,
             self.key,
             ctx.repo_root / "catalog" / "agents",
             kimi_root / AGENTS_SUBDIR,
+            managed_root=managed_root,
         )
 
     def _install_hooks(self, kimi_root: Path, ctx: InstallContext) -> WriteResult:

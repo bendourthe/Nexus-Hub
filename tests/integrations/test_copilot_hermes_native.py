@@ -1335,6 +1335,215 @@ def test_owned_write_outside_target_root_is_not_silently_refused(install_ctx, tm
     assert outside.read_bytes() == b"agent bytes\n"
 
 
+def test_owned_write_refuses_destination_outside_explicit_managed_root(
+    install_ctx, tmp_path
+):
+    from scripts.lib.integrations._owned import write_owned_file
+
+    managed_root = tmp_path / ".copilot"
+    outside = tmp_path / "elsewhere" / "agent.md"
+
+    action = write_owned_file(
+        install_ctx, "copilot", outside, b"agent bytes\n", managed_root=managed_root
+    )
+
+    assert action.action == "kept"
+    assert "refuse-outside-managed-root" in action.reason
+    assert not outside.exists()
+
+
+def test_global_agent_parent_redirect_is_refused_and_reported(
+    copilot, install_ctx, copilot_home, tmp_path, capsys
+):
+    """A global agent directory must not redirect owned writes elsewhere."""
+    from scripts.lib.integrations import runner
+    from scripts.lib.integrations.result import WriteResult
+
+    copilot_home.mkdir(parents=True)
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    scoped_ctx = replace(install_ctx, target_root=workspace, scope="global")
+    external = tmp_path / "external-agents"
+    external.mkdir()
+    agents_dir = copilot_home / "agents"
+    try:
+        agents_dir.symlink_to(external, target_is_directory=True)
+    except OSError as exc:
+        if os.name != "nt":
+            pytest.skip(f"directory links unavailable: {exc}")
+        junction = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(agents_dir), str(external)],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if junction.returncode != 0:
+            pytest.skip(f"junctions unavailable: {junction.stderr.strip()}")
+
+    try:
+        actions = copilot._install_global_agents(copilot_home, scoped_ctx)
+
+        assert actions
+        assert not list(external.iterdir())
+        assert all(action.action == "kept" and action.reason for action in actions)
+        result = WriteResult(files=actions)
+        runner._render_write_result("copilot", result, quiet=False)
+        assert "refuse-link-like-ancestor" in capsys.readouterr().out
+        summary = runner._build_platform_summary("copilot", copilot, result)
+        assert summary["surfaces"]["agents"]["status"] == "error"
+        assert "refuse-link-like-ancestor" in summary["surfaces"]["agents"]["reason"]
+        assert any("refuse-link-like-ancestor" in note for note in summary["notes"])
+    finally:
+        if owned_files._is_junction(agents_dir):
+            agents_dir.rmdir()
+
+
+def test_global_agent_root_redirect_is_refused(
+    copilot, install_ctx, copilot_home, tmp_path
+):
+    """Canonical destinations must not hide a redirected platform root."""
+    from scripts.lib.integrations.copilot import _copilot_home
+
+    copilot_home.parent.mkdir(parents=True)
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    scoped_ctx = replace(install_ctx, target_root=workspace, scope="global")
+    external = tmp_path / "external-root"
+    external.mkdir()
+    try:
+        copilot_home.symlink_to(external, target_is_directory=True)
+    except OSError as exc:
+        if os.name != "nt":
+            pytest.skip(f"directory links unavailable: {exc}")
+        junction = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(copilot_home), str(external)],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if junction.returncode != 0:
+            pytest.skip(f"junctions unavailable: {junction.stderr.strip()}")
+
+    try:
+        discovered_home = _copilot_home(copilot_home.parent)
+        assert discovered_home == copilot_home
+        actions = copilot._install_global_agents(discovered_home, scoped_ctx)
+
+        assert actions
+        assert not list(external.iterdir())
+        assert all(action.action == "kept" for action in actions)
+        assert all("refuse-link-like-ancestor" in action.reason for action in actions)
+    finally:
+        if owned_files._is_junction(copilot_home):
+            copilot_home.rmdir()
+
+
+def test_global_install_refuses_redirected_copilot_root_before_any_write(
+    copilot, install_ctx, copilot_home, tmp_path
+):
+    copilot_home.parent.mkdir(parents=True)
+    external = tmp_path / "external-install"
+    external.mkdir()
+    try:
+        copilot_home.symlink_to(external, target_is_directory=True)
+    except OSError as exc:
+        if os.name != "nt":
+            pytest.skip(f"directory links unavailable: {exc}")
+        junction = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(copilot_home), str(external)],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if junction.returncode != 0:
+            pytest.skip(f"junctions unavailable: {junction.stderr.strip()}")
+
+    try:
+        scoped_ctx = replace(
+            install_ctx, target_root=copilot_home.parent, scope="global",
+            explicit_target=True, dry_run=True,
+        )
+        result = copilot.install_global(scoped_ctx)
+
+        assert result.files
+        assert all(action.action == "kept" and action.reason for action in result.files)
+        assert not list(external.iterdir())
+    finally:
+        if owned_files._is_junction(copilot_home):
+            copilot_home.rmdir()
+
+
+def test_workspace_install_refuses_redirected_github_root(
+    copilot, install_ctx, tmp_path
+):
+    external = tmp_path / "external-github"
+    external.mkdir()
+    github_root = install_ctx.target_root / ".github"
+    try:
+        github_root.symlink_to(external, target_is_directory=True)
+    except OSError as exc:
+        if os.name != "nt":
+            pytest.skip(f"directory links unavailable: {exc}")
+        junction = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(github_root), str(external)],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if junction.returncode != 0:
+            pytest.skip(f"junctions unavailable: {junction.stderr.strip()}")
+
+    try:
+        result = copilot.install_workspace(replace(install_ctx, dry_run=True))
+
+        assert result.files
+        assert all(action.action == "kept" and action.reason for action in result.files)
+        assert not list(external.iterdir())
+    finally:
+        if owned_files._is_junction(github_root):
+            github_root.rmdir()
+
+
+def test_global_prompts_redirect_is_refused(
+    copilot, install_ctx, tmp_path, monkeypatch
+):
+    user_dir = tmp_path / "vscode-user"
+    user_dir.mkdir()
+    external = tmp_path / "external-prompts"
+    external.mkdir()
+    prompts_dir = user_dir / "prompts"
+    try:
+        prompts_dir.symlink_to(external, target_is_directory=True)
+    except OSError as exc:
+        if os.name != "nt":
+            pytest.skip(f"directory links unavailable: {exc}")
+        junction = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(prompts_dir), str(external)],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if junction.returncode != 0:
+            pytest.skip(f"junctions unavailable: {junction.stderr.strip()}")
+
+    try:
+        monkeypatch.setattr(
+            "scripts.lib.integrations.copilot._vscode_user_dir", lambda *_: user_dir
+        )
+        ctx = replace(
+            install_ctx, target_root=tmp_path / "profile", scope="global",
+            explicit_target=True, instruction_only=True, dry_run=True,
+        )
+        result = copilot.install_global(ctx)
+
+        assert result.files
+        assert all(action.action == "kept" and action.reason for action in result.files)
+        assert not list(external.iterdir())
+    finally:
+        if owned_files._is_junction(prompts_dir):
+            prompts_dir.rmdir()
+
+
 def test_owned_write_outside_target_root_still_refuses_a_junction_leaf(
     install_ctx, tmp_path
 ):
