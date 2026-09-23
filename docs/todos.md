@@ -51,6 +51,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Qualify a bounded v4.11 MT-5 temporal guard locally: 59 measurement tests and six focused controls passed; exact source-mapped DOM text is observed between settled frames, while absent mappings remain unchecked.
 - [x] Publish the v4.11 MT-5 temporal guard through protected PR #257; post-merge run 35903717333 passed smoke and provenance at `5e80f22e`, and its clean temporary worktree and local branch were removed.
 - [x] Correct PR #259's premature v3.18 and v3.5 archive moves: restore five plan and comparison files to active release directories, repair their inbound links, and require explicit zero-open-items proof before any future closed-minor archive advisory. v3.18 BG-2 remains open; v3.5 lacks a known-gaps register.
+- [x] Record the model-map placement guard and non-final-phase test-scoping decisions in the living decision tree, with their alternatives, accepted trade-offs, and executable owners.
 - [ ] Map real handbook source values before claiming artifact-level temporal coverage; the current repository handbook returns `source_value_guard: unchecked`.
 - [ ] Resolve v4.13 BG-7's per-call spend overshoot and rerun a newly frozen trigger pilot only after the approved USD 35 hard ceiling is enforceable; the 2026-09-23 attempt stopped after two unknown-selection calls.
 
