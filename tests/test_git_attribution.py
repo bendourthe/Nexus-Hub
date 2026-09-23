@@ -266,6 +266,23 @@ def test_workspace_guard_detects_modified_copy_and_stale_source(sandbox):
     assert result.returncode != 0 and "Reinstall the guard" in result.stderr
 
 
+@pytest.mark.parametrize(
+    ("installed_eol", "checked_eol"),
+    [(b"\n", b"\r\n"), (b"\r\n", b"\n")],
+)
+def test_workspace_guard_accepts_equivalent_source_line_endings(
+    sandbox, installed_eol, checked_eol
+):
+    run, _, home = sandbox
+    source = home / "attribution.py"
+    canonical = GUARD.read_bytes().replace(b"\r\n", b"\n")
+    source.write_bytes(canonical.replace(b"\n", installed_eol))
+    run(sys.executable, str(source), "install", "--workspace")
+    source.write_bytes(canonical.replace(b"\n", checked_eol))
+
+    run(sys.executable, str(source), "check")
+
+
 def test_missing_identity_installs_blocking_guard(sandbox):
     run, _, _ = sandbox
     run("git", "config", "--global", "--unset", "user.email")

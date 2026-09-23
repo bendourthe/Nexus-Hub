@@ -1,0 +1,8 @@
+{
+  "status": "pass",
+  "output_sha256": "25ffd7b98de194f81f0a33035b4b184546c394214843318bec54573a2d22efb5",
+  "browser": "Chromium 151.0.7922.34",
+  "measured_states": 200,
+  "errors": 0,
+  "qualitative_review": "Reading ownership chapter inspected at 1440 by 900; ownership slide inspected at 761 by 900. Both display the LF/CRLF explanation legibly without clipping. Page errors were zero."
+}
