@@ -59,9 +59,12 @@ class GuardError(Exception):
     """An attribution operation could not be verified."""
 
 
-def git(*args: str, ok: tuple[int, ...] = (0,)) -> str:
+def git(*args: str, ok: tuple[int, ...] = (0,), input: bytes | None = None) -> str:
     result = subprocess.run(
-        ["git", "--no-replace-objects", *args], capture_output=True, check=False
+        ["git", "--no-replace-objects", *args],
+        input=input,
+        capture_output=True,
+        check=False,
     )
     if result.returncode not in ok:
         raise GuardError(
@@ -158,8 +161,9 @@ def message(value: str) -> None:
             raise GuardError("Remove the agent-generated attribution footer.")
 
 
-def scan_push(payload: bytes) -> None:
+def scan_push(payload: bytes, remote_url: str) -> None:
     identity()
+    remote_commits: list[str] | None = None
     for line in payload.decode("utf-8", "strict").splitlines():
         fields = line.split()
         if len(fields) != 4:
@@ -198,16 +202,32 @@ def scan_push(payload: bytes) -> None:
             git("cat-file", "-e", old)  # missing remote baseline must not silently pass
             revs.append("^" + old)
         else:
-            # A ref the remote does not have yet. With no baseline, `git log new`
-            # walks the whole history and reports commits this push does not
-            # introduce, so a branch cut from a trunk carrying any pre-guard
-            # trailer is unpushable for reasons it did not create. Exclude what
-            # the remote already holds. Stale remote-tracking refs only widen
-            # the scan, never narrow it, so the failure direction stays safe,
-            # and a repository with no remote-tracking refs still scans in full.
-            revs += ["--not", "--remotes"]
+            # A new ref has no old-object baseline. Exclude only commits
+            # advertised by this push destination, never refs from other remotes
+            # or stale local tracking refs.
+            if remote_commits is None:
+                remote_commits = []
+                seen_objects: set[str] = set()
+                for line in git("ls-remote", "--refs", remote_url).splitlines():
+                    fields = line.split("\t")
+                    if len(fields) != 2 or not re.fullmatch(
+                        r"[0-9a-f]{40}|[0-9a-f]{64}", fields[0]
+                    ):
+                        raise GuardError("Cannot verify push destination refs.")
+                    if fields[0] in seen_objects:
+                        continue
+                    seen_objects.add(fields[0])
+                    resolved = git(
+                        "rev-parse", "--verify", fields[0] + "^{commit}", ok=(0, 1, 128)
+                    )
+                    if resolved:
+                        remote_commits.append(resolved)
+            revs.extend("^" + commit for commit in remote_commits)
         records = git(
-            "log", "--format=%an%x00%ae%x00%cn%x00%ce%x00%B%x00", *revs
+            "log",
+            "--stdin",
+            "--format=%an%x00%ae%x00%cn%x00%ce%x00%B%x00",
+            input=("\n".join(revs) + "\n").encode("ascii"),
         ).split("\x00")
         for index in range(0, len(records) - 1, 5):
             record = records[index : index + 5]
@@ -483,7 +503,9 @@ def hook_run(root: Path, hook: str, args: list[str]) -> int:
         message(Path(args[0]).read_text(encoding="utf-8", errors="replace"))
     if hook == "pre-push":
         check_coverage(root, state)
-        scan_push(payload or b"")
+        if len(args) < 2:
+            raise GuardError("Cannot verify push destination.")
+        scan_push(payload or b"", args[1])
     directory = original_directory(state["fallback"])
     previous = directory / hook if directory is not None else None
     if previous is not None and previous.resolve() == (root / hook).resolve():

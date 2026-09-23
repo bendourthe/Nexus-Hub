@@ -340,7 +340,7 @@ A role the structural map cannot infer is declared with `data-type-role`, which 
 
 ### Ceilings, and why they are one-sided no longer
 
-`measure_handbook.py` enforces floors AND ceilings on rendered size per role. The ceilings are calibrated against real output rather than chosen: this repository's handbooks render at most title 68.3px, heading-1 41.0px, body 20.0px, interactive 18.0px, caption 14.0px, and each ceiling sits well above its observed maximum while staying far below what the scaling trap produces. A `14px` label in a 120-unit viewBox laid out at 600px renders at 70px against a 22px `axis-tick` ceiling.
+`measure_handbook.py` enforces floors AND ceilings on rendered size per role. The reading-page ceilings are calibrated against real output rather than chosen: this repository's handbooks render at most title 68.3px, heading-1 41.0px, body 20.0px, interactive 18.0px, caption 14.0px, and each ceiling sits well above its observed maximum while staying far below what the scaling trap produces. A `14px` label in a 120-unit viewBox laid out at 600px renders at 70px against a 22px `axis-tick` ceiling. On a presentation slide, the effective ceiling is at least the 2%-of-stage floor; otherwise a tall stage could demand a caption above the same role's ceiling, making compliant type impossible.
 
 Observable criterion: every visible text node resolves to exactly one named role, and its rendered size sits between that role's floor and its ceiling, measured after `getScreenCTM` scaling rather than read from the source.
 
