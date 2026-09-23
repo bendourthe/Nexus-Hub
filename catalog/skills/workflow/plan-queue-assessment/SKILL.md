@@ -141,7 +141,7 @@ Renumbering rewrites version identity that merged pull requests, changelogs, and
     python scripts/enumerate_plan_queue.py --root . --check-residual v<OLD_VERSION>
     ```
 
-    Exit 0 means no reference to the old version survives outside a deliberately historical statement. Exit 1 lists every survivor with its file, line, and text. One survivor is a failure, because one broken link is a broken link. The check matches only `v`-prefixed forms, so a bare section number is never rewritten, and it exempts a line carrying a dated renumber note, because a historical claim is repaired with a note rather than a restatement.
+    Exit 0 means no reference to the old version survives in repository Markdown or documentation JSON outside an explicit exemption; generated `data/` inventories and other file types are not scanned. Exit 1 lists every survivor with its file, line, and text. One survivor is a failure, because one broken link is a broken link. The check matches only `v`-prefixed forms, so a bare section number is never rewritten, and it exempts a line carrying a dated renumber note, because a historical claim is repaired with a note rather than a restatement. For a sealed historical JSON record that must retain its original bytes, review it and pass its narrow path prefix through `--skip`; the command prints every skipped prefix.
 
 ### Two traps a blanket rewrite hits
 
