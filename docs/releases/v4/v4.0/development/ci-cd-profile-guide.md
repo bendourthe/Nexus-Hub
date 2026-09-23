@@ -25,6 +25,7 @@ Where `make` is unavailable (a plain Windows shell), call the script directly. E
 python scripts/ci/run.py --profile fast --reports-dir reports
 python scripts/ci/run.py --profile full --reports-dir reports
 python scripts/ci/run.py --profile platform --reports-dir reports
+python scripts/ci/run.py --profile full --only guide-browser --reports-dir reports
 ```
 
 ## What each profile runs
@@ -40,13 +41,14 @@ The listing shows each group, its change-scope key, whether it is blocking, and 
 | Profile | Contains |
 |---|---|
 | `fast` | catalog JSON parses, hygiene (Unicode, personal paths, docs conventions, doc budgets), workflow security, version sync |
-| `full` | everything in `fast`, plus the catalog validators, security scans, platform contracts, docs validators, the hook and repo test suites, and all six extension suites |
-| `platform` | shell lint (POSIX), PowerShell AST parse (Windows), and the Windows PowerShell 5.1 hook and installer legs |
+| `full` | everything in `fast`, plus the catalog validators, security scans, platform contracts, docs validators, the hook and repo test suites, and all six extension suites; `guide-browser` is explicit-only |
+| `platform` | catalog and installer shell lint (POSIX), PowerShell AST parse, and the Windows PowerShell 5.1 hook, installer, audit, and native integration legs |
 | `report` | nothing. Aggregation only |
 | `release` | version sync, platform read-contract freshness, and an advisory branch and repository-settings report |
 
 Two design choices worth knowing:
 
+- **`guide-browser` is explicit-only.** Select it with `--profile full --only guide-browser` after installing Playwright and Chromium. It sets `NEXUS_REQUIRE_RENDER=1`, so an absent browser fails rather than silently skipping the browser contracts; ordinary `full` runs do not require a browser.
 - **`platform` is deliberately small.** A check that runs everywhere belongs in `full`, where it is paid for once. `platform` holds only what genuinely differs by host, so a three-OS matrix is not three copies of the same run.
 - **`release` is never a validation re-run.** By the time a release runs, the integration pull request has already validated the tree. Re-running the suite on the release event would bill twice for the same answer.
 
@@ -70,6 +72,7 @@ A workflow job that calls a profile must install these. `ci.yml`'s `validate` jo
 | `--reports-dir <path>` | write report artifacts here. Omit to run without writing any |
 | `--platform linux\|macos\|windows` | override host detection. Useful for inspecting another host's resolved commands with `--list` |
 | `--base <revision>` | scope the run to what changed since that revision |
+| `--only <groups>` | run the named comma-separated profile groups; required for explicit-only groups such as `guide-browser` |
 | `--quiet` | suppress per-command output on success. Failures always print |
 | `--json` | print the machine-readable summary to stdout |
 

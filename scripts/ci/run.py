@@ -247,7 +247,7 @@ def select_groups(profile: str, only: list[str] | None) -> tuple[Group, ...]:
     """
     groups = groups_for(profile)
     if not only:
-        return groups
+        return tuple(group for group in groups if not group.explicit_only)
     available = {g.name for g in groups}
     unknown = [name for name in only if name not in available]
     if unknown:

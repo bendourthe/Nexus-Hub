@@ -336,9 +336,7 @@ jobs:
       - name: Run guide and visual detector browser contracts
         # A missing or unlaunchable browser must fail this job, never degrade to
         # a quiet skip inside an otherwise green test run.
-        env:
-          NEXUS_REQUIRE_RENDER: '1'
-        run: python -m pytest -q tests/guides/ tests/verification/test_visual_defect_detector.py --junitxml=reports/junit/guide-render.xml
+        run: python scripts/ci/run.py --profile full --only guide-browser --reports-dir reports
 
       - name: Retain guide browser report
         if: always()

@@ -90,6 +90,8 @@ class Group:
     #: parse, say). Everything else keeps running so one run reports every
     #: independent failure instead of only the first.
     blocking: bool = False
+    #: Run only when named by --only; use for provisioned tools such as Chromium.
+    explicit_only: bool = False
 
 
 def _py(name: str, *args: str, **kw) -> Command:
@@ -518,6 +520,21 @@ WINDOWS_HOOKS = Group(
     ),
 )
 
+GUIDE_BROWSER = Group(
+    name="guide-browser",
+    explicit_only=True,
+    commands=(
+        _pytest(
+            "guide and visual detector browser contracts",
+            "tests/guides/",
+            "tests/verification/test_visual_defect_detector.py",
+            "--junitxml=reports/junit/guide-render.xml",
+            env={"NEXUS_REQUIRE_RENDER": "1"},
+            timeout=1800,
+        ),
+    ),
+)
+
 RELEASE_CHECKS = Group(
     name="release-checks",
     commands=(
@@ -578,6 +595,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
         VERSION,
         TESTS,
         EXTENSION_TESTS,
+        GUIDE_BROWSER,
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.
