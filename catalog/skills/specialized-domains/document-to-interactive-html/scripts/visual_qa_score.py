@@ -1162,11 +1162,13 @@ def check_svg_label_occlusion(html: str) -> dict[str, Any]:
 
 
 def check_svg_connector_routing(html: str) -> dict[str, Any]:
-    """No connector segment passes through a node it does not connect.
+    """No visible connector segment passes through a node it does not connect.
 
-    A connector crossing an unrelated node reads as touching it, which asserts a
-    relationship the figure does not have. Only straight and orthogonal segments
-    are decided; a curve marks the svg unchecked rather than being approximated.
+    A connector painted over an unrelated node reads as touching it, which
+    asserts a relationship the figure does not have. An earlier stroke hidden
+    by a later opaque node is an underlay, as in a bar chart's gridlines. Only
+    straight and orthogonal segments are decided; a curve marks the SVG
+    unchecked rather than being approximated.
     """
     if len(html.encode("utf-8", "ignore")) > GEOMETRY_MAX_HTML_BYTES:
         return _geom_finding(
@@ -1192,6 +1194,10 @@ def check_svg_connector_routing(html: str) -> dict[str, Any]:
             (x0, y0), (x1, y1) = seg["start"], seg["end"]
             orthogonal = abs(x1 - x0) < 1e-9 or abs(y1 - y0) < 1e-9
             for rect in rects:
+                # A later opaque node hides an earlier stroke. Chart gridlines
+                # use exactly this paint order; they are not visible crossings.
+                if rect["opaque"] and rect["order"] > seg["order"]:
+                    continue
                 if _geom_related(rect["identity"], seg["identity"]):
                     continue
                 # An endpoint touching a node is how a connector ATTACHES.

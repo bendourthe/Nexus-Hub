@@ -55,13 +55,15 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 ## Current closure - v4.11.1 cache accounting and diagram quality
 
-- [x] Published and integrated the completed [v4.11.1 adoption plan](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md), through PR #232 at `c54dbeb4`. T025 is complete. The honest `MT-10` limitation remains open: current repository diagrams use `<path>`, outside the narrow geometry envelope, so the new checks return `unchecked` rather than guessing.
+- [x] Published and integrated the completed [v4.11.1 adoption plan](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md), through PR #232 at `c54dbeb4`. T025 is complete. `MT-10` remains open for authored connector diagrams that use `<path>`; one real bar-chart SVG is now decidable, while the distribution handbook's five path SVGs are icons, not diagrams.
 
 ## Current closure - v4.0 inherited gaps
 
 - [x] Locally close agent-communication DF-1 and MT-3 with the 13-template release gate and an actual Python 3.11 grammar check; 127 focused tests and the 17-command native fast profile pass.
 - [x] Reconcile BG-6 with the v3.18 withdrawal decision: the deleted drawdown ledger stays deleted by design, and the superseded decision record now gives the exact Git-history recovery command instead of dead links.
 - [ ] Publish the v4.0 gap-guard branch after the CI-report branch is integrated and verify its hosted result. MT-1 remains a bounded prose-compliance limitation.
+- [x] Repair the SVG routing false positive found on a real worked-example bar chart: earlier gridlines hidden by later opaque bars are not visible connector crossings. The 94-test visual-QA module passes, and both geometry checks now decide that chart without a high-severity finding.
+- [x] Bind v4.9 QG-1 to PR #190's final green Windows, Linux, and aggregate checks; leave MT-2's per-case platform skip question open.
 
 ## Queued work - v4.17.3 harness economics and portable engineering systems
 
