@@ -280,7 +280,8 @@ def punct_finding_applies(ch: str, base: str) -> bool:
 def wrong_script_letter(ch: str) -> bool:
     """Flag alphabetic codepoints outside the expected English document script."""
     return (
-        ch.isalpha()
+        not ch.isascii()
+        and ch.isalpha()
         and ch not in ENGLISH_COMMON_LETTERS
         and not unicodedata.name(ch, "").startswith("LATIN ")
     )
