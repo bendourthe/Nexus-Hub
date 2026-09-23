@@ -496,6 +496,19 @@ WINDOWS_HOOKS = Group(
             timeout=1200,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
+        _pytest(
+            "native integrations (Windows)",
+            "tests/integrations/test_codex_native.py",
+            "tests/integrations/test_copilot_hermes_native.py",
+            "tests/integrations/test_kimi_native.py",
+            "tests/integrations/test_settings_hooks.py",
+            "tests/integrations/test_catalog_adapters.py",
+            "tests/integrations/test_codex_invocation_policy.py",
+            "--junitxml=reports/junit/windows-native.xml",
+            platforms=("windows",),
+            timeout=1200,
+            env={"NEXUS_TEST_POWERSHELL": "powershell"},
+        ),
     ),
 )
 
