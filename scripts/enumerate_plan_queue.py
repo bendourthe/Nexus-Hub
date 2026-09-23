@@ -30,6 +30,7 @@ import re
 import sys
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
+from itertools import chain
 from pathlib import Path
 
 # A strict task line. The trailing space matters: without it, an exit-checklist
@@ -263,14 +264,16 @@ def find_residual_references(
     """Return every surviving reference to `old_version` after a renumber.
 
     A single survivor is a failure: the renumber left a broken link or a stale
-    tracker row. Lines carrying a dated renumber note are exempt, because a
-    historical claim is repaired with a note rather than a restatement.
+    tracker row. Scan Markdown throughout the tree and JSON under docs/, not
+    generated inventories under data/. Lines carrying a dated renumber note
+    are exempt, because a historical claim is repaired with a note rather
+    than a restatement.
     """
     pattern = _version_reference(old_version)
     skipped = tuple(skip)
     findings: list[tuple[str, int, str]] = []
 
-    for path in sorted(root.rglob("*.md")):
+    for path in sorted(chain(root.rglob("*.md"), (root / "docs").rglob("*.json"))):
         parts = path.relative_to(root).parts
         if any(part.startswith(".") for part in parts):
             continue
