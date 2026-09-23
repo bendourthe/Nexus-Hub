@@ -408,6 +408,12 @@ SHELL_LINT = Group(
     name="shell-lint",
     commands=(
         Command(
+            name="shellcheck catalog",
+            argv=["bash", "-c", "find catalog -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning"],
+            platforms=("linux", "macos"),
+            timeout=300,
+        ),
+        Command(
             name="shellcheck installers",
             argv=["shellcheck", "--severity=warning", "scripts/installer.sh", "install.sh"],
             platforms=("linux", "macos"),

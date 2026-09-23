@@ -212,11 +212,6 @@ jobs:
       - name: Install ShellCheck
         run: sudo apt-get install -y shellcheck=0.9.0-1
 
-      - name: Lint catalog shell scripts
-        # Not in the profile: the catalog glob is a repository-shaped check
-        # rather than a named command, and it is cheap enough to inline.
-        run: find catalog -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning
-
       - name: Shell and PowerShell profile groups
         # shell-lint runs shellcheck over the installers; powershell-parse is
         # the unconditional AST syntax floor over every catalog and scripts
