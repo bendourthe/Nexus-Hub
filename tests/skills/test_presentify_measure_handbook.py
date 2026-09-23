@@ -599,6 +599,73 @@ def test_a_lost_opener_is_reported_rather_than_silently_dropping_focus(output):
     assert [e for e in run(output)["errors"] if e.startswith("focus:")]
 
 
+def _chart_output(tmp_path):
+    model = json.loads((tmp_path / "model.json").read_text(encoding="utf-8"))
+    model["sections"][0]["blocks"].append(
+        {
+            "type": "chart",
+            "id": "series-chart",
+            "caption": "Two retained series",
+            "categories": ["First", "Second"],
+            "series": [
+                {"name": "Alpha", "values": [1, 2]},
+                {"name": "Beta", "values": [2, 1]},
+            ],
+        }
+    )
+    (tmp_path / "model.json").write_text(json.dumps(model), encoding="utf-8")
+    page = tmp_path / "chart.html"
+    dual.assemble(tmp_path / "model.json", page)
+    return page
+
+
+def test_chart_series_controls_inside_their_figure_are_accepted(output):
+    page = _chart_output(output.parent)
+    result = run(page)
+    assert not [e for e in result["errors"] if "series-control-outside-figure" in e]
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        tab = browser.new_page(viewport={"width": 1366, "height": 768})
+        tab.goto(page.as_uri())
+        tab.evaluate("window.NexusDualView.open()")
+        toggle = tab.locator('[data-dv-slide] button[data-dv-series="0"]')
+        assert toggle.get_attribute("aria-pressed") == "true"
+        toggle.click()
+        assert toggle.get_attribute("aria-pressed") == "false"
+        marks = tab.locator('[data-dv-slide] [data-dv-series-marks="0"]')
+        assert marks.evaluate("element => element.style.display") == "none"
+        browser.close()
+
+
+def test_detached_slide_series_control_is_reported(output):
+    page = _chart_output(output.parent)
+    source = page.read_text(encoding="utf-8")
+    start = source.index('<section id="slide-1"')
+    end = source.index("</section>", start)
+    slide = source[start:end]
+    toggle = '<button data-dv-series="0" aria-pressed="true">Alpha</button>'
+    assert slide.count(toggle) == 1
+    slide = slide.replace(toggle, "", 1).replace("</figure>", "</figure>" + toggle, 1)
+    page.write_text(source[:start] + slide + source[end:], encoding="utf-8")
+
+    result = run(page)
+    assert any("series-control-outside-figure" in e for e in result["errors"]), result["errors"]
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        tab = browser.new_page(viewport={"width": 1366, "height": 768})
+        tab.goto(page.as_uri())
+        tab.evaluate("window.NexusDualView.open()")
+        toggle = tab.locator('[data-dv-slide] button[data-dv-series="0"]')
+        toggle.click()
+        marks = tab.locator('[data-dv-slide] [data-dv-series-marks="0"]')
+        assert marks.evaluate("element => element.style.display") == ""
+        browser.close()
+
+
 def _long_directory(tmp_path, rows=30):
     """A directory long enough that a 200px cap would hide most of it."""
     model = json.loads((tmp_path / "model.json").read_text(encoding="utf-8"))

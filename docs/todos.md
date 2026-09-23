@@ -84,8 +84,9 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Locally close agent-communication DF-1 and MT-3 with the 13-template release gate and an actual Python 3.11 grammar check; 127 focused tests and the 17-command native fast profile pass.
 - [x] Reconcile BG-6 with the v3.18 withdrawal decision: the deleted drawdown ledger stays deleted by design, and the superseded decision record now gives the exact Git-history recovery command instead of dead links.
 - [x] Close v4.0 BG-2 locally: explicit global targets now isolate platform writers, defaults, Copilot, OpenClaw, and organization-knowledge lookup; host cleanup is skipped for redirected installs. A fake-home sentinel regression, 146 affected-suite passes, and the 17-check native fast profile verify the change.
-- [ ] Publish the v4.0 gap-guard branch after the CI-report branch is integrated and verify its hosted result. MT-1 remains a bounded prose-compliance limitation.
+- [x] Publish the v4.0 gap-guard branch after the CI-report branch: PR #236 merged at `3c90d688`, and post-merge run 35806121300 passed. MT-1 remains a bounded prose-compliance limitation.
 - [x] Repair the SVG routing false positive found on a real worked-example bar chart: earlier gridlines hidden by later opaque bars are not visible connector crossings. The 94-test visual-QA module passes, and both geometry checks now decide that chart without a high-severity finding.
+- [ ] Publish the v4.11 MT-9 slide-series structure check after its 53-test browser module and local gates pass; generic control liveness remains open.
 - [x] Bind v4.9 QG-1 to PR #190's final green Windows, Linux, and aggregate checks; leave MT-2's per-case platform skip question open.
 
 ## Queued work - v4.17.3 harness economics and portable engineering systems
