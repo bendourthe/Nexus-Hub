@@ -13,6 +13,8 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Published and verified the v4.0-v4.13 gap guards and SVG chart correction through PR #236; all hosted checks and post-merge smoke/provenance passed at `3c90d688`.
 - [x] Close v4.8 WN-C locally: `make dev` installs all six extension development extras, the README supplies the direct Windows command, pip resolves it in dry-run mode, and the 16-check native fast profile passes.
 - [ ] Publish and verify the v4.8 WN-C follow-up on merged `develop`.
+- [x] Mitigate v4.13 WN-5 for future trigger pilots: persist bounded `Skill` selector evidence in normal and timeout rows without retaining prompt payloads; the original 96 calls remain unauditable.
+- [x] Close v4.9 MT-2 with named cross-host proof: the nine Windows-skipped filesystem cases all passed on Ubuntu WSL, and the Windows run passed its applicable 90 cases.
 
 ---
 

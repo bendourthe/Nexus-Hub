@@ -82,6 +82,7 @@ class CallResult:
     model_id: str = ""
     selected: bool | None = None  # None => evidence missing, NOT a non-selection
     tools_used: list[str] = field(default_factory=list)
+    skill_selectors: list[dict[str, str]] = field(default_factory=list)
     skills_available: int | None = None
     num_turns: int | None = None
     cost_usd: float = 0.0
@@ -96,6 +97,7 @@ def parse_stream(raw: str, skill: str) -> dict:
     out: dict = {
         "selected": None,
         "tools_used": [],
+        "skill_selectors": [],
         "skills_available": None,
         "num_turns": None,
         "cost_usd": 0.0,
@@ -125,8 +127,11 @@ def parse_stream(raw: str, skill: str) -> dict:
                 if isinstance(block, dict) and block.get("type") == "tool_use":
                     name = block.get("name", "")
                     out["tools_used"].append(name)
-                    if name == "Skill" and _names_skill(block.get("input", {}), skill):
-                        out["selected"] = True
+                    if name == "Skill":
+                        selectors = _skill_selectors(block.get("input", {}))
+                        out["skill_selectors"].append(selectors)
+                        if skill in selectors.values():
+                            out["selected"] = True
 
         if event.get("type") == "result":
             out["saw_result"] = True
@@ -151,21 +156,27 @@ def parse_stream(raw: str, skill: str) -> dict:
     return out
 
 
-def _names_skill(tool_input: object, skill: str) -> bool:
-    """True only when the Skill call names THIS skill in a field that selects it.
+def _skill_selectors(tool_input: object) -> dict[str, str]:
+    """Retain only bounded skill names, never other tool arguments.
 
-    The first version tested `skill in json.dumps(input)`, a substring match over
-    the whole serialized payload. That scores a selection when the model invokes
-    a DIFFERENT skill and merely mentions this one in a prompt argument, which
-    inflates the very number the pilot exists to measure.
+    The first scorer matched a substring across the full input and counted a
+    different skill's prompt mention as selection. This record is enough to
+    re-score each future row without retaining that prompt or other payload.
     """
     if not isinstance(tool_input, dict):
-        return False
+        return {}
+    selectors = {}
     for key in ("command", "skill", "name"):
-        value = tool_input.get(key)
-        if isinstance(value, str) and value.strip().lstrip("/") == skill:
-            return True
-    return False
+        if key not in tool_input:
+            continue
+        value = tool_input[key]
+        normalized = value.strip().lstrip("/") if isinstance(value, str) else ""
+        selectors[key] = (
+            normalized
+            if len(normalized) <= 64 and re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", normalized)
+            else "<invalid>"
+        )
+    return selectors
 
 
 def stage_variant(variant: str, fixture: Path, repo: Path, variant_b: dict) -> dict[str, str]:
@@ -310,6 +321,7 @@ def run_call(item: dict, fixture: Path, ledger: Ledger, repo: Path, variant_b: d
         observed = parse_stream(partial, item["skill"])
         result.cost_usd = observed["cost_usd"] or PER_CALL_BUDGET_USD
         result.tools_used = observed["tools_used"]
+        result.skill_selectors = observed["skill_selectors"]
         result.note = (
             f"exceeded {PER_CALL_TIMEOUT_S}s; charged {result.cost_usd:.4f} "
             "(observed, else the per-call budget). Selection is unknown."
@@ -319,6 +331,7 @@ def run_call(item: dict, fixture: Path, ledger: Ledger, repo: Path, variant_b: d
     parsed = parse_stream(proc.stdout, item["skill"])
     result.selected = parsed["selected"]
     result.tools_used = parsed["tools_used"]
+    result.skill_selectors = parsed["skill_selectors"]
     result.skills_available = parsed["skills_available"]
     result.num_turns = parsed["num_turns"]
     result.cost_usd = parsed["cost_usd"]
