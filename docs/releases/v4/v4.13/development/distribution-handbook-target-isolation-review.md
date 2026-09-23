@@ -6,7 +6,7 @@
 
 ## Claim review
 
-The retained source says that the installer prepares a bundle, the runner selects platform and scope, adapters write native shapes, managed files are tracked, and host behavior requires verification. Those claims still hold. The changed runner now carries an explicit global target into integrations, Cursor's global root and generated attribution-helper path follow that target, and Aider's global config and attribution-guide reference do likewise. The source does not claim that an explicit global target writes into the real profile, nor does it prescribe one fixed global destination. No visible content change is warranted by these three code changes.
+The retained source says that the installer prepares a bundle, the runner selects platform and scope, adapters write native shapes, managed files are tracked, and host behavior requires verification. Those claims still hold. The changed runner now carries an explicit global target into integrations, Cursor's global root and generated attribution-helper path follow that target, and Aider's global config and attribution-guide reference do likewise. Cursor's workspace hook still points at the installed user-level helper, not a nonexistent project-local copy; the first hosted macOS smoke run caught and the correction tests cover that distinction. The source does not claim that an explicit global target writes into the real profile, nor does it prescribe one fixed global destination. No visible content change is warranted by these three code changes.
 
 ## Qualification
 

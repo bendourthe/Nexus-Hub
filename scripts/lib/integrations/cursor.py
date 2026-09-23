@@ -318,7 +318,8 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         registration = self._hook_registration(command_for)
         # Cursor has no global Markdown instruction file. Its documented
         # sessionStart context response supplies the shared attribution policy.
-        helper = (ctx.global_root / ".nexus-hub/scripts/nexus_git_attribution.py").as_posix()
+        home = ctx.global_root if scope == "global" else Path.home()
+        helper = (home / ".nexus-hub/scripts/nexus_git_attribution.py").as_posix()
         context_command = (
             f'"{Path(sys.executable).as_posix()}" "{helper}" context'
             if windows

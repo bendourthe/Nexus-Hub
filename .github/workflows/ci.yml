@@ -153,7 +153,7 @@ jobs:
           cache-dependency-path: '.pre-commit-config.yaml'
 
       - name: Install pre-commit
-        run: pip install pre-commit
+        run: pip install pre-commit pytest
 
       - name: Run pre-commit hooks (standard checks only)
         # Skip local Python hooks that require project-specific tooling.

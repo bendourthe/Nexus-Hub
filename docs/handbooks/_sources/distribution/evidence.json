@@ -22,7 +22,7 @@
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
       "scripts/nexus_git_attribution.py": "2a031eff6c23719adbfe8e2821c7edd75d41f08f1e43ec13d3f305b0c0397f96",
       "catalog/style-guides/git-attribution.md": "b7f981c25aeabb79761e215205e2fd09829f4290713b8e82755a1dfa1c5abe67",
-      "scripts/lib/integrations/cursor.py": "6e3b11ae0791e3e546f1848f22b2423f13dbf72a8ab6593cbb5ae051bc76af67",
+      "scripts/lib/integrations/cursor.py": "d40e09a97ff9a21ce54a0cbb80320457eb37d37699161ff2982bbad76820ad31",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
       "configs/platform-defaults.json": "e8ca8c8f49bd70448e5b7896a20308407dbcac0e442de5c3964e955e9c7ebc23"
     },
@@ -32,7 +32,7 @@
     "content": {
       "status": "pass",
       "evidence": "docs/releases/v4/v4.13/development/distribution-handbook-target-isolation-review.md",
-      "evidence_sha256": "1d9f022d59e7d0e7a84f3fcad2a9baa2f69aeaaaef20ed7792f0998d9f2547a8"
+      "evidence_sha256": "fceb388520a8ea01d5b35198b73588d3b2204040698a1c8a365f21fa76de4e9b"
     },
     "build": {
       "status": "pass",

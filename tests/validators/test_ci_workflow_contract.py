@@ -150,6 +150,12 @@ def test_ci_delegates_its_validation_to_repository_native_profiles():
     assert "--profile full" in text
 
 
+def test_validation_job_installs_its_profile_test_runner():
+    job = load(CI)["jobs"]["validate"]
+    commands = "\n".join(str(step.get("run", "")) for step in job["steps"])
+    assert "pip install pre-commit pytest" in commands
+
+
 def test_ci_does_not_re_declare_the_validator_list():
     """The defect this prevents is silent and has happened here before.
 
