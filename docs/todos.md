@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Historical v4.0-v4.13 plan tasks are integrated. PR #259 passed protected integration and post-merge smoke and provenance; its premature v3.18 and v3.5 archive moves were reversed and its model-map guard merged. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Active work:** Historical v4.0-v4.13 plan tasks are integrated. PR #262 closed v4.10 WN-1's documentation-JSON blind spot with protected integration and post-merge proof. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
 **Closeout boundary:** Three future-plan branches, recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-09-23
 
@@ -97,6 +97,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [x] Published and integrated the completed [v4.10.1 adoption plan](releases/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md) through PR #232, merged to `develop` at `c54dbeb4`. T034 is complete; no retroactive v4.10.1 tag is planned.
 - [x] Archive the late Phase 7 history in `docs/archives/v4/v4.10/development/history/` and repair the retention check that missed source files when the destination already existed; 19 focused tests and the link baseline pass.
+- [x] Close v4.10 WN-1 through PR #262: the residual scan now includes documentation JSON while excluding generated inventories; 17 focused tests, all hosted checks, and post-merge run 35925138595 passed. Archive the [qualification record](archives/v4/v4.10/development/residual-reference-json/verification.md) without moving the still-open v4.10 release tree.
 
 ## Current closure - v4.11.1 cache accounting and diagram quality
 
