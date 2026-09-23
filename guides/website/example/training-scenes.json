@@ -40,7 +40,6 @@
         "resolveEnemyShot hands every overlap to applyEnemyHit.",
         "applyEnemyHit sets destroyed: true unconditionally; the lives counter is never consulted.",
         "The HUD reads 3 lives while the very first hit ends the run.",
-        "Hostile fixture stays text: <img onerror> and </script>.",
         "Wrote docs/analysis.md."
       ],
       "game": {

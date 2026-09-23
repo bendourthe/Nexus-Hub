@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** PRs #252 and #253 passed protected integration and post-merge checks. The 62 historical v4.0 CI tasks are reconciled in archived evidence; PR #254 publication is pending. Bounded vendor and manual gaps remain open in their known-gaps ledgers.
+**Active work:** PRs #252 through #254 passed protected integration and post-merge checks. The 62 historical v4.0 CI tasks are reconciled in archived evidence. The v4.4 BG-48 guide repair is locally verified and awaiting publication; bounded vendor and manual gaps remain open in their known-gaps ledgers.
 **Closeout update:** PRs #248 through #251 passed hosted and post-merge checks. The v4.12 BG-3 shared-hook defect is resolved after worktree removal and a negative trailer probe. The former 47 pre-existing changes are retained on a local review branch, and local `develop` is clean at `origin/develop`. Three future-plan branches, retained recovery backups, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim.
 **Last refreshed:** 2026-09-23
 
@@ -43,7 +43,9 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Qualify v4.8 MT-1 locally: 12 capture-helper tests passed with 95% focused statement coverage; 19 visual-regression tests passed and installed Chrome produced a valid PNG from local HTML.
 - [x] Publish v4.8 MT-1 through PR #253; post-merge run 35892974324 passed smoke and provenance at `a65eba6b`, and its clean worktree and merged local branch were removed.
 - [x] Reconcile the 62 historical v4.0 CI plan tasks against eight phase histories, implementation commits, 313 current CI/lifecycle tests, PR #124's original post-merge failure, and later corrective publication; preserve original task boxes and archive the audit.
-- [ ] Publish the v4.0 CI task reconciliation through PR #254 and verify the merged result.
+- [x] Publish the v4.0 CI task reconciliation through PR #254; post-merge run 35894321320 passed smoke and provenance at `8b218de1`, and its clean worktree and merged local branch were removed.
+- [x] Resolve v4.4 BG-48 locally: remove the hostile sentence from shipped scene data, preserve source/inline parity, and prove hostile text stays inert in a test-created browser page; 131 focused tests passed with one optional skip and the changed-path fast profile passed 14/14.
+- [ ] Publish the v4.4 BG-48 guide repair through a protected PR and verify its post-merge result.
 - [ ] Resolve v4.13 BG-7's per-call spend overshoot and rerun a newly frozen trigger pilot only after the approved USD 35 hard ceiling is enforceable; the 2026-09-23 attempt stopped after two unknown-selection calls.
 
 ---

@@ -1319,14 +1319,18 @@ def test_every_scene_exposes_gate_and_next_scene(parsed: GuideParser) -> None:
     assert len(ids) <= 12
 
 
-def test_script_close_in_fixture_does_not_break_document(parsed: GuideParser) -> None:
-    assert parsed.json_script_contents, "fixture JSON block required before encoding can be checked"
-    joined = "\n".join(parsed.json_script_contents)
-    safe_closes = ("&lt;/script&gt;", r"<\/script>", r"\u003c/script\u003e")
-    assert any(token in joined for token in safe_closes)
-    assert "</script>" in json.dumps(json.loads(joined))
-    assert parsed.html_count == 1
-    assert "page-training" in parsed.page_ids
+def test_script_close_in_test_local_fixture_does_not_break_document() -> None:
+    payload = {"output": ["Hostile <img onerror> and </script> stay text."]}
+    encoded = json.dumps(payload).replace("</script>", r"<\/script>")
+    trial = GuideParser()
+    trial.feed(
+        '<html><section id="page-training"></section>'
+        f'<script type="application/json" id="nh-training-scenes">{encoded}</script></html>'
+    )
+    assert trial.json_script_contents == [encoded]
+    assert json.loads(trial.json_script_contents[0]) == payload
+    assert trial.html_count == 1
+    assert "page-training" in trial.page_ids
 
 
 def test_inline_scenes_match_example_json(parsed: GuideParser) -> None:
@@ -1438,13 +1442,13 @@ def _training_engine(guide_text: str) -> str:
     return guide_text.split('id="nh-training-scenes"', 1)[-1]
 
 
-def test_hostile_fixture_strings_are_rendered_via_textcontent(
+def test_training_output_is_text_only_and_hostile_fixture_is_test_local(
     parsed: GuideParser, guide_text: str
 ) -> None:
     data = json.loads(parsed.json_script_contents[0])
     blob = json.dumps(data)
-    assert "<img onerror>" in blob
-    assert "</script>" in blob
+    assert "<img onerror>" not in blob
+    assert "</script>" not in blob
     engine = _training_engine(guide_text)
     assert re.search(r"\.textContent\s*=", engine), (
         "scene-driven output must be assigned via textContent"
