@@ -364,6 +364,10 @@ WN-446-1 RESOLVED 2026-09-22 (post-release): PR #235's hosted run 35799198474 ex
 
 BG-48 RESOLVED LOCALLY 2026-09-23 (post-release): the shipped describe scene no longer displays the hostile fixture sentence. The security payload now exists only in test-created HTML, where the browser confirms it renders as literal terminal text with no image node or executed script. The guide's inline scene data still parses equal to `example/training-scenes.json`; the focused guide, explorer, and shooter suite passed 131 tests with one optional skip. The original row remains historical until publication and post-merge checks complete.
 
+BG-48 PUBLICATION VERIFIED 2026-09-23: PR #255 merged at `20bc793b` after all hosted checks passed. Post-merge run 35897196668 passed smoke and provenance. The historical row above records the pre-publication state; BG-48 is closed on `develop`.
+
+BG-46 and BG-47 RESOLVED LOCALLY 2026-09-23 (post-release): the describe heading is shortened and the fullscreen idle terminal no longer stretches to occupy the completed-reply scroll area. The 23-test browser layout suite passed with `NEXUS_REQUIRE_RENDER=1`, including 320/420 px heading checks, all four named desktop sizes before and after Run in both themes, and the unchanged 0.88 completed-state coverage floor. Six fresh screenshots were inspected and archived in [Training layout follow-up verification](../../../archives/v4/v4.4/development/guide-training-layout-followup/verification.md). The original rows remain historical until publication and post-merge checks complete; MT-446-1 through MT-446-3 and QG-446-1 are not closed by this repair.
+
 ### Resolved
 
 | ID | Title | Resolved in | Notes |
