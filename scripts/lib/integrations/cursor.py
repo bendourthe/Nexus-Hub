@@ -149,7 +149,7 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         land in their documented native directories.
         """
         result = super().install_global(ctx)  # instruction no-op (global_dir=None)
-        cursor_root = (Path.home() / ".cursor").resolve()
+        cursor_root = (ctx.global_root / ".cursor").resolve()
         self._ensure_dir(cursor_root, ctx)
         commands_dir = cursor_root / self.config["commands_subdir"]
         self._ensure_dir(commands_dir, ctx)
@@ -318,7 +318,7 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         registration = self._hook_registration(command_for)
         # Cursor has no global Markdown instruction file. Its documented
         # sessionStart context response supplies the shared attribution policy.
-        helper = (Path.home() / ".nexus-hub/scripts/nexus_git_attribution.py").as_posix()
+        helper = (ctx.global_root / ".nexus-hub/scripts/nexus_git_attribution.py").as_posix()
         context_command = (
             f'"{Path(sys.executable).as_posix()}" "{helper}" context'
             if windows

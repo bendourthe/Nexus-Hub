@@ -91,7 +91,7 @@ def _copilot_skill_selection(val: Optional[str]) -> str:
     return v
 
 
-def _copilot_home() -> Path:
+def _copilot_home(home: Path | None = None) -> Path:
     """Return Copilot's user-profile root (``~/.copilot``).
 
     A module-level accessor rather than an inline ``Path.home()`` so tests can
@@ -100,20 +100,20 @@ def _copilot_home() -> Path:
     these two functions, which is what keeps a test run out of the developer's
     real home directory.
     """
-    return (Path.home() / _COPILOT_HOME).resolve()
+    return ((Path.home() if home is None else home) / _COPILOT_HOME).resolve()
 
 
-def _vscode_user_dir() -> Optional[Path]:
+def _vscode_user_dir(home_root: Path | None = None) -> Optional[Path]:
     """Return the VS Code (or Insiders) user-data dir, or None if not present.
 
     Windows: %APPDATA%/Code/User ; macOS: ~/Library/Application Support/Code/User ;
     Linux: ~/.config/Code/User. Falls back to the Insiders variant if stable is
     absent. Returns None when neither exists (VS Code not installed).
     """
-    home = Path.home()
+    home = Path.home() if home_root is None else home_root
     system = platform.system()
     if system == "Windows":
-        base = Path(os.environ.get("APPDATA") or (home / "AppData" / "Roaming"))
+        base = Path(os.environ.get("APPDATA") or (home / "AppData" / "Roaming")) if home_root is None else home / "AppData" / "Roaming"
     elif system == "Darwin":
         base = home / "Library" / "Application Support"
     else:
@@ -158,8 +158,9 @@ class CopilotIntegration(MarkdownIntegration):
         whole global write is skipped.
         """
         result = WriteResult()
-        user_dir = _vscode_user_dir()
-        copilot_home = _copilot_home()
+        redirected = ctx.explicit_target
+        user_dir = _vscode_user_dir(ctx.target_root) if redirected else _vscode_user_dir()
+        copilot_home = _copilot_home(ctx.target_root) if redirected else _copilot_home()
         if user_dir is None and not copilot_home.exists():
             ctx.manifest.log(
                 self.key,
@@ -327,7 +328,7 @@ class CopilotIntegration(MarkdownIntegration):
         """Run the manifest sweep, then drop native directories if they emptied."""
         result = super().teardown(ctx)
         if ctx.scope == "global":
-            root = _copilot_home()
+            root = _copilot_home(ctx.target_root) if ctx.explicit_target else _copilot_home()
         else:
             root = (ctx.target_root / ".github").resolve()
         remove_dir_if_empty(root / _COPILOT_AGENTS_SUBDIR, ctx, result)

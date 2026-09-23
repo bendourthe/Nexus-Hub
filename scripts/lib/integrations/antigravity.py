@@ -163,7 +163,7 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
         result = WriteResult()
-        gemini_home = (Path.home() / ".gemini").resolve()
+        gemini_home = (ctx.global_root / ".gemini").resolve()
 
         # IDE surface: catalog under ~/.gemini/config, rules at ~/.gemini/GEMINI.md.
         config_root = gemini_home / "config"

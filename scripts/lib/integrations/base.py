@@ -93,6 +93,12 @@ class InstallContext:
     # including on hosts where the legacy installer path deliberately never
     # touches it. Phase 6 consumes this field where the copying happens.
     selection: Optional[Any] = None
+    explicit_target: bool = False
+
+    @property
+    def global_root(self) -> Path:
+        """Use the requested global target, or the normal user profile."""
+        return self.target_root if self.explicit_target else Path.home()
 
     # ------------------------------------------------------------------
     # v3.16.1 Phase 6.3 -- selection predicates
@@ -661,7 +667,7 @@ class MarkdownIntegration(IntegrationBase):
         rel = self.config.get("global_dir")
         if rel is not None:
             rel = rel.lstrip("~/")
-            target = (Path.home() / rel).resolve()
+            target = (ctx.global_root / rel).resolve()
             self._ensure_dir(target, ctx)
             action = self._write_instruction(target, ctx)
             if action is not None:
@@ -866,7 +872,7 @@ class SkillsIntegration(IntegrationBase):
         if rel is None:
             return result
         rel = rel.lstrip("~/")
-        parent = (Path.home() / rel).resolve()
+        parent = (ctx.global_root / rel).resolve()
         self._ensure_dir(parent, ctx)
         result.files.extend(self._mirror_catalog(parent, ctx))
         return result

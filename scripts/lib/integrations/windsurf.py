@@ -163,7 +163,7 @@ class WindsurfIntegration(MarkdownIntegration):
     def install_global(self, ctx: InstallContext) -> WriteResult:
         """Install user-level Cascade surfaces when the Codeium root exists."""
         result = WriteResult()
-        codeium_root = (Path.home() / ".codeium").resolve()
+        codeium_root = (ctx.global_root / ".codeium").resolve()
         if not codeium_root.exists():
             ctx.manifest.log(self.key, "~/.codeium not found; skipping global Devin Desktop surfaces")
             result.mark_not_detected(
@@ -378,7 +378,7 @@ class WindsurfIntegration(MarkdownIntegration):
     def teardown(self, ctx: InstallContext) -> WriteResult:
         result = WriteResult()
         if ctx.scope == "global":
-            roots = [(Path.home() / ".codeium" / "windsurf").resolve()]
+            roots = [(ctx.global_root / ".codeium" / "windsurf").resolve()]
         else:
             roots = [(ctx.target_root / self.config["workspace_dir"]).resolve()]
         tracked = set(ctx.manifest.files_for(self.key))

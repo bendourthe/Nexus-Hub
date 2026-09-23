@@ -113,7 +113,7 @@ class KimiIntegration(MarkdownIntegration, SkillsIntegration):
         is skipped (the workspace-scope ``.kimi-code/`` surfaces are unaffected).
         """
         result = WriteResult()
-        kimi_root = (Path.home() / ".kimi-code").resolve()
+        kimi_root = (ctx.global_root / ".kimi-code").resolve()
         if not kimi_root.exists():
             ctx.manifest.log(
                 self.key, "~/.kimi-code not found; skipping global Kimi surfaces"
@@ -213,5 +213,5 @@ class KimiIntegration(MarkdownIntegration, SkillsIntegration):
 
     def _kimi_roots(self, ctx: InstallContext) -> list[Path]:
         if ctx.scope == "global":
-            return [(Path.home() / ".kimi-code").resolve()]
+            return [(ctx.global_root / ".kimi-code").resolve()]
         return [(ctx.target_root / self.config["workspace_dir"]).resolve()]

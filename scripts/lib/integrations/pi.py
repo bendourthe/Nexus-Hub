@@ -130,7 +130,7 @@ class PiIntegration(MarkdownIntegration, SkillsIntegration):
         surfaces are unaffected.
         """
         result = WriteResult()
-        pi_home = (Path.home() / PI_ROOT_DIRNAME).resolve()
+        pi_home = (ctx.global_root / PI_ROOT_DIRNAME).resolve()
         if not pi_home.exists():
             ctx.manifest.log(self.key, "~/.pi not found; skipping global Pi surfaces")
             result.mark_not_detected(
@@ -138,7 +138,7 @@ class PiIntegration(MarkdownIntegration, SkillsIntegration):
             )
             return result
         result.detected = True
-        agent_root = self._global_root()
+        agent_root = (ctx.global_root / PI_ROOT_DIRNAME / PI_AGENT_SUBDIR).resolve()
         self._ensure_dir(agent_root, ctx)
         action = self._write_instruction(agent_root, ctx)
         if action is not None:

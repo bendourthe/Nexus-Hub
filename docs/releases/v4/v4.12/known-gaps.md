@@ -33,7 +33,7 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 #### WN-2: Existing CI reporting and tooling-lock differences
 
-**Follow-up status, 2026-09-22**: Report upload and direct guide/Windows JUnit generation are implemented and locally checked; hosted artifact verification remains pending. Tool versions are still not locked across the CI workflows and editable extension extras. Do not close this combined warning on the strength of the reporting half alone.
+**Follow-up status, 2026-09-22**: PR #235 merged report upload and direct guide/Windows JUnit generation. Hosted run 35799198474 exposed five seven-day report artifacts, and post-merge run 35801251735 passed smoke and provenance. Tool versions are still not locked across the CI workflows and editable extension extras. This combined warning remains open for the locking half.
 
 **Source phase**: Phase 4. **Plan reference**: T018. **Reason**: the canonical comparison finds incomplete tool version-locking and incomplete JUnit/coverage/report-bundle retention across existing CI legs. This overlaps v4.4 WN-446-1; it is not introduced by attribution enforcement.
 
