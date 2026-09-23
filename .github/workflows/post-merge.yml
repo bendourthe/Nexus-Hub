@@ -29,6 +29,9 @@ on:
 permissions:
   contents: read
 
+env:
+  PIP_CONSTRAINT: ${{ github.workspace }}/scripts/ci/requirements-py311.txt
+
 # Post-merge work is not superseded by a later merge the way pull-request
 # validation is: each merge is a distinct state worth smoke-testing. Cancelling
 # in progress would silently drop the smoke for the earlier merge.

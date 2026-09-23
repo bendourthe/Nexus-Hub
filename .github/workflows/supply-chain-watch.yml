@@ -24,6 +24,9 @@ on:
 permissions:
   contents: read
 
+env:
+  PIP_CONSTRAINT: ${{ github.workspace }}/scripts/ci/requirements-py311.txt
+
 # Scheduled and manual runs are distinct audits; never cancel one for another.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

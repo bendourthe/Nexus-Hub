@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** The v4.10.1 and v4.11.1 plan closures are integrated through PR #232; the late v4.10 history archive merged through PR #234. Cross-version CI report retention merged through PR #235, and the v4.0 gap guards and v4.11 SVG routing correction merged through PR #236 with green hosted and post-merge checks. The v4.8 development prerequisite and v4.13 trigger-audit follow-ups remain local pending publication. Dependency locks, unprotected GitHub branches, and bounded vendor or manual evidence remain open in their known-gaps ledgers. The v4.0 CI plan's 62 unticked historical task boxes require task-level reconciliation before they can be counted as verified completion.
+**Active work:** The v4.10.1 and v4.11.1 plan closures are integrated through PR #232; the late v4.10 history archive merged through PR #234. Cross-version CI report retention merged through PR #235, the v4.0 gap guards and v4.11 SVG routing correction merged through PR #236, and the v4.8 development prerequisite and v4.13 trigger-audit follow-ups merged through PR #237, all with green hosted and post-merge checks. CI tool locks are qualified locally pending publication. Unprotected GitHub branches and bounded vendor or manual evidence remain open in their known-gaps ledgers. The v4.0 CI plan's 62 unticked historical task boxes require task-level reconciliation before they can be counted as verified completion.
 **Last refreshed:** 2026-09-22
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -12,9 +12,12 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Published and verified cross-version CI report retention through PR #235: seven jobs upload seven-day bundles, direct guide and Windows native tests emit JUnit, and five report artifacts were visible in hosted run 35799198474. The post-merge smoke and provenance run 35801251735 passed.
 - [x] Published and verified the v4.0-v4.13 gap guards and SVG chart correction through PR #236; all hosted checks and post-merge smoke/provenance passed at `3c90d688`.
 - [x] Close v4.8 WN-C locally: `make dev` installs all six extension development extras, the README supplies the direct Windows command, pip resolves it in dry-run mode, and the 16-check native fast profile passes.
-- [ ] Publish and verify the v4.8 WN-C follow-up on merged `develop`.
+- [x] Publish and verify the v4.8 WN-C follow-up on merged `develop` through PR #237 and post-merge run 35808379460.
 - [x] Mitigate v4.13 WN-5 for future trigger pilots: persist bounded `Skill` selector evidence in normal and timeout rows without retaining prompt payloads; the original 96 calls remain unauditable.
 - [x] Close v4.9 MT-2 with named cross-host proof: the nine Windows-skipped filesystem cases all passed on Ubuntu WSL, and the Windows run passed its applicable 90 cases.
+- [x] Qualify the v4.12 WN-2 tool-lock candidate locally: a universal all-extras Python lock, pinned npm/apt/Docker inputs, 95 workflow/security checks, constrained pip resolution, and 54 plus 380 no-network Docker passes.
+- [ ] Publish the tool-lock branch and verify hosted and post-merge results before closing v4.12 WN-2.
+- [x] Close v4.4 WN-446-1 against PR #235's hosted `ci-guide-render-report` and seven-day expiry; the rejected v4.4.6 guide remains superseded.
 
 ---
 
