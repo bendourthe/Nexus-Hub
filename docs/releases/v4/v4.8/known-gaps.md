@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: FINALIZED for the v4.8.0 release. The adoption plan merged as PR #183 (`191e536a`) and the post-merge gap sweep as PR #184 (`49d408e7`), both green on every required check. At that release checkpoint, six of seven new items were resolved and the org-CLI half of `WN-I` remained open; its later resolution is recorded below. Carried forward at that checkpoint: `WN-A` (guide byte headroom), `WN-C` (`make test` install prerequisite), and the eight v4.4 items, each given an explicit touched-or-not verdict in `development/last-phase-evidence.md`. `WN-C` was resolved in the 2026-09-22 follow-up below.
-**Last updated**: 2026-09-07
+**Last updated**: 2026-09-23
 
 ## Open Items - found 2026-09-06 while verifying this session's work
 
@@ -94,7 +94,7 @@
 - **Scope**: PRE-EXISTING and applies to all seven fields. All 15 skills tagged in v4.8.0 use the flow-list form, so the committed matrix is complete today; verified by the matrix showing all ten identifiers covered.
 - **RESOLVED 2026-09-07 (post-merge).** `parse_framework_tags` now calls a new `collect_block_sequence` when the value after the colon is empty, stopping at the first non-blank line indented no further than the key so a following field's values are never absorbed. Covered across all seven fields by `test_block_sequence_reaches_the_matrix`, `test_block_sequence_stops_at_the_next_key`, and `test_block_sequence_item_comment_is_stripped`. The flow-list preference is no longer needed; both shapes now reach the matrix.
 
-#### WN-I - Two intermittent Windows test failures: one root-caused and fixed, one still open
+#### WN-I - Two Windows test failures, both resolved in follow-ups
 
 - **Source phase**: v4.8.0 Phase 5 (full local gate).
 - **What was observed**: `python -m pytest tests/workflows tests/installer tests/ci -q` reported `1 failed, 670 passed, 60 skipped`, failing at `tests/installer/test_org_cli.py:300`. The identical command on the identical tree then reported `671 passed, 60 skipped`. The test also passes alone and passes with its whole file. Not reproducible; nothing in the v4.8.0 diff touches the org CLI, `nexus-hub org disconnect`, or its state and cache handling.
@@ -118,7 +118,7 @@
 - **Why CI never saw it.** CI's Windows runner has pwsh 7, which emits UTF-8. This host has no `pwsh`, so `_resolve_powershell()` falls back to Windows PowerShell 5.1. The defect was invisible to CI by construction and visible only to a contributor whose only PowerShell is 5.1 -- who would have concluded the installer was broken.
 - **Fix**: both runners now pass `encoding="utf-8", errors="replace"`, the same choice `run.py` itself makes. Every assertion in the file matches ASCII text, so a replaced byte cannot mask a real failure. `test_child_output_is_decoded_permissively` guards it at the source level via `inspect.getsource`, because a behavioral test would pass on any pwsh-7 host and prove nothing; the guard was negative-controlled by removing `**_DECODE` from one runner and confirming it fails.
 - **What this corrects in the record above**: "flaky", "not reproducible", the load hypothesis, and the OneDrive-redirection hypothesis were all wrong. The OneDrive path in the traceback was incidental. Each was recorded in good faith from the shape of the failure rather than from the code, and each is left visible above rather than deleted, because that progression is the lesson: a failure that looks nondeterministic is often a deterministic failure under an unnoticed condition.
-### The org-CLI half of `WN-I`: STILL OPEN
+### The org-CLI half of `WN-I`: RESOLVED in the v4.9 follow-up
 
 Split out from the PowerShell half above, because they turned out to be unrelated. This is the one v4.8.0 item that is not closed.
 
@@ -134,7 +134,7 @@ Split out from the PowerShell half above, because they turned out to be unrelate
 - **Suggested next step**: capture the failing assertion rather than the failing test name. Run the file in a loop with `-x --tb=long -p no:cacheprovider` until it trips, and record which `_git` call or which assertion actually failed. A fix without that is a guess, and the two candidate fixes (retrying git, or serializing the fixture) have opposite implications for what the test proves.
 - **NOT changed**: no retry, no timeout widening, no skip mark. Each would convert a visible intermittent failure into a silent one, and the product is not implicated: CI runs this file on every pull request and both its `tests` and `tests-windows` jobs have passed it throughout.
 
-
+**Resolution, 2026-09-23**: The v4.9 follow-up [recorded the deterministic held-handle reproduction, bounded directory-rename retry, and five regression tests](../v4.9/known-gaps.md#resolved-during-this-follow-up). The original v4.8 failures above did not capture their failing assertion, so they cannot independently prove that exact mechanism; the later reproduction covers the suspected Windows failure path. On the current `develop` tree, all five focused retry tests passed, and 50 consecutive whole-file org-CLI runs reported no failure. This closes the implementation gap while retaining the original failure and non-reproduction evidence.
 
 #### WN-J - The publication pre-flight compared against LOCAL develop, so the pull request silently carried 12 unrelated commits
 
