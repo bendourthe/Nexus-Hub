@@ -535,6 +535,19 @@ GUIDE_BROWSER = Group(
     ),
 )
 
+PRE_COMMIT = Group(
+    name="pre-commit",
+    explicit_only=True,
+    commands=(
+        Command(
+            name="pre-commit standard hooks",
+            argv=["pre-commit", "run", "--all-files"],
+            env={"SKIP": "lint-templates,build-catalogs"},
+            timeout=1800,
+        ),
+    ),
+)
+
 RELEASE_CHECKS = Group(
     name="release-checks",
     commands=(
@@ -584,6 +597,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
     # Everything provable on this host.
     "full": (
         CATALOG_PARSE,
+        PRE_COMMIT,
         HYGIENE,
         INTERPRETERS,
         CATALOG,

@@ -41,7 +41,7 @@ The listing shows each group, its change-scope key, whether it is blocking, and 
 | Profile | Contains |
 |---|---|
 | `fast` | catalog JSON parses, hygiene (Unicode, personal paths, docs conventions, doc budgets), workflow security, version sync |
-| `full` | everything in `fast`, plus the catalog validators, security scans, platform contracts, docs validators, the hook and repo test suites, and all six extension suites; `guide-browser` is explicit-only |
+| `full` | everything in `fast`, plus the catalog validators, security scans, platform contracts, docs validators, the hook and repo test suites, and all six extension suites; `pre-commit` and `guide-browser` are explicit-only |
 | `platform` | catalog and installer shell lint (POSIX), PowerShell AST parse, and the Windows PowerShell 5.1 hook, installer, audit, and native integration legs |
 | `report` | no validation commands. Reads prior local summary or downloaded job receipts, fails on missing required inputs, and writes an aggregate index |
 | `release` | version sync, platform read-contract freshness, and an advisory branch and repository-settings report |
@@ -49,6 +49,7 @@ The listing shows each group, its change-scope key, whether it is blocking, and 
 Two design choices worth knowing:
 
 - **`guide-browser` is explicit-only.** Select it with `--profile full --only guide-browser` after installing Playwright and Chromium. It sets `NEXUS_REQUIRE_RENDER=1`, so an absent browser fails rather than silently skipping the browser contracts; ordinary `full` runs do not require a browser.
+- **`pre-commit` is explicit-only.** The pull request validation job selects it alongside the standard `full` groups after installing pre-commit. Its skip list for local Python hooks lives in the profile command, so the hosted workflow does not maintain a second validator body; ordinary `full` runs do not require pre-commit.
 - **`platform` is deliberately small.** A check that runs everywhere belongs in `full`, where it is paid for once. `platform` holds only what genuinely differs by host, so a three-OS matrix is not three copies of the same run.
 - **`release` is never a validation re-run.** By the time a release runs, the integration pull request has already validated the tree. Re-running the suite on the release event would bill twice for the same answer.
 
@@ -60,6 +61,7 @@ The engine itself is standard library only. Two profile COMMANDS have a dependen
 |---|---|---|
 | `PyYAML` | `fast`, `full` (the `workflows` group) | `check_required_check_coverage.py` parses every workflow file and REFUSES to pass without it. A silent pass there would re-permit the stranded-required-check defect the guard exists to catch. |
 | `shellcheck` | `platform` (the `shell-lint` group, POSIX only) | a missing linter is reported as MISSING, which fails the run. "The tool is absent" and "the tool passed" must not look the same. |
+| `pre-commit` | explicit `full --only pre-commit` selection | the hosted validation job installs it before selecting this group; an absent executable fails the selected command. |
 
 A workflow job that calls a profile must install these. `ci.yml`'s `validate` job gets PyYAML transitively (it installs `pre-commit`), which is why the omission in `post-merge.yml` was invisible until that workflow ran the same profile on its own. An implicit dependency is one that only the first caller without it discovers.
 

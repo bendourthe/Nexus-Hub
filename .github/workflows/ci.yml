@@ -160,11 +160,6 @@ jobs:
       - name: Install pre-commit
         run: pip install pre-commit pytest
 
-      - name: Run pre-commit hooks (standard checks only)
-        # Skip local Python hooks that require project-specific tooling.
-        # lint-templates and build-catalogs are enforced on commit locally.
-        run: SKIP=lint-templates,build-catalogs pre-commit run --all-files
-
       - name: Repository-native validation profile
         # One call. The validator list lives in scripts/ci/profiles.py and is
         # the same list `make ci-full` runs. Adding a validator needs no edit
@@ -182,7 +177,7 @@ jobs:
         # release being cut.
         run: |
           python scripts/ci/run.py --profile full \
-            --only catalog-parse,hygiene,interpreters,catalog,security,workflows,claude-plugin,platform-contracts,docs,version \
+            --only catalog-parse,pre-commit,hygiene,interpreters,catalog,security,workflows,claude-plugin,platform-contracts,docs,version \
             --reports-dir reports
 
       - name: Publish the run summary
