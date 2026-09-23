@@ -3,26 +3,27 @@
 
 The plan held Phase 6 because no execution path supplied five controls at once:
 two model tiers, observed skill selection, bounded subprocess time, an
-ENFORCEABLE AGGREGATE spend ceiling, and the T022 isolation controls. The two
+aggregate spend control, and the T022 isolation controls. The two
 repository scripts named in the plan supply none of them -- `run_trigger_evals`
 is model-free, and `optimize_skill_description` forces the skill with `--skill`
 (which destroys the very thing the pilot measures) and has no timeout or cost
 accounting.
 
-This runner supplies all five by wrapping the CLI's own structured output:
+This runner supplies the measurement controls by wrapping the CLI's structured output:
 
 * `--model` selects the tier; the `init` event echoes what actually resolved.
 * The `init` event enumerates loaded skills, and a skill invocation appears as a
   tool call in the stream, so ORGANIC selection is observable. Nothing forces a
   skill to load.
-* `subprocess(timeout=)` bounds wall time; `--max-budget-usd` bounds one call.
+* `subprocess(timeout=)` bounds wall time; `--max-budget-usd` requests a per-call
+  limit, but observed costs exceeded it in the second pilot.
 * `result.total_cost_usd` is summed against a running ceiling, and the runner
-  refuses to START a call once the projected total would exceed it. That is the
-  aggregate control the plan required and no existing tool provided.
+  refuses to start another call after an observed overrun. This is not a hard
+  aggregate ceiling until a provider-enforced or proven per-call bound exists.
 * `--setting-sources`, `--add-dir` and `--strict-mcp-config` isolate the run.
 
-Every cap is fail-closed: the runner stops and records a partial, honest result
-rather than continuing past a limit. A call whose selection evidence is missing
+The runner records an in-flight receipt before each call and stops after an
+observed limit breach. A call whose selection evidence is missing
 is recorded as evidence-missing, never as a non-selection, because "the skill
 did not load" and "we could not see whether it loaded" are different findings
 and only one of them is a measurement.
@@ -41,16 +42,18 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import random
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-# Frozen caps. These mirror the protocol document; the runner does not invent them.
+# Frozen limits. The spend amount is a target until per-call enforcement is proven.
 MAX_CALLS = 96
 MAX_SPEND_USD = 35.00
 PER_CALL_BUDGET_USD = 0.50
@@ -140,13 +143,20 @@ def parse_stream(raw: str, skill: str) -> dict:
             ).startswith("error")
             out["num_turns"] = event.get("num_turns")
             try:
-                out["cost_usd"] = float(event.get("total_cost_usd"))
+                cost = float(event.get("total_cost_usd"))
+                if not math.isfinite(cost) or cost < 0:
+                    raise ValueError("cost must be finite and nonnegative")
+                out["cost_usd"] = cost
             except (TypeError, ValueError):
-                # Unknown cost is charged at the worst case, never at zero: a
-                # ledger that under-counts spend permits more of it.
+                # Unknown cost is charged at the reservation, never at zero.
+                # This may still under-count an overrun, so it is not a hard cap.
                 out["cost_usd"] = PER_CALL_BUDGET_USD
                 out["note"] = "cost not reported; charged at the per-call budget"
             out["duration_ms"] = event.get("duration_ms")
+
+    if not out["saw_result"]:
+        out["cost_usd"] = PER_CALL_BUDGET_USD
+        out["note"] = "result and cost not reported; charged at the per-call budget"
 
     # Only a CLEANLY completed run licenses "the skill was not selected". A run
     # the per-call budget truncated never got the chance to invoke the skill, so
@@ -254,11 +264,11 @@ def build_command(prompt: str, model: str, fixture: Path) -> list[str]:
 
 
 class Ledger:
-    """The aggregate spend control the plan required.
+    """The aggregate pre-call reservation, conditional on a real per-call bound.
 
-    Refuses to START a call whose worst case would breach the ceiling, rather
-    than discovering the breach afterwards. That asymmetry is the point: a
-    ceiling checked only after spending is a report, not a control.
+    Refuses to START a call whose reserved amount would breach the ceiling,
+    rather than discovering the breach afterwards. The CLI's observed overrun means
+    this reservation is not presently a hard ceiling.
     """
 
     def __init__(self, ceiling: float, max_calls: int, wall_s: int) -> None:
@@ -276,8 +286,8 @@ class Ledger:
             return False, f"wall-clock cap reached ({self.wall_s}s)"
         if self.spent + PER_CALL_BUDGET_USD > self.ceiling:
             return False, (
-                f"spend ceiling would be breached: spent {self.spent:.4f} "
-                f"+ worst case {PER_CALL_BUDGET_USD:.2f} > {self.ceiling:.2f}"
+                f"spend ceiling reservation would exceed target: spent {self.spent:.4f} "
+                f"+ reservation {PER_CALL_BUDGET_USD:.2f} > {self.ceiling:.2f}"
             )
         return True, ""
 
@@ -314,7 +324,7 @@ def run_call(item: dict, fixture: Path, ledger: Ledger, repo: Path, variant_b: d
         # A timed-out call still spent money. Recording 0.0 would let the
         # aggregate ceiling permit more than it believes it has allowed, so the
         # cost is read from whatever the stream managed to emit and otherwise
-        # charged at the per-call worst case.
+        # charged at the per-call reservation, which may be below actual spend.
         partial = exc.stdout or ""
         if isinstance(partial, bytes):
             partial = partial.decode("utf-8", errors="replace")
@@ -340,9 +350,10 @@ def run_call(item: dict, fixture: Path, ledger: Ledger, repo: Path, variant_b: d
 
     if not parsed["saw_result"]:
         result.status = "evidence-missing"
-        result.note = "no result event; selection is unknown, not negative"
+        result.note = "no result event; selection is unknown; cost charged at the per-call budget"
     else:
         result.status = "ok"
+        result.note = parsed.get("note", "")
     return result
 
 
@@ -361,6 +372,25 @@ def load_matrix(protocol_dir: Path) -> list[dict]:
     return matrix
 
 
+def write_receipt(path: Path, payload: dict) -> None:
+    """Replace the on-disk result after each state change, never mid-write."""
+    staged = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", newline="\n", prefix=path.name + ".",
+            suffix=".tmp", dir=path.parent, delete=False,
+        ) as stream:
+            staged = Path(stream.name)
+            json.dump(payload, stream, indent=2)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(staged, path)
+    finally:
+        if staged is not None:
+            staged.unlink(missing_ok=True)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--protocol", required=True, type=Path)
@@ -374,8 +404,8 @@ def main(argv: list[str] | None = None) -> int:
         print("error: the claude CLI is not on PATH; refusing to start", file=sys.stderr)
         return 2
 
-    # The frozen ceiling is a cap, not a default. argparse accepts any float, so
-    # without this an operator could raise the "frozen" limit from the command
+    # The frozen spend target is an upper configuration limit. argparse accepts
+    # any float, so without this an operator could raise it from the command
     # line, and a non-finite value would disable the spend check entirely:
     # every comparison against nan is False, so the branch simply never fires.
     if not math.isfinite(args.ceiling) or args.ceiling <= 0:
@@ -388,9 +418,13 @@ def main(argv: list[str] | None = None) -> int:
     if ceiling < args.ceiling:
         print(
             f"note: --ceiling {args.ceiling:.2f} exceeds the frozen "
-            f"{MAX_SPEND_USD:.2f} cap; using {ceiling:.2f}",
+            f"{MAX_SPEND_USD:.2f} configured maximum; using {ceiling:.2f}",
             file=sys.stderr,
         )
+
+    if os.path.lexists(args.out):
+        print(f"error: result receipt already exists: {args.out}", file=sys.stderr)
+        return 2
 
     fixture = args.fixture.resolve()
     fixture.mkdir(parents=True, exist_ok=True)
@@ -409,32 +443,54 @@ def main(argv: list[str] | None = None) -> int:
     results: list[CallResult] = []
     stopped = ""
 
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+
+    def save_receipt(inflight: dict | None = None) -> None:
+        write_receipt(args.out, {
+            "seed": SEED,
+            "ceiling_usd": ceiling,
+            "calls_made": ledger.calls,
+            "calls_planned": len(matrix),
+            "total_spend_usd": round(ledger.spent, 4),
+            "stopped_early": stopped,
+            "complete": not stopped and inflight is None and ledger.calls == len(matrix),
+            "inflight": inflight,
+            "results": [asdict(r) for r in results],
+        })
+
+    save_receipt()
+
     for item in matrix:
         ok, why = ledger.may_start()
         if not ok:
             stopped = why
             break
+        save_receipt({
+            "call_number": ledger.calls + 1,
+            "skill": item["skill"],
+            "prompt_id": item["prompt_id"],
+            "variant": item["variant"],
+            "model_tier": item["model_tier"],
+            "reserved_usd": PER_CALL_BUDGET_USD,
+        })
         r = run_call(item, fixture, ledger, repo, variant_b)
         ledger.record(r.cost_usd)
         results.append(r)
+        if r.cost_usd > PER_CALL_BUDGET_USD:
+            stopped = (
+                f"per-call budget exceeded: observed {r.cost_usd:.4f} "
+                f"> reserved {PER_CALL_BUDGET_USD:.2f}"
+            )
+        save_receipt()
         print(
             f"  [{ledger.calls:2d}] {r.skill[:24]:24s} {r.variant} {r.model_tier:6s} "
             f"selected={r.selected} ${r.cost_usd:.4f} ({r.status})",
             flush=True,
         )
+        if stopped:
+            break
 
-    payload = {
-        "seed": SEED,
-        "ceiling_usd": ceiling,
-        "calls_made": ledger.calls,
-        "calls_planned": len(matrix),
-        "total_spend_usd": round(ledger.spent, 4),
-        "stopped_early": stopped,
-        "complete": not stopped and ledger.calls == len(matrix),
-        "results": [asdict(r) for r in results],
-    }
-    args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    save_receipt()
 
     print(f"\ncalls: {ledger.calls}/{len(matrix)}   spend: ${ledger.spent:.4f}")
     if stopped:

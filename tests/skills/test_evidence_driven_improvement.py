@@ -1782,6 +1782,73 @@ class TestRunnerSpendAccounting:
         assert allowed is False
         assert "spend ceiling" in why
 
+    def test_nonfinite_reported_cost_uses_the_reservation(self) -> None:
+        m = _runner()
+        parsed = m.parse_stream(
+            _stream(_INIT, {"type": "result", "total_cost_usd": "nan"}),
+            "context-engineering",
+        )
+        assert parsed["cost_usd"] == m.PER_CALL_BUDGET_USD
+
+    def test_missing_result_cost_uses_the_reservation(self) -> None:
+        m = _runner()
+        parsed = m.parse_stream(_stream(_INIT), "context-engineering")
+        assert parsed["cost_usd"] == m.PER_CALL_BUDGET_USD
+
+    def test_receipt_does_not_overwrite_a_neighbouring_temp_file(self, tmp_path: Path) -> None:
+        m = _runner()
+        out = tmp_path / "result.json"
+        neighbour = tmp_path / "result.json.tmp"
+        neighbour.write_text("user data", encoding="utf-8")
+        m.write_receipt(out, {"calls_made": 0})
+        assert json.loads(out.read_text(encoding="utf-8")) == {"calls_made": 0}
+        assert neighbour.read_text(encoding="utf-8") == "user data"
+
+    def test_dangling_receipt_link_refuses_to_start(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        monkeypatch.setattr(m.shutil, "which", lambda _: "claude")
+        monkeypatch.setattr(m.os.path, "lexists", lambda _: True)
+        out = tmp_path / "result.json"
+        assert m.main(["--protocol", str(tmp_path / "missing"), "--out", str(out)]) == 2
+
+    def test_overrun_stops_before_another_paid_call(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        protocol = tmp_path / "protocol"
+        protocol.mkdir()
+        (protocol / "pilot-variant-b.json").write_text("{}", encoding="utf-8")
+        (protocol / "pilot-prompts.json").write_text(json.dumps({"prompts": [{"skill": "context-engineering", "prompt_id": "p1", "prompt_class": "positive", "prompt": "test"}]}), encoding="utf-8")
+        monkeypatch.setattr(m.shutil, "which", lambda _: "claude")
+        calls = []
+
+        def fake_call(item, *args):
+            calls.append(item)
+            return m.CallResult(item["skill"], item["prompt_id"], item["prompt_class"], item["variant"], item["model_tier"], cost_usd=0.654, status="evidence-missing")
+
+        monkeypatch.setattr(m, "run_call", fake_call)
+        out = tmp_path / "result.json"
+        assert m.main(["--protocol", str(protocol), "--out", str(out), "--fixture", str(tmp_path / "fixture")]) == 0
+        payload = json.loads(out.read_text(encoding="utf-8"))
+        assert len(calls) == payload["calls_made"] == 1
+        assert payload["complete"] is False
+        assert "per-call" in payload["stopped_early"]
+
+    def test_call_failure_leaves_inflight_receipt(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        protocol = tmp_path / "protocol"
+        protocol.mkdir()
+        (protocol / "pilot-variant-b.json").write_text("{}", encoding="utf-8")
+        (protocol / "pilot-prompts.json").write_text(json.dumps({"prompts": [{"skill": "context-engineering", "prompt_id": "p1", "prompt_class": "positive", "prompt": "test"}]}), encoding="utf-8")
+        monkeypatch.setattr(m.shutil, "which", lambda _: "claude")
+        monkeypatch.setattr(m, "run_call", lambda *args: (_ for _ in ()).throw(RuntimeError("interrupted")))
+        out = tmp_path / "result.json"
+        with pytest.raises(RuntimeError, match="interrupted"):
+            m.main(["--protocol", str(protocol), "--out", str(out), "--fixture", str(tmp_path / "fixture")])
+        payload = json.loads(out.read_text(encoding="utf-8"))
+        assert payload["calls_made"] == 0
+        assert payload["inflight"]["call_number"] == 1
+        assert m.main(["--protocol", str(protocol), "--out", str(out)]) == 2
+        assert json.loads(out.read_text(encoding="utf-8")) == payload
+
 
 class TestRunnerStagingCannotProduceIdenticalArms:
     def test_a_description_that_does_not_match_is_a_hard_failure(self, tmp_path: Path) -> None:

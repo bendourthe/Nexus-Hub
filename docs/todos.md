@@ -2,7 +2,7 @@
 
 **Integration branch:** `develop`
 **Active work:** Historical v4.0-v4.13 plan tasks are integrated. PR #259 passed protected integration and post-merge smoke and provenance; its premature v3.18 and v3.5 archive moves were reversed and its model-map guard merged. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
-**Closeout boundary:** The former 47 pre-existing changes remain on a local review branch. Three future-plan branches, recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim.
+**Closeout boundary:** Three future-plan branches, recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-09-23
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -36,7 +36,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Merge PR #249 for the durable hook copy, verify post-merge run 35838028055, and remove its clean installer worktree; its LF/CRLF source-check follow-up was published through PR #250.
 - [x] Move the two unregistered cache/report residue folders to the Windows Recycle Bin after exact-path checks; the 15 report files matched the archived original failure ZIP byte-for-byte. The folders are recoverable and no longer occupy the worktree parent.
 - [x] Close v4.4 WN-446-1 against PR #235's hosted `ci-guide-render-report` and seven-day expiry; the rejected v4.4.6 guide remains superseded.
-- [x] Preserve the 47-file local change set at `f663f6c3` under `review/pre-next-plan-local-edits-20260923` and fast-forward the clean local `develop` to `origin/develop` at `7b5deaec`.
+- [x] Preserve the 47-file local change set at `f663f6c3` until its stable patch ID matches merged `79f5283c`; remove the redundant local recovery branch after that proof and keep the corrected PR #259 result on `develop`.
 - [x] Configure `develop` and `main` for pull-request-only integration, strict required checks matching `docs/policy/required-checks.json`, administrator enforcement, and force-push/deletion blocks; verify the live API read-back.
 - [x] Prove the protected merge gate with docs-only PR #252: GitHub reported `BLOCKED` with queued required checks, then `CLEAN` after all five reported `SUCCESS`.
 - [x] Merge PR #252 without bypass; post-merge run 35889175597 passed smoke and provenance at `a15141fd`, and its clean temporary worktree and local branch were removed.
@@ -54,6 +54,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Record the model-map placement guard and non-final-phase test-scoping decisions in the living decision tree, with their alternatives, accepted trade-offs, and executable owners.
 - [ ] Map real handbook source values before claiming artifact-level temporal coverage; the current repository handbook returns `source_value_guard: unchecked`.
 - [ ] Resolve v4.13 BG-7's per-call spend overshoot and rerun a newly frozen trigger pilot only after the approved USD 35 hard ceiling is enforceable; the 2026-09-23 attempt stopped after two unknown-selection calls.
+- [x] Qualify a local v4.13 BG-7 safety repair: reject non-finite or missing cost as free, persist an in-flight receipt before each call, and stop after an observed per-call overrun; this does not satisfy the USD 35 hard ceiling or authorize a live rerun.
 
 ---
 
