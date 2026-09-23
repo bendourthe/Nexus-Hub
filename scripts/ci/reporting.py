@@ -13,11 +13,14 @@ and the second is the one people assume.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import platform as platform_mod
 import re
+import shutil
 import sys
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -122,6 +125,122 @@ class RunResult:
         for c in self.all_commands:
             counts[c.status] = counts.get(c.status, 0) + 1
         return counts
+
+
+def _source_status(path: Path) -> str:
+    """Read a bounded native summary without trusting its display text."""
+    if path.stat().st_size > 16_000_000:
+        raise ValueError("summary exceeds 16 MB")
+    source = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(source, dict) or not isinstance(source.get("profile"), str) or source.get("profile") == "report":
+        raise ValueError("not a validation summary")
+    groups = source.get("groups")
+    if not isinstance(groups, list) or not groups:
+        raise ValueError("summary has no groups")
+    statuses = []
+    for group in groups:
+        if not isinstance(group, dict) or not isinstance(group.get("commands"), list):
+            raise TypeError("summary has an invalid group")
+        for command in group["commands"]:
+            if not isinstance(command, dict) or command.get("status") not in {
+                "pass", "fail", "skip", "timeout", "missing", "advisory-fail"
+            }:
+                raise ValueError("summary has an invalid command status")
+            statuses.append(command["status"])
+    if not statuses:
+        raise ValueError("summary has no command results")
+    if any(status in {"fail", "timeout", "missing"} for status in statuses):
+        return "FAIL"
+    if any(status in {"skip", "advisory-fail"} for status in statuses):
+        return "PARTIAL"
+    return "PASS"
+
+
+def aggregate_inputs(reports_dir: Path, expected_artifacts: Mapping[str, str] | None = None) -> GroupResult:
+    """Index existing job receipts; never execute their contents or validation again."""
+    group = GroupResult(name="report-inputs")
+    inputs = reports_dir / "inputs"
+    if expected_artifacts is None:
+        discovered = sorted(path.name for path in inputs.iterdir() if path.is_dir()) if inputs.is_dir() else []
+        expected_artifacts = {name: "success" for name in discovered}
+        previous = reports_dir / "summary.json"
+        if not expected_artifacts and previous.is_file() and not previous.is_symlink():
+            try:
+                local = inputs / "local"
+                local.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(previous, local / "summary.json")
+                expected_artifacts = {"local": "success"}
+            except OSError:
+                pass
+    index: dict = {"schema_version": 1, "artifacts": []}
+    if not expected_artifacts:
+        group.commands.append(CommandResult("report inputs", group.name, "missing", reason="no source receipts"))
+    for name, job_result in sorted(expected_artifacts.items()):
+        command = CommandResult(name, group.name, "missing")
+        entry: dict = {"name": name, "job_result": job_result, "files": []}
+        index["artifacts"].append(entry)
+        group.commands.append(command)
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", name) or name in {".", ".."}:
+            command.reason = "invalid artifact name"
+            continue
+        if job_result == "skipped":
+            if (inputs / name).exists():
+                command.status = "fail"
+                command.reason = "skipped job unexpectedly has an artifact"
+                continue
+            command.status = "skip"
+            command.reason = "upstream job skipped"
+            continue
+        if job_result not in {"success", "failure", "cancelled"}:
+            command.reason = "invalid upstream job result"
+            continue
+        artifact = inputs / name
+        summary = artifact / "summary.json"
+        if not summary.is_file():
+            command.reason = "source summary missing"
+            continue
+        try:
+            if artifact.is_symlink() or not artifact.resolve().is_relative_to(reports_dir.resolve()):
+                raise ValueError("source artifact leaves reports directory")
+            source_status = _source_status(summary)
+            files = sorted(path for path in artifact.rglob("*") if path.is_file())
+            if len(files) > 2000:
+                raise ValueError("source artifact exceeds 2000 files")
+            for path in files:
+                if path.is_symlink() or not path.resolve().is_relative_to(artifact.resolve()):
+                    raise ValueError("source file leaves artifact directory")
+                digest = hashlib.sha256()
+                with path.open("rb") as stream:
+                    for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                        digest.update(chunk)
+                kind = "sarif" if path.suffix == ".sarif" else (
+                    "coverage" if path.name.startswith("coverage") else (
+                        "junit" if "junit" in path.parts else "report"
+                    )
+                )
+                entry["files"].append({
+                    "path": path.relative_to(reports_dir).as_posix(),
+                    "sha256": digest.hexdigest(),
+                    "bytes": path.stat().st_size,
+                    "kind": kind,
+                })
+            entry["source_status"] = source_status
+            command.status = (
+                "fail" if job_result != "success" or source_status == "FAIL" else
+                "advisory-fail" if source_status == "PARTIAL" else "pass"
+            )
+            command.reason = f"upstream={job_result}; receipt={source_status}"
+        except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
+            command.status = "fail"
+            command.reason = f"invalid source artifact: {type(exc).__name__}"
+    try:
+        (reports_dir / "aggregate-index.json").write_text(
+            json.dumps(index, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+    except OSError:
+        group.commands.append(CommandResult("aggregate index", group.name, "fail", reason="index write failed"))
+    group.status = "fail" if any(command.counts_as_failure for command in group.commands) else "pass"
+    return group
 
 
 # ---------------------------------------------------------------------------
@@ -270,8 +389,10 @@ def render_summary(result: RunResult, reports_dir: Path, repo_root: Path) -> str
         f"- `{_rel(reports_dir / 'summary.json', repo_root)}`",
         f"- `{_rel(reports_dir / 'junit', repo_root)}/<group>.xml`",
         f"- `{_rel(reports_dir / 'metadata' / 'environment.json', repo_root)}`",
-        "",
     ]
+    if result.profile == "report":
+        lines.append(f"- `{_rel(reports_dir / 'aggregate-index.json', repo_root)}`")
+    lines.append("")
     return "\n".join(lines)
 
 

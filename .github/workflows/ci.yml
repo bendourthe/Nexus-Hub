@@ -746,6 +746,59 @@ jobs:
           print("OK: nexus-hub@nexus-hub is installed and enabled")
           PY
 
+  report:
+    needs:
+      - validate
+      - shellcheck
+      - tests
+      - guide-render
+      - tests-windows
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Download profile reports
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        continue-on-error: true
+        with:
+          pattern: ci-*
+          path: reports/inputs
+          merge-multiple: false
+
+      - name: Aggregate profile reports
+        env:
+          RESULT_VALIDATE: ${{ needs.validate.result }}
+          RESULT_SHELLCHECK: ${{ needs.shellcheck.result }}
+          RESULT_TESTS: ${{ needs.tests.result }}
+          RESULT_GUIDE_RENDER: ${{ needs['guide-render'].result }}
+          RESULT_TESTS_WINDOWS: ${{ needs['tests-windows'].result }}
+        run: |
+          python scripts/ci/run.py --profile report --reports-dir reports \
+            --expect-artifact ci-validation-reports=$RESULT_VALIDATE \
+            --expect-artifact ci-shell-reports=$RESULT_SHELLCHECK \
+            --expect-artifact ci-test-reports=$RESULT_TESTS \
+            --expect-artifact ci-guide-render-report=$RESULT_GUIDE_RENDER \
+            --expect-artifact ci-windows-reports=$RESULT_TESTS_WINDOWS
+
+      - name: Publish aggregate summary
+        if: always()
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain aggregate reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-aggregate-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
+
   # ONE aggregate required context for the whole workflow.
   #
   # GitHub evaluates a job-level `if:` BEFORE matrix expansion, so a SKIPPED
@@ -789,6 +842,7 @@ jobs:
       - install-smoke
       - installer-smoke
       - claude-plugin-load
+      - report
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -806,6 +860,7 @@ jobs:
           R_install_smoke: ${{ needs['install-smoke'].result }}
           R_installer_smoke: ${{ needs['installer-smoke'].result }}
           R_claude_plugin_load: ${{ needs['claude-plugin-load'].result }}
+          R_report: ${{ needs.report.result }}
         run: |
           set -uo pipefail
           failed=""

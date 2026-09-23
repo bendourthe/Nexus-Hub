@@ -267,6 +267,7 @@ def run_profile(
     quiet: bool = False,
     only: list[str] | None = None,
     repo_root: Path = REPO_ROOT,
+    expected_artifacts: dict[str, str] | None = None,
 ) -> RunResult:
     host = platform or detect_platform()
     decision = change_scope.classify(base, repo_root=repo_root) if base else change_scope._all_required(
@@ -288,7 +289,19 @@ def run_profile(
     if decision.reason:
         print(f"scope:   {decision.reason}")
 
-    for group in select_groups(profile, only):
+    selected_groups = select_groups(profile, only)
+    if profile == "report":
+        if reports_dir is None:
+            result.groups.append(GroupResult(
+                name="report-inputs",
+                status="fail",
+                commands=[CommandResult("report inputs", "report-inputs", "missing", reason="--reports-dir required")],
+            ))
+        else:
+            reports_dir.mkdir(parents=True, exist_ok=True)
+            result.groups.append(reporting.aggregate_inputs(reports_dir, expected_artifacts))
+
+    for group in selected_groups:
         group_result = run_group(group, host, decision, repo_root, secrets, quiet)
         result.groups.append(group_result)
         if group.blocking and group_result.status == "fail":
@@ -332,6 +345,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--profile", required=True, choices=PROFILE_NAMES)
     parser.add_argument("--platform", choices=("linux", "macos", "windows"), default=None)
     parser.add_argument("--reports-dir", default=None, help="where to write reports (default: none)")
+    parser.add_argument(
+        "--expect-artifact", action="append", default=[], metavar="NAME=JOB_RESULT",
+        help="for report: expected artifact and upstream success, failure, cancelled, or skipped result",
+    )
     parser.add_argument("--base", default=None, help="git revision to scope the run against")
     parser.add_argument("--quiet", action="store_true", help="suppress per-command output on success")
     parser.add_argument(
@@ -356,6 +373,18 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     reports_dir = Path(args.reports_dir).resolve() if args.reports_dir else None
+    if args.expect_artifact and args.profile != "report":
+        print("error: --expect-artifact requires --profile report", file=sys.stderr)
+        return 2
+    expected_artifacts = None
+    if args.expect_artifact:
+        expected_artifacts = {}
+        for spec in args.expect_artifact:
+            name, separator, status = spec.partition("=")
+            if not separator or not name or status not in {"success", "failure", "cancelled", "skipped"} or name in expected_artifacts:
+                print(f"error: invalid or duplicate --expect-artifact {spec!r}", file=sys.stderr)
+                return 2
+            expected_artifacts[name] = status
     try:
         result = run_profile(
             profile=args.profile,
@@ -364,6 +393,7 @@ def main(argv: list[str] | None = None) -> int:
             base=args.base,
             quiet=args.quiet,
             only=only,
+            expected_artifacts=expected_artifacts,
         )
     except KeyError as exc:
         print(f"error: {exc}", file=sys.stderr)

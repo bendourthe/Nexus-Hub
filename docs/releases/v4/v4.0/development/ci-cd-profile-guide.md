@@ -16,7 +16,7 @@ The point of the engine, in one sentence: the definitive command list lives in t
 | `fast` | `make ci-fast` | under 10 seconds | before every commit; during a phase |
 | `full` | `make ci-full` | 10 to 20 minutes | at a phase boundary, and before the final commit |
 | `platform` | `make ci-platform` | 2 to 20 minutes per host | when a change touches shell, PowerShell, or installer paths |
-| `report` | `make ci-report` | under a second | to re-render evidence without re-running anything |
+| `report` | `make ci-report` | proportional to artifact size | to aggregate existing receipts without re-running validation |
 | `release` | `make ci-release` | under a minute | as part of the release flow only |
 
 Where `make` is unavailable (a plain Windows shell), call the script directly. Everything `make` does is a one-line delegation:
@@ -43,7 +43,7 @@ The listing shows each group, its change-scope key, whether it is blocking, and 
 | `fast` | catalog JSON parses, hygiene (Unicode, personal paths, docs conventions, doc budgets), workflow security, version sync |
 | `full` | everything in `fast`, plus the catalog validators, security scans, platform contracts, docs validators, the hook and repo test suites, and all six extension suites; `guide-browser` is explicit-only |
 | `platform` | catalog and installer shell lint (POSIX), PowerShell AST parse, and the Windows PowerShell 5.1 hook, installer, audit, and native integration legs |
-| `report` | nothing. Aggregation only |
+| `report` | no validation commands. Reads prior local summary or downloaded job receipts, fails on missing required inputs, and writes an aggregate index |
 | `release` | version sync, platform read-contract freshness, and an advisory branch and repository-settings report |
 
 Two design choices worth knowing:
@@ -70,6 +70,7 @@ A workflow job that calls a profile must install these. `ci.yml`'s `validate` jo
 | `--profile <name>` | required; one of the five |
 | `--list` | print the resolved commands and exit 0. Runs nothing |
 | `--reports-dir <path>` | write report artifacts here. Omit to run without writing any |
+| `--expect-artifact NAME=JOB_RESULT` | on `report`, require a named input artifact and record whether its upstream job succeeded, failed, was cancelled, or was skipped; repeat for each job |
 | `--platform linux\|macos\|windows` | override host detection. Useful for inspecting another host's resolved commands with `--list` |
 | `--base <revision>` | scope the run to what changed since that revision |
 | `--only <groups>` | run the named comma-separated profile groups; required for explicit-only groups such as `guide-browser` |
@@ -109,9 +110,12 @@ reports/
   summary.json               the same content, machine-readable
   junit/<group>.xml          one JUnit suite per group
   metadata/environment.json  host, OS, interpreter, tool versions, timings, status
+  aggregate-index.json       report profile only: input file hashes, sizes, and types
 ```
 
 `reports/` is gitignored. The artifacts are per-run evidence, never source.
+
+`make ci-report` reads the preceding local `reports/summary.json` and replaces it with an aggregate summary. In CI, the report job downloads the validation, shell, test, Windows, and browser artifacts under `reports/inputs/<artifact-name>/` and passes each upstream job result with `--expect-artifact`. A skipped job is recorded as skipped; a job that should have produced a receipt but did not is a failure. The CI job uploads the aggregate package after success or failure with seven-day retention. The index labels coverage and SARIF files if an upstream job produces them; the current pull request workflow does not produce either file type, so their absence is not counted as coverage or SARIF proof.
 
 Three properties the reports are designed around:
 
