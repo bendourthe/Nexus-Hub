@@ -1,0 +1,30 @@
+{
+  "frozen": "2026-09-23",
+  "count": 24,
+  "prompts": [
+    {"skill":"plan-before-code","prompt_id":"pbc-p1","prompt_class":"positive","prompt":"I need to add multi-tenant support across the auth, billing and API layers. Work out the approach before writing any code."},
+    {"skill":"plan-before-code","prompt_id":"pbc-p2","prompt_class":"positive","prompt":"Before we touch anything, map out how we would migrate this service off the legacy queue."},
+    {"skill":"plan-before-code","prompt_id":"pbc-n1","prompt_class":"near-miss","prompt":"What does the auth middleware do? Just explain it."},
+    {"skill":"plan-before-code","prompt_id":"pbc-n2","prompt_class":"near-miss","prompt":"Run the test suite and tell me if it passes."},
+    {"skill":"plan-before-code","prompt_id":"pbc-t1","prompt_class":"trivial-edit","prompt":"Change the timeout constant in client.py from 30 to 60."},
+    {"skill":"plan-before-code","prompt_id":"pbc-t2","prompt_class":"trivial-edit","prompt":"Fix the typo 'recieve' in the README."},
+    {"skill":"html-output-conventions","prompt_id":"hoc-p1","prompt_class":"positive","prompt":"Build me an interactive page comparing our six candidate designs, with filters I can toggle."},
+    {"skill":"html-output-conventions","prompt_id":"hoc-p2","prompt_class":"positive","prompt":"I want a shareable artifact for this incident report that someone can navigate by section."},
+    {"skill":"html-output-conventions","prompt_id":"hoc-n1","prompt_class":"near-miss","prompt":"What are the three retry settings and their defaults?"},
+    {"skill":"html-output-conventions","prompt_id":"hoc-n2","prompt_class":"near-miss","prompt":"Summarise what the build step does in a sentence."},
+    {"skill":"html-output-conventions","prompt_id":"hoc-t1","prompt_class":"trivial-edit","prompt":"Rename the heading 'Setup' to 'Installation' in the README."},
+    {"skill":"html-output-conventions","prompt_id":"hoc-t2","prompt_class":"trivial-edit","prompt":"Add a trailing newline to config.yaml."},
+    {"skill":"skill-description-authoring","prompt_id":"sda-p1","prompt_class":"positive","prompt":"This skill never triggers when it should. Rewrite its description so the agent picks it up."},
+    {"skill":"skill-description-authoring","prompt_id":"sda-p2","prompt_class":"positive","prompt":"Our skill fires on everything. Tighten its description and add a SKIP clause."},
+    {"skill":"skill-description-authoring","prompt_id":"sda-n1","prompt_class":"near-miss","prompt":"Use the nonexistent-trigger-optimizer skill to fix this description."},
+    {"skill":"skill-description-authoring","prompt_id":"sda-n2","prompt_class":"near-miss","prompt":"How many skills are in the catalog?"},
+    {"skill":"skill-description-authoring","prompt_id":"sda-t1","prompt_class":"trivial-edit","prompt":"Change the author field in this SKILL.md frontmatter to Ben Dourthe."},
+    {"skill":"skill-description-authoring","prompt_id":"sda-t2","prompt_class":"trivial-edit","prompt":"Capitalise the first word of this skill's summary line."},
+    {"skill":"context-engineering","prompt_id":"ctx-p1","prompt_class":"positive","prompt":"My sessions keep running out of context halfway through. How should I structure what gets loaded?"},
+    {"skill":"context-engineering","prompt_id":"ctx-p2","prompt_class":"positive","prompt":"Design what context each phase of this multi-phase job should receive, and what it should drop."},
+    {"skill":"context-engineering","prompt_id":"ctx-n1","prompt_class":"near-miss","prompt":"What is the current token limit for this model?"},
+    {"skill":"context-engineering","prompt_id":"ctx-n2","prompt_class":"near-miss","prompt":"Delete the .nexus/observations.jsonl file."},
+    {"skill":"context-engineering","prompt_id":"ctx-t1","prompt_class":"trivial-edit","prompt":"Add one bullet to this list saying 'reviewed 2026-09-16'."},
+    {"skill":"context-engineering","prompt_id":"ctx-t2","prompt_class":"trivial-edit","prompt":"Change 'colour' to 'color' in this paragraph."}
+  ]
+}

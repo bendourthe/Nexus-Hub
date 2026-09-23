@@ -1,8 +1,8 @@
 # Known gaps - v4.13
 
 **Project**: Nexus-Hub
-**Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Three bounded warning-class findings remain owned for future measurement work, and one post-release GitHub branch-protection gap awaits the repository owner's decision.
-**Last updated**: 2026-09-22
+**Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Three bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
+**Last updated**: 2026-09-23
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -14,18 +14,18 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 1 |
-| Bugs / regressions (BG) | 0 | 6 |
+| Bugs / regressions (BG) | 1 | 6 |
 | Warnings (WN) | 3 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 1 | 3 |
+| Quality-gate gaps (QG) | 0 | 4 |
 
 ### Open Items
 
-#### QG-4: Integration and release branches have no GitHub protection
+#### BG-7: The second pilot's per-call budget did not bound reported cost
 
-**Observed, 2026-09-22**: GitHub's branch-protection API returns "Branch not protected" for both `develop` and `main`, and the repository rulesets API returns no rulesets. PR #234 merged while its Linux and Windows test jobs were still running; the later Linux result passed, and Windows remained in progress at this check. The repository's required-check manifest and unconditional aggregate job describe the intended gate, but a workflow file cannot require GitHub to wait for it without an external branch rule.
+**Source phase**: 2026-09-23 post-release trigger follow-up. **Plan reference**: [`trigger-pilot-2/protocol.md`](../../../archives/v4/v4.13/development/trigger-pilot-2/protocol.md). **Reason**: the first two strong-tier calls reported USD 0.6540 and USD 0.6292, each above the runner's USD 0.50 per-call reservation, and both had unknown selector evidence. The process was interrupted; no complete result file exists. The aggregate check cannot guarantee the approved hard USD 35 ceiling when a call can exceed the amount reserved for it.
 
-**Owner**: repository owner. **Status**: open pending an explicit security-setting choice. **Suggested next step**: protect both branches with pull-request-only merges, the appropriate aggregate required checks, and force-push/deletion blocks; then submit a test pull request and verify merge is held until the checks complete. Do not represent the current unprotected merges as protected integration.
+**Owner**: catalog maintainer. **Status**: open; the second pilot is `UNMEASURED`. **Suggested next step**: establish a provider-enforced ceiling or proven per-call upper bound, fix and test pre-call reservation and crash-safe per-call receipts, then freeze a new protocol before spending again. Preserve the [aborted attempt](../../../archives/v4/v4.13/development/trigger-pilot-2/attempt.md) and the original 96-call evidence unchanged.
 
 #### WN-2: Tool-span attributes unverified at the pinned revision - RESOLVED 2026-09-22
 
@@ -66,6 +66,12 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 **Owner**: `ai-agent-development`. **Status**: resolved 2026-09-22 by the Linux proof recorded above. Windows continues to exercise its native junction path and does not need developer mode for the cross-platform contract to be complete.
 
 ### Resolved Items
+
+#### QG-4: Integration and release branch protection - RESOLVED 2026-09-23
+
+**Original observation, 2026-09-22**: GitHub's branch-protection API returned "Branch not protected" for both `develop` and `main`, and the repository rulesets API returned no rulesets. PR #234 had merged while its Linux and Windows jobs were still running. No earlier unprotected merge is reclassified as protected.
+
+**Resolution**: the owner approved protection. GitHub's classic branch-protection API now reports a required pull request, strict required checks, administrator enforcement, conversation resolution, and force-push/deletion blocks on both branches. Each requires `validate`, `shellcheck`, `ci-required`, `colocation`, and `verify`, matching `docs/policy/required-checks.json`. On docs-only PR #252 at head `8f43e08d`, GitHub reported `mergeStateStatus=BLOCKED` while the checks were queued, then `CLEAN` only after all five required contexts reported `SUCCESS`. No bypass was used in this gate test. This proves the live `develop` gate; `main` has the same API configuration but no separate test PR in this follow-up.
 
 #### WN-6: Symlink refusal on a host that permits symlinks - RESOLVED
 
