@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: finalized for the v4.3.0 release
-**Finalized**: 2026-08-31, at `/update release`. The five deferred items and two warnings below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. One warning was resolved during v4.4.0 Phase 7 reconciliation; the four resolved bugs and one resolved coverage gap were fixed within this release.
-**Last updated**: 2026-08-31 (v4.4.0 Phase 7 reconciliation)
+**Finalized**: 2026-08-31, at `/update release`. Four deferred items and two warnings below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. DF-5 was resolved post-release. One warning was resolved during v4.4.0 Phase 7 reconciliation; the four resolved bugs and one resolved coverage gap were fixed within this release.
+**Last updated**: 2026-09-22 (DF-5 post-release follow-up)
 
 ## v4.3.0 - agentic-verification-discipline
 
@@ -12,7 +12,7 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 5 | 0 |
+| Deferred (DF) | 4 | 1 |
 | Bugs / regressions (BG) | 0 | 4 |
 | Warnings (WN) | 2 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
@@ -58,7 +58,7 @@
 - **Owner**: Platform integration maintainer.
 - **Next step**: Scope and review a typed OpenClaw tool-interception plugin in a future platform plan; until then, keep the guardrail surface explicitly `NOT COVERED` and do not synthesize a shell-hook port.
 
-##### DF-5 - The ownership guard has no per-write managed root and refuses silently
+##### DF-5 (resolved post-release) - The ownership guard has no per-write managed root and refuses silently
 
 - **Source phase**: Phase 5 stabilization (post-full-suite regression triage)
 - **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T025
@@ -66,6 +66,8 @@
 - **Impact**: Out-of-root managed writes now proceed with leaf-level link protection only (symlink, junction, and hard-link destinations are still never written through, and replacement is an atomic directory-entry swap). Ancestor substitution on a global-scope path is not detected. A genuine in-tree refusal is still visible only in the manifest log, not in the returned result.
 - **Owner**: Platform integration maintainer.
 - **Next step**: Give `write_owned_file` an explicit managed root per call so global-scope destinations are policed against their own root (`~/.copilot`, `~/.claude`), and add a refusal reason to `FileAction` (or a companion result note) so a refusal is surfaced rather than reported as an ordinary `kept`.
+
+**Resolution**: `write_owned_file` now accepts a per-write root and returns a `FileAction.reason` on refusal. Codex, Kimi, and Copilot pass their native roots using the original path spelling, and their install entry points refuse linked roots before instruction, agent, hook, or prompt writes. The runner summary and both installers show the refusal instead of treating `kept` as a successful install. On Windows, the affected adapter and installer suite passed 668 tests with 45 host-specific skips, the fast profile passed 17/17, and a CLI dry-run against a disposable `.copilot` junction reported `instruction.status=error` with the redirect reason and zero entries in its external target. This resolves the current ownership-aware native write call sites; it is not a claim that every unrelated installer copy primitive is a filesystem sandbox.
 
 #### Warnings
 
