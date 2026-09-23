@@ -59,4 +59,4 @@ Evidence for weighting existing at all: measured 2026-08-19 against a private re
 ## Related
 
 - The GitHub Actions policy and drawdown ledger were intentionally deleted with the extension; the ledger remains recoverable from commit `5b070c3b` using the command above.
-- [`docs/archives/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../archives/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)
+- [`docs/releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)

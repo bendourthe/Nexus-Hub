@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/v3.18.1-github-usage-monitor-accuracy`
-**Plan**: [`docs/archives/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../../../archives/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)
+**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../../../releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)
 **Phase**: 4 - Panel provenance and public/private split
 **Environment**: Windows 11, Git Bash, Node with `vitest` 4.1.10
 **Outcome**: The panel shows where the Actions minutes went, which of them counted, and what the displayed figure was derived from - both halves of its provenance, as two separate sentences.

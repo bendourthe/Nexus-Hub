@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-21
 **Branch**: `feat/docs-lifecycle-retention`
-**Plan**: [`docs/archives/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md`](../../../../../archives/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md)
+**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md`](../../../../../releases/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md)
 **Phase**: 4 - History retention policy
 **Environment**: Windows 11, Git Bash and PowerShell, Python 3.12, pytest; GNU Make unavailable, so `make` targets were executed as their constituent commands
 **Outcome**: Per-version documentation has a written, linked lifecycle and an advisory checker that reports drift without blocking a release. Two plan corrections were needed: the archive path the plan specified is a legacy layout the project migrated away from, and Phase 3's ceiling left no room for the pointer this phase adds.

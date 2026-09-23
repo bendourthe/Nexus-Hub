@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/v3.18.1-github-usage-monitor-accuracy`
-**Plan**: [`docs/archives/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../../../archives/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)
+**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../../../releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)
 **Phase**: 5 - Policy document and decision record
 **Environment**: Windows 11, Git Bash, Python 3.12, ShellCheck; GNU Make unavailable, so `make` targets were run as their constituent commands
 **Outcome**: When Actions minutes are consumed is written down once, with every claim marked documented-with-source or inferred-with-evidence. The weight change carries its own falsifier and the four alternatives it beat.

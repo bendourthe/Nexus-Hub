@@ -44,13 +44,13 @@ This is not hypothetical. The v3.18.0 Phase 3 ratchet-down moved a block contain
 
 `plans/`, `comparisons/`, and `known-gaps.md` are **not** swept by the one-minor-behind rule that moves `history/`. Age alone does not retire them: a plan is the durable statement of intent for its release and is linked from the DEVLOG index, and a known-gaps file is read by the next plan to decide what carries forward. A released minor whose work is still open is exactly the one a later plan needs in the active tree.
 
-**Closure does retire them, which is state 3b below.** The original exemption was written as permanent, and that produced the outcome it was meant to prevent, one level down: at v4.13.0 every released minor existed in BOTH trees, 39 active directories against 44 archived, including all 22 released v3 minors. Released is not closed, and the difference is the whole rule: when the closure test below was first run, only two minors (v3.18 and v3.5) proved fully closed, while the rest still carried open known-gaps items that a later plan may need. Those two were the finished work the permanent exemption was keeping in the active tree for no reader. Age is the wrong trigger for a plan; completion is the right one.
+**Closure does retire them, which is state 3b below.** The original exemption was written as permanent, and that produced the outcome it was meant to prevent, one level down: at v4.13.0 every released minor existed in BOTH trees, 39 active directories against 44 archived, including all 22 released v3 minors. Released is not closed, and the difference is the whole rule. The initial closure scan falsely selected v3.18, whose BG-2 remained open, and v3.5, which had no known-gaps register. Neither qualifies. Age is the wrong trigger for a plan; proven completion is the right one.
 
 ### 3b. ARCHIVE THE WHOLE MINOR once it is fully closed
 
 Independently of the age rule above, a minor's `plans/` and `comparisons/` move to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/` once that minor is **fully closed**. Both conditions must hold, and both are mechanically checkable:
 
-1. Its `known-gaps.md` has no open items (no in-progress Status, no remaining Open Items).
+1. Its `known-gaps.md` explicitly states a finalized or closed Status and `**Open items**: 0`, with no contradictory `OPEN` marker, in-progress or open Status, unchecked box, or gap id in an Open Items section. A missing or ambiguous register holds the minor open.
 2. Every plan under its `plans/` has zero unchecked task lines (`- [ ] T...`).
 
 `known-gaps.md` **stays in the active tree** even for a closed minor. It is the one file the next `/plan` reads to decide what carries forward, and a closed file answering "nothing carries forward" is a cheaper answer than a directory hop into the archive. Archiving it would save one small file and cost a lookup on every plan.

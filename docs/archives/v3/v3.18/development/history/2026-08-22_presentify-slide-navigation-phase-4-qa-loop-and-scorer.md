@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/presentify-slide-navigation`
-**Plan**: [`docs/archives/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md`](../../../../../archives/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md)
+**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md`](../../../../../releases/v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md)
 **Phase**: 4 - QA loop and structural scorer support
 **Environment**: Windows 11, Git Bash and PowerShell, Python 3.12.10, pytest; GNU Make unavailable, so `make validate` and `make test` were executed as their constituent commands
 **Outcome**: The rubric carries criterion 12 (slide-mode integrity, N/A on every scrolling page), SKILL.md Step 9 carries the per-slide capture protocol with the settle-then-capture rule, and `visual_qa_score.py` gained a seven-check slide-mode family (348 lines) with 30 new tests (38 cases) - one seeded defect per check, the skip-not-fail proofs, and an aggregate malformed-input guard. The checks were exercised end to end against the real pages built in Phases 2 and 3, where they caught a genuine omission before any fixture proved anything.

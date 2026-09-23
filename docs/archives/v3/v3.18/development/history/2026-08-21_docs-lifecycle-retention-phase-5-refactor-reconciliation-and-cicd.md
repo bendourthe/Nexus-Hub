@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-21
 **Branch**: `feat/docs-lifecycle-retention`
-**Plan**: [`docs/archives/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md`](../../../../../archives/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md)
+**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md`](../../../../../releases/v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md)
 **Phase**: 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD (terminal phase)
 **Environment**: Windows 11, Git Bash and PowerShell, Python 3.12, pytest, ShellCheck; GNU Make unavailable, so `make` targets were executed as their constituent commands
 **Outcome**: The first retention archive pass is executed (216 files, 75 files of reference repair), and executing it corrected the policy it was implementing. Known gaps are reconciled with zero release blockers. CI gained one advisory step; its optimization is a deliberate no-op for a reason worth recording.

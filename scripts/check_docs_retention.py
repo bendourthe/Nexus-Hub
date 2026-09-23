@@ -149,6 +149,7 @@ _GAP_ID = re.compile(r"\b(?:NI|DF|BG|WN|MT|QG)-[A-Za-z0-9]", re.ASCII)
 _OPEN_HEADING = re.compile(r"^#{2,5}\s*Open Items\b", re.MULTILINE | re.IGNORECASE)
 _REGION_END = re.compile(r"^#{2,5}\s*(?:Resolved\b|v\d)", re.MULTILINE | re.IGNORECASE)
 _STATUS = re.compile(r"^\*\*Status\*\*\s*:(.*)$", re.MULTILINE | re.IGNORECASE)
+_ZERO_OPEN_ITEMS = re.compile(r"^\*\*Open items\*\*\s*:\s*0\s*$", re.MULTILINE | re.IGNORECASE)
 
 
 def known_gaps_is_closed(text: str) -> bool:
@@ -159,6 +160,14 @@ def known_gaps_is_closed(text: str) -> bool:
     advisory line, so the two errors are not symmetric and the check leans to
     the cheap one.
     """
+    # Closure must be stated explicitly. Silence or a release-blocker count is
+    # not proof that every deferred or non-blocking gap has been resolved.
+    if not _ZERO_OPEN_ITEMS.search(text) or not any(
+        re.search(r"\b(?:finalized|closed)\b", match.group(1), re.IGNORECASE)
+        for match in _STATUS.finditer(text)
+    ):
+        return False
+
     # 1. No status line may say the register is still taking items.
     for match in _STATUS.finditer(text):
         status = match.group(1).lower()
@@ -170,6 +179,10 @@ def known_gaps_is_closed(text: str) -> bool:
 
     # 2. No unchecked box anywhere in the register.
     if "- [ ]" in text:
+        return False
+
+    # Legacy ledgers can record open rows outside an Open Items section.
+    if re.search(r"\bOPEN\b", text):
         return False
 
     # 3. No gap id inside any Open Items region. Each region runs to the next
@@ -186,7 +199,7 @@ def known_gaps_is_closed(text: str) -> bool:
     return True
 
 
-def find_closed_minors(root: Path) -> list[tuple[Path, list[str], bool]]:
+def find_closed_minors(root: Path) -> list[tuple[Path, list[str]]]:
     """Return minors that are fully closed but whose plans still sit active.
 
     Fully closed means BOTH: known-gaps.md proves it has no open work, and
@@ -198,7 +211,7 @@ def find_closed_minors(root: Path) -> list[tuple[Path, list[str], bool]]:
     known-gaps.md is never reported: the policy keeps it in the active tree so
     the next /plan can read it without a directory hop.
     """
-    closed: list[tuple[Path, list[str], bool]] = []
+    closed: list[tuple[Path, list[str]]] = []
     for version_dir in sorted((root / RELEASES_ROOT).glob("v*/v*")):
         if not version_dir.is_dir():
             continue
@@ -210,13 +223,9 @@ def find_closed_minors(root: Path) -> list[tuple[Path, list[str], bool]]:
         if not movable:
             continue
 
-        # A MISSING register is not proof of closure, only absence of evidence,
-        # so it is reported separately rather than counted as proven closed.
+        # A missing register cannot prove that no work remains.
         gaps = version_dir / "known-gaps.md"
-        proven = gaps.is_file()
-        if proven and not known_gaps_is_closed(
-            gaps.read_text(encoding="utf-8", errors="replace")
-        ):
+        if not gaps.is_file() or not known_gaps_is_closed(gaps.read_text(encoding="utf-8", errors="replace")):
             continue
 
         plans_dir = version_dir / "plans"
@@ -226,7 +235,7 @@ def find_closed_minors(root: Path) -> list[tuple[Path, list[str], bool]]:
         ):
             continue
 
-        closed.append((version_dir, movable, proven))
+        closed.append((version_dir, movable))
     return closed
 
 
@@ -247,19 +256,13 @@ def _render_closed_minors(root: Path, quiet: bool) -> str:
         f"plans/comparisons in the active tree. Advisory only; see state 3b in "
         f"docs/policy/docs-retention.md\n"
     )
-    for version_dir, movable, proven in closed:
+    for version_dir, movable in closed:
         rel = version_dir.relative_to(root).as_posix()
         dest = rel.replace(f"{RELEASES_ROOT}/", "docs/archives/", 1)
         names = ", ".join(f"{m}/" for m in movable)
-        if proven:
-            buf.write(
-                f"  WARN: {rel} closed; move {names} -> {dest} (known-gaps.md stays)\n"
-            )
-        else:
-            buf.write(
-                f"  WARN: {rel} has NO known-gaps register; closure inferred from "
-                f"plans alone -- confirm by hand before moving {names} -> {dest}\n"
-            )
+        buf.write(
+            f"  WARN: {rel} closed; move {names} -> {dest} (known-gaps.md stays)\n"
+        )
     return buf.getvalue()
 
 
