@@ -12,7 +12,7 @@ The independent `measure_handbook.py` inventory may name exact expected text for
 - After implementation, the final 59-test measurement module passed. Six focused source-value cases passed: static value, 60 ms wrong text between settled checkpoints, wrong text revealed by a style-only change between checkpoints, absent mapping, missing mapped selector, and unrelated layout failure with a passing source-value sub-verdict. The reveal-only case was red before animation-frame sampling and green after it.
 - `ruff check` passed for `measure_handbook.py`. The existing test module has import-order and line-length findings outside the changed lines; no new-line lint finding was observed. `git diff --check` passed.
 - The actual `measure_handbook.py` CLI measured `docs/handbooks/distribution.html` against its retained independent inventory at 200 states: overall `pass`, zero errors, and `source_value_guard: unchecked` because that inventory declares no source values. This is real-artifact status reporting, not temporal coverage.
-- The committed seven-path diff passed the native changed-path fast profile: 15 passed, zero failed, zero skipped, zero advisory. The earlier uncommitted-tree fast run passed 17/17 but classified an empty diff, so it is not used as changed-path evidence.
+- The final eight-path diff passed the native changed-path fast profile: 15 passed, zero failed, zero skipped, zero advisory. The earlier uncommitted-tree fast run passed 17/17 but classified an empty diff, so it is not used as changed-path evidence.
 
 ## Remaining boundary
 
