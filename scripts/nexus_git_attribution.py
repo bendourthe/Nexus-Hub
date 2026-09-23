@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -344,6 +345,7 @@ def install(scope: str) -> int:
     root = root_for(scope).resolve()
     state_path = root / "state.json"
     script = Path(__file__).resolve()
+    durable_script = root / "guard.py"
     if state_path.exists():
         state = json.loads(state_path.read_text(encoding="utf-8"))
         current = git("config", "--" + scope, "--get", "core.hooksPath", ok=(0, 1))
@@ -375,12 +377,15 @@ def install(scope: str) -> int:
             "fallback": fallback or None,
         }
     root.mkdir(parents=True, exist_ok=True)
+    if durable_script.is_symlink():
+        raise GuardError("Refusing to replace a symlinked attribution guard.")
     selected = needed_hooks(state)
     for hook in set(state.get("hooks", [])) - set(selected):
         path = root / hook
-        if path.is_file() and path.read_text(encoding="utf-8") == wrapper(
-            script, root, hook, state.get("python")
-        ):
+        recognized = {wrapper(durable_script, root, hook, state.get("python"))}
+        if "script_sha256" not in state:
+            recognized.add(wrapper(script, root, hook, state.get("python")))
+        if path.is_file() and path.read_text(encoding="utf-8") in recognized:
             path.unlink()
         elif path.exists():
             raise GuardError(
@@ -388,9 +393,14 @@ def install(scope: str) -> int:
             )
     state["hooks"] = selected
     state["python"] = Path(sys.executable).as_posix()
+    script_bytes = script.read_bytes()
+    durable_script.write_bytes(script_bytes)
+    state["script_sha256"] = hashlib.sha256(script_bytes).hexdigest()
     for hook in selected:
         path = root / hook
-        path.write_text(wrapper(script, root, hook), encoding="utf-8", newline="\n")
+        path.write_text(
+            wrapper(durable_script, root, hook), encoding="utf-8", newline="\n"
+        )
         path.chmod(0o755)
     state_path.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
     git("config", "--" + scope, "core.hooksPath", root.as_posix())
@@ -425,6 +435,20 @@ def check() -> int:
             "Repository overrides the guard. Run nexus-hub attribution install --workspace."
         )
     state = json.loads((root / "state.json").read_text(encoding="utf-8"))
+    durable_script = root / "guard.py"
+    if (
+        not durable_script.is_file()
+        or durable_script.is_symlink()
+        or hashlib.sha256(durable_script.read_bytes()).hexdigest()
+        != state.get("script_sha256")
+    ):
+        raise GuardError("Attribution guard missing or modified. Reinstall the guard.")
+    source = Path(__file__).resolve()
+    if (
+        source != durable_script
+        and hashlib.sha256(source.read_bytes()).hexdigest() != state["script_sha256"]
+    ):
+        raise GuardError("Attribution guard version differs. Reinstall the guard.")
     try:
         interpreter = subprocess.run(
             [state["python"], "-c", "pass"],
@@ -444,7 +468,7 @@ def check() -> int:
         if (
             not path.is_file()
             or path.read_text(encoding="utf-8")
-            != wrapper(Path(__file__).resolve(), root, hook, state["python"])
+            != wrapper(durable_script, root, hook, state["python"])
             or not os.access(path, os.X_OK)
         ):
             raise GuardError(

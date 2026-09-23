@@ -2,8 +2,8 @@
   "snapshot": {
     "entry_sha256": "90b6e519dbbdebc658cdf68459bed2600a07046cadb095ade2509bc7711c1165",
     "inputs": {
-      "docs/handbooks/_sources/distribution/model.json": "cb159c54534bb7cdafeb11f179ae55a14404c17f87ec101e2514984ec3d4f87e",
-      "docs/handbooks/_sources/distribution/source.md": "0bfab7469f5d7caf4aada264bef53ebb121acedba981983b8ad1d924b5ab8103",
+      "docs/handbooks/_sources/distribution/model.json": "f7898d3bcb439afa6d2610d6754b6eedca73a527096d7e8863d7d40b1425c1e9",
+      "docs/handbooks/_sources/distribution/source.md": "5d09bfc527118538ba252a17fae1369670e5ddfc1fc32faf725e105f23bc4593",
       "docs/handbooks/_sources/distribution/design.css": "4d2975128abe327205e8b3c4fd62d351644221e9e03bfbaa539986f3cc1b9a70",
       "scripts/installer.ps1": "b2073d9fb9c2f036a0988188c9a2dfce0bdfeeae1eab346373cf05529324d802",
       "scripts/installer.sh": "7db0c4f7e2921bbd0932fe367e621639ee8b3d3282e0ce9799495d396bfe218d",
@@ -20,31 +20,31 @@
       "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
       "docs/handbooks/_sources/distribution/ownership-composition.html": "31df6a101328862f4e525a8b79cec45cb531d3404a8c97a108b48fca4ff231e3",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
-      "scripts/nexus_git_attribution.py": "f1b4fb69ce292164843546b2f95f847623024fa8c796cf557cec8aa47333ab00",
+      "scripts/nexus_git_attribution.py": "a734c44cbca2fb677eb10af8358582170c7ff1472bb3204a5e41cf30c1991b10",
       "catalog/style-guides/git-attribution.md": "b7f981c25aeabb79761e215205e2fd09829f4290713b8e82755a1dfa1c5abe67",
       "scripts/lib/integrations/cursor.py": "d40e09a97ff9a21ce54a0cbb80320457eb37d37699161ff2982bbad76820ad31",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
       "configs/platform-defaults.json": "e8ca8c8f49bd70448e5b7896a20308407dbcac0e442de5c3964e955e9c7ebc23"
     },
-    "output_sha256": "4d2a4ae4f52b2511c62e98475bc7d14ed32928111bccf71ebba78ecd7d360716"
+    "output_sha256": "5538bd20b8b2654ba687e3f1cfe9c4f89b0c23d8df80ae2bc0755e9bf78b3619"
   },
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.12/development/attribution-remote-boundary-handbook-content.md",
-      "evidence_sha256": "52135d775d0d8cbc65732c62666c40b3d79dcdedbd00c545c13cb4870f37670e"
+      "evidence": "docs/archives/v4/v4.12/development/attribution-hook-lifetime-handbook-content.md",
+      "evidence_sha256": "c5cfbed06bd5dae8c1bc7ad634958a3fde57515a05644572e8dcbf192d333cc0"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.12/development/attribution-remote-boundary-handbook-build.json",
-      "evidence_sha256": "1ee2249535aef427f478862b11af000559777ca3e8a69d0109a987d90e43e1aa"
+      "evidence": "docs/archives/v4/v4.12/development/attribution-hook-lifetime-handbook-build.json",
+      "evidence_sha256": "95ae4bfa535be14364829ab02164645d26f6db7447d38d3ca43f6c2c6f5d4aa1"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.12/development/attribution-remote-boundary-handbook-rendered.json",
-      "evidence_sha256": "2fee4ac71399a8037ad2707b23502525ce8fe625504d9ca3447ad83d03fd5ed9",
+      "evidence": "docs/archives/v4/v4.12/development/attribution-hook-lifetime-handbook-rendered.json",
+      "evidence_sha256": "e03d9c48612b9b2f8bc1a577d4cd12d9fc728f152bf1e914f67e373c5f674a62",
       "browser": "Chromium 151.0.7922.34",
-      "output_sha256": "4d2a4ae4f52b2511c62e98475bc7d14ed32928111bccf71ebba78ecd7d360716"
+      "output_sha256": "5538bd20b8b2654ba687e3f1cfe9c4f89b0c23d8df80ae2bc0755e9bf78b3619"
     }
   }
 }

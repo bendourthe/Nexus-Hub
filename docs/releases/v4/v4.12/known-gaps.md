@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released
-**Last updated**: 2026-09-22
+**Last updated**: 2026-09-23
 
 Release-scoped gaps for the sole-contributor-attribution plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -14,7 +14,7 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 0 | 2 |
+| Bugs / regressions (BG) | 1 | 2 |
 | Warnings (WN) | 1 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 2 | 2 |
@@ -26,6 +26,10 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 **Source**: Independent v4.12 follow-up review. **Introduced later**: `8e9bb9d9`. **Owner**: Attribution guard maintainer. A forbidden pre-guard trailer on one remote was allowed through the installed hook when pushed to a second empty destination because the new-branch scan excluded all local remote-tracking refs. The [repair evidence](../../../archives/v4/v4.12/development/attribution-remote-boundary-repair.md) records the failing reproduction, the destination-specific candidate, and local tests. **Status**: open until hosted CI, merge, and post-merge verification of the repair.
 
 **Resolution, 2026-09-22**: PR #244 passed all 18 final hosted jobs, merged at `07e31f95`, and post-merge run 35828234631 passed smoke and provenance. The [hosted qualification](../../../archives/v4/v4.12/development/attribution-remote-boundary-hosted-qualification.md) limits this closure to the Git pre-push destination boundary. BG-2 is resolved; the original open status above records the pre-publication gate.
+
+#### BG-3: Shared attribution hooks depend on the installer worktree
+
+**Source**: 2026-09-23 worktree cleanup. **Owner**: Attribution guard maintainer. Workspace installation wrote each shared Git hook wrapper with an absolute path to the Python source in the checkout that ran the installer. Checking the guard from a second worktree failed the wrapper comparison, and removing the installer worktree would leave the shared hooks pointing to a deleted executable. A real linked-worktree regression failed before the repair and passed after the guard was copied into the shared Git hooks directory with a recorded digest. The [repair evidence](../../../archives/v4/v4.12/development/attribution-hook-lifetime-repair.md) records the boundary and verification. **Status**: local candidate; 45 attribution tests passed with one host skip, plus docs 8/8 and fast 17/17. Open until hosted CI, merge, post-merge verification, and safe removal of the installer worktree pass.
 
 #### WN-1: Existing CI-profile lint findings
 
