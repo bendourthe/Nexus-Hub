@@ -90,6 +90,8 @@ class Group:
     #: parse, say). Everything else keeps running so one run reports every
     #: independent failure instead of only the first.
     blocking: bool = False
+    #: Run only when named by --only; use for provisioned tools such as Chromium.
+    explicit_only: bool = False
 
 
 def _py(name: str, *args: str, **kw) -> Command:
@@ -408,6 +410,12 @@ SHELL_LINT = Group(
     name="shell-lint",
     commands=(
         Command(
+            name="shellcheck catalog",
+            argv=["bash", "-c", "find catalog -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning"],
+            platforms=("linux", "macos"),
+            timeout=300,
+        ),
+        Command(
             name="shellcheck installers",
             argv=["shellcheck", "--severity=warning", "scripts/installer.sh", "install.sh"],
             platforms=("linux", "macos"),
@@ -496,6 +504,47 @@ WINDOWS_HOOKS = Group(
             timeout=1200,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
+        _pytest(
+            "native integrations (Windows)",
+            "tests/integrations/test_codex_native.py",
+            "tests/integrations/test_copilot_hermes_native.py",
+            "tests/integrations/test_kimi_native.py",
+            "tests/integrations/test_settings_hooks.py",
+            "tests/integrations/test_catalog_adapters.py",
+            "tests/integrations/test_codex_invocation_policy.py",
+            "--junitxml=reports/junit/windows-native.xml",
+            platforms=("windows",),
+            timeout=1200,
+            env={"NEXUS_TEST_POWERSHELL": "powershell"},
+        ),
+    ),
+)
+
+GUIDE_BROWSER = Group(
+    name="guide-browser",
+    explicit_only=True,
+    commands=(
+        _pytest(
+            "guide and visual detector browser contracts",
+            "tests/guides/",
+            "tests/verification/test_visual_defect_detector.py",
+            "--junitxml=reports/junit/guide-render.xml",
+            env={"NEXUS_REQUIRE_RENDER": "1"},
+            timeout=1800,
+        ),
+    ),
+)
+
+PRE_COMMIT = Group(
+    name="pre-commit",
+    explicit_only=True,
+    commands=(
+        Command(
+            name="pre-commit standard hooks",
+            argv=["pre-commit", "run", "--all-files"],
+            env={"SKIP": "lint-templates,build-catalogs"},
+            timeout=1800,
+        ),
     ),
 )
 
@@ -548,6 +597,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
     # Everything provable on this host.
     "full": (
         CATALOG_PARSE,
+        PRE_COMMIT,
         HYGIENE,
         INTERPRETERS,
         CATALOG,
@@ -559,6 +609,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
         VERSION,
         TESTS,
         EXTENSION_TESTS,
+        GUIDE_BROWSER,
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.

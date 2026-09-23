@@ -1,0 +1,3 @@
+# Native Windows integration and hook contracts; versions are constrained by requirements-py311.txt.
+pytest
+PyYAML

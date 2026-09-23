@@ -36,6 +36,19 @@ def load(path: Path) -> dict:
     return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
+def profile_group(name: str):
+    """Resolve a workflow-selected group from the canonical profile data."""
+    import sys
+
+    if str(REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(REPO_ROOT))
+    from scripts.ci.profiles import PROFILES
+
+    group = next((group for groups in PROFILES.values() for group in groups if group.name == name), None)
+    assert group is not None, f"workflow selects unknown group {name!r}"
+    return group
+
+
 def triggers(path: Path) -> dict:
     """The `on:` mapping.
 
@@ -184,32 +197,24 @@ def test_ci_enforces_the_guide_browser_contracts():
 
     steps = job["steps"]
     commands = "\n".join(str(step.get("run", "")) for step in steps)
-    assert "pip install pytest playwright" in commands
+    assert "scripts/ci/requirements-guide-render.in" in commands
     assert "python -m playwright install --with-deps chromium" in commands
 
-    test_step = next(
-        step
-        for step in steps
-        if "tests/verification/test_visual_defect_detector.py" in str(step.get("run", ""))
-    )
-    assert test_step.get("env", {}).get("NEXUS_REQUIRE_RENDER") == "1"
-    assert "tests/guides/" in test_step["run"]
+    assert any("--only guide-browser" in str(step.get("run", "")) for step in steps)
+    browser_commands = profile_group("guide-browser").commands
+    assert len(browser_commands) == 1
+    assert browser_commands[0].env.get("NEXUS_REQUIRE_RENDER") == "1"
+    assert "tests/guides/" in browser_commands[0].argv
+    assert "tests/verification/test_visual_defect_detector.py" in browser_commands[0].argv
     assert "guide-render" in jobs["ci-required"]["needs"]
 
 
 def test_every_only_group_named_by_a_workflow_exists():
     """A typo in `--only` must be an error, not an empty selection."""
-    import sys
-
-    if str(REPO_ROOT) not in sys.path:
-        sys.path.insert(0, str(REPO_ROOT))
-    from scripts.ci.profiles import PROFILES
-
-    known = {g.name for groups in PROFILES.values() for g in groups}
     for path in ALL_WORKFLOWS:
         for match in re.finditer(r"--only\s+([\w,-]+)", path.read_text(encoding="utf-8")):
             for name in match.group(1).split(","):
-                assert name in known, f"{path.name} selects unknown group {name!r}"
+                assert profile_group(name).name == name
 
 
 # ---------------------------------------------------------------------------
@@ -317,14 +322,16 @@ def test_profile_and_guide_jobs_retain_reports_on_failure(path: Path, job_names:
 
 def test_guide_render_emits_junit_for_the_uploaded_report():
     steps = load(CI)["jobs"]["guide-render"]["steps"]
-    test_step = next(step for step in steps if "tests/guides/" in str(step.get("run", "")))
-    assert "--junitxml=reports/junit/guide-render.xml" in test_step["run"]
+    assert any("--only guide-browser" in str(step.get("run", "")) for step in steps)
+    command = profile_group("guide-browser").commands[0]
+    assert "--junitxml=reports/junit/guide-render.xml" in command.argv
 
 
 def test_windows_native_tests_emit_junit_for_the_uploaded_report():
     steps = load(CI)["jobs"]["tests-windows"]["steps"]
-    test_step = next(step for step in steps if "test_codex_native.py" in str(step.get("run", "")))
-    assert "--junitxml=reports/junit/windows-native.xml" in test_step["run"]
+    assert any("--only interpreters,windows-hooks" in str(step.get("run", "")) for step in steps)
+    native = next(command for command in profile_group("windows-hooks").commands if "tests/integrations/test_codex_native.py" in command.argv)
+    assert "--junitxml=reports/junit/windows-native.xml" in native.argv
 
 
 # ---------------------------------------------------------------------------

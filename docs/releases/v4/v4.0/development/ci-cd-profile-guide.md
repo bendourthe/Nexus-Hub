@@ -16,7 +16,7 @@ The point of the engine, in one sentence: the definitive command list lives in t
 | `fast` | `make ci-fast` | under 10 seconds | before every commit; during a phase |
 | `full` | `make ci-full` | 10 to 20 minutes | at a phase boundary, and before the final commit |
 | `platform` | `make ci-platform` | 2 to 20 minutes per host | when a change touches shell, PowerShell, or installer paths |
-| `report` | `make ci-report` | under a second | to re-render evidence without re-running anything |
+| `report` | `make ci-report` | proportional to artifact size | to aggregate existing receipts without re-running validation |
 | `release` | `make ci-release` | under a minute | as part of the release flow only |
 
 Where `make` is unavailable (a plain Windows shell), call the script directly. Everything `make` does is a one-line delegation:
@@ -25,6 +25,7 @@ Where `make` is unavailable (a plain Windows shell), call the script directly. E
 python scripts/ci/run.py --profile fast --reports-dir reports
 python scripts/ci/run.py --profile full --reports-dir reports
 python scripts/ci/run.py --profile platform --reports-dir reports
+python scripts/ci/run.py --profile full --only guide-browser --reports-dir reports
 ```
 
 ## What each profile runs
@@ -40,13 +41,15 @@ The listing shows each group, its change-scope key, whether it is blocking, and 
 | Profile | Contains |
 |---|---|
 | `fast` | catalog JSON parses, hygiene (Unicode, personal paths, docs conventions, doc budgets), workflow security, version sync |
-| `full` | everything in `fast`, plus the catalog validators, security scans, platform contracts, docs validators, the hook and repo test suites, and all six extension suites |
-| `platform` | shell lint (POSIX), PowerShell AST parse (Windows), and the Windows PowerShell 5.1 hook and installer legs |
-| `report` | nothing. Aggregation only |
+| `full` | everything in `fast`, plus the catalog validators, security scans, platform contracts, docs validators, the hook and repo test suites, and all six extension suites; `pre-commit` and `guide-browser` are explicit-only |
+| `platform` | catalog and installer shell lint (POSIX), PowerShell AST parse, and the Windows PowerShell 5.1 hook, installer, audit, and native integration legs |
+| `report` | no validation commands. Reads prior local summary or downloaded job receipts, fails on missing required inputs, and writes an aggregate index |
 | `release` | version sync, platform read-contract freshness, and an advisory branch and repository-settings report |
 
 Two design choices worth knowing:
 
+- **`guide-browser` is explicit-only.** Select it with `--profile full --only guide-browser` after installing Playwright and Chromium. It sets `NEXUS_REQUIRE_RENDER=1`, so an absent browser fails rather than silently skipping the browser contracts; ordinary `full` runs do not require a browser.
+- **`pre-commit` is explicit-only.** The pull request validation job selects it alongside the standard `full` groups after installing pre-commit. Its skip list for local Python hooks lives in the profile command, so the hosted workflow does not maintain a second validator body; ordinary `full` runs do not require pre-commit.
 - **`platform` is deliberately small.** A check that runs everywhere belongs in `full`, where it is paid for once. `platform` holds only what genuinely differs by host, so a three-OS matrix is not three copies of the same run.
 - **`release` is never a validation re-run.** By the time a release runs, the integration pull request has already validated the tree. Re-running the suite on the release event would bill twice for the same answer.
 
@@ -58,6 +61,7 @@ The engine itself is standard library only. Two profile COMMANDS have a dependen
 |---|---|---|
 | `PyYAML` | `fast`, `full` (the `workflows` group) | `check_required_check_coverage.py` parses every workflow file and REFUSES to pass without it. A silent pass there would re-permit the stranded-required-check defect the guard exists to catch. |
 | `shellcheck` | `platform` (the `shell-lint` group, POSIX only) | a missing linter is reported as MISSING, which fails the run. "The tool is absent" and "the tool passed" must not look the same. |
+| `pre-commit` | explicit `full --only pre-commit` selection | the hosted validation job installs it before selecting this group; an absent executable fails the selected command. |
 
 A workflow job that calls a profile must install these. `ci.yml`'s `validate` job gets PyYAML transitively (it installs `pre-commit`), which is why the omission in `post-merge.yml` was invisible until that workflow ran the same profile on its own. An implicit dependency is one that only the first caller without it discovers.
 
@@ -68,8 +72,10 @@ A workflow job that calls a profile must install these. `ci.yml`'s `validate` jo
 | `--profile <name>` | required; one of the five |
 | `--list` | print the resolved commands and exit 0. Runs nothing |
 | `--reports-dir <path>` | write report artifacts here. Omit to run without writing any |
+| `--expect-artifact NAME=JOB_RESULT` | on `report`, require a named input artifact and record whether its upstream job succeeded, failed, was cancelled, or was skipped; repeat for each job |
 | `--platform linux\|macos\|windows` | override host detection. Useful for inspecting another host's resolved commands with `--list` |
 | `--base <revision>` | scope the run to what changed since that revision |
+| `--only <groups>` | run the named comma-separated profile groups; required for explicit-only groups such as `guide-browser` |
 | `--quiet` | suppress per-command output on success. Failures always print |
 | `--json` | print the machine-readable summary to stdout |
 
@@ -106,9 +112,12 @@ reports/
   summary.json               the same content, machine-readable
   junit/<group>.xml          one JUnit suite per group
   metadata/environment.json  host, OS, interpreter, tool versions, timings, status
+  aggregate-index.json       report profile only: input file hashes, sizes, and types
 ```
 
 `reports/` is gitignored. The artifacts are per-run evidence, never source.
+
+`make ci-report` reads the preceding local `reports/summary.json` and replaces it with an aggregate summary. In CI, the report job downloads the validation, shell, test, Windows, and browser artifacts under `reports/inputs/<artifact-name>/` and passes each upstream job result with `--expect-artifact`. A skipped job is recorded as skipped; a job that should have produced a receipt but did not is a failure. The CI job uploads the aggregate package after success or failure with seven-day retention. The index labels coverage and SARIF files if an upstream job produces them; the current pull request workflow does not produce either file type, so their absence is not counted as coverage or SARIF proof.
 
 Three properties the reports are designed around:
 

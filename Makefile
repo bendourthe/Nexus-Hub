@@ -152,7 +152,7 @@ ci-full: ## Everything provable on this host (minutes): validators, catalog, tes
 ci-platform: ## Only what differs by host (shell lint, PowerShell parse, Windows hooks)
 	@python scripts/ci/run.py --profile platform --reports-dir reports
 
-ci-report: ## Re-render reports from the last run without re-running any check
+ci-report: ## Aggregate reports from the last run without re-running any check
 	@python scripts/ci/run.py --profile report --reports-dir reports
 
 ci-release: ## Packaging and publication readiness. Never a validation re-run
