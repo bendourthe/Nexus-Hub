@@ -145,7 +145,7 @@ None.
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 2 |
 | Bugs / regressions (BG) | 0 | 1 |
-| Warnings (WN) | 3 | 0 |
+| Warnings (WN) | 2 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -179,6 +179,8 @@ None.
 #### Warnings
 
 ##### WN-1 - The new event topology has not been exercised against real GitHub
+
+**Resolution, 2026-09-22**: Docs-only PR #245 passed all five declared contexts (`validate`, `shellcheck`, `ci-required`, `colocation`, `verify`) while unrelated expensive legs skipped; its post-merge run 35828718066 passed smoke and provenance. PR #243's merge independently produced successful post-merge run 35826047174, and the tagged v4.12.0 release workflow passed run 34939156733. These hosted events exercise pull request, integration-branch push, and tag paths separately. WN-1 is resolved as a workflow-observation gap; actual branch protection settings are a separate open security decision.
 
 - **Source phase**: Phase 7 - Nexus-Hub workflow migration
 - **Reason**: Every assertion about the new topology is static: YAML parsing, trigger inspection, and contract tests. Nothing has yet observed GitHub actually running `ci.yml` on a pull request, `post-merge.yml` on a merge, and `release.yml` on a tag, or confirmed that the five required contexts still resolve. That evidence can only come from the plan's own publication in Phase 8, which is the first real-world test of the change.
