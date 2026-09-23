@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate Unicode safety across distributed text content.
 
-Detects two classes of issues:
+Detects three classes of issues:
 
 (1) Unsafe / confusable Unicode (ERRORS, exit 1):
     - Bidirectional override and isolate controls (Trojan Source, CVE-2021-42574).
@@ -20,6 +20,10 @@ Detects two classes of issues:
       symbol or keycap base is legitimate emoji presentation and is exempt;
       see `variation_selector_is_legitimate`.
 
+(3) Non-Latin letters in English Markdown and HTML (ERRORS, exit 1). These
+    are reported but never auto-replaced because the intended letter is not
+    knowable from its script alone.
+
 The strict pass mirrors the global CLAUDE.md "Critical Rules" ASCII-only
 constraint for commit messages and English Markdown.
 
@@ -28,9 +32,10 @@ validator source file itself contains no Trojan-Source or zero-width characters
 (and therefore does not self-detect).
 
 Reporting is the default. `--fix` additionally repairs findings in place: hard
-errors are always removed, the strict-class replacements apply only when
-`--strict` is also passed, writes are atomic, and each repaired file is
-re-scanned so a residual finding still exits 1.
+unsafe characters are removed, the strict-class replacements apply only when
+`--strict` is also passed, wrong-script letters remain for human correction,
+writes are atomic, and each repaired file is re-scanned so a residual finding
+still exits 1.
 
 Exit codes:
     0 - no errors (warnings may exist; --strict promotes warnings to errors)
@@ -41,7 +46,9 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import html
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -190,10 +197,13 @@ EXEMPT_DIR_PARTS: frozenset[str] = frozenset({
 
 TEXT_EXTENSIONS: frozenset[str] = frozenset({
     ".md", ".txt", ".json", ".yaml", ".yml", ".toml", ".py", ".sh",
-    ".ps1", ".js", ".ts", ".cfg", ".ini", ".rst", ".bash",
+    ".ps1", ".js", ".ts", ".cfg", ".ini", ".rst", ".bash", ".html",
 })
 
 MARKDOWN_EXTENSIONS: frozenset[str] = frozenset({".md"})
+ENGLISH_DOCUMENT_EXTENSIONS: frozenset[str] = frozenset({".md", ".html"})
+ENGLISH_COMMON_LETTERS: frozenset[str] = frozenset({chr(0x00B5)})  # unit symbol
+HTML_ENTITY = re.compile(r"&(?:#[xX][0-9A-Fa-f]+|#[0-9]+|[A-Za-z][A-Za-z0-9]+);?")
 
 
 def filesystem_path(path: Path) -> Path:
@@ -267,6 +277,35 @@ def punct_finding_applies(ch: str, base: str) -> bool:
     return not variation_selector_is_legitimate(ch, base)
 
 
+def wrong_script_letter(ch: str) -> bool:
+    """Flag alphabetic codepoints outside the expected English document script."""
+    return (
+        ch.isalpha()
+        and ch not in ENGLISH_COMMON_LETTERS
+        and not unicodedata.name(ch, "").startswith("LATIN ")
+    )
+
+
+def scan_html_entities(text: str) -> list[tuple[int, int, str, str]]:
+    """Report hidden characters represented by HTML entities at source positions."""
+    errors: list[tuple[int, int, str, str]] = []
+    for match in HTML_ENTITY.finditer(text):
+        decoded = html.unescape(match.group())
+        if decoded == match.group():
+            continue
+        line = text.count("\n", 0, match.start()) + 1
+        col = match.start() - text.rfind("\n", 0, match.start())
+        for ch in decoded:
+            if ch in UNSAFE_CHARS:
+                errors.append((line, col, f"U+{ord(ch):04X}", f"HTML entity expands to {UNSAFE_CHARS[ch]}"))
+            elif wrong_script_letter(ch):
+                errors.append((
+                    line, col, f"U+{ord(ch):04X}",
+                    f"HTML entity expands to non-Latin letter: {unicodedata.name(ch, 'UNKNOWN')}",
+                ))
+    return errors
+
+
 class FileText(NamedTuple):
     """A file decoded for scanning, or the reason it could not be."""
 
@@ -303,6 +342,7 @@ def read_text_for_scan(path: Path) -> FileText:
 def scan_text(
     text: str,
     check_punctuation: bool,
+    check_script: bool = False,
 ) -> tuple[list[tuple[int, int, str, str]], list[tuple[int, int, str, str, str]]]:
     """Return (errors, warnings).
 
@@ -318,6 +358,12 @@ def scan_text(
             base, previous = previous, ch
             if ch in UNSAFE_CHARS:
                 errors.append((line_no, col, f"U+{ord(ch):04X}", UNSAFE_CHARS[ch]))
+                continue
+            if check_script and wrong_script_letter(ch):
+                errors.append((
+                    line_no, col, f"U+{ord(ch):04X}",
+                    f"non-Latin letter in English document: {unicodedata.name(ch, 'UNKNOWN')}",
+                ))
                 continue
             if (
                 check_punctuation
@@ -469,8 +515,8 @@ def main() -> int:
         help=(
             "Repair findings in place instead of only reporting them: remove "
             "unsafe characters, and with --strict also apply the ASCII "
-            "punctuation replacements. Files are re-scanned after writing and "
-            "any residual finding still exits 1."
+            "punctuation replacements. Wrong-script letters are not guessed. "
+            "Files are re-scanned after writing and any residual finding still exits 1."
         ),
     )
     parser.add_argument("--verbose", action="store_true")
@@ -540,7 +586,14 @@ def main() -> int:
                     io_failures += 1
                     continue
 
-        errors, warnings = scan_text(text, check_punctuation)
+        errors, warnings = scan_text(
+            text,
+            check_punctuation,
+            check_script=path.suffix.lower() in ENGLISH_DOCUMENT_EXTENSIONS,
+        )
+        if path.suffix.lower() == ".html":
+            errors.extend(scan_html_entities(text))
+            errors.sort(key=lambda finding: (finding[0], finding[1]))
         for line, col, code, desc in errors:
             print(
                 f"{rel}:{line}:{col}: unsafe Unicode {code} ({desc})",
