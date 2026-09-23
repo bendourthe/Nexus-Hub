@@ -158,7 +158,7 @@ Training navigation uses Previous, Next, and Restart icon buttons in a right-ali
 
 URL: `#training/<scene-id>`. The legacy `?beat=n` suffix remains accepted but no longer changes state. An unknown scene id keeps the current step.
 
-Fixture strings are painted with `textContent` / `createElement` only. The Training engine assigns `innerHTML` nowhere, and a test enforces that, so the hostile fixture strings (`<img onerror>`, `</script>`) can never execute.
+Scene strings are painted with `textContent` / `createElement` only. The Training engine assigns `innerHTML` nowhere, and a test-local hostile payload proves that markup and script-close text cannot execute without appearing in the shipped lesson.
 
 Eight closed scenes, hard-capped at twelve: `describe`, `review`, `plan`, `implement`, `compare`, `test`, `update`, `presentify`. Do not invent a ninth scene for the follow-on `/implement` after `/compare`; that is the same command with a different plan.
 
@@ -180,7 +180,7 @@ Page-level ArrowLeft / ArrowRight move between pages when Training is not curren
 
 1. Edit `example/training-scenes.json`. Keep eight scenes unless a later plan raises the cap (never above twelve). The top-level `initial` object defines the starting game and source files. Every scene needs `title`, second-person `intent`, `command`, `tools`, `output`, `game`, `files`, `focus_file`, `artifact`, `gate`, and `takeaway`. File entries carry real display content and declare whether they are created or modified.
 2. Copy the parsed JSON into the `<script type="application/json" id="nh-training-scenes">` block. Encode a literal `</script>` inside a string as `<\/script>` so the HTML parser does not close the block.
-3. Run `python -m pytest -q tests/guides/test_nexus_hub_guide.py tests/guides/test_arcade_shooter_game.py`. The suite asserts the inline JSON equals the file after parse, hostile fixture strings survive as text, direct step entry is coherent, rerunning a command is idempotent, `/implement` changes damage to one life per hit, and `/compare` records its follow-on implementation before vertical movement appears.
+3. Run `python -m pytest -q tests/guides/test_nexus_hub_guide.py tests/guides/test_training_explorer.py tests/guides/test_arcade_shooter_game.py`. The suite asserts the inline JSON equals the file after parse, test-local hostile strings survive as inert text, direct step entry is coherent, rerunning a command is idempotent, `/implement` changes damage to one life per hit, and `/compare` records its follow-on implementation before vertical movement appears.
 
 ## Command inventory
 

@@ -362,6 +362,8 @@ WN-446-1 follow-up, 2026-09-22: the current guide-render job now writes JUnit an
 
 WN-446-1 RESOLVED 2026-09-22 (post-release): PR #235's hosted run 35799198474 exposed `ci-guide-render-report` with expiry `2026-09-29T23:57:16Z`, alongside test, validation, shell, and Windows report artifacts with seven-day retention. Its post-merge smoke/provenance run 35801251735 passed. The original row and pending checkpoint above remain historical evidence, not the current disposition. No rejected v4.4.6 redesign was restored.
 
+BG-48 RESOLVED LOCALLY 2026-09-23 (post-release): the shipped describe scene no longer displays the hostile fixture sentence. The security payload now exists only in test-created HTML, where the browser confirms it renders as literal terminal text with no image node or executed script. The guide's inline scene data still parses equal to `example/training-scenes.json`; the focused guide, explorer, and shooter suite passed 131 tests with one optional skip. The original row remains historical until publication and post-merge checks complete.
+
 ### Resolved
 
 | ID | Title | Resolved in | Notes |
