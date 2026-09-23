@@ -42,7 +42,22 @@ A blanket `development/` rule would have archived live CI inputs and orphaned a 
 
 This is not hypothetical. The v3.18.0 Phase 3 ratchet-down moved a block containing three such anchors and the link check passed over all three; they were found by reading the file. Building a general anchor validator was considered and rejected, because the forge's heading-to-slug rule is subtle enough to produce false positives on legitimate content (a first implementation flagged a correct table of contents, having collapsed `Compliance & Governance` to one hyphen where the forge emits two), and a gate that cries wolf on valid documentation gets ignored. Grep the moved block for `](#` by hand instead.
 
-`plans/`, `comparisons/`, and `known-gaps.md` are likewise **not** swept. A plan is the durable statement of intent for its release and is linked from the DEVLOG index; a known-gaps file is read by the next plan to decide what carries forward.
+`plans/`, `comparisons/`, and `known-gaps.md` are **not** swept by the one-minor-behind rule that moves `history/`. Age alone does not retire them: a plan is the durable statement of intent for its release and is linked from the DEVLOG index, and a known-gaps file is read by the next plan to decide what carries forward. A released minor whose work is still open is exactly the one a later plan needs in the active tree.
+
+**Closure does retire them, which is state 3b below.** The original exemption was written as permanent, and that produced the outcome it was meant to prevent, one level down: at v4.13.0 every released minor existed in BOTH trees, 39 active directories against 44 archived, including all 22 released v3 minors. Released is not closed, and the difference is the whole rule. The initial closure scan falsely selected v3.18, whose BG-2 remained open, and v3.5, which had no known-gaps register. Neither qualifies. Age is the wrong trigger for a plan; proven completion is the right one.
+
+### 3b. ARCHIVE THE WHOLE MINOR once it is fully closed
+
+Independently of the age rule above, a minor's `plans/` and `comparisons/` move to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/` once that minor is **fully closed**. Both conditions must hold, and both are mechanically checkable:
+
+1. Its `known-gaps.md` explicitly states a finalized or closed Status and `**Open items**: 0`, with no contradictory `OPEN` marker, in-progress or open Status, unchecked box, or gap id in an Open Items section. A missing or ambiguous register holds the minor open.
+2. Every plan under its `plans/` has zero unchecked task lines (`- [ ] T...`).
+
+`known-gaps.md` **stays in the active tree** even for a closed minor. It is the one file the next `/plan` reads to decide what carries forward, and a closed file answering "nothing carries forward" is a cheaper answer than a directory hop into the archive. Archiving it would save one small file and cost a lookup on every plan.
+
+An open item or an unchecked task is a hold, not a delay: it means the minor is still live work regardless of how many releases have shipped since. This is why the trigger is completion rather than age, and why a two-year-old minor with one open gap correctly stays put while last month's fully-closed minor moves.
+
+The move runs through `[[docs-layout-refactor]]`, propose-then-apply, with reference repair. Nothing is deleted.
 
 ### 4. EXEMPT - the non-versioned subtrees
 
@@ -65,11 +80,11 @@ A decision record does not become less binding because it is old, and that is th
 python scripts/check_docs_retention.py
 ```
 
-It prints one `WARN` line per version directory that is two or more minors old and not yet archived, naming the exact destination. It never moves or deletes a file.
+It prints one `WARN` line per version directory that is two or more minors old and not yet archived, and one per fully-closed minor whose `plans/` or `comparisons/` still sit in the active tree, naming the exact destination in each case. It never moves or deletes a file.
 
 Advisory rather than blocking, for two reasons. Archiving is a judgement call that repairs references across the repo, so it belongs in a reviewed `[[docs-layout-refactor]]` pass with a confirmation gate, not in a validator that runs on every commit. And a hard gate here would block an unrelated release the moment a minor version aged out, which is a cost with no matching benefit: nothing breaks when history sits in place a version longer than the rule prefers.
 
-The archive pass itself runs through `/update refactor` or `[[docs-layout-refactor]]`, propose-then-apply.
+The archive pass itself runs through `/update refactor` or `[[docs-layout-refactor]]`, propose-then-apply. `/update release` reports the closed-minor list as part of its governance pass, so a release is the moment the question gets asked; acting on it stays a separate confirmed operation, because moving a directory tree and repairing its references is not something a release flow should do unattended.
 
 ## Related
 

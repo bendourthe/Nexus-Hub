@@ -2,7 +2,7 @@
 
 **Integration branch:** `develop`
 **Active work:** PRs #252 through #257 passed protected integration and post-merge checks. The 62 historical v4.0 CI tasks are reconciled in archived evidence, and the v4.4 guide repairs and bounded v4.11 temporal guard are archived. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
-**Closeout boundary:** The former 47 pre-existing changes remain on a local review branch. An unmerged model-map worktree, three future-plan branches, recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim.
+**Closeout boundary:** The former 47 pre-existing changes remain on a local review branch. Model-map integration is tracked in PR #259; three future-plan branches, recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim.
 **Last refreshed:** 2026-09-23
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -50,6 +50,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Publish the v4.4 BG-46/BG-47 layout follow-up through protected PR #256; post-merge run 35900053832 passed smoke and provenance at `804c3a1b`, and its clean temporary worktree and local branch were removed.
 - [x] Qualify a bounded v4.11 MT-5 temporal guard locally: 59 measurement tests and six focused controls passed; exact source-mapped DOM text is observed between settled frames, while absent mappings remain unchecked.
 - [x] Publish the v4.11 MT-5 temporal guard through protected PR #257; post-merge run 35903717333 passed smoke and provenance at `5e80f22e`, and its clean temporary worktree and local branch were removed.
+- [x] Correct PR #259's premature v3.18 and v3.5 archive moves: restore five plan and comparison files to active release directories, repair their inbound links, and require explicit zero-open-items proof before any future closed-minor archive advisory. v3.18 BG-2 remains open; v3.5 lacks a known-gaps register.
 - [ ] Map real handbook source values before claiming artifact-level temporal coverage; the current repository handbook returns `source_value_guard: unchecked`.
 - [ ] Resolve v4.13 BG-7's per-call spend overshoot and rerun a newly frozen trigger pilot only after the approved USD 35 hard ceiling is enforceable; the 2026-09-23 attempt stopped after two unknown-selection calls.
 

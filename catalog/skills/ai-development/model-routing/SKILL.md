@@ -86,21 +86,27 @@ The wrappers call the standard-library `model-map.py` implementation and print J
 Planning mode MUST attempt public web search on every full `/plan` invocation:
 
 1. Search current official model catalogs, release notes, and platform model-picker documentation for Anthropic, OpenAI, Google, and Cursor.
-2. Select one concrete model id for each `frontier`, `strong`, `standard`, and `fast` cell. Record at least one official source URL per provider.
+2. Select one concrete model id for each `frontier`, `strong`, `standard`, and `fast` cell. Record at least one official source URL per provider. **Start from the snapshot's placements, and move a model between tiers only deliberately.** Research answers which ids exist and which are new; it does not answer which tier this project ranks them in. Re-deriving the whole ordering from scratch each cycle is what silently reshuffles a tier column.
 3. Put the candidate in the same JSON shape as `last-known-model-map.json`.
-4. Validate it before writing the plan:
+4. Validate it, and diff its placements against the snapshot, before writing the plan:
 
 ```bash
 bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.sh validate <candidate.json>
+bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.sh diff <candidate.json>
 bash ~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.sh render <candidate.json> --status fresh --as-of <YYYY-MM-DD>
 ```
 
 ```powershell
 ~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.ps1 validate <candidate.json>
+~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.ps1 diff <candidate.json>
 ~/.nexus-hub/skills/ai-development/model-routing/scripts/model-map.ps1 render <candidate.json> --status fresh --as-of <YYYY-MM-DD>
 ```
 
 The helper validates the 4x4 schema, non-empty cells, date, and official-source URL shape. It does not fetch the web: the harness performs research, then the helper deterministically validates and renders the result.
+
+**`validate` cannot catch a reshuffled column, which is why `diff` exists.** Validation grades shape: it passes any candidate whose 16 cells are non-empty strings, including one that has swapped a provider's frontier and standard models. `diff` compares each id's tier against `last-known-model-map.json` and exits 3 listing every move. Treat exit 3 as a stop: either restore the snapshot placement, or keep the move and write its reason into the plan's map section as a stated judgment. Never absorb a reported move silently, and never edit the snapshot to make `diff` quiet without that same reason. A genuinely new id is not a move and is never reported.
+
+This guard is not hypothetical. A fresh run placed Anthropic's `claude-opus-5` at `frontier` and `claude-fable-5-1` at `standard`, inverting the snapshot, and shape validation passed it; the drift reached `docs/releases/v4/v4.16/plans/v4.16.3-adoption-agent-experience-and-harness-economics.md` and recurred with different values in a later plan. Both runs re-derived the ordering from the model's own background rather than carrying the recorded judgment forward.
 
 If web search or official docs are unavailable, render the bundled snapshot with `model-map.sh fallback` or `model-map.ps1 fallback`. This emits `offline fallback; stale as of <snapshot-date>` from `last-known-model-map.json`. If the snapshot is missing or fails validation, run the `unavailable` command and use `assess at implementation time` in all 16 cells. Never silently reuse an undated map, invent an id, or collapse the table to the current host.
 
@@ -173,6 +179,8 @@ Each platform is a small profile. Adding a platform is adding a row, not rewriti
 | "This phase looks simple, so the cheap model is fine." | "Looks simple" is not a rubric result. One hidden high-risk signal must pin `frontier`; otherwise production or migration work can be under-tiered and reworked. |
 | "The host model list is enough for the plan." | A host-only map makes the plan unusable on another provider and recreates the defect this contract fixes. Planning requires all four provider columns. |
 | "Yesterday's map is probably still current." | Model catalogs change quickly. `/plan` must attempt official-source refresh every invocation; only an explicitly dated fallback may be reused offline. |
+| "Web search told me the tier ordering, so the snapshot is outdated." | A vendor page lists ids and release dates; it never states this project's tier ranking. Placement is a recorded operator judgment, so research can add or retire an id without authorizing a reshuffle of the ones already placed. |
+| "`validate` passed, so the map is right." | `validate` grades shape only and passes a column with its frontier and standard cells swapped. Only `diff` compares placements. |
 | "Auto-switching works everywhere, so I'll script it on every platform." | The Claude Code main loop cannot switch its own model mid-session, and Cursor / Copilot / OpenCode expose no scriptable switch at all. Scripting a switch on a manual platform either no-ops silently or errors; the posture must branch on `can_script_switch`. |
 | "When unsure, I'll pick `strong` as a safe middle ground." | Uncertainty maps to `frontier` + `max`. A middle tier silently weakens the no-degradation guarantee. |
 
@@ -181,6 +189,7 @@ Each platform is a small profile. Adding a platform is adding a row, not rewriti
 - [ ] Every new plan phase contains only an allowed generic tier and effort; no host-only concrete id is authoritative.
 - [ ] The recommendation states all five signal readings; any `high` maps to `frontier`, and uncertainty maps to `frontier` + `max`.
 - [ ] `model-map.py validate <candidate.json>` passes before a fresh map is written, and all 16 provider cells are non-empty.
+- [ ] `model-map.py diff <candidate.json>` was run against a fresh candidate and exited 0, or exited 3 and every reported move is carried in the plan's map section with its stated reason.
 - [ ] A fresh map cites official sources for Anthropic, OpenAI, Google, and Cursor; an offline map visibly uses the date from `last-known-model-map.json`.
 - [ ] When a tier's mapped model changed, the effort sweep was re-run on the new model rather than carried over, and any unfamiliar or fast-moving model name in the request was searched as written before it was used.
 - [ ] `/implement` preserves or upshifts the plan's generic tier when the selected provider model is unavailable.
