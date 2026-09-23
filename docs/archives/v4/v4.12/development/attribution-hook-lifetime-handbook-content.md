@@ -1,0 +1,3 @@
+# Attribution hook lifetime handbook content review
+
+The distribution handbook's ownership chapter now explains that both installers activate Git hooks from a checked copy that survives the installer checkout, and that a guard update needs reinstallation. This matches the candidate `install` and `check` paths in `scripts/nexus_git_attribution.py` and the removed-worktree and source-drift regressions in `tests/test_git_attribution.py`. The retained Markdown source and presentation model carry the same paragraph. The earlier destination-history and direct-hosting-API boundaries remain visible. The rebuilt reading chapter was inspected at 1440 by 900 and the ownership presentation slide at 761 by 900 in Chromium; the changed copy was visible and unclipped in both.

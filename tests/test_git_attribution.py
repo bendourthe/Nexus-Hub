@@ -224,6 +224,48 @@ def test_workspace_wraps_override_and_passes_push_stdin(sandbox):
     ).stdout.strip() == str(custom)
 
 
+def test_workspace_guard_survives_installer_worktree_removal(sandbox):
+    run, _, home = sandbox
+    run("git", "commit", "--allow-empty", "-m", "Base")
+    source_worktree = home / "temporary worktree"
+    run("git", "worktree", "add", "-q", "-b", "temporary", str(source_worktree))
+    source = source_worktree / "attribution.py"
+    shutil.copyfile(GUARD, source)
+    run(sys.executable, str(source), "install", "--workspace")
+    run("git", "worktree", "remove", "--force", str(source_worktree))
+
+    guard(run, "check")
+    run("git", "commit", "--allow-empty", "-m", "After removal")
+    result = run(
+        "git",
+        "commit",
+        "--allow-empty",
+        "-m",
+        "Blocked\n\nCo-Authored-By: Claude <c@anthropic.com>",
+        code=None,
+    )
+    assert result.returncode != 0 and "attribution trailers" in result.stderr
+
+
+def test_workspace_guard_detects_modified_copy_and_stale_source(sandbox):
+    run, repo, home = sandbox
+    source = home / "attribution.py"
+    shutil.copyfile(GUARD, source)
+    run(sys.executable, str(source), "install", "--workspace")
+    durable = repo / ".git/nexus-attribution-hooks/guard.py"
+    assert durable.is_file()
+
+    source.write_bytes(source.read_bytes() + b"\n# newer source\n")
+    result = run(sys.executable, str(source), "check", code=None)
+    assert result.returncode != 0 and "Reinstall the guard" in result.stderr
+
+    run(sys.executable, str(source), "install", "--workspace")
+    run(sys.executable, str(source), "check")
+    durable.write_bytes(durable.read_bytes() + b"\n# modified copy\n")
+    result = run(sys.executable, str(source), "check", code=None)
+    assert result.returncode != 0 and "Reinstall the guard" in result.stderr
+
+
 def test_missing_identity_installs_blocking_guard(sandbox):
     run, _, _ = sandbox
     run("git", "config", "--global", "--unset", "user.email")

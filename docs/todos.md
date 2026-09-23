@@ -30,6 +30,8 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Merge PR #244 after its refreshed run passed all 18 jobs; post-merge run 35828234631 passed smoke and provenance.
 - [x] Reconcile the v4.12 BG-2 ledger against PR #244 and its post-merge proof; keep GitHub contributor and direct API boundaries separate.
 - [x] Merge PR #245 and preserve the original interrupted full-profile report; post-merge run 35828718066 passed.
+- [x] Recheck the v4.9 MT-1 primary sources without fabricating four per-model profiles; PR #248 merged at `f1354d47`, and post-merge run 35833196149 passed smoke and provenance.
+- [ ] Qualify and publish the v4.12 BG-3 durable attribution hook, then remove the registered installer worktrees only after the installed guard still checks and blocks a forbidden commit.
 - [ ] Clear the two unregistered cache/report residue folders after the environment permits their deletion; their contents are classified and the failed report is archived.
 - [x] Close v4.4 WN-446-1 against PR #235's hosted `ci-guide-render-report` and seven-day expiry; the rejected v4.4.6 guide remains superseded.
 
