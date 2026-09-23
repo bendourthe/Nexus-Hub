@@ -8,6 +8,7 @@ pre-commit
 pypdf
 PyYAML
 pytest
+pytest-cov
 python-docx
 python-pptx
 tomlkit

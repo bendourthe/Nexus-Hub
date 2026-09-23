@@ -55,6 +55,8 @@
 
 **Local follow-up**: The report profile now validates and aggregates existing receipts into a hash/type index; a pull request job downloads those receipts and uploads one seven-day package after success or failure. Local tests passed. Hosted artifact inspection is pending, and the current workflow produces no coverage or SARIF files, so DF-3 remains open rather than counting their absence as evidence.
 
+**Producer follow-up**: The existing CI-engine test command now emits scoped coverage XML, and the existing catalog security scan emits SARIF at its unchanged high-severity threshold. The [producer evidence](../../../archives/v4/v4.3/development/ci-report-producer-evidence.md) records local output and the hosted gate. DF-3 remains open until both files are observed in the hosted aggregate.
+
 ##### DF-4 - OpenClaw tool interception requires a typed plugin
 
 - **Source phase**: Phase 5 platform-contract verification

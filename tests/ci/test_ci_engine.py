@@ -116,7 +116,7 @@ def test_repository_suite_is_partitioned_without_coverage_gaps():
         arg
         for command in repo_commands
         for arg in command.argv[3:]
-        if arg != "-q"
+        if not arg.startswith("-")
     ]
     tests_root = REPO_ROOT / "tests"
     actual_files: list[str] = []
@@ -137,6 +137,17 @@ def test_repository_suite_is_partitioned_without_coverage_gaps():
     assert sorted(actual_files) == sorted(expected_files)
     assert len(actual_files) == len(set(actual_files))
     assert all(command.timeout <= 4500 for command in repo_commands)
+
+
+def test_existing_profile_commands_emit_coverage_and_sarif() -> None:
+    groups = {group.name: group for group in groups_for("full")}
+    ci_tests = next(command for command in groups["tests"].commands if command.name == "repo-tests-ci")
+    scanner = next(command for command in groups["catalog"].commands if command.name == "scan_skill_security")
+
+    assert "--cov=scripts.ci" in ci_tests.argv
+    assert "--cov-report=xml:reports/coverage-ci.xml" in ci_tests.argv
+    assert "--format" in scanner.argv and "sarif" in scanner.argv
+    assert "--output" in scanner.argv and "reports/skill-security.sarif" in scanner.argv
 
 
 def test_no_command_is_a_shell_string():
