@@ -317,11 +317,11 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
           cache-dependency-path: |
-            .github/workflows/ci.yml
+            scripts/ci/requirements-guide-render.in
             scripts/ci/requirements-py311.txt
 
       - name: Install guide render test dependencies
-        run: pip install pytest playwright
+        run: python -m pip install -c scripts/ci/requirements-py311.txt -r scripts/ci/requirements-guide-render.in
 
       # Chromium is about 130 MB. Key the cache to Playwright's resolved
       # version so a browser revision is reused only by the matching client.
@@ -383,11 +383,11 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
           cache-dependency-path: |
-            .github/workflows/ci.yml
+            scripts/ci/requirements-windows.in
             scripts/ci/requirements-py311.txt
 
       - name: Install test dependencies
-        run: pip install pytest PyYAML
+        run: python -m pip install -c scripts/ci/requirements-py311.txt -r scripts/ci/requirements-windows.in
 
       - name: Windows platform profile group
         # NEXUS_TEST_POWERSHELL is pinned inside the profile definition, not
