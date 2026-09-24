@@ -105,6 +105,8 @@
 - **Owner**: Platform integration maintainer.
 - **Next step**: Recheck each surface against dated official documentation or a live-host artifact before adding a destination, default, or verification gate.
 
+**Targeted source recheck, 2026-09-24**: [Google's current hook reference](https://antigravity.google/docs/hooks?tab=cli) confirms that Antigravity CLI reads the shared global `~/.gemini/config/hooks.json` and workspace `.agents/hooks.json`; the existing adapter already emits both, and a global-install dry-run assertion now protects that path. [Nexus-AI source at `198ff9c8`](https://github.com/bendourthe/Nexus-AI/blob/198ff9c877f258c775092761e3c67a6bed56b1d2/desktop/sidecar/src/skills/hubSkillReader.ts) qualifies its global `~/.nexus-ai/catalog/skills` reader. The [archived bounded recheck](../../../archives/v4/v4.3/development/optional-platform-surface-recheck.md) keeps CLI loose workflows and agents, Cursor legacy command directories, Gemini Code Assist IDE add-on surfaces, and Nexus-AI's project-local mirror and other mirrored surfaces unverified. WN-3 remains open; no live Antigravity or Nexus-AI host behavior was claimed.
+
 ### Resolved
 
 #### Warnings
