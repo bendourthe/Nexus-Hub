@@ -1362,6 +1362,16 @@ def test_clear_cubic_connector_does_not_cross_an_unrelated_node():
     assert _status(scorer.score_html(page), "svg-connector-routing") == "pass"
 
 
+def test_filled_path_is_unchecked_even_when_its_centerline_clears_node():
+    page = _svg_page(
+        '<svg viewBox="0 0 300 100">'
+        '<rect class="mid" x="120" y="30" width="60" height="40" fill="#333"/>'
+        '<path data-edge="A-B" d="M10 10L290 10L150 90" fill="#fff"/>'
+        '</svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
+
+
 def test_unsupported_arc_connector_remains_unchecked():
     page = _svg_page(
         '<svg viewBox="0 0 300 100">'
@@ -1385,7 +1395,7 @@ def test_diagonal_path_crossing_away_from_midpoint_is_flagged():
     page = _svg_page(
         '<svg viewBox="0 0 300 120">'
         '<rect class="mid" x="50" y="30" width="30" height="40"/>'
-        '<path data-edge="A-B" d="M10 20L290 100"/></svg>'
+        '<path data-edge="A-B" d="M10 20L290 100" fill="none"/></svg>'
     )
     assert _status(scorer.score_html(page), "svg-connector-routing") == "fail"
 
@@ -1394,25 +1404,25 @@ def test_boundary_only_path_contact_is_unchecked():
     page = _svg_page(
         '<svg viewBox="0 0 300 100">'
         '<rect class="mid" x="120" y="30" width="60" height="40"/>'
-        '<path data-edge="A-B" d="M10 30H290"/></svg>'
+        '<path data-edge="A-B" d="M10 30H290" fill="none"/></svg>'
     )
     assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
 
 
 def test_declared_path_without_drawn_segments_is_unchecked():
-    page = _svg_page('<svg viewBox="0 0 30 30"><path data-edge="A-B" d="M10 10"/></svg>')
+    page = _svg_page('<svg viewBox="0 0 30 30"><path data-edge="A-B" d="M10 10" fill="none"/></svg>')
     assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
 
 
 @pytest.mark.parametrize("data", ("M10 10L20 20 30 30", "M10 10C20 20 30 30"))
 def test_path_outside_the_explicit_argument_subset_is_unchecked(data):
-    page = _svg_page(f'<svg viewBox="0 0 100 100"><path data-edge="A-B" d="{data}"/></svg>')
+    page = _svg_page(f'<svg viewBox="0 0 100 100"><path data-edge="A-B" d="{data}" fill="none"/></svg>')
     assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
 
 
 def test_path_token_budget_returns_unchecked():
     data = "M0 0" + "L1 1" * 5000
-    page = _svg_page(f'<svg viewBox="0 0 100 100"><path data-edge="A-B" d="{data}"/></svg>')
+    page = _svg_page(f'<svg viewBox="0 0 100 100"><path data-edge="A-B" d="{data}" fill="none"/></svg>')
     assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
 
 
@@ -1420,7 +1430,7 @@ def test_tangent_cubic_stays_unchecked_instead_of_claiming_clear():
     page = _svg_page(
         '<svg viewBox="0 0 300 100">'
         '<rect class="mid" x="120" y="30" width="60" height="40" fill="#333"/>'
-        '<path data-edge="A-B" d="M10 30 C100 30 200 30 290 30"/>'
+        '<path data-edge="A-B" d="M10 30 C100 30 200 30 290 30" fill="none"/>'
         '</svg>'
     )
     assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
@@ -1445,7 +1455,7 @@ def test_unmarked_filled_path_keeps_routing_unchecked():
 
 def test_negative_scale_path_crossing_is_not_lost():
     page = _svg_page(
-        '<svg viewBox="0 0 300 100"><g transform="scale(-1,1)">'
+        '<svg viewBox="0 0 300 100"><g transform="scale(-1,1)" fill="none">'
         '<rect class="mid" x="-180" y="30" width="60" height="40"/>'
         '<path data-edge="A-B" d="M-10 50H-290"/></g></svg>'
     )
@@ -1456,7 +1466,7 @@ def test_overflowing_geometry_is_unchecked_not_a_pass():
     page = _svg_page(
         '<svg viewBox="0 0 300 100">'
         '<rect x="1e308" y="30" width="1e308" height="40"/>'
-        '<path data-edge="A-B" d="M10 50H290"/></svg>'
+        '<path data-edge="A-B" d="M10 50H290" fill="none"/></svg>'
     )
     assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
 

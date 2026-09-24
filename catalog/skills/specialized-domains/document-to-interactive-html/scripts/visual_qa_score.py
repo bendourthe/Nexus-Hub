@@ -1124,11 +1124,20 @@ def _geom_segments(
 ) -> list[dict[str, Any]]:
     """Supported straight and cubic connector segments in user space."""
     segments = []
-    for order, (node, (dx, dy, sx, sy), _) in enumerate(walked):
+    inherited_fill: dict[int, str] = {}
+    for order, (node, (dx, dy, sx, sy), depth) in enumerate(walked):
         tag = _local(node.tag)
+        fill = node.get("fill")
+        for declaration in (node.get("style") or "").split(";"):
+            name, separator, value = declaration.partition(":")
+            if separator and name.strip().lower() == "fill":
+                fill = value.strip()
+        inherited_fill[depth] = fill if fill is not None else inherited_fill.get(depth - 1, "black")
         if tag == "path":
             if not node.get("data-edge"):
                 raise _GeomUnchecked("visible path lacks connector identity")
+            if inherited_fill[depth].strip().lower() != "none":
+                raise _GeomUnchecked("connector path may paint a filled region")
             for kind, points in _geom_path_parts(node.get("d")):
                 placed = tuple((x * sx + dx, y * sy + dy) for x, y in points)
                 if not all(math.isfinite(value) for point in placed for value in point):
