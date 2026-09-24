@@ -1,14 +1,14 @@
 # Known gaps - v4.10
 
-**Status**: implementation and publication closure complete. v4.10.0 merged into `develop` in PR #198 and shipped inside v4.11.0 without a retroactive v4.10.0 tag. v4.10.1 merged into `develop` through PR #232 at `c54dbeb4`; T034 is complete, and no retroactive v4.10.1 tag is planned. Four bounded items below remain known limitations, not unfinished plan tasks.
+**Status**: implementation and publication closure complete. v4.10.0 merged into `develop` in PR #198 and shipped inside v4.11.0 without a retroactive v4.10.0 tag. v4.10.1 merged into `develop` through PR #232 at `c54dbeb4`; T034 is complete, and no retroactive v4.10.1 tag is planned. Three bounded items below remain known limitations, not unfinished plan tasks.
 
 Unfinished work, deferrals, and defects found during v4.10.0 that did not reach a clean state. Open items carry forward into the next plan's ingest.
 
-**Last updated**: 2026-09-23
+**Last updated**: 2026-09-24
 
 ## Open Items - found 2026-09-10 during v4.10.0 implementation
 
-**Summary**: 4 open (0 DF, 1 WN, 1 MT, 2 EV). WN-3 resolved 2026-09-12; DF-1, WN-2, and MT-1 resolved 2026-09-22 during v4.10.1 closure; WN-1 resolved 2026-09-23.
+**Summary**: 3 open (0 DF, 1 WN, 0 MT, 2 EV). WN-3 resolved 2026-09-12; DF-1, WN-2, and MT-1 resolved 2026-09-22 during v4.10.1 closure; WN-1 resolved 2026-09-23; MT-2 host rendering verified 2026-09-24.
 
 ## Open Items - found 2026-09-21 during v4.10.1 implementation
 
@@ -90,6 +90,8 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 
 ### MT-2 - The two weekly bars were not exercised in a running extension host
 
+**Status**: RESOLVED 2026-09-24 for the host-rendering boundary. The packaged v0.10.0 VSIX painted the all-models and Fable weekly bars in the status-bar hover and dashboard in VS Code 1.139.0. The [archived screenshots and measurements](../../../archives/v4/v4.10/development/weekly-bars-host-render/verification.md) use synthetic stored metrics with account fetching disabled; they do not assert a live account fetch. The prior account-response mapping evidence remains separate.
+
 - **Source phase**: the same change.
 - **What was observed**: the type check passed, 12 unit tests passed including 6 new mapping cases, and the real account payload was fed through `mapClaudeUsageResponse` and resolved a `Fable`-labelled scoped metric. None of that loads the extension. The tooltip SVG and the dashboard section were not rendered.
 - **Reason it is open**: the verified boundary is the normalized data model, not the pixels. A mistake in the tooltip markup or the dashboard template would pass every check that was run. The status-bar hover in particular builds an inline SVG into a percent-encoded data URI, which no unit test in this extension covers today.
@@ -103,6 +105,7 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **WN-2, fast-profile registry blind spot** - RESOLVED 2026-09-22 by adding the cheap strict registry checker to the fast profile. The profile still contains no pytest, install, or network step.
 - **MT-1, repository description count drift** - RESOLVED 2026-09-22 through the GitHub repository setting. The public Code page now reports 337 curated skills in the description.
 - **WN-3, `tests/skills/test_target_manifest.py` red on `develop`** - RESOLVED 2026-09-12 by PR #199. The 11 failures were not a defect in the module or on `develop`: they are a property of a host whose only git is hard-linked, which `resolve_trusted_git` correctly refuses. The fixture asserted that git EXISTS rather than that it QUALIFIES. The marker now skips with the measured reason. This gap's predicted consequence did NOT occur: it expected the integration pull request to show the same 11 failures, but PR #198 was green twice, because GitHub runners ship a single-link git. Coverage is unaffected - putting the conforming `bin/git.exe` first on PATH restores `53 passed, 2 skipped` locally.
+- **MT-2, installed extension host rendering** - RESOLVED 2026-09-24 with an installed VSIX, isolated synthetic fixture, visual hover and dashboard screenshots, and measured bar fills; live account fetching was not exercised.
 - **Touched-path extraction returned zero for three of five live plans** (Phase 2, T007). The extractor read only backtick-quoted paths while three plans use bare trailing paths, which would have produced a false "no impact" for every pair involving them. Fixed and pinned by three tests.
 - **`data/skills.json` statistics block disagreed with its own entry list** (Phase 5). Fixed by deriving both counts from the entries. The instruction that produced the error remains open as DF-1.
 - **The Phase 1 evidence stated 99 plan files as 101** (Phase 6). An unverified figure, corrected against the script's own count in the evidence and the session history.

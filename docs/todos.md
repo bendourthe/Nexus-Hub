@@ -102,6 +102,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Published and integrated the completed [v4.10.1 adoption plan](releases/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md) through PR #232, merged to `develop` at `c54dbeb4`. T034 is complete; no retroactive v4.10.1 tag is planned.
 - [x] Archive the late Phase 7 history in `docs/archives/v4/v4.10/development/history/` and repair the retention check that missed source files when the destination already existed; 19 focused tests and the link baseline pass.
 - [x] Close v4.10 WN-1 through PR #262: the residual scan now includes documentation JSON while excluding generated inventories; 17 focused tests, all hosted checks, and post-merge run 35925138595 passed. Archive the [qualification record](archives/v4/v4.10/development/residual-reference-json/verification.md) without moving the still-open v4.10 release tree.
+- [x] Verify v4.10 MT-2 in installed VS Code 1.139.0: the packaged v0.10.0 VSIX painted both weekly bars in the status-bar hover and dashboard with synthetic stored values, 20 tests passed, and [screenshots plus pixel measurements](archives/v4/v4.10/development/weekly-bars-host-render/verification.md) are archived. Live account fetching remains outside this host test.
 
 ## Current closure - v4.11.1 cache accounting and diagram quality
 
