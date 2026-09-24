@@ -215,7 +215,7 @@ None.
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 6 |
-| Warnings (WN) | 2 | 0 |
+| Warnings (WN) | 1 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -277,13 +277,15 @@ None.
 
 #### Warnings
 
-##### WN-1 - three extension suites cannot run to a meaningful result on this workstation
+##### WN-1 (resolved locally) - three extension suites cannot run to a meaningful result on this workstation
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
 - **What was observed**: running the six `make test` extension suites gives `nexus-skill-server` 43 passed, `nexus-skill-scanner` 89 passed, and `nexus-memory` 51 passed / 1 skipped, but `nexus-code-search` fails collection with `ModuleNotFoundError: No module named 'nexus_code_search.config'`, `nexus-web-fetch` reports 3 collection errors, and `nexus-context-compressor` reports 3 failed / 234 passed.
 - **Confirmed not caused by this migration**: the three compressor failures all assert `'regex' == 'ast'`, and `import tree_sitter_javascript` raises `ModuleNotFoundError` on this host, so the compressor is correctly falling back to its regex backend. `nexus_code_search.__file__` is `None`, meaning the name resolves to an empty namespace package rather than an installed distribution. This plan's only edits inside `extensions/nexus-context-compressor` are docstring and comment path references, which cannot affect language-backend selection.
 - **Relationship to existing gaps**: the same environment class as the carried DF-2, which already records that the extension suites need their packages pip-installed. Recorded separately because the specific missing pieces are now identified rather than assumed.
 - **Suggested next step**: install the missing language grammar and the two extension packages in the development environment, then re-run the six suites and record the result. Until then, CI is the authoritative run for these three suites, which is the same conclusion DF-2 reached for the aggregate profile.
+
+**Resolution, 2026-09-24**: A disposable Windows virtual environment installed all six declared development extras through the documented editable-install path. The six extension suites passed 828 tests with four skips; the three original failure signatures disappeared. A separate non-editable wheel build exposed duplicate inclusion of an in-package fixture and an absent default benchmark corpus. Both wheel boundaries have targeted regression tests and installed-package verification in the [archived qualification](../../../archives/v4/v4.0/development/extension-suite-and-wheel-qualification.md). The final code-search wheel passed 381 tests with one skip, and its installed benchmark gate passed. Hosted integration remains the publication gate; the original failed results above remain historical evidence.
 
 ##### WN-2 - the migration makes the lifespan-contradiction detector report 243 findings at once
 

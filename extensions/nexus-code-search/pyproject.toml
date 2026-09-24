@@ -53,9 +53,10 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/nexus_code_search"]
+# v4.0 WN-1 follow-up: the package root already includes fixtures; forcing them duplicates wheel entries.
 
 [tool.hatch.build.targets.wheel.force-include]
-"src/nexus_code_search/eval/fixtures" = "nexus_code_search/eval/fixtures"
+"tests/fixtures/benchmark" = "nexus_code_search/contextmap/benchmark_corpus"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

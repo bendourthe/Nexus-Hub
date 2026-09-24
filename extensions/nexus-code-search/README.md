@@ -210,6 +210,8 @@ python -m nexus_code_search.contextmap.benchmark --check
 python -m nexus_code_search.contextmap.benchmark --repo /path/to/repo --json
 ```
 
+The sample corpus is included in the wheel, so the default `--check` command works from an installed package as well as an editable checkout.
+
 A committed `benchmark_baseline.json` records a per-repo floor (a margin below the measured ratio) so a regression - the map silently losing its savings - fails the gate; re-baseline intentionally with `--update-baseline`. On the sample corpus the map saves ~44-55% of exploration tokens; on Nexus-Hub itself a ~22k-token map replaces ~1.9M tokens of manual exploration (~99% reduction, 443 files). A map is not worth its fixed overhead on a trivially small repo - the savings scale with codebase size.
 
 ## Keeping the map fresh (CI recipe)
