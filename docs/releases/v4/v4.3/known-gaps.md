@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: finalized for the v4.3.0 release
 **Finalized**: 2026-08-31, at `/update release`. One deferred item and two warnings below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. DF-1, DF-2, DF-3, and DF-5 were resolved post-release. One warning was resolved during v4.4.0 Phase 7 reconciliation; the four resolved bugs and one resolved coverage gap were fixed within this release.
-**Last updated**: 2026-09-22 (DF-3 hosted follow-up)
+**Last updated**: 2026-09-24 (WN-2 account read-back)
 
 ## v4.3.0 - agentic-verification-discipline
 
@@ -95,6 +95,8 @@
 - **Impact**: The local pipeline and runbook are reconciled, but those three platform settings cannot be claimed as currently verified from this session.
 - **Owner**: Authorized publication flow with GitHub Settings access.
 - **Next step**: During publication, inspect Settings, Actions, General and Settings, Rules, Rulesets plus the billing page; record the three values in the release evidence and resolve this warning without changing a setting unless separately approved.
+
+**Account read-back, 2026-09-24**: GitHub's read-only repository API returned artifact/log retention of 90 days with a 90-day maximum. Its GraphQL repository field returned no merge queue object for either `develop` or default `main`; the repository rulesets API returned zero rulesets. The per-runner-class billing-minute value remains unverified: the current credential received HTTP 404 with an explicit `user` scope requirement from the billing usage endpoint. The [archived read-back](../../../archives/v4/v4.3/development/github-settings-readback-2026-09-24.md) records the commands and limits. WN-2 stays open until the account-backed billing value is read without broadening token scope silently.
 
 ##### WN-3 - Optional platform surfaces remain unverified
 
