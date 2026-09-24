@@ -17,3 +17,7 @@ The label-occlusion check admits the same authored diagram only because every pa
 ## Closure gate
 
 This is a local candidate, not a merged result. Keep MT-10 open until the protected pull request passes required checks, merges to `develop`, and post-merge smoke/provenance pass. MT-5 temporal source-value mapping and MT-9 generic inert controls remain separate open items.
+
+## Publication result
+
+PR #269 passed 21 hosted checks with one expected skip, merged to `develop` as `91617927` on 2026-09-24 UTC, and post-merge run 35940086752 passed smoke and provenance. MT-10 is closed for the declared `data-edge` path envelope. The original all-`unchecked` qualification above remains historical evidence, and MT-5 and MT-9 remain open.

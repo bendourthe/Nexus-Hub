@@ -3,7 +3,7 @@
 **Integration branch:** `develop`
 **Active work:** Historical v4.0-v4.13 plan tasks are integrated. PR #262 closed v4.10 WN-1's documentation-JSON blind spot with protected integration and post-merge proof. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
 **Closeout boundary:** Three future-plan branches, recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
-**Last refreshed:** 2026-09-23
+**Last refreshed:** 2026-09-24
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -106,7 +106,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [x] Published and integrated the completed [v4.11.1 adoption plan](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md), through PR #232 at `c54dbeb4`. T025 is complete. `MT-10` remains open for authored connector diagrams that use `<path>`; one real bar-chart SVG is now decidable, while the distribution handbook's five path SVGs are icons, not diagrams.
 - [x] Qualify the retained v4.11 report pilot's authored connector diagrams against both geometry checks; four isolated SVGs remain `unchecked` because straight and cubic paths share each diagram. Archive the bounded result in [authored connector geometry qualification](archives/v4/v4.11/development/authored-connector-geometry-qualification.md); MT-10 remains open for a truthful mixed-path coverage contract.
-- [ ] Publish and verify the v4.11 MT-10 exact-path follow-up: both checks decide the four retained authored diagrams, an inserted unrelated node fails the return-curve check, and unsupported path geometry remains `unchecked`.
+- [x] Publish and verify the v4.11 MT-10 exact-path follow-up through PR #269 and post-merge run 35940086752: both checks decide the four retained authored diagrams, an inserted unrelated node fails the return-curve check, and unsupported path geometry remains `unchecked`.
 
 ## Current closure - v4.0 inherited gaps
 

@@ -269,6 +269,8 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 
 **Qualified locally 2026-09-23, publication pending**: A bounded `data-edge` path parser and conservative cubic control-hull test now decide both checks on each of the four retained authored diagrams. The whole pilot reports four routing SVGs checked; other path SVGs without connector identity remain `unchecked`. Inserting an unrelated node under the real return curve changes routing to `fail`; unsupported arcs, ambiguous tangencies, filled paths, malformed or unmarked paths, and non-finite geometry remain `unchecked`. The 112-test visual-QA module and the [archived follow-up](../../../archives/v4/v4.11/development/authored-connector-geometry-follow-up.md) record the exact boundary. Keep MT-10 open until protected merge and post-merge verification; this does not close MT-5 or MT-9.
 
+**Closed after protected integration, 2026-09-24 UTC**: PR #269 passed 21 hosted checks with one expected skip, merged as `91617927`, and post-merge run 35940086752 passed smoke and provenance. MT-10 is closed within the explicit connector envelope; unsupported shapes and other SVGs retain honest `unchecked` coverage. MT-5 and MT-9 remain open.
+
 #### QG-2 - CLOSED AS UNMET: two of three sustained across six rounds, carried forward
 
 - **Source phase**: Phase 6, T020.
