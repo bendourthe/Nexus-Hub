@@ -76,7 +76,7 @@
           "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "TENSION WORTH KNOWING, recorded rather than acted on: this cuts against the catalog's own [[verification-before-completion]] discipline, which requires a fresh proving command before a completion claim. The two are not the same thing -- the vendor claim is about redundant self-re-checks inside a turn, while the skill is about evidence for a claim made to a human -- but anyone reconciling them should read both before editing either. Deliberately scoped model-specific, so it can never reach a shared body through this layer."
+          "note": "Nexus-Hub intentionally retains the model-independent [[verification-before-completion]] claim-evidence gate: run the narrowest fresh evidence set that covers the claim, but omit unconditional duplicate self-check prompts and verifier subagents. Decision: docs/decisions/implemented/process/2026-09-24-retain-claim-evidence-for-opus-5.md. Deliberately scoped model-specific; this profile does not edit the shared body."
         },
         {
           "claim": "This model can expand the scope of a task, adding steps that were not requested; for narrow tasks constrain scope explicitly and tell it to stop short of actions clearly beyond what was asked.",
