@@ -1301,15 +1301,174 @@ def test_connector_attaching_at_a_node_is_not_flagged():
 
 
 def test_unsupported_geometry_is_unchecked_not_passed():
-    """A curve must not be approximated, and must not read as clean."""
+    """A path without connector identity remains unchecked for routing."""
     page = _svg_page(
         '<svg viewBox="0 0 200 100"><path d="M10 10 C 20 20, 40 20, 50 10"/>'
         '<text x="50" y="50">Queue</text></svg>'
     )
     result = scorer.score_html(page)
-    assert _status(result, "svg-label-occlusion") == "unchecked"
+    assert _status(result, "svg-label-occlusion") == "pass"
     assert _status(result, "svg-connector-routing") == "unchecked"
-    assert result["unchecked_checks"] >= 2
+    assert result["unchecked_checks"] >= 1
+
+
+def test_retained_process_diagrams_have_decidable_connector_geometry():
+    pilot = (
+        _ROOT
+        / "docs/releases/v4/v4.11/development/interactive-handbooks/"
+        "phase-6-native-attempts/report-final/pilot.html"
+    ).read_text(encoding="utf-8")
+    blocks = scorer._svg_blocks(pilot)
+    for index in (7, 8, 17, 18):
+        assert scorer.check_svg_label_occlusion(blocks[index])["status"] == "pass"
+        assert scorer.check_svg_connector_routing(blocks[index])["status"] == "pass"
+
+
+def test_retained_return_curve_detects_an_inserted_unrelated_node():
+    pilot = (
+        _ROOT
+        / "docs/releases/v4/v4.11/development/interactive-handbooks/"
+        "phase-6-native-attempts/report-final/pilot.html"
+    ).read_text(encoding="utf-8")
+    diagram = scorer._svg_blocks(pilot)[7]
+    return_path = '<path data-edge="Analyst-Queue"'
+    assert diagram.count(return_path) == 1
+    crossed = diagram.replace(
+        return_path,
+        '<rect class="unrelated" x="460" y="210" width="30" height="30"/>'
+        + return_path,
+        1,
+    )
+    assert scorer.check_svg_connector_routing(crossed)["status"] == "fail"
+
+
+def test_cubic_connector_crossing_an_unrelated_node_is_flagged():
+    page = _svg_page(
+        '<svg viewBox="0 0 300 100">'
+        '<rect class="mid" x="120" y="30" width="60" height="40" fill="#333"/>'
+        '<path data-edge="A-B" d="M10 10 C100 50 200 50 290 10" fill="none" stroke="#fff"/>'
+        '</svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "fail"
+
+
+def test_clear_cubic_connector_does_not_cross_an_unrelated_node():
+    page = _svg_page(
+        '<svg viewBox="0 0 300 100">'
+        '<rect class="mid" x="120" y="30" width="60" height="40" fill="#333"/>'
+        '<path data-edge="A-B" d="M10 10 C100 10 200 10 290 10" fill="none" stroke="#fff"/>'
+        '</svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "pass"
+
+
+def test_filled_path_is_unchecked_even_when_its_centerline_clears_node():
+    page = _svg_page(
+        '<svg viewBox="0 0 300 100">'
+        '<rect class="mid" x="120" y="30" width="60" height="40" fill="#333"/>'
+        '<path data-edge="A-B" d="M10 10L290 10L150 90" fill="#fff"/>'
+        '</svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
+
+
+def test_unsupported_arc_connector_remains_unchecked():
+    page = _svg_page(
+        '<svg viewBox="0 0 300 100">'
+        '<path data-edge="A-B" d="M10 10 A40 40 0 0 1 100 50" fill="none" stroke="#fff"/>'
+        '</svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
+
+
+def test_straight_path_connector_crossing_is_flagged():
+    page = _svg_page(
+        '<svg viewBox="0 0 300 100">'
+        '<rect class="mid" x="120" y="30" width="60" height="40" fill="#333"/>'
+        '<path data-edge="A-B" d="M10 50H290" fill="none" stroke="#fff"/>'
+        '</svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "fail"
+
+
+def test_diagonal_path_crossing_away_from_midpoint_is_flagged():
+    page = _svg_page(
+        '<svg viewBox="0 0 300 120">'
+        '<rect class="mid" x="50" y="30" width="30" height="40"/>'
+        '<path data-edge="A-B" d="M10 20L290 100" fill="none"/></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "fail"
+
+
+def test_boundary_only_path_contact_is_unchecked():
+    page = _svg_page(
+        '<svg viewBox="0 0 300 100">'
+        '<rect class="mid" x="120" y="30" width="60" height="40"/>'
+        '<path data-edge="A-B" d="M10 30H290" fill="none"/></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
+
+
+def test_declared_path_without_drawn_segments_is_unchecked():
+    page = _svg_page('<svg viewBox="0 0 30 30"><path data-edge="A-B" d="M10 10" fill="none"/></svg>')
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
+
+
+@pytest.mark.parametrize("data", ("M10 10L20 20 30 30", "M10 10C20 20 30 30"))
+def test_path_outside_the_explicit_argument_subset_is_unchecked(data):
+    page = _svg_page(f'<svg viewBox="0 0 100 100"><path data-edge="A-B" d="{data}" fill="none"/></svg>')
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
+
+
+def test_path_token_budget_returns_unchecked():
+    data = "M0 0" + "L1 1" * 5000
+    page = _svg_page(f'<svg viewBox="0 0 100 100"><path data-edge="A-B" d="{data}" fill="none"/></svg>')
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
+
+
+def test_tangent_cubic_stays_unchecked_instead_of_claiming_clear():
+    page = _svg_page(
+        '<svg viewBox="0 0 300 100">'
+        '<rect class="mid" x="120" y="30" width="60" height="40" fill="#333"/>'
+        '<path data-edge="A-B" d="M10 30 C100 30 200 30 290 30" fill="none"/>'
+        '</svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
+
+
+def test_path_painted_after_label_keeps_occlusion_unchecked():
+    page = _svg_page(
+        '<svg viewBox="0 0 200 100">'
+        '<text x="50" y="50">Queue</text>'
+        '<path data-edge="A-B" d="M10 50H90" stroke="#fff"/></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-label-occlusion") == "unchecked"
+
+
+def test_unmarked_filled_path_keeps_routing_unchecked():
+    page = _svg_page(
+        '<svg viewBox="0 0 200 100">'
+        '<path d="M10 10L90 10L90 90Z" fill="#333"/></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
+
+
+def test_negative_scale_path_crossing_is_not_lost():
+    page = _svg_page(
+        '<svg viewBox="0 0 300 100"><g transform="scale(-1,1)" fill="none">'
+        '<rect class="mid" x="-180" y="30" width="60" height="40"/>'
+        '<path data-edge="A-B" d="M-10 50H-290"/></g></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "fail"
+
+
+def test_overflowing_geometry_is_unchecked_not_a_pass():
+    page = _svg_page(
+        '<svg viewBox="0 0 300 100">'
+        '<rect x="1e308" y="30" width="1e308" height="40"/>'
+        '<path data-edge="A-B" d="M10 50H290" fill="none"/></svg>'
+    )
+    assert _status(scorer.score_html(page), "svg-connector-routing") == "unchecked"
 
 
 def test_unsupported_transform_is_unchecked_not_guessed():
