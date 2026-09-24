@@ -14,9 +14,9 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 3 | 0 |
+| Deferred (DF) | 2 | 1 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 2 | 1 |
+| Warnings (WN) | 1 | 2 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -38,13 +38,6 @@
 - **Reason**: The security comparison raised this as an open question about Nexus-Hub itself: any write-capable service reachable from more than one agent session (a package registry, an artifact store, a CI cache) is a channel until proven otherwise, and any allowlisted destination with its own reach is part of the agent's real reachability. The v4.5.0 plan shipped the controls as catalog guidance; it did not apply them to the agents that develop this repository (CI runners, the MCP servers under `extensions/`, the memory store). That application is a design exercise on real infrastructure, not a documentation task.
 - **Suggested next step**: Run human test 4: take step 3 sub-steps 6 to 8 and step 5 sub-steps 5 to 7 of `agent-execution-isolation` and apply them to this repository's CI and local agent surface, producing the two named artifacts (the shared-writable-service enumeration and the transitive-reachability union). If the controls cannot be applied as written, they are too abstract and the skill should be revised.
 
-##### DF-3 - Mannered prose and the stranded auxiliary rely on model judgment alone
-
-- **Source phase**: Phase 4 - Offline detector.
-- **Plan reference**: sub-task 4.1 and the plan 7.3 prompt ("any cliche pattern the phase 4 detector cannot express deterministically").
-- **Reason**: The catalog names nineteen patterns in seven clusters; the detector encodes 29 ids covering clusters 1 to 4 and 6 plus the rhythm rules and punctuation. Cluster 7 (mannered prose, where metaphor or flourish replaces a direct statement) has no lexical signature and is deliberately not attempted, as the module docstring says. Cluster 5 (the stranded auxiliary, a sentence ending on "can", "does", or "will" with the verb elided) has no detector id either. Both rely on the agent applying the reference file in Edit mode.
-- **Suggested next step**: Leave mannered prose to judgment; it is not a regex problem. The stranded auxiliary is likely expressible (an auxiliary verb followed by sentence-final punctuation with no verb after it); add it to the LEXICAL table with a seeded fixture count in a patch release if a false-positive sweep on the repository's prose stays clean.
-
 #### Warnings
 
 ##### WN-2 - Phases 3, 5, and 7 ran one effort level below the plan's recommendation
@@ -54,14 +47,6 @@
 - **Reason**: The session ran `claude-fable-5-1`, which is the frontier tier on the 2026-09-04 map, at `high`. Claude Code cannot switch effort programmatically, so the `/effort max` keystroke was surfaced at each of the three phase boundaries and, with no switch made, each phase proceeded at `high` under the in-full driver. This is a recorded delta, not a silent downshift, and the tier itself agreed with the plan every time.
 - **Impact**: None observed. Every gate in all three phases passed; phase 3's reference file names no upstream expression; phase 5's name scrub returned nothing; phase 7's independent review found six of six clauses converged.
 - **Suggested next step**: When the next plan rates a phase `max`, decide at the pre-flight whether to make the keystroke, so the choice is deliberate rather than inherited from the driver's momentum.
-
-##### WN-3 - The model-prompting profile layer does not match the live Claude roster
-
-- **Source phase**: Phase 7 - advisory freshness check (runbook duty 9).
-- **Plan reference**: implement-phase runbook Phase 9.0 duty 9 (`model-prompting-research`, advisory).
-- **Reason**: `python scripts/check_model_prompting_freshness.py --advisory <live roster>` reports `added (live but unprofiled): claude-fable-5-1` and `removed (recorded but no longer live): claude-fable-5`. The recorded roster was last verified 2026-07-27. This is the same drift class as v4.1 `DF-1` (Codex roster); it never blocks a release and is not a CI gate.
-- **Impact**: Prompting guidance tuned to `claude-fable-5` is applied to `claude-fable-5-1` without re-verification. The v4.5.0 Fable 5.1 comparison already folded the relevant guidance into this plan, so the practical gap is the profile record, not the catalog.
-- **Suggested next step**: Run `/tune-prompting` to refresh the profile layer against the live roster and re-stamp the freshness marker; do it at or before the v4.7.0 plan, which is seeded by the same Fable 5.1 comparison.
 
 #### Missing tests / coverage gaps
 
@@ -90,6 +75,8 @@ Older ledgers: v4.0 `DF-1` (the non-lockstep seven are not byte-locked by the re
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | WN-1 | Pre-existing lint and format drift in the parity guard | Phase 2 | Phase 2 edits `scripts/check_base_template_parity.py` on purpose (promoting `Writing Discipline` into both guard lists), so the two ruff findings (`UP035`, `UP045`) were fixed and the file formatted in that same deliberate edit; the whole diff is 15 insertions and 3 deletions. |
+| DF-3 | Mannered prose and the stranded auxiliary rely on model judgment alone | 2026-09-24 follow-up | The proposed lexical addition required a clean false-positive sweep. Nine repository prose lines matched a narrow subject-plus-auxiliary sentence shape, including factual technical corrections. The shape cannot distinguish the style beat from ordinary prose, so both patterns remain intentionally judgment-only in Edit mode. See [frozen verification](../../../archives/v4/v4.5/development/prose-detector-disposition/verification.md). |
+| WN-3 | The model-prompting profile layer did not match the Claude roster | 2026-09-08 profile refresh, reconciled 2026-09-24 | Commit `5f4c76eb` added a source-backed `claude-fable-5-1` profile and replaced the recorded `claude-fable-5` roster entry. Structural verification and 62 focused tests pass. This closes the named mismatch, not the separate four-model source-availability gap in v4.9 MT-1 or future live-roster checks. See [frozen verification](../../../archives/v4/v4.5/development/prompting-roster-disposition/verification.md). |
 
 ### Notes (not gaps)
 
