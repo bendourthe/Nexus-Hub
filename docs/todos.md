@@ -126,7 +126,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Current closure - v4.0 inherited gaps
 
 - [x] Qualify v4.0 WN-1 in a disposable Windows virtual environment: all six extension development extras install through the documented editable path, with 828 tests passed and four skipped. Repair the discovered non-editable wheel duplicate and missing benchmark corpus; the installed wheel passes 381 code-search tests and its benchmark gate.
-- [ ] Publish the v4.0 WN-1 extension and wheel follow-up through protected `develop` integration, verify post-merge smoke and provenance, then remove its temporary worktree.
+- [x] Publish the v4.0 WN-1 extension and wheel follow-up through PR #287: 22 checks passed, post-merge run 36066086467 passed smoke and provenance at `7a46cc37`, and the clean temporary worktree and local branch were removed.
 - [x] Locally close agent-communication DF-1 and MT-3 with the 13-template release gate and an actual Python 3.11 grammar check; 127 focused tests and the 17-command native fast profile pass.
 - [x] Reconcile BG-6 with the v3.18 withdrawal decision: the deleted drawdown ledger stays deleted by design, and the superseded decision record now gives the exact Git-history recovery command instead of dead links.
 - [x] Close v4.0 BG-2 locally: explicit global targets now isolate platform writers, defaults, Copilot, OpenClaw, and organization-knowledge lookup; host cleanup is skipped for redirected installs. A fake-home sentinel regression, 146 affected-suite passes, and the 17-check native fast profile verify the change.
