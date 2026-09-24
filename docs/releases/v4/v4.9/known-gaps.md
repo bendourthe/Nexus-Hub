@@ -4,7 +4,7 @@
 **Status**: released; PR #190 integrated the v4.9.0 audit work and its hosted platform gates. The remaining prompting-profile entries are source-availability limitations, and WN-1 is private workstation residue rather than distributed or release-blocking work.
 **Last updated**: 2026-09-23
 
-## Open Items - found 2026-09-08 during post-v4.8.0 follow-up
+## Follow-up Items - found 2026-09-08 during post-v4.8.0 follow-up
 
 ### Missing tests / coverage gaps (MT)
 
@@ -28,13 +28,14 @@
 - **Why it is worth recording**: a future reader comparing two Gemini entries will find identical claims and could reasonably conclude the layer is padded. It is not: the source genuinely makes one statement about the family, and the alternative (leaving all four UNVERIFIED) would discard a real, sourced constraint such as Google's recommendation to keep `temperature`, `top_p`, and `top_k` at their defaults.
 - **Suggested next step**: if the layer ever grows a family or vendor tier, move these claims up to it and leave the per-model entries pointing at it. That is a schema change and belongs in a decision record, not in a research pass.
 
-#### WN-2 - One vendor claim tensions with a shared catalog skill, recorded and not acted on
+#### WN-2 - RESOLVED: the vendor verification advice and the claim-evidence gate have distinct owners
 
 - **Source**: the sweep's `claude-opus-5` research.
 - **What was observed**: Anthropic's Opus 5 page says to REMOVE explicit verification instructions and legacy harness verification scaffolding, because they cause over-verification on that model and removing them reduces wasted tokens with no loss in quality. The catalog's own `verification-before-completion` skill requires a fresh proving command before any completion claim.
-- **Why they are not actually the same rule**: the vendor claim is about redundant self-re-checks inside a turn ("double-check your answer"), while the skill is about evidence for a claim made to a human. Both can hold at once. But they read as contradictory, and someone reconciling them should read both first.
-- **What was done**: the claim is recorded in the profile layer scoped `model-specific`, so it structurally cannot reach a shared body through that path, with the tension stated in its `note`. No shared-body edit was proposed and the classifier ran with zero proposals.
-- **Suggested next step**: if a future pass wants to reconcile them, that is a decision record about what verification-before-completion means inside a turn versus at a claim boundary, not a prompting edit.
+- **Boundary**: the vendor advice covers inherited final-verification prompts and verifier scaffolding, while the shared skill sets an evidence standard for claims made to a human. Keeping both is an intentional project exception to the vendor's cost optimization, not a claim that the vendor advice excludes final proof.
+- **Original disposition**: the claim was recorded in the profile layer scoped `model-specific`, so it could not reach a shared body through that path. No shared-body edit was proposed and the classifier ran with zero proposals.
+
+**Resolution, 2026-09-24**: The [process decision](../../../decisions/implemented/process/2026-09-24-retain-claim-evidence-for-opus-5.md) retains fresh, proportional evidence before a completion claim while removing unconditional duplicate self-check prompts and verifier scaffolding for Opus 5. The profile index and its generated reference now point at the same decision. The [archived verification](../../../archives/v4/v4.9/development/verification-boundary-disposition.md) records the profile and documentation checks. This resolves the interpretation conflict without weakening the shared evidence gate; MT-1 and WN-1 above remain open.
 
 ## v4.9.0 - adoption-visa-vulnerability-agentic-harness
 
