@@ -41,7 +41,7 @@ The repository's own handbooks pass every gate with zero findings, which is the
 result the source project's audit could not reach - its first version produced
 roughly 220 findings on real output and was abandoned.
 
-### MT-5 - PARTIALLY addressed, and the remainder is named
+### MT-5 - RESOLVED within the DOM-text measurement envelope
 
 MT-5 was transferred into this plan from v4.11.0 on the expectation that Phase
 5's provenance record would close it. It closes one half.
@@ -49,9 +49,11 @@ MT-5 was transferred into this plan from v4.11.0 on the expectation that Phase
 - **Closed**: a series with no computation behind it now fails `check_attestation.py`. That is the root cause of a fabricated value - a hardcoded list chosen to look right, indistinguishable from data until someone tries to reproduce it.
 - **Still open**: a value that exists only in an intermediate animation frame. The attestation covers what the series IS; it does not observe what a chart displays mid-transition, which would need frame sampling during the animation window rather than after it.
 - **Next step**: sample the rendered series at two or three points inside the animation window and assert every displayed value lies within the source data's range. The per-slide walk added in Phase 4 already establishes the timing discipline this needs.
-- **Status**: open, carried forward, narrowed.
+- **Status**: resolved 2026-09-24 within the declared DOM-text envelope; canvas pixels and unmapped future values remain outside this check.
 
 **Bounded temporal guard, 2026-09-23**: `measure_handbook.py` now watches DOM-text mutations and animation frames for exact source values named in its independent per-slide inventory. A brief wrong value between the settled samples, including one revealed by a style-only change, fails; absent mappings report `source_value_guard: unchecked`, and missing or ambiguous selectors are unverified. The [archived qualification](../../../archives/v4/v4.11/development/temporal-source-values/verification.md) records six focused controls and a 59-test module run. MT-5 remains open for actual handbook mappings and canvas-painted or otherwise unmapped numbers; a range-only check would not catch the observed in-range fabrication.
+
+**Real-artifact closure, 2026-09-24**: The tracked five-slide presentation fixture supplies a native chart with East 10, Central 15 and West 20, plus a source sentence totaling 45. An [independent inventory](../../../archives/v4/v4.11/development/temporal-source-values/real-artifact-inventory.json) now maps its visible slide-4 total and count sentence. The unchanged retained first-build HTML produced 20 mapped observations at ten viewports and `source_value_guard: pass` with zero findings. Six focused controls, including brief wrong values, style-only revelation, absent mapping and unrelated layout failure, pass. The first build itself remains `fail` with 412 other errors; this is source-value sub-verdict proof, not presentation acceptance. The two current repository handbook sources contain no numeric source facts, so their `unchecked` status remains honest rather than receiving invented mappings. See the [frozen follow-up](../../../archives/v4/v4.11/development/temporal-source-values/real-artifact-verification.md) for hashes, derivation and limits. Future source-backed DOM numbers still require an independent mapping; canvas-painted and unmapped values are not certified.
 
 ### Deliberately attested rather than gated
 

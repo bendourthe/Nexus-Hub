@@ -1,0 +1,28 @@
+{
+  "section_ids": [
+    "cover",
+    "agenda",
+    "service-path",
+    "completed-visits",
+    "boundaries"
+  ],
+  "slide_ids": [
+    "cover",
+    "agenda",
+    "service-path",
+    "completed-visits",
+    "boundaries"
+  ],
+  "source_values": [
+    {
+      "slide_id": "completed-visits",
+      "selector": ".af-total",
+      "text": "45completed visits"
+    },
+    {
+      "slide_id": "completed-visits",
+      "selector": ".af-visits-copy .block-bullets li:first-child",
+      "text": "East 10; Central 15; West 20. Total 45 visits."
+    }
+  ]
+}
