@@ -1,8 +1,8 @@
 # Known Gaps - v4.9
 
 **Project**: Nexus-Hub
-**Status**: released; PR #190 integrated the v4.9.0 audit work and its hosted platform gates. The remaining prompting-profile entries are source-availability limitations, and WN-1 is private workstation residue rather than distributed or release-blocking work.
-**Last updated**: 2026-09-23
+**Status**: released; PR #190 integrated the v4.9.0 audit work and its hosted platform gates. The remaining prompting-profile entries are source-availability limitations; the private workstation residue was removed separately.
+**Last updated**: 2026-09-24
 
 ## Follow-up Items - found 2026-09-08 during post-v4.8.0 follow-up
 
@@ -76,6 +76,8 @@ Phase 7 cycle 1 resolved two non-deferrable graph-evidence findings instead of d
 - **Reason**: automatic approval review rejected the explicitly checked cleanup action with `blocked by policy`. No alternate deletion or retry was attempted. The residue is excluded from staging, distributed payloads and promoted evidence.
 - **Owner and target**: local workspace maintainer; next authorized maintenance session, independent of the v4.9 artifact. This is not an application runtime or release-gate deferral.
 - **Suggested next step**: inspect and remove the retained private harness directory manually under the workstation's policy, then record observable absence. Do not erase candidate evidence or answer archives as part of that cleanup.
+
+**Resolution, 2026-09-24**: The exact ignored synthetic harness directory was inspected before removal: 180 files, no tracked files, no reparse points, and only fixture/runtime copies and synthetic records. It was moved to the Windows Recycle Bin, not permanently erased. A fresh check found the source directory absent while the separate security-audit answer archive remained present. The [archived verification](../../../archives/v4/v4.9/development/private-harness-residue-disposition.md) records this local-only closure; it does not change any distributed artifact or the prompting-profile gaps above.
 
 #### MT-2 - Platform-specific filesystem cases need their matching host
 
