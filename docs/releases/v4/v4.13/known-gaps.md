@@ -1,8 +1,8 @@
 # Known gaps - v4.13
 
 **Project**: Nexus-Hub
-**Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Three bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-09-23
+**Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
+**Last updated**: 2026-09-24
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -15,7 +15,7 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 1 |
 | Bugs / regressions (BG) | 1 | 6 |
-| Warnings (WN) | 3 | 3 |
+| Warnings (WN) | 2 | 4 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 4 |
 
@@ -42,12 +42,6 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 **Evidence**: `development/trigger-pilot-results.md` and the raw `trigger-pilot-results.json` (96/96 calls, 0 failures, 0 evidence-missing). The regression is concentrated in `skill-description-authoring` on the strong model, 2/2 to 0/2 under the candidate wording.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: this finding is recorded, not acted on. `AGENTS.md` prescribes pushier descriptions with explicit SKIP clauses as the remedy, and the pilot measured that remedy making selection **worse** on both models, so the prescribed fix is now evidence-contradicted. Changing the authoring guidance needs its own frozen pilot with a candidate designed against this data; nothing in this release may change a description on the strength of the finding alone.
-
-#### WN-4: Acceptance criterion 3 was unreachable by construction
-
-**Source phase**: Phase 6. **Plan reference**: T021. **Reason**: the frozen protocol requires "at least one strict reduction in irrelevant loading or unnecessary pauses". The control arm produced zero irrelevant loads, so no reduction was available to any candidate and the criterion could not be satisfied regardless of the candidate's quality. The criterion assumed a baseline of over-triggering that the measurement then contradicted (see WN-3).
-
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: a future trigger pilot states its criteria relative to a measured baseline rather than an assumed one, or measures the baseline in a calibration slice before the criteria are frozen. The criterion is recorded as a defect in the protocol, not as a property of variant B; variant B independently failed criterion 1, which is what actually decided the disposition.
 
 #### WN-5: The recorded pilot run cannot be re-audited for the loose selection matcher
 
@@ -78,6 +72,12 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 #### WN-6: Symlink refusal on a host that permits symlinks - RESOLVED
 
 The exact target-refusal and redirected-ancestor assertions passed on WSL2 Ubuntu against the shipped `trace-example.py`; PR #230's Ubuntu repository test job also passed. The earlier Windows skip remains honest host-specific accounting rather than missing product coverage.
+
+#### WN-4: Acceptance criterion 3 was unreachable by construction - RESOLVED
+
+**Source phase**: Phase 6. **Plan reference**: T021. **Original reason**: the first frozen protocol required "at least one strict reduction in irrelevant loading or unnecessary pauses". The control arm produced zero irrelevant loads, so no candidate could satisfy that criterion. The original measured failure and variant B's independent criterion-1 failure remain unchanged.
+
+**Resolution, 2026-09-24**: The [frozen second protocol](../../../archives/v4/v4.13/development/trigger-pilot-2/protocol.md) requires a strict positive-selection gain and no increase in irrelevant selections relative to its contemporaneous control. Both conditions are attainable when the control has zero irrelevant selections, so the construction defect is repaired for that protocol. Its two-call attempt was aborted and remains `UNMEASURED`; this disposition neither qualifies a candidate nor closes BG-7's unproven USD 35 hard ceiling, WN-3's under-triggering, or WN-5's unauditable original selectors.
 
 #### QG-2: A timed-out CI step reports nothing at all - RESOLVED
 
