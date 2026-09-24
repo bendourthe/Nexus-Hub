@@ -534,7 +534,8 @@ export class DashboardPanel {
  * dashboard and the toast popup agree under the same conditions.
  */
 function activeSuggestion(data: UsageData): string | null {
-  return buildUsageSuggestion(data, pickTriggerMetric(data))?.message ?? null;
+  const trigger = pickTriggerMetric(data);
+  return trigger ? buildUsageSuggestion(data, trigger)?.message ?? null : null;
 }
 
 function escapeHtml(text: string): string {

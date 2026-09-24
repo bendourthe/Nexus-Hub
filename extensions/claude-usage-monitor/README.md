@@ -83,7 +83,7 @@ Open Settings (`Ctrl+,`) and search "Claude Usage":
 | `claudeUsage.refreshInterval` | `10` | Minutes between automatic usage data refreshes (1-120) |
 | `claudeUsage.showInStatusBar` | `true` | Show/hide the status bar item |
 | `claudeUsage.thresholds.*` | `50` / `75` / `95` | Moderate / High / Critical urgency thresholds |
-| `claudeUsage.thresholdMetric` | `highest` | Which metric the thresholds evaluate against |
+| `claudeUsage.thresholdMetric` | `highest` | Which metric the thresholds evaluate against: highest session/all-models weekly, session, all-models weekly, or opt-in model-scoped weekly. If the scoped limit is absent, scoped selection raises no threshold alert. |
 
 ## How It Works
 

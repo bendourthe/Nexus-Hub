@@ -44,6 +44,7 @@ Two distinct rules put content here, and conflating them is the easy mistake:
 | `v4/v4.13/development/trigger-pilot-2/pilot-variant-b.json` | `docs/releases/v4/v4.13/development/trigger-pilot-2/pilot-variant-b.json` | v4.13.0 follow-up | 2026-09-23 |
 | `v4/v4.13/development/trigger-pilot-2/attempt.md` | `docs/releases/v4/v4.13/development/trigger-pilot-2/attempt.md` | v4.13.0 follow-up | 2026-09-23 |
 | `v4/v4.10/development/weekly-bars-host-render/verification.md` (with two PNGs) | Installed v0.10.0 VSIX in an isolated VS Code profile | v4.10.0 follow-up | 2026-09-24 |
+| `v4/v4.10/development/scoped-weekly-alert/verification.md` | Installed v0.10.0 VSIX, isolated scoped-alert host test, and negative controls | v4.10.0 follow-up | 2026-09-24 |
 | `v4/v4.7/development/supply-chain-watch-followup/verification.md` | Hosted watch, release assets, and attestation checks | v4.7.0 follow-up | 2026-09-24 |
 | `v4/v4.7/development/model-map-followup/verification.md` | Superseded guide citation and current Codex CLI picker | v4.7.0 follow-up | 2026-09-24 |
 | `v4/v4.5/development/prose-detector-disposition/verification.md` | False-positive sweep of the proposed stranded-auxiliary lexical rule | v4.5.0 follow-up | 2026-09-24 |

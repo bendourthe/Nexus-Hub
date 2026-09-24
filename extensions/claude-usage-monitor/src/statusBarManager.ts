@@ -285,9 +285,9 @@ export class StatusBarManager {
       return baseMs;
     }
 
-    const percent = pickTriggerMetric(data).percent;
+    const percent = pickTriggerMetric(data)?.percent;
     const moderate = getThresholdConfig().moderate;
-    if (percent >= moderate - NEAR_MODERATE_BAND) {
+    if (percent !== undefined && percent >= moderate - NEAR_MODERATE_BAND) {
       return Math.min(baseMs, NEAR_THRESHOLD_INTERVAL_MS * this.backoffMultiplier);
     }
     return baseMs;
