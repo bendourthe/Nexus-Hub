@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: FINALIZED for the v4.8.0 release. The adoption plan merged as PR #183 (`191e536a`) and the post-merge gap sweep as PR #184 (`49d408e7`), both green on every required check. At that release checkpoint, six of seven new items were resolved and the org-CLI half of `WN-I` remained open; its later resolution is recorded below. Carried forward at that checkpoint: `WN-A` (guide byte headroom), `WN-C` (`make test` install prerequisite), and the eight v4.4 items, each given an explicit touched-or-not verdict in `development/last-phase-evidence.md`. `WN-C` was resolved in the 2026-09-22 follow-up below.
-**Last updated**: 2026-09-23
+**Last updated**: 2026-09-24
 
 ## Open Items - found 2026-09-06 while verifying this session's work
 
@@ -245,6 +245,8 @@ the counts were recomputed from the merged catalog in this landing and now sum t
 - **Plan reference**: sub-task 2.3
 - **Reason**: `pytest catalog/hooks/tests/test_lint_autofix.py` fails locally because `shutil.which("bash")` resolves to the Windows `system32\bash.EXE` (WSL), which cannot read a Windows-path `.sh` (exit 127). This is the WN-1 environment family from v3.12. The hook's six behaviors were instead verified end-to-end through Git Bash (opt-in gate, fail-open, non-commit no-op, disabled-env opt-out, skip-unstaged, and format + re-stage with ruff on PATH), ShellCheck is clean, the `.ps1` AST parses, and the test collects cleanly (7 tests).
 - **Suggested next step**: None required. CI (ubuntu) is the authoritative gate for the bash hook suites; `pip install pytest ruff` was added to the CI tests job this phase so the ruff-gated formatting cases also run there (ubuntu-latest ships jq).
+
+**Resolution, 2026-09-24**: The same seven tests now pass on the Windows development host with Git Bash selected ahead of the WSL `bash.EXE` and installed Ruff on the process-local `PATH`: seven passed, zero skipped. This closes the host-execution warning without changing the hook or claiming that WSL can execute Windows-path scripts. The original failure and CI's separate authoritative role remain intact. See the [archived Windows qualification](../../../archives/v4/v4.8/development/windows-lint-autofix-qualification.md).
 
 ### Missing tests / coverage gaps (MT)
 
