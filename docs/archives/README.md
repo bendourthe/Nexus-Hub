@@ -25,7 +25,7 @@ This mirrors the active version layout. Archived content is **frozen history**: 
 | **v1** | v1.0.0, v1.1.5, v1.3.0 | 24 | Skills-catalog maturation: bundled-resources convention, skill-eval-loop, security hardening |
 | **v2** | v2.0.0, v2.1.0, v2.2.0, v2.3.0, v2.4.0 | 112 | Nexus-Hub rename, spec-driven methodology, integration registry, code-graph, antigravity transition, compound-engineering / persona-review pipeline |
 | **v3** *(prior major, partial)* | `development/history/` subtrees only, v3.0 through v3.21 | 355 | Per-version session histories aged out under the retention policy, completed for the whole v3 line on 2026-09-06. The v3 line is NOT whole-major archived - its plans, comparisons, and known-gaps stay in the active tree. |
-| **v4** *(current major, partial)* | `development/history/` subtrees v4.0-v4.5 and v4.7-v4.12, the v4.1 handbook snapshot, v4.0 CI task reconciliation, bounded v4.4 Training layout and v4.11 temporal-value evidence, and v4.13 follow-up evidence | 373 | Closed session histories aged out under the one-minor retention threshold; the aborted v4.13 trigger-pilot attempt is frozen separately while its open bug remains in `docs/releases/v4/`. |
+| **v4** *(current major, partial)* | `development/history/` subtrees v4.0-v4.5 and v4.7-v4.12, the v4.1 handbook snapshot, v4.0 CI task reconciliation, bounded v4.4 Training layout and platform-mark disposition, v4.11 temporal-value evidence, and v4.13 follow-up evidence | 374 | Closed session histories aged out under the one-minor retention threshold; the aborted v4.13 trigger-pilot attempt is frozen separately while its open bug remains in `docs/releases/v4/`. |
 
 ## Archival policy
 
@@ -52,6 +52,7 @@ Two distinct rules put content here, and conflating them is the easy mistake:
 | `v4/v4.9/development/private-harness-residue-disposition.md` | Recoverable cleanup and fresh absence check of private synthetic residue | v4.9.0 follow-up | 2026-09-24 |
 | `v4/v4.11/development/temporal-source-values/real-artifact-inventory.json` | Independent source-to-DOM mapping for the retained five-slide presentation | v4.11.2 follow-up | 2026-09-24 |
 | `v4/v4.11/development/temporal-source-values/real-artifact-verification.md` | Ten-viewport temporal sub-verdict and retained overall failure boundary | v4.11.2 follow-up | 2026-09-24 |
+| `v4/v4.4/development/platform-mark-disposition/verification.md` | Five-mark approval, hash, and current browser-matrix reconciliation for v4.4 DF-1 | v4.4.1 follow-up | 2026-09-24 |
 
 Archive moves are performed by `/refactor-docs` (the `docs-layout-refactor` skill) with reference repair; see the most recent `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/docs-cleanup-report.md` for the audit trail of each move. New frozen verification records do not move source files.
 
