@@ -25,7 +25,7 @@ This mirrors the active version layout. Archived content is **frozen history**: 
 | **v1** | v1.0.0, v1.1.5, v1.3.0 | 24 | Skills-catalog maturation: bundled-resources convention, skill-eval-loop, security hardening |
 | **v2** | v2.0.0, v2.1.0, v2.2.0, v2.3.0, v2.4.0 | 112 | Nexus-Hub rename, spec-driven methodology, integration registry, code-graph, antigravity transition, compound-engineering / persona-review pipeline |
 | **v3** *(prior major, partial)* | `development/history/` subtrees only, v3.0 through v3.21 | 355 | Per-version session histories aged out under the retention policy, completed for the whole v3 line on 2026-09-06. The v3 line is NOT whole-major archived - its plans, comparisons, and known-gaps stay in the active tree. |
-| **v4** *(current major, partial)* | `development/history/` subtrees v4.0-v4.5 and v4.7-v4.12, the v4.1 handbook snapshot, v4.0 CI task reconciliation, bounded v4.4 Training layout and v4.11 temporal-value evidence, and v4.13 follow-up evidence | 366 | Closed session histories aged out under the one-minor retention threshold; the aborted v4.13 trigger-pilot attempt is frozen separately while its open bug remains in `docs/releases/v4/`. |
+| **v4** *(current major, partial)* | `development/history/` subtrees v4.0-v4.5 and v4.7-v4.12, the v4.1 handbook snapshot, v4.0 CI task reconciliation, bounded v4.4 Training layout and v4.11 temporal-value evidence, and v4.13 follow-up evidence | 367 | Closed session histories aged out under the one-minor retention threshold; the aborted v4.13 trigger-pilot attempt is frozen separately while its open bug remains in `docs/releases/v4/`. |
 
 ## Archival policy
 
@@ -45,6 +45,7 @@ Two distinct rules put content here, and conflating them is the easy mistake:
 | `v4/v4.13/development/trigger-pilot-2/attempt.md` | `docs/releases/v4/v4.13/development/trigger-pilot-2/attempt.md` | v4.13.0 follow-up | 2026-09-23 |
 | `v4/v4.10/development/weekly-bars-host-render/verification.md` (with two PNGs) | Installed v0.10.0 VSIX in an isolated VS Code profile | v4.10.0 follow-up | 2026-09-24 |
 | `v4/v4.7/development/supply-chain-watch-followup/verification.md` | Hosted watch, release assets, and attestation checks | v4.7.0 follow-up | 2026-09-24 |
+| `v4/v4.7/development/model-map-followup/verification.md` | Superseded guide citation and current Codex CLI picker | v4.7.0 follow-up | 2026-09-24 |
 
 Archive moves are performed by `/refactor-docs` (the `docs-layout-refactor` skill) with reference repair; see the most recent `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/docs-cleanup-report.md` for the audit trail of each move. New frozen verification records do not move source files.
 
