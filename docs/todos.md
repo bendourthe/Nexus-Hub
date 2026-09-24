@@ -10,6 +10,9 @@ This dashboard tracks the work in flight right now. It is deliberately short. Fi
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
 - [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
+- [x] Resolve v4.7 MT-1's hosted observation gate: manual `develop` supply-chain watch run 36034068237 passed with 143 dependencies and no findings; v4.7.0 assets matched `SHA256SUMS` and GitHub verified the tarball attestation. Archive the frozen evidence.
+- [x] Close v4.7 DF-1 as superseded by the user's v4.4.5 guide restoration; retain the rejected v4.4.6 plan unchanged and archive the model-map disposition. Recheck DF-2 against the installed Codex picker and keep it open because `gpt-6-astra` remains absent.
+- [ ] Repair v4.7 WN-2: the scheduled `main` supply-chain watch still audits vulnerable `setuptools` 79.0.1. Publish a fixed default-branch environment through the protected release path and observe a passing `main` run.
 - [x] Published and verified cross-version CI report retention through PR #235: seven jobs upload seven-day bundles, direct guide and Windows native tests emit JUnit, and five report artifacts were visible in hosted run 35799198474. The post-merge smoke and provenance run 35801251735 passed.
 - [x] Published and verified the v4.0-v4.13 gap guards and SVG chart correction through PR #236; all hosted checks and post-merge smoke/provenance passed at `3c90d688`.
 - [x] Close v4.8 WN-C locally: `make dev` installs all six extension development extras, the README supplies the direct Windows command, pip resolves it in dry-run mode, and the 16-check native fast profile passes.
