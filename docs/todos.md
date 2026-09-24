@@ -115,7 +115,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Close v4.10 WN-1 through PR #262: the residual scan now includes documentation JSON while excluding generated inventories; 17 focused tests, all hosted checks, and post-merge run 35925138595 passed. Archive the [qualification record](archives/v4/v4.10/development/residual-reference-json/verification.md) without moving the still-open v4.10 release tree.
 - [x] Verify v4.10 MT-2 in installed VS Code 1.139.0: the packaged v0.10.0 VSIX painted both weekly bars in the status-bar hover and dashboard with synthetic stored values, 20 tests passed, and [screenshots plus pixel measurements](archives/v4/v4.10/development/weekly-bars-host-render/verification.md) are archived. Live account fetching remains outside this host test.
 - [x] Qualify v4.10 WN-4 locally: the opt-in scoped threshold uses account-reported data, stays silent when the scoped limit is absent, and leaves the default unchanged. The 24 extension tests, 17-command fast profile, and packaged VSIX host run passed; [verification](archives/v4/v4.10/development/scoped-weekly-alert/verification.md) is archived.
-- [ ] Publish v4.10 WN-4 through the protected `develop` pull request and verify its merge-result and post-merge checks.
+- [x] Publish v4.10 WN-4 through protected PR #285: 25 checks passed with one intentional render skip, GitHub reported `CLEAN`, and post-merge run 36061129117 passed smoke and provenance at `9a8fc257`.
 
 ## Current closure - v4.11.1 cache accounting and diagram quality
 
