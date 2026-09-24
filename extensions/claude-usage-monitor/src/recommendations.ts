@@ -47,14 +47,8 @@ export function getOverallUrgency(data: UsageData): UrgencyLevel {
  * `getOverallUrgency` (max of all metrics) is still used internally for recommendations.
  */
 export function getActiveUrgency(data: UsageData): UrgencyLevel {
-  const metric = getThresholdMetric();
-  let percent: number;
-  switch (metric) {
-    case "highest": percent = Math.max(data.session.percent, data.weeklyAllModels.percent); break;
-    case "weekly":  percent = data.weeklyAllModels.percent; break;
-    default:        percent = data.session.percent; break;
-  }
-  return classifyUrgency(percent);
+  const trigger = pickTriggerMetric(data);
+  return trigger ? classifyUrgency(trigger.percent) : "low";
 }
 
 /** The usage metric a threshold suggestion is evaluated against, with its display label. */
@@ -70,7 +64,7 @@ export interface TriggerMetric {
  * Shared by the toast policy (extension.ts) and the dashboard (dashboardPanel.ts)
  * so both fire from the same metric under the same conditions.
  */
-export function pickTriggerMetric(data: UsageData): TriggerMetric {
+export function pickTriggerMetric(data: UsageData): TriggerMetric | null {
   const metric = getThresholdMetric();
   switch (metric) {
     case "highest": {
@@ -82,6 +76,10 @@ export function pickTriggerMetric(data: UsageData): TriggerMetric {
     }
     case "weekly":
       return { percent: data.weeklyAllModels.percent, resetsIn: data.weeklyAllModels.resetsIn, label: "Weekly" };
+    case "weeklyScoped":
+      return data.weeklyScoped
+        ? { percent: data.weeklyScoped.percent, resetsIn: data.weeklyScoped.resetsIn, label: `Weekly (${data.weeklyScoped.label})` }
+        : null;
     default:
       return { percent: data.session.percent, resetsIn: data.session.resetsIn, label: "Current Session" };
   }

@@ -156,12 +156,14 @@
           "enum": [
             "highest",
             "session",
-            "weekly"
+            "weekly",
+            "weeklyScoped"
           ],
           "enumDescriptions": [
             "Automatically evaluate thresholds against whichever metric is currently highest",
             "Evaluate thresholds against the Current Session usage",
-            "Evaluate thresholds against the Weekly usage"
+            "Evaluate thresholds against the Weekly usage",
+            "Evaluate thresholds against the account-reported model-scoped weekly usage; no alert if unavailable"
           ],
           "description": "Which usage metric the urgency thresholds and notifications are evaluated against"
         }

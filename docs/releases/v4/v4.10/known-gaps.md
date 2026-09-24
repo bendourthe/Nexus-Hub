@@ -1,6 +1,6 @@
 # Known gaps - v4.10
 
-**Status**: implementation and publication closure complete. v4.10.0 merged into `develop` in PR #198 and shipped inside v4.11.0 without a retroactive v4.10.0 tag. v4.10.1 merged into `develop` through PR #232 at `c54dbeb4`; T034 is complete, and no retroactive v4.10.1 tag is planned. Three bounded items below remain known limitations, not unfinished plan tasks.
+**Status**: implementation and publication closure complete. v4.10.0 merged into `develop` in PR #198 and shipped inside v4.11.0 without a retroactive v4.10.0 tag. v4.10.1 merged into `develop` through PR #232 at `c54dbeb4`; T034 is complete, and no retroactive v4.10.1 tag is planned. Two bounded items below remain known limitations, not unfinished plan tasks.
 
 Unfinished work, deferrals, and defects found during v4.10.0 that did not reach a clean state. Open items carry forward into the next plan's ingest.
 
@@ -8,7 +8,7 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 
 ## Open Items - found 2026-09-10 during v4.10.0 implementation
 
-**Summary**: 3 open (0 DF, 1 WN, 0 MT, 2 EV). WN-3 resolved 2026-09-12; DF-1, WN-2, and MT-1 resolved 2026-09-22 during v4.10.1 closure; WN-1 resolved 2026-09-23; MT-2 host rendering verified 2026-09-24.
+**Summary**: 2 open (0 DF, 0 WN, 0 MT, 2 EV). WN-3 resolved 2026-09-12; DF-1, WN-2, and MT-1 resolved 2026-09-22 during v4.10.1 closure; WN-1 resolved 2026-09-23; MT-2 host rendering and WN-4 opt-in alerting verified 2026-09-24.
 
 ## Open Items - found 2026-09-21 during v4.10.1 implementation
 
@@ -83,6 +83,8 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 
 ### WN-4 - The scoped weekly bar is display-only and will not warn the user
 
+**Status**: RESOLVED 2026-09-24 by an opt-in `weeklyScoped` threshold selection. The default `highest` still ignores the scoped bar, and status-bar text still shows the session and all-models weekly figures. Missing scoped data raises no threshold alert. The [decision record](../../../decisions/implemented/tooling/2026-09-24-opt-in-scoped-weekly-alerts.md) states the compatibility trade-off, and the [archived verification](../../../archives/v4/v4.10/development/scoped-weekly-alert/verification.md) records the packaged VSIX host run.
+
 - **Source phase**: the Claude Usage Monitor scoped weekly bar, folded into v4.10.0 from the unreleased v4.9.1 slot, which was dropped rather than renumbered.
 - **What was observed**: urgency thresholds, status-bar highlighting, and threshold notifications continue to evaluate the session and all-models weekly metrics only. The model-scoped weekly bar is rendered in the dashboard and the status-bar hover but feeds none of them.
 - **Reason it is open**: this is the deliberate outcome, not an omission. The requirement was explicit that the second bar stay out of the status-bar text, and feeding it into the `highest` threshold metric would have coloured the status bar and raised a toast from a bar the user asked to keep off that surface. The consequence is real and is stated in the changelog: a scoped limit approaching capacity is visible on hover and in the dashboard but will not interrupt the user.
@@ -106,6 +108,7 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **MT-1, repository description count drift** - RESOLVED 2026-09-22 through the GitHub repository setting. The public Code page now reports 337 curated skills in the description.
 - **WN-3, `tests/skills/test_target_manifest.py` red on `develop`** - RESOLVED 2026-09-12 by PR #199. The 11 failures were not a defect in the module or on `develop`: they are a property of a host whose only git is hard-linked, which `resolve_trusted_git` correctly refuses. The fixture asserted that git EXISTS rather than that it QUALIFIES. The marker now skips with the measured reason. This gap's predicted consequence did NOT occur: it expected the integration pull request to show the same 11 failures, but PR #198 was green twice, because GitHub runners ship a single-link git. Coverage is unaffected - putting the conforming `bin/git.exe` first on PATH restores `53 passed, 2 skipped` locally.
 - **MT-2, installed extension host rendering** - RESOLVED 2026-09-24 with an installed VSIX, isolated synthetic fixture, visual hover and dashboard screenshots, and measured bar fills; live account fetching was not exercised.
+- **WN-4, model-scoped weekly alerts** - RESOLVED 2026-09-24 with a fourth opt-in threshold metric, absent-data no-alert behavior, 24 unit tests, and an isolated host run against the packaged VSIX. Existing users retain the default alert policy and status-bar text.
 - **Touched-path extraction returned zero for three of five live plans** (Phase 2, T007). The extractor read only backtick-quoted paths while three plans use bare trailing paths, which would have produced a false "no impact" for every pair involving them. Fixed and pinned by three tests.
 - **`data/skills.json` statistics block disagreed with its own entry list** (Phase 5). Fixed by deriving both counts from the entries. The instruction that produced the error remains open as DF-1.
 - **The Phase 1 evidence stated 99 plan files as 101** (Phase 6). An unverified figure, corrected against the script's own count in the evidence and the session history.
