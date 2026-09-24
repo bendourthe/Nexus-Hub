@@ -26,10 +26,11 @@ docs/archive/v2/v2.2/antigravity-cli-probe.md):
   - **Global scope splits by surface**: the desktop **IDE** reads global content
     from `~/.gemini/config/`; the **`agy` CLI** reads settings from
     `~/.gemini/antigravity-cli/` while sharing `~/.gemini/GEMINI.md` and the
-    documented Gemini agent/skill roots. CLI-specific loose workflow and hook
-    directories remain unverified and are therefore not emitted automatically.
+    documented Gemini agent/skill roots. The CLI reads the shared global
+    `~/.gemini/config/hooks.json` already emitted for the IDE. CLI-specific
+    loose workflow and agent directories remain unverified and are not emitted.
 
-Residual CLI workflow and hook paths remain unverified. The adapter does not
+Residual CLI workflow and agent paths remain unverified. The adapter does not
 guess those destinations; a future official contract can enable them.
 """
 
@@ -178,8 +179,9 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
             )
 
         # CLI surface: keep the verified skill root. Global instructions are the
-        # shared ~/.gemini/GEMINI.md written above; CLI-only workflow, agent,
-        # rule, and hook destinations are not documented, so do not invent them.
+        # shared ~/.gemini/GEMINI.md written above, and CLI hooks read the shared
+        # ~/.gemini/config/hooks.json emitted above. CLI-only workflow, agent,
+        # and rule destinations are not documented, so do not invent them.
         cli_root = gemini_home / "antigravity-cli"
         self._ensure_dir(cli_root, ctx)
         if not ctx.instruction_only:

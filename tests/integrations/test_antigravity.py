@@ -348,6 +348,9 @@ def test_antigravity_20_global_targets_corrected_ide_and_cli_paths(install_ctx: 
     assert "/.gemini/config/workflows/" in joined, (
         "IDE global slash commands must land in ~/.gemini/config/workflows"
     )
+    assert "/.gemini/config/hooks.json" in joined, (
+        "IDE and CLI global hooks must use the documented shared config path"
+    )
     assert "/.gemini/GEMINI.md" in joined, "IDE global rules must land in ~/.gemini/GEMINI.md"
     assert "/.gemini/antigravity-cli/skills/" in joined, "CLI skills must land in ~/.gemini/antigravity-cli"
     assert "/.gemini/antigravity-cli/AGENTS.md" not in joined
