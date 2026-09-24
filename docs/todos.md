@@ -15,6 +15,8 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Resolve v4.5 DF-3's detector proposal: nine candidate lines include legitimate technical corrections, so the required clean false-positive condition fails. Archive the finding and retain manual Edit-mode judgment for both prose patterns.
 - [x] Close v4.5 WN-3's Fable 5.1 profile mismatch against the 2026-09-08 refresh, structural validator, and 62 focused tests; retain v4.9 MT-1's four separate source-availability gaps.
 - [x] Reconcile v4.4 DF-1 against the later five-mark approval ledger and shipped guide: 49 focused tests and the current both-theme browser matrix pass; archive the bounded disposition without changing approved assets.
+- [x] Produce the bounded v4.5 DF-2 shared-writable-service and transitive-reachability records without inspecting credentials or changing the host; the local shared checkout and unevidenced egress boundary keep DF-2 open.
+- [ ] Decide and implement per-session executor, writable-state, credential, and egress boundaries before claiming v4.5 DF-2 isolation; repeat the real-host audit after those controls exist.
 - [x] Resolve v4.9 WN-2 with a process decision: retain fresh claim evidence across models, omit redundant Opus 5 self-check prompts, and align the profile index and generated reference. Archive the bounded verification.
 - [x] Close v4.9.0 WN-1 locally: move only the ignored synthetic harness residue to the Windows Recycle Bin and verify that the separate answer archive remains present.
 - [ ] Repair v4.7 WN-2: the scheduled `main` supply-chain watch still audits vulnerable `setuptools` 79.0.1. Publish a fixed default-branch environment through the protected release path and observe a passing `main` run.
