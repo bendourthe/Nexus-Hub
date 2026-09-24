@@ -21,12 +21,14 @@
 
 #### Deferred
 
-##### DF-1 - Three platform entries use text treatments pending approved standalone marks
+##### DF-1 (resolved in v4.4.1) - Three platform text treatments were replaced by approved marks
 
 - **Source phase**: Phase 1 - Home identity, platforms, installation, and comparison.
 - **Plan reference**: `docs/releases/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` sub-task 1.2 / T002.
 - **Reason**: Current official assets provide a verified Claude icon, Cursor cube, and OpenCode logo. The OpenAI brand pack does not provide a ChatGPT-specific SVG, Gemini product-icon use requires documented partner approval, and current GitHub guidance does not support using the Copilot bot as a standalone hero mark. Phase 1 therefore uses labelled text treatments for ChatGPT, Gemini, and GitHub Copilot instead of inventing or misapplying trademark geometry.
 - **Suggested next step**: Replace an individual text treatment only after its vendor publishes a distributable standalone product mark or grants documented permission, then add the exact asset provenance and rerun both-theme contrast and geometry tests.
+
+**Closure, 2026-09-24**: The later v4.4.1 rebuild replaced the ChatGPT, Gemini, and GitHub Copilot text treatments and recorded explicit maintainer approval, provenance, and SHA-256 hashes for all five embedded marks in the [asset ledger](development/guide-visual-and-arcade-rebuild/asset-provenance.md). The original release-time limitation above remains historical, not a current blocker. The [archived follow-up](../../../archives/v4/v4.4/development/platform-mark-disposition/verification.md) records fresh hash, Home geometry, and both-theme browser-matrix results. This closure does not grant new trademark rights or approve a changed asset; any future replacement still needs its own provenance and approval.
 
 ### Resolved
 
