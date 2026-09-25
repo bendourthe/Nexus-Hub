@@ -372,6 +372,8 @@ BG-46 and BG-47 RESOLVED LOCALLY 2026-09-23 (post-release): the describe heading
 
 MT-446-3 RESOLVED 2026-09-24 (post-release): hosted Ubuntu `guide-render` run 35933463823 exercised the guide and visual-detector browser contracts with Playwright 1.63.0 and Chromium 153.0.8010.12. Its retained JUnit report records 384 passed, one optional sibling-copy skip, zero failures, and zero errors. The CI merge checkout and current `develop` have identical guide and relevant test/profile blobs. See the [archived Linux browser qualification](../../../archives/v4/v4.4/development/guide-linux-browser-qualification/verification.md). This closes Linux browser availability only; MT-446-1, MT-446-2, and QG-446-1 remain open.
 
+WN-446-2 RESOLVED for current `develop` 2026-09-25 (post-release): manual [CodeQL run 36106037432](https://github.com/bendourthe/Nexus-Hub/actions/runs/36106037432) passed both language analyses at `d6477ccf`. The branch-filtered open-alert API returned 184 findings but none at `guides/website/nexus-hub-guide.html`; the old `data-motion-src` assignment and `initMediaToggles` function are absent from that guide. Historical alert #236 still has one open instance on `refs/pull/156/merge`, not on current `develop`. The [archived rescan record](../../../archives/v4/v4.4/development/codeql-cq1-rescan/verification.md) states the query and limits. This closes the missing-current-rescan warning, not the retained PR alert or unrelated CodeQL findings.
+
 ### Resolved
 
 | ID | Title | Resolved in | Notes |
