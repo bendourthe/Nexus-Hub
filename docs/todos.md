@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Historical v4.0-v4.13 plan tasks are integrated. PR #262 closed v4.10 WN-1's documentation-JSON blind spot with protected integration and post-merge proof. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Active work:** Historical v4.0-v4.13 plan implementations are integrated. PR #308 resolved v4.3 WN-2 for this public repository with current settings read-backs and standard-runner billing applicability; post-merge smoke and provenance passed. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
 **Closeout boundary:** Three future-plan branches, recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-09-25
 
