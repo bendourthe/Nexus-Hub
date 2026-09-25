@@ -50,6 +50,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Publish and inspect both real report types in PR #243's seven-day hosted aggregate; the replacement run passed 30 checks with one intentional skip, and post-merge run 35826047174 passed.
 - [x] Merge PR #244 after its refreshed run passed all 18 jobs; post-merge run 35828234631 passed smoke and provenance.
 - [x] Reconcile the v4.12 BG-2 ledger against PR #244 and its post-merge proof; keep GitHub contributor and direct API boundaries separate.
+- [ ] Resolve v4.12 QG-2's public Code sidebar discrepancy through GitHub Support or a fresh rendered correction; the 2026-09-24 [recheck](archives/v4/v4.12/development/contributor-sidebar-recheck-2026-09-24.md) still shows five despite one-contributor APIs.
 - [x] Merge PR #245 and preserve the original interrupted full-profile report; post-merge run 35828718066 passed.
 - [x] Recheck the v4.9 MT-1 primary sources without fabricating four per-model profiles; PR #248 merged at `f1354d47`, and post-merge run 35833196149 passed smoke and provenance.
 - [x] Qualify and publish the v4.12 BG-3 durable attribution hook through PRs #249 and #250; both passed hosted and post-merge checks. Remove both clean installer worktrees, verify the surviving guard from a second Windows checkout, and prove it rejects a forbidden attribution trailer.
@@ -73,7 +74,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Correct PR #259's premature v3.18 and v3.5 archive moves: restore five plan and comparison files to active release directories, repair their inbound links, and require explicit zero-open-items proof before any future closed-minor archive advisory. v3.18 BG-2 remains open; v3.5 lacks a known-gaps register.
 - [x] Record the model-map placement guard and non-final-phase test-scoping decisions in the living decision tree, with their alternatives, accepted trade-offs, and executable owners.
 - [x] Map the retained five-slide presentation's source-backed DOM numbers, verify 20 temporal observations across ten viewports, and archive the bounded MT-5 closure; current repository handbooks remain `unchecked` because their sources have no numeric facts.
-- [ ] Resolve v4.13 BG-7's per-call spend overshoot and rerun a newly frozen trigger pilot only after the approved USD 35 hard ceiling is enforceable; the 2026-09-23 attempt stopped after two unknown-selection calls.
+- [ ] Resolve v4.13 BG-7's per-call spend overshoot and rerun a newly frozen trigger pilot only after the approved USD 35 hard ceiling is enforceable; the 2026-09-23 attempt stopped after two unknown-selection calls, and the [provider-cap preflight](archives/v4/v4.13/development/trigger-pilot-2/provider-cap-preflight-2026-09-24.md) found the current Team login is not a capped Console workspace key.
 - [x] Qualify a local v4.13 BG-7 safety repair: reject non-finite or missing cost as free, persist an in-flight receipt before each call, and stop after an observed per-call overrun; this does not satisfy the USD 35 hard ceiling or authorize a live rerun.
 - [x] Close v4.13 WN-4's unreachable pilot criterion at the protocol-design level: the archived second protocol permits zero false positives while requiring a positive-selection gain; its aborted run remains `UNMEASURED` under BG-7.
 
