@@ -1,0 +1,25 @@
+{
+  "section_ids": ["overview", "agenda", "counts", "review-path", "scope"],
+  "slide_ids": ["cover", "agenda", "counts", "review", "appendix"],
+  "control_behaviors": [
+    {
+      "slide_id": "counts",
+      "control": "[data-dv-series=\"0\"]",
+      "before": {"selector": "[data-dv-series-marks=\"0\"]", "css": "display", "value": "inline"},
+      "after": {"selector": "[data-dv-series-marks=\"0\"]", "css": "display", "value": "none"}
+    },
+    {
+      "slide_id": "counts",
+      "control": "[data-dv-series=\"1\"]",
+      "before": {"selector": "[data-dv-series-marks=\"1\"]", "css": "display", "value": "inline"},
+      "after": {"selector": "[data-dv-series-marks=\"1\"]", "css": "display", "value": "none"}
+    },
+    {
+      "slide_id": "counts",
+      "control": "[data-dv-figure-reset]",
+      "setup": ["[data-dv-series=\"0\"]"],
+      "before": {"selector": "[data-dv-series-marks=\"0\"]", "css": "display", "value": "none"},
+      "after": {"selector": "[data-dv-series-marks=\"0\"]", "css": "display", "value": "inline"}
+    }
+  ]
+}
