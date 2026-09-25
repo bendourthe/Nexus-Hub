@@ -255,6 +255,8 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 
 **Follow-up, 2026-09-23**: The CDP suggestion above is insufficient for this runtime: document and deck both have broad click listeners, so a detached button still has listeners in its ancestor chain. A narrower [slide-series structure check](../../../archives/v4/v4.11/development/slide-series-control-qualification.md) now reports a series toggle outside its owning chart figure on every measured slide. A real Chromium click proves the detached button leaves plotted marks visible; the valid toggle hides them. The owning module passes 53 tests. MT-9 stays open for generic inert controls; the original four-button artifact is not retained here, so this fixture does not retroactively certify that exact artifact.
 
+**Local follow-up, 2026-09-24**: An independent `control_behaviors` inventory now names a setup, precondition, action, and intended browser-visible result for each declared slide control. The [archived qualification](../../../archives/v4/v4.11/development/control-behavior-qualification.md) records a second-slide inert control caught, a working and an idempotent control accepted, and a chart mutation caught by unchanged plotted marks even though `aria-pressed` changed. No automatic inventory proves that all controls were mapped; the original four-button artifact is unretained, and protected publication is pending. MT-9 remains open.
+
 #### MT-10 - No authored connector diagram has qualified the new geometry checks
 
 **Source phase**: v4.11.1 Phase 5 (T013). **Plan reference**: v4.11.1 5.1.

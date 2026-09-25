@@ -1,13 +1,12 @@
 """Independent inventory, rendered geometry and unavailable-capability regressions."""
 
 import importlib
-import os
 import json
+import os
 import sys
 from pathlib import Path
 
 import pytest
-
 
 # These tests drive measure_handbook.py, which needs a browser. Without
 # playwright the script correctly reports "unverified" - an unavailable
@@ -90,6 +89,7 @@ def test_valid_reading_and_slide_measured_separately(output):
     assert result["no_js_and_print"] == "pass"
     assert result["reduced_motion_fullscreen_fallback_escape"] == "pass"
     assert result["qualitative_review"] == "required separately"
+    assert result["control_behavior_guard"]["status"] == "unchecked"
 
 
 def test_paused_reading_animation_does_not_block_presentation_settle(output):
@@ -720,6 +720,60 @@ def test_chart_series_controls_inside_their_figure_are_accepted(output):
         browser.close()
 
 
+def _series_behavior_inventory():
+    return {
+        "section_ids": ["one"],
+        "slide_ids": ["one"],
+        "control_behaviors": [
+            {
+                "slide_id": "one",
+                "control": 'button[data-dv-series="0"]',
+                "before": {
+                    "selector": '[data-dv-series-marks="0"]',
+                    "css": "display",
+                    "value": "inline",
+                },
+                "after": {
+                    "selector": '[data-dv-series-marks="0"]',
+                    "css": "display",
+                    "value": "none",
+                },
+            }
+        ],
+    }
+
+
+def test_authored_chart_toggle_passes_declared_mark_visibility_transition(output):
+    page = _chart_output(output.parent)
+    result = run(page, **_series_behavior_inventory())
+    assert result["control_behavior_guard"]["status"] == "pass", result["errors"]
+    assert result["control_behavior_guard"]["observations"][0]["observed"] == {
+        "before": "inline",
+        "after": "none",
+    }
+
+
+def test_declared_attribute_transition_is_observed(output):
+    page = _chart_output(output.parent)
+    inventory = _series_behavior_inventory()
+    inventory["control_behaviors"][0]["before"] = {
+        "selector": 'button[data-dv-series="0"]',
+        "attribute": "aria-pressed",
+        "value": "true",
+    }
+    inventory["control_behaviors"][0]["after"] = {
+        "selector": 'button[data-dv-series="0"]',
+        "attribute": "aria-pressed",
+        "value": "false",
+    }
+    result = run(page, **inventory)
+    assert result["control_behavior_guard"]["status"] == "pass", result["errors"]
+    assert result["control_behavior_guard"]["observations"][0]["observed"] == {
+        "before": "true",
+        "after": "false",
+    }
+
+
 def test_detached_slide_series_control_is_reported(output):
     page = _chart_output(output.parent)
     source = page.read_text(encoding="utf-8")
@@ -733,6 +787,8 @@ def test_detached_slide_series_control_is_reported(output):
 
     result = run(page)
     assert any("series-control-outside-figure" in e for e in result["errors"]), result["errors"]
+    behavior = run(page, **_series_behavior_inventory())
+    assert behavior["control_behavior_guard"]["status"] == "fail"
     from playwright.sync_api import sync_playwright
 
     with sync_playwright() as playwright:
@@ -745,6 +801,121 @@ def test_detached_slide_series_control_is_reported(output):
         marks = tab.locator('[data-dv-slide] [data-dv-series-marks="0"]')
         assert marks.evaluate("element => element.style.display") == ""
         browser.close()
+
+
+def _two_slide_control_output(output, working):
+    model = json.loads((output.parent / "model.json").read_text(encoding="utf-8"))
+    model["sections"].append(
+        {
+            "id": "two",
+            "heading": "Control exercise",
+            "blocks": [{"type": "paragraph", "id": "second", "text": "A second measured slide."}],
+        }
+    )
+    model["presentation"]["slide_budget"] = 2
+    model["presentation"]["theme_sequence"] = ["dark", "dark"]
+    model["presentation"]["slides"].append({"id": "two", "source_ids": ["two"]})
+    model["design"]["reading_themes"] = ["light", "light"]
+    (output.parent / "model.json").write_text(json.dumps(model), encoding="utf-8")
+    page = output.parent / "controls.html"
+    dual.assemble(output.parent / "model.json", page)
+    listener = (
+        "button.addEventListener('click',()=>{state.textContent='active'});"
+        if working
+        else ""
+    )
+    script = (
+        "<script>const slide=document.querySelector('[data-dv-slide=\"two\"]');"
+        "const button=document.createElement('button');button.id='stage-action';"
+        "button.textContent='Activate';slide.append(button);"
+        "const state=document.createElement('p');state.id='stage-state';"
+        "state.textContent='idle';slide.append(state);"
+        + listener
+        + "</script>"
+    )
+    page.write_text(page.read_text(encoding="utf-8").replace("</html>", script + "</html>"), encoding="utf-8")
+    return page
+
+
+def test_inert_control_on_second_slide_fails_declared_behavior(output):
+    page = _two_slide_control_output(output, working=False)
+    result = run(
+        page,
+        section_ids=["one", "two"],
+        slide_ids=["one", "two"],
+        control_behaviors=[
+            {
+                "slide_id": "two",
+                "control": "#stage-action",
+                "before": {"selector": "#stage-state", "text": "idle"},
+                "after": {"selector": "#stage-state", "text": "active"},
+            }
+        ],
+    )
+    assert result["control_behavior_guard"]["status"] == "fail"
+
+
+def test_working_control_on_second_slide_passes_declared_behavior(output):
+    page = _two_slide_control_output(output, working=True)
+    result = run(
+        page,
+        section_ids=["one", "two"],
+        slide_ids=["one", "two"],
+        control_behaviors=[
+            {
+                "slide_id": "two",
+                "control": "#stage-action",
+                "before": {"selector": "#stage-state", "text": "idle"},
+                "after": {"selector": "#stage-state", "text": "active"},
+            }
+        ],
+    )
+    assert result["control_behavior_guard"]["status"] == "pass", result["errors"]
+
+
+def test_idempotent_reset_is_exercised_from_a_changed_setup_state(output):
+    page = _two_slide_control_output(output, working=True)
+    script = (
+        "<script>const reset=document.createElement('button');reset.id='stage-reset';"
+        "reset.textContent='Reset';document.querySelector('[data-dv-slide=\"two\"]').append(reset);"
+        "reset.addEventListener('click',()=>{document.querySelector('#stage-state').textContent='idle'});"
+        "</script>"
+    )
+    page.write_text(page.read_text(encoding="utf-8").replace("</html>", script + "</html>"), encoding="utf-8")
+    result = run(
+        page,
+        section_ids=["one", "two"],
+        slide_ids=["one", "two"],
+        control_behaviors=[
+            {
+                "slide_id": "two",
+                "control": "#stage-reset",
+                "setup": ["#stage-action"],
+                "before": {"selector": "#stage-state", "text": "active"},
+                "after": {"selector": "#stage-state", "text": "idle"},
+            }
+        ],
+    )
+    assert result["control_behavior_guard"]["status"] == "pass", result["errors"]
+
+
+def test_no_change_contract_cannot_certify_an_inert_control(output):
+    page = _two_slide_control_output(output, working=False)
+    result = run(
+        page,
+        section_ids=["one", "two"],
+        slide_ids=["one", "two"],
+        control_behaviors=[
+            {
+                "slide_id": "two",
+                "control": "#stage-action",
+                "before": {"selector": "#stage-state", "text": "idle"},
+                "after": {"selector": "#stage-state", "text": "idle"},
+            }
+        ],
+    )
+    assert result["control_behavior_guard"]["status"] == "unchecked"
+    assert "no observable change" in " ".join(result["errors"])
 
 
 def _long_directory(tmp_path, rows=30):

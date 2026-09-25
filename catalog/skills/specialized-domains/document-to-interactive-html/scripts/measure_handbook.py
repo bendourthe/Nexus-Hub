@@ -525,6 +525,22 @@ SOURCE_VALUE_RESULT = r"""(slideId) => window.__nexusSourceValueWatch
   })"""
 
 
+def _valid_control_state(state: Any) -> bool:
+    if not isinstance(state, dict) or not isinstance(state.get("selector"), str):
+        return False
+    if not state["selector"]:
+        return False
+    if set(state) == {"selector", "text"}:
+        return isinstance(state["text"], str)
+    if set(state) not in (
+        {"selector", "attribute", "value"},
+        {"selector", "css", "value"},
+    ):
+        return False
+    key = "attribute" if "attribute" in state else "css"
+    return isinstance(state[key], str) and bool(state[key]) and isinstance(state["value"], str)
+
+
 def measure(
     html: Path,
     inventory: dict[str, Any],
@@ -539,6 +555,12 @@ def measure(
         "qualitative_review": "required separately",
         "verification_scope": "rendered geometry, inventory and declared browser behaviors",
         "source_value_guard": {"status": "unchecked", "observations": [], "findings": []},
+        "control_behavior_guard": {
+            "status": "unchecked",
+            "scope": "declared controls only; one representative viewport",
+            "observations": [],
+            "findings": [],
+        },
     }
     sections, slides = inventory.get("section_ids"), inventory.get("slide_ids")
     if (
@@ -577,8 +599,39 @@ def measure(
         return report
     if source_values:
         report["source_value_guard"]["status"] = "unverified"
+    control_behaviors = inventory.get("control_behaviors", [])
+    if not isinstance(control_behaviors, list) or any(
+        not isinstance(spec, dict)
+        or spec.get("slide_id") not in slides
+        or not isinstance(spec.get("control"), str)
+        or not spec["control"]
+        or not isinstance(spec.get("setup", []), list)
+        or any(not isinstance(step, str) or not step for step in spec.get("setup", []))
+        or any(not _valid_control_state(spec.get(key)) for key in ("before", "after"))
+        for spec in control_behaviors
+    ):
+        report["errors"].append("control behavior inventory is malformed")
+        return report
+    if len({(spec["slide_id"], spec["control"]) for spec in control_behaviors}) != len(
+        control_behaviors
+    ):
+        report["errors"].append("control behavior inventory contains duplicate controls")
+        return report
+    if any(
+        spec["before"]["selector"] != spec["after"]["selector"]
+        or spec["before"].get("attribute") != spec["after"].get("attribute")
+        or spec["before"].get("css") != spec["after"].get("css")
+        or spec["before"] == spec["after"]
+        for spec in control_behaviors
+    ):
+        report["errors"].append(
+            "control behavior inventory has no observable change on one target"
+        )
+        return report
+    if control_behaviors:
+        report["control_behavior_guard"]["status"] = "unverified"
     try:
-        from playwright.sync_api import sync_playwright
+        from playwright.sync_api import expect, sync_playwright
 
         spec = importlib.util.spec_from_file_location(
             "handbook_visual_detector", detector_path
@@ -817,6 +870,78 @@ def measure(
                         if view == "presentation" and index + 1 < len(ids):
                             page.keyboard.press("ArrowRight")
                 page.close()
+            for behavior in control_behaviors:
+                page = browser.new_page(
+                    viewport={"width": 1366, "height": 768}, reduced_motion="reduce"
+                )
+                page.on("pageerror", lambda error: report["errors"].append(str(error)))
+                page.route("http**/*", block)
+                page.goto(html.resolve().as_uri())
+                slide_index = slides.index(behavior["slide_id"])
+                page.evaluate("index => window.NexusDualView.open(index)", slide_index)
+                slide = page.locator("[data-dv-slide]").nth(slide_index)
+                control = slide.locator(behavior["control"])
+                label = f"{behavior['slide_id']}: control {behavior['control']}"
+                observed_state: dict[str, str | None] = {}
+                try:
+                    if control.count() != 1:
+                        raise ValueError(f"expected one control, found {control.count()}")
+                    expect(control).to_be_visible(timeout=1500)
+                    expect(control).to_be_enabled(timeout=1500)
+                    for selector in behavior.get("setup", []):
+                        setup = slide.locator(selector)
+                        if setup.count() != 1:
+                            raise ValueError(
+                                f"setup selector {selector} matched {setup.count()} nodes"
+                            )
+                        setup.click()
+                    for phase in ("before", "after"):
+                        state = behavior[phase]
+                        target = slide.locator(state["selector"])
+                        if target.count() != 1:
+                            raise ValueError(
+                                f"{phase} selector {state['selector']} matched {target.count()} nodes"
+                            )
+                        if phase == "after":
+                            control.click()
+                        if "text" in state:
+                            expect(target).to_be_visible(timeout=1500)
+                            expect(target).to_have_text(state["text"], timeout=1500)
+                        elif "attribute" in state:
+                            expect(target).to_be_visible(timeout=1500)
+                            expect(target).to_have_attribute(
+                                state["attribute"], state["value"], timeout=1500
+                            )
+                        else:
+                            expect(target).to_have_css(state["css"], state["value"], timeout=1500)
+                        observed_state[phase] = target.evaluate(
+                            "(el, state) => 'text' in state ? el.innerText : "
+                            "'attribute' in state ? el.getAttribute(state.attribute) : "
+                            "getComputedStyle(el).getPropertyValue(state.css)",
+                            state,
+                        )
+                    report["control_behavior_guard"]["observations"].append(
+                        {
+                            "slide_id": behavior["slide_id"],
+                            "control": behavior["control"],
+                            "status": "pass",
+                            "observed": observed_state,
+                        }
+                    )
+                except Exception as exc:  # noqa: BLE001 - failed browser assertion is evidence
+                    finding = f"{label}: declared behavior failed: {exc}"
+                    report["errors"].append(finding)
+                    report["control_behavior_guard"]["findings"].append(finding)
+                    report["control_behavior_guard"]["observations"].append(
+                        {
+                            "slide_id": behavior["slide_id"],
+                            "control": behavior["control"],
+                            "status": "fail",
+                            "observed": observed_state,
+                        }
+                    )
+                finally:
+                    page.close()
             page = browser.new_page(
                 java_script_enabled=False, viewport={"width": 1366, "height": 768}
             )
@@ -886,6 +1011,10 @@ def measure(
         if source_values:
             report["source_value_guard"]["status"] = (
                 "fail" if report["source_value_guard"]["findings"] else "pass"
+            )
+        if control_behaviors:
+            report["control_behavior_guard"]["status"] = (
+                "fail" if report["control_behavior_guard"]["findings"] else "pass"
             )
     except Exception as exc:  # noqa: BLE001 - unavailable renderer is an explicit non-pass
         report["errors"].append(str(exc))
