@@ -269,6 +269,10 @@ def test_deck_fullscreen_and_exit_restore_reading(page):
     opener = page.locator("[data-dv-page] [data-dv-open]").first
     opener.click()
     fullscreen = page.locator("[data-dv-fullscreen]")
+    page.wait_for_function(
+        "document.fullscreenElement === document.querySelector('[data-dv-deck]')",
+        timeout=5000,
+    )
     before = page.evaluate(
         "document.fullscreenElement === document.querySelector('[data-dv-deck]')"
     )
