@@ -28,7 +28,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Produce the bounded v4.5 DF-2 shared-writable-service and transitive-reachability records without inspecting credentials or changing the host; the local shared checkout and unevidenced egress boundary keep DF-2 open.
 - [x] Recheck v4.3 WN-3's optional paths: qualify Antigravity CLI's shared global hook registration and Nexus-AI's global skills reader from current primary sources; archive the bounded evidence while retaining unverified optional paths.
 - [x] Read v4.3 WN-2's repository artifact retention and merge-queue state through GitHub's read-only APIs; archive the values and keep the billing-minute gate open.
-- [ ] Read v4.3 WN-2's Actions minutes by runner class through authorized account billing access, record the billing period, and close the warning only after all three values are verified.
+- [x] Close v4.3 WN-2 through PR #308's public-standard-runner billing applicability and current repository-setting read-backs; account-wide usage remains unclaimed.
 - [ ] Decide and implement per-session executor, writable-state, credential, and egress boundaries before claiming v4.5 DF-2 isolation; repeat the real-host audit after those controls exist.
 - [x] Resolve v4.9 WN-2 with a process decision: retain fresh claim evidence across models, omit redundant Opus 5 self-check prompts, and align the profile index and generated reference. Archive the bounded verification.
 - [x] Close v4.9.0 WN-1 locally: move only the ignored synthetic harness residue to the Windows Recycle Bin and verify that the separate answer archive remains present.
