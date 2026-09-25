@@ -370,6 +370,8 @@ BG-48 PUBLICATION VERIFIED 2026-09-23: PR #255 merged at `20bc793b` after all ho
 
 BG-46 and BG-47 RESOLVED LOCALLY 2026-09-23 (post-release): the describe heading is shortened and the fullscreen idle terminal no longer stretches to occupy the completed-reply scroll area. The 23-test browser layout suite passed with `NEXUS_REQUIRE_RENDER=1`, including 320/420 px heading checks, all four named desktop sizes before and after Run in both themes, and the unchanged 0.88 completed-state coverage floor. Six fresh screenshots were inspected and archived in [Training layout follow-up verification](../../../archives/v4/v4.4/development/guide-training-layout-followup/verification.md). The original rows remain historical until publication and post-merge checks complete; MT-446-1 through MT-446-3 and QG-446-1 are not closed by this repair.
 
+MT-446-3 RESOLVED 2026-09-24 (post-release): hosted Ubuntu `guide-render` run 35933463823 exercised the guide and visual-detector browser contracts with Playwright 1.63.0 and Chromium 153.0.8010.12. Its retained JUnit report records 384 passed, one optional sibling-copy skip, zero failures, and zero errors. The CI merge checkout and current `develop` have identical guide and relevant test/profile blobs. See the [archived Linux browser qualification](../../../archives/v4/v4.4/development/guide-linux-browser-qualification/verification.md). This closes Linux browser availability only; MT-446-1, MT-446-2, and QG-446-1 remain open.
+
 ### Resolved
 
 | ID | Title | Resolved in | Notes |
