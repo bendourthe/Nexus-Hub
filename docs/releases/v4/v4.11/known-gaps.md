@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released family with bounded open gaps. v4.11.0 was published at tag `v4.11.0` (`0f68fa1a`) and v4.11.2 at tag `v4.11.2` (`dfe302fb`). No v4.11.1 tag exists; its cache-and-diagram implementation merged into `develop` through PR #232 at `c54dbeb4`, completing T025 as historical closure inside the later released family. The v4.10.0 work shipped inside v4.11.0, so the missing v4.10.0 tag remains an intentional skipped number rather than an unpublished release. Open entries below remain explicit hosted-scan, feature-boundary, or manual-validation limitations.
-**Last updated**: 2026-09-24
+**Last updated**: 2026-09-25
 
 ## Carried into v4.11.0 from earlier cycles - CodeQL backlog
 
@@ -258,6 +258,8 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 **Local follow-up, 2026-09-24**: An independent `control_behaviors` inventory now names a setup, precondition, action, and intended browser-visible result for each declared slide control. The [archived qualification](../../../archives/v4/v4.11/development/control-behavior-qualification.md) records a second-slide inert control caught, a working and an idempotent control accepted, and a chart mutation caught by unchanged plotted marks even though `aria-pressed` changed. No automatic inventory proves that all controls were mapped; the original four-button artifact is unretained, and protected publication is pending. MT-9 remains open.
 
 **Retained-pilot qualification, 2026-09-24**: PR #297 published the declared-control guard through protected `develop`, and its post-merge smoke and provenance run passed. The [archived retained-pilot qualification](../../../archives/v4/v4.11/development/retained-pilot-control-qualification.md) now covers an exact live-DOM census of 34 initial controls plus both dynamically created image-close controls in the retained report pilot. Thirty-one Chromium tests pass, including an inert-stage negative control, and the standalone scorer reports three declared slide-control observations as `pass` with zero guard findings. The full-page scorer still reports 629 separate page errors, so this is not a visual-quality pass. The original four-button artifact remains unavailable and arbitrary future controls remain `unchecked` until declared. Keep MT-9 open until this follow-up is merged and post-merge verified.
+
+**Closed after protected integration, 2026-09-25 UTC**: PR #298 passed 21 hosted checks with one expected skip, merged into `develop` as `1ae58ad5`, and post-merge run 36097633753 passed smoke and provenance on that merge commit. MT-9 is closed for the declared-control method qualified against the retained pilot's complete control census; this does not retroactively test the unavailable four-button artifact, certify an arbitrary future control without an inventory, or waive the pilot's separate whole-page findings.
 
 #### MT-10 - No authored connector diagram has qualified the new geometry checks
 
