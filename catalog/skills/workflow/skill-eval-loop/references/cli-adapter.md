@@ -58,7 +58,7 @@ Pros: ~50 lines of CLI-specific code per script (vs ~150 lines of duplication x 
 
 ## Per-CLI invocation patterns
 
-The exact CLI flag surface evolves. The findings below were re-verified against official vendor documentation on 2026-09-21. Every provider-backed run requires an explicit model pin; a runner with no documented all-configuration isolation fails closed instead of silently falling back.
+The exact CLI flag surface evolves. The findings below were verified against official vendor documentation on 2026-09-21; the Gemini and OpenCode isolation limitations were rechecked on 2026-09-25. Every provider-backed run requires an explicit model pin; a runner with no documented all-configuration isolation fails closed instead of silently falling back.
 
 ### Claude Code
 
@@ -82,13 +82,13 @@ claude -p "<prompt>" --setting-sources "" --model <model> --skill <path/to/SKILL
 
 **Runner**: `gemini`
 
-**Isolation status**: limitation - no all-configuration isolation flag is documented. `-e none` disables extensions, but the official configuration reference still loads system, user, project, environment, and command-line layers. Evals on this runner are refused and are not comparable to isolated runs.
+**Isolation status**: limitation - no all-configuration isolation flag is documented. `-e none` disables extensions, and `GEMINI_CLI_HOME` redirects user-level configuration and storage, but the official configuration reference still describes separate system, project, environment, and command-line layers. The documented home override alone does not establish an isolated baseline. Evals on this runner are refused and are not comparable to isolated runs.
 
 **Model pin**: `--model <model>` is documented, but a model pin alone does not make the run isolated.
 
-**Official source**: [Gemini CLI configuration reference](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/configuration.md), verified 2026-09-21.
+**Official source**: [Gemini CLI configuration reference](https://geminicli.com/docs/reference/configuration/), rechecked 2026-09-25.
 
-No invocation is emitted until the vendor documents a flag that excludes the operator's configuration as a whole.
+No invocation is emitted until a documented and tested per-run exclusion covers every configuration source.
 
 ### Codex
 
@@ -112,13 +112,13 @@ codex exec --ignore-user-config --ignore-rules --ephemeral --model <model> "<pro
 
 **Runner**: `opencode`
 
-**Isolation status**: limitation - no all-configuration isolation flag is documented. `--pure` disables external plugins only, while the official CLI documents separate configuration paths and directories. Evals on this runner are refused and are not comparable to isolated runs.
+**Isolation status**: limitation - no all-configuration isolation flag is documented. `--pure` disables external plugins only; the official configuration reference says config sources are merged, a custom config directory is additive, and managed settings take highest priority. Evals on this runner are refused and are not comparable to isolated runs.
 
 **Model pin**: `--model <provider/model>` is documented, but a model pin alone does not make the run isolated.
 
-**Official source**: [OpenCode CLI reference](https://dev.opencode.ai/docs/cli/), verified 2026-09-21.
+**Official source**: [OpenCode CLI reference](https://dev.opencode.ai/docs/cli/) and [configuration reference](https://dev.opencode.ai/docs/config/), rechecked 2026-09-25.
 
-No invocation is emitted until the vendor documents a flag that excludes the operator's configuration as a whole.
+No invocation is emitted until a documented and tested per-run exclusion covers every configuration source.
 
 ## Model pin and conflict rule
 
