@@ -593,6 +593,45 @@
           "note": "Three independent refutation lenses on 2026-09-25: currency and actionability survived; source support survived after quoting enabled. A complete live Claude roster remains unavailable, so this claim-only write preserves the 2026-09-08 roster metadata."
         }
       ]
+    },
+    "gpt-5.6-sol": {
+      "platform": "claude-code",
+      "last_verified": "2026-09-25",
+      "claims": [
+        {
+          "claim": "When migrating from GPT-5.5 or GPT-5.4 with a reasoning effort above none, compare the existing effort with one level lower on representative tasks.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "OpenAI frames this as GPT-5.6-family guidance, not a Sol-only difference. For a previous effort of none, its separate guidance keeps none as the latency baseline and tests low where reasoning or tool use may help. Three independent refutation reviews agreed on this boundary."
+        }
+      ]
+    },
+    "gpt-5.6-luna": {
+      "platform": "claude-code",
+      "last_verified": "2026-09-25",
+      "claims": [
+        {
+          "claim": "When migrating from GPT-5.5 or GPT-5.4 with a reasoning effort above none, compare the existing effort with one level lower on representative tasks.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "OpenAI frames this as GPT-5.6-family guidance, not a Luna-only difference. Test quality, latency, and cost for Luna separately; the source does not promise equivalent quality at lower effort. For prior effort none, retain none as the latency baseline and test low when reasoning or tool use may help. Three independent refutation reviews confirmed applicability and this boundary."
+        }
+      ]
+    },
+    "gpt-5.6-terra": {
+      "platform": "claude-code",
+      "last_verified": "2026-09-25",
+      "claims": [
+        {
+          "claim": "When migrating from GPT-5.5 or GPT-5.4 with a reasoning effort above none, compare the existing effort with one level lower on representative tasks.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6",
+          "confidence": "high",
+          "scope": "model-specific",
+          "note": "OpenAI frames this as GPT-5.6-family guidance, not a Terra-only difference. Test quality, latency, and cost for Terra separately; the source does not promise equivalent quality at lower effort. For prior effort none, retain none as the latency baseline and test low when reasoning or tool use may help. Three independent refutation reviews confirmed applicability and this boundary."
+        }
+      ]
     }
   }
 }

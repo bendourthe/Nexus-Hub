@@ -27,6 +27,8 @@
 
 **Publication, 2026-09-25**: [PR #314](https://github.com/bendourthe/Nexus-Hub/pull/314) merged the claim-only writer and Haiku profile after 21 hosted checks passed with one intentional skip; [post-merge run 36137890656](https://github.com/bendourthe/Nexus-Hub/actions/runs/36137890656) passed smoke and provenance. The complete live Claude roster and the three GPT-5.6 profiles remain separate MT-1 gates.
 
+**GPT-5.6 family qualification, 2026-09-25**: [OpenAI's current GPT-5.6 guide](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6) supports one family-scoped migration-effort comparison for Sol, Terra, and Luna; their official model pages confirm the available effort settings. Three independent refutation lenses per candidate qualified a claim that excludes prior effort `none` and promises no quality equivalence. The claim-only writer generated all three per-model mirrors with an explicit family-scope note, and the structural gate reports 16 of 16 models in the recorded roster profiled without changing its 2026-09-08 date. The focused set passed 123 tests after removing a shipped-seed test that incorrectly required the roster to remain incomplete; a fixture still covers the unprofiled path. Claude Code 2.1.282 still returns a picker sentinel, and its account-backed `/model` view exposes display names rather than a complete canonical ID roster. MT-1 remains open for complete live roster evidence and protected publication. See the [bounded verification](../../../archives/v4/v4.9/development/gpt56-family-profiles-2026-09-25/verification.md).
+
 ### Warnings (WN)
 
 #### WN-1 - Cursor and Gemini claims are family-scoped, recorded at per-model granularity
