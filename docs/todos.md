@@ -141,7 +141,9 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Repair the SVG routing false positive found on a real worked-example bar chart: earlier gridlines hidden by later opaque bars are not visible connector crossings. The 94-test visual-QA module passes, and both geometry checks now decide that chart without a high-severity finding.
 - [x] Publish the v4.11 MT-9 slide-series structure check: PR #247 merged at `03432fad` after 21 passing checks and one expected skip; post-merge run 35832863295 passed smoke and provenance. Generic control liveness remains open.
 - [x] Qualify the v4.11 MT-9 declared-control behavior candidate locally: second-slide inert and detached-chart controls fail, working and setup-dependent idempotent controls pass, and standalone Chromium CLI evidence separates the guard verdict from unrelated fixture failures.
-- [ ] Publish the declared-control behavior guard through protected integration, then inventory and exercise every meaningful control in a retained handbook before closing v4.11 MT-9; unmapped controls remain unchecked.
+- [x] Publish the declared-control behavior guard through protected PR #297 and verify post-merge smoke and provenance at `f3ee786a`.
+- [x] Inventory and exercise all 34 initial controls plus both dynamically created image-close controls in the retained v4.11 report pilot; 31 Chromium browser tests pass, including an inert-stage negative control, and the three declared scorer observations pass independently of the pilot's 629 page errors.
+- [ ] Publish the retained-pilot control qualification through protected integration and post-merge verification before closing v4.11 MT-9; unmapped controls in future handbooks remain unchecked.
 - [x] Bind v4.9 QG-1 to PR #190's final green Windows, Linux, and aggregate checks; leave MT-2's per-case platform skip question open.
 
 ## Queued work - v4.17.3 harness economics and portable engineering systems
