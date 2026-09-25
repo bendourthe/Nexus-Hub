@@ -583,12 +583,8 @@ INTERPRETERS = Group(
     name="interpreters",
     commands=(
         _py("check_python_floor", timeout=120),
-        # Nexus-Hub registers hooks as `bash <script>` and the HOST performs that
-        # launch, so a host whose `bash` cannot execute a script leaves every hook
-        # silently inert. No other group can see this: they all run Python
-        # directly rather than through the interpreter the hooks actually use.
-        # v4.3.0 Phase 5 went red twice on a Windows runner for this reason while
-        # the full local suite was green.
+        # Probe the shell selected by host-specific hook registrations. Python
+        # tests alone cannot prove the host can execute that shell's scripts.
         _py("check_interpreter_resolution", "--gate", timeout=300),
     ),
 )
