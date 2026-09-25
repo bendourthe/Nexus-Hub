@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Historical v4.0-v4.13 plan implementations are integrated; the approved v4.13.4 Training rebuild and v4.13.1 user-edit safety plan remain in isolated worktrees. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Active work:** Historical v4.0-v4.13 plan implementations are integrated; the approved v4.13.4 Training rebuild has committed Phases 1-3 in an isolated worktree. The Windows interpreter follow-up is merged, and the v4.13.1 user-edit safety plan remains separate in-flight work. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
 **Closeout boundary:** Two future-plan PRs, recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-09-25
 
@@ -9,7 +9,7 @@ This dashboard tracks the work in flight right now. It is deliberately short. Fi
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
-- [ ] Finish the [v4.13.4 Training rebuild](releases/v4/v4.13/plans/v4.13.4-guide-training-rebuild.md): Phase 1 factory and viewport behavior is committed at `b7f618cf`. Phase 2 entity variety passed the complete guide gate (359 passed, one optional skip) and fast 17/17 at 498,421 normalized guide bytes; its one local commit carries the [Phase 2 history](releases/v4/v4.13/development/history/2026-09-25_v4.13.4-training-phase-2.md). Phases 3-8 and the integration PR remain open. The two baseline-identical mobile navigation overflows remain owned by Phase 6.
+- [ ] Finish the [v4.13.4 Training rebuild](releases/v4/v4.13/plans/v4.13.4-guide-training-rebuild.md): Phases 1-3 are committed locally. Phase 3 painters and projectile visuals passed five focused browser tests, the 363-pass full guide suite with one optional skip, rendered inspection at 1440 and 420 px, and a process-qualified fast gate of 17/17. The guide is 494,498 normalized bytes. Phases 4-8 and the integration PR remain open. The two baseline-identical mobile navigation overflows remain owned by Phase 6.
 
 - [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
 - [x] Publish the bounded v4.10 evaluation-isolation source recheck through [PR #312](https://github.com/bendourthe/Nexus-Hub/pull/312): 21 hosted checks passed with one intentional skip, and [post-merge run 36130699528](https://github.com/bendourthe/Nexus-Hub/actions/runs/36130699528) passed smoke and provenance. EV-1 and EV-2 remain open for tested all-source isolation.
