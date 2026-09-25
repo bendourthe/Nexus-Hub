@@ -8,10 +8,10 @@
 
 ### Missing tests / coverage gaps (MT)
 
-#### MT-1 - Four rostered models still lack generally applicable prompting profiles
+#### MT-1 - Incomplete prompting-profile coverage and roster freshness
 
 - **Source**: the post-v4.8.0 `/tune-prompting` full roster sweep.
-- **What was observed**: 12 of 16 rostered models are now profiled. Four are not, and each for a sourced reason rather than for lack of effort:
+- **What was observed on 2026-09-08**: 12 of 16 rostered models were profiled. Four were not, each for a sourced reason rather than for lack of effort:
     - **`claude-haiku-4-5`**: Anthropic's model-specific guidance table lists dedicated prompting pages for Fable 5.1, Fable 5, Sonnet 5, Opus 5, and Opus 4.8 only. Haiku 4.5 is covered by the general best-practices reference, which is model-agnostic across current Claude models and therefore yields no model-SPECIFIC claim.
     - **`gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`**: OpenAI's prompt-engineering guide documents `gpt-6-astra` (already profiled) and reasoning-versus-GPT guidance generally. It names no member of the 5.6 family, so there is nothing model-specific to record.
 - **Why this is the correct outcome, not a shortfall**: the runbook is explicit that no primary source found means zero claims rather than a guess, because an unsourced claim in the layer is indistinguishable from a hallucinated one and every later phase treats recorded claims as verified input. All four are reported UNVERIFIED by `verify_model_prompting_profiles.py`, which treats that as tracked rather than as a gate failure.
