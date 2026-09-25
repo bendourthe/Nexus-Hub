@@ -4308,29 +4308,240 @@ host.appendChild(svg);
 
   var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  var mountedSections = new WeakMap();
+  function createTrainingSection(sectionRoot, record, options) {
+    options = options || {};
+    function find(name) { return sectionRoot.querySelector('[data-nht="' + name + '"]'); }
+    var widgets = {
+      terminal: find("terminal"), command: find("command"), run: find("run"),
+      output: find("output"), hint: find("hint"), tools: find("tools"),
+      artifactPath: find("artifact-path"), artifactSummary: find("artifact-summary"),
+      gate: find("gate"), gateStatus: find("gate-status"), gateName: find("gate-name"),
+      gatePrompt: find("gate-prompt"), fileCount: find("file-count"),
+      fileTree: find("file-tree"), filePath: find("file-path"),
+      fileState: find("file-state"), fileBody: find("file-body")
+    };
+    var gameRoot = sectionRoot.querySelector("[data-arcade-game]");
+    var selectedPath = "", runToken = null, disposed = false, completed = false;
+
+    function fileAt(files, path) {
+      for (var i = 0; i < files.length; i++) if (files[i].path === path) return files[i];
+      return null;
+    }
+    function renderFile(files, path) {
+      var file = fileAt(files, path);
+      selectedPath = path || "";
+      if (widgets.filePath) widgets.filePath.textContent = selectedPath || "Select a file";
+      if (widgets.fileState) widgets.fileState.textContent = file ? (file.status || "new") : "not created yet";
+      if (!widgets.fileBody) return;
+      widgets.fileBody.textContent = "";
+      widgets.fileBody.classList.toggle("is-pending", !file);
+      if (!file) {
+        widgets.fileBody.textContent = selectedPath ? "Not created yet. Run this command to add it to the project." : "Select a project file.";
+      } else if (file.language !== "diff") {
+        widgets.fileBody.textContent = file.content || "";
+      } else {
+        (file.content || "").split("\n").forEach(function (line) {
+          var row = document.createElement("span");
+          row.className = line.charAt(0) === "+" ? "diff-add" : (line.charAt(0) === "-" ? "diff-remove" : "diff-line");
+          row.textContent = line || " ";
+          widgets.fileBody.appendChild(row);
+        });
+      }
+    }
+    function renderExplorer(files, preferredPath) {
+      if (!widgets.fileTree) return;
+      var focusPath = preferredPath || selectedPath || (files[0] && files[0].path) || "";
+      var visible = files.slice();
+      if (focusPath && !fileAt(files, focusPath)) visible.push({ path: focusPath, status: "pending" });
+      widgets.fileTree.textContent = "";
+      visible.forEach(function (file) {
+        var status = file.status || "new";
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "nht-fileitem";
+        button.setAttribute("role", "treeitem");
+        button.setAttribute("data-nht", "file");
+        button.setAttribute("data-file-path", file.path);
+        button.setAttribute("aria-selected", file.path === focusPath ? "true" : "false");
+        button.setAttribute("aria-label", file.path + (status === "existing" ? "" : ", " + status));
+        var name = document.createElement("span");
+        name.className = "nht-file-name";
+        name.textContent = file.path;
+        button.appendChild(name);
+        if (status !== "existing") {
+          var badge = document.createElement("span");
+          badge.className = "nht-file-badge " + status;
+          badge.textContent = status;
+          button.appendChild(badge);
+        }
+        widgets.fileTree.appendChild(button);
+      });
+      if (widgets.fileCount) widgets.fileCount.textContent = files.length + (files.length === 1 ? " file" : " files");
+      renderFile(files, focusPath);
+    }
+    function focusFileItem(path) {
+      if (!widgets.fileTree) return;
+      var items = widgets.fileTree.querySelectorAll('[role="treeitem"]');
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].getAttribute("data-file-path") === path) { items[i].focus(); return; }
+      }
+    }
+    function prepare() {
+      if (widgets.command) {
+        widgets.command.textContent = "";
+        var full = record.command || "", split = full.indexOf(" ");
+        var name = document.createElement("span");
+        name.className = "inv-cmd";
+        name.textContent = split < 0 ? full : full.slice(0, split);
+        widgets.command.appendChild(name);
+        if (split >= 0) {
+          var argument = document.createElement("span");
+          argument.className = "inv-arg";
+          argument.textContent = full.slice(split);
+          widgets.command.appendChild(argument);
+        }
+        widgets.command.setAttribute("data-copy", full);
+      }
+      if (widgets.tools) {
+        widgets.tools.textContent = "";
+        (record.tools || []).forEach(function (tool) {
+          var chip = document.createElement("span"), label = document.createElement("b");
+          chip.className = "nht-tool";
+          label.textContent = tool.name;
+          chip.appendChild(label);
+          chip.appendChild(document.createTextNode(" " + (tool.purpose || "")));
+          widgets.tools.appendChild(chip);
+        });
+      }
+      var artifact = record.artifact || {}, gate = record.gate || {};
+      if (widgets.artifactPath) widgets.artifactPath.textContent = artifact.path || "";
+      if (widgets.artifactSummary) widgets.artifactSummary.textContent = artifact.summary || "";
+      if (widgets.gate) widgets.gate.className = "nht-gate " + (gate.status === "pass" ? "pass" : "hold");
+      if (widgets.gateStatus) widgets.gateStatus.textContent = gate.status === "pass" ? "Gate: pass" : "Gate: hold";
+      if (widgets.gateName) widgets.gateName.textContent = gate.name || "";
+      if (widgets.gatePrompt) widgets.gatePrompt.textContent = gate.prompt || "";
+      if (widgets.terminal) widgets.terminal.classList.remove("has-run");
+      if (widgets.output) widgets.output.textContent = "";
+      if (widgets.run) { widgets.run.disabled = false; widgets.run.textContent = "Run"; }
+      if (widgets.hint) widgets.hint.textContent = "Press Run to send this command.";
+      if (!options.onComplete) renderExplorer([], record.focus_file);
+    }
+    function finish(preserveOutput) {
+      if (disposed || !widgets.output) return;
+      if (runToken) runToken.cancelled = true;
+      runToken = null;
+      if (!preserveOutput) {
+        widgets.output.textContent = "";
+        (record.output || []).forEach(function (line) {
+          var row = document.createElement("div");
+          row.className = "on";
+          row.textContent = line;
+          widgets.output.appendChild(row);
+        });
+      }
+      completed = true;
+      if (options.onComplete) options.onComplete();
+      else renderExplorer(record.files || [], record.focus_file);
+      if (widgets.hint) widgets.hint.textContent = "This is a simulation of the real assistant's report.";
+      if (widgets.run) { widgets.run.disabled = false; widgets.run.textContent = "Run again"; }
+    }
+    function run() {
+      if (disposed || !widgets.output) return;
+      if (widgets.terminal) widgets.terminal.classList.add("has-run");
+      if (runToken) { finish(false); return; }
+      if (REDUCE) { finish(false); return; }
+      var token = runToken = { cancelled: false };
+      widgets.output.textContent = "";
+      if (widgets.run) widgets.run.textContent = "Show now";
+      if (widgets.hint) widgets.hint.textContent = "Running (click Show now to skip the animation).";
+      var echo = document.createElement("div");
+      echo.className = "echo on";
+      echo.textContent = "working...";
+      widgets.output.appendChild(echo);
+      window.setTimeout(function () {
+        if (token.cancelled) return;
+        if (echo.parentNode) echo.parentNode.removeChild(echo);
+        var lines = record.output || [], at = 0;
+        function reveal() {
+          if (token.cancelled) return;
+          if (at < lines.length) {
+            var row = document.createElement("div");
+            row.textContent = lines[at++];
+            widgets.output.appendChild(row);
+            window.requestAnimationFrame(function () { row.classList.add("on"); });
+            window.setTimeout(reveal, 220);
+          } else finish(true);
+        }
+        reveal();
+      }, 420);
+    }
+    function onClick(event) {
+      var target = event.target.closest && event.target.closest("[data-nht]");
+      if (!target || !sectionRoot.contains(target)) return;
+      if (target.getAttribute("data-nht") === "run") run();
+      else if (target.getAttribute("data-nht") === "file") {
+        var path = target.getAttribute("data-file-path");
+        renderExplorer(options.files ? options.files() : (completed ? (record.files || []) : []), path);
+        focusFileItem(path);
+      }
+    }
+    function onFileKey(event) {
+      var items = Array.prototype.slice.call(widgets.fileTree.querySelectorAll('[role="treeitem"]'));
+      var at = items.indexOf(document.activeElement), next;
+      if (event.key === "ArrowDown") next = Math.min(items.length - 1, at + 1);
+      else if (event.key === "ArrowUp") next = Math.max(0, at - 1);
+      else if (event.key === "Home") next = 0;
+      else if (event.key === "End") next = items.length - 1;
+      else return;
+      if (items[next]) { event.preventDefault(); event.stopPropagation(); items[next].focus(); }
+    }
+    sectionRoot.addEventListener("click", onClick);
+    if (widgets.fileTree) widgets.fileTree.addEventListener("keydown", onFileKey);
+    prepare();
+    return Object.freeze({
+      run: run, finish: finish, renderExplorer: renderExplorer,
+      selectedPath: function () { return selectedPath; },
+      game: function () { return gameRoot && window.NexusShooter ? window.NexusShooter.get(gameRoot.getAttribute("data-arcade-id")) : null; },
+      dispose: function () {
+        if (disposed) return;
+        disposed = true;
+        if (runToken) runToken.cancelled = true;
+        sectionRoot.removeEventListener("click", onClick);
+        if (widgets.fileTree) widgets.fileTree.removeEventListener("keydown", onFileKey);
+        mountedSections.delete(sectionRoot);
+      }
+    });
+  }
+  function mountSection(sectionRoot, record, options) {
+    if (!sectionRoot || sectionRoot.nodeType !== 1) throw new TypeError("Training section root is required");
+    if (mountedSections.has(sectionRoot)) throw new Error("Training section already mounted");
+    var controller = createTrainingSection(sectionRoot, record, options);
+    mountedSections.set(sectionRoot, controller);
+    return controller;
+  }
+
   function q(name) { return root.querySelector('[data-nht="' + name + '"]'); }
   var els = {
     where: q("where"), progress: q("progress"),
     outline: document.getElementById("nhtOutline"), outlineList: q("outline-list"),
     stepNum: q("step-num"), title: q("title"), intent: q("intent"),
-    command: q("command"), run: q("run"), output: q("output"), hint: q("hint"),
-    tools: q("tools"), artifactPath: q("artifact-path"), artifactSummary: q("artifact-summary"),
-    gate: q("gate"), gateStatus: q("gate-status"), gateName: q("gate-name"), gatePrompt: q("gate-prompt"),
-    fileCount: q("file-count"), fileTree: q("file-tree"), filePath: q("file-path"),
-    fileState: q("file-state"), fileBody: q("file-body"), takeaway: q("takeaway")
+    takeaway: q("takeaway")
   };
 
   var step = 0;
   var appliedThrough = -1;
-  var selectedFile = "";
-  var runToken = null;
+  var sectionController = null;
 
   /* ---------------------------------------------- cumulative project state */
   function configureGame(config) {
     if (!window.NexusShooter) return;
-    window.NexusShooter.reset(config.fixture);
-    window.NexusShooter.setDamageMode(config.damageMode);
-    window.NexusShooter.setVerticalMovementEnabled(config.verticalMovementEnabled);
+    var game = sectionController && sectionController.game();
+    if (!game) game = window.NexusShooter.primary();
+    if (!game) return;
+    game.reset(config.fixture);
+    game.setDamageMode(config.damageMode);
+    game.setVerticalMovementEnabled(config.verticalMovementEnabled);
   }
 
   function gameStateThrough(index) {
@@ -4359,175 +4570,10 @@ host.appendChild(svg);
     return order.map(function (path) { return table[path]; });
   }
 
-  function fileAt(files, path) {
-    for (var i = 0; i < files.length; i++) {
-      if (files[i].path === path) return files[i];
-    }
-    return null;
-  }
-
-  function renderFile(files, path) {
-    var file = fileAt(files, path);
-    selectedFile = path || "";
-    if (els.filePath) els.filePath.textContent = selectedFile || "Select a file";
-    if (els.fileState) els.fileState.textContent = file ? file.status : "not created yet";
-    if (!els.fileBody) return;
-    els.fileBody.textContent = "";
-    els.fileBody.classList.toggle("is-pending", !file);
-    if (!file) {
-      els.fileBody.textContent = selectedFile ? "Not created yet. Run this command to add it to the project." : "Select a project file.";
-      return;
-    }
-    if (file.language !== "diff") {
-      els.fileBody.textContent = file.content;
-      return;
-    }
-    file.content.split("\n").forEach(function (line) {
-      var row = document.createElement("span");
-      row.className = line.charAt(0) === "+" ? "diff-add" : (line.charAt(0) === "-" ? "diff-remove" : "diff-line");
-      row.textContent = line || " ";
-      els.fileBody.appendChild(row);
-    });
-  }
-
-  function renderExplorer(files, preferredPath) {
-    if (!els.fileTree) return;
-    var focusPath = preferredPath || selectedFile || (files[0] && files[0].path) || "";
-    var pending = focusPath && !fileAt(files, focusPath);
-    els.fileTree.textContent = "";
-    var visible = files.slice();
-    if (pending) visible.push({ path: focusPath, status: "pending" });
-    visible.forEach(function (file) {
-      var button = document.createElement("button");
-      button.type = "button";
-      button.className = "nht-fileitem";
-      button.setAttribute("role", "treeitem");
-      button.setAttribute("data-nht", "file");
-      button.setAttribute("data-file-path", file.path);
-      button.setAttribute("aria-selected", file.path === focusPath ? "true" : "false");
-      button.setAttribute("aria-label", file.path + (file.status === "existing" ? "" : ", " + file.status));
-      var name = document.createElement("span");
-      name.className = "nht-file-name";
-      name.textContent = file.path;
-      button.appendChild(name);
-      if (file.status !== "existing") {
-        var badge = document.createElement("span");
-        badge.className = "nht-file-badge " + file.status;
-        badge.textContent = file.status;
-        button.appendChild(badge);
-      }
-      els.fileTree.appendChild(button);
-    });
-    if (els.fileCount) els.fileCount.textContent = files.length + (files.length === 1 ? " file" : " files");
-    renderFile(files, focusPath);
-  }
-
-  function focusFileItem(path) {
-    if (!els.fileTree) return;
-    var items = els.fileTree.querySelectorAll('[role="treeitem"]');
-    for (var i = 0; i < items.length; i++) {
-      if (items[i].getAttribute("data-file-path") === path) {
-        items[i].focus();
-        return;
-      }
-    }
-  }
-
   function applySceneState(includeCurrent) {
     appliedThrough = includeCurrent ? step : step - 1;
     configureGame(gameStateThrough(appliedThrough));
-    renderExplorer(projectStateThrough(appliedThrough), SCENES[step].focus_file);
-  }
-
-  /* ---------------------------------------------- terminal */
-  function resetTerminal(scene) {
-    if (runToken) runToken.cancelled = true;
-    runToken = null;
-    var term = root.querySelector('[data-nht="terminal"]');
-    if (term) term.classList.remove("has-run");
-    if (els.output) els.output.textContent = "";
-    if (els.command) {
-      /* Colour the command apart from its argument (the shared .inv
-         convention); the copy payload stays the plain full string. */
-      els.command.textContent = "";
-      var full = scene.command || "";
-      var sp = full.indexOf(" ");
-      var c = document.createElement("span");
-      c.className = "inv-cmd";
-      c.textContent = sp < 0 ? full : full.slice(0, sp);
-      els.command.appendChild(c);
-      if (sp >= 0) {
-        var a = document.createElement("span");
-        a.className = "inv-arg";
-        a.textContent = full.slice(sp);
-        els.command.appendChild(a);
-      }
-      els.command.setAttribute("data-copy", full);
-    }
-    if (els.run) { els.run.disabled = false; els.run.textContent = "Run"; }
-    if (els.hint) els.hint.textContent = "Press Run to send this command.";
-  }
-  function finishRun(scene, preserveOutput) {
-    if (!els.output) return;
-    if (runToken) runToken.cancelled = true;
-    runToken = null;
-    if (!preserveOutput) {
-      els.output.textContent = "";
-      (scene.output || []).forEach(function (line) {
-        var row = document.createElement("div");
-        row.className = "on";
-        row.textContent = line;   /* textContent: fixture strings stay literal */
-        els.output.appendChild(row);
-      });
-    }
-    applySceneState(true);
-    if (els.hint) els.hint.textContent = "This is a simulation of the real assistant's report.";
-    if (els.run) { els.run.disabled = false; els.run.textContent = "Run again"; }
-  }
-  function runCommand() {
-    var scene = SCENES[step];
-    if (!scene || !els.output) return;
-    var term = root.querySelector('[data-nht="terminal"]');
-    if (term) term.classList.add("has-run");
-    if (runToken) { runToken.cancelled = true; finishRun(scene, false); return; }
-    if (REDUCE) { finishRun(scene, false); return; }
-
-    var tok = runToken = { cancelled: false };
-    els.output.textContent = "";
-    if (els.run) { els.run.disabled = false; els.run.textContent = "Show now"; }
-    if (els.hint) els.hint.textContent = "Running (click Show now to skip the animation).";
-
-    /* The prompt line above is the echo; typing it twice reads as a
-       duplicate. Show a working line instead, then the reply. */
-    var echo = document.createElement("div");
-    echo.className = "echo on";
-    echo.textContent = "working...";
-    els.output.appendChild(echo);
-
-    function typeChar() {
-      if (tok.cancelled) return;
-      window.setTimeout(function () {
-        if (tok.cancelled) return;
-        if (echo.parentNode) echo.parentNode.removeChild(echo);
-        revealLines();
-      }, 420);
-    }
-    var oi = 0;
-    var lines = scene.output || [];
-    function revealLines() {
-      if (tok.cancelled) return;
-      if (oi < lines.length) {
-        var row = document.createElement("div");
-        row.textContent = lines[oi];   /* textContent, never innerHTML */
-        els.output.appendChild(row);
-        window.requestAnimationFrame(function () { row.classList.add("on"); });
-        oi++;
-        window.setTimeout(revealLines, 220);
-      } else {
-        finishRun(scene, true);
-      }
-    }
-    typeChar();
+    sectionController.renderExplorer(projectStateThrough(appliedThrough), SCENES[step].focus_file);
   }
 
   /* ---------------------------------------------- render a step */
@@ -4565,29 +4611,6 @@ host.appendChild(svg);
       }
     }
 
-    if (els.tools) {
-      els.tools.textContent = "";
-      (scene.tools || []).forEach(function (tool) {
-        var chip = document.createElement("span");
-        chip.className = "nht-tool";
-        var b = document.createElement("b");
-        b.textContent = tool.name;
-        chip.appendChild(b);
-        chip.appendChild(document.createTextNode(" " + (tool.purpose || "")));
-        els.tools.appendChild(chip);
-      });
-    }
-
-    var art = scene.artifact || {};
-    if (els.artifactPath) els.artifactPath.textContent = art.path || "";
-    if (els.artifactSummary) els.artifactSummary.textContent = art.summary || "";
-
-    var gate = scene.gate || {};
-    if (els.gate) els.gate.className = "nht-gate " + (gate.status === "pass" ? "pass" : "hold");
-    if (els.gateStatus) els.gateStatus.textContent = gate.status === "pass" ? "Gate: pass" : "Gate: hold";
-    if (els.gateName) els.gateName.textContent = gate.name || "";
-    if (els.gatePrompt) els.gatePrompt.textContent = gate.prompt || "";
-
     if (els.takeaway) {
       els.takeaway.textContent = "";
       var claim = document.createElement("b");
@@ -4597,8 +4620,12 @@ host.appendChild(svg);
     }
 
     if (resetGame) {
+      if (sectionController) sectionController.dispose();
+      sectionController = mountSection(root, scene, {
+        onComplete: function () { applySceneState(true); },
+        files: function () { return projectStateThrough(appliedThrough); }
+      });
       applySceneState(false);
-      resetTerminal(scene);
     }
 
     var prev = root.querySelector('[data-nht="prev"]');
@@ -4755,12 +4782,6 @@ host.appendChild(svg);
     if (action === "next") { goNext(); }
     else if (action === "prev") { goPrev(); }
     else if (action === "restart") { render(true); }
-    else if (action === "run") { runCommand(); }
-    else if (action === "file") {
-      var path = t.getAttribute("data-file-path");
-      renderExplorer(projectStateThrough(appliedThrough), path);
-      focusFileItem(path);
-    }
     else if (action === "outline") {
       if (els.outline && els.outline.hidden) {
         els.outline.hidden = false;
@@ -4777,24 +4798,6 @@ host.appendChild(svg);
     var inside = e.target.closest && (e.target.closest("#nhtOutline") || e.target.closest('[data-nht="outline"]'));
     if (!inside) closeOutline(false);
   });
-
-  if (els.fileTree) {
-    els.fileTree.addEventListener("keydown", function (e) {
-      var items = Array.prototype.slice.call(els.fileTree.querySelectorAll('[role="treeitem"]'));
-      var at = items.indexOf(document.activeElement);
-      var target;
-      if (e.key === "ArrowDown") target = Math.min(items.length - 1, at + 1);
-      else if (e.key === "ArrowUp") target = Math.max(0, at - 1);
-      else if (e.key === "Home") target = 0;
-      else if (e.key === "End") target = items.length - 1;
-      else return;
-      if (items[target]) {
-        e.preventDefault();
-        e.stopPropagation();
-        items[target].focus();
-      }
-    });
-  }
 
   document.addEventListener("keydown", function (e) {
     if (document.body.getAttribute("data-page") !== "training") return;
@@ -4825,7 +4828,6 @@ host.appendChild(svg);
     if (tag === "input" || tag === "textarea" || tag === "select") return;
     if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); goNext(); }
     else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); goPrev(); }
-    else if (e.key === "Enter" && e.target === els.run) { runCommand(); }
     else if (e.key === "f" || e.key === "F") { togglePresent(); }
   });
 
@@ -4843,7 +4845,7 @@ host.appendChild(svg);
   }
 
   function selectProjectFile(path) {
-    renderExplorer(projectStateThrough(appliedThrough), path);
+    sectionController.renderExplorer(projectStateThrough(appliedThrough), path);
     return trainingSnapshot();
   }
 
@@ -4853,7 +4855,7 @@ host.appendChild(svg);
       sceneId: SCENES[step].id,
       sceneIndex: step,
       appliedThrough: appliedThrough,
-      selectedPath: selectedFile,
+      selectedPath: sectionController.selectedPath(),
       filePaths: projectStateThrough(appliedThrough).map(function (file) { return file.path; }),
       game: {
         damageMode: game.damageMode,
@@ -4867,9 +4869,10 @@ host.appendChild(svg);
   var trainingApi = Object.freeze({
     go: goTo,
     run: function () {
-      finishRun(SCENES[step], false);
+      sectionController.finish(false);
       return trainingSnapshot();
     },
+    mountSection: mountSection,
     selectFile: selectProjectFile,
     snapshot: trainingSnapshot,
     syncFromHash: function (sceneId) {
