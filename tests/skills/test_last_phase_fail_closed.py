@@ -23,7 +23,7 @@ RUNBOOK = (
 PLAN_CMD = ROOT / "catalog" / "commands" / "plan.md"
 SESSION_HISTORY = ROOT / "catalog" / "skills" / "workflow" / "session-history" / "SKILL.md"
 COMMAND_SCOPE_LINE_BUDGET = 150
-EVIDENCE_PATH = "<version_dir>/development/last-phase-evidence.md"
+EVIDENCE_PATH = "<version_dir>/development/<version>-last-phase-evidence.md"
 GOAL_REVIEW = "Goal-vs-codebase"
 
 
@@ -62,7 +62,7 @@ def test_runbook_requires_the_tier_3_deep_pass_evidence_section() -> None:
     gate = text[text.index("### 9.0"):text.index("### 9A")]
     assert "[[functional-verification]]" in gate
     assert "references/deep-pass.md" in gate
-    assert "<version_dir>/development/last-phase-evidence.md" in gate
+    assert "<version_dir>/development/<version>-last-phase-evidence.md" in gate
     assert "`## Tier 3 deep pass`" in gate
 
 

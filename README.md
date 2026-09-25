@@ -515,11 +515,9 @@ Open an AI chatbot (Claude.ai or ChatGPT) and brainstorm: problem, users, core f
 
 #### 3. Development (core loop)
 
-Create ONE feature branch for the whole plan (`feat/<slug>`), then for each phase:
+Run `/implement <slug>` once. It asks every approval the run needs in one upfront round, then runs the whole plan in its own worktree: every subtask of every phase, tests and fixes, `/update gitignore` + `/update docs`, a session-history file, and a local commit per phase, then the single publication, the release, and cleanup. It stops only when the completion checker reports a terminal verdict, on a named blocker, or when you run `/implement pause`; `/implement <slug>` resumes.
 
-1. Open a fresh Claude Code session.
-2. Run `/implement <slug> <phase>` -- walks every subtask, generates and runs tests, applies fixes, runs `/update gitignore` + `/update docs`, generates a session-history file, and produces a commit message.
-3. Commit locally. Repeat for the next phase.
+To work one phase at a time instead, run `/implement <slug> phase <N>` (or `next`) in a fresh session per phase, or `/implement <slug> phase-by-phase` to review and commit after each phase.
 
 **Non-final phases do not push** (v4.0.0). A remote pipeline run per phase bills to validate work the plan itself calls incomplete, and a red check on incomplete work teaches you to stop reading red checks. One branch, one commit per phase, all local.
 
@@ -558,7 +556,7 @@ For projects you have inherited or need to audit.
 For each change:
 
 1. Brainstorm in a chatbot, then run `/plan` to produce a structured implementation plan saved to `docs/<version>/plans/<slug>.md`.
-2. Run `/implement <slug> <phase>` per phase -- identical to the New Project Workflow's development loop.
+2. Run `/implement <slug>` to run the whole plan, or `/implement <slug> phase <N>` per phase -- identical to the New Project Workflow's development loop.
 3. (Optional) Use git worktrees for parallel work:
 
     ```bash
