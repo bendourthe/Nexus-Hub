@@ -50,6 +50,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Publish and inspect both real report types in PR #243's seven-day hosted aggregate; the replacement run passed 30 checks with one intentional skip, and post-merge run 35826047174 passed.
 - [x] Merge PR #244 after its refreshed run passed all 18 jobs; post-merge run 35828234631 passed smoke and provenance.
 - [x] Reconcile the v4.12 BG-2 ledger against PR #244 and its post-merge proof; keep GitHub contributor and direct API boundaries separate.
+- [ ] Resolve v4.12 QG-2's public Code sidebar discrepancy through GitHub Support or a fresh rendered correction; the 2026-09-24 [recheck](archives/v4/v4.12/development/contributor-sidebar-recheck-2026-09-24.md) still shows five despite one-contributor APIs.
 - [x] Merge PR #245 and preserve the original interrupted full-profile report; post-merge run 35828718066 passed.
 - [x] Recheck the v4.9 MT-1 primary sources without fabricating four per-model profiles; PR #248 merged at `f1354d47`, and post-merge run 35833196149 passed smoke and provenance.
 - [x] Qualify and publish the v4.12 BG-3 durable attribution hook through PRs #249 and #250; both passed hosted and post-merge checks. Remove both clean installer worktrees, verify the surviving guard from a second Windows checkout, and prove it rejects a forbidden attribution trailer.

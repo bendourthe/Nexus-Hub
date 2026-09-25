@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released
-**Last updated**: 2026-09-23
+**Last updated**: 2026-09-24
 
 Release-scoped gaps for the sole-contributor-attribution plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -78,6 +78,8 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 **Owner**: Repository owner. **Suggested next step**: approve the explicit writable-ref publication scope only with this limitation understood; observe both default-branch contributor surfaces afterward. If purging every GitHub-held ref is required, obtain GitHub's supported administrative disposition separately. Do not promise old SHA disappearance or a clean GitHub mirror that fetches PR refs.
 
 #### QG-2: GitHub contributor-view confirmation pending
+
+**Recheck, 2026-09-24**: A fresh unauthenticated Chromium render still shows `Contributors 5` with the same five avatar labels, while both read-only contributor APIs return only `bendourthe`. The [dated recheck and Support handoff draft](../../../archives/v4/v4.12/development/contributor-sidebar-recheck-2026-09-24.md) retain browser version, counts, default-branch SHA and the exact acceptance boundary. QG-2 stays open; no new history rewrite is justified.
 
 **Recheck, 2026-09-22**: The live contributors API now returns only `bendourthe` (1,753 contributions), and the statistics API also returns only `bendourthe` (1,394 non-merge commits). A fresh, unauthenticated Chromium rendering of the public [Code page](https://github.com/bendourthe/Nexus-Hub) still shows `Contributors 5`; its avatar labels identify `bendourthe`, `cursoragent`, `benjamin-dourthe`, `claude`, and `dependabot[bot]`. The rendered Code result fails the one-contributor criterion despite the API results. No new history rewrite is justified by this discrepancy.
 
