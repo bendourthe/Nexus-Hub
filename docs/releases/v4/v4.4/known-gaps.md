@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 through v4.4.5 published together as the v4.4.5 tag on 2026-09-04 (PRs #154 and #157), after the operator's Home and Foundations review lifted the publication hold
-**Last updated**: 2026-09-02 (v4.4.2 Phase 8)
+**Last updated**: 2026-09-25 (post-release QG-446-1 disposition)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -377,6 +377,8 @@ WN-446-2 RESOLVED for current `develop` 2026-09-25 (post-release): manual [CodeQ
 QG-446-1 FOLLOW-UP 2026-09-25 (post-release): a new unfiltered Windows full profile completed all 61 commands with zero failures, skips, or advisories in 7,220.4 seconds at `bb3b2b97`; all 13 test partitions returned terminal passes. The process prepended Git Bash to PATH. At the current `0338b11d` integration tip, whose delta is documentation-only, fast 17/17 and docs 8/8 passed with the same prefix. A fresh default-PATH interpreter gate still exits 1 because Windows chooses an unusable Bash shim; the prefixed gate exits 0. The [archived full-run qualification](../../../archives/v4/v4.4/development/full-native-profile-2026-09-25/verification.md) separates these results. Keep QG-446-1 open for the default-host interpreter boundary and protected publication of this record. The original failed run remains unchanged, and the user-superseded v4.4.6 plan's T027 is not retroactively complete.
 
 QG-446-1 LOCAL DEFAULT-HOST CANDIDATE 2026-09-25 (post-release): the current Windows-managed hook commands target 35 PowerShell siblings and six Python scripts, with zero Bash scripts in the installed Claude settings. The interpreter gate now probes the host-selected PowerShell script on Windows and retains Bash on non-Windows. The unmodified Windows host PATH passes the real gate, and the unfiltered native full profile passed 61/61 commands with no skips or advisories in 7,446.3 seconds. The [archived qualification](../../../archives/v4/v4.4/development/windows-interpreter-default-host/verification.md) retains the summary and environment receipt. This local candidate does not close QG-446-1 until protected integration and post-merge checks pass; historical failed evidence remains unchanged.
+
+QG-446-1 RESOLVED ON `develop` 2026-09-25 (post-release): [PR #319](https://github.com/bendourthe/Nexus-Hub/pull/319) merged the default-host interpreter probe at `e8c34ef0` after the required `ci-required`, colocation, shellcheck, validation, and verification checks passed; Linux and Windows tests, guide rendering, CodeQL, and the remaining hosted jobs also passed. [Post-merge run 36188249570](https://github.com/bendourthe/Nexus-Hub/actions/runs/36188249570) passed smoke and provenance against that merge commit. The [archived 61-command default-host receipt](../../../archives/v4/v4.4/development/windows-interpreter-default-host/verification.md) closes this current-host gate. The original failed profile, process-qualified precursor, and superseded v4.4.6 T027 are unchanged; this disposition does not claim a rerun of the full profile on the post-merge commit or cover arbitrary user-authored Bash hooks.
 
 ### Resolved
 
