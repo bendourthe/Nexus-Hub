@@ -9,6 +9,8 @@ This dashboard tracks the work in flight right now. It is deliberately short. Fi
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
+- [ ] Finish the [v4.13.4 Training rebuild](releases/v4/v4.13/plans/v4.13.4-guide-training-rebuild.md): Phase 1 factory and viewport behavior passed 44 affected tests and fast 17/17, with a duplicate-ID preflight, a 492,979-byte guide, and two baseline-identical mobile navigation overflow findings owned by Phase 6. Phase 1 is bundled in one local commit; Phases 2-8 and the integration PR remain open. See the [Phase 1 history](releases/v4/v4.13/development/history/2026-09-25_v4.13.4-training-phase-1.md).
+
 - [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
 - [x] Publish the bounded v4.10 evaluation-isolation source recheck through [PR #312](https://github.com/bendourthe/Nexus-Hub/pull/312): 21 hosted checks passed with one intentional skip, and [post-merge run 36130699528](https://github.com/bendourthe/Nexus-Hub/actions/runs/36130699528) passed smoke and provenance. EV-1 and EV-2 remain open for tested all-source isolation.
 - [ ] Complete v4.9 MT-1's live Claude model-ID roster freshness; the recorded roster still carries its 2026-09-08 date, and the account-backed picker did not expose a complete canonical roster.
