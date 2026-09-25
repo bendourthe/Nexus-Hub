@@ -124,7 +124,7 @@ def test_beam_tell_is_safe_active_interval_hits_and_expiry_removes(tmp_path):
         function state() {
           var s = fixtureState('play', DEFAULT_SEED);
           s.lifecycle = 'running'; s.damageMode = 'fixed';
-          s.enemyShots = [{id:'beam-test',style:'beam',sourceId:'none',x:180,y:300,
+          s.enemyShots = [{id:'beam-test',style:'beam',sourceId:'none',x:320,y:300,
             r:0,width:10,length:180,vy:1,tell:2,active:2,resolved:false}];
           return s;
         }

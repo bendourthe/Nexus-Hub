@@ -155,7 +155,7 @@ def test_player_is_bounded_and_fires_upward(page_ctx) -> None:
     result = run_js(page, """
         // v4.4.2: every fixture spawns from tick 120, and a player parked at a WALL is a
         // legitimate target (only the centre band is kept clear). The clamp is reached in
-        // about 62 ticks per side, so 150 each way proves it well before any spawned threat
+        // about 141 ticks across the wide stage, so 150 each way proves it before spawned threats
         // can land (earliest possible hit is past tick 300).
         api.reset('enemy-hit'); api.setDamageMode('fixed'); api.start();
         api.input('left', true);
@@ -173,7 +173,7 @@ def test_player_is_bounded_and_fires_upward(page_ctx) -> None:
         return {leftX, rightX, lifecycle: snap.lifecycle, shotVy: shot.vy, shotY: shot.y, playerY: snap.player.y};
     """)
     assert result["lifecycle"] == "running", f"the ship must survive the clamp walk: {result}"
-    assert result["leftX"] == 14 and result["rightX"] == 346, "horizontal clamp failed"
+    assert result["leftX"] == 14 and result["rightX"] == 626, "horizontal clamp failed"
     assert result["shotVy"] < 0, "player shots must travel upward"
     assert result["shotY"] < result["playerY"], "shots leave from the nose"
 
@@ -283,9 +283,9 @@ def test_vertical_movement_is_gated_then_clamped(page_ctx) -> None:
         api.input('down', false);
         return {gatedY, topY, bottomY};
     """)
-    assert result["gatedY"] == 440, "vertical input must be ignored before the feature"
-    assert result["topY"] == 360, "upward travel clamps at the band top"
-    assert result["bottomY"] == 460, "downward travel clamps at the band bottom"
+    assert result["gatedY"] == 340, "vertical input must be ignored before the feature"
+    assert result["topY"] == 300, "upward travel clamps at the band top"
+    assert result["bottomY"] == 380, "downward travel clamps at the band bottom"
 
 
 # ------------------------------------------------------------------- lifecycle wiring
@@ -547,7 +547,7 @@ def test_teaching_fixtures_spawn_after_the_beat_and_never_touch_a_stationary_pla
             const s = api.step();
             const spawned = [...s.enemies, ...s.asteroids].filter(e => e.id !== 'seed-enemy' && e.id !== 'seed-rock');
             if (spawned.length && firstSpawnTick === null) firstSpawnTick = s.tick;
-            for (const e of spawned) { xs.push(e.x); nearest = Math.min(nearest, Math.abs(e.x - 180) - e.r); }
+            for (const e of spawned) { xs.push(e.x); nearest = Math.min(nearest, Math.abs(e.x - 320) - e.r); }
             if (s.lifecycle === 'destroyed') break;
         }
         return { firstSpawnTick, spawned: xs.length, nearest, lifecycle: api.snapshot().lifecycle };

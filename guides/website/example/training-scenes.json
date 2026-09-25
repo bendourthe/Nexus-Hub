@@ -253,7 +253,7 @@
         "Reject: the reference renderer, input library, and dependency layout.",
         "Follow-on /plan and /implement completed inside this comparison step.",
         "Movement tests: 3 passed.",
-        "The playable game now climbs and dives between y 360 and y 460."
+        "The playable game now climbs and dives between y 300 and y 380."
       ],
       "game": {
         "damageMode": "fixed",
@@ -265,7 +265,7 @@
           "path": "docs/comparison.md",
           "action": "create",
           "language": "markdown",
-          "content": "# Vertical movement comparison\n\nAdopt the behavior contract: while the feature flag is on, Up and Down move the ship at its vertical speed, clamped to the lower play band between y 360 and y 460. While the flag is off, vertical input is read and ignored.\n\nReject the reference renderer, input library, and package structure. Implement through a small pure `applyVerticalInput` seam beside the existing damage seam.\n"
+          "content": "# Vertical movement comparison\n\nAdopt the behavior contract: while the feature flag is on, Up and Down move the ship at its vertical speed, clamped to the lower play band between y 300 and y 380. While the flag is off, vertical input is read and ignored.\n\nReject the reference renderer, input library, and package structure. Implement through a small pure `applyVerticalInput` seam beside the existing damage seam.\n"
         },
         {
           "path": "docs/releases/v0.1/plans/add-vertical-movement.md",
@@ -277,13 +277,13 @@
           "path": "src/movement.js",
           "action": "create",
           "language": "javascript",
-          "content": "const BAND = { top: 360, bottom: 460 };\n\nexport function applyVerticalInput(ship, input, enabled) {\n  if (!enabled) return ship;\n  let y = ship.y;\n  if (input.up) y -= ship.speedY;\n  if (input.down) y += ship.speedY;\n  return { ...ship, y: Math.min(BAND.bottom, Math.max(BAND.top, y)) };\n}\n"
+          "content": "const BAND = { top: 300, bottom: 380 };\n\nexport function applyVerticalInput(ship, input, enabled) {\n  if (!enabled) return ship;\n  let y = ship.y;\n  if (input.up) y -= ship.speedY;\n  if (input.down) y += ship.speedY;\n  return { ...ship, y: Math.min(BAND.bottom, Math.max(BAND.top, y)) };\n}\n"
         },
         {
           "path": "tests/movement.test.js",
           "action": "create",
           "language": "javascript",
-          "content": "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { applyVerticalInput } from '../src/movement.js';\n\nconst ship = { y: 440, speedY: 2 };\n\ntest('vertical input is ignored while the feature is off', () => {\n  assert.equal(applyVerticalInput(ship, { up: true }, false).y, 440);\n});\n\ntest('upward travel clamps at the top of the play band', () => {\n  const high = { ...ship, y: 361 };\n  assert.equal(applyVerticalInput(high, { up: true }, true).y, 360);\n});\n\ntest('downward travel clamps at the bottom of the play band', () => {\n  const low = { ...ship, y: 459 };\n  assert.equal(applyVerticalInput(low, { down: true }, true).y, 460);\n});\n"
+          "content": "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { applyVerticalInput } from '../src/movement.js';\n\nconst ship = { y: 340, speedY: 2 };\n\ntest('vertical input is ignored while the feature is off', () => {\n  assert.equal(applyVerticalInput(ship, { up: true }, false).y, 340);\n});\n\ntest('upward travel clamps at the top of the play band', () => {\n  const high = { ...ship, y: 301 };\n  assert.equal(applyVerticalInput(high, { up: true }, true).y, 300);\n});\n\ntest('downward travel clamps at the bottom of the play band', () => {\n  const low = { ...ship, y: 379 };\n  assert.equal(applyVerticalInput(low, { down: true }, true).y, 380);\n});\n"
         }
       ],
       "focus_file": "docs/comparison.md",

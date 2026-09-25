@@ -108,7 +108,7 @@ def test_dispose_unregisters_instance(page):
         " root.style.transform = 'translateY(-3000px)'; }"
     )
     pg.evaluate("() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)))")
-    assert pg.evaluate("() => window.retiredGame.step().player.x") == 180
+    assert pg.evaluate("() => window.retiredGame.step().player.x") == 320
     assert "offscreen" not in pg.evaluate("() => window.retiredGame.snapshot().pauseReasons")
     assert not errors, f"page errors: {errors}"
 

@@ -295,16 +295,16 @@ def test_desktop_presentation_regions_never_intersect(playwright_mod, size) -> N
         try:
             _present(page, "presentify")
             result = _intersections(page)
-            portrait = page.evaluate(
+            landscape = page.evaluate(
                 """() => { const r = document.querySelector('.nag-stage').getBoundingClientRect();
-                           return r.height >= r.width - 1; }"""
+                           return Math.abs(r.width / r.height - 8 / 5) < 0.02; }"""
             )
         finally:
             browser.close()
     assert "missing" not in result, f"missing region {result.get('missing')} at {width}x{height}"
     assert not result["bad"], f"overlapping regions at {width}x{height}: {result['bad']}"
     assert not result["overflow"], f"horizontal overflow at {width}x{height}"
-    assert portrait, f"the game must stay portrait or square at {width}x{height}"
+    assert landscape, f"the game must keep its 8:5 aspect ratio at {width}x{height}"
 
 
 @pytest.mark.parametrize("size", NARROW)
@@ -364,12 +364,12 @@ def test_presentation_survives_a_route_change_without_stranding_the_page(playwri
 
 
 # ============================================================================ v4.4.2 Phase 6
-# Full-window three-pane presentation: coverage and stage-height floors from
-# presentation-geometry.md, Outline as an overlay that moves nothing, and a short-window
-# fallback that reflows into one scroll surface exactly like a narrow one.
+# Full-window three-pane presentation: coverage from presentation-geometry.md,
+# the v4.13.4 wide-stage height floor, Outline as an overlay that moves nothing,
+# and a short-window fallback that reflows like a narrow one.
 
 COVERAGE_FLOOR = 0.88
-STAGE_FLOOR = 0.45   # of viewport height; the arithmetic behind this number is in presentation-geometry.md
+STAGE_FLOOR = 0.30   # the v4.13.4 wide stage fits one of three presentation columns
 PRESENT_REGIONS = {
     **REGIONS,
     "toolbar": ".nht-bar", "progress": ".nht-loop", "head": ".nht-head",
