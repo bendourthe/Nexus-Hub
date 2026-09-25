@@ -1,10 +1,10 @@
-# v4.13.1 Training tab rebuild - design
+# v4.13.4 Training tab rebuild - design
 
-Design spec for the complete rebuild of the Training tab in `guides/website/nexus-hub-guide.html`. Covers two subsystems: a production-quality canvas arcade engine (instance-per-element factory, enemy archetypes, procedural asteroids, futuristic player ship, wide device-pixel-ratio arena) and a narrative restructure (presentation mode removed, single-slide deck replaced by seven headed sections walking the Nexus-Hub command loop). Read this before implementing the v4.13.1 plan, and when changing anything under the `nht-` or `nag-` prefixes. Key topics: arcade factory refactor, RNG stream discipline, the `damageOutcome` invariant, the scene data model, presentation-mode removal, and accessibility carryover.
+Design spec for the complete rebuild of the Training tab in `guides/website/nexus-hub-guide.html`. Covers two subsystems: a production-quality canvas arcade engine (instance-per-element factory, enemy archetypes, procedural asteroids, futuristic player ship, wide device-pixel-ratio arena) and a narrative restructure (presentation mode removed, single-slide deck replaced by seven headed sections walking the Nexus-Hub command loop). Read this before implementing the v4.13.4 plan, and when changing anything under the `nht-` or `nag-` prefixes. Key topics: arcade factory refactor, RNG stream discipline, the `damageOutcome` invariant, the scene data model, presentation-mode removal, and accessibility carryover.
 
 ## Status
 
-Approved in brainstorming on 2026-09-22. Implementation is governed by `docs/releases/v4/v4.13/plans/v4.13.1-guide-training-rebuild.md`.
+Approved in brainstorming on 2026-09-22. Retargeted to v4.13.4 on 2026-09-25 after v4.13.1 through v4.13.3 were assigned to other plans. Implementation is governed by `docs/releases/v4/v4.13/plans/v4.13.4-guide-training-rebuild.md`.
 
 ## Context: what the Training tab is today
 
@@ -44,7 +44,7 @@ These were settled during brainstorming and are not reopened during implementati
 | D5 | `/test` and `/update changelog` fold into the implement final phase; `/presentify` survives as a second bonus | Matches the requested loop narrative while keeping the briefing step reachable. |
 | D6 | Wide full-width arena at device pixel ratio | A narrow portrait column hides trajectory variety, which is the entire point of the archetypes. |
 | D7 | Spec, then phased plan, then phase-by-phase implementation | Matches this repository's documented plan lifecycle and gives review gates before the diff grows large. |
-| D8 | Version slot v4.13.1 | Follows the v4.4.1 through v4.4.6 precedent of shipping guide rebuilds as patch versions. No queued plan needs renumbering, since every queued plan already carries a higher number. |
+| D8 | Version slot v4.13.4 | Follows the v4.4.1 through v4.4.6 precedent of shipping guide rebuilds as patch versions. The originally approved v4.13.1 slot was superseded by three queued plans; the maintainer approved retargeting this design to v4.13.4 on 2026-09-25. |
 
 ## Subsystem A: the arcade engine
 
