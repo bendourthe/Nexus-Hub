@@ -1,0 +1,12 @@
+{
+  "section_ids": ["one"],
+  "slide_ids": ["one"],
+  "control_behaviors": [
+    {
+      "slide_id": "one",
+      "control": "button[data-dv-series=\"0\"]",
+      "before": {"selector": "[data-dv-series-marks=\"0\"]", "css": "display", "value": "inline"},
+      "after": {"selector": "[data-dv-series-marks=\"0\"]", "css": "display", "value": "none"}
+    }
+  ]
+}
