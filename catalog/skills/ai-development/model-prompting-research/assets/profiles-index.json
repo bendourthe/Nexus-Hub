@@ -580,6 +580,19 @@
           "note": "Recorded so a future reader does not spend a research pass looking for a page that does not exist."
         }
       ]
+    },
+    "claude-haiku-4-5": {
+      "platform": "claude-code",
+      "last_verified": "2026-09-25",
+      "claims": [
+        {
+          "claim": "For coding or reasoning tasks on Haiku 4.5, consider enabling manual extended thinking with thinking: {type: \"enabled\", budget_tokens: N}; this is conditional, not a universal default.",
+          "source_url": "https://platform.claude.com/docs/en/models/haiku-4-5/migration-guide",
+          "confidence": "medium",
+          "scope": "model-specific",
+          "note": "Three independent refutation lenses on 2026-09-25: currency and actionability survived; source support survived after quoting enabled. A complete live Claude roster remains unavailable, so this claim-only write preserves the 2026-09-08 roster metadata."
+        }
+      ]
     }
   }
 }

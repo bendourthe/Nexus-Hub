@@ -37,7 +37,7 @@ Exactly three keys. Unknown top-level keys are a validation error, because this 
 
 | `platforms` | array of object | OPTIONAL (schema 1.1.0, v4.7.0). One entry per additional platform whose models this layer profiles, each carrying `platform`, `roster_source`, `roster`, `roster_hash`, and `last_verified` with the same rules as the keys above. The legacy single-platform keys stay authoritative for the primary platform, so a Claude roster is never rewritten by research on another vendor's models; a write for a different platform upserts its entry here. `platform` values are unique within the array. Decision: `docs/archives/v4/v4.7/development/profile-index-multi-platform-decision.md`. |
 
-The `roster_hash` is a self-consistency check, not a freshness check: the schema validator recomputes it from `meta.roster` in the same file and fails on a mismatch, which catches a hand-edit that added a model to the list without re-stamping the hash. Comparing the recorded roster against the *live* roster is a separate, advisory concern owned by `scripts/check_model_prompting_freshness.py`.
+The `roster_hash` is a self-consistency check, not a freshness check: the schema validator recomputes it from `meta.roster` in the same file and fails on a mismatch, which catches a hand-edit that added a model to the list without re-stamping the hash. Comparing the recorded roster against the *live* roster is a separate, advisory concern owned by `scripts/check_model_prompting_freshness.py`. A claim-only writer payload omits both `roster` and `roster_source`; it may update a model already in that platform's recorded roster but preserves all roster metadata, including `last_verified`. It does not assert that the roster is current.
 
 ### `models.<model-id>`
 

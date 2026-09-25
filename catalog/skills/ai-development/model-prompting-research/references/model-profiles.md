@@ -10,9 +10,10 @@ reference. This index exists so no mirror is an orphan bundled file.
 Every claim in these files is scoped to the model its file names. None of
 them may be copied into a shared catalog body.
 
-12 profiled model(s):
+13 profiled model(s):
 
 - [claude-fable-5-1](models/claude-fable-5-1.md) - 18 claim(s), verified 2026-09-08
+- [claude-haiku-4-5](models/claude-haiku-4-5.md) - 1 claim(s), verified 2026-09-25
 - [claude-opus-5](models/claude-opus-5.md) - 12 claim(s), verified 2026-09-08
 - [claude-sonnet-5](models/claude-sonnet-5.md) - 13 claim(s), verified 2026-09-08
 - [composer-2.5](models/composer-2.5.md) - 2 claim(s), verified 2026-09-08

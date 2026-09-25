@@ -70,7 +70,7 @@ The full procedure, including the exact prompts, the payload shape, and the enum
 4. **Calibrate on ONE model first** (`plan --only <model>`), inspect what it produced, and confirm the scale with the user before widening. A roster fan-out is a 5-15x token multiplier.
 5. **Research each model** against that vendor's own primary sources only: official prompting docs, cookbook, model card or system card, changelog. Never cite a page you did not fetch, and never cite a secondary summary. No primary source found means zero claims, not a guess.
 6. **Adversarially verify before recording.** A claim survives only when a primary source supports it AND a majority of independent skeptics fail to refute it. Confidence follows the margin. See [[adversarial-verifier]].
-7. **Write through the deterministic writer**, per model as verification completes, then re-run the structural gate. Report every model left unverified as a known gap rather than omitting it silently.
+7. **Write through the deterministic writer**, per model as verification completes, then re-run the structural gate. If the live roster is incomplete, a claim-only payload may update an already-rostered model without changing the recorded roster date, source, or hash; it cannot add a new model or claim roster freshness. Report every model left unverified as a known gap rather than omitting it silently.
 8. **Classify every survivor** with `apply_prompting_edits.py classify`. Model-specific findings stop at the profile layer. Only a finding explicitly scoped model-agnostic, targeting an allowed surface, and introducing no model identifier is eligible to propose a shared-body edit. The routing rules are in `references/edit-routing.md`.
 9. **Apply eligible edits behind the guards**, one at a time, on the isolated `feat/tune-prompting-<stamp>` branch. Each edit is applied, guarded, and either kept or auto-reverted and quarantined. A quarantine never aborts the run. Confirm before committing; the branch always stops for human merge.
 10. **Emit the gap report** and record every quarantined edit and every unverified model as a known gap. A run is reviewable even when nothing was applied.
@@ -132,7 +132,7 @@ Two repo-level scripts sit alongside the bundle: `verify_model_prompting_profile
 
 ## Verification
 
-- [ ] The roster came from a live enumeration, and `meta.roster_source` records how it was obtained.
+- [ ] A refreshed roster came from a complete live enumeration with its source recorded; any claim-only write preserved the prior roster metadata and named the incomplete-enumeration limitation.
 - [ ] Every recorded claim carries a primary-source URL that was actually fetched, and no claim cites a blog post, forum, or secondary summary.
 - [ ] Every recorded claim survived the refutation pass, and its `confidence` reflects the margin (no survivor is tagged `unverified`).
 - [ ] Every claim whose generality is arguable is tagged `model-specific`, and no verifier loosened a scope.

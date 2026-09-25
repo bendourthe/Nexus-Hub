@@ -30,7 +30,7 @@ Three outcomes, and the third is common:
 |---|---|---|
 | A JSON model list | `api` | Use it directly. |
 | A config or alias set | `config` | Use it directly. |
-| The picker sentinel (`{"source":"picker","models":[]}`) | `picker` | No scriptable list is available. Read the model ids from the platform's model picker and record them, tagging the provenance honestly so a later reader knows the roster was not machine-enumerated. |
+| The picker sentinel (`{"source":"picker","models":[]}`) | `picker` only if complete | No scriptable list is available. Read every model id from the platform's picker before refreshing roster metadata. If the picker cannot expose a complete list, keep the recorded roster metadata unchanged and use the claim-only path in Step 6 only for an id already in that roster. |
 
 Record the roster verbatim. Do not normalize, shorten, or prettify a model id: the id is the join key between this layer, the freshness checker, and the platform.
 
@@ -111,13 +111,13 @@ The payload shape:
 }
 ```
 
-The writer validates every claim and refuses the entire write on anything malformed, so a bad research result fails loudly instead of quietly degrading the layer. It re-stamps the roster and its hash, and regenerates the Markdown mirror for each model it writes. Use `--dry-run` to validate a payload without touching the layer.
+The writer validates every claim and refuses the entire write on anything malformed, so a bad research result fails loudly instead of quietly degrading the layer. A complete roster-bearing payload re-stamps the roster and its hash; a claim-only payload does not. Both regenerate the Markdown mirror for each model written. Use `--dry-run` to validate a payload without touching the layer.
 
-Write incrementally, per model, as verification completes. That is what makes a capped or interrupted run leave a valid partial layer instead of nothing.
+Write incrementally, per model, as verification completes. A payload with a complete live `roster` refreshes that platform's roster metadata. If enumeration was attempted but remains incomplete, omit both `roster` and `roster_source` from the payload; the writer then accepts only models already in that platform's recorded roster and preserves its prior date, source, and hash. Record that limitation in the gap report, and do not pass the stale roster back as if it were live. A capped or interrupted run still leaves a valid partial layer instead of nothing.
 
 ## Step 7: Confirm and report
 
-After writing, re-run the structural gate and the advisory freshness check:
+After writing, re-run the structural gate. Run the advisory freshness check only when a complete live roster is available:
 
 ```bash
 python scripts/verify_model_prompting_profiles.py
