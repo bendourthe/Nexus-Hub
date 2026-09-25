@@ -2,13 +2,13 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #190 integrated the v4.9.0 audit work and its hosted platform gates. The remaining prompting-profile entries are source-availability limitations; the private workstation residue was removed separately.
-**Last updated**: 2026-09-24
+**Last updated**: 2026-09-25
 
 ## Follow-up Items - found 2026-09-08 during post-v4.8.0 follow-up
 
 ### Missing tests / coverage gaps (MT)
 
-#### MT-1 - Four rostered models carry no prompting profile, because no vendor publishes per-model guidance for them
+#### MT-1 - Four rostered models still lack generally applicable prompting profiles
 
 - **Source**: the post-v4.8.0 `/tune-prompting` full roster sweep.
 - **What was observed**: 12 of 16 rostered models are now profiled. Four are not, and each for a sourced reason rather than for lack of effort:
@@ -18,6 +18,8 @@
 - **Suggested next step**: re-check at the next `/tune-prompting` run. A vendor publishing a per-model page is the trigger; nothing else changes the answer. Do not fill these from the general guidance, which would silently convert model-agnostic advice into a model-specific claim.
 
 **Source recheck, 2026-09-23**: The original observation above remains the record of the 2026-09-08 sweep, but its statement that OpenAI names no GPT-5.6 member is no longer current. [OpenAI's GPT-5.6 guide](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6) now names Sol, Terra, and Luna and differentiates their workload and cost positioning; its prompting advice is framed for the GPT-5.6 family, not as distinct instructions for each member. [Anthropic's prompting reference](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) still has no dedicated Haiku 4.5 prompting page, although it names Haiku in a shared context-awareness subsection. No per-model profile was written or re-stamped in this source-only recheck. MT-1 remains open for a qualified `/tune-prompting` pass rather than treating family guidance or model-selection advice as a verified per-model prompting difference.
+
+**Source recheck, 2026-09-25**: [Anthropic's advisor-tool reference](https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool) contains an alternative Haiku 4.5 system prompt for predominantly coding or write-task executors using the optional `advisor` tool. Advisor calls forward the executor's full transcript to a separate server-side inference and are billed at the advisor model's rates; Anthropic also reports a browse-comprehension regression for the alternative block. This conditional tool configuration is not a generally applicable Haiku prompting profile and does not authorize transcript forwarding or extra spend in Nexus-Hub. [Anthropic's general prompting reference](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) still lists no dedicated Haiku prompting page, while [OpenAI's GPT-5.6 guide](https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6) names Sol, Terra, and Luna for model selection but frames its prompting advice at family scope. No profile or freshness stamp changed in this source-only pass; MT-1 remains open pending qualified, applicable per-model guidance or an explicitly approved advisor integration.
 
 ### Warnings (WN)
 
