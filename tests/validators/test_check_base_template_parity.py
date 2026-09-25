@@ -17,17 +17,39 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from scripts.check_base_template_parity import (
+    LOCKSTEP_FILES,
+    instruction_section_body,
+    template_roster,
+)
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TEMPLATES_REL = "templates/ai-instructions"
-LOCKSTEP_FILES = [
-    "base-claude.md",
-    "base-codex.md",
-    "base-cursor.md",
-    "base-gemini.md",
-    "base-opencode.md",
-]
-
 SCRIPT = "check_base_template_parity.py"
+
+
+def test_shared_roster_covers_every_current_template():
+    substantive, shims = template_roster(REPO_ROOT)
+    assert len(substantive) == 13
+    assert len(shims) == 4
+    assert "base-pi.md" in [path.name for path in substantive]
+    assert set(LOCKSTEP_FILES).issubset(path.name for path in substantive)
+
+
+def test_shared_roster_classifies_new_templates(tmp_path: Path):
+    templates = tmp_path / TEMPLATES_REL
+    templates.mkdir(parents=True)
+    (templates / "new-agent.md").write_text("\n## Rule\n", encoding="utf-8")
+    (templates / "new-shim.md").write_text("\n@base-claude.md\n", encoding="utf-8")
+    substantive, shims = template_roster(tmp_path)
+    assert [path.name for path in substantive] == ["new-agent.md"]
+    assert [path.name for path in shims] == ["new-shim.md"]
+
+
+def test_shared_section_body_keeps_nested_content_and_ignores_blank_lines():
+    text = "## Rule\r\n\r\nfirst  \r\n\r\n### Detail\r\nsecond\r\n## Next\r\nthird"
+    assert instruction_section_body(text, "## Rule") == ["first", "### Detail", "second"]
+    assert instruction_section_body(text, "## Missing") == []
 
 
 def _real_template(name: str) -> str:

@@ -25,14 +25,16 @@ This mirrors the active version layout. Archived content is **frozen history**: 
 | **v1** | v1.0.0, v1.1.5, v1.3.0 | 24 | Skills-catalog maturation: bundled-resources convention, skill-eval-loop, security hardening |
 | **v2** | v2.0.0, v2.1.0, v2.2.0, v2.3.0, v2.4.0 | 112 | Nexus-Hub rename, spec-driven methodology, integration registry, code-graph, antigravity transition, compound-engineering / persona-review pipeline |
 | **v3** *(prior major, partial)* | `development/history/` subtrees only, v3.0 through v3.21 | 355 | Per-version session histories aged out under the retention policy, completed for the whole v3 line on 2026-09-06. The v3 line is NOT whole-major archived - its plans, comparisons, and known-gaps stay in the active tree. |
-| **v4** *(current major, partial)* | `development/history/` subtrees v4.0-v4.5 and v4.7-v4.12, the v4.1 handbook snapshot, v4.0 CI task reconciliation, bounded v4.3 platform-source evidence, v4.4 Training layout and platform-mark disposition, v4.11 temporal-value evidence, and v4.13 follow-up evidence | 375 | Closed session histories aged out under the one-minor retention threshold; the aborted v4.13 trigger-pilot attempt is frozen separately while its open bug remains in `docs/releases/v4/`. |
+| **v4** *(current major, partial)* | `development/history/` subtrees v4.0-v4.5 and v4.7-v4.12, the v4.1 handbook snapshot, v4.0 CI audits and task reconciliation, bounded follow-up evidence through v4.13 | 390 | Closed histories aged out under the one-minor retention threshold; the three v4.0 CI audits were separately classified as frozen evidence, while the normative contract moved to `docs/policy/`. The aborted v4.13 trigger-pilot attempt remains frozen with its bug open. |
+
+The v4 file count excludes the two tracked `.gitkeep` placeholders in the v4.12 handbook snapshot; it is derived from 392 tracked archive files after the three CI audit moves.
 
 ## Archival policy
 
 Two distinct rules put content here, and conflating them is the easy mistake:
 
 1. **Whole-major archival** - a prior major is archived once the next major has a released version. The current major (`v4`) and any in-flight version directories are never archived this way.
-2. **Per-version `development/` retention** (added v3.18.0) - within the current major, a minor behind the current one has its `development/history/` subtree archived to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`. Only `history/` ages out: the rest of `development/` holds live CI fixtures and contract documents that shipped code cites by path. Its `plans/`, `comparisons/`, and `known-gaps.md` never age out and stay in the active tree. `scripts/check_docs_retention.py` reports what is due (advisory, always exits 0); the full rule is `docs/policy/docs-retention.md`.
+2. **Per-version `development/` retention** (added v3.18.0) - within the current major, a minor behind the current one has its `development/history/` subtree archived to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`. Only `history/` ages out automatically: other dated audits need individual lifespan classification and reference repair, while living CI fixtures and contracts remain active or move to living roots. Its `plans/`, `comparisons/`, and `known-gaps.md` stay in the active tree until their separate closure rules apply. `scripts/check_docs_retention.py` reports what is due (advisory, always exits 0); the full rule is `docs/policy/docs-retention.md`.
 
 ## Incremental archive additions
 
@@ -54,6 +56,12 @@ Two distinct rules put content here, and conflating them is the easy mistake:
 | `v4/v4.11/development/temporal-source-values/real-artifact-inventory.json` | Independent source-to-DOM mapping for the retained five-slide presentation | v4.11.2 follow-up | 2026-09-24 |
 | `v4/v4.11/development/temporal-source-values/real-artifact-verification.md` | Ten-viewport temporal sub-verdict and retained overall failure boundary | v4.11.2 follow-up | 2026-09-24 |
 | `v4/v4.4/development/platform-mark-disposition/verification.md` | Five-mark approval, hash, and current browser-matrix reconciliation for v4.4 DF-1 | v4.4.1 follow-up | 2026-09-24 |
+| `v4/v4.8/development/windows-lint-autofix-qualification.md` | Isolated Windows Git Bash and Ruff run of the original seven hook tests | v4.8.0 follow-up | 2026-09-24 |
+| `v4/v4.3/development/github-settings-readback-2026-09-24.md` | Read-only retention and merge-queue results with the billing access boundary | v4.3.0 follow-up | 2026-09-24 |
+| `v4/v4.7/development/template-validator-roster/verification.md` | Local behavior-preservation and affected-suite qualification for DF-3 | v4.7.0 follow-up | 2026-09-24 |
+| `v4/v4.0/development/ci-cd-final-audit.md` | `docs/releases/v4/v4.0/development/ci-cd-final-audit.md` | v4.0.0 | 2026-09-25 |
+| `v4/v4.0/development/ci-cd-workflow-audit.md` | `docs/releases/v4/v4.0/development/ci-cd-workflow-audit.md` | v4.0.0 | 2026-09-25 |
+| `v4/v4.0/development/ci-cd-harness-audit.md` | `docs/releases/v4/v4.0/development/ci-cd-harness-audit.md` | v4.0.0 | 2026-09-25 |
 
 Archive moves are performed by `/refactor-docs` (the `docs-layout-refactor` skill) with reference repair; see the most recent `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/docs-cleanup-report.md` for the audit trail of each move. New frozen verification records do not move source files.
 

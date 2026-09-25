@@ -274,6 +274,79 @@ def test_write_widens_the_roster_to_cover_a_profiled_model(bundle: Path) -> None
     assert _validate(bundle).returncode == 0
 
 
+def test_claim_only_write_preserves_primary_roster_metadata(bundle: Path) -> None:
+    first = _write(bundle, _payload({"model-a": [_claim()]}, verified_at="2026-07-27"))
+    assert first.returncode == 0, first.stderr
+    original_meta = _index(bundle)["meta"].copy()
+    claim_only = {
+        "platform": "claude-code",
+        "verified_at": "2026-09-25",
+        "models": {"model-b": [_claim("Use a bounded output format.")]},
+    }
+
+    result = _write(bundle, claim_only)
+
+    assert result.returncode == 0, result.stderr
+    index = _index(bundle)
+    assert index["meta"] == original_meta
+    assert index["models"]["model-b"]["last_verified"] == "2026-09-25"
+    assert _validate(bundle).returncode == 0
+
+
+def test_claim_only_write_rejects_model_outside_recorded_roster(bundle: Path) -> None:
+    first = _write(bundle, _payload({"model-a": [_claim()]}))
+    assert first.returncode == 0, first.stderr
+    before = (bundle / "assets" / "profiles-index.json").read_bytes()
+    claim_only = {
+        "platform": "claude-code",
+        "verified_at": "2026-09-25",
+        "models": {"model-z": [_claim()]},
+    }
+
+    result = _write(bundle, claim_only)
+
+    assert result.returncode == 1
+    assert "not in the recorded roster" in result.stderr
+    assert (bundle / "assets" / "profiles-index.json").read_bytes() == before
+
+
+def test_claim_only_write_requires_a_recorded_roster(bundle: Path) -> None:
+    claim_only = {
+        "platform": "claude-code",
+        "verified_at": "2026-09-25",
+        "models": {"model-a": [_claim()]},
+    }
+
+    result = _write(bundle, claim_only)
+
+    assert result.returncode == 1
+    assert "no recorded roster" in result.stderr
+    assert not (bundle / "assets" / "profiles-index.json").exists()
+
+
+def test_claim_only_write_preserves_secondary_platform_metadata(bundle: Path) -> None:
+    primary = _write(bundle, _payload({"model-a": [_claim()]}))
+    assert primary.returncode == 0, primary.stderr
+    secondary = _write(bundle, _payload(
+        {"other-a": [_claim()]}, platform="codex", roster=["other-a", "other-b"]
+    ))
+    assert secondary.returncode == 0, secondary.stderr
+    original_meta = _index(bundle)["meta"]
+    claim_only = {
+        "platform": "codex",
+        "verified_at": "2026-09-25",
+        "models": {"other-b": [_claim("Specify the result shape.")]},
+    }
+
+    result = _write(bundle, claim_only)
+
+    assert result.returncode == 0, result.stderr
+    index = _index(bundle)
+    assert index["meta"] == original_meta
+    assert index["models"]["other-b"]["last_verified"] == "2026-09-25"
+    assert _validate(bundle).returncode == 0
+
+
 def test_partial_write_leaves_a_valid_layer(bundle: Path) -> None:
     """The budget-cap case: 1 of 4 models verified must still validate."""
     payload = _payload({"model-a": [_claim()]}, roster=["model-a", "model-b", "model-c", "model-d"])
@@ -344,6 +417,9 @@ def test_missing_required_claim_key_aborts_the_write(bundle: Path) -> None:
     ("payload_override", "expected"),
     [
         pytest.param({"roster_source": "guessed"}, "roster_source must be one of", id="bad_source"),
+        pytest.param({"roster": []}, "roster must be a non-empty array", id="empty_roster"),
+        pytest.param({"roster": "model-a"}, "roster must be a non-empty array", id="string_roster"),
+        pytest.param({"roster": ["model-a", ""]}, "roster must be a non-empty array", id="blank_model_id"),
         pytest.param({"verified_at": "July 2026"}, "verified_at must be a YYYY-MM-DD", id="bad_date"),
         pytest.param({"platform": "  "}, "platform must be a non-empty string", id="empty_platform"),
         pytest.param({"models": {}}, "models must be a non-empty object", id="no_models"),

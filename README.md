@@ -647,7 +647,7 @@ make ci-platform   # shell lint, PowerShell AST parse, Windows PowerShell 5.1 le
 
 Each target is a one-line delegation to `python scripts/ci/run.py --profile <name>`, which needs no CI provider and no network. Add `--list` to print what a profile would run without running it, or `--base origin/develop` to scope the run to what changed. Reports land in `reports/` (gitignored): a readable `summary.md`, plus JUnit, `summary.json`, and environment metadata.
 
-Full guide, including how to add a check: [`docs/releases/v4/v4.0/development/ci-cd-profile-guide.md`](docs/releases/v4/v4.0/development/ci-cd-profile-guide.md).
+Full guide, including how to add a check: [`docs/guides/repository-native-ci-profiles.md`](docs/guides/repository-native-ci-profiles.md).
 
 ---
 

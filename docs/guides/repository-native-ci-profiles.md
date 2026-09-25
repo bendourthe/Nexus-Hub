@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Introduced**: v4.0.0
-**Engine**: [`scripts/ci/`](../../../../../scripts/ci/)
-**Contract**: [`ci-cd-lifecycle-contract.md`](ci-cd-lifecycle-contract.md) section 3
+**Engine**: [`scripts/ci/`](../../scripts/ci/)
+**Contract**: [`ci-cd-lifecycle-contract.md`](../policy/ci-cd-lifecycle-contract.md) section 3
 
 How to run Nexus-Hub's validation locally, what each profile costs, what it writes, and how an agent uses it during a plan phase without starting remote CI.
 
@@ -11,10 +11,10 @@ The point of the engine, in one sentence: the definitive command list lives in t
 
 ## Quick reference
 
-| Profile | Command | Typical duration | Use it when |
+| Profile | Command | Duration guidance | Use it when |
 |---|---|---|---|
-| `fast` | `make ci-fast` | under 10 seconds | before every commit; during a phase |
-| `full` | `make ci-full` | 10 to 20 minutes | at a phase boundary, and before the final commit |
+| `fast` | `make ci-fast` | seconds to minutes; 12.6 seconds on Windows on 2026-09-25 | before every commit; during a phase |
+| `full` | `make ci-full` | host-dependent; the unfiltered Windows run on 2026-09-25 took 120 minutes | at a phase boundary, and before the final commit |
 | `platform` | `make ci-platform` | 2 to 20 minutes per host | when a change touches shell, PowerShell, or installer paths |
 | `report` | `make ci-report` | proportional to artifact size | to aggregate existing receipts without re-running validation |
 | `release` | `make ci-release` | under a minute | as part of the release flow only |
@@ -41,7 +41,7 @@ The listing shows each group, its change-scope key, whether it is blocking, and 
 | Profile | Contains |
 |---|---|
 | `fast` | catalog JSON parses, hygiene (Unicode, personal paths, docs conventions, doc budgets), workflow security, version sync |
-| `full` | everything in `fast`, plus the catalog validators, security scans, platform contracts, docs validators, the hook and repo test suites, and all six extension suites; `pre-commit` and `guide-browser` are explicit-only |
+| `full` | everything in `fast`, plus the catalog validators, security scans, platform contracts, docs validators, the hook and repo test suites, and the extension checks; `pre-commit` and `guide-browser` are explicit-only |
 | `platform` | catalog and installer shell lint (POSIX), PowerShell AST parse, and the Windows PowerShell 5.1 hook, installer, audit, and native integration legs |
 | `report` | no validation commands. Reads prior local summary or downloaded job receipts, fails on missing required inputs, and writes an aggregate index |
 | `release` | version sync, platform read-contract freshness, and an advisory branch and repository-settings report |
@@ -117,7 +117,7 @@ reports/
 
 `reports/` is gitignored. The artifacts are per-run evidence, never source.
 
-`make ci-report` reads the preceding local `reports/summary.json` and replaces it with an aggregate summary. In CI, the report job downloads the validation, shell, test, Windows, and browser artifacts under `reports/inputs/<artifact-name>/` and passes each upstream job result with `--expect-artifact`. A skipped job is recorded as skipped; a job that should have produced a receipt but did not is a failure. The CI job uploads the aggregate package after success or failure with seven-day retention. The index labels coverage and SARIF files if an upstream job produces them; the current pull request workflow does not produce either file type, so their absence is not counted as coverage or SARIF proof.
+`make ci-report` reads the preceding local `reports/summary.json` and replaces it with an aggregate summary. In CI, the report job downloads the validation, shell, test, Windows, and browser artifacts under `reports/inputs/<artifact-name>/` and passes each upstream job result with `--expect-artifact`. A skipped job is recorded as skipped; a job that should have produced a receipt but did not is a failure. The CI job uploads the aggregate package after success or failure with seven-day retention. The full profile emits CI-engine coverage XML and skill-security SARIF when their owning commands run; the aggregate index labels those files when present. A docs-only pull request can skip their owning test jobs, so inspect the receipts before claiming either coverage result.
 
 Three properties the reports are designed around:
 
@@ -137,7 +137,7 @@ An `advisory` command (currently only the docs-retention reporter) prints its fa
 
 The lifecycle forbids a non-final phase from starting remote CI, so local profiles are how a phase proves itself:
 
-1. **During the phase**: `make ci-fast` after each meaningful edit. Under ten seconds.
+1. **During the phase**: `make ci-fast` after each meaningful edit. Measure the current host rather than assuming a fixed duration.
 2. **At the phase boundary**: `make ci-full`, plus `make ci-platform` if the phase touched shell, PowerShell, or installer paths.
 3. **Record the CI impact** (runbook step 8.3) rather than editing a workflow: name any new command, dependency, environment variable, test path, or artifact, and whether the pipeline already covers it. A no-op record is a valid outcome and is still written.
 4. **Commit locally.** Do not push.

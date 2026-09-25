@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Phase**: 8 - Architecture refactor, known-gaps reconciliation, and CI/CD
 **Date**: 2026-08-25
-**Compared against**: [`ci-cd-lifecycle-contract.md`](ci-cd-lifecycle-contract.md), via the 23-field list in `catalog/skills/infrastructure/cicd-architect/references/repository-native-profiles.md`
+**Compared against**: [`ci-cd-lifecycle-contract.md`](../../../../policy/ci-cd-lifecycle-contract.md), via the 23-field list in `catalog/skills/infrastructure/cicd-architect/references/repository-native-profiles.md`
 **Mode**: `[[cicd-architect]]` existing-pipeline comparison
 
 This is the terminal reconciliation the lifecycle requires of every plan's final phase, run against Nexus-Hub's own pipeline. It is also the first real exercise of the comparison downstream plans will use, so the shape here is the shape those get.
@@ -24,7 +24,7 @@ Who owns what, once. Every other surface cross-links rather than restating.
 | Branch model and publication timing | `git-branching-workflow` | the contract cites it |
 | Release ordering | `catalog/commands/update.md` + `version-upgrade` Step 0 | `implement-phase` 9C-9E hands off |
 | Executable validation | `scripts/ci/profiles.py` | the Makefile and `.github/workflows/` each delegate in one line |
-| External repository settings | [`github-ci-settings-runbook.md`](github-ci-settings-runbook.md) | nothing mutates them |
+| External repository settings | [`github-ci-settings.md`](../../../../runbooks/github-ci-settings.md) | nothing mutates them |
 
 ## 2. Architecture refactor findings
 
@@ -82,7 +82,7 @@ PASS requires observable evidence per field. A green run is not evidence: a pipe
 | 20 | Reports published | **PARTIAL** | the summary reaches `$GITHUB_STEP_SUMMARY` with `if: always()` in all three lifecycle workflows. Artifact UPLOAD is deferred as DF-1 |
 | 21 | Deployment boundary | PASS (N/A) | Nexus-Hub deploys nothing. `cd-pipeline-generator` carries the rule for repositories that do |
 | 22 | Failure recovery | PASS | documented in the contract section 11 and in runbook 9F; a local reproduction is required before any re-run, asserted by `test_a_red_check_reopens_the_phase_and_requires_a_local_reproduction` |
-| 23 | External settings | PASS | [`github-ci-settings-runbook.md`](github-ci-settings-runbook.md), 8 sections plus a verification checklist. Nothing mutated automatically |
+| 23 | External settings | PASS | [`github-ci-settings.md`](../../../../runbooks/github-ci-settings.md), 8 sections plus a verification checklist. Nothing mutated automatically |
 
 ### Verdict
 

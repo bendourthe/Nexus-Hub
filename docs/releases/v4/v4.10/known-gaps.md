@@ -4,7 +4,7 @@
 
 Unfinished work, deferrals, and defects found during v4.10.0 that did not reach a clean state. Open items carry forward into the next plan's ingest.
 
-**Last updated**: 2026-09-24
+**Last updated**: 2026-09-25
 
 ## Open Items - found 2026-09-10 during v4.10.0 implementation
 
@@ -16,15 +16,17 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 
 - **Source phase**: v4.10.1 Phase 2 (T005-T009).
 - **What was observed**: the official CLI documents `-e none` for disabling extensions and `--model` for model selection, but separately documents system, user, project, environment, and command-line configuration layers. No flag in the checked official reference excludes them as a whole.
+- **2026-09-25 source recheck**: the [current configuration reference](https://geminicli.com/docs/reference/configuration/) documents `GEMINI_CLI_HOME` for user-level configuration and storage, plus separate overrides for system settings paths. It still describes project settings and environment inputs as independent layers. A per-job home alone does not establish the all-configuration isolation needed for a comparable baseline; no provider-backed run was made in this recheck.
 - **Current behavior**: provider-backed skill evals requested with `--cli gemini` fail closed before spawning the CLI. Their results are not represented as isolated or comparable.
-- **Suggested next step**: re-check the official Gemini CLI configuration reference during platform-contract verification. Enable the branch only when the vendor documents a complete configuration-source exclusion.
+- **Suggested next step**: establish a documented and tested per-run exclusion of every configuration source before enabling this branch; otherwise keep it fail-closed.
 
 ### EV-2 - OpenCode has no documented all-configuration isolation flag
 
 - **Source phase**: v4.10.1 Phase 2 (T005-T009).
 - **What was observed**: the official CLI documents `--pure` as disabling external plugins and documents config path overrides, but no checked flag excludes all operator configuration, instructions, and saved settings.
+- **2026-09-25 source recheck**: the [current configuration reference](https://dev.opencode.ai/docs/config/) says configuration files are merged, `OPENCODE_CONFIG_DIR` adds a searched directory after global and project directories, and managed settings override all user-controlled layers. A custom directory or inline override therefore does not prove that operator configuration was excluded; no provider-backed run was made in this recheck.
 - **Current behavior**: provider-backed skill evals requested with `--cli opencode` fail closed before spawning the CLI. Their results are not represented as isolated or comparable.
-- **Suggested next step**: re-check the official OpenCode CLI reference during platform-contract verification. Enable the branch only when the vendor documents a complete configuration-source exclusion.
+- **Suggested next step**: establish a documented and tested per-run exclusion of global, project, remote, and managed settings before enabling this branch; otherwise keep it fail-closed.
 
 ### WN-3 - `tests/skills/test_target_manifest.py` is red on `develop`
 

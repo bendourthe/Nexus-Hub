@@ -258,16 +258,39 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
     if not isinstance(verified_at, str) or len(verified_at) != 10:
         raise WriteError("payload.verified_at must be a YYYY-MM-DD string")
 
-    roster_source = payload.get("roster_source", "manual")
-    if roster_source not in ALLOWED_ROSTER_SOURCES:
-        raise WriteError(
-            f"payload.roster_source must be one of {list(ALLOWED_ROSTER_SOURCES)}, "
-            f"got {roster_source!r}"
-        )
-
     incoming = payload["models"]
     if not isinstance(incoming, dict) or not incoming:
         raise WriteError("payload.models must be a non-empty object")
+
+    claim_only = "roster" not in payload
+    if claim_only:
+        if "roster_source" in payload:
+            raise WriteError("payload.roster_source requires a roster")
+        if index["meta"].get("platform") == platform:
+            recorded = index["meta"].get("roster")
+        else:
+            entry = next(
+                (e for e in index["meta"].get("platforms", []) if e.get("platform") == platform),
+                None,
+            )
+            recorded = entry.get("roster") if entry else None
+        if not isinstance(recorded, list) or not recorded:
+            raise WriteError(f"no recorded roster for {platform}; supply a live roster")
+        unknown = sorted(set(incoming) - set(recorded))
+        if unknown:
+            raise WriteError(f"model(s) not in the recorded roster for {platform}: {', '.join(unknown)}")
+    else:
+        roster_source = payload.get("roster_source", "manual")
+        if roster_source not in ALLOWED_ROSTER_SOURCES:
+            raise WriteError(
+                f"payload.roster_source must be one of {list(ALLOWED_ROSTER_SOURCES)}, "
+                f"got {roster_source!r}"
+            )
+        roster = payload["roster"]
+        if not isinstance(roster, list) or not roster or any(
+            not isinstance(model_id, str) or not model_id.strip() for model_id in roster
+        ):
+            raise WriteError("payload.roster must be a non-empty array of model ids")
 
     written: list[str] = []
     for model_id in sorted(incoming):
@@ -282,16 +305,13 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
         }
         written.append(model_id)
 
-    # The roster is the LIVE roster when the payload carries one; otherwise keep
-    # the recorded roster and widen it to cover anything just profiled, so the
-    # index never claims a model it has no roster entry for.
-    recorded = index["meta"].get("roster")
-    recorded = list(recorded) if isinstance(recorded, list) else []
-    roster = payload.get("roster")
-    if isinstance(roster, list) and roster:
-        merged_roster = [str(m).strip() for m in roster if str(m).strip()]
-    else:
-        merged_roster = recorded
+    if claim_only:
+        # Per-model research does not verify the whole roster. Keep its original
+        # date, source, and hash until a complete live enumeration is supplied.
+        return index, written
+
+    # A roster-bearing payload explicitly refreshes the platform roster.
+    merged_roster = [m.strip() for m in roster]
     merged_roster = sorted(set(merged_roster) | set(index["models"]))
 
     index["schema_version"] = SCHEMA_VERSION
@@ -313,12 +333,7 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
     # meta.platforms array, so the primary platform's roster is never rewritten by
     # research on a different vendor's models.
     entries = [e for e in index["meta"].get("platforms", []) if isinstance(e, dict)]
-    existing = next((e for e in entries if e.get("platform") == platform), None)
-    prior = [str(m) for m in (existing or {}).get("roster", []) if str(m).strip()]
-    if isinstance(roster, list) and roster:
-        platform_roster = [str(m).strip() for m in roster if str(m).strip()]
-    else:
-        platform_roster = prior
+    platform_roster = [m.strip() for m in roster]
     profiled_here = [m for m, e in index["models"].items() if e.get("platform") == platform]
     platform_roster = sorted(set(platform_roster) | set(profiled_here))
     entry = {

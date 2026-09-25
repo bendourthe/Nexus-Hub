@@ -18,6 +18,12 @@ from pathlib import Path
 
 import pytest
 
+from scripts.check_base_template_parity import (
+    LOCKSTEP_FILES,
+    instruction_section_body,
+    template_roster,
+)
+
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _TEMPLATES = _REPO_ROOT / "templates" / "ai-instructions"
 
@@ -34,57 +40,18 @@ _CD_REFERENCE = "The boundary itself is stated once, in `## Autonomous Operation
 _SD_ORIGINAL = "Do not mention the skill lookup to the user."
 _SD_CROSS_REFERENCE = "is governed by `## Autonomous Operation`"
 
-_LOCKSTEP = [
-    "base-claude.md",
-    "base-codex.md",
-    "base-cursor.md",
-    "base-gemini.md",
-    "base-opencode.md",
-]
+_LOCKSTEP = LOCKSTEP_FILES
 
 
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8").replace("\r\n", "\n")
 
 
-def _roster() -> tuple[list[Path], list[Path]]:
-    """Every template in the directory, split into substantive files and include-only shims.
-
-    A shim is a file whose non-blank, non-comment content is `@`-include lines only.
-    Deriving the split from the directory means a new template is classified on arrival.
-    """
-    substantive: list[Path] = []
-    shims: list[Path] = []
-    for path in sorted(_TEMPLATES.glob("*.md")):
-        lines = [ln.strip() for ln in _read(path).split("\n")]
-        first = next((ln for ln in lines if ln), "")
-        if first.startswith("@"):
-            shims.append(path)
-        else:
-            substantive.append(path)
-    return substantive, shims
-
-
-def _section_body(text: str) -> list[str]:
-    lines = text.split("\n")
-    try:
-        start = next(i for i, line in enumerate(lines) if line.strip() == _HEADING)
-    except StopIteration:
-        return []
-    body: list[str] = []
-    for line in lines[start + 1 :]:
-        if line.startswith("## "):
-            break
-        if line.strip():
-            body.append(line.rstrip())
-    return body
-
-
 def check_template(path: Path) -> list[str]:
     """Return the block defects in one template, naming the file in each finding."""
     text = _read(path)
     findings: list[str] = []
-    body = _section_body(text)
+    body = instruction_section_body(text, _HEADING)
     if not body:
         findings.append(f"{path.name}: missing `{_HEADING}` section")
         return findings
@@ -102,7 +69,7 @@ def check_template(path: Path) -> list[str]:
     return findings
 
 
-SUBSTANTIVE, SHIMS = _roster()
+SUBSTANTIVE, SHIMS = template_roster(_REPO_ROOT)
 
 
 def test_roster_is_the_expected_shape():
@@ -125,7 +92,7 @@ def test_include_only_shims_do_not_duplicate_the_block(path: Path):
 
 
 def test_the_block_body_is_identical_across_every_substantive_template():
-    bodies = {p.name: _section_body(_read(p)) for p in SUBSTANTIVE}
+    bodies = {p.name: instruction_section_body(_read(p), _HEADING) for p in SUBSTANTIVE}
     reference = bodies["base-claude.md"]
     drifted = [name for name, body in bodies.items() if body != reference]
     assert drifted == [], f"block body differs from base-claude.md in: {drifted}"
@@ -146,7 +113,7 @@ def test_skill_discovery_keeps_its_silent_lookup_sentence_and_cross_references_t
 
 
 def test_the_block_stays_short_enough_to_always_load():
-    body = _section_body(_read(_TEMPLATES / _LOCKSTEP[0]))
+    body = instruction_section_body(_read(_TEMPLATES / _LOCKSTEP[0]), _HEADING)
     words = sum(len(line.split()) for line in body)
     assert len(body) <= 4 and words <= 260, (len(body), words)
 
@@ -156,7 +123,7 @@ def test_a_template_carrying_the_block_without_the_precedence_paragraph_fails(
 ):
     """Negative fixture (amendment sub-task 2.3): the paragraph is part of the checked block."""
     source = _read(_TEMPLATES / "base-qwen.md")
-    body = _section_body(source)
+    body = instruction_section_body(source, _HEADING)
     stripped = "\n".join(line for line in body if _PRECEDENCE_MARKER not in line)
     start = source.index("\n" + _HEADING + "\n") + 1
     end = source.find("\n## ", start + 1)

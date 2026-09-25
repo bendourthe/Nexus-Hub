@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released family with bounded open gaps. v4.11.0 was published at tag `v4.11.0` (`0f68fa1a`) and v4.11.2 at tag `v4.11.2` (`dfe302fb`). No v4.11.1 tag exists; its cache-and-diagram implementation merged into `develop` through PR #232 at `c54dbeb4`, completing T025 as historical closure inside the later released family. The v4.10.0 work shipped inside v4.11.0, so the missing v4.10.0 tag remains an intentional skipped number rather than an unpublished release. Open entries below remain explicit hosted-scan, feature-boundary, or manual-validation limitations.
-**Last updated**: 2026-09-22
+**Last updated**: 2026-09-25
 
 ## Carried into v4.11.0 from earlier cycles - CodeQL backlog
 
@@ -254,6 +254,12 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **Why it was not built now**: that is materially more machinery than the activate-and-observe sketch it replaces, and shipping the rejected version would have been worse than shipping nothing. A gate that fires on working reset buttons is how the `text-overlap` false positive (WN-5) came to delete working navigation three times.
 
 **Follow-up, 2026-09-23**: The CDP suggestion above is insufficient for this runtime: document and deck both have broad click listeners, so a detached button still has listeners in its ancestor chain. A narrower [slide-series structure check](../../../archives/v4/v4.11/development/slide-series-control-qualification.md) now reports a series toggle outside its owning chart figure on every measured slide. A real Chromium click proves the detached button leaves plotted marks visible; the valid toggle hides them. The owning module passes 53 tests. MT-9 stays open for generic inert controls; the original four-button artifact is not retained here, so this fixture does not retroactively certify that exact artifact.
+
+**Local follow-up, 2026-09-24**: An independent `control_behaviors` inventory now names a setup, precondition, action, and intended browser-visible result for each declared slide control. The [archived qualification](../../../archives/v4/v4.11/development/control-behavior-qualification.md) records a second-slide inert control caught, a working and an idempotent control accepted, and a chart mutation caught by unchanged plotted marks even though `aria-pressed` changed. No automatic inventory proves that all controls were mapped; the original four-button artifact is unretained, and protected publication is pending. MT-9 remains open.
+
+**Retained-pilot qualification, 2026-09-24**: PR #297 published the declared-control guard through protected `develop`, and its post-merge smoke and provenance run passed. The [archived retained-pilot qualification](../../../archives/v4/v4.11/development/retained-pilot-control-qualification.md) now covers an exact live-DOM census of 34 initial controls plus both dynamically created image-close controls in the retained report pilot. Thirty-one Chromium tests pass, including an inert-stage negative control, and the standalone scorer reports three declared slide-control observations as `pass` with zero guard findings. The full-page scorer still reports 629 separate page errors, so this is not a visual-quality pass. The original four-button artifact remains unavailable and arbitrary future controls remain `unchecked` until declared. Keep MT-9 open until this follow-up is merged and post-merge verified.
+
+**Closed after protected integration, 2026-09-25 UTC**: PR #298 passed 21 hosted checks with one expected skip, merged into `develop` as `1ae58ad5`, and post-merge run 36097633753 passed smoke and provenance on that merge commit. MT-9 is closed for the declared-control method qualified against the retained pilot's complete control census; this does not retroactively test the unavailable four-button artifact, certify an arbitrary future control without an inventory, or waive the pilot's separate whole-page findings.
 
 #### MT-10 - No authored connector diagram has qualified the new geometry checks
 

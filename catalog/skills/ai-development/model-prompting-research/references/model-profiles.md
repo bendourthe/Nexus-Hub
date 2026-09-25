@@ -10,9 +10,10 @@ reference. This index exists so no mirror is an orphan bundled file.
 Every claim in these files is scoped to the model its file names. None of
 them may be copied into a shared catalog body.
 
-12 profiled model(s):
+16 profiled model(s):
 
 - [claude-fable-5-1](models/claude-fable-5-1.md) - 18 claim(s), verified 2026-09-08
+- [claude-haiku-4-5](models/claude-haiku-4-5.md) - 1 claim(s), verified 2026-09-25
 - [claude-opus-5](models/claude-opus-5.md) - 12 claim(s), verified 2026-09-08
 - [claude-sonnet-5](models/claude-sonnet-5.md) - 13 claim(s), verified 2026-09-08
 - [composer-2.5](models/composer-2.5.md) - 2 claim(s), verified 2026-09-08
@@ -23,4 +24,7 @@ them may be copied into a shared catalog body.
 - [gemini-3.6-flash](models/gemini-3.6-flash.md) - 2 claim(s), verified 2026-09-08
 - [gemini-3.7-flash](models/gemini-3.7-flash.md) - 2 claim(s), verified 2026-09-08
 - [gemini-3.8-flash](models/gemini-3.8-flash.md) - 3 claim(s), verified 2026-09-08
+- [gpt-5.6-luna](models/gpt-5.6-luna.md) - 1 claim(s), verified 2026-09-25
+- [gpt-5.6-sol](models/gpt-5.6-sol.md) - 1 claim(s), verified 2026-09-25
+- [gpt-5.6-terra](models/gpt-5.6-terra.md) - 1 claim(s), verified 2026-09-25
 - [gpt-6-astra](models/gpt-6-astra.md) - 12 claim(s), verified 2026-09-05

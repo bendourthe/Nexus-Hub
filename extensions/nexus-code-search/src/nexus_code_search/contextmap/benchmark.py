@@ -63,9 +63,9 @@ BASELINE_PATH = Path(__file__).resolve().parent / "benchmark_baseline.json"
 # The committed regression corpus: realistic, adequately-sized sample repos
 # (the tiny per-framework contextmap fixtures are too small to show savings -
 # a map isn't worth its overhead on a 2-file repo).
-DEFAULT_CORPUS = (
-    Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "benchmark"
-)
+_SOURCE_CORPUS = Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "benchmark"
+_PACKAGED_CORPUS = Path(__file__).resolve().parent / "benchmark_corpus"
+DEFAULT_CORPUS = _PACKAGED_CORPUS if _PACKAGED_CORPUS.is_dir() else _SOURCE_CORPUS
 
 
 @dataclass(frozen=True)
