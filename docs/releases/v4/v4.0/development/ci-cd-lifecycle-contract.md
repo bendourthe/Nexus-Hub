@@ -180,7 +180,7 @@ These cannot be asserted from a pipeline file and MUST be configured and verifie
 - Artifact retention period.
 - Billing usage review per repository and runner class.
 
-These items are documented in [`github-ci-settings-runbook.md`](github-ci-settings-runbook.md). The harness MUST NOT mutate them automatically.
+These items are documented in [`github-ci-settings.md`](../../../../runbooks/github-ci-settings.md). The harness MUST NOT mutate them automatically.
 
 ## 10. Security controls
 

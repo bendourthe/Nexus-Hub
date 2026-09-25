@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Introduced**: v4.0.0
-**Contract**: [`ci-cd-lifecycle-contract.md`](ci-cd-lifecycle-contract.md) section 9
+**Contract**: [`ci-cd-lifecycle-contract.md`](../releases/v4/v4.0/development/ci-cd-lifecycle-contract.md) section 9
 
 Everything the pipeline files cannot enforce. Configure and verify each item by hand.
 
@@ -12,9 +12,9 @@ Contains no credentials. Every command below runs with the reader's own authenti
 
 ## Why these settings are load-bearing, not hygiene
 
-A `push` event carries no evidence that an update came from a reviewed merge. `post-merge.yml` and the comment on every branch-filtered trigger say "a merge or a release operation happened", and that sentence is TRUE ONLY IF the branch rejects direct pushes.
+A `push` event carries no evidence that an update came from a pull-request merge. `post-merge.yml` and the comment on every branch-filtered trigger say "a merge or a release operation happened", and that sentence is TRUE ONLY IF the branch rejects direct pushes. The current protection requires a pull request but zero approving reviews; do not describe that as a reviewed merge.
 
-Without the protection below, the same workflow fires on any developer push to `develop`, and every post-merge assumption (the tree was reviewed, the gate was green, the pull request validated the merge result) is false while the pipeline still reports green. That is the worst available failure: not a red check, but a green one that means nothing.
+Without the protection below, the same workflow fires on any developer push to `develop`, and every post-merge assumption (the pull request was gated, the required checks were green, the pull request validated the merge result) is false while the pipeline still reports green. That is the worst available failure: not a red check, but a green one that means nothing.
 
 ## 1. Protected branches
 
@@ -44,7 +44,7 @@ gh api repos/bendourthe/Nexus-Hub/branches/develop/protection
 
 ## 2. Required status checks
 
-The declared set lives in [`docs/policy/required-checks.json`](../../../../policy/required-checks.json) and is enforced against the workflows by `scripts/check_required_check_coverage.py` in `make validate` and in CI.
+The declared set lives in [`docs/policy/required-checks.json`](../policy/required-checks.json) and is enforced against the workflows by `scripts/check_required_check_coverage.py` in `make validate` and in CI.
 
 Current contexts on both branches:
 
@@ -94,7 +94,7 @@ For a PRIVATE repository adopting this contract, self-hosted runners are permitt
 
 ## 6. Billing review
 
-No GitHub endpoint reports drawdown against the included allowance directly, so this is a periodic manual read rather than a monitor. The v3.18.2 decision to withdraw the GitHub Usage Monitor records why: the reconstruction needs repository visibility AT THE TIME OF USE, which no API reports.
+The included-minute drawdown and runner-class breakdown still require an authorized account billing read for the billing period. A repository-scoped `gh` token does not establish that access: the current token receives 404 from the account billing endpoint without the `user` scope. Do not reconstruct the allowance from workflow runs, because the v3.18.2 decision to withdraw the GitHub Usage Monitor records that repository visibility at the time of use is unavailable.
 
 ```bash
 gh api /repos/bendourthe/Nexus-Hub/actions/cache/usage
@@ -119,7 +119,7 @@ The other half of the saving is behavioral and does not appear in any setting: u
 
 ## 7. Artifact retention
 
-Confirm the repository default in Settings, Actions, General, Artifact and log retention. The REST settings queried during the v4.3.0 audit did not expose that value, so this runbook does not infer it from a platform default.
+Read the repository default with `gh api repos/bendourthe/Nexus-Hub/actions/permissions/artifact-and-log-retention` and confirm it in Settings, Actions, General, Artifact and log retention. The endpoint returned `days: 90` on 2026-09-25; re-read it for a later audit rather than assuming the value is permanent.
 
 `cursor-usage-monitor.yml` uploads its built VSIX and sets `retention-days: 7` explicitly; a later job downloads the same artifact. Any additional upload must also set an explicit retention. `validate_workflow_security.py` fails an `upload-artifact` step with no `retention-days`, so this cannot be forgotten silently.
 
@@ -140,6 +140,8 @@ The v4.3.0 final-phase audit observed the following read-only state on 2026-08-3
 | Artifact default retention | not observed | confirm in Settings, Actions, General |
 | Merge queue | not observed | confirm in Settings, Rules, Rulesets |
 
+The 2026-09-25 read-back found both branches strict with the five declared required contexts, administrator enforcement, pull requests required, force pushes and deletions blocked, and conversation resolution required. It also found zero required approving reviews, zero repository rulesets, and 90-day default artifact and log retention. Zero rulesets is a bounded API observation, not a rendered merge-queue verification; billing minutes by runner class likewise remain unread without account authorization.
+
 ## 9. Verification checklist
 
 Run through this after any change to branch protection or to the workflow topology.
@@ -154,6 +156,6 @@ Run through this after any change to branch protection or to the workflow topolo
 - [ ] Confirm no workflow run was triggered by an ordinary feature-branch push
 - [ ] After a release tag, confirm `release.yml` ran and `ci.yml` did NOT
 - [ ] Read the billing page and record per-runner-class minutes for the period
-- [ ] Confirm the default artifact retention in Settings, Actions, General
+- [ ] Read the default artifact retention through the repository endpoint and confirm it in Settings, Actions, General
 - [ ] Confirm merge-queue state in Settings, Rules, Rulesets
 - [ ] Every `upload-artifact` step sets an explicit `retention-days`

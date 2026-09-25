@@ -1,7 +1,7 @@
 # Docs Cleanup Report - Nexus-Hub - 2026-09-24
 
 **Active version:** v4.13.0
-**Mode:** propose-only; no files moved or deleted
+**Mode:** original propose-only audit with a bounded application recorded below
 **Scope:** the four v4.0 paths reported by `audit-docs.py lifespan-contradictions` on `origin/develop` at `434da421`, then rechecked after `d052af9e`; this is not a whole-tree cleanup audit
 **Owner:** [v4.0 WN-2](../v4.0/known-gaps.md)
 
@@ -52,13 +52,21 @@ The `v4.0.0` tag closed on 2026-08-27. The dates below are the latest post-tag c
 
 ```text
 docs/
-  guides/repository-native-ci-profiles.md       proposed, not moved
-  runbooks/github-ci-settings.md                 proposed, not moved
+  guides/repository-native-ci-profiles.md       proposed at audit time; moved 2026-09-25
+  runbooks/github-ci-settings.md                 proposed at audit time; moved 2026-09-25
   releases/v4/v4.0/plans/                        held until whole-minor closure
   releases/v4/v4.0/known-gaps.md                 stays active by policy
 ```
 
 No existing archive path changes in this proposal. The two possible living-document moves need the docs-layout confirmation gate and a before/after link-set diff. The CI plan needs a separate decision on its 62 historically preserved task boxes. WN-2 stays open until those decisions and the resulting detector baseline are verified.
+
+## Bounded application - 2026-09-25
+
+The two Cat 3 documents were copied byte-for-byte to `docs/guides/repository-native-ci-profiles.md` and `docs/runbooks/github-ci-settings.md` before their old paths were removed. Their source hashes were `1AC5FC809E4BA07A824648552616A777EC1D1F7E4D35641941D7FCD6C5882711` and `E9E8FA4D6EA6458DFAFD598E7E5B3B00574464E1AB91D6C73124F98D4591408D`, respectively. The moved guide now describes the observed Windows full-run duration and generated coverage/SARIF receipts; the runbook reflects the 2026-09-25 repository read-back without claiming access to account billing or a rendered merge-queue setting.
+
+The staged rename-map link comparison reported zero newly broken links, with 465 pre-existing unresolved references before and after. The direct inbound Markdown links in README, the v4.0 lifecycle contract, and the v4.0 final audit were repaired; the `post-merge.yml` path comment was updated. This is a relocation proof, not a clean whole-repository link baseline.
+
+Two frozen records now have post-tag link-maintenance edits: `development/ci-cd-lifecycle-contract.md` and `development/ci-cd-final-audit.md`. On the committed relocation tree, the lifespan detector exited 1 with 1,388 findings across release buckets and exactly four in v4.0: those records and the two plans in the original table. The CI plan's 62 unchecked historical task boxes remain untouched. WN-2 cannot close from the two-file relocation alone; re-run the detector after protected publication and decide the records' living or archival disposition.
 
 ## Self-classification
 
