@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Introduced**: v4.0.0
 **Engine**: [`scripts/ci/`](../../scripts/ci/)
-**Contract**: [`ci-cd-lifecycle-contract.md`](../releases/v4/v4.0/development/ci-cd-lifecycle-contract.md) section 3
+**Contract**: [`ci-cd-lifecycle-contract.md`](../policy/ci-cd-lifecycle-contract.md) section 3
 
 How to run Nexus-Hub's validation locally, what each profile costs, what it writes, and how an agent uses it during a plan phase without starting remote CI.
 

@@ -4,7 +4,7 @@
 **Status**: normative
 **Introduced**: v4.0.0
 **Owning skill**: `catalog/skills/infrastructure/cicd-architect/SKILL.md`
-**Plan**: [`docs/releases/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md`](../plans/v4.0.0-cost-effective-ci-cd.md)
+**Plan**: [`docs/releases/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md`](../releases/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md)
 
 This document is the single normative definition of how plan-driven work moves from a local edit to a published release, and of what a repository's continuous integration and delivery pipeline must look like to support that movement cheaply and safely. It is provider-neutral: GitHub Actions is the reference implementation and the primary worked example, not a dependency.
 
@@ -180,7 +180,7 @@ These cannot be asserted from a pipeline file and MUST be configured and verifie
 - Artifact retention period.
 - Billing usage review per repository and runner class.
 
-These items are documented in [`github-ci-settings.md`](../../../../runbooks/github-ci-settings.md). The harness MUST NOT mutate them automatically.
+These items are documented in [`github-ci-settings.md`](../runbooks/github-ci-settings.md). The harness MUST NOT mutate them automatically.
 
 ## 10. Security controls
 
