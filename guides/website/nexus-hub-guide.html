@@ -3221,6 +3221,12 @@ host.appendChild(svg);
   var ASTEROID_SPEEDS = [45, 75, 110];
   var ASTEROID_SIZES = [[8, 11], [12, 17], [18, 26]];
   var ENEMY_BANDS = [[40, 55], [60, 80], [90, 115]];
+  var ENEMY_ARCHETYPES = [
+    { id: "interceptor", r: 9, vy: [96, 128], pattern: "dart", fire: { style: "bolt", every: [34, 52], speed: 210 } },
+    { id: "gunship", r: 13, vy: [62, 84], pattern: "strafe", fire: { style: "spread", every: [78, 104], speed: 165 } },
+    { id: "lancer", r: 18, vy: [38, 52], pattern: "hold", fire: { style: "beam", every: [120, 150], tell: 36 } },
+    { id: "drone", r: 6, vy: [130, 168], pattern: "weave", fire: null }
+  ];
   var SPAWN_ENEMY_TICKS = [90, 150];
   var SPAWN_ASTEROID_TICKS = [70, 120];
   var TEACHING_SPAWN_FROM_TICK = 120;
@@ -3300,7 +3306,10 @@ host.appendChild(svg);
       base.spawn.enemyIn = SPAWN_ENEMY_TICKS[0];
       base.spawn.asteroidIn = SPAWN_ASTEROID_TICKS[0];
     } else if (name === "asteroid-hit") {
-      base.asteroids.push({ id: "seed-rock", x: 180, y: 200, r: 16, vy: 105, spin: 0.8, face: rng() * 6.28, resolved: false });
+      var seedRockLook = Math.floor(rngSpawn() * 0xffffffff) >>> 0;
+      base.asteroids.push({ id: "seed-rock", x: 180, y: 200, r: 16, vx: 0, vy: 105, tier: 1,
+        spin: 0.8, face: rng() * 6.28, look: seedRockLook,
+        shape: asteroidSilhouette(seedRockLook, 11), resolved: false });
       base.spawn.teaching = true;
       base.spawn.fromTick = TEACHING_SPAWN_FROM_TICK;
       base.spawn.enemyIn = SPAWN_ENEMY_TICKS[0];
@@ -3314,6 +3323,20 @@ host.appendChild(svg);
 
   function pick(rng, range) { return range[0] + rng() * (range[1] - range[0]); }
   function pickTicks(rng, range) { return range[0] + Math.floor(rng() * (range[1] - range[0] + 1)); }
+  function pickArchetype(rng, tick) {
+    var weights = tick >= 900 ? [28, 30, 30, 12] : [58, 27, 7, 8];
+    var roll = rng() * 100, total = 0;
+    for (var i = 0; i < weights.length; i++) {
+      total += weights[i];
+      if (roll < total) return ENEMY_ARCHETYPES[i];
+    }
+    return ENEMY_ARCHETYPES[0];
+  }
+  function asteroidSilhouette(look, points) {
+    var rng = mulberry32(look), shape = [];
+    for (var i = 0; i < points; i++) shape.push(0.74 + rng() * 0.34);
+    return shape;
+  }
   /* Teaching fixtures keep a stationary player untouched: x lands outside the centre band. */
   function spawnX(s, margin) {
     var r = s.rngSpawn;
@@ -3325,16 +3348,21 @@ host.appendChild(svg);
     if (s.tick < s.spawn.fromTick) return;
     var r = s.rngSpawn;
     if (s.spawn.enemyIn <= 0) {
-      var band = Math.floor(r() * ENEMY_BANDS.length);
+      var arch = pickArchetype(r, s.tick);
       s.enemies.push({
         id: "enemy-" + s.nextId++,
+        archetype: arch.id,
         x: spawnX(s, 30),
         y: -14,
-        r: 12,
+        r: arch.r,
         vx: s.spawn.teaching ? 0 : (r() - 0.5) * 40,
-        vy: pick(r, ENEMY_BANDS[band]),
-        band: band,
-        fireIn: 40 + Math.floor(r() * 50),
+        vy: pick(r, arch.vy),
+        band: Math.min(2, Math.floor((arch.vy[0] - 38) / 46)),
+        pattern: arch.pattern,
+        fire: arch.fire,
+        phase: r() * 6.28,
+        look: Math.floor(r() * 0xffffffff) >>> 0,
+        fireIn: arch.fire ? pickTicks(r, arch.fire.every) : 0,
         resolved: false
       });
       s.spawn.enemyIn = pickTicks(r, SPAWN_ENEMY_TICKS);
@@ -3345,15 +3373,19 @@ host.appendChild(svg);
       var size = Math.floor(r() * ASTEROID_SIZES.length);
       var speed = Math.floor(r() * ASTEROID_SPEEDS.length);
       var radius = pick(r, ASTEROID_SIZES[size]);
+      var look = Math.floor(r() * 0xffffffff) >>> 0;
       s.asteroids.push({
         id: "rock-" + s.nextId++,
         x: spawnX(s, Math.ceil(radius) + 6),
         y: -20,
         r: radius,
+        vx: s.spawn.teaching ? 0 : (r() - 0.5) * 26,
         vy: ASTEROID_SPEEDS[speed],
         tier: size,
         spin: (r() - 0.5) * 2,
         face: r() * 6.28,
+        look: look,
+        shape: asteroidSilhouette(look, 9 + size * 2),
         resolved: false
       });
       s.spawn.asteroidIn = pickTicks(r, SPAWN_ASTEROID_TICKS);
@@ -3369,10 +3401,35 @@ host.appendChild(svg);
     var name = FIXTURES.indexOf(fixtureName) !== -1 ? fixtureName : "play";
     var scratch = fixtureState(name, typeof seed === "number" && isFinite(seed) ? Math.floor(seed) : DEFAULT_SEED);
     var n = Math.max(0, Math.min(20000, Math.floor(ticks) || 0));
-    for (var i = 0; i < n; i++) { scratch.tick = i; spawnStep(scratch); }
+    var enemies = [], asteroids = [], tracks = [], shots = [], tracksById = Object.create(null);
+    for (var i = 0; i < n; i++) {
+      scratch.tick = i;
+      var oldEnemies = scratch.enemies.length, oldRocks = scratch.asteroids.length, oldShots = scratch.enemyShots.length;
+      spawnStep(scratch);
+      for (var ei = oldEnemies; ei < scratch.enemies.length; ei++) {
+        var e = scratch.enemies[ei];
+        enemies.push({ vy: round3(e.vy), band: e.band, x: round3(e.x), archetype: e.archetype, r: e.r });
+        var track = { archetype: e.archetype, xDrift: 0 };
+        tracksById[e.id] = track;
+        tracks.push(track);
+      }
+      for (var ai = oldRocks; ai < scratch.asteroids.length; ai++) {
+        var a = scratch.asteroids[ai];
+        asteroids.push({ r: round3(a.r), vy: a.vy, tier: a.tier, x: round3(a.x), vx: round3(a.vx), shape: a.shape });
+      }
+      var lastX = Object.create(null);
+      for (ei = 0; ei < scratch.enemies.length; ei++) lastX[scratch.enemies[ei].id] = scratch.enemies[ei].x;
+      movementStep(scratch);
+      for (ei = 0; ei < scratch.enemies.length; ei++) {
+        e = scratch.enemies[ei];
+        if (tracksById[e.id]) tracksById[e.id].xDrift += Math.abs(e.x - lastX[e.id]);
+      }
+      for (var si = oldShots; si < scratch.enemyShots.length; si++) shots.push({ style: scratch.enemyShots[si].style || "bolt" });
+      cleanupStep(scratch);
+    }
+    for (i = 0; i < tracks.length; i++) tracks[i].xDrift = round3(tracks[i].xDrift);
     return deepFreeze({
-      enemies: scratch.enemies.filter(function (e) { return e.id !== "seed-enemy"; }).map(function (e) { return { vy: round3(e.vy), band: e.band, x: round3(e.x) }; }),
-      asteroids: scratch.asteroids.filter(function (a) { return a.id !== "seed-rock"; }).map(function (a) { return { r: round3(a.r), vy: a.vy, tier: a.tier, x: round3(a.x) }; })
+      enemies: enemies, asteroids: asteroids, tracks: tracks, shots: shots
     });
   }
 
@@ -3382,19 +3439,51 @@ host.appendChild(svg);
       e = s.enemies[i];
       e.x += e.vx * TICK;
       e.y += e.vy * TICK;
-      if (e.x < 18 || e.x > WIDTH - 18) e.vx = -e.vx;
+      if (!s.spawn.teaching) {
+        if (e.pattern === "dart") e.x += Math.sin((s.tick + e.phase * 60) * 0.11) * 2.4;
+        else if (e.pattern === "strafe") e.x += Math.sin((s.tick + e.phase * 60) * 0.045) * 1.5;
+        else if (e.pattern === "weave") e.x += Math.sin((s.tick + e.phase * 60) * 0.19) * 3.1;
+      }
+      e.x = Math.max(e.r, Math.min(WIDTH - e.r, e.x));
+      if (e.x === e.r || e.x === WIDTH - e.r) e.vx = -e.vx;
       if (isFinite(e.fireIn)) {
         e.fireIn -= 1;
         if (e.fireIn <= 0) {
-          s.enemyShots.push({ id: "eshot-" + s.nextId++, x: e.x, y: e.y + 12, r: 3.5, vy: ENEMY_SHOT_VY, resolved: false });
-          e.fireIn = 90 + Math.floor(s.rng() * 60);
+          if (e.fire && e.fire.style === "spread") {
+            var lanes = [-60, 0, 60];
+            for (var li = 0; li < lanes.length; li++) {
+              s.enemyShots.push({ id: "eshot-" + s.nextId++, style: "spread", x: e.x, y: e.y + e.r, r: 3.5, vx: lanes[li], vy: e.fire.speed, tell: 0, resolved: false });
+            }
+          } else if (e.fire && e.fire.style === "beam") {
+            s.enemyShots.push({ id: "eshot-" + s.nextId++, style: "beam", sourceId: e.id, x: e.x, y: e.y + e.r, r: 0, width: 10, length: HEIGHT - e.y - e.r, vy: 1, tell: e.fire.tell, active: 18, resolved: false });
+          } else if (e.fire) {
+            s.enemyShots.push({ id: "eshot-" + s.nextId++, style: "bolt", x: e.x, y: e.y + e.r, r: 3.5, vx: 0, vy: e.fire.speed, tell: 0, resolved: false });
+          } else if (e.fire === undefined) {
+            s.enemyShots.push({ id: "eshot-" + s.nextId++, style: "bolt", x: e.x, y: e.y + 12, r: 3.5, vx: 0, vy: ENEMY_SHOT_VY, tell: 0, resolved: false });
+          }
+          e.fireIn = e.fire ? pickTicks(s.rngSpawn, e.fire.every) : e.fire === undefined ? 90 + Math.floor(s.rng() * 60) : Infinity;
         }
       }
     }
-    for (i = 0; i < s.enemyShots.length; i++) { s.enemyShots[i].y += s.enemyShots[i].vy * TICK; }
+    for (i = 0; i < s.enemyShots.length; i++) {
+      var shot = s.enemyShots[i];
+      if (shot.style === "beam") {
+        if (shot.tell > 0) {
+          shot.tell -= 1;
+          var source = s.enemies.filter(function (enemy) { return enemy.id === shot.sourceId; })[0];
+          if (source) { shot.x = source.x; shot.y = source.y + source.r; shot.length = HEIGHT - shot.y; }
+        } else if (--shot.active <= 0) shot.resolved = true;
+      } else {
+        shot.x += (shot.vx || 0) * TICK;
+        shot.y += shot.vy * TICK;
+      }
+    }
     for (i = 0; i < s.asteroids.length; i++) {
-      s.asteroids[i].y += s.asteroids[i].vy * TICK;
-      s.asteroids[i].face += s.asteroids[i].spin * TICK;
+      var rock = s.asteroids[i];
+      rock.x += (rock.vx || 0) * TICK;
+      rock.y += rock.vy * TICK;
+      rock.face += rock.spin * TICK;
+      if (rock.x < rock.r || rock.x > WIDTH - rock.r) rock.vx = -(rock.vx || 0);
     }
     for (i = 0; i < s.playerShots.length; i++) {
       s.playerShots[i].y += s.playerShots[i].vy * TICK;
@@ -3430,7 +3519,11 @@ host.appendChild(svg);
     /* Precedence 2: enemy projectile vs player, one resolution per projectile. */
     for (i = 0; i < s.enemyShots.length; i++) {
       var shot = s.enemyShots[i];
-      if (shot.resolved || !collides(shot, s.player)) continue;
+      if (shot.resolved || shot.tell > 0) continue;
+      var strikes = shot.style === "beam"
+        ? shot.active > 0 && s.player.y + s.player.r >= shot.y && s.player.y - s.player.r <= shot.y + shot.length && Math.abs(s.player.x - shot.x) <= shot.width / 2 + s.player.r
+        : collides(shot, s.player);
+      if (!strikes) continue;
       shot.resolved = true;
       if (s.damageMode === "fixed" && s.player.invulnerableTicks > 0) continue;
       var outcome = damageOutcome(s.damageMode, s.lives);
@@ -3460,13 +3553,23 @@ host.appendChild(svg);
         hit.resolved = true;
         s.score += 100;
         explodeAt(s, hit.x, hit.y, false);
+        if (hit.tier >= 1) {
+          for (var child = 0; child < 2; child++) {
+            var tier = hit.tier - 1, look = Math.floor(s.rngSpawn() * 0xffffffff) >>> 0;
+            s.asteroids.push({ id: "rock-" + s.nextId++, x: hit.x + (child ? 8 : -8), y: hit.y,
+              r: pick(s.rngSpawn, ASTEROID_SIZES[tier]), vx: (hit.vx || 0) + (child ? 24 : -24),
+              vy: hit.vy + 15, tier: tier, spin: (s.rngSpawn() - 0.5) * 2,
+              face: s.rngSpawn() * 6.28, look: look,
+              shape: asteroidSilhouette(look, 9 + tier * 2), resolved: false });
+          }
+        }
       }
     }
   }
 
   function cleanupStep(s) {
     s.enemies = s.enemies.filter(function (e) { return !e.resolved && e.y < HEIGHT + 30; });
-    s.enemyShots = s.enemyShots.filter(function (p) { return !p.resolved && p.y < HEIGHT + 20; });
+    s.enemyShots = s.enemyShots.filter(function (p) { return !p.resolved && (p.style === "beam" || p.y < HEIGHT + 20); });
     s.asteroids = s.asteroids.filter(function (a) { return !a.resolved && a.y < HEIGHT + 40; });
     s.playerShots = s.playerShots.filter(function (p) { return !p.resolved && p.life > 0 && p.y > -20; });
     s.explosions = s.explosions.filter(function (b) { return b.age < 36; });
