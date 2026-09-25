@@ -2587,6 +2587,15 @@ install_templates() {
         safe_copy "$script_source" "$scripts_dest/generate_report.py" true "[OK] Report generator installed at: $scripts_dest/generate_report.py"
     fi
 
+    # Copy the plan-completion checker (v4.13.2). Decides whether a full
+    # /implement run is complete from repository, hosting, and run-record
+    # state; the completion gate, run-plan runner, and /update release call
+    # it from this installed path, never from a working tree.
+    local completion_checker_source="$repo_root/scripts/check_plan_completion.py"
+    if [ -f "$completion_checker_source" ]; then
+        safe_copy "$completion_checker_source" "$scripts_dest/check_plan_completion.py" true "[OK] Plan-completion checker installed at: $scripts_dest/check_plan_completion.py"
+    fi
+
     # Copy MCP benchmark script (v1.0.0+). Benchmarks the three internal MCPs
     # (nexus-skill-server, nexus-code-search, nexus-web-fetch). Pure-local.
     local benchmark_source="$repo_root/scripts/nexus_mcp_benchmark.py"

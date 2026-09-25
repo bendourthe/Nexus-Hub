@@ -77,7 +77,7 @@ Each approval is a tuple of exact values plus the verbatim user text that grante
 
 An approval is valid only when its verbatim text came from the user, not from the agent:
 
-- On platforms with a documented prompt-submit hook (Claude Code `UserPromptSubmit` and the equivalents in `docs/policy/completion-levers.json`), the `approval-capture` hook stores, per session, the sha256 of each submitted prompt and of each of its non-empty lines (normalized: trimmed, internal whitespace collapsed) in hook-owned state at `~/.nexus-hub/runs/prompts/<session>.jsonl`. No prompt plaintext is stored. `record create`, `record answer`, and `record pause` reject an approval whose normalized verbatim text does not hash to a captured prompt or line from the bound session (`BLOCKED: approval-not-covered`).
+- On platforms with a documented prompt-submit hook (Claude Code `UserPromptSubmit` and the equivalents in `docs/policy/completion-levers.json`), the `approval-capture` hook stores, per session, the sha256 of each submitted prompt and of each of its non-empty lines (normalized: trimmed, internal whitespace collapsed) in hook-owned state at `~/.nexus-hub/runs/prompts/<sha256(session id)>.jsonl`, one JSON line `{"digests": [...]}` per prompt. No prompt plaintext is stored. `record create`, `record answer`, and `record pause` reject an approval whose normalized verbatim text does not hash to a captured prompt or line from the bound session (`BLOCKED: approval-not-covered`).
 - Where no prompt-submit hook exists, those commands read confirmation from the terminal device directly (`/dev/tty`, or `CONIN$` on Windows), never from stdin or arguments, and fail closed when no terminal is attached.
 
 ### Integrity

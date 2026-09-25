@@ -170,12 +170,18 @@ The scanned-commit count fell from 3377 to 1740 because the earlier figure inclu
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 3 | 0 |
-| Bugs / regressions (BG) | 0 | 0 |
+| Bugs / regressions (BG) | 1 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
+
+#### BG-1: Both installers copy `plan_status.py` over the installed `generate_report.py`
+
+**Source phase**: found during Phase 2 (T005); introduced by `71eaec1f` on 2026-09-13, before this plan. **Plan reference**: [v4.13.2 plan, sub-task 2.1](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `scripts/installer.sh:2584-2585` and `scripts/installer.ps1:2742-2743` assign the report generator's source path and then immediately reassign it to `scripts/plan_status.py`, while the destination stays `generate_report.py`. Every install since v4.12 therefore writes the plan-status script under the report generator's name, so `generate_report.py` is not installed and `plan_status.py` is not installed under its own name. The installer parity test passes because it checks that each basename is mentioned in both installers, not what is copied where.
+
+**Owner**: catalog maintainer. **Status**: open; outside this plan's scope, recorded rather than changed. **Suggested next step**: give `plan_status.py` its own copy block in both installers, restore the generator's source line, and add a post-install assertion that each installed script's content matches its repository source.
 
 #### DF-1: Devin Desktop reads `.devin/hooks.json`, which the Windsurf integration does not model
 

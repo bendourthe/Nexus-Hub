@@ -13,7 +13,15 @@ import re
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CONTRACT = REPO_ROOT / "catalog" / "skills" / "workflow" / "implement-phase" / "references" / "completion-contract.md"
+CONTRACT = (
+    REPO_ROOT
+    / "catalog"
+    / "skills"
+    / "workflow"
+    / "implement-phase"
+    / "references"
+    / "completion-contract.md"
+)
 
 _ID = re.compile(r"`((?:gaps|evidence|tests|integration|release|cleanup)\.[a-z-]+)`")
 
@@ -24,7 +32,13 @@ def _predicate_ids() -> set[str]:
 
 def test_contract_defines_the_expected_predicates() -> None:
     ids = _predicate_ids()
-    for expected in ("gaps.version", "evidence.file", "integration.merged", "release.github", "cleanup.worktree"):
+    for expected in (
+        "gaps.version",
+        "evidence.file",
+        "integration.merged",
+        "release.github",
+        "cleanup.worktree",
+    ):
         assert expected in ids
 
 
@@ -38,4 +52,6 @@ def test_no_catalog_file_restates_a_predicate() -> None:
         hits = sorted(pid for pid in ids if f"`{pid}`" in text)
         if hits:
             offenders.append(f"{path.relative_to(REPO_ROOT)}: {hits}")
-    assert not offenders, "predicate ids restated outside the contract:\n" + "\n".join(offenders)
+    assert not offenders, "predicate ids restated outside the contract:\n" + "\n".join(
+        offenders
+    )

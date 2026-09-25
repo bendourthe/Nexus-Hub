@@ -25,7 +25,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.lib.integrations import list_keys  # noqa: E402
+from scripts.lib.integrations import list_keys
 
 MATRIX = REPO_ROOT / "docs" / "policy" / "completion-levers.json"
 COMPANION = REPO_ROOT / "docs" / "policy" / "completion-levers.md"
@@ -43,7 +43,12 @@ FORMATS = {
     "exit-2",
     "plugin",
 }
-SURFACE_ROWS = {"windsurf/devin-cli", "antigravity2/cli", "copilot/vscode", "copilot/cli"}
+SURFACE_ROWS = {
+    "windsurf/devin-cli",
+    "antigravity2/cli",
+    "copilot/vscode",
+    "copilot/cli",
+}
 _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
@@ -73,12 +78,16 @@ def test_named_surface_rows_are_present_and_owned(matrix: dict) -> None:
 
 def test_no_row_is_unexplained(matrix: dict) -> None:
     extra = set(matrix["rows"]) - set(list_keys()) - SURFACE_ROWS
-    assert not extra, f"rows that are neither registered keys nor named surfaces: {sorted(extra)}"
+    assert not extra, (
+        f"rows that are neither registered keys nor named surfaces: {sorted(extra)}"
+    )
 
 
 def test_every_lever_has_a_valid_status(matrix: dict) -> None:
     for row_id, lever, entry in _levers(matrix):
-        assert entry.get("status") in STATUSES, f"{row_id}.{lever}: bad status {entry.get('status')!r}"
+        assert entry.get("status") in STATUSES, (
+            f"{row_id}.{lever}: bad status {entry.get('status')!r}"
+        )
 
 
 def test_verified_levers_carry_a_source_and_date(matrix: dict) -> None:
@@ -86,22 +95,34 @@ def test_verified_levers_carry_a_source_and_date(matrix: dict) -> None:
         if entry["status"] != "VERIFIED":
             continue
         url = entry.get("source_url") or ""
-        assert url.startswith("https://"), f"{row_id}.{lever}: VERIFIED without an https source"
-        assert _ISO_DATE.match(entry.get("verified", "")), f"{row_id}.{lever}: VERIFIED without an ISO date"
+        assert url.startswith("https://"), (
+            f"{row_id}.{lever}: VERIFIED without an https source"
+        )
+        assert _ISO_DATE.match(entry.get("verified", "")), (
+            f"{row_id}.{lever}: VERIFIED without an ISO date"
+        )
 
 
 def test_verified_continuation_names_a_known_format(matrix: dict) -> None:
     for row_id, lever, entry in _levers(matrix):
         if lever == "continuation" and entry["status"] == "VERIFIED":
-            assert entry.get("format") in FORMATS, f"{row_id}: unknown continuation format {entry.get('format')!r}"
-            assert entry.get("event"), f"{row_id}: VERIFIED continuation without an event name"
+            assert entry.get("format") in FORMATS, (
+                f"{row_id}: unknown continuation format {entry.get('format')!r}"
+            )
+            assert entry.get("event"), (
+                f"{row_id}: VERIFIED continuation without an event name"
+            )
 
 
 def test_verified_headless_names_launch_and_resume(matrix: dict) -> None:
     for row_id, lever, entry in _levers(matrix):
         if lever == "headless" and entry["status"] == "VERIFIED":
-            assert entry.get("launch"), f"{row_id}: headless VERIFIED without a launch form"
-            assert entry.get("resume"), f"{row_id}: headless VERIFIED without a resume form"
+            assert entry.get("launch"), (
+                f"{row_id}: headless VERIFIED without a launch form"
+            )
+            assert entry.get("resume"), (
+                f"{row_id}: headless VERIFIED without a resume form"
+            )
 
 
 def test_companion_lists_every_row(matrix: dict) -> None:
