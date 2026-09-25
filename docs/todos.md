@@ -90,7 +90,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.12.0 implementation tasks complete | 27 | 28 | 1 |
+| v4.12.0 implementation tasks complete | 28 | 28 | 0 |
 | v4.12.0 implementation phases complete | 4 | 5 | 1 |
 | v4.11.0 interactive-handbook phases complete | 7 | 7 | 0 |
 | v4.11.0 interactive-handbook tasks complete | 31 | 31 | 0 |
