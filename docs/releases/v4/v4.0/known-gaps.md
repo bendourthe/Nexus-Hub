@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: finalized for the v4.0.0 release
-**Last updated**: 2026-08-27
+**Last updated**: 2026-09-24
 
 ## Release finalization - v4.0.0
 
@@ -295,6 +295,7 @@ None.
 - **Why it is not silently suppressed**: exempting the migration commit would require the detector to distinguish a link-target repair from a content edit, which it cannot do from commit dates alone, and adding a date-based amnesty would blunt the signal permanently for a one-time event.
 - **Suggested next step**: after v4.0.0 is tagged, re-run the detector and treat the post-tag result as the real baseline; a finding dated after that tag is a genuine contradiction. If the noise recurs on future migrations, the durable fix is an explicit re-baseline marker the detector reads, not a heuristic over diffs.
 - **Post-tag recheck on 2026-09-24**: On clean `origin/develop` at `dab05720`, the standalone detector exited 1 with 1,419 findings across release buckets, including five in `v4.0` after the `v4.0.0` tag. The five are `known-gaps.md`, two plans, `development/ci-cd-profile-guide.md`, and `development/github-ci-settings-runbook.md`. The original 243-file migration count is not the current baseline. The retention policy keeps `known-gaps.md` active and allows live, referenced documents under `development/`, so the five require document-specific classification before any exception, relocation, or WN-2 closure; this recheck does not resolve the warning.
+- **Scoped detector correction on 2026-09-24**: A candidate change excludes only a minor-root `known-gaps.md`, which the retention policy deliberately keeps active. Legacy and canonical regression cases still report a nested same-name file and another post-close document. The real-tree candidate scan reports 1,387 findings across buckets, four in `v4.0`, and zero minor-root known-gaps findings. The two plans, CI profile guide, and GitHub settings runbook remain visible; no date amnesty or broad release-bucket suppression was applied. WN-2 remains open pending their disposition.
 
 ##### WN-3 - CodeQL's PR check cannot evaluate a rename of this size
 
