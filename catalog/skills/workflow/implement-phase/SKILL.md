@@ -11,6 +11,8 @@ Implement one phase of a plan end-to-end: discover the right plan and phase, rev
 
 The complete, ordered procedure is in [`references/implement-phase-runbook.md`](references/implement-phase-runbook.md) - read it when actually running a phase. This body is the overview, the gates, and the invariants.
 
+What "done" means for a full run (the predicates, verdicts, run record, blockers, and pause) is owned by [`references/completion-contract.md`](references/completion-contract.md) and decided by `scripts/check_plan_completion.py`; this skill refers to that contract and does not restate its predicates.
+
 ## When to Use This Skill
 
 - Implementing a specific phase of an existing plan ("implement phase 3", "build the next phase", "continue the plan").
