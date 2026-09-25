@@ -14,7 +14,7 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 4 | 1 |
+| Deferred (DF) | 3 | 2 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
@@ -32,13 +32,6 @@
 - **Suggested next step**: Re-run `enumerate-models.sh codex` at the next release; when the CLI lists `gpt-6-astra`, re-stamp the codex entry through the writer and this item closes. If the CLI never lists it, re-home the profile under an API-platform id in a later schema decision.
 
 **2026-09-24 recheck**: The installed Codex CLI picker still lists six models and omits `gpt-6-astra`; the [archived read-only result](../../../archives/v4/v4.7/development/model-map-followup/verification.md) keeps API availability separate from CLI availability. DF-2 remains open and no profile was re-stamped.
-
-##### DF-3 - Four template validators share one roster and one shape
-
-- **Source phase**: Phase 7 - Architecture refactor (T027).
-- **Plan reference**: main plan sub-task 7.1; v4.5.0's `construction-debt:` note named the third invariant block as the consolidation trigger.
-- **Reason**: `test_construction_discipline_rule.py`, `test_writing_discipline_rule.py`, `test_autonomy_block_rule.py`, and `test_communication_contract_rule.py` each carry a twelve-template roster (two hardcoded, two derived from the directory) and the same presence, identity, and shim checks. The parity script holds a fifth copy of the lockstep list. Consolidating in the final phase of a release means renaming modules that three releases' evidence cites by file name, which is why it was recorded rather than applied.
-- **Suggested next step**: On the next plan that adds or edits a template block, move the roster derivation and the section-body helper into one shared module under `tests/validators/`, have the parity script read the lockstep list from the same place, and parametrize the four modules over their block markers; keep four files so a failure still names the block.
 
 ##### DF-4 - Reusable `workflow_call` CI factoring (report item E5) deliberately excluded
 
@@ -76,6 +69,7 @@
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | DF-1 | v4.4.6 guide-plan model-map citation missing | 2026-09-24 follow-up | The map already placed `gpt-6-astra` at frontier; the user later rejected and superseded the v4.4.6 redesign. [Archived evidence](../../../archives/v4/v4.7/development/model-map-followup/verification.md) closes the citation-only task without editing the historical plan. |
+| DF-3 | Four template validators share one roster and one shape | 2026-09-24 validator follow-up | The parity module now owns the lockstep list, dynamic roster, and section-body helper while four named rule modules retain their assertions. Construction Discipline gains `base-pi.md` coverage. [Local qualification](../../../archives/v4/v4.7/development/template-validator-roster/verification.md) records 152 focused passes and the separate hosted gate. |
 | MT-1 | Hosted watch and attested release artifact were unobserved | 2026-09-24 follow-up | [Manual `develop` run 36034068237](https://github.com/bendourthe/Nexus-Hub/actions/runs/36034068237) passed, with no required-check context; v4.7.0 tarball and `SHA256SUMS` matched after download, and GitHub verified the repository attestation. See [archived evidence](../../../archives/v4/v4.7/development/supply-chain-watch-followup/verification.md). WN-2 separately tracks the red `main` schedule. |
 
 ### Notes (not gaps)

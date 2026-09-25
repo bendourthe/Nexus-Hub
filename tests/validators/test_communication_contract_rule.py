@@ -12,8 +12,9 @@ from pathlib import Path
 
 import pytest
 
+from scripts.check_base_template_parity import template_roster
+
 _REPO_ROOT = Path(__file__).resolve().parents[2]
-_TEMPLATES = _REPO_ROOT / "templates" / "ai-instructions"
 _STYLE_GUIDE = _REPO_ROOT / "catalog" / "style-guides" / "agent-communication.md"
 _SKILL = (
     _REPO_ROOT
@@ -42,16 +43,7 @@ def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8").replace("\r\n", "\n")
 
 
-def _substantive() -> list[Path]:
-    out: list[Path] = []
-    for path in sorted(_TEMPLATES.glob("*.md")):
-        first = next((ln.strip() for ln in _read(path).split("\n") if ln.strip()), "")
-        if not first.startswith("@"):
-            out.append(path)
-    return out
-
-
-SUBSTANTIVE = _substantive()
+SUBSTANTIVE, _SHIMS = template_roster(_REPO_ROOT)
 
 
 def test_roster_has_thirteen_substantive_templates():

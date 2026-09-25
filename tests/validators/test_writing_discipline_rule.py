@@ -5,7 +5,7 @@ it lives in always-loaded instruction text rather than in the trigger-gated
 `anti-slop-editing` skill (a skill the user never asks for never fires).
 
 `scripts/check_base_template_parity.py` guards the five LOCKSTEP files. It does
-not look at the other seven substantive templates at all. This file closes that
+not look at the other eight substantive templates at all. This file closes that
 gap the same way `test_construction_discipline_rule.py` does for Construction
 Discipline and `test_end_of_task_rule.py` does for End-of-Task Summary.
 
@@ -20,6 +20,12 @@ from pathlib import Path
 
 import pytest
 
+from scripts.check_base_template_parity import (
+    LOCKSTEP_FILES,
+    instruction_section_body,
+    template_roster,
+)
+
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _TEMPLATES = _REPO_ROOT / "templates" / "ai-instructions"
 
@@ -30,62 +36,14 @@ _HEADING = "## Writing Discipline"
 # removing the clause that binds live replies does.
 _SELF_CHECK_MARKER = "This binds live chat replies"
 
-# The five files scripts/check_base_template_parity.py guards.
-_LOCKSTEP = [
-    "base-claude.md",
-    "base-codex.md",
-    "base-cursor.md",
-    "base-gemini.md",
-    "base-opencode.md",
-]
-
-# Substantive templates the parity guard does NOT cover.
-_UNGUARDED = [
-    "base-google-shared.md",
-    "base-aider.md",
-    "base-kimi.md",
-    "base-openclaw.md",
-    "base-qwen.md",
-    "base-windsurf.md",
-    "generic-instructions.md",
-    "base-pi.md",
-]
-
-_SUBSTANTIVE = _LOCKSTEP + _UNGUARDED
-
-# Include-only shims. These carry an `@`-include of a base and MUST NOT hold
-# their own copy of the section, or the rule would load twice for one platform.
-_INCLUDE_ONLY = [
-    "base-antigravity-10.md",
-    "base-antigravity-20.md",
-    "base-antigravity-cli.md",
-    "base-gemini-cli.md",
-]
+_LOCKSTEP = LOCKSTEP_FILES
+_SUBSTANTIVE_PATHS, _INCLUDE_ONLY_PATHS = template_roster(_REPO_ROOT)
+_SUBSTANTIVE = [path.name for path in _SUBSTANTIVE_PATHS]
+_INCLUDE_ONLY = [path.name for path in _INCLUDE_ONLY_PATHS]
 
 
 def _read(name: str) -> str:
     return (_TEMPLATES / name).read_text(encoding="utf-8").replace("\r\n", "\n")
-
-
-def _section_body(text: str) -> list[str]:
-    """Return the section's non-empty body lines, or [] when the heading is absent.
-
-    Mirrors the parity guard's normalization: trailing whitespace stripped, blank
-    lines dropped, so the seven unguarded files are held to the same comparison
-    the guard applies to the lockstep five.
-    """
-    lines = text.split("\n")
-    try:
-        start = next(i for i, line in enumerate(lines) if line.strip() == _HEADING)
-    except StopIteration:
-        return []
-    body: list[str] = []
-    for line in lines[start + 1 :]:
-        if line.startswith("## "):
-            break
-        if line.strip():
-            body.append(line.rstrip())
-    return body
 
 
 @pytest.mark.parametrize("name", _SUBSTANTIVE)
@@ -99,10 +57,10 @@ def test_every_substantive_template_carries_the_rule(name: str):
 def test_the_rule_body_is_identical_across_every_substantive_template():
     """Not just the lockstep five.
 
-    The parity guard pins the five; nothing pinned the other seven, so a reworded
+    The parity guard pins the five; nothing pinned the other eight, so a reworded
     copy could drift into one platform's instructions unnoticed.
     """
-    bodies = {name: _section_body(_read(name)) for name in _SUBSTANTIVE}
+    bodies = {name: instruction_section_body(_read(name), _HEADING) for name in _SUBSTANTIVE}
     reference = bodies[_LOCKSTEP[0]]
 
     assert reference, "the reference template has an empty rule body"
@@ -133,7 +91,7 @@ def test_the_self_check_binds_live_replies(name: str):
     its own reply before returning it. Asserted by substring so a rewording of the
     prohibition list does not break the test while dropping the clause does.
     """
-    body = "\n".join(_section_body(_read(name)))
+    body = "\n".join(instruction_section_body(_read(name), _HEADING))
     assert _SELF_CHECK_MARKER in body, (
         f"{name}: the Writing Discipline self-check no longer states that it binds live chat replies"
     )
@@ -147,7 +105,7 @@ def test_the_rule_stays_short_enough_to_always_load():
     Capping the non-empty body at six catches the section growing into a runbook
     while allowing one considered addition.
     """
-    body = _section_body(_read(_LOCKSTEP[0]))
+    body = instruction_section_body(_read(_LOCKSTEP[0]), _HEADING)
 
     assert len(body) <= 6, (
         f"the rule has grown to {len(body)} non-empty lines; it is always-loaded on "
@@ -157,7 +115,7 @@ def test_the_rule_stays_short_enough_to_always_load():
 
 def test_the_rule_is_ascii_only():
     """The block states the ASCII punctuation rule, so a violation in its own text is visible."""
-    body = "\n".join(_section_body(_read(_LOCKSTEP[0])))
+    body = "\n".join(instruction_section_body(_read(_LOCKSTEP[0]), _HEADING))
     non_ascii = sorted({c for c in body if ord(c) > 127})
 
     assert not non_ascii, (
