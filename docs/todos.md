@@ -3,7 +3,7 @@
 **Integration branch:** `develop`
 **Active work:** Historical v4.0-v4.13 plan tasks are integrated. PR #262 closed v4.10 WN-1's documentation-JSON blind spot with protected integration and post-merge proof. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
 **Closeout boundary:** Three future-plan branches, recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
-**Last refreshed:** 2026-09-24
+**Last refreshed:** 2026-09-25
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -12,6 +12,8 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
 - [x] Qualify v4.4 MT-446-3 against hosted Ubuntu Chromium: 384 guide and visual-detector browser tests passed, one optional sibling-copy test skipped, and the tested guide and test blobs match current `develop`. Archive the [Linux browser evidence](archives/v4/v4.4/development/guide-linux-browser-qualification/verification.md); keep the separate manual, native-zoom, and full-profile gates open.
 - [x] Close v4.4 WN-446-2 for current `develop` with [CodeQL run 36106037432](https://github.com/bendourthe/Nexus-Hub/actions/runs/36106037432): both language jobs passed, no branch-open alert targets the guide, and the old #236 instance remains confined to PR #156. Archive the [bounded rescan](archives/v4/v4.4/development/codeql-cq1-rescan/verification.md).
+- [x] Qualify the v4.4 Windows full profile with process-local Git Bash: 61 commands and all 13 test partitions passed at `bb3b2b97`; current-tip fast 17/17 and docs 8/8 passed. Archive the [bounded receipt](archives/v4/v4.4/development/full-native-profile-2026-09-25/verification.md) while preserving the historical failed run.
+- [ ] Resolve the default Windows Bash interpreter boundary and publish the v4.4 QG-446-1 follow-up; the unmodified host PATH still makes the interpreter gate fail, so the process-qualified full run does not close that host condition.
 - [ ] Resolve the four classified post-tag v4.0 lifespan-detector findings using the [scoped move proposal](releases/v4/v4.13/docs-cleanup-report-v4.0-post-tag.md); confirm the two living-document relocations and the 62-box retention disposition, then close WN-2 only after the resulting baseline is verified.
 - [x] Resolve v4.7 MT-1's hosted observation gate: manual `develop` supply-chain watch run 36034068237 passed with 143 dependencies and no findings; v4.7.0 assets matched `SHA256SUMS` and GitHub verified the tarball attestation. Archive the frozen evidence.
 - [x] Close v4.7 DF-1 as superseded by the user's v4.4.5 guide restoration; retain the rejected v4.4.6 plan unchanged and archive the model-map disposition. Recheck DF-2 against the installed Codex picker and keep it open because `gpt-6-astra` remains absent.
