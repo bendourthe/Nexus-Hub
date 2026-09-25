@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: finalized for the v4.3.0 release
-**Finalized**: 2026-08-31, at `/update release`. One deferred item and two warnings below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. DF-1, DF-2, DF-3, and DF-5 were resolved post-release. One warning was resolved during v4.4.0 Phase 7 reconciliation; the four resolved bugs and one resolved coverage gap were fixed within this release.
-**Last updated**: 2026-09-24 (WN-2 account read-back)
+**Finalized**: 2026-08-31, at `/update release`. One deferred item and one warning below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. DF-1, DF-2, DF-3, and DF-5 were resolved post-release. WN-1 and WN-2 were resolved after release; the four resolved bugs and one resolved coverage gap were fixed within this release.
+**Last updated**: 2026-09-25 (WN-2 billing applicability)
 
 ## v4.3.0 - agentic-verification-discipline
 
@@ -14,7 +14,7 @@
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 1 | 4 |
 | Bugs / regressions (BG) | 0 | 4 |
-| Warnings (WN) | 2 | 1 |
+| Warnings (WN) | 1 | 2 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -87,17 +87,6 @@
 
 #### Warnings
 
-##### WN-2 - GitHub settings that require the web UI remain unverified
-
-- **Source phase**: Phase 5 CI/CD contract comparison, approved bundle F
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T026
-- **Evidence**: Read-only APIs proved Actions permissions, workflow-token permissions, branch protection, required contexts, cache usage, repository visibility, and branch cleanup behavior. They did not expose the repository's default artifact retention, merge-queue state, or per-runner-class billing minutes.
-- **Impact**: The local pipeline and runbook are reconciled, but those three platform settings cannot be claimed as currently verified from this session.
-- **Owner**: Authorized publication flow with GitHub Settings access.
-- **Next step**: During publication, inspect Settings, Actions, General and Settings, Rules, Rulesets plus the billing page; record the three values in the release evidence and resolve this warning without changing a setting unless separately approved.
-
-**Account read-back, 2026-09-24**: GitHub's read-only repository API returned artifact/log retention of 90 days with a 90-day maximum. Its GraphQL repository field returned no merge queue object for either `develop` or default `main`; the repository rulesets API returned zero rulesets. The per-runner-class billing-minute value remains unverified: the current credential received HTTP 404 with an explicit `user` scope requirement from the billing usage endpoint. The [archived read-back](../../../archives/v4/v4.3/development/github-settings-readback-2026-09-24.md) records the commands and limits. WN-2 stays open until the account-backed billing value is read without broadening token scope silently.
-
 ##### WN-3 - Optional platform surfaces remain unverified
 
 - **Source phase**: Phase 5 platform-contract verification
@@ -112,6 +101,19 @@
 ### Resolved
 
 #### Warnings
+
+##### WN-2 - GitHub settings that require the web UI remain unverified
+
+- **Source phase**: Phase 5 CI/CD contract comparison, approved bundle F
+- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T026
+- **Evidence at deferral**: Read-only APIs proved Actions permissions, workflow-token permissions, branch protection, required contexts, cache usage, repository visibility, and branch cleanup behavior. They did not expose the repository's default artifact retention, merge-queue state, or per-runner-class billing minutes.
+- **Impact at deferral**: The local pipeline and runbook were reconciled, but those three platform settings could not be claimed as verified from that session.
+- **Owner at deferral**: Authorized publication flow with GitHub Settings access.
+- **Next step at deferral**: Inspect artifact retention, merge-queue state, and billing applicability without changing a setting or silently broadening token scope.
+
+**Account read-back, 2026-09-24**: GitHub's read-only repository API returned artifact/log retention of 90 days with a 90-day maximum. Its GraphQL repository field returned no merge queue object for either `develop` or default `main`; the repository rulesets API returned zero rulesets. The billing usage endpoint returned HTTP 404 with an explicit `user` scope requirement. The [archived read-back](../../../archives/v4/v4.3/development/github-settings-readback-2026-09-24.md) preserves those observations and the original open disposition.
+
+**Resolution, 2026-09-25**: Fresh read-only calls again returned artifact/log retention `days=90`, `maximum_allowed_days=90`, `mergeQueue(branch:"develop")=null`, `mergeQueue(branch:"main")=null`, zero repository rulesets, and `isPrivate=false` with `main` as default. Every `runs-on` value in `.github/workflows/` is `ubuntu-latest`, `windows-latest`, `macos-latest`, or a matrix limited to those three standard labels; no reusable workflow or larger-runner label is configured. [GitHub's Actions billing contract](https://docs.github.com/en/billing/concepts/product-billing/github-actions) says standard GitHub-hosted runners are free for public repositories, while larger runners remain billable. Thus this repository has no per-runner-class billable minutes to read; account-wide usage or other repositories' charges are not inferred or claimed. The failed September 24 account endpoint remains a valid historical receipt, but it is not needed to establish this repository's billing applicability. WN-2 is resolved for the v4.3 repository CI comparison, without a GitHub setting change.
 
 ##### WN-1 - GitHub repository description advertises 328 skills
 
