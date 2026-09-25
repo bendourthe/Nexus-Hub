@@ -52,7 +52,7 @@ These were settled during brainstorming and are not reopened during implementati
 
 The engine currently resolves its element with `document.querySelector("[data-arcade-game]")`, singular, and holds `state`, `held`, `generation`, `accumulator` and `canvas` at module scope. The rebuild needs three playable instances on one page, so the engine becomes a factory.
 
-- `createArcade(rootElement)` returns an instance object owning its own state, input map, RNG streams, canvas context and animation handle.
+- `createArcade(rootElement)` returns an instance object owning its own state, input map, RNG streams, canvas context and animation handle. HUD nodes, controls, overlays, fallback text, the live region, motion preference and lifecycle listeners are also resolved or registered per root; instance teardown removes its observers and listeners.
 - A registry iterates every `[data-arcade-game]` element and constructs one instance each.
 - Module scope retains only pure helpers: `mulberry32`, `collides`, `damageOutcome`, the archetype tables, and the painters.
 - Each instance animates only while it is in the viewport and not paused. The existing pause-on-leave behavior generalizes to a per-instance `IntersectionObserver`, so three canvases never animate at once off-screen.
@@ -80,7 +80,7 @@ A data table replaces the single enemy shape. Each archetype declares its own pa
 | Lancer | large | slow and deliberate, holds a firing line | charged beam with a visible tell |
 | Drone | tiny | erratic weave, never fires | rams the player |
 
-Archetype selection at spawn draws from `rngSpawn`, weighted so that early waves favor Interceptors and later waves mix in Lancers.
+Archetype selection at spawn draws from `rngSpawn`, with weights depending on the wave or elapsed tick so that early waves favor Interceptors and later waves mix in Lancers. The Lancer's beam has a visible nonlethal tell, a finite active interval with a line reaching the player band, line-versus-ship collision during that interval, and a definite expiry; a stationary circular shot does not meet this contract.
 
 ### A5. Per-entity look seed
 
@@ -94,7 +94,7 @@ Rebuilt as a layered futuristic hull: a plated fuselage with panel seams, a glow
 
 ### A7. Arena and resolution
 
-The canvas moves from 360x480 logical pixels in a narrow column to a full-width stage at roughly 16:10, with a backing store scaled to `devicePixelRatio` and a CSS size that stays fluid. Drawing coordinates stay in logical units, so collision math and the fixtures are unaffected by the resolution change.
+The canvas moves from 360x480 logical pixels in a narrow column to a full-width stage at roughly 16:10, with a backing store scaled to `devicePixelRatio` and a CSS size that stays fluid. Drawing stays in logical units, but the 400-pixel height requires recalculating the player start, movement band, spawn corridors, collision bounds and all pre-placed fixture coordinates. The paint loop must not overwrite the new backing-store dimensions or transform.
 
 ## Subsystem B: the narrative
 
@@ -116,19 +116,21 @@ The single slide shell becomes seven stacked sections, each with its own `h2` an
 | 3 | Make the repair planned and testable | `/plan` | none |
 | 4 | Run the whole plan in one command | `/implement` | none |
 | 5 | The fixed game | none | fixed: `damageMode: "fixed"`, vertical movement off |
-| 6 | Bonus: add a feature the same way | `/compare` | fixed plus vertical movement enabled |
+| 6 | Bonus: add a feature the same way | `/compare` | featured: `damageMode: "fixed"`, vertical movement enabled |
 | 7 | Bonus: turn the evidence into a briefing | `/presentify` | none |
 
 Section 3 renders a plan summary: every phase in order, each with its recommended model tier (`frontier`, `strong`, `standard`, `fast`) and its effort level. Section 4 renders the final-phase sequence explicitly: automatic review, known-gaps reconciliation, tests built and iterated until green, then the `/update release` sequence and what that entails.
 
 ### B3. Scene data model
 
-`#nh-training-scenes` is rewritten from 8 deck scenes to 7 section records. Changes to the per-record shape:
+`guides/website/example/training-scenes.json` is the maintainer source of truth. Its embedded copy in `#nh-training-scenes` is rewritten in lockstep from 8 deck scenes to 7 section records; `guides/website/README.md` and the parity tests are updated in the same phase. Changes to the per-record shape:
 
-- `command` becomes `commands`, an array, so section 2 can carry both `/describe` and `/review`.
+- `command` becomes `actions`, an ordered array of independently runnable command records. Each action has its own `command`, `output`, `tools`, `artifact`, `gate`, `files` and `focus_file`; section 2 therefore runs `/describe` before `/review` and displays each result separately.
 - A new optional `phases` array on the `/plan` record, each entry carrying `name`, `tier`, `effort` and `summary`, so the plan summary renders from data rather than from prose.
 - A new optional `finalPhase` object on the `/implement` record, carrying the ordered gate beats.
 - `stage` is dropped. It existed to position content inside the presentation grid and has no meaning once sections stack.
+
+The driver binds a controller to each section root rather than binding the first matching global widget. Each controller owns its current action, run token, terminal, tools, artifact, gate, explorer and optional game instance; actions update only that section. The file explorer's cumulative view reads earlier action outputs without sharing mutable widget state. The existing deck remains functional while this controller is prepared in Phase 5; the section markup, data migration and presentation-mode removal land together in Phase 6.
 
 ### B4. File explorer
 
@@ -148,6 +150,9 @@ These are existing behaviors that the rebuild carries over rather than rediscove
 
 - Reuse the repository's existing guide checks under `tests/verification/`, extending the fixture set to cover the new section structure.
 - Headless render assertions: seven sections present in order, each with an `h2`; zero `.nht.is-present` rules remaining; three arcade instances constructed; no console errors.
+- Run each section's action independently and verify its terminal, tools, artifact and gate update only within that section. Run both actions in section 2 in order and verify their distinct outputs.
+- Reproduce the first-hit bug in the buggy game, inspect the `/review` finding and `/plan` repair, then hit the fixed game once and observe exactly one life lost rather than game over.
+- Check the embedded scene JSON against its maintainer source and keep the guide strictly below its 500,000-byte ceiling.
 - Determinism check: the seeded bug fixture produces an identical entity sequence across two runs with the same seed, proving D2 still holds after the archetype work.
 - Invariant check: `damageOutcome` behavior is unchanged for both modes, asserted directly.
 - Responsive check: no horizontal overflow at 420 px, per the repository's responsive-layout rule.
@@ -158,6 +163,7 @@ These are existing behaviors that the rebuild carries over rather than rediscove
 - The factory refactor touches the whole engine at once. Mitigation: it is its own phase, landed and verified before any visual work begins, so a regression is attributable to it.
 - Three animating canvases could cost frame budget on weak hardware. Mitigation: per-instance viewport gating, and in practice only one instance is visible at a time given section spacing.
 - Rewriting the scene JSON risks losing content that is currently expressed only there. Mitigation: the old JSON is preserved in the phase evidence before the rewrite.
+- The guide is 495,467 bytes before implementation, allowing only 4,532 more bytes under the strict 500,000-byte ceiling. Mitigation: remove obsolete deck code and optimize existing self-contained assets while implementing; the ceiling is never raised.
 - A wider arena changes the coordinate space the fixtures were tuned against. Mitigation: fixtures are expressed in logical units and are re-verified in the same phase that changes the arena.
 
 ## Alternatives considered
