@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Phase**: 8 - Architecture refactor, known-gaps reconciliation, and CI/CD
 **Date**: 2026-08-25
-**Compared against**: [`ci-cd-lifecycle-contract.md`](ci-cd-lifecycle-contract.md), via the 23-field list in `catalog/skills/infrastructure/cicd-architect/references/repository-native-profiles.md`
+**Compared against**: [`ci-cd-lifecycle-contract.md`](../../../../policy/ci-cd-lifecycle-contract.md), via the 23-field list in `catalog/skills/infrastructure/cicd-architect/references/repository-native-profiles.md`
 **Mode**: `[[cicd-architect]]` existing-pipeline comparison
 
 This is the terminal reconciliation the lifecycle requires of every plan's final phase, run against Nexus-Hub's own pipeline. It is also the first real exercise of the comparison downstream plans will use, so the shape here is the shape those get.

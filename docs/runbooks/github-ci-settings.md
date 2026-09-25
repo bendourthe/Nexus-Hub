@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Introduced**: v4.0.0
-**Contract**: [`ci-cd-lifecycle-contract.md`](../releases/v4/v4.0/development/ci-cd-lifecycle-contract.md) section 9
+**Contract**: [`ci-cd-lifecycle-contract.md`](../policy/ci-cd-lifecycle-contract.md) section 9
 
 Everything the pipeline files cannot enforce. Configure and verify each item by hand.
 

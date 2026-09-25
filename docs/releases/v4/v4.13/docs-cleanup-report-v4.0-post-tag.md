@@ -68,6 +68,12 @@ The staged rename-map link comparison reported zero newly broken links, with 465
 
 Two frozen records now have post-tag link-maintenance edits: `development/ci-cd-lifecycle-contract.md` and `development/ci-cd-final-audit.md`. On the committed relocation tree, the lifespan detector exited 1 with 1,388 findings across release buckets and exactly four in v4.0: those records and the two plans in the original table. The CI plan's 62 unchecked historical task boxes remain untouched. WN-2 cannot close from the two-file relocation alone; re-run the detector after protected publication and decide the records' living or archival disposition.
 
+## Bounded application - contract and audit disposition - 2026-09-25
+
+After PR #305 merged at `85d40806`, the normative lifecycle contract moved from `docs/releases/v4/v4.0/development/` to `docs/policy/ci-cd-lifecycle-contract.md`. The dated final, workflow, and harness audits moved to `docs/archives/v4/v4.0/development/`; no plan or whole-minor directory moved. The four original SHA-256 hashes were `2959377164B8A483409BD34CAD4D1133373C4E1849B73FB9AA3971DD729850CC`, `910A7415C8307F77761936696B1A791893F93FA386333D366E78DD4EFA063826`, `94F7A680D87824A9292DF2ECAEB8E87EA24D5323D5FF04F5C553D5EDBD06870B`, and `C0A2487EB2AE7A2F123C877D55B58EA6913B49A2D98F83B638299A5132049633`, respectively; each copy matched its source before the source was removed.
+
+The moved files' relative links, current code and workflow citations, two living CI documents, AGENTS.md, and the contract tests now target their new locations. Historical literal paths in the 2026-09-06 decision and v4.4 phase evidence remain as records of their original checks. The staged rename-map link comparison found zero newly broken links against 465 normalized pre-existing unresolved references. On the committed relocation tree, the lifespan detector exited 1 with 1,386 findings across release buckets and exactly two in v4.0, both historical plans. Protected publication remains to be checked; WN-2 stays open because those plans, including 62 historical unchecked CI task boxes, have not received a retention disposition.
+
 ## Self-classification
 
-This proposal is Cat 4 while v4.13 closeout is active. It is a decision input, not evidence that the proposed moves occurred.
+This report is Cat 4 while v4.13 closeout is active. Its original proposal table remains the audit-time classification; the bounded application sections record the moves actually made.
