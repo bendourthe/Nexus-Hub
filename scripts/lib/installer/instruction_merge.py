@@ -424,7 +424,7 @@ def _target_lock(lock_dir: Path, target: Path, timeout: float) -> Iterator[bool]
 def _windows_current_user_owns(path: Path) -> bool:
     """Compare the file owner SID with the current process token's user SID."""
     import ctypes
-    from ctypes import wintypes
+    import ctypes.wintypes as wintypes
 
     security = ctypes.WinDLL("advapi32", use_last_error=True)
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)
@@ -491,7 +491,7 @@ def _require_backup_owner(path: Path) -> None:
 def _windows_owner_only(path: Path, *, directory: bool) -> None:
     """Replace inherited permissions with an inheritable owner-rights DACL."""
     import ctypes
-    from ctypes import wintypes
+    import ctypes.wintypes as wintypes
 
     security = ctypes.WinDLL("advapi32", use_last_error=True)
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)
