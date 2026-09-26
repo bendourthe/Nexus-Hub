@@ -592,8 +592,31 @@ class MarkdownIntegration(IntegrationBase):
         full_index = Path(ctx.global_root) / ".nexus-hub" / "data" / "SKILL_INDEX.md"
         return render_pointer(skill_dir, full_index if full_index.is_file() else None)
 
+    @classmethod
+    def _resolve_includes(cls, template_path: Path, seen: Optional[frozenset] = None) -> str:
+        """Inline whole-line `@<sibling>.md` imports so the installed file is self-contained.
+
+        Include-only shims (`base-gemini-cli.md`, `base-antigravity-*.md`) start
+        with `@base-google-shared.md`. The platform resolves that import relative
+        to the INSTALLED file, where no such file exists, so rendering the shim
+        verbatim silently dropped every shared rule. Only a line that is exactly
+        `@name.md` naming an existing sibling template is replaced, recursively;
+        cycles and unknown names are left as written.
+        """
+        seen = (seen or frozenset()) | {template_path.name}
+        out: List[str] = []
+        for line in template_path.read_text(encoding="utf-8").splitlines(keepends=True):
+            name = line.strip()[1:] if line.strip().startswith("@") else ""
+            target = template_path.parent / name
+            if name.endswith(".md") and "/" not in name and "\\" not in name and target.is_file() \
+                    and name not in seen:
+                out.append(cls._resolve_includes(target, seen).rstrip("\n") + "\n")
+            else:
+                out.append(line)
+        return "".join(out)
+
     def _render(self, template_path: Path, ctx: InstallContext) -> str:
-        text = template_path.read_text(encoding="utf-8")
+        text = self._resolve_includes(template_path)
         merged = self._effective_template_vars(ctx)
 
         def repl(match: re.Match[str]) -> str:
