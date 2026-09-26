@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from scripts.lib.integrations import FileAction, VALID_ACTIONS, WriteResult
+from scripts.lib.integrations.result import REPORT_ACTIONS
 
 
 class TestFileAction:
@@ -71,6 +72,8 @@ class TestWriteResult:
 
 def test_valid_actions_frozenset_contents() -> None:
     assert VALID_ACTIONS == frozenset(
-        {"created", "updated", "unchanged", "removed", "not-found", "kept"}
+        {"created", "updated", "unchanged", "removed", "not-found", "kept", "detected", "backed-up"}
     )
-    assert len(VALID_ACTIONS) == 6
+    assert len(VALID_ACTIONS) == 8
+    # The two v4.13.3 report actions never claim a path in the manifest.
+    assert REPORT_ACTIONS == frozenset({"detected", "backed-up"})

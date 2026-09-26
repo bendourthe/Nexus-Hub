@@ -331,6 +331,7 @@ TESTS = Group(
             "tests/integrations/test_install_summary.py",
             "tests/integrations/test_install_workspace.py",
             "tests/integrations/test_legacy_cleanups.py",
+            "tests/integrations/test_legacy_instruction_block_cleanup.py",
             "tests/integrations/test_markdown_integration.py",
             "tests/integrations/test_owned_file_modes.py",
             "tests/integrations/test_parity_with_legacy_installer.py",

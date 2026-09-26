@@ -94,6 +94,13 @@ class InstallContext:
     # touches it. Phase 6 consumes this field where the copying happens.
     selection: Optional[Any] = None
     explicit_target: bool = False
+    # v4.13.3 Phase 4 -- span-bound consent to remove candidate Legacy
+    # Instruction Blocks, parsed from repeatable
+    # --remove-legacy-instructions=<consent-sha256>. Empty means report only;
+    # --yes never implies consent. `legacy_run` is the per-invocation
+    # bookkeeping `instruction_merge.merge_instruction` creates on first use.
+    legacy_removal_hashes: frozenset = frozenset()
+    legacy_run: Optional[Any] = None
 
     @property
     def global_root(self) -> Path:
@@ -607,7 +614,7 @@ class MarkdownIntegration(IntegrationBase):
         """Render the configured template and write it to dst_dir.
 
         Shared-mode subclasses (the default) route writes through
-        `merge_marker_section` so user content above and below the
+        `merge_instruction` so user content above and below the
         Nexus-Hub-managed block survives a re-install. Dedicated-mode
         subclasses rewrite the file in full.
 
@@ -627,16 +634,11 @@ class MarkdownIntegration(IntegrationBase):
         dst = dst_dir / instruction_file
 
         if self.instruction_mode == "shared":
-            from scripts.lib.installer.instruction_merge import merge_marker_section
+            from scripts.lib.installer.instruction_merge import merge_instruction
 
             if not ctx.dry_run:
                 dst.parent.mkdir(parents=True, exist_ok=True)
-            action = merge_marker_section(
-                dst,
-                rendered,
-                legacy_header="## Nexus-Hub",
-                dry_run=ctx.dry_run,
-            )
+            action = merge_instruction(dst, rendered, ctx=ctx, legacy_header="## Nexus-Hub")
             ctx.manifest.track_shared(self.key, str(dst))
             return action
 

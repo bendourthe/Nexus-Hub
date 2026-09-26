@@ -245,7 +245,7 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
         only the Nexus-Hub marker block is removed on teardown -- important because
         ``~/.gemini/GEMINI.md`` is shared with the ``gemini`` integration.
         """
-        from scripts.lib.installer.instruction_merge import merge_marker_section
+        from scripts.lib.installer.instruction_merge import merge_instruction
 
         template_path = ctx.repo_root / self.config["instruction_template"]
         if not template_path.exists():
@@ -254,9 +254,7 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
         rendered = self._render(template_path, ctx)
         if not ctx.dry_run:
             dst_path.parent.mkdir(parents=True, exist_ok=True)
-        action = merge_marker_section(
-            dst_path, rendered, legacy_header="## Nexus-Hub", dry_run=ctx.dry_run
-        )
+        action = merge_instruction(dst_path, rendered, ctx=ctx, legacy_header="## Nexus-Hub")
         ctx.manifest.track_shared(self.key, str(dst_path))
         return action
 
