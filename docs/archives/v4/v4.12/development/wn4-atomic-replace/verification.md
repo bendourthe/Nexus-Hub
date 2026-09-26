@@ -1,6 +1,6 @@
 # v4.12 WN-4 Windows settings replacement qualification
 
-**Scope**: The installer-facing `scripts/merge_permissions.py` settings write on Windows. **Status**: local candidate; hosted and merged-tree qualification pending.
+**Scope**: The installer-facing `scripts/merge_permissions.py` settings write on Windows. **Status**: published and qualified within the reproduced failure class.
 
 ## Historical boundary
 
@@ -24,8 +24,8 @@ The byte comparison is a retry guard, not an interprocess lock: another writer c
 
 ## First hosted attempt
 
-PR #326's first hosted run 36215080561 passed the Windows test job but failed the Linux test job: `test_wn4_retry_refuses_a_concurrent_user_edit` expected a retry on Linux even though the new retry is Windows-only. The Linux partition reported 1 failed, 1,984 passed, and 49 skipped; its aggregate report failed with it. The test is now marked Windows-only, matching the behavior it asserts. This is a test-scope correction, not a reinterpretation of the failed hosted result. The corrected Windows validator suite passed 31 tests with one skip, and the fast profile passed 17 of 17 locally; a new hosted head and post-merge result are still required.
+PR #326's first hosted run 36215080561 passed the Windows test job but failed the Linux test job: `test_wn4_retry_refuses_a_concurrent_user_edit` expected a retry on Linux even though the new retry is Windows-only. The Linux partition reported 1 failed, 1,984 passed, and 49 skipped; its aggregate report failed with it. The test was then marked Windows-only, matching the behavior it asserts. This was a test-scope correction, not a reinterpretation of the failed hosted result. The corrected Windows validator suite passed 31 tests with one skip, and the fast profile passed 17 of 17 locally before the new hosted head ran.
 
 ## Publication gate
 
-Keep WN-4 open until final-tree local tests, protected PR checks on the merge result, and post-merge smoke and provenance pass. Record those receipts in the source ledger without rewriting the historical failure.
+PR #326's corrected head `b3ae4c1c` passed 24 hosted checks with one intentional skip; GitHub reported `CLEAN` before merging. The PR merged to `develop` as `5fd7f985`, and [post-merge run 36217288553](https://github.com/bendourthe/Nexus-Hub/actions/runs/36217288553) passed both smoke and provenance on that SHA. The source ledger closes WN-4 only for the tested transient held-handle failure class and retains the original unexplained failure.
