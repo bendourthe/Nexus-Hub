@@ -2603,6 +2603,12 @@ install_templates() {
         safe_copy "$completion_gate_source" "$scripts_dest/completion_gate.py" true "[OK] Completion gate installed at: $scripts_dest/completion_gate.py"
     fi
 
+    # Copy the full-run runner (v4.13.2). `nexus-hub run-plan` forwards to it.
+    local run_plan_source="$repo_root/scripts/run_plan.py"
+    if [ -f "$run_plan_source" ]; then
+        safe_copy "$run_plan_source" "$scripts_dest/run_plan.py" true "[OK] Full-run runner installed at: $scripts_dest/run_plan.py"
+    fi
+
     # Copy MCP benchmark script (v1.0.0+). Benchmarks the three internal MCPs
     # (nexus-skill-server, nexus-code-search, nexus-web-fetch). Pure-local.
     local benchmark_source="$repo_root/scripts/nexus_mcp_benchmark.py"

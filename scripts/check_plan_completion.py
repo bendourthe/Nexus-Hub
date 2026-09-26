@@ -1050,7 +1050,16 @@ def build_parser() -> argparse.ArgumentParser:
     block.add_argument("--evidence", required=True)
     block.add_argument("--approval-class")
     block.set_defaults(func=cmd_record_block)
+    where = record.add_parser("path", help="print the run record's path; exit 1 when none exists")
+    where.add_argument("plan")
+    where.set_defaults(func=cmd_record_path)
     return parser
+
+
+def cmd_record_path(args: argparse.Namespace) -> int:
+    path = Context(args.plan, Budget(BUDGET_SECONDS)).record_path()
+    print(path)
+    return 0 if path.is_file() else 1
 
 
 def main(argv: list[str] | None = None) -> int:

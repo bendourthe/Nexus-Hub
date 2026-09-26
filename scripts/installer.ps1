@@ -2761,6 +2761,12 @@ function Install-Templates {
         Safe-Copy -Source $completionGateSource -Destination (Join-Path $scriptsDest "completion_gate.py") -Confirm:$true -CustomMessage "✓ Completion gate installed at: $scriptsDest\completion_gate.py"
     }
 
+    # Copy the full-run runner (v4.13.2). `nexus-hub run-plan` forwards to it.
+    $runPlanSource = Join-Path $RepoRoot "scripts\run_plan.py"
+    if (Test-Path $runPlanSource) {
+        Safe-Copy -Source $runPlanSource -Destination (Join-Path $scriptsDest "run_plan.py") -Confirm:$true -CustomMessage "✓ Full-run runner installed at: $scriptsDest\run_plan.py"
+    }
+
     # Copy MCP benchmark script (v1.0.0+). Benchmarks the three internal MCPs
     # (nexus-skill-server, nexus-code-search, nexus-web-fetch). Pure-local.
     $benchmarkSource = Join-Path $RepoRoot "scripts\nexus_mcp_benchmark.py"

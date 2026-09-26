@@ -639,3 +639,11 @@ def test_record_create_auto_without_a_matching_capture_is_blocked(
     )
     assert result.returncode == 3
     assert result.stdout.strip() == "BLOCKED: approval-not-covered"
+
+
+def test_record_path_reports_existence(complete: Fixture) -> None:
+    found = complete.run("record", "path", PLAN_REL)
+    assert found.returncode == 0
+    assert Path(found.stdout.strip()) == complete.record_path()
+    complete.record_path().unlink()
+    assert complete.run("record", "path", PLAN_REL).returncode == 1
