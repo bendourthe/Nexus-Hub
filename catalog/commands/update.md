@@ -28,7 +28,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
       Reply with a number or a scope name.
 
-- `release` first verifies the integration gate (below), then runs the focused scopes in order - `docs`, then `gitignore`, then `version`, then `changelog`, then `devlog`, then `refactor` **with `--canonicalize-layout` engaged** - then reconciles the version's known gaps, RE-CHECKS CI/CD conformance, regenerates the supply-chain manifest, cleans up, commits, lands the release on the integration branch, retires the branches and worktrees it consumed, then merges to the release branch, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
+- `release` first verifies the integration gate (below), then runs the focused scopes in order - `docs`, then `gitignore`, then `version`, then `changelog`, then `devlog`, then `refactor` **with `--canonicalize-layout` engaged** - then reconciles the version's known gaps, RE-CHECKS CI/CD conformance, regenerates the supply-chain manifest, cleans up, commits, lands the release on the integration branch, retires the branches and worktrees it consumed, then merges to the release branch, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation, or, inside a full `/implement` run, the matching release approval recorded in that run's record (see the pre-approved release path below).
     - The CI/CD step is a CONFORMANCE RE-CHECK, not an authoring pass. The plan's final phase already ran the terminal reconciliation via `[[cicd-architect]]` before it published; by release time the pipeline is reconciled and this step confirms it still is. If it finds unreconciled drift, that is a finding against the plan's final phase, and the fix belongs there rather than in a release-time rewrite of the pipeline.
 
 ## Delegation
@@ -107,6 +107,17 @@ If any of the four fails, STOP and say which one. Do not bump a version to "get 
 
 This ordering is the release-side half of the plan lifecycle. The plan's final phase owns publication and integration; `/update release` owns everything after the merge lands green. Neither reaches into the other.
 
+## release scope: the pre-approved release path (full `/implement` runs)
+
+A full `/implement` run collects its release approval once, in the upfront round, and freezes it in a run record (`~/.nexus-hub/runs/`, rules in `implement-phase/references/completion-contract.md`). This command is the only place that approval is consumed, and it is consumed action by action, never as a blanket yes:
+
+1. **Find the record.** `python scripts/check_plan_completion.py record path <plan>` prints the record for the plan being released. Use it only when its `session_id` is this session's and the checker does not report `BLOCKED: record-tampered`. A standalone `/update release` with no bound record ignores run records entirely and keeps every gate.
+2. **Compare each action to its frozen tuple immediately before acting**: the version, the release pull requests and their target branches, the head SHA at merge, the tag name and the commit it points at, the release title and a digest of the notes, and the back-merge. A match skips that one confirmation; any difference, however small, re-asks. The computed next version is compared too: a record approving `v0.2.0` never covers `v0.2.1`.
+3. **Log the approval used.** Each skipped confirmation prints one line naming the action and the approval class it consumed (`release`, `release-notes`, `push-merge`), so the release transcript shows what ran on a recorded approval and what was asked.
+4. **Never widen it.** Pipeline, permission, and secret changes are never covered, and the pre-tag branch assertion, the integration gate, and the artifact round-trip still run and still stop the release on failure. The record replaces the question, not the check.
+
+Pin every `gh` call in this command with `--repo <owner/repo>` from the record (or from the remote when there is no record), so a misconfigured default repository can never receive a release, a merge, or a branch deletion.
+
 ## release scope: the publication sequence (develop, then cleanup, then main)
 
 A release publishes in a fixed order. Each step exists because skipping it leaves a specific, observed defect behind.
@@ -121,7 +132,7 @@ Merging the release straight to `main` is the failure this ordering prevents. It
 
 Once the release is on `develop` and its checks are green, retire the branches and worktrees it just integrated. Each check is fail-closed and stops the release rather than forcing past it:
 
-1. **Every merged plan branch** is deleted locally and on the remote. Verify with `git branch --merged <integration-branch>`; a branch absent from that list is NOT deleted, and its presence is reported instead.
+1. **Every merged plan branch** is deleted locally and on the remote. Verify with `git branch --merged <integration-branch>`; a branch absent from that list is NOT deleted, and its presence is reported instead. Before any REMOTE deletion, confirm the remote tip equals the merged pull request's `headRefOid` (`gh pr view <branch> --repo <owner/repo> --json headRefOid`), so a commit pushed after the merge is never deleted with the branch; refuse `main`, `develop`, the repository's default branch, and any protected branch outright. A squash-merged branch that `git branch -d` refuses is recorded and left in place, never force-deleted with `-D`.
 2. **Every worktree whose branch merged** is removed via `[[using-git-worktrees]]`, its directory deleted, and `git worktree prune` run. Before removal, `git -C <worktree> status --porcelain` MUST be empty; a dirty tree stops the teardown and is reported, never `--force`d away.
 3. **`git worktree list`** is re-read afterwards and must no longer show the removed paths.
 
