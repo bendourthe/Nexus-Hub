@@ -18,6 +18,7 @@ Run from the repo root:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -201,6 +202,104 @@ def test_an_unchecked_task_line_holds_a_minor_open(tmp_path: Path) -> None:
 
     assert proc.returncode == 0, proc.stderr
     assert "v3.10 closed" not in proc.stdout, proc.stdout
+
+
+def _make_legacy_transfer(tmp_path: Path, *, unchecked: bool = False) -> tuple[Path, Path, Path]:
+    root = _make_repo(tmp_path, "4.13.0", [])
+    old = root / "docs" / "releases" / "v4" / "v4.0"
+    plans = old / "plans"
+    plans.mkdir(parents=True)
+    plan = plans / "v4.0.0-plan.md"
+    plan.write_text("# plan\n\n- [ ] T001 retained\n" if unchecked else "# plan\n", encoding="utf-8")
+    gaps = old / "known-gaps.md"
+    gaps.write_text("# gaps\n\n**Status**: finalized; one item remains open\n\n### Open Items\n\n#### MT-1 - Missing proof\n", encoding="utf-8")
+    current = root / "docs" / "releases" / "v4" / "v4.13" / "known-gaps.md"
+    current.parent.mkdir(parents=True)
+    digest = hashlib.sha256(gaps.read_bytes().replace(bytes([13, 10]), bytes([10]))).hexdigest()
+    current.write_text(
+        "# gaps\n\n## Historical carry-forward from v4.0 through v4.12\n\n"
+        "An item open in its source ledger remains open.\n\n"
+        "| Minor | Source ledger | Normalized SHA-256 |\n|---|---|---|\n"
+        f"| v4.0 | [ledger](../v4.0/known-gaps.md) | `{digest}` |\n",
+        encoding="utf-8",
+    )
+    return root, current, plan
+
+
+def test_reviewed_legacy_transfer_reports_plan_for_archival(tmp_path: Path) -> None:
+    root, _, _ = _make_legacy_transfer(tmp_path)
+
+    proc = _run(root)
+
+    assert "docs/releases/v4/v4.0 closed by transfer" in proc.stdout
+    assert "docs/archives/v4/v4.0" in proc.stdout
+
+
+def test_stale_or_missing_legacy_transfer_never_reports_plan(tmp_path: Path) -> None:
+    root, current, _ = _make_legacy_transfer(tmp_path)
+    current.write_text(current.read_text(encoding="utf-8").replace("| v4.0 |", "| v4.1 |"), encoding="utf-8")
+    assert "v4.0 closed by transfer" not in _run(root).stdout
+
+    _, current, _ = _make_legacy_transfer(tmp_path / "hash")
+    current.write_text(current.read_text(encoding="utf-8").replace("Missing proof", "new proof"), encoding="utf-8")
+    gaps = current.parent.parent / "v4.0" / "known-gaps.md"
+    gaps.write_text(gaps.read_text(encoding="utf-8") + "\nChanged.\n", encoding="utf-8")
+    assert "v4.0 closed by transfer" not in _run(current.parents[4]).stdout
+
+
+def test_unchecked_legacy_plan_needs_exact_disposition(tmp_path: Path) -> None:
+    root, current, plan = _make_legacy_transfer(tmp_path, unchecked=True)
+    assert "v4.0 closed by transfer" not in _run(root).stdout
+
+    evidence = root / "docs" / "archives" / "v4" / "v4.0" / "development" / "task-reconciliation.md"
+    evidence.parent.mkdir(parents=True)
+    evidence.write_text("T001 reviewed\n", encoding="utf-8")
+    plan.write_text("# plan\n\n**Status**: IMPLEMENTED with historical boxes\n\n- [ ] T001 retained\n", encoding="utf-8")
+    digest = hashlib.sha256(plan.read_bytes().replace(bytes([13, 10]), bytes([10]))).hexdigest()
+    current.write_text(
+        current.read_text(encoding="utf-8")
+        + "\n| Historical plan | Normalized SHA-256 | Disposition | Evidence |\n|---|---|---|---|\n"
+        + f"| [plan](../v4.0/plans/v4.0.0-plan.md) | `{digest}` | implemented-evidence; 1 retained box | [record](../../../archives/v4/v4.0/development/task-reconciliation.md) |\n"
+        + "\n| Archived plan | Retained `- [ ]` lines | Strict `T###` lines |\n|---|---:|---:|\n"
+        + "| [plan](../v4.0/plans/v4.0.0-plan.md) | 1 | 1 |\n",
+        encoding="utf-8",
+    )
+    assert "v4.0 closed by transfer" in _run(root).stdout
+
+    evidence.unlink()
+    assert "v4.0 closed by transfer" not in _run(root).stdout
+
+    evidence.write_text("T001 reviewed\n", encoding="utf-8")
+    current.write_text(current.read_text(encoding="utf-8").replace("| 1 | 1 |", "| 2 | 1 |"), encoding="utf-8")
+    assert "v4.0 closed by transfer" not in _run(root).stdout
+
+
+def test_archived_plan_exception_still_requires_matching_hash(tmp_path: Path) -> None:
+    root, current, plan = _make_legacy_transfer(tmp_path, unchecked=True)
+    evidence = root / "docs" / "archives" / "v4" / "v4.0" / "development" / "task-reconciliation.md"
+    evidence.parent.mkdir(parents=True)
+    evidence.write_text("T001 reviewed\n", encoding="utf-8")
+    plan.write_text("# plan\n\n**Status**: IMPLEMENTED\n\n- [ ] T001 retained\n", encoding="utf-8")
+    digest = hashlib.sha256(plan.read_bytes().replace(bytes([13, 10]), bytes([10]))).hexdigest()
+    current.write_text(
+        current.read_text(encoding="utf-8")
+        + "\n| Historical plan | Normalized SHA-256 | Disposition | Evidence |\n|---|---|---|---|\n"
+        + f"| [plan](../../../archives/v4/v4.0/plans/v4.0.0-plan.md) | `{digest}` | implemented-evidence; 1 retained box | [record](../../../archives/v4/v4.0/development/task-reconciliation.md) |\n"
+        + "\n| Archived plan | Retained `- [ ]` lines | Strict `T###` lines |\n|---|---:|---:|\n"
+        + "| [plan](../../../archives/v4/v4.0/plans/v4.0.0-plan.md) | 1 | 1 |\n",
+        encoding="utf-8",
+    )
+    archived = root / "docs" / "archives" / "v4" / "v4.0" / "plans" / plan.name
+    archived.parent.mkdir(parents=True, exist_ok=True)
+    archived.write_bytes(plan.read_bytes())
+    plan.unlink()
+
+    comparisons = plan.parent.parent / "comparisons"
+    comparisons.mkdir()
+    (comparisons / "example.md").write_text("# comparison\n", encoding="utf-8")
+    assert "v4.0 closed by transfer" in _run(root).stdout
+    archived.write_text(archived.read_text(encoding="utf-8") + "\nChanged.\n", encoding="utf-8")
+    assert "v4.0 closed by transfer" not in _run(root).stdout
 
 
 def test_unproven_or_contradicted_closure_never_reports_a_minor(tmp_path: Path) -> None:

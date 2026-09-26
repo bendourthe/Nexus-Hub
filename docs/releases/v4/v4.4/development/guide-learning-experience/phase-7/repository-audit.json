@@ -1830,7 +1830,7 @@
       "offending_commit_date": "2026-08-30T17:08:46-07:00"
     },
     {
-      "file": "docs/releases/v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md",
+      "file": "docs/archives/v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md",
       "bucket": "v4.1",
       "release_tag": "v4.1.0",
       "release_close_date": "2026-08-28T12:43:48-07:00",
@@ -1949,14 +1949,14 @@
       "offending_commit_date": "2026-09-01T09:16:30-07:00"
     },
     {
-      "file": "docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md",
+      "file": "docs/archives/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md",
       "bucket": "v4.1",
       "release_tag": "v4.1.0",
       "release_close_date": "2026-08-28T12:43:48-07:00",
       "offending_commit_date": "2026-08-28T17:56:05-07:00"
     },
     {
-      "file": "docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md",
+      "file": "docs/archives/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md",
       "bucket": "v4.1",
       "release_tag": "v4.1.0",
       "release_close_date": "2026-08-28T12:43:48-07:00",
@@ -5225,42 +5225,42 @@
       "offending_commit_date": "2026-09-04T14:52:12-07:00"
     },
     {
-      "file": "docs/releases/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md",
+      "file": "docs/archives/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md",
       "bucket": "v4.4",
       "release_tag": "v4.4.0",
       "release_close_date": "2026-09-01T10:58:06-07:00",
       "offending_commit_date": "2026-09-02T11:54:02-07:00"
     },
     {
-      "file": "docs/releases/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md",
+      "file": "docs/archives/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md",
       "bucket": "v4.4",
       "release_tag": "v4.4.0",
       "release_close_date": "2026-09-01T10:58:06-07:00",
       "offending_commit_date": "2026-09-02T16:06:04-07:00"
     },
     {
-      "file": "docs/releases/v4/v4.4/plans/v4.4.3-guide-illustration-clarity-rebuild.md",
+      "file": "docs/archives/v4/v4.4/plans/v4.4.3-guide-illustration-clarity-rebuild.md",
       "bucket": "v4.4",
       "release_tag": "v4.4.0",
       "release_close_date": "2026-09-01T10:58:06-07:00",
       "offending_commit_date": "2026-09-03T11:59:33-07:00"
     },
     {
-      "file": "docs/releases/v4/v4.4/plans/v4.4.4-guide-teaching-clarity-rebuild.md",
+      "file": "docs/archives/v4/v4.4/plans/v4.4.4-guide-teaching-clarity-rebuild.md",
       "bucket": "v4.4",
       "release_tag": "v4.4.0",
       "release_close_date": "2026-09-01T10:58:06-07:00",
       "offending_commit_date": "2026-09-03T16:21:28-07:00"
     },
     {
-      "file": "docs/releases/v4/v4.4/plans/v4.4.5-guide-mockup-integration.md",
+      "file": "docs/archives/v4/v4.4/plans/v4.4.5-guide-mockup-integration.md",
       "bucket": "v4.4",
       "release_tag": "v4.4.0",
       "release_close_date": "2026-09-01T10:58:06-07:00",
       "offending_commit_date": "2026-09-04T12:43:47-07:00"
     },
     {
-      "file": "docs/releases/v4/v4.4/plans/v4.4.6-guide-learning-experience.md",
+      "file": "docs/archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md",
       "bucket": "v4.4",
       "release_tag": "v4.4.0",
       "release_close_date": "2026-09-01T10:58:06-07:00",

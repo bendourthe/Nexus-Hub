@@ -1,6 +1,6 @@
 # v4.4.2 Phase 1 Contract - Requirement Matrix, Superseded Assertions, Byte Ledger
 
-**Plan**: [v4.4.2-guide-production-ready-rebuild.md](../../plans/v4.4.2-guide-production-ready-rebuild.md)
+**Plan**: [v4.4.2-guide-production-ready-rebuild.md](../../../../../archives/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md)
 **Branch**: `feat/v4.4.2-guide-production-ready-rebuild` (cut from `develop` at `46f18986`, the v4.4.1 merge)
 **Frozen**: 2026-09-02
 

@@ -2,7 +2,7 @@
 
 Renumber note, 2026-09-14: this historical cache-track evidence was authored under v4.11.0; its current plan is v4.11.1. Historical test results and phase dates remain unchanged.
 
-Evidence for Phase 1 (T001-T003) of the [v4.11.0 adoption plan](../plans/v4.11.1-adoption-cache-and-diagram-quality.md). Covers the pre-change baseline, the reproduced 900% defect, the corrected three-bucket arithmetic, the regression that executes the shipped snippet, and the installer distribution boundary. Read this to confirm D1 before Phase 2 extends the same owner.
+Evidence for Phase 1 (T001-T003) of the [v4.11.0 adoption plan](../../../../archives/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md). Covers the pre-change baseline, the reproduced 900% defect, the corrected three-bucket arithmetic, the regression that executes the shipped snippet, and the installer distribution boundary. Read this to confirm D1 before Phase 2 extends the same owner.
 
 ## T001 - Existing-owner baseline
 

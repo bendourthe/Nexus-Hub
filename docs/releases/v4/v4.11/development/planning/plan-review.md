@@ -4,7 +4,7 @@ This record covers the independent review of the cache-accounting and diagram-qu
 
 Date: 2026-09-09
 
-Plan: [v4.11.1 adoption](../../plans/v4.11.1-adoption-cache-and-diagram-quality.md)
+Plan: [v4.11.1 adoption](../../../../../archives/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md)
 
 **Renumbered 2026-09-12**: the plan reviewed here was authored as v4.11.0 and is now v4.11.1. The v4.11.0 slot went to the interactive-handbooks plan, which was promoted from a patch because it changes the default output of /presentify. The review below is unchanged; only the slot moved.
 

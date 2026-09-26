@@ -1,6 +1,6 @@
 # Phase 3 evidence - Authoring-time wiring
 
-Evidence for Phase 3 (T008-T010) of the [v4.10.0 plan-queue continuity plan](../plans/v4.10.0-plan-queue-continuity.md). Records how `/compare` and `/plan` now account for the queue, the one-owner proof, and what the new rules would have produced against the v4.11.0 cache-and-diagram artifacts used as read-only fixed inputs. Read this to confirm D3 before Phase 4 wires execution time.
+Evidence for Phase 3 (T008-T010) of the [v4.10.0 plan-queue continuity plan](../../../../archives/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md). Records how `/compare` and `/plan` now account for the queue, the one-owner proof, and what the new rules would have produced against the v4.11.0 cache-and-diagram artifacts used as read-only fixed inputs. Read this to confirm D3 before Phase 4 wires execution time.
 
 ## T008 - Comparison-time accounting
 

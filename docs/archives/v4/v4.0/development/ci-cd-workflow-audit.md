@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: baseline, measured 2026-08-25 against `.github/workflows/*.yml` at `develop`
 **Measured against**: [`ci-cd-lifecycle-contract.md`](../../../../policy/ci-cd-lifecycle-contract.md)
-**Plan**: [`docs/releases/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md`](../../../../releases/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md)
+**Plan**: [`docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md`](../plans/v4.0.0-cost-effective-ci-cd.md)
 
 Nine workflow files, seventeen jobs. This is the evidence baseline for Phase 7. Two findings from the original plan text are already CLOSED by work that shipped between v3.16 and v3.21; they are recorded as closed rather than silently dropped, because a plan that lists a fixed problem as open teaches the next reader to distrust the plan.
 

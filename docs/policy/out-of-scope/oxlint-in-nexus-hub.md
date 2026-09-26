@@ -11,5 +11,5 @@ A vendor skill would therefore make Nexus-Hub maintain installation, package-man
 ## Prior requests
 
 - Rejected decision: [docs/decisions/rejected/tooling/2026-08-24-typed-boundary-oxlint-vendor.md](../../decisions/rejected/tooling/2026-08-24-typed-boundary-oxlint-vendor.md).
-- Adoption plan: [docs/releases/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md](../../releases/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md), Phase 5.
-- Seeding comparison: [docs/releases/v4/v4.1/comparisons/v4.1.0-comparison-skill-trial-records-and-low-evidence-ts.md](../../releases/v4/v4.1/comparisons/v4.1.0-comparison-skill-trial-records-and-low-evidence-ts.md).
+- Adoption plan: [docs/archives/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md](../../archives/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md), Phase 5.
+- Seeding comparison: [docs/archives/v4/v4.1/comparisons/v4.1.0-comparison-skill-trial-records-and-low-evidence-ts.md](../../archives/v4/v4.1/comparisons/v4.1.0-comparison-skill-trial-records-and-low-evidence-ts.md).

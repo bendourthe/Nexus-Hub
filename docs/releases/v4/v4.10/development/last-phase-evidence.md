@@ -1,6 +1,6 @@
 # Last-phase evidence - v4.10.0 plan-queue continuity
 
-Fail-closed evidence for Phase 6 (T017-T026) of the [v4.10.0 plan-queue continuity plan](../plans/v4.10.0-plan-queue-continuity.md). One section per duty, each quoting its proving command or scan. A missing section, or an unresolved Goal-review or deep-pass finding without a recorded known gap, blocks the `/update release` handoff.
+Fail-closed evidence for Phase 6 (T017-T026) of the [v4.10.0 plan-queue continuity plan](../../../../archives/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md). One section per duty, each quoting its proving command or scan. A missing section, or an unresolved Goal-review or deep-pass finding without a recorded known gap, blocks the `/update release` handoff.
 
 ## Architecture refactor - v4.10.0
 

@@ -245,7 +245,7 @@ None.
 ##### BG-3 - RESOLVED - `link-baseline diff` was not move-aware, so its own gate could not report zero on a whole-tree move
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
-- **Plan reference**: `docs/releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3)
+- **Plan reference**: `docs/archives/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3)
 - **What was observed**: `cmd_diff` is a plain set difference over `(source, link, resolved_target)` tuples. A file that MOVES changes its `source` key, so every pre-existing broken link inside it is reported as `newly_broken` while its old tuple is reported as `fixed`. On this migration the raw diff read 873 `newly_broken` / 638 `fixed` when the true count of links broken BY the move was 444, and 0 after repair.
 - **Why it matters**: the plan's acceptance gate is "zero `newly_broken`". As shipped, that gate is unreachable for the exact operation it was built to prove, and a maintainer reading the raw number would either block a correct migration or learn to ignore the gate.
 - **How Phase 6 proved the property instead**: the before-baseline was normalized into post-move coordinates through the rename map, then compared on `(source, resolved_target)` pairs. That comparison reports 0 `newly_broken`, 59 `fixed`, 774 `unchanged`. The normalization script and its output are recorded in the phase session history.
@@ -254,7 +254,7 @@ None.
 ##### BG-4 - RESOLVED - `old-version-docs-guard` treated the highest version directory as the active version
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
-- **Plan reference**: `docs/releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3, "prove the Phase 4 guard live rather than only in fixtures")
+- **Plan reference**: `docs/archives/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3, "prove the Phase 4 guard live rather than only in fixtures")
 - **What was observed**: active-version detection selects the newest `docs/releases/v*/v*/` directory on disk. This repository keeps directories for roadmapped future work (`v4.1`, `v4.2`), so the guard resolves active as `v4.2`. Writing to `docs/releases/v4/v4.0/known-gaps.md` - the version actually being built - emits `Writing to historical version v4.0 ... (active is v4.2)`, while writing to a future directory stays silent.
 - **Reproduction status**: deterministic via the `.ps1` sibling. Pre-existing rather than migration-caused: `docs/v4/v4.1/` and `docs/v4/v4.2/` are both present in the pre-move inventory, so the guard has mis-detected in this repository since those directories were created. Phase 6 is simply the first run against the real tree instead of fixtures.
 - **Resolution**: both siblings now read the declared version from `.claude-plugin/plugin.json` first and fall back to the directory maximum only when no manifest is present, so a roadmapped future directory can no longer be mistaken for the active version. Three regression tests, parametrized over both siblings, cover the future-directory case, a genuinely old directory still warning, and the unchanged no-manifest fallback. Verified live against the real tree: `docs/releases/v3/v3.21/` and `docs/releases/v4/v4.0/` are silent while `docs/releases/v3/v3.1/` and `docs/archives/v2/v2.1/` warn, identically on Bash and PowerShell.
