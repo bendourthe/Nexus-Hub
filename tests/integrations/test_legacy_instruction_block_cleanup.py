@@ -118,6 +118,39 @@ def test_backup_is_content_addressed_and_never_pruned(home: Path) -> None:
     assert set(first) <= set(_backups(home))
 
 
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows ACL check")
+def test_windows_backup_acl_is_owner_only(home: Path) -> None:
+    path = home / "CLAUDE.md"
+    content = _fixture(path)
+    backup = im.backup_bytes(home / ".nexus-hub" / "state" / "backups", path, content)
+    assert backup is not None
+    for item in (backup.parent, backup):
+        quoted = "'" + str(item).replace("'", "''") + "'"
+        script = (
+            f"$acl = Get-Acl -LiteralPath {quoted}; "
+            "$sid = $acl.Access[0].IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value; "
+            "Write-Output ($acl.AreAccessRulesProtected.ToString() + '|' + $acl.Access.Count + '|' + $sid)"
+        )
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == "True|1|S-1-3-4"
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX mode check")
+def test_posix_backup_modes_are_owner_only(home: Path) -> None:
+    path = home / "CLAUDE.md"
+    content = _fixture(path)
+    backup = im.backup_bytes(home / ".nexus-hub" / "state" / "backups", path, content)
+    assert backup is not None
+    assert backup.parent.stat().st_mode & 0o777 == 0o700
+    assert backup.stat().st_mode & 0o777 == 0o600
+
+
 def test_yes_style_overwrite_never_implies_consent(home: Path) -> None:
     path = home / "CLAUDE.md"
     _fixture(path)
@@ -232,6 +265,65 @@ def test_unwritable_backup_directory_skips_removal(home: Path) -> None:
     assert b"newer body" in path.read_bytes()
     assert any("no verified backup" in note for _, note in ctx.legacy_run.notes)
     assert im.collect_legacy_report(ctx)[1] == [token]
+
+
+def test_backup_permission_failure_skips_consented_removal(
+    home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = home / "CLAUDE.md"
+    _fixture(path)
+    first = _ctx(home)
+    _merge(path, first)
+    [token] = _tokens(first)
+    backups = home / ".nexus-hub" / "state" / "backups"
+    real_chmod = im.os.chmod
+
+    def deny_backup_permissions(candidate: str | Path, mode: int) -> None:
+        if Path(candidate) == backups:
+            raise PermissionError("cannot restrict backup directory")
+        real_chmod(candidate, mode)
+
+    monkeypatch.setattr(im.os, "chmod", deny_backup_permissions)
+    ctx = _ctx(home, frozenset({token}))
+    _merge(path, ctx, "newer body")
+    assert b"**Total:" in path.read_bytes()
+    assert any("no verified backup" in note for _, note in ctx.legacy_run.notes)
+    assert im.collect_legacy_report(ctx)[1] == [token]
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows ACL failure check")
+def test_windows_acl_failure_rejects_backup(home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    path = home / "CLAUDE.md"
+    content = _fixture(path)
+
+    def fail_acl(_path: Path, *, directory: bool) -> None:
+        raise PermissionError("cannot set backup ACL")
+
+    monkeypatch.setattr(im, "_windows_owner_only", fail_acl)
+    assert im.backup_bytes(home / ".nexus-hub" / "state" / "backups", path, content) is None
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows ACL failure check")
+def test_windows_file_acl_failure_rejects_backup(home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    path = home / "CLAUDE.md"
+    content = _fixture(path)
+    real_acl = im._windows_owner_only
+
+    def fail_file_acl(candidate: Path, *, directory: bool) -> None:
+        if not directory:
+            raise PermissionError("cannot restrict backup file")
+        real_acl(candidate, directory=directory)
+
+    monkeypatch.setattr(im, "_windows_owner_only", fail_file_acl)
+    assert im.backup_bytes(home / ".nexus-hub" / "state" / "backups", path, content) is None
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows owner check")
+def test_windows_other_owner_rejects_backup(home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    path = home / "CLAUDE.md"
+    content = _fixture(path)
+    monkeypatch.setattr(im, "_windows_current_user_owns", lambda _path: False, raising=False)
+    assert im.backup_bytes(home / ".nexus-hub" / "state" / "backups", path, content) is None
 
 
 def test_unusable_state_directory_skips_removal(home: Path) -> None:

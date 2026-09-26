@@ -27,7 +27,6 @@ The module is stdlib-only on purpose: this helper runs under the same Python
 from __future__ import annotations
 
 import hashlib
-import logging
 import os
 import tempfile
 import time
@@ -422,6 +421,114 @@ def _target_lock(lock_dir: Path, target: Path, timeout: float) -> Iterator[bool]
         os.close(fd)
 
 
+def _windows_current_user_owns(path: Path) -> bool:
+    """Compare the file owner SID with the current process token's user SID."""
+    import ctypes
+    import ctypes.wintypes as wintypes
+
+    security = ctypes.WinDLL("advapi32", use_last_error=True)
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    get_owner = security.GetNamedSecurityInfoW
+    get_owner.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD,
+                          ctypes.POINTER(wintypes.LPVOID), ctypes.POINTER(wintypes.LPVOID),
+                          ctypes.POINTER(wintypes.LPVOID), ctypes.POINTER(wintypes.LPVOID),
+                          ctypes.POINTER(wintypes.LPVOID)]
+    get_owner.restype = wintypes.DWORD
+    open_token = security.OpenProcessToken
+    open_token.argtypes = [wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE)]
+    open_token.restype = wintypes.BOOL
+    get_token = security.GetTokenInformation
+    get_token.argtypes = [wintypes.HANDLE, wintypes.DWORD, wintypes.LPVOID,
+                          wintypes.DWORD, ctypes.POINTER(wintypes.DWORD)]
+    get_token.restype = wintypes.BOOL
+    equal_sid = security.EqualSid
+    equal_sid.argtypes = [wintypes.LPVOID, wintypes.LPVOID]
+    equal_sid.restype = wintypes.BOOL
+    kernel.GetCurrentProcess.argtypes = []
+    kernel.GetCurrentProcess.restype = wintypes.HANDLE
+    kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel.CloseHandle.restype = wintypes.BOOL
+    kernel.LocalFree.argtypes = [wintypes.HLOCAL]
+    kernel.LocalFree.restype = wintypes.HLOCAL
+
+    owner = wintypes.LPVOID()
+    descriptor = wintypes.LPVOID()
+    status = get_owner(str(path), 1, 1, ctypes.byref(owner), None, None, None,
+                       ctypes.byref(descriptor))
+    if status:
+        raise OSError(status, "cannot read backup owner")
+    token = wintypes.HANDLE()
+    try:
+        if not open_token(kernel.GetCurrentProcess(), 0x0008, ctypes.byref(token)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        size = wintypes.DWORD()
+        get_token(token, 1, None, 0, ctypes.byref(size))
+        if not size.value:
+            raise ctypes.WinError(ctypes.get_last_error())
+        token_user = ctypes.create_string_buffer(size.value)
+        if not get_token(token, 1, token_user, size.value, ctypes.byref(size)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        user_sid = ctypes.cast(token_user, ctypes.POINTER(wintypes.LPVOID)).contents
+        return bool(equal_sid(owner, user_sid))
+    finally:
+        if token.value:
+            kernel.CloseHandle(token)
+        kernel.LocalFree(descriptor)
+
+
+def _require_backup_owner(path: Path) -> None:
+    info = path.lstat()
+    if path.is_symlink() or (os.name == "nt" and getattr(info, "st_file_attributes", 0) & 0x400):
+        raise PermissionError("backup path is a reparse point")
+    if os.name == "nt":
+        owned = _windows_current_user_owns(path)
+    else:
+        owned = info.st_uid == os.geteuid()
+    if not owned:
+        raise PermissionError("backup path belongs to another user")
+
+
+def _windows_owner_only(path: Path, *, directory: bool) -> None:
+    """Replace inherited permissions with an inheritable owner-rights DACL."""
+    import ctypes
+    import ctypes.wintypes as wintypes
+
+    security = ctypes.WinDLL("advapi32", use_last_error=True)
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    convert = security.ConvertStringSecurityDescriptorToSecurityDescriptorW
+    convert.argtypes = [wintypes.LPCWSTR, wintypes.DWORD,
+                        ctypes.POINTER(wintypes.LPVOID), ctypes.POINTER(wintypes.DWORD)]
+    convert.restype = wintypes.BOOL
+    get_dacl = security.GetSecurityDescriptorDacl
+    get_dacl.argtypes = [wintypes.LPVOID, ctypes.POINTER(wintypes.BOOL),
+                         ctypes.POINTER(wintypes.LPVOID), ctypes.POINTER(wintypes.BOOL)]
+    get_dacl.restype = wintypes.BOOL
+    set_acl = security.SetNamedSecurityInfoW
+    set_acl.argtypes = [wintypes.LPWSTR, wintypes.DWORD, wintypes.DWORD,
+                        wintypes.LPVOID, wintypes.LPVOID, wintypes.LPVOID, wintypes.LPVOID]
+    set_acl.restype = wintypes.DWORD
+    kernel.LocalFree.argtypes = [wintypes.HLOCAL]
+    kernel.LocalFree.restype = wintypes.HLOCAL
+    descriptor = wintypes.LPVOID()
+    ace_flags = "OICI" if directory else ""
+    if not convert(f"D:P(A;{ace_flags};FA;;;OW)", 1, ctypes.byref(descriptor), None):
+        raise ctypes.WinError(ctypes.get_last_error())
+    try:
+        present = wintypes.BOOL()
+        defaulted = wintypes.BOOL()
+        dacl = wintypes.LPVOID()
+        if not get_dacl(descriptor, ctypes.byref(present), ctypes.byref(dacl), ctypes.byref(defaulted)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        if not present.value or not dacl:
+            raise OSError("owner-only backup DACL is missing")
+        # CodeQL alert 309 follow-up: chmod cannot enforce Windows ACL privacy.
+        status = set_acl(str(path), 1, 0x80000004, None, None, dacl, None)
+        if status:
+            raise OSError(status, "cannot restrict backup ACL")
+    finally:
+        kernel.LocalFree(descriptor)
+
+
 def backup_bytes(backup_dir: Path, target: Path, content: bytes) -> Optional[Path]:
     """Keep one owner-only, content-addressed copy of `content`; None on any failure.
 
@@ -432,14 +539,11 @@ def backup_bytes(backup_dir: Path, target: Path, content: bytes) -> Optional[Pat
     digest = hashlib.sha256(content).hexdigest()
     dst = backup_dir / f"{digest}.{target.name}"
     try:
-        backup_dir.mkdir(parents=True, exist_ok=True)
-        try:
-            os.chmod(backup_dir, 0o700)
-        except OSError:
-            # Best effort: Windows ignores POSIX modes, and a directory owned by
-            # another user cannot be tightened. The owner-only file mode below
-            # and the re-read hash check still decide whether the backup counts.
-            logging.getLogger(__name__).debug("could not restrict %s to owner-only", backup_dir)
+        backup_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+        _require_backup_owner(backup_dir)
+        os.chmod(backup_dir, 0o700)
+        if os.name == "nt":
+            _windows_owner_only(backup_dir, directory=True)
         if not dst.exists():
             staging = backup_dir / f".{dst.name}.{os.getpid()}.tmp"
             fd = os.open(staging, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
@@ -451,6 +555,10 @@ def backup_bytes(backup_dir: Path, target: Path, content: bytes) -> Optional[Pat
                 os.replace(staging, dst)
             finally:
                 staging.unlink(missing_ok=True)
+        _require_backup_owner(dst)
+        os.chmod(dst, 0o600)
+        if os.name == "nt":
+            _windows_owner_only(dst, directory=False)
         if hashlib.sha256(dst.read_bytes()).hexdigest() != digest:
             return None
     except OSError:
