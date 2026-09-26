@@ -34,7 +34,7 @@ import platform
 from pathlib import Path
 from typing import Optional
 
-from scripts.lib.installer.instruction_merge import merge_marker_section
+from scripts.lib.installer.instruction_merge import merge_instruction
 
 from ._catalog_adapters import _split_frontmatter
 from ._command_surface import mirror_command_surface
@@ -131,7 +131,7 @@ class CopilotIntegration(MarkdownIntegration):
     key = "copilot"
     display_name = "GitHub Copilot (Microsoft)"
     # v2.3.0 / Phase 7 / MT-1 -- Copilot now uses the canonical
-    # `merge_marker_section` primitive (like Cursor), migrating the v2.1
+    # marker merge (like Cursor; through `merge_instruction` since v4.13.3), migrating the v2.1
     # `## Nexus-Hub Harness` legacy header inline into the marker block so user
     # content above and below the block is preserved across re-installs.
     instruction_mode = "shared"
@@ -288,11 +288,8 @@ class CopilotIntegration(MarkdownIntegration):
         if not template.exists():
             return FileAction(path=str(template), action="not-found")
         dst = copilot_home / "copilot-instructions.md"
-        action = merge_marker_section(
-            dst,
-            self._render(template, ctx),
-            legacy_header="## Nexus-Hub",
-            dry_run=ctx.dry_run,
+        action = merge_instruction(
+            dst, self._render(template, ctx), ctx=ctx, legacy_header="## Nexus-Hub"
         )
         ctx.manifest.track_shared(self.key, str(dst))
         return action
@@ -402,12 +399,7 @@ class CopilotIntegration(MarkdownIntegration):
             result.files.append(FileAction(path=str(template), action="not-found"))
             return result
         rendered = self._render(template, ctx)
-        action = merge_marker_section(
-            dst,
-            rendered,
-            legacy_header="## Nexus-Hub Harness",
-            dry_run=ctx.dry_run,
-        )
+        action = merge_instruction(dst, rendered, ctx=ctx, legacy_header="## Nexus-Hub Harness")
         ctx.manifest.track_shared(self.key, str(dst))
         result.files.append(action)
         if not ctx.instruction_only:

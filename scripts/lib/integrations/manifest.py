@@ -171,8 +171,13 @@ class InstallManifest:
         detect drift. Replacement (not append) so successive installs of the
         same integration in one invocation do not pile up duplicate records.
         """
+        from .result import REPORT_ACTIONS
+
         captured: List[Dict[str, object]] = []
         for fa in file_actions:
+            if fa.action in REPORT_ACTIONS:
+                # A detection report or a backup is not a file this install owns.
+                continue
             path = Path(fa.path)
             captured.append(
                 {

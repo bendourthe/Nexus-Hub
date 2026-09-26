@@ -40,7 +40,7 @@ import shlex
 import sys
 from pathlib import Path
 
-from scripts.lib.installer.instruction_merge import merge_marker_section
+from scripts.lib.installer.instruction_merge import merge_instruction
 
 from ._catalog_adapters import (
     catalog_skill_names,
@@ -172,12 +172,7 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
             result.files.append(FileAction(path=str(template), action="not-found"))
         else:
             rendered = self._render(template, ctx)
-            action = merge_marker_section(
-                instr_dst,
-                rendered,
-                legacy_header="## Nexus-Hub",
-                dry_run=ctx.dry_run,
-            )
+            action = merge_instruction(instr_dst, rendered, ctx=ctx, legacy_header="## Nexus-Hub")
             ctx.manifest.track_shared(self.key, str(instr_dst))
             result.files.append(action)
 

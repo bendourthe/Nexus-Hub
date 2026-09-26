@@ -94,6 +94,17 @@ class InstallContext:
     # touches it. Phase 6 consumes this field where the copying happens.
     selection: Optional[Any] = None
     explicit_target: bool = False
+    # v4.13.3 Phase 4 -- span-bound consent to remove candidate Legacy
+    # Instruction Blocks, parsed from repeatable
+    # --remove-legacy-instructions=<consent-sha256>. Empty means report only;
+    # --yes never implies consent. `legacy_run` is the per-invocation
+    # bookkeeping `instruction_merge.merge_instruction` creates on first use.
+    legacy_removal_hashes: frozenset = frozenset()
+    legacy_run: Optional[Any] = None
+    # v4.13.3 Phase 5 -- "full" (default) or "pointer", parsed once from
+    # NEXUS_HUB_SKILL_INDEX by the runner. "pointer" renders the Skill-Index
+    # Pointer only where `native_skill_enumeration` holds.
+    skill_index_mode: str = "full"
 
     @property
     def global_root(self) -> Path:
@@ -236,6 +247,18 @@ class IntegrationBase:
     def uninstall_workspace(self, ctx: InstallContext) -> WriteResult:
         return self.teardown(ctx)
 
+    def native_skill_enumeration(self, ctx: InstallContext) -> bool:
+        """True only when a VERIFIED skill read path for this platform and
+        `ctx.scope` holds a skills tree that is actually installed.
+
+        Derived on every call from the contract facts and the disk, never stored,
+        so a missing contract, an unknown status, or a failed skills install all
+        fail closed to the full index.
+        """
+        from scripts.lib.integrations.skill_read_paths import enumerated_skill_dir
+
+        return enumerated_skill_dir(self.key, ctx) is not None
+
     def teardown(self, ctx: InstallContext) -> WriteResult:
         """Remove every file/directory previously logged in the manifest for
         this integration. Safe to call multiple times.
@@ -263,7 +286,7 @@ class IntegrationBase:
 
         Default implementation flips ``ctx.dry_run=True`` and re-uses the
         existing install machinery. Helpers in this module (``_copy_file``,
-        ``_copy_tree``, ``_write_instruction``, ``merge_marker_section``) all
+        ``_copy_tree``, ``_write_instruction``, ``merge_instruction``) all
         honor ``ctx.dry_run``, so the resulting ``WriteResult.files`` array is
         guaranteed to reflect the on-disk delta without touching disk.
 
@@ -497,7 +520,7 @@ class MarkdownIntegration(IntegrationBase):
 
     Phase 1 (v2.2.0) added an `instruction_mode` class attribute. Defaults to
     `"shared"`, in which case T004 (sub-task 1.4) will route writes through
-    `merge_marker_section` so user edits to CLAUDE.md / AGENTS.md survive a
+    `merge_instruction` (since v4.13.3; formerly `merge_marker_section`) so user edits to CLAUDE.md / AGENTS.md survive a
     re-install. Set `"dedicated"` on subclasses where Nexus-Hub owns the whole
     file.
     """
@@ -550,11 +573,24 @@ class MarkdownIntegration(IntegrationBase):
         used for one render.
         """
         merged: Dict[str, str] = dict(self._DEFAULT_TEMPLATE_VARS)
-        skill_index = self._load_skill_index(ctx)
+        pointer = self._skill_index_pointer(ctx)
+        skill_index = pointer if pointer is not None else self._load_skill_index(ctx)
         if skill_index is not None:
             merged["SKILL_INDEX"] = skill_index
         merged.update(ctx.template_vars)
         return merged
+
+    def _skill_index_pointer(self, ctx: InstallContext) -> Optional[str]:
+        """The pointer text when pointer mode is on and this platform is eligible."""
+        if getattr(ctx, "skill_index_mode", "full") != "pointer":
+            return None
+        from scripts.lib.integrations.skill_read_paths import enumerated_skill_dir, render_pointer
+
+        skill_dir = enumerated_skill_dir(self.key, ctx)
+        if skill_dir is None:
+            return None
+        full_index = Path(ctx.global_root) / ".nexus-hub" / "data" / "SKILL_INDEX.md"
+        return render_pointer(skill_dir, full_index if full_index.is_file() else None)
 
     def _render(self, template_path: Path, ctx: InstallContext) -> str:
         text = template_path.read_text(encoding="utf-8")
@@ -607,7 +643,7 @@ class MarkdownIntegration(IntegrationBase):
         """Render the configured template and write it to dst_dir.
 
         Shared-mode subclasses (the default) route writes through
-        `merge_marker_section` so user content above and below the
+        `merge_instruction` so user content above and below the
         Nexus-Hub-managed block survives a re-install. Dedicated-mode
         subclasses rewrite the file in full.
 
@@ -627,16 +663,11 @@ class MarkdownIntegration(IntegrationBase):
         dst = dst_dir / instruction_file
 
         if self.instruction_mode == "shared":
-            from scripts.lib.installer.instruction_merge import merge_marker_section
+            from scripts.lib.installer.instruction_merge import merge_instruction
 
             if not ctx.dry_run:
                 dst.parent.mkdir(parents=True, exist_ok=True)
-            action = merge_marker_section(
-                dst,
-                rendered,
-                legacy_header="## Nexus-Hub",
-                dry_run=ctx.dry_run,
-            )
+            action = merge_instruction(dst, rendered, ctx=ctx, legacy_header="## Nexus-Hub")
             ctx.manifest.track_shared(self.key, str(dst))
             return action
 

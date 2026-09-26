@@ -41,6 +41,10 @@ param(
     [string]$InstallProfile,   # one profile id
     [string]$Modules,          # comma-separated capability module ids
     [string]$Bundles,          # comma-separated role bundle ids
+    # v4.13.3 -- span-bound consent to remove text an older install left outside
+    # the managed markers. Each value is a 64-hex token copied from the previous
+    # install report; -Yes never implies it.
+    [string[]]$RemoveLegacyInstructions,
     [Parameter(Position = 0)]
     [string]$Subcommand,
     [Parameter(ValueFromRemainingArguments = $true)]
@@ -107,6 +111,11 @@ Options:
                 TTY, e.g. a piped irm|iex install).
   -Force        Overwrite existing managed files with the Nexus-Hub version
                 without asking (implies -Yes for prompting).
+  -RemoveLegacyInstructions <token>[,<token>]
+                Remove text an older install left outside the managed markers.
+                Each 64-hex token comes from the previous install report and
+                binds that exact file state. -Yes never removes anything; a
+                verified backup is kept first.
   -Enterprise   Install the standalone Gemini CLI integration. Requires a paid
                 Gemini API key. After 2026-06-18 (per the 2026-05-21 Google
                 Developers Blog announcement), Gemini CLI stops serving free /
@@ -2411,9 +2420,16 @@ function Invoke-RegistryPlatform {
     $argsList += @("--var", "LINT_CMD=$($script:LintCmd)")
     $argsList += @("--var", "NON_OBVIOUS_TOOLING=$($script:NonObviousTooling)")
     $argsList += @("--var", "OS_CONTEXT=$($script:OSContext)")
+    foreach ($legacyToken in @($script:LegacyConsents)) {
+        $argsList += "--remove-legacy-instructions=$legacyToken"
+    }
 
     & $py @argsList
     $exitCode = $LASTEXITCODE
+    if ($script:LegacyReportDir -and (Test-Path $summaryFile)) {
+        $legacyIndex = @(Get-ChildItem -Path $script:LegacyReportDir -Filter "*.json" -ErrorAction SilentlyContinue).Count
+        Copy-Item -Path $summaryFile -Destination (Join-Path $script:LegacyReportDir ("{0:D4}.json" -f $legacyIndex)) -ErrorAction SilentlyContinue
+    }
 
     # Parse the structured per-surface summary the runner just wrote.
     $platformSummary = $null
@@ -3942,6 +3958,43 @@ else {
     $script:OverwriteMode = "CONFLICT"
 }
 
+function New-LegacyReportDir {
+    $dir = Join-Path ([System.IO.Path]::GetTempPath()) ("nexus-legacy-" + [System.Guid]::NewGuid().ToString('N'))
+    try { New-Item -ItemType Directory -Path $dir -Force | Out-Null; return $dir } catch { return $null }
+}
+
+# Print the combined legacy-instruction report once, after every runner call,
+# so each consent token shown matches its file's final bytes.
+function Write-LegacyReport {
+    param([string]$RepoRoot)
+    $dir = $script:LegacyReportDir
+    if (-not $dir -or -not (Test-Path $dir)) { return }
+    $py = Resolve-PythonExecutable
+    if ($py) {
+        $reportArgs = @((Join-Path $RepoRoot "scripts/lib/integrations/runner.py"), "legacy-report", "--summaries", $dir, "--form", "ps1")
+        foreach ($legacyToken in @($script:LegacyConsents)) { $reportArgs += @("--token", $legacyToken) }
+        $report = & $py @reportArgs 2>$null
+        if ($report) {
+            Write-CenteredBanner -Text "LEGACY INSTRUCTIONS"
+            $report | ForEach-Object { Write-Host $_ }
+        }
+    }
+    Remove-Item -Path $dir -Recurse -Force -ErrorAction SilentlyContinue
+    $script:LegacyReportDir = $null
+}
+
+# Validate consent tokens before anything is installed.
+$script:LegacyConsents = @()
+foreach ($legacyToken in @($RemoveLegacyInstructions)) {
+    if ([string]::IsNullOrEmpty($legacyToken)) { continue }
+    if ($legacyToken -cnotmatch '\A[0-9a-fA-F]{64}\z') {
+        Write-Host "-RemoveLegacyInstructions requires the 64-hex consent token from an install report" -ForegroundColor Red
+        exit 2
+    }
+    $script:LegacyConsents += $legacyToken
+}
+$script:LegacyReportDir = $null
+
 Write-NexusBanner
 Invoke-LegacyInstallMigration
 # Idempotent cleanup -- safe to run every install. Catches the case where the
@@ -3960,10 +4013,14 @@ if (-not [string]::IsNullOrWhiteSpace($Workspace)) {
         Write-Host "Workspace path not found: $workspaceTarget" -ForegroundColor Red
         exit 2
     }
+    $script:LegacyReportDir = New-LegacyReportDir
     Install-Workspace -RepoRoot $repoRoot -TargetPath $workspaceTarget
+    Write-LegacyReport -RepoRoot $repoRoot
 }
 else {
+    $script:LegacyReportDir = New-LegacyReportDir
     Install-Global -RepoRoot $repoRoot
+    Write-LegacyReport -RepoRoot $repoRoot
 }
 
 # CROSS-PLATFORM TOOLS: for a global install this header (plus the skill-discovery

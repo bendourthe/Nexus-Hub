@@ -154,6 +154,15 @@ HYGIENE = Group(
     ),
 )
 
+# Every instruction line Nexus-Hub ever shipped, hashed for the legacy-span
+# detector. Unscoped because a template or skill-index edit anywhere must fail
+# the gate until the set is regenerated. Needs full history (CI clones with
+# fetch-depth 0 for the attribution check).
+LEGACY_FINGERPRINTS = Group(
+    name="legacy-fingerprints",
+    commands=(_py("build_legacy_fingerprints", "--check", timeout=120),),
+)
+
 CATALOG = Group(
     name="catalog",
     scope_key="catalog",
@@ -322,9 +331,11 @@ TESTS = Group(
             "tests/integrations/test_install_summary.py",
             "tests/integrations/test_install_workspace.py",
             "tests/integrations/test_legacy_cleanups.py",
+            "tests/integrations/test_legacy_instruction_block_cleanup.py",
             "tests/integrations/test_markdown_integration.py",
             "tests/integrations/test_owned_file_modes.py",
             "tests/integrations/test_parity_with_legacy_installer.py",
+            "tests/integrations/test_skill_index_pointer.py",
             timeout=1800,
         ),
         _pytest(
@@ -612,6 +623,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
         CATALOG_PARSE,
         PRE_COMMIT,
         HYGIENE,
+        LEGACY_FINGERPRINTS,
         INTERPRETERS,
         CATALOG,
         SECURITY,

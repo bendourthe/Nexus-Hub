@@ -2310,6 +2310,10 @@ invoke_registry_platform() {
     args+=("--var" "LINT_CMD=${LINT_CMD:-}")
     args+=("--var" "NON_OBVIOUS_TOOLING=${NON_OBVIOUS_TOOLING:-}")
     args+=("--var" "OS_CONTEXT=${OS_CONTEXT:-}")
+    local legacy_token
+    for legacy_token in ${LEGACY_CONSENTS[@]+"${LEGACY_CONSENTS[@]}"}; do
+        args+=("--remove-legacy-instructions=$legacy_token")
+    done
     if "$py" "${args[@]}"; then
         render_platform_from_summary "$summary_file" "$key" "$provider" "$display" "$py"
     else
@@ -2317,7 +2321,35 @@ invoke_registry_platform() {
         write_item "$display" "$GRAY"
         write_item "install reported a non-zero exit; continuing." "$YELLOW"
     fi
+    if [ -n "$LEGACY_REPORT_DIR" ] && [ -s "$summary_file" ]; then
+        local legacy_count
+        legacy_count="$(find "$LEGACY_REPORT_DIR" -name '*.json' | wc -l | tr -d ' ')"
+        cp "$summary_file" "$LEGACY_REPORT_DIR/$(printf '%04d' "$legacy_count").json" 2>/dev/null || true
+    fi
     rm -f "$summary_file"
+}
+
+# Print the combined legacy-instruction report once, after every runner call,
+# so each consent token shown matches its file's final bytes.
+write_legacy_report() {
+    local repo_root="$1"
+    [ -n "$LEGACY_REPORT_DIR" ] && [ -d "$LEGACY_REPORT_DIR" ] || return 0
+    local py
+    if py=$(resolve_python_executable); then
+        local report_args=("$repo_root/scripts/lib/integrations/runner.py" "legacy-report" "--summaries" "$LEGACY_REPORT_DIR" "--form" "sh")
+        local legacy_token
+        for legacy_token in ${LEGACY_CONSENTS[@]+"${LEGACY_CONSENTS[@]}"}; do
+            report_args+=("--token" "$legacy_token")
+        done
+        local report
+        report="$("$py" "${report_args[@]}" 2>/dev/null || true)"
+        if [ -n "$report" ]; then
+            write_section_banner "LEGACY INSTRUCTIONS"
+            printf '%s\n' "$report"
+        fi
+    fi
+    rm -rf -- "$LEGACY_REPORT_DIR"
+    LEGACY_REPORT_DIR=""
 }
 
 install_vscode_extensions() {
@@ -3453,6 +3485,11 @@ WORKSPACE_PATH=""   # set by --workspace <path>; empty => global scope (default)
 PLATFORMS_ARG=""    # set by --platforms <csv>; empty => all platforms (default)
 YES_FLAG=0          # --yes : non-interactive, auto-confirm + refresh
 FORCE_FLAG=0        # --force : overwrite existing managed files without asking
+# v4.13.3 -- span-bound consent tokens (--remove-legacy-instructions, repeatable)
+# and the directory that collects each runner call's summary for the combined
+# legacy-instruction report printed after the install.
+LEGACY_CONSENTS=()
+LEGACY_REPORT_DIR=""
 
 # v3.15.6 / AC5 -- opt-in hardened permission posture.
 # Default 0 keeps the convenience default (allow-only auto-approve, no prompts)
@@ -3537,6 +3574,12 @@ Options:
                  TTY, e.g. a piped curl|bash install).
   --force        Overwrite existing managed files with the Nexus-Hub version
                  without asking (implies --yes for prompting).
+  --remove-legacy-instructions=<token>
+                 Remove one block of text an older install left outside the
+                 managed markers. The 64-hex token comes from the previous
+                 install report and binds that exact file state; copy it from
+                 the most recent report. Repeatable. --yes never removes
+                 anything; a verified backup is kept first.
   --enterprise   Install the standalone Gemini CLI integration. Requires a paid
                  Gemini API key. After 2026-06-18 (per the 2026-05-21 Google
                  Developers Blog announcement), Gemini CLI stops serving free /
@@ -3943,6 +3986,24 @@ while [ $# -gt 0 ]; do
             PASSTHRU_ARGS+=("$1")
             shift
             ;;
+        --remove-legacy-instructions|--remove-legacy-instructions=*)
+            if [ "$1" = "--remove-legacy-instructions" ]; then
+                legacy_token="${2:-}"
+                shift_by=2
+            else
+                legacy_token="${1#--remove-legacy-instructions=}"
+                shift_by=1
+            fi
+            # Whole-string match: a line-based grep would accept a value with an
+            # embedded newline as long as one line was 64 hex characters.
+            if [[ ! "$legacy_token" =~ ^[0-9a-fA-F]{64}$ ]]; then
+                echo "--remove-legacy-instructions requires the 64-hex consent token from an install report" >&2
+                exit 2
+            fi
+            LEGACY_CONSENTS+=("$legacy_token")
+            PASSTHRU_ARGS+=("--remove-legacy-instructions=$legacy_token")
+            shift "$shift_by"
+            ;;
         --yes|-y)
             YES_FLAG=1
             PASSTHRU_ARGS+=("--yes")
@@ -4171,10 +4232,14 @@ if [ -n "$WORKSPACE_PATH" ]; then
         echo "Workspace path not found: $WORKSPACE_PATH" >&2
         exit 2
     fi
+    LEGACY_REPORT_DIR="$(mktemp -d 2>/dev/null || true)"
     install_workspace "$REPO_ROOT" "$WORKSPACE_PATH"
+    write_legacy_report "$REPO_ROOT"
 else
     SCOPE_LABEL="Global"
+    LEGACY_REPORT_DIR="$(mktemp -d 2>/dev/null || true)"
     install_global "$REPO_ROOT"
+    write_legacy_report "$REPO_ROOT"
 fi
 
 # CROSS-PLATFORM TOOLS: for a global install this header (plus the skill-discovery

@@ -177,7 +177,7 @@ jobs:
         # release being cut.
         run: |
           python scripts/ci/run.py --profile full \
-            --only catalog-parse,pre-commit,hygiene,interpreters,catalog,security,workflows,claude-plugin,platform-contracts,docs,version \
+            --only catalog-parse,pre-commit,hygiene,legacy-fingerprints,interpreters,catalog,security,workflows,claude-plugin,platform-contracts,docs,version \
             --reports-dir reports
 
       - name: Publish the run summary

@@ -37,33 +37,7 @@ Provides context management capabilities including:
 
 ### Step 0: Understand Context Fundamentals
 
-Before managing context, understand what competes for an AI model's limited attention window. Every token loaded into context displaces something else; the goal is the **smallest possible set of high-signal tokens** for the task at hand.
-
-**The Five Context Components**:
-
-| Component | What It Contains | Typical Budget | Optimization Lever |
-|-----------|-----------------|----------------|-------------------|
-| **System Prompts** | Instructions, role definitions, CLAUDE.md | 5-15% | Keep concise; load rules on demand |
-| **Tool Definitions** | MCP tool schemas, function signatures | 5-10% | Limit to 10-20 active tools; namespace larger sets |
-| **Retrieved Documents** | Files, search results, RAG outputs | 20-40% | Retrieve only what the current step needs |
-| **Message History** | Prior conversation turns | 20-40% | Summarize older turns; compress at thresholds |
-| **Tool Outputs** | Command results, API responses, file reads | 10-30% | Mask verbose outputs; write large results to files |
-
-**Key Principles**:
-
-1. **Attention Budget**: Models develop attention patterns from training data where shorter sequences predominate. Information buried in the middle of long contexts receives 10-40% lower recall (the "Lost-in-Middle" effect). Place important information at the beginning or end.
-
-2. **Progressive Disclosure**: Load information incrementally based on what the current step requires, not everything that might be useful. This keeps the attention budget focused on high-signal tokens.
-
-3. **Compaction Trigger**: Monitor context utilization. At **70-80% capacity**, begin proactive summarization of older conversation history and tool outputs. Waiting until the context window is full leads to abrupt quality degradation.
-
-4. **Quality Over Quantity**: Larger context windows do not solve context quality problems. A focused 50K-token context outperforms a cluttered 200K-token context for most tasks. Curate aggressively.
-
-**When to Apply These Fundamentals**:
-- Long-running sessions (>20 turns)
-- Multi-file explorations that generate large tool outputs
-- Tasks requiring synthesis across many sources
-- Sessions where the agent starts "forgetting" earlier instructions
+Context fundamentals are owned elsewhere and this skill hands off to them: what to load, when, and in what order belongs to `[[context-engineering]]`, whether and when to compact belongs to `[[context-compression]]`, and measuring where tokens go belongs to `[[prompt-token-optimization]]`; this skill owns the codebase map, relationship tracking, and change-impact steps below.
 
 ### Step 1: Build Initial Context Map
 
@@ -232,38 +206,7 @@ If modified, verify:
 
 ### Step 5: Handle Context Handoffs
 
-**Context Summary Template** (for session boundaries):
-
-```markdown
-## Context Summary: [Task/Feature]
-**Date**: [timestamp]
-**Status**: In Progress | Blocked | Complete
-
-### Current State
-[Brief description of where things stand]
-
-### Key Decisions Made
-1. [Decision 1]: [Rationale]
-2. [Decision 2]: [Rationale]
-
-### Important Files
-| File | Status | Notes |
-|------|--------|-------|
-| [path] | Modified/Needs work | [details] |
-
-### Open Questions
-- [ ] [Question 1]
-- [ ] [Question 2]
-
-### Next Steps
-1. [Immediate next action]
-2. [Following action]
-
-### Things to Remember
-- [Important context that might be forgotten]
-- [Non-obvious relationships discovered]
-- [Gotchas encountered]
-```
+Session-boundary summaries and handoff documents (their required contents and validation probes) are owned by `[[context-compression]]`; at a session boundary this skill hands off to it, adding the context map, file relationships, and change set from Steps 1-3 as inputs.
 
 ### Step 6: Navigate Efficiently
 

@@ -47,6 +47,7 @@
     {"posix": ["reset_undetected_platforms"], "windows": ["Reset-UndetectedPlatforms"], "reason": "Undetected-platform state reset."},
     {"posix": ["add_undetected_platform"], "windows": ["Add-UndetectedPlatform"], "reason": "Undetected-platform accumulator."},
     {"posix": ["write_undetected_group"], "windows": ["Write-UndetectedGroup"], "reason": "Undetected-platform summary renderer."},
+    {"posix": ["write_legacy_report"], "windows": ["New-LegacyReportDir", "Write-LegacyReport"], "reason": "Combined legacy-instruction report; bash creates its summary directory inline with mktemp -d."},
     {"posix": ["write_checklist_row"], "windows": ["Write-ChecklistRow"], "reason": "Checklist row renderer."},
     {"posix": ["safe_copy"], "windows": ["Safe-Copy", "Get-FileSha256"], "reason": "Managed single-file copy with content equality detection; PowerShell factors hashing into a helper."},
     {"posix": ["safe_folder_copy"], "windows": ["Safe-Folder-Copy"], "reason": "Managed recursive folder copy."},

@@ -115,8 +115,9 @@ class TestDigestRoundTrip:
         body = digest.read_text(encoding="utf-8")
         assert "# Last session digest" in body
         assert "## Git context" in body
-        # The branch line should be present and named `main` (set by the fixture).
-        assert "Branch:" in body
+        # v4.13.3: one git line (branch `main` from the fixture), no commit log.
+        assert "Git: main, " in body
+        assert "Recent commits" not in body
 
     def test_digest_path_override_is_honored(self, tmp_git_repo: Path) -> None:
         custom = ".nexus/alt/some-digest.md"
@@ -143,7 +144,7 @@ class TestDigestRoundTrip:
         out, _err, code = _run(_START_HOOK, tmp_git_repo)
         assert code == 0
         # Orientation block must still print but no digest section.
-        assert "Nexus-Hub is active" in out
+        assert "full skill index:" in out
         assert "Last session digest" not in out
 
 
@@ -209,4 +210,70 @@ class TestRuntimeControls:
         )
         assert code == 0
         # When minimal, even the orientation block is skipped.
-        assert "Nexus-Hub is active" not in out
+        assert "full skill index:" not in out
+
+
+# -- v4.13.3: one-line git summary, identical .sh and .ps1 digests -----------
+
+
+@pytest.fixture(params=["sh", "ps1"])
+def summary_impl(request, bash_bin: str, powershell_bin: str):
+    """Run session-summary through one implementation with a fixed timestamp."""
+
+    def _run_impl(cwd: Path, home: Path) -> str:
+        if request.param == "sh":
+            argv = [bash_bin, str(_HOOKS_DIR / "session-summary.sh")]
+        else:
+            argv = [powershell_bin, "-NoProfile", "-File", str(_HOOKS_DIR / "session-summary.ps1")]
+        env = {**os.environ, "HOME": str(home), "USERPROFILE": str(home), "NEXUS_SESSION_DIGEST_NOW": "T"}
+        env.pop("NEXUS_DISABLED_HOOKS", None)
+        env.pop("NEXUS_HOOK_PROFILE", None)
+        result = subprocess.run(argv, cwd=cwd, env=env, input="", capture_output=True, timeout=120, check=False)
+        assert result.returncode == 0, result.stderr
+        digest = cwd / ".nexus" / "context" / "last-session.md"
+        data = digest.read_bytes()
+        digest.unlink()
+        return data
+
+    _run_impl.impl = request.param
+    return _run_impl
+
+
+def _states(tmp_git_repo: Path, tmp_path: Path):
+    yield "clean", tmp_git_repo, "Git: main, 0 changed file(s)"
+    (tmp_git_repo / "dirty.txt").write_text("x\n", encoding="utf-8")
+    yield "dirty", tmp_git_repo, "Git: main, 1 changed file(s)"
+    (tmp_git_repo / "dirty.txt").unlink()
+    subprocess.run(["git", "checkout", "-q", "--detach"], cwd=tmp_git_repo, check=True)
+    yield "detached", tmp_git_repo, "Git: detached, 0 changed file(s)"
+    plain = tmp_path / "plain"
+    plain.mkdir()
+    yield "no-repo", plain, "Git: unavailable"
+
+
+def test_digest_carries_one_git_line_in_every_state(tmp_git_repo: Path, tmp_path: Path, summary_impl) -> None:
+    home = tmp_path / "home"
+    home.mkdir()
+    for state, cwd, expected in _states(tmp_git_repo, tmp_path):
+        body = summary_impl(cwd, home).decode("utf-8")
+        assert expected in body.splitlines(), f"{summary_impl.impl} {state}: {body!r}"
+        assert "Recent commits" not in body
+
+
+def test_sh_and_ps1_digests_are_byte_identical_and_bom_free(
+    tmp_git_repo: Path, tmp_path: Path, bash_bin: str, powershell_bin: str
+) -> None:
+    home = tmp_path / "home"
+    home.mkdir()
+    env = {**os.environ, "HOME": str(home), "USERPROFILE": str(home), "NEXUS_SESSION_DIGEST_NOW": "T"}
+    env.pop("NEXUS_DISABLED_HOOKS", None)
+    env.pop("NEXUS_HOOK_PROFILE", None)
+    digest = tmp_git_repo / ".nexus" / "context" / "last-session.md"
+    outputs = []
+    for argv in ([bash_bin, str(_HOOKS_DIR / "session-summary.sh")],
+                 [powershell_bin, "-NoProfile", "-File", str(_HOOKS_DIR / "session-summary.ps1")]):
+        subprocess.run(argv, cwd=tmp_git_repo, env=env, input="", capture_output=True, timeout=120, check=True)
+        outputs.append(digest.read_bytes())
+        digest.unlink()
+    assert outputs[0] == outputs[1]
+    assert not outputs[1].startswith(b"\xef\xbb\xbf")

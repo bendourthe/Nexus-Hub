@@ -218,3 +218,72 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 | [v4.11.0 interactive authoring](../../../archives/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md) | 9 | 0 |
 | [v4.11.2 document and deck](../../../archives/v4/v4.11/plans/v4.11.2-adoption-document-and-deck-quality.md) | 1 | 0 |
 | [v4.12.0 attribution](../../../archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md) | 5 | 0 |
+
+## v4.13.3
+
+Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.13.3-adoption-agent-practice-and-harness-token-efficiency`](plans/v4.13.3-adoption-agent-practice-and-harness-token-efficiency.md)). Items DF-1 to DF-5 are the plan's own parked handoffs; the rest were found while implementing it.
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 7 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 2 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### DF-1 (v4.13.3): Flip the skill-index pointer on by default, and decide todos-on-demand
+
+**Plan reference**: Resolved decisions 1 and 4. **Reason**: the pointer ships opt-in. Flipping it needs organic-selection evidence that skills the model saw in the table are still chosen when it sees only a pointer; the todos-on-demand question needs the same instruction-size evidence. **Evidence**: [`rendered-context-baseline.md`](development/rendered-context-baseline.md) (the index is 81-84% of each rendered file; the pointer removes 99.5% of it). **Owner**: `v4.16.0-instruction-necessity-review`. **Suggested next step**: run the organic-selection comparison once DF-2 exists, then decide the default.
+
+#### DF-2 (v4.13.3): Pilot variant mode for instruction-file comparisons
+
+**Plan reference**: Resolved decision 6. **Reason**: `scripts/run_trigger_pilot.py` varies only SKILL.md description lines and runs with `--setting-sources project`, so it cannot compare an instruction file with the full index against one with the pointer. Spend cap for this plan: 0. **Owner**: v4.16.0. **Suggested next step**: add a variant mode that stages instruction files per arm.
+
+#### DF-3 (v4.13.3): Plan state in the session digest
+
+**Plan reference**: Resolved decision 3. **Reason**: no plan-status contract exists that `/implement` writes, so a digest detector would report "none detected" almost always. **Owner**: the first plan that defines a plan-status contract. **Suggested next step**: once that contract exists, add one digest line read from it.
+
+#### DF-4 (v4.13.3): Static-measurement ownership split for v4.17.3
+
+**Plan reference**: Phase 6.2 handoff. **Reason**: `scripts/measure_rendered_context.py` owns rendered instruction-file measurement; v4.17.3's static measurement must reuse its estimator and detector rather than add a second definition of an estimated token or a candidate span. **Owner**: v4.17.3. **Suggested next step**: import `estimate_tokens` and `legacy_instruction_block.detect` from their current owners.
+
+#### DF-5 (v4.13.3): Shared cleanup-aware merge requirement for v4.17.3
+
+**Plan reference**: Phase 6.2 handoff. **Reason**: every marker-merged instruction write now goes through `instruction_merge.merge_instruction`, guarded by `test_no_integration_calls_the_primitive_directly`. Any v4.17.3 writer of a shared instruction file must route through the same owner so consent, backups, and byte preservation hold. **Owner**: v4.17.3. **Suggested next step**: cite this requirement in the v4.17.3 plan's writer tasks.
+
+#### DF-6 (v4.13.3): Pointer consumer installed before its shared-path provider across installer runner calls
+
+**Source phase**: Phase 5. **Reason**: the installers run the Python runner once per platform, and the runner's pointer-mode second pass only sees integrations in the same call. A consumer installed before the platform that writes its path would get the full index until the next install (fail closed, never open). **Current state (2026-09-25)**: the only such dependency among VERIFIED paths is Copilot reading Codex's `~/.agents/skills`. Both installers run Codex before Copilot at both scopes, pinned by `test_installers_run_the_shared_path_provider_before_copilot`. A simulation of the installers' exact per-platform global order on a fresh home gave the same eligible set as a single combined run (Claude, Codex, OpenCode, Copilot, Qwen). The second pass now also runs for a single integration, so an integration that renders before copying its own skills is covered. **Residual**: a future VERIFIED shared path whose provider runs later would need a new order pin. **Owner**: v4.16.0 (with DF-1). **Suggested next step**: derive the order check from the facts when a second shared-path dependency appears.
+
+#### DF-7 (v4.13.3): Move the legacy-removal decision record to `implemented`
+
+**Source phase**: Phase 4. **Reason**: `docs/decisions/proposed/tooling/2026-09-24-legacy-instruction-block-removal.md` describes shipped behavior once v4.13.3 is released. The record format requires a rewrite (Decision in present tense, Consequences) and a move, not a Status edit. **Owner**: `/update release` for v4.13.3. **Suggested next step**: rewrite and move it at release, with the release notes' capability-usage entry.
+
+#### WN-1 (v4.13.3): An uncooperative writer can race the final hash check
+
+**Source phase**: Phase 4. **Reason**: cooperating installers serialize on a per-target lock, and the file is re-hashed immediately before the atomic replacement, but a program that ignores the lock can still write between that check and the rename; no portable primitive closes the window. **Mitigation**: a verified content-addressed backup of the pre-write bytes is always kept under `~/.nexus-hub/state/backups/`, and the report names it. **Owner**: installer maintainer. **Status**: accepted risk, documented in the decision record.
+
+#### WN-2 (v4.13.3): Copilot's `~/.claude/skills` user path narrowed to UNVERIFIED
+
+**Source phase**: Phase 5. **Reason**: the 2026-09-21 contract pass recorded `~/.claude/skills` as a Copilot user-scope read path; the 2026-09-25 re-fetch of the cited page lists only `~/.copilot/skills` and `~/.agents/skills`. The skill-read-path facts record it UNVERIFIED, so Copilot is pointer-eligible only through the two documented paths. **Owner**: [[platform-contract-verification]] at the next release. **Suggested next step**: check whether a VS Code-specific Copilot page documents the path, and promote it only from a first-party page.
+
+#### WN-3 (v4.13.3): `context-manager` frontmatter still advertises concerns its body now hands off
+
+**Source phase**: Phase 1. **Reason**: the rule-ownership pass moved compaction triggers to `context-compression` and loading budget to `context-engineering`, but `context-manager`'s `description` and `overview_l1` still list "context fundamentals (attention budget, progressive disclosure, compaction triggers)". The frontmatter was left unchanged so `data/skills.json` stays in sync within one phase. **Owner**: catalog maintainer. **Suggested next step**: rewrite both fields to the concerns `context-manager` still owns and update the registry text in the same change (`python scripts/check_registry_entries.py --check --strict`).
+
+#### WN-4 (v4.13.3): Legacy-candidate diff files accumulate across file states
+
+**Source phase**: Phase 6 deep pass (adversarial finding). **Reason**: each non-dry install writes `~/.nexus-hub/state/legacy-candidates/<consent>.diff` for every current candidate. When a user declines removal while the file keeps changing, one diff per file state accumulates. Diffs are not backups, but they cannot be pruned per file safely while the installers run one runner call per platform, because a call cannot tell which other file a stale diff belongs to. Backups are content-addressed and change only when the file does. **Owner**: installer maintainer. **Suggested next step**: name diffs by a hash of the resolved file path plus the consent, and prune a file's stale diffs when that file is next reported.
+
+#### MT-1 (v4.13.3): The full installers were not run end to end on a disposable machine
+
+**Source phase**: Phases 4 and 5. **Reason**: the full PowerShell installer also installs VS Code extensions through the real `code` CLI and writes the real `%APPDATA%` settings, which a redirected HOME does not isolate, so the Phase 4 and 5 verification drove the installer's own engine (per-platform runner calls plus `legacy-report`) instead. The installers' flag parsing, forwarding, and report wiring are unit-tested, and CI runs both installers on their native hosts. **Owner**: release maintainer. **Suggested next step**: the last-phase human testing suggestions include a real install on a machine that carries a legacy block.
+
+### Reconciliation across other registers (2026-09-25)
+
+All 45 `docs/**/known-gaps.md` files were searched for open items in the areas this plan changed (session hooks, the skill index, legacy or duplicated instruction blocks, instruction-merge behavior, CRLF handling). None is closed by v4.13.3; the only instruction-merge item found, v3.15 WN-3, was already resolved in v3.15. Every other open item stays with its existing owner, unchanged by this plan.
