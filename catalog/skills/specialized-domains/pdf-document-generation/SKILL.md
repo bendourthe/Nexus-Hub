@@ -73,6 +73,38 @@ Full walkthrough: [step-7-advanced-features.md](references/step-7-advanced-featu
 
 Full walkthrough: [step-8-testing-and-validation.md](references/step-8-testing-and-validation.md) (load this step when you reach it).
 
+## Existing-Deliverable Revision
+
+Once a deliverable exists, the user may have edited it, so revising it follows `user-edit-preservation`, which owns this procedure:
+
+1. Before changing the file, run `edit_guard.py check <file>` from that skill. On any exit other than 0, do not write: run `diff`, and end your turn with that skill's three-part reply (what the user changed, suggestions on their edits or "None", and your plan ending in a question). Write only after the user says yes.
+2. Edit the current file: open it with the library and change only the targeted pages. Do not rerun the generator over it.
+3. If a rebuild is unavoidable, save to a working path (for example `report.revised.pdf`), merge the user's edits in from `edit_guard.py diff`, show the result, and ask before replacing the original.
+4. Never save or copy directly onto a file the user can open (their folder, OneDrive, SharePoint, or a shared drive).
+5. After every save, run `edit_guard.py record <file> --from write`.
+
+Every example under `references/` that saves over a file which may already exist calls `guard_existing()` first and `record_saved()` after:
+
+```python
+import subprocess
+import sys
+from pathlib import Path
+
+# The installed user-edit-preservation skill folder (for example ~/.claude/skills/ on Claude Code).
+EDIT_GUARD = Path("~/.claude/skills/user-edit-preservation/scripts/edit_guard.py").expanduser()
+
+
+def guard_existing(path) -> None:
+    """Refuse to overwrite a file the user changed since it was last recorded (or never recorded)."""
+    if Path(path).exists() and subprocess.run([sys.executable, str(EDIT_GUARD), "check", str(path)]).returncode:
+        raise SystemExit(f"{path} changed or cannot be verified: follow user-edit-preservation before saving")
+
+
+def record_saved(path) -> None:
+    """Record what the agent just wrote, so a later user edit is detectable."""
+    subprocess.run([sys.executable, str(EDIT_GUARD), "record", str(path), "--from", "write"], check=False)
+```
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

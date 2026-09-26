@@ -43,13 +43,15 @@ Set `NEXUS_EDIT_GUARD_SESSION` (or pass `--session`) to one value for the whole 
     | 5 | Cannot verify (an online-only placeholder) | Go to step 4. Never download it to check, and never overwrite it. |
     | 2 | Error (missing, unreadable, a link, a corrupt archive) | Report the error; do not treat it as unchanged. |
 
-3. **On a detected change (exit 3), carry the user's work forward.**
-    - Stop the planned write. Run `diff <path>` and read all of it.
-    - Tell the user what changed, in plain words: which slide, paragraph, section, or cells, and what they now say.
-    - Treat the user's current file as the source of truth. Never restore your earlier version, and never regenerate it from your script unless that script already includes the user's changes.
-    - Make the requested change ON the user's current file (open it and edit it), or merge their edits into your working copy and show the result, so every one of their changes survives.
-    - Review their edits and list suggestions separately (layout, typos, grammar, clarity, content), clearly labelled as suggestions, or say plainly that you have none. Do not apply any suggestion unless the user asks.
-    - Before writing anything, ask the user to confirm the plan: their edits kept, your change applied on top. Run `accept <path>` only after they agree, then make the change and `record <path> --from write`. `accept` works only after your `diff` of that exact content in this session.
+3. **On a detected change (exit 3), stop and report before any write.** Run `diff <path>` and read all of it. Treat the user's current file as the source of truth: never restore your earlier version, and never regenerate it from your script unless that script already includes their changes. Then end your turn with this reply, all three parts, before writing anything:
+
+    ```text
+    What you changed: <each user edit, in plain words: which slide, paragraph, section, or cells, and what it now says>
+    Suggestions (not applied): <typos, grammar, layout, clarity, or content issues in THEIR edits, one per line; or "None">
+    Plan: <your requested change, applied on top of their current file with every edit kept>. Shall I go ahead?
+    ```
+
+    Write only after the user says yes: run `accept <path>`, make the change ON their current file (open and edit it, or merge their edits into your working copy), then `record <path> --from write`. Apply a suggestion only if they ask. `accept` works only after your `diff` of that exact content in this session.
 4. **When the change cannot be compared** (exit 5, or `diff` reports "non-text change" or "no stored copy"): tell the user the file changed since you last saw it and that the difference cannot be shown as text. Ask them to describe the change, or review the file together. Never overwrite it on the assumption that nothing important changed.
 5. **When the file is open or a conflict copy exists:** ask the user to save and close it, and to resolve the conflict copy (`name-MACHINE.ext`) themselves. Then run `check` again.
 6. **If an edit was already lost:** say so plainly, point the user to the file's version history (OneDrive or SharePoint "Version history", or `git log` / `git show` for a tracked file), and never overwrite that file again without step 2. No tool here restores it for you.

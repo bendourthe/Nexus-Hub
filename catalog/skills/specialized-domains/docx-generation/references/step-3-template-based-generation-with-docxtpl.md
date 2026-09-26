@@ -54,7 +54,9 @@ def render_contract(
     tpl = DocxTemplate(str(template_path))
     tpl.render(context)
     output = Path(output_path)
+    guard_existing(output)  # user-edit-preservation: never overwrite a user-edited file
     tpl.save(str(output))
+    record_saved(output)
     return output
 
 
@@ -192,7 +194,9 @@ def render_composite_document(
 
     tpl.render(context)
     output = Path(output_path)
+    guard_existing(output)  # user-edit-preservation: never overwrite a user-edited file
     tpl.save(str(output))
+    record_saved(output)
     return output
 
 
