@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: finalized for the v4.3.0 release
 **Finalized**: 2026-08-31, at `/update release`. One deferred item and one warning below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. DF-1, DF-2, DF-3, and DF-5 were resolved post-release. WN-1 and WN-2 were resolved after release; the four resolved bugs and one resolved coverage gap were fixed within this release.
-**Last updated**: 2026-09-25 (WN-2 billing applicability)
+**Last updated**: 2026-09-26 (WN-3 optional platform source recheck)
 
 ## v4.3.0 - agentic-verification-discipline
 
@@ -97,6 +97,8 @@
 - **Next step**: Recheck each surface against dated official documentation or a live-host artifact before adding a destination, default, or verification gate.
 
 **Targeted source recheck, 2026-09-24**: [Google's current hook reference](https://antigravity.google/docs/hooks?tab=cli) confirms that Antigravity CLI reads the shared global `~/.gemini/config/hooks.json` and workspace `.agents/hooks.json`; the existing adapter already emits both, and a global-install dry-run assertion now protects that path. [Nexus-AI source at `198ff9c8`](https://github.com/bendourthe/Nexus-AI/blob/198ff9c877f258c775092761e3c67a6bed56b1d2/desktop/sidecar/src/skills/hubSkillReader.ts) qualifies its global `~/.nexus-ai/catalog/skills` reader. The [archived bounded recheck](../../../archives/v4/v4.3/development/optional-platform-surface-recheck.md) keeps CLI loose workflows and agents, Cursor legacy command directories, Gemini Code Assist IDE add-on surfaces, and Nexus-AI's project-local mirror and other mirrored surfaces unverified. WN-3 remains open; no live Antigravity or Nexus-AI host behavior was claimed.
+
+**Targeted source recheck, 2026-09-26**: [Current Google CLI and migration documentation](development/optional-platform-surface-recheck-2026-09-26.md) now source-qualifies the shared Antigravity custom-agent and legacy-workflow destinations already emitted by the adapter, but the latter retires on November 1, 2026. Cursor's global command path has a vendor-reported discovery bug, Gemini Code Assist's IDE custom commands and rules use IDE settings rather than a documented CLI-file mirror, and Nexus-AI's project-local mirror still lacks a read-path proof. WN-3 remains open for those live-host and project-local questions; this addendum does not convert source evidence into a runtime pass.
 
 ### Resolved
 
