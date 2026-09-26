@@ -286,7 +286,7 @@ class IntegrationBase:
 
         Default implementation flips ``ctx.dry_run=True`` and re-uses the
         existing install machinery. Helpers in this module (``_copy_file``,
-        ``_copy_tree``, ``_write_instruction``, ``merge_marker_section``) all
+        ``_copy_tree``, ``_write_instruction``, ``merge_instruction``) all
         honor ``ctx.dry_run``, so the resulting ``WriteResult.files`` array is
         guaranteed to reflect the on-disk delta without touching disk.
 
@@ -520,7 +520,7 @@ class MarkdownIntegration(IntegrationBase):
 
     Phase 1 (v2.2.0) added an `instruction_mode` class attribute. Defaults to
     `"shared"`, in which case T004 (sub-task 1.4) will route writes through
-    `merge_marker_section` so user edits to CLAUDE.md / AGENTS.md survive a
+    `merge_instruction` (since v4.13.3; formerly `merge_marker_section`) so user edits to CLAUDE.md / AGENTS.md survive a
     re-install. Set `"dedicated"` on subclasses where Nexus-Hub owns the whole
     file.
     """

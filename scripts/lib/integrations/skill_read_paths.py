@@ -54,11 +54,29 @@ def verified_dirs(key: str, ctx: Any) -> list[Path]:
     return out
 
 
+def catalog_skill_names(repo_root: Path) -> frozenset[str]:
+    """Names of the catalog's own skills (`catalog/skills/<category>/<name>/SKILL.md`)."""
+    root = Path(repo_root) / "catalog" / "skills"
+    try:
+        return frozenset(p.parent.name for p in root.glob("*/*/SKILL.md"))
+    except OSError:
+        return frozenset()
+
+
 def enumerated_skill_dir(key: str, ctx: Any) -> Path | None:
-    """The first VERIFIED read path that holds an installed skills tree, else None."""
+    """The first VERIFIED read path that holds installed Nexus-Hub skills, else None.
+
+    A shared path such as `~/.agents/skills` can hold another tool's skills, so a
+    tree counts only when it contains at least one catalog skill by name; a
+    pointer to a directory with no Nexus-Hub skill in it would hide the index
+    and point at nothing useful.
+    """
+    names = catalog_skill_names(Path(ctx.repo_root))
+    if not names:
+        return None
     for path in verified_dirs(key, ctx):
         try:
-            if path.is_dir() and any(path.glob("*/SKILL.md")):
+            if path.is_dir() and any((path / name / "SKILL.md").is_file() for name in names):
                 return path
         except OSError:
             continue

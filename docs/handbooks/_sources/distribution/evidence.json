@@ -5,9 +5,9 @@
       "docs/handbooks/_sources/distribution/model.json": "62700e9cbfc6be1b6017554af5a616dc4d79bec1bca2d7f65f77a50866cc947a",
       "docs/handbooks/_sources/distribution/source.md": "ac6a1f8f2f377a4a78fe0c85753d06ed539a43cbf0fa253a7f67358191cfdd2c",
       "docs/handbooks/_sources/distribution/design.css": "4d2975128abe327205e8b3c4fd62d351644221e9e03bfbaa539986f3cc1b9a70",
-      "scripts/installer.ps1": "b2073d9fb9c2f036a0988188c9a2dfce0bdfeeae1eab346373cf05529324d802",
-      "scripts/installer.sh": "7db0c4f7e2921bbd0932fe367e621639ee8b3d3282e0ce9799495d396bfe218d",
-      "scripts/lib/integrations/runner.py": "e20baec4d79137e1c819495dea7f08f122b5f7d5da43c7e86027de2c881f7b6b",
+      "scripts/installer.ps1": "daf0d7ad7eac95db7d08f422fa7da6e77762ffb92ec362be94bdcc4662421b34",
+      "scripts/installer.sh": "b5ff43514735f3c0d5c4dcbe1b783b7b631ed80145d9ccbffc5de2509ecbd22a",
+      "scripts/lib/integrations/runner.py": "8a2ee00491a75bc6ce66aedef8f824a092bb2369cb321cb76ddc338e2fec03ed",
       "scripts/lib/integrations/_catalog_adapters.py": "c86e46c37fd33edca2d631fdd5e80a8ea2940ed1c31f43f306fd4dc3b589decb",
       "scripts/lib/integrations/_owned.py": "1587357664626dc18f299f0abd85d2d31a8fe94a705611a7d52fe734f1465e90",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "6c6fe8535e5be98a5bd92118d6f27847dbe5edb04da52bfea78741eb0e3962d4",
@@ -22,7 +22,7 @@
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
       "scripts/nexus_git_attribution.py": "57185140bee49f807cc2e0a47601f9bafe6e5cd423c66d3c3b21c90e5b093085",
       "catalog/style-guides/git-attribution.md": "b7f981c25aeabb79761e215205e2fd09829f4290713b8e82755a1dfa1c5abe67",
-      "scripts/lib/integrations/cursor.py": "d40e09a97ff9a21ce54a0cbb80320457eb37d37699161ff2982bbad76820ad31",
+      "scripts/lib/integrations/cursor.py": "3d3ac310aba90cb219f62423ed981c7c1de46354d384063e2c6288bf4e53f8e6",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
       "configs/platform-defaults.json": "e8ca8c8f49bd70448e5b7896a20308407dbcac0e442de5c3964e955e9c7ebc23"
     },
@@ -31,8 +31,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.12/development/attribution-hook-eol-handbook-content.md",
-      "evidence_sha256": "d4fa2814dd41a4fe4608b88fc0087897494c07fe1838289081b04b278eb59cc7"
+      "evidence": "docs/releases/v4/v4.13/development/distribution-handbook-legacy-consent-review.md",
+      "evidence_sha256": "21abf92f4979fceabbf465e605f229cf151b0ff643fe601e349b179214da421c"
     },
     "build": {
       "status": "pass",

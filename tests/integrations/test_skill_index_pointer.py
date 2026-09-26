@@ -47,9 +47,12 @@ def _ctx(home: Path, mode: str = "full", scope: str = "global", repo_root: Path 
                           manifest=InstallManifest(), instruction_only=True, skill_index_mode=mode)
 
 
-def _seed(path: Path) -> None:
-    (path / "demo").mkdir(parents=True, exist_ok=True)
-    (path / "demo" / "SKILL.md").write_text("---\nname: demo\ndescription: d\n---\n", encoding="utf-8")
+CATALOG_SKILL = sorted(srp.catalog_skill_names(REPO_ROOT))[0]
+
+
+def _seed(path: Path, name: str = CATALOG_SKILL) -> None:
+    (path / name).mkdir(parents=True, exist_ok=True)
+    (path / name / "SKILL.md").write_text(f"---\nname: {name}\ndescription: d\n---\n", encoding="utf-8")
 
 
 def _resolved(entry_path: str, ctx: InstallContext) -> Path:
@@ -168,6 +171,16 @@ def test_unverified_paths_never_count(home: Path) -> None:
     assert get("gemini").native_skill_enumeration(ctx) is False
 
 
+def test_a_tree_of_only_foreign_skills_is_not_enumeration(home: Path) -> None:
+    """Another tool's skills in a shared path must not hide the Nexus-Hub index."""
+    ctx = _ctx(home, "pointer")
+    _seed(home / ".agents" / "skills", "some-vendor-skill")
+    for key in ("copilot", "opencode", "cursor", "windsurf", "gemini-cli", "codex"):
+        assert srp.enumerated_skill_dir(key, ctx) is None, key
+    _seed(home / ".agents" / "skills")
+    assert srp.enumerated_skill_dir("codex", ctx) == home / ".agents" / "skills"
+
+
 def test_missing_contract_fails_closed(home: Path, tmp_path: Path) -> None:
     _seed(home / ".claude" / "skills")
     ctx = _ctx(home, "pointer", repo_root=tmp_path / "no-repo")
@@ -236,3 +249,20 @@ def test_installers_pass_the_environment_through_to_the_runner(installer: str) -
     assert not re.search(r"(?m)(^|[\s;|&(])env -i\s", text)
     assert "NEXUS_HUB_SKILL_INDEX" not in text
     assert ('"$py" "${args[@]}"' in text) if installer.endswith(".sh") else ("& $py @argsList" in text)
+
+
+@pytest.mark.parametrize(("installer", "codex", "copilot"), [
+    ("installer.sh", '"global" "" "codex"', '"global" "" "copilot"'),
+    ("installer.sh", '"workspace" "$target_path" "codex"', '"workspace" "$target_path" "copilot"'),
+    ("installer.ps1", '-Scope "global" -IntegrationKey "codex"', '-Scope "global" -IntegrationKey "copilot"'),
+    ("installer.ps1", '-TargetPath $targetPath -IntegrationKey "codex"', '-TargetPath $targetPath -IntegrationKey "copilot"'),
+])
+def test_installers_run_the_shared_path_provider_before_copilot(installer: str, codex: str, copilot: str) -> None:
+    """Copilot is pointer-eligible only through ~/.agents/skills, which Codex writes.
+
+    The installers call the runner once per platform, so a Copilot call that ran
+    first would render the full index until the next install. Pin the order.
+    """
+    text = (REPO_ROOT / "scripts" / installer).read_text(encoding="utf-8-sig")
+    assert text.count(codex) == 1 and text.count(copilot) == 1
+    assert text.index(codex) < text.index(copilot)

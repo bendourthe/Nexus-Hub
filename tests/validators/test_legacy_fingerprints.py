@@ -98,3 +98,16 @@ def test_non_utf8_revision_fails_loudly(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setattr(blf.subprocess, "run", lambda *a, **k: _Proc())
     with pytest.raises(blf.BuildError, match="non-UTF-8"):
         blf._read_blobs([("a" * 40, "templates/ai-instructions/base-claude.md")])
+
+
+def test_ci_validate_job_runs_the_drift_check() -> None:
+    """The group is unscoped in the full profile, but CI selects groups by name."""
+    import yaml
+
+    workflow = yaml.safe_load((REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8"))
+    steps = workflow["jobs"]["validate"]["steps"]
+    profile = next(step for step in steps if step.get("name") == "Repository-native validation profile")
+    selected = profile["run"].split("--only", 1)[1].split()[0].split(",")
+    assert "legacy-fingerprints" in selected
+    checkout = next(step for step in steps if "actions/checkout" in str(step.get("uses", "")))
+    assert checkout["with"]["fetch-depth"] == 0  # the builder walks full history

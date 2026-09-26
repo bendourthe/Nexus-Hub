@@ -3987,7 +3987,7 @@ function Write-LegacyReport {
 $script:LegacyConsents = @()
 foreach ($legacyToken in @($RemoveLegacyInstructions)) {
     if ([string]::IsNullOrEmpty($legacyToken)) { continue }
-    if ($legacyToken -notmatch '^[0-9a-fA-F]{64}$') {
+    if ($legacyToken -cnotmatch '\A[0-9a-fA-F]{64}\z') {
         Write-Host "-RemoveLegacyInstructions requires the 64-hex consent token from an install report" -ForegroundColor Red
         exit 2
     }

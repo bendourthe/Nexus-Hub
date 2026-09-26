@@ -3994,7 +3994,9 @@ while [ $# -gt 0 ]; do
                 legacy_token="${1#--remove-legacy-instructions=}"
                 shift_by=1
             fi
-            if ! printf '%s' "$legacy_token" | grep -Eq '^[0-9a-fA-F]{64}$'; then
+            # Whole-string match: a line-based grep would accept a value with an
+            # embedded newline as long as one line was 64 hex characters.
+            if [[ ! "$legacy_token" =~ ^[0-9a-fA-F]{64}$ ]]; then
                 echo "--remove-legacy-instructions requires the 64-hex consent token from an install report" >&2
                 exit 2
             fi

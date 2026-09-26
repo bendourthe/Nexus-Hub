@@ -508,3 +508,26 @@ def test_installers_forward_tokens_and_print_the_combined_report(installer: str)
     assert "--remove-legacy-instructions=$legacy" in text.replace("$legacyToken", "$legacy_token")
     assert '"legacy-report"' in text
     assert text.count("LegacyReport" if installer.endswith(".ps1") else "write_legacy_report") >= 3
+
+
+def test_bash_token_check_rejects_an_embedded_newline(home: Path) -> None:
+    """A line-based grep would accept `<64 hex>\n<anything>`; the installer must not."""
+    import os
+    import shutil
+
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("bash unavailable")
+    token = "a" * 64 + "\nextra"
+    result = subprocess.run([bash, str(REPO_ROOT / "scripts" / "installer.sh"), f"--remove-legacy-instructions={token}"],
+                            capture_output=True, text=True, timeout=180, check=False, cwd=home,
+                            env={**os.environ, "HOME": str(home), "USERPROFILE": str(home)})
+    assert result.returncode == 2, result.stdout[-300:] + result.stderr[-300:]
+    assert not (home / ".nexus-hub").exists()
+
+
+def test_legacy_report_never_echoes_a_malformed_token(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    (tmp_path / "0000.json").write_text(json.dumps({"legacy": {"files": [], "candidates": []}}), encoding="utf-8")
+    hostile = "a" * 64 + "\n\x1b[2J"
+    assert runner.main(["legacy-report", "--summaries", str(tmp_path), "--token", hostile]) == 0
+    assert "\x1b" not in capsys.readouterr().out

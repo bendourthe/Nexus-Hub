@@ -517,9 +517,10 @@ def cmd_install(args: argparse.Namespace) -> int:
     # LATER integration in this run may install (Copilot reads a path another
     # integration writes), so pointer mode re-runs every successful install once
     # after all of them finished. Installs are idempotent; the second pass only
-    # re-renders what changed. A provider that failed left no tree, so its
-    # consumers stay on the full index.
-    if ctx.skill_index_mode == "pointer" and len(installed) > 1:
+    # re-renders what changed. It also runs for a single integration (the
+    # installers call the runner once per platform), because an integration
+    # may render its instruction file before it copies its own skills tree.
+    if ctx.skill_index_mode == "pointer" and installed:
         for position, (key, integ, _) in enumerate(installed):
             run.owner = key
             result = integ.install(ctx)
@@ -632,11 +633,16 @@ def cmd_legacy_report(args: argparse.Namespace) -> int:
             summaries.append(json.loads(path.read_text(encoding="utf-8")))
         except (OSError, ValueError):
             continue
-    report = aggregate_legacy_summaries(summaries, args.token or [])
+    # Echo back only well-formed tokens: the value is printed to the terminal.
+    tokens = [t for t in args.token or [] if _CONSENT.match(t.strip().lower())]
+    report = aggregate_legacy_summaries(summaries, tokens)
     flag = "-RemoveLegacyInstructions " if args.form == "ps1" else "--remove-legacy-instructions="
     if not (report["candidates"] or report["refused"]):
         return 0
-    print("Legacy instruction blocks (text an older install left outside the managed markers):")
+    print(
+        "Legacy instruction blocks (text outside the managed markers that matches lines an older "
+        "Nexus-Hub install shipped; review each diff, it can include lines you kept on purpose):"
+    )
     for candidate in report["candidates"]:
         print(
             f"  {candidate['file']}: lines {candidate['start_line']}-{candidate['end_line']} "

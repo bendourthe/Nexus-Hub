@@ -131,7 +131,7 @@ class CopilotIntegration(MarkdownIntegration):
     key = "copilot"
     display_name = "GitHub Copilot (Microsoft)"
     # v2.3.0 / Phase 7 / MT-1 -- Copilot now uses the canonical
-    # `merge_marker_section` primitive (like Cursor), migrating the v2.1
+    # marker merge (like Cursor; through `merge_instruction` since v4.13.3), migrating the v2.1
     # `## Nexus-Hub Harness` legacy header inline into the marker block so user
     # content above and below the block is preserved across re-installs.
     instruction_mode = "shared"
