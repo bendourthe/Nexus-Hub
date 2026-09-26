@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 337,
+    "total_skills": 338,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -27,7 +27,7 @@
       "specialized-domains": 14,
       "testing": 5,
       "tests-generation": 20,
-      "workflow": 48,
+      "workflow": 49,
       "security-operations": 29,
       "ot-security": 5,
       "mobile-security": 5
@@ -8987,6 +8987,47 @@
         "lines": 98,
         "characters": 11081,
         "tokens_estimate": 1477
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "user-edit-preservation",
+      "title": "user-edit-preservation",
+      "description": "\"Use whenever you are about to change, regenerate, re-save, copy over, rebuild, or re-publish any file you read or wrote earlier: decks, documents, spreadsheets, PDFs, generated HTML, handbooks, configs, source files, and copies on OneDrive, SharePoint, Dropbox, or shared drives. Trigger phrases: update the deck, revise the report, change slide N, regenerate the document, rebuild it, re-export, copy it to my OneDrive, save over it, refresh the handbook, apply these edits to my file. Fires even when you plan to rerun your own generator script, because a rerun overwrites whatever the user changed since. SKIP only for a file you are creating new in this step that did not exist before.\"",
+      "long_description": "Owns what an agent does before changing a file it read or wrote earlier: record after every read and write with the bundled edit_guard.py, check before every change, and on a detected user edit stop, diff, carry the user's changes forward, list suggestions separately, and accept only after the user agrees.",
+      "summary_l0": "\"Detect and carry forward user edits before changing any file you read or wrote earlier\"",
+      "overview_l1": "\"This skill owns what an agent does before changing a file it read or wrote earlier. The user may have edited that file since, in an editor, in PowerPoint, or through a synced drive, and regenerating it from a script or copying a fresh build over it silently destroys their work. The skill drives the bundled edit_guard.py helper: record the file after every read and write, check it before every change, and on a detected change stop, show the diff, tell the user what changed, treat their file as the source of truth, carry their edits into the change, and list suggestions separately without applying them. It covers files the helper cannot compare (placeholders, non-text Office changes, unrecorded existing files), open files and conflict copies, and recovery when an edit was already lost. A block is released only through accept after the user agrees, and every accept appears in the end-of-task summary.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "workflow",
+        "user-edits",
+        "safety",
+        "documents",
+        "edit-guard"
+      ],
+      "priority": "HIGH",
+      "based_on": "v4.13.1 incident response (docs/releases/v4/v4.13/plans/v4.13.1-user-edit-preservation-and-attribution-ban.md)",
+      "tools_required": [
+        "Bash",
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/workflow/user-edit-preservation/",
+      "file": "catalog/skills/workflow/user-edit-preservation/SKILL.md",
+      "size": {
+        "lines": 81,
+        "characters": 9101,
+        "tokens_estimate": 2275
       },
       "downloads": 0,
       "status": "production",
