@@ -1,6 +1,6 @@
 # v4.0.0 CI/CD task reconciliation
 
-**Purpose**: Reconcile the 62 unchecked strict tasks in the [cost-effective CI/CD plan](../../../../releases/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md) against surviving phase evidence and current behavior. This is a retrospective audit, not a rewrite of what each 2026-08-25 phase knew.
+**Purpose**: Reconcile the 62 unchecked strict tasks in the [cost-effective CI/CD plan](../plans/v4.0.0-cost-effective-ci-cd.md) against surviving phase evidence and current behavior. This is a retrospective audit, not a rewrite of what each 2026-08-25 phase knew.
 **Checked**: 2026-09-23.
 **Disposition**: All 62 task paths resolve to current artifacts after the documented v3.16-to-v4.0 path migration. The implementation shipped, but the original Phase 8 post-merge gate failed once and must not be relabeled green. The plan's original checkboxes remain unchanged.
 

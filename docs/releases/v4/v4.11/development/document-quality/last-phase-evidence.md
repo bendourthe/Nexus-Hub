@@ -1,7 +1,7 @@
 # Last-Phase Evidence - v4.11.2 Document and Deck Quality
 
 **Project**: Nexus-Hub
-**Plan**: [v4.11.2 document and deck quality](../../plans/v4.11.2-adoption-document-and-deck-quality.md)
+**Plan**: [v4.11.2 document and deck quality](../../../../../archives/v4/v4.11/plans/v4.11.2-adoption-document-and-deck-quality.md)
 **Phase**: 7 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 **Branch**: `feat/v4.11.2-document-deck-quality`, from `develop` at `8ac5e325`
 **Date**: 2026-09-13

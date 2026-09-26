@@ -1,6 +1,6 @@
 # v4.4.5 Phase Contract -- Guide Mockup Integration
 
-**Plan**: [v4.4.5-guide-mockup-integration.md](../../plans/v4.4.5-guide-mockup-integration.md)
+**Plan**: [v4.4.5-guide-mockup-integration.md](../../../../../archives/v4/v4.4/plans/v4.4.5-guide-mockup-integration.md)
 **Artifact**: `guides/website/nexus-hub-guide.html`
 
 This is the running record for v4.4.5: what each phase changed, which earlier assertions it superseded, what it cost in bytes, and which mistakes it made. The superseded-assertion register exists because several tests in this suite pin a literal implementation string, and a literal that is silently repointed is a test that stopped meaning anything.

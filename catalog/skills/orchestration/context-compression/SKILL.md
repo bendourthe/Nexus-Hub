@@ -95,7 +95,7 @@ Waiting for autocompact is the **bad-compact failure mode**: the automatic trigg
 
 #### Retain eliminating evidence
 
-Discard only exploration that has been superseded and no longer constrains the work. Preserve dead-end queries, failed hypotheses, and negative results when they eliminate paths the agent would otherwise retry. As comparison insight S5 records, a trajectory is not summarizable when its value is dispersed across many small inferences, including a list of dead-end queries needed to avoid retries or negative results that constrain the hypothesis space. See the [v4.10.1 comparison](../../../../docs/releases/v4/v4.10/comparisons/v4.10.1-comparison-eval-isolation-and-adaptive-compaction.md#section-4---evidence-and-insights).
+Discard only exploration that has been superseded and no longer constrains the work. Preserve dead-end queries, failed hypotheses, and negative results when they eliminate paths the agent would otherwise retry. As comparison insight S5 records, a trajectory is not summarizable when its value is dispersed across many small inferences, including a list of dead-end queries needed to avoid retries or negative results that constrain the hypothesis space. See the [v4.10.1 comparison](../../../../docs/archives/v4/v4.10/comparisons/v4.10.1-comparison-eval-isolation-and-adaptive-compaction.md#section-4---evidence-and-insights).
 
 **Syntax**: `/compact focus on <current work>, drop <closed threads>`
 

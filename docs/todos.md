@@ -10,6 +10,7 @@ This dashboard tracks the work in flight right now. It is deliberately short. Fi
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
 - [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
+- [ ] Publish the verified v4.0-v4.12 gap transfer and 29-file plan/comparison archive through protected integration. Local retention tests and zero-new-break link proof are recorded in the [v4.13 cleanup addendum](releases/v4/v4.13/docs-cleanup-report.md); older open items remain open and v4.13.1-v4.13.4 work is excluded.
 - [x] Publish the bounded v4.10 evaluation-isolation source recheck through [PR #312](https://github.com/bendourthe/Nexus-Hub/pull/312): 21 hosted checks passed with one intentional skip, and [post-merge run 36130699528](https://github.com/bendourthe/Nexus-Hub/actions/runs/36130699528) passed smoke and provenance. EV-1 and EV-2 remain open for tested all-source isolation.
 - [ ] Complete v4.9 MT-1's live Claude model-ID roster freshness; the recorded roster still carries its 2026-09-08 date, and the account-backed picker did not expose a complete canonical roster.
 - [x] Publish the three GPT-5.6 family-scoped profiles through protected integration: [PR #316](https://github.com/bendourthe/Nexus-Hub/pull/316) merged at `65baca12`, and [post-merge run 36162158349](https://github.com/bendourthe/Nexus-Hub/actions/runs/36162158349) passed smoke and provenance. The separate Haiku 4.5 claim-only profile was published through [PR #314](https://github.com/bendourthe/Nexus-Hub/pull/314).
@@ -128,7 +129,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 ## Current closure - v4.10.1 eval isolation and adaptive compaction
 
-- [x] Published and integrated the completed [v4.10.1 adoption plan](releases/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md) through PR #232, merged to `develop` at `c54dbeb4`. T034 is complete; no retroactive v4.10.1 tag is planned.
+- [x] Published and integrated the completed [v4.10.1 adoption plan](archives/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md) through PR #232, merged to `develop` at `c54dbeb4`. T034 is complete; no retroactive v4.10.1 tag is planned.
 - [x] Archive the late Phase 7 history in `docs/archives/v4/v4.10/development/history/` and repair the retention check that missed source files when the destination already existed; 19 focused tests and the link baseline pass.
 - [x] Close v4.10 WN-1 through PR #262: the residual scan now includes documentation JSON while excluding generated inventories; 17 focused tests, all hosted checks, and post-merge run 35925138595 passed. Archive the [qualification record](archives/v4/v4.10/development/residual-reference-json/verification.md) without moving the still-open v4.10 release tree.
 - [x] Verify v4.10 MT-2 in installed VS Code 1.139.0: the packaged v0.10.0 VSIX painted both weekly bars in the status-bar hover and dashboard with synthetic stored values, 20 tests passed, and [screenshots plus pixel measurements](archives/v4/v4.10/development/weekly-bars-host-render/verification.md) are archived. Live account fetching remains outside this host test.
@@ -137,7 +138,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 ## Current closure - v4.11.1 cache accounting and diagram quality
 
-- [x] Published and integrated the completed [v4.11.1 adoption plan](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md), through PR #232 at `c54dbeb4`. T025 is complete. `MT-10` remains open for authored connector diagrams that use `<path>`; one real bar-chart SVG is now decidable, while the distribution handbook's five path SVGs are icons, not diagrams.
+- [x] Published and integrated the completed [v4.11.1 adoption plan](archives/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](archives/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md), through PR #232 at `c54dbeb4`. T025 is complete. `MT-10` remains open for authored connector diagrams that use `<path>`; one real bar-chart SVG is now decidable, while the distribution handbook's five path SVGs are icons, not diagrams.
 - [x] Qualify the retained v4.11 report pilot's authored connector diagrams against both geometry checks; four isolated SVGs remain `unchecked` because straight and cubic paths share each diagram. Archive the bounded result in [authored connector geometry qualification](archives/v4/v4.11/development/authored-connector-geometry-qualification.md); MT-10 remains open for a truthful mixed-path coverage contract.
 - [x] Publish and verify the v4.11 MT-10 exact-path follow-up through PR #269 and post-merge run 35940086752: both checks decide the four retained authored diagrams, an inserted unrelated node fails the return-curve check, and unsupported path geometry remains `unchecked`.
 
@@ -242,7 +243,7 @@ Historical implementation record only: the user rejected this content/structure 
 
 ## Plan - v4.4.2 Guide Production-Ready Rebuild [MERGED TO DEVELOP 2026-09-02, PR #156; superseded by final v4.4.5 guide state]
 
-Plan: [v4.4.2-guide-production-ready-rebuild.md](releases/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md). Branch cut from `develop` at `46f18986` on 2026-09-02.
+Plan: [v4.4.2-guide-production-ready-rebuild.md](archives/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md). Branch cut from `develop` at `46f18986` on 2026-09-02.
 
 - [x] Phase 1 - Contracts, motion system, scale tokens, and rename
 - [x] Phase 2 - Home hero and restored sections
@@ -273,7 +274,7 @@ One rule: this dashboard describes the current branch and the active plan. When 
 
 ## Approved interactive authoring follow-up
 
-Historical command/skill draft: 3/3 local items were completed, then reconciled as candidates into the authoritative [v4.11.0 master plan](releases/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md). The draft branch is no longer an active implementation owner; the released master plan and its known-gaps ledger govern current status.
+Historical command/skill draft: 3/3 local items were completed, then reconciled as candidates into the authoritative [v4.11.0 master plan](archives/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md). The draft branch is no longer an active implementation owner; the released master plan and its known-gaps ledger govern current status.
 
 - [x] Reconcile the scoped authoring-contract candidates into the master interactive-handbooks plan; v4.11.0 completed 7/7 phases and 31/31 tasks through PR #202.
 - [x] Complete the reusable runtime, assembler, and cross-project qualification plan after its move from v4.9 to v4.11.0; the released plan records its bounded qualification limits in the v4.11 known-gaps ledger.

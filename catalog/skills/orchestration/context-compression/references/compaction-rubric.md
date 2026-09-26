@@ -17,7 +17,7 @@ Compact only when CLOSED-UNIT, SUMMARIZABLE, and PROGRESS are all YES, and STUCK
 
 Both timing extremes fail. Reactive compaction waits until the context is already saturated with stale tokens. Periodic compaction discards indiscriminately and can interrupt a live subgoal. The evidence gate selects a completed, resumable boundary between those extremes.
 
-The source study measured 1,009 correct-to-wrong transitions and 1,486 wrong-to-correct transitions across 12 fixed-interval summarization calls, so 40.4 percent of those transitions degraded. This is a cited source result, not a Nexus-Hub measurement. See insights S14 and S16 in the [v4.10.1 comparison](../../../../../docs/releases/v4/v4.10/comparisons/v4.10.1-comparison-eval-isolation-and-adaptive-compaction.md#section-4---evidence-and-insights).
+The source study measured 1,009 correct-to-wrong transitions and 1,486 wrong-to-correct transitions across 12 fixed-interval summarization calls, so 40.4 percent of those transitions degraded. This is a cited source result, not a Nexus-Hub measurement. See insights S14 and S16 in the [v4.10.1 comparison](../../../../../docs/archives/v4/v4.10/comparisons/v4.10.1-comparison-eval-isolation-and-adaptive-compaction.md#section-4---evidence-and-insights).
 
 ## Summary preservation rules
 
@@ -39,4 +39,4 @@ Apply these stages in order:
 
 The self-assessment must not remain in the trajectory it judges. Append the probe to a copy of the trajectory, or remove both probe and verdict after a CONTINUE decision, so the rolling context is unchanged when no compaction occurs. This is mandatory whenever the fire/suppress rubric is used: without it, every declined probe adds self-assessment text, the context grows because the agent checked whether it was too large, and the next probe judges a trajectory partly composed of previous probes.
 
-The staged values, backstop, preservation rules, and probe procedure are source-derived. See insights S7-S13 in the [v4.10.1 comparison](../../../../../docs/releases/v4/v4.10/comparisons/v4.10.1-comparison-eval-isolation-and-adaptive-compaction.md#section-4---evidence-and-insights).
+The staged values, backstop, preservation rules, and probe procedure are source-derived. See insights S7-S13 in the [v4.10.1 comparison](../../../../../docs/archives/v4/v4.10/comparisons/v4.10.1-comparison-eval-isolation-and-adaptive-compaction.md#section-4---evidence-and-insights).

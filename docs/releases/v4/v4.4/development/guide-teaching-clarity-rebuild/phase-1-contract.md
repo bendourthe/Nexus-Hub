@@ -1,6 +1,6 @@
 # v4.4.4 Phase 1 Contract -- Gates, Register, and Byte Ledger
 
-**Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](../../plans/v4.4.4-guide-teaching-clarity-rebuild.md)
+**Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](../../../../../archives/v4/v4.4/plans/v4.4.4-guide-teaching-clarity-rebuild.md)
 **Base**: the v4.4.3 closeout at `bcfa3413`
 **Guide at start**: 370,253 bytes
 **Ceiling**: 500,000. Allocation for this plan: 40,000, and the plan expects to CLOSE at or below its

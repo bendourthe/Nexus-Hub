@@ -2,7 +2,7 @@
 
 Renumber note, 2026-09-14: this historical cache-track evidence was authored under v4.11.0; its current plan is v4.11.1. Historical test results and phase dates remain unchanged.
 
-Evidence for Phase 3 (T007-T009) of the [v4.11.0 adoption plan](../plans/v4.11.1-adoption-cache-and-diagram-quality.md). Checks both synthetic audits against D3, records which requirements and proving commands survived each one, states the cross-owner contracts that were preserved, and marks the behavioural evidence this phase explicitly does not produce.
+Evidence for Phase 3 (T007-T009) of the [v4.11.0 adoption plan](../../../../archives/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md). Checks both synthetic audits against D3, records which requirements and proving commands survived each one, states the cross-owner contracts that were preserved, and marks the behavioural evidence this phase explicitly does not produce.
 
 ## T007 - The audit procedure
 

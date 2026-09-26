@@ -1,6 +1,6 @@
 # Phase 4 evidence - Execution-time wiring
 
-Evidence for Phase 4 (T011-T012) of the [v4.10.0 plan-queue continuity plan](../plans/v4.10.0-plan-queue-continuity.md). Records the re-assessment step added to the implement-phase runbook, the proof that it feeds the existing Plan-delta disposition rather than a second vocabulary, and a real run against the in-flight v4.11.0 plan at its Phase 4 boundary. Read this to confirm D4 before Phase 5.
+Evidence for Phase 4 (T011-T012) of the [v4.10.0 plan-queue continuity plan](../../../../archives/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md). Records the re-assessment step added to the implement-phase runbook, the proof that it feeds the existing Plan-delta disposition rather than a second vocabulary, and a real run against the in-flight v4.11.0 plan at its Phase 4 boundary. Read this to confirm D4 before Phase 5.
 
 ## T011 - The re-assessment step
 
@@ -34,7 +34,7 @@ The second is evidence for the first. A content-impact verdict on a queued prede
 
 ## T012 - Real run against the in-flight v4.11.0 plan
 
-Subject: `docs/releases/v4/v4.11/plans/v4.11.0-adoption-cache-and-diagram-quality.md`, Phase 4 (Diagram semantics and fidelity, T010-T012). This is a genuine boundary: phases 1-3 are committed on `feat/v4.11.0-cache-and-diagram` and Phase 4 is the next unstarted phase.
+Subject: `docs/archives/v4/v4.11/plans/v4.11.0-adoption-cache-and-diagram-quality.md`, Phase 4 (Diagram semantics and fidelity, T010-T012). This is a genuine boundary: phases 1-3 are committed on `feat/v4.11.0-cache-and-diagram` and Phase 4 is the next unstarted phase.
 
 ### Stated prerequisites, checked against the tree
 

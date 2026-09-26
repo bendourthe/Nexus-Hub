@@ -187,7 +187,7 @@ python scripts/check_interpreter_resolution.py --gate
 
 With `C:\Program Files\Git\bin` prepended to PATH, the corrected repository-native `platform` profile passed overall in 1,100.4 seconds: 4 commands passed across 3 groups, and the empty `shell-lint` group was expectedly skipped on Windows.
 
-The first repository-native `full` profile attempt ran in the primary dirty worktree for 4,036.7 seconds. It reported 42 commands passed and 1 failed. The only failure was `validate_no_personal_paths`, which found four personal-path forms in the untracked future-release file `docs/releases/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md`. That file is outside the v4.4.0 candidate and remains untouched.
+The first repository-native `full` profile attempt ran in the primary dirty worktree for 4,036.7 seconds. It reported 42 commands passed and 1 failed. The only failure was `validate_no_personal_paths`, which found four personal-path forms in the untracked future-release file `docs/archives/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md`. That file is outside the v4.4.0 candidate and remains untouched.
 
 The exact staged tree was then materialized in an isolated detached worktree with the v4.4.1 plan absent. Its preflight passed cached diff, decision-record, living-doc, docs-convention, and personal-path gates. The authoritative rerun was terminal green:
 
@@ -1089,7 +1089,7 @@ No P0 and no P1. Every task in the plan is measured. Three items are the operato
 
 ## v4.4.6 final record - 2026-09-04
 
-This append-only record belongs to [v4.4.6 guide-learning-experience](../plans/v4.4.6-guide-learning-experience.md). Earlier v4.4.0-v4.4.5 records above remain historical evidence. Current status: six phases committed; final local evidence prepared, with the full repository result, reader review, and publication gates open. The [phase history](guide-learning-experience/phase-7/verification.md) is the detailed receipt.
+This append-only record belongs to [v4.4.6 guide-learning-experience](../../../../archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md). Earlier v4.4.0-v4.4.5 records above remain historical evidence. Current status: six phases committed; final local evidence prepared, with the full repository result, reader review, and publication gates open. The [phase history](guide-learning-experience/phase-7/verification.md) is the detailed receipt.
 
 ## Architecture refactor
 

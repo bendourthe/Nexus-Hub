@@ -1,7 +1,7 @@
 # Last-Phase Evidence - v4.11.0 Interactive Handbooks
 
 **Project**: Nexus-Hub
-**Plan**: [v4.11.0 interactive handbooks and presentation default](../../plans/v4.11.0-interactive-handbooks-and-presentation-default.md)
+**Plan**: [v4.11.0 interactive handbooks and presentation default](../../../../../archives/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md)
 **Phase**: 7 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 **Branch**: `feat/v4.9.1-interactive-handbooks` (the branch name predates the renumber; the plan is v4.11.0)
 **Base**: `origin/develop`
@@ -145,7 +145,7 @@ to drift.
 
 ### Carried forward, with owners
 
-- **MT-5** - No automated coverage for values fabricated mid-animation. **Transferred** to [v4.11.2](../../plans/v4.11.2-adoption-document-and-deck-quality.md), whose Phase 5 T014 requires every series to name the computation it came from and fails an unsourced one, and whose Phase 4 T012 measures animation state at the moment it is current. Reason for transfer rather than deferral: v4.11.2 already builds the provenance record this gap needs, so implementing it here would duplicate that machinery.
+- **MT-5** - No automated coverage for values fabricated mid-animation. **Transferred** to [v4.11.2](../../../../../archives/v4/v4.11/plans/v4.11.2-adoption-document-and-deck-quality.md), whose Phase 5 T014 requires every series to name the computation it came from and fails an unsourced one, and whose Phase 4 T012 measures animation state at the moment it is current. Reason for transfer rather than deferral: v4.11.2 already builds the provenance record this gap needs, so implementing it here would duplicate that machinery.
 - **MT-9** - A control that exists but does nothing is not detected. **Remains open, owner unchanged.** The obvious check was built, failed three ways (wired onto a page with JavaScript disabled, no state reset between probes, false positives on idempotent controls while missing the target defect) and was backed out entirely rather than left in reporting noise. Next step is recorded and specific: inert-control detection needs CDP listener-chain inspection, not activate-and-observe. That is a different instrument, not a tuning of this one.
 
 ### Other ledgers inspected
