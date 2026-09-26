@@ -1,0 +1,5 @@
+name: nexus-completion-gate
+version: 1.0.0
+description: Nexus-Hub completion gate - continue a full /implement run that is not complete yet.
+provides_hooks:
+  - pre_verify

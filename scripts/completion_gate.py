@@ -43,6 +43,7 @@ FORMATS = (
     "antigravity-continue",
     "gemini-deny",
     "exit-2",
+    "plugin",
 )
 REASON = (
     "The full /implement run is not complete ({ids}). Continue with the next unmet "
@@ -123,9 +124,25 @@ def emit_continue(fmt: str, reason: str) -> int:
         "cursor-followup-message": {"followup_message": reason},
         "antigravity-continue": {"decision": "continue", "reason": reason},
         "gemini-deny": {"decision": "deny", "reason": reason},
+        # Typed plugins (OpenCode, OpenClaw, Pi, Hermes) translate this into
+        # their own continuation call.
+        "plugin": {"decision": "continue", "reason": reason},
     }
     sys.stdout.write(json.dumps(shapes[fmt]) + "\n")
     return 0
+
+
+def _budget() -> float:
+    """The evaluation budget; a plugin host with a shorter handler limit lowers it.
+
+    OpenClaw gives each handler 15 seconds, so its plugin asks for 10. The value
+    is clamped to 1..30 seconds: a caller can shorten the budget, never extend it.
+    """
+    try:
+        requested = float(os.environ.get("NEXUS_GATE_BUDGET_SECONDS", BUDGET_SECONDS))
+    except ValueError:
+        return BUDGET_SECONDS
+    return min(BUDGET_SECONDS, max(1.0, requested))
 
 
 def find_record(session: str) -> tuple[Path, dict] | None:
@@ -194,7 +211,7 @@ def cmd_stop() -> int:
         )
         return 0
     plan = str(repo_root / str(record.get("plan", "")))
-    budget_end = time.monotonic() + BUDGET_SECONDS
+    budget_end = time.monotonic() + _budget()
     rc, out = _run_checker(
         ["check", plan, "--session", session], budget_end, str(repo_root)
     )

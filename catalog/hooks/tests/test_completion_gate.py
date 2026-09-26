@@ -232,3 +232,9 @@ def test_cursor_capture_answers_with_continue(run) -> None:
 def test_capture_is_disabled_by_name(run, home: Home) -> None:
     run("approval-capture", {"session_id": SESSION, "prompt": "go"}, NEXUS_DISABLED_HOOKS="approval-capture")
     assert _captured(home) == []
+
+
+def test_plugin_format_answers_continue(run) -> None:
+    out = json.loads(run("completion-gate", claude_stop(), NEXUS_GATE_FORMAT="plugin").stdout)
+    assert out == {"decision": "continue", "reason": out["reason"]}
+    assert "task.T002" in out["reason"]

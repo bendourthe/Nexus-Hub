@@ -21,6 +21,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from ._completion_plugins import PLUGIN_ID, install_completion_plugin
 from .base import InstallContext, SkillsIntegration
 from .result import WriteResult
 
@@ -59,4 +60,6 @@ class HermesIntegration(SkillsIntegration):
         self._ensure_dir(hermes_root, ctx)
         if not ctx.instruction_only:
             result.files.extend(self._mirror_catalog(hermes_root, ctx))
+            # v4.13.2: completion-gate plugin (loads once enabled in Hermes).
+            install_completion_plugin(self, ctx, "hermes", hermes_root / "plugins" / PLUGIN_ID, result)
         return result

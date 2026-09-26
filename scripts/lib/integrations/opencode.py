@@ -28,7 +28,9 @@ Surfaces (re-verified 2026-07-21, v3.15.0 Phase 3, against https://opencode.ai/d
 
 from __future__ import annotations
 
-from .base import MarkdownIntegration, SkillsIntegration
+from ._completion_plugins import install_completion_plugin
+from .base import InstallContext, MarkdownIntegration, SkillsIntegration
+from .result import WriteResult
 
 
 class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
@@ -67,3 +69,17 @@ class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
         # (known-gap DF-4; the base _mirror_catalog gates the hook copy on this flag).
         "hooks_supported": False,
     }
+
+    def install_global(self, ctx: InstallContext) -> WriteResult:
+        """Install the global surfaces, plus the v4.13.2 completion plugin when detected.
+
+        OpenCode loads every file in ~/.config/opencode/plugins/ at startup. The
+        plugin is added only when that config root existed before this install,
+        so an absent OpenCode never receives executable code.
+        """
+        opencode_root = (ctx.global_root / ".config" / "opencode").resolve()
+        detected = opencode_root.is_dir()
+        result = super().install_global(ctx)
+        if detected and not ctx.instruction_only:
+            install_completion_plugin(self, ctx, "opencode", opencode_root / "plugins", result)
+        return result
