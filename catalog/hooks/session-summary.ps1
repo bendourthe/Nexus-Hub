@@ -44,7 +44,8 @@ if (-not (Test-Path $logFile)) {
 }
 
 # --- Gather data ---
-$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm"
+# NEXUS_SESSION_DIGEST_NOW fixes the Generated: timestamp (tests only).
+$timestamp = if ($env:NEXUS_SESSION_DIGEST_NOW) { $env:NEXUS_SESSION_DIGEST_NOW } else { Get-Date -Format "yyyy-MM-dd HH:mm" }
 $projectName = Split-Path (Get-Location).Path -Leaf
 
 # Try to read duration from stdin JSON.
@@ -107,24 +108,13 @@ try {
 } catch { exit 0 }
 
 # --- Build git context for the digest ---
-$branch = "unknown"
-$statusLine = "not a git repo"
-$recentCommits = @()
+# One git line (v4.13.3): the harness already supplies recent commits.
+$gitLine = "Git: unavailable"
 if ($inRepo) {
     $branch = (git symbolic-ref --short HEAD 2>$null)
-    if (-not $branch) { $branch = (git rev-parse --short HEAD 2>$null) }
-    if (-not $branch) { $branch = "unknown" }
-
-    $staged    = (git diff --cached --name-only 2>$null | Measure-Object -Line).Lines
-    $modified  = (git diff --name-only 2>$null        | Measure-Object -Line).Lines
-    $untracked = (git ls-files --others --exclude-standard 2>$null | Measure-Object -Line).Lines
-
-    if ($staged -eq 0 -and $modified -eq 0 -and $untracked -eq 0) {
-        $statusLine = "clean"
-    } else {
-        $statusLine = "$staged staged, $modified modified, $untracked untracked"
-    }
-    $recentCommits = git log --oneline -5 2>$null
+    if (-not $branch) { $branch = "detached" }
+    $changedCount = @(git status --porcelain 2>$null | Where-Object { $_ -ne "" }).Count
+    $gitLine = "Git: $branch, $changedCount changed file(s)"
 }
 
 $lines = New-Object System.Collections.Generic.List[string]
@@ -136,6 +126,7 @@ $lines.Add("Duration: $duration")
 $lines.Add("")
 $lines.Add("## Git context")
 $lines.Add("")
+$lines.Add($gitLine)
 # NOTE (v3.15.6): this line previously read "- Branch: `$branch`" in a
 # double-quoted string, which is broken twice over, because the backtick is
 # PowerShell's escape character: `$branch emitted the LITERAL text "$branch"
@@ -144,30 +135,21 @@ $lines.Add("")
 # non-functional on Windows from v3.11.0 until the v3.15.6 AST gate caught it.
 # Single quotes plus concatenation avoids the escape rules entirely and matches
 # the .sh sibling's output exactly (a markdown code span around the value).
-$lines.Add('- Branch: `' + $branch + '`')
-$lines.Add("- Status: $statusLine")
-$lines.Add("")
-if ($recentCommits -and $recentCommits.Count -gt 0) {
-    $lines.Add("## Recent commits")
-    $lines.Add("")
-    $lines.Add('```')
-    foreach ($c in $recentCommits) { $lines.Add($c) }
-    $lines.Add('```')
-    $lines.Add("")
-}
 if ($changedFiles -and $changedFiles.Count -gt 0) {
+    $lines.Add("")
     $lines.Add("## Files touched this session")
     $lines.Add("")
     $lines.Add('```')
     foreach ($f in $changedFiles) { $lines.Add($f) }
     $lines.Add('```')
-    $lines.Add("")
 }
 
 # Atomic write: temp file + Move-Item.
 $tmp = "$digestPath.tmp.$PID"
 try {
-    $lines -join "`n" | Out-File -FilePath $tmp -Encoding utf8 -NoNewline
+    # BOM-free UTF-8 with the same trailing newline the .sh sibling writes;
+    # Out-File -Encoding utf8 emits a BOM on Windows PowerShell 5.1.
+    [System.IO.File]::WriteAllText($tmp, ($lines -join "`n") + "`n", (New-Object System.Text.UTF8Encoding($false)))
     Move-Item -Path $tmp -Destination $digestPath -Force
 } catch {
     if (Test-Path $tmp) { Remove-Item $tmp -Force -ErrorAction SilentlyContinue }

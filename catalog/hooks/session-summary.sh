@@ -12,8 +12,8 @@
 # memory-persistence pattern (legacy migration source: docs/archive/v2/v2.3/plans/adoption-ecc-cybersec-skills.md
 # T007). It contains:
 #   - Timestamp + project name + duration
-#   - Active branch and short git status
-#   - Last 5 commits (oneline)
+#   - One git line: `Git: <branch>, <n> changed file(s)` (v4.13.3; the
+#     harness already supplies recent commits, so the digest no longer repeats them)
 #   - Files touched during the session (git diff HEAD)
 #
 # Runtime controls:
@@ -21,6 +21,7 @@
 #   NEXUS_HOOK_PROFILE=minimal             skip both jobs
 #   NEXUS_SESSION_DIGEST=off               skip digest write only
 #   NEXUS_SESSION_DIGEST_PATH=<path>       override digest path (project-relative)
+#   NEXUS_SESSION_DIGEST_NOW=<text>        fixed Generated: timestamp (tests only)
 
 # Never fail loudly - always exit 0
 trap 'exit 0' ERR
@@ -45,7 +46,7 @@ if [ ! -f "$LOG_FILE" ]; then
 fi
 
 # --- Gather data ---
-TIMESTAMP=$(date "+%Y-%m-%d %H:%M" 2>/dev/null || echo "unknown")
+TIMESTAMP="${NEXUS_SESSION_DIGEST_NOW:-$(date "+%Y-%m-%d %H:%M" 2>/dev/null || echo "unknown")}"
 PROJECT_NAME=$(basename "$(pwd)" 2>/dev/null || echo "unknown")
 
 # Try to get duration from stdin JSON
@@ -97,20 +98,11 @@ DIGEST_DIR="$(dirname "$DIGEST_PATH")"
 
 mkdir -p "$DIGEST_DIR" 2>/dev/null || exit 0
 
-BRANCH="unknown"
-GIT_STATUS_LINE="not a git repo"
-RECENT_COMMITS=""
+GIT_LINE="Git: unavailable"
 if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null || echo "unknown")
-  staged=$(git diff --cached --name-only 2>/dev/null | wc -l | tr -d ' ')
-  modified=$(git diff --name-only 2>/dev/null | wc -l | tr -d ' ')
-  untracked=$(git ls-files --others --exclude-standard 2>/dev/null | wc -l | tr -d ' ')
-  if [ "$staged" = "0" ] && [ "$modified" = "0" ] && [ "$untracked" = "0" ]; then
-    GIT_STATUS_LINE="clean"
-  else
-    GIT_STATUS_LINE="${staged} staged, ${modified} modified, ${untracked} untracked"
-  fi
-  RECENT_COMMITS=$(git log --oneline -5 2>/dev/null || true)
+  BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "detached")
+  CHANGED_COUNT=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+  GIT_LINE="Git: $BRANCH, $CHANGED_COUNT changed file(s)"
 fi
 
 # Use a temp file + atomic rename so a partial write never leaves a corrupt digest.
@@ -124,24 +116,14 @@ TMP_DIGEST="$(mktemp "${DIGEST_DIR}/.last-session.XXXXXX" 2>/dev/null || echo "$
   echo ""
   echo "## Git context"
   echo ""
-  echo "- Branch: \`$BRANCH\`"
-  echo "- Status: $GIT_STATUS_LINE"
-  echo ""
-  if [ -n "$RECENT_COMMITS" ]; then
-    echo "## Recent commits"
-    echo ""
-    echo '```'
-    echo "$RECENT_COMMITS"
-    echo '```'
-    echo ""
-  fi
+  echo "$GIT_LINE"
   if [ -n "$CHANGED_FILES" ]; then
+    echo ""
     echo "## Files touched this session"
     echo ""
     echo '```'
     echo "$CHANGED_FILES"
     echo '```'
-    echo ""
   fi
 } > "$TMP_DIGEST" 2>/dev/null || { rm -f "$TMP_DIGEST" 2>/dev/null; exit 0; }
 mv -f "$TMP_DIGEST" "$DIGEST_PATH" 2>/dev/null || true
