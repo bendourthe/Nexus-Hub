@@ -21,7 +21,31 @@ from scripts import build_legacy_fingerprints as blf
 
 @pytest.fixture(scope="module")
 def built() -> dict:
-    return blf.build()
+    """A fresh build, or a skip in a shallow checkout.
+
+    The set needs full history. CI's `tests` job clones at depth 1, so the
+    drift check itself runs in the `validate` job (fetch-depth 0), pinned by
+    test_ci_validate_job_runs_the_drift_check below.
+    """
+    try:
+        return blf.build()
+    except blf.BuildError as exc:
+        if "shallow clone" in str(exc):
+            pytest.skip(str(exc))
+        raise
+
+
+def test_shallow_clone_is_refused_rather_than_built_partially(monkeypatch: pytest.MonkeyPatch,
+                                                               tmp_path: Path) -> None:
+    real_git = blf._git
+    monkeypatch.setattr(blf, "_git", lambda *a: "true\n" if a[:2] == ("rev-parse", "--is-shallow-repository")
+                        else real_git(*a))
+    target = tmp_path / "legacy_fingerprints.json"
+    monkeypatch.setattr(blf, "OUTPUT", target)
+    with pytest.raises(blf.BuildError, match="shallow clone"):
+        blf.build()
+    assert blf.main([]) == 2
+    assert not target.exists()
 
 
 def test_committed_set_matches_a_fresh_build(built: dict) -> None:

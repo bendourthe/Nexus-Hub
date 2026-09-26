@@ -128,6 +128,10 @@ def digest(line: str) -> str:
 
 
 def build() -> dict:
+    # A shallow clone (CI checkouts default to depth 1) holds only the newest
+    # revisions, so walking it would silently emit a partial set.
+    if _git("rev-parse", "--is-shallow-repository").strip() == "true":
+        raise BuildError("shallow clone: the fingerprint set needs full git history (fetch-depth 0)")
     line_pairs = _revisions(LINE_SOURCES)
     default_pairs = _revisions(DEFAULT_SOURCES)
     blobs = _read_blobs(line_pairs + default_pairs)
