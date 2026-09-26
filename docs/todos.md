@@ -2,7 +2,7 @@
 
 **Integration branch:** `develop`
 **Active work:** Historical v4.0-v4.13 plan implementations are integrated; the approved v4.13.4 Training rebuild and v4.13.1 user-edit safety plan remain in isolated worktrees. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
-**Closeout boundary:** Two future-plan PRs, recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
+**Closeout boundary:** One future-plan PR (#222, with a v4.15.1 slot collision), recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-09-25
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -11,6 +11,8 @@ Refreshing this file to the active plan (rather than appending another version's
 
 - [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
 - [x] Publish the verified v4.0-v4.12 gap transfer and 29-file plan/comparison archive through PR #322, merged at `7be37f95`; [post-merge run 36210893664](https://github.com/bendourthe/Nexus-Hub/actions/runs/36210893664) passed smoke and provenance. The [v4.13 cleanup addendum](releases/v4/v4.13/docs-cleanup-report.md) records the zero-new-break link proof; older open items remain open and v4.13.1-v4.13.4 work is excluded.
+- [x] Close superseded PR #225 and delete its branch after confirming commit `b73ec420` retargeted both documents to v4.16.2 on `develop`.
+- [ ] Resolve PR #222's v4.15.1 slot collision: [recorded on the PR](https://github.com/bendourthe/Nexus-Hub/pull/222#issuecomment-5843730486); retarget and refresh the unique Mods documents or withdraw the proposal, then clear its branch.
 - [x] Publish the bounded v4.10 evaluation-isolation source recheck through [PR #312](https://github.com/bendourthe/Nexus-Hub/pull/312): 21 hosted checks passed with one intentional skip, and [post-merge run 36130699528](https://github.com/bendourthe/Nexus-Hub/actions/runs/36130699528) passed smoke and provenance. EV-1 and EV-2 remain open for tested all-source isolation.
 - [ ] Complete v4.9 MT-1's live Claude model-ID roster freshness; the recorded roster still carries its 2026-09-08 date, and the account-backed picker did not expose a complete canonical roster.
 - [x] Publish the three GPT-5.6 family-scoped profiles through protected integration: [PR #316](https://github.com/bendourthe/Nexus-Hub/pull/316) merged at `65baca12`, and [post-merge run 36162158349](https://github.com/bendourthe/Nexus-Hub/actions/runs/36162158349) passed smoke and provenance. The separate Haiku 4.5 claim-only profile was published through [PR #314](https://github.com/bendourthe/Nexus-Hub/pull/314).
