@@ -200,6 +200,7 @@ def test_wn4_permanent_replacement_denial_preserves_settings(
     assert not list(tmp_path.glob("*.tmp"))
 
 
+@pytest.mark.skipif(sys.platform != "win32", reason="Retry is Windows-only")
 def test_wn4_retry_refuses_a_concurrent_user_edit(
     tmp_path: Path, template: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

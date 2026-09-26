@@ -22,6 +22,10 @@ The candidate writes a uniquely named temporary file beside the destination, mak
 
 The byte comparison is a retry guard, not an interprocess lock: another writer could change the file between the final comparison and rename. This repair does not claim general transactional concurrency or explain every possible Windows access denial.
 
+## First hosted attempt
+
+PR #326's first hosted run 36215080561 passed the Windows test job but failed the Linux test job: `test_wn4_retry_refuses_a_concurrent_user_edit` expected a retry on Linux even though the new retry is Windows-only. The Linux partition reported 1 failed, 1,984 passed, and 49 skipped; its aggregate report failed with it. The test is now marked Windows-only, matching the behavior it asserts. This is a test-scope correction, not a reinterpretation of the failed hosted result. The corrected Windows validator suite passed 31 tests with one skip, and the fast profile passed 17 of 17 locally; a new hosted head and post-merge result are still required.
+
 ## Publication gate
 
 Keep WN-4 open until final-tree local tests, protected PR checks on the merge result, and post-merge smoke and provenance pass. Record those receipts in the source ledger without rewriting the historical failure.
