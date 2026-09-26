@@ -154,11 +154,33 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/memory-store-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/user-edit-guard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit|mcp__github__.*|mcp__plugin_github_github__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/attribution-guard.sh"
           }
         ]
       }
     ],
     "PostToolUse": [
+      {
+        "matcher": "Read|Write|Edit|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/user-edit-guard.sh"
+          }
+        ]
+      },
       {
         "matcher": "Write",
         "hooks": [

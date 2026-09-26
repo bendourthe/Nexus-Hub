@@ -17,3 +17,13 @@ The handbook does not state which surfaces the footer ban covers, so the widenin
 ## Qualification
 
 `build_presentation.py docs/handbooks/_sources/distribution/model.json --out docs/handbooks/distribution.html --root . --check` reproduced the committed output hash `25ffd7b98de194f81f0a33035b4b184546c394214843318bec54573a2d22efb5` without changing the handbook. The existing build and Chromium rendered receipts attest to those exact bytes and remain applicable. Only the `git-attribution.md` input hash and this content receipt are refreshed.
+
+## Phase 6 addendum - agent-hook scan subcommand
+
+**Trigger:** v4.13.1 Phase 6 changed a second declared code input, `scripts/nexus_git_attribution.py`, by adding a `scan` subcommand that the new `attribution-guard` agent hook calls. The existing `install`, `uninstall`, `check`, `context`, `tag`, and `hook` subcommands and their identity checks are unchanged.
+
+- **"Both installers activate user-attribution Git hooks from a digest-checked copy that survives the installer checkout."** Unchanged: the Git hook wrappers and the copy path are untouched.
+- **"Run nexus-hub attribution check before commits, tags and pushes."** Unchanged.
+- **"Human identity and existing hooks are preserved; direct hosting API writes need separate verification."** Still true: the new agent hook checks gh and GitHub MCP bodies on hook-capable platforms, which is a separate verification layer, not a change to the Git hooks.
+
+No visible content change is required. `build_presentation.py ... --check` again reproduced output hash `25ffd7b98de194f81f0a33035b4b184546c394214843318bec54573a2d22efb5`, so the build and rendered receipts still apply. Only the `nexus_git_attribution.py` input hash and this content receipt are refreshed.

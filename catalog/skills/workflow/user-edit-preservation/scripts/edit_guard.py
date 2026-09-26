@@ -16,6 +16,7 @@ Subcommands and exit codes:
     accept <path>                               0 re-baselined; 3 refused (no diff of this exact content)
     log    [--since ISO]                        prints accepts, for the end-of-task summary
     purge  [--path PATH]                        deletes records and copies
+    hook                                        PreToolUse/PostToolUse payload on stdin; 0 allow, 2 block
 
 `accept` is the only way to release a block. It works only after `diff` ran on that path
 for the same session (`--session` or NEXUS_EDIT_GUARD_SESSION; without one, within 30
@@ -346,8 +347,29 @@ def _office_text(path: Path, suffix: str) -> dict[str, list[str]] | None:
                                           if c.value is not None] for ws in book.worksheets}
     except ImportError as exc:
         print(f"note: install {exc.name} for a readable diff (pip install python-pptx python-docx openpyxl)")
-        return None
+        return _xml_text(path)
+    except Exception:  # noqa: BLE001 - an optional library must never break detection
+        return _xml_text(path)
     return None
+
+
+XML_TEXT_RUN = re.compile(r"<(?:[a-z]+:)?t(?:\s[^>]*)?>([^<]*)</(?:[a-z]+:)?t>")
+
+
+def _xml_text(path: Path) -> dict[str, list[str]] | None:
+    """Standard-library fallback: text runs per content part, read from the archive XML."""
+    try:
+        with zipfile.ZipFile(path) as archive:
+            units = {}
+            for name in sorted(archive.namelist()):
+                if name.startswith(METADATA_PREFIX) or not name.endswith(".xml"):
+                    continue
+                runs = XML_TEXT_RUN.findall(archive.read(name).decode("utf-8", "replace"))
+                if runs:
+                    units[name] = runs
+            return units
+    except (OSError, zipfile.BadZipFile, KeyError):
+        return None
 
 
 def _slide_lines(slide) -> list[str]:
@@ -552,7 +574,298 @@ def cmd_purge(args, root: Path) -> int:
     return EXIT_OK
 
 
+# --- hook adapter ---------------------------------------------------------------
+#
+# `hook` reads a PreToolUse or PostToolUse payload on stdin. The user-edit-guard .sh and
+# .ps1 siblings are thin adapters over it, so both platforms make the same decision and
+# print the same text. Pre: a change onto an existing file that changed since the agent's
+# last record (or was never recorded) blocks with exit 2 outside a git worktree and warns
+# inside one. Post: reads and writes are recorded, and after a Bash command every tracked
+# file it could have touched is re-recorded, so the agent's own changes never read as the
+# user's. Only a truncated, control-stripped path is ever printed, never file content.
+
+HOOK_NAME = "user-edit-guard"
+HOOK_MESSAGE = ("This file changed since your last read or write, or was never recorded. Run the "
+                "user-edit-preservation procedure: diff, review, carry forward, and ask before overwriting.")
+HOOK_CANNOT_VERIFY = ("Cannot verify this file against your last read or write. Stop and ask the user "
+                      "before overwriting it (user-edit-preservation).")
+HOOK_ESCAPE = f"Only the user may turn this check off, with NEXUS_DISABLED_HOOKS={HOOK_NAME}."
+EDIT_TOOLS = {"Write", "Edit", "MultiEdit", "NotebookEdit"}
+SHELL_TOOLS = {"Bash", "PowerShell", "Shell"}
+POSIX_COPY = {"cp", "mv", "install", "rsync"}
+PS_COPY = {"copy-item", "move-item", "copy", "move", "cpi", "mi", "cp", "mv"}
+REDIRECTS = {">", ">>", ">|", "&>", "&>>"}
+SEPARATORS = {";", "&&", "||", "|", "&", ";;"}
+SHUTIL_COPY = re.compile(r"shutil\.(?:copy|copy2|copyfile|move)\(\s*(['\"])(.+?)\1\s*,\s*(['\"])(.+?)\3")
+TRACKED_SCAN_LIMIT = 2000
+SETTLE_SECONDS = 5
+
+
+def _display(path: str | Path) -> str:
+    clean = "".join(ch if ch.isprintable() else "?" for ch in str(path))
+    return clean if len(clean) <= 120 else "..." + clean[-117:]
+
+
+def _tokens(command: str) -> list[str]:
+    import shlex
+
+    lexer = shlex.shlex(command.replace("\\", "/"), posix=True, punctuation_chars=";&|<>")
+    lexer.whitespace_split = True
+    lexer.commenters = ""
+    try:
+        return list(lexer)
+    except ValueError:  # unbalanced quotes: fall back to plain words
+        return command.replace("\\", "/").split()
+
+
+def _segments(command: str) -> list[list[str]]:
+    segments: list[list[str]] = [[]]
+    for token in _tokens(command.replace("\n", " ; ")):
+        if token in SEPARATORS:
+            segments.append([])
+        else:
+            segments[-1].append(token)
+    return [s for s in segments if s]
+
+
+def _into(dest: str, sources: list[str], cwd: Path) -> list[Path]:
+    target = cwd / dest
+    if target.is_dir():
+        return [target / Path(src).name for src in sources]
+    return [target]
+
+
+def _copy_targets(words: list[str], cwd: Path) -> list[Path]:
+    """Destinations of a cp/mv/Copy-Item style command (redirections already removed)."""
+    name = Path(words[0]).name.lower().removesuffix(".exe")
+    args = words[1:]
+    if name in POSIX_COPY and not any(a.lower().startswith("-destination") or a.lower() == "-path" for a in args):
+        target_dir = None
+        positional: list[str] = []
+        it = iter(args)
+        for arg in it:
+            if arg in ("-t", "--target-directory"):
+                target_dir = next(it, None)
+            elif arg.startswith("--target-directory="):
+                target_dir = arg.split("=", 1)[1]
+            elif not arg.startswith("-"):
+                positional.append(arg)
+        if target_dir:
+            return [cwd / target_dir / Path(src).name for src in positional]
+        if len(positional) >= 2:
+            return _into(positional[-1], positional[:-1], cwd)
+        return []
+    if name in PS_COPY:
+        dest, sources, positional = None, [], []
+        it = iter(args)
+        for arg in it:
+            lower = arg.lower()
+            if lower.startswith("-dest"):
+                dest = next(it, None)
+            elif lower in ("-path", "-literalpath", "-lp"):
+                value = next(it, None)
+                if value:
+                    sources.append(value)
+            elif arg.startswith("-"):
+                continue
+            else:
+                positional.append(arg)
+        if dest is None and len(positional) >= 1 + (0 if sources else 1):
+            dest = positional[-1]
+            positional = positional[:-1]
+        if dest:
+            return _into(dest, sources + positional, cwd)
+    return []
+
+
+def shell_destinations(command: str, cwd: Path) -> list[Path]:
+    """Every file a shell command visibly writes: copy/move destinations and redirections."""
+    targets: list[Path] = []
+    for words in _segments(command):
+        kept: list[str] = []
+        it = iter(words)
+        for word in it:
+            if word in REDIRECTS:
+                target = next(it, None)
+                if target:
+                    targets.append(cwd / target)
+            elif word in ("<", "<<", ">&", "<&"):
+                next(it, None)
+            else:
+                kept.append(word)
+        while kept and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*=.*", kept[0]):
+            kept = kept[1:]
+        if kept and kept[0] == "sudo":
+            kept = kept[1:]
+        if kept and Path(kept[0]).name.lower() == "tee":
+            targets.extend(cwd / w for w in kept[1:] if not w.startswith("-"))
+        elif kept:
+            targets.extend(_copy_targets(kept, cwd))
+    for match in SHUTIL_COPY.finditer(command):
+        targets.extend(_into(match.group(4).replace("\\", "/"), [match.group(2)], cwd))
+    ignored = {"/dev/null", "nul", "/dev/stdout", "/dev/stderr", "$null"}
+    return [t for t in dict.fromkeys(targets)
+            if str(t).replace("\\", "/").lower().rsplit("/", 1)[-1] not in ignored
+            and not re.search(r"[$*?`]", str(t)) and t.name.lower() not in ignored]
+
+
+def _payload_targets(payload: dict, cwd: Path) -> list[Path]:
+    tool = payload.get("tool_name") or ""
+    tool_input = payload.get("tool_input") or {}
+    if tool in EDIT_TOOLS or tool == "Read":
+        raw = tool_input.get("file_path") or tool_input.get("notebook_path") or tool_input.get("path")
+        return [cwd / raw] if raw else []
+    if tool in SHELL_TOOLS:
+        return shell_destinations(str(tool_input.get("command") or ""), cwd)
+    return []
+
+
+def _quiet(handler, args, root: Path) -> int:
+    import contextlib
+    import io
+
+    with contextlib.redirect_stdout(io.StringIO()):
+        return handler(args, root)
+
+
+def _marker(root: Path, payload: dict) -> Path:
+    session = str(payload.get("session_id") or os.environ.get("NEXUS_EDIT_GUARD_SESSION") or "none")
+    return root / f".bash-start-{hashlib.sha256(session.encode()).hexdigest()[:16]}"
+
+
+def _emit(event: str, lines: list[str]) -> None:
+    text = "\n".join(lines)
+    print(text, file=sys.stderr)
+    print(json.dumps({"hookSpecificOutput": {"hookEventName": event, "additionalContext": text}}))
+
+
+def _settled(root: Path, target: Path) -> bool:
+    """A change landing within SETTLE_SECONDS of the agent's own write or command is agent-caused.
+
+    Hooks on one event run in parallel, so the post-write record can race a formatter or
+    linter hook that rewrites the same file a moment later. That rewrite is re-recorded
+    here instead of being reported as a user edit. The hook path only; `check` stays strict.
+    """
+    try:
+        record = load_record(root, key_for(target))
+        if not record or record.get("from") not in ("write", "command") or open_or_conflicting(target):
+            return False
+        recorded_at = dt.datetime.fromisoformat(record["at"]).timestamp()
+        if abs(target.stat().st_mtime - recorded_at) > SETTLE_SECONDS:
+            return False
+        _quiet(cmd_record, argparse.Namespace(path=str(target), source="command"), root)
+        append_log(root, {"event": "settled", "path": canonical(target)})
+        return True
+    except (GuardError, OSError, ValueError, KeyError):
+        return False
+
+
+def hook_pre(payload: dict, root: Path | None, cwd: Path) -> int:
+    targets = [t for t in _payload_targets(payload, cwd) if t.exists() or t.is_symlink()]
+    if payload.get("tool_name") in SHELL_TOOLS and root is not None:
+        try:
+            _write_private(_marker(root, payload), json.dumps({"at": now().timestamp()}).encode())
+        except OSError:
+            pass
+    blocked: list[str] = []
+    warned: list[str] = []
+    for target in targets:
+        if root is None:
+            status = EXIT_CANNOT_VERIFY
+        else:
+            try:
+                status = _quiet(cmd_check, argparse.Namespace(path=str(target)), root)
+            except (GuardError, OSError, ValueError, KeyError):
+                status = EXIT_ERROR
+        if status == EXIT_CHANGED and root is not None and _settled(root, target):
+            continue
+        if status == EXIT_OK:
+            continue
+        reason = HOOK_MESSAGE if status in (EXIT_CHANGED, EXIT_NO_RECORD) else HOOK_CANNOT_VERIFY
+        entry = f"{_display(target)}\n{reason}"
+        (warned if in_git_repo(Path(os.path.abspath(target)).parent) else blocked).append(entry)
+    if blocked:
+        print("\n".join(f"[{HOOK_NAME}] BLOCKED: {entry}" for entry in blocked + warned), file=sys.stderr)
+        print(HOOK_ESCAPE, file=sys.stderr)
+        return EXIT_ERROR
+    if warned:
+        _emit("PreToolUse", [f"[{HOOK_NAME}] WARNING (git worktree, not blocked): {entry}" for entry in warned])
+    return EXIT_OK
+
+
+def _changed_since(root: Path, since: float, cwd: Path) -> list[Path]:
+    prefix = canonical(cwd).rstrip("/") + "/"
+    touched: list[Path] = []
+    for record_path in sorted((root / "records").glob("*.json"))[:TRACKED_SCAN_LIMIT]:
+        try:
+            record = json.loads(record_path.read_text(encoding="utf-8"))
+            path = Path(record.get("display") or record["path"])
+            if not record["path"].startswith(prefix) or path.stat().st_mtime < since - 1:
+                continue
+            if fingerprint(path)["sha256"] != record["sha256"]:
+                touched.append(path)
+        except (OSError, ValueError, KeyError, GuardError):
+            continue
+    return touched
+
+
+def hook_post(payload: dict, root: Path, cwd: Path) -> int:
+    tool = payload.get("tool_name") or ""
+    source = "read" if tool == "Read" else "command" if tool in SHELL_TOOLS else "write"
+    targets = [t for t in _payload_targets(payload, cwd) if t.is_file()]
+    if tool in SHELL_TOOLS:
+        marker = _marker(root, payload)
+        try:
+            since = json.loads(marker.read_text(encoding="utf-8"))["at"]
+            marker.unlink(missing_ok=True)
+            targets += _changed_since(root, since, cwd)
+        except (OSError, ValueError, KeyError):
+            pass
+    refused: list[str] = []
+    for target in dict.fromkeys(targets):
+        try:
+            status = _quiet(cmd_record, argparse.Namespace(path=str(target), source=source), root)
+        except (GuardError, OSError, ValueError, KeyError):
+            continue
+        if status == EXIT_CHANGED:
+            refused.append(f"[{HOOK_NAME}] WARNING: {_display(target)} changed since your last read or write. "
+                           "Run the user-edit-preservation procedure before changing it.")
+    if refused:
+        _emit("PostToolUse", refused)
+    return EXIT_OK
+
+
+def cmd_hook() -> int:
+    """Hook mode: 0 allow, 2 block. Never raises; an unexpected failure is 'cannot verify'."""
+    try:
+        payload = json.loads(sys.stdin.read() or "null")
+    except ValueError:
+        return EXIT_OK
+    if not isinstance(payload, dict):
+        return EXIT_OK
+    cwd = Path(payload.get("cwd") or os.getcwd())
+    try:
+        root: Path | None = store_dir()
+        prune(root)
+    except (GuardError, OSError):
+        root = None
+    if payload.get("hook_event_name") == "PostToolUse":
+        if root is None:
+            return EXIT_OK
+        try:
+            return hook_post(payload, root, cwd)
+        except Exception:  # noqa: BLE001 - a post step must never break the agent's turn
+            return EXIT_OK
+    try:
+        return hook_pre(payload, root, cwd)
+    except Exception:  # noqa: BLE001 - fail closed outside a worktree, open inside
+        return hook_pre(payload, None, cwd)
+
+
 def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    if argv[:1] == ["hook"]:
+        return cmd_hook()
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--session", help="session id; defaults to NEXUS_EDIT_GUARD_SESSION")
     sub = parser.add_subparsers(dest="command", required=True)
