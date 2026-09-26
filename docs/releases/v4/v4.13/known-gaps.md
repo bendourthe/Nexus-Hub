@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-09-24
+**Last updated**: 2026-09-26
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -229,8 +229,8 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 7 | 0 |
-| Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 2 | 0 |
+| Bugs / regressions (BG) | 1 | 0 |
+| Warnings (WN) | 4 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -263,6 +263,10 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 #### DF-7 (v4.13.3): Move the legacy-removal decision record to `implemented`
 
 **Source phase**: Phase 4. **Reason**: `docs/decisions/proposed/tooling/2026-09-24-legacy-instruction-block-removal.md` describes shipped behavior once v4.13.3 is released. The record format requires a rewrite (Decision in present tense, Consequences) and a move, not a Status edit. **Owner**: `/update release` for v4.13.3. **Suggested next step**: rewrite and move it at release, with the release notes' capability-usage entry.
+
+#### BG-8 (v4.13.3): Historical Windows legacy backups retain inherited read access
+
+**Source phase**: Phase 4 post-merge security follow-up, 2026-09-26. **Plan reference**: [`v4.13.3-adoption-agent-practice-and-harness-token-efficiency`](plans/v4.13.3-adoption-agent-practice-and-harness-token-efficiency.md), Phase 4 legacy removal. **Reason**: the original backup writer used `os.chmod`, which did not remove inherited Windows access rules. A read-only ACL audit found the existing backup directory and 21 files unprotected, with one other principal granted read access; no backup content or filename was read. [PR #335](https://github.com/bendourthe/Nexus-Hub/pull/335) now fails closed on backup-permission errors and applies owner-only ACLs to new or subsequently touched backups, but it does not sweep untouched historical files. **Owner**: local profile owner. **Suggested next step**: after explicit approval, save the current ACLs for rollback, restrict only the audited directory and 21 files, and verify each ACL by read-back without reading or deleting backup content.
 
 #### WN-1 (v4.13.3): An uncooperative writer can race the final hash check
 
