@@ -179,7 +179,7 @@ This is the forward entry point for every known gap and unfinished task recorded
 | v4.9 | [ledger](../v4.9/known-gaps.md) | `fdb22a32c5a46310255fa124e2b018fef67d4c0449f540eb517e6499ea4043f3` |
 | v4.10 | [ledger](../v4.10/known-gaps.md) | `f8e1d71999b90c0d06499fa6e1517169935ddd27b21d521032886e701ab84f94` |
 | v4.11 | [ledger](../v4.11/known-gaps.md) | `e03f73d0327c193527a53ba50501762522b40e999d9bd483abe092ee9735df9b` |
-| v4.12 | [ledger](../v4.12/known-gaps.md) | `c7c8134238a2a54973f06e4ade21e9a1d0914c137879bf66a39c64fe920a1c16` |
+| v4.12 | [ledger](../v4.12/known-gaps.md) | `817f31fc03aa2c029112b999c526739245ee735a8cc50d6ae46a026e04ce7abe` |
 
 v4.6.0 was never cut. Its unimplemented plan was retargeted through v4.8.0 and completed as the [v4.9.0 adoption plan](../../../archives/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md); the [v4.8 ledger](../v4.8/known-gaps.md) preserves the retargeting history. There is no v4.6 ledger or plan directory to archive. The v4.13.0 entries above already live in this file. The v4.13.1 through v4.13.4 plans are excluded from this historical transfer and remain active in their own worktrees.
 
