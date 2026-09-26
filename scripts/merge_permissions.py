@@ -53,6 +53,8 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -160,16 +162,40 @@ def _backup(settings_path: Path) -> Path:
     return backup_path
 
 
-def _atomic_write(settings_path: Path, doc: Any) -> None:
+def _atomic_write(settings_path: Path, doc: Any, expected_bytes: bytes | None) -> None:
     """Write *doc* via temp-file-plus-rename.
 
     A truncated settings.json breaks the user's agent entirely, and an interrupted
     installer is a realistic way to produce one.
     """
     settings_path.parent.mkdir(parents=True, exist_ok=True)
-    tmp_path = settings_path.with_suffix(settings_path.suffix + ".tmp")
-    tmp_path.write_text(_dump(doc), encoding="utf-8")
-    tmp_path.replace(settings_path)
+    tmp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=settings_path.parent,
+            prefix=f".{settings_path.name}.", suffix=".tmp", delete=False,
+        ) as handle:
+            tmp_path = Path(handle.name)
+            handle.write(_dump(doc))
+        for delay in (0, 0.05, 0.15, 0.3, 0.5):
+            if delay:
+                time.sleep(delay)
+            try:
+                current_bytes = settings_path.read_bytes()
+            except FileNotFoundError:
+                current_bytes = None
+            if current_bytes != expected_bytes:
+                raise ValueError(f"{settings_path} changed during permission merge")
+            try:
+                tmp_path.replace(settings_path)
+                return
+            except PermissionError:
+                # WN-4: a Windows reader may briefly block replacement.
+                if sys.platform != "win32" or delay == 0.5:
+                    raise
+    finally:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
 
 
 def set_true(settings_path: Path, key: str, backup: bool = True) -> bool:
@@ -192,10 +218,12 @@ def set_true(settings_path: Path, key: str, backup: bool = True) -> bool:
       shipped a *set* of them, so there is nothing a later version could safely retire.
     """
     if settings_path.exists():
-        doc = json.loads(settings_path.read_text(encoding=_READ_ENCODING))
+        expected_bytes = settings_path.read_bytes()
+        doc = json.loads(expected_bytes.decode(_READ_ENCODING))
         if not isinstance(doc, dict):
             raise ValueError(f"{settings_path} does not contain a JSON object")
     else:
+        expected_bytes = None
         doc = {}
 
     if doc.get(key) is True:
@@ -204,7 +232,7 @@ def set_true(settings_path: Path, key: str, backup: bool = True) -> bool:
     if backup and settings_path.exists():
         _backup(settings_path)
     doc[key] = True
-    _atomic_write(settings_path, doc)
+    _atomic_write(settings_path, doc, expected_bytes)
     return True
 
 
@@ -232,13 +260,15 @@ def merge(
         raise ValueError(f"template key {key!r} is not an array")
 
     if settings_path.exists():
-        existing_doc = json.loads(settings_path.read_text(encoding=_READ_ENCODING))
+        expected_bytes = settings_path.read_bytes()
+        existing_doc = json.loads(expected_bytes.decode(_READ_ENCODING))
         if not isinstance(existing_doc, dict):
             raise ValueError(f"{settings_path} does not contain a JSON object")
         existing_entries = _get_path(existing_doc, key) or []
         if not isinstance(existing_entries, list):
             raise ValueError(f"settings key {key!r} is not an array")
     else:
+        expected_bytes = None
         # Creation path: emit only the template's own structure, metadata already
         # stripped above, so documentation keys never reach a live config.
         existing_doc = {}
@@ -275,7 +305,7 @@ def merge(
         _backup(settings_path)
 
     _set_path(existing_doc, key, merged_entries)
-    _atomic_write(settings_path, existing_doc)
+    _atomic_write(settings_path, existing_doc, expected_bytes)
 
     if manifest_path is not None and platform is not None:
         manifest[platform] = sorted(template_set)

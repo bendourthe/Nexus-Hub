@@ -71,6 +71,8 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 **Owner**: Windows installer maintainer. **Suggested next step**: retain the original command receipt and five-attempt reproduction record; capture file-handle/permission evidence if it recurs. The complete installer/validator rerun is separate evidence, not a rewrite of the first failed run. No permission policy, atomic-write behavior or retry limit was changed to suppress this failure.
 
+**Local repair candidate, 2026-09-25**: A test-owned Windows reader reproduced the same `WinError 5` class against the original helper, and the [bounded qualification](../../../archives/v4/v4.12/development/wn4-atomic-replace/verification.md) records the failing-first tests and repair. The original denying process remains unknown. WN-4 stays open until protected publication and merged-tree verification pass.
+
 #### QG-1: GitHub retains read-only pull-request refs
 
 **Source phase**: Phase 4 independent review. **Plan reference**: Goal, T020 and T023. **Reason**: 212 `refs/pull/*` exist on GitHub outside the 119 writable branches/tags. They cannot be replaced by a normal force-push; the local all-ref proof covers the captured 139 local refs, not every GitHub-retained ref.
