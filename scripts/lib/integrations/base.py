@@ -101,6 +101,10 @@ class InstallContext:
     # bookkeeping `instruction_merge.merge_instruction` creates on first use.
     legacy_removal_hashes: frozenset = frozenset()
     legacy_run: Optional[Any] = None
+    # v4.13.3 Phase 5 -- "full" (default) or "pointer", parsed once from
+    # NEXUS_HUB_SKILL_INDEX by the runner. "pointer" renders the Skill-Index
+    # Pointer only where `native_skill_enumeration` holds.
+    skill_index_mode: str = "full"
 
     @property
     def global_root(self) -> Path:
@@ -242,6 +246,18 @@ class IntegrationBase:
 
     def uninstall_workspace(self, ctx: InstallContext) -> WriteResult:
         return self.teardown(ctx)
+
+    def native_skill_enumeration(self, ctx: InstallContext) -> bool:
+        """True only when a VERIFIED skill read path for this platform and
+        `ctx.scope` holds a skills tree that is actually installed.
+
+        Derived on every call from the contract facts and the disk, never stored,
+        so a missing contract, an unknown status, or a failed skills install all
+        fail closed to the full index.
+        """
+        from scripts.lib.integrations.skill_read_paths import enumerated_skill_dir
+
+        return enumerated_skill_dir(self.key, ctx) is not None
 
     def teardown(self, ctx: InstallContext) -> WriteResult:
         """Remove every file/directory previously logged in the manifest for
@@ -557,11 +573,24 @@ class MarkdownIntegration(IntegrationBase):
         used for one render.
         """
         merged: Dict[str, str] = dict(self._DEFAULT_TEMPLATE_VARS)
-        skill_index = self._load_skill_index(ctx)
+        pointer = self._skill_index_pointer(ctx)
+        skill_index = pointer if pointer is not None else self._load_skill_index(ctx)
         if skill_index is not None:
             merged["SKILL_INDEX"] = skill_index
         merged.update(ctx.template_vars)
         return merged
+
+    def _skill_index_pointer(self, ctx: InstallContext) -> Optional[str]:
+        """The pointer text when pointer mode is on and this platform is eligible."""
+        if getattr(ctx, "skill_index_mode", "full") != "pointer":
+            return None
+        from scripts.lib.integrations.skill_read_paths import enumerated_skill_dir, render_pointer
+
+        skill_dir = enumerated_skill_dir(self.key, ctx)
+        if skill_dir is None:
+            return None
+        full_index = Path(ctx.global_root) / ".nexus-hub" / "data" / "SKILL_INDEX.md"
+        return render_pointer(skill_dir, full_index if full_index.is_file() else None)
 
     def _render(self, template_path: Path, ctx: InstallContext) -> str:
         text = template_path.read_text(encoding="utf-8")

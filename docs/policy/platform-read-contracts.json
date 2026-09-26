@@ -1241,5 +1241,300 @@
     },
     "summary": "Trigger A is expressible on exactly TWO verified platforms (Claude Code via Notification, Codex via PermissionRequest). Trigger B is verified on four (Claude Code, Cursor, Qwen, and Codex) and renamed-but-verified on a fifth (Gemini CLI's AfterAgent). As of v3.15.11 both triggers are delivered to Claude Code and Codex, and trigger B to Cursor. Qwen and Gemini CLI remain expressible-but-undelivered; Kimi's event set is still unenumerated. Copilot and OpenCode are permanently out of reach for notifications and are fully covered by the end-of-task summary rule.",
     "df1_settlement": "DF-1 SETTLED 2026-08-04 against first-party Cursor documentation, and the v3.15.9 finding is OVERTURNED. cursor.com/docs/skills documents FOUR skills read-paths, two of them user-level: '.agents/skills/', '.cursor/skills/', '~/.agents/skills/' (global), and '~/.cursor/skills/' (global), plus backward-compatible '.claude/skills/' and '.codex/skills/'. Discovery walks the root RECURSIVELY. So the global ~/.cursor/skills write is CORRECT and load-bearing, and the v3.15.9 release note that extended DF-1 to that path on secondary evidence was wrong; that extension is withdrawn. The COMMANDS half is different: Cursor's own docs no longer document a commands directory at all, Cursor 2.4 ships a /migrate-to-skills skill that converts both user-level and workspace-level commands into skills with disable-model-invocation:true, and a community bug report titled 'Commands are not detected in the global cursor directory' reports the global path does not work. Nexus-Hub already delivers every command as a command-skill through the verified skills path, so the global ~/.cursor/commands write is REDUNDANT rather than load-bearing. It is RETAINED unchanged for now (writing a directory Cursor ignores is harmless; removing one it does read would silently drop coverage), and flagged for deliberate removal in a later release."
+  },
+  "skill_read_paths": {
+    "_comment": "Per-platform, per-scope directories the vendor's own documentation says are scanned for skills. Only VERIFIED entries (first-party source, verified date) count toward Native Skill Enumeration, and only when a skills tree was actually installed there (scripts/lib/integrations/skill_read_paths.py). A platform or scope absent here is not eligible for the Skill-Index Pointer. Re-verified from first-party pages on 2026-09-25 (v4.13.3 Phase 5).",
+    "claude": {
+      "global": [
+        {
+          "path": "~/.claude/skills",
+          "status": "VERIFIED",
+          "source": "https://code.claude.com/docs/en/skills",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".claude/skills",
+          "status": "VERIFIED",
+          "source": "https://code.claude.com/docs/en/skills",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "cursor": {
+      "global": [
+        {
+          "path": "~/.cursor/skills",
+          "status": "VERIFIED",
+          "source": "https://cursor.com/docs/skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.agents/skills",
+          "status": "VERIFIED",
+          "source": "https://cursor.com/docs/skills",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".cursor/skills",
+          "status": "VERIFIED",
+          "source": "https://cursor.com/docs/skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://cursor.com/docs/skills",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "codex": {
+      "global": [
+        {
+          "path": "~/.agents/skills",
+          "status": "VERIFIED",
+          "source": "https://learn.chatgpt.com/docs/build-skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.codex/skills",
+          "status": "UNVERIFIED",
+          "note": "Written for compatibility; absent from current documentation."
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://learn.chatgpt.com/docs/build-skills",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "antigravity2": {
+      "global": [
+        {
+          "path": "~/.gemini/config/skills",
+          "status": "VERIFIED",
+          "source": "https://codelabs.developers.google.com/getting-started-with-antigravity-skills",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://codelabs.developers.google.com/getting-started-with-antigravity-skills",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "copilot": {
+      "global": [
+        {
+          "path": "~/.copilot/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.agents/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.claude/skills",
+          "status": "UNVERIFIED",
+          "note": "Recorded 2026-09-21 as a user-scope read path; the 2026-09-25 re-fetch of the cited page does not list it, so it fails closed."
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".github/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".claude/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "gemini-cli": {
+      "global": [
+        {
+          "path": "~/.gemini/skills",
+          "status": "VERIFIED",
+          "source": "https://geminicli.com/docs/cli/using-agent-skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.agents/skills",
+          "status": "VERIFIED",
+          "source": "https://geminicli.com/docs/cli/using-agent-skills/",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".gemini/skills",
+          "status": "VERIFIED",
+          "source": "https://geminicli.com/docs/cli/using-agent-skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://geminicli.com/docs/cli/using-agent-skills/",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "opencode": {
+      "global": [
+        {
+          "path": "~/.config/opencode/skills",
+          "status": "VERIFIED",
+          "source": "https://opencode.ai/docs/skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.claude/skills",
+          "status": "VERIFIED",
+          "source": "https://opencode.ai/docs/skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.agents/skills",
+          "status": "VERIFIED",
+          "source": "https://opencode.ai/docs/skills/",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".opencode/skills",
+          "status": "VERIFIED",
+          "source": "https://opencode.ai/docs/skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".claude/skills",
+          "status": "VERIFIED",
+          "source": "https://opencode.ai/docs/skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://opencode.ai/docs/skills/",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "qwen": {
+      "global": [
+        {
+          "path": "~/.qwen/skills",
+          "status": "VERIFIED",
+          "source": "https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".qwen/skills",
+          "status": "VERIFIED",
+          "source": "https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "windsurf": {
+      "global": [
+        {
+          "path": "~/.codeium/windsurf/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.devin.ai/desktop/cascade/skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.agents/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.devin.ai/desktop/cascade/skills",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".windsurf/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.devin.ai/desktop/cascade/skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.devin.ai/desktop/cascade/skills",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "hermes": {
+      "global": [
+        {
+          "path": "~/.hermes/skills",
+          "status": "VERIFIED",
+          "source": "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills/",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".hermes/skills",
+          "status": "VERIFIED",
+          "source": "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills/",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "gemini": {
+      "global": [
+        {
+          "path": "~/.gemini/skills",
+          "status": "UNVERIFIED",
+          "note": "Gemini Code Assist IDE skill discovery is not documented."
+        }
+      ]
+    },
+    "kimi": {
+      "global": [
+        {
+          "path": "~/.kimi-code/skills",
+          "status": "UNVERIFIED",
+          "note": "No dedicated first-party discovery page this cycle."
+        }
+      ]
+    }
   }
 }

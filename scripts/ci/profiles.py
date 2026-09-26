@@ -335,6 +335,7 @@ TESTS = Group(
             "tests/integrations/test_markdown_integration.py",
             "tests/integrations/test_owned_file_modes.py",
             "tests/integrations/test_parity_with_legacy_installer.py",
+            "tests/integrations/test_skill_index_pointer.py",
             timeout=1800,
         ),
         _pytest(

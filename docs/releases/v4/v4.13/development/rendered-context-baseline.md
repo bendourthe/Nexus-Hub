@@ -49,3 +49,31 @@ The Claude and Codex files each carry a full pre-marker install above the manage
 ## What was not measured
 
 The other eight substantive templates (`base-google-shared.md`, the guardrails-only five, `base-pi.md`, `generic-instructions.md`) were skipped. The plan makes them optional; the lockstep five carry the skill index, which is the dominant cost.
+
+## Skill-Index Pointer saving (Phase 5, 2026-09-25)
+
+Every registered integration was installed at global scope into three throwaway homes (detection roots pre-created so detection-gated platforms install): the committed Phase 4 tree with `NEXUS_HUB_SKILL_INDEX` unset, the Phase 5 tree unset, and the Phase 5 tree with `NEXUS_HUB_SKILL_INDEX=pointer`. The eleven instruction files are byte-identical between the first two once each run's home path and directory-name project heading are normalized, so the unset default changes nothing.
+
+| Instruction file | Est. tokens, full index | Est. tokens, pointer | Saved | `**Total:` lines (full / pointer) |
+|---|---|---|---|---|
+| `~/.claude/CLAUDE.md` | 18051 | 3538 | 14513 | 1 / 0 |
+| `~/.codex/AGENTS.md` | 17447 | 2934 | 14513 | 1 / 0 |
+| `~/.config/opencode/AGENTS.md` | 17392 | 2881 | 14511 | 1 / 0 |
+| `~/.copilot/copilot-instructions.md` | 17447 | 2934 | 14513 | 1 / 0 |
+| `~/.qwen/QWEN.md` | 17273 | 2760 | 14513 | 1 / 0 |
+| `~/.openclaw/workspace/AGENTS.md` | 17273 | 17273 | 0 | 1 / 1 |
+| `~/.pi/agent/AGENTS.md` | 17273 | 17273 | 0 | 1 / 1 |
+| `~/.nexus-ai/catalog/NEXUS_AI.md` | 18035 | 18035 | 0 | 1 / 1 |
+
+The pointer removes 99.5% of the index's estimated 14585 tokens on each eligible file (the plan's floor is 90%). Files without a skill index at all (`~/.gemini/GEMINI.md`, `~/.gemini/antigravity/rules.md`, `~/.codeium/windsurf/memories/global_rules.md`) are unchanged under both values.
+
+### Resolved eligibility
+
+Eligibility is derived at render time from the `skill_read_paths` facts in `docs/policy/platform-read-contracts.json` and the installed destinations, never stored. With every VERIFIED path holding an installed skills tree:
+
+| Scope | Eligible | Not eligible (no VERIFIED path for the scope) |
+|---|---|---|
+| global | antigravity2, claude, codex, copilot, cursor, gemini-cli, hermes, opencode, qwen, windsurf | aider, antigravity, gemini, kimi, nexus-ai, openclaw, pi |
+| workspace | antigravity2, claude, codex, copilot, cursor, gemini-cli, hermes, opencode, qwen, windsurf | aider, antigravity, gemini, kimi, nexus-ai, openclaw, pi |
+
+A VERIFIED path with no installed tree is not eligible (full index). Copilot's global `~/.claude/skills` path is UNVERIFIED as of the 2026-09-25 re-fetch, so a Copilot install is eligible only through `~/.copilot/skills` or `~/.agents/skills`; in the all-integrations run above, Codex's `~/.agents/skills` supplied that tree, which the runner's pointer-mode second pass picks up regardless of install order.

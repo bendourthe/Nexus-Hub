@@ -61,6 +61,13 @@ _ACTION_PREFIX = {
 _CONSENT = re.compile(r"^[0-9a-f]{64}$")
 
 
+def _skill_index_mode() -> str:
+    """Parse NEXUS_HUB_SKILL_INDEX once: `pointer`, or `full` for anything else."""
+    from scripts.lib.integrations.skill_read_paths import index_mode
+
+    return index_mode(os.environ.get("NEXUS_HUB_SKILL_INDEX"))
+
+
 def _legacy_consents(values: Optional[List[str]]) -> frozenset:
     """Validate repeatable --remove-legacy-instructions values (64 hex chars each)."""
     hashes = set()
@@ -476,6 +483,7 @@ def cmd_install(args: argparse.Namespace) -> int:
         verbose=not args.quiet,
         selection=selection,
         legacy_removal_hashes=consents,
+        skill_index_mode=_skill_index_mode(),
     )
     from scripts.lib.installer.instruction_merge import legacy_run
 
@@ -505,6 +513,20 @@ def cmd_install(args: argparse.Namespace) -> int:
         except Exception as exc:  # noqa: BLE001
             print(f"[error:{key}] {exc}", file=sys.stderr)
             failures.append(key)
+    # v4.13.3 Phase 5 -- pointer eligibility depends on skills trees that a
+    # LATER integration in this run may install (Copilot reads a path another
+    # integration writes), so pointer mode re-runs every successful install once
+    # after all of them finished. Installs are idempotent; the second pass only
+    # re-renders what changed. A provider that failed left no tree, so its
+    # consumers stay on the full index.
+    if ctx.skill_index_mode == "pointer" and len(installed) > 1:
+        for position, (key, integ, _) in enumerate(installed):
+            run.owner = key
+            result = integ.install(ctx)
+            if not args.dry_run:
+                manifest.record_actions(key, result.files)
+            installed[position] = (key, integ, result)
+            results[key] = result
     # v4.13.3 Phase 4 -- the legacy report is built after every write so each
     # printed consent token matches the file's final bytes.
     before = {key: len(result.files) for key, result in results.items()}

@@ -168,6 +168,33 @@ The catalog itself is never reorganized per platform. Each integration is an ada
 
 **v4.3.0 cut (re-stamp, no new pass).** The 2026-08-30 full correction pass below is the verification behind the v4.3.0 stamp. It ran while the canonical version still read 4.1.2, and nothing between that pass and this cut changed a discovery path, an adapter write-target, or a `contract_checks` entry, so the stamp moves without a new fetch rather than a new pass being claimed. `scripts/verify_platform_contracts.py` exits 0 on the cut tree.
 
+### 2026-09-25 (v4.13.3 - per-scope skill read paths for the Skill-Index Pointer)
+
+The skill-discovery pages of every platform with a public page were re-fetched to seed the machine-readable `skill_read_paths` section of `platform-read-contracts.json`, which decides where the opt-in Skill-Index Pointer may replace the full index. One narrowing against the 2026-09-21 pass: the cited Copilot page no longer lists `~/.claude/skills` for personal skills, so that path is recorded UNVERIFIED for Copilot and fails closed. OpenClaw's configured-workspace skills path, Aider, Pi, and Nexus-AI have no entry and stay on the full index.
+
+- claude global: VERIFIED `~/.claude/skills`. [Source](https://code.claude.com/docs/en/skills)
+- claude workspace: VERIFIED `.claude/skills`. [Source](https://code.claude.com/docs/en/skills)
+- cursor global: VERIFIED `~/.cursor/skills`, `~/.agents/skills`. [Source](https://cursor.com/docs/skills)
+- cursor workspace: VERIFIED `.cursor/skills`, `.agents/skills`. [Source](https://cursor.com/docs/skills)
+- codex global: VERIFIED `~/.agents/skills`. UNVERIFIED: `~/.codex/skills`. [Source](https://learn.chatgpt.com/docs/build-skills)
+- codex workspace: VERIFIED `.agents/skills`. [Source](https://learn.chatgpt.com/docs/build-skills)
+- antigravity2 global: VERIFIED `~/.gemini/config/skills`. [Source](https://codelabs.developers.google.com/getting-started-with-antigravity-skills)
+- antigravity2 workspace: VERIFIED `.agents/skills`. [Source](https://codelabs.developers.google.com/getting-started-with-antigravity-skills)
+- copilot global: VERIFIED `~/.copilot/skills`, `~/.agents/skills`. UNVERIFIED: `~/.claude/skills`. [Source](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills)
+- copilot workspace: VERIFIED `.github/skills`, `.claude/skills`, `.agents/skills`. [Source](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills)
+- gemini-cli global: VERIFIED `~/.gemini/skills`, `~/.agents/skills`. [Source](https://geminicli.com/docs/cli/using-agent-skills/)
+- gemini-cli workspace: VERIFIED `.gemini/skills`, `.agents/skills`. [Source](https://geminicli.com/docs/cli/using-agent-skills/)
+- opencode global: VERIFIED `~/.config/opencode/skills`, `~/.claude/skills`, `~/.agents/skills`. [Source](https://opencode.ai/docs/skills/)
+- opencode workspace: VERIFIED `.opencode/skills`, `.claude/skills`, `.agents/skills`. [Source](https://opencode.ai/docs/skills/)
+- qwen global: VERIFIED `~/.qwen/skills`. [Source](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/)
+- qwen workspace: VERIFIED `.qwen/skills`. [Source](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/)
+- windsurf global: VERIFIED `~/.codeium/windsurf/skills`, `~/.agents/skills`. [Source](https://docs.devin.ai/desktop/cascade/skills)
+- windsurf workspace: VERIFIED `.windsurf/skills`, `.agents/skills`. [Source](https://docs.devin.ai/desktop/cascade/skills)
+- hermes global: VERIFIED `~/.hermes/skills`. [Source](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills/)
+- hermes workspace: VERIFIED `.hermes/skills`, `.agents/skills`. [Source](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills/)
+- gemini global: VERIFIED none. UNVERIFIED: `~/.gemini/skills`.
+- kimi global: VERIFIED none. UNVERIFIED: `~/.kimi-code/skills`.
+
 ### 2026-08-30 (v4.1.2 - full platform-contract correction)
 
 All public platforms affected by the correction bundle were re-fetched from current first-party documentation. The enforced contract now distinguishes verified native discovery from compatibility writes and removes paths or gates that the current vendor documentation does not support:
