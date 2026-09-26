@@ -180,7 +180,7 @@ A comparison is intrinsically forward-looking: it seeds a *future* adoption, and
 **Resolution rule**:
 
 1. Resolve the in-flight version via the [[docs-layout-refactor]] Version-directory resolution (git tags / CHANGELOG). This is the CURRENT release, whose plan almost always already lives under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/` and is locked or in flight, so it is usually NOT free to absorb a brand-new comparison.
-2. Because that slot is taken, the default adoption target is the next FREE version slot after it: walk forward (the next patch `vX.Y.(Z+1)`, then the next minor `vX.(Y+1).0`, and so on) and skip any minor or patch whose `plans/` directory already holds a locked or in-flight plan. The first slot with no committed plan is the default target. This is exactly the reasoning the codesight comparison recorded ("v3.14.0 is taken by agentic-setup + codex-lb, so v3.15.0").
+2. Because that slot is taken, resolve the default adoption target with the placement rule in [[plan-queue-assessment]] ("Placement rule for a new plan"), which ranks the comparison against the queue and places it by priority. That skill owns the rule; do not restate it here.
 
     **Enumerate with `python scripts/enumerate_plan_queue.py --root . --json`** rather than by hand. It exists because of two failure modes, both of which have actually happened, and both of which it now prevents:
 

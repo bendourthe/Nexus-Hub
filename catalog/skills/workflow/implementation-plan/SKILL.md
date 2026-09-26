@@ -118,7 +118,7 @@ When neither file exists, note that and proceed - grounding is best-effort, not 
 
 ### Phase C: Generate the Plan File
 
-Resolve the target version (from git tags, CHANGELOG, or package manifests; default `v0.1.0` for fresh greenfield projects), then resolve `<version_dir>` per the `[[docs-layout-refactor]]` Version-directory resolution algorithm (canonical `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/` for new content, patch releases sharing their minor dir; legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` preserved when already present). Derive a slug from the one-sentence scope statement collected at the start of the interview (lowercase, hyphen-separated, ~5 words, sanitized to `[a-z0-9-]+`); the plan file is then named with a release prefix - `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` - so multiple patch releases sharing one minor dir never collide. Confirm both with the user before writing.
+Resolve the target version (from git tags, CHANGELOG, or package manifests; default `v0.1.0` for fresh greenfield projects), then resolve `<version_dir>` per the `[[docs-layout-refactor]]` Version-directory resolution algorithm (canonical `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/` for new content, patch releases sharing their minor dir; legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` preserved when already present). Derive a slug from the one-sentence scope statement collected at the start of the interview (lowercase, hyphen-separated, ~5 words, sanitized to `[a-z0-9-]+`); the plan file is then named with a release prefix - `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` - so multiple patch releases sharing one minor dir never collide. Confirm both with the user before writing. This version is provisional: Step 4.6 places the finished plan by priority against the queue.
 
 **From-comparison mode overrides the version resolution above.** When the plan is seeded from a comparison report (Step 0.5), do NOT resolve the target version fresh from git tags / CHANGELOG. Read the comparison's `Adoption target: vX.Y.Z` field and use it for both the target version and `<version_dir>`, so the plan co-locates with the comparison, and name the file `vX.Y.Z-adoption-<name>.md`. Only fall back to the fresh resolution above when the comparison lacks the field (a legacy comparison), emitting the one-line note described in From-comparison mode. Either way, still confirm the resolved target with the user before writing.
 
@@ -435,6 +435,14 @@ Seeding matters more than it looks. An unseeded grill asks what the agent imagin
 **Fold the results back before Step 5.** Apply every resolved decision to the plan file: correct the phase that a finding contradicted, add the sub-task an answer created, tighten a cut-line, or record a parked branch in `## Complexity Tracking` with its reason. A finding that the user decides not to act on is recorded as a known gap rather than dropped silently. Then re-run the Step 4 closing sanitize pass on the rewritten file.
 
 **Missing-delegate honesty.** If `[[plan-review]]` is unavailable, say so, run stage 2 with a frontier derived from the draft, and mark the critique portion uncovered in the output. If `[[design-interview]]` is unavailable, say so, present the stage 1 findings directly, and mark the interview portion uncovered. Never reconstruct a missing delegate's rules from memory, and never report a stage as covered when it did not run.
+
+### Step 4.6: Place the Plan by Priority
+
+Before Step 5, run the placement rule in `[[plan-queue-assessment]]` ("Placement rule for a new plan") against the current queue, so the plan's version reflects when it will actually be built, not merely the next free number. That skill owns the rule; this step only applies its result:
+
+- If the rule picks a different free version, rename the file and update its `**Version**:` and `**Filename**:` fields (and `<version_dir>` if the minor changes) before Step 5.
+- If the rule proposes a renumber of existing plans, show the proposal in Step 5 next to the phases table and move nothing until the user confirms; the move itself belongs to that skill's renumber procedure.
+- In From-comparison mode, the comparison's `Adoption target:` was already placed by the same rule, so this step confirms it still holds rather than re-placing it.
 
 ### Step 5: Review and Confirm
 
