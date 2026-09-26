@@ -89,6 +89,23 @@ A bounded worksheet for removing redundant instructions from an existing prompt 
 
 Detailed guidance lives in [prompt-audit.md](references/prompt-audit.md) (load on demand).
 
+## Authoring instructions for capable models
+
+A capable model follows instructions closely, so vague, anxious, or thrifty wording is taken literally and shrinks the work. Apply these four rules when writing a system prompt, a skill body, or an agent instruction file:
+
+1. **Replace vague quantities with ranges.** A range tells the model how much is enough; "many" or "some" gets the smallest defensible amount.
+    - Before: "Generate many test tasks."
+    - After: "Generate 20-100 test tasks."
+2. **State constraints, not reminders.** A reminder reads as optional encouragement; a constraint defines what an acceptable result is.
+    - Before: "Remember to finish the implementation."
+    - After: "No TODOs, no stubs, no partial implementations."
+3. **Never ask the model to conserve tokens or do less.** A model told to save tokens declines ambitious work and truncates output the task needed. Reduce cost by changing what the harness sends (smaller context, fewer tool definitions, cached prefixes), not by instructing the model to hold back.
+    - Before: "Be brief to save tokens; skip the tests if it gets long."
+    - After: "Write the tests for every changed function." (and trim the context the harness loads instead)
+4. **Define instead of emphasizing.** Emphasis words (MUST, NEVER, IMPORTANT, all caps) raise the stakes of every instruction equally and make a model over-apply rules; a plain statement of what a tool or step does lets it apply the rule where it fits.
+    - Before: "You MUST ALWAYS use the search tool!!"
+    - After: "The search tool returns matching files with line numbers; use it before opening files you have not located."
+
 ## Best Practices
 
 - **Be specific, not verbose**: "Return a JSON object with keys: name, age, city" beats "Please provide a structured response in JSON format containing the relevant information"
