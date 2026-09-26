@@ -13,6 +13,7 @@ Subcommands and exit codes:
     record <path> [--from read|write|command]   0 recorded; 3 refused (changed since the last record)
     check  <path>                               0 unchanged; 3 changed; 4 no record; 5 cannot verify; 2 error
     diff   <path>                               0 shown (and remembered for accept); 4 no record; 2 error
+    diff   <path> --against <file>              0 shown: compares with the agent's own copy; needs no record
     accept <path>                               0 re-baselined; 3 refused (no diff of this exact content)
     log    [--since ISO]                        prints accepts, for the end-of-task summary
     purge  [--path PATH]                        deletes records and copies
@@ -412,12 +413,44 @@ def render_diff(path: Path, record: dict, current: dict, copy: Path | None) -> s
                 out.append("binary file: content changed")
     else:
         out.append("no stored copy (secret-looking path or over the size cap): only the fingerprint is known")
+    if current["kind"] == "office" and copy is not None and copy.is_file():
+        out += _non_text_units(copy, path, record, current)
     if current["kind"] == "office" and not any(line.startswith(("+", "-")) for line in out
                                                  if not line.startswith(("+++", "---"))):
         out.append("non-text change: " + summarize(record, current))
     elif current["kind"] == "office":
         out.append(summarize(record, current))
     return "\n".join(out)
+
+
+CONTENT_PART = re.compile(r"^(?:ppt/slides/slide(\d+)|word/document|xl/worksheets/sheet(\d+))\.xml$")
+
+
+def _non_text_units(before: Path, after: Path, old: dict, new: dict) -> list[str]:
+    """Name each slide, document body, or sheet whose part changed while its text did not.
+
+    Without this line a moved picture hides behind a text change elsewhere (a new speaker note),
+    because the diff above shows text only and the part list is easy to skip.
+    """
+    a, b = old.get("parts", {}), new.get("parts", {})
+    lines: list[str] = []
+    try:
+        with zipfile.ZipFile(before) as zb, zipfile.ZipFile(after) as za:
+            for part in sorted(p for p in set(a) & set(b) if a[p] != b[p]):
+                match = CONTENT_PART.match(part)
+                if not match:
+                    continue
+                runs_before = XML_TEXT_RUN.findall(zb.read(part).decode("utf-8", "replace"))
+                runs_after = XML_TEXT_RUN.findall(za.read(part).decode("utf-8", "replace"))
+                if runs_before != runs_after:
+                    continue
+                unit = (f"slide {match.group(1)}" if match.group(1) else
+                        f"sheet {match.group(2)}" if match.group(2) else "the document body")
+                lines.append(f"non-text change on {unit} (a picture, shape, position, or formatting changed "
+                             f"in {part}): tell the user about it")
+    except (OSError, zipfile.BadZipFile, KeyError):
+        return lines
+    return lines
 
 
 def _unit_order(unit: str) -> tuple:
@@ -502,6 +535,13 @@ def _text_equal(root: Path, key: str, path: Path) -> bool:
 
 def cmd_diff(args, root: Path) -> int:
     path = Path(args.path)
+    if getattr(args, "against", None):
+        # No record needed: compare the file with the agent's own copy (for example the generator's
+        # out/ file). This only reports; it never marks the path diffed, so it cannot release a block.
+        other = Path(args.against)
+        print(render_diff(path, fingerprint(other), fingerprint(path), other))
+        append_log(root, {"event": "diff-against", "path": canonical(path), "against": canonical(other)})
+        return EXIT_OK
     key = key_for(path)
     record = load_record(root, key)
     if record is None:
@@ -709,6 +749,41 @@ def shell_destinations(command: str, cwd: Path) -> list[Path]:
             and not re.search(r"[$*?`]", str(t)) and t.name.lower() not in ignored]
 
 
+SCRIPT_RUNNERS = {"python", "python3", "py", "node", "pwsh", "powershell", "bash", "sh"}
+SCRIPT_EXTS = {".py", ".js", ".mjs", ".cjs", ".ps1", ".sh"}
+DELIVERABLE_EXTS = OFFICE_EXTS | {".pdf", ".html", ".htm", ".md", ".csv", ".odt", ".odp", ".ods", ".rtf"}
+SCRIPT_CAP_BYTES = 1024 * 1024
+QUOTED = re.compile(r"""(['"])([^'"\n]{1,400})\1""")
+
+
+def script_paths(command: str, cwd: Path) -> list[Path]:
+    """Existing document paths written as literals inside a script the command runs.
+
+    A generator script's own save or copy is invisible in the command line (the incident's
+    `python build_deck.py` copied onto the synced deck from inside the script), so the hook reads
+    the script itself for quoted paths with a document extension.
+    """
+    found: list[Path] = []
+    for words in _segments(command):
+        while words and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*=.*", words[0]):
+            words = words[1:]
+        if not words:
+            continue
+        head = Path(words[0]).name.lower().removesuffix(".exe")
+        candidates = words[1:] if head in SCRIPT_RUNNERS else words[:1]
+        script = next((cwd / w for w in candidates if Path(w).suffix.lower() in SCRIPT_EXTS), None)
+        if script is None or not script.is_file() or script.stat().st_size > SCRIPT_CAP_BYTES:
+            continue
+        text = script.read_text(encoding="utf-8", errors="replace")
+        for match in QUOTED.finditer(text):
+            literal = match.group(2)
+            if Path(literal).suffix.lower() not in DELIVERABLE_EXTS:
+                continue
+            options = [Path(literal)] if Path(literal).is_absolute() else [script.parent / literal, cwd / literal]
+            found.extend(p for p in options if p.is_file())
+    return list(dict.fromkeys(found))[:50]
+
+
 def _payload_targets(payload: dict, cwd: Path) -> list[Path]:
     tool = payload.get("tool_name") or ""
     tool_input = payload.get("tool_input") or {}
@@ -739,6 +814,19 @@ def _emit(event: str, lines: list[str]) -> None:
     print(json.dumps({"hookSpecificOutput": {"hookEventName": event, "additionalContext": text}}))
 
 
+def _next_step(target: Path, status: int) -> str:
+    """The exact helper command to run next, so the agent compares with the tool, not by eye."""
+    helper = "".join(ch if ch.isprintable() else "?" for ch in str(Path(__file__).resolve()))
+    shown = "".join(ch if ch.isprintable() else "?" for ch in str(target))
+    if status == EXIT_NO_RECORD:
+        return (f'Next: python "{helper}" diff "{shown}" --against <your own generated copy, for example '
+                "out/deck.pptx>, then tell the user every difference it shows. Do not compare by hand.")
+    if status == EXIT_CHANGED:
+        return (f'Next: python "{helper}" diff "{shown}", then tell the user every change it shows before '
+                "anything else. Do not compare by hand; titles and timestamps miss pictures and notes.")
+    return "Next: ask the user; do not download, open, or overwrite the file to check it."
+
+
 def _settled(root: Path, target: Path) -> bool:
     """A change landing within SETTLE_SECONDS of the agent's own write or command is agent-caused.
 
@@ -767,9 +855,13 @@ def hook_pre(payload: dict, root: Path | None, cwd: Path) -> int:
             _write_private(_marker(root, payload), json.dumps({"at": now().timestamp()}).encode())
         except OSError:
             pass
+    scripted: list[Path] = []
+    if payload.get("tool_name") in SHELL_TOOLS:
+        scripted = [p for p in script_paths(str((payload.get("tool_input") or {}).get("command") or ""), cwd)
+                    if p not in targets]
     blocked: list[str] = []
     warned: list[str] = []
-    for target in targets:
+    for target in targets + scripted:
         if root is None:
             status = EXIT_CANNOT_VERIFY
         else:
@@ -781,8 +873,12 @@ def hook_pre(payload: dict, root: Path | None, cwd: Path) -> int:
             continue
         if status == EXIT_OK:
             continue
+        if target in scripted and status != EXIT_CHANGED:
+            # A literal inside a script may be an input the agent never saw; only a recorded file
+            # that changed since is evidence of a user edit the script is about to overwrite.
+            continue
         reason = HOOK_MESSAGE if status in (EXIT_CHANGED, EXIT_NO_RECORD) else HOOK_CANNOT_VERIFY
-        entry = f"{_display(target)}\n{reason}"
+        entry = f"{_display(target)}\n{reason}\n{_next_step(target, status)}"
         (warned if in_git_repo(Path(os.path.abspath(target)).parent) else blocked).append(entry)
     if blocked:
         print("\n".join(f"[{HOOK_NAME}] BLOCKED: {entry}" for entry in blocked + warned), file=sys.stderr)
@@ -814,6 +910,7 @@ def hook_post(payload: dict, root: Path, cwd: Path) -> int:
     source = "read" if tool == "Read" else "command" if tool in SHELL_TOOLS else "write"
     targets = [t for t in _payload_targets(payload, cwd) if t.is_file()]
     if tool in SHELL_TOOLS:
+        targets += script_paths(str((payload.get("tool_input") or {}).get("command") or ""), cwd)
         marker = _marker(root, payload)
         try:
             since = json.loads(marker.read_text(encoding="utf-8"))["at"]
@@ -872,8 +969,11 @@ def main(argv: list[str] | None = None) -> int:
     record = sub.add_parser("record")
     record.add_argument("path")
     record.add_argument("--from", dest="source", choices=("read", "write", "command"), default="write")
-    for name in ("check", "diff", "accept"):
+    for name in ("check", "accept"):
         sub.add_parser(name).add_argument("path")
+    diff = sub.add_parser("diff")
+    diff.add_argument("path")
+    diff.add_argument("--against", help="compare with this file (the agent's own copy) instead of the record")
     log = sub.add_parser("log")
     log.add_argument("--since")
     purge = sub.add_parser("purge")

@@ -77,7 +77,7 @@ Full walkthrough: [step-8-testing-and-validation.md](references/step-8-testing-a
 
 Once a deliverable exists, the user may have edited it, so revising it follows `user-edit-preservation`, which owns this procedure:
 
-1. Before changing the file, run `edit_guard.py check <file>` from that skill. On any exit other than 0, do not write: run `diff`, and end your turn with that skill's three-part reply (what the user changed, suggestions on their edits or "None", and your plan ending in a question). Write only after the user says yes.
+1. Before changing the file, run `edit_guard.py check <file>` from that skill. On any exit other than 0, do not write: run `diff` (with no record, exit 4, run `diff <file> --against <your own generated copy>`, for example `out/deck.pptx`), and end your turn with that skill's three-part reply (what the user changed, suggestions on their edits or "None", and your plan ending in a question). Write only after the user says yes.
 2. Edit the current file: open it with the library and change only the targeted pages. Do not rerun the generator over it.
 3. If a rebuild is unavoidable, save to a working path (for example `report.revised.pdf`), merge the user's edits in from `edit_guard.py diff`, show the result, and ask before replacing the original.
 4. Never save or copy directly onto a file the user can open (their folder, OneDrive, SharePoint, or a shared drive).

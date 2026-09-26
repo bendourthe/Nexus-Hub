@@ -39,7 +39,7 @@ Set `NEXUS_EDIT_GUARD_SESSION` (or pass `--session`) to one value for the whole 
     |---|---|---|
     | 0 | Unchanged since you last saw it | Make the change, then `record <path> --from write`. |
     | 3 | Changed, or open, or a conflict copy exists | Stop. Go to step 3, or step 5 for an open file or conflict copy. |
-    | 4 | No record for an existing file | Treat it as user-owned: tell the user you have no baseline for it and ask before changing it. |
+    | 4 | No record for an existing file | If you produced it (you still have your own copy, such as a generator's `out/deck.pptx`), run `diff <path> --against <your copy>` and report every difference in step 3's reply, non-text changes included. Otherwise treat it as user-owned: say you have no baseline and ask before changing it. |
     | 5 | Cannot verify (an online-only placeholder) | Go to step 4. Never download it to check, and never overwrite it. |
     | 2 | Error (missing, unreadable, a link, a corrupt archive) | Report the error; do not treat it as unchanged. |
 
@@ -63,6 +63,7 @@ Set `NEXUS_EDIT_GUARD_SESSION` (or pass `--session`) to one value for the whole 
 |---|---|
 | "I will just regenerate it from my script." | The script produces your old version. Rerunning it and copying the result over the user's file is exactly how their edits were lost in the incident this skill exists for. |
 | "Their change was small." | Size is not yours to judge. A one-word fix, a moved picture, or a deleted slide is still their work, and you cannot see what it meant to them. |
+| "The titles match, so nothing changed." | A moved picture, new speaker notes, or a layout change is invisible to a title or text comparison. Compare with `edit_guard.py` (`check`, or `diff --against` your own copy when there is no record), never with an ad-hoc script. |
 | "The diff was empty." | An empty text diff with a changed fingerprint is a non-text change (a moved picture, a layout, a table, formatting). `diff` says so. Ask; never assume nothing changed. |
 | "I have no record, so it must be mine." | Exit 4 on an existing file means you have no baseline, not that nobody touched it. Treat it as user-owned and ask. |
 | "I will restore my version and re-apply their change." | Restoring your version discards everything you did not notice. Edit their current file instead. |

@@ -69,7 +69,9 @@ foreach ($candidate in @(
         $env:NEXUS_EDIT_GUARD_SCRIPT,
         (Join-Path $PSScriptRoot "..\skills\user-edit-preservation\scripts\edit_guard.py"),
         (Join-Path $PSScriptRoot "..\skills\workflow\user-edit-preservation\scripts\edit_guard.py"),
-        (Join-Path $homeDir ".claude\skills\user-edit-preservation\scripts\edit_guard.py"))) {
+        (Join-Path $PSScriptRoot "..\..\.agents\skills\user-edit-preservation\scripts\edit_guard.py"),
+        (Join-Path $homeDir ".claude\skills\user-edit-preservation\scripts\edit_guard.py"),
+        (Join-Path $homeDir ".agents\skills\user-edit-preservation\scripts\edit_guard.py"))) {
     if ($candidate -and (Test-Path -LiteralPath $candidate -PathType Leaf)) { $helper = $candidate; break }
 }
 if (-not $helper) { Invoke-Fallback "edit_guard.py not found" }

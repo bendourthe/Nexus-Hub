@@ -571,7 +571,8 @@
         "code-quality",
         "strategic-comments",
         "pre-commit-checklist",
-        "research-plan-implement"
+        "research-plan-implement",
+        "user-edit-preservation"
       ]
     },
     {

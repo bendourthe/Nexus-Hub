@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import zipfile
@@ -112,6 +113,7 @@ def test_write_onto_user_edited_file_is_blocked_outside_a_worktree(run, work):
     assert result.returncode == 2
     assert "[user-edit-guard] BLOCKED" in result.stderr and _MESSAGE in result.stderr
     assert "NEXUS_DISABLED_HOOKS=user-edit-guard" in result.stderr
+    assert 'Next: python "' in result.stderr and "edit_guard.py\" diff " in result.stderr, "no helper command"
     assert _USER_TEXT not in result.stderr + result.stdout, "file content was echoed"
 
 
@@ -181,6 +183,31 @@ def test_agents_own_bash_change_is_re_recorded_not_blamed_on_the_user(run, work)
     assert run(_payload("PreToolUse", "Write", work, path=deck), work).returncode == 0
 
 
+def test_generator_script_that_copies_onto_the_edited_deck_is_blocked(run, work, tmp_path):
+    """The incident path: the overwrite happens inside the script, not in the command line."""
+    synced = tmp_path / "OneDrive"
+    synced.mkdir()
+    target = synced / "deck.pptx"
+    script = work / "build_deck.py"
+    script.write_text(f"import shutil\nshutil.copy('deck.pptx', r'{target}')\n", encoding="utf-8")
+    command = "python build_deck.py"
+    assert run(_payload("PreToolUse", "Bash", work, command=command), work).returncode == 0, "new target must pass"
+    shutil.copy(work / "deck.pptx", target)
+    assert run(_payload("PostToolUse", "Bash", work, command=command), work).returncode == 0
+    _user_edits(target)
+    later = target.stat().st_mtime + 120
+    os.utime(target, (later, later))
+    result = run(_payload("PreToolUse", "Bash", work, command=command), work)
+    assert result.returncode == 2, result.stderr
+    assert "deck.pptx" in result.stderr
+
+
+def test_unrecorded_document_named_in_a_script_does_not_block(run, work):
+    (work / "report.py").write_text("from pptx import Presentation\nPresentation('other.pptx')\n",
+                                    encoding="utf-8")
+    assert run(_payload("PreToolUse", "Bash", work, command="python report.py"), work).returncode == 0
+
+
 def test_formatter_rewrite_right_after_the_agents_write_is_not_a_user_edit(run, work):
     deck = work / "deck.pptx"
     run(_payload("PostToolUse", "Write", work, path=deck), work)
@@ -236,6 +263,30 @@ def test_helper_that_cannot_decide_fails_closed_outside_and_warns_inside(run, wo
 
     post = run(_payload("PostToolUse", "Write", work, path=work / "deck.pptx"), work, extra)
     assert post.returncode == 0, "a post step must never block"
+
+
+@pytest.mark.parametrize("hooks_dir, skills_dir", [
+    (".claude/hooks", ".claude/skills"),  # Claude Code: skill beside the hooks folder
+    (".codex/hooks", ".agents/skills"),  # Codex: skills under the shared .agents folder
+])
+def test_installed_layouts_find_the_helper(request, work, tmp_path, hooks_dir, skills_dir):
+    """An installed hook must find edit_guard.py where the installer puts the skill, not fall back."""
+    layout = tmp_path / "installed"
+    (layout / hooks_dir).mkdir(parents=True)
+    for name in ("user-edit-guard.sh", "user-edit-guard.ps1"):
+        (layout / hooks_dir / name).write_bytes((_HOOKS_DIR / name).read_bytes())
+    helper_dir = layout / skills_dir / "user-edit-preservation" / "scripts"
+    helper_dir.mkdir(parents=True)
+    (helper_dir / "edit_guard.py").write_bytes(_HELPER.read_bytes())
+    payload = json.dumps(_payload("PreToolUse", "Write", work, path=work / "deck.pptx"))
+    for kind, command in (("sh", [request.getfixturevalue("bash_bin"), str(layout / hooks_dir / "user-edit-guard.sh")]),
+                          ("ps1", [request.getfixturevalue("powershell_bin"), "-NoProfile", "-File",
+                                   str(layout / hooks_dir / "user-edit-guard.ps1")])):
+        proc = subprocess.run(command, input=payload, text=True, capture_output=True, cwd=str(work),
+                              env=_env(tmp_path), timeout=180, check=False)
+        assert proc.returncode == 2, (kind, proc.stderr)
+        assert _MESSAGE in proc.stderr, (kind, proc.stderr)
+        assert "not found" not in proc.stderr, (kind, proc.stderr)
 
 
 def test_both_print_identical_stderr(request, work, tmp_path):

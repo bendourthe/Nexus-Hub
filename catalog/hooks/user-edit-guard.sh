@@ -43,7 +43,9 @@ _find_helper() {
     "${NEXUS_EDIT_GUARD_SCRIPT:-}" \
     "$_HOOK_DIR/../skills/user-edit-preservation/scripts/edit_guard.py" \
     "$_HOOK_DIR/../skills/workflow/user-edit-preservation/scripts/edit_guard.py" \
-    "$HOME/.claude/skills/user-edit-preservation/scripts/edit_guard.py"; do
+    "$_HOOK_DIR/../../.agents/skills/user-edit-preservation/scripts/edit_guard.py" \
+    "$HOME/.claude/skills/user-edit-preservation/scripts/edit_guard.py" \
+    "$HOME/.agents/skills/user-edit-preservation/scripts/edit_guard.py"; do
     if [ -n "$candidate" ] && [ -f "$candidate" ]; then
       printf '%s' "$candidate"
       return 0

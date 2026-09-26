@@ -124,6 +124,24 @@ def test_cross_session_change_is_detected(store: Path, work: Path) -> None:
     assert result.returncode == 3
 
 
+def test_diff_against_the_agents_copy_needs_no_record_and_cannot_release(store: Path, work: Path) -> None:
+    """With no record, the agent compares the user's file with its own generated copy."""
+    from pptx.util import Inches
+
+    ours = make_pptx(work / "out.pptx")
+    theirs = work / "deck.pptx"
+    theirs.write_bytes(ours.read_bytes())
+    prs = pptx.Presentation(str(theirs))
+    next(s for s in prs.slides[1].shapes if s.shape_type == 13).left = Inches(4)
+    prs.slides[1].notes_slide.notes_text_frame.text = "USER NOTE: check the EMEA figure"
+    prs.save(str(theirs))
+    result = run(store, "diff", str(theirs), "--against", str(ours))
+    assert result.returncode == 0
+    assert "USER NOTE: check the EMEA figure" in result.stdout
+    assert "non-text change on slide 2" in result.stdout, "a moved picture must be named beside a note change"
+    assert run(store, "accept", str(theirs)).returncode == 4, "diff --against must not release a block"
+
+
 def test_a_moved_picture_is_a_non_text_change_naming_the_slide_part(store: Path, work: Path) -> None:
     from pptx.util import Inches
 
