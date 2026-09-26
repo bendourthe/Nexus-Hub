@@ -1,7 +1,7 @@
 # Last-Phase Evidence - v4.0.0 Docs Lifespan Tree and Enforcement
 
 **Date**: 2026-08-27
-**Plan**: [`v4.0.0-docs-lifespan-tree-and-enforcement.md`](../../../../archives/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md)
+**Plan**: [`v4.0.0-docs-lifespan-tree-and-enforcement.md`](../plans/v4.0.0-docs-lifespan-tree-and-enforcement.md)
 **Phase**: 7 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD (final)
 **Branch**: `feat/v4.0.0-docs-lifespan-tree-and-enforcement`
 

@@ -168,7 +168,7 @@ This is the forward entry point for every known gap and unfinished task recorded
 
 | Minor | Source ledger | Normalized SHA-256 |
 |---|---|---|
-| v4.0 | [ledger](../v4.0/known-gaps.md) | `32215e6611307137e442645114c59fa49addb1b37b9ffda7eba53ba6d5dfcd88` |
+| v4.0 | [ledger](../v4.0/known-gaps.md) | `63542bc6347a49d5f1ed4d37e0b65966b0578784368db91d794c435998950f0a` |
 | v4.1 | [ledger](../v4.1/known-gaps.md) | `40f451ff14a0efff8e9d339f87787298eca9d07ac2394e34facab7349c30eeab` |
 | v4.2 | [ledger](../v4.2/known-gaps.md) | `fc4e4cff09baa649522c40aab2979a07e66361985a5c84e6b7a8837baeb26fbc` |
 | v4.3 | [ledger](../v4.3/known-gaps.md) | `1fe77192a9dd94591eb44da263bbed22b7d25e8a58bc1f3c23898c1ae68a7bb2` |

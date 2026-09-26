@@ -62,6 +62,7 @@ Two distinct rules put content here, and conflating them is the easy mistake:
 | `v4/v4.0/development/ci-cd-final-audit.md` | `docs/releases/v4/v4.0/development/ci-cd-final-audit.md` | v4.0.0 | 2026-09-25 |
 | `v4/v4.0/development/ci-cd-workflow-audit.md` | `docs/releases/v4/v4.0/development/ci-cd-workflow-audit.md` | v4.0.0 | 2026-09-25 |
 | `v4/v4.0/development/ci-cd-harness-audit.md` | `docs/releases/v4/v4.0/development/ci-cd-harness-audit.md` | v4.0.0 | 2026-09-25 |
+| `v4/v4.0/development/last-phase-evidence.md` | `docs/releases/v4/v4.0/development/last-phase-evidence.md` | v4.0.0 | 2026-09-25 |
 | `v4/v4.0/plans/v4.0.0-agent-communication-overhaul.md` | `docs/releases/v4/v4.0/plans/v4.0.0-agent-communication-overhaul.md` | v4.0 | 2026-09-25 |
 | `v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` | `docs/releases/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` | v4.0 | 2026-09-25 |
 | `v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` | `docs/releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` | v4.0 | 2026-09-25 |
