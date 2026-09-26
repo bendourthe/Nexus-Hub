@@ -777,6 +777,34 @@ def _captured_digests(session: str) -> set[str] | None:
     return digests
 
 
+def _resolve_session(texts: list[str]) -> str | None:
+    """Return the session whose captured prompts contain every approval text.
+
+    Binds `--session auto` to the session in which the user actually typed the
+    approvals, which is also how an agent learns its own session id on platforms
+    that never expose it to the model. Newest capture file first.
+    """
+    prompts = _runs_dir() / "prompts"
+    if not prompts.is_dir():
+        return None
+    wanted = {_digest(t) for t in texts}
+    for path in sorted(
+        prompts.glob("*.jsonl"), key=lambda p: p.stat().st_mtime, reverse=True
+    ):
+        session, digests = None, set()
+        for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+            try:
+                entry = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(entry, dict):
+                session = entry.get("session") or session
+                digests.update(entry.get("digests", []))
+        if session and wanted <= digests:
+            return str(session)
+    return None
+
+
 def _terminal_confirm(summary: str) -> bool:
     """Read 'yes' from the terminal device itself; never stdin or arguments. Fail closed."""
     names = ("CONIN$", "CONOUT$") if os.name == "nt" else ("/dev/tty", "/dev/tty")
@@ -830,6 +858,11 @@ def cmd_record_create(args: argparse.Namespace) -> int:
     summary = f"Approve full run of {ctx.rel}: " + ", ".join(
         str(c["class"]) for c in spec["classes"]
     )
+    if args.session == "auto":
+        resolved = _resolve_session(texts)
+        if resolved is None:
+            return _blocked("approval-not-covered")
+        args.session = resolved
     if not _origin_ok(args.session, texts, summary):
         return _blocked("approval-not-covered")
     defer = (
@@ -987,7 +1020,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     create = record.add_parser("create")
     create.add_argument("plan")
-    create.add_argument("--session", required=True)
+    create.add_argument(
+        "--session",
+        required=True,
+        help="session id, or 'auto' to bind the session that captured the approvals",
+    )
     create.add_argument(
         "--approvals",
         required=True,

@@ -592,3 +592,50 @@ def test_score_reports_met_count_head_and_run(complete: Fixture) -> None:
     assert int(met) == 14  # 2 tasks + 12 contract predicates, all met
     assert head == _git(complete.work, "rev-parse", "HEAD")
     assert run_id == "7"
+
+
+def test_record_create_auto_binds_the_session_that_captured_the_approvals(
+    tmp_path: Path,
+) -> None:
+    fx = Fixture(tmp_path)
+    _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
+    fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
+    fx.capture("other-session", "unrelated prompt")
+    prompts = fx.runs / "prompts"
+    path = prompts / f"{hashlib.sha256(b'the-real-session').hexdigest()}.jsonl"
+    path.write_text(
+        json.dumps({"session": "the-real-session", "digests": [_digest(APPROVAL_TEXT)]})
+        + "\n",
+        encoding="utf-8",
+    )
+    result = fx.run(
+        "record",
+        "create",
+        PLAN_REL,
+        "--session",
+        "auto",
+        "--approvals",
+        str(fx.approvals()),
+    )
+    assert result.returncode == 0, result.stderr
+    assert json.loads(fx.record_path().read_text())["session_id"] == "the-real-session"
+
+
+def test_record_create_auto_without_a_matching_capture_is_blocked(
+    tmp_path: Path,
+) -> None:
+    fx = Fixture(tmp_path)
+    _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
+    fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
+    fx.capture("other-session", "unrelated prompt")
+    result = fx.run(
+        "record",
+        "create",
+        PLAN_REL,
+        "--session",
+        "auto",
+        "--approvals",
+        str(fx.approvals()),
+    )
+    assert result.returncode == 3
+    assert result.stdout.strip() == "BLOCKED: approval-not-covered"

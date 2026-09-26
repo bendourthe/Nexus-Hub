@@ -2754,6 +2754,13 @@ function Install-Templates {
         Safe-Copy -Source $completionCheckerSource -Destination (Join-Path $scriptsDest "check_plan_completion.py") -Confirm:$true -CustomMessage "✓ Plan-completion checker installed at: $scriptsDest\check_plan_completion.py"
     }
 
+    # Copy the completion-gate core (v4.13.2). The completion-gate and
+    # approval-capture hooks run it from this installed path only.
+    $completionGateSource = Join-Path $RepoRoot "scripts\completion_gate.py"
+    if (Test-Path $completionGateSource) {
+        Safe-Copy -Source $completionGateSource -Destination (Join-Path $scriptsDest "completion_gate.py") -Confirm:$true -CustomMessage "✓ Completion gate installed at: $scriptsDest\completion_gate.py"
+    }
+
     # Copy MCP benchmark script (v1.0.0+). Benchmarks the three internal MCPs
     # (nexus-skill-server, nexus-code-search, nexus-web-fetch). Pure-local.
     $benchmarkSource = Join-Path $RepoRoot "scripts\nexus_mcp_benchmark.py"

@@ -227,6 +227,10 @@
         "hooks": [
           {
             "type": "command",
+            "command": "bash .claude/hooks/approval-capture.sh"
+          },
+          {
+            "type": "command",
             "command": "bash .claude/hooks/learning-capture.sh"
           },
           {
@@ -251,6 +255,10 @@
       {
         "matcher": "",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/completion-gate.sh"
+          },
           {
             "type": "command",
             "command": "bash .claude/hooks/usage-display.sh"

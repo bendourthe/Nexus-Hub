@@ -44,7 +44,7 @@ The gate emits exactly one shape per format id. The vendor wording for each row 
 | `exit-2` | exit code 2 with the reason on stderr | `kimi` |
 | `plugin` | a typed plugin return value or SDK call (OpenCode, OpenClaw, Pi, Hermes) | `opencode`, `openclaw`, `pi`, `hermes` |
 
-Copilot CLI and VS Code Copilot both read `~/.copilot/hooks/` but expect different shapes, and exit 2 is only a warning in Copilot CLI. The gate therefore infers the Copilot surface from the payload rather than trusting a single registration format.
+Copilot CLI and VS Code Copilot both read `~/.copilot/hooks/` but expect different shapes, and exit 2 is only a warning in Copilot CLI. The gate therefore emits the canonical block and lets the Copilot bridge write both documented shapes in one object. The gate selects its own output from `NEXUS_GATE_FORMAT` when a registration sets it, otherwise from the payload: `cursor_version` means Cursor, `hook_event_name: AfterAgent` means Gemini CLI, and `session_title` plus `client_type` (Kimi's documented base fields) means Kimi's exit 2; everything else gets `top-level-block`, and the Copilot and Antigravity bridges translate that block for their hosts.
 
 ## Findings that constrain the design
 

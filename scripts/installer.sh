@@ -2596,6 +2596,13 @@ install_templates() {
         safe_copy "$completion_checker_source" "$scripts_dest/check_plan_completion.py" true "[OK] Plan-completion checker installed at: $scripts_dest/check_plan_completion.py"
     fi
 
+    # Copy the completion-gate core (v4.13.2). The completion-gate and
+    # approval-capture hooks run it from this installed path only.
+    local completion_gate_source="$repo_root/scripts/completion_gate.py"
+    if [ -f "$completion_gate_source" ]; then
+        safe_copy "$completion_gate_source" "$scripts_dest/completion_gate.py" true "[OK] Completion gate installed at: $scripts_dest/completion_gate.py"
+    fi
+
     # Copy MCP benchmark script (v1.0.0+). Benchmarks the three internal MCPs
     # (nexus-skill-server, nexus-code-search, nexus-web-fetch). Pure-local.
     local benchmark_source="$repo_root/scripts/nexus_mcp_benchmark.py"
