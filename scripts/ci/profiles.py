@@ -154,6 +154,15 @@ HYGIENE = Group(
     ),
 )
 
+# Every instruction line Nexus-Hub ever shipped, hashed for the legacy-span
+# detector. Unscoped because a template or skill-index edit anywhere must fail
+# the gate until the set is regenerated. Needs full history (CI clones with
+# fetch-depth 0 for the attribution check).
+LEGACY_FINGERPRINTS = Group(
+    name="legacy-fingerprints",
+    commands=(_py("build_legacy_fingerprints", "--check", timeout=120),),
+)
+
 CATALOG = Group(
     name="catalog",
     scope_key="catalog",
@@ -612,6 +621,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
         CATALOG_PARSE,
         PRE_COMMIT,
         HYGIENE,
+        LEGACY_FINGERPRINTS,
         INTERPRETERS,
         CATALOG,
         SECURITY,
