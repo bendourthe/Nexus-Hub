@@ -27,6 +27,7 @@ The module is stdlib-only on purpose: this helper runs under the same Python
 from __future__ import annotations
 
 import hashlib
+import logging
 import os
 import tempfile
 import time
@@ -38,8 +39,9 @@ from typing import TYPE_CHECKING, Any, Iterator, Optional
 if TYPE_CHECKING:
     from scripts.lib.integrations.result import Action, FileAction
 
-DEFAULT_START_MARKER = "<!-- NEXUS_HUB_START -->"
-DEFAULT_END_MARKER = "<!-- NEXUS_HUB_END -->"
+# Re-exported: callers import the markers from this module.
+from .markers import DEFAULT_END_MARKER, DEFAULT_START_MARKER
+
 _BOM = b"\xef\xbb\xbf"
 #: Seconds a writer waits for another cooperating installer's per-target lock.
 LOCK_TIMEOUT_SECONDS = 30.0
@@ -434,7 +436,10 @@ def backup_bytes(backup_dir: Path, target: Path, content: bytes) -> Optional[Pat
         try:
             os.chmod(backup_dir, 0o700)
         except OSError:
-            pass
+            # Best effort: Windows ignores POSIX modes, and a directory owned by
+            # another user cannot be tightened. The owner-only file mode below
+            # and the re-read hash check still decide whether the backup counts.
+            logging.getLogger(__name__).debug("could not restrict %s to owner-only", backup_dir)
         if not dst.exists():
             staging = backup_dir / f".{dst.name}.{os.getpid()}.tmp"
             fd = os.open(staging, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)

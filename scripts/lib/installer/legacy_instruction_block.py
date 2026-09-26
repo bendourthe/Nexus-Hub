@@ -25,7 +25,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .instruction_merge import DEFAULT_END_MARKER, DEFAULT_START_MARKER
+from .markers import DEFAULT_END_MARKER, DEFAULT_START_MARKER
 
 FINGERPRINTS = Path(__file__).resolve().parent / "legacy_fingerprints.json"
 SCHEMA = 1
