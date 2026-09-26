@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-31
 **Mode**: audit only; no files moved
-**Plan**: `docs/releases/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md`
+**Plan**: `docs/archives/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md`
 
 ## Phase 1 - Home Identity, Platforms, Installation, and Comparison
 
@@ -14,7 +14,7 @@ Phase 1 keeps all version-bound planning, gap tracking, render evidence, and his
 
 | Path | Category | Disposition |
 |---|---|---|
-| `docs/releases/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` | Active plan | Keep and advance transactionally with each phase. |
+| `docs/archives/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` | Active plan | Keep and advance transactionally with each phase. |
 | `docs/releases/v4/v4.4/known-gaps.md` | Active release gap ledger | Keep in the active release tree for reconciliation and next-plan ingestion. |
 | `docs/releases/v4/v4.4/docs-cleanup-report.md` | Active release audit record | Keep and append each later phase audit. |
 | `docs/releases/v4/v4.4/development/history/2026-08-31_v4.4.0-guide-depth-and-training-rebuild-phase-1-home.md` | Active phase evidence | Keep in the v4.4 development history through release closure. |

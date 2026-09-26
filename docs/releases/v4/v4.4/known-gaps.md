@@ -24,7 +24,7 @@
 ##### DF-1 (resolved in v4.4.1) - Three platform text treatments were replaced by approved marks
 
 - **Source phase**: Phase 1 - Home identity, platforms, installation, and comparison.
-- **Plan reference**: `docs/releases/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` sub-task 1.2 / T002.
+- **Plan reference**: `docs/archives/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` sub-task 1.2 / T002.
 - **Reason**: Current official assets provide a verified Claude icon, Cursor cube, and OpenCode logo. The OpenAI brand pack does not provide a ChatGPT-specific SVG, Gemini product-icon use requires documented partner approval, and current GitHub guidance does not support using the Copilot bot as a standalone hero mark. Phase 1 therefore uses labelled text treatments for ChatGPT, Gemini, and GitHub Copilot instead of inventing or misapplying trademark geometry.
 - **Suggested next step**: Replace an individual text treatment only after its vendor publishes a distributable standalone product mark or grants documented permission, then add the exact asset provenance and rerun both-theme contrast and geometry tests.
 
@@ -112,7 +112,7 @@
 
 ## v4.4.2 - guide-production-ready-rebuild
 
-**Plan**: [v4.4.2-guide-production-ready-rebuild.md](plans/v4.4.2-guide-production-ready-rebuild.md)
+**Plan**: [v4.4.2-guide-production-ready-rebuild.md](../../../archives/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md)
 **Contract**: [phase-1-contract.md](development/guide-production-ready-rebuild/phase-1-contract.md) (requirement matrix, superseded-assertion register, byte ledger)
 
 ### Carried in from v4.4.1
@@ -175,7 +175,7 @@
 > Not finalized. v4.4.2 is in progress; this section is appended per phase and reconciled at the plan's final phase.
 ## v4.4.3 - guide-illustration-clarity-rebuild
 
-**Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](plans/v4.4.3-guide-illustration-clarity-rebuild.md)
+**Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](../../../archives/v4/v4.4/plans/v4.4.3-guide-illustration-clarity-rebuild.md)
 **Base**: `develop` at `a376c1ae`
 **Status**: nine phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
@@ -230,7 +230,7 @@
 
 ## v4.4.4 - guide-teaching-clarity-rebuild
 
-**Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](plans/v4.4.4-guide-teaching-clarity-rebuild.md)
+**Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](../../../archives/v4/v4.4/plans/v4.4.4-guide-teaching-clarity-rebuild.md)
 **Base**: the v4.4.3 closeout at `bcfa3413`, on the same branch (v4.4.3 was never published)
 **Status**: nine phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
@@ -279,7 +279,7 @@
 
 ## v4.4.5 - guide-mockup-integration
 
-**Plan**: [v4.4.5-guide-mockup-integration.md](plans/v4.4.5-guide-mockup-integration.md)
+**Plan**: [v4.4.5-guide-mockup-integration.md](../../../archives/v4/v4.4/plans/v4.4.5-guide-mockup-integration.md)
 **Base**: the v4.4.4 closeout at `3ac90bb2`, on the same branch (neither v4.4.3 nor v4.4.4 was published)
 **Status**: eight phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 

@@ -51,7 +51,7 @@
 
 ## v4.9.0 - adoption-visa-vulnerability-agentic-harness
 
-**Plan**: [v4.9.0-adoption-visa-vulnerability-agentic-harness.md](plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md)
+**Plan**: [v4.9.0-adoption-visa-vulnerability-agentic-harness.md](../../../archives/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md)
 **Base**: `develop` at `843c147d` (the PR #188 merge)
 **Retargeted**: from v4.8.0 on 2026-09-08, because v4.8.0 shipped carrying only its sibling plan
 

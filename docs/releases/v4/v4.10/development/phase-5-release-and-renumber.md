@@ -1,6 +1,6 @@
 # Phase 5 evidence - Release review and assisted renumber
 
-Evidence for Phase 5 (T013-T016) of the [v4.10.0 plan-queue continuity plan](../plans/v4.10.0-plan-queue-continuity.md). Records the release-time queue review, the completed renumber procedure, the residual-reference check and its proving tests, and the replay of all three 2026-09-10 renumbers against the real tree. Read this to confirm D5 and the renumber half of D6 before Phase 6.
+Evidence for Phase 5 (T013-T016) of the [v4.10.0 plan-queue continuity plan](../../../../archives/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md). Records the release-time queue review, the completed renumber procedure, the residual-reference check and its proving tests, and the replay of all three 2026-09-10 renumbers against the real tree. Read this to confirm D5 and the renumber half of D6 before Phase 6.
 
 ## T013 - Release-time queue review
 
@@ -37,7 +37,7 @@ The two traps are stated with their consequences, and the mid-implementation cas
 
 Two behaviours are load-bearing and both are pinned by tests:
 
-- **Only `v`-prefixed forms match.** A heading such as `#### 4.10 - Publication and integration` is a Phase 4 subsection number, not a version. A `4.10` substitution corrupts it. Verified: `v4.10` matches `docs/releases/v4/v4.10/plans/x.md` and `v4.10.0 adoption plan`, and does not match `#### 4.10 - Publication` or `v4.100`.
+- **Only `v`-prefixed forms match.** A heading such as `#### 4.10 - Publication and integration` is a Phase 4 subsection number, not a version. A `4.10` substitution corrupts it. Verified: `v4.10` matches `docs/archives/v4/v4.10/plans/x.md` and `v4.10.0 adoption plan`, and does not match `#### 4.10 - Publication` or `v4.100`.
 - **A dated renumber note earns an exemption.** A line recording what was confirmed on a date keeps its original claim plus a note. A line making the same stale claim *without* a note still fails, so the exemption is earned by the note rather than by age.
 
 `tests/validators/test_plan_renumber_references.py`, 12 tests: a clean renumber; a single survivor failing (the check is not a threshold); a surviving relative link; a surviving link-reference definition, which a link-text-only scan misses entirely; a surviving tracker row; the bare-section-number trap; the historical-note exemption and its negative case; a longer version not producing a false positive; the minor-checks-patch prefix behaviour; skip prefixes; and dot-directories being ignored.

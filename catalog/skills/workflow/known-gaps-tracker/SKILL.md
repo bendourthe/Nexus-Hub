@@ -135,6 +135,8 @@ ID prefixes are stable: `NI-`, `DF-`, `BG-`, `WN-`, `MT-`, `QG-`. Numbers are mo
 2. Build the candidate file list:
     - The prior version's `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` (resolve its minor dir per the Version-directory resolution) - always include if it exists.
     - Any older in-progress known-gaps file, matching both the two-level `docs/v*/v*/known-gaps.md` and the legacy flat `docs/v*/known-gaps.md` globs, whose `Status:` is still `in-progress` (gaps that lingered across more than one version).
+    - If the prior file has a historical carry-forward table, also include every linked source ledger, even when its `Status:` is `finalized`. Verify each ledger's SHA-256 after normalizing CRLF to LF; a mismatch stops ingest for review. Deduplicate paths already found above.
+    - If that file also has a historical unchecked checklist inventory, inspect each linked plan alongside its source ledger and disposition evidence. A raw `- [ ]` count is a review signal, not automatic new scope or a completion verdict.
 3. Parse all candidate files. Merge their `## Open Items` into a single in-memory list, tagged with the originating version.
 4. If the merged list is non-empty, follow the active instruction template's `Consequential Decisions` rule, then show the user a compact summary and ask how to handle them:
 
@@ -156,6 +158,7 @@ ID prefixes are stable: `NI-`, `DF-`, `BG-`, `WN-`, `MT-`, `QG-`. Numbers are mo
 
 5. Selected items are seeded into the discovery interview at Q2 (Scope) and Q3 (Affected Areas). They become tagged sub-tasks in Step 4 with the prefix `[from <prior-version> known-gaps: NI-2]`. Each Step 4 sub-task `Prompt` block must restate the original `Reason` and `Suggested next step` so the executable prompt is self-contained.
 6. After the new plan file is written, edit each ingested item in its source `known-gaps.md`: move it from `## Open Items` to the `## Resolved` table with `Resolved in: transferred to <new-version> plan`. Items are not yet *fixed* - just transferred to a different tracking surface.
+7. If an ingested source is bound by a historical carry-forward hash, update that hash in the same change after reviewing the source edit; never leave an index that silently points at changed content.
 
 ## Monotonic Scrutiny Across Cycles
 

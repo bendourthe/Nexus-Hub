@@ -4,7 +4,7 @@
 
 Keep Home's identity and palette, simplify its benefit story, rebuild Foundations around seven illustrated lessons, and make Training demonstrate an honest request-to-evidence workflow. Fix invisible instructional content before adding animation. Use one everyday task throughout Foundations, then connect it to the existing coding exercise.
 
-This is a review and implementation plan, not an implementation. The companion [v4.4.6 plan](../../plans/v4.4.6-guide-learning-experience.md) contains the proposed changes and acceptance gates.
+This is a review and implementation plan, not an implementation. The companion [v4.4.6 plan](../../../../../archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md) contains the proposed changes and acceptance gates.
 
 ## Evidence and limitations
 

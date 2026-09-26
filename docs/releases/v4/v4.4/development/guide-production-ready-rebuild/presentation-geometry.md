@@ -1,6 +1,6 @@
 # Presentation Geometry - measured baseline and the v4.4.2 three-pane target
 
-**Plan**: [v4.4.2-guide-production-ready-rebuild.md](../../plans/v4.4.2-guide-production-ready-rebuild.md), Phase 6, sub-task 6.1
+**Plan**: [v4.4.2-guide-production-ready-rebuild.md](../../../../../archives/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md), Phase 6, sub-task 6.1
 **Measured**: 2026-09-02 on the v4.4.1 layout as merged (`46f18986`), in present mode on `#training/describe`, Chromium headless, device scale 1
 
 ## 1. What the v4.4.1 layout actually does

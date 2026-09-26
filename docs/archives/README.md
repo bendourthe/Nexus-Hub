@@ -25,9 +25,9 @@ This mirrors the active version layout. Archived content is **frozen history**: 
 | **v1** | v1.0.0, v1.1.5, v1.3.0 | 24 | Skills-catalog maturation: bundled-resources convention, skill-eval-loop, security hardening |
 | **v2** | v2.0.0, v2.1.0, v2.2.0, v2.3.0, v2.4.0 | 112 | Nexus-Hub rename, spec-driven methodology, integration registry, code-graph, antigravity transition, compound-engineering / persona-review pipeline |
 | **v3** *(prior major, partial)* | `development/history/` subtrees only, v3.0 through v3.21 | 355 | Per-version session histories aged out under the retention policy, completed for the whole v3 line on 2026-09-06. The v3 line is NOT whole-major archived - its plans, comparisons, and known-gaps stay in the active tree. |
-| **v4** *(current major, partial)* | `development/history/` subtrees v4.0-v4.5 and v4.7-v4.12, the v4.1 handbook snapshot, v4.0 CI audits and task reconciliation, bounded follow-up evidence through v4.13 | 390 | Closed histories aged out under the one-minor retention threshold; the three v4.0 CI audits were separately classified as frozen evidence, while the normative contract moved to `docs/policy/`. The aborted v4.13 trigger-pilot attempt remains frozen with its bug open. |
+| **v4** *(current major, partial)* | `development/history/` subtrees v4.0-v4.5 and v4.7-v4.12; plans/comparisons for v4.0, v4.1, v4.3, v4.4, v4.9, v4.10, and v4.11; the v4.1 handbook snapshot; bounded follow-up evidence through v4.13 | 425 | Historical plans and comparisons moved after the verified v4.13 carry-forward; older known-gaps ledgers stay active and their open items remain open. The aborted v4.13 trigger-pilot attempt remains frozen with its bug open. |
 
-The v4 file count excludes the two tracked `.gitkeep` placeholders in the v4.12 handbook snapshot; it is derived from 392 tracked archive files after the three CI audit moves.
+The v4 file count excludes the two tracked `.gitkeep` placeholders in the v4.12 handbook snapshot; it is derived from 427 tracked archive files in this pass.
 
 ## Archival policy
 
@@ -62,6 +62,36 @@ Two distinct rules put content here, and conflating them is the easy mistake:
 | `v4/v4.0/development/ci-cd-final-audit.md` | `docs/releases/v4/v4.0/development/ci-cd-final-audit.md` | v4.0.0 | 2026-09-25 |
 | `v4/v4.0/development/ci-cd-workflow-audit.md` | `docs/releases/v4/v4.0/development/ci-cd-workflow-audit.md` | v4.0.0 | 2026-09-25 |
 | `v4/v4.0/development/ci-cd-harness-audit.md` | `docs/releases/v4/v4.0/development/ci-cd-harness-audit.md` | v4.0.0 | 2026-09-25 |
+| `v4/v4.0/development/last-phase-evidence.md` | `docs/releases/v4/v4.0/development/last-phase-evidence.md` | v4.0.0 | 2026-09-25 |
+| `v4/v4.0/plans/v4.0.0-agent-communication-overhaul.md` | `docs/releases/v4/v4.0/plans/v4.0.0-agent-communication-overhaul.md` | v4.0 | 2026-09-25 |
+| `v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` | `docs/releases/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` | v4.0 | 2026-09-25 |
+| `v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` | `docs/releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` | v4.0 | 2026-09-25 |
+| `v4/v4.1/comparisons/v4.1.0-comparison-pi-and-grill-me.md` | `docs/releases/v4/v4.1/comparisons/v4.1.0-comparison-pi-and-grill-me.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/comparisons/v4.1.0-comparison-skill-trial-records-and-low-evidence-ts.md` | `docs/releases/v4/v4.1/comparisons/v4.1.0-comparison-skill-trial-records-and-low-evidence-ts.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/comparisons/v4.1.1-comparison-openworker-security-refinement.md` | `docs/releases/v4/v4.1/comparisons/v4.1.1-comparison-openworker-security-refinement.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md` | `docs/releases/v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/plans/v4.1.0-adoption-pi-and-grill-me.md` | `docs/releases/v4/v4.1/plans/v4.1.0-adoption-pi-and-grill-me.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md` | `docs/releases/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md` | `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md` | `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md` | v4.1 | 2026-09-25 |
+| `v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` | `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` | v4.3 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` | `docs/releases/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` | v4.4 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md` | `docs/releases/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md` | v4.4 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md` | `docs/releases/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md` | v4.4 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.3-guide-illustration-clarity-rebuild.md` | `docs/releases/v4/v4.4/plans/v4.4.3-guide-illustration-clarity-rebuild.md` | v4.4 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.4-guide-teaching-clarity-rebuild.md` | `docs/releases/v4/v4.4/plans/v4.4.4-guide-teaching-clarity-rebuild.md` | v4.4 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.5-guide-mockup-integration.md` | `docs/releases/v4/v4.4/plans/v4.4.5-guide-mockup-integration.md` | v4.4 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.6-guide-learning-experience.md` | `docs/releases/v4/v4.4/plans/v4.4.6-guide-learning-experience.md` | v4.4 | 2026-09-25 |
+| `v4/v4.9/comparisons/v4.9.0-comparison-visa-vulnerability-agentic-harness.md` | `docs/releases/v4/v4.9/comparisons/v4.9.0-comparison-visa-vulnerability-agentic-harness.md` | v4.9 | 2026-09-25 |
+| `v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md` | `docs/releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md` | v4.9 | 2026-09-25 |
+| `v4/v4.9/plans/v4.9.2-slide-build-contract-and-projection-floors.md` | `docs/releases/v4/v4.9/plans/v4.9.2-slide-build-contract-and-projection-floors.md` | v4.9 | 2026-09-25 |
+| `v4/v4.10/comparisons/v4.10.1-comparison-eval-isolation-and-adaptive-compaction.md` | `docs/releases/v4/v4.10/comparisons/v4.10.1-comparison-eval-isolation-and-adaptive-compaction.md` | v4.10 | 2026-09-25 |
+| `v4/v4.10/plans/v4.10.0-plan-queue-continuity.md` | `docs/releases/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md` | v4.10 | 2026-09-25 |
+| `v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md` | `docs/releases/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md` | v4.10 | 2026-09-25 |
+| `v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md` | `docs/releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md` | v4.11 | 2026-09-25 |
+| `v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md` | `docs/releases/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md` | v4.11 | 2026-09-25 |
+| `v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md` | `docs/releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md` | v4.11 | 2026-09-25 |
+| `v4/v4.11/plans/v4.11.2-adoption-document-and-deck-quality.md` | `docs/releases/v4/v4.11/plans/v4.11.2-adoption-document-and-deck-quality.md` | v4.11 | 2026-09-25 |
 
 Archive moves are performed by `/refactor-docs` (the `docs-layout-refactor` skill) with reference repair; see the most recent `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/docs-cleanup-report.md` for the audit trail of each move. New frozen verification records do not move source files.
 

@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: finalized for the v4.0.0 release
-**Last updated**: 2026-09-24
+**Last updated**: 2026-09-25
 
 ## Release finalization - v4.0.0
 
@@ -215,11 +215,15 @@ None.
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 6 |
-| Warnings (WN) | 1 | 1 |
+| Warnings (WN) | 0 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
+
+None.
+
+### Resolved Items
 
 #### Bugs / Regressions
 
@@ -245,7 +249,7 @@ None.
 ##### BG-3 - RESOLVED - `link-baseline diff` was not move-aware, so its own gate could not report zero on a whole-tree move
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
-- **Plan reference**: `docs/releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3)
+- **Plan reference**: `docs/archives/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3)
 - **What was observed**: `cmd_diff` is a plain set difference over `(source, link, resolved_target)` tuples. A file that MOVES changes its `source` key, so every pre-existing broken link inside it is reported as `newly_broken` while its old tuple is reported as `fixed`. On this migration the raw diff read 873 `newly_broken` / 638 `fixed` when the true count of links broken BY the move was 444, and 0 after repair.
 - **Why it matters**: the plan's acceptance gate is "zero `newly_broken`". As shipped, that gate is unreachable for the exact operation it was built to prove, and a maintainer reading the raw number would either block a correct migration or learn to ignore the gate.
 - **How Phase 6 proved the property instead**: the before-baseline was normalized into post-move coordinates through the rename map, then compared on `(source, resolved_target)` pairs. That comparison reports 0 `newly_broken`, 59 `fixed`, 774 `unchanged`. The normalization script and its output are recorded in the phase session history.
@@ -254,7 +258,7 @@ None.
 ##### BG-4 - RESOLVED - `old-version-docs-guard` treated the highest version directory as the active version
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
-- **Plan reference**: `docs/releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3, "prove the Phase 4 guard live rather than only in fixtures")
+- **Plan reference**: `docs/archives/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3, "prove the Phase 4 guard live rather than only in fixtures")
 - **What was observed**: active-version detection selects the newest `docs/releases/v*/v*/` directory on disk. This repository keeps directories for roadmapped future work (`v4.1`, `v4.2`), so the guard resolves active as `v4.2`. Writing to `docs/releases/v4/v4.0/known-gaps.md` - the version actually being built - emits `Writing to historical version v4.0 ... (active is v4.2)`, while writing to a future directory stays silent.
 - **Reproduction status**: deterministic via the `.ps1` sibling. Pre-existing rather than migration-caused: `docs/v4/v4.1/` and `docs/v4/v4.2/` are both present in the pre-move inventory, so the guard has mis-detected in this repository since those directories were created. Phase 6 is simply the first run against the real tree instead of fixtures.
 - **Resolution**: both siblings now read the declared version from `.claude-plugin/plugin.json` first and fall back to the directory maximum only when no manifest is present, so a roadmapped future directory can no longer be mistaken for the active version. Three regression tests, parametrized over both siblings, cover the future-directory case, a genuinely old directory still warning, and the unchanged no-manifest fallback. Verified live against the real tree: `docs/releases/v3/v3.21/` and `docs/releases/v4/v4.0/` are silent while `docs/releases/v3/v3.1/` and `docs/archives/v2/v2.1/` warn, identically on Bash and PowerShell.
@@ -287,7 +291,7 @@ None.
 
 **Resolution, 2026-09-24**: A disposable Windows virtual environment installed all six declared development extras through the documented editable-install path. The six extension suites passed 828 tests with four skips; the three original failure signatures disappeared. A separate non-editable wheel build exposed duplicate inclusion of an in-package fixture and an absent default benchmark corpus. Both wheel boundaries have targeted regression tests and installed-package verification in the [archived qualification](../../../archives/v4/v4.0/development/extension-suite-and-wheel-qualification.md). The final code-search wheel passed 381 tests with one skip, and its installed benchmark gate passed. PR #287 passed 22 hosted checks and merged to `develop` at `7a46cc37`; post-merge run 36066086467 passed smoke and provenance. The original failed results above remain historical evidence.
 
-##### WN-2 - the migration makes the lifespan-contradiction detector report 243 findings at once
+##### WN-2 (resolved) - the migration makes the lifespan-contradiction detector report 243 findings at once
 
 - **Source phase**: Phase 7 - Architecture refactor, known-gaps reconciliation, and CI/CD
 - **What was observed**: `audit-docs.py lifespan-contradictions` reports 243 files across 20 release buckets, every one with today's `offending_commit_date`. The cause is structural rather than accidental: a whole-tree migration must rewrite link targets inside frozen release buckets to keep those documents navigable, and any commit touching a frozen file is by definition a lifespan contradiction. Two features shipping in the same release interact, and the detector is correct on its own terms.
@@ -300,15 +304,16 @@ None.
 - **Living-document relocation follow-up on 2026-09-25**: The CI profile guide and GitHub settings runbook were copied with matching SHA-256 hashes into `docs/guides/` and `docs/runbooks/`, refreshed against the current runner and repository API, and removed from their old paths. The staged rename-map link comparison found zero newly broken links against 465 pre-existing unresolved references. The committed-tree lifespan detector exited 1 with 1,388 findings across release buckets and exactly four in v4.0: the two plans plus the lifecycle contract and final audit, whose inbound Markdown links needed post-tag repair. The two records need a separate lifespan disposition, and the CI plan's 62 historical unchecked task boxes remain held. WN-2 stays open; the [cleanup report](../v4.13/docs-cleanup-report-v4.0-post-tag.md) records the bounded result.
 - **Contract and audit disposition follow-up on 2026-09-25**: PR #305 merged the two living CI documents at `85d40806`, and its post-merge smoke and provenance jobs passed. PR #306 moved the normative lifecycle contract to `docs/policy/` and the dated final, workflow, and harness audits to `docs/archives/v4/v4.0/development/`; each destination matched its source hash before removal. The 55 lifecycle tests, 17-command fast gate, 8-command docs gate, and rename-map link comparison passed with zero newly broken links. PR #306 passed 32 hosted checks with one expected skip, merged at `e3b51879`, and its post-merge smoke and provenance jobs passed. The detector on that merged tree exited 1 with 1,386 findings repository-wide and exactly two in v4.0, both plans. The CI plan's 62 preserved unchecked task boxes keep WN-2 open.
 
-##### WN-3 - CodeQL's PR check cannot evaluate a rename of this size
+**Resolution, 2026-09-25**: PR #322 archived both remaining plans under the approved verified-transfer rule, and the [task reconciliation](../../../archives/v4/v4.0/development/ci-cd-task-reconciliation.md) accounts for the CI plan's 62 retained strict boxes without rewriting its original failures. A fresh detector scan then found one more v4.0 active-file finding, the frozen `development/last-phase-evidence.md`. This follow-up archived that file after a matching byte count and SHA-256, repaired its plan link and the inbound session-history link, and recorded it in the archive index. The rename-aware link comparison found zero newly broken links, with 465 unresolved targets before and after. The final detector result is recorded in the [v4.13 cleanup report](../v4.13/docs-cleanup-report.md); this closes the v4.0 finding only, not unrelated release buckets or the underlying historical 243-file migration event.
+
+##### WN-3 (resolved as historical platform limit) - CodeQL's PR check cannot evaluate a rename of this size
 
 - **Source phase**: Phase 7 follow-up - the integration pull request
 - **What was observed**: on PR #126 the `CodeQL` check reported failure in 3 seconds while both underlying `Analyze` jobs passed (`javascript-typescript` 1m26s, `python` 1m58s). The annotation is `Cannot retrieve the full diff because there are too many (300) changed files in the pull request`.
 - **Assessment**: a platform limit on GitHub's changed-files diff for code scanning, reached because this release renames 763 files in one commit. It is not a code finding, and the analysis itself completed. `CodeQL` is not in the declared required contexts for either protected branch (`validate`, `shellcheck`, `ci-required`, `colocation`, `verify`), so it does not gate the merge.
 - **Suggested next step**: none for this release. If a future change again renames at this scale, expect the same annotation and read the `Analyze` job results directly rather than the aggregate check.
 
-
-### Resolved Items
+**Disposition, 2026-09-25**: PR #126's 300-file diff limit remains a historical GitHub check limitation, not an unimplemented Nexus-Hub task. Its two underlying analysis jobs passed; no change to the detector or the old run is claimed. Future large PRs must still inspect the language jobs separately.
 
 ##### Resolved - `canonicalize-layout` never migrated the archive container it documented
 
