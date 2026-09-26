@@ -1,8 +1,8 @@
 ---
 name: context-manager
-description: Manage and maintain context across large codebases and complex multi-file changes. Covers context fundamentals (attention budget, progressive disclosure, compaction triggers) and practical techniques for navigating unfamiliar codebases and synthesizing information from multiple sources.
-summary_l0: "Manage context across large codebases with attention budgeting and progressive disclosure"
-overview_l1: "This skill manages and maintains context across large codebases and complex multi-file changes, covering attention budget management, progressive disclosure techniques, and compaction triggers. Use it when navigating unfamiliar codebases, synthesizing information from multiple sources, managing context during complex multi-file changes, or preventing context loss in long sessions. Key capabilities include attention budget allocation across files and concerns, progressive disclosure of codebase details, context compaction when approaching token limits, codebase navigation strategies, multi-source information synthesis, context state checkpointing, and handoff preparation. The expected output is maintained context awareness with clear mental models, organized reference points, and efficient information retrieval across large codebases. Trigger phrases: context management, large codebase, multi-file changes, attention budget, progressive disclosure, context compaction, codebase navigation."
+description: Map large codebases for multi-file changes by tracing file relationships, dependencies, and change impact into a context map. Use for unfamiliar repositories and cross-file edits. SKIP - token budgets, compaction, or session handoffs.
+summary_l0: "Map file relationships and change impact across large codebases"
+overview_l1: "Use context-manager for unfamiliar codebases and multi-file changes. Map components, imports, callers, interfaces, and dependencies; record their relationships and change-impact checks in a context map. Hand off token-loading strategy to context-engineering, compaction and session-boundary summaries to context-compression, and token measurement to prompt-token-optimization. Trigger phrases: context management, large codebase, cross-file changes, related files, track dependencies, change impact, context map."
 ---
 
 # Context Manager

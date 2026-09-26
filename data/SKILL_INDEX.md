@@ -139,7 +139,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | competitive-generation | orchestration | "Run parallel agents on the same task and select the best output by scoring rubric" | catalog/skills/orchestration/competitive-generation/SKILL.md |
 | context-compression | orchestration | "Minimize tokens per task while preserving critical information in agent sessions" | catalog/skills/orchestration/context-compression/SKILL.md |
 | context-degradation | orchestration | "Detect and mitigate context quality decay in long AI agent sessions" | catalog/skills/orchestration/context-degradation/SKILL.md |
-| context-manager | orchestration | "Manage context across large codebases with attention budgeting and progressive disclosure" | catalog/skills/orchestration/context-manager/SKILL.md |
+| context-manager | orchestration | "Map file relationships and change impact across large codebases" | catalog/skills/orchestration/context-manager/SKILL.md |
 | cross-model-orchestrator | orchestration | "Orchestrate multiple AI assistants in coordinated workflows with cross-model QA gates" | catalog/skills/orchestration/cross-model-orchestrator/SKILL.md |
 | error-coordinator | orchestration | "Coordinate cross-agent error resolution with failure correlation and recovery" | catalog/skills/orchestration/error-coordinator/SKILL.md |
 | multi-agent-coordinator | orchestration | "Coordinate concurrent subagents with role separation, scoping, and result integration" | catalog/skills/orchestration/multi-agent-coordinator/SKILL.md |
