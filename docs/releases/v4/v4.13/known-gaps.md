@@ -176,7 +176,7 @@ This is the forward entry point for every known gap and unfinished task recorded
 | v4.5 | [ledger](../v4.5/known-gaps.md) | `e793ab381025b760eaa6cf35c41e57749bb73ec6c2828b1369bcccad129ea24c` |
 | v4.7 | [ledger](../v4.7/known-gaps.md) | `52c01a05534b203bf8b2901c24a6b69e6aaa85a75c78140d3371469ef26b6e1d` |
 | v4.8 | [ledger](../v4.8/known-gaps.md) | `0dd85eddc8f04c1e85c2d72357674b627288fb23bdd1a3b9f4f039585c95cab2` |
-| v4.9 | [ledger](../v4.9/known-gaps.md) | `fdb22a32c5a46310255fa124e2b018fef67d4c0449f540eb517e6499ea4043f3` |
+| v4.9 | [ledger](../v4.9/known-gaps.md) | `f3411c634b3f0a9ba08f645890c80b7025cd8214b2ed3488f2da6ec2ee85b8b3` |
 | v4.10 | [ledger](../v4.10/known-gaps.md) | `f8e1d71999b90c0d06499fa6e1517169935ddd27b21d521032886e701ab84f94` |
 | v4.11 | [ledger](../v4.11/known-gaps.md) | `e03f73d0327c193527a53ba50501762522b40e999d9bd483abe092ee9735df9b` |
 | v4.12 | [ledger](../v4.12/known-gaps.md) | `817f31fc03aa2c029112b999c526739245ee735a8cc50d6ae46a026e04ce7abe` |
