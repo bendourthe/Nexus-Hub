@@ -167,8 +167,17 @@ def test_unverified_paths_never_count(home: Path) -> None:
         for entry in scopes.get("global", []) if isinstance(scopes, dict) else []:
             if entry.get("status") == "UNVERIFIED":
                 _seed(_resolved(entry["path"], ctx))
-    assert get("copilot").native_skill_enumeration(ctx) is False  # ~/.claude/skills is UNVERIFIED for Copilot
     assert get("gemini").native_skill_enumeration(ctx) is False
+
+
+def test_copilot_vscode_only_path_cannot_enable_shared_pointer(home: Path) -> None:
+    ctx = _ctx(home, "pointer")
+    claude_skills = home / ".claude" / "skills"
+    _seed(claude_skills)
+    assert claude_skills in srp.verified_dirs("copilot", ctx, host="vscode")
+    assert claude_skills not in srp.verified_dirs("copilot", ctx, host="cli")
+    assert claude_skills not in srp.verified_dirs("copilot", ctx)
+    assert get("copilot")._skill_index_pointer(ctx) is None
 
 
 def test_a_tree_of_only_foreign_skills_is_not_enumeration(home: Path) -> None:
@@ -190,6 +199,15 @@ def test_missing_contract_fails_closed(home: Path, tmp_path: Path) -> None:
 def _runner_install(home: Path, keys: str, monkeypatch: pytest.MonkeyPatch) -> int:
     monkeypatch.setenv("NEXUS_HUB_SKILL_INDEX", "pointer")
     return runner.main(["install", "--scope", "global", "--target", str(home), "--integrations", keys, "--quiet"])
+
+
+def test_copilot_vscode_only_tree_keeps_full_index_after_install(home: Path,
+                                                                    monkeypatch: pytest.MonkeyPatch) -> None:
+    (home / ".copilot").mkdir()
+    _seed(home / ".claude" / "skills")
+    assert _runner_install(home, "copilot", monkeypatch) == 0
+    personal = (home / ".copilot" / "copilot-instructions.md").read_text(encoding="utf-8")
+    assert personal.count("**Total:") == 1
 
 
 def test_shared_path_consumer_first_is_resolved_after_its_provider(home: Path,
@@ -228,6 +246,7 @@ def test_contract_facts_validate_against_the_doc() -> None:
     ({"path": "~/.claude/skills", "status": "VERIFIED", "source": "https://x"}, "ISO verified date"),
     ({"path": "~/.nowhere/skills", "status": "VERIFIED", "source": "https://x", "verified": "2026-09-25"}, "not documented"),
     ({"path": ".claude/skills", "status": "VERIFIED", "source": "https://x", "verified": "2026-09-25"}, "start with ~/"),
+    ({"path": "~/.claude/skills", "status": "VERIFIED", "source": "https://x", "verified": "2026-09-25", "host": "web"}, "host"),
 ])
 def test_validate_rejects_bad_entries(entry: dict, fragment: str) -> None:
     problems = srp.validate({"demo": {"global": [entry]}}, "~/.claude/skills .claude/skills")

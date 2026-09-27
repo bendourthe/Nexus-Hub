@@ -42,14 +42,16 @@ def _resolve(spec: str, ctx: Any) -> Path:
     return Path(ctx.target_root) / spec
 
 
-def verified_dirs(key: str, ctx: Any) -> list[Path]:
-    """Resolved VERIFIED skill read paths for `key` at `ctx.scope`, in contract order."""
+def verified_dirs(key: str, ctx: Any, *, host: str | None = None) -> list[Path]:
+    """Resolved VERIFIED paths, excluding host-only facts from shared outputs."""
     entries = load_facts(Path(ctx.repo_root)).get(key, {})
     if not isinstance(entries, dict):
         return []
     out: list[Path] = []
     for entry in entries.get(getattr(ctx, "scope", ""), []) or []:
-        if isinstance(entry, dict) and entry.get("status") == "VERIFIED" and isinstance(entry.get("path"), str):
+        if (isinstance(entry, dict) and entry.get("status") == "VERIFIED"
+                and isinstance(entry.get("path"), str)
+                and ("host" not in entry or entry["host"] == host)):
             out.append(_resolve(entry["path"], ctx))
     return out
 
@@ -123,6 +125,8 @@ def validate(facts: Any, doc: str) -> list[str]:
                     continue
                 if status not in STATUSES:
                     problems.append(f"{where} {path}: status must be one of {STATUSES}")
+                if "host" in entry and (key != "copilot" or entry["host"] not in ("vscode", "cli")):
+                    problems.append(f"{where} {path}: host must be copilot vscode or cli")
                 if (scope == "global") != path.startswith("~/"):
                     problems.append(f"{where} {path}: global paths start with ~/, workspace paths are relative")
                 if status == "VERIFIED":
