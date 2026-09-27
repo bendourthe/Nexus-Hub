@@ -117,7 +117,10 @@ $stdoutTask = $process.StandardOutput.ReadToEndAsync()
 $stderrTask = $process.StandardError.ReadToEndAsync()
 try {
     $process.StandardInput.BaseStream.Write($inputBytes, 0, $inputBytes.Length)
-    $process.StandardInput.Close()
+    # Close the raw stream, not the StreamWriter: closing the writer flushes it and, where the
+    # console input encoding is UTF-8, appends a byte-order mark after the payload.
+    $process.StandardInput.BaseStream.Flush()
+    $process.StandardInput.BaseStream.Close()
 } catch {
     # A helper that exits before reading stdin is judged by its exit code below.
 }

@@ -31,3 +31,7 @@ No visible content change is required. `build_presentation.py ... --check` again
 ## Phase 9 addendum - deep-pass hardening of the scan
 
 **Trigger:** the v4.13.1 Phase 9 deep pass changed `scripts/nexus_git_attribution.py` again, inside the agent-hook `scan` path only: footer normalization and end anchoring, agent-identity checks for co-author trailers (reusing the existing `human()` rule), and more recognized publishing routes. The Git hook wrappers, `install`, `check`, `tag`, and identity enforcement are unchanged, so the handbook's three attribution claims stay true and no visible content change is needed. `build_presentation.py ... --check` again reproduced output hash `25ffd7b98de194f81f0a33035b4b184546c394214843318bec54573a2d22efb5`; only the input hash and this content receipt are refreshed.
+
+## Publication addendum - byte-order-mark tolerance
+
+**Trigger:** during publication (PR #337), `scripts/nexus_git_attribution.py` `cmd_scan` was changed to strip a byte-order mark before parsing the hook payload, after the hosted Windows leg showed a launcher appending one. The Git hook wrappers, identity enforcement, and every handbook claim are unchanged; `build_presentation.py ... --check` again reproduced output hash `25ffd7b98de194f81f0a33035b4b184546c394214843318bec54573a2d22efb5`. Only the input hash and this content receipt are refreshed.

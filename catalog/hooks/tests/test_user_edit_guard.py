@@ -450,6 +450,33 @@ def test_installed_layouts_find_the_helper(request, work, tmp_path, hooks_dir, s
         assert "not found" not in proc.stderr, (kind, proc.stderr)
 
 
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows PowerShell stdin writer behavior")
+@pytest.mark.parametrize("hook", ["user-edit-guard", "attribution-guard"])
+def test_ps1_adapters_block_under_a_utf8_console_input_encoding(request, work, tmp_path, hook):
+    """Regression (v4.13.1 PR #337): with a UTF-8 console input encoding, closing the child's
+    StreamWriter appended a byte-order mark after the payload, Python could not parse it, and
+    both guards silently allowed everything on the hosted Windows runner."""
+    source = (_HOOKS_DIR / f"{hook}.ps1").read_text(encoding="utf-8")
+    anchor = "$psi = New-Object System.Diagnostics.ProcessStartInfo"
+    assert source.count(anchor) == 1
+    forced = "[Console]::InputEncoding = New-Object System.Text.UTF8Encoding($true)\n" + anchor
+    copy = tmp_path / "hooks" / f"{hook}.ps1"
+    copy.parent.mkdir()
+    copy.write_text(source.replace(anchor, forced), encoding="utf-8")
+    extra = {"NEXUS_EDIT_GUARD_SCRIPT": str(_HELPER),
+             "NEXUS_ATTRIBUTION_SCRIPT": str(_HOOKS_DIR.parent.parent / "scripts" / "nexus_git_attribution.py")}
+    if hook == "user-edit-guard":
+        payload = _payload("PreToolUse", "Write", work, path=work / "deck.pptx")
+    else:
+        payload = {"hook_event_name": "PreToolUse", "tool_name": "Bash", "cwd": str(work),
+                   "tool_input": {"command": 'git commit -m "x" -m "Co-Authored-By: Claude <noreply@anthropic.com>"'}}
+    proc = subprocess.run([request.getfixturevalue("powershell_bin"), "-NoProfile", "-File", str(copy)],
+                          input=json.dumps(payload), text=True, capture_output=True, cwd=str(work),
+                          env=_env(tmp_path, extra), timeout=180, check=False)
+    assert proc.returncode == 2, (hook, proc.stderr)
+    assert "BLOCKED" in proc.stderr
+
+
 def test_both_print_identical_stderr(request, work, tmp_path):
     deck = work / "deck.pptx"
     _guard(tmp_path, work, "record", str(deck), "--from", "read")

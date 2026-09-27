@@ -1238,7 +1238,9 @@ def hook_post(payload: dict, root: Path, cwd: Path) -> int:
 def cmd_hook() -> int:
     """Hook mode: 0 allow, 2 block. Never raises; an unexpected failure is 'cannot verify'."""
     try:
-        payload = json.loads(sys.stdin.read() or "null")
+        # A launcher may add a byte-order mark before or after the payload; it must never
+        # make the JSON unparseable, which would silently allow the tool call.
+        payload = json.loads(sys.stdin.read().replace("\ufeff", "").strip() or "null")
     except ValueError:
         return EXIT_OK
     if not isinstance(payload, dict):

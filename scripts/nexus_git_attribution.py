@@ -817,7 +817,9 @@ def scan(payload: dict) -> int:
 
 def cmd_scan() -> int:
     try:
-        payload = json.loads(sys.stdin.read() or "null")
+        # A launcher may add a byte-order mark before or after the payload; it must never
+        # make the JSON unparseable, which would silently allow the tool call.
+        payload = json.loads(sys.stdin.read().replace("\ufeff", "").strip() or "null")
     except ValueError:
         return 0
     if not isinstance(payload, dict):
