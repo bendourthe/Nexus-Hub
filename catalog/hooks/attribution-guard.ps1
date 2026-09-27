@@ -31,6 +31,12 @@ if (-not [Console]::IsInputRedirected) { exit 0 }
 $buffer = New-Object System.IO.MemoryStream
 [Console]::OpenStandardInput().CopyTo($buffer)
 $inputBytes = $buffer.ToArray()
+if ($inputBytes.Length -eq 0) {
+    # Windows PowerShell 5.1 started without a console buffers stdin through its own reader,
+    # leaving the raw handle drained; [Console]::In still holds the payload there.
+    $fallbackText = [Console]::In.ReadToEnd()
+    if ($fallbackText) { $inputBytes = (New-Object System.Text.UTF8Encoding($false)).GetBytes($fallbackText) }
+}
 if ($inputBytes.Length -eq 0) { exit 0 }
 
 $budget = 5.0

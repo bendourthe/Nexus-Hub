@@ -184,7 +184,9 @@ def _owner_only(path: Path, *, directory: bool) -> None:
     if os.name != "nt":
         return
     import ctypes
-    from ctypes import wintypes
+    import ctypes.wintypes
+
+    wintypes = ctypes.wintypes
 
     security = ctypes.WinDLL("advapi32", use_last_error=True)
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)
@@ -1112,6 +1114,8 @@ def hook_pre(payload: dict, root: Path | None, cwd: Path) -> int:
         try:
             _write_private(_marker(root, payload), json.dumps({"at": now().timestamp()}).encode())
         except OSError:
+            # Without the start marker the post step only skips its "changed during the command"
+            # scan; nothing is re-recorded, so failing to write it can never hide a user edit.
             pass
     scripted: list[Path] = []
     written: set[Path] = set(targets)
@@ -1157,6 +1161,8 @@ def hook_pre(payload: dict, root: Path | None, cwd: Path) -> int:
             _prune_intents(root)
             _write_private(_intent_file(root, payload), json.dumps(intents).encode())
         except OSError:
+            # Without the intent file the post step force-records nothing and falls back to the
+            # normal refusal, which is the safe direction: a user edit is never re-baselined.
             pass
     if blocked:
         print("\n".join(f"[{HOOK_NAME}] BLOCKED: {entry}" for entry in blocked + warned), file=sys.stderr)
@@ -1199,6 +1205,8 @@ def hook_post(payload: dict, root: Path, cwd: Path) -> int:
             visible = {canonical(t) for t in targets}
             elsewhere = [p for p in _changed_since(root, since, cwd) if canonical(p) not in visible]
         except (OSError, ValueError, KeyError):
+            # No usable start marker (a pre step that did not run or could not write): skip only the
+            # advisory scan; visible targets below still go through the normal record rules.
             pass
     refused: list[str] = [
         f"[{HOOK_NAME}] WARNING: {_display(p)} changed while this command ran, but the command did not "

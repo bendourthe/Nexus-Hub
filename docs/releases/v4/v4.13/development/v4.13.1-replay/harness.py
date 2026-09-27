@@ -267,7 +267,8 @@ def run_one(job: dict, args, ledger: Ledger) -> dict:
 
     t1 = step("turn1", TURN1.format(synced=synced_deck), None)
     report["turn1_cost"] = t1["cost"]
-    report["key_source"] = t1.get("key_source")
+    # Record only whether the pilot key was the credential in use, never any credential value.
+    report["pilot_key_used"] = t1.get("key_source") == "ANTHROPIC_API_KEY"
     if not synced_deck.is_file() or not t1["session"]:
         report["verdict"] = "turn1-no-deck"
         return report
