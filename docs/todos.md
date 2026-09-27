@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Historical v4.0-v4.13 plan implementations are integrated; v4.13.1 user-edit safety, v4.13.2 implement-full, and v4.13.4 Training rebuild remain in isolated worktrees. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Active work:** Historical v4.0-v4.12 plan closure and v4.13.1 and v4.13.3 implementations are integrated; v4.13.2 implement-full and v4.13.4 Training rebuild remain in isolated worktrees. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
 **Closeout boundary:** One future-plan PR (#222, with a v4.15.1 slot collision), recovery backups with unique Git history, historical local backup ACL remediation, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-09-27
 
@@ -23,7 +23,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [ ] Resolve v4.13.3 WN-2 by separating Copilot host-specific pointer eligibility or obtaining first-party CLI evidence before promoting the shared fact.
 - [x] Publish and verify the bounded v4.13.3 WN-2 source recheck through [PR #342](https://github.com/bendourthe/Nexus-Hub/pull/342): 21 checks passed with one intentional skip, [post-merge run 36307142435](https://github.com/bendourthe/Nexus-Hub/actions/runs/36307142435) passed smoke and provenance at `f4635140`, and both superseded worktrees and local branches were removed.
 - [x] Qualify v4.13.1 WN-8 locally: NUL-containing body files now emit "cannot verify body" on both hook implementations; four red-then-green cases, 165 attribution tests with one skip, and the distribution handbook freshness check passed.
-- [ ] Publish and verify the separate v4.13.1 WN-8 repair through a protected PR, then remove its clean worktree and merged branch.
+- [x] Publish and verify the separate v4.13.1 WN-8 repair through [PR #345](https://github.com/bendourthe/Nexus-Hub/pull/345): 24 checks passed with one expected skip, [post-merge run 36332865916](https://github.com/bendourthe/Nexus-Hub/actions/runs/36332865916) passed at `2c37eebf`, and its clean worktree and merged branch were removed.
 - [x] Close superseded PR #225 and delete its branch after confirming commit `b73ec420` retargeted both documents to v4.16.2 on `develop`.
 - [ ] Resolve PR #222's v4.15.1 slot collision: [recorded on the PR](https://github.com/bendourthe/Nexus-Hub/pull/222#issuecomment-5843730486); retarget and refresh the unique Mods documents or withdraw the proposal, then clear its branch.
 - [ ] Complete v4.3 WN-3's optional platform verification after the [2026-09-26 source recheck](releases/v4/v4.3/development/optional-platform-surface-recheck-2026-09-26.md): live Antigravity and Cursor read-back, a supported post-November workflow decision, and Nexus-AI project-local discovery remain unproved.
