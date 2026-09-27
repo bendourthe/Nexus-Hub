@@ -18,7 +18,8 @@ Refreshing this file to the active plan (rather than appending another version's
 - [ ] Publish and verify the v4.13.3 WN-4/BG-9 diff-report follow-up through a protected PR and post-merge smoke/provenance run.
 - [x] Qualify v4.13.1 BG-1 locally: PowerShell read and copy/move source scripts no longer re-record user edits, a `Set-Content` script remains a writer, and the focused guard suite passed 144 tests with one skip. Avoid the local full profile until BG-2 is isolated.
 - [x] Qualify v4.13.1 BG-2 locally: isolate both real installer subprocesses across Windows profile and Git paths; honor `NEXUS_HUB_HOME` for workspace state. Two installer tests and 42 organization/merger tests passed without a real-home full-profile rerun.
-- [ ] Publish and verify the v4.13.1 BG-1/BG-2 repairs through a protected PR, then remove its clean worktree and merged branch.
+- [x] Qualify v4.13.1 WN-8 locally: NUL-containing body files now emit "cannot verify body" on both hook implementations; four red-then-green regression cases and 165 attribution tests passed with one skip.
+- [ ] Publish and verify the v4.13.1 BG-1/BG-2/WN-8 repairs through a protected PR, then remove its clean worktree and merged branch.
 - [x] Close superseded PR #225 and delete its branch after confirming commit `b73ec420` retargeted both documents to v4.16.2 on `develop`.
 - [ ] Resolve PR #222's v4.15.1 slot collision: [recorded on the PR](https://github.com/bendourthe/Nexus-Hub/pull/222#issuecomment-5843730486); retarget and refresh the unique Mods documents or withdraw the proposal, then clear its branch.
 - [ ] Complete v4.3 WN-3's optional platform verification after the [2026-09-26 source recheck](releases/v4/v4.3/development/optional-platform-surface-recheck-2026-09-26.md): live Antigravity and Cursor read-back, a supported post-November workflow decision, and Nexus-AI project-local discovery remain unproved.

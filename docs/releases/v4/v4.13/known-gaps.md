@@ -228,7 +228,7 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 1 | 1 |
-| Warnings (WN) | 8 | 0 |
+| Warnings (WN) | 7 | 1 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -243,10 +243,6 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 #### WN-7: A generated-with footer followed by a long clause passes the attribution hook
 
 **Source phase**: Phase 9 (adversarial pass). **Plan reference**: T014. **Reason**: to let descriptive sentences pass, a footer counts only when it ends at the agent's name, a link, or a clause of at most four words after `-`, `:`, `,`, or `|`. "Generated with Claude Code, then reviewed and edited by hand before merge" therefore passes on `gh` routes; the Git commit-msg hook still blocks it on commits. **Owner**: catalog maintainer. **Status**: open, accepted trade-off. **Suggested next step**: collect real footers from harness defaults and tune the clause limit against them.
-
-#### WN-8: A UTF-16 body file passes without a warning
-
-**Source phase**: Phase 9 (adversarial pass). **Plan reference**: T014. **Reason**: a `--body-file` saved as UTF-16 is read as UTF-8 and matches nothing. GitHub and Git would not show it as a trailer either, so the impact is negligible. **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: warn "cannot verify body" when a body file contains NUL bytes.
 
 #### WN-1: A user edit made between sessions is preserved but not reported
 
@@ -281,6 +277,10 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 #### BG-1: A PowerShell script that only reads a user's file can re-record it as the agent's
 
 **Source phase**: Phase 9 (adversarial pass, final re-probe after fix cycle 3). **Plan reference**: T013. **Original defect**: `edit_guard.py` treated `-Path` and `-LiteralPath` as write destinations for every cmdlet, including `Get-Content` and the source of `Copy-Item` or `Move-Item`. **Resolution**: PowerShell script literals now use the existing shell-command destination parser; the broad parameter-only write pattern was removed. Four source variants failed before the fix and pass afterward on both hook implementations; a `Set-Content` script remains a positive writer control. The focused guard suite passed 144 tests with one host skip. Variable and computed destinations remain bounded by WN-6. **Owner**: catalog maintainer. **Status**: resolved locally, pending protected integration.
+
+#### WN-8: A UTF-16 body file passes without a warning
+
+**Source phase**: Phase 9 (adversarial pass). **Plan reference**: T014. **Original defect**: a UTF-16 `--body-file` decoded as replacement-filled UTF-8 text and matched no attribution pattern without warning. **Resolution**: a body containing NUL bytes now follows the existing "cannot verify body" warning path; normal UTF-8 decoding is unchanged. The two NUL-body cases failed before the fix and passed afterward on both hook implementations; the full attribution suites passed 165 tests with one skip. **Owner**: catalog maintainer. **Status**: resolved locally, pending protected integration.
 
 ## v4.13.3
 
