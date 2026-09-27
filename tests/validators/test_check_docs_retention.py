@@ -302,6 +302,27 @@ def test_archived_plan_exception_still_requires_matching_hash(tmp_path: Path) ->
     assert "v4.0 closed by transfer" not in _run(root).stdout
 
 
+def test_real_v4_historical_transfer_stays_bound_after_archival() -> None:
+    """A source-ledger edit must fail CI even after its plans leave the active tree."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("cdr_transfer", _SCRIPT)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    repo = _SCRIPT.resolve().parents[1]
+    v4 = repo / module.RELEASES_ROOT / "v4"
+    index = v4 / "v4.13" / "known-gaps.md"
+    rows = [match.group(1) for match in module._LEGACY_LEDGER_ROW.finditer(index.read_text(encoding="utf-8"))]
+    expected = [f"v4.{minor}" for minor in range(13) if minor != 6]
+    assert sorted(rows) == sorted(expected), "historical ledger rows are missing or duplicated"
+    stale = [minor for minor in expected if not module.legacy_transfer_is_complete(
+        repo, v4 / minor, v4 / minor / "known-gaps.md"
+    )]
+    assert stale == [], f"historical carry-forward is stale: {stale}"
+
+
 def test_unproven_or_contradicted_closure_never_reports_a_minor(tmp_path: Path) -> None:
     root = _make_repo(tmp_path, "3.17.6", [])
     version = root / "docs" / "releases" / "v3" / "v3.10"
