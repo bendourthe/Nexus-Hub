@@ -227,16 +227,12 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 2 | 0 |
+| Bugs / regressions (BG) | 1 | 1 |
 | Warnings (WN) | 8 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
-
-#### BG-1: A PowerShell script that only reads a user's file can re-record it as the agent's
-
-**Source phase**: Phase 9 (adversarial pass, final re-probe after fix cycle 3). **Plan reference**: T013. **Reason**: `edit_guard.py` treats `-Path` and `-LiteralPath` as a write destination for every cmdlet, so `Get-Content -Path 'deck.md'` or `Copy-Item -Path 'deck.md' -Destination 'backup.md'` (the file as the SOURCE) marks the file as written. If the user saves it while such a script runs, the post step re-records the user's version as the agent's, silently. The Python equivalents are handled (only destinations count). The deep pass's three fix cycles were used, so this is owned here rather than fixed in this release. **Owner**: catalog maintainer. **Status**: open, highest priority of the v4.13.1 gaps. **Suggested next step**: in `_DEST_TEMPLATES`, count `-Path`/`-LiteralPath` only after a writer cmdlet (`Set-Content`, `Add-Content`, `Out-File`, `New-Item`, `Export-*`, `Tee-Object`), and for `Copy-Item`/`Move-Item` use `-Destination` or the last positional argument; add the three `t11` reproductions as tests.
 
 #### BG-2: A test in the full profile writes into the real user's `~/.nexus-hub`
 
@@ -277,6 +273,12 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 #### MT-1: No paid measurement of the rule on a platform other than Claude and Codex
 
 **Source phase**: Phase 8. **Plan reference**: T018. **Reason**: the replay measured Claude Code (with and without the hook) and Codex. Copilot, Cursor, Gemini, and the rule-only platforms receive the same always-loaded rule and skill but were not measured. **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: add one rule-only platform to the next replay.
+
+### Resolved Items
+
+#### BG-1: A PowerShell script that only reads a user's file can re-record it as the agent's
+
+**Source phase**: Phase 9 (adversarial pass, final re-probe after fix cycle 3). **Plan reference**: T013. **Original defect**: `edit_guard.py` treated `-Path` and `-LiteralPath` as write destinations for every cmdlet, including `Get-Content` and the source of `Copy-Item` or `Move-Item`. **Resolution**: PowerShell script literals now use the existing shell-command destination parser; the broad parameter-only write pattern was removed. Four source variants failed before the fix and pass afterward on both hook implementations; a `Set-Content` script remains a positive writer control. The focused guard suite passed 144 tests with one host skip. Variable and computed destinations remain bounded by WN-6. **Owner**: catalog maintainer. **Status**: resolved locally, pending protected integration.
 
 ## v4.13.3
 

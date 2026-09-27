@@ -948,7 +948,6 @@ _DEST_TEMPLATES = (
     r"\.(?:save|save_as|saveas|to_\w+|export\w*)\(\s*(?:QUOTE|(NAME))",
     r"(?:\bPath\(\s*QUOTE\s*\)|\b(NAME))\.write_(?:text|bytes)\(",
     r"\bopen\(\s*(?:QUOTE|(NAME))\s*,\s*['\"][rbt]*[wax]",
-    r"(?:-FilePath|-Path|-LiteralPath|-OutFile)\s+(?:QUOTE|\$(NAME))",
 )
 _DESTINATIONS = [
     re.compile(template.replace("QUOTE", _Q.replace("{n}", "1")).replace("NAME", r"[A-Za-z_]\w*"),
@@ -970,7 +969,7 @@ def _destinations(code: str) -> tuple[set[str], set[str]]:
     return literals, names
 
 
-def _literal_paths(code: str, bases: list[Path]) -> list[tuple[Path, bool]]:
+def _literal_paths(code: str, bases: list[Path], *, powershell: bool = False) -> list[tuple[Path, bool]]:
     """(existing path, written) for each quoted document path in the code.
 
     `written` means the literal is a write destination: the last argument of a copy or move, the
@@ -979,6 +978,8 @@ def _literal_paths(code: str, bases: list[Path]) -> list[tuple[Path, bool]]:
     command that only reads or copies FROM the file is never re-recorded as the agent's.
     """
     dest_literals, dest_names = _destinations(code)
+    ps_destinations = ({path.resolve() for base in bases for path in shell_destinations(code, base)}
+                       if powershell else set())
     lines = code.splitlines()
     found: list[tuple[Path, bool]] = []
     for match in QUOTED.finditer(code):
@@ -987,10 +988,13 @@ def _literal_paths(code: str, bases: list[Path]) -> list[tuple[Path, bool]]:
             continue
         line = lines[code.count("\n", 0, match.start())] if lines else code
         assigned = re.match(r"\s*\$?([A-Za-z_]\w*)\s*[:=]", line)
-        written = literal in dest_literals or bool(assigned and assigned.group(1) in dest_names)
         literal = os.path.expanduser(literal)
         options = [Path(literal)] if Path(literal).is_absolute() else [base / literal for base in bases]
-        found.extend((p, written) for p in options if p.is_file())
+        for path in options:
+            if path.is_file():
+                written = (path.resolve() in ps_destinations if powershell else
+                           literal in dest_literals or bool(assigned and assigned.group(1) in dest_names))
+                found.append((path, written))
     return found
 
 
@@ -1014,12 +1018,14 @@ def script_literals(command: str, cwd: Path) -> list[tuple[Path, bool]]:
         if head in SCRIPT_RUNNERS:
             for index, word in enumerate(kept[1:-1], start=1):
                 if word.lower() in INLINE_FLAGS:
-                    found.extend(_literal_paths(kept[index + 1], [here]))
+                    found.extend(_literal_paths(kept[index + 1], [here],
+                                                powershell=head in {"pwsh", "powershell"}))
         candidates = kept[1:] if head in SCRIPT_RUNNERS else kept[:1]
         script = next((_path(here, w) for w in candidates if Path(w).suffix.lower() in SCRIPT_EXTS), None)
         if script is None or not script.is_file() or script.stat().st_size > SCRIPT_CAP_BYTES:
             continue
-        found.extend(_literal_paths(script.read_text(encoding="utf-8", errors="replace"), [script.parent, here]))
+        found.extend(_literal_paths(script.read_text(encoding="utf-8", errors="replace"), [script.parent, here],
+                                    powershell=script.suffix.lower() == ".ps1"))
     merged: dict[Path, bool] = {}
     for path, written in found:
         merged[path] = merged.get(path, False) or written
