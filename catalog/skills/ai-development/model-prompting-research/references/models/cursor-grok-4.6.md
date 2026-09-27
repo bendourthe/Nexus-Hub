@@ -8,14 +8,14 @@ This file mirrors the `models["cursor-grok-4.6"]` entry in `assets/profiles-inde
 
 ## Verified prompting guidance
 
-| Claim | Confidence | Scope | Primary source |
-|---|---|---|---|
-| On Cursor's Start plan this model runs at a FIXED `medium` effort level, so effort is not an available prompt-side or routing lever there; plan for it rather than trying to raise effort. Start-plan configuration constraint, not model-specific prompting advice; the cited page covers the Cursor Models pool. | `high` | `model-specific` | [source](https://cursor.com/docs/models-and-pricing) |
-| The cited Cursor Models and Pricing page does not provide per-model prompting guidance for this model; any prompting claim needs a separate model-specific source. Negative result is limited to the cited pricing page, not all Cursor documentation or an underlying vendor's guidance. | `high` | `model-specific` | [source](https://cursor.com/docs/models-and-pricing) |
+| Claim | Confidence | Scope | Evidence scope | Primary source |
+|---|---|---|---|---|
+| On Cursor's Start plan this model runs at a FIXED `medium` effort level, so effort is not an available prompt-side or routing lever there; plan for it rather than trying to raise effort. Start-plan configuration constraint, not model-specific prompting advice; the cited page covers the Cursor Models pool. | `high` | `model-specific` | `provider-plan` | [source](https://cursor.com/docs/models-and-pricing) |
+| The cited Cursor Models and Pricing page does not provide per-model prompting guidance for this model; any prompting claim needs a separate model-specific source. Negative result is limited to the cited pricing page, not all Cursor documentation or an underlying vendor's guidance. | `high` | `model-specific` | `cited-page` | [source](https://cursor.com/docs/models-and-pricing) |
 
 ## Does not apply to shared bodies
 
-Every claim in this file is scoped to the model named in the H1. It must not be copied into a shared catalog body: a `SKILL.md`, a command file, or any of the five `base-*.md` instruction templates. Those artifacts are distributed verbatim to every supported platform, so a line naming one model is wrong for every reader running a different one, and `scripts/check_base_template_parity.py` fails the build when such a line diverges across the templates.
+This file is retrieved by the model named in the H1. A claim's evidence can cover a model family, a provider plan, or only a cited-page negative result rather than this variant alone. Claims must not be copied into a shared catalog body: a `SKILL.md`, a command file, or any of the five `base-*.md` instruction templates. Those artifacts are distributed verbatim to every supported platform, so a line naming one model is wrong for every reader running a different one.
 
 If a claim here turns out to be true of models generally rather than of this one, re-scope it to `model-agnostic-candidate` in `assets/profiles-index.json` and let the guard-gated auto-apply path propose the shared-body edit, so the change is branch-isolated, guard-checked, and reviewable.
 

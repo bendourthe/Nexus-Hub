@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "meta": {
     "last_verified": "2026-09-08",
     "platform": "claude-code",
@@ -432,14 +432,16 @@
           "source_url": "https://cursor.com/docs/models-and-pricing",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Start-plan configuration constraint, not model-specific prompting advice; the cited page covers the Cursor Models pool."
+          "note": "Start-plan configuration constraint, not model-specific prompting advice; the cited page covers the Cursor Models pool.",
+          "evidence_scope": "provider-plan"
         },
         {
           "claim": "The cited Cursor Models and Pricing page does not provide per-model prompting guidance for this model; any prompting claim needs a separate model-specific source.",
           "source_url": "https://cursor.com/docs/models-and-pricing",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Negative result is limited to the cited pricing page, not all Cursor documentation or an underlying vendor's guidance."
+          "note": "Negative result is limited to the cited pricing page, not all Cursor documentation or an underlying vendor's guidance.",
+          "evidence_scope": "cited-page"
         }
       ]
     },
@@ -452,14 +454,16 @@
           "source_url": "https://cursor.com/docs/models-and-pricing",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Start-plan configuration constraint, not model-specific prompting advice; the cited page covers the Cursor Models pool."
+          "note": "Start-plan configuration constraint, not model-specific prompting advice; the cited page covers the Cursor Models pool.",
+          "evidence_scope": "provider-plan"
         },
         {
           "claim": "The cited Cursor Models and Pricing page does not provide per-model prompting guidance for this model; any prompting claim needs a separate model-specific source.",
           "source_url": "https://cursor.com/docs/models-and-pricing",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Negative result is limited to the cited pricing page, not all Cursor documentation or an underlying vendor's guidance."
+          "note": "Negative result is limited to the cited pricing page, not all Cursor documentation or an underlying vendor's guidance.",
+          "evidence_scope": "cited-page"
         }
       ]
     },
@@ -472,14 +476,16 @@
           "source_url": "https://cursor.com/docs/models-and-pricing",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Start-plan configuration constraint, not model-specific prompting advice; the cited page covers the Cursor Models pool."
+          "note": "Start-plan configuration constraint, not model-specific prompting advice; the cited page covers the Cursor Models pool.",
+          "evidence_scope": "provider-plan"
         },
         {
           "claim": "The cited Cursor Models and Pricing page does not provide per-model prompting guidance for this model; any prompting claim needs a separate model-specific source.",
           "source_url": "https://cursor.com/docs/models-and-pricing",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Negative result is limited to the cited pricing page, not all Cursor documentation or an underlying vendor's guidance."
+          "note": "Negative result is limited to the cited pricing page, not all Cursor documentation or an underlying vendor's guidance.",
+          "evidence_scope": "cited-page"
         }
       ]
     },
@@ -492,14 +498,16 @@
           "source_url": "https://cursor.com/docs/models-and-pricing",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Start-plan configuration constraint, not model-specific prompting advice; the cited page covers the Cursor Models pool."
+          "note": "Start-plan configuration constraint, not model-specific prompting advice; the cited page covers the Cursor Models pool.",
+          "evidence_scope": "provider-plan"
         },
         {
           "claim": "The cited Cursor Models and Pricing page does not provide per-model prompting guidance for this model; any prompting claim needs a separate model-specific source.",
           "source_url": "https://cursor.com/docs/models-and-pricing",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Negative result is limited to the cited pricing page, not all Cursor documentation or an underlying vendor's guidance."
+          "note": "Negative result is limited to the cited pricing page, not all Cursor documentation or an underlying vendor's guidance.",
+          "evidence_scope": "cited-page"
         }
       ]
     },
@@ -512,14 +520,16 @@
           "source_url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Gemini 3.x family-level recommendation, recorded per rostered model at this index's granularity; not a version-specific measurement."
+          "note": "Gemini 3.x family-level recommendation, recorded per rostered model at this index's granularity; not a version-specific measurement.",
+          "evidence_scope": "model-family"
         },
         {
           "claim": "The cited Gemini prompting page gives no variant-specific guidance for this Flash ID; check separate official model guidance before recording a variant-specific claim.",
           "source_url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Page-level negative result only, not an exhaustive claim about all Google documentation; the positive guidance above is family-scoped."
+          "note": "Page-level negative result only, not an exhaustive claim about all Google documentation; the positive guidance above is family-scoped.",
+          "evidence_scope": "cited-page"
         }
       ]
     },
@@ -532,14 +542,16 @@
           "source_url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Gemini 3.x family-level recommendation, recorded per rostered model at this index's granularity; not a version-specific measurement."
+          "note": "Gemini 3.x family-level recommendation, recorded per rostered model at this index's granularity; not a version-specific measurement.",
+          "evidence_scope": "model-family"
         },
         {
           "claim": "The cited Gemini prompting page gives no variant-specific guidance for this Flash ID; check separate official model guidance before recording a variant-specific claim.",
           "source_url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Page-level negative result only, not an exhaustive claim about all Google documentation; the positive guidance above is family-scoped."
+          "note": "Page-level negative result only, not an exhaustive claim about all Google documentation; the positive guidance above is family-scoped.",
+          "evidence_scope": "cited-page"
         }
       ]
     },
@@ -552,14 +564,16 @@
           "source_url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Gemini 3.x family-level recommendation, recorded per rostered model at this index's granularity; not a version-specific measurement."
+          "note": "Gemini 3.x family-level recommendation, recorded per rostered model at this index's granularity; not a version-specific measurement.",
+          "evidence_scope": "model-family"
         },
         {
           "claim": "The cited Gemini prompting page gives no variant-specific guidance for this Flash ID; check separate official model guidance before recording a variant-specific claim.",
           "source_url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Page-level negative result only, not an exhaustive claim about all Google documentation; the positive guidance above is family-scoped."
+          "note": "Page-level negative result only, not an exhaustive claim about all Google documentation; the positive guidance above is family-scoped.",
+          "evidence_scope": "cited-page"
         }
       ]
     },
@@ -572,21 +586,24 @@
           "source_url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Gemini 3.x family-level recommendation, recorded per rostered model at this index's granularity; not a version-specific measurement."
+          "note": "Gemini 3.x family-level recommendation, recorded per rostered model at this index's granularity; not a version-specific measurement.",
+          "evidence_scope": "model-family"
         },
         {
           "claim": "Be precise and direct, and use one consistent prompt structure with clear delimiters such as XML tags or Markdown headings.",
           "source_url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
           "confidence": "medium",
           "scope": "model-specific",
-          "note": "Gemini 3 family-level guidance, not a result measured on this individual version."
+          "note": "Gemini 3 family-level guidance, not a result measured on this individual version.",
+          "evidence_scope": "model-family"
         },
         {
           "claim": "The cited Gemini prompting page gives no variant-specific guidance for this Flash ID; check separate official model guidance before recording a variant-specific claim.",
           "source_url": "https://ai.google.dev/gemini-api/docs/prompting-strategies",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "Page-level negative result only, not an exhaustive claim about all Google documentation; the positive guidance above is family-scoped."
+          "note": "Page-level negative result only, not an exhaustive claim about all Google documentation; the positive guidance above is family-scoped.",
+          "evidence_scope": "cited-page"
         }
       ]
     },
@@ -612,7 +629,8 @@
           "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "OpenAI frames this as GPT-5.6-family guidance, not a Sol-only difference. For a previous effort of none, its separate guidance keeps none as the latency baseline and tests low where reasoning or tool use may help. Three independent refutation reviews agreed on this boundary."
+          "note": "OpenAI frames this as GPT-5.6-family guidance, not a Sol-only difference. For a previous effort of none, its separate guidance keeps none as the latency baseline and tests low where reasoning or tool use may help. Three independent refutation reviews agreed on this boundary.",
+          "evidence_scope": "model-family"
         }
       ]
     },
@@ -625,7 +643,8 @@
           "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "OpenAI frames this as GPT-5.6-family guidance, not a Luna-only difference. Test quality, latency, and cost for Luna separately; the source does not promise equivalent quality at lower effort. For prior effort none, retain none as the latency baseline and test low when reasoning or tool use may help. Three independent refutation reviews confirmed applicability and this boundary."
+          "note": "OpenAI frames this as GPT-5.6-family guidance, not a Luna-only difference. Test quality, latency, and cost for Luna separately; the source does not promise equivalent quality at lower effort. For prior effort none, retain none as the latency baseline and test low when reasoning or tool use may help. Three independent refutation reviews confirmed applicability and this boundary.",
+          "evidence_scope": "model-family"
         }
       ]
     },
@@ -638,7 +657,8 @@
           "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6",
           "confidence": "high",
           "scope": "model-specific",
-          "note": "OpenAI frames this as GPT-5.6-family guidance, not a Terra-only difference. Test quality, latency, and cost for Terra separately; the source does not promise equivalent quality at lower effort. For prior effort none, retain none as the latency baseline and test low when reasoning or tool use may help. Three independent refutation reviews confirmed applicability and this boundary."
+          "note": "OpenAI frames this as GPT-5.6-family guidance, not a Terra-only difference. Test quality, latency, and cost for Terra separately; the source does not promise equivalent quality at lower effort. For prior effort none, retain none as the latency baseline and test low when reasoning or tool use may help. Three independent refutation reviews confirmed applicability and this boundary.",
+          "evidence_scope": "model-family"
         }
       ]
     }

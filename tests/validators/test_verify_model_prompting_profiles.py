@@ -280,6 +280,11 @@ MUTATIONS: list[tuple[str, Callable[[dict], None], str]] = [
         lambda index: index["models"]["model-a"]["claims"][0].update({"note": 7}),
         ".note must be a string when present",
     ),
+    (
+        "claim_bad_evidence_scope",
+        lambda index: index["models"]["model-a"]["claims"][0].update({"evidence_scope": "universal"}),
+        ".evidence_scope must be one of",
+    ),
 ]
 
 
