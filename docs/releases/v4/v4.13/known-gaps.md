@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-09-26
+**Last updated**: 2026-09-27
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -171,7 +171,7 @@ This is the forward entry point for every known gap and unfinished task recorded
 | v4.0 | [ledger](../v4.0/known-gaps.md) | `63542bc6347a49d5f1ed4d37e0b65966b0578784368db91d794c435998950f0a` |
 | v4.1 | [ledger](../v4.1/known-gaps.md) | `40f451ff14a0efff8e9d339f87787298eca9d07ac2394e34facab7349c30eeab` |
 | v4.2 | [ledger](../v4.2/known-gaps.md) | `fc4e4cff09baa649522c40aab2979a07e66361985a5c84e6b7a8837baeb26fbc` |
-| v4.3 | [ledger](../v4.3/known-gaps.md) | `1fe77192a9dd94591eb44da263bbed22b7d25e8a58bc1f3c23898c1ae68a7bb2` |
+| v4.3 | [ledger](../v4.3/known-gaps.md) | `5493ee26223228bcb9cadf148286a6ca8d2cce2c796345ef301ddc3d80532be1` |
 | v4.4 | [ledger](../v4.4/known-gaps.md) | `34af58f0cb6cbbbab2d2e0767393e1ff18a18740e7cb6f0f2c569c60fd744b56` |
 | v4.5 | [ledger](../v4.5/known-gaps.md) | `e793ab381025b760eaa6cf35c41e57749bb73ec6c2828b1369bcccad129ea24c` |
 | v4.7 | [ledger](../v4.7/known-gaps.md) | `52c01a05534b203bf8b2901c24a6b69e6aaa85a75c78140d3371469ef26b6e1d` |
