@@ -180,7 +180,7 @@ This table is the single-file working inventory of residual v4.0-v4.12 items as 
 | [v4.3 WN-3](../v4.3/known-gaps.md) | Open optional-platform read-back; the source ledger narrows which surfaces are still unverified. | Platform-contract owner: inspect the actual target builds and record each read-path result or explicit unavailability. |
 | [v4.4 HT-1 / HT-4 / MT-446-1](../v4.4/known-gaps.md) | Open human comprehension and final visual review, one carried obligation; the rejected v4.4.6 redesign is not revived. | Guide owner and representative readers: use the retained unassisted exercise and record actual answers and corrections. |
 | [v4.4 HT-2](../v4.4/known-gaps.md) | Accepted unmet real-host installer duty; later isolated installer proof does not certify the user's installation. | Installation owner: first inspect the current host and repair only if needed; obtain separate approval before a real-host reinstall. |
-| [v4.4 HT-3](../v4.4/known-gaps.md) | Historical count of 17 merged branches, not a current branch count. | Repository owner: re-audit current remote refs and delete only reviewed, merged, unprotected branches after confirming no worktree owns them. |
+| [v4.4 HT-3](../v4.4/known-gaps.md) | Closed for current refs on 2026-09-27: the historical 17 candidates are absent; only protected branches and unrelated PR #222 remain on `origin`. | Repository owner: retain the dated source-ledger audit; do not delete PR #222 or other-session worktrees as part of this historical cleanup. |
 | [v4.4 GA-1](../v4.4/known-gaps.md) | Open stylesheet dead-selector coverage; the rejected guide redesign did not perform a global sweep. | Guide owner: run a bounded selector-to-markup audit on the retained guide and verify any removal visually. |
 | [v4.4 MT-446-2](../v4.4/known-gaps.md) | Open native zoom, visual scrolling, and OS occlusion delivery; 200% reflow evidence is narrower. | Guide owner on the target browser and OS: retain native observations and correct only reproduced failures. |
 | [v4.4 CQ-1](../v4.4/known-gaps.md) | Accepted historical PR-ref alert #236; current `develop` rescan closed WN-446-2, not GitHub's retained PR ref. | Security owner: do not treat the old PR ref as a current-code defect; recheck only if its input boundary changes. |
@@ -209,7 +209,7 @@ The v4.4 `RV-1` through `RV-5` visual choices belong to the user-rejected guide 
 | v4.1 | [ledger](../v4.1/known-gaps.md) | `40f451ff14a0efff8e9d339f87787298eca9d07ac2394e34facab7349c30eeab` |
 | v4.2 | [ledger](../v4.2/known-gaps.md) | `fc4e4cff09baa649522c40aab2979a07e66361985a5c84e6b7a8837baeb26fbc` |
 | v4.3 | [ledger](../v4.3/known-gaps.md) | `5493ee26223228bcb9cadf148286a6ca8d2cce2c796345ef301ddc3d80532be1` |
-| v4.4 | [ledger](../v4.4/known-gaps.md) | `34af58f0cb6cbbbab2d2e0767393e1ff18a18740e7cb6f0f2c569c60fd744b56` |
+| v4.4 | [ledger](../v4.4/known-gaps.md) | `baddda620e53acd1870df1cc341ee84f61404fc5c3b4d31b6813fb46a26ab4e7` |
 | v4.5 | [ledger](../v4.5/known-gaps.md) | `e793ab381025b760eaa6cf35c41e57749bb73ec6c2828b1369bcccad129ea24c` |
 | v4.7 | [ledger](../v4.7/known-gaps.md) | `52c01a05534b203bf8b2901c24a6b69e6aaa85a75c78140d3371469ef26b6e1d` |
 | v4.8 | [ledger](../v4.8/known-gaps.md) | `0dd85eddc8f04c1e85c2d72357674b627288fb23bdd1a3b9f4f039585c95cab2` |
