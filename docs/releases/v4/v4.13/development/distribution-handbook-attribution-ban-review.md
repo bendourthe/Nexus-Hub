@@ -27,3 +27,7 @@ The handbook does not state which surfaces the footer ban covers, so the widenin
 - **"Human identity and existing hooks are preserved; direct hosting API writes need separate verification."** Still true: the new agent hook checks gh and GitHub MCP bodies on hook-capable platforms, which is a separate verification layer, not a change to the Git hooks.
 
 No visible content change is required. `build_presentation.py ... --check` again reproduced output hash `25ffd7b98de194f81f0a33035b4b184546c394214843318bec54573a2d22efb5`, so the build and rendered receipts still apply. Only the `nexus_git_attribution.py` input hash and this content receipt are refreshed.
+
+## Phase 9 addendum - deep-pass hardening of the scan
+
+**Trigger:** the v4.13.1 Phase 9 deep pass changed `scripts/nexus_git_attribution.py` again, inside the agent-hook `scan` path only: footer normalization and end anchoring, agent-identity checks for co-author trailers (reusing the existing `human()` rule), and more recognized publishing routes. The Git hook wrappers, `install`, `check`, `tag`, and identity enforcement are unchanged, so the handbook's three attribution claims stay true and no visible content change is needed. `build_presentation.py ... --check` again reproduced output hash `25ffd7b98de194f81f0a33035b4b184546c394214843318bec54573a2d22efb5`; only the input hash and this content receipt are refreshed.

@@ -20,7 +20,7 @@
       "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
       "docs/handbooks/_sources/distribution/ownership-composition.html": "31df6a101328862f4e525a8b79cec45cb531d3404a8c97a108b48fca4ff231e3",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
-      "scripts/nexus_git_attribution.py": "9ae5cbafb460f44dabd70ed81c5dc282e298a7ada784d53a079ae45067d78113",
+      "scripts/nexus_git_attribution.py": "47787902737cd429f61c4d9b6c22dc02047ffd9c262247608f688a370ca8f9fe",
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
       "scripts/lib/integrations/cursor.py": "3d3ac310aba90cb219f62423ed981c7c1de46354d384063e2c6288bf4e53f8e6",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
@@ -32,7 +32,7 @@
     "content": {
       "status": "pass",
       "evidence": "docs/releases/v4/v4.13/development/distribution-handbook-attribution-ban-review.md",
-      "evidence_sha256": "7770446f0706246af53f753dcd5364a3e01d487b5c684cae12fe5ec363c1c715"
+      "evidence_sha256": "2b0525af4f0135d5500fc136df0295130c39cc437cc7d37810e54b86d4aef4ec"
     },
     "build": {
       "status": "pass",

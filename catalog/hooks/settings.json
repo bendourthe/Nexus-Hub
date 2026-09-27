@@ -154,7 +154,12 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/memory-store-guard.sh"
-          },
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
           {
             "type": "command",
             "command": "bash .claude/hooks/user-edit-guard.sh"

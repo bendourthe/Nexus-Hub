@@ -562,11 +562,17 @@ def hook_run(root: Path, hook: str, args: list[str]) -> int:
 SCAN_HOOK = "attribution-guard"
 VENDOR = (r"(?:claude(?:\s+code)?|codex|copilot|cursor|gemini|devin|kimi|qwen|anthropic|openai|"
           r"chatgpt|aider|windsurf|antigravity)")
+MODEL_WORDS = (r"(?:\s+(?:opus|sonnet|haiku|pro|flash|mini|nano|turbo|max|ultra|preview|code|cli|agent|"
+               r"v?\d[\w.]*))*")
+AGENT_NAME = re.compile(r"^" + VENDOR + MODEL_WORDS + r"$", re.IGNORECASE)
 FOOTER = re.compile(
     r"^\s*(?:[^\w\s]+\s*)?(?:generated|made|created|written|authored)\s+(?:with|by|using)\s+"
-    r"(?:\[\s*)?" + VENDOR + r"\b",
+    r"(?:\[\s*)?" + VENDOR + MODEL_WORDS + r"(?:\s*\])?(?:\s*(?:\([^)]*\)|\[[^\]]*\]))?"
+    r"(?:\s+by\s+" + VENDOR + r")?"
+    r"(?:\s*[-:,|]\s*(?:https?://\S*|\S+(?:\s+\S+){0,3}))?[\s.!]*$",
     re.IGNORECASE,
 )
+MARKUP = re.compile(r"<[^>]+>|[_*`~]")
 BADGE = re.compile(r"\U0001F916|:robot(?:_face)?:", re.IGNORECASE)
 VENDOR_NOREPLY = re.compile(
     r"@(?:users\.noreply\.)?(?:anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|cursor\.com|cursor\.sh)\b",
@@ -583,16 +589,33 @@ def attribution_pattern(text: str) -> tuple[str, str] | None:
     lines = text.splitlines()
     for line in lines:
         if TRAILER.match(line):
-            key = line.split(":", 1)[0].strip().casefold()
-            if key != "co-authored-by" or AGENT.search(line.split(":", 1)[1]) or VENDOR_NOREPLY.search(line):
+            key, _, value = line.partition(":")
+            key = key.strip().casefold()
+            if key == "co-authored-by":
+                if _agent_coauthor(value):
+                    return f"trailer:{key}", line
+            elif key in ("ai-generated", "claude-session") or AGENT.search(value) or VENDOR_NOREPLY.search(value):
                 return f"trailer:{key}", line
     tail = [line for line in lines if line.strip()][-FOOTER_WINDOW:]
     for line in tail:
-        if FOOTER.match(line):
+        if FOOTER.match(MARKUP.sub("", line)):
             return "footer:generated-with-agent", line
         if BADGE.search(line):
             return "badge:robot", line
     return None
+
+
+def _agent_coauthor(value: str) -> bool:
+    """A co-author trailer names an agent: the same identity rule the Git hooks apply to authors."""
+    match = re.match(r"\s*(.*?)\s*<([^>]*)>", value)
+    name, email = (match.group(1), match.group(2)) if match else (value.strip(), "someone@example.com")
+    if VENDOR_NOREPLY.search("@" + email.partition("@")[2]) or AGENT_NAME.match(name.strip()):
+        return True
+    try:
+        human(name or "unknown", email if "@" in email else "someone@example.com")
+    except GuardError as exc:
+        return "Agent/bot" in str(exc)
+    return False
 
 
 def _snippet(text: str) -> str:
@@ -623,7 +646,7 @@ def _read_body_file(path: str, cwd: Path) -> tuple[str | None, str | None]:
 
 
 def _words(command: str) -> list[list[str]]:
-    lexer = shlex.shlex(command, posix=True, punctuation_chars=";&|")
+    lexer = shlex.shlex(command.replace("\\", "/"), posix=True, punctuation_chars=";&|")
     lexer.whitespace_split = True
     lexer.commenters = ""
     try:
@@ -668,6 +691,9 @@ def _fill_messages(args: list[str], cwd: Path) -> tuple[str | None, str | None]:
 
 def _route_bodies(words: list[str], cwd: Path) -> tuple[str, list[str], list[str]] | None:
     """(route, bodies, unverifiable reasons) for a publishing command, else None."""
+    while words and (re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*=.*", words[0])
+                     or words[0] in ("env", "sudo", "command", "exec", "nohup", "time", "builtin")):
+        words = words[1:]
     if not words:
         return None
     head = Path(words[0]).name.lower().removesuffix(".exe")
@@ -684,18 +710,21 @@ def _route_bodies(words: list[str], cwd: Path) -> tuple[str, list[str], list[str
 
     if head == "git":
         rest = words[1:]
-        while rest and rest[0] in ("-C", "-c"):
-            rest = rest[2:]
-        if not rest or rest[0] not in ("commit", "tag"):
+        while rest and rest[0].startswith("-"):
+            takes_value = rest[0] in ("-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path")
+            rest = rest[2:] if takes_value else rest[1:]
+        if not rest or rest[0] not in ("commit", "tag", "merge"):
             return None
         args = rest[1:]
         bodies += _option_values(args, {"-m", "--message"})
+        bodies += [re.sub(r"^([\w-]+)\s*=", r"\1:", value) for value in _option_values(args, {"--trailer"})]
         files(_option_values(args, {"-F", "--file"}))
         return f"git {rest[0]}", bodies, reasons
     if head != "gh" or len(words) < 2:
         return None
     if words[1] == "api":
         args = words[2:]
+        files(_option_values(args, {"--input"}))
         for field in _option_values(args, {"-f", "-F", "--field", "--raw-field"}):
             key, _, value = field.partition("=")
             if key.strip().casefold() in BODY_FIELDS:
@@ -720,7 +749,7 @@ def _route_bodies(words: list[str], cwd: Path) -> tuple[str, list[str], list[str
     return f"gh {words[1]} {words[2]}", bodies, reasons
 
 
-HEREDOC = re.compile(r"<<-?\s*(['\"]?)(\w+)\1[^\n]*\n(.*?)\n\s*\2\s*(?:\n|$)", re.DOTALL)
+HEREDOC = re.compile(r"<<-?\s*(['\"]?)([^\s'\"]+)\1[^\n]*\n(.*?)\n\s*\2\s*(?:\n|$)", re.DOTALL)
 
 
 def _mcp_bodies(value: object) -> list[str]:

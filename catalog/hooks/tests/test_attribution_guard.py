@@ -82,6 +82,40 @@ def test_attribution_is_blocked_on_every_inline_route(run, command):
     assert "pattern" in _err(result)
 
 
+@pytest.mark.parametrize("command", [
+    'gh pr create --title t --body "Summary\n\n_Generated with Claude Code_"',
+    'gh pr create --title t --body "Summary\n\nGenerated with **Claude Code**"',
+    'gh pr create --title t --body "Summary\n\n<sub>Generated with Claude Code</sub>"',
+    f'GIT_AUTHOR_DATE=now git commit -m "x" -m "{_AGENT_TRAILER}"',
+    f'env git commit -m "x" -m "{_AGENT_TRAILER}"',
+    f'git --no-pager -c color.ui=never commit -m "x" -m "{_AGENT_TRAILER}"',
+    f'git commit -m "x" --trailer "{_AGENT_TRAILER}"',
+    f'git merge feat -m "Merge\n\n{_AGENT_TRAILER}"',
+    f"git commit -F - <<'MSG-END'\nfeat: x\n\n{_AGENT_TRAILER}\nMSG-END\n",
+    'git commit -m "x" -m "Co-authored-by: Claude Opus 5.5 <opus@example.com>"',
+    'git commit -m "x" -m "Co-authored-by: ChatGPT 5 <me@example.com>"',
+    'gh pr create --title t --body "Summary\n\nGenerated with Claude Opus 5.5"',
+    'gh pr create --title t --body "Summary\n\nGenerated with Claude Code - https://claude.com/claude-code"',
+    'gh pr create --title t --body "Summary\n\nGenerated with [Claude Code][1]"',
+    'gh pr create --title t --body "Summary\n\nGenerated with Claude Code, reviewed by me"',
+    'git commit -m "x" --trailer "Co-authored-by=Claude <noreply@anthropic.com>"',
+    f'command git commit -m "x" -m "{_AGENT_TRAILER}"',
+    'gh pr create --title t --body "Summary\n\nGenerated with Claude Code by Anthropic"',
+])
+def test_deep_pass_attribution_routes_are_blocked(run, command):
+    """Routes and footer forms the Phase 9 adversarial pass found passing."""
+    result = run(_bash(command))
+    assert result.returncode == 2, _err(result)
+
+
+def test_backslash_body_file_and_gh_api_input_are_read(run):
+    body = run.work / "body.md"
+    body.write_text(f"Summary\n\n{_AGENT_TRAILER}\n", encoding="utf-8")
+    windows_path = str(body).replace("/", "\\")
+    assert run(_bash(f"gh pr create --title t --body-file {windows_path}", run.work)).returncode == 2
+    assert run(_bash("gh api repos/o/r/pulls --input body.md", run.work)).returncode == 2
+
+
 def test_body_file_route_is_blocked(run):
     (run.work / "body.md").write_text(f"Summary\n\n{_AGENT_TRAILER}\n", encoding="utf-8")
     assert run(_bash("gh pr create --title t --body-file body.md", run.work)).returncode == 2
@@ -117,6 +151,11 @@ def test_github_mcp_tools_are_blocked(run, tool):
     'git commit -m "Pair work" -m "Co-authored-by: Jane Doe <jane@example.com>"',
     'git commit -m "docs: mention claude-code-templates repository"',
     'git commit -m "feat: route Claude Code sessions through the new hook"',
+    'git commit -m "Pair work" -m "Co-authored-by: Kimi Lee <kimi.lee@example.com>"',
+    'git commit -m "Pair work" -m "Co-authored-by: Jane Roe <jane@bot.io>"',
+    'git commit -m "Tooling" -m "Made-with: VS Code"',
+    'gh pr create --title t --body "Notes\n\nGenerated with Claude Code footers are now rejected by the hook."',
+    'gh pr create --title t --body "Notes\n\nGenerated with Claude Code: see the docs for how the hook rejects this footer."',
     "git status",
     "gh pr list",
 ])
@@ -184,8 +223,9 @@ def test_failing_helper_warns_and_passes(run, tmp_path):
 
 
 def test_long_matched_text_is_truncated_and_control_stripped(run):
-    line = "Generated with Claude Code " + "\x1b[31m" + "A" * 300
-    result = run(_bash(f'gh pr create --title t --body "{line}"'))
+    # A footer must end at the agent name, so the long offending line is a trailer instead.
+    line = _AGENT_TRAILER + " " + "\x1b[31m" + "A" * 300
+    result = run(_bash(f'gh pr create --title t --body "Summary\n\n{line}"'))
     assert result.returncode == 2
     reported = next(ln for ln in _err(result).splitlines() if ln.startswith("Line: "))
     assert len(reported) <= len("Line: ") + 80

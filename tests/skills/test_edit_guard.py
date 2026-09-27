@@ -124,6 +124,25 @@ def test_cross_session_change_is_detected(store: Path, work: Path) -> None:
     assert result.returncode == 3
 
 
+def test_record_cannot_release_a_changed_file(store: Path, work: Path) -> None:
+    """Only accept (after diff) may re-baseline a file the user changed; record is refused."""
+    path = make_text(work / "notes.md")
+    run(store, "record", str(path))
+    user_edits(path)
+    for source in ("write", "command"):
+        assert run(store, "record", str(path), "--from", source).returncode == 3, source
+    assert run(store, "check", str(path)).returncode == 3
+
+
+def test_record_after_a_clean_check_and_the_agents_own_write_succeeds(store: Path, work: Path) -> None:
+    path = make_text(work / "notes.md")
+    run(store, "record", str(path))
+    assert run(store, "check", str(path)).returncode == 0
+    path.write_text("the agent's own revision\n", encoding="utf-8")
+    assert run(store, "record", str(path), "--from", "write").returncode == 0
+    assert run(store, "check", str(path)).returncode == 0
+
+
 def test_diff_against_the_agents_copy_needs_no_record_and_cannot_release(store: Path, work: Path) -> None:
     """With no record, the agent compares the user's file with its own generated copy."""
     from pptx.util import Inches

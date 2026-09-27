@@ -10,7 +10,8 @@ are fingerprinted by their content parts only, so AutoSave and sync rewriting
 
 Subcommands and exit codes:
 
-    record <path> [--from read|write|command]   0 recorded; 3 refused (changed since the last record)
+    record <path> [--from read|write|command]   0 recorded; 3 refused (changed since the last record, unless
+                                                a clean `check` of that state ran within 120 seconds)
     check  <path>                               0 unchanged; 3 changed; 4 no record; 5 cannot verify; 2 error
     diff   <path>                               0 shown (and remembered for accept); 4 no record; 2 error
     diff   <path> --against <file>              0 shown: compares with the agent's own copy; needs no record
@@ -45,6 +46,7 @@ EXIT_OK, EXIT_ERROR, EXIT_CHANGED, EXIT_NO_RECORD, EXIT_CANNOT_VERIFY = 0, 2, 3,
 RETENTION_DAYS = 30
 COPY_CAP_BYTES = 10 * 1024 * 1024
 DIFF_WINDOW_SECONDS = 30 * 60
+CLEAN_WINDOW_SECONDS = 120  # a CLI check-write-record sequence; a user edit inside it is a residual risk
 OFFICE_EXTS = {".pptx", ".pptm", ".docx", ".docm", ".xlsx", ".xlsm", ".potx", ".dotx", ".xltx"}
 METADATA_PREFIX = "docProps/"
 SECRET_PATTERNS = (".env", ".env.*", "*.pem", "*.key", "id_*", "credentials*", "*.kdbx", "*.p12", "*.pfx")
@@ -113,16 +115,54 @@ def in_git_repo(path: Path) -> bool:
     return False
 
 
+def protected_by_git(path: Path) -> bool:
+    """A real work tree AND a tracked file: only then does history hold the user's last commit."""
+    if not in_worktree(path):
+        return False
+    import subprocess
+
+    real = Path(os.path.realpath(str(path)))
+    try:
+        result = subprocess.run(["git", "-C", str(real.parent), "ls-files", "--error-unmatch", "--", real.name],
+                                capture_output=True, text=True, timeout=3, check=False)
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return result.returncode == 0
+
+
+def in_worktree(path: Path) -> bool:
+    """True only when git itself says the real location is inside a work tree.
+
+    A bare `.git` folder someone created, or a junction into a repository, must not turn a
+    block into a warning, so this resolves the real path and asks git.
+    """
+    probe = Path(os.path.realpath(str(path)))
+    probe = probe if probe.is_dir() else probe.parent
+    if not in_git_repo(probe):
+        return False
+    import subprocess
+
+    try:
+        result = subprocess.run(["git", "-C", str(probe), "rev-parse", "--is-inside-work-tree"],
+                                capture_output=True, text=True, timeout=3, check=False)
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return result.returncode == 0 and result.stdout.strip() == "true"
+
+
 # --- store ----------------------------------------------------------------------
 
 
 def store_dir() -> Path:
     """The store root, refusing any location that would leak copies of user files."""
-    raw = os.environ.get("NEXUS_EDIT_GUARD_DIR") or str(Path.home() / ".nexus-hub" / "cache" / "edit-guard")
+    explicit = os.environ.get("NEXUS_EDIT_GUARD_DIR")
+    raw = explicit or str(Path.home() / ".nexus-hub" / "cache" / "edit-guard")
     root = Path(os.path.abspath(raw))
     cwd = Path(os.path.realpath(os.getcwd()))
     real = Path(os.path.realpath(str(root)))
-    if real == cwd or cwd in real.parents:
+    # The default store sits under the home folder, so an agent working from its home (or any
+    # folder above it) is normal; only an explicitly chosen store may not sit in the workspace.
+    if explicit and (real == cwd or cwd in real.parents):
         raise GuardError(f"refusing a store inside the current workspace: {root}")
     if in_git_repo(real):
         raise GuardError(f"refusing a store inside a git repository: {root}")
@@ -465,13 +505,30 @@ def session_id(args) -> str:
     return getattr(args, "session", None) or os.environ.get("NEXUS_EDIT_GUARD_SESSION", "")
 
 
+def _may_rebaseline(args, existing: dict) -> bool:
+    """A changed record may be replaced only after the agent's own clean check, or internally.
+
+    The agent's sequence is check (unchanged), write, record: the clean check proves the change
+    since is the agent's. Without it, a changed file is the user's until diff and accept.
+    """
+    if getattr(args, "force", False):
+        return True
+    if args.source == "read":
+        return False
+    clean = existing.get("clean_check") or {}
+    if clean.get("sha256") != existing.get("sha256") or not clean.get("at"):
+        return False
+    return (now() - dt.datetime.fromisoformat(clean["at"])).total_seconds() <= CLEAN_WINDOW_SECONDS
+
+
 def cmd_record(args, root: Path) -> int:
     path = Path(args.path)
     key = key_for(path)
     existing = load_record(root, key)
     current = fingerprint(path)
-    if existing and existing["sha256"] != current["sha256"] and args.source == "read":
-        print(f"refused: {path} changed since the agent last recorded it; run diff and review before re-recording")
+    if existing and existing["sha256"] != current["sha256"] and not _may_rebaseline(args, existing):
+        print(f"refused: {path} changed since the agent last recorded it; run diff and review, then accept "
+              "if the user agrees")
         append_log(root, {"event": "record-refused", "path": canonical(path)})
         return EXIT_CHANGED
     copy_note = None
@@ -490,7 +547,7 @@ def cmd_record(args, root: Path) -> int:
     record = {
         "path": canonical(path), "display": str(path), "seq": (existing or {}).get("seq", 0) + 1,
         "from": args.source, "at": now().isoformat(timespec="seconds"), "copy": copy_note is None,
-        "copy_note": copy_note, **current,
+        "copy_note": copy_note, "mtime_ns": os.stat(path).st_mtime_ns, **current,
     }
     save_record(root, key, record)
     print(f"recorded {path} (seq {record['seq']}, from {args.source})" + (f"; {copy_note}" if copy_note else ""))
@@ -516,6 +573,9 @@ def cmd_check(args, root: Path) -> int:
         return EXIT_CHANGED
     current = fingerprint(path)
     if current["sha256"] == record["sha256"]:
+        if getattr(args, "stamp", False):
+            record["clean_check"] = {"sha256": record["sha256"], "at": now().isoformat(timespec="seconds")}
+            save_record(root, key, record)
         print(f"unchanged: {path}")
         append_log(root, {"event": "check", "result": "unchanged", "path": canonical(path)})
         return EXIT_OK
@@ -579,6 +639,7 @@ def cmd_accept(args, root: Path) -> int:
         print("refused: the file changed after the diff was shown; run diff again")
         return EXIT_CHANGED
     args.source = "write"
+    args.force = True
     record.pop("diffed", None)
     save_record(root, key, record)
     status = cmd_record(args, root)
@@ -668,8 +729,13 @@ def _segments(command: str) -> list[list[str]]:
     return [s for s in segments if s]
 
 
+def _path(here: Path, word: str) -> Path:
+    """Resolve a command-line path word against the current folder, expanding `~`."""
+    return Path(os.path.expanduser(word)) if word.startswith("~") else here / word
+
+
 def _into(dest: str, sources: list[str], cwd: Path) -> list[Path]:
-    target = cwd / dest
+    target = _path(cwd, dest)
     if target.is_dir():
         return [target / Path(src).name for src in sources]
     return [target]
@@ -691,7 +757,7 @@ def _copy_targets(words: list[str], cwd: Path) -> list[Path]:
             elif not arg.startswith("-"):
                 positional.append(arg)
         if target_dir:
-            return [cwd / target_dir / Path(src).name for src in positional]
+            return [_path(cwd, target_dir) / Path(src).name for src in positional]
         if len(positional) >= 2:
             return _into(positional[-1], positional[:-1], cwd)
         return []
@@ -718,30 +784,145 @@ def _copy_targets(words: list[str], cwd: Path) -> list[Path]:
     return []
 
 
-def shell_destinations(command: str, cwd: Path) -> list[Path]:
-    """Every file a shell command visibly writes: copy/move destinations and redirections."""
-    targets: list[Path] = []
+PS_WRITERS = {"set-content", "add-content", "out-file", "sc", "ac", "tee-object"}
+PS_VALUE_PARAMS = {"-value", "-encoding", "-inputobject", "-width", "-delimiter", "-stream", "-filter",
+                   "-include", "-exclude", "-variable"}
+CD_COMMANDS = {"cd", "set-location", "sl", "pushd", "push-location", "chdir"}
+SHELL_RUNNERS = {"bash", "sh", "zsh", "pwsh", "powershell", "cmd"}
+DOTNET_WRITE = re.compile(
+    r"\[(?:System\.)?IO\.File\]::(?:WriteAll\w*|AppendAll\w*)\(\s*(['\"])(.+?)\1", re.IGNORECASE)
+DOTNET_COPY = re.compile(
+    r"\[(?:System\.)?IO\.File\]::(?:Copy|Move)\(\s*(['\"])(.+?)\1\s*,\s*(['\"])(.+?)\3", re.IGNORECASE)
+
+
+def _writer_targets(words: list[str], here: Path) -> list[Path]:
+    """Files written by in-place editors and download or content cmdlets."""
+    name = Path(words[0]).name.lower().removesuffix(".exe")
+    args = words[1:]
+    if name in PS_WRITERS:
+        it = iter(args)
+        for arg in it:
+            lower = arg.lower()
+            if lower in ("-path", "-filepath", "-literalpath", "-lp", "-pspath"):
+                value = next(it, None)
+                return [_path(here, value)] if value else []
+            if lower in PS_VALUE_PARAMS:
+                next(it, None)
+            elif not arg.startswith("-"):
+                return [_path(here, arg)]
+        return []
+    if name in ("invoke-webrequest", "iwr", "invoke-restmethod", "irm"):
+        it = iter(args)
+        for arg in it:
+            if arg.lower() == "-outfile":
+                value = next(it, None)
+                return [_path(here, value)] if value else []
+        return []
+    if name in ("new-item", "ni") and any(a.lower() == "-force" for a in args):
+        it = iter(args)
+        for arg in it:
+            lower = arg.lower()
+            if lower in ("-path", "-literalpath", "-name"):
+                value = next(it, None)
+                return [_path(here, value)] if value else []
+            if lower in ("-value", "-itemtype", "-type"):
+                next(it, None)
+            elif not arg.startswith("-"):
+                return [_path(here, arg)]
+        return []
+    if name == "perl" and any(re.fullmatch(r"-[a-zA-Z]*i\S*", a) for a in args):
+        positional = [a for a in args if not a.startswith("-")]
+        return [_path(here, a) for a in (positional if "-e" in args or any(
+            re.fullmatch(r"-[a-zA-Z]*e", a) for a in args) else positional[1:])]
+    if name == "sed" and any(a == "--in-place" or re.fullmatch(r"-[a-zA-Z]*i\S*", a) for a in args):
+        positional = [a for a in args if not a.startswith("-")]
+        has_script_flag = any(a in ("-e", "-f", "--expression", "--file") for a in args)
+        return [_path(here, a) for a in (positional if has_script_flag else positional[1:])]
+    if name in ("curl", "wget"):
+        flags = ("-o", "--output") if name == "curl" else ("-O", "--output-document")
+        cluster = re.compile(r"-[a-zA-Z]*o" if name == "curl" else r"-[a-zA-Z]*O")
+        it = iter(args)
+        for arg in it:
+            if arg in flags or cluster.fullmatch(arg):
+                value = next(it, None)
+                return [_path(here, value)] if value else []
+            for flag in flags:
+                if flag.startswith("--") and arg.startswith(flag + "="):
+                    return [_path(here, arg.split("=", 1)[1])]
+        return []
+    if name == "dd":
+        return [_path(here, a[3:]) for a in args if a.startswith("of=")]
+    return []
+
+
+def _walk(command: str, cwd: Path):
+    """Yield (words without redirections, redirection targets, current folder) per segment.
+
+    `cd`, `Set-Location`, and `pushd` move the folder later segments run in, so
+    `cd docs && python build.py` resolves against docs.
+    """
+    here = cwd
     for words in _segments(command):
         kept: list[str] = []
-        it = iter(words)
+        redirected: list[Path] = []
+        words = [w.lstrip("(") if i == 0 else w for i, w in enumerate(words)]
+        if words and words[-1].endswith(")"):
+            words[-1] = words[-1].rstrip(")")
+        split: list[str] = []
+        for word in words:
+            match = re.fullmatch(r"(-[A-Za-z]+):(.+)", word)
+            split.extend([match.group(1), match.group(2)] if match else [word])
+        it = iter(w for w in split if w)
         for word in it:
             if word in REDIRECTS:
                 target = next(it, None)
                 if target:
-                    targets.append(cwd / target)
-            elif word in ("<", "<<", ">&", "<&"):
+                    redirected.append(_path(here, target))
+            elif word == "<":
+                operand = next(it, None)
+                head = Path(kept[0]).name.lower().removesuffix(".exe") if kept else ""
+                if operand and head in SCRIPT_RUNNERS:
+                    kept.append(operand)  # `python < gen.py` runs gen.py
+            elif word in ("<<", ">&", "<&"):
                 next(it, None)
             else:
                 kept.append(word)
         while kept and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*=.*", kept[0]):
             kept = kept[1:]
-        if kept and kept[0] == "sudo":
+        if kept and kept[0] in ("sudo", "env"):
             kept = kept[1:]
-        if kept and Path(kept[0]).name.lower() == "tee":
-            targets.extend(cwd / w for w in kept[1:] if not w.startswith("-"))
-        elif kept:
-            targets.extend(_copy_targets(kept, cwd))
+        if kept and kept[0].lower() in CD_COMMANDS:
+            destinations = [a for a in kept[1:] if not a.startswith("-") and not re.fullmatch(r"/[a-zA-Z]", a)]
+            if destinations:
+                here = _path(here, destinations[0])
+            continue
+        yield kept, redirected, here
+
+
+def shell_destinations(command: str, cwd: Path, depth: int = 0) -> list[Path]:
+    """Every file a shell command visibly writes: copies, moves, redirections, and in-place editors."""
+    targets: list[Path] = []
+    for kept, redirected, here in _walk(command, cwd):
+        targets.extend(redirected)
+        if not kept:
+            continue
+        head = Path(kept[0]).name.lower().removesuffix(".exe")
+        if head in SHELL_RUNNERS:
+            for index, word in enumerate(kept[1:-1], start=1):
+                if word.lower() in ("-c", "-command", "/c", "/k"):
+                    inner = " ".join(kept[index + 1:])  # quoted or not, the rest is the command
+                    targets.extend(shell_destinations(inner, here, depth + 1) if depth < 3 else [])
+            continue
+        if head == "tee":
+            targets.extend(_path(here, w) for w in kept[1:] if not w.startswith("-"))
+        else:
+            targets.extend(_copy_targets(kept, here))
+            targets.extend(_writer_targets(kept, here))
     for match in SHUTIL_COPY.finditer(command):
+        targets.extend(_into(match.group(4).replace("\\", "/"), [match.group(2)], cwd))
+    for match in DOTNET_WRITE.finditer(command):
+        targets.append(_path(cwd, match.group(2).replace("\\", "/")))
+    for match in DOTNET_COPY.finditer(command):
         targets.extend(_into(match.group(4).replace("\\", "/"), [match.group(2)], cwd))
     ignored = {"/dev/null", "nul", "/dev/stdout", "/dev/stderr", "$null"}
     return [t for t in dict.fromkeys(targets)
@@ -751,37 +932,96 @@ def shell_destinations(command: str, cwd: Path) -> list[Path]:
 
 SCRIPT_RUNNERS = {"python", "python3", "py", "node", "pwsh", "powershell", "bash", "sh"}
 SCRIPT_EXTS = {".py", ".js", ".mjs", ".cjs", ".ps1", ".sh"}
+INLINE_FLAGS = {"-c", "-e", "--eval", "-command", "-commandwithargs"}
 DELIVERABLE_EXTS = OFFICE_EXTS | {".pdf", ".html", ".htm", ".md", ".csv", ".odt", ".odp", ".ods", ".rtf"}
 SCRIPT_CAP_BYTES = 1024 * 1024
 QUOTED = re.compile(r"""(['"])([^'"\n]{1,400})\1""")
 
 
+_Q = r"[rRbBuUfF]{0,2}(['\"])([^'\"\n]{1,400})\{n}"
+_ARG = r"(?:[^,()]|\([^()]*\))+?"
+# Each pattern captures the destination as a quoted literal (groups 1-2) or as a bare name (group 3).
+_DEST_TEMPLATES = (
+    r"\b(?:copy\w*|move|replace|rename)\(\s*" + _ARG + r"\s*,\s*(?:QUOTE|(NAME))",
+    r"\.(?:save|save_as|saveas|to_\w+|export\w*)\(\s*(?:QUOTE|(NAME))",
+    r"(?:\bPath\(\s*QUOTE\s*\)|\b(NAME))\.write_(?:text|bytes)\(",
+    r"\bopen\(\s*(?:QUOTE|(NAME))\s*,\s*['\"][rbt]*[wax]",
+    r"(?:-FilePath|-Path|-LiteralPath|-OutFile)\s+(?:QUOTE|\$(NAME))",
+)
+_DESTINATIONS = [
+    re.compile(template.replace("QUOTE", _Q.replace("{n}", "1")).replace("NAME", r"[A-Za-z_]\w*"),
+               re.IGNORECASE)
+    for template in _DEST_TEMPLATES
+]
+
+
+def _destinations(code: str) -> tuple[set[str], set[str]]:
+    """Literal strings and variable names that the code writes TO (not sources or reads)."""
+    literals: set[str] = set()
+    names: set[str] = set()
+    for pattern in _DESTINATIONS:
+        for match in pattern.finditer(code):
+            if match.group(2):
+                literals.add(match.group(2))
+            elif match.group(3):
+                names.add(match.group(3))
+    return literals, names
+
+
+def _literal_paths(code: str, bases: list[Path]) -> list[tuple[Path, bool]]:
+    """(existing path, written) for each quoted document path in the code.
+
+    `written` means the literal is a write destination: the last argument of a copy or move, the
+    target of a save or export, the path of `open(..., 'w'/'a'/'x')`, or a name assigned the literal
+    and used in one of those positions. Sources and reads are never marked, so a user save during a
+    command that only reads or copies FROM the file is never re-recorded as the agent's.
+    """
+    dest_literals, dest_names = _destinations(code)
+    lines = code.splitlines()
+    found: list[tuple[Path, bool]] = []
+    for match in QUOTED.finditer(code):
+        literal = match.group(2)
+        if Path(literal).suffix.lower() not in DELIVERABLE_EXTS:
+            continue
+        line = lines[code.count("\n", 0, match.start())] if lines else code
+        assigned = re.match(r"\s*\$?([A-Za-z_]\w*)\s*[:=]", line)
+        written = literal in dest_literals or bool(assigned and assigned.group(1) in dest_names)
+        literal = os.path.expanduser(literal)
+        options = [Path(literal)] if Path(literal).is_absolute() else [base / literal for base in bases]
+        found.extend((p, written) for p in options if p.is_file())
+    return found
+
+
 def script_paths(command: str, cwd: Path) -> list[Path]:
-    """Existing document paths written as literals inside a script the command runs.
+    return [path for path, _ in script_literals(command, cwd)]
+
+
+def script_literals(command: str, cwd: Path) -> list[tuple[Path, bool]]:
+    """Existing document paths written as literals inside code the command runs.
 
     A generator script's own save or copy is invisible in the command line (the incident's
-    `python build_deck.py` copied onto the synced deck from inside the script), so the hook reads
-    the script itself for quoted paths with a document extension.
+    `python build_deck.py` copied onto the synced deck from inside the script), and so is a save
+    in inline code (`python -c "...save('deck.pptx')"`), so the hook reads both for quoted paths
+    with a document extension.
     """
-    found: list[Path] = []
-    for words in _segments(command):
-        while words and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*=.*", words[0]):
-            words = words[1:]
-        if not words:
+    found: list[tuple[Path, bool]] = []
+    for kept, _redirected, here in _walk(command, cwd):
+        if not kept:
             continue
-        head = Path(words[0]).name.lower().removesuffix(".exe")
-        candidates = words[1:] if head in SCRIPT_RUNNERS else words[:1]
-        script = next((cwd / w for w in candidates if Path(w).suffix.lower() in SCRIPT_EXTS), None)
+        head = Path(kept[0]).name.lower().removesuffix(".exe")
+        if head in SCRIPT_RUNNERS:
+            for index, word in enumerate(kept[1:-1], start=1):
+                if word.lower() in INLINE_FLAGS:
+                    found.extend(_literal_paths(kept[index + 1], [here]))
+        candidates = kept[1:] if head in SCRIPT_RUNNERS else kept[:1]
+        script = next((_path(here, w) for w in candidates if Path(w).suffix.lower() in SCRIPT_EXTS), None)
         if script is None or not script.is_file() or script.stat().st_size > SCRIPT_CAP_BYTES:
             continue
-        text = script.read_text(encoding="utf-8", errors="replace")
-        for match in QUOTED.finditer(text):
-            literal = match.group(2)
-            if Path(literal).suffix.lower() not in DELIVERABLE_EXTS:
-                continue
-            options = [Path(literal)] if Path(literal).is_absolute() else [script.parent / literal, cwd / literal]
-            found.extend(p for p in options if p.is_file())
-    return list(dict.fromkeys(found))[:50]
+        found.extend(_literal_paths(script.read_text(encoding="utf-8", errors="replace"), [script.parent, here]))
+    merged: dict[Path, bool] = {}
+    for path, written in found:
+        merged[path] = merged.get(path, False) or written
+    return list(merged.items())[:50]
 
 
 def _payload_targets(payload: dict, cwd: Path) -> list[Path]:
@@ -806,6 +1046,23 @@ def _quiet(handler, args, root: Path) -> int:
 def _marker(root: Path, payload: dict) -> Path:
     session = str(payload.get("session_id") or os.environ.get("NEXUS_EDIT_GUARD_SESSION") or "none")
     return root / f".bash-start-{hashlib.sha256(session.encode()).hexdigest()[:16]}"
+
+
+def _intent_file(root: Path, payload: dict) -> Path:
+    """One file per tool call (its tool_use_id), so a blocked call's intents can never be reused."""
+    call = str(payload.get("tool_use_id") or payload.get("session_id")
+               or os.environ.get("NEXUS_EDIT_GUARD_SESSION") or "none")
+    return root / f".intent-{hashlib.sha256(call.encode()).hexdigest()[:16]}"
+
+
+def _prune_intents(root: Path) -> None:
+    cutoff = now().timestamp() - 3600
+    for stale in root.glob(".intent-*"):
+        try:
+            if stale.stat().st_mtime < cutoff:
+                stale.unlink()
+        except OSError:
+            continue
 
 
 def _emit(event: str, lines: list[str]) -> None:
@@ -839,9 +1096,10 @@ def _settled(root: Path, target: Path) -> bool:
         if not record or record.get("from") not in ("write", "command") or open_or_conflicting(target):
             return False
         recorded_at = dt.datetime.fromisoformat(record["at"]).timestamp()
-        if abs(target.stat().st_mtime - recorded_at) > SETTLE_SECONDS:
+        info = target.stat()
+        if info.st_mtime_ns <= record.get("mtime_ns", 0) or abs(info.st_mtime - recorded_at) > SETTLE_SECONDS:
             return False
-        _quiet(cmd_record, argparse.Namespace(path=str(target), source="command"), root)
+        _quiet(cmd_record, argparse.Namespace(path=str(target), source="command", force=True), root)
         append_log(root, {"event": "settled", "path": canonical(target)})
         return True
     except (GuardError, OSError, ValueError, KeyError):
@@ -856,11 +1114,14 @@ def hook_pre(payload: dict, root: Path | None, cwd: Path) -> int:
         except OSError:
             pass
     scripted: list[Path] = []
+    written: set[Path] = set(targets)
     if payload.get("tool_name") in SHELL_TOOLS:
-        scripted = [p for p in script_paths(str((payload.get("tool_input") or {}).get("command") or ""), cwd)
-                    if p not in targets]
+        literals = script_literals(str((payload.get("tool_input") or {}).get("command") or ""), cwd)
+        scripted = [p for p, _ in literals if p not in targets]
+        written |= {p for p, is_written in literals if is_written}
     blocked: list[str] = []
     warned: list[str] = []
+    intents: dict[str, str] = {}
     for target in targets + scripted:
         if root is None:
             status = EXIT_CANNOT_VERIFY
@@ -872,6 +1133,10 @@ def hook_pre(payload: dict, root: Path | None, cwd: Path) -> int:
         if status == EXIT_CHANGED and root is not None and _settled(root, target):
             continue
         if status == EXIT_OK:
+            if target in written and root is not None:
+                record = load_record(root, key_for(target))
+                if record:
+                    intents[canonical(target)] = record["sha256"]
             continue
         if target in scripted and status != EXIT_CHANGED:
             # A literal inside a script may be an input the agent never saw; only a recorded file
@@ -879,7 +1144,20 @@ def hook_pre(payload: dict, root: Path | None, cwd: Path) -> int:
             continue
         reason = HOOK_MESSAGE if status in (EXIT_CHANGED, EXIT_NO_RECORD) else HOOK_CANNOT_VERIFY
         entry = f"{_display(target)}\n{reason}\n{_next_step(target, status)}"
-        (warned if in_git_repo(Path(os.path.abspath(target)).parent) else blocked).append(entry)
+        real = Path(os.path.abspath(target))
+        if in_worktree(real):
+            # History protects a tracked file; an unrecorded file (a build log, an ignored output) is
+            # ordinary repository work. Only a recorded, changed, untracked file is the user's alone.
+            blocked_here = status == EXIT_CHANGED and not protected_by_git(real)
+        else:
+            blocked_here = True
+        (blocked if blocked_here else warned).append(entry)
+    if root is not None:
+        try:
+            _prune_intents(root)
+            _write_private(_intent_file(root, payload), json.dumps(intents).encode())
+        except OSError:
+            pass
     if blocked:
         print("\n".join(f"[{HOOK_NAME}] BLOCKED: {entry}" for entry in blocked + warned), file=sys.stderr)
         print(HOOK_ESCAPE, file=sys.stderr)
@@ -909,19 +1187,36 @@ def hook_post(payload: dict, root: Path, cwd: Path) -> int:
     tool = payload.get("tool_name") or ""
     source = "read" if tool == "Read" else "command" if tool in SHELL_TOOLS else "write"
     targets = [t for t in _payload_targets(payload, cwd) if t.is_file()]
+    elsewhere: list[Path] = []
     if tool in SHELL_TOOLS:
         targets += script_paths(str((payload.get("tool_input") or {}).get("command") or ""), cwd)
         marker = _marker(root, payload)
         try:
             since = json.loads(marker.read_text(encoding="utf-8"))["at"]
             marker.unlink(missing_ok=True)
-            targets += _changed_since(root, since, cwd)
+            # A tracked file the command did not visibly write may have been saved by the user while
+            # the command ran (or merely touched); never re-baseline it, only say so.
+            visible = {canonical(t) for t in targets}
+            elsewhere = [p for p in _changed_since(root, since, cwd) if canonical(p) not in visible]
         except (OSError, ValueError, KeyError):
             pass
-    refused: list[str] = []
+    refused: list[str] = [
+        f"[{HOOK_NAME}] WARNING: {_display(p)} changed while this command ran, but the command did not "
+        "visibly write it, so it was not re-recorded. If it was your own change, run diff and accept with "
+        "the user's agreement; otherwise the user changed it."
+        for p in elsewhere
+    ]
+    try:
+        intent_path = _intent_file(root, payload)
+        intents = json.loads(intent_path.read_text(encoding="utf-8"))
+        intent_path.unlink(missing_ok=True)
+    except (OSError, ValueError):
+        intents = {}
     for target in dict.fromkeys(targets):
+        existing = load_record(root, key_for(target))
+        force = tool != "Read" and bool(existing) and intents.get(canonical(target)) == existing.get("sha256")
         try:
-            status = _quiet(cmd_record, argparse.Namespace(path=str(target), source=source), root)
+            status = _quiet(cmd_record, argparse.Namespace(path=str(target), source=source, force=force), root)
         except (GuardError, OSError, ValueError, KeyError):
             continue
         if status == EXIT_CHANGED:
@@ -969,8 +1264,10 @@ def main(argv: list[str] | None = None) -> int:
     record = sub.add_parser("record")
     record.add_argument("path")
     record.add_argument("--from", dest="source", choices=("read", "write", "command"), default="write")
-    for name in ("check", "accept"):
-        sub.add_parser(name).add_argument("path")
+    check = sub.add_parser("check")
+    check.add_argument("path")
+    check.set_defaults(stamp=True)
+    sub.add_parser("accept").add_argument("path")
     diff = sub.add_parser("diff")
     diff.add_argument("path")
     diff.add_argument("--against", help="compare with this file (the agent's own copy) instead of the record")

@@ -32,7 +32,7 @@ python <this-skill>/scripts/edit_guard.py log
 
 Set `NEXUS_EDIT_GUARD_SESSION` (or pass `--session`) to one value for the whole session, so `accept` can tell your own `diff` apart from another session's.
 
-1. **Record after every read and write.** After you read a file you may later change, run `record <path> --from read`. After you write one, run `record <path> --from write`. After a command you ran changed a tracked file (a generator script, a converter), run `record <path> --from command`. A `record --from read` that exits 3 means the file changed since you last recorded it: go to step 3 before anything else.
+1. **Record after every read and write.** After you read a file you may later change, run `record <path> --from read`. After you write one, run `record <path> --from write` right away: a record of a changed file is accepted only within two minutes of your own clean `check` of it, and otherwise refused until `diff` and `accept`. After a command you ran changed a tracked file (a generator script, a converter), run `record <path> --from command`. A `record --from read` that exits 3 means the file changed since you last recorded it: go to step 3 before anything else.
 2. **Check before every change.** Immediately before editing, regenerating, saving, or copying onto an existing file, run `check <path>` and branch on its exit code:
 
     | Exit | Meaning | What to do |
