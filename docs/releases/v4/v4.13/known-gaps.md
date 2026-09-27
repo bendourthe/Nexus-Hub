@@ -288,8 +288,8 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 7 | 0 |
-| Bugs / regressions (BG) | 1 | 0 |
-| Warnings (WN) | 3 | 1 |
+| Bugs / regressions (BG) | 1 | 1 |
+| Warnings (WN) | 2 | 2 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -335,10 +335,6 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 **Source phase**: Phase 5. **Reason**: the 2026-09-21 contract pass recorded `~/.claude/skills` as a Copilot user-scope read path; the 2026-09-25 re-fetch of the cited page lists only `~/.copilot/skills` and `~/.agents/skills`. The skill-read-path facts record it UNVERIFIED, so Copilot is pointer-eligible only through the two documented paths. **Owner**: [[platform-contract-verification]] at the next release. **Suggested next step**: check whether a VS Code-specific Copilot page documents the path, and promote it only from a first-party page.
 
-#### WN-4 (v4.13.3): Legacy-candidate diff files accumulate across file states
-
-**Source phase**: Phase 6 deep pass (adversarial finding). **Reason**: each non-dry install writes `~/.nexus-hub/state/legacy-candidates/<consent>.diff` for every current candidate. When a user declines removal while the file keeps changing, one diff per file state accumulates. Diffs are not backups, but they cannot be pruned per file safely while the installers run one runner call per platform, because a call cannot tell which other file a stale diff belongs to. Backups are content-addressed and change only when the file does. **Owner**: installer maintainer. **Suggested next step**: name diffs by a hash of the resolved file path plus the consent, and prune a file's stale diffs when that file is next reported.
-
 #### MT-1 (v4.13.3): The full installers were not run end to end on a disposable machine
 
 **Source phase**: Phases 4 and 5. **Reason**: the full PowerShell installer also installs VS Code extensions through the real `code` CLI and writes the real `%APPDATA%` settings, which a redirected HOME does not isolate, so the Phase 4 and 5 verification drove the installer's own engine (per-platform runner calls plus `legacy-report`) instead. The installers' flag parsing, forwarding, and report wiring are unit-tested, and CI runs both installers on their native hosts. **Owner**: release maintainer. **Suggested next step**: the last-phase human testing suggestions include a real install on a machine that carries a legacy block.
@@ -348,6 +344,8 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | WN-3 | `context-manager` frontmatter advertised delegated concerns | v4.13.3 metadata follow-up | Description, summary, overview, index, registry, and OpenAI wrapper now advertise file relationships and change-impact mapping; strict registry, whole-catalog routing, and 106 validator tests pass. |
+| WN-4 | Legacy-candidate diff files accumulated across file states | v4.13.3 diff-retention follow-up | A resolved-path hash scopes each diff filename. A successful report retains every current span and prunes only that file's prior states, including after consented removal; a failed write preserves prior reports. Pre-change consent-only filenames have no safe owner mapping and are left untouched. The current local profile had no historical `legacy-candidates` directory. |
+| BG-9 | Legacy-candidate diffs could inherit Windows read access | v4.13.3 diff-retention follow-up | The diff directory and staged file now require owner-only permissions before atomic publication; ACL failure yields no report. Windows ACL read-back and failure-path tests pass. |
 
 ### Reconciliation across other registers (2026-09-25)
 
