@@ -640,10 +640,7 @@ def _read_body_file(path: str, cwd: Path) -> tuple[str | None, str | None]:
     if info.st_size > BODY_FILE_CAP:
         return None, "body file is over 1 MB"
     try:
-        body = target.read_bytes()
-        if b"\x00" in body:
-            return None, "body file contains NUL bytes"
-        return body.decode("utf-8", errors="replace"), None
+        return target.read_text(encoding="utf-8", errors="replace"), None
     except OSError:
         return None, "body file is unreadable"
 

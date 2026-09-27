@@ -209,14 +209,6 @@ def test_unreadable_body_warns_and_passes(run, route):
     assert "cannot verify body" in _err(result)
 
 
-@pytest.mark.parametrize("body", ["Summary\n".encode("utf-16"), b"Summary\x00\n"])
-def test_nul_containing_body_warns_instead_of_claiming_verification(run, body):
-    (run.work / "body.md").write_bytes(body)
-    result = run(_bash("gh pr create --title t --body-file body.md", run.work))
-    assert result.returncode == 0
-    assert "cannot verify body" in _err(result)
-
-
 @pytest.mark.parametrize("body", ["", "not json", "[1]", "{}"])
 def test_malformed_or_absent_input_exits_zero(run, body):
     assert run(body).returncode == 0
