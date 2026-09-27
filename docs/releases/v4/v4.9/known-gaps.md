@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #190 integrated the v4.9.0 audit work and its hosted platform gates. The remaining prompting-profile entries have source-availability or roster-qualification limits; the private workstation residue was removed separately.
-**Last updated**: 2026-09-25
+**Last updated**: 2026-09-27
 
 ## Follow-up Items - found 2026-09-08 during post-v4.8.0 follow-up
 
@@ -39,6 +39,8 @@
 - **What was observed**: Google documents Gemini 3.x as a unified family and publishes no per-version prompting guidance, and Cursor publishes no prompting guidance at all (its documentation covers pricing, cache rates, and plan constraints). The claims recorded for the four Gemini models and the four Cursor entries are therefore family-level or plan-level facts, recorded once per rostered model because that is the granularity the layer indexes. Each such claim carries a `note` stating the true scope.
 - **Why it is worth recording**: a future reader comparing two Gemini entries will find identical claims and could reasonably conclude the layer is padded. It is not: the source genuinely makes one statement about the family, and the alternative (leaving all four UNVERIFIED) would discard a real, sourced constraint such as Google's recommendation to keep `temperature`, `top_p`, and `top_k` at their defaults.
 - **Suggested next step**: if the layer ever grows a family or vendor tier, move these claims up to it and leave the per-model entries pointing at it. That is a schema change and belongs in a decision record, not in a research pass.
+
+**Source-scope correction, 2026-09-27**: A fresh read of [Cursor's Models & Pricing page](https://cursor.com/docs/models-and-pricing) confirms that Start covers the Cursor Models pool in non-fast mode (now four named models, not the three stated by one stored claim), while [Google's prompting guide](https://ai.google.dev/gemini-api/docs/prompting-strategies) still frames the parameter-default advice for the Gemini 3.x family and presents XML tags and Markdown headings as alternative delimiters. The deterministic profile writer corrected the obsolete count and overbroad negative claims, and regenerated all eight Cursor/Gemini mirrors with explicit plan-, family-, or cited-page scope notes. A focused test now requires those scope notes. This did not establish a complete live roster or justify refreshing its 2026-09-08 date, and the duplicated per-model storage remains; WN-1 stays open for a separately decided family/vendor tier rather than being closed by metadata alone.
 
 #### WN-2 - RESOLVED: the vendor verification advice and the claim-evidence gate have distinct owners
 

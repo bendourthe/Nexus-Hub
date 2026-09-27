@@ -10,8 +10,8 @@ This file mirrors the `models["cursor-grok-4.6"]` entry in `assets/profiles-inde
 
 | Claim | Confidence | Scope | Primary source |
 |---|---|---|---|
-| On Cursor's Start plan this model runs at a FIXED `medium` effort level, so effort is not an available prompt-side or routing lever there; plan for it rather than trying to raise effort. This is a plan-tier configuration constraint from Cursor's own pricing page, not prompting advice. It is recorded because it changes what a router can do with this model. | `high` | `model-specific` | [source](https://cursor.com/docs/models-and-pricing) |
-| Cursor publishes no per-model prompting guidance for the models it serves; its documentation covers pricing, cache rates, and plan constraints only, so prompting guidance must come from the underlying model vendor. Recorded as a negative result so a future pass does not re-spend a branch searching for a page that does not exist. Cursor serves other vendors' models rather than documenting its own prompting. | `high` | `model-specific` | [source](https://cursor.com/docs/models-and-pricing) |
+| On Cursor's Start plan this model runs at a FIXED `medium` effort level, so effort is not an available prompt-side or routing lever there; plan for it rather than trying to raise effort. Start-plan configuration constraint, not model-specific prompting advice; the cited page covers the Cursor Models pool. | `high` | `model-specific` | [source](https://cursor.com/docs/models-and-pricing) |
+| The cited Cursor Models and Pricing page does not provide per-model prompting guidance for this model; any prompting claim needs a separate model-specific source. Negative result is limited to the cited pricing page, not all Cursor documentation or an underlying vendor's guidance. | `high` | `model-specific` | [source](https://cursor.com/docs/models-and-pricing) |
 
 ## Does not apply to shared bodies
 

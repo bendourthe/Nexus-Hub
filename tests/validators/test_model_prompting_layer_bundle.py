@@ -15,6 +15,7 @@ roster-drift check instead.
 
 from __future__ import annotations
 
+import json
 import subprocess as _subprocess
 import sys as _sys
 from pathlib import Path
@@ -27,6 +28,7 @@ _BUNDLE = (
     / "model-prompting-research"
 )
 _MIRROR_INDEX = _BUNDLE / "references" / "model-profiles.md"
+_INDEX = _BUNDLE / "assets" / "profiles-index.json"
 
 
 def test_generated_mirror_index_exists_and_is_marked_generated() -> None:
@@ -50,6 +52,30 @@ def test_mirror_index_links_every_mirror_on_disk() -> None:
 def test_skill_body_references_the_index() -> None:
     body = (_BUNDLE / "SKILL.md").read_text(encoding="utf-8")
     assert "references/model-profiles.md" in body
+
+
+def test_family_and_plan_scoped_seed_claims_state_their_source_scope() -> None:
+    """Per-model mirrors must not imply that shared guidance is variant-specific."""
+    index = json.loads(_INDEX.read_text(encoding="utf-8"))
+    models = index["models"]
+    for model_id in (
+        "composer-2.5",
+        "composer-2.5-fast",
+        "cursor-grok-4.5",
+        "cursor-grok-4.6",
+        "gemini-3.5-flash-lite",
+        "gemini-3.6-flash",
+        "gemini-3.7-flash",
+        "gemini-3.8-flash",
+    ):
+        for claim in models[model_id]["claims"]:
+            assert claim.get("note", "").strip(), f"{model_id} claim lacks a source-scope note"
+            assert claim["scope"] == "model-specific"
+        first_note = models[model_id]["claims"][0]["note"]
+        if model_id.startswith("gemini-"):
+            assert "family-level" in first_note
+        else:
+            assert "Start-plan" in first_note
 
 
 def test_bundle_audit_reports_no_orphan_for_this_skill() -> None:

@@ -10,8 +10,8 @@ This file mirrors the `models["composer-2.5-fast"]` entry in `assets/profiles-in
 
 | Claim | Confidence | Scope | Primary source |
 |---|---|---|---|
-| On Cursor's Start plan all three served models run in non-fast mode, so the fast variant's distinguishing behavior is unavailable on that tier. | `high` | `model-specific` | [source](https://cursor.com/docs/models-and-pricing) |
-| Cursor publishes no per-model prompting guidance for Composer; prompting guidance must come from the underlying model vendor. | `high` | `model-specific` | [source](https://cursor.com/docs/models-and-pricing) |
+| On Cursor's Start plan Cursor Models run in non-fast mode, so this fast variant's distinguishing behavior is unavailable on that tier. Start-plan configuration constraint, not model-specific prompting advice; the cited page covers the Cursor Models pool. | `high` | `model-specific` | [source](https://cursor.com/docs/models-and-pricing) |
+| The cited Cursor Models and Pricing page does not provide per-model prompting guidance for this model; any prompting claim needs a separate model-specific source. Negative result is limited to the cited pricing page, not all Cursor documentation or an underlying vendor's guidance. | `high` | `model-specific` | [source](https://cursor.com/docs/models-and-pricing) |
 
 ## Does not apply to shared bodies
 
