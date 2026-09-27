@@ -100,6 +100,8 @@
 
 **Targeted source recheck, 2026-09-26**: [Current Google CLI and migration documentation](development/optional-platform-surface-recheck-2026-09-26.md) now source-qualifies the shared Antigravity custom-agent and legacy-workflow destinations already emitted by the adapter, but the latter retires on November 1, 2026. Cursor's global command path has a vendor-reported discovery bug, Gemini Code Assist's IDE custom commands and rules use IDE settings rather than a documented CLI-file mirror, and Nexus-AI's project-local mirror still lacks a read-path proof. WN-3 remains open for those live-host and project-local questions; this addendum does not convert source evidence into a runtime pass.
 
+**Local host read-back attempt, 2026-09-27**: Installed Antigravity CLI 1.2.12 exposes `agy agents`, but it printed no agents from either this checkout or a disposable workspace containing a documented `.agents/agents/nexus-probe/agent.md`; the empty list is inconclusive without an authenticated interactive read-back. The interactive CLI reported that this host was not signed in and rejected the existing `agentMode: "default"` setting before opening an agent session; no settings were changed. Installed Cursor 3.21.18 exposes no agent-discovery list in `cursor --help`, and its UI read-back was not exercised. WN-3 remains open for authenticated Antigravity and Cursor observations, the dated workflow-retirement decision, Gemini Code Assist IDE behavior, and Nexus-AI's project-local mirror. The disposable agent fixture was removed after the test.
+
 ### Resolved
 
 #### Warnings
