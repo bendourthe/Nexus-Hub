@@ -33,6 +33,8 @@
 
 **Public-catalog recheck, 2026-09-27**: [Anthropic's September 24 release notes](https://platform.claude.com/docs/en/release-notes/overview) and [current models overview](https://platform.claude.com/docs/en/models/overview) name `claude-opus-5-5`, which is absent from the recorded 2026-09-08 config roster. This proves that the recorded roster is stale against the public Claude API catalog, not that this model is available in the user's Claude Code account. The local Claude Code enumeration helper still returns `{"source":"picker","models":[]}`; no complete canonical picker/API roster was available. The profile schema passes with 16 of 16 recorded models, but that result is not current-roster completeness. No profile, roster hash, or `last_verified` value changed. MT-1 remains open: obtain a complete live roster before adding a new model through the deterministic writer or refreshing the roster date.
 
+**Account-picker recheck, 2026-09-27**: Installed Claude Code 2.1.282 opened the account-backed `/model` picker in the already trusted checkout, with Opus 5.5 selected on the Claude Team account; the picker also showed other model display names but offered no complete canonical model-ID enumeration. The session exited without selecting another model or sending an inference prompt. This establishes account picker availability of Opus 5.5, narrowing the public-catalog note above, but it does not establish the canonical ID or a complete live roster. No profile, roster hash, or `last_verified` value changed; MT-1 remains open for a supported complete-ID read path and deterministic profile qualification.
+
 ### Warnings (WN)
 
 #### WN-1 - Cursor and Gemini claims are family-scoped, recorded at per-model granularity
