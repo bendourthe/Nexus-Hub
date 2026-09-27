@@ -130,7 +130,7 @@ def test_org_authoring_registration_is_consistent_and_selectable() -> None:
     n_categories = len(skills["statistics"]["categories"])
     assert f"**Total: {total} skills across {n_categories} categories**" in index
     assert "| org-standards-authoring | workflow |" in index
-    assert f"{total} curated skills, 18 commands" in marketplace["plugin"]["description"]
+    assert f"{total} curated skills, 19 commands, 37 hooks" in marketplace["plugin"]["description"]
 
     workflow = next(
         module for module in bundles["modules"] if module["id"] == "workflow"
