@@ -35,3 +35,9 @@ No visible content change is required. `build_presentation.py ... --check` again
 ## Publication addendum - byte-order-mark tolerance
 
 **Trigger:** during publication (PR #337), `scripts/nexus_git_attribution.py` `cmd_scan` was changed to strip a byte-order mark before parsing the hook payload, after the hosted Windows leg showed a launcher appending one. The Git hook wrappers, identity enforcement, and every handbook claim are unchanged; `build_presentation.py ... --check` again reproduced output hash `25ffd7b98de194f81f0a33035b4b184546c394214843318bec54573a2d22efb5`. Only the input hash and this content receipt are refreshed.
+
+## WN-8 addendum - NUL-containing body files
+
+**Trigger:** the `scripts/nexus_git_attribution.py` agent-hook scan now returns "cannot verify body" when a `--body-file` contains NUL bytes, including a UTF-16 file. The scan continues to decode ordinary UTF-8 body files as before. Both Bash and PowerShell hook tests failed on the two NUL-body cases before the change and pass afterward.
+
+The handbook's three attribution claims remain true. The installers' digest-checked Git hook copy and the `nexus-hub attribution check` preflight are unchanged; this warning is in the separate agent-hook scan of a proposed hosting command. The handbook does not promise that every proposed body file can be verified, so no visible content change is required. The retained builder's read-only check reproduced the unchanged output hash `25ffd7b98de194f81f0a33035b4b184546c394214843318bec54573a2d22efb5`; the existing build and rendered receipts still name those exact bytes. Refresh only the scanner input hash and this content-review receipt.
