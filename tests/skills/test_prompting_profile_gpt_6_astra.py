@@ -1,6 +1,6 @@
 """v4.7.0 amendment Phase 3 (T050): the first OpenAI prompting profile behind the schema-1.1.0 decision.
 
-- The shipped index is schema 1.1.0, carries a codex entry in `meta.platforms`, and passes the
+- The shipped index is schema 1.2.0, carries a codex entry in `meta.platforms`, and passes the
   structural gate; a per-platform `roster_hash` mismatch fails that gate naming the entry.
 - `plan --platform codex` no longer lists `gpt-6-astra`.
 - Every `gpt-6-astra` claim carries a vendor-domain `source_url` and a `scope`; at least seven
@@ -58,9 +58,9 @@ def _hash(roster: list[str]) -> str:
     return hashlib.sha256("\n".join(sorted(roster)).encode("utf-8")).hexdigest()
 
 
-def test_shipped_index_is_schema_1_1_0_with_a_codex_platform_entry():
+def test_shipped_index_is_schema_1_2_0_with_a_codex_platform_entry():
     index = _index()
-    assert index["schema_version"] == "1.1.0"
+    assert index["schema_version"] == "1.2.0"
     entries = {e["platform"]: e for e in index["meta"]["platforms"]}
     assert "codex" in entries
     assert entries["codex"]["roster_hash"] == _hash(entries["codex"]["roster"])

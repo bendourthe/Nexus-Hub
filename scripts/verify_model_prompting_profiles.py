@@ -75,11 +75,12 @@ META_OPTIONAL_KEYS = {"platforms"}
 PLATFORM_ENTRY_KEYS = {"platform", "roster_source", "roster", "roster_hash", "last_verified"}
 MODEL_KEYS = {"platform", "last_verified", "claims"}
 CLAIM_REQUIRED_KEYS = {"claim", "source_url", "confidence", "scope"}
-CLAIM_OPTIONAL_KEYS = {"note"}
+CLAIM_OPTIONAL_KEYS = {"note", "evidence_scope"}
 
 ALLOWED_ROSTER_SOURCES = {"api", "picker", "config", "manual"}
 ALLOWED_CONFIDENCE = {"high", "medium", "low", "unverified"}
 ALLOWED_SCOPE = {"model-specific", "model-agnostic-candidate"}
+ALLOWED_EVIDENCE_SCOPE = {"model", "model-family", "provider-plan", "cited-page"}
 
 
 def roster_hash(roster: list[str]) -> str:
@@ -266,6 +267,13 @@ def _validate_claim(model_id: str, position: int, claim: object) -> list[str]:
     note = claim.get("note")
     if "note" in claim and not isinstance(note, str):
         errors.append(f"{where}.note must be a string when present")
+
+    evidence_scope = claim.get("evidence_scope")
+    if "evidence_scope" in claim and evidence_scope not in ALLOWED_EVIDENCE_SCOPE:
+        errors.append(
+            f"{where}.evidence_scope must be one of {sorted(ALLOWED_EVIDENCE_SCOPE)}, "
+            f"got {evidence_scope!r}"
+        )
 
     return errors
 

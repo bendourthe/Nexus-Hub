@@ -71,11 +71,16 @@ def test_family_and_plan_scoped_seed_claims_state_their_source_scope() -> None:
         for claim in models[model_id]["claims"]:
             assert claim.get("note", "").strip(), f"{model_id} claim lacks a source-scope note"
             assert claim["scope"] == "model-specific"
+        evidence_scopes = [claim["evidence_scope"] for claim in models[model_id]["claims"]]
         first_note = models[model_id]["claims"][0]["note"]
         if model_id.startswith("gemini-"):
             assert "family-level" in first_note
+            assert evidence_scopes == ["model-family"] * (len(evidence_scopes) - 1) + ["cited-page"]
         else:
             assert "Start-plan" in first_note
+            assert evidence_scopes == ["provider-plan", "cited-page"]
+    for model_id in ("gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"):
+        assert models[model_id]["claims"][0]["evidence_scope"] == "model-family"
 
 
 def test_bundle_audit_reports_no_orphan_for_this_skill() -> None:
