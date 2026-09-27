@@ -135,3 +135,19 @@ def test_ci_validate_job_runs_the_drift_check() -> None:
     assert "legacy-fingerprints" in selected
     checkout = next(step for step in steps if "actions/checkout" in str(step.get("uses", "")))
     assert checkout["with"]["fetch-depth"] == 0  # the builder walks full history
+
+
+def test_an_uncommitted_template_line_lands_in_the_same_build(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A template edit and its regenerated set must fit in one commit."""
+    line = "An uncommitted template line that no release has shipped yet."
+    real = blf._working_tree_blobs
+    monkeypatch.setattr(blf, "_working_tree_blobs",
+                        lambda: {**real(), ("WORKTREE", "templates/ai-instructions/base-new.md"): line + "\n"})
+    try:
+        doc = blf.build()
+    except blf.BuildError as exc:
+        if "shallow clone" in str(exc):
+            pytest.skip(str(exc))
+        raise
+    assert blf.digest(line) in set(doc["hashes"])
+    assert "newest_revision" not in doc  # a template commit must not change the file by itself

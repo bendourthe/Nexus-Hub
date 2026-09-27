@@ -172,9 +172,10 @@ def create_pdfa_document(output_path: str, content_elements: list) -> None:
 
     # ReportLab does not produce PDF/A natively.
     # Use reportlab + pikepdf or pdfa-pillar for post-processing:
+    guard_existing(output_path)  # user-edit-preservation: the build below overwrites output_path
     doc.build(content_elements)
 
-    # Post-process with pikepdf to add PDF/A metadata
+    # Post-process with pikepdf to add PDF/A metadata (the file this function just built)
     import pikepdf
 
     with pikepdf.open(output_path, allow_overwriting_input=True) as pdf:
@@ -184,6 +185,7 @@ def create_pdfa_document(output_path: str, content_elements: list) -> None:
             meta["pdfaid:part"] = "1"
             meta["pdfaid:conformance"] = "B"
         pdf.save(output_path)
+    record_saved(output_path)
 ```
 
 **Accessibility Tagging** (marked content for screen readers):
@@ -244,6 +246,7 @@ def encrypt_pdf(
         modify_other=allow_modification,
     )
 
+    guard_existing(output_path)  # user-edit-preservation: never overwrite a user-edited file
     with pikepdf.open(input_path) as pdf:
         pdf.save(
             output_path,
@@ -254,4 +257,5 @@ def encrypt_pdf(
                 allow=permissions,
             ),
         )
+    record_saved(output_path)
 ```
