@@ -1243,7 +1243,7 @@
     "df1_settlement": "DF-1 SETTLED 2026-08-04 against first-party Cursor documentation, and the v3.15.9 finding is OVERTURNED. cursor.com/docs/skills documents FOUR skills read-paths, two of them user-level: '.agents/skills/', '.cursor/skills/', '~/.agents/skills/' (global), and '~/.cursor/skills/' (global), plus backward-compatible '.claude/skills/' and '.codex/skills/'. Discovery walks the root RECURSIVELY. So the global ~/.cursor/skills write is CORRECT and load-bearing, and the v3.15.9 release note that extended DF-1 to that path on secondary evidence was wrong; that extension is withdrawn. The COMMANDS half is different: Cursor's own docs no longer document a commands directory at all, Cursor 2.4 ships a /migrate-to-skills skill that converts both user-level and workspace-level commands into skills with disable-model-invocation:true, and a community bug report titled 'Commands are not detected in the global cursor directory' reports the global path does not work. Nexus-Hub already delivers every command as a command-skill through the verified skills path, so the global ~/.cursor/commands write is REDUNDANT rather than load-bearing. It is RETAINED unchanged for now (writing a directory Cursor ignores is harmless; removing one it does read would silently drop coverage), and flagged for deliberate removal in a later release."
   },
   "skill_read_paths": {
-    "_comment": "Per-platform, per-scope directories the vendor's own documentation says are scanned for skills. Only VERIFIED entries (first-party source, verified date) count toward Native Skill Enumeration, and only when a skills tree was actually installed there (scripts/lib/integrations/skill_read_paths.py). A platform or scope absent here is not eligible for the Skill-Index Pointer. Re-verified from first-party pages on 2026-09-25 (v4.13.3 Phase 5).",
+    "_comment": "Per-platform, per-scope directories the vendor's own documentation says are scanned for skills. Only VERIFIED entries (first-party source, verified date) count toward Native Skill Enumeration, and only when a skills tree was actually installed there (scripts/lib/integrations/skill_read_paths.py). A platform or scope absent here is not eligible for the Skill-Index Pointer. Re-verified from first-party pages on 2026-09-25 (v4.13.3 Phase 5), with a targeted Copilot in VS Code user-path follow-up on 2026-09-27.",
     "claude": {
       "global": [
         {
@@ -1350,7 +1350,7 @@
         {
           "path": "~/.claude/skills",
           "status": "UNVERIFIED",
-          "note": "Recorded 2026-09-21 as a user-scope read path; the 2026-09-25 re-fetch of the cited page does not list it, so it fails closed."
+          "note": "The 2026-09-27 VS Code Agent Skills page documents this personal path for Copilot in VS Code, but the Copilot CLI reference omits it from personal locations. The shared Copilot fact remains UNVERIFIED so CLI pointer eligibility fails closed until hosts are separated."
         }
       ],
       "workspace": [

@@ -335,9 +335,9 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 **Source phase**: Phase 4. **Reason**: cooperating installers serialize on a per-target lock, and the file is re-hashed immediately before the atomic replacement, but a program that ignores the lock can still write between that check and the rename; no portable primitive closes the window. **Mitigation**: a verified content-addressed backup of the pre-write bytes is always kept under `~/.nexus-hub/state/backups/`, and the report names it. **Owner**: installer maintainer. **Status**: accepted risk, documented in the decision record.
 
-#### WN-2 (v4.13.3): Copilot's `~/.claude/skills` user path narrowed to UNVERIFIED
+#### WN-2 (v4.13.3): Copilot's shared `~/.claude/skills` fact is not verified for the CLI
 
-**Source phase**: Phase 5. **Reason**: the 2026-09-21 contract pass recorded `~/.claude/skills` as a Copilot user-scope read path; the 2026-09-25 re-fetch of the cited page lists only `~/.copilot/skills` and `~/.agents/skills`. The skill-read-path facts record it UNVERIFIED, so Copilot is pointer-eligible only through the two documented paths. **Owner**: [[platform-contract-verification]] at the next release. **Suggested next step**: check whether a VS Code-specific Copilot page documents the path, and promote it only from a first-party page.
+**Source phase**: Phase 5. **Current evidence (2026-09-27)**: the [VS Code Agent Skills page](https://code.visualstudio.com/docs/agent-customization/agent-skills) documents `~/.claude/skills` for GitHub Copilot in VS Code, but the [Copilot CLI skill-location reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference) omits that personal path. One `copilot` read-path fact currently governs pointer eligibility for both hosts, so it remains UNVERIFIED to prevent a CLI install from replacing its full index based only on VS Code evidence. **Owner**: Copilot integration maintainer. **Suggested next step**: separate host-specific eligibility or obtain first-party CLI evidence before promoting the shared fact; preserve the full index for the unproved case.
 
 #### MT-1 (v4.13.3): The full installers were not run end to end on a disposable machine
 
