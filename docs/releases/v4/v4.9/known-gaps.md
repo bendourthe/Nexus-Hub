@@ -31,6 +31,8 @@
 
 **GPT-5.6 publication, 2026-09-25**: [PR #316](https://github.com/bendourthe/Nexus-Hub/pull/316) merged the three family-scoped profiles at `65baca12`; its hosted required checks passed, and [post-merge run 36162158349](https://github.com/bendourthe/Nexus-Hub/actions/runs/36162158349) passed smoke and provenance at that merge commit. The recorded roster still dates to 2026-09-08, and neither the merged profiles nor the post-merge jobs prove a complete live Claude model-ID roster. MT-1 remains open only for that roster-freshness gate.
 
+**Public-catalog recheck, 2026-09-27**: [Anthropic's September 24 release notes](https://platform.claude.com/docs/en/release-notes/overview) and [current models overview](https://platform.claude.com/docs/en/models/overview) name `claude-opus-5-5`, which is absent from the recorded 2026-09-08 config roster. This proves that the recorded roster is stale against the public Claude API catalog, not that this model is available in the user's Claude Code account. The local Claude Code enumeration helper still returns `{"source":"picker","models":[]}`; no complete canonical picker/API roster was available. The profile schema passes with 16 of 16 recorded models, but that result is not current-roster completeness. No profile, roster hash, or `last_verified` value changed. MT-1 remains open: obtain a complete live roster before adding a new model through the deterministic writer or refreshing the roster date.
+
 ### Warnings (WN)
 
 #### WN-1 - Cursor and Gemini claims are family-scoped, recorded at per-model granularity
