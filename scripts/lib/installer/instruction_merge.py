@@ -707,7 +707,7 @@ def _write_diff(diff_dir: Path, path: str, owner_hash: str, lines: list[str], st
             try:
                 staging.unlink(missing_ok=True)
             except OSError:
-                pass
+                pass  # Cleanup is best effort; the report write already succeeded or returned None.
     return str(dst)
 
 
