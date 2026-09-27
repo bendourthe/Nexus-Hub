@@ -171,8 +171,13 @@ def test_slides_mode_with_no_stages_fails_with_a_named_reason() -> None:
     """A deck with no slides: a hard failure, not a crash and not a silent pass."""
     empty = _CLEAN_SLIDES.replace('class="slide-stage"', 'class="band"')
     result = scorer.score_html(empty)
+    findings = _by_criterion(result)
     assert "slide-structure" in _fails(result)
-    assert "no .slide-stage" in _by_criterion(result)["slide-structure"]["evidence"]
+    assert "no .slide-stage" in findings["slide-structure"]["evidence"]
+    assert result["page_pass"] is False
+    for criterion in ("slide-fragments", "slide-type-variety", "slide-figure-scaled"):
+        assert findings[criterion]["status"] == "unchecked"
+    assert result["unchecked_checks"] >= 3
 
 
 def test_bare_generic_class_selector_is_flagged() -> None:
@@ -472,9 +477,13 @@ def test_figure_authored_at_its_own_box_passes() -> None:
 
 
 def test_clean_slide_fixture_passes_the_new_checks() -> None:
-    fails = _fails(scorer.score_html(_CLEAN_SLIDES))
+    result = scorer.score_html(_CLEAN_SLIDES)
+    fails = _fails(result)
     assert "slide-type-variety" not in fails
     assert "slide-figure-scaled" not in fails
+    findings = _by_criterion(result)
+    for criterion in ("slide-fragments", "slide-type-variety", "slide-figure-scaled"):
+        assert findings[criterion]["status"] == "pass"
 
 
 def test_scroll_mode_skips_the_new_checks_rather_than_failing_them() -> None:
