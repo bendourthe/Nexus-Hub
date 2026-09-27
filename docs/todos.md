@@ -3,7 +3,7 @@
 **Integration branch:** `develop`
 **Active work:** Historical v4.0-v4.13 plan implementations are integrated; v4.13.1 user-edit safety, v4.13.2 implement-full, and v4.13.4 Training rebuild remain in isolated worktrees. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
 **Closeout boundary:** One future-plan PR (#222, with a v4.15.1 slot collision), recovery backups with unique Git history, historical local backup ACL remediation, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
-**Last refreshed:** 2026-09-26
+**Last refreshed:** 2026-09-27
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -15,10 +15,13 @@ Refreshing this file to the active plan (rather than appending another version's
 - [ ] Remediate v4.13.3 BG-8's 21 untouched local backup files and directory after explicit approval: preserve current ACLs for rollback, restrict access, and verify ACL read-back without reading or deleting content.
 - [x] Resolve v4.13.3 WN-3's `context-manager` metadata drift: align its four mirrors with the body-owned file-map and change-impact scope, pass strict registry and whole-catalog routing checks, and pass 106 focused validator tests.
 - [x] Qualify v4.13.3 WN-4 and BG-9 locally: path-scoped diff pruning, owner-only diff ACLs, atomic publication, 45 focused integration passes with two platform skips, and 17/17 diff-aware fast checks.
-- [ ] Publish and verify the v4.13.3 WN-4/BG-9 diff-report follow-up through a protected PR and post-merge smoke/provenance run.
+- [x] Publish and verify the v4.13.3 WN-4/BG-9 diff-report follow-up through [PR #340](https://github.com/bendourthe/Nexus-Hub/pull/340): 24 hosted checks passed with one intentional skip, and [post-merge run 36302873973](https://github.com/bendourthe/Nexus-Hub/actions/runs/36302873973) passed smoke and provenance at `6f42c0c1`.
 - [x] Qualify v4.13.1 BG-1 locally: PowerShell read and copy/move source scripts no longer re-record user edits, a `Set-Content` script remains a writer, and the focused guard suite passed 144 tests with one skip. Avoid the local full profile until BG-2 is isolated.
 - [x] Qualify v4.13.1 BG-2 locally: isolate both real installer subprocesses across Windows profile and Git paths; honor `NEXUS_HUB_HOME` for workspace state. Two installer tests and 42 organization/merger tests passed without a real-home full-profile rerun.
-- [ ] Publish and verify the v4.13.1 BG-1/BG-2 repairs through a protected PR, then remove its clean worktree and merged branch.
+- [x] Publish and verify the v4.13.1 BG-1/BG-2 repairs through [PR #341](https://github.com/bendourthe/Nexus-Hub/pull/341): 24 hosted checks passed with one intentional skip, [post-merge run 36304945996](https://github.com/bendourthe/Nexus-Hub/actions/runs/36304945996) passed smoke and provenance at `1efa46d9`, and its clean worktree and branches are removed.
+- [x] Narrow v4.13.3 WN-2 from official sources: VS Code documents personal `~/.claude/skills`, while the Copilot CLI reference omits it; the shared pointer-eligibility fact remains UNVERIFIED and release-wide freshness is unchanged.
+- [ ] Resolve v4.13.3 WN-2 by separating Copilot host-specific pointer eligibility or obtaining first-party CLI evidence before promoting the shared fact.
+- [ ] Publish and verify the bounded v4.13.3 WN-2 source recheck through a protected PR and post-merge smoke/provenance run.
 - [x] Close superseded PR #225 and delete its branch after confirming commit `b73ec420` retargeted both documents to v4.16.2 on `develop`.
 - [ ] Resolve PR #222's v4.15.1 slot collision: [recorded on the PR](https://github.com/bendourthe/Nexus-Hub/pull/222#issuecomment-5843730486); retarget and refresh the unique Mods documents or withdraw the proposal, then clear its branch.
 - [ ] Complete v4.3 WN-3's optional platform verification after the [2026-09-26 source recheck](releases/v4/v4.3/development/optional-platform-surface-recheck-2026-09-26.md): live Antigravity and Cursor read-back, a supported post-November workflow decision, and Nexus-AI project-local discovery remain unproved.

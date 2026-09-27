@@ -180,7 +180,7 @@ The skill-discovery pages of every platform with a public page were re-fetched t
 - codex workspace: VERIFIED `.agents/skills`. [Source](https://learn.chatgpt.com/docs/build-skills)
 - antigravity2 global: VERIFIED `~/.gemini/config/skills`. [Source](https://codelabs.developers.google.com/getting-started-with-antigravity-skills)
 - antigravity2 workspace: VERIFIED `.agents/skills`. [Source](https://codelabs.developers.google.com/getting-started-with-antigravity-skills)
-- copilot global: VERIFIED `~/.copilot/skills`, `~/.agents/skills`. UNVERIFIED: `~/.claude/skills`. [Source](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills)
+- copilot global: VERIFIED `~/.copilot/skills`, `~/.agents/skills`. UNVERIFIED for the shared CLI/VS Code fact: `~/.claude/skills`. [GitHub source](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills) [VS Code source](https://code.visualstudio.com/docs/agent-customization/agent-skills)
 - copilot workspace: VERIFIED `.github/skills`, `.claude/skills`, `.agents/skills`. [Source](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills)
 - gemini-cli global: VERIFIED `~/.gemini/skills`, `~/.agents/skills`. [Source](https://geminicli.com/docs/cli/using-agent-skills/)
 - gemini-cli workspace: VERIFIED `.gemini/skills`, `.agents/skills`. [Source](https://geminicli.com/docs/cli/using-agent-skills/)
@@ -194,6 +194,8 @@ The skill-discovery pages of every platform with a public page were re-fetched t
 - hermes workspace: VERIFIED `.hermes/skills`, `.agents/skills`. [Source](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills/)
 - gemini global: VERIFIED none. UNVERIFIED: `~/.gemini/skills`.
 - kimi global: VERIFIED none. UNVERIFIED: `~/.kimi-code/skills`.
+
+**Targeted 2026-09-27 follow-up, not a release re-stamp**: [VS Code's first-party Agent Skills page](https://code.visualstudio.com/docs/agent-customization/agent-skills) explicitly lists `~/.claude/skills/` as a personal skill location for GitHub Copilot in VS Code. The [Copilot CLI skill-location reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference) lists project `.claude/skills/` but omits the personal path. Because one `copilot` fact currently governs pointer eligibility for both hosts, that shared fact remains UNVERIFIED rather than claiming CLI discovery from a VS Code page. The full-platform `last_verified` and release freshness marker remain unchanged.
 
 ### 2026-08-30 (v4.1.2 - full platform-contract correction)
 
