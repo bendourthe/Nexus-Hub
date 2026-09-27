@@ -110,6 +110,8 @@
 
 > v4.4.1 section closed at its Phase 7 GO (2026-09-02); its open items `HT-1`, `HT-2`, `HT-3`, and the Outline-reflow P3 stay owned as recorded above.
 
+**HT-3 closure follow-up (2026-09-27):** The original 17-branch count remains historical evidence. A fresh `git ls-remote --heads origin` returned only `develop`, `main`, and `docs/v4.15.1-mods-comparison-and-plan`; `gh pr list --state open` identified that third ref as the open, unrelated PR #222. `git branch --merged origin/develop` returned only the protected integration and release branches, and the other v4.13 worktrees retain their own unmerged branches. No reviewed, merged, unprotected branch remains to delete, so HT-3 is closed for the current repository state. This audit does not establish how each of the original 17 refs disappeared, and it does not authorize deletion of PR #222 or another session's worktree.
+
 ## v4.4.2 - guide-production-ready-rebuild
 
 **Plan**: [v4.4.2-guide-production-ready-rebuild.md](../../../archives/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md)
