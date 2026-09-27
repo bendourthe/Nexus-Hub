@@ -200,6 +200,38 @@ def test_a_script_that_only_reads_a_file_never_re_records_it(run, work):
     assert run(_payload("PreToolUse", "Write", work, path=deck), work).returncode == 2
 
 
+@pytest.mark.parametrize("body", [
+    "Get-Content -Path 'deck.pptx'",
+    "Get-Content -LiteralPath 'deck.pptx'",
+    "Copy-Item -Path 'deck.pptx' -Destination 'backup.pptx'",
+    "Move-Item -Path 'deck.pptx' -Destination 'backup.pptx'",
+])
+def test_a_powershell_script_source_never_re_records_a_user_edit(run, work, body):
+    deck = work / "deck.pptx"
+    (work / "reader.ps1").write_text(body + "\n", encoding="utf-8")
+    run(_payload("PostToolUse", "Read", work, path=deck), work)
+    command = "powershell -File reader.ps1"
+    assert run(_payload("PreToolUse", "Bash", work, command=command), work).returncode == 0
+    _user_edits(deck)
+    later = deck.stat().st_mtime + 120
+    os.utime(deck, (later, later))
+    run(_payload("PostToolUse", "Bash", work, command=command), work)
+    assert run(_payload("PreToolUse", "Write", work, path=deck), work).returncode == 2
+
+
+def test_a_powershell_script_writer_re_records_its_own_output(run, work):
+    deck = work / "deck.pptx"
+    (work / "build.ps1").write_text("Set-Content -Path 'deck.pptx' -Value 'generated'\n", encoding="utf-8")
+    run(_payload("PostToolUse", "Write", work, path=deck), work)
+    command = "powershell -File build.ps1"
+    assert run(_payload("PreToolUse", "Bash", work, command=command), work).returncode == 0
+    _deck(deck, "agent version", "regenerated")
+    later = deck.stat().st_mtime + 120
+    os.utime(deck, (later, later))
+    run(_payload("PostToolUse", "Bash", work, command=command), work)
+    assert run(_payload("PreToolUse", "Write", work, path=deck), work).returncode == 0
+
+
 def test_a_generator_rerun_onto_its_own_output_is_re_recorded(run, work):
     """A script that visibly saves its own recorded output: the agent's change, re-recorded."""
     deck = work / "deck.pptx"

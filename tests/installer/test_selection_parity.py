@@ -330,6 +330,19 @@ def _powershell() -> str | None:
 _CAPTURE = {"capture_output": True, "text": True, "encoding": "utf-8", "errors": "replace"}
 
 
+def _isolated_install_env(tmp_path: Path) -> dict[str, str]:
+    profile = tmp_path / "profile"
+    profile.mkdir()
+    appdata = tmp_path / "appdata"
+    appdata.mkdir()
+    localappdata = tmp_path / "localappdata"
+    localappdata.mkdir()
+    return {**os.environ, "HOME": str(profile), "USERPROFILE": str(profile),
+            "APPDATA": str(appdata), "LOCALAPPDATA": str(localappdata),
+            "NEXUS_HUB_HOME": str(profile / ".nexus-hub"),
+            "GIT_CONFIG_GLOBAL": str(profile / ".gitconfig")}
+
+
 def _install_failure(proc) -> str:
     """Readable diagnostic for a failed installer run.
 
@@ -350,10 +363,11 @@ def _install_failure(proc) -> str:
 def test_bash_filtered_install_matches_the_resolver(tmp_path: Path) -> None:
     target = tmp_path / "ws"
     target.mkdir()
+    env = _isolated_install_env(tmp_path)
     proc = subprocess.run(
         [_bash(), str(_SH), "--workspace", str(target), "--platforms", "claude",
          "--modules", "ai-engineering", "--yes"],
-        cwd=str(_ROOT), timeout=900, **_CAPTURE,
+        cwd=str(_ROOT), env=env, timeout=900, **_CAPTURE,
     )
     assert proc.returncode == 0, _install_failure(proc)
     expected = json.loads(subprocess.run(
@@ -375,10 +389,11 @@ def test_powershell_filtered_install_matches_bash(tmp_path: Path) -> None:
     """Both installers must produce the same skill set for the same selector."""
     target = tmp_path / "ps"
     target.mkdir()
+    env = _isolated_install_env(tmp_path)
     proc = subprocess.run(
         [_powershell(), "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(_PS1),
          "-Workspace", str(target), "-Platforms", "claude", "-Modules", "ai-engineering", "-Yes"],
-        cwd=str(_ROOT), timeout=900, **_CAPTURE,
+        cwd=str(_ROOT), env=env, timeout=900, **_CAPTURE,
     )
     assert proc.returncode == 0, _install_failure(proc)
     expected = json.loads(subprocess.run(
@@ -389,3 +404,4 @@ def test_powershell_filtered_install_matches_bash(tmp_path: Path) -> None:
     missing = [s for s in expected if s not in installed]
     assert not missing, f"resolved skills missing from the PowerShell install: {missing}"
     assert (target / ".claude" / "rules").is_dir()
+    assert (Path(env["NEXUS_HUB_HOME"]) / "scripts" / "nexus_git_attribution.py").is_file()

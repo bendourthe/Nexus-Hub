@@ -227,20 +227,18 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 2 | 0 |
+| Bugs / regressions (BG) | 1 | 1 |
 | Warnings (WN) | 8 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-#### BG-1: A PowerShell script that only reads a user's file can re-record it as the agent's
-
-**Source phase**: Phase 9 (adversarial pass, final re-probe after fix cycle 3). **Plan reference**: T013. **Reason**: `edit_guard.py` treats `-Path` and `-LiteralPath` as a write destination for every cmdlet, so `Get-Content -Path 'deck.md'` or `Copy-Item -Path 'deck.md' -Destination 'backup.md'` (the file as the SOURCE) marks the file as written. If the user saves it while such a script runs, the post step re-records the user's version as the agent's, silently. The Python equivalents are handled (only destinations count). The deep pass's three fix cycles were used, so this is owned here rather than fixed in this release. **Owner**: catalog maintainer. **Status**: open, highest priority of the v4.13.1 gaps. **Suggested next step**: in `_DEST_TEMPLATES`, count `-Path`/`-LiteralPath` only after a writer cmdlet (`Set-Content`, `Add-Content`, `Out-File`, `New-Item`, `Export-*`, `Tee-Object`), and for `Copy-Item`/`Move-Item` use `-Destination` or the last positional argument; add the three `t11` reproductions as tests.
-
 #### BG-2: A test in the full profile writes into the real user's `~/.nexus-hub`
 
 **Source phase**: Phase 9 (full local profile, 2026-09-26). **Plan reference**: T028. **Reason**: during `python scripts/ci/run.py --profile full` (17:46 to 19:53 local time), the real `~/.nexus-hub/scripts/nexus_git_attribution.py` was overwritten at 18:22 with this branch's version, and `~/.nexus-hub/VERSION` and `~/.nexus-hub/permissions-manifest.json` were rewritten at 18:36. Some test ran the real installer against the machine's own home folder instead of a throwaway one (a PowerShell run resolves the home from `USERPROFILE`, so redirecting `HOME` alone does not isolate it). The overwrite made `nexus-hub attribution check` fail with "Attribution guard version differs"; the file was restored from the durable guard (`~/.nexus-hub/git-hooks/guard.py`, which matches `develop`), a backup of the overwritten copy was kept outside the repository, and the check passes again. `VERSION` kept its value (4.13.0). This is most likely pre-existing: earlier runs from `develop` would have copied an identical file and gone unnoticed; it surfaced because this branch changed the script. **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: in a disposable Windows account or container, snapshot the home folder, run the full profile group by group, and diff after each to find the test; then isolate it with both `HOME` and `USERPROFILE` (and `APPDATA`, `LOCALAPPDATA`), and add a guard that fails the profile when the real home changes. **Full inventory (2026-09-26)**: a scan of `~/.nexus-hub`, `~/.claude`, `~/.codex`, `~/.gemini`, `~/.cursor`, and the VS Code user settings for files modified during the run found only the three files above plus, in `~/.nexus-hub/state/`, lock files and backups of test fixtures (instruction files headed `# org-test` and `# org-lifecycle`), written by the organization-layer tests. The user's real instruction files (`~/.claude/CLAUDE.md` last changed 2026-09-23, the Codex, Gemini, OpenCode, and Qwen files 2026-09-15) and platform settings were not touched. The leftover fixture backups and locks contain no user data and are safe to delete. So at least two tests leak into the real home: one runs the real installer (the attribution script, `VERSION`, and the permissions manifest), and the organization tests write their backups and locks to the real state folder.
+
+**Local repair (2026-09-27)**: the Bash and PowerShell selection-parity installer tests now provide a disposable `HOME`, `USERPROFILE`, `APPDATA`, `LOCALAPPDATA`, `NEXUS_HUB_HOME`, and Git global-config path; both real installer tests passed, and the PowerShell test confirmed the attribution script landed under the disposable Nexus home. The instruction merger's state root now honors `NEXUS_HUB_HOME` for workspace installs while retaining explicit global-target precedence; a red-then-green root test and 42 organization/merger tests passed. The local full profile was not rerun against the real account. **Status**: open until protected hosted integration verifies this repair; audit any remaining full-profile home writers separately.
 
 #### WN-7: A generated-with footer followed by a long clause passes the attribution hook
 
@@ -277,6 +275,12 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 #### MT-1: No paid measurement of the rule on a platform other than Claude and Codex
 
 **Source phase**: Phase 8. **Plan reference**: T018. **Reason**: the replay measured Claude Code (with and without the hook) and Codex. Copilot, Cursor, Gemini, and the rule-only platforms receive the same always-loaded rule and skill but were not measured. **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: add one rule-only platform to the next replay.
+
+### Resolved Items
+
+#### BG-1: A PowerShell script that only reads a user's file can re-record it as the agent's
+
+**Source phase**: Phase 9 (adversarial pass, final re-probe after fix cycle 3). **Plan reference**: T013. **Original defect**: `edit_guard.py` treated `-Path` and `-LiteralPath` as write destinations for every cmdlet, including `Get-Content` and the source of `Copy-Item` or `Move-Item`. **Resolution**: PowerShell script literals now use the existing shell-command destination parser; the broad parameter-only write pattern was removed. Four source variants failed before the fix and pass afterward on both hook implementations; a `Set-Content` script remains a positive writer control. The focused guard suite passed 144 tests with one host skip. Variable and computed destinations remain bounded by WN-6. **Owner**: catalog maintainer. **Status**: resolved locally, pending protected integration.
 
 ## v4.13.3
 

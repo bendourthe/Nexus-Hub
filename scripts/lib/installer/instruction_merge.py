@@ -363,9 +363,12 @@ def legacy_run(ctx: Any) -> Optional[LegacyRun]:
 
 
 def state_root(ctx: Any) -> Path:
-    """`~/.nexus-hub/state`, following an explicit global install target."""
+    """State under an explicit global target, Nexus home override, or user profile."""
     if getattr(ctx, "scope", "") == "global" and getattr(ctx, "global_root", None) is not None:
         return Path(ctx.global_root) / ".nexus-hub" / "state"
+    override = os.environ.get("NEXUS_HUB_HOME")
+    if override:
+        return Path(override).expanduser() / "state"
     return Path.home() / ".nexus-hub" / "state"
 
 
