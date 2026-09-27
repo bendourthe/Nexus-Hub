@@ -670,18 +670,54 @@ def _estimate_tokens(text: str) -> int:
     return estimate_tokens(text)
 
 
-def _write_diff(diff_dir: Path, path: str, lines: list[str], start: int, consent: str) -> Optional[str]:
+def _diff_owner(path: str) -> str:
+    resolved = os.path.normcase(str(Path(path).resolve()))
+    return hashlib.sha256(resolved.encode("utf-8")).hexdigest()[:32]
+
+
+def _write_diff(diff_dir: Path, path: str, owner_hash: str, lines: list[str], start: int,
+                consent: str) -> Optional[str]:
     body = [f"--- {path}", f"+++ {path} (legacy span removed)", f"@@ -{start},{len(lines)} +{start},0 @@"]
     body.extend(f"-{line}" for line in lines)
-    dst = diff_dir / f"{consent}.diff"
+    # Bounded prefixes keep the filename below the old full-consent length on Windows.
+    dst = diff_dir / f"{owner_hash}-{consent[:24]}.diff"
+    staging: Path | None = None
     try:
-        diff_dir.mkdir(parents=True, exist_ok=True)
-        fd = os.open(dst, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as stream:
+        diff_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+        _require_backup_owner(diff_dir)
+        os.chmod(diff_dir, 0o700)
+        if os.name == "nt":
+            _windows_owner_only(diff_dir, directory=True)
+        if dst.exists() or dst.is_symlink():
+            _require_backup_owner(dst)
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", newline="\n", dir=diff_dir,
+                                         prefix=".legacy-diff-", suffix=".tmp", delete=False) as stream:
+            staging = Path(stream.name)
             stream.write("\n".join(body) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.chmod(staging, 0o600)
+        if os.name == "nt":
+            _windows_owner_only(staging, directory=False)
+        os.replace(staging, dst)
     except OSError:
         return None
+    finally:
+        if staging is not None:
+            try:
+                staging.unlink(missing_ok=True)
+            except OSError:
+                pass
     return str(dst)
+
+
+def _prune_stale_diffs(diff_dir: Path, owner_hash: str, current: set[str]) -> None:
+    try:
+        for previous in diff_dir.glob(f"{owner_hash}-*.diff"):
+            if previous.name not in current:
+                previous.unlink()
+    except OSError:
+        pass  # A locked report remains available; the next report retries.
 
 
 def collect_legacy_report(ctx: Any) -> tuple[list[LegacyCandidate], list[str]]:
@@ -689,7 +725,8 @@ def collect_legacy_report(ctx: Any) -> tuple[list[LegacyCandidate], list[str]]:
 
     Returns the candidates (each with the consent token valid for the next
     unchanged install and, outside a dry run, an owner-only diff file) and the
-    supplied consent tokens that matched no span and so removed nothing.
+    supplied consent tokens that matched no span and so removed nothing. A
+    successful report prunes prior diffs for only that touched file.
     """
     from scripts.lib.installer.legacy_instruction_block import detect
 
@@ -701,11 +738,21 @@ def collect_legacy_report(ctx: Any) -> tuple[list[LegacyCandidate], list[str]]:
     candidates: list[LegacyCandidate] = []
     for path, owner in run.touched.items():
         detection = detect(Path(path))
-        if detection.status != "ok" or not detection.spans:
+        if detection.status != "ok":
+            continue
+        owner_hash = _diff_owner(path) if not dry_run else ""
+        if not detection.spans:
+            if not dry_run:
+                _prune_stale_diffs(diff_dir, owner_hash, set())
             continue
         lines = Path(path).read_bytes().decode("utf-8-sig").splitlines()
+        current_diffs: set[str] = set()
         for span in detection.spans:
             chunk = lines[span.start_line - 1 : span.end_line]
+            diff_path = None if dry_run else _write_diff(diff_dir, path, owner_hash, chunk, span.start_line,
+                                                       span.consent_sha256)
+            if diff_path:
+                current_diffs.add(Path(diff_path).name)
             candidates.append(
                 LegacyCandidate(
                     owner=owner,
@@ -715,10 +762,10 @@ def collect_legacy_report(ctx: Any) -> tuple[list[LegacyCandidate], list[str]]:
                     line_count=span.line_count,
                     tokens=_estimate_tokens("\n".join(chunk)),
                     consent_sha256=span.consent_sha256,
-                    diff_path=None
-                    if dry_run
-                    else _write_diff(diff_dir, path, chunk, span.start_line, span.consent_sha256),
+                    diff_path=diff_path,
                 )
             )
+        if not dry_run and len(current_diffs) == len(detection.spans):
+            _prune_stale_diffs(diff_dir, owner_hash, current_diffs)
     supplied = frozenset(getattr(ctx, "legacy_removal_hashes", None) or ())
     return candidates, sorted(supplied - run.consumed)

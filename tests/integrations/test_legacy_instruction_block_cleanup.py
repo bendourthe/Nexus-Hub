@@ -106,6 +106,131 @@ def test_report_only_keeps_legacy_bytes_and_backs_up(home: Path) -> None:
     assert backup.name == f"{hashlib.sha256(original).hexdigest()}.CLAUDE.md"
 
 
+def test_diff_report_prunes_only_prior_states_of_the_same_file(home: Path) -> None:
+    first = home / "CLAUDE.md"
+    second = home / "AGENTS.md"
+    for path in (first, second):
+        _fixture(path)
+    initial = _ctx(home)
+    for path in (first, second):
+        assert _merge(path, initial).action == "updated"
+    candidates, _ = im.collect_legacy_report(initial)
+    old = {candidate.path: Path(candidate.diff_path) for candidate in candidates}
+    assert len(old) == 2 and all(path.is_file() for path in old.values())
+
+    _fixture(first, user_above="# Revised rules\n")
+    changed = _ctx(home)
+    assert _merge(first, changed).action == "updated"
+    [current], _ = im.collect_legacy_report(changed)
+    assert current.diff_path != str(old[str(first)])
+    assert Path(current.diff_path).is_file()
+    assert not old[str(first)].exists()
+    assert old[str(second)].is_file()
+
+
+def test_diff_report_keeps_every_current_span_while_pruning_old_state(home: Path) -> None:
+    path = home / "CLAUDE.md"
+    _fixture(path)
+    initial = _ctx(home)
+    assert _merge(path, initial).action == "updated"
+    [old], _ = im.collect_legacy_report(initial)
+
+    divider = LEGACY[len(LEGACY) // 2]
+    path.write_text(path.read_text(encoding="utf-8").replace(divider, divider + "\n# Personal divider", 1),
+                    encoding="utf-8")
+    changed = _ctx(home)
+    assert _merge(path, changed).action == "unchanged"
+    current, _ = im.collect_legacy_report(changed)
+    assert len(current) == 2
+    assert all(candidate.diff_path and Path(candidate.diff_path).is_file() for candidate in current)
+    assert not Path(old.diff_path).exists()
+
+
+def test_failed_diff_write_preserves_prior_report(home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    path = home / "CLAUDE.md"
+    _fixture(path)
+    initial = _ctx(home)
+    assert _merge(path, initial).action == "updated"
+    [old], _ = im.collect_legacy_report(initial)
+
+    _fixture(path, user_above="# Revised rules\n")
+    changed = _ctx(home)
+    assert _merge(path, changed).action == "updated"
+    monkeypatch.setattr(im, "_write_diff", lambda *args: None)
+    [current], _ = im.collect_legacy_report(changed)
+    assert current.diff_path is None
+    assert Path(old.diff_path).is_file()
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows ACL check")
+def test_windows_diff_report_acl_is_owner_only(home: Path) -> None:
+    path = home / "CLAUDE.md"
+    _fixture(path)
+    ctx = _ctx(home)
+    assert _merge(path, ctx).action == "updated"
+    [candidate], _ = im.collect_legacy_report(ctx)
+    for item in (Path(candidate.diff_path).parent, Path(candidate.diff_path)):
+        quoted = "'" + str(item).replace("'", "''") + "'"
+        script = (
+            f"$acl = Get-Acl -LiteralPath {quoted}; "
+            "$sid = $acl.Access[0].IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value; "
+            "Write-Output ($acl.AreAccessRulesProtected.ToString() + '|' + $acl.Access.Count + '|' + $sid)"
+        )
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+            capture_output=True, text=True, check=False,
+        )
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == "True|1|S-1-3-4"
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows ACL failure check")
+def test_windows_diff_acl_failure_returns_no_report(home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    path = home / "CLAUDE.md"
+    _fixture(path)
+    ctx = _ctx(home)
+    assert _merge(path, ctx).action == "updated"
+
+    def fail_acl(_path: Path, *, directory: bool) -> None:
+        raise PermissionError("cannot restrict diff ACL")
+
+    monkeypatch.setattr(im, "_windows_owner_only", fail_acl)
+    [candidate], _ = im.collect_legacy_report(ctx)
+    assert candidate.diff_path is None
+    assert not list((home / ".nexus-hub" / "state" / "legacy-candidates").glob("*.diff"))
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows ACL failure check")
+def test_windows_diff_file_acl_failure_keeps_no_report(home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    path = home / "CLAUDE.md"
+    _fixture(path)
+    ctx = _ctx(home)
+    assert _merge(path, ctx).action == "updated"
+    real_acl = im._windows_owner_only
+
+    def fail_file_acl(candidate: Path, *, directory: bool) -> None:
+        if not directory:
+            raise PermissionError("cannot restrict diff file ACL")
+        real_acl(candidate, directory=directory)
+
+    monkeypatch.setattr(im, "_windows_owner_only", fail_file_acl)
+    [candidate], _ = im.collect_legacy_report(ctx)
+    assert candidate.diff_path is None
+    assert not list((home / ".nexus-hub" / "state" / "legacy-candidates").iterdir())
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX mode check")
+def test_posix_diff_report_modes_are_owner_only(home: Path) -> None:
+    path = home / "CLAUDE.md"
+    _fixture(path)
+    ctx = _ctx(home)
+    assert _merge(path, ctx).action == "updated"
+    [candidate], _ = im.collect_legacy_report(ctx)
+    report = Path(candidate.diff_path)
+    assert report.parent.stat().st_mode & 0o777 == 0o700
+    assert report.stat().st_mode & 0o777 == 0o600
+
+
 def test_backup_is_content_addressed_and_never_pruned(home: Path) -> None:
     path = home / "CLAUDE.md"
     _fixture(path)
@@ -167,7 +292,9 @@ def test_token_from_one_install_removes_on_the_next(home: Path, monkeypatch: pyt
     _fixture(path)
     first = _ctx(home)
     _merge(path, first)  # also refreshes the managed block
-    [token] = _tokens(first)
+    [reported], _ = im.collect_legacy_report(first)
+    token = reported.consent_sha256
+    prior_diff = Path(reported.diff_path)
     before = path.read_bytes()
     writes: list[bytes] = []
     real_replace = im._atomic_replace_bytes
@@ -177,6 +304,7 @@ def test_token_from_one_install_removes_on_the_next(home: Path, monkeypatch: pyt
     assert len(writes) == 1
     candidates, refused = im.collect_legacy_report(second)
     assert candidates == [] and refused == []
+    assert not prior_diff.exists()
     after = path.read_bytes()
     lines = before.splitlines(keepends=True)
     assert after == b"".join(lines[:3] + lines[3 + len(LEGACY) :])
