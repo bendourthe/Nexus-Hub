@@ -93,6 +93,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Codex can run commands on Linux with the shipped permissions profile.** `configs/permissions/codex-permissions.toml` granted only `":project_roots" = "read"`, a key the current Codex reference does not document, and no `:minimal` system set, so Codex's Linux sandbox exposed no system directory and every command failed (`Failed to execvp sh`, Codex CLI 0.157.1 on Ubuntu 24.04). The profile now grants the documented `":minimal" = "read"` and `":workspace_roots" = "read"`; writes stay gated and the network allowlist is unchanged. Re-run the installer to update an existing `~/.codex/config.toml`.
 
+- **The completion checker and `run-plan` resist five hostile inputs found by the final review.** On Windows an executable planted in the working directory resolved before the real `git` or platform CLI, because `shutil.which` searches the current directory first; both now resolve from PATH's absolute entries only. A titled version heading (`## v4.3.0 - ...`) or a gap title containing "Unresolved" no longer reads open gaps as met, a quoted run reporting failures is no longer passing test evidence, deleting `start_head` from a run record is reported as tampering, and a long run's lock is refreshed each cycle and removed only by its owner.
+
+- **CI runs the completion-gate registration, completion-plugin, and end-to-end harness tests.** Three of the full-run test sets were in no `scripts/ci/profiles.py` partition, so CI never ran them.
+
 ---
 
 ## [4.13.0] - 2026-09-21

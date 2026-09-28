@@ -28,7 +28,6 @@ import json
 import os
 import re
 import secrets
-import shutil
 import subprocess
 import sys
 import time
@@ -116,9 +115,30 @@ def _is_inside(path: Path, root: Path) -> bool:
         return False
 
 
+def _which_on_path(name: str) -> str | None:
+    """Find `name` on PATH's absolute entries only, never in the current directory.
+
+    `shutil.which` on Windows searches the current directory first even when given an
+    explicit path, so a `git.bat` planted at a repository root would run before the
+    inside-the-tree refusal could see it.
+    """
+    exts = [""]
+    if os.name == "nt":
+        exts = [e.lower() for e in os.environ.get("PATHEXT", ".COM;.EXE;.BAT;.CMD").split(";") if e]
+    for entry in os.environ.get("PATH", "").split(os.pathsep):
+        base = Path(entry)
+        if not entry or not base.is_absolute():
+            continue
+        for ext in exts:
+            candidate = base / (name + ext)
+            if candidate.is_file() and (os.name == "nt" or os.access(candidate, os.X_OK)):
+                return str(candidate)
+    return None
+
+
 def _tool(name: str, repo_root: Path | None) -> str | None:
     """Resolve an executable once, refusing one that lives inside the working tree."""
-    found = shutil.which(name)
+    found = _which_on_path(name)
     if not found:
         return None
     if repo_root is not None and _is_inside(Path(found), repo_root):
@@ -279,6 +299,11 @@ def _hmac_payload(record: dict) -> dict:
             "session_id",
             "repo",
             "deferrable_gap_types",
+            # Fixed at `record create` and never rewritten: deleting `start_head` turned
+            # every ticked task `met` with no commit check.
+            "start_head",
+            "nonce",
+            "created",
         )
     }
 
@@ -440,7 +465,9 @@ def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
         text = gaps.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         return "cannot-verify", 0
-    section = _section(text, f"## {ctx.version}", level="## ")
+    # A version heading may carry a title (`## v4.3.0 - agentic-verification`); an exact
+    # match alone missed it and read every open gap as met.
+    section = _section(text, f"## {ctx.version}", level="## ", titled=True)
     if section is None:
         return "met", 0
     open_block = _section(section, "### Open Items", level="### ")
@@ -453,7 +480,9 @@ def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
     for index, item in enumerate(items):
         end = items[index + 1].start() if index + 1 < len(items) else len(open_block)
         body = open_block[item.start() : end]
-        if "RESOLVED" in item.group("title").upper():
+        # Only the ledger's resolution marker counts ("- RESOLVED ..." or "-- RESOLVED ..."),
+        # never the word inside a title such as "Unresolved flake".
+        if RESOLVED_MARKER_RE.search(item.group("title")):
             continue
         source = re.search(r"\*\*Source phase\*\*:([^\n]*)", body)
         from_own_task = bool(
@@ -468,11 +497,15 @@ def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
     return ("deferred" if deferred else "met"), deferred
 
 
-def _section(text: str, heading: str, level: str) -> str | None:
+RESOLVED_MARKER_RE = re.compile(r"\s-{1,2}\s*RESOLVED\b")
+
+
+def _section(text: str, heading: str, level: str, titled: bool = False) -> str | None:
     lines = text.splitlines(keepends=True)
     start = None
     for index, line in enumerate(lines):
-        if start is None and line.rstrip() == heading:
+        stripped = line.rstrip()
+        if start is None and (stripped == heading or (titled and stripped.startswith(heading + " "))):
             start = index + 1
         elif (
             start is not None
@@ -511,6 +544,8 @@ def _tests_status(ctx: Context, evidence: str | None, start: str | None) -> str:
     if (
         not section
         or not re.search(r"\b(passed|PASS)\b", section)
+        # A quoted run that reports failures is not passing evidence ("3 failed, 0 passed").
+        or re.search(r"\b[1-9]\d* (failed|errors?)\b", section)
         or "`" not in section
     ):
         return "unmet"

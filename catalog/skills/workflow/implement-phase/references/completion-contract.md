@@ -73,7 +73,7 @@ Fields: `schema` (currently `1`), `plan` (repository-relative path), `plan_sha25
 
 Each approval is a tuple of exact values plus the verbatim user text that granted it: the plan path; the remote URL and `owner/repo`; source and target branch; release version and tag name; the branches and worktrees to remove; and each approval class with its bound. The classes are: `push-merge`, `release` (version, tag, publication, release pull requests, and back-merge for that one version), `repush` (after a locally reproduced fix, bound 3), `release-notes`, `refactor-moves` (inside plan-touched folders only), `spend` (a USD cap per vendor), and one `ask-first:<surface>` per "Ask first" surface the plan names. CI workflow, permission, and secret changes are never approvable in advance; they are always a `ci-security-change` blocker.
 
-`approvals_hmac` is an HMAC-SHA256 over the canonical JSON of `approvals`, `plan_sha256`, `session_id`, `repo`, and `deferrable_gap_types`, keyed by the owner-only secret `~/.nexus-hub/runs/.secret`. The installer creates the secret; `record create` creates it when absent. No prompt text, command, or skill references the secret's content.
+`approvals_hmac` is an HMAC-SHA256 over the canonical JSON of `approvals`, `plan_sha256`, `session_id`, `repo`, `deferrable_gap_types`, `start_head`, `nonce`, and `created`, keyed by the owner-only secret `~/.nexus-hub/runs/.secret`, which `record create` creates when it is absent. `pause` and `blockers` are not yet signed (v4.13.2 known gap WN-8). No prompt text, command, or skill references the secret's content.
 
 ### Approval origin
 

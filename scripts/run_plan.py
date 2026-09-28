@@ -32,7 +32,6 @@ import argparse
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 import time
@@ -179,8 +178,30 @@ def validate_plan(plan: str) -> Path:
     return path
 
 
+def _which_on_path(name: str) -> str | None:
+    """Find `name` on PATH's absolute entries only, never in the current directory.
+
+    `shutil.which` on Windows searches the current directory first, so a `claude.cmd`
+    planted at the repository root would be launched as the platform CLI. Same rule
+    as `check_plan_completion._which_on_path`; kept local so the runner has no import
+    dependency on the checker it invokes as a subprocess.
+    """
+    exts = [""]
+    if os.name == "nt":
+        exts = [e.lower() for e in os.environ.get("PATHEXT", ".COM;.EXE;.BAT;.CMD").split(";") if e]
+    for entry in os.environ.get("PATH", "").split(os.pathsep):
+        base = Path(entry)
+        if not entry or not base.is_absolute():
+            continue
+        for ext in exts:
+            candidate = base / (name + ext)
+            if candidate.is_file() and (os.name == "nt" or os.access(candidate, os.X_OK)):
+                return str(candidate)
+    return None
+
+
 def resolve_binary(argv0: str) -> str:
-    found = shutil.which(argv0)
+    found = _which_on_path(argv0)
     if not found:
         raise RunnerError(
             f"{argv0} is not installed or not on PATH; install the platform CLI first"
@@ -260,9 +281,24 @@ class Lock:
         self.held = True
         return self
 
-    def __exit__(self, *_exc: object) -> None:
+    def refresh(self) -> None:
+        """Mark the lock live; called every cycle so a long run never looks stale."""
         if self.held:
-            self.path.unlink(missing_ok=True)
+            try:
+                os.utime(self.path)
+            except OSError:
+                pass
+
+    def __exit__(self, *_exc: object) -> None:
+        # Remove only our own lock: a runner that outlived the stale window must not
+        # delete the lock a second runner has since taken.
+        if self.held:
+            try:
+                owner = self.path.read_text(encoding="ascii").strip()
+            except OSError:
+                return
+            if owner == str(os.getpid()):
+                self.path.unlink(missing_ok=True)
 
 
 def _launch(argv: list[str], backoff: float) -> int:
@@ -302,7 +338,7 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
         )
     binary = resolve_binary(launch("x")[0])
     backoff = float(os.environ.get("NEXUS_RUNNER_BACKOFF", "5"))
-    with Lock(record_path):
+    with Lock(record_path) as lock:
         # A run whose verdict is already terminal (the first turn completed it, a
         # blocker was recorded, or the user paused it) has nothing to resume, and a
         # resumed session there only spends money restating the stop.
@@ -315,6 +351,7 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
         best = -1
         stalled = 0
         for cycle in range(1, max_cycles + 1):
+            lock.refresh()
             # Every cycle RESUMES: the run record exists only because /implement's
             # upfront round ran in a session, and a fresh session would carry a
             # different session id, so the turn-end gate bound to the record would

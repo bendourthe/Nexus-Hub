@@ -676,3 +676,65 @@ def test_record_path_reports_existence(complete: Fixture) -> None:
     assert Path(found.stdout.strip()) == complete.record_path()
     complete.record_path().unlink()
     assert complete.run("record", "path", PLAN_REL).returncode == 1
+
+
+# --- Tier 3 deep-pass findings (adversarial pass, 2026-09-28) -----------------------
+
+
+@pytest.mark.parametrize(
+    ("heading", "title"),
+    [
+        ("## v0.2.0 - demo release", "BG-1: broken"),
+        ("## v0.2.0", "BG-1: Unresolved flake in the gate"),
+    ],
+)
+def test_an_open_gap_is_never_read_as_met(complete: Fixture, heading: str, title: str) -> None:
+    # A titled version heading and the word "Unresolved" both used to read as met.
+    complete.write(
+        "docs/releases/v0/v0.2/known-gaps.md",
+        f"# Gaps\n\n{heading}\n\n### Open Items\n\n#### {title}\n\n**Source phase**: Phase 1.\n",
+    )
+    assert "gaps.version unmet" in complete.check().stdout
+
+
+def test_the_ledger_resolution_marker_still_resolves(complete: Fixture) -> None:
+    complete.write(
+        "docs/releases/v0/v0.2/known-gaps.md",
+        "# Gaps\n\n## v0.2.0\n\n### Open Items\n\n#### BG-1: broken - RESOLVED 2026-09-27\n\n**Source phase**: Phase 1.\n",
+    )
+    assert "gaps.version met" in complete.check().stdout
+
+
+def test_quoted_failures_are_not_passing_evidence(complete: Fixture) -> None:
+    path = complete.work / EVIDENCE_REL
+    path.write_text(path.read_text().replace("3 passed", "3 failed, 0 passed"), encoding="utf-8")
+    assert "tests.evidence unmet" in complete.check().stdout
+
+
+def test_deleting_start_head_is_tampering(complete: Fixture) -> None:
+    # Without start_head every ticked task was `met` with no commit check.
+    path = complete.record_path()
+    record = json.loads(path.read_text())
+    del record["start_head"]
+    path.write_text(json.dumps(record), encoding="utf-8")
+    assert complete.check().stdout.startswith("BLOCKED: record-tampered")
+
+
+def test_a_git_planted_in_the_working_directory_is_never_resolved(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # shutil.which on Windows searches the current directory first, even with an explicit
+    # path, so a git.bat at a repository root resolved before the inside-the-tree refusal.
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("cpc_under_test", CHECKER)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    for name in ("git.bat", "git.cmd", "git"):
+        planted = tmp_path / name
+        planted.write_text("@echo off\r\n" if name != "git" else "#!/bin/sh\n", encoding="utf-8")
+        planted.chmod(0o755)
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("NoDefaultCurrentDirectoryInExePath", raising=False)
+    found = module._tool("git", None)
+    assert found is None or Path(found).resolve().parent != tmp_path.resolve(), found

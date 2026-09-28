@@ -13,6 +13,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -231,3 +232,17 @@ def test_cmd_shims_refuse_metacharacters(arg: str) -> None:
 def test_denylisted_argument_is_refused_even_if_injected() -> None:
     with pytest.raises(run_plan.RunnerError):
         run_plan.check_argv(["/usr/bin/claude", "--dangerously-skip-permissions", "-p", "x"])
+
+
+
+def test_lock_refresh_and_foreign_lock_survive(tmp_path: Path) -> None:
+    # A long run refreshes its lock each cycle, and exiting never deletes a lock that a
+    # second runner took after the stale window.
+    record = tmp_path / "abc.json"
+    record.write_text("{}", encoding="utf-8")
+    with run_plan.Lock(record) as lock:
+        os.utime(lock.path, (0, 0))
+        lock.refresh()
+        assert time.time() - lock.path.stat().st_mtime < 60
+        lock.path.write_text("999999", encoding="ascii")
+    assert lock.path.exists(), "exiting deleted a lock owned by another runner"

@@ -327,10 +327,10 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 4 | 0 |
-| Bugs / regressions (BG) | 0 | 6 |
-| Warnings (WN) | 6 | 1 |
-| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Deferred (DF) | 7 | 0 |
+| Bugs / regressions (BG) | 0 | 8 |
+| Warnings (WN) | 12 | 1 |
+| Missing tests / coverage gaps (MT) | 2 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
@@ -376,6 +376,66 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 **Source phase**: Phase 8 (T018). **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: after B7 reached `PLAN COMPLETE`, the OpenAI pilot key returned `Quota exceeded. Check your plan and billing details.` before any turn, so the planned second run did not happen; one run shows the chain works on Codex but bounds no failure rate.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: rerun condition B in WSL (`tests/e2e/implement_full/run_e2e.py --agent codex`) once the OpenAI limit allows, and record the result in the e2e evidence.
+
+#### WN-8: The run record's signature does not cover `pause` or `blockers`
+
+**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `approvals_hmac` now covers `start_head`, `nonce`, and `created` (fixed in this phase), but `pause` and `blockers` are rewritten by several writers (`record pause`, `record block`, the capture hook), so an edit that clears the user's pause or closes an open blocker is not reported as `record-tampered`.
+
+**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: have every writer re-sign through one checker function, then add both fields to the signed payload.
+
+#### WN-9: Approval capture binds typed text, not the approval class
+
+**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `approval-capture` stores a digest of every submitted prompt line, and `record create` accepts an approval whose text matches any captured line. A short reply such as `ok`, a pasted issue body containing "I approve release", or the agent piping a fabricated payload into `completion_gate.py capture` can therefore back an approval class the user never approved. Severity high: this is the threat the contract names.
+
+**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: issue a per-round nonce in the upfront question, require the user's answer to carry the class and nonce, match the whole prompt rather than a line, and refuse a capture the agent's own tool call produced.
+
+#### WN-10: Completion plugins start Python by bare name
+
+**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the OpenCode, OpenClaw, Pi, and Hermes plugins call `spawn("python" | "python3", ...)`, and Node on Windows searches the working directory first, so a `python.exe` planted at the repository root runs at every turn end. The checker and runner now resolve executables from PATH's absolute entries only (fixed in this phase); the plugins do not.
+
+**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: pass the installed interpreter's absolute path into each plugin at install time, or resolve it in the plugin from PATH's absolute entries.
+
+#### WN-11: `run-plan` checks only global settings for an approval bypass
+
+**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `bypass_configured` reads the platform's global config with regular expressions. A committed project `.claude/settings.json` with `defaultMode: bypassPermissions`, a single-quoted `approval_policy = 'never'`, or the Cursor, Copilot, OpenCode, and Kimi rows (no check at all) pass unnoticed.
+
+**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: parse JSON and TOML instead of matching text, include the project-scoped settings under the launch directory, and refuse a row with no check unless `unattended-with-bypass` is approved; confirm first which platforms honor project-level bypass settings.
+
+#### WN-12: `integration.checks` and `release.version-sync` read the working tree
+
+**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the checker reads `docs/policy/required-checks.json` and runs the project's version-sync script from the working tree, so an edit to either changes what "required" means or what runs at every turn end.
+
+**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: read the manifest from `origin/<target>` and run version sync from the record's `start_head` tree, or keep version sync out of the turn-end gate.
+
+#### WN-13: Record lifetime and environment edge cases
+
+**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: three low-severity cases. A pull request opened moments ago may answer `no checks reported on the '<branch>' branch`, which is not in the not-found list and reads as `cannot-verify` (text reasoned from `gh`'s source, not reproduced). A record bound to the same session never expires, so a session resumed weeks later still carries its approvals. A home directory that is itself a git working tree, or a `GIT_DIR` in the environment, makes every record read as tampered.
+
+**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: capture the real `gh pr checks` message on a fresh pull request and add it to the not-found list; expire same-session records after 72 hours; strip `GIT_*` variables and test `git ls-files --error-unmatch` on the record path.
+
+#### DF-5: Approval capture is missing on Pi, OpenClaw, Hermes, and Windsurf
+
+**Source phase**: Phase 9 (T024), Tier 3 code-vs-plan convergence. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `docs/policy/completion-levers.json` records a VERIFIED prompt-submit lever for these four platforms, but only Claude-format registrations and Cursor carry `approval-capture`, so on them `record create` falls back to the terminal and a headless run cannot record its approvals (the same effect as WN-4 on OpenCode).
+
+**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: add capture on each platform's documented prompt event in its plugin or hook adapter, with a parity test.
+
+#### DF-6: Copilot CLI gets no goal at all
+
+**Source phase**: Phase 9 (T024), Tier 3 code-vs-plan convergence. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: Copilot CLI's documented headless goal needs `--autopilot --yolo`, which the runner's denylist forbids, and the runbook prints an interactive goal line only for platforms whose goal is interactive-only, which the levers matrix does not mark Copilot CLI as.
+
+**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: classify Copilot CLI's goal as interactive-only in the levers matrix and document why.
+
+#### DF-7: Recorded design deltas from Phases 2, 4, and 6
+
+**Source phase**: Phase 9 (T024), Tier 3 code-vs-plan convergence. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: accepted deviations recorded only in phase histories until now: the per-run spend cap became `--max-cycles` (Phase 6); the gate infers its output format from the payload instead of `NEXUS_GATE_FORMAT`, reuses the existing handler ownership check instead of exact-identity manifest entries, and never marks degraded enforcement in the record (Phase 4); and the Phase 2 throwaway install check could not finish on Windows and was confirmed by the Phase 3 seven-platform install instead.
+
+**Owner**: catalog maintainer. **Status**: open (accepted). **Suggested next step**: revisit the degraded-enforcement mark and a spend cap when a platform documents per-run spend reporting; no other change is needed.
+
+#### MT-2: No real CLI run exercised a gate refusal or a runner resume
+
+**Source phase**: Phase 9 (T024), Tier 3 code-vs-plan convergence. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: every passing Phase 8 run on Claude Code and Codex reached `PLAN COMPLETE` in its first turn, so the turn-end gate's refusal and the runner's resume are proven by stub tests (`test_harness.py`, `test_completion_gate.py`) and never by a paid session.
+
+**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: run one paid condition with a fixture that cannot finish in one turn (for example a phase whose test only passes after a second commit) and record the gate and runner cycles.
 
 #### DF-1: Devin Desktop reads `.devin/hooks.json`, which the Windsurf integration does not model
 
@@ -444,6 +504,18 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 **Source phase**: Phase 8 (T017), Codex run in WSL Ubuntu 24.04; pre-existing. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `configs/permissions/codex-permissions.toml` (merged into `~/.codex/config.toml`) selects a `default_permissions` profile whose filesystem table held only `":project_roots" = "read"`. A profile lists what the sandbox can read, and without `:minimal` it lists no system directory, so `codex sandbox -- sh` failed with `Failed to execvp sh` and every Codex command on Linux failed with it.
 
 **Owner**: catalog maintainer. **Status**: resolved: the profile grants `":minimal" = "read"` and `":workspace_roots" = "read"`; `codex sandbox` then runs `sh` and `/usr/bin/git` and still blocks writes outside a granted path.
+
+#### BG-7: Tier 3 adversarial findings fixed in this phase - RESOLVED 2026-09-28
+
+**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: five defects in the checker and runner: an executable planted in the working directory resolved first on Windows (`shutil.which` searches it even with an explicit path); a titled version heading (`## v4.3.0 - ...`, used in this repository) and a title containing "Unresolved" both read open gaps as met; a quoted run reporting failures counted as passing test evidence; deleting `start_head` from the record turned every ticked task `met` unnoticed; and a runner past the lock's stale window could delete a second runner's lock.
+
+**Owner**: catalog maintainer. **Status**: resolved in fix cycle 1 of 3: executables resolve from PATH's absolute entries only, the version heading may carry a title, only a `- RESOLVED` or `-- RESOLVED` marker resolves an item, a nonzero `failed` or `errors` count rejects the evidence, `start_head`, `nonce`, and `created` are signed, and the lock is refreshed each cycle and removed only by its owner. Six regression tests fail on the previous code and pass now.
+
+#### BG-8: CI never collected three of this plan's test sets - RESOLVED 2026-09-28
+
+**Source phase**: Phase 9 (T023), terminal CI/CD reconciliation. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.5](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `tests/integrations/test_completion_gate_registration.py`, `tests/integrations/test_completion_plugins.py`, and `tests/e2e/` were in no `scripts/ci/profiles.py` partition, so CI would never have run them.
+
+**Owner**: catalog maintainer. **Status**: resolved: the two integration files join `repo-tests-integrations-install` and `tests/e2e` joins `repo-tests-governance`; `pytest tests/ci` passes (107) and the three sets pass (42).
 
 ## v4.13.3
 
