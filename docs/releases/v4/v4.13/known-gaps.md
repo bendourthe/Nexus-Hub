@@ -190,7 +190,7 @@ This table is the single-file working inventory of residual v4.0-v4.12 items as 
 | [v4.5 MT-1, tests 1 and 3](../v4.5/known-gaps.md) | Open manual distribution read-path and prose false-positive exercises, separate from DF-1 and DF-2. | Installation and writing owners: use throwaway installs on three non-Claude platforms and judge samples of the maintainer's own writing; retain observations. |
 | [v4.7 DF-2](../v4.7/known-gaps.md) | Open Codex CLI model-picker mismatch; related to v4.1.0 DF-1 and v4.9 MT-1, not a second profile implementation task. | Prompting-profile owner: recheck the live picker and reconcile the model map with official evidence. |
 | [v4.7 DF-4 / DF-5](../v4.7/known-gaps.md) | Accepted exclusions: reusable CI workflow factoring and per-skill presentation metadata have no authorized implementation in this release. | CI and catalog owners: reconsider only with an actual consumer and a separate scoped decision. |
-| [v4.7 WN-2](../v4.7/known-gaps.md) | Open `main` scheduled supply-chain result; the `develop` repair does not qualify the unreleased default branch. | Release owner: recheck the schedule on `main` after the next authorized release; preserve the failed historical run. |
+| [v4.7 WN-2](../v4.7/known-gaps.md) | Open `main` supply-chain result: the released workflow pins patched setuptools, but two 2026-09-28 dispatches stopped on PyPI lookups for editable Nexus projects before an advisory verdict. | CI/release owner: integrate the `--skip-editable` correction, then observe a passing `main` run after its protected release; preserve every failed run. |
 | [v4.8 WN-F](../v4.8/known-gaps.md) | Manual per-release obligation, not an unimplemented regex: the 24 mappings passed the 2026-09-23 source/body audit. | Framework-mapping owner: repeat the source-to-body review at release time and record drift. |
 | [v4.8 WN-K](../v4.8/known-gaps.md) | Installer staging mode is now owner-only in the current tree; the old release CodeQL baseline and required-context policy are separate decisions. | Security/CI owner: verify the relevant alert on the next `main` scan and decide any CodeQL gate change explicitly. |
 | [v4.9 MT-1](../v4.9/known-gaps.md) | Open live Claude prompting-roster completeness; the account-backed picker offers Opus 5.5, but exposes display names rather than a complete canonical ID roster. | Prompting-profile owner: obtain a complete live model-ID enumeration, then calibrate only available models through the deterministic writer; keep the old roster date until then. |
@@ -214,7 +214,7 @@ The v4.9 MT-3 [chart-line paint follow-up](../../../archives/v4/v4.9/development
 | v4.3 | [ledger](../v4.3/known-gaps.md) | `c8d3d2ad11010111ebddefbc02cb351c5981d503d5c78dfadde24e6ef73f81de` |
 | v4.4 | [ledger](../v4.4/known-gaps.md) | `baddda620e53acd1870df1cc341ee84f61404fc5c3b4d31b6813fb46a26ab4e7` |
 | v4.5 | [ledger](../v4.5/known-gaps.md) | `e793ab381025b760eaa6cf35c41e57749bb73ec6c2828b1369bcccad129ea24c` |
-| v4.7 | [ledger](../v4.7/known-gaps.md) | `52c01a05534b203bf8b2901c24a6b69e6aaa85a75c78140d3371469ef26b6e1d` |
+| v4.7 | [ledger](../v4.7/known-gaps.md) | `9266af9042fe59bb494b3ca919e74da577b33993a6ae48d599553a928db549f2` |
 | v4.8 | [ledger](../v4.8/known-gaps.md) | `0dd85eddc8f04c1e85c2d72357674b627288fb23bdd1a3b9f4f039585c95cab2` |
 | v4.9 | [ledger](../v4.9/known-gaps.md) | `992bac8015544c165c1774a7974432b6439d5f0f022cdd8265a966f9ae9c2ef6` |
 | v4.10 | [ledger](../v4.10/known-gaps.md) | `f8e1d71999b90c0d06499fa6e1517169935ddd27b21d521032886e701ab84f94` |

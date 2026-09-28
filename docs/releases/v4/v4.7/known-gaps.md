@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released. v4.7.0 was published on 2026-09-06 at tag `v4.7.0` (`667cc465`) after integration in PR #167 (`ca8e663e`). MT-1's hosted observation gate was verified after release; WN-2 records the separate failing default-branch schedule.
-**Last updated**: 2026-09-24
+**Last updated**: 2026-09-28
 
 ## v4.7.0 - model-behavior-and-distribution-integrity (with the gpt-6-astra-prompting amendments folded in)
 
@@ -61,8 +61,9 @@
 
 - **Source phase**: Post-release hosted verification on 2026-09-24.
 - **Plan reference**: v4.7.0 Phase 6 Distribution Integrity, T022 and T023.
-- **Reason**: Three scheduled `main` runs failed, most recently run 35599558573 on 2026-09-21. Its report found `setuptools` 79.0.1, affected by `PYSEC-2026-3447`; current `main` lacks the newer `develop` constraint that pins 84.0.0. A passing manual `develop` run does not prove default-branch schedule health. The [archived verification](../../../archives/v4/v4.7/development/supply-chain-watch-followup/verification.md) retains both outcomes.
-- **Suggested next step**: The CI/release maintainer must bring a fixed `setuptools` into the default-branch audit environment through the protected release path, then observe a passing `main` dispatch or schedule without suppressing the advisory.
+- **Historical reason (2026-09-24)**: Three scheduled `main` runs failed, most recently run 35599558573 on 2026-09-21. Its report found `setuptools` 79.0.1, affected by `PYSEC-2026-3447`; `main` then lacked the newer `develop` constraint that pinned 84.0.0. A passing manual `develop` run did not prove default-branch schedule health. The [archived verification](../../../archives/v4/v4.7/development/supply-chain-watch-followup/verification.md) retains both outcomes.
+- **2026-09-28 recheck**: Released `main` at `0c2c2997` installs `setuptools==84.0.0`, but [manual run 36409588416](https://github.com/bendourthe/Nexus-Hub/actions/runs/36409588416) and the [bounded retry 36409919680](https://github.com/bendourthe/Nexus-Hub/actions/runs/36409919680) both failed before an advisory verdict. PyPI returned HTTP 503 when pip-audit queried the locally editable `nexus-code-search` and `nexus-context-compressor` projects, respectively. Neither run is a passing audit or evidence that installed third-party dependencies are safe.
+- **Suggested next step**: Integrate the tested `--skip-editable` workflow correction without ignoring advisories or omitting installed third-party dependencies; ship it to `main` through a protected release, then observe a passing `main` dispatch or schedule.
 
 ### Resolved
 
