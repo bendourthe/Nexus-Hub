@@ -4,9 +4,7 @@
 The standard requires `name` and `description` present and non-empty, `name`
 1-64 characters matching `^[a-z0-9]+(-[a-z0-9]+)*$`, and `description` 1-1024
 characters. This guard proves that contract in `make validate` and CI, replacing
-an untested claim with a checked one. Thirteen pre-existing pushy descriptions
-exceed 1024 characters and are grandfathered by name in
-`OVERLONG_DESCRIPTION_ALLOWLIST`; a new over-long description is a hard error.
+an untested claim with a checked one. Every over-long description is a hard error.
 
 Deliberate non-goals (do not add them here):
 
@@ -50,30 +48,6 @@ STANDARD_KEYS = frozenset(
 )
 SKILLS_GLOB = "catalog/skills/*/*/SKILL.md"
 
-# Nexus-Hub's pushy-description convention (verbatim trigger phrases + SKIP)
-# predates this guard and already exceeds the agentskills.io 1024-character
-# description cap on these skills. Absence of a name from this set is never
-# an exemption: a NEW over-long description is a hard failure. Tracked as
-# known-gap WN-v3201-1; remove a name when that skill's description is trimmed.
-OVERLONG_DESCRIPTION_ALLOWLIST = frozenset(
-    {
-        "agentic-endpoint-hardening",
-        "continuous-learning",
-        "cross-artifact-analyzer",
-        "deepseek-harness",
-        "document-to-interactive-html",
-        "mcp-builder",
-        "product-strategy",
-        "project-constitution",
-        "session-query",
-        "skill-create",
-        "skill-eval-loop",
-        "skill-stocktake",
-        "tasks-to-issues",
-    }
-)
-
-
 def unquote(value: str) -> str:
     """Strip one matching pair of surrounding quotes, if present."""
     text = value.strip()
@@ -103,11 +77,10 @@ def find_skill_files(root: Path) -> list[Path]:
     return sorted(root.glob(SKILLS_GLOB))
 
 
-def check_skill(path: Path, fields: dict[str, str]) -> tuple[list[dict[str, str]], bool]:
-    """Return (failures, grandfathered_overlong) for one skill."""
+def check_skill(path: Path, fields: dict[str, str]) -> list[dict[str, str]]:
+    """Return contract failures for one skill."""
     skill_name = fields.get("name") or path.parent.name
     failures: list[dict[str, str]] = []
-    grandfathered_overlong = False
     name = fields.get("name", "")
     description = fields.get("description", "")
 
@@ -156,29 +129,25 @@ def check_skill(path: Path, fields: dict[str, str]) -> tuple[list[dict[str, str]
             }
         )
     elif len(description) > DESCRIPTION_MAX:
-        if skill_name in OVERLONG_DESCRIPTION_ALLOWLIST:
-            grandfathered_overlong = True
-        else:
-            failures.append(
-                {
-                    "skill": skill_name,
-                    "path": path.as_posix(),
-                    "field": "description",
-                    "message": (
-                        f"{path}: description is {len(description)} characters "
-                        f"(must be {DESCRIPTION_MIN}-{DESCRIPTION_MAX})"
-                    ),
-                }
-            )
-    return failures, grandfathered_overlong
+        failures.append(
+            {
+                "skill": skill_name,
+                "path": path.as_posix(),
+                "field": "description",
+                "message": (
+                    f"{path}: description is {len(description)} characters "
+                    f"(must be {DESCRIPTION_MIN}-{DESCRIPTION_MAX})"
+                ),
+            }
+        )
+    return failures
 
 
-def scan(root: Path) -> tuple[list[dict[str, str]], list[str], int, list[str], list[str]]:
-    """Return (failures, extra_keys, skills_scanned, io_errors, grandfathered)."""
+def scan(root: Path) -> tuple[list[dict[str, str]], list[str], int, list[str]]:
+    """Return (failures, extra_keys, skills_scanned, io_errors)."""
     failures: list[dict[str, str]] = []
     extra_keys: set[str] = set()
     io_errors: list[str] = []
-    grandfathered: list[str] = []
     files = find_skill_files(root)
     for path in files:
         try:
@@ -198,11 +167,8 @@ def scan(root: Path) -> tuple[list[dict[str, str]], list[str], int, list[str], l
             )
             continue
         extra_keys.update(key for key in fields if key not in STANDARD_KEYS)
-        skill_failures, was_grandfathered = check_skill(path, fields)
-        failures.extend(skill_failures)
-        if was_grandfathered:
-            grandfathered.append(fields.get("name") or path.parent.name)
-    return failures, sorted(extra_keys), len(files), io_errors, grandfathered
+        failures.extend(check_skill(path, fields))
+    return failures, sorted(extra_keys), len(files), io_errors
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -225,7 +191,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"ERROR: path does not exist: {root}", file=sys.stderr)
         return 2
 
-    failures, extra_keys, scanned, io_errors, grandfathered = scan(root)
+    failures, extra_keys, scanned, io_errors = scan(root)
     if io_errors:
         for message in io_errors:
             print(f"ERROR: {message}", file=sys.stderr)
@@ -237,7 +203,7 @@ def main(argv: list[str] | None = None) -> int:
         "failures": failures,
         "information": {
             "extra_top_level_keys": extra_keys,
-            "grandfathered_overlong_descriptions": grandfathered,
+            "grandfathered_overlong_descriptions": [],
         },
     }
 
@@ -250,11 +216,6 @@ def main(argv: list[str] | None = None) -> int:
         print(
             "INFO: extra top-level keys beyond the agentskills.io recognized "
             f"set (permitted): {', '.join(extra_keys)}"
-        )
-    if grandfathered:
-        print(
-            "INFO: grandfathered over-1024-character descriptions "
-            f"({len(grandfathered)}): {', '.join(grandfathered)}"
         )
     if failures:
         print(f"\n--- {len(failures)} ERROR(S) ---")
