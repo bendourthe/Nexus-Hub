@@ -391,9 +391,9 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 
 #### WN-10: Completion plugins start Python by bare name
 
-**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the OpenCode, OpenClaw, Pi, and Hermes plugins call `spawn("python" | "python3", ...)`, and Node on Windows searches the working directory first, so a `python.exe` planted at the repository root runs at every turn end. The checker and runner now resolve executables from PATH's absolute entries only (fixed in this phase); the plugins do not.
+**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the OpenCode, OpenClaw, and Pi plugins called `spawn("python" | "python3", ...)`, and Node on Windows searches the working directory first, so a `python.exe` planted at the repository root could run at every turn end. Hermes already uses `sys.executable`; the checker and runner already resolve executables from PATH's absolute entries only.
 
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: pass the installed interpreter's absolute path into each plugin at install time, or resolve it in the plugin from PATH's absolute entries.
+**Owner**: catalog maintainer. **Status**: open, local fix pending protected integration. **Local follow-up**: the three TypeScript plugins now resolve Python candidates from absolute PATH entries, never through an implicit working-directory search. A planted `python.exe` reproduced the failure before the fix in all three host harnesses; afterward all 25 completion-plugin tests and the 17-check fast gate passed. **Suggested next step**: publish the fix through a protected PR, verify the merge result, and then close this gap.
 
 #### WN-11: `run-plan` checks only global settings for an approval bypass
 

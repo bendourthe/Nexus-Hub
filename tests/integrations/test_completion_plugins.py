@@ -185,7 +185,8 @@ console.log(JSON.stringify(out));
 '''
 
 
-def _node(tmp: Path, plugin: Path, harness: str, home: Path) -> object:
+def _node(tmp: Path, plugin: Path, harness: str, home: Path,
+          *, cwd: Path | None = None, env: dict[str, str] | None = None) -> object:
     work = tmp / "plugin"
     work.mkdir()
     target = work / plugin.name
@@ -201,7 +202,7 @@ def _node(tmp: Path, plugin: Path, harness: str, home: Path) -> object:
                                                             encoding="utf-8")
     url = target.resolve().as_uri()
     proc = subprocess.run([NODE, str(work / "harness.mjs"), url], capture_output=True, text=True, timeout=120,
-                          env=_env(home), check=False)
+                          cwd=cwd, env=env if env is not None else _env(home), check=False)
     assert proc.returncode == 0, proc.stderr
     return json.loads(proc.stdout.strip().splitlines()[-1])
 
@@ -230,6 +231,57 @@ def test_openclaw_revises_only_when_incomplete(tmp_path: Path, home: Path) -> No
     assert out[0]["action"] == "revise" and out[0]["reason"] == "incomplete: task.T002"
     assert out[0]["retry"]["idempotencyKey"] == "nexus-completion-gate"
     assert out[1] is None
+
+
+@pytestmark_node
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows searches the working directory for bare executables")
+@pytest.mark.parametrize(
+    ("plugin", "harness"),
+    [(TS_PLUGINS[0], OPENCODE_HARNESS), (TS_PLUGINS[1], PI_HARNESS), (TS_PLUGINS[2], OPENCLAW_HARNESS)],
+    ids=["opencode", "pi", "openclaw"],
+)
+def test_typescript_plugins_ignore_a_python_exe_planted_in_the_working_directory(
+    tmp_path: Path, home: Path, plugin: Path, harness: str,
+) -> None:
+    poison = tmp_path / "poison"
+    poison.mkdir()
+    shutil.copyfile(NODE, poison / "python.exe")
+    path = str(Path(sys.executable).parent) + os.pathsep + os.environ.get("PATH", "")
+    env = _env(home, PATH=path)
+    for key in list(env):
+        if key.lower() == "nodefaultcurrentdirectoryinexepath":
+            env.pop(key)
+    probe = subprocess.run(
+        [NODE, "-e", "const {spawnSync}=require('node:child_process'); const r=spawnSync('python',['--version']); process.stdout.write((r.stdout||'').toString()+(r.stderr||'').toString());"],
+        cwd=poison, env=env, capture_output=True, text=True, timeout=30, check=False,
+    )
+    assert probe.stdout.startswith("v"), (probe.returncode, probe.stdout, probe.stderr)
+    out = _node(tmp_path, plugin, harness, home, cwd=poison, env=env)
+    if plugin.parent.name == "opencode":
+        assert len(out) == 1 and out[0]["path"]["id"] == "s-incomplete"
+    else:
+        assert out[0] is not None
+
+
+@pytestmark_node
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows Python launchers use .exe")
+@pytest.mark.parametrize(
+    ("plugin", "harness"),
+    [(TS_PLUGINS[0], OPENCODE_HARNESS), (TS_PLUGINS[1], PI_HARNESS), (TS_PLUGINS[2], OPENCLAW_HARNESS)],
+    ids=["opencode", "pi", "openclaw"],
+)
+def test_typescript_plugins_try_every_python_before_the_py_fallback(
+    tmp_path: Path, home: Path, plugin: Path, harness: str,
+) -> None:
+    early = tmp_path / "early-path"
+    early.mkdir()
+    shutil.copyfile(NODE, early / "py.exe")
+    path = os.pathsep.join((str(early), str(Path(sys.executable).parent), os.environ.get("PATH", "")))
+    out = _node(tmp_path, plugin, harness, home, env=_env(home, PATH=path))
+    if plugin.parent.name == "opencode":
+        assert len(out) == 1 and out[0]["path"]["id"] == "s-incomplete"
+    else:
+        assert out[0] is not None
 
 
 def test_hermes_continues_only_when_incomplete(tmp_path: Path, home: Path) -> None:

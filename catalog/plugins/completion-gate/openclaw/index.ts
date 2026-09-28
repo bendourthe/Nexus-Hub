@@ -11,20 +11,30 @@ import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 // Shared gate call (see the OpenCode and Pi plugins for the same block).
 import { spawn } from "node:child_process";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { delimiter, isAbsolute, join } from "node:path";
 
 const CORE = join(homedir(), ".nexus-hub", "scripts", "completion_gate.py");
-const PYTHONS = process.platform === "win32" ? ["python", "py"] : ["python3", "python"];
+const PYTHON_NAMES = process.platform === "win32" ? ["python.exe", "py.exe"] : ["python3", "python"];
+
+function pythonPaths(env) {
+  const pathKey = Object.keys(env).sort().find((key) => key.toLowerCase() === "path");
+  const entries = pathKey ? (env[pathKey] || "").split(delimiter) : [];
+  const directories = entries
+    .map((entry) => entry.replace(/^"(.*)"$/, "$1"))
+    .filter((entry) => isAbsolute(entry));
+  return PYTHON_NAMES.flatMap((name) => directories.map((entry) => join(entry, name)));
+}
 
 function runGate(sessionId, platform, timeoutMs = 25000, budgetSeconds = "25") {
   const payload = JSON.stringify({ hook_event_name: "Stop", session_id: sessionId, platform });
   const env = { ...process.env, NEXUS_GATE_FORMAT: "plugin", NEXUS_GATE_BUDGET_SECONDS: budgetSeconds };
+  const pythons = pythonPaths(env);
   return new Promise((resolve) => {
     const attempt = (index) => {
-      if (index >= PYTHONS.length) return resolve(null);
+      if (index >= pythons.length) return resolve(null);
       let child;
       try {
-        child = spawn(PYTHONS[index], [CORE, "stop"], { shell: false, env, windowsHide: true });
+        child = spawn(pythons[index], [CORE, "stop"], { shell: false, env, windowsHide: true });
       } catch {
         return attempt(index + 1);
       }
