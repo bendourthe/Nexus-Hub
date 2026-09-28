@@ -1,0 +1,17 @@
+{
+  "status": "pass",
+  "output_sha256": "1e2a099241b81cf7c0bd84480f759956d374e9768b8231aced654c2f2c32262b",
+  "browser": "Chromium 151.0.7922.34",
+  "measured_sections": 5,
+  "measured_slides": 5,
+  "measured_states": 200,
+  "errors": 0,
+  "geometry_svg_count": 5,
+  "geometry_findings": 0,
+  "no_js_and_print": "pass",
+  "reduced_motion_fullscreen_fallback_escape": "pass",
+  "mobile_external_requests": 0,
+  "mobile_page_errors": 0,
+  "mobile_horizontal_overflow": false,
+  "qualitative_review": "Inspected the complete reading page at 1440x900 and 390x844 and the changed first slide at 1366x768. The added sentence is legible in reading and presentation views; the slide fits and the mobile page has no horizontal overflow."
+}

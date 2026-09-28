@@ -2,7 +2,7 @@
 
 ## From installer to adapter
 
-Both installer entry points prepare the bundle and invoke platform integration logic. The Python integration runner selects the requested platform and scope. A shared adapter translates the catalog into that platform's native file shape.
+Both installer entry points prepare the bundle and invoke platform integration logic. The Python integration runner selects the requested platform and scope. A shared adapter translates the catalog into that platform's native file shape. The Bash installer reports optional extension build failures and continues the core install; a failed extension is not installed.
 
 ## Three delivery shapes
 

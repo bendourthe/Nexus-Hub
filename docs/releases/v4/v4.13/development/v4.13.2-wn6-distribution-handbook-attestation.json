@@ -1,0 +1,17 @@
+{
+  "figures": [
+    {"id": "route", "class": "illustrative", "labels_the_rule_not_the_number": "Installer, runner, and adapter describe the delivery sequence."},
+    {"id": "shapes", "class": "illustrative", "labels_the_rule_not_the_number": "The three delivery shapes describe output forms, not measured counts."},
+    {"id": "identity", "class": "illustrative", "labels_the_rule_not_the_number": "The identity map explains name precedence without numeric evidence."},
+    {"id": "ownership", "class": "illustrative", "labels_the_rule_not_the_number": "The ownership map distinguishes managed, unowned, and unchanged files."},
+    {"id": "verification", "class": "illustrative", "labels_the_rule_not_the_number": "The verification map distinguishes reported actions, installed bytes, and host behavior."}
+  ],
+  "content_cuts": "None. The existing five sections and five slides remain, and the new Bash failure qualification is present in both views.",
+  "code_claims": [
+    {"claim": "An optional Bash extension build failure returns to the core installer without installing that extension.", "file": "scripts/installer.sh", "function": "build_and_install_one_extension"},
+    {"claim": "The integration runner selects platform and scope.", "file": "scripts/lib/integrations/runner.py", "function": "cmd_install"},
+    {"claim": "Catalog skills and commands are translated into host-native forms.", "file": "scripts/lib/integrations/_catalog_adapters.py", "function": "flatten_skills, commands_to_skills, commands_to_slash"},
+    {"claim": "Managed files are distinguished from user-owned files.", "file": "scripts/lib/integrations/_owned.py", "function": "write_owned_file"}
+  ],
+  "authorship": "Reviewed the added sentence and retained section composition for plain technical wording, preserved design, and no new unsupported code claim."
+}
