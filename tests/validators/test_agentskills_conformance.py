@@ -52,6 +52,9 @@ def test_real_catalog_conforms(runner) -> None:
     result = runner(SCRIPT, REPO_ROOT)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "RESULT: PASS" in result.stdout
+    report = runner(SCRIPT, REPO_ROOT, ["--json"])
+    assert report.returncode == 0, report.stdout + report.stderr
+    assert json.loads(report.stdout)["information"]["grandfathered_overlong_descriptions"] == []
 
 
 def test_empty_description_fails_naming_the_skill(tmp_path: Path, runner) -> None:
@@ -122,6 +125,14 @@ def test_new_overlong_description_fails(tmp_path: Path, runner) -> None:
     result = runner(SCRIPT, tmp_path)
     assert result.returncode == 1
     assert "too-wordy" in result.stdout
+    assert "1025 characters" in result.stdout
+
+
+def test_formerly_grandfathered_name_cannot_bypass_description_limit(tmp_path: Path, runner) -> None:
+    write_skill(tmp_path, "ai-development", "deepseek-harness", description="x" * 1025)
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "deepseek-harness" in result.stdout
     assert "1025 characters" in result.stdout
 
 
