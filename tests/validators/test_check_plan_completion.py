@@ -165,6 +165,7 @@ def _build(tmp: Path, *extra_classes: dict, plan: str = PLAN) -> Fixture:
     _git(fx.work, "config", "user.email", "t@example.invalid")
     _git(fx.work, "config", "user.name", "Test")
     _git(fx.work, "remote", "add", "origin", str(fx.remote))
+    _git(fx.work, "remote", "set-url", "--push", "origin", "https://github.com/acme/demo.git")
     fx.write(PLAN_REL, plan.format(a=" ", b=" "))
     fx.write("CHANGELOG.md", "# Changelog\n")
     _git(fx.work, "add", "-A")
@@ -190,9 +191,9 @@ def _build(tmp: Path, *extra_classes: dict, plan: str = PLAN) -> Fixture:
     fx.write(EVIDENCE_REL, "# Evidence\n\n" + body)
     _git(fx.work, "add", "-A")
     _git(fx.work, "commit", "-q", "-m", "work")
-    _git(fx.work, "push", "-q", "origin", "main")
+    _git(fx.work, "push", "-q", str(fx.remote), "main")
     _git(fx.work, "tag", "v0.2.0")
-    _git(fx.work, "push", "-q", "origin", "v0.2.0")
+    _git(fx.work, "push", "-q", str(fx.remote), "v0.2.0")
     return fx
 
 
@@ -207,6 +208,38 @@ def test_complete_run_reports_plan_complete(complete: Fixture) -> None:
     head = _git(complete.work, "rev-parse", "HEAD")
     nonce = json.loads(complete.record_path().read_text())["nonce"]
     assert result.stdout.splitlines()[0] == f"PLAN COMPLETE {PLAN_REL} {head} {nonce}"
+
+
+@pytest.mark.parametrize(
+    "changed_url", ["https://github.com/evil/fork.git", "git@github.com:acme/demo.git"]
+)
+def test_changed_push_remote_blocks_completion_and_allows_an_approval_stop(
+    complete: Fixture, changed_url: str,
+) -> None:
+    record = json.loads(complete.record_path().read_text(encoding="utf-8"))
+    assert record["approvals"]["push_remote_url"] == "https://github.com/acme/demo.git"
+    _git(complete.work, "remote", "set-url", "--push", "origin", changed_url)
+    result = complete.check()
+    assert result.returncode == 1
+    assert "approval.remote" in result.stdout.splitlines()[0].split()
+    assert "approval.remote unmet" in result.stdout
+    blocked = complete.run(
+        "record", "block", PLAN_REL, "--session", SESSION,
+        "--category", "approval-not-covered", "--evidence", "push remote changed",
+        "--approval-class", "push-merge",
+    )
+    assert blocked.returncode == 3
+    assert blocked.stdout.strip() == "BLOCKED: approval-not-covered"
+
+
+def test_second_push_destination_blocks_completion(complete: Fixture) -> None:
+    _git(
+        complete.work, "remote", "set-url", "--add", "--push", "origin",
+        "https://github.com/evil/fork.git",
+    )
+    result = complete.check()
+    assert result.returncode == 1
+    assert "approval.remote unmet" in result.stdout
 
 
 def test_output_never_relays_plan_text(complete: Fixture) -> None:
@@ -252,7 +285,7 @@ def _check_failed(fx: Fixture) -> None:
 
 
 def _remote_tag_gone(fx: Fixture) -> None:
-    _git(fx.work, "push", "-q", "origin", ":refs/tags/v0.2.0")
+    _git(fx.work, "push", "-q", str(fx.remote), ":refs/tags/v0.2.0")
 
 
 def _no_changelog_heading(fx: Fixture) -> None:
@@ -274,7 +307,7 @@ def _main_lacks_tag(fx: Fixture) -> None:
     _git(fx.work, "add", "-A")
     _git(fx.work, "commit", "-q", "-m", "side")
     _git(fx.work, "tag", "-f", "v0.2.0")
-    _git(fx.work, "push", "-q", "-f", "origin", "v0.2.0")
+    _git(fx.work, "push", "-q", "-f", str(fx.remote), "v0.2.0")
     _git(fx.work, "checkout", "-q", "main")
 
 
@@ -371,9 +404,13 @@ def test_gh_inside_the_working_tree_is_refused(complete: Fixture) -> None:
     assert result.returncode == 1
 
 
-def test_tampered_approvals_block(complete: Fixture) -> None:
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [("repo", "evil/fork"), ("push_remote_url", "https://github.com/evil/fork.git")],
+)
+def test_tampered_approvals_block(complete: Fixture, field: str, value: str) -> None:
     record = json.loads(complete.record_path().read_text())
-    record["approvals"]["repo"] = "evil/fork"
+    record["approvals"][field] = value
     complete.edit_record(approvals=record["approvals"])
     result = complete.check()
     assert result.returncode == 3
@@ -554,6 +591,64 @@ def test_record_create_rejects_an_approval_the_user_never_typed(tmp_path: Path) 
     assert not list(fx.runs.glob("*.json"))
 
 
+@pytest.mark.parametrize(
+    "push_url", ["local", "https://evilgithub.com/acme/demo.git", "https://github.com/evil/fork.git"]
+)
+def test_record_create_rejects_a_push_remote_outside_the_approved_repo(
+    tmp_path: Path, push_url: str,
+) -> None:
+    fx = Fixture(tmp_path)
+    _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
+    _git(fx.work, "remote", "add", "origin", "https://github.com/acme/demo.git")
+    _git(
+        fx.work, "remote", "set-url", "--push", "origin",
+        str(fx.remote) if push_url == "local" else push_url,
+    )
+    fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
+    fx.capture(SESSION, APPROVAL_TEXT)
+    result = fx.run(
+        "record", "create", PLAN_REL, "--session", SESSION,
+        "--approvals", str(fx.approvals()),
+    )
+    assert result.returncode == 3
+    assert result.stdout.strip() == "BLOCKED: approval-not-covered"
+    assert not list(fx.runs.glob("*.json"))
+
+
+def test_record_create_accepts_an_approved_ssh_push_remote(tmp_path: Path) -> None:
+    fx = Fixture(tmp_path)
+    _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
+    _git(fx.work, "remote", "add", "origin", "git@github.com:acme/demo.git")
+    fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
+    fx.capture(SESSION, APPROVAL_TEXT)
+    result = fx.run(
+        "record", "create", PLAN_REL, "--session", SESSION,
+        "--approvals", str(fx.approvals()),
+    )
+    assert result.returncode == 0, result.stderr + result.stdout
+    record = json.loads(fx.record_path().read_text(encoding="utf-8"))
+    assert record["approvals"]["push_remote_url"] == "git@github.com:acme/demo.git"
+
+
+def test_record_create_rejects_multiple_push_destinations(tmp_path: Path) -> None:
+    fx = Fixture(tmp_path)
+    _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
+    _git(fx.work, "remote", "add", "origin", "https://github.com/acme/demo.git")
+    _git(fx.work, "remote", "set-url", "--push", "origin", "https://github.com/acme/demo.git")
+    _git(
+        fx.work, "remote", "set-url", "--add", "--push", "origin",
+        "https://github.com/evil/fork.git",
+    )
+    fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
+    fx.capture(SESSION, APPROVAL_TEXT)
+    result = fx.run(
+        "record", "create", PLAN_REL, "--session", SESSION,
+        "--approvals", str(fx.approvals()),
+    )
+    assert result.returncode == 3
+    assert result.stdout.strip() == "BLOCKED: approval-not-covered"
+
+
 def test_record_create_without_capture_or_terminal_fails_closed(tmp_path: Path) -> None:
     fx = Fixture(tmp_path)
     _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
@@ -618,7 +713,7 @@ def test_missing_plan_exits_2(tmp_path: Path) -> None:
 def test_score_reports_met_count_head_and_run(complete: Fixture) -> None:
     result = complete.run("score", PLAN_REL, "--session", SESSION)
     met, head, run_id = result.stdout.split()
-    assert int(met) == 14  # 2 tasks + 12 contract predicates, all met
+    assert int(met) == 15  # 2 tasks + 13 contract predicates, all met
     assert head == _git(complete.work, "rev-parse", "HEAD")
     assert run_id == "7"
 
@@ -628,6 +723,7 @@ def test_record_create_auto_binds_the_session_that_captured_the_approvals(
 ) -> None:
     fx = Fixture(tmp_path)
     _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
+    _git(fx.work, "remote", "add", "origin", "https://github.com/acme/demo.git")
     fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
     fx.capture("other-session", "unrelated prompt")
     prompts = fx.runs / "prompts"

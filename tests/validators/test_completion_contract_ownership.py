@@ -23,7 +23,7 @@ CONTRACT = (
     / "completion-contract.md"
 )
 
-_ID = re.compile(r"`((?:gaps|evidence|tests|integration|release|cleanup)\.[a-z-]+)`")
+_ID = re.compile(r"`((?:gaps|evidence|tests|approval|integration|release|cleanup)\.[a-z-]+)`")
 
 
 def _predicate_ids() -> set[str]:
@@ -35,6 +35,7 @@ def test_contract_defines_the_expected_predicates() -> None:
     for expected in (
         "gaps.version",
         "evidence.file",
+        "approval.remote",
         "integration.merged",
         "release.github",
         "cleanup.worktree",
