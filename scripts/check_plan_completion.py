@@ -152,6 +152,17 @@ def _tool(name: str, repo_root: Path | None) -> str | None:
 
 def _env() -> dict[str, str]:
     env = dict(os.environ)
+    # WN-13: inherited Git repository selectors must not redirect record checks.
+    for name in (
+        "GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR", "GIT_INDEX_FILE",
+        "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+        "GIT_CEILING_DIRECTORIES", "GIT_PREFIX", "GIT_NAMESPACE",
+        "GIT_CONFIG_COUNT", "GIT_CONFIG_PARAMETERS",
+    ):
+        env.pop(name, None)
+    for name in tuple(env):
+        if name.startswith(("GIT_CONFIG_KEY_", "GIT_CONFIG_VALUE_")):
+            env.pop(name)
     env.update(
         GH_PROMPT_DISABLED="1",
         GIT_TERMINAL_PROMPT="0",
@@ -349,8 +360,13 @@ def load_record(ctx: Context, session: str | None) -> RecordState:
         ctx.budget,
     )
     if rc == 0 and out.strip() == "true":
-        state.forced = tampered
-        return state
+        tracked_rc, _ = _run(
+            [ctx.git, "-C", str(path.parent), "ls-files", "--error-unmatch", "--", path.name],
+            ctx.budget,
+        )
+        if tracked_rc != 1:
+            state.forced = tampered
+            return state
     try:
         record = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
@@ -360,7 +376,7 @@ def load_record(ctx: Context, session: str | None) -> RecordState:
         created = _parse_time(record.get("created"))
         age = (
             (dt.datetime.now(dt.timezone.utc) - created).total_seconds()
-            if created
+            if created and created.tzinfo is not None
             else STALE_SECONDS + 1
         )
         reason = (
@@ -380,6 +396,13 @@ def load_record(ctx: Context, session: str | None) -> RecordState:
         )
     ):
         state.forced = tampered
+        return state
+    # WN-13: a matching or unspecified session does not renew old approvals.
+    created = _parse_time(record.get("created"))
+    if created is None or created.tzinfo is None or (
+        dt.datetime.now(dt.timezone.utc) - created
+    ).total_seconds() > STALE_SECONDS:
+        state.notices.append("stale run record (older than 72 hours) ignored")
         return state
     state.record = record
     if record.get("pause"):
@@ -598,6 +621,8 @@ def _tests_status(ctx: Context, evidence: str | None, start: str | None) -> str:
 GH_NOT_FOUND = object()
 _GH_NOT_FOUND_LINES = (
     re.compile(r'no pull requests found for branch ".*"'),
+    # WN-13: a just-opened PR can exist before its first check is reported.
+    re.compile(r"no checks reported on the '[^'\r\n]+' branch"),
     re.compile(r"release not found"),
 )
 
