@@ -331,7 +331,7 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 7 | 0 |
 | Bugs / regressions (BG) | 0 | 9 |
-| Warnings (WN) | 9 | 4 |
+| Warnings (WN) | 7 | 6 |
 | Missing tests / coverage gaps (MT) | 2 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -342,18 +342,6 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 **Source phase**: Phase 8 (T017), OpenCode pilot 3. **Plan reference**: [v4.13.2 plan, Phase 8, condition C](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `record create` accepts an approval only from a captured prompt or from `yes` typed on the terminal device, and fails closed otherwise. OpenCode documents no prompt-submit lever (`docs/policy/completion-levers.json`, checked 2026-09-25), and `opencode run` attaches no terminal, so a scripted headless first turn can never be recorded. The plan's condition C assumed it could. The pilot showed the consequence before the runbook rule existed: the agent restated the approvals in a table and pushed, tagged, and released without a record.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: measure OpenCode interactively (the user answers `yes` at the terminal), or capture approvals through a documented OpenCode event once one exists; never infer a prompt-submit lever from `message.*` events.
-
-#### WN-5: An unattended Codex run needs setup that Nexus-Hub does not document
-
-**Source phase**: Phase 8 (T017), Codex pilots B4 to B7. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: three Codex behaviors each stop a full run on a fresh install. Codex skips every hook until the user trusts it through `/hooks` ([learn.chatgpt.com/docs/hooks](https://learn.chatgpt.com/docs/hooks), fetched 2026-09-27), so approval capture and the completion gate do not run; the shipped profile is read-only, so the user must grant writes; and Codex keeps `.git` read-only inside a writable root, so the project's `.git` needs its own write entry (measured with Codex CLI 0.157.1: no commit without it).
-
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: document the one-time `/hooks` trust and the per-project write entries (`"<project>" = "write"`, `"<project>/.git" = "write"`) in the Codex section of the platform guide, and have the installer's Codex summary point to it.
-
-#### WN-6: A failed extension build aborts `installer.sh`
-
-**Source phase**: Phase 8 (T017), Codex run in WSL. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the usage-monitor build runs `npm install` inside the checkout under `set -euo pipefail`; when npm could not replace a `node_modules` tree built by Windows over `/mnt/c` (`rm: cannot remove node_modules/handlebars`), the whole install exited 1. Seen only with one checkout shared between Windows and WSL, but any build failure has the same effect.
-
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: make each extension build fail soft with a warning, as the MCP server venv step now does (BG-4).
 
 #### WN-7: On OpenCode a full run proceeds on in-prompt approvals without a run record
 
@@ -447,15 +435,23 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 
 ### Resolved Items
 
-#### WN-1: The approved repository is not bound to the remote a push goes to - RESOLVED LOCALLY 2026-09-28
+#### WN-1: The approved repository is not bound to the remote a push goes to - RESOLVED 2026-09-28
 
 **Source phase**: Phase 8 (T017), end-to-end pilot 6. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the run record freezes the approved `owner/repo`, and every hosting call is pinned to it with `--repo`, but `git push` goes to whatever `origin` resolves to and the checker never compares the two. In pilot 6 the approval named `acme/demo` while `origin` was a local bare repository; the agent noticed and stopped, but `record block --category approval-not-covered` was refused because a push-merge approval exists, so it had to file the stop as `platform-unavailable` with the mismatch in the evidence. A less careful agent could push to an unapproved remote under a valid approval.
 
-**Owner**: catalog maintainer. **Status**: resolved locally in `086d37f7`, pending protected integration. `record create` now requires exactly one GitHub push URL naming the approved `owner/repo` and signs that URL; the checker reports `approval.remote` from every push URL, so a changed or additional destination blocks completion. The runbook requires the check immediately before every push, and `record block --category approval-not-covered --approval-class push-merge` accepts a remote mismatch. A planted local destination, lookalike host, wrong repository, post-approval URL change, second destination, and signed-field tampering were each exercised; 58 checker and 95 integration/contract tests passed, with the 17-check fast gate green. A direct hosted push-safety replay remains unmeasured.
+**Owner**: catalog maintainer. **Status**: resolved and integrated through [PR #372](https://github.com/bendourthe/Nexus-Hub/pull/372); 24 hosted checks passed with one expected skip, and [post-merge run 36437678274](https://github.com/bendourthe/Nexus-Hub/actions/runs/36437678274) passed smoke and provenance at `1d39f75a`. `record create` now requires exactly one GitHub push URL naming the approved `owner/repo` and signs that URL; the checker reports `approval.remote` from every push URL, so a changed or additional destination blocks completion. The runbook requires the check immediately before every push, and `record block --category approval-not-covered --approval-class push-merge` accepts a remote mismatch. A planted local destination, lookalike host, wrong repository, post-approval URL change, second destination, and signed-field tampering were each exercised; 123 affected tests and the 17-check fast gate passed locally. A direct hosted push-safety replay remains unmeasured.
 
 #### WN-2: Codex refuses to load the grandfathered skills whose descriptions exceed 1024 characters - RESOLVED LOCALLY 2026-09-28
 
-**Source phase**: Phase 8 (T017), Codex pilot 1. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: Codex CLI 0.136.0 logged `failed to load skill ... invalid description: exceeds maximum length of 1024 characters` for the grandfathered over-long descriptions, so those skills were absent on Codex while the conformance guard reported only information. **Resolution**: the twelve descriptions still over the cap were shortened to 250 characters or fewer with trigger phrases and SKIP clauses; the stale thirteenth allowlist name was already under the cap. The allowlist is removed, so every future over-1024 description fails the guard. The real-catalog scan passed for 338 skills with zero grandfathered entries, 11 focused conformance tests passed, strict registry mirrors passed, and the whole-catalog routing gate passed 520 cases with zero failures and zero unallowlisted collisions; the fast profile passed 17/17. This verifies the file-length cause and routing fixtures, not a new live Codex skill-load session. **Owner**: catalog maintainer. **Status**: resolved locally, pending protected integration and post-merge verification.
+**Source phase**: Phase 8 (T017), Codex pilot 1. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: Codex CLI 0.136.0 logged `failed to load skill ... invalid description: exceeds maximum length of 1024 characters` for the grandfathered over-long descriptions, so those skills were absent on Codex while the conformance guard reported only information. **Resolution**: the twelve descriptions still over the cap were shortened to 250 characters or fewer with trigger phrases and SKIP clauses; the stale thirteenth allowlist name was already under the cap. The allowlist is removed, so every future over-1024 description fails the guard. The real-catalog scan passed for 338 skills with zero grandfathered entries, 11 focused conformance tests passed, strict registry mirrors passed, and the whole-catalog routing gate passed 520 cases with zero failures and zero unallowlisted collisions; the fast profile passed 17/17. [PR #371](https://github.com/bendourthe/Nexus-Hub/pull/371) merged at `3393ed19`, and [post-merge run 36427536393](https://github.com/bendourthe/Nexus-Hub/actions/runs/36427536393) passed. This verifies the file-length cause and routing fixtures, not a new live Codex skill-load session. **Owner**: catalog maintainer. **Status**: resolved and integrated.
+
+#### WN-5: An unattended Codex run needs setup that Nexus-Hub did not document - RESOLVED LOCALLY 2026-09-28
+
+**Source phase**: Phase 8 (T017), Codex pilots B4 to B7. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: a fresh Codex install skips hooks until the user trusts them through `/hooks`, starts read-only, and keeps `.git` read-only even when the project root is writable. **Resolution**: `docs/permissions-setup.md` now states the one-time hook trust and the project and `.git` write entries, while the Codex installer summary points to those steps. Nine focused Codex integration tests and the 17-check fast profile passed. This is a setup-documentation repair; a new live Codex pilot is not claimed. **Owner**: catalog maintainer. **Status**: resolved locally in `b12efdd7`, pending protected integration.
+
+#### WN-6: A failed extension build aborts `installer.sh` - RESOLVED LOCALLY 2026-09-28
+
+**Source phase**: Phase 8 (T017), Codex run in WSL. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: under `set -euo pipefail`, an optional usage-monitor `npm install` failure aborted the whole installer; the pilot observed this when a Windows-built `node_modules` tree was shared through `/mnt/c`. **Resolution**: both optional extension builds now warn and continue on install or build failure, while successful builds still install normally. The 23 focused build tests, Bash syntax and ShellCheck checks, installer parity checks, and the 17-check fast profile passed. **Owner**: catalog maintainer. **Status**: resolved locally in `7be7845f`, pending protected integration.
 
 #### WN-10: Completion plugins start Python by bare name - RESOLVED 2026-09-28
 
