@@ -204,6 +204,8 @@ This table is the single-file working inventory of residual v4.0-v4.12 items as 
 
 The v4.4 `RV-1` through `RV-5` visual choices belong to the user-rejected guide composition and are superseded in that ledger; its `QG-446-1` default-host interpreter gate closed in PR #319. v4.5 `WN-2` and v4.7 `WN-1` record surfaced model-effort deviations, not present-tree defects. v4.8 `WN-K` is retained above for hosted-security disposition even though its installer mode is repaired. v4.11 `MT-9` closed for the declared-control method in PR #298 after a complete retained-pilot control census; arbitrary future controls without an inventory remain `unchecked`, not a reopened implementation gap. No source gap is marked resolved merely because it appears in this inventory. The archived unchecked plan boxes below remain evidence requiring case-by-case interpretation, not a second implementation queue.
 
+The v4.9 MT-3 [chart-line paint follow-up](../../../archives/v4/v4.9/development/runtime-deck-all-state-2026-09-27/chart-line-paint-verification.md) checked all 31 settled SVG line paths across 14 real-deck charts at four viewports with invisible-line and null-stroke controls. It narrows internal SVG evidence but does not close MT-3 or change the other-mark, build-budget, static-stage, or figure-map limits in the inventory row.
+
 | Minor | Source ledger | Normalized SHA-256 |
 |---|---|---|
 | v4.0 | [ledger](../v4.0/known-gaps.md) | `63542bc6347a49d5f1ed4d37e0b65966b0578784368db91d794c435998950f0a` |
@@ -214,7 +216,7 @@ The v4.4 `RV-1` through `RV-5` visual choices belong to the user-rejected guide 
 | v4.5 | [ledger](../v4.5/known-gaps.md) | `e793ab381025b760eaa6cf35c41e57749bb73ec6c2828b1369bcccad129ea24c` |
 | v4.7 | [ledger](../v4.7/known-gaps.md) | `52c01a05534b203bf8b2901c24a6b69e6aaa85a75c78140d3371469ef26b6e1d` |
 | v4.8 | [ledger](../v4.8/known-gaps.md) | `0dd85eddc8f04c1e85c2d72357674b627288fb23bdd1a3b9f4f039585c95cab2` |
-| v4.9 | [ledger](../v4.9/known-gaps.md) | `ebe003b3e5f0db8b0f81fc4d56b459af1c59d4f49b6793f23080ba47aa4a494b` |
+| v4.9 | [ledger](../v4.9/known-gaps.md) | `992bac8015544c165c1774a7974432b6439d5f0f022cdd8265a966f9ae9c2ef6` |
 | v4.10 | [ledger](../v4.10/known-gaps.md) | `f8e1d71999b90c0d06499fa6e1517169935ddd27b21d521032886e701ab84f94` |
 | v4.11 | [ledger](../v4.11/known-gaps.md) | `e03f73d0327c193527a53ba50501762522b40e999d9bd483abe092ee9735df9b` |
 | v4.12 | [ledger](../v4.12/known-gaps.md) | `817f31fc03aa2c029112b999c526739245ee735a8cc50d6ae46a026e04ce7abe` |

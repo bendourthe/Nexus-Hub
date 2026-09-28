@@ -25,9 +25,9 @@ This mirrors the active version layout. Archived content is **frozen history**: 
 | **v1** | v1.0.0, v1.1.5, v1.3.0 | 24 | Skills-catalog maturation: bundled-resources convention, skill-eval-loop, security hardening |
 | **v2** | v2.0.0, v2.1.0, v2.2.0, v2.3.0, v2.4.0 | 112 | Nexus-Hub rename, spec-driven methodology, integration registry, code-graph, antigravity transition, compound-engineering / persona-review pipeline |
 | **v3** *(prior major, partial)* | `development/history/` subtrees only, v3.0 through v3.21 | 355 | Per-version session histories aged out under the retention policy, completed for the whole v3 line on 2026-09-06. The v3 line is NOT whole-major archived - its plans, comparisons, and known-gaps stay in the active tree. |
-| **v4** *(current major, partial)* | `development/history/` subtrees v4.0-v4.5 and v4.7-v4.12; plans/comparisons for v4.0, v4.1, v4.3, v4.4, v4.9, v4.10, and v4.11; the v4.1 handbook snapshot; bounded follow-up evidence through v4.13 | 425 | Historical plans and comparisons moved after the verified v4.13 carry-forward; older known-gaps ledgers stay active and their open items remain open. The aborted v4.13 trigger-pilot attempt remains frozen with its bug open. |
+| **v4** *(current major, partial)* | `development/history/` subtrees v4.0-v4.5 and v4.7-v4.12; plans/comparisons for v4.0, v4.1, v4.3, v4.4, v4.9, v4.10, and v4.11; the v4.1 handbook snapshot; bounded follow-up evidence through v4.13 | 495 | Historical plans and comparisons moved after the verified v4.13 carry-forward; older known-gaps ledgers stay active and their open items remain open. The aborted v4.13 trigger-pilot attempt remains frozen with its bug open. |
 
-The v4 file count excludes the two tracked `.gitkeep` placeholders in the v4.12 handbook snapshot; it is derived from 427 tracked archive files in this pass.
+The v4 file count is derived from the 495 tracked files under `docs/archives/v4/` after this pass. No `.gitkeep` file remains tracked there.
 
 ## Archival policy
 
