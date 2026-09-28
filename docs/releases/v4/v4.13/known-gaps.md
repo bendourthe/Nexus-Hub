@@ -331,7 +331,7 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 7 | 0 |
 | Bugs / regressions (BG) | 0 | 9 |
-| Warnings (WN) | 11 | 2 |
+| Warnings (WN) | 10 | 3 |
 | Missing tests / coverage gaps (MT) | 2 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -342,12 +342,6 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 **Source phase**: Phase 8 (T017), end-to-end pilot 6. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the run record freezes the approved `owner/repo`, and every hosting call is pinned to it with `--repo`, but `git push` goes to whatever `origin` resolves to and the checker never compares the two. In pilot 6 the approval named `acme/demo` while `origin` was a local bare repository; the agent noticed and stopped, but `record block --category approval-not-covered` was refused because a push-merge approval exists, so it had to file the stop as `platform-unavailable` with the mismatch in the evidence. A less careful agent could push to an unapproved remote under a valid approval.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: record the approved remote URL alongside `owner/repo` at `record create`, have the checker report an `approval.remote` predicate from `git remote get-url --push origin`, and accept `approval-not-covered` when they differ.
-
-#### WN-2: Codex refuses to load the grandfathered skills whose descriptions exceed 1024 characters
-
-**Source phase**: Phase 8 (T017), Codex pilot 1. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: Codex CLI 0.136.0 logged `failed to load skill ... invalid description: exceeds maximum length of 1024 characters` for each such skill, so every grandfathered over-long description (`check_agentskills_conformance.py` lists them by name) is silently absent on Codex. The conformance guard grandfathers them as information, not as a failure; the platform enforces the limit.
-
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: shorten each grandfathered description to 1024 characters or fewer, keeping its trigger phrases and SKIP clause, then remove the grandfather list so the guard fails on any new over-long description.
 
 #### WN-4: A headless OpenCode run cannot create a run record, so it cannot reach `PLAN COMPLETE`
 
@@ -458,6 +452,10 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 **Owner**: catalog maintainer, via `[[platform-contract-verification]]`. **Status**: open. **Suggested next step**: verify both config locations against first-party pages, then either write the enablement through the platform's own CLI when it is detected or seed the config key under the platform-defaults do-not-invent rule.
 
 ### Resolved Items
+
+#### WN-2: Codex refuses to load the grandfathered skills whose descriptions exceed 1024 characters - RESOLVED LOCALLY 2026-09-28
+
+**Source phase**: Phase 8 (T017), Codex pilot 1. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: Codex CLI 0.136.0 logged `failed to load skill ... invalid description: exceeds maximum length of 1024 characters` for the grandfathered over-long descriptions, so those skills were absent on Codex while the conformance guard reported only information. **Resolution**: the twelve descriptions still over the cap were shortened to 250 characters or fewer with trigger phrases and SKIP clauses; the stale thirteenth allowlist name was already under the cap. The allowlist is removed, so every future over-1024 description fails the guard. The real-catalog scan passed for 338 skills with zero grandfathered entries, 11 focused conformance tests passed, strict registry mirrors passed, and the whole-catalog routing gate passed 520 cases with zero failures and zero unallowlisted collisions; the fast profile passed 17/17. This verifies the file-length cause and routing fixtures, not a new live Codex skill-load session. **Owner**: catalog maintainer. **Status**: resolved locally, pending protected integration and post-merge verification.
 
 #### WN-10: Completion plugins start Python by bare name - RESOLVED 2026-09-28
 
