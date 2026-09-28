@@ -79,6 +79,7 @@ def _rewrite(dst: Path, obj: dict, dry_run: bool) -> FileAction:
             if json.loads(backup.read_text(encoding="utf-8")) == obj:
                 content = backup.read_bytes()
         except (json.JSONDecodeError, UnicodeDecodeError):
+            # An unparsable backup is not reused; the freshly rendered content is written.
             pass
     elif b"\r\n" in current:
         content = content.replace(b"\n", b"\r\n")

@@ -904,6 +904,7 @@ class SkillsIntegration(IntegrationBase):
             surface = {"commands_subdir": "command", "agents_subdir": "agent"}.get(cfg_key)
             dropped = self.config.get("agents_drop_frontmatter")
             if cfg_key == "agents_subdir" and dropped:
+                # Local import breaks the base <-> _catalog_adapters import cycle.
                 from ._catalog_adapters import agents_dropping_keys
 
                 actions.extend(

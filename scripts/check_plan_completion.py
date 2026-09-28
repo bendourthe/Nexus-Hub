@@ -281,6 +281,7 @@ def _restrict(path: Path, directory: bool) -> None:
     try:
         os.chmod(path, 0o700 if directory else 0o600)
     except OSError:
+        # Windows ACLs are inherited from the profile, so a failed chmod is not a leak.
         pass
 
 

@@ -249,6 +249,7 @@ def bypass_configured(row: str) -> str | None:
             if re.search(pattern, path.read_text(encoding="utf-8")):
                 return f"{path} bypasses approvals"
         except OSError:
+            # An unreadable config cannot declare a bypass; the next candidate is checked.
             pass
     return None
 
@@ -287,6 +288,7 @@ class Lock:
             try:
                 os.utime(self.path)
             except OSError:
+                # Best effort: a lock that cannot be touched only risks looking stale later.
                 pass
 
     def __exit__(self, *_exc: object) -> None:

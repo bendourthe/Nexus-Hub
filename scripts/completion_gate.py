@@ -331,6 +331,7 @@ def cmd_capture() -> int:
         os.chmod(path, 0o600)
         _prune(prompts)
     except OSError:
+        # Capture is best effort: a failed write leaves record create to fail closed.
         pass
     return 0
 

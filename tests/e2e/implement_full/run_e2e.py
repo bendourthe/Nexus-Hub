@@ -343,6 +343,7 @@ def run_condition(
         GH_PROMPT_DISABLED="1",
     )
     spend_log = root / "spend.jsonl"
+    profile = "stub"
     if agent != "stub":
         env = isolated(env, home, agent)
         # Git Bash exports PWD, and OpenCode trusts PWD over the process working
