@@ -185,7 +185,7 @@
       "intent": "Run the approved repair and its final verification from one command.",
       "actions": [
         {
-          "command": "/implement fix-damage-handling phase-1",
+          "command": "/implement fix-damage-handling full",
           "output": [
             "RED: the one-hit-one-life test failed against the unconditional destroy.",
             "GREEN: applyEnemyHit now consumes a life and grants the 90-tick window.",
@@ -255,21 +255,21 @@
           },
           {
             "name": "Tests to green",
-            "summary": "Build and rerun the damage and movement tests until all six pass."
+            "summary": "Build and rerun the three damage tests until they pass."
           },
           {
             "name": "Update release",
-            "summary": "Use /update release to reconcile documentation, checks and publication evidence."
+            "summary": "After the integration PR is green and merged, /update release refreshes the version, changelog and documentation, verifies the manifest, then tags and publishes the release."
           }
         ],
         "output": [
-          "Ran damage and movement unit tests.",
-          "6 passed: one-hit, third-hit, invulnerability, gated-off, top clamp, bottom clamp.",
-          "Both pure seams and every branch executed.",
+          "Ran damage unit tests.",
+          "3 passed: one-hit, third-hit, invulnerability.",
+          "The damage seam and every branch executed.",
           "Wrote reports/unit-summary.txt.",
-          "Derived notes from the damage, movement, and test diffs.",
-          "Recorded the per-hit lives fix and the vertical-movement feature.",
-          "Included the 6-test verification result.",
+          "Derived notes from the damage and test diffs.",
+          "Recorded the per-hit lives fix.",
+          "Included the 3-test verification result.",
           "Updated CHANGELOG.md."
         ],
         "files": [
@@ -277,13 +277,13 @@
             "path": "reports/unit-summary.txt",
             "action": "create",
             "language": "text",
-            "content": "damage.test.js    3 passed\nmovement.test.js  3 passed\nTOTAL             6 passed\nBranches: hit, fatal hit, invulnerable, feature off, top clamp, bottom clamp\n"
+            "content": "damage.test.js    3 passed\nTOTAL             3 passed\nBranches: hit, fatal hit, invulnerable\n"
           },
           {
             "path": "CHANGELOG.md",
             "action": "create",
             "language": "markdown",
-            "content": "# Changelog\n\n## 0.1.0\n\n### Fixed\n\n- An enemy hit now costs one life instead of destroying the ship outright; destruction happens only at zero lives, after a brief invulnerability window per hit.\n\n### Added\n\n- Vertical movement behind a feature flag, clamped to the lower play band.\n\n### Verified\n\n- Six focused damage and movement tests pass.\n"
+            "content": "# Changelog\n\n## 0.1.0\n\n### Fixed\n\n- An enemy hit now costs one life instead of destroying the ship outright; destruction happens only at zero lives, after a brief invulnerability window per hit.\n\n### Verified\n\n- Three focused damage tests pass.\n"
           }
         ]
       }

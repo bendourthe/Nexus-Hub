@@ -468,15 +468,14 @@ def test_reduced_motion_pauses_and_manual_step_advances_one_tick(playwright_mod)
 
 
 def test_canvas_fallback_states_the_game_state_in_text(page_ctx) -> None:
-    """The fallback path cannot be triggered in Chromium, so assert its contract in code:
-    the fallback names lives, damage, and feature state, and unusable controls leave the
-    Tab order. A structural check here plus the engine's guarded getContext is the honest
-    coverage available without a canvas-less browser."""
+    """The fallback names lives, damage and feature state, and removes unusable controls from the Tab order."""
     page, _ = page_ctx
     guide_text = GUIDE.read_text(encoding="utf-8")
     assert "This browser cannot draw the game canvas" in guide_text
     assert 'setAttribute("tabindex", "-1")' in guide_text
-    assert "lives, seeded damage bug active, vertical movement disabled" in guide_text
+    assert 'START_LIVES + " lives, "' in guide_text
+    assert 'state.damageMode === "buggy" ? "seeded damage bug active" : "damage repaired"' in guide_text
+    assert 'state.verticalMovementEnabled ? "vertical movement enabled" : "vertical movement disabled"' in guide_text
     assert page.locator("[data-arcade-fallback]").count() == 3
 
 

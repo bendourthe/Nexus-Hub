@@ -152,6 +152,8 @@ Training navigation uses seven ordinary in-page jump links and keyboard-accessib
 
 URL: `#training/<section-id>`. Legacy `describe` and `review` links open `describe-review`; `test` and `update` links open `implement`. The legacy `?beat=n` suffix no longer changes state. An unknown section id selects the first game section.
 
+For browser automation or an agent using the page, `window.NexusTraining.go("describe-review")` selects a section, `selectAction("describe-review", "/review")` selects its alternate command, and `run()` completes that simulation. `snapshot()` returns the selected section, action index, completed actions, and cumulative file paths; `window.NexusShooter.get("fixed")` selects one game instance.
+
 Scene strings are painted with `textContent` / `createElement` only. The Training engine assigns `innerHTML` nowhere, and a test-local hostile payload proves that markup and script-close text cannot execute without appearing in the shipped lesson.
 
 Seven sections, in order: `game`, `describe-review`, `plan`, `implement`, `fixed-game`, `compare`, `presentify`. The section actions are `/describe`, `/review`, `/plan`, `/implement`, `/compare`, and `/presentify`; `/test` and `/update release` appear within the implement final-phase explanation rather than as separate sections.
