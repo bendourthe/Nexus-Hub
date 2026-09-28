@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.2 -->
+<!-- nexus-hub-version: 4.13.3 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 338 skills, 19 commands, 37 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -34,6 +34,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.13.3
+
+**Leftover instruction blocks from old installs can be removed, only with your consent.** Every install now reports each stale span it finds outside the managed block, with its line range, token cost, a diff, and a consent token bound to that exact span and file state, after keeping a verified backup. Nothing is removed unless the next install carries `--remove-legacy-instructions=<token>` (`-RemoveLegacyInstructions` on Windows).
+
+**Smaller instruction files, opt in.** `NEXUS_HUB_SKILL_INDEX=pointer` replaces the embedded skill table, 81 to 84 percent of each rendered instruction file, with a short pointer on platforms that read an installed skills tree. `scripts/measure_rendered_context.py` measures what a model actually receives.
+
+**Session hooks state facts.** `session-start` prints the installed version and the index location read from real files, the session digest is one line, and instruction files keep their line endings.
 
 ---
 

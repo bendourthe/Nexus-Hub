@@ -9,13 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.3] - 2026-09-28
+
 ### Added
 
 - **Leftover instruction blocks from old installs are reported on every install and removed only with per-span consent (v4.13.3).** Installs before the managed markers wrote a full template and skill index straight into shared files such as `~/.claude/CLAUDE.md`, so later installs added a second index below it. On one development machine that leftover was about 10000 estimated tokens per file, loaded into every session. Every marker-merged instruction writer now goes through one owner, `instruction_merge.merge_instruction`.
     - Each install reports every candidate span with its line range, estimated token cost, a diff file, and a consent token, and keeps a verified content-addressed backup under `~/.nexus-hub/state/backups/` before any write.
     - A span is removed only when the install carries `--remove-legacy-instructions=<token>` (`-RemoveLegacyInstructions` on Windows). The token binds the file, its exact state, and the span, so it cannot authorize identical text in another file and stops working when the file changes. `--yes` never removes anything, and every byte outside the removed span is preserved, including CRLF and BOM.
     - Candidates come from an exact-match fingerprint set of every line any release shipped (`scripts/build_legacy_fingerprints.py`, drift-checked in the full profile). A user line that matches no fingerprint splits a candidate.
-    - Decision: `docs/decisions/proposed/tooling/2026-09-24-legacy-instruction-block-removal.md`.
+    - Decision: `docs/decisions/implemented/tooling/2026-09-24-legacy-instruction-block-removal.md`.
 
 - **Opt-in skill-index pointer: `NEXUS_HUB_SKILL_INDEX=pointer` (v4.13.3).** The embedded skill table is 81-84% of every rendered instruction file. With the variable set, the table is replaced by a short pointer to the installed skills directory, but only where the vendor documents skill discovery for that scope and a skills tree is actually installed there. The per-scope facts are the new `skill_read_paths` section of `docs/policy/platform-read-contracts.json`, re-verified from first-party pages on 2026-09-25. Eligible files lose 99.5% of the index's estimated tokens (about 14500). Unset, the output is byte-for-byte unchanged. The default flip is owned by v4.16.0.
 
@@ -28,6 +30,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **The session hooks state only facts read from real files (v4.13.3).** Every session was told it ran v1.1.5 with 184 skills and pointed at two commands removed in v3.2.0. `session-start` now prints one line with the installed version, shown only when `VERSION` is a bounded semver line, and the path of the full skill index. Both `session-start` and `session-summary` replace the repeated git log with one line (`Git: <branch>, <n> changed file(s)`). The `.sh` and `.ps1` digests are byte-identical, and the PowerShell digest no longer writes a BOM.
 
 - **Instruction files keep their line endings (v4.13.3).** The shared marker merge used to read with `read_text`, turning a CRLF file into LF on the next write. It now renders byte-preservingly and replaces the file atomically through its resolved path, so a symlinked instruction file keeps its link.
+
+### Capability usage
+
+#### Skill-Index Pointer (`NEXUS_HUB_SKILL_INDEX=pointer`)
+
+- **Activation**: set `NEXUS_HUB_SKILL_INDEX=pointer` in the environment, then run the installer. Any other value, or no value, keeps the full skill index.
+- **Validation**: `grep -c "^\*\*Total:" <installed instruction file>` prints `0` on an eligible platform (for example `~/.claude/CLAUDE.md`), and the file names an existing installed skills directory under `# Nexus-Hub Skill Index`.
+- **Disable / rollback**: unset the variable and re-run the installer; the full index is rendered back into the managed block.
+- **Boundary**: skills stay installed and their metadata is unchanged. The pointer can lower organic selection of skills the model would otherwise have seen in the table, including guard skills such as `security-review`. Only platforms with a VERIFIED skill read path that holds an installed skills tree are affected (the `skill_read_paths` facts in `docs/policy/platform-read-contracts.json`); every other platform keeps the full index.
+- **Documentation**: [`docs/policy/platform-read-contracts.md`](../../../../policy/platform-read-contracts.md) (2026-09-25 entry) and [`rendered-context-baseline.md`](rendered-context-baseline.md).
+
+#### Legacy instruction block removal (`--remove-legacy-instructions` / `-RemoveLegacyInstructions`)
+
+- **Activation**: run the installer once without the flag, read the `LEGACY INSTRUCTIONS` report and the diff file it names, then re-run with `--remove-legacy-instructions=<token>` (bash) or `-RemoveLegacyInstructions <token>` (PowerShell), one per span.
+- **Validation**: the next install report lists no candidate for that file, and `grep -c "^\*\*Total:" <file>` prints `1`.
+- **Disable / rollback**: omit the flag (nothing is ever removed without it). To undo a removal, copy the verified backup under `~/.nexus-hub/state/backups/<sha256>.<name>` back over the file.
+- **Boundary**: a token authorizes exactly one span in one file at one file state; it cannot authorize a second file with identical text, and it stops working when the file changes. `--yes` never implies it. The installer never deletes a backup.
+- **Documentation**: [`docs/decisions/implemented/tooling/2026-09-24-legacy-instruction-block-removal.md`](../../../../decisions/implemented/tooling/2026-09-24-legacy-instruction-block-removal.md).
 
 ## [4.13.2] - 2026-09-28
 

@@ -1,12 +1,12 @@
 # Decision: Remove legacy instruction blocks only with per-span, per-file-state consent
 
-Status: proposed - installers report exact-match leftover spans every run, back up first, and remove a span only when the next run carries its consent token
+Status: implemented - installers report exact-match leftover spans every run, back up first, and remove a span only with its consent token, shipped in v4.13.3
 
 ## Problem
 
 Installs before the managed-marker merge wrote the whole instruction template and skill index straight into shared files such as `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`. Later installs added the managed block below that text instead of replacing it, so these files now carry two skill indexes. On one development machine, about 10000 estimated tokens per file (a third of each) is a stale copy of the catalog, loaded into every session (see `docs/releases/v4/v4.13/development/rendered-context-baseline.md`). The leftover sits in a file the user owns and may have edited between the old lines. The installer cannot tell a leftover line from the same text the user typed, and deleting a user's line is the one outcome a harness must never cause silently.
 
-## Proposal
+## Decision
 
 1. **Exact-match detection from a generated fingerprint set.** `scripts/build_legacy_fingerprints.py` hashes every line any release shipped in an instruction template or skill index (placeholders rendered with every historical default). `scripts/lib/installer/legacy_instruction_block.py` reports a candidate span only outside the managed markers, in a region that holds the historical skill-index heading and a `**Total:` line, as a run of at least three matching lines. Every non-matching line is kept and splits the run. A match is evidence, not proof of authorship.
 2. **Reports on every run.** Every install through a marker-merged writer (`instruction_merge.merge_instruction`, the single owner all six writers route through) reports each candidate's file, line range, estimated token cost, and removal diff. It also prints a consent token computed after every writer finished, so the token matches the file's final bytes.
@@ -23,7 +23,9 @@ Installs before the managed-marker merge wrote the whole instruction template an
 - **A standing environment variable (for example `NEXUS_HUB_REMOVE_LEGACY=1`).** One setting would authorize every future removal in every file, including spans that did not exist when the user decided. That is the opposite of consent bound to what the user saw.
 - **Region-based removal (delete everything above the managed markers that looks like an old install).** Simple, but it deletes user lines interleaved with the leftover. The observed layout on the development machine has exactly such kept lines, so this fails on the first real file.
 
-## Acceptance criteria
+## Consequences
+
+Each property is enforced by a test shipped in v4.13.3:
 
 - Every marker-merged writer routes through `merge_instruction`; a guard test fails when a direct `merge_marker_section` call is added under `scripts/lib/integrations/`.
 - An install without a token leaves every byte outside the managed block unchanged, and it writes a verified backup and a report with the token and diff.
