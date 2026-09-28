@@ -1,7 +1,7 @@
 # Session History - v3.5.0 adoption-loopmaxxing-and-autoresearch Phase 1: strict-control-loop doctrine + hardening lifecycle
 
 **Date**: 2026-06-15
-**Plan**: [`../../plans/adoption-loopmaxxing-and-autoresearch.md`](../../plans/adoption-loopmaxxing-and-autoresearch.md) Phase 1 (G1 + G2, both skill-native)
+**Plan**: [`../../plans/adoption-loopmaxxing-and-autoresearch.md`](../../../../../releases/v3/v3.5/plans/adoption-loopmaxxing-and-autoresearch.md) Phase 1 (G1 + G2, both skill-native)
 **Branch**: `feat/loop-engineering-enrichment`
 **Outcome**: Implementation complete; quality gate GO. Phase 1 of 3, so Phase 2 (metric-optimization archetype + per-iteration budget + oracle carve-out) follows. No release work this phase.
 

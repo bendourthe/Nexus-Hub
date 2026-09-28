@@ -68,11 +68,21 @@ def build(root: Path, skills: list[tuple[str, str]]) -> None:
     (data / "SKILL_INDEX.md").write_text(
         "| Skill | Category | Summary | File |\n|---|---|---|---|\n"
         + "\n".join(index_rows)
-        + "\n",
+        + f"\n\n**Total: {len(entries)} skills across {len(census)} categories**\n",
         encoding="utf-8",
     )
     (data / "skills.json").write_text(
-        json.dumps({"skills": entries}, indent=2), encoding="utf-8"
+        json.dumps(
+            {
+                "statistics": {
+                    "total_skills": len(entries),
+                    "categories": census,
+                },
+                "skills": entries,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
     )
     (data / "marketplace.json").write_text(
         json.dumps(
@@ -186,6 +196,44 @@ def test_bad_marketplace_count_fails(tmp_path):
     assert result.returncode == 1
     assert "marketplace.json skill_count" in result.stderr
     assert "says 9" in result.stderr
+
+
+def test_bad_skills_json_total_fails(tmp_path):
+    build(tmp_path, [("alpha", "workflow")])
+    path = tmp_path / "data" / "skills.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data["statistics"]["total_skills"] = 9
+    path.write_text(json.dumps(data), encoding="utf-8")
+    result = run(tmp_path)
+    assert result.returncode == 1
+    assert "statistics.total_skills" in result.stderr
+    assert "says 9" in result.stderr
+
+
+def test_bad_skills_json_category_census_fails(tmp_path):
+    build(tmp_path, [("alpha", "workflow")])
+    path = tmp_path / "data" / "skills.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data["statistics"]["categories"] = {"workflow": 9}
+    path.write_text(json.dumps(data), encoding="utf-8")
+    result = run(tmp_path)
+    assert result.returncode == 1
+    assert "statistics.categories" in result.stderr
+
+
+def test_bad_skill_index_total_line_fails(tmp_path):
+    build(tmp_path, [("alpha", "workflow")])
+    path = tmp_path / "data" / "SKILL_INDEX.md"
+    path.write_text(
+        path.read_text(encoding="utf-8").replace(
+            "**Total: 1 skills across 1 categories**",
+            "**Total: 9 skills across 1 categories**",
+        ),
+        encoding="utf-8",
+    )
+    result = run(tmp_path)
+    assert result.returncode == 1
+    assert "SKILL_INDEX.md total line" in result.stderr
 
 
 def test_a_skill_in_no_module_is_unreachable(tmp_path):

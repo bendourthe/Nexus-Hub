@@ -1,12 +1,12 @@
 # Known Gaps - v4.7
 
 **Project**: Nexus-Hub
-**Status**: v4.7.0 in progress on `feat/v4.7.0-model-behavior-and-distribution-integrity`; phases 1 to 7 complete locally on `feat/v4.7.0-model-behavior-and-distribution-integrity`; published to `develop` in PR #167 (merge `ca8e663e`, 2026-09-05); awaiting `/update release`
-**Last updated**: 2026-09-05 (v4.7.0 Phase 7)
+**Status**: released. v4.7.0 was published on 2026-09-06 at tag `v4.7.0` (`667cc465`) after integration in PR #167 (`ca8e663e`). MT-1's hosted observation gate was verified after release; WN-2 records the separate failing default-branch schedule.
+**Last updated**: 2026-09-24
 
 ## v4.7.0 - model-behavior-and-distribution-integrity (with the gpt-6-astra-prompting amendments folded in)
 
-**Plans**: [v4.7.0-adoption-model-behavior-and-distribution-integrity.md](plans/v4.7.0-adoption-model-behavior-and-distribution-integrity.md), [v4.7.0-adoption-gpt-6-astra-prompting.md](plans/v4.7.0-adoption-gpt-6-astra-prompting.md)
+**Plans**: [v4.7.0-adoption-model-behavior-and-distribution-integrity.md](../../../archives/v4/v4.7/plans/v4.7.0-adoption-model-behavior-and-distribution-integrity.md), [v4.7.0-adoption-gpt-6-astra-prompting.md](../../../archives/v4/v4.7/plans/v4.7.0-adoption-gpt-6-astra-prompting.md)
 **Base**: `develop` at `76bcf614` (post v4.5.0 back-merge and the v4.7 to v4.9 plans migration)
 
 ### Summary
@@ -14,22 +14,15 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 5 | 0 |
+| Deferred (DF) | 3 | 2 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 1 | 0 |
-| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Warnings (WN) | 2 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
 #### Deferred
-
-##### DF-1 - The v4.4.6 guide plan's model map was not reconciled from this branch
-
-- **Source phase**: Phase 1 (amendment sub-task 1.2, T038).
-- **Plan reference**: `v4.7.0-adoption-gpt-6-astra-prompting.md` sub-task 1.2.
-- **Reason**: `docs/releases/v4/v4.4/plans/v4.4.6-guide-learning-experience.md` exists only on the concurrent `feat/v4.4.3-guide-illustration-rebuild` branch, where another session is still committing; editing it here would guarantee a merge conflict when that branch lands. Its map already places `gpt-6-astra` at frontier, which agrees with the 2026-09-05 decision, so the substantive disagreement the sub-task targeted no longer exists; only the one-line citation of the decision note is missing.
-- **Suggested next step**: When the guide branch is merged into `develop`, add one sentence under that plan's `## Current model map` citing `docs/releases/v4/v4.7/development/astra-routing-decision.md`, or close this item as superseded if the map is treated as a historical record.
 
 ##### DF-2 - The Codex CLI does not yet list `gpt-6-astra`, so the codex profile entry reads DRIFTED
 
@@ -38,12 +31,7 @@
 - **Reason**: `enumerate-models.sh codex` (`codex debug models`) on 2026-09-05 returned six models (`codex-auto-review`, `gpt-5.2`, `gpt-5.3-codex`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.5`) and not `gpt-6-astra`, which the vendor's API catalog lists as generally available. The layer's invariant (the index never claims a model it has no roster entry for) widens the codex entry's roster to include the profiled model, so `check_model_prompting_freshness.py --platform codex <live ids>` reports DRIFTED with `gpt-6-astra` as "recorded but no longer live". The profile itself is correct for the API surface the vendor documents; the drift is between the CLI's picker and the API catalog.
 - **Suggested next step**: Re-run `enumerate-models.sh codex` at the next release; when the CLI lists `gpt-6-astra`, re-stamp the codex entry through the writer and this item closes. If the CLI never lists it, re-home the profile under an API-platform id in a later schema decision.
 
-##### DF-3 - Four template validators share one roster and one shape
-
-- **Source phase**: Phase 7 - Architecture refactor (T027).
-- **Plan reference**: main plan sub-task 7.1; v4.5.0's `construction-debt:` note named the third invariant block as the consolidation trigger.
-- **Reason**: `test_construction_discipline_rule.py`, `test_writing_discipline_rule.py`, `test_autonomy_block_rule.py`, and `test_communication_contract_rule.py` each carry a twelve-template roster (two hardcoded, two derived from the directory) and the same presence, identity, and shim checks. The parity script holds a fifth copy of the lockstep list. Consolidating in the final phase of a release means renaming modules that three releases' evidence cites by file name, which is why it was recorded rather than applied.
-- **Suggested next step**: On the next plan that adds or edits a template block, move the roster derivation and the section-body helper into one shared module under `tests/validators/`, have the parity script read the lockstep list from the same place, and parametrize the four modules over their block markers; keep four files so a failure still names the block.
+**2026-09-24 recheck**: The installed Codex CLI picker still lists six models and omits `gpt-6-astra`; the [archived read-only result](../../../archives/v4/v4.7/development/model-map-followup/verification.md) keeps API availability separate from CLI availability. DF-2 remains open and no profile was re-stamped.
 
 ##### DF-4 - Reusable `workflow_call` CI factoring (report item E5) deliberately excluded
 
@@ -69,19 +57,20 @@
 - **Impact**: None observed. Every Phase 2 gate passed, including the deliberate guard-failure proof; every Phase 6 gate passed, and the one defect the phase introduced (a `set -e` return-code capture in the bash bootstrap) was caught by the manual Git Bash run inside the phase.
 - **Suggested next step**: When the next plan rates a phase `max`, decide at the pre-flight whether to make the keystroke, so the choice is deliberate rather than inherited from the driver's momentum. Phase 7's independent review found ten of ten Goal clauses converged at high.
 
-#### Missing tests / coverage gaps
+##### WN-2 - Scheduled `main` supply-chain audit remains red
 
-##### MT-1 - The scheduled watch and the attestation job are unobserved until the branch merges and a tag is cut
-
-- **Source phase**: Phase 6 - Distribution Integrity (T022, T023).
-- **Plan reference**: Phase 6 Verification Expectation ("trigger the scheduled watch through `workflow_dispatch` and observe it complete without appearing in the required-check set") and sub-task 6.2.
-- **Reason**: A workflow on an unpublished branch cannot be dispatched, and `publish-artifact` runs only on a `v*` tag push or a dispatch naming a tag. Both are proven statically (YAML parses, the policy tests pass, `check_required_check_coverage.py` shows the required set unchanged) but neither has been observed running. The bash leg of the parametrized bootstrap suite also skips on this Windows host by design; it was exercised by hand under Git Bash and is proven by CI's ubuntu runner at publication.
-- **Suggested next step**: After the integration pull request merges, dispatch `supply-chain-watch.yml` once and confirm it completes and appears in no required context; at the v4.7.0 `/update release`, confirm `publish-artifact` attaches the two assets and the attestation to the Release, then extend the round-trip step to verify the downloaded tarball against the published `SHA256SUMS`. Close this item with both observations recorded.
+- **Source phase**: Post-release hosted verification on 2026-09-24.
+- **Plan reference**: v4.7.0 Phase 6 Distribution Integrity, T022 and T023.
+- **Reason**: Three scheduled `main` runs failed, most recently run 35599558573 on 2026-09-21. Its report found `setuptools` 79.0.1, affected by `PYSEC-2026-3447`; current `main` lacks the newer `develop` constraint that pins 84.0.0. A passing manual `develop` run does not prove default-branch schedule health. The [archived verification](../../../archives/v4/v4.7/development/supply-chain-watch-followup/verification.md) retains both outcomes.
+- **Suggested next step**: The CI/release maintainer must bring a fixed `setuptools` into the default-branch audit environment through the protected release path, then observe a passing `main` dispatch or schedule without suppressing the advisory.
 
 ### Resolved
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
+| DF-1 | v4.4.6 guide-plan model-map citation missing | 2026-09-24 follow-up | The map already placed `gpt-6-astra` at frontier; the user later rejected and superseded the v4.4.6 redesign. [Archived evidence](../../../archives/v4/v4.7/development/model-map-followup/verification.md) closes the citation-only task without editing the historical plan. |
+| DF-3 | Four template validators share one roster and one shape | 2026-09-24 validator follow-up | The parity module now owns the lockstep list, dynamic roster, and section-body helper while four named rule modules retain their assertions. Construction Discipline gains `base-pi.md` coverage. [Archived qualification](../../../archives/v4/v4.7/development/template-validator-roster/verification.md) records 152 focused passes; [PR #292](https://github.com/bendourthe/Nexus-Hub/pull/292) passed its hosted gate, merged at `bea7ab9a`, and [post-merge run 36077657119](https://github.com/bendourthe/Nexus-Hub/actions/runs/36077657119) passed smoke and provenance. |
+| MT-1 | Hosted watch and attested release artifact were unobserved | 2026-09-24 follow-up | [Manual `develop` run 36034068237](https://github.com/bendourthe/Nexus-Hub/actions/runs/36034068237) passed, with no required-check context; v4.7.0 tarball and `SHA256SUMS` matched after download, and GitHub verified the repository attestation. See [archived evidence](../../../archives/v4/v4.7/development/supply-chain-watch-followup/verification.md). WN-2 separately tracks the red `main` schedule. |
 
 ### Notes (not gaps)
 

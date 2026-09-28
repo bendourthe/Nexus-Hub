@@ -161,7 +161,7 @@ def _read_rename_map(path: Path) -> dict[str, str]:
     return mapping
 
 
-def _derive_prefix_map(file_map: dict[str, str]) -> List[tuple[str, str]]:
+def _derive_prefix_map(file_map: dict[str, str], stationary_sources: set[str]) -> List[tuple[str, str]]:
     """Derive directory renames from file renames, longest prefix first.
 
     Git records file renames only, so a link naming a DIRECTORY, or naming a
@@ -188,6 +188,8 @@ def _derive_prefix_map(file_map: dict[str, str]) -> List[tuple[str, str]]:
 
     prefixes: List[tuple[str, str]] = []
     for old_prefix, new_prefix in candidates:
+        if any(source == old_prefix or source.startswith(old_prefix + "/") for source in stationary_sources):
+            continue
         under = mismatched = 0
         for old, new in file_map.items():
             if old == old_prefix or old.startswith(old_prefix + "/"):
@@ -259,7 +261,9 @@ def cmd_diff(args: argparse.Namespace) -> int:
         except RuntimeError as exc:
             print(f"Error: {exc}", file=sys.stderr)
             return 2
-        prefixes = _derive_prefix_map(file_map)
+        after_sources = {source for source, _link, _target in after}
+        stationary_sources = {source for source, _link, _target in before if source in after_sources and source not in file_map}
+        prefixes = _derive_prefix_map(file_map, stationary_sources)
         before = {
             (_project(source, file_map, prefixes), "", _project(target, file_map, prefixes))
             for source, _link, target in before

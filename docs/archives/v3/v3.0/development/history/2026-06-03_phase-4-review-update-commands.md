@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 4: Review + Update commands (the two largest merges)
 
 **Date**: 2026-06-03
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
 **Phase**: 4 of 10 -- Review + Update commands
 **Outcome**: complete; all three sub-tasks (T015-T017) closed, all applicable quality gates green.
 

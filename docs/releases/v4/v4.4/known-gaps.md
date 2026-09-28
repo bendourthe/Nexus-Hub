@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 through v4.4.5 published together as the v4.4.5 tag on 2026-09-04 (PRs #154 and #157), after the operator's Home and Foundations review lifted the publication hold
-**Last updated**: 2026-09-02 (v4.4.2 Phase 8)
+**Last updated**: 2026-09-25 (post-release QG-446-1 disposition)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -21,12 +21,14 @@
 
 #### Deferred
 
-##### DF-1 - Three platform entries use text treatments pending approved standalone marks
+##### DF-1 (resolved in v4.4.1) - Three platform text treatments were replaced by approved marks
 
 - **Source phase**: Phase 1 - Home identity, platforms, installation, and comparison.
-- **Plan reference**: `docs/releases/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` sub-task 1.2 / T002.
+- **Plan reference**: `docs/archives/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` sub-task 1.2 / T002.
 - **Reason**: Current official assets provide a verified Claude icon, Cursor cube, and OpenCode logo. The OpenAI brand pack does not provide a ChatGPT-specific SVG, Gemini product-icon use requires documented partner approval, and current GitHub guidance does not support using the Copilot bot as a standalone hero mark. Phase 1 therefore uses labelled text treatments for ChatGPT, Gemini, and GitHub Copilot instead of inventing or misapplying trademark geometry.
 - **Suggested next step**: Replace an individual text treatment only after its vendor publishes a distributable standalone product mark or grants documented permission, then add the exact asset provenance and rerun both-theme contrast and geometry tests.
+
+**Closure, 2026-09-24**: The later v4.4.1 rebuild replaced the ChatGPT, Gemini, and GitHub Copilot text treatments and recorded explicit maintainer approval, provenance, and SHA-256 hashes for all five embedded marks in the [asset ledger](development/guide-visual-and-arcade-rebuild/asset-provenance.md). The original release-time limitation above remains historical, not a current blocker. The [archived follow-up](../../../archives/v4/v4.4/development/platform-mark-disposition/verification.md) records fresh hash, Home geometry, and both-theme browser-matrix results. This closure does not grant new trademark rights or approve a changed asset; any future replacement still needs its own provenance and approval.
 
 ### Resolved
 
@@ -108,9 +110,11 @@
 
 > v4.4.1 section closed at its Phase 7 GO (2026-09-02); its open items `HT-1`, `HT-2`, `HT-3`, and the Outline-reflow P3 stay owned as recorded above.
 
+**HT-3 closure follow-up (2026-09-27):** The original 17-branch count remains historical evidence. A fresh `git ls-remote --heads origin` returned only `develop`, `main`, and `docs/v4.15.1-mods-comparison-and-plan`; `gh pr list --state open` identified that third ref as the open, unrelated PR #222. `git branch --merged origin/develop` returned only the protected integration and release branches, and the other v4.13 worktrees retain their own unmerged branches. No reviewed, merged, unprotected branch remains to delete, so HT-3 is closed for the current repository state. This audit does not establish how each of the original 17 refs disappeared, and it does not authorize deletion of PR #222 or another session's worktree.
+
 ## v4.4.2 - guide-production-ready-rebuild
 
-**Plan**: [v4.4.2-guide-production-ready-rebuild.md](plans/v4.4.2-guide-production-ready-rebuild.md)
+**Plan**: [v4.4.2-guide-production-ready-rebuild.md](../../../archives/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md)
 **Contract**: [phase-1-contract.md](development/guide-production-ready-rebuild/phase-1-contract.md) (requirement matrix, superseded-assertion register, byte ledger)
 
 ### Carried in from v4.4.1
@@ -173,7 +177,7 @@
 > Not finalized. v4.4.2 is in progress; this section is appended per phase and reconciled at the plan's final phase.
 ## v4.4.3 - guide-illustration-clarity-rebuild
 
-**Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](plans/v4.4.3-guide-illustration-clarity-rebuild.md)
+**Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](../../../archives/v4/v4.4/plans/v4.4.3-guide-illustration-clarity-rebuild.md)
 **Base**: `develop` at `a376c1ae`
 **Status**: nine phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
@@ -228,7 +232,7 @@
 
 ## v4.4.4 - guide-teaching-clarity-rebuild
 
-**Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](plans/v4.4.4-guide-teaching-clarity-rebuild.md)
+**Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](../../../archives/v4/v4.4/plans/v4.4.4-guide-teaching-clarity-rebuild.md)
 **Base**: the v4.4.3 closeout at `bcfa3413`, on the same branch (v4.4.3 was never published)
 **Status**: nine phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
@@ -277,7 +281,7 @@
 
 ## v4.4.5 - guide-mockup-integration
 
-**Plan**: [v4.4.5-guide-mockup-integration.md](plans/v4.4.5-guide-mockup-integration.md)
+**Plan**: [v4.4.5-guide-mockup-integration.md](../../../archives/v4/v4.4/plans/v4.4.5-guide-mockup-integration.md)
 **Base**: the v4.4.4 closeout at `3ac90bb2`, on the same branch (neither v4.4.3 nor v4.4.4 was published)
 **Status**: eight phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
@@ -357,6 +361,26 @@ Status: local implementation complete through Phase 6; final verification and ex
 | WN-446-1 | Existing primary guide-render CI lacks retained structured browser/JUnit artifacts; comparison is partial | CI maintainer | Review the minimal report/upload change with seven-day retention in [ci-comparison.md](development/guide-learning-experience/phase-7/ci-comparison.md), approve the pipeline change, then implement and verify it. No pipeline change was made in this guide plan. |
 | WN-446-2 | Historical CodeQL CQ-1 has no fresh remote rescan; removal of the flagged construct alone does not close the alert | Security/CI maintainer | Re-evaluate the current head on the next authorized remote scan and record the result. |
 | QG-446-1 | Full native profile: 40 command passes, three failures and one repository-test timeout. Encoding is now fixed; default Bash resolution and the unrelated v4.9 path scan remain separately classified. Complete local green gate is not established | Implementer / repository maintainer | Use [terminal disposition](development/guide-learning-experience/phase-7/full-profile-disposition.md) to isolate the repository-test stall and close remaining environment/scope findings. Do not infer the historical QG-1 assertion failures from absent current output. T027 remains open. |
+
+WN-446-1 follow-up, 2026-09-22: the current guide-render job now writes JUnit and uploads it with seven-day retention, and the same local guide command produced 380 passed, one optional skip, and a JUnit file. Hosted artifact retention remains to be observed before this historical gap is marked resolved; the rejected v4.4.6 redesign remains superseded.
+
+WN-446-1 RESOLVED 2026-09-22 (post-release): PR #235's hosted run 35799198474 exposed `ci-guide-render-report` with expiry `2026-09-29T23:57:16Z`, alongside test, validation, shell, and Windows report artifacts with seven-day retention. Its post-merge smoke/provenance run 35801251735 passed. The original row and pending checkpoint above remain historical evidence, not the current disposition. No rejected v4.4.6 redesign was restored.
+
+BG-48 RESOLVED LOCALLY 2026-09-23 (post-release): the shipped describe scene no longer displays the hostile fixture sentence. The security payload now exists only in test-created HTML, where the browser confirms it renders as literal terminal text with no image node or executed script. The guide's inline scene data still parses equal to `example/training-scenes.json`; the focused guide, explorer, and shooter suite passed 131 tests with one optional skip. The original row remains historical until publication and post-merge checks complete.
+
+BG-48 PUBLICATION VERIFIED 2026-09-23: PR #255 merged at `20bc793b` after all hosted checks passed. Post-merge run 35897196668 passed smoke and provenance. The historical row above records the pre-publication state; BG-48 is closed on `develop`.
+
+BG-46 and BG-47 RESOLVED LOCALLY 2026-09-23 (post-release): the describe heading is shortened and the fullscreen idle terminal no longer stretches to occupy the completed-reply scroll area. The 23-test browser layout suite passed with `NEXUS_REQUIRE_RENDER=1`, including 320/420 px heading checks, all four named desktop sizes before and after Run in both themes, and the unchanged 0.88 completed-state coverage floor. Six fresh screenshots were inspected and archived in [Training layout follow-up verification](../../../archives/v4/v4.4/development/guide-training-layout-followup/verification.md). The original rows remain historical until publication and post-merge checks complete; MT-446-1 through MT-446-3 and QG-446-1 are not closed by this repair.
+
+MT-446-3 RESOLVED 2026-09-24 (post-release): hosted Ubuntu `guide-render` run 35933463823 exercised the guide and visual-detector browser contracts with Playwright 1.63.0 and Chromium 153.0.8010.12. Its retained JUnit report records 384 passed, one optional sibling-copy skip, zero failures, and zero errors. The CI merge checkout and current `develop` have identical guide and relevant test/profile blobs. See the [archived Linux browser qualification](../../../archives/v4/v4.4/development/guide-linux-browser-qualification/verification.md). This closes Linux browser availability only; MT-446-1, MT-446-2, and QG-446-1 remain open.
+
+WN-446-2 RESOLVED for current `develop` 2026-09-25 (post-release): manual [CodeQL run 36106037432](https://github.com/bendourthe/Nexus-Hub/actions/runs/36106037432) passed both language analyses at `d6477ccf`. The branch-filtered open-alert API returned 184 findings but none at `guides/website/nexus-hub-guide.html`; the old `data-motion-src` assignment and `initMediaToggles` function are absent from that guide. Historical alert #236 still has one open instance on `refs/pull/156/merge`, not on current `develop`. The [archived rescan record](../../../archives/v4/v4.4/development/codeql-cq1-rescan/verification.md) states the query and limits. This closes the missing-current-rescan warning, not the retained PR alert or unrelated CodeQL findings.
+
+QG-446-1 FOLLOW-UP 2026-09-25 (post-release): a new unfiltered Windows full profile completed all 61 commands with zero failures, skips, or advisories in 7,220.4 seconds at `bb3b2b97`; all 13 test partitions returned terminal passes. The process prepended Git Bash to PATH. At the current `0338b11d` integration tip, whose delta is documentation-only, fast 17/17 and docs 8/8 passed with the same prefix. A fresh default-PATH interpreter gate still exits 1 because Windows chooses an unusable Bash shim; the prefixed gate exits 0. The [archived full-run qualification](../../../archives/v4/v4.4/development/full-native-profile-2026-09-25/verification.md) separates these results. Keep QG-446-1 open for the default-host interpreter boundary and protected publication of this record. The original failed run remains unchanged, and the user-superseded v4.4.6 plan's T027 is not retroactively complete.
+
+QG-446-1 LOCAL DEFAULT-HOST CANDIDATE 2026-09-25 (post-release): the current Windows-managed hook commands target 35 PowerShell siblings and six Python scripts, with zero Bash scripts in the installed Claude settings. The interpreter gate now probes the host-selected PowerShell script on Windows and retains Bash on non-Windows. The unmodified Windows host PATH passes the real gate, and the unfiltered native full profile passed 61/61 commands with no skips or advisories in 7,446.3 seconds. The [archived qualification](../../../archives/v4/v4.4/development/windows-interpreter-default-host/verification.md) retains the summary and environment receipt. This local candidate does not close QG-446-1 until protected integration and post-merge checks pass; historical failed evidence remains unchanged.
+
+QG-446-1 RESOLVED ON `develop` 2026-09-25 (post-release): [PR #319](https://github.com/bendourthe/Nexus-Hub/pull/319) merged the default-host interpreter probe at `e8c34ef0` after the required `ci-required`, colocation, shellcheck, validation, and verification checks passed; Linux and Windows tests, guide rendering, CodeQL, and the remaining hosted jobs also passed. [Post-merge run 36188249570](https://github.com/bendourthe/Nexus-Hub/actions/runs/36188249570) passed smoke and provenance against that merge commit. The [archived 61-command default-host receipt](../../../archives/v4/v4.4/development/windows-interpreter-default-host/verification.md) closes this current-host gate. The original failed profile, process-qualified precursor, and superseded v4.4.6 T027 are unchanged; this disposition does not claim a rerun of the full profile on the post-merge commit or cover arbitrary user-authored Bash hooks.
 
 ### Resolved
 

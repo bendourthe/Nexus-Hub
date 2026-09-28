@@ -10,7 +10,7 @@ import {
 import { DashboardPanel } from "./dashboardPanel";
 import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./warningView";
 import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion, classifyUrgency } from "./recommendations";
-import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
+import { UrgencyLevel, UsageData, ThresholdMetric, formatModelName, getThresholdConfig, getThresholdMetric, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
 import { registerUpdateWatcher } from "./updateWatcher";
 
 type NotificationSeverity = "info" | "warning";
@@ -64,6 +64,7 @@ let warningView: WarningViewProvider | undefined;
 // VS Code startup. This ensures the user sees a notification on startup when usage
 // is already above a threshold, while still avoiding duplicate popups within a session.
 const notifiedThresholds = new Set<number>();
+let lastEvaluatedMetric: ThresholdMetric | undefined;
 
 export function activate(context: vscode.ExtensionContext): void {
   // Registered first: an install that lands underneath this window leaves THIS code
@@ -358,11 +359,16 @@ async function autoFetchAndUpdate(
  * Returns true if a notification was shown, false otherwise.
  */
 async function evaluateAndNotify(data: UsageData): Promise<boolean> {
+  const selectedMetric = getThresholdMetric();
+  if (selectedMetric !== lastEvaluatedMetric) {
+    notifiedThresholds.clear();
+    lastEvaluatedMetric = selectedMetric;
+  }
   const trigger = pickTriggerMetric(data);
-  const suggestion = buildUsageSuggestion(data, trigger);
+  const suggestion = trigger ? buildUsageSuggestion(data, trigger) : null;
 
   // Below the moderate threshold: reset within-session tracking.
-  if (!suggestion) {
+  if (!trigger || !suggestion) {
     notifiedThresholds.clear();
     return false;
   }

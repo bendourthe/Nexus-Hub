@@ -28,7 +28,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
       Reply with a number or a scope name.
 
-- `release` first verifies the integration gate (below), then runs the focused scopes in order - `docs`, then `gitignore`, then `version`, then `changelog`, then `devlog`, then `refactor` **with `--canonicalize-layout` engaged** - then reconciles the version's known gaps, RE-CHECKS CI/CD conformance, regenerates the supply-chain manifest, cleans up, commits, lands the release on the integration branch, retires the branches and worktrees it consumed, then merges to the release branch, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
+- `release` first verifies the integration gate (below), then runs the focused scopes in order - `docs`, then `gitignore`, then `version`, then `changelog`, then `devlog`, then `refactor` **with `--canonicalize-layout` engaged** - then reconciles the version's known gaps, RE-CHECKS CI/CD conformance, regenerates the supply-chain manifest, cleans up, commits, lands the release on the integration branch, retires the branches and worktrees it consumed, then merges to the release branch, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation, or, inside a full `/implement` run, the matching release approval recorded in that run's record (see the pre-approved release path below).
     - The CI/CD step is a CONFORMANCE RE-CHECK, not an authoring pass. The plan's final phase already ran the terminal reconciliation via `[[cicd-architect]]` before it published; by release time the pipeline is reconciled and this step confirms it still is. If it finds unreconciled drift, that is a finding against the plan's final phase, and the fix belongs there rather than in a release-time rewrite of the pipeline.
 
 ## Delegation
@@ -107,6 +107,17 @@ If any of the four fails, STOP and say which one. Do not bump a version to "get 
 
 This ordering is the release-side half of the plan lifecycle. The plan's final phase owns publication and integration; `/update release` owns everything after the merge lands green. Neither reaches into the other.
 
+## release scope: the pre-approved release path (full `/implement` runs)
+
+A full `/implement` run collects its release approval once, in the upfront round, and freezes it in a run record (`~/.nexus-hub/runs/`, rules in `implement-phase/references/completion-contract.md`). This command is the only place that approval is consumed, and it is consumed action by action, never as a blanket yes:
+
+1. **Find the record.** `python ~/.nexus-hub/scripts/check_plan_completion.py record path <plan>` prints the record for the plan being released. Use it only when its `session_id` is this session's and the checker does not report `BLOCKED: record-tampered`. A standalone `/update release` with no bound record ignores run records entirely and keeps every gate.
+2. **Compare each action to what the record froze, immediately before acting**: the repository, the release version and tag, and the values the matching approval class names (for example the release pull requests and their target branches, or the back-merge). A match skips that one confirmation; any difference, however small, re-asks. A value the record does not name (a head SHA at merge, the commit a tag points at, a release title, the notes) is confirmed as it would be without a record. The computed next version is compared too: a record approving `v0.2.0` never covers `v0.2.1`.
+3. **Log the approval used.** Each skipped confirmation prints one line naming the action and the approval class it consumed (`release`, `release-notes`, `push-merge`), so the release transcript shows what ran on a recorded approval and what was asked.
+4. **Never widen it.** Pipeline, permission, and secret changes are never covered, and the pre-tag branch assertion, the integration gate, and the artifact round-trip still run and still stop the release on failure. The record replaces the question, not the check.
+
+Pin every `gh` call in this command with `--repo <owner/repo>` from the record (or from the remote when there is no record), so a misconfigured default repository can never receive a release, a merge, or a branch deletion.
+
 ## release scope: the publication sequence (develop, then cleanup, then main)
 
 A release publishes in a fixed order. Each step exists because skipping it leaves a specific, observed defect behind.
@@ -121,7 +132,7 @@ Merging the release straight to `main` is the failure this ordering prevents. It
 
 Once the release is on `develop` and its checks are green, retire the branches and worktrees it just integrated. Each check is fail-closed and stops the release rather than forcing past it:
 
-1. **Every merged plan branch** is deleted locally and on the remote. Verify with `git branch --merged <integration-branch>`; a branch absent from that list is NOT deleted, and its presence is reported instead.
+1. **Every merged plan branch** is deleted locally and on the remote. Verify with `git branch --merged <integration-branch>`; a branch absent from that list is NOT deleted, and its presence is reported instead. Before any REMOTE deletion, confirm the remote tip equals the merged pull request's `headRefOid` (`gh pr view <branch> --repo <owner/repo> --json headRefOid`), so a commit pushed after the merge is never deleted with the branch; refuse `main`, `develop`, the repository's default branch, and any protected branch outright. A squash-merged branch that `git branch -d` refuses is recorded and left in place, never force-deleted with `-D`.
 2. **Every worktree whose branch merged** is removed via `[[using-git-worktrees]]`, its directory deleted, and `git worktree prune` run. Before removal, `git -C <worktree> status --porcelain` MUST be empty; a dirty tree stops the teardown and is reported, never `--force`d away.
 3. **`git worktree list`** is re-read afterwards and must no longer show the removed paths.
 
@@ -138,7 +149,7 @@ Self-gates: a repository with a single long-lived branch skips step 1 and merges
 Immediately before `git tag`, and after nothing else, run:
 
 ```bash
-python scripts/check_release_preconditions.py --pre-tag [--release-branch main]
+python ~/.nexus-hub/scripts/check_release_preconditions.py --pre-tag [--release-branch main]
 ```
 
 It exits 1 and prints `BLOCKED` unless HEAD is on the expected release branch AND equal to `origin/<release-branch>`. **Abort the release on a non-zero exit. Do not tag.**
@@ -160,7 +171,7 @@ A PR-based release leaves a merge commit on `main` that `develop` does not have.
 ## release scope: branch hygiene and repository settings (advisory, before the commit)
 
 ```bash
-python scripts/check_release_preconditions.py --branches --repo-settings
+python ~/.nexus-hub/scripts/check_release_preconditions.py --branches --repo-settings
 ```
 
 Advisory only, exit 0 regardless. Three reports:
@@ -220,10 +231,20 @@ Beyond running the `refactor` scope, a `release` performs these governance steps
 
 Before stopping for any governance confirmation below, follow the active instruction template's `Consequential Decisions` rule and explain what the proposed action changes, the alternatives including doing nothing, and the recommendation.
 
-1. **Known-gaps reconciliation** via `[[known-gaps-tracker]]`: resolve, defer, or transfer each open item for the version and finalize the per-minor `known-gaps.md`.
+1. **Known-gaps reconciliation** via `[[known-gaps-tracker]]`: resolve, defer, or transfer each open item and finalize the per-minor `known-gaps.md`.
+
+    **Sweep EVERY version, not only the one being released.** Glob every `docs/**/known-gaps.md` (canonical and legacy layouts) whose Status is in-progress or whose Open Items remain, and give each open item a disposition: Resolved, still-deferred with an accurate Reason plus Suggested next step, or transferred to the version that will carry it. Also sweep unchecked task lines (`- [ ] T...`) in the plans of already-released minors, which are either completed-but-unticked or genuinely abandoned, and are indistinguishable until someone looks. If a file is unreachable, record the glob result and continue with what was found.
+
+    This is a consistency repair, not a new duty: `[[implement-phase]]` gate 9.0 duty 2 already reconciles "this version AND every other `docs/**/known-gaps.md`", and this command already claims below to mirror that gate. Scoping step 1 to the current version is what made the claim false, and it is why deferred work accumulated silently across releases while every individual release reported a clean reconciliation. A per-version sweep can only ever report on the version least likely to have stale gaps.
+
+    Expect the first widened run to surface a large backlog. That backlog is the finding, not a failure of the release: disposition it explicitly rather than re-deferring it wholesale, since an item deferred twice with no changed Reason is an item nobody has decided about.
 2. **Full architecture refactor** via `[[project-refactor]]` (the empty-dir / duplicate / orphan / structure-complexity detectors) plus `[[docs-layout-refactor]]`, leaving a clean, intuitive layout.
 2a. **Generated-doc regenerate-and-fail-on-stale**: use the handbook refresh owner and its source/output map for every live output, including topic folders and native generators. Fail the release when generated output is missing or stale, or required content/rendered evidence is absent. Run this as the first content step after green integration prerequisites and before version mutation; governance numbering does not move it after a version bump. For Nexus-Hub, `python scripts/check_release_preconditions.py --pre-version` is the read-only evidence gate. Unchanged verified dependencies reuse final-phase output; missing trees or build sources are never a no-op. After version-dependent mutation, rebuild only affected documents and recheck final-byte evidence before release qualification. A known-gap note cannot waive a failed required handbook.
-2b. **Living-reference snapshot**: snapshot living reference sources, including the source/output map, build inputs and verified outputs from `docs/handbooks/`, into `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/` at release close, with handbooks under `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/`. Name every snapshot for the version its content describes, not the release that merely prompted the copy. Require last-phase evidence (`<version_dir>/development/last-phase-evidence.md`) when a plan is in flight.
+2a2. **Closed-minor archival report**: list every minor under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/` that is fully closed - its `known-gaps.md` explicitly states a finalized or closed Status and `**Open items**: 0`, has no contradictory `OPEN` marker, in-progress or open status, unchecked box, or `NI-`/`DF-`/`BG-`/`WN-`/`MT-`/`QG-` id under Open Items, and none of its plans carries an unchecked task line - yet still holds `plans/` or `comparisons/` in the active tree. Those two subtrees move to `docs/archives/`; `known-gaps.md` stays active so the next `/plan` reads it without a directory hop. For Nexus-Hub, `python scripts/check_docs_retention.py` produces this list; it is repo-internal tooling and is not installed, so in any other repository apply the same closure test by reading the files. A minor with no `known-gaps.md` has no closure proof and is not reported as closed. Self-gates to a silent no-op in a repository with no `docs/releases/` tree. The move itself belongs to `[[docs-layout-refactor]]`.
+
+    **Report here; move under `[[docs-layout-refactor]]` with confirmation.** Relocating a directory tree and repairing its references is not something a release flow performs unattended, so this step surfaces the list and stops. The detector is deliberately conservative: an unparseable or ambiguous register and a minor with no register at all both read as OPEN, because a false "closed" archives live work while a false "open" costs one advisory line. Those two errors are not symmetric, which is why the check leans to the cheap one.
+
+2b. **Living-reference snapshot**: snapshot living reference sources, including the source/output map, build inputs and verified outputs from `docs/handbooks/`, into `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/` at release close, with handbooks under `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/`. Name every snapshot for the version its content describes, not the release that merely prompted the copy. Require last-phase evidence (`<version_dir>/development/<version>-last-phase-evidence.md`) when a plan is in flight.
 3. **CI/CD create/update/optimize**: ensure the pipeline covers every change in the release and is optimized to reduce action minutes (path filters, concurrency cancel-in-progress, caching, gating expensive-OS/matrix jobs) while keeping comprehensive testing.
 4. **Platform read-contract re-verification** via `[[platform-contract-verification]]`: for a distribution catalog whose installer targets multiple external AI platforms, re-verify each supported platform's CURRENT skill/command/rule/hook discovery format (via targeted web searches) so the next release is guaranteed to surface the catalog everywhere. The skill self-gates: it does real work only in a repo that ships `docs/policy/platform-read-contracts.md` + `scripts/lib/integrations/` (i.e. Nexus-Hub itself) and is a silent no-op in any other project, so the release flow stays generic. On drift it updates the machine-readable `docs/policy/platform-read-contracts.json` (mirrored into the `.md` table), the affected integration adapter, and both installers, adds a CHANGELOG note, and re-runs `scripts/verify_platform_contracts.py`. It then re-stamps the JSON's `meta.verified_for_version` (+ `last_verified`) to the release version. This last step is mandatory, not advisory: `scripts/check_platform_contract_freshness.py` (in `make validate` and CI) fails the release the moment the version is bumped past the stamped value, so the release cannot ship on a stale contract. Degrades gracefully offline (record 'unverified this cycle').
 
@@ -305,7 +326,7 @@ release by printing the handoff so the next session starts with a command rather
 than an investigation:
 
 ```bash
-python scripts/plan_status.py --next
+python ~/.nexus-hub/scripts/plan_status.py --next
 ```
 
 It reports the next plan with open tasks AT OR ABOVE the released version, the

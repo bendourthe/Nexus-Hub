@@ -2,7 +2,7 @@
 
 **Date**: 2026-06-18
 **Version**: v3.8.0
-**Plan**: [docs/releases/v3/v3.8/plans/adoption-ralph-claude-code.md](../../plans/adoption-ralph-claude-code.md)
+**Plan**: [docs/releases/v3/v3.8/plans/adoption-ralph-claude-code.md](../../../../../releases/v3/v3.8/plans/adoption-ralph-claude-code.md)
 **Comparison**: [docs/releases/v3/v3.8/comparisons/v3.8.0-comparison-ralph-claude-code.md](../../comparison-ralph-claude-code.md)
 **Branch**: `feat/loop-engineering-enrichment` -> merged to `develop`
 

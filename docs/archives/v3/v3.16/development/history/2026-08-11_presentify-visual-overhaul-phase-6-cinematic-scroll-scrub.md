@@ -1,7 +1,7 @@
 # Session History - v3.16.5 Phase 6: cinematic scroll-scrub
 
 **Date**: 2026-08-11
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../plans/v3.16.5-presentify-visual-overhaul.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../../../../releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md)
 **Phase**: 6 of 7 - the last feature phase; Phase 7 is the terminal gate
 **Branch**: `feat/v3.16.5-presentify-visual-overhaul` (worktree)
 **Model**: Opus 5. The plan recommends **frontier** at high effort; the maintainer had chosen Opus 5 for the three prior tier deltas, so that standing preference was applied rather than asking a fourth time.

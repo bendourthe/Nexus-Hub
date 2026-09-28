@@ -34,12 +34,12 @@ import platform
 from pathlib import Path
 from typing import Optional
 
-from scripts.lib.installer.instruction_merge import merge_marker_section
+from scripts.lib.installer.instruction_merge import merge_instruction
 
 from ._catalog_adapters import _split_frontmatter
 from ._command_surface import mirror_command_surface
 from ._copilot_native import build_copilot_hooks
-from ._owned import remove_dir_if_empty, write_owned_file
+from ._owned import refuse_managed_redirect, remove_dir_if_empty, write_owned_file
 from .base import InstallContext, MarkdownIntegration
 from .result import FileAction, WriteResult
 
@@ -91,7 +91,7 @@ def _copilot_skill_selection(val: Optional[str]) -> str:
     return v
 
 
-def _copilot_home() -> Path:
+def _copilot_home(home: Path | None = None) -> Path:
     """Return Copilot's user-profile root (``~/.copilot``).
 
     A module-level accessor rather than an inline ``Path.home()`` so tests can
@@ -100,20 +100,22 @@ def _copilot_home() -> Path:
     these two functions, which is what keeps a test run out of the developer's
     real home directory.
     """
-    return (Path.home() / _COPILOT_HOME).resolve()
+    return Path(
+        os.path.abspath((Path.home() if home is None else home) / _COPILOT_HOME)
+    )
 
 
-def _vscode_user_dir() -> Optional[Path]:
+def _vscode_user_dir(home_root: Path | None = None) -> Optional[Path]:
     """Return the VS Code (or Insiders) user-data dir, or None if not present.
 
     Windows: %APPDATA%/Code/User ; macOS: ~/Library/Application Support/Code/User ;
     Linux: ~/.config/Code/User. Falls back to the Insiders variant if stable is
     absent. Returns None when neither exists (VS Code not installed).
     """
-    home = Path.home()
+    home = Path.home() if home_root is None else home_root
     system = platform.system()
     if system == "Windows":
-        base = Path(os.environ.get("APPDATA") or (home / "AppData" / "Roaming"))
+        base = Path(os.environ.get("APPDATA") or (home / "AppData" / "Roaming")) if home_root is None else home / "AppData" / "Roaming"
     elif system == "Darwin":
         base = home / "Library" / "Application Support"
     else:
@@ -129,7 +131,7 @@ class CopilotIntegration(MarkdownIntegration):
     key = "copilot"
     display_name = "GitHub Copilot (Microsoft)"
     # v2.3.0 / Phase 7 / MT-1 -- Copilot now uses the canonical
-    # `merge_marker_section` primitive (like Cursor), migrating the v2.1
+    # marker merge (like Cursor; through `merge_instruction` since v4.13.3), migrating the v2.1
     # `## Nexus-Hub Harness` legacy header inline into the marker block so user
     # content above and below the block is preserved across re-installs.
     instruction_mode = "shared"
@@ -158,8 +160,9 @@ class CopilotIntegration(MarkdownIntegration):
         whole global write is skipped.
         """
         result = WriteResult()
-        user_dir = _vscode_user_dir()
-        copilot_home = _copilot_home()
+        redirected = ctx.explicit_target
+        user_dir = _vscode_user_dir(ctx.target_root) if redirected else _vscode_user_dir()
+        copilot_home = _copilot_home(ctx.target_root) if redirected else _copilot_home()
         if user_dir is None and not copilot_home.exists():
             ctx.manifest.log(
                 self.key,
@@ -172,18 +175,40 @@ class CopilotIntegration(MarkdownIntegration):
             return result
         result.detected = True
         if user_dir is not None:
-            prompts_dir = (user_dir / "prompts").resolve()
-            self._ensure_dir(prompts_dir, ctx)
-            result.files.extend(
-                mirror_command_surface(ctx, self.key, prompts_dir, suffix=".prompt.md")
+            raw_prompts_dir = user_dir / "prompts"
+            refusal = refuse_managed_redirect(
+                ctx, self.key, raw_prompts_dir / "nexus-hub-probe", user_dir
             )
+            if refusal is not None:
+                result.files.append(refusal)
+            else:
+                prompts_dir = raw_prompts_dir.resolve()
+                self._ensure_dir(prompts_dir, ctx)
+                result.files.extend(
+                    mirror_command_surface(ctx, self.key, prompts_dir, suffix=".prompt.md")
+                )
         if not ctx.instruction_only:
-            self._ensure_dir(copilot_home, ctx)
-            result.files.append(self._write_personal_instruction(copilot_home, ctx))
-            result.files.extend(self._install_global_agents(copilot_home, ctx))
-            result.files.extend(
-                self._install_native_hooks(copilot_home, ctx, scope="global")
+            refusal = refuse_managed_redirect(
+                ctx,
+                self.key,
+                copilot_home / "copilot-instructions.md",
+                copilot_home,
             )
+            if refusal is not None:
+                result.files.append(refusal)
+            else:
+                self._ensure_dir(copilot_home, ctx)
+                result.files.append(self._write_personal_instruction(copilot_home, ctx))
+                result.files.extend(
+                    self._install_global_agents(
+                        copilot_home, ctx, managed_root=copilot_home
+                    )
+                )
+                result.files.extend(
+                    self._install_native_hooks(
+                        copilot_home, ctx, scope="global", managed_root=copilot_home
+                    )
+                )
         return result
 
     # ----- global custom agents (v3.15.8 Phase 8) --------------------------
@@ -207,7 +232,11 @@ class CopilotIntegration(MarkdownIntegration):
         return None
 
     def _install_global_agents(
-        self, copilot_home: Path, ctx: InstallContext
+        self,
+        copilot_home: Path,
+        ctx: InstallContext,
+        *,
+        managed_root: Path | None = None,
     ) -> list[FileAction]:
         """Copy catalog agents to ``~/.copilot/agents/<name>.agent.md``, verbatim.
 
@@ -216,17 +245,22 @@ class CopilotIntegration(MarkdownIntegration):
         reached for Kimi. Writes go through ``write_owned_file`` so a user-authored
         agent at the same path is preserved and a drifted owned one is repaired.
         """
-        return self._install_agents(copilot_home / _COPILOT_AGENTS_SUBDIR, ctx)
+        return self._install_agents(
+            copilot_home / _COPILOT_AGENTS_SUBDIR, ctx, managed_root=managed_root
+        )
 
     def _install_agents(
-        self, dst_dir: Path, ctx: InstallContext
+        self,
+        dst_dir: Path,
+        ctx: InstallContext,
+        *,
+        managed_root: Path | None = None,
     ) -> list[FileAction]:
         """Copy catalog agents into one Copilot-native agent directory."""
         src_dir = ctx.repo_root / "catalog" / "agents"
         if not src_dir.exists():
             ctx.manifest.log(self.key, f"missing-tree: {src_dir}")
             return [FileAction(path=str(src_dir), action="not-found")]
-        self._ensure_dir(dst_dir, ctx)
         actions: list[FileAction] = []
         for md in sorted(src_dir.glob("*.md")):
             content = md.read_bytes()
@@ -235,7 +269,15 @@ class CopilotIntegration(MarkdownIntegration):
                 ctx.manifest.log(self.key, f"skip agent ({reason}): {md.name}")
                 continue
             dst = dst_dir / f"{md.stem}{_AGENT_SUFFIX}"
-            actions.append(write_owned_file(ctx, self.key, dst, content))
+            actions.append(
+                write_owned_file(
+                    ctx,
+                    self.key,
+                    dst,
+                    content,
+                    managed_root=managed_root or dst_dir.parent,
+                )
+            )
         return actions
 
     def _write_personal_instruction(
@@ -246,11 +288,8 @@ class CopilotIntegration(MarkdownIntegration):
         if not template.exists():
             return FileAction(path=str(template), action="not-found")
         dst = copilot_home / "copilot-instructions.md"
-        action = merge_marker_section(
-            dst,
-            self._render(template, ctx),
-            legacy_header="## Nexus-Hub",
-            dry_run=ctx.dry_run,
+        action = merge_instruction(
+            dst, self._render(template, ctx), ctx=ctx, legacy_header="## Nexus-Hub"
         )
         ctx.manifest.track_shared(self.key, str(dst))
         return action
@@ -271,6 +310,7 @@ class CopilotIntegration(MarkdownIntegration):
         ctx: InstallContext,
         *,
         scope: str,
+        managed_root: Path | None = None,
     ) -> list[FileAction]:
         """Write one Copilot-native hook file and its referenced scripts."""
         src_hooks = ctx.repo_root / "catalog" / "hooks"
@@ -295,6 +335,7 @@ class CopilotIntegration(MarkdownIntegration):
                 self.key,
                 scripts_root / script,
                 (src_hooks / script).read_bytes(),
+                managed_root=managed_root or copilot_home_or_github,
             )
             for script in sorted(scripts)
         ]
@@ -311,6 +352,7 @@ class CopilotIntegration(MarkdownIntegration):
                 self.key,
                 scripts_root / "copilot-hook-compat.py",
                 compat_source.read_bytes(),
+                managed_root=managed_root or copilot_home_or_github,
             )
         )
         actions.append(
@@ -319,6 +361,7 @@ class CopilotIntegration(MarkdownIntegration):
                 self.key,
                 hooks_root / "nexus-hub.json",
                 (json.dumps(payload, indent=2) + "\n").encode("utf-8"),
+                managed_root=managed_root or copilot_home_or_github,
             )
         )
         return actions
@@ -327,7 +370,7 @@ class CopilotIntegration(MarkdownIntegration):
         """Run the manifest sweep, then drop native directories if they emptied."""
         result = super().teardown(ctx)
         if ctx.scope == "global":
-            root = _copilot_home()
+            root = _copilot_home(ctx.target_root) if ctx.explicit_target else _copilot_home()
         else:
             root = (ctx.target_root / ".github").resolve()
         remove_dir_if_empty(root / _COPILOT_AGENTS_SUBDIR, ctx, result)
@@ -340,6 +383,13 @@ class CopilotIntegration(MarkdownIntegration):
     def install_workspace(self, ctx: InstallContext) -> WriteResult:
         result = WriteResult()
         rel = self.config["workspace_dir"]
+        raw_target = ctx.target_root / rel
+        refusal = refuse_managed_redirect(
+            ctx, self.key, raw_target / self.config["instruction_file"], raw_target
+        )
+        if refusal is not None:
+            result.files.append(refusal)
+            return result
         target = (ctx.target_root / rel).resolve()
         self._ensure_dir(target, ctx)
         dst = target / self.config["instruction_file"]
@@ -349,20 +399,21 @@ class CopilotIntegration(MarkdownIntegration):
             result.files.append(FileAction(path=str(template), action="not-found"))
             return result
         rendered = self._render(template, ctx)
-        action = merge_marker_section(
-            dst,
-            rendered,
-            legacy_header="## Nexus-Hub Harness",
-            dry_run=ctx.dry_run,
-        )
+        action = merge_instruction(dst, rendered, ctx=ctx, legacy_header="## Nexus-Hub Harness")
         ctx.manifest.track_shared(self.key, str(dst))
         result.files.append(action)
         if not ctx.instruction_only:
             result.files.extend(
-                self._install_agents(target / self.config["agents_subdir"], ctx)
+                self._install_agents(
+                    target / self.config["agents_subdir"],
+                    ctx,
+                    managed_root=ctx.target_root / rel,
+                )
             )
             result.files.extend(
-                self._install_native_hooks(target, ctx, scope="workspace")
+                self._install_native_hooks(
+                    target, ctx, scope="workspace", managed_root=ctx.target_root / rel
+                )
             )
         return result
 
@@ -397,13 +448,29 @@ class CopilotIntegration(MarkdownIntegration):
         # They land under the same COMMIT-VISIBLE .github/ tree the opt-in exists to
         # protect, so gating skills while writing these unconditionally would put 82
         # uninvited files into every consuming repository (v4.3.0 Phase 5 regression).
-        github_root = (ctx.target_root / ".github").resolve()
+        raw_github_root = ctx.target_root / ".github"
+        refusal = refuse_managed_redirect(
+            ctx, self.key, raw_github_root / "agents" / "nexus-hub-probe", raw_github_root
+        )
+        if refusal is not None:
+            result.files.append(refusal)
+            return result
+        github_root = raw_github_root.resolve()
         if not ctx.instruction_only:
             result.files.extend(
-                self._install_agents(github_root / self.config["agents_subdir"], ctx)
+                self._install_agents(
+                    github_root / self.config["agents_subdir"],
+                    ctx,
+                    managed_root=ctx.target_root / ".github",
+                )
             )
             result.files.extend(
-                self._install_native_hooks(github_root, ctx, scope="workspace")
+                self._install_native_hooks(
+                    github_root,
+                    ctx,
+                    scope="workspace",
+                    managed_root=ctx.target_root / ".github",
+                )
             )
         skills_root = (ctx.target_root / ".github" / "skills").resolve()
         for name in self._curated_skill_names(ctx):

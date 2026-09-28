@@ -20,6 +20,7 @@ _HOOKS_DIR = Path(__file__).resolve().parent.parent
 _COMPAT = _HOOKS_DIR / "cursor-hook-compat.py"
 
 _SHELL_HOOKS = (
+    "attribution-guard",
     "compress-output",
     "escalation-trigger",
     "git-guardrails",
@@ -30,6 +31,7 @@ _SHELL_HOOKS = (
     "require-description",
     "require-powershell-description",
     "secret-scan",
+    "user-edit-guard",
 )
 
 _PYTHON_HOOKS = (

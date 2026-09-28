@@ -1,7 +1,7 @@
 # Session History - v3.9.0 adoption-no-mistakes Phase 3: PR body, optional session matching, and consolidation
 
 **Date**: 2026-06-25
-**Plan**: [`../../plans/adoption-no-mistakes.md`](../../plans/adoption-no-mistakes.md) Phase 3 (N5 deterministic PR body, N7 build-or-defer decision, RE-matrix declines, registry-edit decision, CHANGELOG + known-gaps consolidation)
+**Plan**: [`../../plans/adoption-no-mistakes.md`](../../../../../releases/v3/v3.9/plans/adoption-no-mistakes.md) Phase 3 (N5 deterministic PR body, N7 build-or-defer decision, RE-matrix declines, registry-edit decision, CHANGELOG + known-gaps consolidation)
 **Branch**: `develop`
 **Outcome**: Complete. All Phase 3 exit-checklist items satisfied except the release-readiness run; quality gate GO. This is the final phase of the plan, so the post-phase sequence routes to `/update release` (held for user confirmation -- no commit, tag, or push performed automatically).
 

@@ -224,6 +224,65 @@ def test_workspace_wraps_override_and_passes_push_stdin(sandbox):
     ).stdout.strip() == str(custom)
 
 
+def test_workspace_guard_survives_installer_worktree_removal(sandbox):
+    run, _, home = sandbox
+    run("git", "commit", "--allow-empty", "-m", "Base")
+    source_worktree = home / "temporary worktree"
+    run("git", "worktree", "add", "-q", "-b", "temporary", str(source_worktree))
+    source = source_worktree / "attribution.py"
+    shutil.copyfile(GUARD, source)
+    run(sys.executable, str(source), "install", "--workspace")
+    run("git", "worktree", "remove", "--force", str(source_worktree))
+
+    guard(run, "check")
+    run("git", "commit", "--allow-empty", "-m", "After removal")
+    result = run(
+        "git",
+        "commit",
+        "--allow-empty",
+        "-m",
+        "Blocked\n\nCo-Authored-By: Claude <c@anthropic.com>",
+        code=None,
+    )
+    assert result.returncode != 0 and "attribution trailers" in result.stderr
+
+
+def test_workspace_guard_detects_modified_copy_and_stale_source(sandbox):
+    run, repo, home = sandbox
+    source = home / "attribution.py"
+    shutil.copyfile(GUARD, source)
+    run(sys.executable, str(source), "install", "--workspace")
+    durable = repo / ".git/nexus-attribution-hooks/guard.py"
+    assert durable.is_file()
+
+    source.write_bytes(source.read_bytes() + b"\n# newer source\n")
+    result = run(sys.executable, str(source), "check", code=None)
+    assert result.returncode != 0 and "Reinstall the guard" in result.stderr
+
+    run(sys.executable, str(source), "install", "--workspace")
+    run(sys.executable, str(source), "check")
+    durable.write_bytes(durable.read_bytes() + b"\n# modified copy\n")
+    result = run(sys.executable, str(source), "check", code=None)
+    assert result.returncode != 0 and "Reinstall the guard" in result.stderr
+
+
+@pytest.mark.parametrize(
+    ("installed_eol", "checked_eol"),
+    [(b"\n", b"\r\n"), (b"\r\n", b"\n")],
+)
+def test_workspace_guard_accepts_equivalent_source_line_endings(
+    sandbox, installed_eol, checked_eol
+):
+    run, _, home = sandbox
+    source = home / "attribution.py"
+    canonical = GUARD.read_bytes().replace(b"\r\n", b"\n")
+    source.write_bytes(canonical.replace(b"\n", installed_eol))
+    run(sys.executable, str(source), "install", "--workspace")
+    source.write_bytes(canonical.replace(b"\n", checked_eol))
+
+    run(sys.executable, str(source), "check")
+
+
 def test_missing_identity_installs_blocking_guard(sandbox):
     run, _, _ = sandbox
     run("git", "config", "--global", "--unset", "user.email")
@@ -588,3 +647,48 @@ def test_new_branch_push_scans_what_it_adds_not_the_whole_history(sandbox):
     result = run("git", "push", "origin", "feature:refs/heads/second", code=None)
     assert result.returncode != 0 and "attribution trailers" in result.stderr
     assert "second" not in run("git", "ls-remote", str(remote)).stdout
+
+
+def test_new_branch_push_does_not_trust_another_remotes_history(sandbox):
+    run, _, home = sandbox
+    upstream = home / "upstream.git"
+    destination = home / "destination.git"
+    for remote in (upstream, destination):
+        run("git", "init", "--bare", "-q", str(remote))
+    run(
+        "git",
+        "commit",
+        "--allow-empty",
+        "-m",
+        "Pre-guard\n\nCo-Authored-By: Claude <c@anthropic.com>",
+    )
+    run("git", "remote", "add", "upstream", str(upstream))
+    run("git", "push", "-q", "upstream", "HEAD:refs/heads/main")
+    run("git", "fetch", "-q", "upstream")
+    guard(run, "install")
+
+    result = run("git", "push", str(destination), "HEAD:refs/heads/main", code=None)
+    assert result.returncode != 0 and "attribution trailers" in result.stderr
+    assert not run("git", "ls-remote", str(destination)).stdout
+
+
+def test_new_branch_push_does_not_trust_stale_destination_tracking_ref(sandbox):
+    run, _, home = sandbox
+    destination = home / "destination.git"
+    run("git", "init", "--bare", "-q", str(destination))
+    run(
+        "git",
+        "commit",
+        "--allow-empty",
+        "-m",
+        "Pre-guard\n\nCo-Authored-By: Claude <c@anthropic.com>",
+    )
+    run("git", "remote", "add", "destination", str(destination))
+    run("git", "push", "-q", "destination", "HEAD:refs/heads/main")
+    run("git", "fetch", "-q", "destination")
+    run("git", "--git-dir", str(destination), "update-ref", "-d", "refs/heads/main")
+    guard(run, "install")
+
+    result = run("git", "push", "destination", "HEAD:refs/heads/main", code=None)
+    assert result.returncode != 0 and "attribution trailers" in result.stderr
+    assert not run("git", "ls-remote", str(destination)).stdout

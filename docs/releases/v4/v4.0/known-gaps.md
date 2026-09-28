@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: finalized for the v4.0.0 release
-**Last updated**: 2026-08-27
+**Last updated**: 2026-09-25
 
 ## Release finalization - v4.0.0
 
@@ -30,10 +30,10 @@ The burden is therefore opt-in but real: a project that WANTS the new shape runs
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 1 | 1 |
+| Deferred (DF) | 0 | 2 |
 | Bugs / regressions (BG) | 0 | 3 |
-| Warnings (WN) | 0 | 0 |
-| Missing tests / coverage gaps (MT) | 2 | 1 |
+| Warnings (WN) | 0 | 1 |
+| Missing tests / coverage gaps (MT) | 1 | 2 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
@@ -44,12 +44,12 @@ None.
 
 #### Deferred
 
-##### DF-1 - The non-lockstep seven templates are not byte-locked by the release gate
+##### DF-1 (resolved) - The non-lockstep templates lacked a release-gate contract check
 
 - **Source phase**: Phase 3 - Instruction-template rollout and parity gate
 - **Plan reference**: `docs/v4/v4.0/plans/v4.0.0-agent-communication-overhaul.md` (sub-task 3.3 failure modes)
-- **Reason**: `scripts/check_base_template_parity.py` has a five-file roster by design. The guardrails five, `base-google-shared.md`, and `generic-instructions.md` legitimately differ from the lockstep five elsewhere in the file, so widening the roster would produce false failures on content that is correct. The contract section itself has no valid per-platform variation, so drift there IS checkable, and `tests/validators/test_communication_contract_rollout.py::test_contract_body_is_identical_across_every_substantive_template` checks it across all 12. That is stronger than the plan anticipated (it compares bodies, not just headings), but it runs in the pytest suite rather than in the `make validate` chain, so a drift is caught at test time rather than at release-gate time.
-- **Suggested next step**: If the validator chain should own this, extract the body-identity comparison into a small repo-internal script under `scripts/` and add it to the `validate` target, leaving the parity gate's five-file roster untouched. The test already contains the comparison logic, so this is a move, not a rewrite.
+- **Original reason**: `scripts/check_base_template_parity.py` has a five-file roster by design. The other substantive templates legitimately differ elsewhere, but their contract section has no valid per-platform variation. The pytest suite checked body identity without being part of `make validate`.
+- **Resolution on 2026-09-22**: The existing aggregate suite now runs in `make validate` and the native full profile's `platform-contracts` group. Its roster classifies all 17 templates and compares contract bodies across all 13 substantive templates; 36 focused tests pass. The five-file byte-lock roster stays unchanged.
 
 #### Bugs / Regressions
 
@@ -57,13 +57,14 @@ None open.
 
 #### Warnings
 
-##### WN-2 - A concurrent branch adds a thirteenth instruction template that will need the lifecycle block
+##### WN-2 (resolved) - A concurrent branch added a thirteenth instruction template
 
 - **Source phase**: Phase 8 - Architecture refactor, known-gaps reconciliation, and CI/CD
 - **What was observed**: during Phase 8 the working tree acquired unrelated in-progress work from a concurrent session (a `pi` platform integration and a `grill` command), including an untracked `templates/ai-instructions/base-pi.md`. That file is NOT on `develop` and is not part of this plan; only files tracing to this plan were staged, and this plan's eight commits contain none of it.
 - **Why it is recorded here**: `tests/skills/test_cicd_lifecycle_contract.py::test_template_roster_matches_the_directory` failed against that dirty worktree, which is the guard working exactly as designed - a new template must be classified or it silently escapes the lifecycle rollout. The failure does not exist on `develop`, where the file is absent.
 - **What the other branch must do when it lands**: classify `base-pi.md` in the roster (substantive or surface-note stub) and, if substantive, add the `## Plan Lifecycle and CI/CD` block body-identical to the other twelve. The assertion message names both obligations.
 - **Suggested next step**: none for this plan. This is a note for whoever merges the `pi` integration, so the failure reads as an expected checklist item rather than a mystery.
+- **Resolution on 2026-09-22**: `base-pi.md` is in the substantive roster and has the lifecycle block. The lifecycle contract suite passes 55 tests, including roster classification and body checks.
 
 
 None.
@@ -77,11 +78,11 @@ None.
 - **Reason**: Prose tone is not machine-checkable at `PreToolUse` time. The tests in this version prove that the contract is PRESENT and IDENTICAL everywhere it should be; nothing proves that a given response OBEYED it. This was considered and rejected as a hook gate in `docs/decisions/implemented/policy/2026-08-18-agent-communication-contract.md`; the gap is recorded here so it is visible rather than implied.
 - **Suggested next step**: The mechanically checkable subset is narrow but real: a response containing a fenced command block with an unflagged `<...>`, `[...]`, or ALL-CAPS template token is detectable by pattern. If a future version wants partial enforcement, that single rule is the one worth automating; the rest stays advisory.
 
-##### MT-3 - Nothing locally enforces the CI Python floor
+##### MT-3 (resolved) - The local gate did not enforce the CI Python floor
 
 - **Source phase**: Phase 5 - Architecture refactor, known-gaps reconciliation, and CI/CD
 - **Reason**: CI runs Python 3.11.16; this workstation runs 3.12.10. Syntax accepted by the newer interpreter and rejected by the older one passes every local gate and fails in CI at import time, taking out a whole job rather than one test. This is not hypothetical: it happened on this branch (BG-3 below). No local check, hook, or validator asserts that repository Python parses under the CI version.
-- **Suggested next step**: A cheap guard exists. `ast.parse(src, feature_version=(3, 11))` over the repository's `.py` files detects exactly this class in well under a second and needs no extra dependency, no second interpreter, and no outbound call. It would fit the `validate` chain beside the other repo-internal guards. Declaring the floor in one place (it is currently implicit in the CI `setup-python` version) is the prerequisite.
+- **Resolution on 2026-09-22**: `scripts/check_python_floor.py` parses all tracked Python files using an actual Python 3.11 interpreter and runs in `make validate` and the native fast/full profiles. Its regression controls pass: compatible syntax succeeds, a Python 3.12-only multiline f-string fails, and invalid UTF-8 fails. All 790 tracked files pass the 3.11 scan. A newer interpreter's `ast.parse(..., feature_version=(3, 11))` accepted that same f-string, disproving the original suggested shortcut; the guard fails clearly when Python 3.11 is not installed.
 
 #### Quality-Gate Gaps
 
@@ -142,9 +143,9 @@ None.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 2 | 0 |
+| Deferred (DF) | 0 | 2 |
 | Bugs / regressions (BG) | 0 | 1 |
-| Warnings (WN) | 3 | 0 |
+| Warnings (WN) | 2 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -154,6 +155,10 @@ None.
 
 ##### DF-1 - Report artifacts are published to the run summary, not uploaded
 
+**Follow-up status, 2026-09-22**: The existing pinned `actions/upload-artifact` reference now uploads seven-day report bundles from the validation, shell, test, Windows, post-merge, and release-readiness jobs; the guide-render job also emits and uploads JUnit. The local workflow contract passed 63 tests, the fast profile passed 16 checks, and the guide command wrote JUnit after 380 passing tests and one optional skip. This gap remains open until a pull-request run proves that the artifacts are retained on GitHub.
+
+**Resolution, 2026-09-22**: PR #235 passed hosted run 35799198474 with five uploaded report artifacts and post-merge run 35801251735. PR #243 then published a seven-day aggregate containing five source receipts, coverage XML, and SARIF, with the exact hashes and expiry recorded in the [v4.3 hosted qualification](../../../archives/v4/v4.3/development/ci-report-producer-hosted-qualification.md). The original summary-only behavior below remains historical evidence; DF-1 is resolved.
+
 - **Source phase**: Phase 7 - Nexus-Hub workflow migration
 - **Plan reference**: `docs/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` (T049)
 - **Reason**: The lifecycle contract section 6 asks for detailed reports uploaded with `if: always()` and a short explicit retention period. Uploading requires `actions/upload-artifact`, and every third-party action in this repository is pinned to a full 40-character commit SHA. That SHA has to be FETCHED from the vendor; it cannot be recalled or inferred. Nexus-Hub has made exactly this mistake before, in the opposite direction: the `.kimi/agent.yaml` companion shipped in v3.15.0 was fabricated rather than found, and had to be dropped. Writing a plausible-looking SHA would break every run at once, and writing a floating `@v4` tag would violate the pinning rule the same phase asserts.
@@ -161,6 +166,8 @@ None.
 - **Suggested next step**: fetch the current `actions/upload-artifact` release SHA from the vendor, add one upload step per lifecycle workflow with `if: always()` and `retention-days: 7`, and remove the exemption. `scripts/validate_workflow_security.py` already fails an `upload-artifact` step that omits `retention-days`, so the guard is in place before the feature is.
 
 ##### DF-2 - The `full` profile has not been run end to end on this host
+
+**Resolution, 2026-09-22**: After the full profile was partitioned at stable repository-test ownership boundaries, a Windows run on this development host completed all 59 commands in 7,208.2 seconds with zero failures, skips, or advisories. The [v4.12 quality-gate ledger](../v4.12/known-gaps.md) preserves the earlier timeout separately. This resolves the missing aggregate-invocation proof, not the original slow-run failure.
 
 - **Source phase**: Phase 6 and Phase 7
 - **Reason**: `python scripts/ci/run.py --profile full` was started and had not completed after roughly 50 minutes on this workstation. The profile runs the whole `catalog/hooks/tests` tree, the whole `tests/` tree, and six extension suites in sequence; `tests/skills` plus `tests/validators` alone take 9.5 minutes, and the extension suites require their packages to be pip-installed. The per-command timeouts (1800s for hooks, 3600s for the repo suite, 900s per extension) bound the worst case at roughly 2.5 hours, so it is slow rather than hung.
@@ -172,6 +179,8 @@ None.
 #### Warnings
 
 ##### WN-1 - The new event topology has not been exercised against real GitHub
+
+**Resolution, 2026-09-22**: Docs-only PR #245 passed all five declared contexts (`validate`, `shellcheck`, `ci-required`, `colocation`, `verify`) while unrelated expensive legs skipped; its post-merge run 35828718066 passed smoke and provenance. PR #243's merge independently produced successful post-merge run 35826047174, and the tagged v4.12.0 release workflow passed run 34939156733. These hosted events exercise pull request, integration-branch push, and tag paths separately. WN-1 is resolved as a workflow-observation gap; actual branch protection settings are a separate open security decision.
 
 - **Source phase**: Phase 7 - Nexus-Hub workflow migration
 - **Reason**: Every assertion about the new topology is static: YAML parsing, trigger inspection, and contract tests. Nothing has yet observed GitHub actually running `ci.yml` on a pull request, `post-merge.yml` on a merge, and `release.yml` on a tag, or confirmed that the five required contexts still resolve. That evidence can only come from the plan's own publication in Phase 8, which is the first real-world test of the change.
@@ -205,12 +214,16 @@ None.
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 0 | 5 |
-| Warnings (WN) | 2 | 0 |
+| Bugs / regressions (BG) | 0 | 6 |
+| Warnings (WN) | 0 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
+
+None.
+
+### Resolved Items
 
 #### Bugs / Regressions
 
@@ -224,18 +237,19 @@ None.
 - **Deterministic regression test**: `test_save_config_never_exposes_a_truncated_file` spies on `os.replace` and asserts the destination still holds the complete previous content at the instant of the swap, so the property is asserted rather than raced for. Verified in both directions: it FAILS against the restored `write_text` implementation and passes against the fix. A second test asserts no temp file is left behind.
 - **Why it was fixed during the release**: this surfaced as a red `tests` required check on the release promotion PR (#128), one worker exiting 1 out of four. Re-running the job would have shipped a known race that intermittently breaks CI for every consumer.
 
-##### BG-2 - global integration runner ignores the explicit target root for home-relative destinations
+##### BG-2 (resolved locally) - global integration runner ignored the explicit target root for home-relative destinations
 
 - **Source phase**: Phase 5 - Distribution to every platform class
 - **What was observed**: `runner.py install --scope global --target <throwaway>` documents the target as the global home root, but `SkillsIntegration.install_global` resolves configured destinations from `Path.home()` instead of `ctx.target_root`. A Phase 5 proof run therefore refreshed managed Codex and Copilot surfaces under the real user profile while writing only its manifest and summary under the throwaway target.
 - **Immediate containment**: the newly inserted `Documentation Layout` block was removed from the user-level Codex `AGENTS.md`, preserving the existing managed markers and surrounding content. The remaining touched files were installer-owned generated surfaces; the run manifest records each action and checksum at `%TEMP%/nexus-phase5-20260826-a7f34c/.nexus-hub/install-manifest.json`.
 - **Reproduction status**: deterministic. The run summary names `%USERPROFILE%\.codex\AGENTS.md` even though the supplied target was `%TEMP%/nexus-phase5-20260826-a7f34c`. The base implementation uses `(Path.home() / rel).resolve()` for global instruction destinations.
-- **Suggested next step**: in the user-requested post-Phase-7 known-gaps pass, make every global integration resolve through the explicit target root, add a regression test proving an isolated target cannot touch the process home, and verify the documented default still resolves to the actual home when `--target` is omitted.
+- **Resolution**: The runner now distinguishes an explicit `--target` from the default global install. Global integration writers, platform defaults, Copilot's VS Code profile, and organization-knowledge connection lookup resolve through that target. OpenClaw skips configured state, config, or workspace paths that escape it. Legacy cleanup skips real-host file, extension, and scheduled-task removal during an explicit-target install. With no `--target`, the existing real-home resolution remains unchanged.
+- **Verification**: `test_explicit_global_target_does_not_touch_user_home` installs Codex into an isolated target while fake-home instruction and legacy-skill sentinels remain unchanged; the existing no-target home test also passes. The affected installer and platform-default suites passed with 146 passes and 2 optional skips; 26 selected global-path integration cases passed; the native Windows fast profile passed 17/17; the documentation group passed 8/8 after handbook evidence refresh. The broader platform suite was interrupted after a partial run and is not counted as passed.
 
 ##### BG-3 - RESOLVED - `link-baseline diff` was not move-aware, so its own gate could not report zero on a whole-tree move
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
-- **Plan reference**: `docs/releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3)
+- **Plan reference**: `docs/archives/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3)
 - **What was observed**: `cmd_diff` is a plain set difference over `(source, link, resolved_target)` tuples. A file that MOVES changes its `source` key, so every pre-existing broken link inside it is reported as `newly_broken` while its old tuple is reported as `fixed`. On this migration the raw diff read 873 `newly_broken` / 638 `fixed` when the true count of links broken BY the move was 444, and 0 after repair.
 - **Why it matters**: the plan's acceptance gate is "zero `newly_broken`". As shipped, that gate is unreachable for the exact operation it was built to prove, and a maintainer reading the raw number would either block a correct migration or learn to ignore the gate.
 - **How Phase 6 proved the property instead**: the before-baseline was normalized into post-move coordinates through the rename map, then compared on `(source, resolved_target)` pairs. That comparison reports 0 `newly_broken`, 59 `fixed`, 774 `unchanged`. The normalization script and its output are recorded in the phase session history.
@@ -244,7 +258,7 @@ None.
 ##### BG-4 - RESOLVED - `old-version-docs-guard` treated the highest version directory as the active version
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
-- **Plan reference**: `docs/releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3, "prove the Phase 4 guard live rather than only in fixtures")
+- **Plan reference**: `docs/archives/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3, "prove the Phase 4 guard live rather than only in fixtures")
 - **What was observed**: active-version detection selects the newest `docs/releases/v*/v*/` directory on disk. This repository keeps directories for roadmapped future work (`v4.1`, `v4.2`), so the guard resolves active as `v4.2`. Writing to `docs/releases/v4/v4.0/known-gaps.md` - the version actually being built - emits `Writing to historical version v4.0 ... (active is v4.2)`, while writing to a future directory stays silent.
 - **Reproduction status**: deterministic via the `.ps1` sibling. Pre-existing rather than migration-caused: `docs/v4/v4.1/` and `docs/v4/v4.2/` are both present in the pre-move inventory, so the guard has mis-detected in this repository since those directories were created. Phase 6 is simply the first run against the real tree instead of fixtures.
 - **Resolution**: both siblings now read the declared version from `.claude-plugin/plugin.json` first and fall back to the directory maximum only when no manifest is present, so a roadmapped future directory can no longer be mistaken for the active version. Three regression tests, parametrized over both siblings, cover the future-directory case, a genuinely old directory still warning, and the unchanged no-manifest fallback. Verified live against the real tree: `docs/releases/v3/v3.21/` and `docs/releases/v4/v4.0/` are silent while `docs/releases/v3/v3.1/` and `docs/archives/v2/v2.1/` warn, identically on Bash and PowerShell.
@@ -257,18 +271,17 @@ None.
 - **The test suite hides it rather than catching it**: `catalog/hooks/tests/test_old_version_docs_guard.py` skips every Bash-leg case with `jq is required by the Bash hook`. On this workstation that suite reports `22 passed, 27 skipped` - green - while the entire Bash half of the sibling-parity contract goes unexercised. A skip standing in for an absent dependency is indistinguishable in the summary line from a passing assertion.
 - **Resolution**: `old-version-docs-guard.sh` now falls back to `python3`/`python` for JSON parsing when `jq` is absent, which every supported platform already requires. The test fixture's skip condition was the other half of the defect: it gated on `jq` alone, so the entire Bash leg silently retired on any host without it. It now skips only when NEITHER parser is present. On this workstation that turns `22 passed, 27 skipped` into `46 passed, 0 skipped` -- the Bash leg is genuinely exercised for the first time here. Other bash hooks that gate on `jq` are NOT changed by this entry; they are a separate sweep, and this fix is deliberately scoped to the hook this plan touched.
 
-##### BG-6 - PARTIALLY RESOLVED - two dead documentation links predated the migration; one is repaired
+##### BG-6 (resolved) - two dead documentation links predated the migration
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
 - **What was observed**: `docs/releases/v3/v3.18/development/github-drawdown-ledger.md` and `docs/releases/v3/v3.2/comparison-loop-engineering.md` are referenced but exist nowhere in the repository. Both appear in the pre-move baseline, so neither was caused by this migration. The referring link text was updated to the new container so it no longer names a directory that no longer exists; the targets themselves were not invented.
 - **Resolution of the first**: `comparison-loop-engineering.md` does exist, at `docs/releases/v3/v3.2/comparisons/v3.2.0-comparison-loop-engineering.md`. The stale reference used the pre-convention flat form; it now points at the real file and resolves.
-- **Still open, the second**: `github-drawdown-ledger.md` was added by commit `5b070c3b` under `docs/v3/v3.18/development/` and exists nowhere in the tree today. Only `v3.18/development/history/` was archived, so the file was DELETED rather than archived - which is itself a finding about that retention pass, not about this migration. It is cited as evidence by an implemented decision record, so the citation was left in place rather than silently re-aimed at a different document.
-- **Suggested next step**: recover the file from `5b070c3b` into `docs/archives/v3/v3.18/development/` so the decision record's evidence is readable again, or amend the record to state that its evidence was lost and why. Do not create a placeholder file to silence the checker.
+- **Resolution of the second**: The v3.18.2 withdrawal decision explicitly required deletion of the GitHub usage monitor, its policy, and its ledger. Restoring the ledger would reverse that decision. The superseded weighting decision now states why the files are absent, preserves the falsifier, and gives the exact `git show` command to recover the ledger from commit `5b070c3b`; its dead links were removed.
 
 
 #### Warnings
 
-##### WN-1 - three extension suites cannot run to a meaningful result on this workstation
+##### WN-1 (resolved locally) - three extension suites cannot run to a meaningful result on this workstation
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
 - **What was observed**: running the six `make test` extension suites gives `nexus-skill-server` 43 passed, `nexus-skill-scanner` 89 passed, and `nexus-memory` 51 passed / 1 skipped, but `nexus-code-search` fails collection with `ModuleNotFoundError: No module named 'nexus_code_search.config'`, `nexus-web-fetch` reports 3 collection errors, and `nexus-context-compressor` reports 3 failed / 234 passed.
@@ -276,23 +289,31 @@ None.
 - **Relationship to existing gaps**: the same environment class as the carried DF-2, which already records that the extension suites need their packages pip-installed. Recorded separately because the specific missing pieces are now identified rather than assumed.
 - **Suggested next step**: install the missing language grammar and the two extension packages in the development environment, then re-run the six suites and record the result. Until then, CI is the authoritative run for these three suites, which is the same conclusion DF-2 reached for the aggregate profile.
 
-##### WN-2 - the migration makes the lifespan-contradiction detector report 243 findings at once
+**Resolution, 2026-09-24**: A disposable Windows virtual environment installed all six declared development extras through the documented editable-install path. The six extension suites passed 828 tests with four skips; the three original failure signatures disappeared. A separate non-editable wheel build exposed duplicate inclusion of an in-package fixture and an absent default benchmark corpus. Both wheel boundaries have targeted regression tests and installed-package verification in the [archived qualification](../../../archives/v4/v4.0/development/extension-suite-and-wheel-qualification.md). The final code-search wheel passed 381 tests with one skip, and its installed benchmark gate passed. PR #287 passed 22 hosted checks and merged to `develop` at `7a46cc37`; post-merge run 36066086467 passed smoke and provenance. The original failed results above remain historical evidence.
+
+##### WN-2 (resolved) - the migration makes the lifespan-contradiction detector report 243 findings at once
 
 - **Source phase**: Phase 7 - Architecture refactor, known-gaps reconciliation, and CI/CD
 - **What was observed**: `audit-docs.py lifespan-contradictions` reports 243 files across 20 release buckets, every one with today's `offending_commit_date`. The cause is structural rather than accidental: a whole-tree migration must rewrite link targets inside frozen release buckets to keep those documents navigable, and any commit touching a frozen file is by definition a lifespan contradiction. Two features shipping in the same release interact, and the detector is correct on its own terms.
 - **Blast radius**: none automated. The check is standalone - it is not in the `make validate` chain and no CI profile or workflow invokes it - so it gates nothing. It exits 1 when findings exist, which is its documented contract.
 - **Why it is not silently suppressed**: exempting the migration commit would require the detector to distinguish a link-target repair from a content edit, which it cannot do from commit dates alone, and adding a date-based amnesty would blunt the signal permanently for a one-time event.
 - **Suggested next step**: after v4.0.0 is tagged, re-run the detector and treat the post-tag result as the real baseline; a finding dated after that tag is a genuine contradiction. If the noise recurs on future migrations, the durable fix is an explicit re-baseline marker the detector reads, not a heuristic over diffs.
+- **Post-tag recheck on 2026-09-24**: On clean `origin/develop` at `dab05720`, the standalone detector exited 1 with 1,419 findings across release buckets, including five in `v4.0` after the `v4.0.0` tag. The five are `known-gaps.md`, two plans, `development/ci-cd-profile-guide.md`, and `development/github-ci-settings-runbook.md`. The original 243-file migration count is not the current baseline. The retention policy keeps `known-gaps.md` active and allows live, referenced documents under `development/`, so the five require document-specific classification before any exception, relocation, or WN-2 closure; this recheck does not resolve the warning.
+- **Scoped detector correction on 2026-09-24**: A candidate change excludes only a minor-root `known-gaps.md`, which the retention policy deliberately keeps active. Legacy and canonical regression cases still report a nested same-name file and another post-close document. The real-tree candidate scan reports 1,387 findings across buckets, four in `v4.0`, and zero minor-root known-gaps findings. The two plans, CI profile guide, and GitHub settings runbook remain visible; no date amnesty or broad release-bucket suppression was applied. WN-2 remains open pending their disposition.
+- **Four-file disposition proposal on 2026-09-24**: The fresh scan at `434da421` still names the same four v4.0 paths. The [scoped cleanup report](../v4.13/docs-cleanup-report-v4.0-post-tag.md) classifies the CI profile guide and GitHub settings runbook as living documents that may move to purpose-based roots after confirmation and link repair; both plans remain active while v4.0 gaps are open, and the CI plan also has 62 intentionally preserved unchecked task lines. This classifies the findings without treating them as resolved or changing the detector baseline.
+- **Living-document relocation follow-up on 2026-09-25**: The CI profile guide and GitHub settings runbook were copied with matching SHA-256 hashes into `docs/guides/` and `docs/runbooks/`, refreshed against the current runner and repository API, and removed from their old paths. The staged rename-map link comparison found zero newly broken links against 465 pre-existing unresolved references. The committed-tree lifespan detector exited 1 with 1,388 findings across release buckets and exactly four in v4.0: the two plans plus the lifecycle contract and final audit, whose inbound Markdown links needed post-tag repair. The two records need a separate lifespan disposition, and the CI plan's 62 historical unchecked task boxes remain held. WN-2 stays open; the [cleanup report](../v4.13/docs-cleanup-report-v4.0-post-tag.md) records the bounded result.
+- **Contract and audit disposition follow-up on 2026-09-25**: PR #305 merged the two living CI documents at `85d40806`, and its post-merge smoke and provenance jobs passed. PR #306 moved the normative lifecycle contract to `docs/policy/` and the dated final, workflow, and harness audits to `docs/archives/v4/v4.0/development/`; each destination matched its source hash before removal. The 55 lifecycle tests, 17-command fast gate, 8-command docs gate, and rename-map link comparison passed with zero newly broken links. PR #306 passed 32 hosted checks with one expected skip, merged at `e3b51879`, and its post-merge smoke and provenance jobs passed. The detector on that merged tree exited 1 with 1,386 findings repository-wide and exactly two in v4.0, both plans. The CI plan's 62 preserved unchecked task boxes keep WN-2 open.
 
-##### WN-3 - CodeQL's PR check cannot evaluate a rename of this size
+**Resolution, 2026-09-25**: PR #322 archived both remaining plans under the approved verified-transfer rule, and the [task reconciliation](../../../archives/v4/v4.0/development/ci-cd-task-reconciliation.md) accounts for the CI plan's 62 retained strict boxes without rewriting its original failures. A fresh detector scan then found one more v4.0 active-file finding, the frozen `development/last-phase-evidence.md`. This follow-up archived that file after a matching byte count and SHA-256, repaired its plan link and the inbound session-history link, and recorded it in the archive index. The rename-aware link comparison found zero newly broken links, with 465 unresolved targets before and after. The final detector result is recorded in the [v4.13 cleanup report](../v4.13/docs-cleanup-report.md); this closes the v4.0 finding only, not unrelated release buckets or the underlying historical 243-file migration event.
+
+##### WN-3 (resolved as historical platform limit) - CodeQL's PR check cannot evaluate a rename of this size
 
 - **Source phase**: Phase 7 follow-up - the integration pull request
 - **What was observed**: on PR #126 the `CodeQL` check reported failure in 3 seconds while both underlying `Analyze` jobs passed (`javascript-typescript` 1m26s, `python` 1m58s). The annotation is `Cannot retrieve the full diff because there are too many (300) changed files in the pull request`.
 - **Assessment**: a platform limit on GitHub's changed-files diff for code scanning, reached because this release renames 763 files in one commit. It is not a code finding, and the analysis itself completed. `CodeQL` is not in the declared required contexts for either protected branch (`validate`, `shellcheck`, `ci-required`, `colocation`, `verify`), so it does not gate the merge.
 - **Suggested next step**: none for this release. If a future change again renames at this scale, expect the same annotation and read the `Analyze` job results directly rather than the aggregate check.
 
-
-### Resolved Items
+**Disposition, 2026-09-25**: PR #126's 300-file diff limit remains a historical GitHub check limitation, not an unimplemented Nexus-Hub task. Its two underlying analysis jobs passed; no change to the detector or the old run is claimed. Future large PRs must still inspect the language jobs separately.
 
 ##### Resolved - `canonicalize-layout` never migrated the archive container it documented
 

@@ -1,0 +1,18 @@
+{
+  "duration_s": 7446.34,
+  "finished_at": "2026-09-25T20:19:27Z",
+  "os": "Windows",
+  "os_release": "11",
+  "platform": "windows",
+  "profile": "full",
+  "python": "3.12.10",
+  "python_implementation": "CPython",
+  "scope_conservative": true,
+  "scope_reason": "no --base supplied; running every group",
+  "started_at": "2026-09-25T18:15:21Z",
+  "status": "PASS",
+  "tools": {
+    "git": "git version 2.52.0.windows.1",
+    "python": "3.12.10"
+  }
+}

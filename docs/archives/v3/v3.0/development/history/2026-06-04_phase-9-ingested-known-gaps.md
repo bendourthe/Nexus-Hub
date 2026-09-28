@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 9: Ingested known-gaps (Swift/Kotlin extractors, heading cleanup, NI-v24-1)
 
 **Date**: 2026-06-04
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
 **Phase**: 9 of 10 -- Ingested known-gaps (carried forward from v2.4.0)
 **Outcome**: complete; all sub-tasks (T040-T043) closed, all applicable quality gates green.
 

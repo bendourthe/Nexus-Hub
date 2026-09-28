@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-"""Fail when an interpreter Nexus-Hub hooks are launched with cannot run a script.
+"""Fail when the host's registered hook interpreter cannot run a script.
 
-Repo-internal gate (v4.3.0 Phase 5). Nexus-Hub registers its hooks as
-`bash <script>`; the assistant HOST performs that launch. If the host's `bash`
-cannot execute a script, every hook is silently inert and no other check notices,
-because every existing gate runs Python directly rather than through the
-interpreter the hooks actually use.
+Repo-internal gate (v4.3.0 Phase 5). POSIX registrations launch Bash scripts;
+current Windows registrations launch PowerShell siblings. The assistant HOST
+performs that launch, so this gate probes the selected interpreter directly.
 
 That blind spot is not hypothetical. The v4.3.0 integration run was red twice on a
 Windows runner for exactly this reason while the full local suite was green, and
@@ -13,7 +11,7 @@ the underlying condition (the WSL launcher stub answering to `bash`, printing to
 stdout, exiting non-zero with an empty stderr) would have denied every guarded
 tool call for a real user with no actionable message.
 
-Advisory by default so a contributor without Git Bash is told rather than blocked;
+Advisory by default so a missing selected shell is reported rather than blocked;
 `--gate` makes it fail, which is how the repository profiles run it.
 """
 
@@ -53,8 +51,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     print(
-        "[interpreters] A hook registered as `bash <script>` would not run on this "
-        "host. Hooks would be silently inert rather than reporting an error."
+        "[interpreters] Hooks using an unusable interpreter would be silently "
+        "inert on this host."
     )
     return 1 if args.gate else 0
 

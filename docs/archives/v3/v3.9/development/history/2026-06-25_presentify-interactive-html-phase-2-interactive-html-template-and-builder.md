@@ -1,7 +1,7 @@
 # Session History - v3.9.0 presentify-interactive-html Phase 2: Self-contained interactive HTML template + builder
 
 **Date**: 2026-06-25
-**Plan**: [`../../plans/presentify-interactive-html.md`](../../plans/presentify-interactive-html.md) Phase 2 (offline self-contained template + theme tokens + deterministic baseline builder + interactive-features/enrichment spec + stabilization)
+**Plan**: [`../../plans/presentify-interactive-html.md`](../../../../../releases/v3/v3.9/plans/presentify-interactive-html.md) Phase 2 (offline self-contained template + theme tokens + deterministic baseline builder + interactive-features/enrichment spec + stabilization)
 **Branch**: `develop`
 **Outcome**: Complete. All four sub-tasks (2.1-2.4) done plus 2.5 stabilization; Phase 2 exit checklist satisfied; quality gate GO. The skill is still intentionally unregistered (no SKILL.md until Phase 3), so the release-readiness workflow was NOT triggered.
 

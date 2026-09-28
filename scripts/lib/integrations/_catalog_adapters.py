@@ -38,11 +38,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .base import IntegrationBase
 from ._owned import write_owned_file
 from .result import FileAction
 
 _VALID_SLASH_STYLES = frozenset({"verbatim", "codex_prompts"})
+
+
+def _integration_base():
+    """Load the base class after adapter import to avoid a module import cycle."""
+    from .base import IntegrationBase
+
+    return IntegrationBase
 
 
 def _write_synced(
@@ -104,7 +110,8 @@ def flatten_skills(ctx, key: str, src_skills_dir: Path, dst_skills_dir: Path) ->
     if not src_skills_dir.exists():
         ctx.manifest.log(key, f"missing-tree: {src_skills_dir}")
         return [FileAction(path=str(src_skills_dir), action="not-found")]
-    IntegrationBase._ensure_dir(dst_skills_dir, ctx)
+    integration_base = _integration_base()
+    integration_base._ensure_dir(dst_skills_dir, ctx)
     actions: list[FileAction] = []
     for category in sorted(p for p in src_skills_dir.iterdir() if p.is_dir()):
         for skill in sorted(p for p in category.iterdir() if p.is_dir()):
@@ -118,7 +125,7 @@ def flatten_skills(ctx, key: str, src_skills_dir: Path, dst_skills_dir: Path) ->
                 ctx.manifest.log(key, f"skipped-not-selected: {skill.name}")
                 continue
             actions.append(
-                IntegrationBase._copy_tree(skill, dst_skills_dir / skill.name, ctx, key)
+                integration_base._copy_tree(skill, dst_skills_dir / skill.name, ctx, key)
             )
     return actions
 
@@ -241,7 +248,7 @@ def codex_invocation_policy(ctx, key: str, dst_skills_dir: Path) -> list[FileAct
             "  allow_implicit_invocation: false\n"
         )
         actions.append(
-            IntegrationBase._write_generated(sidecar, content, ctx, key)
+            _integration_base()._write_generated(sidecar, content, ctx, key)
         )
     return actions
 
@@ -260,7 +267,8 @@ def nested_skills_selected(ctx, key: str, src_skills_dir: Path, dst_skills_dir: 
     if not src_skills_dir.exists():
         ctx.manifest.log(key, f"missing-tree: {src_skills_dir}")
         return [FileAction(path=str(src_skills_dir), action="not-found")]
-    IntegrationBase._ensure_dir(dst_skills_dir, ctx)
+    integration_base = _integration_base()
+    integration_base._ensure_dir(dst_skills_dir, ctx)
     actions: list[FileAction] = []
     for category in sorted(p for p in src_skills_dir.iterdir() if p.is_dir()):
         for skill in sorted(p for p in category.iterdir() if p.is_dir()):
@@ -271,7 +279,7 @@ def nested_skills_selected(ctx, key: str, src_skills_dir: Path, dst_skills_dir: 
                 ctx.manifest.log(key, f"skipped-not-selected: {skill.name}")
                 continue
             actions.append(
-                IntegrationBase._copy_tree(
+                integration_base._copy_tree(
                     skill, dst_skills_dir / category.name / skill.name, ctx, key
                 )
             )
@@ -288,13 +296,58 @@ def flat_md_selected(ctx, key: str, src_dir: Path, dst_dir: Path, surface: str) 
         ctx.manifest.log(key, f"missing-tree: {src_dir}")
         return [FileAction(path=str(src_dir), action="not-found")]
     predicate = ctx.selects_command if surface == "command" else ctx.selects_agent
-    IntegrationBase._ensure_dir(dst_dir, ctx)
+    _integration_base()._ensure_dir(dst_dir, ctx)
     actions: list[FileAction] = []
     for md in sorted(src_dir.glob("*.md")):
         if not predicate(md.stem):
             ctx.manifest.log(key, f"skipped-not-selected: {surface} {md.stem}")
             continue
         actions.append(_write_synced(ctx, key, dst_dir / md.name, md.read_bytes()))
+    return actions
+
+
+def _drop_frontmatter_keys(raw: bytes, keys: tuple[str, ...]) -> bytes:
+    """Remove top-level ``key:`` lines for ``keys`` from a leading YAML frontmatter block.
+
+    Only the block between the opening ``---`` and the next ``---`` line is touched,
+    and line endings are kept, so the body is delivered byte-for-byte.
+    """
+    lines = raw.splitlines(keepends=True)
+    if not lines or lines[0].strip() != b"---":
+        return raw
+    prefixes = tuple(f"{key}:".encode() for key in keys)
+    out = [lines[0]]
+    for index in range(1, len(lines)):
+        line = lines[index]
+        if line.strip() == b"---":
+            out.extend(lines[index:])
+            return b"".join(out)
+        if not line.startswith(prefixes):
+            out.append(line)
+    return raw  # an unterminated block is not frontmatter; leave the file as it is
+
+
+def agents_dropping_keys(
+    ctx, key: str, src_dir: Path, dst_dir: Path, keys: tuple[str, ...]
+) -> list[FileAction]:
+    """Copy catalog agents with the named frontmatter keys removed.
+
+    For a platform that rejects a catalog key outright rather than ignoring it
+    (OpenCode 1.18 refuses to start on the Claude-style ``tools: Read, Glob``
+    string, since its deprecated ``tools`` field must be an object). Honors the
+    agent selection on a focused install.
+    """
+    if not src_dir.exists():
+        ctx.manifest.log(key, f"missing-tree: {src_dir}")
+        return [FileAction(path=str(src_dir), action="not-found")]
+    _integration_base()._ensure_dir(dst_dir, ctx)
+    actions: list[FileAction] = []
+    for md in sorted(src_dir.glob("*.md")):
+        if ctx.is_filtered and not ctx.selects_agent(md.stem):
+            ctx.manifest.log(key, f"skipped-not-selected: agent {md.stem}")
+            continue
+        content = _drop_frontmatter_keys(md.read_bytes(), keys)
+        actions.append(_write_synced(ctx, key, dst_dir / md.name, content))
     return actions
 
 
@@ -377,7 +430,7 @@ def commands_to_skills(
     if not src_commands_dir.exists():
         ctx.manifest.log(key, f"missing-tree: {src_commands_dir}")
         return [FileAction(path=str(src_commands_dir), action="not-found")]
-    IntegrationBase._ensure_dir(dst_skills_dir, ctx)
+    _integration_base()._ensure_dir(dst_skills_dir, ctx)
     existing = existing_skill_names or set()
     actions: list[FileAction] = []
     for md in sorted(src_commands_dir.glob("*.md")):
@@ -426,7 +479,7 @@ def commands_to_slash(
     if not src_commands_dir.exists():
         ctx.manifest.log(key, f"missing-tree: {src_commands_dir}")
         return [FileAction(path=str(src_commands_dir), action="not-found")]
-    IntegrationBase._ensure_dir(dst_dir, ctx)
+    _integration_base()._ensure_dir(dst_dir, ctx)
     actions: list[FileAction] = []
     for md in sorted(src_commands_dir.glob("*.md")):
         # v3.16.1 Phase 6.3 -- the slash surface follows command eligibility, so

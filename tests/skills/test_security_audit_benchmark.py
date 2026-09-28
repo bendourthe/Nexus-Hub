@@ -99,10 +99,12 @@ def test_projection_rejects_substitution_and_cleans_on_failure(answers):
     )
     with pytest.raises(ValueError):
         corpus.validate_map(changed, answers, "1" * 64)
-    with (
-        pytest.raises(RuntimeError),
-        corpus.projection(FIXTURES / "source", answers, "1" * 64, mapping) as projected,
-    ):
-        root = projected.source_root
-        raise RuntimeError("injected")
+    root = None
+    with pytest.raises(RuntimeError):
+        with corpus.projection(
+            FIXTURES / "source", answers, "1" * 64, mapping
+        ) as projected:
+            root = projected.source_root
+            raise RuntimeError("injected")
+    assert root is not None
     assert not root.exists()

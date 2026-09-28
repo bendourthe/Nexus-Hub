@@ -212,6 +212,37 @@ def test_rename_map_accepts_git_name_status_rows(command: list[str], repo: Path)
     assert json.loads(result.stdout)["totals"]["newly_broken"] == 0
 
 
+def test_directory_rename_does_not_project_stationary_siblings(command: list[str], repo: Path) -> None:
+    old = repo / "docs" / "releases" / "v4" / "plans"
+    old.mkdir(parents=True)
+    for name in ("first.md", "second.md"):
+        (old / name).write_text("[dead](missing.md)\n", encoding="utf-8")
+    stay = repo / "docs" / "releases" / "v3" / "stay.md"
+    stay.parent.mkdir(parents=True)
+    stay.write_text("[dead](missing.md)\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+    before = repo / "before.ndjson"
+    assert _baseline(command, repo, before).returncode == 0
+
+    new = repo / "docs" / "archives" / "v4" / "plans"
+    new.mkdir(parents=True)
+    for name in ("first.md", "second.md"):
+        (old / name).rename(new / name)
+    subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+    after = repo / "after.ndjson"
+    assert _baseline(command, repo, after).returncode == 0
+    rename_map = repo / "renames.tsv"
+    rename_map.write_text(
+        "".join(f"docs/releases/v4/plans/{name}\tdocs/archives/v4/plans/{name}\n" for name in ("first.md", "second.md")),
+        encoding="utf-8",
+    )
+
+    result = _run(command, "diff", "--before", before, "--after", after, "--rename-map", rename_map)
+
+    assert result.returncode == 0, result.stdout
+    assert json.loads(result.stdout)["totals"]["newly_broken"] == 0
+
+
 @pytest.mark.skipif(_powershell() is None, reason="PowerShell is not available")
 def test_powershell_script_ast_parses() -> None:
     executable = _powershell()

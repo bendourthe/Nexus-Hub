@@ -14,6 +14,7 @@ This skill owns two rules and nothing else: **what makes a queued plan stale**, 
 ## When to Use This Skill
 
 - Before adopting a comparison into a version slot, to record which queued plans could change its findings first.
+- Before a new plan or comparison takes a version, to place it by priority with the placement rule below.
 - While authoring a plan, to record the queued predecessors whose completion would alter its content.
 - At the start of a plan, and at the start of every phase, to re-validate the plan against the tree it is about to modify.
 - After a release, to report which still-open plans that release changed.
@@ -26,7 +27,7 @@ This skill owns two rules and nothing else: **what makes a queued plan stale**, 
 | Author a new plan | `[[implementation-plan]]` |
 | Execute a phase | `[[implement-phase]]` |
 | Move a docs tree for layout reasons | `[[docs-layout-refactor]]` |
-| Decide a comparison's adoption slot | `[[cross-project-comparison]]` Step 6.5, which calls this skill for the impact half |
+| Record a comparison's adoption target | `[[cross-project-comparison]]` Step 6.5, which calls this skill's placement rule and, in Step 6.6, its queue-impact check |
 | Claim re-ordering made delivery faster | Nothing here. That needs measurement this skill does not perform. |
 
 ## Rule ownership
@@ -35,9 +36,9 @@ This skill's territory overlaps four others. Exactly one owner states each rule.
 
 | Concern | Owner |
 |---|---|
-| What makes a plan stale; how a queue is ranked; the renumber procedure | **this skill** |
+| What makes a plan stale; how a queue is ranked; which version a new plan takes (the placement rule); the renumber procedure | **this skill** |
 | Deterministic queue inventory (versions, counts, touched paths, status) | `scripts/enumerate_plan_queue.py` |
-| Which slot a comparison adopts | `[[cross-project-comparison]]` Step 6.5 |
+| Resolving and confirming a comparison's `Adoption target:` field (it applies the placement rule) | `[[cross-project-comparison]]` Step 6.5 |
 | The plan template and its required sections | `[[implementation-plan]]` |
 | Phase lifecycle, gates, and the `## Plan delta` disposition vocabulary | `[[implement-phase]]` |
 | Moving a documentation tree and repairing references | `[[docs-layout-refactor]]` and `[[project-refactor]]` |
@@ -120,6 +121,16 @@ Produce, as a written artifact:
 
 Ranking produces a recommendation. Acting on it moves files and rewrites references, so it is **propose-then-apply, behind explicit confirmation, and never automatic**. See the renumber procedure below.
 
+## Placement rule for a new plan
+
+This skill owns which version a NEW plan or comparison takes. `[[cross-project-comparison]]` Step 6.5 and `[[implementation-plan]]` Step 4.6 call this rule; neither restates it. The goal is that version order equals execution order, so a reader can trust that a lower version is built first.
+
+1. **Rank the new plan against the queue.** Use the inventory from Step 1 and the membership from Step 2. For each queued plan, decide whether the new plan must precede it (it unblocks it, changes the same surfaces first, or the user ranks it higher) or may follow it. Existing plans count as ordered as long as the latest queue assessment's placement still holds; re-rank them only when the new plan changes their order.
+2. **Find the target range.** The new version must sort after every plan it follows and before every plan it must precede, comparing parsed integers, never strings. A slot is free when no plan (queued, in flight, or shipped) and no release tag holds that exact version.
+3. **Prefer a free lower slot.** Take the lowest free version in the range, typically the next patch after the last release or an unused patch between two queued plans. No renumber is needed. Report the version with a one-line reason.
+4. **When the range holds no free slot, propose a renumber.** List every move (old version to new version, with its reason) and, per moved plan, the seven reference classes of the Renumber procedure below to repair. Confirm with the user before anything moves, then hand the move to `[[docs-layout-refactor]]` and the reference repair to `[[project-refactor]]`. A plan already mid-implementation is not moved without the maintainer's explicit decision (see the mid-implementation case).
+5. **Never take a free slot that sorts after a plan the new one must precede.** A free slot in the wrong place is exactly how version order stops meaning execution order.
+
 ## Renumber procedure
 
 Renumbering rewrites version identity that merged pull requests, changelogs, and published documentation already reference. It is the highest-blast-radius operation this skill touches.
@@ -141,7 +152,7 @@ Renumbering rewrites version identity that merged pull requests, changelogs, and
     python scripts/enumerate_plan_queue.py --root . --check-residual v<OLD_VERSION>
     ```
 
-    Exit 0 means no reference to the old version survives outside a deliberately historical statement. Exit 1 lists every survivor with its file, line, and text. One survivor is a failure, because one broken link is a broken link. The check matches only `v`-prefixed forms, so a bare section number is never rewritten, and it exempts a line carrying a dated renumber note, because a historical claim is repaired with a note rather than a restatement.
+    Exit 0 means no reference to the old version survives in repository Markdown or documentation JSON outside an explicit exemption; generated `data/` inventories and other file types are not scanned. Exit 1 lists every survivor with its file, line, and text. One survivor is a failure, because one broken link is a broken link. The check matches only `v`-prefixed forms, so a bare section number is never rewritten, and it exempts a line carrying a dated renumber note, because a historical claim is repaired with a note rather than a restatement. For a sealed historical JSON record that must retain its original bytes, review it and pass its narrow path prefix through `--skip`; the command prints every skipped prefix.
 
 ### Two traps a blanket rewrite hits
 
@@ -193,7 +204,7 @@ Prefer not to renumber a mid-implementation plan at all. When it is done anyway,
 
 - `[[implementation-plan]]` -- authors the plans this skill assesses; owns the plan template and the queued-predecessor section this skill fills.
 - `[[implement-phase]]` -- executes them; owns the phase gates and the `## Plan delta` vocabulary this skill supplies evidence to.
-- `[[cross-project-comparison]]` -- owns adoption-slot resolution; calls this skill for the queue-impact half.
+- `[[cross-project-comparison]]` -- records and confirms the adoption target; calls this skill's placement rule (Step 6.5) and queue-impact check (Step 6.6).
 - `[[docs-layout-refactor]]` -- owns moving a documentation tree; the renumber procedure delegates the move.
 - `[[project-refactor]]` -- owns reference repair across a move.
 - `[[known-gaps-tracker]]` -- records an unresolved verdict that cannot be closed now.

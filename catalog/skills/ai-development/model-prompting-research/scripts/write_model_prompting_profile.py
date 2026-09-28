@@ -52,12 +52,13 @@ PROFILES_REL = Path("references") / "models"
 #: does not descend into subdirectories.
 MIRROR_INDEX_REL = Path("references") / "model-profiles.md"
 
-SCHEMA_VERSION = "1.1.0"
+SCHEMA_VERSION = "1.2.0"
 ALLOWED_ROSTER_SOURCES = ("api", "picker", "config", "manual")
 ALLOWED_CONFIDENCE = ("high", "medium", "low", "unverified")
 ALLOWED_SCOPE = ("model-specific", "model-agnostic-candidate")
 CLAIM_REQUIRED_KEYS = ("claim", "source_url", "confidence", "scope")
-CLAIM_OPTIONAL_KEYS = ("note",)
+CLAIM_OPTIONAL_KEYS = ("note", "evidence_scope")
+ALLOWED_EVIDENCE_SCOPE = ("model", "model-family", "provider-plan", "cited-page")
 
 # A claim that has not survived the adversarial-verify pass must never be
 # presented as actionable guidance. The writer accepts it (so a partial or
@@ -196,6 +197,14 @@ def _validate_claim(model_id: str, position: int, claim: object) -> dict:
         if not isinstance(note, str):
             raise WriteError(f"{where}.note must be a string when present")
         normalized["note"] = note.strip()
+    evidence_scope = claim.get("evidence_scope")
+    if evidence_scope is not None:
+        if evidence_scope not in ALLOWED_EVIDENCE_SCOPE:
+            raise WriteError(
+                f"{where}.evidence_scope must be one of {list(ALLOWED_EVIDENCE_SCOPE)}, "
+                f"got {evidence_scope!r}"
+            )
+        normalized["evidence_scope"] = evidence_scope
     return normalized
 
 
@@ -208,8 +217,10 @@ def _render_mirror(model_id: str, entry: dict, roster_source: str) -> str:
         text = claim["claim"].replace("|", "\\|")
         note = claim.get("note", "")
         suffix = f" {note.replace('|', chr(92) + '|')}" if note else ""
+        evidence = f"`{claim['evidence_scope']}`" if "evidence_scope" in claim else "not recorded"
         rows.append(
             f"| {text}{suffix} | `{claim['confidence']}` | `{claim['scope']}` | "
+            f"{evidence} | "
             f"[source]({claim['source_url']}) |"
         )
     table = "\n".join(rows)
@@ -224,13 +235,13 @@ This file mirrors the `models["{model_id}"]` entry in `assets/profiles-index.jso
 
 ## Verified prompting guidance
 
-| Claim | Confidence | Scope | Primary source |
-|---|---|---|---|
+| Claim | Confidence | Scope | Evidence scope | Primary source |
+|---|---|---|---|---|
 {table}
 
 ## Does not apply to shared bodies
 
-Every claim in this file is scoped to the model named in the H1. It must not be copied into a shared catalog body: a `SKILL.md`, a command file, or any of the five `base-*.md` instruction templates. Those artifacts are distributed verbatim to every supported platform, so a line naming one model is wrong for every reader running a different one, and `scripts/check_base_template_parity.py` fails the build when such a line diverges across the templates.
+This file is retrieved by the model named in the H1. A claim's evidence can cover a model family, a provider plan, or only a cited-page negative result rather than this variant alone. Claims must not be copied into a shared catalog body: a `SKILL.md`, a command file, or any of the five `base-*.md` instruction templates. Those artifacts are distributed verbatim to every supported platform, so a line naming one model is wrong for every reader running a different one.
 
 If a claim here turns out to be true of models generally rather than of this one, re-scope it to `model-agnostic-candidate` in `assets/profiles-index.json` and let the guard-gated auto-apply path propose the shared-body edit, so the change is branch-isolated, guard-checked, and reviewable.
 
@@ -258,16 +269,39 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
     if not isinstance(verified_at, str) or len(verified_at) != 10:
         raise WriteError("payload.verified_at must be a YYYY-MM-DD string")
 
-    roster_source = payload.get("roster_source", "manual")
-    if roster_source not in ALLOWED_ROSTER_SOURCES:
-        raise WriteError(
-            f"payload.roster_source must be one of {list(ALLOWED_ROSTER_SOURCES)}, "
-            f"got {roster_source!r}"
-        )
-
     incoming = payload["models"]
     if not isinstance(incoming, dict) or not incoming:
         raise WriteError("payload.models must be a non-empty object")
+
+    claim_only = "roster" not in payload
+    if claim_only:
+        if "roster_source" in payload:
+            raise WriteError("payload.roster_source requires a roster")
+        if index["meta"].get("platform") == platform:
+            recorded = index["meta"].get("roster")
+        else:
+            entry = next(
+                (e for e in index["meta"].get("platforms", []) if e.get("platform") == platform),
+                None,
+            )
+            recorded = entry.get("roster") if entry else None
+        if not isinstance(recorded, list) or not recorded:
+            raise WriteError(f"no recorded roster for {platform}; supply a live roster")
+        unknown = sorted(set(incoming) - set(recorded))
+        if unknown:
+            raise WriteError(f"model(s) not in the recorded roster for {platform}: {', '.join(unknown)}")
+    else:
+        roster_source = payload.get("roster_source", "manual")
+        if roster_source not in ALLOWED_ROSTER_SOURCES:
+            raise WriteError(
+                f"payload.roster_source must be one of {list(ALLOWED_ROSTER_SOURCES)}, "
+                f"got {roster_source!r}"
+            )
+        roster = payload["roster"]
+        if not isinstance(roster, list) or not roster or any(
+            not isinstance(model_id, str) or not model_id.strip() for model_id in roster
+        ):
+            raise WriteError("payload.roster must be a non-empty array of model ids")
 
     written: list[str] = []
     for model_id in sorted(incoming):
@@ -282,16 +316,14 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
         }
         written.append(model_id)
 
-    # The roster is the LIVE roster when the payload carries one; otherwise keep
-    # the recorded roster and widen it to cover anything just profiled, so the
-    # index never claims a model it has no roster entry for.
-    recorded = index["meta"].get("roster")
-    recorded = list(recorded) if isinstance(recorded, list) else []
-    roster = payload.get("roster")
-    if isinstance(roster, list) and roster:
-        merged_roster = [str(m).strip() for m in roster if str(m).strip()]
-    else:
-        merged_roster = recorded
+    if claim_only:
+        # Per-model research does not verify the whole roster. Keep its original
+        # date, source, and hash until a complete live enumeration is supplied.
+        index["schema_version"] = SCHEMA_VERSION
+        return index, written
+
+    # A roster-bearing payload explicitly refreshes the platform roster.
+    merged_roster = [m.strip() for m in roster]
     merged_roster = sorted(set(merged_roster) | set(index["models"]))
 
     index["schema_version"] = SCHEMA_VERSION
@@ -313,12 +345,7 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
     # meta.platforms array, so the primary platform's roster is never rewritten by
     # research on a different vendor's models.
     entries = [e for e in index["meta"].get("platforms", []) if isinstance(e, dict)]
-    existing = next((e for e in entries if e.get("platform") == platform), None)
-    prior = [str(m) for m in (existing or {}).get("roster", []) if str(m).strip()]
-    if isinstance(roster, list) and roster:
-        platform_roster = [str(m).strip() for m in roster if str(m).strip()]
-    else:
-        platform_roster = prior
+    platform_roster = [m.strip() for m in roster]
     profiled_here = [m for m, e in index["models"].items() if e.get("platform") == platform]
     platform_roster = sorted(set(platform_roster) | set(profiled_here))
     entry = {
@@ -394,8 +421,8 @@ def _write_mirror_index(bundle: Path, index: dict) -> Path:
         "human-readable mirror of one model's entry, read on demand as a Tier-3",
         "reference. This index exists so no mirror is an orphan bundled file.",
         "",
-        "Every claim in these files is scoped to the model its file names. None of",
-        "them may be copied into a shared catalog body.",
+        "Each file is retrieved by model ID; its Evidence scope column describes",
+        "what the cited source covers. No claim may be copied into a shared catalog body.",
         "",
     ]
     if models:
@@ -481,7 +508,13 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(result, indent=2))
         return 0
 
-    raw = sys.stdin.read() if str(args.input) == "-" else args.input.read_text(encoding="utf-8")
+    # PowerShell 5.1 prefixes piped UTF-8 with a BOM while Python's redirected
+    # stdin may still decode through a Windows code page. Decode the bytes here.
+    raw = (
+        sys.stdin.buffer.read().decode("utf-8-sig")
+        if str(args.input) == "-"
+        else args.input.read_text(encoding="utf-8-sig")
+    )
     try:
         payload = json.loads(raw)
     except ValueError as exc:

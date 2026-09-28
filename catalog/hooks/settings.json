@@ -156,9 +156,36 @@
             "command": "bash .claude/hooks/memory-store-guard.sh"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/user-edit-guard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit|mcp__github__.*|mcp__plugin_github_github__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/attribution-guard.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [
+      {
+        "matcher": "Read|Write|Edit|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/user-edit-guard.sh"
+          }
+        ]
+      },
       {
         "matcher": "Write",
         "hooks": [
@@ -227,6 +254,10 @@
         "hooks": [
           {
             "type": "command",
+            "command": "bash .claude/hooks/approval-capture.sh"
+          },
+          {
+            "type": "command",
             "command": "bash .claude/hooks/learning-capture.sh"
           },
           {
@@ -251,6 +282,10 @@
       {
         "matcher": "",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/completion-gate.sh"
+          },
           {
             "type": "command",
             "command": "bash .claude/hooks/usage-display.sh"

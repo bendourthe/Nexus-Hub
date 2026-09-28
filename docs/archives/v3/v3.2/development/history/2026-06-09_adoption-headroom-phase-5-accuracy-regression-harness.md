@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 5: Accuracy-regression harness
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
+**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
 **Phase**: 5 of 7 -- Accuracy-regression harness (re-full)
 **Branch**: `feat/adoption-headroom` (continuing from Phase 4)
 **Outcome**: complete; all three sub-tasks (T016-T018) closed, all quality gates green (GO).

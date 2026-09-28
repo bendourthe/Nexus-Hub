@@ -41,6 +41,10 @@ param(
     [string]$InstallProfile,   # one profile id
     [string]$Modules,          # comma-separated capability module ids
     [string]$Bundles,          # comma-separated role bundle ids
+    # v4.13.3 -- span-bound consent to remove text an older install left outside
+    # the managed markers. Each value is a 64-hex token copied from the previous
+    # install report; -Yes never implies it.
+    [string[]]$RemoveLegacyInstructions,
     [Parameter(Position = 0)]
     [string]$Subcommand,
     [Parameter(ValueFromRemainingArguments = $true)]
@@ -107,6 +111,11 @@ Options:
                 TTY, e.g. a piped irm|iex install).
   -Force        Overwrite existing managed files with the Nexus-Hub version
                 without asking (implies -Yes for prompting).
+  -RemoveLegacyInstructions <token>[,<token>]
+                Remove text an older install left outside the managed markers.
+                Each 64-hex token comes from the previous install report and
+                binds that exact file state. -Yes never removes anything; a
+                verified backup is kept first.
   -Enterprise   Install the standalone Gemini CLI integration. Requires a paid
                 Gemini API key. After 2026-06-18 (per the 2026-05-21 Google
                 Developers Blog announcement), Gemini CLI stops serving free /
@@ -144,7 +153,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "4.13.0"
+$script:NexusHubVersion = "4.13.3"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -378,7 +387,8 @@ function Write-PlatformChecklist {
             Write-ChecklistRow -Label $s.Label -State "ok" -Detail $entry.path
         }
         else {
-            Write-ChecklistRow -Label $s.Label -State "warn" -Detail "install reported an issue"
+            $reason = if ($entry.reason) { $entry.reason } else { "install reported an issue" }
+            Write-ChecklistRow -Label $s.Label -State "warn" -Detail $reason
         }
     }
 }
@@ -2399,7 +2409,11 @@ function Invoke-RegistryPlatform {
     # Thread the instruction-template placeholders from the detected script
     # globals so the registry renders the same instruction body the legacy
     # Render-Template produced (DF-001).
-    $argsList += @("--project-name", "$($script:ProjectName)")
+    # One `--flag=value` token: Windows PowerShell 5.1 drops an empty-string argument to a
+    # native program, so a separate empty value left `--project-name` bare, argparse exited
+    # 2, and every registry platform was skipped whenever Claude Code (which sets the name)
+    # was not part of the install.
+    $argsList += "--project-name=$($script:ProjectName)"
     $argsList += @("--var", "PRIMARY_LANGUAGE=$($script:PrimaryLanguage)")
     $argsList += @("--var", "PACKAGE_MANAGER=$($script:PackageManager)")
     $argsList += @("--var", "BUILD_TOOL=$($script:BuildTool)")
@@ -2410,9 +2424,16 @@ function Invoke-RegistryPlatform {
     $argsList += @("--var", "LINT_CMD=$($script:LintCmd)")
     $argsList += @("--var", "NON_OBVIOUS_TOOLING=$($script:NonObviousTooling)")
     $argsList += @("--var", "OS_CONTEXT=$($script:OSContext)")
+    foreach ($legacyToken in @($script:LegacyConsents)) {
+        $argsList += "--remove-legacy-instructions=$legacyToken"
+    }
 
     & $py @argsList
     $exitCode = $LASTEXITCODE
+    if ($script:LegacyReportDir -and (Test-Path $summaryFile)) {
+        $legacyIndex = @(Get-ChildItem -Path $script:LegacyReportDir -Filter "*.json" -ErrorAction SilentlyContinue).Count
+        Copy-Item -Path $summaryFile -Destination (Join-Path $script:LegacyReportDir ("{0:D4}.json" -f $legacyIndex)) -ErrorAction SilentlyContinue
+    }
 
     # Parse the structured per-surface summary the runner just wrote.
     $platformSummary = $null
@@ -2739,9 +2760,36 @@ function Install-Templates {
 
     # Copy report generator script
     $scriptSource = Join-Path $RepoRoot "scripts\generate_report.py"
-    $scriptSource = Join-Path $RepoRoot "scripts\plan_status.py"
     if (Test-Path $scriptSource) {
         Safe-Copy -Source $scriptSource -Destination (Join-Path $scriptsDest "generate_report.py") -Confirm:$true -CustomMessage "✓ Report generator installed at: $scriptsDest\generate_report.py"
+    }
+
+    # Copy the plan progress renderer (per-phase progress table and next-plan hand-off)
+    $scriptSource = Join-Path $RepoRoot "scripts\plan_status.py"
+    if (Test-Path $scriptSource) {
+        Safe-Copy -Source $scriptSource -Destination (Join-Path $scriptsDest "plan_status.py") -Confirm:$true -CustomMessage "✓ Plan progress renderer installed at: $scriptsDest\plan_status.py"
+    }
+
+    # Copy the plan-completion checker (v4.13.2). Decides whether a full
+    # /implement run is complete from repository, hosting, and run-record
+    # state; the completion gate, run-plan runner, and /update release call
+    # it from this installed path, never from a working tree.
+    $completionCheckerSource = Join-Path $RepoRoot "scripts\check_plan_completion.py"
+    if (Test-Path $completionCheckerSource) {
+        Safe-Copy -Source $completionCheckerSource -Destination (Join-Path $scriptsDest "check_plan_completion.py") -Confirm:$true -CustomMessage "✓ Plan-completion checker installed at: $scriptsDest\check_plan_completion.py"
+    }
+
+    # Copy the completion-gate core (v4.13.2). The completion-gate and
+    # approval-capture hooks run it from this installed path only.
+    $completionGateSource = Join-Path $RepoRoot "scripts\completion_gate.py"
+    if (Test-Path $completionGateSource) {
+        Safe-Copy -Source $completionGateSource -Destination (Join-Path $scriptsDest "completion_gate.py") -Confirm:$true -CustomMessage "✓ Completion gate installed at: $scriptsDest\completion_gate.py"
+    }
+
+    # Copy the full-run runner (v4.13.2). `nexus-hub run-plan` forwards to it.
+    $runPlanSource = Join-Path $RepoRoot "scripts\run_plan.py"
+    if (Test-Path $runPlanSource) {
+        Safe-Copy -Source $runPlanSource -Destination (Join-Path $scriptsDest "run_plan.py") -Confirm:$true -CustomMessage "✓ Full-run runner installed at: $scriptsDest\run_plan.py"
     }
 
     # Copy MCP benchmark script (v1.0.0+). Benchmarks the three internal MCPs
@@ -3941,6 +3989,43 @@ else {
     $script:OverwriteMode = "CONFLICT"
 }
 
+function New-LegacyReportDir {
+    $dir = Join-Path ([System.IO.Path]::GetTempPath()) ("nexus-legacy-" + [System.Guid]::NewGuid().ToString('N'))
+    try { New-Item -ItemType Directory -Path $dir -Force | Out-Null; return $dir } catch { return $null }
+}
+
+# Print the combined legacy-instruction report once, after every runner call,
+# so each consent token shown matches its file's final bytes.
+function Write-LegacyReport {
+    param([string]$RepoRoot)
+    $dir = $script:LegacyReportDir
+    if (-not $dir -or -not (Test-Path $dir)) { return }
+    $py = Resolve-PythonExecutable
+    if ($py) {
+        $reportArgs = @((Join-Path $RepoRoot "scripts/lib/integrations/runner.py"), "legacy-report", "--summaries", $dir, "--form", "ps1")
+        foreach ($legacyToken in @($script:LegacyConsents)) { $reportArgs += @("--token", $legacyToken) }
+        $report = & $py @reportArgs 2>$null
+        if ($report) {
+            Write-CenteredBanner -Text "LEGACY INSTRUCTIONS"
+            $report | ForEach-Object { Write-Host $_ }
+        }
+    }
+    Remove-Item -Path $dir -Recurse -Force -ErrorAction SilentlyContinue
+    $script:LegacyReportDir = $null
+}
+
+# Validate consent tokens before anything is installed.
+$script:LegacyConsents = @()
+foreach ($legacyToken in @($RemoveLegacyInstructions)) {
+    if ([string]::IsNullOrEmpty($legacyToken)) { continue }
+    if ($legacyToken -cnotmatch '\A[0-9a-fA-F]{64}\z') {
+        Write-Host "-RemoveLegacyInstructions requires the 64-hex consent token from an install report" -ForegroundColor Red
+        exit 2
+    }
+    $script:LegacyConsents += $legacyToken
+}
+$script:LegacyReportDir = $null
+
 Write-NexusBanner
 Invoke-LegacyInstallMigration
 # Idempotent cleanup -- safe to run every install. Catches the case where the
@@ -3959,10 +4044,14 @@ if (-not [string]::IsNullOrWhiteSpace($Workspace)) {
         Write-Host "Workspace path not found: $workspaceTarget" -ForegroundColor Red
         exit 2
     }
+    $script:LegacyReportDir = New-LegacyReportDir
     Install-Workspace -RepoRoot $repoRoot -TargetPath $workspaceTarget
+    Write-LegacyReport -RepoRoot $repoRoot
 }
 else {
+    $script:LegacyReportDir = New-LegacyReportDir
     Install-Global -RepoRoot $repoRoot
+    Write-LegacyReport -RepoRoot $repoRoot
 }
 
 # CROSS-PLATFORM TOOLS: for a global install this header (plus the skill-discovery

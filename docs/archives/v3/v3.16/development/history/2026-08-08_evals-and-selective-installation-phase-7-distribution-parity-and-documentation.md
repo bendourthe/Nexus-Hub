@@ -1,7 +1,7 @@
 # Session History - v3.16.1 Phase 7: Distribution, parity, and documentation
 
 **Date**: 2026-08-08
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md](../../plans/v3.16.1-evals-and-selective-installation.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md](../../../../../releases/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md)
 **Phase**: 7 of 8 (not the final phase; no release-readiness workflow ran)
 **Branch**: `feat/v3.16.1-evals-and-selective-installation`
 **Outcome**: Complete. Selective installation is now coherent as well as smaller. The audit found and closed a defect that made the module system largely decorative.

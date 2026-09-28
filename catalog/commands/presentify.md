@@ -71,6 +71,10 @@ artifact, its correctness lives in rendered geometry rather than in source text,
 and re-reading the markup you just wrote confirms the markup, not the render.
 Never ask the user for a screenshot you can render yourself.
 
+## Existing-Deliverable Revision
+
+When the output site or its source document already exists, the user may have edited it. Revising it follows `user-edit-preservation`: run its `edit_guard.py check <file>` before changing the file, and on any exit other than 0 do not write: run `diff` (with no record, exit 4, run `diff <file> --against <your own generated copy>`) and end your turn with that skill's three-part reply (what the user changed, suggestions on their edits or "None", and your plan ending in a question). Edit the current file, or build to a working path and merge; never write or copy straight over a file the user can open, and run `edit_guard.py record <file> --from write` after every save. `document-to-interactive-html` carries the same section for the builder it drives.
+
 ## Output
 
 Output budget: everything produced in one reply, reasoning included, counts toward a single limit. Write the deliverable once in the output space; keep analysis focused on source understanding and composition. Start at the documented default effort and raise it only for a measured quality gain. This governs the deliverable, not tool logs; Output Minimization still applies to logs.

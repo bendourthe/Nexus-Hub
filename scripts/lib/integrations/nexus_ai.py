@@ -133,7 +133,7 @@ class NexusAiIntegration(MarkdownIntegration, SkillsIntegration):
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
         result = super().install_global(ctx)
-        target = (Path.home() / ".nexus-ai" / "catalog").resolve()
+        target = (ctx.global_root / ".nexus-ai" / "catalog").resolve()
         mcp_src = ctx.repo_root / "catalog" / "mcp-configs"
         mcp_dst = target / "mcp-configs"
         result.files.append(self._copy_tree(mcp_src, mcp_dst, ctx, self.key))

@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 6: nexus-skill-scanner engine (re-full)
 
 **Date**: 2026-06-03
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
 **Phase**: 6 of 10 -- nexus-skill-scanner engine (re-full)
 **Outcome**: complete; all sub-tasks (T026-T032) closed, all applicable quality gates green.
 

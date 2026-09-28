@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 3: Remaining deterministic strategies
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
+**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
 **Phase**: 3 of 7 -- Remaining deterministic strategies (re-full)
 **Branch**: `feat/adoption-headroom` (continuing from Phase 2)
 **Outcome**: complete; all four sub-tasks (T008-T011) closed, all quality gates green (GO).

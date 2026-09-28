@@ -15,7 +15,7 @@ name: Post-merge
 # ONLY because branch protection on `main` and `develop` rejects direct pushes.
 # That protection is an external repository setting, is verified by hand, and is
 # never mutated from here. See
-# docs/releases/v4/v4.0/development/github-ci-settings-runbook.md.
+# docs/runbooks/github-ci-settings.md.
 #
 # Triggers are unfiltered by branch beyond main/develop and carry no `paths:`
 # filter, for the same reason as ci.yml: this workflow publishes no required
@@ -28,6 +28,9 @@ on:
 
 permissions:
   contents: read
+
+env:
+  PIP_CONSTRAINT: ${{ github.workspace }}/scripts/ci/requirements-py311.txt
 
 # Post-merge work is not superseded by a later merge the way pull-request
 # validation is: each merge is a distinct state worth smoke-testing. Cancelling
@@ -75,6 +78,15 @@ jobs:
       - name: Publish the run summary
         if: always()
         run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain post-merge reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: post-merge-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
 
   provenance:
     # Records what the merged state IS, which is only knowable after the merge.

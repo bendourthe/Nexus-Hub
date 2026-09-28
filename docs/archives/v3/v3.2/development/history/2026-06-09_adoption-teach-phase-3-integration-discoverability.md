@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-teach Phase 3: Integration + discoverability
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-teach.md`](../../plans/adoption-teach.md)
+**Plan**: [`docs/releases/v3/v3.2/plans/adoption-teach.md`](../../../../../releases/v3/v3.2/plans/adoption-teach.md)
 **Phase**: 3 of 3 -- integration + discoverability (final phase)
 **Branch**: `feat/adoption-teach`
 **Outcome**: complete; all three sub-tasks (T008-T010) closed, all quality gates green. This is the plan's final phase; release work routes to `/update release` at the develop -> main bump.

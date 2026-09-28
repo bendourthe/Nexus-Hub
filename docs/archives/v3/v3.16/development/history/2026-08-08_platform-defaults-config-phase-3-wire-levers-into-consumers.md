@@ -1,7 +1,7 @@
 # Session History - v3.16.0 Phase 3: Wire the verified levers into the defaults and their consumers
 
 **Date**: 2026-08-08
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../plans/v3.16.0-platform-defaults-config.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../../../../releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md)
 **Phase**: 3 of 5 (not the final phase)
 **Branch**: `feat/platform-defaults-config`
 **Outcome**: Complete. All four quality gates passed. Two defects found by the test suite and fixed in-phase.

@@ -1,7 +1,7 @@
 # Session History - v3.10.0 adoption-ruflo Phase 1: Egress / PII redaction skill
 
 **Date**: 2026-06-30
-**Plan**: [`../../plans/adoption-ruflo.md`](../../plans/adoption-ruflo.md) Phase 1 (A2 typed egress / PII redaction skill; skill-native, P0)
+**Plan**: [`../../plans/adoption-ruflo.md`](../../../../../releases/v3/v3.10/plans/adoption-ruflo.md) Phase 1 (A2 typed egress / PII redaction skill; skill-native, P0)
 **Branch**: `develop`
 **Outcome**: Complete. All Phase 1 exit-checklist items satisfied; quality gate GO. Phase 1 of 6; not the final phase, so no release-readiness run.
 

@@ -1,7 +1,7 @@
 # Session History -- v3.4.0 model-routing Phase 4: /implement integration (per-phase re-confirmation)
 
 **Date**: 2026-06-14
-**Plan**: [`docs/releases/v3/v3.4/plans/model-routing.md`](../../plans/model-routing.md)
+**Plan**: [`docs/releases/v3/v3.4/plans/model-routing.md`](../../../../../releases/v3/v3.4/plans/model-routing.md)
 **Phase**: 4 of 4 -- `/implement` integration (per-phase re-confirmation); the plan's final phase
 **Branch**: `feat/model-routing` (off `develop`)
 **Outcome**: complete; all Phase 4 sub-tasks closed and every Phase 4 exit-checklist item except the final-phase release step is satisfied. Release readiness (via `/update release`) is handed to the user behind its own confirmation gates and is intentionally not auto-run.

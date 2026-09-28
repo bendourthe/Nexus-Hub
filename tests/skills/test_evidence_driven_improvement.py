@@ -32,6 +32,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
 import pytest
@@ -384,6 +385,8 @@ _PAYLOAD_ATTRIBUTES = (
     "gen_ai.output.messages",
     "gen_ai.system_instructions",
     "gen_ai.tool.definitions",
+    "gen_ai.tool.call.arguments",
+    "gen_ai.tool.call.result",
 )
 
 _ALLOWED_ERROR_CATEGORIES = {
@@ -468,6 +471,18 @@ class TestTraceExampleBehavior:
         raw, _ = emitted_trace
         for attribute in _PAYLOAD_ATTRIBUTES:
             assert attribute not in raw, f"Opt-In payload attribute emitted: {attribute}"
+
+    def test_tool_spans_name_the_tool_without_descriptions_or_payloads(
+        self, emitted_trace: tuple[str, list[dict]]
+    ) -> None:
+        _, records = emitted_trace
+        tool_spans = [r for r in records if r["gen_ai.operation.name"] == "execute_tool"]
+        assert tool_spans
+        for record in tool_spans:
+            assert record["gen_ai.tool.name"]
+            assert "gen_ai.tool.description" not in record
+            assert "gen_ai.tool.call.arguments" not in record
+            assert "gen_ai.tool.call.result" not in record
 
     def test_error_records_use_allowlisted_categories(
         self, emitted_trace: tuple[str, list[dict]]
@@ -659,11 +674,13 @@ class TestSpanContractDocument:
     def test_declares_a_recheck_trigger(self) -> None:
         assert "Recheck trigger" in _SPAN_CONTRACT.read_text(encoding="utf-8")
 
-    def test_marks_tool_attributes_unverified_rather_than_guessing(self) -> None:
-        """The tool-span table was not retrievable at the pinned revision."""
+    def test_tool_attributes_have_pinned_levels_and_safe_defaults(self) -> None:
         text = _SPAN_CONTRACT.read_text(encoding="utf-8")
-        assert "partially verified" in text.lower()
-        assert "An unverified attribute is unknown, not Recommended." in text
+        assert "docs/gen-ai/gen-ai-spans.md#execute-tool-span" in text
+        assert "`gen_ai.tool.name` as Required" in text
+        assert "`gen_ai.tool.call.id`, `gen_ai.tool.description`, and `gen_ai.tool.type` as Recommended if available" in text
+        assert "`gen_ai.tool.call.arguments` and `gen_ai.tool.call.result` as Opt-In" in text
+        assert "Do not add arguments, results, or descriptions to default traces" in text
 
     def test_disclaims_otlp_conformance(self) -> None:
         text = _SPAN_CONTRACT.read_text(encoding="utf-8")
@@ -1610,6 +1627,7 @@ class TestRunnerSelectionIsNotASubstringMatch:
             "context-engineering",
         )
         assert parsed["selected"] is True
+        assert parsed["skill_selectors"] == [{"command": "context-engineering"}]
 
     def test_another_skill_mentioning_this_one_does_not_count(self) -> None:
         """The defect: `skill in json.dumps(input)` scored this as a selection."""
@@ -1623,6 +1641,8 @@ class TestRunnerSelectionIsNotASubstringMatch:
             "context-engineering",
         )
         assert parsed["selected"] is False
+        assert parsed["skill_selectors"] == [{"command": "plan-before-code"}]
+        assert "ignore context-engineering here" not in json.dumps(parsed)
 
     def test_a_leading_slash_still_counts(self) -> None:
         m = _runner()
@@ -1632,6 +1652,77 @@ class TestRunnerSelectionIsNotASubstringMatch:
             "context-engineering",
         )
         assert parsed["selected"] is True
+        assert parsed["skill_selectors"] == [{"command": "context-engineering"}]
+
+    def test_non_skill_selector_is_redacted(self) -> None:
+        m = _runner()
+        parsed = m.parse_stream(
+            _stream(
+                _INIT,
+                _skill_call(command="private notes: example@example.com"),
+                {"type": "result", "total_cost_usd": 0.1},
+            ),
+            "context-engineering",
+        )
+        assert parsed["selected"] is False
+        assert parsed["skill_selectors"] == [{"command": "<invalid>"}]
+        assert "example@example.com" not in json.dumps(parsed)
+
+    def test_saved_row_retains_only_selector_evidence(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        monkeypatch.setattr(m, "stage_variant", lambda *args: {})
+        monkeypatch.setattr(m, "build_command", lambda *args: ["claude"])
+        monkeypatch.setattr(
+            m.subprocess,
+            "run",
+            lambda *args, **kwargs: subprocess.CompletedProcess(
+                args=["claude"],
+                returncode=0,
+                stdout=_stream(
+                    _INIT,
+                    _skill_call(command="plan-before-code", prompt="private prompt text"),
+                    {"type": "result", "total_cost_usd": 0.1},
+                ),
+            ),
+        )
+        item = {
+            "skill": "context-engineering",
+            "prompt_id": "p1",
+            "prompt_class": "positive",
+            "variant": "A",
+            "model_tier": "fast",
+            "prompt": "private prompt text",
+        }
+        row = asdict(m.run_call(item, tmp_path, None, tmp_path, {}))
+        assert row["skill_selectors"] == [{"command": "plan-before-code"}]
+        assert row["selected"] is False
+        assert "private prompt text" not in json.dumps(row)
+
+    def test_timeout_row_retains_observed_selector(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        monkeypatch.setattr(m, "stage_variant", lambda *args: {})
+        monkeypatch.setattr(m, "build_command", lambda *args: ["claude"])
+
+        def timeout(*args, **kwargs):
+            raise subprocess.TimeoutExpired(
+                cmd=["claude"],
+                timeout=m.PER_CALL_TIMEOUT_S,
+                output=_stream(_INIT, _skill_call(command="context-engineering")),
+            )
+
+        monkeypatch.setattr(m.subprocess, "run", timeout)
+        item = {
+            "skill": "context-engineering",
+            "prompt_id": "p1",
+            "prompt_class": "positive",
+            "variant": "A",
+            "model_tier": "fast",
+            "prompt": "private prompt text",
+        }
+        row = asdict(m.run_call(item, tmp_path, None, tmp_path, {}))
+        assert row["skill_selectors"] == [{"command": "context-engineering"}]
+        assert row["selected"] is None
+        assert row["status"] == "timeout"
 
 
 class TestRunnerDistinguishesUnknownFromNegative:
@@ -1690,6 +1781,73 @@ class TestRunnerSpendAccounting:
         allowed, why = ledger.may_start()
         assert allowed is False
         assert "spend ceiling" in why
+
+    def test_nonfinite_reported_cost_uses_the_reservation(self) -> None:
+        m = _runner()
+        parsed = m.parse_stream(
+            _stream(_INIT, {"type": "result", "total_cost_usd": "nan"}),
+            "context-engineering",
+        )
+        assert parsed["cost_usd"] == m.PER_CALL_BUDGET_USD
+
+    def test_missing_result_cost_uses_the_reservation(self) -> None:
+        m = _runner()
+        parsed = m.parse_stream(_stream(_INIT), "context-engineering")
+        assert parsed["cost_usd"] == m.PER_CALL_BUDGET_USD
+
+    def test_receipt_does_not_overwrite_a_neighbouring_temp_file(self, tmp_path: Path) -> None:
+        m = _runner()
+        out = tmp_path / "result.json"
+        neighbour = tmp_path / "result.json.tmp"
+        neighbour.write_text("user data", encoding="utf-8")
+        m.write_receipt(out, {"calls_made": 0})
+        assert json.loads(out.read_text(encoding="utf-8")) == {"calls_made": 0}
+        assert neighbour.read_text(encoding="utf-8") == "user data"
+
+    def test_dangling_receipt_link_refuses_to_start(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        monkeypatch.setattr(m.shutil, "which", lambda _: "claude")
+        monkeypatch.setattr(m.os.path, "lexists", lambda _: True)
+        out = tmp_path / "result.json"
+        assert m.main(["--protocol", str(tmp_path / "missing"), "--out", str(out)]) == 2
+
+    def test_overrun_stops_before_another_paid_call(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        protocol = tmp_path / "protocol"
+        protocol.mkdir()
+        (protocol / "pilot-variant-b.json").write_text("{}", encoding="utf-8")
+        (protocol / "pilot-prompts.json").write_text(json.dumps({"prompts": [{"skill": "context-engineering", "prompt_id": "p1", "prompt_class": "positive", "prompt": "test"}]}), encoding="utf-8")
+        monkeypatch.setattr(m.shutil, "which", lambda _: "claude")
+        calls = []
+
+        def fake_call(item, *args):
+            calls.append(item)
+            return m.CallResult(item["skill"], item["prompt_id"], item["prompt_class"], item["variant"], item["model_tier"], cost_usd=0.654, status="evidence-missing")
+
+        monkeypatch.setattr(m, "run_call", fake_call)
+        out = tmp_path / "result.json"
+        assert m.main(["--protocol", str(protocol), "--out", str(out), "--fixture", str(tmp_path / "fixture")]) == 0
+        payload = json.loads(out.read_text(encoding="utf-8"))
+        assert len(calls) == payload["calls_made"] == 1
+        assert payload["complete"] is False
+        assert "per-call" in payload["stopped_early"]
+
+    def test_call_failure_leaves_inflight_receipt(self, monkeypatch, tmp_path: Path) -> None:
+        m = _runner()
+        protocol = tmp_path / "protocol"
+        protocol.mkdir()
+        (protocol / "pilot-variant-b.json").write_text("{}", encoding="utf-8")
+        (protocol / "pilot-prompts.json").write_text(json.dumps({"prompts": [{"skill": "context-engineering", "prompt_id": "p1", "prompt_class": "positive", "prompt": "test"}]}), encoding="utf-8")
+        monkeypatch.setattr(m.shutil, "which", lambda _: "claude")
+        monkeypatch.setattr(m, "run_call", lambda *args: (_ for _ in ()).throw(RuntimeError("interrupted")))
+        out = tmp_path / "result.json"
+        with pytest.raises(RuntimeError, match="interrupted"):
+            m.main(["--protocol", str(protocol), "--out", str(out), "--fixture", str(tmp_path / "fixture")])
+        payload = json.loads(out.read_text(encoding="utf-8"))
+        assert payload["calls_made"] == 0
+        assert payload["inflight"]["call_number"] == 1
+        assert m.main(["--protocol", str(protocol), "--out", str(out)]) == 2
+        assert json.loads(out.read_text(encoding="utf-8")) == payload
 
 
 class TestRunnerStagingCannotProduceIdenticalArms:

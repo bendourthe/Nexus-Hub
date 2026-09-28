@@ -23,7 +23,7 @@ Enforcement is mechanical in two tiers. `scripts/check_base_template_parity.py` 
 
 ## Consequences
 
-- Every platform pays roughly 215 tokens per turn for the block (163 words at about 1.3 tokens per word), once per platform in use; prompt caching makes repeat reads cheaper but not free. The measured cost and the ceiling raise are recorded in `docs/releases/v4/v4.5/development/writing-discipline-block.md` and `docs/policy/doc-budgets.md`.
+- Every platform pays roughly 215 tokens per turn for the block (163 words at about 1.3 tokens per word), once per platform in use; prompt caching makes repeat reads cheaper but not free. The measured cost and the ceiling raise are recorded in `docs/archives/v4/v4.5/development/writing-discipline-block.md` and `docs/policy/doc-budgets.md`.
 - Whether the clause improves replies or merely stiffens them is not something a test can decide. The v4.5.0 plan names a human check (ask a question that ordinarily draws a cliche-heavy answer on two platforms and judge the change); it is recorded as an open deferred item in `docs/releases/v4/v4.5/known-gaps.md` until a person runs it.
 - The block is guidance, not enforcement. It grants no authority, transmits nothing, and a consuming project's own `CLAUDE.md` or equivalent can override it. Runtime adherence is not proven by parity, only distribution is.
 - Editing the block now means editing the source-of-truth file first and propagating to twelve templates; the validator makes a partial propagation a failing test rather than a silent drift.

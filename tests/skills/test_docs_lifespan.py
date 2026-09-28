@@ -9,6 +9,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py"
@@ -43,9 +45,9 @@ def _git(repo: Path, *args: str, date: str | None = None) -> subprocess.Complete
     )
 
 
-def _fixture_repo(tmp_path: Path) -> Path:
+def _fixture_repo(tmp_path: Path, layout: str = "docs/v1/v1.0") -> Path:
     repo = tmp_path / "repo"
-    bucket = repo / "docs/v1/v1.0"
+    bucket = repo / layout
     bucket.mkdir(parents=True)
     (bucket / "before.md").write_text("before\n", encoding="utf-8")
     (bucket / "after.md").write_text("initial\n", encoding="utf-8")
@@ -96,6 +98,24 @@ def test_lifespan_contradiction_fires_only_after_release_close(tmp_path: Path) -
     assert [item["file"] for item in findings] == ["docs/v1/v1.0/after.md"]
     assert findings[0]["release_tag"] == "v1.0.0"
     assert findings[0]["release_close_date"] < findings[0]["offending_commit_date"]
+
+
+@pytest.mark.parametrize("layout", ["docs/v1/v1.0", "docs/releases/v1/v1.0"])
+def test_known_gaps_remains_mutable_after_release_close(tmp_path: Path, layout: str) -> None:
+    repo = _fixture_repo(tmp_path, layout)
+    (repo / layout / "known-gaps.md").write_text("Later gap update\n", encoding="utf-8")
+    nested = repo / layout / "development/known-gaps.md"
+    nested.parent.mkdir()
+    nested.write_text("Frozen nested note\n", encoding="utf-8")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-q", "-m", "record gap", date="2026-01-03T12:00:00+00:00")
+
+    findings = AUDIT.find_lifespan_contradictions(repo, repo / "docs")
+
+    assert [item["file"] for item in findings] == [
+        f"{layout}/after.md",
+        f"{layout}/development/known-gaps.md",
+    ]
 
 
 def test_lifespan_contradiction_rule_has_one_definition_and_two_consumers() -> None:

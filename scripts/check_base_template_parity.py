@@ -94,6 +94,40 @@ LOCKSTEP_FILES = [
     "base-opencode.md",
 ]
 
+
+def template_roster(root: Path) -> tuple[list[Path], list[Path]]:
+    """Split every instruction template into substantive files and include-only shims."""
+    substantive: list[Path] = []
+    shims: list[Path] = []
+    for path in sorted((root / TEMPLATES_REL).glob("*.md")):
+        first = next(
+            (
+                line.strip()
+                for line in path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ),
+            "",
+        )
+        (shims if first.startswith("@") else substantive).append(path)
+    return substantive, shims
+
+
+def instruction_section_body(text: str, heading: str) -> list[str]:
+    """Return non-empty section lines, stopping at the next level-two heading."""
+    lines = text.replace("\r\n", "\n").split("\n")
+    try:
+        start = next(i for i, line in enumerate(lines) if line.strip() == heading)
+    except StopIteration:
+        return []
+    body: list[str] = []
+    for line in lines[start + 1 :]:
+        if line.startswith("## "):
+            break
+        if line.strip():
+            body.append(line.rstrip())
+    return body
+
+
 # Section headings (by text, level-agnostic) that every lockstep file must
 # carry. Derived from the intersection of all five files as they stand today.
 REQUIRED_HEADINGS = [

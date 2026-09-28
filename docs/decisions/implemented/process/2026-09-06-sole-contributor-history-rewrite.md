@@ -2,7 +2,7 @@
 
 Status: implemented - Local isolated rewrite and maintainer enforcement are implemented; remote publication is pending explicit approval.
 
-Repository-maintenance decision for the owner reviewing v4.12 publication. Covers canonical identity, all-ref rewriting, local prevention, backups and GitHub contributor-page verification. Evidence refreshed 2026-09-14 in the [inventory](../../../releases/v4/v4.12/development/attribution-inventory.md).
+Repository-maintenance decision for the owner reviewing v4.12 publication. Covers canonical identity, all-ref rewriting, local prevention, backups and GitHub contributor-page verification. Evidence refreshed 2026-09-14 in the [inventory](../../../archives/v4/v4.12/development/attribution-inventory.md).
 
 ## Problem
 

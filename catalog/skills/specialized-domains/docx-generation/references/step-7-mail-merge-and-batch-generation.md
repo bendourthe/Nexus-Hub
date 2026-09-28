@@ -74,7 +74,9 @@ def generate_batch_documents(
             output_path = output_dir / f"{filename}.docx"
 
             tpl.render(context)
+            guard_existing(output_path)  # user-edit-preservation: never overwrite a user-edited file
             tpl.save(str(output_path))
+            record_saved(output_path)
 
             results.output_paths.append(output_path)
             results.succeeded += 1
@@ -169,7 +171,9 @@ async def mail_merge_from_database(
 
             filename = f"{context[filename_column]}.docx"
             output_path = output_dir / filename
+            guard_existing(output_path)  # user-edit-preservation: never overwrite a user-edited file
             tpl.save(str(output_path))
+            record_saved(output_path)
             generated.append(output_path)
     finally:
         await conn.close()
@@ -224,7 +228,9 @@ def merge_documents(
         composer.append(sub_doc)
 
     output = Path(output_path)
+    guard_existing(output)  # user-edit-preservation: never overwrite a user-edited file
     composer.save(str(output))
+    record_saved(output)
     return output
 ```
 

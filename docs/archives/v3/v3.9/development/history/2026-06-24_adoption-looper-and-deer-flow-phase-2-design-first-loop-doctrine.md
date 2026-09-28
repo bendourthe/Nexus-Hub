@@ -1,7 +1,7 @@
 # Session History - v3.9.0 adoption-looper-and-deer-flow Phase 2: Design-first loop doctrine
 
 **Date**: 2026-06-24
-**Plan**: [`../../plans/adoption-looper-and-deer-flow.md`](../../plans/adoption-looper-and-deer-flow.md) Phase 2 (L2 + L4 + L5 loop half + L1 cross-link, skill-native)
+**Plan**: [`../../plans/adoption-looper-and-deer-flow.md`](../../../../../releases/v3/v3.9/plans/adoption-looper-and-deer-flow.md) Phase 2 (L2 + L4 + L5 loop half + L1 cross-link, skill-native)
 **Branch**: `develop`
 **Outcome**: Complete. All Phase 2 exit-checklist items satisfied; quality gate GO. Phase 2 of 3; not the final phase, so no release-readiness run.
 

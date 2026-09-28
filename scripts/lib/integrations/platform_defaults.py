@@ -116,7 +116,7 @@ def merge_missing(target: Dict[str, Any], declared: Dict[str, Any]) -> List[str]
     return added
 
 
-def _expand(path_str: str) -> Path:
+def _expand(path_str: str, home: Path | None = None) -> Path:
     """Expand ~ and environment variables in a declared target path.
 
     ``~`` is resolved through ``Path.home()`` rather than
@@ -126,10 +126,11 @@ def _expand(path_str: str) -> Path:
     escapes the fake home and writes into the real one.
     """
     expanded = os.path.expandvars(path_str)
+    root = Path.home() if home is None else Path(home)
     if expanded == "~":
-        return Path.home()
+        return root
     if expanded.startswith("~/") or expanded.startswith("~\\"):
-        return Path.home() / expanded[2:]
+        return root / expanded[2:]
     return Path(expanded)
 
 
@@ -288,7 +289,11 @@ def seed_platform_defaults(key: str, ctx: Any, source: Dict[str, Any] | None = N
     if not path_str:
         _note(f"{key}: install_target declares no path; nothing seeded.")
         return []
-    path = _expand(path_str)
+    root = Path(ctx.target_root) if getattr(ctx, "explicit_target", False) else None
+    path = _expand(path_str, root)
+    if root is not None and not path.resolve().is_relative_to(root.resolve()):
+        _note(f"{key}: declared defaults path escapes explicit target; nothing seeded.")
+        return []
 
     try:
         action, added = writer(path, declared, bool(getattr(ctx, "dry_run", False)))

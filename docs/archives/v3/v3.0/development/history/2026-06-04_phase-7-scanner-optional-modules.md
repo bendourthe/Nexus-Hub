@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 7: scanner optional modules (re-partial)
 
 **Date**: 2026-06-04
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
 **Phase**: 7 of 10 -- scanner optional modules (re-partial)
 **Outcome**: complete; all sub-tasks (T033-T035) closed, all applicable quality gates green. Recovered from an interrupted prior session whose network drop lost the conversation but left the working-tree changes intact.
 

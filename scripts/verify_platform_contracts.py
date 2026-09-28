@@ -96,6 +96,17 @@ def check(doc: str, installer_sh: str, installer_ps: str) -> list[str]:
     return problems
 
 
+def skill_read_path_problems(doc: str) -> list[str]:
+    """Schema, source, and doc-agreement problems in the `skill_read_paths` facts."""
+    from scripts.lib.integrations.skill_read_paths import validate
+
+    try:
+        data = json.loads(CONTRACT_JSON.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return ["skill_read_paths: contract JSON unreadable"]
+    return validate(data.get("skill_read_paths"), doc)
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     quiet = "--quiet" in argv
@@ -110,6 +121,7 @@ def main(argv: list[str] | None = None) -> int:
     installer_ps = INSTALLER_PS1.read_text(encoding="utf-8") if INSTALLER_PS1.exists() else ""
 
     problems = check(doc, installer_sh, installer_ps)
+    problems += skill_read_path_problems(doc)
     if problems:
         print("[verify-contracts] DRIFT between code and docs/policy/platform-read-contracts.md:")
         for p in problems:

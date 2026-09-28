@@ -1,7 +1,7 @@
 # Session History - v3.9.0 adoption-no-mistakes Phase 1: Review and escalation doctrine
 
 **Date**: 2026-06-25
-**Plan**: [`../../plans/adoption-no-mistakes.md`](../../plans/adoption-no-mistakes.md) Phase 1 (N1 finding-action taxonomy + receiver-half escalation rule, N3 intent oracle, N4 round-history hygiene; skill-native)
+**Plan**: [`../../plans/adoption-no-mistakes.md`](../../../../../releases/v3/v3.9/plans/adoption-no-mistakes.md) Phase 1 (N1 finding-action taxonomy + receiver-half escalation rule, N3 intent oracle, N4 round-history hygiene; skill-native)
 **Branch**: `develop`
 **Outcome**: Complete. All Phase 1 exit-checklist items satisfied; quality gate GO. Phase 1 of 3; not the final phase, so no release-readiness run.
 

@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/v3.19.0-code-intelligence-hardening`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md`](../../plans/v3.19.0-code-intelligence-hardening.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md`](../../../../../releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md)
 **Phase**: 1 - Tool-profile gating and dependency-ceiling convention
 **Environment**: Windows 11, PowerShell, Python 3.12.10, pytest, coverage, Ruff, ShellCheck; GNU Make unavailable, so `make validate` was executed as its constituent commands
 **Outcome**: `nexus-code-search` now exposes `minimal`, `standard`, and `full` tool profiles through `NEXUS_CODE_SEARCH_TOOL_PROFILE`, defaults to the backward-compatible full surface, measures a reproducible offline definition-token baseline, and documents evidence-bearing dependency ceilings. Every required gate passed and no known gap remains open.

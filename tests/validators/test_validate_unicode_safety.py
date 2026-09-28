@@ -26,6 +26,8 @@ VS16 = chr(0xFE0F)
 VS1 = chr(0xFE00)
 VS_SUPPLEMENT = chr(0xE0100)
 WARNING_SIGN = chr(0x26A0)
+CJK_LETTER = chr(0x6539)
+MICRO_SIGN = chr(0x00B5)
 
 
 def load_validator(scripts_dir: Path):
@@ -102,6 +104,59 @@ def test_zero_width_space_is_flagged(tmp_path: Path, runner) -> None:
     result = runner(SCRIPT, tmp_path)
     assert result.returncode == 1
     assert "U+200B" in result.stderr
+
+
+def test_active_html_is_scanned_and_unsafe_character_can_be_fixed(tmp_path: Path, runner) -> None:
+    target = tmp_path / "docs" / "guide.html"
+    write(target, "<p>visible" + ZWSP + "text</p>\n")
+    assert "U+200B" in runner(SCRIPT, tmp_path).stderr
+    repaired = runner(SCRIPT, tmp_path, ["--fix"])
+    assert repaired.returncode == 0, repaired.stderr
+    assert target.read_text(encoding="utf-8") == "<p>visibletext</p>\n"
+
+
+def test_frozen_html_archive_remains_exempt(tmp_path: Path, runner) -> None:
+    write(tmp_path / "docs" / "archives" / "v4" / "old.html", "<p>" + ZWSP + "</p>\n")
+    assert runner(SCRIPT, tmp_path).returncode == 0
+
+
+@pytest.mark.parametrize("suffix", (".md", ".html"))
+def test_wrong_script_letter_is_a_hard_error_in_english_documents(
+    tmp_path: Path, runner, suffix: str
+) -> None:
+    target = tmp_path / "docs" / ("guide" + suffix)
+    body = "English " + CJK_LETTER + " text\n"
+    write(target, body)
+    detected = runner(SCRIPT, tmp_path)
+    assert detected.returncode == 1
+    assert "U+6539" in detected.stderr
+    assert "non-Latin letter" in detected.stderr
+    repaired = runner(SCRIPT, tmp_path, ["--fix"])
+    assert repaired.returncode == 1
+    assert target.read_text(encoding="utf-8") == body
+
+
+def test_latin_letters_and_the_microsecond_unit_are_allowed(tmp_path: Path, runner) -> None:
+    write(tmp_path / "docs" / "units.md", "Caf\u00e9 takes 5 " + MICRO_SIGN + "s.\n")
+    assert runner(SCRIPT, tmp_path, ["--strict"]).returncode == 0
+
+
+@pytest.mark.parametrize(
+    ("entity", "code"),
+    (("&#x200B;", "U+200B"), ("&ZeroWidthSpace;", "U+200B"), ("&#x6539;", "U+6539")),
+)
+def test_html_entities_cannot_hide_unsafe_or_wrong_script_letters(
+    tmp_path: Path, runner, entity: str, code: str
+) -> None:
+    target = tmp_path / "docs" / "guide.html"
+    body = "<p>" + entity + "</p>\n"
+    write(target, body)
+    detected = runner(SCRIPT, tmp_path)
+    assert detected.returncode == 1
+    assert code in detected.stderr
+    repaired = runner(SCRIPT, tmp_path, ["--fix"])
+    assert repaired.returncode == 1
+    assert target.read_text(encoding="utf-8") == body
 
 
 def test_em_dash_in_markdown_warns_not_errors(tmp_path: Path, runner) -> None:

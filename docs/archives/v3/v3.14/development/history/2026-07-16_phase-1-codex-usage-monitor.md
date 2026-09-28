@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-16
 **Branch**: `feat/codex-lb-adoption` (off `develop`)
-**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../plans/v3.14.0-codex-lb-adoption.md), Phase 1 of 6 (not the final phase)
+**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../../../../releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md), Phase 1 of 6 (not the final phase)
 **Scope**: `extensions/claude-usage-monitor/**` and `CHANGELOG.md` only (no catalog metadata, installer, or base-template)
 
 ## Goal

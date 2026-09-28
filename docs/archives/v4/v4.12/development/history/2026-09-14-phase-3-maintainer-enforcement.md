@@ -1,12 +1,12 @@
 # Development log: Phase 3 maintainer enforcement
 
 **Date**: 2026-09-14
-**Objective**: Complete T010-T013 of the [plan](../../../../../releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md) through local verification and one commit.
+**Objective**: Complete T010-T013 of the [plan](../../../../../archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md) through local verification and one commit.
 **Outcome**: The repository-native hygiene profile scans complete history; an opt-in, maintainer-only commit hook checks pending identities and message attribution. Publication remains pending.
 
 ## 1. Starting State
 
-Phase 2 commit: `19f98baf9006d03352fc6bc1cf6346a3b78c880d`. Work continues in the isolated rewritten checkout documented in [rewrite-backup](../../../../../releases/v4/v4.12/development/rewrite-backup.md). The original checkout and backup remain recoverable.
+Phase 2 commit: `19f98baf9006d03352fc6bc1cf6346a3b78c880d`. Work continues in the isolated rewritten checkout documented in [rewrite-backup](../../../../../archives/v4/v4.12/development/rewrite-backup.md). The original checkout and backup remain recoverable.
 
 ## 2. Chronological Steps
 
@@ -36,7 +36,7 @@ Two pre-existing Ruff findings in `scripts/ci/profiles.py` are retained as WN-1 
 
 **Incomplete, corrected within the Goal**: message-only hook validation cannot reject forbidden pending author or committer metadata, so the checker gains `--pending-commit`. Post-merge smoke also consumes hygiene and therefore needs full history. LF normalization makes the hook executable through Git Bash after a Windows checkout. The existing profile owns the single CI invocation; a duplicate direct CI step would add no coverage. The decision header fix restores the already-required document contract. No unrelated pipeline or distributed installer capability was added.
 
-The 103-plan inventory and shared CI-file constraints from the [queue assessment](../../../../../releases/v4/v4.12/development/phase-1-queue-assessment.md) remain applicable. Current session routing is retained without a model downshift; the runtime exposes no model-switch operation.
+The 103-plan inventory and shared CI-file constraints from the [queue assessment](../../../../../archives/v4/v4.12/development/phase-1-queue-assessment.md) remain applicable. Current session routing is retained without a model downshift; the runtime exposes no model-switch operation.
 
 ## 6. Assumptions Made
 

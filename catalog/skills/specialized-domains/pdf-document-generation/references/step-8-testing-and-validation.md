@@ -219,6 +219,7 @@ def optimize_pdf(input_path: str, output_path: str) -> dict:
     """
     original_size = Path(input_path).stat().st_size
 
+    guard_existing(output_path)  # user-edit-preservation: never overwrite a user-edited file
     with pikepdf.open(input_path) as pdf:
         # Remove unused objects
         pdf.remove_unreferenced_resources()
@@ -232,6 +233,7 @@ def optimize_pdf(input_path: str, output_path: str) -> dict:
             recompress_flate=True,        # recompress with better settings
         )
 
+    record_saved(output_path)
     optimized_size = Path(output_path).stat().st_size
     return {
         "original_bytes": original_size,

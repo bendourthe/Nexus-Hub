@@ -64,7 +64,7 @@ Slug uniqueness was verified two ways: directory listings under each target cate
 
 **Output artifacts**:
 - [docs/archives/v1/v1.3/known-gaps.md](../../known-gaps.md) -- NEW file. Summary table (2 open WN, 0 NI, 0 DF, 0 BG, 0 MT, 0 QG, status `in-progress`).
-- DEVLOG entry [(this same date)](../../../DEVLOG.md) -- new top-of-file entry documenting Phase 1's pre-flight outcome.
+- DEVLOG entry [(this same date)](../../../../../DEVLOG.md) -- new top-of-file entry documenting Phase 1's pre-flight outcome.
 
 ---
 

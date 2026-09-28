@@ -45,7 +45,6 @@ from pathlib import Path
 from ._catalog_adapters import _split_frontmatter
 from ._hooks_common import script_basename, sourced_modules, strip_owned_handlers
 from ._owned import write_owned_file
-from .base import IntegrationBase
 from .result import FileAction
 
 # Codex hook events, per the official hooks reference. Nexus-Hub only emits the
@@ -186,13 +185,17 @@ def render_agent_toml(source_name: str, markdown: str) -> bytes | None:
 
 
 def agents_to_codex_toml(
-    ctx, key: str, src_agents_dir: Path, dst_agents_dir: Path
+    ctx,
+    key: str,
+    src_agents_dir: Path,
+    dst_agents_dir: Path,
+    *,
+    managed_root: Path | None = None,
 ) -> list[FileAction]:
     """Materialize ``catalog/agents/*.md`` as Codex custom-agent TOML files."""
     if not src_agents_dir.exists():
         ctx.manifest.log(key, f"missing-tree: {src_agents_dir}")
         return [FileAction(path=str(src_agents_dir), action="not-found")]
-    IntegrationBase._ensure_dir(dst_agents_dir, ctx)
     actions: list[FileAction] = []
     for md in sorted(src_agents_dir.glob("*.md")):
         content = render_agent_toml(md.stem, md.read_text(encoding="utf-8"))
@@ -200,7 +203,13 @@ def agents_to_codex_toml(
             ctx.manifest.log(key, f"skip agent (missing required fields): {md.name}")
             continue
         actions.append(
-            write_owned_file(ctx, key, dst_agents_dir / f"{md.stem}.toml", content)
+            write_owned_file(
+                ctx,
+                key,
+                dst_agents_dir / f"{md.stem}.toml",
+                content,
+                managed_root=managed_root or dst_agents_dir.parent,
+            )
         )
     return actions
 

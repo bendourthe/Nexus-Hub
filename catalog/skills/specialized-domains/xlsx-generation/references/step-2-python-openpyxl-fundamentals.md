@@ -284,5 +284,7 @@ wb_values = load_workbook("report_with_formulas.xlsx", data_only=True)
 # not a recalculated value. If the file was never opened in Excel,
 # formula cells will return None.
 
+guard_existing("template_updated.xlsx")  # user-edit-preservation: never overwrite a user-edited file
 wb.save("template_updated.xlsx")
+record_saved("template_updated.xlsx")
 ```

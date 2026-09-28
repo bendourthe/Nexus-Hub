@@ -1,7 +1,7 @@
 # Session History - v3.4.0 adoption-nessie-and-agency-agents Phase 3: session-query extension to Obsidian + exported ChatGPT/Gemini history
 
 **Date**: 2026-06-15
-**Plan**: [`../../plans/adoption-nessie-and-agency-agents.md`](../../plans/adoption-nessie-and-agency-agents.md) Phase 3 (A4, re-full)
+**Plan**: [`../../plans/adoption-nessie-and-agency-agents.md`](../../../../../releases/v3/v3.4/plans/adoption-nessie-and-agency-agents.md) Phase 3 (A4, re-full)
 **Branch**: `develop`
 **Outcome**: Complete. All Phase 3 exit-checklist items satisfied; quality gate GO. Phase 3 of 5; not the final phase, so no release-readiness run.
 

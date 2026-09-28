@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/v3.18.1-github-usage-monitor-accuracy`
-**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../plans/v3.18.1-github-usage-monitor-accuracy.md)
+**Plan**: [`docs/releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../../../releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)
 **Phase**: 1 - Warning-surface parity
 **Environment**: Windows 11, Git Bash, Node with `vitest` 4.1.10; GNU Make unavailable, so `make` targets run as their constituent commands
 **Outcome**: The threshold warning is one surface again. The webview is revealed on every crossing, the competing toast and its coupled auto-dismiss timer are gone, and a cross-extension parity test verified to fail in both directions now guards the four monitors against silent divergence.

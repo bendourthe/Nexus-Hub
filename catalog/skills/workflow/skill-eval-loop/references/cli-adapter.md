@@ -58,47 +58,71 @@ Pros: ~50 lines of CLI-specific code per script (vs ~150 lines of duplication x 
 
 ## Per-CLI invocation patterns
 
-The exact CLI flag surface evolves; this file documents the pattern as of v1.1.5. The dispatcher should treat each branch as the source of truth and update it when a CLI changes its flag scheme.
+The exact CLI flag surface evolves. The findings below were verified against official vendor documentation on 2026-09-21; the Gemini and OpenCode isolation limitations were rechecked on 2026-09-25. Every provider-backed run requires an explicit model pin; a runner with no documented all-configuration isolation fails closed instead of silently falling back.
 
 ### Claude Code
 
+**Runner**: `claude`
+
+**Isolation status**: supported with `--setting-sources ""`, which supplies an empty list of user, project, and local setting sources.
+
+**Model pin**: `--model <model>` is mandatory.
+
+**Official source**: [Claude Code CLI reference](https://code.claude.com/docs/en/cli-usage), verified 2026-09-21.
+
 ```bash
-claude -p "<prompt>" --skill <path/to/SKILL.md>
+claude -p "<prompt>" --setting-sources "" --model <model> --skill <path/to/SKILL.md>
 ```
 
 - Skill loading: `--skill <path>` (the file path, not the directory).
 - Prompt: `-p "<text>"` for one-shot non-interactive mode.
-- Token / duration capture: Claude Code prints these to stderr at the end of a session; the dispatcher parses the trailing `tokens used: N | duration: M ms` line. If absent, estimate.
+- Token / duration capture: parse the CLI's trailing usage output when present; otherwise record that the value was estimated.
 
 ### Gemini / Antigravity
 
-```bash
-gemini --workflow "<prompt>" --skill-file <path>
-```
+**Runner**: `gemini`
 
-- Skill loading: `--skill-file <path>`.
-- Prompt: `--workflow "<text>"` (Gemini's name for the one-shot input).
-- Token / duration capture: Gemini emits a JSON line on stderr when `--telemetry json` is set; without it, estimate.
+**Isolation status**: limitation - no all-configuration isolation flag is documented. `-e none` disables extensions, and `GEMINI_CLI_HOME` redirects user-level configuration and storage, but the official configuration reference still describes separate system, project, environment, and command-line layers. The documented home override alone does not establish an isolated baseline. Evals on this runner are refused and are not comparable to isolated runs.
+
+**Model pin**: `--model <model>` is documented, but a model pin alone does not make the run isolated.
+
+**Official source**: [Gemini CLI configuration reference](https://geminicli.com/docs/reference/configuration/), rechecked 2026-09-25.
+
+No invocation is emitted until a documented and tested per-run exclusion covers every configuration source.
 
 ### Codex
 
+**Runner**: `codex`
+
+**Isolation status**: supported with `--ignore-user-config --ignore-rules --ephemeral`. The first excludes `$CODEX_HOME/config.toml`, the second excludes user and project execpolicy rules, and the third prevents session persistence.
+
+**Model pin**: `--model <model>` is mandatory.
+
+**Official source**: [OpenAI Codex exec CLI source](https://github.com/openai/codex/blob/main/codex-rs/exec/src/cli.rs), verified 2026-09-21.
+
 ```bash
-codex exec "<prompt>" --prompt <path/to/SKILL.md>
+codex exec --ignore-user-config --ignore-rules --ephemeral --model <model> "<prompt>" --prompt <path/to/SKILL.md>
 ```
 
-- Skill loading: `--prompt <path>` (Codex treats skills as prompt overlays).
+- Skill loading: `--prompt <path>` (the adapter's prompt-overlay contract).
 - Prompt: positional after `exec`.
-- Token / duration capture: Codex prints `usage: input=N output=M total=K` on success; parse and capture.
+- Token / duration capture: parse the CLI's usage output on success.
 
 ### OpenCode
 
-```bash
-opencode run "<prompt>" --skill <path>
-```
+**Runner**: `opencode`
 
-- Skill loading: `--skill <path>`.
-- Prompt: positional after `run`.
-- Token / duration capture: OpenCode does not currently emit tokens reliably; default to estimation.
+**Isolation status**: limitation - no all-configuration isolation flag is documented. `--pure` disables external plugins only; the official configuration reference says config sources are merged, a custom config directory is additive, and managed settings take highest priority. Evals on this runner are refused and are not comparable to isolated runs.
+
+**Model pin**: `--model <provider/model>` is documented, but a model pin alone does not make the run isolated.
+
+**Official source**: [OpenCode CLI reference](https://dev.opencode.ai/docs/cli/) and [configuration reference](https://dev.opencode.ai/docs/config/), rechecked 2026-09-25.
+
+No invocation is emitted until a documented and tested per-run exclusion covers every configuration source.
+
+## Model pin and conflict rule
+
+Isolation removes saved model and effort settings. Without an explicit pin, the CLI default can vary by operator and release, and per-token cost varies with it. The run-level `--model` value is therefore mandatory and must be recorded with published results. If an eval entry contains a different `model`, the run fails with a named conflict; the adapter never lets a per-eval value silently replace the run pin.
 
 ## Parity-test specification
 
@@ -106,8 +130,10 @@ opencode run "<prompt>" --skill <path>
 
 1. The branch's `subprocess.run(...)` / `subprocess.Popen(...)` calls have `argv[0]` equal to `"X"` (the same CLI name as the branch).
 2. No other CLI binary name appears anywhere within the branch's body.
+3. The branch either contains the documented isolation flags and one explicit model pin or fails closed with the sourced limitation.
+4. The four runner markers in this reference exactly match the runtime branch set.
 
-The test is parametrized over the cross product of (script, cli), so any cross-CLI bleed introduced in any of the three dispatcher scripts produces a single targeted failure pinpointing the script and the offending branch.
+The test is parametrized over the cross product of dispatcher and CLI, so any cross-CLI bleed introduced in the runtime command builder produces a single targeted failure pinpointing the script and branch.
 
 ## Why the parity invariant matters
 

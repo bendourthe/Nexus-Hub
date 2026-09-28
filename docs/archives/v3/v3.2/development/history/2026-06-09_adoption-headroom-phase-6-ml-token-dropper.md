@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 6: Optional ML token-dropper
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
+**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
 **Phase**: 6 of 7 -- Optional ML token-dropper (re-partial)
 **Branch**: `feat/adoption-headroom` (continuing from Phase 5)
 **Outcome**: complete; both sub-tasks (T019-T020) closed, all quality gates green (GO). Reconciled on 2026-06-10 with a parallel duplicate implementation (see Reconciliation below): the pushed lossy base was kept and CCR-reversibility was grafted onto it per the maintainer's decision.

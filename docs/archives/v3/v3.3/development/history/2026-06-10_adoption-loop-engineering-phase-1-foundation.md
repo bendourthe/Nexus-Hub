@@ -1,7 +1,7 @@
 # Session History -- v3.3.0 adoption-loop-engineering Phase 1: Foundation skill, schema, and local library
 
 **Date**: 2026-06-10
-**Plan**: [`docs/releases/v3/v3.3/plans/adoption-loop-engineering.md`](../../plans/adoption-loop-engineering.md)
+**Plan**: [`docs/releases/v3/v3.3/plans/adoption-loop-engineering.md`](../../../../../releases/v3/v3.3/plans/adoption-loop-engineering.md)
 **Phase**: 1 of 4 -- Foundation: loop-engineering skill + schema + seeded library
 **Branch**: `codex/adoption-loop-engineering-phase-1` (created from `develop`; branch creation required host Git access because `.git` writes are sandbox-restricted)
 **Outcome**: complete; all Phase 1 sub-tasks closed and the Phase 1 exit checklist is checked.

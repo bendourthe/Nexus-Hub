@@ -5,14 +5,14 @@
 **Slug**: adoption-spec-kit
 **Plan Type**: Feature/Enhancement (additive adoption of conventions, templates, and one refactor)
 **Created**: 2026-05-20
-**Source comparison**: [../comparison-spec-kit.md](../comparison-spec-kit.md)
+**Source comparison**: [../comparison-spec-kit.md](../../v2.0/comparison-spec-kit.md)
 **Scope filter**: all (P0 + P1 + P2 + P3 + G12 re-full)
 **Sequencing mode**: reverse-engineer-first (MCP Registry Policy default)
 **Goal**: Adopt 12 capabilities from GitHub Spec Kit into Nexus-Hub -- 11 skill-native items shipping as v2.1.0, 4 P3 polish items shipping as v2.1.x patches, and 1 re-full installer refactor (G12) shipping as v2.2.0.
 
 ## Overview
 
-This plan operationalizes the adoption candidates identified in [comparison-spec-kit.md](../comparison-spec-kit.md). Spec Kit is GitHub's open-source toolkit for Spec-Driven Development (SDD); Nexus-Hub already has overlapping skills (`spec-driven-development`, `idea-refine`, `ambiguity-detector`, `generate-plan`, `quality-gate-definitions`) but lacks the gating discipline, the project-governance file, and the cross-artifact analyzer that make SDD enforceable rather than aspirational. The adoption is structured as additive conventions, templates, and commands -- no breaking changes to existing skills.
+This plan operationalizes the adoption candidates identified in [comparison-spec-kit.md](../../v2.0/comparison-spec-kit.md). Spec Kit is GitHub's open-source toolkit for Spec-Driven Development (SDD); Nexus-Hub already has overlapping skills (`spec-driven-development`, `idea-refine`, `ambiguity-detector`, `generate-plan`, `quality-gate-definitions`) but lacks the gating discipline, the project-governance file, and the cross-artifact analyzer that make SDD enforceable rather than aspirational. The adoption is structured as additive conventions, templates, and commands -- no breaking changes to existing skills.
 
 **Phase sequencing follows the MCP Registry Policy decision tree (reverse-engineer-first). See Section 9.4 of the source comparison for the ordering rationale.** All 11 Bucket A items (G1-G11) are classified `skill-native` per the policy: they ship as new commands, new skills, and updates to existing skill bodies -- no new code, no new outbound calls, no new credentials, no new third-party data processors. The single re-full item (G12 Integration Registry pattern) is a Python refactor of Nexus-Hub's own installer template logic -- still no external dependency, but substantially larger in scope. It lands in its own phase targeted at v2.2.0.
 

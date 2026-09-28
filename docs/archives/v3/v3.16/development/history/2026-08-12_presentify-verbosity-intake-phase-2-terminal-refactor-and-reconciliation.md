@@ -1,7 +1,7 @@
 # Session History - v3.16.6 Phase 2: terminal refactor, reconciliation, and CI/CD
 
 **Date**: 2026-08-12
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.6-presentify-verbosity-intake.md](../../plans/v3.16.6-presentify-verbosity-intake.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.6-presentify-verbosity-intake.md](../../../../../releases/v3/v3.16/plans/v3.16.6-presentify-verbosity-intake.md)
 **Phase**: 2 of 2 (FINAL - the mandatory terminal phase; release-readiness runs after it)
 **Branch**: `feat/v3.16.6-presentify-verbosity-intake` (Phase 1 at `9ce25652`)
 

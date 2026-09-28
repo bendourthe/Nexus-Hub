@@ -1,7 +1,7 @@
 # Session History - v3.10.0 adoption-ruflo Phase 4: nexus-hub verify supply-chain command + release manifest
 
 **Date**: 2026-06-30
-**Plan**: [`../../plans/adoption-ruflo.md`](../../plans/adoption-ruflo.md) Phase 4 (A1: `nexus-hub verify` supply-chain command + release manifest; re-full, P1 - the highest-value item in the cycle)
+**Plan**: [`../../plans/adoption-ruflo.md`](../../../../../releases/v3/v3.10/plans/adoption-ruflo.md) Phase 4 (A1: `nexus-hub verify` supply-chain command + release manifest; re-full, P1 - the highest-value item in the cycle)
 **Branch**: `develop`
 **Outcome**: Complete. All Phase 4 exit-checklist items satisfied; quality gate GO. Phase 4 of 6; not the final phase, so no release-readiness run.
 

@@ -1,7 +1,7 @@
 # Session History -- v3.4.0 model-routing Phase 2: The /route command + switch helpers
 
 **Date**: 2026-06-14
-**Plan**: [`docs/releases/v3/v3.4/plans/model-routing.md`](../../plans/model-routing.md)
+**Plan**: [`docs/releases/v3/v3.4/plans/model-routing.md`](../../../../../releases/v3/v3.4/plans/model-routing.md)
 **Phase**: 2 of 4 -- The `/route` command + switch helpers (skill-native)
 **Branch**: `feat/model-routing` (off `develop`; no version tag cut this phase)
 **Outcome**: complete; all Phase 2 sub-tasks closed and the Phase 2 exit checklist is satisfied.

@@ -29,6 +29,15 @@ VIEWPORTS = [
 # A larger heading floor may be declared by the visual brief; it is not universal.
 FONT_FLOORS = {"heading": 16, "body": 16, "label": 13, "interactive": 12}
 
+# responsive-typography.md section 4.1 owns this one, and it is deliberately NOT
+# expressed in px. The floors above are reading-page floors set for a document at
+# desk distance; a stage is read across a room, so its floor is a share of the
+# stage height and therefore holds at any canvas size. It is measured here rather
+# than in visual_qa_score.py because the value that matters is the RENDERED size
+# after the stage's transform, which markup alone cannot decide - the reason that
+# script's slide-type checks stop at declared sizes and name this a render probe.
+SLIDE_STAGE_FLOOR_FRACTION = 0.02
+
 # Ceilings on RENDERED size, per named role. The floor gate above is one-sided,
 # so text rendering far ABOVE the document scale passed silently - which is
 # exactly how the SVG scaling trap escapes: an SVG multiplies its authored
@@ -405,6 +414,16 @@ DECK_INTEGRITY = r"""(slide) => {
    }
  }
 
+ // The figure runtime delegates series clicks from document but resolves the
+ // clicked button's nearest chart figure before changing its marks. A button
+ // moved outside that figure remains visible and focusable yet cannot work.
+ // Listener presence alone cannot catch it because document always listens.
+ for (const control of slide.querySelectorAll('button[data-dv-series]')) {
+   if (!control.closest('figure[data-dv-figure]')) {
+     findings.push({rule: 'series-control-outside-figure', selector: name(control)});
+   }
+ }
+
  // ---- an element left invisible after the animation window ----------------
  for (const e of slide.querySelectorAll('*')) {
    const own = [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
@@ -457,6 +476,70 @@ DECK_INTEGRITY = r"""(slide) => {
  return findings;
 }"""
 
+# Only independently mapped, DOM-rendered source values are in this envelope.
+# MutationObserver sees brief text changes and animation-frame sampling catches
+# a value revealed only by style changes between the existing state samples.
+# An unmapped value must remain unchecked rather than receive a false pass.
+SOURCE_VALUE_WATCH = r"""(specs) => {
+  window.__nexusSourceValueWatch = specs.map(spec => {
+    const slide = [...document.querySelectorAll('[data-dv-slide]')]
+      .find(node => node.dataset.dvSlide === spec.slide_id);
+    const matches = slide ? slide.querySelectorAll(spec.selector) : [];
+    if (matches.length !== 1) {
+      return {spec, error: `source value ${spec.slide_id} ${spec.selector} matched ${matches.length} elements`};
+    }
+    const watch = {spec, count: 0, wrong: [], last: null};
+    watch.capture = () => {
+      const current = slide.querySelectorAll(spec.selector);
+      if (current.length !== 1 || slide.hidden ||
+          !current[0].checkVisibility({checkOpacity:true,checkVisibilityCSS:true})) return;
+      const text = current[0].textContent.trim();
+      if (text === watch.last) return;
+      watch.last = text;
+      watch.count++;
+      if (text !== spec.text && watch.wrong.length < 3) watch.wrong.push(text);
+    };
+    watch.observer = new MutationObserver(watch.capture);
+    watch.observer.observe(slide, {subtree:true,childList:true,characterData:true});
+    watch.running = true;
+    const frame = () => {
+      if (!watch.running) return;
+      watch.capture();
+      watch.frame = requestAnimationFrame(frame);
+    };
+    watch.frame = requestAnimationFrame(frame);
+    return watch;
+  });
+  return window.__nexusSourceValueWatch.filter(watch => watch.error).map(watch => watch.error);
+}"""
+
+SOURCE_VALUE_RESULT = r"""(slideId) => window.__nexusSourceValueWatch
+  .filter(watch => watch.spec.slide_id === slideId)
+  .map(watch => {
+    watch.capture();
+    watch.running = false;
+    cancelAnimationFrame(watch.frame);
+    watch.observer.disconnect();
+    return {selector:watch.spec.selector, expected:watch.spec.text,
+      observed_changes:watch.count, wrong:watch.wrong};
+  })"""
+
+
+def _valid_control_state(state: Any) -> bool:
+    if not isinstance(state, dict) or not isinstance(state.get("selector"), str):
+        return False
+    if not state["selector"]:
+        return False
+    if set(state) == {"selector", "text"}:
+        return isinstance(state["text"], str)
+    if set(state) not in (
+        {"selector", "attribute", "value"},
+        {"selector", "css", "value"},
+    ):
+        return False
+    key = "attribute" if "attribute" in state else "css"
+    return isinstance(state[key], str) and bool(state[key]) and isinstance(state["value"], str)
+
 
 def measure(
     html: Path,
@@ -471,6 +554,13 @@ def measure(
         "errors": [],
         "qualitative_review": "required separately",
         "verification_scope": "rendered geometry, inventory and declared browser behaviors",
+        "source_value_guard": {"status": "unchecked", "observations": [], "findings": []},
+        "control_behavior_guard": {
+            "status": "unchecked",
+            "scope": "declared controls only; one representative viewport",
+            "observations": [],
+            "findings": [],
+        },
     }
     sections, slides = inventory.get("section_ids"), inventory.get("slide_ids")
     if (
@@ -490,8 +580,58 @@ def measure(
             "independent unique slide_ids required; [] means explicit opt-out"
         )
         return report
+    source_values = inventory.get("source_values", [])
+    if not isinstance(source_values, list) or any(
+        not isinstance(spec, dict)
+        or spec.get("slide_id") not in slides
+        or not isinstance(spec.get("selector"), str)
+        or not spec["selector"]
+        or not isinstance(spec.get("text"), str)
+        or not spec["text"]
+        for spec in source_values
+    ):
+        report["errors"].append("source value inventory is malformed")
+        return report
+    if len({(spec["slide_id"], spec["selector"]) for spec in source_values}) != len(
+        source_values
+    ):
+        report["errors"].append("source value inventory contains duplicate selectors")
+        return report
+    if source_values:
+        report["source_value_guard"]["status"] = "unverified"
+    control_behaviors = inventory.get("control_behaviors", [])
+    if not isinstance(control_behaviors, list) or any(
+        not isinstance(spec, dict)
+        or spec.get("slide_id") not in slides
+        or not isinstance(spec.get("control"), str)
+        or not spec["control"]
+        or not isinstance(spec.get("setup", []), list)
+        or any(not isinstance(step, str) or not step for step in spec.get("setup", []))
+        or any(not _valid_control_state(spec.get(key)) for key in ("before", "after"))
+        for spec in control_behaviors
+    ):
+        report["errors"].append("control behavior inventory is malformed")
+        return report
+    if len({(spec["slide_id"], spec["control"]) for spec in control_behaviors}) != len(
+        control_behaviors
+    ):
+        report["errors"].append("control behavior inventory contains duplicate controls")
+        return report
+    if any(
+        spec["before"]["selector"] != spec["after"]["selector"]
+        or spec["before"].get("attribute") != spec["after"].get("attribute")
+        or spec["before"].get("css") != spec["after"].get("css")
+        or spec["before"] == spec["after"]
+        for spec in control_behaviors
+    ):
+        report["errors"].append(
+            "control behavior inventory has no observable change on one target"
+        )
+        return report
+    if control_behaviors:
+        report["control_behavior_guard"]["status"] = "unverified"
     try:
-        from playwright.sync_api import sync_playwright
+        from playwright.sync_api import expect, sync_playwright
 
         spec = importlib.util.spec_from_file_location(
             "handbook_visual_detector", detector_path
@@ -530,6 +670,10 @@ def measure(
                     )
                 if not slides and page.locator("[data-dv-deck],[data-dv-open]").count():
                     raise ValueError("opt-out contains presentation elements")
+                if source_values:
+                    errors = page.evaluate(SOURCE_VALUE_WATCH, source_values)
+                    if errors:
+                        raise ValueError("; ".join(errors))
                 for label in inventory.get("expected_labels", []):
                     if label not in page.locator("[data-dv-page]").inner_text():
                         report["errors"].append("missing source label: " + label)
@@ -626,12 +770,44 @@ def measure(
                                     report["errors"].append(
                                         f"{identity}: undersized {font['role']}: {font['px']:.2f}px"
                                     )
+                                # The stage floor is a SECOND, stricter floor that
+                                # applies only while the slide is the measured root,
+                                # because 2% of a stage means nothing on a scrolling
+                                # page. Both can fire on one text node: the page floor
+                                # says it is too small to read at a desk, this says it
+                                # is too small to read across a room.
+                                if view == "presentation":
+                                    # The basis is the VIEWPORT height, not the
+                                    # slide element's clientHeight. On a stage
+                                    # that reflows and scrolls - compact mode at
+                                    # 390x844 measured a 4070px element - the
+                                    # element's height is the content's, and 2%
+                                    # of it (81px) is a floor no type can meet.
+                                    # The contract's own arithmetic settles it:
+                                    # "on a 1080px stage, 21.6px" is 2% of the
+                                    # viewport. A scrolling desktop stage is a
+                                    # separate error already reported above.
+                                    stage_floor = height * SLIDE_STAGE_FLOOR_FRACTION
+                                    if stage_floor and font["px"] + 0.1 < stage_floor:
+                                        report["errors"].append(
+                                            f"{identity}/{width}x{height}: text below the "
+                                            f"slide-stage floor: {font['px']:.2f}px under "
+                                            f"{stage_floor:.2f}px "
+                                            f"({SLIDE_STAGE_FLOOR_FRACTION:.0%} of the "
+                                            f"{height}px stage) -- {font['text']!r}"
+                                        )
                                 # The other side of the same gate.
                                 named = font.get("typeRole")
                                 if named is not None:
                                     ceiling = inventory.get("type_ceilings", {}).get(
                                         named, TYPE_CEILINGS.get(named)
                                     )
+                                    if view == "presentation" and ceiling:
+                                        # A tall stage can require type larger than
+                                        # the reading-page ceiling for the same role.
+                                        ceiling = max(
+                                            ceiling, height * SLIDE_STAGE_FLOOR_FRACTION
+                                        )
                                     if ceiling and font["px"] > ceiling + 0.1:
                                         report["errors"].append(
                                             f"{identity}: oversized {named}: "
@@ -668,6 +844,23 @@ def measure(
                                         f"{hit['selector']}"
                                         + (f" -- {hit['text']!r}" if hit.get("text") else "")
                                     )
+                                if source_values:
+                                    for observed in page.evaluate(SOURCE_VALUE_RESULT, identity):
+                                        report["source_value_guard"]["observations"].append(
+                                            {"slide_id": identity, "viewport": [width, height], **observed}
+                                        )
+                                        if not observed["observed_changes"]:
+                                            finding = (
+                                                f"{identity}: source value {observed['selector']} was never visible"
+                                            )
+                                            report["errors"].append(finding)
+                                            report["source_value_guard"]["findings"].append(finding)
+                                        for wrong in observed["wrong"]:
+                                            finding = (
+                                                f"{identity}: source value {observed['selector']} displayed {wrong!r}; expected {observed['expected']!r}"
+                                            )
+                                            report["errors"].append(finding)
+                                            report["source_value_guard"]["findings"].append(finding)
                             row["detector_findings"] = found["findings"]
                             report["errors"].extend(
                                 f"{identity}: {f['rule']}"
@@ -677,6 +870,78 @@ def measure(
                         if view == "presentation" and index + 1 < len(ids):
                             page.keyboard.press("ArrowRight")
                 page.close()
+            for behavior in control_behaviors:
+                page = browser.new_page(
+                    viewport={"width": 1366, "height": 768}, reduced_motion="reduce"
+                )
+                page.on("pageerror", lambda error: report["errors"].append(str(error)))
+                page.route("http**/*", block)
+                page.goto(html.resolve().as_uri())
+                slide_index = slides.index(behavior["slide_id"])
+                page.evaluate("index => window.NexusDualView.open(index)", slide_index)
+                slide = page.locator("[data-dv-slide]").nth(slide_index)
+                control = slide.locator(behavior["control"])
+                label = f"{behavior['slide_id']}: control {behavior['control']}"
+                observed_state: dict[str, str | None] = {}
+                try:
+                    if control.count() != 1:
+                        raise ValueError(f"expected one control, found {control.count()}")
+                    expect(control).to_be_visible(timeout=1500)
+                    expect(control).to_be_enabled(timeout=1500)
+                    for selector in behavior.get("setup", []):
+                        setup = slide.locator(selector)
+                        if setup.count() != 1:
+                            raise ValueError(
+                                f"setup selector {selector} matched {setup.count()} nodes"
+                            )
+                        setup.click()
+                    for phase in ("before", "after"):
+                        state = behavior[phase]
+                        target = slide.locator(state["selector"])
+                        if target.count() != 1:
+                            raise ValueError(
+                                f"{phase} selector {state['selector']} matched {target.count()} nodes"
+                            )
+                        if phase == "after":
+                            control.click()
+                        if "text" in state:
+                            expect(target).to_be_visible(timeout=1500)
+                            expect(target).to_have_text(state["text"], timeout=1500)
+                        elif "attribute" in state:
+                            expect(target).to_be_visible(timeout=1500)
+                            expect(target).to_have_attribute(
+                                state["attribute"], state["value"], timeout=1500
+                            )
+                        else:
+                            expect(target).to_have_css(state["css"], state["value"], timeout=1500)
+                        observed_state[phase] = target.evaluate(
+                            "(el, state) => 'text' in state ? el.innerText : "
+                            "'attribute' in state ? el.getAttribute(state.attribute) : "
+                            "getComputedStyle(el).getPropertyValue(state.css)",
+                            state,
+                        )
+                    report["control_behavior_guard"]["observations"].append(
+                        {
+                            "slide_id": behavior["slide_id"],
+                            "control": behavior["control"],
+                            "status": "pass",
+                            "observed": observed_state,
+                        }
+                    )
+                except Exception as exc:  # noqa: BLE001 - failed browser assertion is evidence
+                    finding = f"{label}: declared behavior failed: {exc}"
+                    report["errors"].append(finding)
+                    report["control_behavior_guard"]["findings"].append(finding)
+                    report["control_behavior_guard"]["observations"].append(
+                        {
+                            "slide_id": behavior["slide_id"],
+                            "control": behavior["control"],
+                            "status": "fail",
+                            "observed": observed_state,
+                        }
+                    )
+                finally:
+                    page.close()
             page = browser.new_page(
                 java_script_enabled=False, viewport={"width": 1366, "height": 768}
             )
@@ -743,6 +1008,14 @@ def measure(
                 page.close()
             browser.close()
         report["status"] = "fail" if report["errors"] else "pass"
+        if source_values:
+            report["source_value_guard"]["status"] = (
+                "fail" if report["source_value_guard"]["findings"] else "pass"
+            )
+        if control_behaviors:
+            report["control_behavior_guard"]["status"] = (
+                "fail" if report["control_behavior_guard"]["findings"] else "pass"
+            )
     except Exception as exc:  # noqa: BLE001 - unavailable renderer is an explicit non-pass
         report["errors"].append(str(exc))
     sizes = [f["px"] for row in report["rows"] for f in row["fonts"]]

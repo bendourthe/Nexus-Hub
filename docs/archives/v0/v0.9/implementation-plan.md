@@ -11,9 +11,9 @@
 
 Three gap analyses were produced during v0.9.6 and saved to [docs/v0.9.6/](docs/v0.9.6/):
 
-1. [comparison-claude-code-session-management-1m-context.md](docs/v0.9.6/comparison-claude-code-session-management-1m-context.md) - gaps against Anthropic's session-management / 1M-context guidance.
-2. [comparison-best-practices-for-using-claude-opus-4-7-with-claude-code.md](docs/v0.9.6/comparison-best-practices-for-using-claude-opus-4-7-with-claude-code.md) - gaps against the Opus 4.7 best-practices blog post.
-3. [comparison-x-post-security-audit-prompt.md](docs/v0.9.6/comparison-x-post-security-audit-prompt.md) - red-team mindset gaps versus the current `/run-penetration-test` command.
+1. [comparison-claude-code-session-management-1m-context.md](comparison-claude-code-session-management-1m-context.md) - gaps against Anthropic's session-management / 1M-context guidance.
+2. [comparison-best-practices-for-using-claude-opus-4-7-with-claude-code.md](comparison-best-practices-for-using-claude-opus-4-7-with-claude-code.md) - gaps against the Opus 4.7 best-practices blog post.
+3. [comparison-x-post-security-audit-prompt.md](comparison-x-post-security-audit-prompt.md) - red-team mindset gaps versus the current `/run-penetration-test` command.
 
 Together the three documents produced **22 deduplicated recommendations** spanning P0 reconciliation fixes, P1 behavioral adaptations for Opus 4.7, P1/P2 new security skills, P2/P3 skill extensions, and a P3 VS Code extension UI improvement. The most important issues are a **factual inconsistency** between [catalog/hooks/settings.json](catalog/hooks/settings.json) (`xhigh`) and [CHANGELOG.md](CHANGELOG.md) line 27 (claims `high`), and the **absence of any codified guidance** on Opus 4.7's effort-level hierarchy and reasoning-over-tools posture - both of which materially affect how every operator configures the harness.
 

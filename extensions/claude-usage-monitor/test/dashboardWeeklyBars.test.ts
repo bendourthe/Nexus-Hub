@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { DashboardPanel } from "../src/dashboardPanel";
 import type { UsageData } from "../src/types";
-import { __resetStubState, createdWebviewPanels } from "./vscode-stub";
+import { __resetStubState, __setStubConfig, createdWebviewPanels } from "./vscode-stub";
 
 /**
  * Renders the dashboard's weekly sections (v4.10.0 MT-2).
@@ -20,8 +20,9 @@ const baseData: UsageData = {
   lastUpdated: Date.now(),
 };
 
-function renderDashboard(data: UsageData): string {
+function renderDashboard(data: UsageData, metric?: string): string {
   __resetStubState();
+  if (metric) __setStubConfig("claudeUsage", "thresholdMetric", metric);
   // `show()` caches a singleton across calls; clear it so each test renders fresh.
   (DashboardPanel as unknown as { currentPanel: unknown }).currentPanel = undefined;
   DashboardPanel.show(data, "just now", undefined, {} as never);
@@ -65,5 +66,17 @@ describe("dashboard weekly sections", () => {
     // would be script execution, not just broken layout.
     expect(html).not.toContain("<img src=x onerror");
     expect(html).toContain("&lt;img src=x onerror");
+  });
+
+  it("shows a scoped threshold suggestion only when that metric is selected and present", () => {
+    const scoped = renderDashboard({
+      ...baseData,
+      weeklyScoped: { percent: 86, resetsIn: "2d", resetsAt: null, label: "Fable" },
+    }, "weeklyScoped");
+    expect(scoped).toContain("Weekly (Fable) usage at 86%");
+
+    const absent = renderDashboard({ ...baseData, session: { ...baseData.session, percent: 98 } }, "weeklyScoped");
+    expect(absent).not.toContain("Current Session usage at 98%");
+    expect(absent).not.toContain("Weekly (Fable) usage at 86%");
   });
 });

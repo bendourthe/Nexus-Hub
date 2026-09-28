@@ -45,6 +45,7 @@ CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 MANIFEST = REPO_ROOT / "docs" / "policy" / "required-checks.json"
 
 GATE_JOB = "ci-required"
+PLUGIN_LOAD_JOB = "claude-plugin-load"
 
 # BASH is resolved empirically by conftest rather than by shutil.which: the
 # Windows System32 WSL launcher stub precedes Git Bash on PATH and exits 1.
@@ -163,6 +164,17 @@ def test_manifest_requires_the_gate_and_no_matrix_leg() -> None:
             "job never publishes its per-leg names, so these can sit Pending "
             "forever. Require the aggregate instead."
         )
+
+
+def test_plugin_load_job_reports_through_the_aggregate_only() -> None:
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    for branch, cfg in manifest["branches"].items():
+        contexts = cfg["contexts"]
+        assert len(contexts) == 5, f"{branch} required-check count changed"
+        assert PLUGIN_LOAD_JOB not in contexts
+
+    assert PLUGIN_LOAD_JOB in workflow()["jobs"][GATE_JOB]["needs"]
+    assert f"R_{PLUGIN_LOAD_JOB.replace('-', '_')}" in gate_step()["env"]
 
 
 # --------------------------------------------------------------------------

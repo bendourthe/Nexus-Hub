@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-16
 **Branch**: `feat/codex-lb-adoption` (off `develop`)
-**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../plans/v3.14.0-codex-lb-adoption.md), Phase 4 of 6 (not the final phase)
+**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../../../../releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md), Phase 4 of 6 (not the final phase)
 **Scope**: `catalog/hooks/` (schema, three hooks, shared helper, test, settings.json registration), `catalog/style-guides/`, `CHANGELOG.md`, AGENTS.md hook count, the v3.14 ledger/devlog/history docs.
 
 ## Goal

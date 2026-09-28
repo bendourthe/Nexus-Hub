@@ -249,6 +249,8 @@ def run_cleanups(integration_key: str, ctx: InstallContext) -> List[FileAction]:
     omitted. Order matches ``LEGACY_CLEANUPS[integration_key]`` insertion
     order so the rendered output is deterministic.
     """
+    if ctx.scope == "global" and ctx.explicit_target:
+        return []
     actions: List[FileAction] = []
     for fn in LEGACY_CLEANUPS.get(integration_key, []):
         action = fn(ctx)

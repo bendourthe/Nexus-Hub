@@ -522,6 +522,7 @@
         "solution-refresh",
         "tasks-to-issues",
         "test-driven-development",
+        "user-edit-preservation",
         "using-git-worktrees",
         "using-nexus-hub",
         "verification-before-completion",
@@ -570,7 +571,8 @@
         "code-quality",
         "strategic-comments",
         "pre-commit-checklist",
-        "research-plan-implement"
+        "research-plan-implement",
+        "user-edit-preservation"
       ]
     },
     {

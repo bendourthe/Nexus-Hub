@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: finalized for the v4.3.0 release
-**Finalized**: 2026-08-31, at `/update release`. The five deferred items and two warnings below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. One warning was resolved during v4.4.0 Phase 7 reconciliation; the four resolved bugs and one resolved coverage gap were fixed within this release.
-**Last updated**: 2026-08-31 (v4.4.0 Phase 7 reconciliation)
+**Finalized**: 2026-08-31, at `/update release`. One deferred item and one warning below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. DF-1, DF-2, DF-3, and DF-5 were resolved post-release. WN-1 and WN-2 were resolved after release; the four resolved bugs and one resolved coverage gap were fixed within this release.
+**Last updated**: 2026-09-26 (WN-3 optional platform source recheck)
 
 ## v4.3.0 - agentic-verification-discipline
 
@@ -12,9 +12,9 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 5 | 0 |
+| Deferred (DF) | 1 | 4 |
 | Bugs / regressions (BG) | 0 | 4 |
-| Warnings (WN) | 2 | 1 |
+| Warnings (WN) | 1 | 2 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -25,76 +25,104 @@
 ##### DF-1 - Inline workflow validators remain outside repository-native profiles
 
 - **Source phase**: Phase 5 CI/CD contract comparison
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T026
+- **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T026
 - **Evidence**: The 23-field comparison found large validation command lists embedded directly in workflow jobs even though `ci/run.py` exposes repository-native profiles.
 - **Impact**: Local and remote gates can drift because some CI behavior is defined only inside workflow YAML instead of the shared profile contract.
 - **Owner**: Next CI/CD lifecycle plan.
-- **Next step**: Inventory each inline validator, migrate it incrementally into the smallest owning `ci/run.py` profile, and prove local and workflow parity before removing the YAML body.
+- **Next step**: Prove hosted parity for the migrated general validators and confirm the remaining inline smoke flows are not duplicate profile contracts.
+
+**Local follow-up**: The general inline validator bodies have moved into `full` or `platform` groups, with explicit-only selection for Chromium and pre-commit. The remaining inline steps are event orchestration, tool setup, artifact publication, or real host/bootstrap/installer smoke flows. The [reconciliation audit](../../../archives/v4/v4.3/development/ci-profile-followup-reconciliation.md) records the classification. Hosted parity remains pending, so DF-1 stays open.
+
+**Resolution, 2026-09-22**: PR #241 passed its final hosted Linux, Windows, guide-render, bootstrap, smoke, and aggregate jobs with the migrated profile commands. Post-merge run 35820761181 passed smoke and provenance. The remaining inline host exercises are not duplicate validator lists. DF-1 is resolved; the original deferred observation and local candidate statement remain as historical evidence.
 
 ##### DF-2 - Pip caches are not keyed by dependency manifests
 
 - **Source phase**: Phase 5 CI/CD contract comparison
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T026
+- **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T026
 - **Evidence**: Several workflow setup and cache steps use workflow files as dependency keys because the corresponding test environments do not have dedicated dependency manifests.
 - **Impact**: Dependency changes can reuse stale caches or require unrelated workflow edits to invalidate them, weakening cache determinism.
 - **Owner**: Next CI/CD lifecycle plan.
-- **Next step**: Add scoped dependency manifests for the affected environments, key caches to those manifests, and validate cold and warm cache behavior on every supported runner.
+- **Next step**: Observe cold and warm cache behavior for the scoped guide and Windows manifests on the supported hosted runners.
+
+**Local follow-up**: Guide-render and Windows test jobs now install through scoped manifests under the universal Python 3.11 constraints and key pip caches to both inputs. Workflow tests pass; cold and warm hosted cache behavior remains pending, so DF-2 stays open.
+
+**Resolution, 2026-09-22**: PR #241 observed cold setup and then exact guide pip and Chromium cache-key hits on its successful replacement run. PR #242's successful Windows job restored the exact scoped pip key `setup-python-Windows-x64-python-3.11.9-pip-f066af2960521d92592a4da5c4f629db6dfb0baded091afaeab4661581e0ef84`. The hosted results prove manifest-keyed cold and warm behavior for the supported guide and Windows runners. DF-2 is resolved.
 
 ##### DF-3 - Report profile does not aggregate or publish structured evidence
 
 - **Source phase**: Phase 5 CI/CD contract comparison
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T026
+- **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T026
 - **Evidence**: The repository-native `report` profile is empty, and CI does not aggregate coverage, security, or SARIF outputs into bounded-retention artifacts.
 - **Impact**: A green gate lacks one durable report package for later review, trend analysis, and failure diagnosis.
 - **Owner**: Next CI/CD lifecycle plan.
-- **Next step**: Define the report schema, populate the `report` profile, publish unconditional success-or-failure evidence with explicit seven-day retention, and verify artifact contents on a pull request.
+- **Next step**: Inspect the hosted aggregate artifact and separately decide which coverage and SARIF producers should feed it; absent report types cannot be credited as collected evidence.
+
+**Local follow-up**: The report profile now validates and aggregates existing receipts into a hash/type index; a pull request job downloads those receipts and uploads one seven-day package after success or failure. Local tests passed. Hosted artifact inspection is pending, and the current workflow produces no coverage or SARIF files, so DF-3 remains open rather than counting their absence as evidence.
+
+**Producer follow-up**: The existing CI-engine test command now emits scoped coverage XML, and the existing catalog security scan emits SARIF at its unchanged high-severity threshold. The [producer evidence](../../../archives/v4/v4.3/development/ci-report-producer-evidence.md) records local output and the hosted gate. DF-3 remains open until both files are observed in the hosted aggregate.
+
+**First hosted run**: PR #243's Linux tests job failed because its scoped install omitted pytest-cov, despite the plugin being pinned in the universal lock. The [failed-run repair record](../../../archives/v4/v4.3/development/ci-report-producer-hosted-repair.md) preserves that result and the locally tested dependency correction. Hosted replacement evidence is still pending.
+
+**Resolution, 2026-09-22**: PR #243's replacement run passed all required jobs and uploaded an aggregate with five source receipts, real CI-engine coverage XML and catalog-scanner SARIF at verified hashes and typed index entries. The seven-day artifact expiry and passing post-merge smoke/provenance are recorded in the [hosted qualification](../../../archives/v4/v4.3/development/ci-report-producer-hosted-qualification.md). DF-3 is resolved; the earlier pending statements remain historical staging evidence.
 
 ##### DF-4 - OpenClaw tool interception requires a typed plugin
 
 - **Source phase**: Phase 5 platform-contract verification
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T023
+- **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T023
 - **Evidence**: Current official OpenClaw documentation exposes native skills and lifecycle hooks, but those managed hooks do not intercept or gate tool calls. Tool gating requires a typed plugin.
 - **Impact**: Nexus-Hub can deliver verified OpenClaw skills and document lifecycle-hook discovery, but it cannot claim responsive-write guard parity through the native hook surface.
 - **Owner**: Platform integration maintainer.
 - **Next step**: Scope and review a typed OpenClaw tool-interception plugin in a future platform plan; until then, keep the guardrail surface explicitly `NOT COVERED` and do not synthesize a shell-hook port.
 
-##### DF-5 - The ownership guard has no per-write managed root and refuses silently
+##### DF-5 (resolved post-release) - The ownership guard has no per-write managed root and refuses silently
 
 - **Source phase**: Phase 5 stabilization (post-full-suite regression triage)
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T025
+- **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T025
 - **Evidence**: `_link_like_managed_ancestor` walks ancestors only between `ctx.target_root` and the destination. A global-scope write to `~/.copilot`, `~/.claude`, or the VS Code user directory is outside that root, so it received no ancestor policing at all; before the fix it was refused outright and reported as `kept` with nothing written and no error raised. `FileAction` carries only `path` and `action`, so a refusal cannot surface a reason to the caller.
 - **Impact**: Out-of-root managed writes now proceed with leaf-level link protection only (symlink, junction, and hard-link destinations are still never written through, and replacement is an atomic directory-entry swap). Ancestor substitution on a global-scope path is not detected. A genuine in-tree refusal is still visible only in the manifest log, not in the returned result.
 - **Owner**: Platform integration maintainer.
 - **Next step**: Give `write_owned_file` an explicit managed root per call so global-scope destinations are policed against their own root (`~/.copilot`, `~/.claude`), and add a refusal reason to `FileAction` (or a companion result note) so a refusal is surfaced rather than reported as an ordinary `kept`.
+
+**Resolution**: `write_owned_file` now accepts a per-write root and returns a `FileAction.reason` on refusal. Codex, Kimi, and Copilot pass their native roots using the original path spelling, and their install entry points refuse linked roots before instruction, agent, hook, or prompt writes. The runner summary and both installers show the refusal instead of treating `kept` as a successful install. On Windows, the affected adapter and installer suite passed 668 tests with 45 host-specific skips, the fast profile passed 17/17, and a CLI dry-run against a disposable `.copilot` junction reported `instruction.status=error` with the redirect reason and zero entries in its external target. This resolves the current ownership-aware native write call sites; it is not a claim that every unrelated installer copy primitive is a filesystem sandbox.
+
+#### Warnings
+
+##### WN-3 - Optional platform surfaces remain unverified
+
+- **Source phase**: Phase 5 platform-contract verification
+- **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T023
+- **Evidence**: The current official audit did not prove Antigravity CLI loose workflow or hook destinations, Cursor legacy command directories, Gemini IDE surfaces beyond `GEMINI.md`, or Nexus AI read paths. The coupled bundle removes or avoids those claims instead of guessing.
+- **Impact**: Verified platform destinations continue to install, while these optional surfaces are deliberately absent or marked `UNVERIFIED`; users do not receive a false discovery guarantee.
+- **Owner**: Platform integration maintainer.
+- **Next step**: Recheck each surface against dated official documentation or a live-host artifact before adding a destination, default, or verification gate.
+
+**Targeted source recheck, 2026-09-24**: [Google's current hook reference](https://antigravity.google/docs/hooks?tab=cli) confirms that Antigravity CLI reads the shared global `~/.gemini/config/hooks.json` and workspace `.agents/hooks.json`; the existing adapter already emits both, and a global-install dry-run assertion now protects that path. [Nexus-AI source at `198ff9c8`](https://github.com/bendourthe/Nexus-AI/blob/198ff9c877f258c775092761e3c67a6bed56b1d2/desktop/sidecar/src/skills/hubSkillReader.ts) qualifies its global `~/.nexus-ai/catalog/skills` reader. The [archived bounded recheck](../../../archives/v4/v4.3/development/optional-platform-surface-recheck.md) keeps CLI loose workflows and agents, Cursor legacy command directories, Gemini Code Assist IDE add-on surfaces, and Nexus-AI's project-local mirror and other mirrored surfaces unverified. WN-3 remains open; no live Antigravity or Nexus-AI host behavior was claimed.
+
+**Targeted source recheck, 2026-09-26**: [Current Google CLI and migration documentation](development/optional-platform-surface-recheck-2026-09-26.md) now source-qualifies the shared Antigravity custom-agent and legacy-workflow destinations already emitted by the adapter, but the latter retires on November 1, 2026. Cursor's global command path has a vendor-reported discovery bug, Gemini Code Assist's IDE custom commands and rules use IDE settings rather than a documented CLI-file mirror, and Nexus-AI's project-local mirror still lacks a read-path proof. WN-3 remains open for those live-host and project-local questions; this addendum does not convert source evidence into a runtime pass.
+
+**Local host read-back attempt, 2026-09-27**: Installed Antigravity CLI 1.2.12 exposes `agy agents`, but it printed no agents from either this checkout or a disposable workspace containing a documented `.agents/agents/nexus-probe/agent.md`; the empty list is inconclusive without an authenticated interactive read-back. The interactive CLI reported that this host was not signed in and rejected the existing `agentMode: "default"` setting before opening an agent session; no settings were changed. Installed Cursor 3.21.18 exposes no agent-discovery list in `cursor --help`, and its UI read-back was not exercised. WN-3 remains open for authenticated Antigravity and Cursor observations, the dated workflow-retirement decision, Gemini Code Assist IDE behavior, and Nexus-AI's project-local mirror. The disposable agent fixture was removed after the test.
+
+### Resolved
 
 #### Warnings
 
 ##### WN-2 - GitHub settings that require the web UI remain unverified
 
 - **Source phase**: Phase 5 CI/CD contract comparison, approved bundle F
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T026
-- **Evidence**: Read-only APIs proved Actions permissions, workflow-token permissions, branch protection, required contexts, cache usage, repository visibility, and branch cleanup behavior. They did not expose the repository's default artifact retention, merge-queue state, or per-runner-class billing minutes.
-- **Impact**: The local pipeline and runbook are reconciled, but those three platform settings cannot be claimed as currently verified from this session.
-- **Owner**: Authorized publication flow with GitHub Settings access.
-- **Next step**: During publication, inspect Settings, Actions, General and Settings, Rules, Rulesets plus the billing page; record the three values in the release evidence and resolve this warning without changing a setting unless separately approved.
+- **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T026
+- **Evidence at deferral**: Read-only APIs proved Actions permissions, workflow-token permissions, branch protection, required contexts, cache usage, repository visibility, and branch cleanup behavior. They did not expose the repository's default artifact retention, merge-queue state, or per-runner-class billing minutes.
+- **Impact at deferral**: The local pipeline and runbook were reconciled, but those three platform settings could not be claimed as verified from that session.
+- **Owner at deferral**: Authorized publication flow with GitHub Settings access.
+- **Next step at deferral**: Inspect artifact retention, merge-queue state, and billing applicability without changing a setting or silently broadening token scope.
 
-##### WN-3 - Optional platform surfaces remain unverified
+**Account read-back, 2026-09-24**: GitHub's read-only repository API returned artifact/log retention of 90 days with a 90-day maximum. Its GraphQL repository field returned no merge queue object for either `develop` or default `main`; the repository rulesets API returned zero rulesets. The billing usage endpoint returned HTTP 404 with an explicit `user` scope requirement. The [archived read-back](../../../archives/v4/v4.3/development/github-settings-readback-2026-09-24.md) preserves those observations and the original open disposition.
 
-- **Source phase**: Phase 5 platform-contract verification
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T023
-- **Evidence**: The current official audit did not prove Antigravity CLI loose workflow or hook destinations, Cursor legacy command directories, Gemini IDE surfaces beyond `GEMINI.md`, or Nexus AI read paths. The coupled bundle removes or avoids those claims instead of guessing.
-- **Impact**: Verified platform destinations continue to install, while these optional surfaces are deliberately absent or marked `UNVERIFIED`; users do not receive a false discovery guarantee.
-- **Owner**: Platform integration maintainer.
-- **Next step**: Recheck each surface against dated official documentation or a live-host artifact before adding a destination, default, or verification gate.
-
-### Resolved
-
-#### Warnings
+**Resolution, 2026-09-25**: Fresh read-only calls again returned artifact/log retention `days=90`, `maximum_allowed_days=90`, `mergeQueue(branch:"develop")=null`, `mergeQueue(branch:"main")=null`, zero repository rulesets, and `isPrivate=false` with `main` as default. Every `runs-on` value in `.github/workflows/` is `ubuntu-latest`, `windows-latest`, `macos-latest`, or a matrix limited to those three standard labels; no reusable workflow or larger-runner label is configured. [GitHub's Actions billing contract](https://docs.github.com/en/billing/concepts/product-billing/github-actions) says standard GitHub-hosted runners are free for public repositories, while larger runners remain billable. Thus this repository has no per-runner-class billable minutes to read; account-wide usage or other repositories' charges are not inferred or claimed. The failed September 24 account endpoint remains a valid historical receipt, but it is not needed to establish this repository's billing applicability. WN-2 is resolved for the v4.3 repository CI comparison, without a GitHub setting change.
 
 ##### WN-1 - GitHub repository description advertises 328 skills
 
 - **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T020 / T026
+- **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T020 / T026
 - **Evidence at deferral**: `python scripts/check_release_preconditions.py --branches --repo-settings` reported that the live GitHub description said 328 skills while README and the generated catalog said 329.
 - **Resolution**: `python scripts/check_release_preconditions.py --repo-settings` returned `OK: repository description agrees with README.md`; `README.md` and the generated catalog declare 329 skills.
 - **Resolved in**: v4.4.0 Phase 7 reconciliation on 2026-08-31
@@ -104,7 +132,7 @@
 ##### BG-1 - Responsive hook misses fixed text caps expressed through CSS custom properties
 
 - **Source phase**: Phase 5 Tier 3 deep pass and independent Goal-vs-codebase review
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T007 / T022 / T023
+- **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T007 / T022 / T023
 - **Evidence at discovery**: Both hook siblings returned exit 0 for a text selector using `max-width: var(--measure)` with `--measure: 60ch`, while the canonical responsive-layout rule forbids the resulting fixed text cap and the detector reports it.
 - **Impact**: The render-time detector and write-time guard enforced different forms of the same rule, allowing a prohibited declaration through the earliest gate.
 - **Resolution**: The maintainer explicitly approved one bounded post-budget stabilization after the deep pass exhausted its unchanged global three-cycle allowance. Both siblings now resolve balanced custom-property chains with fallback, cascade, specificity, `!important`, CSS-wide value, source-order, cycle, nested-variable, and bounded-complexity handling; ambiguous or unreadable relevant edits fail closed. The full owned hook module passed 105 tests, sibling parity passed 302 tests, the 24-variable PowerShell case completed in 0.56 seconds, and an independent reviewer reproduced the more-specific fixed override as exit 2 on both hosts before returning APPROVE with no P0-P3 finding.
@@ -113,7 +141,7 @@
 ##### BG-2 - POSIX responsive hook silently exits when Python is unavailable
 
 - **Source phase**: Phase 5 independent Goal-vs-codebase review
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T007 / T015 / T023
+- **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T007 / T015 / T023
 - **Evidence at discovery**: `catalog/hooks/html-responsive-guard.sh` exited 0 before reading the payload when neither `python3` nor `python` was available, while the selector-free install contract permitted a full install without Python.
 - **Impact**: A supported installation could register an inert guard and report success for prohibited HTML or CSS writes.
 - **Resolution**: The Bash sibling now classifies the bounded payload path without Python, keeps irrelevant paths at exit 0, and returns actionable cannot-run exit 3 for relevant HTML or CSS writes, including escaped and metadata-shadowed paths. Paired regressions, the 105-test owned module, and the 302-case sibling-parity suite passed; the independent no-Python matrix reproduced irrelevant Markdown exit 0 and all three relevant path forms at exit 3.
@@ -122,7 +150,7 @@
 ##### BG-3 - POSIX existing-settings upgrades skip managed-hook registration without jq
 
 - **Source phase**: Phase 5 independent Goal-vs-codebase review
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T015 / T021 / T023
+- **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T015 / T021 / T023
 - **Evidence at discovery**: `scripts/installer.sh` copied the hook files but only reconciled an existing `settings.json` inside `command -v jq`; without jq it warned and left the settings unchanged. Fresh settings and the Windows native JSON path did not expose this branch.
 - **Impact**: A POSIX upgrade could contain the new hook on disk without registering it, so the consuming project did not inherit the discipline through its active settings.
 - **Resolution**: The POSIX installer now uses jq first and a Python JSON fallback, fails before write when neither safe parser is available, writes and converts a same-directory candidate before atomic replacement, preserves symlinked settings targets through a bounded resolver, and reads PowerShell 5.1 BOM input through `utf-8-sig`. Direct WSL exercises proved no-jq upgrade, no-parser no-write, conversion rollback for existing and fresh settings, symlink preservation, and BOM fallback. The consolidated current-tree installer/platform gate passed 188 tests with 6 expected host skips, the declarative parity check passed, and independent review returned APPROVE with no P0-P3 finding.
@@ -130,7 +158,7 @@
 ##### BG-4 - A WSL-stub `bash` silently denied every guarded tool call
 
 - **Source phase**: Phase 5 publication and integration (second red required-check round)
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T026
+- **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T026
 - **Evidence at discovery**: `tests-windows` failed with the Copilot bridge returning `deny` where `allow` was expected. Comparing the observed output against the branches that can produce it settled the cause: a `deny` with the default reason is emitted ONLY when the child returns non-zero, whereas an authority rejection emits `modifiedArgs` with no `permissionDecision`. The child had exited non-zero with an EMPTY stderr, and a missing interpreter would instead have raised `OSError` and surfaced a `hook-compat:` reason. That is the signature of the Windows WSL launcher stub answering to `bash`, which prints its no-distribution notice to stdout.
 - **Impact**: User-facing, not merely a CI artifact. On any Windows host whose PATH `bash` is that stub, every guarded tool call was denied with no actionable diagnostic, which reads as a broken agent rather than a missing interpreter. The guard failed closed, which is correct, but for a reason no user could act on.
 - **Resolution**: `_resolve_bash_command` rewrites a BARE `bash` to a verified absolute Git Bash on Windows. A caller-chosen absolute interpreter is never second-guessed, a host with no Git Bash keeps the original command so PATH resolution still applies, POSIX is untouched, and the rewrite happens at the execution site only so `_copilot_permission_authoritative` still inspects the original command and its binding is unchanged. An earlier fix in this same round attributed the failure to the `st_nlink == 1` predicate; that hypothesis was disproven and BOTH the predicate change and its regression test were reverted rather than kept for tidiness, because a security predicate must not be loosened on disproven evidence. `tests-windows` passed on the following integration round.
@@ -139,7 +167,7 @@
 ##### MT-1 - The local gate could not observe host interpreter resolution
 
 - **Source phase**: Phase 5 publication and integration (raised after two red rounds)
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T025 / T026
+- **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T025 / T026
 - **Evidence at discovery**: Three of the four causes across two red integration rounds were invisible to a fully green local suite because each depended on how the HOST resolves or provides something rather than on the code under test. No gate group could observe that class at all: every group runs Python directly rather than through the interpreter the hooks are actually launched with.
 - **Impact**: Broader than the bridge that exposed it. Nexus-Hub registers hooks as `bash <script>` and the assistant host performs that launch, so a host with an unusable `bash` leaves every Nexus-Hub bash hook silently inert, and Nexus-Hub cannot rewrite how the host invokes them. A green local gate therefore certified a configuration in which the shipped discipline does not run.
 - **Resolution**: Closed in this release at the maintainer's direction rather than deferred, in three parts. (1) `test_guard_survives_a_wsl_stub_first_on_path` places a stub `bash` first on PATH and asserts the guard still allows; its failure mode was verified by disabling the resolver, so the test is proven capable of failing. (2) `scripts/lib/integrations/_interpreters.py` probes whether each interpreter can execute a script, requiring an exact marker on stdout AND exit 0 so a shim that swallows the script and returns 0 cannot pass; `runner.py verify` reports an unusable interpreter as a NEEDS-ACTION line naming Git Bash and the PATH remedy, fail-soft so it never fails an install that delivered every file correctly. (3) A new `interpreters` group runs `scripts/check_interpreter_resolution.py --gate` in the fast, full, and platform profiles, registered repo-internal in `DEV_ONLY_SCRIPTS`. It is a GROUP inside existing profiles, not a new workflow job, so it adds no required status context and cannot reproduce the v3.17.5 pending-check trap. Six focused tests cover the probe and the advisory-versus-gate exit contract. Final local gate: 43 passed, 0 failed, 0 skipped, 0 advisory, profile exit 0.

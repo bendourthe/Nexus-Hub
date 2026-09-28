@@ -14,7 +14,7 @@
 - **Starting commit**: `4b7d13e8`
 - **Environment**: Windows PowerShell, Python 3.12.10, Claude Code 2.1.156
 - **Prior session reference**: [Phase 3 core consent, TTL, and audit](2026-08-14_agent-autonomy-toggle-phase-3-core-consent-ttl-and-audit.md)
-- **Plan reference**: [v3.17.0 agent autonomy toggle](../../plans/v3.17.0-agent-autonomy-toggle.md)
+- **Plan reference**: [v3.17.0 agent autonomy toggle](../../../../../releases/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md)
 
 Phase 3 had committed the reversible autonomy engine and expiry hook locally. Phase 4 began from that clean checkpoint and first tested the safety premise that prompt-bypass modes do not suppress blocking hooks.
 

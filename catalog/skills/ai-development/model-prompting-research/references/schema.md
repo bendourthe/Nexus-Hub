@@ -13,7 +13,7 @@ The index is authoritative because the validator, the staleness checker, the res
 
 Model-specific prompting guidance must never land in a shared catalog body (a `SKILL.md`, a command, a `base-*.md` template). A shared body is distributed verbatim to every platform, so a line naming one model becomes wrong the moment a reader is running a different one, and `scripts/check_base_template_parity.py` fails the build when such a line diverges across the five `base-*.md` templates. This layer is where model-specific guidance lives instead: bundled under the skill, distributed as Tier-3 on-demand reference by the installer's recursive skill-folder copy, and never inlined into a shared body.
 
-## Index schema (version 1.1.0)
+## Index schema (version 1.2.0)
 
 ### Top level
 
@@ -35,9 +35,9 @@ Exactly three keys. Unknown top-level keys are a validation error, because this 
 | `roster` | array of string | The model ids this layer was last verified against. Sorted ascending, unique, every entry non-empty. This is the full live roster, NOT only the profiled models. |
 | `roster_hash` | string | 64-character lowercase hex. `sha256` of the sorted roster joined by a single newline (`"\n".join(sorted(roster))`), UTF-8 encoded. |
 
-| `platforms` | array of object | OPTIONAL (schema 1.1.0, v4.7.0). One entry per additional platform whose models this layer profiles, each carrying `platform`, `roster_source`, `roster`, `roster_hash`, and `last_verified` with the same rules as the keys above. The legacy single-platform keys stay authoritative for the primary platform, so a Claude roster is never rewritten by research on another vendor's models; a write for a different platform upserts its entry here. `platform` values are unique within the array. Decision: `docs/releases/v4/v4.7/development/profile-index-multi-platform-decision.md`. |
+| `platforms` | array of object | OPTIONAL (schema 1.1.0, v4.7.0). One entry per additional platform whose models this layer profiles, each carrying `platform`, `roster_source`, `roster`, `roster_hash`, and `last_verified` with the same rules as the keys above. The legacy single-platform keys stay authoritative for the primary platform, so a Claude roster is never rewritten by research on another vendor's models; a write for a different platform upserts its entry here. `platform` values are unique within the array. Decision: `docs/archives/v4/v4.7/development/profile-index-multi-platform-decision.md`. |
 
-The `roster_hash` is a self-consistency check, not a freshness check: the schema validator recomputes it from `meta.roster` in the same file and fails on a mismatch, which catches a hand-edit that added a model to the list without re-stamping the hash. Comparing the recorded roster against the *live* roster is a separate, advisory concern owned by `scripts/check_model_prompting_freshness.py`.
+The `roster_hash` is a self-consistency check, not a freshness check: the schema validator recomputes it from `meta.roster` in the same file and fails on a mismatch, which catches a hand-edit that added a model to the list without re-stamping the hash. Comparing the recorded roster against the *live* roster is a separate, advisory concern owned by `scripts/check_model_prompting_freshness.py`. A claim-only writer payload omits both `roster` and `roster_source`; it may update a model already in that platform's recorded roster but preserves all roster metadata, including `last_verified`. It does not assert that the roster is current.
 
 ### `models.<model-id>`
 
@@ -58,6 +58,7 @@ A model listed in `meta.roster` with no entry under `models` is an UNVERIFIED mo
 | `confidence` | string | Yes | One of `high`, `medium`, `low`, `unverified`. `unverified` means the claim has not yet survived the adversarial-verify pass and must not be acted on. |
 | `scope` | string | Yes | One of `model-specific`, `model-agnostic-candidate`. Determines the write target. See the routing rule below. |
 | `note` | string | No | Free text. Use it for a TODO, a caveat, or the reason a claim was scoped the way it was. |
+| `evidence_scope` | string | No | One of `model`, `model-family`, `provider-plan`, `cited-page`. Describes what the cited source establishes, independently of the `scope` write-routing field. Absence means not recorded, never an implied model-specific source. Added in schema 1.2.0. |
 
 ## The scope field is the hard rail
 
@@ -78,6 +79,8 @@ Each `references/models/<model-id>.md` mirrors one `models` entry and carries th
 4. The `last_verified` date.
 
 The seed mirror is `references/models/claude-opus-5.md`. Use it as the template when the research engine writes a new one.
+
+The mirror includes an Evidence scope column. A family or plan fact remains attached to each applicable model for direct lookup, but the column prevents that duplication from reading as a per-model measurement. `cited-page` labels a negative result about the cited page only; it is not evidence that all vendor documentation lacks guidance. This field does not change the `scope` routing rail, roster freshness, claim confidence, or the original per-model `last_verified` date.
 
 ## Validation and freshness
 

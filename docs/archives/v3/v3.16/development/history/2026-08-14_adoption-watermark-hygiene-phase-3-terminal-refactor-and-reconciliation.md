@@ -1,7 +1,7 @@
 # Session History - v3.16.8 Phase 3: Terminal refactor, reconciliation, CI/CD, release readiness
 
 **Date**: 2026-08-14
-**Plan**: [plans/v3.16.8-adoption-watermark-hygiene.md](../../plans/v3.16.8-adoption-watermark-hygiene.md)
+**Plan**: [plans/v3.16.8-adoption-watermark-hygiene.md](../../../../../releases/v3/v3.16/plans/v3.16.8-adoption-watermark-hygiene.md)
 **Phase**: 3 of 3 (the terminal phase, so the mandatory 9.0 gate and the release-readiness workflow ran)
 **Branch**: `feat/v3.16.8-adoption-watermark-hygiene`
 **Status**: COMPLETE. Release-ready, awaiting `/update release`.

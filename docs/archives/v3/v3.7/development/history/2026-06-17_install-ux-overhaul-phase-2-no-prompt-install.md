@@ -1,7 +1,7 @@
 # Session History -- v3.7.0 install-ux-overhaul Phase 2: no-prompt all-platform install + conflict-only overwrite
 
 **Date**: 2026-06-17
-**Plan**: [`docs/releases/v3/v3.7/plans/install-ux-overhaul.md`](../../plans/install-ux-overhaul.md)
+**Plan**: [`docs/releases/v3/v3.7/plans/install-ux-overhaul.md`](../../../../../releases/v3/v3.7/plans/install-ux-overhaul.md)
 **Phase**: 2 of 5 -- No-prompt all-platform install + conflict-only overwrite
 **Branch**: `feat/installer-bootstrap` (off `develop`)
 **Outcome**: complete. All three sub-tasks (2.1 scope/platform, 2.2 conflict-only overwrite, 2.3 tests/stabilization) closed; every locally-runnable Stability Gate item is green and the bash conflict-helper coverage is wired into the existing CI `pytest tests/installer` step (authoritative under WN-v36-1).

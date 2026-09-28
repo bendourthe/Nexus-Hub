@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `develop`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md`](../../plans/v3.19.2-rtk-and-meterless.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md`](../../../../../releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md)
 **Phase**: 5 - Compressor polish and session mining
 **Environment**: Windows 11, PowerShell, Python 3.12, pytest
 **Outcome**: SHA-256-gated BYO filters, recoverable truncation, local passthrough mining in session-query / continuous-learning, and a signed-contract design study that recommends defer. Ready for Phase 6.

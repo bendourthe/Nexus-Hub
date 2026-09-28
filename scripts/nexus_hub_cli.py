@@ -562,6 +562,15 @@ def cmd_attribution(argv: list[str]) -> int:
     return subprocess.run([sys.executable, str(helper), *argv], check=False).returncode
 
 
+def cmd_run_plan(argv: list[str]) -> int:
+    """Forward `nexus-hub run-plan` to the installed full-run runner (v4.13.2)."""
+    helper = Path(__file__).resolve().parent / "run_plan.py"
+    if not helper.is_file():
+        _eprint("run_plan.py missing. Re-run the Nexus-Hub installer.")
+        return 2
+    return subprocess.run([sys.executable, str(helper), *argv], check=False).returncode
+
+
 def cmd_map(argv: list[str]) -> int:
     """Dispatch `nexus-hub map` to the nexus-code-search context-map CLI.
 
@@ -1169,6 +1178,13 @@ def build_parser() -> argparse.ArgumentParser:
         add_help=False,
         help="Connect, sync, inspect, or disconnect organization knowledge.",
     )
+    # `run-plan` forwards its tokens (plan, --platform, --max-cycles) verbatim
+    # to scripts/run_plan.py; registered here only so `nexus-hub --help` lists it.
+    sub.add_parser(
+        "run-plan",
+        add_help=False,
+        help="Relaunch a platform's headless CLI until a full /implement run is complete.",
+    )
     return parser
 
 
@@ -1197,6 +1213,9 @@ def main(argv: list[str] | None = None) -> int:
     # let the dedicated parser enforce the connection lifecycle contract.
     if raw and raw[0] == "org":
         return cmd_org(raw[1:])
+
+    if raw and raw[0] == "run-plan":
+        return cmd_run_plan(raw[1:])
 
     parser = build_parser()
     args = parser.parse_args(raw)

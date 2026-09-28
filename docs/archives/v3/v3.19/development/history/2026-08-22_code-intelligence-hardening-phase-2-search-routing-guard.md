@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/v3.19.0-code-intelligence-hardening`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md`](../../plans/v3.19.0-code-intelligence-hardening.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md`](../../../../../releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md)
 **Phase**: 2 - Search-routing guard
 **Environment**: Windows 11, PowerShell, Git Bash, Python 3.12.10, pytest, ShellCheck; GNU Make unavailable, so `make test`, `make validate`, and `make lint` were executed as their constituent commands
 **Outcome**: Nexus-Hub now installs an advisory `PreToolUse` hook that routes broad `Grep`, `Glob`, and conservative Bash search calls toward the local `nexus-code-search` index while preserving `Read`, unrelated commands, malformed-input fail-open behavior, explicit disable controls, and native-search fallbacks. The Bash and PowerShell implementations have matching behavior, open no network connection, read no credential, and block only when the user explicitly sets hard-block mode.

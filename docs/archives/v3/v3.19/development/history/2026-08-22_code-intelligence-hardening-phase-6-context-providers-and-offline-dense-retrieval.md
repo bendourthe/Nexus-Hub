@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-22
 **Branch**: `feat/v3.19.0-code-intelligence-hardening`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md`](../../plans/v3.19.0-code-intelligence-hardening.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md`](../../../../../releases/v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md)
 **Phase**: 6 - Context providers and offline dense retrieval
 **Environment**: Windows 11, PowerShell, Python 3.12.10, pytest, pytest-cov, Ruff; GNU Make unavailable, so repository targets were executed as their constituent commands
 **Outcome**: `nexus-code-search` can now index Markdown through a documented local context-provider port and optionally blend keyword and dense scores through a default-off ONNX path that accepts only pre-placed local weights. Missing configuration, dependencies, weights, or encoder execution degrades to keyword search with an actionable hint and never initiates a download.

@@ -47,7 +47,10 @@ def test_implement_command_names_driver_tokens_and_aliases() -> None:
     assert "in-full" in text
     assert "full" in text
     assert "phase-by-phase" in text
-    assert "commit-only on non-final phases" in text
+    # v4.13.2: one phase needs an explicit token, and a run can be paused.
+    assert "`/implement <plan> phase <N>`" in text
+    assert "`/implement pause`" in text
+    assert "a non-final phase is commit-only" in text
     # v4.0.0: the phase-by-phase menu lost its two push options.
     assert "(1) commit and continue" in text
     assert "(2) commit and pause" in text
@@ -62,9 +65,11 @@ def test_full_is_canonical_and_in_full_is_the_compatibility_alias() -> None:
     guide = _read(GUIDE)
     registry = _read(SKILL_REGISTRY)
 
-    assert "`/implement <slug-or-path> full` (alias `in-full`)" in command
-    assert "Driver mode is a later whole token only: `full` (alias `in-full`)" in runbook
-    assert "mode is `full` (alias `in-full`)" in skill
+    # v4.13.2: full is the default; `full` stays the canonical token and
+    # `in-full` its compatibility alias.
+    assert "`/implement <plan> full` and `in-full` - accepted aliases for the default" in command
+    assert "`full` and `in-full` are aliases for the default" in runbook
+    assert "the default (`full`, aliases `in-full`" in skill
     assert "`/implement <slug> full` (alias `in-full`)" in readme
     # The v4.19 type-token migration added data-ty to <code>, so the check
     # tolerates attributes while still pinning the element and its exact text.
@@ -72,7 +77,7 @@ def test_full_is_canonical_and_in_full_is_the_compatibility_alias() -> None:
         r"<code[^>]*>full</code><span>Run every incomplete phase in order \(alias: in-full\)\.",
         guide,
     ), "the guide cheatsheet must name full as canonical with in-full as its alias"
-    assert "implement full (alias in-full)" in registry
+    assert "implement the plan, implement phase N" in registry
 
     for text in (command, runbook, skill, readme):
         assert "`in-full` (alias `full`)" not in text
@@ -80,7 +85,7 @@ def test_full_is_canonical_and_in_full_is_the_compatibility_alias() -> None:
     assert "implement in-full (alias full)" not in registry
 
 
-def test_implement_command_stays_thin_and_one_phase_by_default() -> None:
+def test_implement_command_stays_thin_and_full_by_default() -> None:
     text = _read(IMPLEMENT_CMD)
     line_count = len(text.splitlines())
     assert line_count < COMMAND_SCOPE_LINE_BUDGET, (
@@ -89,7 +94,10 @@ def test_implement_command_stays_thin_and_one_phase_by_default() -> None:
     )
     assert "thin dispatcher" in text
     assert "/implement` (bare)" in text
-    assert "stay one-phase" in text
+    # v4.13.2 reversed the default: a plan runs whole unless a phase is named.
+    assert "run the WHOLE plan (the full driver)" in text
+    assert "run exactly one phase" in text
+    assert "stay one-phase" not in text
     assert "The driver loop lives in that skill" in text
     assert "## Phase 0:" not in text
     assert "## Phase 8:" not in text
@@ -128,7 +136,7 @@ def test_one_phase_commit_prompt_is_not_the_only_811_path() -> None:
     assert not missing, "missing 8.11 option(s): " + repr(missing)
     assert positions == sorted(positions), "8.11 options are out of order"
     assert "loop to 8.10" in runbook
-    assert "One-phase (default), non-final:" in runbook
+    assert "One-phase (`phase <N>` or `next`), non-final:" in runbook
     assert "**`full` non-final:** auto-select commit-only" in runbook
     assert "always ask" not in command
     assert "the only path" not in runbook.lower()

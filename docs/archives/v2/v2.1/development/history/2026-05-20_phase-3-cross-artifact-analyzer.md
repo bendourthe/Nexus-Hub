@@ -4,7 +4,7 @@
 **Scope**: Phase 3 of [docs/archives/v2/v2.1/plans/adoption-spec-kit.md](../../plans/adoption-spec-kit.md)
 **Outcome**: Read-only cross-artifact analyzer shipped (G4 from the source comparison). New `/analyze-spec` command, new `cross-artifact-analyzer` skill, three data-registry updates, plan-file relocation from v2.0.0 to v2.1.0. All validation passes.
 **Plan reference**: [docs/archives/v2/v2.1/plans/adoption-spec-kit.md](../../plans/adoption-spec-kit.md) Phase 3
-**Source comparison**: [docs/archives/v2/v2.0/comparison-spec-kit.md](../../../v2.0.0/comparison-spec-kit.md) adoption candidate G4
+**Source comparison**: [docs/archives/v2/v2.0/comparison-spec-kit.md](../../../v2.0/comparison-spec-kit.md) adoption candidate G4
 
 ## Goal recap
 
@@ -67,7 +67,7 @@ The Phase 3 Exit Checklist (`catalog/commands/analyze-spec.md` exists; `catalog/
 
 - Phase 1 session history: [2026-05-20_phase-1-project-constitution.md](2026-05-20_phase-1-project-constitution.md) -- ships the `project-constitution` skill and `/constitution` command that Pass 4 (Constitution Alignment) reads from.
 - Phase 2 commit: `9d8c6e5 feat(v2.1.0): adoption-spec-kit Phase 2 - Constitution Check + Complexity Tracking gates in /generate-plan` -- ships the Constitution Check + Complexity Tracking sections that the Phase 3 analyzer can audit on any plan that emits them.
-- Source comparison: [docs/archives/v2/v2.0/comparison-spec-kit.md](../../../v2.0.0/comparison-spec-kit.md) adoption candidate G4 (cross-artifact spec analyzer).
+- Source comparison: [docs/archives/v2/v2.0/comparison-spec-kit.md](../../../v2.0/comparison-spec-kit.md) adoption candidate G4 (cross-artifact spec analyzer).
 
 ## Next phase
 

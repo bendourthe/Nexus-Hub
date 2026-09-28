@@ -12,7 +12,7 @@ v1.0.0 is the first stable release of DevAI-Hub. The release theme is **"reverse
 
 **Version note**: 0.9.8 is intentionally skipped. What started as a small v0.9.8 patch (an MCP registry entry addition) accumulated into a major-version security retrofit. The breadth of changes - new policy section in AGENTS.md, two new internal MCP servers, three new skills, breaking removals of 4 registry entries, command-level workflow change in /compare-project - is a major-version event.
 
-The full plan that drove this release is at [docs/archives/v1/v1.0/plans/security-hardening-v100.md](plans/security-hardening-v100.md). The authoritative MCP classification document is [docs/policy/mcp-reverse-engineering-matrix.md](mcp-reverse-engineering-matrix.md).
+The full plan that drove this release is at [docs/archives/v1/v1.0/plans/security-hardening-v100.md](plans/security-hardening-v100.md). The authoritative MCP classification document is [docs/policy/mcp-reverse-engineering-matrix.md](../../../policy/mcp-reverse-engineering-matrix.md).
 
 ---
 
@@ -42,7 +42,7 @@ A canonical governance policy for `catalog/mcp-configs/mcp-servers.json`, author
 
 ### Reverse-Engineering Matrix
 
-[`docs/policy/mcp-reverse-engineering-matrix.md`](mcp-reverse-engineering-matrix.md) is the authoritative classification document for every MCP shipped or considered. 18 rows organized into five sections:
+[`docs/policy/mcp-reverse-engineering-matrix.md`](../../../policy/mcp-reverse-engineering-matrix.md) is the authoritative classification document for every MCP shipped or considered. 18 rows organized into five sections:
 
 - **Already-local** (5): `devai-skill-server`, `filesystem`, `memory`, `sequential-thinking`, `sqlite`.
 - **Dropped in v1.0.0** (4): `context7`, `exa-web-search`, `firecrawl`, `magic-ui`.
@@ -147,7 +147,7 @@ Four entries deleted from [`catalog/mcp-configs/mcp-servers.json`](../../catalog
 | `firecrawl` (web scraping) | Scraping-as-service; URLs and target content go through firecrawl.dev | `devai-web-fetch` MCP |
 | `magic-ui` (21st.dev UI generation) | Generation-as-service; component specs go to 21st.dev | `ui-component-generation` skill (LLM-native; zero MCP) |
 
-**Migration**: users who relied on these can re-add them to their own `.claude/settings.json`; DevAI-Hub no longer ships the snippets. The matrix at [docs/policy/mcp-reverse-engineering-matrix.md](mcp-reverse-engineering-matrix.md) documents the decision per-row.
+**Migration**: users who relied on these can re-add them to their own `.claude/settings.json`; DevAI-Hub no longer ships the snippets. The matrix at [docs/policy/mcp-reverse-engineering-matrix.md](../../../policy/mcp-reverse-engineering-matrix.md) documents the decision per-row.
 
 ### Removed Slash Commands
 
@@ -196,7 +196,7 @@ Two-pass security review performed before tag:
 - **`/run-penetration-test --depth=deep`** (second pass) verified the 3 HIGH fixes hold and identified one new MEDIUM finding, also fixed:
   - Symlink-following in `devai-code-search/indexer.py` -> walker now skips `entry.is_symlink()`; regression test added (skipped on Windows where symlink creation requires elevation, runs on POSIX CI).
 
-The full pen test report is at [docs/security/penetration-test-2026-04-27.md](../security/penetration-test-2026-04-27.md). Three informational items are documented as known limitations, deferred to v1.0.1:
+The full pen test report is at [docs/security/penetration-test-2026-04-27.md](../../../security/penetration-test-2026-04-27.md). Three informational items are documented as known limitations, deferred to v1.0.1:
 
 1. README prompt-injection caveat for `devai-web-fetch` and `devai-code-search` (architectural risk inherent to any tool that returns external content).
 2. Port allowlist in `GuardConfig` for `devai-web-fetch` (defense-in-depth).
@@ -245,7 +245,7 @@ CI runs the full suite plus `make validate` (JSON catalog integrity), `make lint
 
 - Vendor-wrapper reverse-engineering: `devai-github`, `devai-postgres`, `devai-supabase`, `devai-railway`, `devai-vercel`, `devai-cloudflare`. These don't reduce data-flow surface (the vendor is the intended destination) but they replace Anthropic- / vendor-maintained code with DevAI-Hub-maintained code, improving audit and supply-chain posture.
 
-See the [Reverse-Engineering Matrix backlog](mcp-reverse-engineering-matrix.md) for per-row v1.1.0+ scope.
+See the [Reverse-Engineering Matrix backlog](../../../policy/mcp-reverse-engineering-matrix.md) for per-row v1.1.0+ scope.
 
 ---
 
@@ -258,8 +258,8 @@ The reverse-engineering-first policy and the matrix structure were forged throug
 ## References
 
 - **Plan**: [docs/archives/v1/v1.0/plans/security-hardening-v100.md](plans/security-hardening-v100.md)
-- **Matrix**: [docs/policy/mcp-reverse-engineering-matrix.md](mcp-reverse-engineering-matrix.md)
-- **Pen test**: [docs/security/penetration-test-2026-04-27.md](../security/penetration-test-2026-04-27.md)
+- **Matrix**: [docs/policy/mcp-reverse-engineering-matrix.md](../../../policy/mcp-reverse-engineering-matrix.md)
+- **Pen test**: [docs/security/penetration-test-2026-04-27.md](../../../security/penetration-test-2026-04-27.md)
 - **Policy**: [AGENTS.md - MCP Registry Policy](../../AGENTS.md#mcp-registry-policy)
 - **CHANGELOG**: [CHANGELOG.md - [1.0.0]](../../CHANGELOG.md)
-- **Abandoned predecessor plan**: [docs/v0.9.7/plans/adoption-claude-context.md](../v0.9.7/plans/adoption-claude-context.md) (superseded; kept for historical record)
+- **Abandoned predecessor plan**: [docs/v0.9.7/plans/adoption-claude-context.md](../../v0/v0.9/plans/adoption-claude-context.md) (superseded; kept for historical record)

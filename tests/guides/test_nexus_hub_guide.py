@@ -2,7 +2,7 @@
 
 v4.2.2 rebuild gate. Baseline assertions pass against the rebuilt shell;
 assertions owned by a later rebuild phase use strict xfail until that phase
-removes the marker (plan: docs/releases/v4/v4.2/plans/
+removes the marker (plan: docs/archives/v4/v4.2/plans/
 v4.2.2-guide-cinematic-rebuild.md).
 """
 
@@ -621,9 +621,8 @@ def test_home_hero_restores_the_v412_subtitle_and_lead(guide_text: str) -> None:
 def test_home_lists_the_five_approved_platforms_from_ledger_bytes(guide_text: str) -> None:
     """v4.4.1 Phase 2 replaces the six-item rail, and every mark must be an APPROVED byte sequence.
 
-    The hash comparison runs against the raw embedded substring before any normalization, so a
-    re-fetched, re-minified, or hand-edited mark fails here instead of shipping an unreviewed
-    third-party asset into a published page.
+    The hash comparison resolves only an exact local sprite reference, then compares the
+    approved SVG bytes. Re-fetched or hand-edited third-party artwork still fails.
     """
     import hashlib
 
@@ -668,6 +667,25 @@ def test_home_lists_the_five_approved_platforms_from_ledger_bytes(guide_text: st
         embedded = re.search(r"(<svg[\s\S]*?</svg>)", body)
         assert embedded, f"{platform} has no inline geometry"
         blob = embedded.group(1)
+        inner = re.sub(r'^<svg[^>]*>|</svg>$', '', blob)
+        use = re.fullmatch(r'<use href="#([a-z0-9-]+)"/>', inner)
+        if use:
+            symbol_id = use.group(1)
+            symbols = re.findall(
+                rf'(<symbol id="{re.escape(symbol_id)}"[^>]*>)([\s\S]*?)</symbol>',
+                guide_text,
+            )
+            assert len(symbols) == 1, f"{platform} must resolve to one local symbol"
+            root = re.match(r'<svg[^>]*>', blob)
+            assert root is not None
+            viewbox = re.search(r'viewBox="([^"]+)"', root.group(0))
+            fill = re.search(r'fill="([^"]+)"', root.group(0))
+            assert viewbox is not None
+            expected = f'<symbol id="{symbol_id}" viewBox="{viewbox.group(1)}"'
+            if fill is not None:
+                expected += f' fill="{fill.group(1)}"'
+            assert symbols[0][0] == expected + '>', f"{platform} symbol styling changed"
+            blob = blob.replace(use.group(0), symbols[0][1])
         assert "<image" not in blob and "base64," not in blob, f"{platform} embeds a raster"
         assert "http" not in blob.replace('xmlns="http://www.w3.org/2000/svg"', ""), (
             f"{platform} references an external URL"
@@ -676,14 +694,35 @@ def test_home_lists_the_five_approved_platforms_from_ledger_bytes(guide_text: st
         assert hashlib.sha256(blob.encode("utf-8")).hexdigest() == hashlib.sha256(
             staged.encode("utf-8")
         ).hexdigest(), (
-            f"{platform} embedded bytes do not match the approved staged asset {stem}.svg; "
+            f"{platform} resolved bytes do not match the approved staged asset {stem}.svg; "
             "re-approval is required rather than a ledger update"
+        )
+
+    for stem, symbol_id in (
+        ("claude", "nh-guide-claude"),
+        ("chatgpt", "nh-guide-chatgpt"),
+        ("cursor", "hxm2"),
+    ):
+        marks = re.findall(
+            rf'<span[^>]*data-mark="{stem}"[^>]*>(<svg[\s\S]*?</svg>)</span>',
+            guide_text,
+        )
+        assert len(marks) == 2 and all(
+            f'<use href="#{symbol_id}"/>' in mark for mark in marks
         )
 
     # The opaque shell and the text-treatment fallback both retired with the six-item rail.
     assert "platform-mark-shell" not in home
     assert "platform-item--text" not in home
     assert "OpenCode" not in home, "OpenCode and its instruction-file note were removed in v4.4.1"
+
+
+def test_shared_platform_symbol_viewbox_change_fails_approval(guide_text: str) -> None:
+    original = '<symbol id="nh-guide-claude" viewBox="0 0 100 100"'
+    assert original in guide_text
+    changed = guide_text.replace(original, original.replace("100 100", "101 100"), 1)
+    with pytest.raises(AssertionError, match="symbol styling changed"):
+        test_home_lists_the_five_approved_platforms_from_ledger_bytes(changed)
 
 
 def test_platform_mark_attribution_lives_in_the_site_footer(guide_text: str) -> None:
@@ -920,7 +959,7 @@ def _foundation_scene(guide_text: str, scene_id: str) -> str:
     return scene.group(0)
 
 
-def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> None:
+def test_foundations_phase3_has_six_title_lead_scenes(guide_text: str) -> None:
     fx = _foundations_markup(guide_text)
     # v4.4.3 merged the two harness scenes into one, on the review's instruction that a reader
     # needs one picture of where the two loops sit rather than two to superimpose.
@@ -928,12 +967,13 @@ def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> 
     # instruction that one segment should carry the idea.
     assert fx.count('class="fx-scene') == 6, "expected six Foundations scenes"
     assert fx.count('class="fx-title"') == 6
-    assert fx.count('class="fx-subtitle"') == 6
+    assert fx.count('class="fx-subtitle"') == 5
+    assert fx.count('class="ml-definition"') == 1
     expected = [
         "Tokens",
+        "Models",
         "Prompt Engineering",
         "Context Engineering",
-        "Models",
         "Agentic Platforms",
         "Harnesses",
     ]
@@ -1318,14 +1358,18 @@ def test_every_scene_exposes_gate_and_next_scene(parsed: GuideParser) -> None:
     assert len(ids) <= 12
 
 
-def test_script_close_in_fixture_does_not_break_document(parsed: GuideParser) -> None:
-    assert parsed.json_script_contents, "fixture JSON block required before encoding can be checked"
-    joined = "\n".join(parsed.json_script_contents)
-    safe_closes = ("&lt;/script&gt;", r"<\/script>", r"\u003c/script\u003e")
-    assert any(token in joined for token in safe_closes)
-    assert "</script>" in json.dumps(json.loads(joined))
-    assert parsed.html_count == 1
-    assert "page-training" in parsed.page_ids
+def test_script_close_in_test_local_fixture_does_not_break_document() -> None:
+    payload = {"output": ["Hostile <img onerror> and </script> stay text."]}
+    encoded = json.dumps(payload).replace("</script>", r"<\/script>")
+    trial = GuideParser()
+    trial.feed(
+        '<html><section id="page-training"></section>'
+        f'<script type="application/json" id="nh-training-scenes">{encoded}</script></html>'
+    )
+    assert trial.json_script_contents == [encoded]
+    assert json.loads(trial.json_script_contents[0]) == payload
+    assert trial.html_count == 1
+    assert "page-training" in trial.page_ids
 
 
 def test_inline_scenes_match_example_json(parsed: GuideParser) -> None:
@@ -1437,13 +1481,13 @@ def _training_engine(guide_text: str) -> str:
     return guide_text.split('id="nh-training-scenes"', 1)[-1]
 
 
-def test_hostile_fixture_strings_are_rendered_via_textcontent(
+def test_training_output_is_text_only_and_hostile_fixture_is_test_local(
     parsed: GuideParser, guide_text: str
 ) -> None:
     data = json.loads(parsed.json_script_contents[0])
     blob = json.dumps(data)
-    assert "<img onerror>" in blob
-    assert "</script>" in blob
+    assert "<img onerror>" not in blob
+    assert "</script>" not in blob
     engine = _training_engine(guide_text)
     assert re.search(r"\.textContent\s*=", engine), (
         "scene-driven output must be assigned via textContent"
@@ -1724,7 +1768,7 @@ WEBSITE_README = _ROOT / "guides" / "website" / "README.md"
 CONTENT_MAP = (
     _ROOT
     / "docs"
-    / "releases"
+    / "archives"
     / "v4"
     / "v4.2"
     / "development"

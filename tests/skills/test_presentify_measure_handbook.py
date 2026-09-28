@@ -1,13 +1,12 @@
 """Independent inventory, rendered geometry and unavailable-capability regressions."""
 
 import importlib
-import os
 import json
+import os
 import sys
 from pathlib import Path
 
 import pytest
-
 
 # These tests drive measure_handbook.py, which needs a browser. Without
 # playwright the script correctly reports "unverified" - an unavailable
@@ -90,6 +89,7 @@ def test_valid_reading_and_slide_measured_separately(output):
     assert result["no_js_and_print"] == "pass"
     assert result["reduced_motion_fullscreen_fallback_escape"] == "pass"
     assert result["qualitative_review"] == "required separately"
+    assert result["control_behavior_guard"]["status"] == "unchecked"
 
 
 def test_paused_reading_animation_does_not_block_presentation_settle(output):
@@ -104,6 +104,87 @@ def test_paused_reading_animation_does_not_block_presentation_settle(output):
     result = run(output)
     assert result["status"] == "pass", result["errors"]
     assert result["coverage"]["measured_states"] == 4
+
+
+def _add_source_value(output, transient=False, reveal_transient=False):
+    script = (
+        "<script>window.addEventListener('load',()=>{"
+        "const slide=document.querySelector('[data-dv-slide=\"one\"]');"
+        "const value=document.createElement('p');value.id='source-value';"
+        "value.textContent='31';slide.append(value);"
+    )
+    if transient:
+        script += (
+            "slide.addEventListener('dv:activate',()=>{"
+            "setTimeout(()=>{value.textContent='11';"
+            "setTimeout(()=>{value.textContent='31'},60)},80)});"
+        )
+    if reveal_transient:
+        script += (
+            "slide.addEventListener('dv:activate',()=>{value.style.opacity='0';"
+            "setTimeout(()=>{value.textContent='11'},60);"
+            "setTimeout(()=>{value.style.opacity='1'},100);"
+            "setTimeout(()=>{value.style.opacity='0'},200);"
+            "setTimeout(()=>{value.textContent='31';value.style.opacity='1'},240)});"
+        )
+    script += "});</script>"
+    output.write_text(
+        output.read_text(encoding="utf-8").replace("</html>", script + "</html>"),
+        encoding="utf-8",
+    )
+
+
+def _source_value_inventory():
+    return {
+        "section_ids": ["one"],
+        "slide_ids": ["one"],
+        "source_values": [
+            {"slide_id": "one", "selector": "#source-value", "text": "31"}
+        ],
+    }
+
+
+def test_static_source_value_passes_temporal_guard(output):
+    _add_source_value(output)
+    result = run(output, **_source_value_inventory())
+    assert result["status"] == "pass", result["errors"]
+    assert result["source_value_guard"]["status"] == "pass"
+
+
+def test_brief_wrong_source_value_fails_between_settled_checkpoints(output):
+    _add_source_value(output, transient=True)
+    result = run(output, **_source_value_inventory())
+    assert result["status"] == "fail", result["errors"]
+    assert any("source value" in error and "11" in error for error in result["errors"])
+    assert result["source_value_guard"]["status"] == "fail"
+
+
+def test_value_revealed_without_text_mutation_is_sampled(output):
+    _add_source_value(output, reveal_transient=True)
+    result = run(output, **_source_value_inventory())
+    assert result["status"] == "fail", result["errors"]
+    assert any("source value" in error and "11" in error for error in result["errors"])
+
+
+def test_source_value_guard_is_unchecked_without_independent_mapping(output):
+    _add_source_value(output, transient=True)
+    result = run(output)
+    assert result["status"] == "pass", result["errors"]
+    assert result["source_value_guard"]["status"] == "unchecked"
+
+
+def test_missing_mapped_source_value_is_unverified(output):
+    result = run(output, **_source_value_inventory())
+    assert result["status"] == "unverified"
+    assert "source value" in " ".join(result["errors"])
+
+
+def test_source_value_sub_verdict_survives_an_unrelated_layout_failure(output):
+    _add_source_value(output)
+    _inject_style(output, "[data-dv-slide] p{font-size:8px!important}")
+    result = run(output, **_source_value_inventory())
+    assert result["status"] == "fail"
+    assert result["source_value_guard"]["status"] == "pass"
 
 
 @pytest.mark.parametrize(
@@ -182,6 +263,91 @@ def test_svg_secondary_floor_is_measured_after_scale(output):
     result = run(output)
     assert result["status"] == "fail"
     assert any("undersized label" in error for error in result["errors"])
+
+
+def _slide_body_px(page: Path, px: float) -> None:
+    """Force the SLIDE's body type to a chosen rendered size.
+
+    Injecting markup into `[data-dv-slide]` does not work: the presentation view
+    builds its slides at runtime, so an injected element is never measured (the
+    probe reported only the heading and body). A slide-scoped stylesheet rule is
+    what actually reaches the measured tree, which is the mechanism the page-floor
+    tests already use.
+    """
+    page.write_text(
+        page.read_text(encoding="utf-8").replace(
+            "</style>",
+            f"</style><style>[data-dv-slide] p{{font-size:{px}px!important}}</style>",
+            1,
+        ),
+        encoding="utf-8",
+    )
+
+
+def _measure_at(output, size):
+    return measurement.measure(
+        output, {"section_ids": ["one"], "slide_ids": ["one"]}, DETECTOR, [size]
+    )
+
+
+def test_stage_floor_fires_where_the_page_floor_passes(output):
+    """The stage floor is a SECOND floor, not a restatement of the page floor.
+
+    On a 1920x1080 viewport the stage measures 1012px, so the floor is 2% =
+    20.24px. Body type at 18px clears the page body floor of 16 - the existing
+    gate is satisfied and says nothing - while being too small to read across a
+    room. Asserting that NO "undersized body" error accompanies it is what proves
+    the two gates are independent rather than one gate counted twice.
+    """
+    _slide_body_px(output, 18)
+    result = _measure_at(output, (1920, 1080))
+    assert result["status"] == "fail", result
+    assert any("slide-stage floor" in e for e in result["errors"]), result["errors"]
+    assert not any("undersized body" in e for e in result["errors"]), (
+        "18px clears the page body floor of 16; if that fired, this test is no "
+        "longer isolating the stage floor"
+    )
+
+
+def test_stage_floor_is_relative_to_the_stage_not_absolute(output):
+    """The same 18px passes on a shorter stage, which is the contract's point.
+
+    A 1366x768 viewport yields a 700px stage and therefore a 14px floor, so
+    identical type is compliant there. A floor expressed in px could not behave
+    this way, and pinning it here stops a future edit from "simplifying" the
+    fraction into a constant.
+    """
+    _slide_body_px(output, 18)
+    result = _measure_at(output, (1366, 768))
+    assert not any("slide-stage floor" in e for e in result["errors"]), result["errors"]
+
+
+def test_stage_floor_passes_compliant_stage_type(output):
+    """Negative control: silent on type that clears the floor on a tall stage."""
+    _slide_body_px(output, 24)
+    result = _measure_at(output, (1920, 1080))
+    assert not any("slide-stage floor" in e for e in result["errors"]), result["errors"]
+
+
+def test_slide_caption_ceiling_cannot_be_below_its_stage_floor(output):
+    source = output.read_text(encoding="utf-8")
+    assert "<p>" in source
+    output.write_text(source.replace("<p>", '<p data-type-role="caption">'), encoding="utf-8")
+    _slide_body_px(output, 26)
+
+    result = _measure_at(output, (2560, 1300))
+    assert not any("slide-stage floor" in error for error in result["errors"])
+    assert not any("oversized caption" in error for error in result["errors"])
+
+    output.write_text(
+        output.read_text(encoding="utf-8").replace(
+            "[data-dv-slide] p{font-size:26px!important}",
+            "[data-dv-slide] p{font-size:60px!important}",
+        ),
+        encoding="utf-8",
+    )
+    oversized = _measure_at(output, (2560, 1300))
+    assert any("oversized caption" in error for error in oversized["errors"])
 
 
 def test_unavailable_detector_is_unverified(output):
@@ -512,6 +678,244 @@ def test_a_lost_opener_is_reported_rather_than_silently_dropping_focus(output):
         encoding="utf-8",
     )
     assert [e for e in run(output)["errors"] if e.startswith("focus:")]
+
+
+def _chart_output(tmp_path):
+    model = json.loads((tmp_path / "model.json").read_text(encoding="utf-8"))
+    model["sections"][0]["blocks"].append(
+        {
+            "type": "chart",
+            "id": "series-chart",
+            "caption": "Two retained series",
+            "categories": ["First", "Second"],
+            "series": [
+                {"name": "Alpha", "values": [1, 2]},
+                {"name": "Beta", "values": [2, 1]},
+            ],
+        }
+    )
+    (tmp_path / "model.json").write_text(json.dumps(model), encoding="utf-8")
+    page = tmp_path / "chart.html"
+    dual.assemble(tmp_path / "model.json", page)
+    return page
+
+
+def test_chart_series_controls_inside_their_figure_are_accepted(output):
+    page = _chart_output(output.parent)
+    result = run(page)
+    assert not [e for e in result["errors"] if "series-control-outside-figure" in e]
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        tab = browser.new_page(viewport={"width": 1366, "height": 768})
+        tab.goto(page.as_uri())
+        tab.evaluate("window.NexusDualView.open()")
+        toggle = tab.locator('[data-dv-slide] button[data-dv-series="0"]')
+        assert toggle.get_attribute("aria-pressed") == "true"
+        toggle.click()
+        assert toggle.get_attribute("aria-pressed") == "false"
+        marks = tab.locator('[data-dv-slide] [data-dv-series-marks="0"]')
+        assert marks.evaluate("element => element.style.display") == "none"
+        browser.close()
+
+
+def _series_behavior_inventory():
+    return {
+        "section_ids": ["one"],
+        "slide_ids": ["one"],
+        "control_behaviors": [
+            {
+                "slide_id": "one",
+                "control": 'button[data-dv-series="0"]',
+                "before": {
+                    "selector": '[data-dv-series-marks="0"]',
+                    "css": "display",
+                    "value": "inline",
+                },
+                "after": {
+                    "selector": '[data-dv-series-marks="0"]',
+                    "css": "display",
+                    "value": "none",
+                },
+            }
+        ],
+    }
+
+
+def test_authored_chart_toggle_passes_declared_mark_visibility_transition(output):
+    page = _chart_output(output.parent)
+    result = run(page, **_series_behavior_inventory())
+    assert result["control_behavior_guard"]["status"] == "pass", result["errors"]
+    assert result["control_behavior_guard"]["observations"][0]["observed"] == {
+        "before": "inline",
+        "after": "none",
+    }
+
+
+def test_declared_attribute_transition_is_observed(output):
+    page = _chart_output(output.parent)
+    inventory = _series_behavior_inventory()
+    inventory["control_behaviors"][0]["before"] = {
+        "selector": 'button[data-dv-series="0"]',
+        "attribute": "aria-pressed",
+        "value": "true",
+    }
+    inventory["control_behaviors"][0]["after"] = {
+        "selector": 'button[data-dv-series="0"]',
+        "attribute": "aria-pressed",
+        "value": "false",
+    }
+    result = run(page, **inventory)
+    assert result["control_behavior_guard"]["status"] == "pass", result["errors"]
+    assert result["control_behavior_guard"]["observations"][0]["observed"] == {
+        "before": "true",
+        "after": "false",
+    }
+
+
+def test_detached_slide_series_control_is_reported(output):
+    page = _chart_output(output.parent)
+    source = page.read_text(encoding="utf-8")
+    start = source.index('<section id="slide-1"')
+    end = source.index("</section>", start)
+    slide = source[start:end]
+    toggle = '<button data-dv-series="0" aria-pressed="true">Alpha</button>'
+    assert slide.count(toggle) == 1
+    slide = slide.replace(toggle, "", 1).replace("</figure>", "</figure>" + toggle, 1)
+    page.write_text(source[:start] + slide + source[end:], encoding="utf-8")
+
+    result = run(page)
+    assert any("series-control-outside-figure" in e for e in result["errors"]), result["errors"]
+    behavior = run(page, **_series_behavior_inventory())
+    assert behavior["control_behavior_guard"]["status"] == "fail"
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        tab = browser.new_page(viewport={"width": 1366, "height": 768})
+        tab.goto(page.as_uri())
+        tab.evaluate("window.NexusDualView.open()")
+        toggle = tab.locator('[data-dv-slide] button[data-dv-series="0"]')
+        toggle.click()
+        marks = tab.locator('[data-dv-slide] [data-dv-series-marks="0"]')
+        assert marks.evaluate("element => element.style.display") == ""
+        browser.close()
+
+
+def _two_slide_control_output(output, working):
+    model = json.loads((output.parent / "model.json").read_text(encoding="utf-8"))
+    model["sections"].append(
+        {
+            "id": "two",
+            "heading": "Control exercise",
+            "blocks": [{"type": "paragraph", "id": "second", "text": "A second measured slide."}],
+        }
+    )
+    model["presentation"]["slide_budget"] = 2
+    model["presentation"]["theme_sequence"] = ["dark", "dark"]
+    model["presentation"]["slides"].append({"id": "two", "source_ids": ["two"]})
+    model["design"]["reading_themes"] = ["light", "light"]
+    (output.parent / "model.json").write_text(json.dumps(model), encoding="utf-8")
+    page = output.parent / "controls.html"
+    dual.assemble(output.parent / "model.json", page)
+    listener = (
+        "button.addEventListener('click',()=>{state.textContent='active'});"
+        if working
+        else ""
+    )
+    script = (
+        "<script>const slide=document.querySelector('[data-dv-slide=\"two\"]');"
+        "const button=document.createElement('button');button.id='stage-action';"
+        "button.textContent='Activate';slide.append(button);"
+        "const state=document.createElement('p');state.id='stage-state';"
+        "state.textContent='idle';slide.append(state);"
+        + listener
+        + "</script>"
+    )
+    page.write_text(page.read_text(encoding="utf-8").replace("</html>", script + "</html>"), encoding="utf-8")
+    return page
+
+
+def test_inert_control_on_second_slide_fails_declared_behavior(output):
+    page = _two_slide_control_output(output, working=False)
+    result = run(
+        page,
+        section_ids=["one", "two"],
+        slide_ids=["one", "two"],
+        control_behaviors=[
+            {
+                "slide_id": "two",
+                "control": "#stage-action",
+                "before": {"selector": "#stage-state", "text": "idle"},
+                "after": {"selector": "#stage-state", "text": "active"},
+            }
+        ],
+    )
+    assert result["control_behavior_guard"]["status"] == "fail"
+
+
+def test_working_control_on_second_slide_passes_declared_behavior(output):
+    page = _two_slide_control_output(output, working=True)
+    result = run(
+        page,
+        section_ids=["one", "two"],
+        slide_ids=["one", "two"],
+        control_behaviors=[
+            {
+                "slide_id": "two",
+                "control": "#stage-action",
+                "before": {"selector": "#stage-state", "text": "idle"},
+                "after": {"selector": "#stage-state", "text": "active"},
+            }
+        ],
+    )
+    assert result["control_behavior_guard"]["status"] == "pass", result["errors"]
+
+
+def test_idempotent_reset_is_exercised_from_a_changed_setup_state(output):
+    page = _two_slide_control_output(output, working=True)
+    script = (
+        "<script>const reset=document.createElement('button');reset.id='stage-reset';"
+        "reset.textContent='Reset';document.querySelector('[data-dv-slide=\"two\"]').append(reset);"
+        "reset.addEventListener('click',()=>{document.querySelector('#stage-state').textContent='idle'});"
+        "</script>"
+    )
+    page.write_text(page.read_text(encoding="utf-8").replace("</html>", script + "</html>"), encoding="utf-8")
+    result = run(
+        page,
+        section_ids=["one", "two"],
+        slide_ids=["one", "two"],
+        control_behaviors=[
+            {
+                "slide_id": "two",
+                "control": "#stage-reset",
+                "setup": ["#stage-action"],
+                "before": {"selector": "#stage-state", "text": "active"},
+                "after": {"selector": "#stage-state", "text": "idle"},
+            }
+        ],
+    )
+    assert result["control_behavior_guard"]["status"] == "pass", result["errors"]
+
+
+def test_no_change_contract_cannot_certify_an_inert_control(output):
+    page = _two_slide_control_output(output, working=False)
+    result = run(
+        page,
+        section_ids=["one", "two"],
+        slide_ids=["one", "two"],
+        control_behaviors=[
+            {
+                "slide_id": "two",
+                "control": "#stage-action",
+                "before": {"selector": "#stage-state", "text": "idle"},
+                "after": {"selector": "#stage-state", "text": "idle"},
+            }
+        ],
+    )
+    assert result["control_behavior_guard"]["status"] == "unchecked"
+    assert "no observable change" in " ".join(result["errors"])
 
 
 def _long_directory(tmp_path, rows=30):

@@ -35,6 +35,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -135,12 +136,232 @@ def find_candidates(root: Path, current: tuple[int, int]) -> list[tuple[Path, st
                 continue
 
             destination = f"{ARCHIVES_ROOT}/{major_name}/{minor_dir.name}/{AGING_SUBDIR}/"
-            if (root / destination).is_dir():
-                continue  # already archived
+            if not any(p.is_file() or p.is_symlink() for p in source.rglob("*")):
+                continue  # empty source; its files have already been archived
 
             out.append((source, minor_dir.name, destination))
 
     return out
+
+
+# Open-item id prefixes, from the known-gaps-tracker file format. An id in an
+# Open Items region is the load-bearing signal that a minor is still live work.
+_GAP_ID = re.compile(r"\b(?:NI|DF|BG|WN|MT|QG)-[A-Za-z0-9]", re.ASCII)
+_OPEN_HEADING = re.compile(r"^#{2,5}\s*Open Items\b", re.MULTILINE | re.IGNORECASE)
+_REGION_END = re.compile(r"^#{2,5}\s*(?:Resolved\b|v\d)", re.MULTILINE | re.IGNORECASE)
+_STATUS = re.compile(r"^\*\*Status\*\*\s*:(.*)$", re.MULTILINE | re.IGNORECASE)
+_ZERO_OPEN_ITEMS = re.compile(r"^\*\*Open items\*\*\s*:\s*0\s*$", re.MULTILINE | re.IGNORECASE)
+_LEGACY_LEDGER_ROW = re.compile(
+    r"^\| (v4\.\d+) \| \[ledger\]\(([^)]+)\) \| `([0-9a-f]{64})` \|$", re.MULTILINE
+)
+_LEGACY_PLAN_ROW = re.compile(
+    r"^\| \[plan\]\(([^)]+)\) \| `([0-9a-f]{64})` \| "
+    r"(implemented-evidence|superseded-by-user); (\d+) retained box(?:es)? \| "
+    r"\[[^]]+\]\(([^)]+)\) \|$",
+    re.MULTILINE,
+)
+_LEGACY_CHECKLIST_ROW = re.compile(
+    r"^\| \[[^]]+\]\(([^)]+)\) \| (\d+) \| (\d+) \|$", re.MULTILINE
+)
+_UNCHECKED_BOX = re.compile(r"^- \[ \]", re.MULTILINE)
+_UNCHECKED_TASK = re.compile(r"^- \[ \] T\d+\b", re.MULTILINE)
+
+
+def known_gaps_is_closed(text: str) -> bool:
+    """True only when the file PROVES it has no open work.
+
+    Conservative by construction: anything unparseable or ambiguous reads as
+    OPEN. A false 'closed' archives live work, while a false 'open' costs one
+    advisory line, so the two errors are not symmetric and the check leans to
+    the cheap one.
+    """
+    # Closure must be stated explicitly. Silence or a release-blocker count is
+    # not proof that every deferred or non-blocking gap has been resolved.
+    if not _ZERO_OPEN_ITEMS.search(text) or not any(
+        re.search(r"\b(?:finalized|closed)\b", match.group(1), re.IGNORECASE)
+        for match in _STATUS.finditer(text)
+    ):
+        return False
+
+    # 1. No status line may say the register is still taking items.
+    for match in _STATUS.finditer(text):
+        status = match.group(1).lower()
+        if "in-progress" in status or "in progress" in status:
+            return False
+        # A bare 'open' status (as distinct from 'no open items') holds it open.
+        if re.search(r"\bopen\b", status) and "no open" not in status:
+            return False
+
+    # 2. No unchecked box anywhere in the register.
+    if "- [ ]" in text:
+        return False
+
+    # Legacy ledgers can record open rows outside an Open Items section.
+    if re.search(r"\bOPEN\b", text):
+        return False
+
+    # 3. No gap id inside any Open Items region. Each region runs to the next
+    #    Resolved or patch heading, so a resolved item listed below does not
+    #    count against its own minor.
+    for heading in _OPEN_HEADING.finditer(text):
+        region_start = heading.end()
+        tail = text[region_start:]
+        stop = _REGION_END.search(tail)
+        region = tail[: stop.start()] if stop else tail
+        if _GAP_ID.search(region):
+            return False
+
+    return True
+
+
+def _normalized_sha256(path: Path) -> str:
+    """Hash Markdown content independently of checkout line-ending conversion."""
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
+def _linked_file(root: Path, index: Path, link: str) -> Path | None:
+    """Resolve a transfer link only when it stays within the repository."""
+    candidate = (index.parent / link).resolve()
+    if not candidate.is_relative_to(root.resolve()) or not candidate.is_file():
+        return None
+    return candidate
+
+
+def legacy_transfer_is_complete(root: Path, version_dir: Path, gaps: Path) -> bool:
+    """Allow only the reviewed v4.0-v4.12 by-reference transfer to retire plans."""
+    if version_dir.parent.name != "v4" or not _VERSION_DIR.fullmatch(version_dir.name):
+        return False
+    minor = int(version_dir.name.split(".")[1])
+    if minor >= 13:
+        return False
+    index = root / RELEASES_ROOT / "v4" / "v4.13" / "known-gaps.md"
+    try:
+        text = index.read_text(encoding="utf-8")
+        if (
+            "## Historical carry-forward from v4.0 through v4.12" not in text
+            or "an item open in its source ledger remains open" not in text.lower()
+        ):
+            return False
+        rows = [row for row in _LEGACY_LEDGER_ROW.finditer(text) if row.group(1) == version_dir.name]
+        if len(rows) != 1 or _linked_file(root, index, rows[0].group(2)) != gaps.resolve():
+            return False
+        if _normalized_sha256(gaps) != rows[0].group(3):
+            return False
+        plan_rows = list(_LEGACY_PLAN_ROW.finditer(text))
+        checklist_rows = list(_LEGACY_CHECKLIST_ROW.finditer(text))
+        plan_dirs = (
+            version_dir / "plans",
+            root / "docs" / "archives" / "v4" / version_dir.name / "plans",
+        )
+        plans = (plan for directory in plan_dirs if directory.is_dir() for plan in directory.rglob("*.md"))
+        for plan in plans:
+            plan_text = plan.read_text(encoding="utf-8")
+            unchecked = len(_UNCHECKED_TASK.findall(plan_text))
+            boxes = len(_UNCHECKED_BOX.findall(plan_text))
+            if boxes:
+                checklist_matches = [
+                    row for row in checklist_rows if _linked_file(root, index, row.group(1)) == plan.resolve()
+                ]
+                if (
+                    len(checklist_matches) != 1
+                    or boxes != int(checklist_matches[0].group(2))
+                    or unchecked != int(checklist_matches[0].group(3))
+                ):
+                    return False
+            if not unchecked:
+                continue
+            matches = [row for row in plan_rows if _linked_file(root, index, row.group(1)) == plan.resolve()]
+            if len(matches) != 1:
+                return False
+            row = matches[0]
+            evidence = _linked_file(root, index, row.group(5))
+            if (
+                _normalized_sha256(plan) != row.group(2)
+                or unchecked != int(row.group(4))
+                or evidence is None
+            ):
+                return False
+            status = re.search(r"^\*\*Status\*\*:\s*(.*)$", plan_text, re.MULTILINE)
+            if not status or (
+                row.group(3) == "implemented-evidence" and not status.group(1).startswith("IMPLEMENTED")
+            ) or (
+                row.group(3) == "superseded-by-user" and not status.group(1).startswith("SUPERSEDED BY USER")
+            ):
+                return False
+        return True
+    except (OSError, UnicodeError):
+        return False
+
+
+def find_closed_minors(root: Path) -> list[tuple[Path, list[str], str]]:
+    """Return fully closed or reviewed-transfer minors with active plans.
+
+    Fully closed means BOTH: known-gaps.md proves it has no open work, and
+    every plan under plans/ carries no unchecked task line. Age is deliberately
+    not a factor -- a plan retires on completion, not on elapsed releases,
+    because an open item means the minor is still live work. See state 3b in
+    docs/policy/docs-retention.md.
+
+    known-gaps.md is never reported: the policy keeps it in the active tree so
+    the next /plan can read it without a directory hop.
+    """
+    closed: list[tuple[Path, list[str], str]] = []
+    for version_dir in sorted((root / RELEASES_ROOT).glob("v*/v*")):
+        if not version_dir.is_dir():
+            continue
+        movable = [
+            name
+            for name in ("plans", "comparisons")
+            if (version_dir / name).is_dir() and any((version_dir / name).rglob("*"))
+        ]
+        if not movable:
+            continue
+
+        # A missing register cannot prove that no work remains.
+        gaps = version_dir / "known-gaps.md"
+        if not gaps.is_file():
+            continue
+
+        transferred = legacy_transfer_is_complete(root, version_dir, gaps)
+        if not transferred and not known_gaps_is_closed(gaps.read_text(encoding="utf-8", errors="replace")):
+            continue
+
+        plans_dir = version_dir / "plans"
+        if not transferred and plans_dir.is_dir() and any(
+            "- [ ] T" in plan.read_text(encoding="utf-8", errors="replace")
+            for plan in plans_dir.rglob("*.md")
+        ):
+            continue
+
+        closed.append((version_dir, movable, "closed by transfer" if transferred else "closed"))
+    return closed
+
+
+def _render_closed_minors(root: Path, quiet: bool) -> str:
+    """Render state-3b closed or verified-transferred archive candidates."""
+    buf = StringIO()
+    closed = find_closed_minors(root)
+    if not closed:
+        if not quiet:
+            buf.write(
+                "  closed-minor archival: nothing due "
+                "(no qualified minor holds active plans/comparisons)\n"
+            )
+        return buf.getvalue()
+
+    buf.write(
+        f"  closed-minor archival: {len(closed)} fully-closed minor(s) still hold "
+        f"plans/comparisons in the active tree. Advisory only; see state 3b in "
+        f"docs/policy/docs-retention.md\n"
+    )
+    for version_dir, movable, disposition in closed:
+        rel = version_dir.relative_to(root).as_posix()
+        dest = rel.replace(f"{RELEASES_ROOT}/", "docs/archives/", 1)
+        names = ", ".join(f"{m}/" for m in movable)
+        buf.write(
+            f"  WARN: {rel} {disposition}; move {names} -> {dest} (known-gaps.md stays)\n"
+        )
+    return buf.getvalue()
 
 
 def render_report(root: Path, quiet: bool) -> str:
@@ -184,6 +405,7 @@ def render_report(root: Path, quiet: bool) -> str:
                 f"  docs retention: nothing due for archival "
                 f"(current v{current[0]}.{current[1]}, threshold {ARCHIVE_AFTER_MINORS} minors)\n"
             )
+        buf.write(_render_closed_minors(root, quiet))
         return buf.getvalue()
 
     buf.write(
@@ -196,6 +418,7 @@ def render_report(root: Path, quiet: bool) -> str:
         rel = source.relative_to(root).as_posix()
         buf.write(f"  WARN: {rel} ({file_count} file(s)) -> {destination}\n")
     buf.write("  Run the archive pass via /update refactor or the docs-layout-refactor skill.\n")
+    buf.write(_render_closed_minors(root, quiet))
     return buf.getvalue()
 
 

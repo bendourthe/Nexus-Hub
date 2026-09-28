@@ -1,0 +1,9 @@
+# v4.10 WN-1 residual-reference JSON qualification
+
+**Scope**: This closed qualification covers the v4.10 renumber residual scanner's documentation-JSON blind spot. It does not perform a renumber or rewrite the sealed v4.9 evidence that exposed the gap.
+
+The scanner now reads repository Markdown and JSON under `docs/`. It does not sweep generated `data/` inventories, lockfiles, or other file types. A maintainer must review a sealed historical record and name its narrow prefix with `--skip`; the command prints each excluded prefix. The owning `plan-queue-assessment` procedure states that boundary.
+
+Two tests failed before the scanner change: a single surviving `docs/*.json` reference was invisible, and the sealed-JSON exemption could not be exercised. Both passed after the change. The full `test_plan_renumber_references.py` module passed 17 tests. A read-only scan of the repository for `v4.10.0` returned 85 historical references, including exactly one documentation-JSON hit: `docs/releases/v4/v4.9/development/qualification/v4.9-layout-public.json`. That historical artifact remains unchanged.
+
+Local fast validation passed 17 of 17 after Git Bash was put ahead of the unusable WSL Bash on this host's process PATH. The first fast attempt failed only at interpreter resolution and remains a separate failed observation. The documentation convention check passed, 15 affected documentation tests passed, and the 337-skill bundle audit reported zero errors with 66 existing warnings. PR [#262](https://github.com/bendourthe/Nexus-Hub/pull/262) passed the required aggregate and all hosted checks, with one intentional skip, then merged at `30ecff7bed5f22e55819ea7f76bf357b57fa9fa3`. [Post-merge run 35925138595](https://github.com/bendourthe/Nexus-Hub/actions/runs/35925138595) passed smoke and provenance.

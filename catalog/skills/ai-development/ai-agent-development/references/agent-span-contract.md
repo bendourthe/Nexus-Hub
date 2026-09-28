@@ -11,7 +11,7 @@ This file names fields. It is not an OpenTelemetry implementation, and nothing h
 | Source | OpenTelemetry semantic conventions, GenAI agent spans |
 | Pinned revision | `5ca9052bc796ef1e497200b1d558fd87a201f335` |
 | Upstream status | **Development** |
-| Verified on | 2026-09-15 |
+| Verified on | 2026-09-22 (tool-span fields); 2026-09-15 (agent spans) |
 
 **Development status is the operative fact.** These names can change without a stability guarantee. Pin the revision in anything that depends on them, and treat a version bump as a breaking change until diffed.
 
@@ -28,6 +28,7 @@ Verified against the pinned revision.
 | Invoke a **local** agent | `invoke_agent` | `invoke_agent {gen_ai.agent.name}` or `invoke_agent` | **INTERNAL** |
 | Invoke a workflow | `invoke_workflow` | `invoke_workflow {gen_ai.workflow.name}` | INTERNAL |
 | Plan | `plan` | `plan {gen_ai.agent.name}` or `plan` | INTERNAL |
+| Execute a tool | `execute_tool` | `execute_tool {gen_ai.tool.name}` | INTERNAL |
 
 The CLIENT/INTERNAL split on `invoke_agent` is the distinction most often lost. Same operation name, different kind, decided by whether the call crosses a process boundary to a remote service. Recording a local invocation as CLIENT invents a network hop; recording a remote one as INTERNAL hides a real dependency and its failure domain.
 
@@ -43,6 +44,7 @@ Verified against the pinned revision.
 - `create_agent`: additionally `gen_ai.provider.name`
 - `invoke_agent`: additionally `gen_ai.provider.name` (client only)
 - `invoke_workflow`, `plan`: `gen_ai.operation.name` only
+- `execute_tool`: `gen_ai.operation.name` and `gen_ai.tool.name`
 
 ### Conditionally required (present when applicable)
 
@@ -52,17 +54,19 @@ Verified against the pinned revision.
 
 `gen_ai.request.temperature`, `gen_ai.request.top_p`, `gen_ai.request.max_tokens`, `gen_ai.request.frequency_penalty`, `gen_ai.request.presence_penalty`, `gen_ai.response.finish_reasons`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`
 
+For `execute_tool`, `gen_ai.tool.call.id`, `gen_ai.tool.description`, and `gen_ai.tool.type` are Recommended only when available. The upstream tool description may contain sensitive information, so this contract omits it by default.
+
 ### Opt-In
 
-`gen_ai.input.messages`, `gen_ai.output.messages`, `gen_ai.system_instructions`, `gen_ai.tool.definitions`
+`gen_ai.input.messages`, `gen_ai.output.messages`, `gen_ai.system_instructions`, `gen_ai.tool.definitions`, `gen_ai.tool.call.arguments`, `gen_ai.tool.call.result`
 
-**The Opt-In tier is exactly the payload-bearing tier.** Every attribute in it carries prompt text, model output, system instructions, or tool schemas. That is not a coincidence in the upstream design, and it is the whole basis of the default below: the convention already separates the attributes that describe an operation from the attributes that reproduce its content.
+**The Opt-In tier contains the explicitly payload-bearing fields.** Every attribute in it carries prompt text, model output, system instructions, tool schemas, tool arguments, or tool results. A Recommended description can also contain sensitive text, so the local default omits that field as well. The default below separates operation metadata from content rather than assuming every non-Opt-In field is safe to collect.
 
-### Tool spans: partially verified
+### Tool spans: verified against the pinned sibling specification
 
-The `execute_tool` operation name is confirmed at the pinned revision. **The `gen_ai.tool.*` attribute table was not retrievable at that revision during verification** - the source document truncates before the section and no standalone tool-span file exists at the pinned path.
+The agent-spans document links to the [sibling GenAI spans specification at the same pinned revision](https://github.com/open-telemetry/semantic-conventions-genai/blob/5ca9052bc796ef1e497200b1d558fd87a201f335/docs/gen-ai/gen-ai-spans.md#execute-tool-span). Its Execute tool span table confirms `gen_ai.tool.name` as Required; `gen_ai.tool.call.id`, `gen_ai.tool.description`, and `gen_ai.tool.type` as Recommended if available; and `gen_ai.tool.call.arguments` and `gen_ai.tool.call.result` as Opt-In. `error.type` remains conditionally Required on error, and `gen_ai.agent.name` is conditionally Required when applicable.
 
-Do not name a `gen_ai.tool.*` attribute on the strength of this file. Verify against the sibling inference/tool specification first, then add it here with its requirement level. An unverified attribute is unknown, not Recommended.
+The example emits only a bounded tool name and an allowlisted error category. Do not add arguments, results, or descriptions to default traces; the upstream specification warns these fields can carry sensitive content. Recheck the pinned table before adding a new tool field or changing the pinned revision.
 
 ## Default privacy contract
 
@@ -77,7 +81,7 @@ Truncation is not redaction. A 200-character prefix of a system instruction is s
 | Token counts, model name | recorded when available | Metadata, not content |
 | Prompt and response content | **absent** | `gen_ai.input.messages`, `gen_ai.output.messages` |
 | System instructions | **absent** | `gen_ai.system_instructions` |
-| Tool arguments, results, definitions | **absent** | Includes `gen_ai.tool.definitions` |
+| Tool arguments, results, definitions, description | **absent** | Includes `gen_ai.tool.call.arguments`, `gen_ai.tool.call.result`, `gen_ai.tool.definitions`, and `gen_ai.tool.description` |
 | Raw exception strings | **absent** | Use a bounded error category |
 
 ### Errors carry a category, not a string
@@ -126,7 +130,7 @@ A trace records what the integration could observe. It is not a transcript of wh
 
 - [ ] Every emitted span uses an operation name from the mapping table, with the CLIENT/INTERNAL kind matching whether the call crossed a process boundary
 - [ ] `plan` spans are emitted only where planning boundaries are actually observable
-- [ ] No `gen_ai.tool.*` attribute is named without verification against the sibling tool specification
+- [ ] `execute_tool` records `gen_ai.tool.name` and applies the pinned sibling specification's requirement levels to any additional tool attributes
 - [ ] No Opt-In payload attribute appears in default output
 - [ ] Error records carry an allowlisted category; no raw exception string is written
 - [ ] Local concepts use `nexus.*` and are never presented as `gen_ai.*`

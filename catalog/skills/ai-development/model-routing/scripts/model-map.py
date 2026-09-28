@@ -117,6 +117,40 @@ def load_map(path: Path) -> dict[str, Any]:
     return validate_map(data)
 
 
+def diff_placements(
+    candidate: dict[str, Any], snapshot: dict[str, Any]
+) -> list[dict[str, str]]:
+    """Report every model id whose tier placement moved against the snapshot.
+
+    Model ids are volatile facts a vendor page can confirm. Tier placement is a
+    durable operator judgment that no vendor page can confirm, so it carries
+    forward from the snapshot unless a reclassification is stated deliberately.
+    Shape validation cannot catch a reshuffle; only this comparison can.
+    """
+    def placement(data: dict[str, Any]) -> dict[tuple[str, str], str]:
+        return {
+            (provider, row[provider]): tier
+            for tier, row in data["tiers"].items()
+            for provider in PROVIDERS
+        }
+
+    before = placement(snapshot)
+    after = placement(candidate)
+    moves: list[dict[str, str]] = []
+    for (provider, model), tier in sorted(after.items()):
+        previous = before.get((provider, model))
+        if previous is not None and previous != tier:
+            moves.append(
+                {
+                    "provider": provider,
+                    "model": model,
+                    "from_tier": previous,
+                    "to_tier": tier,
+                }
+            )
+    return moves
+
+
 def render_map(data: dict[str, Any], *, status: str, as_of: str | None) -> str:
     """Render a validated map using the plan-contract Markdown grammar."""
     if status == "fresh":
@@ -179,6 +213,12 @@ def build_parser() -> argparse.ArgumentParser:
     render_parser.add_argument("--status", choices=("fresh", "offline"), required=True)
     render_parser.add_argument("--as-of")
 
+    diff_parser = subparsers.add_parser(
+        "diff", help="compare a candidate map's tier placements to the snapshot"
+    )
+    diff_parser.add_argument("path", type=Path)
+    diff_parser.add_argument("--snapshot", type=Path, default=DEFAULT_SNAPSHOT)
+
     subparsers.add_parser("fallback", help="render the bundled dated snapshot")
     subparsers.add_parser("unavailable", help="render the no-snapshot fallback")
     return parser
@@ -206,6 +246,23 @@ def main(argv: list[str] | None = None) -> int:
                 render_map(load_map(args.path), status=args.status, as_of=args.as_of),
                 end="",
             )
+        elif args.command == "diff":
+            moves = diff_placements(load_map(args.path), load_map(args.snapshot))
+            print(json.dumps({"reclassified": moves}, indent=2))
+            if moves:
+                for move in moves:
+                    print(
+                        f"Reclassification: {move['provider']} `{move['model']}` "
+                        f"moved {move['from_tier']} -> {move['to_tier']}",
+                        file=sys.stderr,
+                    )
+                print(
+                    "Tier placement is an operator judgment, not a vendor fact. "
+                    "Carry the snapshot placement forward, or state the "
+                    "reclassification and its reason in the plan.",
+                    file=sys.stderr,
+                )
+                return 3
         elif args.command == "fallback":
             print(
                 render_map(load_map(DEFAULT_SNAPSHOT), status="offline", as_of=None),

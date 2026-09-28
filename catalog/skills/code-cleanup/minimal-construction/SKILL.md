@@ -100,7 +100,7 @@ If a deliberate corner cuts a real ceiling, add a `construction-debt:` comment n
 
 ### 6. Keep extras and tests to what the task asks
 
-Do not fix a pre-existing bug, optimize, or extend behavior the task did not mention unless the requested behavior cannot work without it; report it as a follow-up instead. Commit tests only where the task asks or the repository already keeps them for this change class, sized like the neighbouring test files at roughly one focused test per stated behavior, and do not turn scratch checks into permanent test files. This concerns extras only: every behavior the task does ask for is still implemented completely, and the floors in step 4 still stand. When `/test` is explicitly invoked, its coverage threshold governs instead, per the recorded decision in `docs/releases/v4/v4.7/development/test-scope-decision.md`.
+Do not fix a pre-existing bug, optimize, or extend behavior the task did not mention unless the requested behavior cannot work without it; report it as a follow-up instead. Commit tests only where the task asks or the repository already keeps them for this change class, sized like the neighbouring test files at roughly one focused test per stated behavior, and do not turn scratch checks into permanent test files. This concerns extras only: every behavior the task does ask for is still implemented completely, and the floors in step 4 still stand. When `/test` is explicitly invoked, its coverage threshold governs instead, per the recorded decision in `docs/archives/v4/v4.7/development/test-scope-decision.md`.
 
 ### 7. Stop
 

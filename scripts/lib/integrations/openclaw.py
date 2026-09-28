@@ -31,6 +31,7 @@ import os
 from pathlib import Path
 from typing import Any, ClassVar
 
+from ._completion_plugins import PLUGIN_ID, install_completion_plugin
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import WriteResult
 
@@ -624,7 +625,7 @@ class OpenClawIntegration(MarkdownIntegration, SkillsIntegration):
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
         """Install into the configured default workspace when OpenClaw is detected."""
-        openclaw_root = (Path.home() / ".openclaw").resolve()
+        openclaw_root = (ctx.global_root / ".openclaw").resolve()
         try:
             _, state_dir, config_path, _config_required = _openclaw_locations(
                 openclaw_root
@@ -660,8 +661,29 @@ class OpenClawIntegration(MarkdownIntegration, SkillsIntegration):
             ctx.manifest.log(self.key, message)
             result.mark_not_detected(message)
             return result
+        if ctx.explicit_target and not workspace.resolve().is_relative_to(ctx.target_root.resolve()):
+            result = WriteResult()
+            message = f"OpenClaw workspace {workspace} is outside explicit target; global workspace surfaces skipped"
+            ctx.manifest.log(self.key, message)
+            result.mark_not_detected(message)
+            return result
+        if ctx.explicit_target and any(
+            not path.is_relative_to(ctx.target_root.resolve())
+            for path in (state_dir, config_path)
+        ):
+            result = WriteResult()
+            message = "OpenClaw state or config path escapes explicit target; global workspace surfaces skipped"
+            ctx.manifest.log(self.key, message)
+            result.mark_not_detected(message)
+            return result
         result = self._write_workspace(workspace, ctx)
         result.detected = True
+        if not ctx.instruction_only and state_dir.is_dir():
+            # v4.13.2: completion-gate plugin in the user's extensions root. Only
+            # into a state directory that already exists: a configured workspace
+            # can resolve a state path the user does not have, and creating it
+            # would plant executable code in a directory OpenClaw never made.
+            install_completion_plugin(self, ctx, "openclaw", state_dir / "extensions" / PLUGIN_ID, result)
         return result
 
 

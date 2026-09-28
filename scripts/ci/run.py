@@ -13,7 +13,8 @@ environment variable, and `--base` takes an ordinary git revision.
 Exit status is 0 only when every required command passed. An advisory command
 that fails is reported and does not change the status; a command that times out,
 crashes, or cannot be found DOES, because "the tool is missing" and "the tool
-passed" must never look the same.
+passed" must never look the same. The only exception is a command that explicitly
+declares an unavailable optional vendor CLI as a visible skip.
 """
 
 from __future__ import annotations
@@ -21,8 +22,10 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
+import signal
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -56,6 +59,35 @@ def _tool_versions() -> dict[str, str]:
     return tools
 
 
+def _read_capture(stream) -> str:
+    stream.flush()
+    stream.seek(0)
+    return stream.read().decode("utf-8", errors="replace")
+
+
+def _terminate_process_tree(proc: subprocess.Popen) -> None:
+    """Stop a timed-out command and every child that inherited its handles."""
+    if os.name == "nt":
+        subprocess.run(
+            ["taskkill", "/PID", str(proc.pid), "/T", "/F"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+            timeout=10,
+        )
+    else:
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+
+    try:
+        proc.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait()
+
+
 def run_command(cmd: Command, repo_root: Path, secrets: list[str], quiet: bool) -> CommandResult:
     """Execute one command, capturing output and never raising."""
     cwd = (repo_root / cmd.cwd).resolve()
@@ -73,7 +105,7 @@ def run_command(cmd: Command, repo_root: Path, secrets: list[str], quiet: bool) 
         return CommandResult(
             name=cmd.name,
             group="",
-            status="missing",
+            status="skip" if cmd.skip_if_missing else "missing",
             reason=f"executable not found on PATH: {cmd.argv[0]}",
             duration_s=time.monotonic() - started,
         )
@@ -86,46 +118,46 @@ def run_command(cmd: Command, repo_root: Path, secrets: list[str], quiet: bool) 
     env.setdefault("PYTHONIOENCODING", "utf-8")
     env.setdefault("PYTHONUTF8", "1")
 
-    try:
-        proc = subprocess.run(
-            list(cmd.argv),
-            cwd=str(cwd),
-            capture_output=True,
-            text=True,
-            timeout=cmd.timeout,
-            env=env,
-            encoding="utf-8",
-            errors="replace",
-        )
-    except subprocess.TimeoutExpired:
-        return CommandResult(
-            name=cmd.name,
-            group="",
-            status="timeout",
-            duration_s=time.monotonic() - started,
-            reason=f"exceeded {cmd.timeout}s",
-        )
-    except OSError as exc:
-        return CommandResult(
-            name=cmd.name,
-            group="",
-            status="missing",
-            duration_s=time.monotonic() - started,
-            reason=f"{type(exc).__name__}: {exc}",
-        )
+    with tempfile.TemporaryFile() as stdout_file, tempfile.TemporaryFile() as stderr_file:
+        popen_kwargs = {"start_new_session": True} if os.name != "nt" else {
+            "creationflags": subprocess.CREATE_NEW_PROCESS_GROUP
+        }
+        try:
+            proc = subprocess.Popen(
+                list(cmd.argv),
+                cwd=str(cwd),
+                stdout=stdout_file,
+                stderr=stderr_file,
+                env=env,
+                **popen_kwargs,
+            )
+            proc.wait(timeout=cmd.timeout)
+        except subprocess.TimeoutExpired:
+            _terminate_process_tree(proc)
+            duration = time.monotonic() - started
+            output = reporting.redact(_read_capture(stdout_file) + _read_capture(stderr_file), secrets)
+            return CommandResult(
+                name=cmd.name,
+                group="",
+                status="timeout",
+                duration_s=duration,
+                reason=f"exceeded {cmd.timeout}s",
+                output=output,
+            )
+        except OSError as exc:
+            return CommandResult(
+                name=cmd.name,
+                group="",
+                status="missing",
+                duration_s=time.monotonic() - started,
+                reason=f"{type(exc).__name__}: {exc}",
+            )
+
+        output = reporting.redact(_read_capture(stdout_file) + _read_capture(stderr_file), secrets)
 
     duration = time.monotonic() - started
-    output = reporting.redact((proc.stdout or "") + (proc.stderr or ""), secrets)
     passed = proc.returncode == 0
     status = "pass" if passed else ("advisory-fail" if cmd.advisory else "fail")
-
-    if not quiet or not passed:
-        mark = "ok  " if passed else "FAIL"
-        print(f"  [{mark}] {cmd.name} ({duration:.1f}s)")
-        if not passed:
-            tail = output.rstrip().splitlines()[-12:]
-            for line in tail:
-                print(f"         {line}")
 
     return CommandResult(
         name=cmd.name,
@@ -136,6 +168,25 @@ def run_command(cmd: Command, repo_root: Path, secrets: list[str], quiet: bool) 
         output=output,
         reason="" if passed else f"exit {proc.returncode}",
     )
+
+
+def _render_command_result(outcome: CommandResult, quiet: bool) -> None:
+    if quiet and outcome.status == "pass":
+        return
+
+    mark = {
+        "pass": "ok  ",
+        "fail": "FAIL",
+        "advisory-fail": "WARN",
+        "timeout": "TIMEOUT",
+        "missing": "MISSING",
+        "skip": "SKIP",
+    }[outcome.status]
+    reason = f"; {outcome.reason}" if outcome.reason else ""
+    print(f"  [{mark}] {outcome.name} ({outcome.duration_s:.1f}s{reason})")
+    if outcome.status != "pass":
+        for line in outcome.output.rstrip().splitlines()[-12:]:
+            print(f"         {line}")
 
 
 def run_group(
@@ -179,6 +230,7 @@ def run_group(
     for cmd in applicable:
         outcome = run_command(cmd, repo_root, secrets, quiet)
         outcome.group = group.name
+        _render_command_result(outcome, quiet)
         result.commands.append(outcome)
         if outcome.counts_as_failure:
             result.status = "fail"
@@ -195,7 +247,7 @@ def select_groups(profile: str, only: list[str] | None) -> tuple[Group, ...]:
     """
     groups = groups_for(profile)
     if not only:
-        return groups
+        return tuple(group for group in groups if not group.explicit_only)
     available = {g.name for g in groups}
     unknown = [name for name in only if name not in available]
     if unknown:
@@ -215,6 +267,7 @@ def run_profile(
     quiet: bool = False,
     only: list[str] | None = None,
     repo_root: Path = REPO_ROOT,
+    expected_artifacts: dict[str, str] | None = None,
 ) -> RunResult:
     host = platform or detect_platform()
     decision = change_scope.classify(base, repo_root=repo_root) if base else change_scope._all_required(
@@ -236,7 +289,19 @@ def run_profile(
     if decision.reason:
         print(f"scope:   {decision.reason}")
 
-    for group in select_groups(profile, only):
+    selected_groups = select_groups(profile, only)
+    if profile == "report":
+        if reports_dir is None:
+            result.groups.append(GroupResult(
+                name="report-inputs",
+                status="fail",
+                commands=[CommandResult("report inputs", "report-inputs", "missing", reason="--reports-dir required")],
+            ))
+        else:
+            reports_dir.mkdir(parents=True, exist_ok=True)
+            result.groups.append(reporting.aggregate_inputs(reports_dir, expected_artifacts))
+
+    for group in selected_groups:
         group_result = run_group(group, host, decision, repo_root, secrets, quiet)
         result.groups.append(group_result)
         if group.blocking and group_result.status == "fail":
@@ -280,6 +345,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--profile", required=True, choices=PROFILE_NAMES)
     parser.add_argument("--platform", choices=("linux", "macos", "windows"), default=None)
     parser.add_argument("--reports-dir", default=None, help="where to write reports (default: none)")
+    parser.add_argument(
+        "--expect-artifact", action="append", default=[], metavar="NAME=JOB_RESULT",
+        help="for report: expected artifact and upstream success, failure, cancelled, or skipped result",
+    )
     parser.add_argument("--base", default=None, help="git revision to scope the run against")
     parser.add_argument("--quiet", action="store_true", help="suppress per-command output on success")
     parser.add_argument(
@@ -304,6 +373,18 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     reports_dir = Path(args.reports_dir).resolve() if args.reports_dir else None
+    if args.expect_artifact and args.profile != "report":
+        print("error: --expect-artifact requires --profile report", file=sys.stderr)
+        return 2
+    expected_artifacts = None
+    if args.expect_artifact:
+        expected_artifacts = {}
+        for spec in args.expect_artifact:
+            name, separator, status = spec.partition("=")
+            if not separator or not name or status not in {"success", "failure", "cancelled", "skipped"} or name in expected_artifacts:
+                print(f"error: invalid or duplicate --expect-artifact {spec!r}", file=sys.stderr)
+                return 2
+            expected_artifacts[name] = status
     try:
         result = run_profile(
             profile=args.profile,
@@ -312,6 +393,7 @@ def main(argv: list[str] | None = None) -> int:
             base=args.base,
             quiet=args.quiet,
             only=only,
+            expected_artifacts=expected_artifacts,
         )
     except KeyError as exc:
         print(f"error: {exc}", file=sys.stderr)

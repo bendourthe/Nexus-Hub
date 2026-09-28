@@ -191,7 +191,7 @@ This is the terminal duty in every plan's final phase, and the entry point when 
 1. **Detect** the provider (Step 2). Record "none detected" rather than assuming.
 2. **Compare** the existing pipeline against every field in Steps 3 through 8: profiles, events, runner selection, required aggregate, permissions, pinning, caching, concurrency, path scoping, artifact retention, reports, deployment boundaries, failure recovery.
 3. **Propose** each difference with its cost, its risk, and the smallest change that closes it.
-4. **Approve.** Obtain explicit approval per change. Silence is not approval.
+4. **Approve.** Obtain explicit approval per change. Silence is not approval. A full `/implement` run's upfront approvals never cover a pipeline, permission, or secret change: each one stops that run as a `ci-security-change` blocker until the user answers it.
 5. **Apply** approved changes in the current phase, then re-run the local gate.
 6. **Record** every declined or environment-only difference as a known gap with an owner and a next step. Cross-link `[[known-gaps-tracker]]`.
 

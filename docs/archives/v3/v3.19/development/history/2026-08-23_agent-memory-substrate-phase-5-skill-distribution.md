@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.19.1-agent-memory-substrate`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md`](../../plans/v3.19.1-agent-memory-substrate.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md`](../../../../../releases/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md)
 **Phase**: 5 - Skill, distribution, and registration
 **Environment**: Windows 11, PowerShell, Python 3.12.10, pytest
 **Outcome**: The `agent-memory` skill is registered, trigger-routed, and installer-copied. The package lands at `~/.nexus-hub/nexus-memory` so it does not collide with the default store root. It is not an MCP server.

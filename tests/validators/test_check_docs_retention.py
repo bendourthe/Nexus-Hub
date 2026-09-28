@@ -1,7 +1,7 @@
 """Tests for scripts/check_docs_retention.py (v3.18.0 Phase 4).
 
-The checker reports per-version `development/history/` subtrees that are two or
-more minors behind the current version and not yet archived. Only `history/` ages
+The checker reports per-version `development/history/` subtrees at least one
+minor behind the current version and still containing files. Only `history/` ages
 out: the v3.18.0 Phase 5 archive pass found that `development/` also holds CI
 fixtures a workflow executes and contract documents shipped hooks cite by path.
 
@@ -18,6 +18,7 @@ Run from the repo root:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -94,14 +95,31 @@ def test_threshold_boundary_is_exactly_one_minor(tmp_path: Path) -> None:
 
 
 def test_already_archived_version_is_not_reported(tmp_path: Path) -> None:
-    """The report is about work outstanding, not about history that exists."""
+    """An empty source is complete when the archived history exists."""
     root = _make_repo(tmp_path, "3.17.6", ["v3.15"])
-    (root / "docs" / "archives" / "v3" / "v3.15" / "development" / "history").mkdir(parents=True)
+    source = root / "docs" / "releases" / "v3" / "v3.15" / "development" / "history"
+    archive = root / "docs" / "archives" / "v3" / "v3.15" / "development" / "history"
+    archive.mkdir(parents=True)
+    (archive / "note.md").write_text((source / "note.md").read_text(encoding="utf-8"), encoding="utf-8")
+    (source / "note.md").unlink()
 
     proc = _run(root)
 
     assert proc.returncode == 0, proc.stderr
     assert "WARN" not in proc.stdout, proc.stdout
+
+
+def test_late_history_is_reported_when_archive_directory_exists(tmp_path: Path) -> None:
+    root = _make_repo(tmp_path, "3.17.6", ["v3.15"])
+    archive = root / "docs" / "archives" / "v3" / "v3.15" / "development" / "history"
+    archive.mkdir(parents=True)
+    (archive / "earlier.md").write_text("# earlier\n", encoding="utf-8")
+
+    proc = _run(root)
+
+    assert proc.returncode == 0, proc.stderr
+    assert "docs/releases/v3/v3.15/development/history" in proc.stdout
+    assert "1 file(s)" in proc.stdout
 
 
 def test_older_major_is_reported_entirely(tmp_path: Path) -> None:
@@ -124,20 +142,220 @@ def test_future_version_directory_is_not_reported(tmp_path: Path) -> None:
     assert "WARN" not in proc.stdout, proc.stdout
 
 
-def test_version_without_a_development_subtree_is_skipped(tmp_path: Path) -> None:
-    """Only development/ ages out; plans/ and known-gaps.md never do."""
+def test_plans_of_an_OPEN_minor_never_age_out(tmp_path: Path) -> None:
+    """The age rule sweeps only development/; an open minor keeps its plans.
+
+    Retitled and tightened by the state-3b change. This previously asserted that
+    plans/ are exempt unconditionally, which stopped being true: age alone still
+    never retires a plan, but CLOSURE does. The in-progress marker below is what
+    keeps this minor exempt; the companion tests cover the other side.
+    """
     root = _make_repo(tmp_path, "3.17.6", [])
     plans = root / "docs" / "releases" / "v3" / "v3.10" / "plans"
     plans.mkdir(parents=True)
     (plans / "v3.10.0-thing.md").write_text("# plan\n", encoding="utf-8")
-    (root / "docs" / "releases" / "v3" / "v3.10" / "known-gaps.md").write_text("# gaps\n", encoding="utf-8")
+    (root / "docs" / "releases" / "v3" / "v3.10" / "known-gaps.md").write_text(
+        "# gaps\n\n**Status**: in-progress\n", encoding="utf-8"
+    )
 
     proc = _run(root)
 
     assert proc.returncode == 0, proc.stderr
     assert "WARN" not in proc.stdout, (
-        "plans/ and known-gaps.md are exempt; only development/ is swept"
+        "an open minor keeps its plans regardless of age; only development/ is swept"
     )
+
+
+def test_a_fully_closed_minor_reports_its_plans_for_archival(tmp_path: Path) -> None:
+    """State 3b: closure retires a plan where age does not."""
+    root = _make_repo(tmp_path, "3.17.6", [])
+    plans = root / "docs" / "releases" / "v3" / "v3.10" / "plans"
+    plans.mkdir(parents=True)
+    (plans / "v3.10.0-thing.md").write_text("# plan\n", encoding="utf-8")
+    (root / "docs" / "releases" / "v3" / "v3.10" / "known-gaps.md").write_text(
+        "# gaps\n\n**Status**: finalized\n\n**Open items**: 0\n", encoding="utf-8"
+    )
+
+    proc = _run(root)
+
+    assert proc.returncode == 0, proc.stderr
+    assert "docs/releases/v3/v3.10 closed" in proc.stdout
+    assert "docs/archives/v3/v3.10" in proc.stdout
+    assert "known-gaps.md stays" in proc.stdout, (
+        "known-gaps.md stays active so the next plan reads it without a hop"
+    )
+
+
+def test_an_unchecked_task_line_holds_a_minor_open(tmp_path: Path) -> None:
+    """A finalized register does not close a minor whose plan has open tasks."""
+    root = _make_repo(tmp_path, "3.17.6", [])
+    plans = root / "docs" / "releases" / "v3" / "v3.10" / "plans"
+    plans.mkdir(parents=True)
+    (plans / "v3.10.0-thing.md").write_text(
+        "# plan\n\n- [ ] T001 undone\n", encoding="utf-8"
+    )
+    (root / "docs" / "releases" / "v3" / "v3.10" / "known-gaps.md").write_text(
+        "# gaps\n\n**Status**: finalized\n\n**Open items**: 0\n", encoding="utf-8"
+    )
+
+    proc = _run(root)
+
+    assert proc.returncode == 0, proc.stderr
+    assert "v3.10 closed" not in proc.stdout, proc.stdout
+
+
+def _make_legacy_transfer(tmp_path: Path, *, unchecked: bool = False) -> tuple[Path, Path, Path]:
+    root = _make_repo(tmp_path, "4.13.0", [])
+    old = root / "docs" / "releases" / "v4" / "v4.0"
+    plans = old / "plans"
+    plans.mkdir(parents=True)
+    plan = plans / "v4.0.0-plan.md"
+    plan.write_text("# plan\n\n- [ ] T001 retained\n" if unchecked else "# plan\n", encoding="utf-8")
+    gaps = old / "known-gaps.md"
+    gaps.write_text("# gaps\n\n**Status**: finalized; one item remains open\n\n### Open Items\n\n#### MT-1 - Missing proof\n", encoding="utf-8")
+    current = root / "docs" / "releases" / "v4" / "v4.13" / "known-gaps.md"
+    current.parent.mkdir(parents=True)
+    digest = hashlib.sha256(gaps.read_bytes().replace(bytes([13, 10]), bytes([10]))).hexdigest()
+    current.write_text(
+        "# gaps\n\n## Historical carry-forward from v4.0 through v4.12\n\n"
+        "An item open in its source ledger remains open.\n\n"
+        "| Minor | Source ledger | Normalized SHA-256 |\n|---|---|---|\n"
+        f"| v4.0 | [ledger](../v4.0/known-gaps.md) | `{digest}` |\n",
+        encoding="utf-8",
+    )
+    return root, current, plan
+
+
+def test_reviewed_legacy_transfer_reports_plan_for_archival(tmp_path: Path) -> None:
+    root, _, _ = _make_legacy_transfer(tmp_path)
+
+    proc = _run(root)
+
+    assert "docs/releases/v4/v4.0 closed by transfer" in proc.stdout
+    assert "docs/archives/v4/v4.0" in proc.stdout
+
+
+def test_stale_or_missing_legacy_transfer_never_reports_plan(tmp_path: Path) -> None:
+    root, current, _ = _make_legacy_transfer(tmp_path)
+    current.write_text(current.read_text(encoding="utf-8").replace("| v4.0 |", "| v4.1 |"), encoding="utf-8")
+    assert "v4.0 closed by transfer" not in _run(root).stdout
+
+    _, current, _ = _make_legacy_transfer(tmp_path / "hash")
+    current.write_text(current.read_text(encoding="utf-8").replace("Missing proof", "new proof"), encoding="utf-8")
+    gaps = current.parent.parent / "v4.0" / "known-gaps.md"
+    gaps.write_text(gaps.read_text(encoding="utf-8") + "\nChanged.\n", encoding="utf-8")
+    assert "v4.0 closed by transfer" not in _run(current.parents[4]).stdout
+
+
+def test_unchecked_legacy_plan_needs_exact_disposition(tmp_path: Path) -> None:
+    root, current, plan = _make_legacy_transfer(tmp_path, unchecked=True)
+    assert "v4.0 closed by transfer" not in _run(root).stdout
+
+    evidence = root / "docs" / "archives" / "v4" / "v4.0" / "development" / "task-reconciliation.md"
+    evidence.parent.mkdir(parents=True)
+    evidence.write_text("T001 reviewed\n", encoding="utf-8")
+    plan.write_text("# plan\n\n**Status**: IMPLEMENTED with historical boxes\n\n- [ ] T001 retained\n", encoding="utf-8")
+    digest = hashlib.sha256(plan.read_bytes().replace(bytes([13, 10]), bytes([10]))).hexdigest()
+    current.write_text(
+        current.read_text(encoding="utf-8")
+        + "\n| Historical plan | Normalized SHA-256 | Disposition | Evidence |\n|---|---|---|---|\n"
+        + f"| [plan](../v4.0/plans/v4.0.0-plan.md) | `{digest}` | implemented-evidence; 1 retained box | [record](../../../archives/v4/v4.0/development/task-reconciliation.md) |\n"
+        + "\n| Archived plan | Retained `- [ ]` lines | Strict `T###` lines |\n|---|---:|---:|\n"
+        + "| [plan](../v4.0/plans/v4.0.0-plan.md) | 1 | 1 |\n",
+        encoding="utf-8",
+    )
+    assert "v4.0 closed by transfer" in _run(root).stdout
+
+    evidence.unlink()
+    assert "v4.0 closed by transfer" not in _run(root).stdout
+
+    evidence.write_text("T001 reviewed\n", encoding="utf-8")
+    current.write_text(current.read_text(encoding="utf-8").replace("| 1 | 1 |", "| 2 | 1 |"), encoding="utf-8")
+    assert "v4.0 closed by transfer" not in _run(root).stdout
+
+
+def test_archived_plan_exception_still_requires_matching_hash(tmp_path: Path) -> None:
+    root, current, plan = _make_legacy_transfer(tmp_path, unchecked=True)
+    evidence = root / "docs" / "archives" / "v4" / "v4.0" / "development" / "task-reconciliation.md"
+    evidence.parent.mkdir(parents=True)
+    evidence.write_text("T001 reviewed\n", encoding="utf-8")
+    plan.write_text("# plan\n\n**Status**: IMPLEMENTED\n\n- [ ] T001 retained\n", encoding="utf-8")
+    digest = hashlib.sha256(plan.read_bytes().replace(bytes([13, 10]), bytes([10]))).hexdigest()
+    current.write_text(
+        current.read_text(encoding="utf-8")
+        + "\n| Historical plan | Normalized SHA-256 | Disposition | Evidence |\n|---|---|---|---|\n"
+        + f"| [plan](../../../archives/v4/v4.0/plans/v4.0.0-plan.md) | `{digest}` | implemented-evidence; 1 retained box | [record](../../../archives/v4/v4.0/development/task-reconciliation.md) |\n"
+        + "\n| Archived plan | Retained `- [ ]` lines | Strict `T###` lines |\n|---|---:|---:|\n"
+        + "| [plan](../../../archives/v4/v4.0/plans/v4.0.0-plan.md) | 1 | 1 |\n",
+        encoding="utf-8",
+    )
+    archived = root / "docs" / "archives" / "v4" / "v4.0" / "plans" / plan.name
+    archived.parent.mkdir(parents=True, exist_ok=True)
+    archived.write_bytes(plan.read_bytes())
+    plan.unlink()
+
+    comparisons = plan.parent.parent / "comparisons"
+    comparisons.mkdir()
+    (comparisons / "example.md").write_text("# comparison\n", encoding="utf-8")
+    assert "v4.0 closed by transfer" in _run(root).stdout
+    archived.write_text(archived.read_text(encoding="utf-8") + "\nChanged.\n", encoding="utf-8")
+    assert "v4.0 closed by transfer" not in _run(root).stdout
+
+
+def test_real_v4_historical_transfer_stays_bound_after_archival() -> None:
+    """A source-ledger edit must fail CI even after its plans leave the active tree."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("cdr_transfer", _SCRIPT)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    repo = _SCRIPT.resolve().parents[1]
+    v4 = repo / module.RELEASES_ROOT / "v4"
+    index = v4 / "v4.13" / "known-gaps.md"
+    rows = [match.group(1) for match in module._LEGACY_LEDGER_ROW.finditer(index.read_text(encoding="utf-8"))]
+    expected = [f"v4.{minor}" for minor in range(13) if minor != 6]
+    assert sorted(rows) == sorted(expected), "historical ledger rows are missing or duplicated"
+    stale = [minor for minor in expected if not module.legacy_transfer_is_complete(
+        repo, v4 / minor, v4 / minor / "known-gaps.md"
+    )]
+    assert stale == [], f"historical carry-forward is stale: {stale}"
+
+
+def test_unproven_or_contradicted_closure_never_reports_a_minor(tmp_path: Path) -> None:
+    root = _make_repo(tmp_path, "3.17.6", [])
+    version = root / "docs" / "releases" / "v3" / "v3.10"
+    plans = version / "plans"
+    plans.mkdir(parents=True)
+    (plans / "plan.md").write_text("# plan\n", encoding="utf-8")
+    gaps = version / "known-gaps.md"
+
+    assert "v3.10" not in _run(root).stdout
+
+    for content in (
+        "# gaps\n\n**Status**: finalized\n",
+        "# gaps\n\n**Open items**: 0\n",
+        "# gaps\n\n**Status**: released\n\n**Open items**: 0\n",
+        "# gaps\n\n**Status**: finalized\n\n**Open items**: 0\n\n| BG-2 | OPEN |\n",
+        "# gaps\n\n**Status**: finalized\n\n**Open items**: 0\n\n### BG-2 - OPEN\n",
+    ):
+        gaps.write_text(content, encoding="utf-8")
+        assert "v3.10 closed" not in _run(root).stdout
+
+
+def test_real_v318_open_gap_prevents_archival() -> None:
+    repo = _SCRIPT.resolve().parents[1]
+    gaps = repo / "docs" / "releases" / "v3" / "v3.18" / "known-gaps.md"
+    assert gaps.is_file()
+    assert "BG-2" in gaps.read_text(encoding="utf-8")
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("cdr_v318", _SCRIPT)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert not module.known_gaps_is_closed(gaps.read_text(encoding="utf-8"))
 
 
 def test_absent_docs_tree_exits_zero(tmp_path: Path) -> None:

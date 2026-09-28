@@ -1,7 +1,7 @@
 # Session History - v3.16.7 Phase 3: Incoming session lessons
 
 **Date**: 2026-08-13
-**Plan**: [plans/v3.16.7-presentify-first-shot-hardening.md](../../plans/v3.16.7-presentify-first-shot-hardening.md)
+**Plan**: [plans/v3.16.7-presentify-first-shot-hardening.md](../../../../../releases/v3/v3.16/plans/v3.16.7-presentify-first-shot-hardening.md)
 **Phase**: 3 of 4 (Phase 4, the terminal refactor and release-readiness phase, remains)
 **Branch**: `feat/v3.16.7-presentify-first-shot-hardening`
 **Status**: COMPLETE

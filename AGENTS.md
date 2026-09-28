@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 4.13.0 -->
+<!-- nexus-hub-version: 4.13.3 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **337 skills** across 23 categories, 19 commands (plus 3 permanent aliases), 35 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **338 skills** across 23 categories, 19 commands (plus 3 permanent aliases), 37 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Language, security, and artifact rules
-|   `-- skills/               # 337 skills across 23 categories
+|   `-- skills/               # 338 skills across 23 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -226,7 +226,7 @@ Two rules matter even if you read nothing else: every bundled file MUST be refer
 
 ### 4. Register the skill
 
-After creating SKILL.md, update these three files:
+After creating SKILL.md, update all five catalog-state files:
 
 **`data/SKILL_INDEX.md`** -- add one row to the table:
 ```
@@ -235,7 +235,13 @@ After creating SKILL.md, update these three files:
 
 **`data/skills.json`** -- add one entry to the `"skills"` array following the existing schema (name, title, description, long_description, summary_l0, overview_l1, version, author, category, language, tags, priority, based_on, tools_required, path, file, size, downloads, status, security).
 
-**`data/marketplace.json`** -- increment `skill_count` in the relevant category entry and update `"total_skills"` in `statistics`.
+**`data/marketplace.json`** -- increment `skill_count` in the relevant category entry.
+
+**`data/bundles.json`** -- add the skill to at least one capability module or bundle so focused installs can reach it.
+
+**Derived counts in `data/skills.json`** -- update `statistics.total_skills` and the matching `statistics.categories` entry. Also update the `**Total: N skills across M categories**` line in `data/SKILL_INDEX.md`; these are derived surfaces, but the catalog is deliberately hand-edited for reviewable diffs.
+
+Run `python scripts/check_registry_entries.py --emit <skill-name>` to print an index row and JSON fields, then run `python scripts/check_registry_entries.py --check --strict`. The checker validates membership, entry shape, bundle reachability, per-category and aggregate counts, and frontmatter text agreement.
 
 ### 5. Validate
 
@@ -410,6 +416,30 @@ Nexus-Hub is a **template repository**. Nothing you add is "live" until a user r
 
 **Golden rule**: every change you propose must be shaped so that after the next installer run, it reaches Claude Code, Cursor, Codex, Gemini/Antigravity, OpenCode, and Copilot -- on Windows, macOS, and Linux -- without any manual step on the user's part.
 
+### Runtime integration debugging entry points
+
+When debugging or changing one runtime, open the file below first. These rows are derived from the registered integration classes in `scripts/lib/integrations/`; `docs/policy/platform-read-contracts.json` remains the source of truth for what each runtime reads, while this table identifies where its Nexus-Hub behavior starts. Aider, Antigravity 1.0, and Hermes have registered adapters but no `contract_checks` entry, so their rows make no read-path claim.
+
+| Runtime | Registry key | Open first |
+|---|---|---|
+| Aider | `aider` | `scripts/lib/integrations/aider.py` |
+| Antigravity 1.0 (Google) | `antigravity` | `scripts/lib/integrations/antigravity.py` |
+| Antigravity 2.0 + CLI (Google) | `antigravity2` | `scripts/lib/integrations/antigravity.py` |
+| Claude Code (Anthropic) | `claude` | `scripts/lib/integrations/claude.py` |
+| Codex (OpenAI) | `codex` | `scripts/lib/integrations/codex.py` |
+| GitHub Copilot (Microsoft) | `copilot` | `scripts/lib/integrations/copilot.py` |
+| Cursor | `cursor` | `scripts/lib/integrations/cursor.py` |
+| Gemini (Google) | `gemini` | `scripts/lib/integrations/gemini.py` |
+| Gemini CLI (Google, ENTERPRISE-ONLY post-2026-06-18) | `gemini-cli` | `scripts/lib/integrations/gemini_cli.py` |
+| Hermes | `hermes` | `scripts/lib/integrations/hermes.py` |
+| Kimi Code CLI | `kimi` | `scripts/lib/integrations/kimi.py` |
+| Nexus-AI (Local Desktop Studio) | `nexus-ai` | `scripts/lib/integrations/nexus_ai.py` |
+| OpenClaw | `openclaw` | `scripts/lib/integrations/openclaw.py` |
+| OpenCode | `opencode` | `scripts/lib/integrations/opencode.py` |
+| Pi | `pi` | `scripts/lib/integrations/pi.py` |
+| Qwen Code | `qwen` | `scripts/lib/integrations/qwen.py` |
+| Devin Desktop / Windsurf | `windsurf` | `scripts/lib/integrations/windsurf.py` |
+
 ### Distribution channels the installer uses
 
 | Artifact you add/modify | Installer edit required? | Platforms reached |
@@ -465,7 +495,7 @@ Two further traps, both fail-open:
 
 ## Documentation Retention
 
-Per-version docs age out on a stated rule instead of accumulating: a minor two or more behind current has its `development/` subtree archived to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/development/`, while `plans/`, `comparisons/`, `known-gaps.md`, and the non-versioned subtrees never age out. `scripts/check_docs_retention.py` reports drift and always exits 0; `[[docs-layout-refactor]]` performs the move. Full policy: [`docs/policy/docs-retention.md`](docs/policy/docs-retention.md).
+Per-version docs age out on a stated rule instead of accumulating: a minor two or more behind current has its `development/` subtree archived to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/development/`, while `plans/` and `comparisons/` move on closure; `known-gaps.md` and non-versioned subtrees never move. `scripts/check_docs_retention.py` reports drift and always exits 0; `[[docs-layout-refactor]]` performs the move. Full policy: [`docs/policy/docs-retention.md`](docs/policy/docs-retention.md).
 
 ## Running Validation
 
@@ -484,7 +514,7 @@ python scripts/ci/run.py --profile full    # the complete gate CI's `validate` j
 python scripts/ci/run.py --profile fast --list   # show the steps without running them
 ```
 
-Prefer these over transcribing a `Makefile` target by hand. `make` is not present on every supported development host (notably a stock Windows workstation), and the `validate` target maintains a hand-kept step list that the profile already contains as a superset. During v4.8.0 a contributor without `make` ran the target's steps individually, each passed, and the pull request still failed `validate` on a step that had last run several phases earlier: the composite claim was never true at one revision. One command against one list is what prevents that. See `WN-D` and the `## Full-suite testing and stabilization` section of `docs/releases/v4/v4.8/development/last-phase-evidence.md`.
+Prefer these over transcribing a `Makefile` target by hand. `make` is not present on every supported development host (notably a stock Windows workstation), and the `validate` target maintains a hand-kept step list that the profile already contains as a superset. During v4.8.0 a contributor without `make` ran the target's steps individually, each passed, and the pull request still failed `validate` on a step that had last run several phases earlier: the composite claim was never true at one revision. One command against one list is what prevents that. See `WN-D` and the `## Full-suite testing and stabilization` section of `docs/archives/v4/v4.8/development/last-phase-evidence.md`.
 
 ## Branching and Release Workflow
 
@@ -496,7 +526,7 @@ Nexus-Hub uses a lightweight **`develop` + `main`** model (adopted 2026-06-04). 
 
 Rationale: Nexus-Hub is a catalog consumed directly from the repo by an installer across every supported AI platform, so `main` is effectively a release artifact. Isolating in-progress, multi-phase versions on `develop` protects downstream installer users from half-applied phases.
 
-**Plan lifecycle (v4.0.0).** This repository follows the same lifecycle it distributes. Every plan phase verifies locally and ends with ONE local commit; unrelated dirty-worktree changes are left untouched and only files tracing to the plan are staged. No non-final phase pushes, opens a pull request, or starts remote CI, because a pipeline run per phase bills to validate work the plan itself calls incomplete. A phase records its CI impact and edits `.github/workflows/` only when CI/CD is that phase's stated deliverable. The FINAL phase reconciles the pipeline against the canonical contract via `[[cicd-architect]]`, completes the local gate, then pushes ONCE and opens the integration pull request to `develop` -- the plan's first remote validation, run against the merge result. A red required check reopens that phase and is reproduced locally before any re-push. Post-merge work stays minimal, and `/update release` starts only after the `develop` result is green and merged. A `push`-filtered workflow means "a merge or a release happened" ONLY because `main` and `develop` reject direct pushes; that protection is an external repository setting, verified by hand and never mutated automatically. Contract: [`docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md`](docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md).
+**Plan lifecycle (v4.0.0).** This repository follows the same lifecycle it distributes. Every plan phase verifies locally and ends with ONE local commit; unrelated dirty-worktree changes are left untouched and only files tracing to the plan are staged. No non-final phase pushes, opens a pull request, or starts remote CI, because a pipeline run per phase bills to validate work the plan itself calls incomplete. A phase records its CI impact and edits `.github/workflows/` only when CI/CD is that phase's stated deliverable. The FINAL phase reconciles the pipeline against the canonical contract via `[[cicd-architect]]`, completes the local gate, then pushes ONCE and opens the integration pull request to `develop` -- the plan's first remote validation, run against the merge result. A red required check reopens that phase and is reproduced locally before any re-push. Post-merge work stays minimal, and `/update release` starts only after the `develop` result is green and merged. A `push`-filtered workflow means "a merge or a release happened" ONLY because `main` and `develop` reject direct pushes; that protection is an external repository setting, verified by hand and never mutated automatically. Contract: [`docs/policy/ci-cd-lifecycle-contract.md`](docs/policy/ci-cd-lifecycle-contract.md).
 
 **Capability usage gate (release notes).** A release that introduces or materially changes an OPT-IN capability, installer flag, managed skill, or host surface must document five things per surface in its release notes: the exact activation mechanism, a runnable validation command, the exact disable / rollback path, the authority or privacy boundary that activation does NOT grant, and a canonical documentation link. Nexus-Hub ships an unusually high density of such surfaces (`NEXUS_HUB_COPILOT_SKILLS`, `--enterprise` / `-Enterprise`, `NEXUS_DISABLED_HOOKS`, `NEXUS_HOOK_PROFILE=minimal`), and the fourth element is both the most-skipped and the only one that fails silently rather than loudly. The gate applies ONLY to opt-in surfaces; a release with none satisfies it with a single explicit no-change declaration. Full definition and worked examples: governance step 6 in [`catalog/commands/update.md`](catalog/commands/update.md).
 

@@ -78,7 +78,7 @@ def test_runbook_reports_parallel_capable_plans() -> None:
 def test_parallel_report_emits_a_launch_block() -> None:
     """A named plan with no way to start it is not an actionable report."""
     t = _read(_RUNBOOK)
-    assert "/implement v4.14.0-<slug> in-full" in t
+    assert "/implement v4.17.0-<slug> in-full" in t
     assert "a NEW terminal window" in t
 
 

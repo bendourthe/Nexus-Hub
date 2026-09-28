@@ -1,4 +1,4 @@
-.PHONY: all validate lint build-catalog test scan eval trigger-evals compress-eval benchmark clean help \n        ci-fast ci-full ci-platform ci-report ci-release
+.PHONY: all validate lint build-catalog dev test scan eval trigger-evals compress-eval benchmark clean help \n        ci-fast ci-full ci-platform ci-report ci-release
 
 all: validate lint ## Run validation and linting
 
@@ -56,6 +56,10 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/check_memory_provenance.py
 	@echo "Checking base-*.md lockstep parity (claude/codex/cursor/gemini/opencode)..."
 	@python scripts/check_base_template_parity.py
+	@echo "Checking communication and documentation contracts across instruction templates..."
+	@python -m pytest tests/validators/test_communication_contract_rollout.py -q
+	@echo "Checking tracked Python source against the CI grammar floor..."
+	@python scripts/check_python_floor.py
 	@echo "Checking per-model prompting profile layer (structural schema gate)..."
 	@python scripts/verify_model_prompting_profiles.py
 # NOTE: scripts/check_model_prompting_freshness.py is deliberately NOT run here.
@@ -86,7 +90,10 @@ build-catalog: ## Rebuild skills.json and templates.json from source
 	@python infrastructure/tools/build_templates_catalog.py
 	@echo "Catalogs rebuilt."
 
-test: ## Run MCP skill server + repo-level pytest suites
+dev: ## Install all six extension development extras before local tests
+	@python -m pip install --quiet -e "extensions/nexus-skill-server/[dev]" -e "extensions/nexus-code-search/[dev]" -e "extensions/nexus-web-fetch/[dev]" -e "extensions/nexus-skill-scanner/[dev]" -e "extensions/nexus-context-compressor/[dev]" -e "extensions/nexus-memory/[dev]"
+
+test: ## Run extension and repo pytest suites after make dev
 	@echo "Running tests..."
 	@cd extensions/nexus-skill-server && python -m pytest -q
 	@cd extensions/nexus-code-search && python -m pytest -q
@@ -145,7 +152,7 @@ ci-full: ## Everything provable on this host (minutes): validators, catalog, tes
 ci-platform: ## Only what differs by host (shell lint, PowerShell parse, Windows hooks)
 	@python scripts/ci/run.py --profile platform --reports-dir reports
 
-ci-report: ## Re-render reports from the last run without re-running any check
+ci-report: ## Aggregate reports from the last run without re-running any check
 	@python scripts/ci/run.py --profile report --reports-dir reports
 
 ci-release: ## Packaging and publication readiness. Never a validation re-run

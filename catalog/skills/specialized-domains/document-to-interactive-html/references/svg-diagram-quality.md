@@ -34,6 +34,59 @@ primary/secondary rule above, which the gate reads as intent rather than drift
 because the secondary also carries lower opacity.
 
 
+## Structure follows the relationship, not the decoration
+
+Every rule below is about execution: markers, dashes, endpoints, fit. They all
+assume the structure is already right. It usually is not, because the structure
+is chosen first and chosen fastest - a row of boxes and arrows is the default any
+diagram falls into when nobody asked what relationship it teaches.
+
+**Name the relationship in one sentence, then pick the structure that makes it
+visible.** If the sentence will not come, the figure has no argument yet and no
+amount of arrowhead discipline will give it one. Three cases worth working
+through, chosen because each has an obvious wrong default:
+
+**A queue.** The relationship is arrival against capacity, and the outcomes that
+follow from the gap between them. The wrong default is a left-to-right pipeline,
+which draws the happy path and hides the only thing the figure is about: what
+happens when arrival exceeds capacity. The structure must show arrival and
+capacity as separately readable quantities, and the outcomes - served, waiting,
+turned away - as consequences of their relationship rather than as further boxes
+in the row. Whether that is a stacked band, two paired axes, or something else is
+the author's call; what is not optional is that a reader can see the gap.
+
+**A diverging policy decision.** The relationship is one input leading to
+mutually exclusive outcomes under stated conditions. The wrong default is
+unlabelled branches, which look complete while omitting the whole content: the
+reader sees that a decision happens and cannot see what decides it. **Every
+branch carries its condition as text on or beside the branch**, and the
+conditions are exhaustive and mutually exclusive, or the figure is asserting a
+decision procedure it has not got. A branch that cannot be labelled is a branch
+the author has not resolved, and marking it unresolved is honest where inventing
+a label is not.
+
+**Trust boundaries with relationships that cross them.** The relationship is
+which side of a boundary each participant sits on, and what crosses. The wrong
+default is a cluster of boxes with a dashed rectangle drawn round some of them,
+which states the grouping and leaves the crossings as ordinary arrows
+indistinguishable from the internal ones. The boundary must be a visible edge
+that every crossing relationship visibly crosses, and each crossing must be
+distinguishable from a relationship that stays inside - by direction, by
+annotation, or by a stated difference in treatment. A reader should be able to
+enumerate the crossings without counting boxes.
+
+What these examples do NOT prescribe: a connector shape, a node count, a type
+size, or a palette. Those belong to the rules below, to
+`references/responsive-typography.md`, and to the contrast and brand owners named
+in `SKILL.md` - restating them here would create a second source for a rule that
+already has one.
+
+What they DO carry forward, in every case: the SVG stays semantic, its effective
+text stays readable at the size it renders, endpoints stay unambiguous per rule
+3, and the figure keeps a text alternative that conveys the same relationship for
+a reader who cannot see it. A structure that only works as a picture is not
+finished.
+
 ## 1. Arrowheads are `<marker>` elements
 
 An arrowhead is declared once as a `<marker>` in `<defs>` and attached with `marker-end` (or `marker-start` / `marker-mid`). It is never a separate hand-placed triangle path.
@@ -140,6 +193,8 @@ After authoring, verify the drawing numerically rather than trusting how it read
 - No label's bounding box intersects a path (rule 2). Compute the curve; do not eyeball it.
 - Connector endpoints match the box-edge expressions (rule 3).
 - Text colors come from the page's palette tokens rather than hardcoded hexes. A literal hex in a presentation attribute is invisible to the CSS contrast check in `references/responsive-typography.md` rule 6, so it silently keeps a value the palette has since abandoned - this is how the 2026-08-10 diagrams kept an accent measuring 3.17:1 after the token itself was corrected.
+
+The structural scorer has a bounded path envelope, not a replacement for this self-check. `svg-label-occlusion` can decide a path-bearing SVG only when every painted path precedes its labels; a later path leaves that SVG `unchecked`. `svg-connector-routing` requires `data-edge` and an explicit inherited `fill="none"` on each declared connector `<path>`, and accepts only one argument group per absolute `M`, `L`, `H`, `V`, `C`, or `Z` command under `translate()`/`scale()`. A path that may paint a filled region is `unchecked`, even if its centerline clears every box. Straight segments use exact segment-box intervals. Cubic segments use control-hull subdivision to prove clearance or crossing; an unresolved boundary contact remains `unchecked`, never a clean pass. Other path geometry, malformed coordinates, unsupported transforms, and resource-limit hits are `unchecked`. Marker paths inside `<defs>` are not painted connectors. A pass from these two checks does not prove stroke visibility, dashed-label clearance, endpoint fidelity, or source-semantic fidelity; the other assertions above and the rendered review still own those claims.
 
 Note that SVG text is exempt from the pixel font floors in `references/responsive-typography.md` rule 4, because its declared size is in viewBox user units and the rendered size depends on the scale factor. That exemption is not a licence for illegible labels: compute the effective rendered size as `declared_size * (rendered_width / viewBox_width)` and hold it to the same 13px secondary floor.
 

@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-16
 **Branch**: `feat/codex-lb-adoption` (off `develop`)
-**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../plans/v3.14.0-codex-lb-adoption.md), Phase 2 of 6 (not the final phase)
+**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../../../../releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md), Phase 2 of 6 (not the final phase)
 **Scope**: `catalog/` (skills + style-guides), the three `data/` registry files, `AGENTS.md` count sync, `CHANGELOG.md`. No installer or base-template.
 
 ## Goal

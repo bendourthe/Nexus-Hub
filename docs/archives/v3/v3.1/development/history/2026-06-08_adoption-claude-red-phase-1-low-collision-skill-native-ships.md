@@ -1,7 +1,7 @@
 # Session History -- v3.1.0 adoption-claude-red Phase 1: Low-collision skill-native ships
 
 **Date**: 2026-06-08
-**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../plans/adoption-claude-red.md)
+**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../../../../releases/v3/v3.1/plans/adoption-claude-red.md)
 **Phase**: 1 of 5 -- low-collision skill-native ships
 **Branch**: `feat/adoption-claude-red` (fast-forwarded to `develop` tip `d55c5c6` before starting)
 **Outcome**: complete; all four sub-tasks (T001-T004) closed, all quality gates green.

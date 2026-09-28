@@ -1,11 +1,7 @@
-"""Host interpreter resolution checks (v4.3.0 Phase 5).
+"""Probe the shell used by each host's registered Nexus-Hub hooks.
 
-Nexus-Hub registers hooks as `bash <script>` and the assistant HOST performs that
-launch. A host whose `bash` cannot execute a script leaves every hook silently
-inert, and no other gate observes it because they all run Python directly.
-
-The condition is not hypothetical: the v4.3.0 integration run was red twice on a
-Windows runner for exactly this reason while the full local suite was green.
+The original Bash probe caught a Windows WSL launcher shim, but current Windows
+registrations use PowerShell siblings and must be checked through that shell.
 """
 
 from __future__ import annotations
@@ -25,23 +21,24 @@ from scripts.check_interpreter_resolution import main  # noqa: E402
 from scripts.lib.integrations import _interpreters  # noqa: E402
 
 
-def _write_stub(directory: Path, *, exit_code: int, to_stdout: str) -> Path:
-    """A stand-in for the WSL launcher stub: talks on stdout, exits non-zero.
+def _write_stub(
+    directory: Path, *, exit_code: int, to_stdout: str, name: str = "bash"
+) -> Path:
+    """A native stand-in for an interpreter that does not run the probe.
 
-    Written as a native executable per host. A shebang script named `bash` is not
-    runnable on Windows (WinError 193), which is the platform the real defect
-    occurs on, so the stub must be a `.cmd` there.
+    A shebang script is not runnable on Windows (WinError 193), so the stub must
+    be a `.cmd` there.
     """
     directory.mkdir(parents=True, exist_ok=True)
     if os.name == "nt":
-        stub = directory / "bash.cmd"
+        stub = directory / f"{name}.cmd"
         lines = ["@echo off"]
         if to_stdout:
             lines.append(f"echo {to_stdout}")
         lines.append(f"exit /b {exit_code}")
         stub.write_text("\r\n".join(lines) + "\r\n", encoding="utf-8")
         return stub
-    stub = directory / "bash"
+    stub = directory / name
     stub.write_text(
         "#!/usr/bin/env python3\n"
         "import sys\n"
@@ -98,6 +95,62 @@ def test_missing_bash_is_reported_rather_than_raised(monkeypatch):
 
     assert not status.usable
     assert status.detail == "not found on PATH"
+
+
+def test_missing_powershell_is_reported_rather_than_raised(monkeypatch):
+    monkeypatch.setattr(shutil, "which", lambda name: None)
+
+    status = _interpreters.check_powershell()
+
+    assert not status.usable
+    assert status.detail == "not found on PATH"
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows PowerShell host probe")
+def test_a_working_powershell_is_reported_usable():
+    status = _interpreters.check_powershell()
+
+    assert status.usable, status.detail
+    assert status.resolved
+
+
+def test_powershell_shim_without_probe_marker_is_rejected(tmp_path, monkeypatch):
+    stub = _write_stub(
+        tmp_path / "quiet", exit_code=0, to_stdout="ready", name="powershell"
+    )
+    monkeypatch.setattr(shutil, "which", lambda name: str(stub))
+
+    status = _interpreters.check_powershell()
+
+    assert not status.usable
+    assert "did not reproduce" in status.detail
+
+
+def test_windows_checks_the_registered_powershell_interpreter(monkeypatch):
+    working = _interpreters.InterpreterStatus("powershell", "powershell.exe", True, "ok")
+    monkeypatch.setattr(_interpreters, "is_windows_host", lambda: True, raising=False)
+    monkeypatch.setattr(_interpreters, "check_powershell", lambda: working, raising=False)
+    monkeypatch.setattr(
+        _interpreters,
+        "check_bash",
+        lambda: pytest.fail("Windows hook registrations do not launch Bash"),
+    )
+
+    assert _interpreters.check_all() == [working]
+
+
+def test_non_windows_still_checks_bash(monkeypatch):
+    working = _interpreters.InterpreterStatus("bash", "/usr/bin/bash", True, "ok")
+    monkeypatch.setattr(_interpreters, "is_windows_host", lambda: False, raising=False)
+    monkeypatch.setattr(_interpreters, "check_bash", lambda: working)
+    monkeypatch.setattr(
+        _interpreters,
+        "check_powershell",
+        lambda: pytest.fail("POSIX hook registrations do not launch PowerShell"),
+        raising=False,
+    )
+
+    assert _interpreters.check_all() == [working]
 
 
 def test_gate_flag_controls_the_exit_code(monkeypatch, capsys):

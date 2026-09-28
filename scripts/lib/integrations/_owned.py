@@ -76,27 +76,39 @@ def _relative_within(destination: Path, managed_root: Path) -> Path | None:
         return None
 
 
-def _link_like_managed_ancestor(ctx, dst: Path) -> Path | None:
-    """Return the first redirecting ancestor inside this install's scope."""
-    managed_root = Path(os.path.abspath(ctx.target_root))
+def _link_like_managed_ancestor(
+    ctx, dst: Path, managed_root: Path | None = None
+) -> Path | None:
+    """Return the first redirecting ancestor inside the per-write managed root."""
+    explicit_root = managed_root is not None
+    managed_root = Path(os.path.abspath(managed_root or ctx.target_root))
     destination = Path(os.path.abspath(dst))
     relative = _relative_within(destination, managed_root)
     if relative is None:
-        # The destination is not inside this install's managed root, so there is
-        # no managed ancestor to police. Global-scope installs legitimately write
-        # outside target_root (~/.copilot, ~/.claude, the VS Code user dir), and
-        # refusing those wrote nothing while reporting "kept" (v4.3.0 Phase 5).
-        # Leaf-level protection still applies in write_owned_file: a symlink,
-        # junction, or hard-linked destination is never written through, and the
-        # replacement is an atomic directory-entry swap.
+        # A caller without a per-write root can legitimately write outside
+        # target_root. Explicit roots are rejected before this helper is called.
         return None
 
+    if explicit_root and (managed_root.is_symlink() or _is_junction(managed_root)):
+        return managed_root
     current = managed_root
     for part in relative.parts[:-1]:
         current /= part
         if current.is_symlink() or _is_junction(current):
             return current
     return None
+
+
+def refuse_managed_redirect(
+    ctx, key: str, dst: Path, managed_root: Path | None = None
+) -> FileAction | None:
+    """Return a visible refusal before any write through a managed directory link."""
+    link_like_ancestor = _link_like_managed_ancestor(ctx, dst, managed_root)
+    if link_like_ancestor is None:
+        return None
+    reason = f"refuse-link-like-ancestor ({link_like_ancestor})"
+    ctx.manifest.log(key, f"{reason}: {dst}")
+    return FileAction(path=str(dst), action="kept", reason=reason)
 
 
 #: Mode for the staging file. Deliberately owner-only rather than the previous
@@ -146,21 +158,26 @@ def _atomic_replace_bytes(dst: Path, content: bytes) -> None:
         temporary.unlink(missing_ok=True)
 
 
-def write_owned_file(ctx, key: str, dst: Path, content: bytes) -> FileAction:
+def write_owned_file(
+    ctx, key: str, dst: Path, content: bytes, *, managed_root: Path | None = None
+) -> FileAction:
     """Write a generated file, never clobbering one Nexus-Hub does not own.
 
     An existing destination that the manifest does not record as ours is a
     user-authored file, so it is kept (unless ``--overwrite`` is explicit).
     A destination we do own is refreshed on byte-difference, which is what makes
-    an upgrade idempotent and a drifted file repairable.
+    an upgrade idempotent and a drifted file repairable. `managed_root` preserves
+    the original platform-root spelling so redirected ancestors remain visible.
     """
-    link_like_ancestor = _link_like_managed_ancestor(ctx, dst)
-    if link_like_ancestor is not None:
-        ctx.manifest.log(
-            key,
-            f"refuse-link-like-ancestor ({link_like_ancestor}): {dst}",
-        )
-        return FileAction(path=str(dst), action="kept")
+    if managed_root is not None and _relative_within(
+        Path(os.path.abspath(dst)), Path(os.path.abspath(managed_root))
+    ) is None:
+        reason = f"refuse-outside-managed-root ({managed_root})"
+        ctx.manifest.log(key, f"{reason}: {dst}")
+        return FileAction(path=str(dst), action="kept", reason=reason)
+    refusal = refuse_managed_redirect(ctx, key, dst, managed_root)
+    if refusal is not None:
+        return refusal
 
     entry_exists = dst.exists() or dst.is_symlink() or _is_junction(dst)
     if entry_exists:
@@ -172,8 +189,9 @@ def write_owned_file(ctx, key: str, dst: Path, content: bytes) -> FileAction:
             ctx.manifest.track(key, str(dst))
             return FileAction(path=str(dst), action="unchanged")
         if _is_junction(dst):
-            ctx.manifest.log(key, f"refuse-managed-junction: {dst}")
-            return FileAction(path=str(dst), action="kept")
+            reason = "refuse-managed-junction"
+            ctx.manifest.log(key, f"{reason}: {dst}")
+            return FileAction(path=str(dst), action="kept", reason=reason)
         if not ctx.dry_run:
             dst.parent.mkdir(parents=True, exist_ok=True)
             _atomic_replace_bytes(dst, content)
@@ -212,4 +230,4 @@ def remove_dir_if_empty(path: Path, ctx, result) -> None:
     result.add(str(path), "removed")
 
 
-__all__ = ["is_owned", "remove_dir_if_empty", "write_owned_file"]
+__all__ = ["is_owned", "refuse_managed_redirect", "remove_dir_if_empty", "write_owned_file"]

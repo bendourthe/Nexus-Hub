@@ -25,15 +25,74 @@ This mirrors the active version layout. Archived content is **frozen history**: 
 | **v1** | v1.0.0, v1.1.5, v1.3.0 | 24 | Skills-catalog maturation: bundled-resources convention, skill-eval-loop, security hardening |
 | **v2** | v2.0.0, v2.1.0, v2.2.0, v2.3.0, v2.4.0 | 112 | Nexus-Hub rename, spec-driven methodology, integration registry, code-graph, antigravity transition, compound-engineering / persona-review pipeline |
 | **v3** *(prior major, partial)* | `development/history/` subtrees only, v3.0 through v3.21 | 355 | Per-version session histories aged out under the retention policy, completed for the whole v3 line on 2026-09-06. The v3 line is NOT whole-major archived - its plans, comparisons, and known-gaps stay in the active tree. |
-| **v4** *(current major, partial)* | `development/history/` subtrees v4.0 through v4.5, plus the v4.1 handbook snapshot | 122 | Per-version session histories aged out under the retention policy on 2026-09-06, in the same pass that completed v3. v4.6 and v4.7 stay in the active tree (inside the two-minor threshold). Plans, comparisons, known-gaps, and the non-history `development/` content - CI contracts, guide-rebuild artifacts, last-phase evidence - all remain under `docs/releases/v4/`. |
+| **v4** *(current major, partial)* | `development/history/` subtrees v4.0-v4.5 and v4.7-v4.12; plans/comparisons for v4.0, v4.1, v4.3, v4.4, v4.9, v4.10, and v4.11; the v4.1 handbook snapshot; bounded follow-up evidence through v4.13 | 425 | Historical plans and comparisons moved after the verified v4.13 carry-forward; older known-gaps ledgers stay active and their open items remain open. The aborted v4.13 trigger-pilot attempt remains frozen with its bug open. |
+
+The v4 file count excludes the two tracked `.gitkeep` placeholders in the v4.12 handbook snapshot; it is derived from 427 tracked archive files in this pass.
 
 ## Archival policy
 
 Two distinct rules put content here, and conflating them is the easy mistake:
 
 1. **Whole-major archival** - a prior major is archived once the next major has a released version. The current major (`v4`) and any in-flight version directories are never archived this way.
-2. **Per-version `development/` retention** (added v3.18.0) - within the CURRENT major, a minor two or more behind current has its `development/history/` subtree archived to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`. Only `history/` ages out: the rest of `development/` holds live CI fixtures and contract documents that shipped code cites by path. Its `plans/`, `comparisons/`, and `known-gaps.md` never age out and stay in the active tree. `scripts/check_docs_retention.py` reports what is due (advisory, always exits 0); the full rule is `docs/policy/docs-retention.md`.
+2. **Per-version `development/` retention** (added v3.18.0) - within the current major, a minor behind the current one has its `development/history/` subtree archived to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`. Only `history/` ages out automatically: other dated audits need individual lifespan classification and reference repair, while living CI fixtures and contracts remain active or move to living roots. Its `plans/`, `comparisons/`, and `known-gaps.md` stay in the active tree until their separate closure rules apply. `scripts/check_docs_retention.py` reports what is due (advisory, always exits 0); the full rule is `docs/policy/docs-retention.md`.
 
-Both are performed by `/refactor-docs` (the `docs-layout-refactor` skill) with reference repair; see the most recent `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/docs-cleanup-report.md` for the audit trail of each run.
+## Incremental archive additions
+
+| Archived path | Source path | Source version | Archived on |
+|---|---|---|---|
+| `v4/v4.10/development/history/2026-09-22-phase-7-final-qualification.md` | `docs/releases/v4/v4.10/development/history/2026-09-22-phase-7-final-qualification.md` | v4.10.1 | 2026-09-22 |
+| `v4/v4.13/development/trigger-pilot-2/protocol.md` | `docs/releases/v4/v4.13/development/trigger-pilot-2/protocol.md` | v4.13.0 follow-up | 2026-09-23 |
+| `v4/v4.13/development/trigger-pilot-2/pilot-prompts.json` | `docs/releases/v4/v4.13/development/trigger-pilot-2/pilot-prompts.json` | v4.13.0 follow-up | 2026-09-23 |
+| `v4/v4.13/development/trigger-pilot-2/pilot-variant-b.json` | `docs/releases/v4/v4.13/development/trigger-pilot-2/pilot-variant-b.json` | v4.13.0 follow-up | 2026-09-23 |
+| `v4/v4.13/development/trigger-pilot-2/attempt.md` | `docs/releases/v4/v4.13/development/trigger-pilot-2/attempt.md` | v4.13.0 follow-up | 2026-09-23 |
+| `v4/v4.10/development/weekly-bars-host-render/verification.md` (with two PNGs) | Installed v0.10.0 VSIX in an isolated VS Code profile | v4.10.0 follow-up | 2026-09-24 |
+| `v4/v4.10/development/scoped-weekly-alert/verification.md` | Installed v0.10.0 VSIX, isolated scoped-alert host test, and negative controls | v4.10.0 follow-up | 2026-09-24 |
+| `v4/v4.7/development/supply-chain-watch-followup/verification.md` | Hosted watch, release assets, and attestation checks | v4.7.0 follow-up | 2026-09-24 |
+| `v4/v4.7/development/model-map-followup/verification.md` | Superseded guide citation and current Codex CLI picker | v4.7.0 follow-up | 2026-09-24 |
+| `v4/v4.5/development/prose-detector-disposition/verification.md` | False-positive sweep of the proposed stranded-auxiliary lexical rule | v4.5.0 follow-up | 2026-09-24 |
+| `v4/v4.5/development/prompting-roster-disposition/verification.md` | Shipped Fable 5.1 profile and original roster-mismatch closure | v4.5.0 follow-up | 2026-09-24 |
+| `v4/v4.9/development/verification-boundary-disposition.md` | Opus 5 prompting advice and claim-evidence gate ownership | v4.9.0 follow-up | 2026-09-24 |
+| `v4/v4.9/development/private-harness-residue-disposition.md` | Recoverable cleanup and fresh absence check of private synthetic residue | v4.9.0 follow-up | 2026-09-24 |
+| `v4/v4.11/development/temporal-source-values/real-artifact-inventory.json` | Independent source-to-DOM mapping for the retained five-slide presentation | v4.11.2 follow-up | 2026-09-24 |
+| `v4/v4.11/development/temporal-source-values/real-artifact-verification.md` | Ten-viewport temporal sub-verdict and retained overall failure boundary | v4.11.2 follow-up | 2026-09-24 |
+| `v4/v4.4/development/platform-mark-disposition/verification.md` | Five-mark approval, hash, and current browser-matrix reconciliation for v4.4 DF-1 | v4.4.1 follow-up | 2026-09-24 |
+| `v4/v4.8/development/windows-lint-autofix-qualification.md` | Isolated Windows Git Bash and Ruff run of the original seven hook tests | v4.8.0 follow-up | 2026-09-24 |
+| `v4/v4.3/development/github-settings-readback-2026-09-24.md` | Read-only retention and merge-queue results with the billing access boundary | v4.3.0 follow-up | 2026-09-24 |
+| `v4/v4.7/development/template-validator-roster/verification.md` | Local behavior-preservation and affected-suite qualification for DF-3 | v4.7.0 follow-up | 2026-09-24 |
+| `v4/v4.0/development/ci-cd-final-audit.md` | `docs/releases/v4/v4.0/development/ci-cd-final-audit.md` | v4.0.0 | 2026-09-25 |
+| `v4/v4.0/development/ci-cd-workflow-audit.md` | `docs/releases/v4/v4.0/development/ci-cd-workflow-audit.md` | v4.0.0 | 2026-09-25 |
+| `v4/v4.0/development/ci-cd-harness-audit.md` | `docs/releases/v4/v4.0/development/ci-cd-harness-audit.md` | v4.0.0 | 2026-09-25 |
+| `v4/v4.0/development/last-phase-evidence.md` | `docs/releases/v4/v4.0/development/last-phase-evidence.md` | v4.0.0 | 2026-09-25 |
+| `v4/v4.0/plans/v4.0.0-agent-communication-overhaul.md` | `docs/releases/v4/v4.0/plans/v4.0.0-agent-communication-overhaul.md` | v4.0 | 2026-09-25 |
+| `v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` | `docs/releases/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` | v4.0 | 2026-09-25 |
+| `v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` | `docs/releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` | v4.0 | 2026-09-25 |
+| `v4/v4.1/comparisons/v4.1.0-comparison-pi-and-grill-me.md` | `docs/releases/v4/v4.1/comparisons/v4.1.0-comparison-pi-and-grill-me.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/comparisons/v4.1.0-comparison-skill-trial-records-and-low-evidence-ts.md` | `docs/releases/v4/v4.1/comparisons/v4.1.0-comparison-skill-trial-records-and-low-evidence-ts.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/comparisons/v4.1.1-comparison-openworker-security-refinement.md` | `docs/releases/v4/v4.1/comparisons/v4.1.1-comparison-openworker-security-refinement.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md` | `docs/releases/v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/plans/v4.1.0-adoption-pi-and-grill-me.md` | `docs/releases/v4/v4.1/plans/v4.1.0-adoption-pi-and-grill-me.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md` | `docs/releases/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md` | `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md` | v4.1 | 2026-09-25 |
+| `v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md` | `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md` | v4.1 | 2026-09-25 |
+| `v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` | `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` | v4.3 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` | `docs/releases/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` | v4.4 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md` | `docs/releases/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md` | v4.4 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md` | `docs/releases/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md` | v4.4 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.3-guide-illustration-clarity-rebuild.md` | `docs/releases/v4/v4.4/plans/v4.4.3-guide-illustration-clarity-rebuild.md` | v4.4 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.4-guide-teaching-clarity-rebuild.md` | `docs/releases/v4/v4.4/plans/v4.4.4-guide-teaching-clarity-rebuild.md` | v4.4 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.5-guide-mockup-integration.md` | `docs/releases/v4/v4.4/plans/v4.4.5-guide-mockup-integration.md` | v4.4 | 2026-09-25 |
+| `v4/v4.4/plans/v4.4.6-guide-learning-experience.md` | `docs/releases/v4/v4.4/plans/v4.4.6-guide-learning-experience.md` | v4.4 | 2026-09-25 |
+| `v4/v4.9/comparisons/v4.9.0-comparison-visa-vulnerability-agentic-harness.md` | `docs/releases/v4/v4.9/comparisons/v4.9.0-comparison-visa-vulnerability-agentic-harness.md` | v4.9 | 2026-09-25 |
+| `v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md` | `docs/releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md` | v4.9 | 2026-09-25 |
+| `v4/v4.9/plans/v4.9.2-slide-build-contract-and-projection-floors.md` | `docs/releases/v4/v4.9/plans/v4.9.2-slide-build-contract-and-projection-floors.md` | v4.9 | 2026-09-25 |
+| `v4/v4.10/comparisons/v4.10.1-comparison-eval-isolation-and-adaptive-compaction.md` | `docs/releases/v4/v4.10/comparisons/v4.10.1-comparison-eval-isolation-and-adaptive-compaction.md` | v4.10 | 2026-09-25 |
+| `v4/v4.10/plans/v4.10.0-plan-queue-continuity.md` | `docs/releases/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md` | v4.10 | 2026-09-25 |
+| `v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md` | `docs/releases/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md` | v4.10 | 2026-09-25 |
+| `v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md` | `docs/releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md` | v4.11 | 2026-09-25 |
+| `v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md` | `docs/releases/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md` | v4.11 | 2026-09-25 |
+| `v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md` | `docs/releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md` | v4.11 | 2026-09-25 |
+| `v4/v4.11/plans/v4.11.2-adoption-document-and-deck-quality.md` | `docs/releases/v4/v4.11/plans/v4.11.2-adoption-document-and-deck-quality.md` | v4.11 | 2026-09-25 |
+
+Archive moves are performed by `/refactor-docs` (the `docs-layout-refactor` skill) with reference repair; see the most recent `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/docs-cleanup-report.md` for the audit trail of each move. New frozen verification records do not move source files.
 
 The v2 line was archived on 2026-06-04 alongside the v3.0.0 release (audit trail: `docs/releases/v3/v3.1/docs-cleanup-report.md`). The v3.16 `development/history` subtree (39 files) was archived on 2026-08-22 under rule 2 after v3.18.2 released; v3.17 followed with 27 files during the v3.19.0 release pass. v3.18 and v3.19 were archived in the v4 line, and v3.20 (22 files) plus v3.21 (5 files) were archived on 2026-09-06, completing the v3 line. That last pass also repaired the 20 `../../plans/` links the move broke and repointed five `DEVLOG.md` history links; it was the first run after `check_docs_retention.py` was fixed, having reported a clean tree since the layout refactor.

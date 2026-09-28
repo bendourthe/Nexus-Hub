@@ -1,8 +1,8 @@
 # Known Gaps - v4.8
 
 **Project**: Nexus-Hub
-**Status**: FINALIZED for the v4.8.0 release. The adoption plan merged as PR #183 (`191e536a`) and the post-merge gap sweep as PR #184 (`49d408e7`), both green on every required check. Of the seven items this cycle opened, six are resolved and one is open: the org-CLI half of `WN-I`, an intermittent Windows failure with four causes ruled out and its next diagnostic step recorded. Carried forward unchanged: `WN-A` (guide byte headroom), `WN-C` (`make test` install prerequisite), and the eight v4.4 items, each given an explicit touched-or-not verdict in `development/last-phase-evidence.md`.
-**Last updated**: 2026-09-07
+**Status**: FINALIZED for the v4.8.0 release. The adoption plan merged as PR #183 (`191e536a`) and the post-merge gap sweep as PR #184 (`49d408e7`), both green on every required check. At that release checkpoint, six of seven new items were resolved and the org-CLI half of `WN-I` remained open; its later resolution is recorded below. Carried forward at that checkpoint: `WN-A` (guide byte headroom), `WN-C` (`make test` install prerequisite), and the eight v4.4 items, each given an explicit touched-or-not verdict in `development/last-phase-evidence.md`. `WN-C` was resolved in the 2026-09-22 follow-up below.
+**Last updated**: 2026-09-24
 
 ## Open Items - found 2026-09-06 while verifying this session's work
 
@@ -14,6 +14,8 @@
 - **What was observed**: `tests/guides/test_nexus_hub_guide.py::test_file_size_budget` asserts the guide is under 500000 bytes. The artifact measures 499799, leaving **201 bytes**, or 0.04 percent. The next content addition of any size breaks the build.
 - **Why it is not just a number to raise**: the budget exists because the guide is a single self-contained offline HTML document that a browser downloads in full. Raising the ceiling to clear a red test would spend the constraint rather than honor it. The v4.4.x guide cycle already fought for bytes (`docs/releases/v4/v4.4/` history), so the compaction levers are documented.
 - **Suggested next step**: decide deliberately, ahead of the next guide edit, between compacting existing content and raising the budget with a recorded rationale. Do not decide it inside a phase that merely needs the test green.
+- **Qualified locally 2026-09-23**: The user chose to preserve the 500,000-byte ceiling. Reusing the exact reviewed Claude, ChatGPT, and Cursor vector geometry in local SVG symbols reduced the current guide from 498,735 to 495,467 normalized bytes, increasing headroom from 1,265 to 4,533 bytes. Gemini remains inline: a proposed symbol reuse made its masked icon disappear in Chromium and was rejected by visual review. Four reduced-motion Home browser renders (dark/light at 420 and 1440 px) had near-zero mean image difference; native-size review found only slight Cursor edge antialiasing, not a shape change. The approved-asset hash test resolves the three local references before comparison. See [verification](../../../archives/v4/v4.8/development/guide-byte-headroom/verification.md). Publication and post-merge verification remain open.
+- **Closed after protected integration, 2026-09-23**: PR #267 passed 21 hosted checks, merged as `dc439012`, and post-merge run 35935340043 passed smoke and provenance. The strict ceiling remains 500,000 bytes; the integrated guide measures 495,467 normalized bytes. The [archived verification](../../../archives/v4/v4.8/development/guide-byte-headroom/verification.md) keeps the browser evidence and the rejected Gemini experiment distinct from hosted CI.
 
 #### WN-C - `make test` has an undocumented prerequisite, so three extension suites fail on a fresh clone
 
@@ -23,6 +25,8 @@
 - **Why it is worth recording**: the prerequisite is named only in the individual extension READMEs, and there is no `make install` or `make dev` target. A contributor running the repository's own documented test command on a fresh clone gets three broken suites and three unrelated-looking error shapes, none of which points at the missing install.
 - **Suggested next step**: either add a `make dev` target that performs the six editable installs and reference it from the `test` target's help text, or have those three suites skip with an explanatory reason when their package or the AST backend is not importable (`pytest.importorskip`). The second option keeps `make test` honest on any machine; the first keeps coverage. They are not exclusive.
 - **Not changed here**: the tests are correct given the documented install, so silencing them would trade a confusing failure for silent non-coverage. This is a deliberate design choice for a maintainer, not a repair.
+- **RESOLVED 2026-09-22 (post-release)**: `make dev` now performs the six editable development-extra installs, and `make test` names that prerequisite in its help text. The README gives the same command directly for Windows hosts without `make`. A contract test compares both command surfaces against every extension `pyproject.toml`; pip's six-extra dry run resolved successfully on Windows. `make test` itself remains unchanged and still provides full coverage after setup.
+- **Hosted confirmation**: PR #237 merged at `7aba9cc3` after its required and platform checks passed; post-merge run 35808379460 passed smoke and provenance. The original prerequisite finding above remains as historical evidence.
 
 #### WN-B - `test_file_size_budget` measured the checkout, not the artifact (fixed here)
 
@@ -64,6 +68,8 @@
 - **Suggested next step**: treat framework-tag re-verification as periodic human work owned by [[platform-contract-verification]], which already re-verifies external contracts before a release, rather than as a gate. The same step covers the related exposure that OWASP will version the framework and can renumber or retitle an entry, making every tag stale at once with no local signal.
 - **Recorded in**: the decision record's `## Consequences` section states this residual gap; this entry is its ledger counterpart so the next plan ingests it.
 
+**Process resolution, 2026-09-23**: The [archived 15-skill audit](../../../archives/v4/v4.8/development/owasp-body-mapping-audit.md) compared all 24 declared ASI mappings with the current OWASP 2026 source, their standards rationales, and concrete body actions; none was unsupported at this snapshot. `security-framework-mapping` now owns a manual per-release re-verification, and `version-upgrade` invokes it before coverage is claimed. The test protects that handoff, not the semantic verdict; edits after this audit can still invalidate a mapping until the next review.
+
 ### Deferred (DF)
 
 #### DF-1 - The Goal's "every review deliverable names its verifier class" reached the evaluation skill but no review skill
@@ -92,7 +98,7 @@
 - **Scope**: PRE-EXISTING and applies to all seven fields. All 15 skills tagged in v4.8.0 use the flow-list form, so the committed matrix is complete today; verified by the matrix showing all ten identifiers covered.
 - **RESOLVED 2026-09-07 (post-merge).** `parse_framework_tags` now calls a new `collect_block_sequence` when the value after the colon is empty, stopping at the first non-blank line indented no further than the key so a following field's values are never absorbed. Covered across all seven fields by `test_block_sequence_reaches_the_matrix`, `test_block_sequence_stops_at_the_next_key`, and `test_block_sequence_item_comment_is_stripped`. The flow-list preference is no longer needed; both shapes now reach the matrix.
 
-#### WN-I - Two intermittent Windows test failures: one root-caused and fixed, one still open
+#### WN-I - Two Windows test failures, both resolved in follow-ups
 
 - **Source phase**: v4.8.0 Phase 5 (full local gate).
 - **What was observed**: `python -m pytest tests/workflows tests/installer tests/ci -q` reported `1 failed, 670 passed, 60 skipped`, failing at `tests/installer/test_org_cli.py:300`. The identical command on the identical tree then reported `671 passed, 60 skipped`. The test also passes alone and passes with its whole file. Not reproducible; nothing in the v4.8.0 diff touches the org CLI, `nexus-hub org disconnect`, or its state and cache handling.
@@ -116,7 +122,7 @@
 - **Why CI never saw it.** CI's Windows runner has pwsh 7, which emits UTF-8. This host has no `pwsh`, so `_resolve_powershell()` falls back to Windows PowerShell 5.1. The defect was invisible to CI by construction and visible only to a contributor whose only PowerShell is 5.1 -- who would have concluded the installer was broken.
 - **Fix**: both runners now pass `encoding="utf-8", errors="replace"`, the same choice `run.py` itself makes. Every assertion in the file matches ASCII text, so a replaced byte cannot mask a real failure. `test_child_output_is_decoded_permissively` guards it at the source level via `inspect.getsource`, because a behavioral test would pass on any pwsh-7 host and prove nothing; the guard was negative-controlled by removing `**_DECODE` from one runner and confirming it fails.
 - **What this corrects in the record above**: "flaky", "not reproducible", the load hypothesis, and the OneDrive-redirection hypothesis were all wrong. The OneDrive path in the traceback was incidental. Each was recorded in good faith from the shape of the failure rather than from the code, and each is left visible above rather than deleted, because that progression is the lesson: a failure that looks nondeterministic is often a deterministic failure under an unnoticed condition.
-### The org-CLI half of `WN-I`: STILL OPEN
+### The org-CLI half of `WN-I`: RESOLVED in the v4.9 follow-up
 
 Split out from the PowerShell half above, because they turned out to be unrelated. This is the one v4.8.0 item that is not closed.
 
@@ -127,11 +133,12 @@ Split out from the PowerShell half above, because they turned out to be unrelate
     3. **Order randomization.** No `pytest-randomly`, `pytest-order`, or `xdist` plugin is installed, so collection order is deterministic.
     4. **Test pollution from another suite.** Running `catalog/hooks/tests` (1319 tests) immediately before the suspects left them passing.
 - **Frequency**: low. Four consecutive runs of the whole file passed, and the single test passes alone every time.
+- **Recheck, 2026-09-23**: Twenty consecutive whole-file runs of `tests/installer/test_org_cli.py` passed with plugin autoload and the pytest cache disabled. No failing assertion or Git call was captured, so this is non-reproduction evidence, not a fix; the gap remains open.
 - **Remaining hypothesis, untested**: contention in the real `git` subprocess calls on Windows (an `index.lock` collision, or `_copy_bundle` racing the immediately following `git add`), or `tmp_path` teardown racing a still-open git handle. This is a known class on Windows and it fits the profile (intermittent, moves between tests in the same fixture, never reproduces in isolation).
 - **Suggested next step**: capture the failing assertion rather than the failing test name. Run the file in a loop with `-x --tb=long -p no:cacheprovider` until it trips, and record which `_git` call or which assertion actually failed. A fix without that is a guess, and the two candidate fixes (retrying git, or serializing the fixture) have opposite implications for what the test proves.
 - **NOT changed**: no retry, no timeout widening, no skip mark. Each would convert a visible intermittent failure into a silent one, and the product is not implicated: CI runs this file on every pull request and both its `tests` and `tests-windows` jobs have passed it throughout.
 
-
+**Resolution, 2026-09-23**: The v4.9 follow-up [recorded the deterministic held-handle reproduction, bounded directory-rename retry, and five regression tests](../v4.9/known-gaps.md#resolved-during-this-follow-up). The original v4.8 failures above did not capture their failing assertion, so they cannot independently prove that exact mechanism; the later reproduction covers the suspected Windows failure path. On the current `develop` tree, all five focused retry tests passed, and 50 consecutive whole-file org-CLI runs reported no failure. This closes the implementation gap while retaining the original failure and non-reproduction evidence.
 
 #### WN-J - The publication pre-flight compared against LOCAL develop, so the pull request silently carried 12 unrelated commits
 
@@ -239,19 +246,23 @@ the counts were recomputed from the merged catalog in this landing and now sum t
 - **Reason**: `pytest catalog/hooks/tests/test_lint_autofix.py` fails locally because `shutil.which("bash")` resolves to the Windows `system32\bash.EXE` (WSL), which cannot read a Windows-path `.sh` (exit 127). This is the WN-1 environment family from v3.12. The hook's six behaviors were instead verified end-to-end through Git Bash (opt-in gate, fail-open, non-commit no-op, disabled-env opt-out, skip-unstaged, and format + re-stage with ruff on PATH), ShellCheck is clean, the `.ps1` AST parses, and the test collects cleanly (7 tests).
 - **Suggested next step**: None required. CI (ubuntu) is the authoritative gate for the bash hook suites; `pip install pytest ruff` was added to the CI tests job this phase so the ruff-gated formatting cases also run there (ubuntu-latest ships jq).
 
+**Resolution, 2026-09-24**: The same seven tests now pass on the Windows development host with Git Bash selected ahead of the WSL `bash.EXE` and installed Ruff on the process-local `PATH`: seven passed, zero skipped. This closes the host-execution warning without changing the hook or claiming that WSL can execute Windows-path scripts. The original failure and CI's separate authoritative role remain intact. See the [archived Windows qualification](../../../archives/v4/v4.8/development/windows-lint-autofix-qualification.md).
+
 ### Missing tests / coverage gaps (MT)
 
-#### MT-1 - capture_screenshot.py is not unit-tested
+#### MT-1 - capture_screenshot.py was not unit-tested - RESOLVED 2026-09-23
 
 - **Source phase**: Phase 4 (4.2)
 - **Plan reference**: `docs/releases/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-task 4.2
 - **Reason**: `capture_screenshot.py` drives a headless Chromium-family browser, which is not reliably present in CI or on the dev host, so it is documented and degrades gracefully (exit 3 with an install hint) rather than unit-tested. The perceptual-diff core (`perceptual_diff.py`) IS fully tested (7 cases, Pillow-gated), and `Pillow` was added to the CI tests job so those run.
 - **Suggested next step**: Add a browser-gated smoke test in a CI job that installs a headless browser, or exercise it in the Phase 7 end-of-shift orchestrator's visual-regression step when a browser is available.
 
+**Resolution**: `tests/skills/test_capture_screenshot.py` now exercises browser selection, URL and local-file conversion, CLI no-browser behavior, exact capture arguments, a produced screenshot, and process failure, timeout, and missing-output exits. All 12 tests passed in 0.43 seconds; focused coverage measured 39 of 41 statements (95%) in the capture helper. Both visual-regression script suites passed 19 of 19 tests. A separate local end-to-end invocation used installed Chrome on a repository HTML page and produced a valid 46,648-byte PNG. This proves the helper on this Windows host, not a browser-installed hosted CI leg.
+
 ## Plan retarget, 2026-09-08
 
 The visa-vulnerability harness plan referenced above by its v4.8.0 filename retargeted again, to
-`docs/releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md`. v4.8.0 was released on
+`docs/archives/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md`. v4.8.0 was released on
 2026-09-08 carrying only its sibling plan, so this one could not ship under that number for the same reason it
 could not ship as v4.6.0.
 

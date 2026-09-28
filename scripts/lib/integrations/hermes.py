@@ -21,6 +21,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from ._completion_plugins import PLUGIN_ID, install_completion_plugin
 from .base import InstallContext, SkillsIntegration
 from .result import WriteResult
 
@@ -50,7 +51,7 @@ class HermesIntegration(SkillsIntegration):
         add ``~/.agents/skills`` to the user-owned ``skills.external_dirs`` list.
         """
         result = WriteResult()
-        hermes_root = (Path.home() / ".hermes").resolve()
+        hermes_root = (ctx.global_root / ".hermes").resolve()
         if not hermes_root.exists():
             ctx.manifest.log(self.key, "~/.hermes not found; skipping global Hermes surfaces")
             result.mark_not_detected("Hermes (~/.hermes) not found; global skills skipped")
@@ -59,4 +60,6 @@ class HermesIntegration(SkillsIntegration):
         self._ensure_dir(hermes_root, ctx)
         if not ctx.instruction_only:
             result.files.extend(self._mirror_catalog(hermes_root, ctx))
+            # v4.13.2: completion-gate plugin (loads once enabled in Hermes).
+            install_completion_plugin(self, ctx, "hermes", hermes_root / "plugins" / PLUGIN_ID, result)
         return result

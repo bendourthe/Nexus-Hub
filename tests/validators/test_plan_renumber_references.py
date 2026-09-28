@@ -49,6 +49,35 @@ def test_a_single_survivor_fails(tmp_path: Path) -> None:
     assert main(["--root", str(tmp_path), "--check-residual", "v4.10.0"]) == 1
 
 
+def test_documentation_json_survivor_fails_without_scanning_generated_data(tmp_path: Path) -> None:
+    write(tmp_path, "data/skills.json", '{"historical": "v4.10.0"}\n')
+    write(
+        tmp_path,
+        "docs/releases/v4/v4.9/development/qualification/layout-public.json",
+        '{"plan": "v4.10.0"}\n',
+    )
+
+    findings = find_residual_references(tmp_path, "v4.10.0")
+
+    assert [item[0] for item in findings] == [
+        "docs/releases/v4/v4.9/development/qualification/layout-public.json"
+    ]
+    assert main(["--root", str(tmp_path), "--check-residual", "v4.10.0"]) == 1
+
+
+def test_sealed_documentation_json_can_be_skipped_explicitly(tmp_path: Path) -> None:
+    write(
+        tmp_path,
+        "docs/archives/v4/v4.9/development/layout-public.json",
+        '{"historical": "v4.10.0"}\n',
+    )
+
+    assert find_residual_references(tmp_path, "v4.10.0") != []
+    assert find_residual_references(
+        tmp_path, "v4.10.0", skip=("docs/archives/v4/v4.9/development/",)
+    ) == []
+
+
 def test_surviving_relative_link_fails(tmp_path: Path) -> None:
     write(
         tmp_path,

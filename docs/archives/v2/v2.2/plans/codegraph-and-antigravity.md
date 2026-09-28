@@ -5,7 +5,7 @@
 **Slug**: codegraph-and-antigravity
 **Plan Type**: Feature/Enhancement (from-comparison mode, RE-first sequenced)
 **Created**: 2026-05-21
-**Goal**: Adopt every CodeGraph capability surfaced in [docs/archives/v2/v2.1/comparison-codegraph.md](../../v2.1.0/comparison-codegraph.md) (14 items across P0/P1/P2/P3) and complete the Gemini-CLI-to-Antigravity-CLI transition before the 2026-06-18 sunset, leaving v2.2.0 ready to ship as a SemVer minor release.
+**Goal**: Adopt every CodeGraph capability surfaced in [docs/archives/v2/v2.1/comparison-codegraph.md](../../v2.1/comparison-codegraph.md) (14 items across P0/P1/P2/P3) and complete the Gemini-CLI-to-Antigravity-CLI transition before the 2026-06-18 sunset, leaving v2.2.0 ready to ship as a SemVer minor release.
 
 ## Overview
 
@@ -536,7 +536,7 @@ No constitution file found at docs/archive/v2/v2.2/constitution.md - skipping ch
 **Objective**: Match the user-narrative style of CodeGraph's CHANGELOG (Section 7 of the comparison report flagged this as worth borrowing) and the structure of docs/archive/v2/v2.1/RELEASE_NOTES.md.
 
 **Prompt**:
-> Create docs/archive/v2/v2.2/RELEASE_NOTES.md. Open with a 3-paragraph narrative: paragraph 1 frames v2.2.0 as adopting 12 of 14 CodeGraph capabilities surfaced in [docs/archives/v2/v2.1/comparison-codegraph.md](../v2.1.0/comparison-codegraph.md); paragraph 2 frames the Gemini-CLI-to-Antigravity-CLI transition (cite the 2026-05-21 Google announcement) and confirms the transition shipped ahead of the 2026-06-18 sunset; paragraph 3 surfaces what is DEFERRED (C13 standalone runtime bundling and C3-extended remaining framework extractors -> v2.3.0). Then a "Highlights" section with 5-8 bullet points written from the user perspective ("Your Nexus-Hub installer can now run `--check` to detect drift without writing a byte", "`nexus-code-search` answers `callers(...)` / `callees(...)` / `impact(...)` against a tree-sitter AST graph"). Then a "Per-candidate adoption map" table mapping each comparison candidate (C1, C2, ..., C14) to the sub-task IDs that shipped it (T001, T002, ..., T034). Cross-link to the plan file [docs/archives/v2/v2.2/plans/codegraph-and-antigravity.md](plans/codegraph-and-antigravity.md), the comparison report, and the CHANGELOG entry.
+> Create docs/archive/v2/v2.2/RELEASE_NOTES.md. Open with a 3-paragraph narrative: paragraph 1 frames v2.2.0 as adopting 12 of 14 CodeGraph capabilities surfaced in [docs/archives/v2/v2.1/comparison-codegraph.md](../../v2.1/comparison-codegraph.md); paragraph 2 frames the Gemini-CLI-to-Antigravity-CLI transition (cite the 2026-05-21 Google announcement) and confirms the transition shipped ahead of the 2026-06-18 sunset; paragraph 3 surfaces what is DEFERRED (C13 standalone runtime bundling and C3-extended remaining framework extractors -> v2.3.0). Then a "Highlights" section with 5-8 bullet points written from the user perspective ("Your Nexus-Hub installer can now run `--check` to detect drift without writing a byte", "`nexus-code-search` answers `callers(...)` / `callees(...)` / `impact(...)` against a tree-sitter AST graph"). Then a "Per-candidate adoption map" table mapping each comparison candidate (C1, C2, ..., C14) to the sub-task IDs that shipped it (T001, T002, ..., T034). Cross-link to the plan file [docs/archives/v2/v2.2/plans/codegraph-and-antigravity.md](codegraph-and-antigravity.md), the comparison report, and the CHANGELOG entry.
 
 ---
 
@@ -610,7 +610,7 @@ No constitution file in place; no violations to track.
 
 ## Items explicitly NOT adopted in v2.2.0 (deferred to v2.3.0+)
 
-These items appeared in the [comparison report](../../v2.1.0/comparison-codegraph.md) but are intentionally not in v2.2.0 scope. They are deferrals, not policy rejections.
+These items appeared in the [comparison report](../../v2.1/comparison-codegraph.md) but are intentionally not in v2.2.0 scope. They are deferrals, not policy rejections.
 
 - **N1 - C13: Standalone runtime bundling.** Defers the vendored-Python install path (pyoxidizer / PyInstaller). **Reason**: Nexus-Hub's Python 3.10+ dependency is documented and accepted; bundling a 80+ MB runtime adds a build matrix per (Python version x OS x arch) to maintain. The cost outweighs the benefit until a regulated-environment user files a concrete ticket asking for it. Re-evaluate in v2.3.0.
 

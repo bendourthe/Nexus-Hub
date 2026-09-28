@@ -22,7 +22,7 @@
     {
       "id": "describe",
       "stage": "Understand",
-      "title": "Map the game before changing it",
+      "title": "Trace the damage",
       "intent": "You ask the assistant to trace what actually happens when an enemy shot reaches the ship, before touching anything.",
       "command": "/describe full",
       "tools": [
@@ -40,7 +40,6 @@
         "resolveEnemyShot hands every overlap to applyEnemyHit.",
         "applyEnemyHit sets destroyed: true unconditionally; the lives counter is never consulted.",
         "The HUD reads 3 lives while the very first hit ends the run.",
-        "Hostile fixture stays text: <img onerror> and </script>.",
         "Wrote docs/analysis.md."
       ],
       "game": {

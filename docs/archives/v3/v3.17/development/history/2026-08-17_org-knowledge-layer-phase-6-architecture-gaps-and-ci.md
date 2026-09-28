@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-17
 **Branch**: `feat/v3.17.4-org-knowledge-layer`
-**Plan**: [`docs/releases/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md`](../../plans/v3.17.4-org-knowledge-layer.md)
+**Plan**: [`docs/releases/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md`](../../../../../releases/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md)
 **Phase**: 6 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 **Environment**: Windows PowerShell, Python 3.12.10, pytest, Ruff, ShellCheck; GNU Make unavailable
 **Outcome**: The Org Knowledge Layer implementation is complete. Architecture and documentation audits require no file move or deletion, known product limits are explicit, both real installer entry points have shared organization-seeding postconditions, bounded local gates are green, and release readiness is handed to `/update release`.

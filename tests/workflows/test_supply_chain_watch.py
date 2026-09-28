@@ -51,6 +51,21 @@ def test_watch_fails_visibly_rather_than_passing_on_no_data() -> None:
     assert "if-no-files-found: warn" in text
 
 
+def test_watch_installs_patched_setuptools_before_audit() -> None:
+    steps = _load(WATCH)["jobs"]["audit"]["steps"]
+    install = next(
+        step["run"]
+        for step in steps
+        if step.get("name") == "Install the declared dependency set"
+    )
+    pin = re.search(
+        r"(?m)^\s*python -m pip install --quiet --upgrade pip pip-audit 'setuptools==(\d+\.\d+\.\d+)'$",
+        install,
+    )
+    assert pin is not None
+    assert tuple(map(int, pin.group(1).split("."))) >= (83, 0, 0)
+
+
 def test_release_artifact_job_is_scoped_and_pinned() -> None:
     data = _load(RELEASE)
     job = data["jobs"]["publish-artifact"]

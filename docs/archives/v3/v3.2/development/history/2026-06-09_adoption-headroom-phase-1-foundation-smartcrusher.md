@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 1: Foundation + SmartCrusher
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
+**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
 **Phase**: 1 of 7 -- Foundation + SmartCrusher (re-full)
 **Branch**: `feat/adoption-headroom` (off the post-teach `develop` merge `8523281`)
 **Outcome**: complete; all four sub-tasks (T001-T004) closed, all quality gates green (GO).

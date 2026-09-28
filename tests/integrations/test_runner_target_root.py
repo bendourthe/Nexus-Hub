@@ -157,6 +157,31 @@ def test_global_install_writes_manifest_under_home(
     assert not (foreign / ".nexus-hub" / "install-manifest.json").exists()
 
 
+def test_explicit_global_target_does_not_touch_user_home(
+    fake_home: Path, tmp_path: Path
+) -> None:
+    """A redirected global install must not write or clean up the real profile."""
+    target = tmp_path / "isolated-global"
+    target.mkdir()
+    codex_home = fake_home / ".codex"
+    codex_home.mkdir()
+    instruction = codex_home / "AGENTS.md"
+    instruction.write_text("user content", encoding="utf-8")
+    legacy = codex_home / "devai-hub-skills"
+    legacy.mkdir()
+    (legacy / "keep.txt").write_text("keep", encoding="utf-8")
+
+    rc = runner.cmd_install(
+        _install_args(integrations="codex", target=str(target), instruction_only=True)
+    )
+
+    assert rc == 0
+    assert (target / ".codex" / "AGENTS.md").exists()
+    assert (target / ".nexus-hub" / "install-manifest.json").exists()
+    assert instruction.read_text(encoding="utf-8") == "user content"
+    assert (legacy / "keep.txt").read_text(encoding="utf-8") == "keep"
+
+
 def test_manifest_write_failure_degrades_to_warning(
     fake_home: Path,
     tmp_path: Path,

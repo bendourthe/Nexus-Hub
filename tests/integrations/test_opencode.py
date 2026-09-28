@@ -2,7 +2,7 @@
 
 Covers the read-contract verified 2026-07-21 (https://opencode.ai/docs):
   - agents copied verbatim to .opencode/agents (global ~/.config/opencode/agents):
-    catalog/agents/*.md load as-is (mode defaults to `all`; name/tools ignored)
+    catalog/agents/*.md load with the Claude-style `tools` line removed (v4.13.2)
   - the pre-existing skills (flattened) + commands + rules surfaces still install
   - hooks are NOT delivered (OpenCode's plugins/ is a JS/TS Bun runtime, DF-4):
     hooks_supported is False and no hooks surface is written
@@ -11,9 +11,13 @@ Covers the read-contract verified 2026-07-21 (https://opencode.ai/docs):
 from __future__ import annotations
 
 from dataclasses import replace
+from pathlib import Path
+
+import pytest
 
 from scripts.lib.integrations import get
 from scripts.lib.integrations.base import InstallContext
+from scripts.lib.integrations._catalog_adapters import _drop_frontmatter_keys
 
 _CATEGORY_NAMES = ("ai-development", "workflow", "security", "orchestration", "code-review")
 
@@ -34,6 +38,37 @@ def test_opencode_agents_are_catalog_md_verbatim(install_ctx: InstallContext):
     assert agent.exists(), f"catalog agent missing at {agent}"
     text = agent.read_text(encoding="utf-8")
     assert "description:" in text, "agent frontmatter (description) must survive the copy"
+
+
+def test_opencode_agents_drop_the_claude_tools_line_and_keep_the_body(install_ctx: InstallContext):
+    """OpenCode 1.18 rejects the whole config on a string `tools` key, so it must not ship.
+
+    Found by the v4.13.2 end-to-end run: `tools: Read, Glob, Grep, Bash` made OpenCode
+    exit with "Configuration is invalid ... Expected object | undefined" before any turn.
+    """
+    get("opencode").install(install_ctx)
+    agents_dir = install_ctx.target_root / ".opencode" / "agents"
+    catalog = Path(__file__).resolve().parents[2] / "catalog" / "agents"
+    sources = sorted(catalog.glob("*.md"))
+    assert sources
+    for source in sources:
+        installed = (agents_dir / source.name).read_text(encoding="utf-8")
+        front, body = installed.split("\n---", 1)
+        assert "\ntools:" not in front, source.name
+        assert body == source.read_text(encoding="utf-8").split("\n---", 1)[1], source.name
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        (b"---\nname: a\ntools: Read\n---\nbody tools: kept\n", b"---\nname: a\n---\nbody tools: kept\n"),
+        (b"---\r\ntools: Read\r\ndescription: d\r\n---\r\nb\r\n", b"---\r\ndescription: d\r\n---\r\nb\r\n"),
+        (b"no frontmatter\ntools: x\n", b"no frontmatter\ntools: x\n"),
+        (b"---\ntools: x\nunterminated\n", b"---\ntools: x\nunterminated\n"),
+    ],
+)
+def test_drop_frontmatter_keys_touches_only_the_frontmatter_block(raw: bytes, expected: bytes) -> None:
+    assert _drop_frontmatter_keys(raw, ("tools",)) == expected
 
 
 def test_opencode_preserves_skills_commands_rules(install_ctx: InstallContext):

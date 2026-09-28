@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `develop`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md`](../../plans/v3.19.2-rtk-and-meterless.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md`](../../../../../releases/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md)
 **Phase**: 4 - Compressor and hook depth
 **Environment**: Windows 11, PowerShell, Python 3.12, pytest
 **Outcome**: One rewrite decision (0/1/2/3, default ask) with host-permission gating, thin hook delegates, and a short list of semantic reformatters that beat a 60% token-reduction bar. Ready for Phase 5.

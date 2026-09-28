@@ -995,7 +995,7 @@ Please provide a comprehensive performance report with the following structure:
 **Top 10 Time-Consuming Functions**:
 | Function | File | Time | % Total | Calls | Time/Call | Category |
 |----------|------|------|---------|-------|-----------|----------|
-| [name] | [path] | [ms] | [%] | [count] | [μs] | [CPU/Memory/I/O] |
+| [name] | [path] | [ms] | [%] | [count] | [us] | [CPU/Memory/I/O] |
 
 **Cache Performance**:
 | Metric | Value | Status |

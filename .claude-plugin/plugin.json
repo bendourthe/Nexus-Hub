@@ -1,8 +1,8 @@
 {
   "name": "nexus-hub",
   "displayName": "Nexus Hub",
-  "description": "Enterprise-grade skill harness for AI coding assistants -- the upstream catalog for the Nexus desktop app and every major agent (Claude Code, OpenAI Codex, Antigravity, GitHub Copilot, Cursor, GitHub CLI). 337 curated skills, 18 commands, 23 agents. This plugin is the Claude Code subscribe path; the installer remains the primary multi-platform path and the only path that installs hooks.",
-  "version": "4.13.0",
+  "description": "Enterprise-grade skill harness for AI coding assistants -- the upstream catalog for the Nexus desktop app and every major agent (Claude Code, OpenAI Codex, Antigravity, GitHub Copilot, Cursor, GitHub CLI). 338 curated skills, 18 commands, 23 agents. This plugin is the Claude Code subscribe path; the installer remains the primary multi-platform path and the only path that installs hooks.",
+  "version": "4.13.3",
   "author": {
     "name": "Benjamin Dourthe",
     "url": "https://github.com/bendourthe"
@@ -19,7 +19,31 @@
     "security"
   ],
   "commands": "./catalog/commands",
-  "agents": "./catalog/agents",
+  "agents": [
+    "./catalog/agents/adversarial-reviewer.md",
+    "./catalog/agents/agent-native-reviewer.md",
+    "./catalog/agents/api-contract-reviewer.md",
+    "./catalog/agents/architect.md",
+    "./catalog/agents/build-error-resolver.md",
+    "./catalog/agents/code-reviewer.md",
+    "./catalog/agents/coherence-reviewer.md",
+    "./catalog/agents/design-lens-reviewer.md",
+    "./catalog/agents/doc-updater.md",
+    "./catalog/agents/feasibility-reviewer.md",
+    "./catalog/agents/harness-optimizer.md",
+    "./catalog/agents/loop-operator.md",
+    "./catalog/agents/maintainability-reviewer.md",
+    "./catalog/agents/performance-reviewer.md",
+    "./catalog/agents/planner.md",
+    "./catalog/agents/product-lens-reviewer.md",
+    "./catalog/agents/project-standards-reviewer.md",
+    "./catalog/agents/refactor-cleaner.md",
+    "./catalog/agents/reliability-reviewer.md",
+    "./catalog/agents/scope-guardian-reviewer.md",
+    "./catalog/agents/security-reviewer.md",
+    "./catalog/agents/tdd-guide.md",
+    "./catalog/agents/testing-reviewer.md"
+  ],
   "skills": [
     "./catalog/skills/ai-development",
     "./catalog/skills/architecture",

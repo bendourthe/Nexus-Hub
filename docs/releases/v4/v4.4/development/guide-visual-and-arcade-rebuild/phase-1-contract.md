@@ -1,6 +1,6 @@
 # v4.4.1 Phase 1 Contract -- Requirements, Superseded Assertions, and Byte Ledger
 
-**Plan**: [v4.4.1-guide-visual-and-arcade-rebuild.md](../../plans/v4.4.1-guide-visual-and-arcade-rebuild.md)
+**Plan**: [v4.4.1-guide-visual-and-arcade-rebuild.md](../../../../../archives/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md)
 **Phase**: 1 -- Contracts, Asset Provenance, and Byte Budget
 **Branch**: `feat/v4.4.1-guide-visual-and-arcade-rebuild`
 **Created**: 2026-09-01

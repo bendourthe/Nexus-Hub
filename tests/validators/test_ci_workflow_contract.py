@@ -36,6 +36,19 @@ def load(path: Path) -> dict:
     return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
+def profile_group(name: str):
+    """Resolve a workflow-selected group from the canonical profile data."""
+    import sys
+
+    if str(REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(REPO_ROOT))
+    from scripts.ci.profiles import PROFILES
+
+    group = next((group for groups in PROFILES.values() for group in groups if group.name == name), None)
+    assert group is not None, f"workflow selects unknown group {name!r}"
+    return group
+
+
 def triggers(path: Path) -> dict:
     """The `on:` mapping.
 
@@ -150,6 +163,19 @@ def test_ci_delegates_its_validation_to_repository_native_profiles():
     assert "--profile full" in text
 
 
+def test_validation_job_installs_its_profile_test_runner():
+    job = load(CI)["jobs"]["validate"]
+    commands = "\n".join(str(step.get("run", "")) for step in job["steps"])
+    assert "pip install pre-commit pytest" in commands
+
+
+def test_tests_job_installs_the_coverage_plugin_its_profile_uses():
+    job = load(CI)["jobs"]["tests"]
+    install = next(step for step in job["steps"] if step.get("name") == "Install test dependencies")
+    assert "pytest-cov" in install["run"].split()
+    assert any("--cov=scripts.ci" in command.argv for command in profile_group("tests").commands)
+
+
 def test_ci_does_not_re_declare_the_validator_list():
     """The defect this prevents is silent and has happened here before.
 
@@ -178,32 +204,24 @@ def test_ci_enforces_the_guide_browser_contracts():
 
     steps = job["steps"]
     commands = "\n".join(str(step.get("run", "")) for step in steps)
-    assert "pip install pytest playwright" in commands
+    assert "scripts/ci/requirements-guide-render.in" in commands
     assert "python -m playwright install --with-deps chromium" in commands
 
-    test_step = next(
-        step
-        for step in steps
-        if "tests/verification/test_visual_defect_detector.py" in str(step.get("run", ""))
-    )
-    assert test_step.get("env", {}).get("NEXUS_REQUIRE_RENDER") == "1"
-    assert "tests/guides/" in test_step["run"]
+    assert any("--only guide-browser" in str(step.get("run", "")) for step in steps)
+    browser_commands = profile_group("guide-browser").commands
+    assert len(browser_commands) == 1
+    assert browser_commands[0].env.get("NEXUS_REQUIRE_RENDER") == "1"
+    assert "tests/guides/" in browser_commands[0].argv
+    assert "tests/verification/test_visual_defect_detector.py" in browser_commands[0].argv
     assert "guide-render" in jobs["ci-required"]["needs"]
 
 
 def test_every_only_group_named_by_a_workflow_exists():
     """A typo in `--only` must be an error, not an empty selection."""
-    import sys
-
-    if str(REPO_ROOT) not in sys.path:
-        sys.path.insert(0, str(REPO_ROOT))
-    from scripts.ci.profiles import PROFILES
-
-    known = {g.name for groups in PROFILES.values() for g in groups}
     for path in ALL_WORKFLOWS:
         for match in re.finditer(r"--only\s+([\w,-]+)", path.read_text(encoding="utf-8")):
             for name in match.group(1).split(","):
-                assert name in known, f"{path.name} selects unknown group {name!r}"
+                assert profile_group(name).name == name
 
 
 # ---------------------------------------------------------------------------
@@ -289,6 +307,40 @@ def test_summary_publication_survives_a_failure():
         )
 
 
+@pytest.mark.parametrize(
+    ("path", "job_names"),
+    [
+        (CI, ("validate", "shellcheck", "tests", "guide-render", "tests-windows")),
+        (POST_MERGE, ("smoke",)),
+        (RELEASE, ("release-readiness",)),
+    ],
+)
+def test_profile_and_guide_jobs_retain_reports_on_failure(path: Path, job_names: tuple[str, ...]):
+    jobs = load(path)["jobs"]
+    for job_name in job_names:
+        steps = jobs[job_name]["steps"]
+        uploads = [step for step in steps if str(step.get("uses", "")).startswith("actions/upload-artifact@")]
+        assert len(uploads) == 1, f"{path.name}/{job_name} needs one report upload"
+        upload = uploads[0]
+        assert upload.get("if") == "always()"
+        assert upload["with"]["retention-days"] == 7
+        assert upload["with"]["path"] == "reports/"
+
+
+def test_guide_render_emits_junit_for_the_uploaded_report():
+    steps = load(CI)["jobs"]["guide-render"]["steps"]
+    assert any("--only guide-browser" in str(step.get("run", "")) for step in steps)
+    command = profile_group("guide-browser").commands[0]
+    assert "--junitxml=reports/junit/guide-render.xml" in command.argv
+
+
+def test_windows_native_tests_emit_junit_for_the_uploaded_report():
+    steps = load(CI)["jobs"]["tests-windows"]["steps"]
+    assert any("--only interpreters,windows-hooks" in str(step.get("run", "")) for step in steps)
+    native = next(command for command in profile_group("windows-hooks").commands if "tests/integrations/test_codex_native.py" in command.argv)
+    assert "--junitxml=reports/junit/windows-native.xml" in native.argv
+
+
 # ---------------------------------------------------------------------------
 # Security and cost controls.
 # ---------------------------------------------------------------------------
@@ -366,6 +418,61 @@ def test_the_required_jobs_are_never_gated_by_the_classifier():
         assert "if" not in jobs[name], (
             f"{name} is a required context and must run unconditionally"
         )
+
+
+@pytest.mark.parametrize(
+    "name",
+    ("ci", "post-merge", "presentify-extractor", "supply-chain-watch", "nexus-memory"),
+)
+def test_python_install_workflows_use_the_universal_constraints(name: str):
+    workflow = load(WORKFLOW_DIR / f"{name}.yml")
+    assert workflow["env"]["PIP_CONSTRAINT"] == "${{ github.workspace }}/scripts/ci/requirements-py311.txt"
+    for job in workflow["jobs"].values():
+        for step in job.get("steps", []):
+            options = step.get("with", {})
+            if options.get("cache") == "pip":
+                assert "scripts/ci/requirements-py311.txt" in options["cache-dependency-path"]
+
+
+@pytest.mark.parametrize("name", ("code-search", "nexus-memory"))
+def test_offline_extension_builds_receive_the_same_constraints(name: str):
+    text = (WORKFLOW_DIR / f"{name}.yml").read_text(encoding="utf-8")
+    paths = triggers(WORKFLOW_DIR / f"{name}.yml")["pull_request"]["paths"]
+    assert "scripts/ci/requirements.in" in paths
+    assert "scripts/ci/requirements-py311.txt" in paths
+    assert "--build-context ci=scripts/ci" in text
+    assert "FROM python:3.11-slim@sha256:da047cb8f9d1d98e5c070f5300ba9f7274e33b8fc0e5be5ed88740aed1b95ba9" in text
+    assert "COPY --from=ci requirements-py311.txt /package/requirements-py311.txt" in text
+    assert "ENV PIP_CONSTRAINT=/package/requirements-py311.txt" in text
+    if name == "code-search":
+        assert "git=1:2.47.3-0+deb13u1" in text
+
+
+def test_presentify_lock_changes_reach_its_path_detector():
+    text = (WORKFLOW_DIR / "presentify-extractor.yml").read_text(encoding="utf-8")
+    assert r"scripts/ci/requirements(\.in|-py311\.txt)$" in text
+
+
+def test_non_python_ci_tools_have_explicit_versions():
+    text = CI.read_text(encoding="utf-8")
+    assert "apt-get install -y shellcheck=0.9.0-1" in text
+    assert "npm install --global @anthropic-ai/claude-code@2.1.280" in text
+
+
+def test_direct_ci_tools_are_pinned_in_the_universal_constraints():
+    source = (REPO_ROOT / "scripts/ci/requirements.in").read_text(encoding="utf-8")
+    lock = (REPO_ROOT / "scripts/ci/requirements-py311.txt").read_text(encoding="utf-8")
+    direct = {
+        line.strip().split("==", 1)[0].lower()
+        for line in source.splitlines()
+        if line.strip() and not line.startswith("#")
+    }
+    pinned = {
+        line.split("==", 1)[0].lower()
+        for line in lock.splitlines()
+        if line and not line[0].isspace() and not line.startswith("#") and "==" in line
+    }
+    assert direct <= pinned
 
 
 # ---------------------------------------------------------------------------

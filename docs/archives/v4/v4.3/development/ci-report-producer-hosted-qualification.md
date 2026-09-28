@@ -1,0 +1,7 @@
+# CI report producers - hosted qualification
+
+PR #243 merged at `7f4ee70c2bc03b4bccdadcc2340c28a052ce9a09` after its replacement hosted run 35824395348 passed 30 checks with one intentional skip. Its first run, 35823076193, failed because the Linux tests job had not installed pytest-cov; that result remains in [the repair record](ci-report-producer-hosted-repair.md), not retroactively changed. Post-merge run 35826047174 passed smoke and provenance.
+
+The downloaded `ci-test-reports` artifact contains `coverage-ci.xml`: 522 of 591 lines covered, rate 0.8832, SHA-256 `3d06e33059133b78404df5515fed87daede8da6eb8a99e9e7af90d0cb95e974c`. The downloaded `ci-validation-reports` artifact contains SARIF 2.1.0 with one run and 48 below-threshold findings, SHA-256 `f2f8e5ed387cc1fb9a57d22ad9782cee1453997c84a1642177ac9bf9ffbd0143`. Both source job summaries report zero failed commands.
+
+The final `ci-aggregate-reports` artifact contains five source receipts and both files at those exact hashes, classified as `coverage` and `sarif` in `aggregate-index.json`. The aggregate was created at 2026-09-23 06:15:53 UTC and expires at 2026-09-30 06:15:52 UTC. Its validation receipt says `PARTIAL` because of skips, not a failed validation job; all five source jobs report success. This closes the report-type absence in v4.3 DF-3 without claiming a full-repository coverage percentage or zero scanner findings.

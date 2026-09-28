@@ -53,6 +53,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ._command_surface import mirror_command_surface
+from ._completion_plugins import install_completion_plugin
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import WriteResult
 
@@ -130,7 +131,7 @@ class PiIntegration(MarkdownIntegration, SkillsIntegration):
         surfaces are unaffected.
         """
         result = WriteResult()
-        pi_home = (Path.home() / PI_ROOT_DIRNAME).resolve()
+        pi_home = (ctx.global_root / PI_ROOT_DIRNAME).resolve()
         if not pi_home.exists():
             ctx.manifest.log(self.key, "~/.pi not found; skipping global Pi surfaces")
             result.mark_not_detected(
@@ -138,7 +139,7 @@ class PiIntegration(MarkdownIntegration, SkillsIntegration):
             )
             return result
         result.detected = True
-        agent_root = self._global_root()
+        agent_root = (ctx.global_root / PI_ROOT_DIRNAME / PI_AGENT_SUBDIR).resolve()
         self._ensure_dir(agent_root, ctx)
         action = self._write_instruction(agent_root, ctx)
         if action is not None:
@@ -146,4 +147,6 @@ class PiIntegration(MarkdownIntegration, SkillsIntegration):
         if not ctx.instruction_only:
             result.files.extend(self._mirror_catalog(agent_root, ctx))
             self._install_prompts(agent_root, ctx, result)
+            # v4.13.2: completion-gate extension (auto-loaded from extensions/).
+            install_completion_plugin(self, ctx, "pi", agent_root / "extensions", result)
         return result

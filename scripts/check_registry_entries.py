@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Assert each skill's registry entries still match its SKILL.md.
+"""Assert each skill's registry entries and aggregate counts match its SKILL.md.
 
-The three `data/` registry files are hand-edited on purpose: the full catalog
+The four `data/` registry files are hand-edited on purpose: the full catalog
 builder rewrites the whole tree and turns a one-skill change into a diff nobody
 can review. The cost of that choice is drift, and drift here is quiet. An entry
 whose summary went stale when SKILL.md was edited, or whose category no longer
@@ -14,12 +14,11 @@ skill's own frontmatter and comparing it against the committed bytes. It never
 writes: `--emit` prints a paste-ready entry, which keeps the hand-edit
 convention intact while making the hand edit checkable.
 
-Scope note. Membership and aggregate counts are already covered by
-`tests/validators/test_registry_consistency.py`; this checks per-skill FIELD
-AGREEMENT, which nothing else does. It also checks capability-module
-reachability, which was previously provable only by a ~30-minute integration
-suite, because a skill missing from every module installs fine and is simply
-unreachable to any focused install.
+The checker owns both per-skill field agreement and the cheap aggregate census:
+`skills.json.statistics`, marketplace category counts, and the SKILL_INDEX total
+line. It also checks capability-module reachability, which was previously
+provable only by a ~30-minute integration suite, because a skill missing from
+every module installs fine and is simply unreachable to any focused install.
 
 Editorial fields (downloads, security, priority, size, status) are checked for
 presence and type only, never value. This guard must never demand a
@@ -261,10 +260,26 @@ def check(root: Path) -> tuple[list[str], list[str]]:
     for name in sorted(set(rows) - disk_names):
         failures.append(f"orphan: {name} SKILL_INDEX.md (no catalog directory)")
 
-    # Census: per-category marketplace counts against the disk.
+    # Census: every aggregate registry surface against the disk.
     census: dict[str, int] = {}
     for _, category, _ in on_disk:
         census[category] = census.get(category, 0) + 1
+
+    statistics = skills_json.get("statistics")
+    if not isinstance(statistics, dict):
+        failures.append("missing: skills.json statistics")
+    else:
+        if statistics.get("total_skills") != len(on_disk):
+            failures.append(
+                "stale: skills.json statistics.total_skills "
+                f"(says {statistics.get('total_skills')}, disk has {len(on_disk)})"
+            )
+        if statistics.get("categories") != census:
+            failures.append(
+                "stale: skills.json statistics.categories "
+                f"(says {statistics.get('categories')!r}, disk has {census!r})"
+            )
+
     for cat_entry in marketplace.get("categories", []):
         cat_id = cat_entry.get("id")
         declared = cat_entry.get("skill_count")
@@ -273,6 +288,22 @@ def check(root: Path) -> tuple[list[str], list[str]]:
             failures.append(
                 f"stale: {cat_id} marketplace.json skill_count "
                 f"(says {declared}, disk has {actual})"
+            )
+
+    total_match = re.search(
+        r"^\*\*Total: (\d+) skills across (\d+) categories\*\*$",
+        index_text,
+        re.M,
+    )
+    if total_match is None:
+        failures.append("missing: SKILL_INDEX.md total line")
+    else:
+        declared_skills, declared_categories = map(int, total_match.groups())
+        if declared_skills != len(on_disk) or declared_categories != len(census):
+            failures.append(
+                "stale: SKILL_INDEX.md total line "
+                f"(says {declared_skills} skills across {declared_categories} categories, "
+                f"disk has {len(on_disk)} skills across {len(census)} categories)"
             )
 
     return failures, drift

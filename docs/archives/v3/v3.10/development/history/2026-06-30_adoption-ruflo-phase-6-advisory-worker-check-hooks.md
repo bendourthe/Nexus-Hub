@@ -1,7 +1,7 @@
 # Session History - v3.10.0 adoption-ruflo Phase 6: advisory worker-check hooks + consolidation
 
 **Date**: 2026-06-30
-**Plan**: [`../../plans/adoption-ruflo.md`](../../plans/adoption-ruflo.md) Phase 6 (A10: advisory worker-check hooks + the six runtime-drop records, registry decision, CHANGELOG, known-gaps; re-partial, P3 + consolidation)
+**Plan**: [`../../plans/adoption-ruflo.md`](../../../../../releases/v3/v3.10/plans/adoption-ruflo.md) Phase 6 (A10: advisory worker-check hooks + the six runtime-drop records, registry decision, CHANGELOG, known-gaps; re-partial, P3 + consolidation)
 **Branch**: `develop`
 **Outcome**: Complete. All Phase 6 exit-checklist items satisfied; quality gate GO. The final phase (6 of 6), so `/implement` routes to the release-readiness workflow.
 

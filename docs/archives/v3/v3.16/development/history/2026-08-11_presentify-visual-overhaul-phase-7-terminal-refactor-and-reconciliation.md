@@ -1,7 +1,7 @@
 # Session History - v3.16.5 Phase 7: terminal refactor, reconciliation, and CI/CD
 
 **Date**: 2026-08-11
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../plans/v3.16.5-presentify-visual-overhaul.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../../../../releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md)
 **Phase**: 7 of 7 - **the terminal phase**
 **Branch**: `feat/v3.16.5-presentify-visual-overhaul` (worktree at `.claude/worktrees/v3.16.5-presentify`)
 **Model**: Opus 5. The plan recommends **frontier at max effort**; the maintainer's standing preference across three prior tier deltas was applied rather than asking a fourth time.

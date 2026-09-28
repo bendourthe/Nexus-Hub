@@ -22,8 +22,8 @@ from __future__ import annotations
 import os
 import shutil
 import sys
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Mapping, Sequence
 
 #: Host classes a command can be scoped to. `posix` is the union of linux and
 #: macos, kept because most shell tooling cares about that boundary rather than
@@ -64,6 +64,8 @@ class Command:
     platforms: tuple[str, ...] = ()
     #: A failure is reported but does not fail the group or the run.
     advisory: bool = False
+    #: An unavailable optional vendor CLI is a visible skip, never a silent pass.
+    skip_if_missing: bool = False
     #: Extra environment for this command only.
     env: Mapping[str, str] = field(default_factory=dict)
 
@@ -88,6 +90,8 @@ class Group:
     #: parse, say). Everything else keeps running so one run reports every
     #: independent failure instead of only the first.
     blocking: bool = False
+    #: Run only when named by --only; use for provisioned tools such as Chromium.
+    explicit_only: bool = False
 
 
 def _py(name: str, *args: str, **kw) -> Command:
@@ -150,6 +154,15 @@ HYGIENE = Group(
     ),
 )
 
+# Every instruction line Nexus-Hub ever shipped, hashed for the legacy-span
+# detector. Unscoped because a template or skill-index edit anywhere must fail
+# the gate until the set is regenerated. Needs full history (CI clones with
+# fetch-depth 0 for the attribution check).
+LEGACY_FINGERPRINTS = Group(
+    name="legacy-fingerprints",
+    commands=(_py("build_legacy_fingerprints", "--check", timeout=120),),
+)
+
 CATALOG = Group(
     name="catalog",
     scope_key="catalog",
@@ -159,7 +172,18 @@ CATALOG = Group(
         _py("build_framework_coverage", "--check", timeout=300),
         _py("run_trigger_evals", "--gate", timeout=600),
         _py("check_registry_entries", "--check", "--strict", timeout=300),
-        _py("scan_skill_security", "catalog/skills", "catalog/mcp-configs", "--fail-on", "high", timeout=600),
+        _py(
+            "scan_skill_security",
+            "catalog/skills",
+            "catalog/mcp-configs",
+            "--fail-on",
+            "high",
+            "--format",
+            "sarif",
+            "--output",
+            "reports/skill-security.sarif",
+            timeout=600,
+        ),
     ),
 )
 
@@ -181,12 +205,25 @@ WORKFLOWS = Group(
     ),
 )
 
+CLAUDE_PLUGIN = Group(
+    name="claude-plugin",
+    commands=(
+        Command(
+            name="claude plugin validate",
+            argv=["claude", "plugin", "validate", "."],
+            timeout=120,
+            skip_if_missing=True,
+        ),
+    ),
+)
+
 PLATFORM_CONTRACTS = Group(
     name="platform-contracts",
     scope_key="platforms",
     commands=(
         _py("check_installer_parity", timeout=300),
         _py("check_base_template_parity", timeout=120),
+        _pytest("instruction-contracts", "tests/validators/test_communication_contract_rollout.py", timeout=120),
         _py("verify_platform_contracts", timeout=300),
         _py("check_platform_contract_freshness", timeout=120),
         _py("sync_platform_defaults", "--check", timeout=120),
@@ -237,11 +274,101 @@ TESTS = Group(
     name="tests",
     scope_key="tests",
     commands=(
+        # These are enforceable CI safety bounds, not local performance SLOs.
+        # A contended workstation may exceed them; do not tune shared limits
+        # from that observation. Recalibrate only from quiet CI measurements.
         _pytest("hook-tests", "catalog/hooks/tests", timeout=1800),
-        # The Windows suite has a measured 3341.7s passing baseline. A 3600s
-        # limit left only 7.7% variance and timed out a subsequent green-path
-        # run, so retain enough host/filesystem headroom to report assertions.
-        _pytest("repo-tests", "tests", timeout=4500),
+        # Keep the repository corpus complete but split it at stable ownership
+        # boundaries. The former monolith could time out after an hour while
+        # naming only a percentage; these partitions retain every collected
+        # root/domain target and identify the slow owner without raising a cap.
+        _pytest("repo-tests-skills", "tests/skills", timeout=2700),
+        _pytest("repo-tests-installer", "tests/installer", timeout=1800),
+        _pytest(
+            "repo-tests-integrations-platform-a",
+            "tests/integrations/test_aider_windsurf.py",
+            "tests/integrations/test_antigravity.py",
+            "tests/integrations/test_antigravity_commands.py",
+            "tests/integrations/test_codex.py",
+            "tests/integrations/test_codex_invocation_policy.py",
+            "tests/integrations/test_codex_native.py",
+            "tests/integrations/test_consult.py",
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-integrations-platform-b",
+            "tests/integrations/test_copilot_hermes_native.py",
+            "tests/integrations/test_copilot_skills_surface.py",
+            "tests/integrations/test_cursor.py",
+            "tests/integrations/test_hermes.py",
+            "tests/integrations/test_kimi_native.py",
+            "tests/integrations/test_kimi_qwen_openclaw.py",
+            "tests/integrations/test_opencode.py",
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-integrations-adapter-contracts",
+            "tests/integrations/test_base_writeresult.py",
+            "tests/integrations/test_catalog_adapters.py",
+            "tests/integrations/test_contract.py",
+            "tests/integrations/test_cross_platform_flatten.py",
+            "tests/integrations/test_global_command_surface.py",
+            "tests/integrations/test_owned_root_preflight.py",
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-integrations-repository-contracts",
+            "tests/integrations/test_harness_audit.py",
+            "tests/integrations/test_nexus_ai_version.py",
+            "tests/integrations/test_registry.py",
+            "tests/integrations/test_result.py",
+            "tests/integrations/test_runner_target_root.py",
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-integrations-install",
+            "tests/integrations/test_completion_gate_registration.py",
+            "tests/integrations/test_completion_plugins.py",
+            "tests/integrations/test_hooks_supported_gate.py",
+            "tests/integrations/test_install_summary.py",
+            "tests/integrations/test_install_workspace.py",
+            "tests/integrations/test_legacy_cleanups.py",
+            "tests/integrations/test_legacy_instruction_block_cleanup.py",
+            "tests/integrations/test_markdown_integration.py",
+            "tests/integrations/test_owned_file_modes.py",
+            "tests/integrations/test_parity_with_legacy_installer.py",
+            "tests/integrations/test_template_includes.py",
+            "tests/integrations/test_skill_index_pointer.py",
+            timeout=1800,
+        ),
+        _pytest(
+            "repo-tests-integrations-lifecycle",
+            "tests/integrations/test_lifecycle.py",
+            "tests/integrations/test_lifecycle_block_rendering.py",
+            "tests/integrations/test_selective_install.py",
+            "tests/integrations/test_settings_hooks.py",
+            "tests/integrations/test_teardown.py",
+            timeout=1800,
+        ),
+        _pytest("repo-tests-plans", "tests/plans", timeout=900),
+        _pytest(
+            "repo-tests-ci",
+            "tests/ci",
+            "--cov=scripts.ci",
+            "--cov-report=xml:reports/coverage-ci.xml",
+            timeout=900,
+        ),
+        _pytest("repo-tests-guides", "tests/guides", timeout=1800),
+        _pytest(
+            "repo-tests-governance",
+            "tests/e2e",
+            "tests/validators",
+            "tests/verification",
+            "tests/workflows",
+            "tests/test_git_attribution.py",
+            "tests/test_removed_autonomy_surface.py",
+            timeout=2700,
+        ),
     ),
 )
 
@@ -315,6 +442,12 @@ SHELL_LINT = Group(
     name="shell-lint",
     commands=(
         Command(
+            name="shellcheck catalog",
+            argv=["bash", "-c", "find catalog -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning"],
+            platforms=("linux", "macos"),
+            timeout=300,
+        ),
+        Command(
             name="shellcheck installers",
             argv=["shellcheck", "--severity=warning", "scripts/installer.sh", "install.sh"],
             platforms=("linux", "macos"),
@@ -330,19 +463,18 @@ SHELL_LINT = Group(
 #: because in an argv list that mistake silently merges two arguments into one
 #: and the failure appears far from its cause. Joining explicitly says the
 #: concatenation is intended.
-_PS_AST_PARSE = " ".join(
-    [
-        "$f=$false;",
-        "@(Get-ChildItem catalog/hooks -Filter *.ps1 -File) +",
-        "@(Get-ChildItem scripts -Filter *.ps1 -File) +",
-        "@(Get-ChildItem . -Filter install.ps1 -File) | ForEach-Object {",
-        "$e=$null;",
-        "$null=[System.Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$null,[ref]$e);",
-        'if ($e -and $e.Count -gt 0) { Write-Host "FAIL $($_.Name)"; $f=$true }',
-        'else { Write-Host "OK   $($_.Name)" } };',
-        "if ($f) { exit 1 }",
-    ]
+_PS_AST_PARSE_PARTS = (
+    "$f=$false;",
+    "@(Get-ChildItem catalog/hooks -Filter *.ps1 -File) +",
+    "@(Get-ChildItem scripts -Filter *.ps1 -File) +",
+    "@(Get-ChildItem . -Filter install.ps1 -File) | ForEach-Object {",
+    "$e=$null;",
+    "$null=[System.Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$null,[ref]$e);",
+    'if ($e -and $e.Count -gt 0) { Write-Host "FAIL $($_.Name)"; $f=$true }',
+    'else { Write-Host "OK   $($_.Name)" } };',
+    "if ($f) { exit 1 }",
 )
+_PS_AST_PARSE = " ".join(_PS_AST_PARSE_PARTS)
 
 POWERSHELL_PARSE = Group(
     name="powershell-parse",
@@ -404,6 +536,47 @@ WINDOWS_HOOKS = Group(
             timeout=1200,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
+        _pytest(
+            "native integrations (Windows)",
+            "tests/integrations/test_codex_native.py",
+            "tests/integrations/test_copilot_hermes_native.py",
+            "tests/integrations/test_kimi_native.py",
+            "tests/integrations/test_settings_hooks.py",
+            "tests/integrations/test_catalog_adapters.py",
+            "tests/integrations/test_codex_invocation_policy.py",
+            "--junitxml=reports/junit/windows-native.xml",
+            platforms=("windows",),
+            timeout=1200,
+            env={"NEXUS_TEST_POWERSHELL": "powershell"},
+        ),
+    ),
+)
+
+GUIDE_BROWSER = Group(
+    name="guide-browser",
+    explicit_only=True,
+    commands=(
+        _pytest(
+            "guide and visual detector browser contracts",
+            "tests/guides/",
+            "tests/verification/test_visual_defect_detector.py",
+            "--junitxml=reports/junit/guide-render.xml",
+            env={"NEXUS_REQUIRE_RENDER": "1"},
+            timeout=1800,
+        ),
+    ),
+)
+
+PRE_COMMIT = Group(
+    name="pre-commit",
+    explicit_only=True,
+    commands=(
+        Command(
+            name="pre-commit standard hooks",
+            argv=["pre-commit", "run", "--all-files"],
+            env={"SKIP": "lint-templates,build-catalogs"},
+            timeout=1800,
+        ),
     ),
 )
 
@@ -424,12 +597,9 @@ RELEASE_CHECKS = Group(
 INTERPRETERS = Group(
     name="interpreters",
     commands=(
-        # Nexus-Hub registers hooks as `bash <script>` and the HOST performs that
-        # launch, so a host whose `bash` cannot execute a script leaves every hook
-        # silently inert. No other group can see this: they all run Python
-        # directly rather than through the interpreter the hooks actually use.
-        # v4.3.0 Phase 5 went red twice on a Windows runner for this reason while
-        # the full local suite was green.
+        _py("check_python_floor", timeout=120),
+        # Probe the shell selected by host-specific hook registrations. Python
+        # tests alone cannot prove the host can execute that shell's scripts.
         _py("check_interpreter_resolution", "--gate", timeout=300),
     ),
 )
@@ -437,20 +607,38 @@ INTERPRETERS = Group(
 
 PROFILES: dict[str, tuple[Group, ...]] = {
     # Cheapest useful signal. No test suite, no install, no network.
-    "fast": (CATALOG_PARSE, HYGIENE, INTERPRETERS, WORKFLOWS, VERSION),
+    # CATALOG adds the complete skill and security scans, so keep it in full.
+    # The one cheap registry census command closes the fast-profile drift gap
+    # without turning this profile into a pytest suite.
+    "fast": (
+        CATALOG_PARSE,
+        HYGIENE,
+        INTERPRETERS,
+        Group(
+            name="registry-consistency",
+            scope_key="catalog",
+            commands=(_py("check_registry_entries", "--check", "--strict", timeout=300),),
+        ),
+        WORKFLOWS,
+        VERSION,
+    ),
     # Everything provable on this host.
     "full": (
         CATALOG_PARSE,
+        PRE_COMMIT,
         HYGIENE,
+        LEGACY_FINGERPRINTS,
         INTERPRETERS,
         CATALOG,
         SECURITY,
         WORKFLOWS,
+        CLAUDE_PLUGIN,
         PLATFORM_CONTRACTS,
         DOCS,
         VERSION,
         TESTS,
         EXTENSION_TESTS,
+        GUIDE_BROWSER,
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.

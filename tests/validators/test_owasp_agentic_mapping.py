@@ -25,6 +25,7 @@ CATALOG_SKILLS = REPO_ROOT / "catalog" / "skills"
 COVERAGE_MD = REPO_ROOT / "docs" / "framework-coverage.md"
 NAVIGATOR_LAYER = REPO_ROOT / "docs" / "attack-navigator-layer.json"
 MAPPING_SKILL = CATALOG_SKILLS / "security" / "security-framework-mapping"
+VERSION_UPGRADE_SKILL = CATALOG_SKILLS / "workflow" / "version-upgrade" / "SKILL.md"
 DECISION_RECORD = (
     REPO_ROOT
     / "docs"
@@ -34,9 +35,9 @@ DECISION_RECORD = (
     / "2026-09-07-owasp-agentic-top-10-as-seventh-framework-field.md"
 )
 
-# Verified 2026-09-07 against the fetched OWASP sources. The ampersands in
-# ASI03 and ASI06 are part of the official titles; an earlier transcription
-# wrote "and" and was corrected against the source.
+# Catalog short labels checked 2026-09-07 against the fetched OWASP sources.
+# ASI02 and ASI05 omit qualifiers from the PDF headings. The ampersands in
+# ASI03 and ASI06 are part of the PDF headings.
 OFFICIAL_TITLES = {
     "ASI01": "Agent Goal Hijack",
     "ASI02": "Tool Misuse",
@@ -165,13 +166,28 @@ def test_mapping_skill_documents_seven_frameworks() -> None:
     assert "## The Six Frameworks" not in body
 
 
-def test_mapping_skill_standards_lists_all_ten_official_titles() -> None:
-    """The one place the full set is recorded, so a retitled entry is caught here."""
+def test_release_workflow_requires_manual_owasp_mapping_review() -> None:
+    release = VERSION_UPGRADE_SKILL.read_text(encoding="utf-8")
+    mapping = (MAPPING_SKILL / "SKILL.md").read_text(encoding="utf-8")
+    assert "### Step 0b: Framework mapping gate" in release
+    checkpoint = release.split("### Step 0b: Framework mapping gate", 1)[1].split(
+        "\n### Step 1:", 1
+    )[0]
+    assert "[[security-framework-mapping]]" in checkpoint
+    assert "owasp_agentic" in checkpoint
+    assert "SKILL.md body" in checkpoint
+    assert "manual" in checkpoint.lower()
+    assert "### 6. Re-verify declared mappings" in mapping
+    assert "every declared identifier" in mapping
+
+
+def test_mapping_skill_standards_lists_all_ten_catalog_short_labels() -> None:
+    """The catalog's short labels are recorded, not exact PDF headings."""
     text = (MAPPING_SKILL / "references" / "standards.md").read_text(encoding="utf-8")
     for identifier, title in OFFICIAL_TITLES.items():
         assert identifier in text, f"{identifier} missing from the mapping standards"
         assert title in text, (
-            f"the official title for {identifier} ({title!r}) is not recorded "
+            f"the catalog short label for {identifier} ({title!r}) is not recorded "
             "verbatim; check it against the fetched source before changing this"
         )
 

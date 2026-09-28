@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 2: CCR reversible store
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
+**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
 **Phase**: 2 of 7 -- CCR reversible store (re-full)
 **Branch**: `feat/adoption-headroom` (continuing from Phase 1)
 **Outcome**: complete; all three sub-tasks (T005-T007) closed, all quality gates green (GO).

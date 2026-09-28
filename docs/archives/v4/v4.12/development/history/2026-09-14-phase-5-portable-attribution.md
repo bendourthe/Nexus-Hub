@@ -1,6 +1,6 @@
 # Phase 5 - Portable user attribution
 
-The user expanded v4.12.0 to protect fresh Nexus-Hub installations across supported agent platforms. The earlier history repair protected this repository only, so this phase adds a separate configured-user Git guard, installer activation, shared instructions and verification. See the [qualification record](../../../../../releases/v4/v4.12/development/portable-attribution-evidence.md) for exact results and limits.
+The user expanded v4.12.0 to protect fresh Nexus-Hub installations across supported agent platforms. The earlier history repair protected this repository only, so this phase adds a separate configured-user Git guard, installer activation, shared instructions and verification. See the [qualification record](../../../../../archives/v4/v4.12/development/portable-attribution-evidence.md) for exact results and limits.
 
 ## Implementation
 

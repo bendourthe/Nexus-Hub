@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-teach Phase 1: Core skill (solo-mode MVP)
 
 **Date**: 2026-06-08
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-teach.md`](../../plans/adoption-teach.md)
+**Plan**: [`docs/releases/v3/v3.2/plans/adoption-teach.md`](../../../../../releases/v3/v3.2/plans/adoption-teach.md)
 **Phase**: 1 of 3 -- core skill (solo-mode MVP)
 **Branch**: `feat/adoption-teach` (created off `origin/develop`, `--no-track`)
 **Outcome**: complete; all three sub-tasks (T001-T003) closed, all quality gates green.

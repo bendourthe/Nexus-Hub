@@ -132,7 +132,7 @@ DevAI-Hub is materially stronger on testing and security. Nothing to adopt.
 
 ## 9. Security and Risk Assessment
 
-This section gates Section 11. Reference: [`AGENTS.md`](../../AGENTS.md) MCP Registry Policy and [`docs/policy/mcp-reverse-engineering-matrix.md`](mcp-reverse-engineering-matrix.md).
+This section gates Section 11. Reference: [`AGENTS.md`](../../AGENTS.md) MCP Registry Policy and [`docs/policy/mcp-reverse-engineering-matrix.md`](../../../policy/mcp-reverse-engineering-matrix.md).
 
 ### 9.1 Threat Model Comparison
 

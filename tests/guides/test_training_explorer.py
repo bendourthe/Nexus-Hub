@@ -26,6 +26,54 @@ def _require_browser(render_gate: object) -> None:
         )
 
 
+def test_test_local_hostile_output_stays_inert_in_browser(
+    render_gate: object, tmp_path: Path
+) -> None:
+    _require_browser(render_gate)
+    from playwright.sync_api import sync_playwright
+
+    data = json.loads(
+        (GUIDE.parent / "example" / "training-scenes.json").read_text(encoding="utf-8")
+    )
+    hostile = (
+        '<img src=x onerror="window.__hostileFixtureRan=1"> '
+        '</script><script>window.__hostileFixtureRan=1</script>'
+    )
+    data["scenes"][0]["output"].append(hostile)
+    encoded = json.dumps(data, ensure_ascii=True).replace("<", r"\u003c").replace(
+        ">", r"\u003e"
+    )
+    html, replacements = re.subn(
+        r'(<script type="application/json" id="nh-training-scenes">\s*)(.*?)(\s*</script>)',
+        lambda match: match.group(1) + encoded + match.group(3),
+        GUIDE.read_text(encoding="utf-8"),
+        count=1,
+        flags=re.DOTALL,
+    )
+    assert replacements == 1
+    fixture = tmp_path / "hostile-training.html"
+    fixture.write_text(html, encoding="utf-8")
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        try:
+            context = browser.new_context(reduced_motion="reduce")
+            context.route(re.compile(r"^https?://"), lambda route: route.abort())
+            page = context.new_page()
+            page.goto(f"{fixture.resolve().as_uri()}#training/describe", wait_until="load")
+            page.wait_for_function("window.NexusTraining && window.NexusShooter")
+            page.locator('[data-nht="run"]').click()
+            page.wait_for_function(
+                "document.querySelector('[data-nht=\"run\"]').textContent === 'Run again'"
+            )
+            terminal = page.locator('[data-nht="terminal"]')
+            assert hostile in terminal.inner_text()
+            assert terminal.locator("img, script").count() == 0
+            assert page.evaluate("window.__hostileFixtureRan === undefined")
+        finally:
+            browser.close()
+
+
 def test_training_runtime_reduces_files_and_game_state_deterministically(
     render_gate: object,
 ) -> None:
@@ -143,7 +191,7 @@ def test_training_runtime_reduces_files_and_game_state_deterministically(
                 assert tree_paths == expected_paths
 
                 if scene["id"] == "describe":
-                    assert "<img onerror>" in terminal_text
+                    assert "<img onerror>" not in terminal_text
                     assert terminal.locator("img").count() == 0
                     source_item = page.locator(
                         '[data-nht="file"][data-file-path="src/damage.js"]'

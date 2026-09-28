@@ -1,7 +1,7 @@
 # Session History - v3.16.0 Phase 1: Defaults contract, generator, and guard
 
 **Date**: 2026-08-08
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../plans/v3.16.0-platform-defaults-config.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../../../../releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md)
 **Phase**: 1 of 5 (not the final phase; no release-readiness workflow ran)
 **Branch**: `feat/platform-defaults-config`, cut from `develop`
 **Outcome**: Complete. All four quality gates passed.

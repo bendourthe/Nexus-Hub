@@ -1,19 +1,16 @@
 """Host interpreter resolution checks for the interpreters hooks are launched with.
 
-Nexus-Hub registers its hooks as `bash <script>` (and PowerShell siblings). The
-assistant host, not Nexus-Hub, performs that launch, so if the host's `bash`
-cannot execute a script every hook is silently inert.
+Nexus-Hub registers Bash hooks on POSIX and PowerShell siblings on Windows.
+The assistant host, not Nexus-Hub, performs that launch, so the repository gate
+must probe the interpreter selected for that host.
 
-The defect this module exists for (v4.3.0 Phase 5): on Windows, `bash` on PATH is
-commonly the WSL launcher stub in System32. With no distribution installed it
-prints its notice to STDOUT and exits non-zero WITHOUT writing to stderr. A caller
-that only inspects stderr sees a silent non-zero child. In the Copilot permission
-bridge that meant every guarded tool call was denied with no actionable
-diagnostic, which reads as a broken agent rather than a missing interpreter.
+The original v4.3.0 defect involved the Windows WSL launcher stub answering to
+`bash` on PATH. Keep that probe for direct Bash diagnostics, but do not apply it
+to current Windows registrations that launch PowerShell instead.
 
-`tests/conftest.py` already handled this for the test suite by prepending Git Bash.
-Nothing checked it for a real install, and no local gate could observe it, because
-the failure depends on how the HOST resolves an interpreter name.
+`tests/conftest.py` handles Bash for the test suite by prepending Git Bash. The
+host-level probe remains necessary because tests do not validate how an assistant
+resolves the interpreter named in its installed hook command.
 
 Two consumers share this probe so the rule is stated once:
 
@@ -31,10 +28,13 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from scripts.lib.integrations._hooks_common import is_windows_host
+
 # Probe text chosen so a stub that merely prints a banner cannot pass by accident:
 # the probe must reproduce this exact marker on stdout AND exit 0.
 _PROBE_MARKER = "nexus-hub-interpreter-ok"
 _PROBE_SCRIPT = "printf '%s' '{marker}'\n".format(marker=_PROBE_MARKER)
+_POWERSHELL_PROBE_SCRIPT = f"Write-Output '{_PROBE_MARKER}'\n"
 
 _WINDOWS_BASH_CANDIDATES = (
     r"C:\Program Files\Git\bin\bash.exe",
@@ -57,11 +57,13 @@ class InterpreterStatus:
         return not self.usable
 
 
-def _run_probe(interpreter: str, script: Path) -> tuple[bool, str]:
-    """Whether `interpreter script` executes and reproduces the probe marker."""
+def _run_probe(
+    interpreter: str, script: Path, *, options: tuple[str, ...] = ()
+) -> tuple[bool, str]:
+    """Whether a shell executes the script and reproduces the probe marker."""
     try:
         completed = subprocess.run(
-            [interpreter, str(script)],
+            [interpreter, *options, str(script)],
             input="",
             text=True,
             capture_output=True,
@@ -115,6 +117,22 @@ def check_bash(*, prefer_git_bash: bool = True) -> InterpreterStatus:
         return InterpreterStatus("bash", path_bash, False, path_detail)
 
 
+def check_powershell() -> InterpreterStatus:
+    """Report whether Windows hook commands can execute a PowerShell script."""
+    resolved = shutil.which("powershell")
+    if resolved is None:
+        return InterpreterStatus("powershell", None, False, "not found on PATH")
+    with tempfile.TemporaryDirectory() as tmp:
+        script = Path(tmp) / "nexus-probe.ps1"
+        script.write_text(_POWERSHELL_PROBE_SCRIPT, encoding="utf-8", newline="\n")
+        usable, detail = _run_probe(
+            resolved,
+            script,
+            options=("-NoProfile", "-ExecutionPolicy", "Bypass", "-File"),
+        )
+    return InterpreterStatus("powershell", resolved, usable, detail)
+
+
 def check_all() -> list[InterpreterStatus]:
-    """Every interpreter Nexus-Hub hook registrations depend on."""
-    return [check_bash()]
+    """Probe the shell selected by current host-specific hook registrations."""
+    return [check_powershell()] if is_windows_host() else [check_bash()]

@@ -1,7 +1,7 @@
 # Session History - v3.16.5 Phase 2: SVG diagram-quality contract
 
 **Date**: 2026-08-11
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../plans/v3.16.5-presentify-visual-overhaul.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../../../../releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md)
 **Phase**: 2 of 7 (not the terminal phase)
 **Branch**: `feat/v3.16.5-presentify-visual-overhaul`, worktree at `.claude/worktrees/v3.16.5-presentify`
 **Model**: Opus 5. The plan recommends the **strong** tier at high effort for this phase; Opus 5 IS the strong tier in the plan's own model map, so the pre-flight agreed with the plan and no switch was needed.

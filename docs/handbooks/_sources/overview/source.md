@@ -10,7 +10,7 @@ Each skill lives under catalog/skills/category/name/SKILL.md. Its frontmatter id
 
 ## Check before distribution
 
-scripts/validate_skills.py validates required frontmatter, strict YAML parsing, directory/name agreement and body conventions. The registry checker compares catalog entries with source metadata. Passing these checks establishes structure, not that an assistant selected or followed the skill.
+scripts/validate_skills.py validates required frontmatter, strict YAML parsing, directory/name agreement and body conventions. The registry checker compares entry metadata, aggregate counts and install reachability with the catalog source. Passing these checks establishes structure, not that an assistant selected or followed the skill.
 
 ## Adapt the shape at the boundary
 

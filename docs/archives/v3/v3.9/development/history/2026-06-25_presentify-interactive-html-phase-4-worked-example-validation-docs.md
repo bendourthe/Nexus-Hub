@@ -1,7 +1,7 @@
 # Session History - v3.9.0 presentify-interactive-html Phase 4: Worked example, validation, and docs
 
 **Date**: 2026-06-25
-**Plan**: [`../../plans/presentify-interactive-html.md`](../../plans/presentify-interactive-html.md) Phase 4 (worked example + full validator chain + CHANGELOG / known-gaps finalization)
+**Plan**: [`../../plans/presentify-interactive-html.md`](../../../../../releases/v3/v3.9/plans/presentify-interactive-html.md) Phase 4 (worked example + full validator chain + CHANGELOG / known-gaps finalization)
 **Branch**: `develop`
 **Outcome**: Complete. All three sub-tasks (4.1-4.3) done; Phase 4 exit checklist satisfied; quality gate GO. This is the FINAL phase of the plan, so the plan's Definition of Done is now met and the feature is release-ready on `develop`. Per the standing rule, no version bump / tag / push was performed - that is the separate, confirmation-gated `/update release` step.
 

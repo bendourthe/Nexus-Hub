@@ -378,6 +378,8 @@ def find_lifespan_contradictions(repo_root: Path, docs_root: Path) -> list[dict[
         match = FROZEN_BUCKET_RE.match(path)
         if not match:
             continue
+        if path[match.end():] == "known-gaps.md":
+            continue  # The minor's active carry-forward register is not frozen at release close.
         key = (int(match.group("major")), int(match.group("minor")))
         close = closes.get(key)
         if close is None:

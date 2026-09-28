@@ -14,7 +14,7 @@
 - **Starting commit**: `765c7324`
 - **Environment**: Windows PowerShell, Python 3.12.10
 - **Prior session reference**: [Phase 1 permission baseline and merge parity](2026-08-13_agent-autonomy-toggle-phase-1-permission-baseline-and-merge-parity.md)
-- **Plan reference**: [v3.17.0 agent autonomy toggle](../../plans/v3.17.0-agent-autonomy-toggle.md)
+- **Plan reference**: [v3.17.0 agent autonomy toggle](../../../../../releases/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md)
 
 Context: Phase 1 was already complete on the isolated feature branch. The branch was deliberately not synchronized with `develop` because known-gaps BG-4 records a revert-then-merge hazard that could silently delete Phase 1 work before the Phase 6 integration procedure.
 

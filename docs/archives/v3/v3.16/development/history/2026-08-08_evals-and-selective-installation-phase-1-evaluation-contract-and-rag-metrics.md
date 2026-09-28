@@ -1,7 +1,7 @@
 # Session History - v3.16.1 Phase 1: Evaluation contract and RAG metrics
 
 **Date**: 2026-08-08
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md](../../plans/v3.16.1-evals-and-selective-installation.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md](../../../../../releases/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md)
 **Phase**: 1 of 8 (not the final phase; no release-readiness workflow ran)
 **Branch**: `feat/v3.16.1-evals-and-selective-installation`, cut from `develop` at `90cdabd6`
 **Outcome**: Complete. Quality gates passed; two gaps recorded for later phases.

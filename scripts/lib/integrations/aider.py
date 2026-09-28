@@ -36,7 +36,7 @@ class AiderIntegration(MarkdownIntegration):
     def install_global(self, ctx: InstallContext) -> WriteResult:
         """Seed global attribution settings and the shared policy read path."""
         result = WriteResult()
-        self._attribution_config(Path.home(), ctx, result)
+        self._attribution_config(ctx.global_root, ctx, result)
         return result
 
     def install_workspace(self, ctx: InstallContext) -> WriteResult:
@@ -47,7 +47,8 @@ class AiderIntegration(MarkdownIntegration):
     def _attribution_config(
         self, root: Path, ctx: InstallContext, result: WriteResult
     ) -> None:
-        guide = (Path.home() / ".nexus-hub/style-guides/git-attribution.md").as_posix()
+        home = ctx.global_root if ctx.scope == "global" else Path.home()
+        guide = (home / ".nexus-hub/style-guides/git-attribution.md").as_posix()
         reads = [guide]
         if ctx.scope == "workspace":
             reads.append((ctx.target_root / "CONVENTIONS.md").resolve().as_posix())

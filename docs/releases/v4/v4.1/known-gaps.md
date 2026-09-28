@@ -85,7 +85,7 @@ Only DF-1 remains open for v4.1.0. All other categories have no open items.
 ##### DF-1 - Live optional scanners were not executed on the implementation host
 
 - **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
-- **Plan reference**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md` T025 / T032
+- **Plan reference**: `docs/archives/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md` T025 / T032
 - **Evidence**: Fixture-driven closure-gate tests pass without invoking Semgrep, gitleaks, OSV-Scanner, npm audit, pip-audit, Trivy, or Checkov. Phase 4 history records that those binaries were not present or not executed.
 - **Reason deferred**: The plan forbids adding real scanner execution to Nexus-Hub CI. Host-local binaries are optional; missing tools must remain visible as `UNAVAILABLE`.
 - **Next action**: On a machine that already has the optional tools, run the `security-audit` preset once with some, none, and all applicable scanners and keep the receipts.
@@ -107,7 +107,7 @@ Only DF-1 remains open for v4.1.0. All other categories have no open items.
 ##### QG-1 - Local full CI profile was not completed in this session
 
 - **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
-- **Evidence at deferral**: `python -m pytest tests/skills -q` passed 952 tests. `python scripts/ci/run.py --profile fast` failed `validate_unicode_safety` on untracked `docs/releases/v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md`, which is outside this plan and is not staged. The hour-scale local `--profile full` run was not completed in that session.
+- **Evidence at deferral**: `python -m pytest tests/skills -q` passed 952 tests. `python scripts/ci/run.py --profile fast` failed `validate_unicode_safety` on untracked `docs/archives/v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md`, which is outside this plan and is not staged. The hour-scale local `--profile full` run was not completed in that session.
 - **Resolution**: Pull request [#137](https://github.com/bendourthe/Nexus-Hub/pull/137) merged to `develop` at `0787ebf9` with every required check green. Post-merge workflow run `33224364101` succeeded (`smoke` + `provenance`). Remote CI is the complete-suite proof named in the original next action.
 - **Resolved in**: v4.1.1 release preparation on 2026-08-28
 
@@ -139,7 +139,7 @@ The v4.1.0 and v4.1.1 DF-1 items remain open on this ledger; v4.1.0 WN-1 and QG-
 ##### WN-1 - GitHub repository description advertises 326 skills
 
 - **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
-- **Plan reference**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md` T023 / T028
+- **Plan reference**: `docs/archives/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md` T023 / T028
 - **Evidence at deferral**: `python scripts/check_release_preconditions.py --branches --repo-settings` reported `skills: description says 326, README.md declares 328`.
 - **Resolution**: `gh repo edit` updated the description to 328 during the v4.1.2 GitHub Release step. A re-run of `python scripts/check_release_preconditions.py --branches --repo-settings` reported `OK: repository description agrees with README.md`.
 - **Resolved in**: v4.1.2 publication on 2026-08-29

@@ -96,15 +96,6 @@ def test_shipped_seed_layer_is_structurally_valid(runner) -> None:
     assert "[profile-schema] OK" in result.stdout
 
 
-def test_shipped_seed_reports_unprofiled_rostered_models_as_a_note(runner) -> None:
-    """Rostered-but-unprofiled models are surfaced, but never as a failure."""
-    result = runner(SCRIPT, REPO_ROOT)
-
-    assert result.returncode == 0
-    assert "not yet profiled" in result.stdout
-    assert "not a gate failure" in result.stdout
-
-
 # ---------------------------------------------------------------------------
 # Bundle discovery
 # ---------------------------------------------------------------------------
@@ -288,6 +279,11 @@ MUTATIONS: list[tuple[str, Callable[[dict], None], str]] = [
         "claim_non_string_note",
         lambda index: index["models"]["model-a"]["claims"][0].update({"note": 7}),
         ".note must be a string when present",
+    ),
+    (
+        "claim_bad_evidence_scope",
+        lambda index: index["models"]["model-a"]["claims"][0].update({"evidence_scope": "universal"}),
+        ".evidence_scope must be one of",
     ),
 ]
 

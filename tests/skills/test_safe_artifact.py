@@ -387,10 +387,10 @@ def test_an_existing_destination_keeps_its_own_mode(tmp_path: Path) -> None:
         pytest.skip("POSIX mode bits are not meaningful on Windows")
     destination = tmp_path / "out.json"
     destination.write_bytes(b"{}")
-    os.chmod(destination, 0o640)
+    os.chmod(destination, 0o400)
 
     safe.atomic_write_bytes(destination, b'{"updated": true}')
-    assert oct(destination.stat().st_mode & 0o777) == oct(0o640)
+    assert oct(destination.stat().st_mode & 0o777) == oct(0o400)
 
 
 def test_atomic_write_refuses_a_link_destination(tmp_path: Path) -> None:

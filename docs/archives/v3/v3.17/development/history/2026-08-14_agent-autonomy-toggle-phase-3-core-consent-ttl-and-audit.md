@@ -14,7 +14,7 @@
 - **Starting commit**: `e78fcbea`
 - **Environment**: Windows PowerShell, Python 3.12.10
 - **Prior session reference**: [Phase 2 capability model and lever verification](2026-08-14_agent-autonomy-toggle-phase-2-capability-model-and-lever-verification.md)
-- **Plan reference**: [v3.17.0 agent autonomy toggle](../../plans/v3.17.0-agent-autonomy-toggle.md)
+- **Plan reference**: [v3.17.0 agent autonomy toggle](../../../../../releases/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md)
 
 Phase 2 had established verified descriptors without writing configuration. Phase 3 consumed that contract while preserving the branch isolation and commit-only boundary required by known-gaps BG-4.
 

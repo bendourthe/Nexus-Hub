@@ -488,6 +488,14 @@ def _render_human(source: str, findings: list[Finding]) -> str:
     return "\n".join(out)
 
 
+def _configure_utf8_stdio() -> None:
+    """Keep redirected CLI output decodable across Windows code pages."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="strict")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Detect prose cliche patterns offline (stdlib only, advisory by default)."
@@ -539,4 +547,5 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
+    _configure_utf8_stdio()
     sys.exit(main())

@@ -1,7 +1,7 @@
 # Session History - v3.10.0 adoption-ruflo Phase 5: agent-setup grade + regression diff
 
 **Date**: 2026-06-30
-**Plan**: [`../../plans/adoption-ruflo.md`](../../plans/adoption-ruflo.md) Phase 5 (A3: agent-setup grade + cross-snapshot regression diff; re-partial, P2)
+**Plan**: [`../../plans/adoption-ruflo.md`](../../../../../releases/v3/v3.10/plans/adoption-ruflo.md) Phase 5 (A3: agent-setup grade + cross-snapshot regression diff; re-partial, P2)
 **Branch**: `develop`
 **Outcome**: Complete. All Phase 5 exit-checklist items satisfied; quality gate GO. Phase 5 of 6; not the final phase, so no release-readiness run.
 

@@ -1,7 +1,7 @@
 # Session History - v3.16.5 Phase 5: imagery placement intelligence
 
 **Date**: 2026-08-11
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../plans/v3.16.5-presentify-visual-overhaul.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../../../../releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md)
 **Phase**: 5 of 7 (not the terminal phase)
 **Branch**: `feat/v3.16.5-presentify-visual-overhaul` (worktree)
 **Model**: Opus 5. The plan recommends the **strong** tier at high effort, which Opus 5 is in the plan's map - the pre-flight agreed, no switch.

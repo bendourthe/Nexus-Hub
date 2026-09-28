@@ -7,7 +7,7 @@
 
 ## Highlights
 
-v2.2.0 adopts **12 of 14** CodeGraph capabilities surfaced by the v2.1.0 cross-project comparison (see [`docs/archives/v2/v2.1/comparison-codegraph.md`](../v2.1.0/comparison-codegraph.md)) and ships the Gemini-CLI-to-Antigravity-CLI transition ahead of Google's 2026-06-18 sunset. The release operationalizes a reverse-engineering-first adoption strategy: every adopted capability is classified `re-full` or `re-partial` under the MCP Registry Policy (zero outbound calls, zero credentials, zero new third-party processors).
+v2.2.0 adopts **12 of 14** CodeGraph capabilities surfaced by the v2.1.0 cross-project comparison (see [`docs/archives/v2/v2.1/comparison-codegraph.md`](../v2.1/comparison-codegraph.md)) and ships the Gemini-CLI-to-Antigravity-CLI transition ahead of Google's 2026-06-18 sunset. The release operationalizes a reverse-engineering-first adoption strategy: every adopted capability is classified `re-full` or `re-partial` under the MCP Registry Policy (zero outbound calls, zero credentials, zero new third-party processors).
 
 The Gemini CLI sunset is the time-critical anchor. Per the 2026-05-21 Google Developers Blog announcement, Gemini CLI stops serving free / Google AI Pro / Ultra / GitHub-installed users on **2026-06-18**. v2.2.0 deprecates the standalone Gemini CLI install behind an opt-in `--enterprise` flag, prints a sunset warning on every install, and verifies Antigravity CLI as the transition target via a documented install-path probe and dedicated integration tests. Phase 2 was positioned immediately after the Phase 1 installer foundation so the Antigravity transition could be cut and shipped independently if Phases 3-6 slipped; in practice all six phases shipped on schedule and v2.2.0 is the single combined release.
 
@@ -164,7 +164,7 @@ The Gemini CLI sunset is orthogonal to CodeGraph adoption but ran on the same v2
 
 ## antigravity-sdk-python adoption (A1-A8)
 
-A second v2.2.0 plan, [`plans/adoption-antigravity-sdk-python.md`](plans/adoption-antigravity-sdk-python.md), adopts 8 skill-native candidates (A1-A8) from a cross-project comparison against an external Google Antigravity SDK skill. Every candidate is pure catalog content under the MCP Registry Policy `skill-native` classification: zero code, zero runtime dependencies added to Nexus-Hub, zero outbound calls. The skill teaches users to `pip install google-antigravity` in their own project; Nexus-Hub never executes the SDK. Per the Reverse-Engineering Attribution Rule, no user-facing line names the upstream repo -- attribution lives only in [`docs/policy/mcp-reverse-engineering-matrix.md`](../policy/mcp-reverse-engineering-matrix.md).
+A second v2.2.0 plan, [`plans/adoption-antigravity-sdk-python.md`](plans/adoption-antigravity-sdk-python.md), adopts 8 skill-native candidates (A1-A8) from a cross-project comparison against an external Google Antigravity SDK skill. Every candidate is pure catalog content under the MCP Registry Policy `skill-native` classification: zero code, zero runtime dependencies added to Nexus-Hub, zero outbound calls. The skill teaches users to `pip install google-antigravity` in their own project; Nexus-Hub never executes the SDK. Per the Reverse-Engineering Attribution Rule, no user-facing line names the upstream repo -- attribution lives only in [`docs/policy/mcp-reverse-engineering-matrix.md`](../../../policy/mcp-reverse-engineering-matrix.md).
 
 ### What ships
 
@@ -239,7 +239,7 @@ Users upgrading from v2.1.1:
 ## See also
 
 - [Plan -- `docs/archive/v2/v2.2/plans/codegraph-and-antigravity.md`](plans/codegraph-and-antigravity.md)
-- [Source comparison -- `docs/archive/v2/v2.1/comparison-codegraph.md`](../v2.1.0/comparison-codegraph.md)
+- [Source comparison -- `docs/archive/v2/v2.1/comparison-codegraph.md`](../v2.1/comparison-codegraph.md)
 - [Antigravity CLI probe -- `docs/archive/v2/v2.2/antigravity-cli-probe.md`](antigravity-cli-probe.md)
 - [Antigravity CLI commands schema -- `docs/archive/v2/v2.2/antigravity-cli-commands-schema.md`](antigravity-cli-commands-schema.md)
 - [Eval baseline -- `docs/archive/v2/v2.2/eval-baseline.md`](eval-baseline.md)

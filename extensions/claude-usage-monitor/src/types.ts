@@ -124,7 +124,7 @@ export const DEFAULT_NOTIFICATION_TIMEOUT_SECONDS = 12;
 export type ColorOption = string;
 
 /** Which usage metric the urgency thresholds are evaluated against. */
-export type ThresholdMetric = "highest" | "session" | "weekly";
+export type ThresholdMetric = "highest" | "session" | "weekly" | "weeklyScoped";
 
 /** Default hex colors matching the badge colors in the settings panel. */
 export const DEFAULT_URGENCY_COLORS = {
@@ -200,7 +200,7 @@ export function getThresholdMetric(): ThresholdMetric {
   if (raw === "sonnet") {
     return "weekly";
   }
-  return raw === "session" || raw === "weekly" ? raw : "highest";
+  return raw === "session" || raw === "weekly" || raw === "weeklyScoped" ? raw : "highest";
 }
 
 /**

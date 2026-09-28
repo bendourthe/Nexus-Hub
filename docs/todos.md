@@ -1,49 +1,146 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** v4.12.0 [sole-contributor attribution](releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md) is released: published at tag `v4.12.0` (`0dabca77`), downloaded-artifact verification passed for the release asset and the GitHub source archive, and the release is reconciled into `develop` by the back-merge in PR #220. The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. The GitHub Code-sidebar contributor count remains the one open public-view item (T021 and QG-2); Insights already shows only bendourthe. Warnings WN-1 to WN-4 and quality-gate gaps QG-1 to QG-4 stay open in the [v4.12 ledger](releases/v4/v4.12/known-gaps.md).
-**Last refreshed:** 2026-09-15
+**Active work:** Historical v4.0-v4.12 plan closure and v4.13.1 and v4.13.3 implementations are integrated; v4.13.2 implement-full and v4.13.4 Training rebuild remain in isolated worktrees. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Closeout boundary:** One future-plan PR (#222, with a v4.15.1 slot collision), recovery backups with unique Git history, historical local backup ACL remediation, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
+**Last refreshed:** 2026-09-28
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
-- [ ] Implement the queued [v4.11.0 master interactive-handbooks plan](releases/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md). All source analyses and approved-build lessons, including final fullscreen, motion sequencing, headerless layout, PowerPoint export and standalone sharing, are consolidated into R01-R30, conflict resolutions and 31 mapped tasks. Implementation remains 0/7 phases and 0/31 tasks; earlier isolated command/skill drafts require reconciliation before adoption. The active guide work remains unchanged.
+- [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
+- [x] Publish the verified v4.0-v4.12 gap transfer and 29-file plan/comparison archive through PR #322, merged at `7be37f95`; [post-merge run 36210893664](https://github.com/bendourthe/Nexus-Hub/actions/runs/36210893664) passed smoke and provenance. The [v4.13 cleanup addendum](releases/v4/v4.13/docs-cleanup-report.md) records the zero-new-break link proof; older open items remain open and v4.13.1-v4.13.4 work is excluded.
+- [x] Publish the item-level v4.0-v4.12 residual inventory in [v4.13 known gaps](releases/v4/v4.13/known-gaps.md#actionable-historical-inventory): [PR #350](https://github.com/bendourthe/Nexus-Hub/pull/350) merged at `402fd5ee` after all required checks passed, and [post-merge run 36344282221](https://github.com/bendourthe/Nexus-Hub/actions/runs/36344282221) passed smoke and provenance. Source IDs and closure notes remain intact; historical plans remain archived, and transfer does not mark residuals implemented.
+- [x] Re-audit v4.4 HT-3 against current remote refs and local merge state: the 17 historical cleanup candidates are absent, while protected branches, unrelated PR #222, and other-session worktrees remain untouched. Record the dated closure in the v4.4 source ledger and v4.13 inventory.
+- [x] Evaluate v4.13.2 end to end: Claude Code 3 of 3 and Codex 1 of 1 runs reach `PLAN COMPLETE`; OpenCode ships as known gaps WN-4 and WN-7 by the user's decision; nine product defects fixed; USD 38.12 spent ([evidence](releases/v4/v4.13/development/v4.13.2-e2e.md)).
+- [ ] Publish v4.13.2 through one integration pull request to `develop`, then release v4.13.1, v4.13.2, and v4.13.3 together; a second Codex run (MT-1) waits for OpenAI quota.
+- [x] Publish the v4.13.3 owner-only legacy-backup repair through [PR #335](https://github.com/bendourthe/Nexus-Hub/pull/335): 24 current-base checks passed with one intentional skip, and [post-merge run 36233611334](https://github.com/bendourthe/Nexus-Hub/actions/runs/36233611334) passed smoke and provenance at `e5b8a32e`.
+- [ ] Remediate v4.13.3 BG-8's 21 untouched local backup files and directory after explicit approval: preserve current ACLs for rollback, restrict access, and verify ACL read-back without reading or deleting content.
+- [x] Resolve v4.13.3 WN-3's `context-manager` metadata drift: align its four mirrors with the body-owned file-map and change-impact scope, pass strict registry and whole-catalog routing checks, and pass 106 focused validator tests.
+- [x] Qualify v4.13.3 WN-4 and BG-9 locally: path-scoped diff pruning, owner-only diff ACLs, atomic publication, 45 focused integration passes with two platform skips, and 17/17 diff-aware fast checks.
+- [x] Publish and verify the v4.13.3 WN-4/BG-9 diff-report follow-up through [PR #340](https://github.com/bendourthe/Nexus-Hub/pull/340): 24 hosted checks passed with one intentional skip, and [post-merge run 36302873973](https://github.com/bendourthe/Nexus-Hub/actions/runs/36302873973) passed smoke and provenance at `6f42c0c1`.
+- [x] Qualify v4.13.1 BG-1 locally: PowerShell read and copy/move source scripts no longer re-record user edits, a `Set-Content` script remains a writer, and the focused guard suite passed 144 tests with one skip. Avoid the local full profile until BG-2 is isolated.
+- [x] Qualify v4.13.1 BG-2 locally: isolate both real installer subprocesses across Windows profile and Git paths; honor `NEXUS_HUB_HOME` for workspace state. Two installer tests and 42 organization/merger tests passed without a real-home full-profile rerun.
+- [x] Publish and verify the v4.13.1 BG-1/BG-2 repairs through [PR #341](https://github.com/bendourthe/Nexus-Hub/pull/341): 24 hosted checks passed with one intentional skip, [post-merge run 36304945996](https://github.com/bendourthe/Nexus-Hub/actions/runs/36304945996) passed smoke and provenance at `1efa46d9`, and its clean worktree and branches are removed.
+- [x] Narrow v4.13.3 WN-2 from official sources: VS Code documents personal `~/.claude/skills`, while the Copilot CLI reference omits it; the shared pointer-eligibility fact remains UNVERIFIED and release-wide freshness is unchanged.
+- [x] Resolve v4.13.3 WN-2 by separating Copilot host-specific pointer eligibility: [PR #361](https://github.com/bendourthe/Nexus-Hub/pull/361) passed 24 hosted checks with one expected skip, merged at `6d9e4c39`, and [post-merge run 36361813686](https://github.com/bendourthe/Nexus-Hub/actions/runs/36361813686) passed smoke and provenance. Copilot CLI discovery of `~/.claude/skills` remains unclaimed.
+- [x] Publish and verify the bounded v4.13.3 WN-2 source recheck through [PR #342](https://github.com/bendourthe/Nexus-Hub/pull/342): 21 checks passed with one intentional skip, [post-merge run 36307142435](https://github.com/bendourthe/Nexus-Hub/actions/runs/36307142435) passed smoke and provenance at `f4635140`, and both superseded worktrees and local branches were removed.
+- [x] Qualify v4.13.1 WN-8 locally: NUL-containing body files now emit "cannot verify body" on both hook implementations; four red-then-green cases, 165 attribution tests with one skip, and the distribution handbook freshness check passed.
+- [x] Publish and verify the separate v4.13.1 WN-8 repair through [PR #345](https://github.com/bendourthe/Nexus-Hub/pull/345): 24 checks passed with one expected skip, [post-merge run 36332865916](https://github.com/bendourthe/Nexus-Hub/actions/runs/36332865916) passed at `2c37eebf`, and its clean worktree and merged branch were removed.
+- [x] Close superseded PR #225 and delete its branch after confirming commit `b73ec420` retargeted both documents to v4.16.2 on `develop`.
+- [ ] Resolve PR #222's v4.15.1 slot collision: [recorded on the PR](https://github.com/bendourthe/Nexus-Hub/pull/222#issuecomment-5843730486); retarget and refresh the unique Mods documents or withdraw the proposal, then clear its branch.
+- [ ] Complete v4.3 WN-3's optional platform verification after the [2026-09-26 source recheck](releases/v4/v4.3/development/optional-platform-surface-recheck-2026-09-26.md): the 2026-09-27 Antigravity host list was empty and its interactive path stopped at sign-in and invalid existing settings, so authenticated discovery, Cursor UI read-back, a supported post-November workflow decision, Gemini Code Assist IDE behavior, and Nexus-AI project-local discovery remain unproved.
+- [x] Publish the bounded v4.10 evaluation-isolation source recheck through [PR #312](https://github.com/bendourthe/Nexus-Hub/pull/312): 21 hosted checks passed with one intentional skip, and [post-merge run 36130699528](https://github.com/bendourthe/Nexus-Hub/actions/runs/36130699528) passed smoke and provenance. EV-1 and EV-2 remain open for tested all-source isolation.
+- [ ] Complete v4.9 MT-1's live Claude model-ID roster freshness; the recorded roster still carries its 2026-09-08 date. The 2026-09-27 Claude Team `/model` picker offered Opus 5.5, but it and the local helper expose no complete canonical Claude Code ID roster. Preserve the old roster date until a supported complete-ID read path and deterministic profile qualification exist.
+- [ ] Close v4.9 MT-3 with a preserved real deck that exposes actual `.slide-stage` sections or a separately verified runtime-deck path. A [read-only runtime render](archives/v4/v4.9/development/runtime-deck-render-2026-09-27/verification.md) reached 15 historical slides; its claimed viewport-floor failures were corrected by [stage-height evidence](archives/v4/v4.9/development/runtime-deck-stage-floor-correction-2026-09-27/verification.md). A [four-viewport build-state follow-up](archives/v4/v4.9/development/runtime-deck-four-viewport-build-state-2026-09-27/verification.md) sampled 292 fragment completions and found slides 2 and 6 over the eight-fragment budget. The legacy static checks remain `unchecked`, and semantic build order, figure re-layout, and all-state rendered coverage still need qualification.
+- [x] Correct v4.9 MT-3's historical floor denominator without rewriting the original run: all four sampled viewport minima exceed 2% of the rendered stage height, and an undersized in-memory control fails.
+- [ ] Coordinate repair of the stale user-level Claude SessionStart registration after the active Claude session ends: `~/.claude/settings.json` invokes `retire-provider-override.py`, which was absent on the 2026-09-27 host check, so Claude Code reported a hook error at startup. This host configuration item is not a v4.13 release blocker; do not modify shared settings during another session's work.
+- [x] Publish and post-merge verify v4.9 WN-1's machine-readable evidence-scope correction: PR #348 passed 24 hosted checks with one expected skip, merged at `44c00615`, and post-merge run 36342358795 passed smoke and provenance. The 20 annotated claims retain their prior roster and model verification dates.
+- [x] Publish the three GPT-5.6 family-scoped profiles through protected integration: [PR #316](https://github.com/bendourthe/Nexus-Hub/pull/316) merged at `65baca12`, and [post-merge run 36162158349](https://github.com/bendourthe/Nexus-Hub/actions/runs/36162158349) passed smoke and provenance. The separate Haiku 4.5 claim-only profile was published through [PR #314](https://github.com/bendourthe/Nexus-Hub/pull/314).
+- [x] Qualify the three recorded GPT-5.6 profiles locally with official family guidance, independent refutation, generated mirrors, a 16-of-16 schema result, and 123 passing focused tests; keep live-roster completeness separate. See the [bounded verification](archives/v4/v4.9/development/gpt56-family-profiles-2026-09-25/verification.md).
+- [x] Qualify v4.4 MT-446-3 against hosted Ubuntu Chromium: 384 guide and visual-detector browser tests passed, one optional sibling-copy test skipped, and the tested guide and test blobs match current `develop`. Archive the [Linux browser evidence](archives/v4/v4.4/development/guide-linux-browser-qualification/verification.md); keep the separate manual, native-zoom, and full-profile gates open.
+- [x] Narrow v4.4 MT-446-2 with [native 200% browser-zoom evidence](archives/v4/v4.4/development/native-zoom-qualification/verification.md): 16 route/theme combinations have zero document-level horizontal overflow, while a minimal scrolled screenshot control and OS visibility delivery fail in the automation harness. Keep visual scrolling and occlusion open.
+- [x] Recover scrolled v4.4 native-zoom capture through [direct Chrome evidence](archives/v4/v4.4/development/native-zoom-cdp-qualification/verification.md): 32 top/end views cover 16 route/theme states at 200%, with representative viewports inspected and zero measured horizontal overflow. Keep full manual scrolling and real OS-occlusion checks open.
+- [x] Close v4.4 WN-446-2 for current `develop` with [CodeQL run 36106037432](https://github.com/bendourthe/Nexus-Hub/actions/runs/36106037432): both language jobs passed, no branch-open alert targets the guide, and the old #236 instance remains confined to PR #156. Archive the [bounded rescan](archives/v4/v4.4/development/codeql-cq1-rescan/verification.md).
+- [x] Qualify the v4.4 Windows full profile with process-local Git Bash: 61 commands and all 13 test partitions passed at `bb3b2b97`; current-tip fast 17/17 and docs 8/8 passed. Archive the [bounded receipt](archives/v4/v4.4/development/full-native-profile-2026-09-25/verification.md) while preserving the historical failed run.
+- [x] Close v4.4 QG-446-1: the default-host interpreter follow-up passed the unmodified Windows gate and an unfiltered 61/61-command full profile; [PR #319](https://github.com/bendourthe/Nexus-Hub/pull/319) merged at `e8c34ef0`, and [post-merge run 36188249570](https://github.com/bendourthe/Nexus-Hub/actions/runs/36188249570) passed smoke and provenance. The [archived qualification](archives/v4/v4.4/development/windows-interpreter-default-host/verification.md) preserves the local receipt without rewriting the historical failed run.
+- [x] Relocate the two v4.0 living CI documents to purpose-based roots, refresh current-runner and repository-settings claims, and prove zero newly broken links with the [scoped move report](releases/v4/v4.13/docs-cleanup-report-v4.0-post-tag.md).
+- [x] Qualify the next v4.0 lifespan slice locally: move the normative CI contract to `docs/policy/`, archive three dated CI audits, repair live citations, and pass 55 lifecycle tests, fast 17/17, and a zero-new-break link diff.
+- [x] Publish the v4.0 contract-and-audit disposition through PR #306: 32 hosted checks passed with one expected skip, post-merge smoke and provenance passed at `e3b51879`, and the merged-tree detector reports exactly two historical plans in v4.0.
+- [x] Publish the v4.0 WN-2 lifespan closure: PR #322 archived both plans with a 62-box task reconciliation; [PR #324](https://github.com/bendourthe/Nexus-Hub/pull/324) archived the dated last-phase evidence and repaired its links, and [post-merge run 36213266327](https://github.com/bendourthe/Nexus-Hub/actions/runs/36213266327) passed smoke and provenance at `2a212fca`.
+- [x] Resolve v4.7 MT-1's hosted observation gate: manual `develop` supply-chain watch run 36034068237 passed with 143 dependencies and no findings; v4.7.0 assets matched `SHA256SUMS` and GitHub verified the tarball attestation. Archive the frozen evidence.
+- [x] Close v4.7 DF-1 as superseded by the user's v4.4.5 guide restoration; retain the rejected v4.4.6 plan unchanged and archive the model-map disposition. Recheck DF-2 against the installed Codex picker and keep it open because `gpt-6-astra` remains absent.
+- [x] Qualify v4.7 DF-3 locally: centralize the template roster and section-body helper in the parity module, retain four named rule tests, add `base-pi.md` construction coverage, pass 152 affected tests and the 17-command fast gate, and archive the bounded preservation record.
+- [x] Publish v4.7 DF-3 through protected PR #292: 24 hosted checks passed with one intentional render skip, GitHub merged at `bea7ab9a`, and post-merge run 36077657119 passed smoke and provenance.
+- [x] Resolve v4.5 DF-3's detector proposal: nine candidate lines include legitimate technical corrections, so the required clean false-positive condition fails. Archive the finding and retain manual Edit-mode judgment for both prose patterns.
+- [x] Close v4.5 WN-3's Fable 5.1 profile mismatch against the 2026-09-08 refresh, structural validator, and 62 focused tests; retain v4.9 MT-1's four separate source-availability gaps.
+- [x] Reconcile v4.4 DF-1 against the later five-mark approval ledger and shipped guide: 49 focused tests and the current both-theme browser matrix pass; archive the bounded disposition without changing approved assets.
+- [x] Produce the bounded v4.5 DF-2 shared-writable-service and transitive-reachability records without inspecting credentials or changing the host; the local shared checkout and unevidenced egress boundary keep DF-2 open.
+- [x] Recheck v4.3 WN-3's optional paths: qualify Antigravity CLI's shared global hook registration and Nexus-AI's global skills reader from current primary sources; archive the bounded evidence while retaining unverified optional paths.
+- [x] Read v4.3 WN-2's repository artifact retention and merge-queue state through GitHub's read-only APIs; archive the values and keep the billing-minute gate open.
+- [x] Close v4.3 WN-2 through PR #308's public-standard-runner billing applicability and current repository-setting read-backs; account-wide usage remains unclaimed.
+- [ ] Decide and implement per-session executor, writable-state, credential, and egress boundaries before claiming v4.5 DF-2 isolation; repeat the real-host audit after those controls exist.
+- [x] Resolve v4.9 WN-2 with a process decision: retain fresh claim evidence across models, omit redundant Opus 5 self-check prompts, and align the profile index and generated reference. Archive the bounded verification.
+- [x] Close v4.9.0 WN-1 locally: move only the ignored synthetic harness residue to the Windows Recycle Bin and verify that the separate answer archive remains present.
+- [ ] Repair v4.7 WN-2: the scheduled `main` supply-chain watch still audits vulnerable `setuptools` 79.0.1. Publish a fixed default-branch environment through the protected release path and observe a passing `main` run.
+- [x] Published and verified cross-version CI report retention through PR #235: seven jobs upload seven-day bundles, direct guide and Windows native tests emit JUnit, and five report artifacts were visible in hosted run 35799198474. The post-merge smoke and provenance run 35801251735 passed.
+- [x] Published and verified the v4.0-v4.13 gap guards and SVG chart correction through PR #236; all hosted checks and post-merge smoke/provenance passed at `3c90d688`.
+- [x] Close v4.8 WN-C locally: `make dev` installs all six extension development extras, the README supplies the direct Windows command, pip resolves it in dry-run mode, and the 16-check native fast profile passes.
+- [x] Publish and verify the v4.8 WN-C follow-up on merged `develop` through PR #237 and post-merge run 35808379460.
+- [x] Reconcile v4.8 WN-I with the v4.9 Windows-held-handle fix and focused regression coverage; preserve the original intermittent failure record and its limits.
+- [x] Audit v4.8 WN-F's 15 OWASP-tagged skills against current source and body actions, archive the 24-mapping snapshot, and add a manual release-time re-verification handoff.
+- [x] Publish and verify the v4.8 WN-A guide-byte optimization: PR #267 merged as `dc439012` after 21 successful checks; post-merge run 35935340043 passed smoke and provenance. The 500,000-byte ceiling remains, with 495,467 normalized bytes and four locally reviewed near-zero-difference browser renders.
+- [x] Qualify v4.8 WN-3 on the Windows development host: select Git Bash and installed Ruff on a process-local path; the original lint-autofix test file passed 7/7 with zero skips in an isolated worktree. Archive the bounded host evidence without changing hook behavior.
+- [x] Mitigate v4.13 WN-5 for future trigger pilots: persist bounded `Skill` selector evidence in normal and timeout rows without retaining prompt payloads; the original 96 calls remain unauditable.
+- [x] Close v4.9 MT-2 with named cross-host proof: the nine Windows-skipped filesystem cases all passed on Ubuntu WSL, and the Windows run passed its applicable 90 cases.
+- [x] Qualify the v4.12 WN-2 tool-lock candidate locally: a universal all-extras Python lock, pinned npm/apt/Docker inputs, 95 workflow/security checks, constrained pip resolution, and 54 plus 380 no-network Docker passes.
+- [x] Publish the tool-lock branch and verify hosted and post-merge results before closing v4.12 WN-2: PR #238 passed the final hosted head and post-merge run 35810094225.
+- [x] Publish and verify the v4.12 WN-4 Windows settings-replacement repair: PR #326 passed 24 checks with one intentional skip, merged at `5fd7f985`, and post-merge run 36217288553 passed smoke and provenance. The [archived qualification](archives/v4/v4.12/development/wn4-atomic-replace/verification.md) retains the failed first run and the original denying-process uncertainty.
+- [x] Verify the v4.13 WN-2 tool-span attributes against the same pinned sibling specification and exercise the trace example: 184 passed, two host skips, docs 8/8, fast 17/17.
+- [x] Publish and verify the v4.13 WN-2 span-contract follow-up: PR #239 passed all hosted checks and post-merge run 35813788600.
+- [x] Qualify the v4.3 DF-5 ownership-guard repair locally: 668 adapter and installer tests passed, fast 17/17 passed, and a real CLI dry-run refused a linked `.copilot` root with zero external writes.
+- [x] Publish and verify the v4.3 DF-5 ownership-guard repair: PR #240 passed all hosted checks and post-merge run 35817524653.
+- [x] Qualify the v4.3 CI follow-up locally: general inline validators moved into profiles, guide and Windows pip caches keyed to scoped manifests, and the report profile plus aggregate job passed 256 CI/workflow tests with 17 skips, fast 17/17, and docs 8/8.
+- [x] Publish the v4.3 CI follow-up through PR #241: all hosted jobs passed, guide caches had warm key hits, the seven-day aggregate artifact contained five source receipts, and post-merge run 35820761181 passed.
+- [x] Observe a warm Windows pip cache hit on PR #242 and close v4.3 DF-1/DF-2 after the hosted profile and cache checks passed.
+- [x] Publish the v4.2 Unicode validator gap repair through PR #242; all hosted checks and post-merge run 35822538895 passed.
+- [x] Produce local CI-engine coverage XML and catalog-scanner SARIF from the existing profile commands; 107 CI tests passed, the scoped coverage report recorded an 0.8832 line rate, and the scanner emitted 48 below-threshold findings in SARIF 2.1.0.
+- [x] Publish and inspect both real report types in PR #243's seven-day hosted aggregate; the replacement run passed 30 checks with one intentional skip, and post-merge run 35826047174 passed.
+- [x] Merge PR #244 after its refreshed run passed all 18 jobs; post-merge run 35828234631 passed smoke and provenance.
+- [x] Reconcile the v4.12 BG-2 ledger against PR #244 and its post-merge proof; keep GitHub contributor and direct API boundaries separate.
+- [ ] Resolve v4.12 QG-2's public Code sidebar discrepancy through GitHub Support or a fresh rendered correction; a 2026-09-25 browser recheck still shows five despite one-contributor API and current branch histories. The [Support handoff draft](archives/v4/v4.12/development/contributor-sidebar-recheck-2026-09-24.md) is ready; no ticket has been submitted.
+- [x] Merge PR #245 and preserve the original interrupted full-profile report; post-merge run 35828718066 passed.
+- [x] Recheck the v4.9 MT-1 primary sources without fabricating four per-model profiles; PR #248 merged at `f1354d47`, and post-merge run 35833196149 passed smoke and provenance.
+- [x] Qualify and publish the v4.12 BG-3 durable attribution hook through PRs #249 and #250; both passed hosted and post-merge checks. Remove both clean installer worktrees, verify the surviving guard from a second Windows checkout, and prove it rejects a forbidden attribution trailer.
+- [x] Merge PR #249 for the durable hook copy, verify post-merge run 35838028055, and remove its clean installer worktree; its LF/CRLF source-check follow-up was published through PR #250.
+- [x] Move the two unregistered cache/report residue folders to the Windows Recycle Bin after exact-path checks; the 15 report files matched the archived original failure ZIP byte-for-byte. The folders are recoverable and no longer occupy the worktree parent.
+- [x] Close v4.4 WN-446-1 against PR #235's hosted `ci-guide-render-report` and seven-day expiry; the rejected v4.4.6 guide remains superseded.
+- [x] Preserve the 47-file local change set at `f663f6c3` until its stable patch ID matches merged `79f5283c`; remove the redundant local recovery branch after that proof and keep the corrected PR #259 result on `develop`.
+- [x] Configure `develop` and `main` for pull-request-only integration, strict required checks matching `docs/policy/required-checks.json`, administrator enforcement, and force-push/deletion blocks; verify the live API read-back.
+- [x] Prove the protected merge gate with docs-only PR #252: GitHub reported `BLOCKED` with queued required checks, then `CLEAN` after all five reported `SUCCESS`.
+- [x] Merge PR #252 without bypass; post-merge run 35889175597 passed smoke and provenance at `a15141fd`, and its clean temporary worktree and local branch were removed.
+- [x] Qualify v4.8 MT-1 locally: 12 capture-helper tests passed with 95% focused statement coverage; 19 visual-regression tests passed and installed Chrome produced a valid PNG from local HTML.
+- [x] Publish v4.8 MT-1 through PR #253; post-merge run 35892974324 passed smoke and provenance at `a65eba6b`, and its clean worktree and merged local branch were removed.
+- [x] Reconcile the 62 historical v4.0 CI plan tasks against eight phase histories, implementation commits, 313 current CI/lifecycle tests, PR #124's original post-merge failure, and later corrective publication; preserve original task boxes and archive the audit.
+- [x] Publish the v4.0 CI task reconciliation through PR #254; post-merge run 35894321320 passed smoke and provenance at `8b218de1`, and its clean worktree and merged local branch were removed.
+- [x] Resolve v4.4 BG-48 locally: remove the hostile sentence from shipped scene data, preserve source/inline parity, and prove hostile text stays inert in a test-created browser page; 131 focused tests passed with one optional skip and the changed-path fast profile passed 14/14.
+- [x] Publish the v4.4 BG-48 guide repair through protected PR #255; post-merge run 35897196668 passed smoke and provenance at `20bc793b`.
+- [x] Resolve v4.4 BG-46/BG-47 locally: shorten the mobile Training heading, compact the fullscreen idle reply, preserve the completed-state coverage floor, pass 154 affected tests with one optional skip and fast 17/17, and archive six inspected screenshots with a verification record.
+- [x] Publish the v4.4 BG-46/BG-47 layout follow-up through protected PR #256; post-merge run 35900053832 passed smoke and provenance at `804c3a1b`, and its clean temporary worktree and local branch were removed.
+- [x] Qualify a bounded v4.11 MT-5 temporal guard locally: 59 measurement tests and six focused controls passed; exact source-mapped DOM text is observed between settled frames, while absent mappings remain unchecked.
+- [x] Publish the v4.11 MT-5 temporal guard through protected PR #257; post-merge run 35903717333 passed smoke and provenance at `5e80f22e`, and its clean temporary worktree and local branch were removed.
+- [x] Correct PR #259's premature v3.18 and v3.5 archive moves: restore five plan and comparison files to active release directories, repair their inbound links, and require explicit zero-open-items proof before any future closed-minor archive advisory. v3.18 BG-2 remains open; v3.5 lacks a known-gaps register.
+- [x] Record the model-map placement guard and non-final-phase test-scoping decisions in the living decision tree, with their alternatives, accepted trade-offs, and executable owners.
+- [x] Map the retained five-slide presentation's source-backed DOM numbers, verify 20 temporal observations across ten viewports, and archive the bounded MT-5 closure; current repository handbooks remain `unchecked` because their sources have no numeric facts.
+- [ ] Resolve v4.13 BG-7's per-call spend overshoot and rerun a newly frozen trigger pilot only after the approved USD 35 hard ceiling is enforceable; the 2026-09-23 attempt stopped after two unknown-selection calls, and the [provider-cap preflight](archives/v4/v4.13/development/trigger-pilot-2/provider-cap-preflight-2026-09-24.md) found the current Team login is not a capped Console workspace key.
+- [x] Qualify a local v4.13 BG-7 safety repair: reject non-finite or missing cost as free, persist an in-flight receipt before each call, and stop after an observed per-call overrun; this does not satisfy the USD 35 hard ceiling or authorize a live rerun.
+- [x] Close v4.13 WN-4's unreachable pilot criterion at the protocol-design level: the archived second protocol permits zero false positives while requiring a positive-selection gain; its aborted run remains `UNMEASURED` under BG-7.
 
 ---
 
-## Evidence-driven agent improvement (v4.13.0)
-
-Phases 1-7 of the [v4.13.0 plan](releases/v4/v4.13/plans/v4.13.0-adoption-evidence-driven-agent-improvement.md) are implemented and locally committed on `feat/v4.13.0-evidence-driven-agent-improvement`, one commit per phase, no push. Phase 6 measured the trigger pilot (96/96 calls, USD 20.6709, `MEASURED_NO_CHANGE`, nothing promoted). Phase 7 ran the ten final-phase duties; its two independent reviews found four real defects in work the earlier phases had already evidenced, including seven document controls that asserted a `str.replace` tautology and a Windows junction that defeated the distributed trace script's output guard. All are fixed with regression tests and recorded in [last-phase-evidence.md](releases/v4/v4.13/development/last-phase-evidence.md). Remaining: T034 publication, which needs explicit approval before the plan's single push. Open gaps are WN-2 through WN-6 in the [v4.13 ledger](releases/v4/v4.13/known-gaps.md); DF-1, QG-1, WN-1 and BG-1 to BG-6 are resolved.
-
-- [x] Phase 1 (A1): judge sensitivity foundation - frozen synthetic fixture, evaluator-validation Step 6, audit routing under concern 4.
-- [x] Phase 2 (A6): pinned agent span contract and a metadata-only runnable trace example; unsafe logging example replaced.
-- [x] Phase 3 (A2): observation-to-regression chain with an independent oracle and byte-exact rollback.
-- [x] Phase 4 (A4): smallest-useful-representation ladder with both near-misses guarded.
-- [x] Phase 5 (A5): optional context-fact freshness procedure and controlled-clock disposition matrix.
-- [ ] Phase 6 (A3): bounded trigger pilot - BLOCKED on the entry prerequisite; requires a separately scoped runner decision.
-- [ ] Phase 7: architecture refactor, known-gaps reconciliation, CI/CD and integration.
-
 ## Portable attribution extension
 
-Local feature implementation and qualification are complete: all 47 Linux full-profile commands and 15 Windows fast-profile commands pass, with real Windows and Linux installer verification. Normal integration passed through PR #217 and post-merge run 34925451808; v4.12.0 is published and its downloaded artifacts are verified, recorded in the [portable evidence](releases/v4/v4.12/development/portable-attribution-evidence.md). The public Code contributor display remains open independently.
+Local feature implementation and qualification are complete: all 47 Linux full-profile commands and 15 Windows fast-profile commands pass, with real Windows and Linux installer verification. Normal integration passed through PR #217 and post-merge run 34925451808; v4.12.0 is published and its downloaded artifacts are verified, recorded in the [portable evidence](archives/v4/v4.12/development/portable-attribution-evidence.md). The public Code contributor display remains open independently.
 
-- [x] Implemented approved v4.12 Phase 5: installable Git attribution guard, both installers, all platform instructions, installed-behavior verification and release preparation. See [the active plan](releases/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md).
+- [x] Implemented approved v4.12 Phase 5: installable Git attribution guard, both installers, all platform instructions, installed-behavior verification and release preparation. See [the active plan](archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md).
 
 ## Scores
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.12.0 implementation tasks complete | 27 | 28 | 1 |
+| v4.12.0 implementation tasks complete | 28 | 28 | 0 |
 | v4.12.0 implementation phases complete | 4 | 5 | 1 |
 | v4.11.0 interactive-handbook phases complete | 7 | 7 | 0 |
 | v4.11.0 interactive-handbook tasks complete | 31 | 31 | 0 |
 | v4.11.0 accepted native authoring families | 2 | 3 | 1 |
 | v4.10.0 implementation tasks complete | 26 | 26 | 0 |
+| v4.10.1 implementation tasks complete | 34 | 34 | 0 |
 | v4.11.1 comparison and plan prepared | 2 | 2 | 0 |
-| v4.11.1 implementation tasks complete | 9 | 25 | 16 |
+| v4.11.1 implementation tasks complete | 25 | 25 | 0 |
 | v4.13.0 comparison and plan prepared | 2 | 2 | 0 |
-| v4.13.0 implementation tasks complete | 33 | 34 | 1 |
+| v4.17.3 harness-economics comparison and plan prepared | 2 | 2 | 0 |
+| v4.13.0 implementation tasks complete | 34 | 34 | 0 |
 | v4.4.5 baseline guide/test files restored | 59 | 59 | 0 |
 | Exact production-file restorations | 3 | 3 | 0 |
 | v4.4.1 guide-visual-and-arcade-rebuild phases complete | 7 | 7 | 0 |
@@ -51,23 +148,46 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 | v4.4.2 local phase commits | 8 | 8 | 0 |
 | Prior v4.4.2 release blockers (historical) | 0 | 0 | 0 |
 | Restored views with page errors or horizontal overflow | 0 | 0 | 0 |
-| Catalog skills | 336 | 336 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 497,896 | < 500,000 | met |
+| Catalog skills | 337 | 337 | 0 |
+| Canonical guide bytes (strict ceiling 500,000) | 495,467 | < 500,000 | published and post-merge verified |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
 
-## Queued work - v4.10.0 plan-queue continuity and re-sequencing
+## Current closure - v4.10.1 eval isolation and adaptive compaction
 
-- [ ] Implement the [v4.10.0 plan-queue continuity plan](releases/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md): make /compare, /plan, /implement and /update release each account for the other queued plans, and add a ranked re-ordering recommendation with an assisted renumber behind explicit confirmation. Authored 2026-09-10; 25/26 tasks; all five build phases and every Phase 6 last-phase duty landed 2026-09-10. Remaining: the single publication, which awaits explicit approval. One skill and one enumeration script own the rule; the four commands delegate. Sequenced first deliberately, so its own ordering recommendation can sequence the rest of the queue rather than being applied after the fact.
+- [x] Published and integrated the completed [v4.10.1 adoption plan](archives/v4/v4.10/plans/v4.10.1-adoption-eval-isolation-and-adaptive-compaction.md) through PR #232, merged to `develop` at `c54dbeb4`. T034 is complete; no retroactive v4.10.1 tag is planned.
+- [x] Archive the late Phase 7 history in `docs/archives/v4/v4.10/development/history/` and repair the retention check that missed source files when the destination already existed; 19 focused tests and the link baseline pass.
+- [x] Close v4.10 WN-1 through PR #262: the residual scan now includes documentation JSON while excluding generated inventories; 17 focused tests, all hosted checks, and post-merge run 35925138595 passed. Archive the [qualification record](archives/v4/v4.10/development/residual-reference-json/verification.md) without moving the still-open v4.10 release tree.
+- [x] Verify v4.10 MT-2 in installed VS Code 1.139.0: the packaged v0.10.0 VSIX painted both weekly bars in the status-bar hover and dashboard with synthetic stored values, 20 tests passed, and [screenshots plus pixel measurements](archives/v4/v4.10/development/weekly-bars-host-render/verification.md) are archived. Live account fetching remains outside this host test.
+- [x] Qualify v4.10 WN-4 locally: the opt-in scoped threshold uses account-reported data, stays silent when the scoped limit is absent, and leaves the default unchanged. The 24 extension tests, 17-command fast profile, and packaged VSIX host run passed; [verification](archives/v4/v4.10/development/scoped-weekly-alert/verification.md) is archived.
+- [x] Publish v4.10 WN-4 through protected PR #285: 25 checks passed with one intentional render skip, GitHub reported `CLEAN`, and post-merge run 36061129117 passed smoke and provenance at `9a8fc257`.
 
-## Queued work - v4.11.1 cache accounting and diagram quality
+## Current closure - v4.11.1 cache accounting and diagram quality
 
-- [ ] Implement the published [v4.11.1 adoption plan](releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](releases/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md). Published to develop through [PR #194](https://github.com/bendourthe/Nexus-Hub/pull/194) on 2026-09-09; implementation is 3/6 phases and 9/25 tasks complete, reconciled from the preserved local cache branch on 2026-09-14; Phases 4-6 remain open. Correct cache accounting first, then extend existing prompt and diagram owners; preserve separate v4.11.0 handbook and v4.13 evaluation responsibilities.
+- [x] Published and integrated the completed [v4.11.1 adoption plan](archives/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md), seeded by the [completed comparison](archives/v4/v4.11/comparisons/v4.11.1-comparison-cache-and-diagram-quality.md), through PR #232 at `c54dbeb4`. T025 is complete. `MT-10` remains open for authored connector diagrams that use `<path>`; one real bar-chart SVG is now decidable, while the distribution handbook's five path SVGs are icons, not diagrams.
+- [x] Qualify the retained v4.11 report pilot's authored connector diagrams against both geometry checks; four isolated SVGs remain `unchecked` because straight and cubic paths share each diagram. Archive the bounded result in [authored connector geometry qualification](archives/v4/v4.11/development/authored-connector-geometry-qualification.md); MT-10 remains open for a truthful mixed-path coverage contract.
+- [x] Publish and verify the v4.11 MT-10 exact-path follow-up through PR #269 and post-merge run 35940086752: both checks decide the four retained authored diagrams, an inserted unrelated node fails the return-curve check, and unsupported path geometry remains `unchecked`.
 
-## Queued work - v4.13.0 evidence-driven agent improvement
+## Current closure - v4.0 inherited gaps
 
-- [ ] Qualify an existing native runner for the two-model trigger pilot before starting the seven-phase, 34-task implementation plan: prove observed skill loading, bounded calls/time/spend, and isolated synthetic context. Planning documents are in [PR #189](https://github.com/bendourthe/Nexus-Hub/pull/189); keyword-only evaluators do not satisfy the prerequisite. The v4.9 audit and handbook work retain their existing owners.
+- [x] Qualify v4.0 WN-1 in a disposable Windows virtual environment: all six extension development extras install through the documented editable path, with 828 tests passed and four skipped. Repair the discovered non-editable wheel duplicate and missing benchmark corpus; the installed wheel passes 381 code-search tests and its benchmark gate.
+- [x] Publish the v4.0 WN-1 extension and wheel follow-up through PR #287: 22 checks passed, post-merge run 36066086467 passed smoke and provenance at `7a46cc37`, and the clean temporary worktree and local branch were removed.
+- [x] Locally close agent-communication DF-1 and MT-3 with the 13-template release gate and an actual Python 3.11 grammar check; 127 focused tests and the 17-command native fast profile pass.
+- [x] Reconcile BG-6 with the v3.18 withdrawal decision: the deleted drawdown ledger stays deleted by design, and the superseded decision record now gives the exact Git-history recovery command instead of dead links.
+- [x] Close v4.0 BG-2 locally: explicit global targets now isolate platform writers, defaults, Copilot, OpenClaw, and organization-knowledge lookup; host cleanup is skipped for redirected installs. A fake-home sentinel regression, 146 affected-suite passes, and the 17-check native fast profile verify the change.
+- [x] Publish the v4.0 gap-guard branch after the CI-report branch: PR #236 merged at `3c90d688`, and post-merge run 35806121300 passed. MT-1 remains a bounded prose-compliance limitation.
+- [x] Repair the SVG routing false positive found on a real worked-example bar chart: earlier gridlines hidden by later opaque bars are not visible connector crossings. The 94-test visual-QA module passes, and both geometry checks now decide that chart without a high-severity finding.
+- [x] Publish the v4.11 MT-9 slide-series structure check: PR #247 merged at `03432fad` after 21 passing checks and one expected skip; post-merge run 35832863295 passed smoke and provenance. Generic control liveness remains open.
+- [x] Qualify the v4.11 MT-9 declared-control behavior candidate locally: second-slide inert and detached-chart controls fail, working and setup-dependent idempotent controls pass, and standalone Chromium CLI evidence separates the guard verdict from unrelated fixture failures.
+- [x] Publish the declared-control behavior guard through protected PR #297 and verify post-merge smoke and provenance at `f3ee786a`.
+- [x] Inventory and exercise all 34 initial controls plus both dynamically created image-close controls in the retained v4.11 report pilot; 31 Chromium browser tests pass, including an inert-stage negative control, and the three declared scorer observations pass independently of the pilot's 629 page errors.
+- [x] Publish the retained-pilot control qualification through PR #298; 21 hosted checks passed with one expected skip, and post-merge run 36097633753 passed smoke and provenance at `1ae58ad5`. MT-9 is closed for the retained pilot; unmapped controls in future handbooks remain `unchecked`.
+- [x] Bind v4.9 QG-1 to PR #190's final green Windows, Linux, and aggregate checks; leave MT-2's per-case platform skip question open.
+
+## Queued work - v4.17.3 harness economics and portable engineering systems
+
+- [ ] Implement the approved [v4.17.3 adoption plan](releases/v4/v4.17/plans/v4.17.3-adoption-harness-economics-and-portable-engineering-system.md), seeded by the [completed comparison](releases/v4/v4.17/comparisons/v4.17.3-comparison-harness-economics-and-portable-engineering-system.md). The queued plan defines five phases and 52 tasks for explicit unattended-loop outcomes, a serial repository-local harness evaluator with enforceable live-run gates, and provider-aware shared project instructions with one platform-neutral `base-agents.md` owner. Implementation is 0/5 phases and 0/52 tasks.
 
 ## Current work - v4.4.5 visual refinement
 
@@ -116,11 +236,11 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [x] Keep prompt text plain until its matching box activates, slow both annotation sequences, and compact attachment thumbnails beside their labels; 145 focused tests, 12 layout checks, four timing cases, and 36 preview interactions pass, with one test skipped. See [verification](releases/v4/v4.4/development/guide-visual-refinement/prompt-animation-and-attachments/verification.md).
 
-- [ ] Fix the pre-existing two-pixel internal overflow in Agentic Platforms at 320 pixels, reproduced before and after the context-preview change. See [baseline evidence](releases/v4/v4.4/development/guide-visual-refinement/context-previews/baseline-overflow.json).
+- [x] Fix the pre-existing two-pixel internal overflow in Agentic Platforms at 320 pixels. The current guide passes `test_all_pages_meet_contrast_and_overflow_matrix`; retain the [original baseline evidence](releases/v4/v4.4/development/guide-visual-refinement/context-previews/baseline-overflow.json).
 
-- [ ] Improve the pre-existing Home guardrail pill contrast in light mode (4.462:1 against a 4.5:1 target). See [baseline evidence](releases/v4/v4.4/development/guide-visual-refinement/models-rebuild/baseline-sweep.json).
+- [x] Improve the pre-existing Home guardrail pill contrast in light mode. The current guide passes `test_all_pages_meet_contrast_and_overflow_matrix`; retain the [original 4.462:1 baseline evidence](releases/v4/v4.4/development/guide-visual-refinement/models-rebuild/baseline-sweep.json).
 
-- [ ] Reconcile five pre-existing guide assertions for the approved prompt labels/highlights, Home session dialogue, and the cx-png marker. All failures reproduce before the Models rebuild; see [verification](releases/v4/v4.4/development/guide-visual-refinement/models-rebuild/verification.md).
+- [x] Reconcile five pre-existing guide assertions for the approved prompt labels/highlights, Home session dialogue, and the cx-png marker. The current focused guide set passes 126 tests with one expected optional skip; retain the [original failure record](releases/v4/v4.4/development/guide-visual-refinement/models-rebuild/verification.md).
 
 ## Plan - v4.4.6 Guide Learning Experience [SUPERSEDED BY USER]
 
@@ -138,7 +258,7 @@ Historical implementation record only: the user rejected this content/structure 
 
 ---
 
-## Plan - v4.4.1 Guide Visual and Arcade Rebuild [MERGED TO DEVELOP 2026-09-02, PR #154; release pending]
+## Plan - v4.4.1 Guide Visual and Arcade Rebuild [MERGED TO DEVELOP 2026-09-02, PR #154; superseded by final v4.4.5 guide state]
 
 - [x] Phase 1 - Contracts, asset provenance, and byte budget
 - [x] Phase 2 - Home identity, platform rail, and workflow loop
@@ -146,11 +266,11 @@ Historical implementation record only: the user rejected this content/structure 
 - [x] Phase 4 - Foundations Models, Agentic Platform, comparison, and harnesses
 - [x] Phase 5 - Deterministic arcade-shooter engine
 - [x] Phase 6 - Training workspace, fullscreen, and integrated loop
-- [x] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration (local duties; publication in progress)
+- [x] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration (local duties and integration complete)
 
-## Plan - v4.4.2 Guide Production-Ready Rebuild [PUBLISHED FOR INTEGRATION 2026-09-02]
+## Plan - v4.4.2 Guide Production-Ready Rebuild [MERGED TO DEVELOP 2026-09-02, PR #156; superseded by final v4.4.5 guide state]
 
-Plan: [v4.4.2-guide-production-ready-rebuild.md](releases/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md). Branch cut from `develop` at `46f18986` on 2026-09-02.
+Plan: [v4.4.2-guide-production-ready-rebuild.md](archives/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md). Branch cut from `develop` at `46f18986` on 2026-09-02.
 
 - [x] Phase 1 - Contracts, motion system, scale tokens, and rename
 - [x] Phase 2 - Home hero and restored sections
@@ -159,7 +279,7 @@ Plan: [v4.4.2-guide-production-ready-rebuild.md](releases/v4/v4.4/plans/v4.4.2-g
 - [x] Phase 5 - Arena engine v2
 - [x] Phase 6 - Training fullscreen three-pane presentation
 - [x] Phase 7 - Integrated verification and documentation
-- [x] Phase 8 - Architecture refactor, known-gaps, CI/CD, and publication (local duties and GO; integration PR open, merge on green)
+- [x] Phase 8 - Architecture refactor, known-gaps, CI/CD, and publication (local duties, PR, and integration complete)
 
 ### What this plan changes, in one paragraph
 
@@ -181,7 +301,7 @@ One rule: this dashboard describes the current branch and the active plan. When 
 
 ## Approved interactive authoring follow-up
 
-Scoped command/skill update: 3/3 items complete; see [implementation and verification](releases/v4/v4.11/development/approved-authoring-contract.md). Work is isolated on `feat/approved-interactive-authoring`. The historical guide dashboard above is inherited from the integration base and is not modified by this task.
+Historical command/skill draft: 3/3 local items were completed, then reconciled as candidates into the authoritative [v4.11.0 master plan](archives/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md). The draft branch is no longer an active implementation owner; the released master plan and its known-gaps ledger govern current status.
 
-- [ ] Review and integrate the scoped authoring-contract changes through the normal branch workflow.
-- [ ] Complete the separately queued v4.9 reusable runtime, assembler, and cross-project qualification phases; this contract update does not complete those phases.
+- [x] Reconcile the scoped authoring-contract candidates into the master interactive-handbooks plan; v4.11.0 completed 7/7 phases and 31/31 tasks through PR #202.
+- [x] Complete the reusable runtime, assembler, and cross-project qualification plan after its move from v4.9 to v4.11.0; the released plan records its bounded qualification limits in the v4.11 known-gaps ledger.

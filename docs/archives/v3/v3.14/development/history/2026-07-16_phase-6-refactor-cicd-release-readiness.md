@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-16
 **Branch**: `feat/codex-lb-adoption` (off `develop`)
-**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../plans/v3.14.0-codex-lb-adoption.md), Phase 6 of 6 (**final phase**)
+**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../../../../releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md), Phase 6 of 6 (**final phase**)
 **Scope**: `test_installer_smoke.py` (BG-1), a new CI workflow, the v3.14 ledger/devlog/history docs. No catalog skill or metadata change.
 
 ## Goal

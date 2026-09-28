@@ -1,7 +1,7 @@
 # Session History - v3.16.2 Phase 5: Local verification tooling
 
 **Date**: 2026-08-09
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.2-loop-longevity-and-doctor-preflight.md](../../plans/v3.16.2-loop-longevity-and-doctor-preflight.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.2-loop-longevity-and-doctor-preflight.md](../../../../../releases/v3/v3.16/plans/v3.16.2-loop-longevity-and-doctor-preflight.md)
 **Phase**: 5 of 6 (not the final phase; Phase 6 is the terminal refactor phase)
 **Branch**: `develop`
 **Prerequisite**: Phase 2 (satisfied, committed as `b64f29c2`)

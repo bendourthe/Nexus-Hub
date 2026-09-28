@@ -30,7 +30,7 @@ GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
 OUT_BASE = (
     _ROOT
     / "docs"
-    / "releases"
+    / "archives"
     / "v4"
     / "v4.2"
     / "development"

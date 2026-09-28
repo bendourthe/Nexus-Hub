@@ -9,7 +9,7 @@ overview_l1: "This skill minimizes token consumption and maximizes effective con
 
 Specialized expertise in reducing token consumption and maximizing the value extracted from every token in an AI coding assistant session. These techniques can reduce input tokens by 24-85% depending on the workflow, directly lowering cost and improving response quality by keeping the context window focused on relevant information.
 
-> **Programmatic counterpart -- the `nexus-context-compressor` engine.** Step 3 below (Dynamic Filtering) is the manual discipline of trimming large outputs before they enter the window. Nexus-Hub ships an engine that *enforces* that discipline at the tool boundary: `extensions/nexus-context-compressor/`, a local-first PreToolUse compressor that deduplicates JSON dumps, elides code bodies AST-aware, and persists every dropped span behind a reversible `<<ccr:HASH N_rows>>` marker. Reach for it when tool output is the measured bottleneck (the largest single category in most sessions); the techniques in this skill cover the rest of the budget (tool-call batching, deferral, tuning). See [[context-optimization]] for setup.
+> **Handoff for tool-boundary compression.** When the baseline audit in Step 1 shows command output is the measured bottleneck, automatic reduction at the tool boundary (the `nexus-context-compressor` engine, its behavior, and its setup) is owned by `[[context-optimization]]`; this skill hands off to it and covers the rest of the budget (tool-call batching, filtering, deferral, tuning).
 
 ## When to Use This Skill
 
@@ -216,11 +216,7 @@ Adding concrete `input_examples` to tool definitions improves the model's abilit
 
 Manage the context window proactively rather than waiting for automatic compaction (which loses information unpredictably).
 
-**Manual Compaction Strategy**:
-
-1. Monitor context usage with `/usage` periodically
-2. When usage reaches 50%, run `/compact` with a summary prompt that preserves key decisions and file paths
-3. Structure your compact prompt to retain: current task, files modified so far, decisions made, next steps
+**Manual Compaction**: monitor usage with `/usage`, but whether and when to compact, and what the compact prompt must preserve, are owned by `[[context-compression]]` (its fire/suppress rubric and preservation contract); hand off to it rather than compacting at a fixed percentage.
 
 **Subagent Isolation Pattern**:
 
@@ -273,7 +269,7 @@ After applying optimizations, re-run the same representative tasks and compare.
 - **Start with the highest-impact technique** for your workflow (PTC for exploration-heavy, filtering for data-heavy, deferral for tool-heavy)
 - **Do not sacrifice quality for token savings**; if compacting too aggressively causes the model to lose critical context, back off
 - **Keep exploration scripts version-controlled** so they can be reused across sessions
-- **Review compaction summaries** to ensure no critical information was lost
+- **Hand compaction-summary review to its owner**: validating that a summary lost nothing is owned by `[[context-compression]]` (Step 4 probes)
 - **Combine techniques** for compounding savings (e.g., PTC + filtering can yield 50%+ reduction)
 - **Set token budgets per task** and treat them as soft constraints to build discipline around context management
 - **Revisit your optimization strategy** monthly as model capabilities and pricing change

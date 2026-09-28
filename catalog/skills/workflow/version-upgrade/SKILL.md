@@ -55,6 +55,10 @@ This step is a no-op for an ad-hoc version bump outside a plan; a one-off patch 
 
 After applicable integration prerequisites pass, and before changing any version-carrying file, run `[[technical-documentation]]` through `references/handbook-refresh.md`. This step also applies to a direct release without a plan. A narrow docs check cannot satisfy the full release gate. In Nexus-Hub run `python scripts/check_release_preconditions.py --pre-version`; a nonzero result stops version mutation. After mutation, recheck version-dependent documents and final rendered evidence before qualification. Unchanged independent documents retain their bytes. Preserve all existing commit, tag, push and release approvals.
 
+### Step 0b: Framework mapping gate (every release invocation)
+
+Run the manual re-verification in `[[security-framework-mapping]]` Step 6 for every skill declaring `owasp_agentic`. Compare each identifier with the current OWASP source and a concrete action in the `SKILL.md body`; the standards rationale or a passing tag-shape test alone is not coverage proof. Record the dated per-skill verdict in the release's development evidence before claiming framework coverage. Correct or remove an unsupported tag and regenerate the coverage matrix; if the source or body cannot be reviewed, mark that mapping unverified and carry it as a known gap rather than claiming it passed.
+
 ### Step 1: Determine Target Version
 
 Accept one of:

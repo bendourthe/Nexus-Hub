@@ -269,6 +269,7 @@ export function settingsSectionHtml(state: DraftState): string {
             <option value="highest" ${metric === "highest" ? "selected" : ""}>Highest (auto)</option>
             <option value="session" ${metric === "session" ? "selected" : ""}>Current Session</option>
             <option value="weekly"  ${metric === "weekly"  ? "selected" : ""}>Weekly</option>
+            <option value="weeklyScoped" ${metric === "weeklyScoped" ? "selected" : ""}>Weekly (Scoped Model)</option>
           </select>
         </div>
 

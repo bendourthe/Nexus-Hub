@@ -1,7 +1,7 @@
 # Session History -- v3.3.0 adoption-loop-engineering Phase 4: Catalog integration, validation, and release readiness
 
 **Date**: 2026-06-11
-**Plan**: [`docs/releases/v3/v3.3/plans/adoption-loop-engineering.md`](../../plans/adoption-loop-engineering.md)
+**Plan**: [`docs/releases/v3/v3.3/plans/adoption-loop-engineering.md`](../../../../../releases/v3/v3.3/plans/adoption-loop-engineering.md)
 **Phase**: 4 of 4 (final) -- Catalog integration, validation, and release readiness
 **Branch**: `feat/adoption-loop-engineering` (Phases 1-3 already complete on the branch)
 **Outcome**: complete; all Phase 4 sub-tasks closed and the Phase 4 exit checklist is checked. The plan is complete and ready for the develop-to-main release via `/update version` (MINOR -> v3.3.0).

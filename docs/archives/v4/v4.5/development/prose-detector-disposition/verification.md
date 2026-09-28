@@ -1,0 +1,9 @@
+# v4.5 Prose Detector Disposition
+
+This frozen record closes v4.5 DF-3 as an intentional manual-review boundary. It does not claim that the offline detector covers mannered prose or the stranded auxiliary.
+
+The proposed patch-release addition was conditional on a clean false-positive sweep. On 2026-09-24, a read-only case-insensitive search over repository Markdown for a standalone sentence beginning with `it`, `they`, `we`, `you`, `he`, `she`, `this`, or `that`, followed by an auxiliary and optional negation, found nine matching lines. The search included release and archive history. The examples include ordinary factual corrections: an endpoint "does not" return a field, an account "is not" billed, and a planned budget check "did not" change. These are not the stylized beat described by the skill's cluster 5 example, but a lexical detector would flag their sentence shape. The search was deliberately a candidate screen, not a claim that all nine lines would survive the detector's Markdown and quote exclusions.
+
+The candidate screen can be repeated from the repository root with `rg -n -i --glob '*.md' '(?:^|[.!?]\s+)(?:it|they|we|you|he|she|this|that) (?:is|are|was|were|did|does|do|can|could|will|would)(?: not|n.t)?[.!?](?:\s|$)' docs catalog guides README.md AGENTS.md`. Inspect the matches as prose before treating their count as detector behavior.
+
+The current detector already leaves cluster 7 mannered prose to judgment because metaphor has no reliable lexical signature. The cluster 5 sentence shape also fails the proposed clean-corpus condition. A tighter phrase list would miss the cluster's own variants without resolving the ambiguity of ordinary corrections. Keep both patterns in the [reference catalog](../../../../../../catalog/skills/developer-experience/anti-slop-editing/references/cliche-patterns.md) and the skill's Edit-mode review; do not add a detector id or claim automated coverage.

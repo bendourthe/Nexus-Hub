@@ -1,7 +1,7 @@
 # Session History -- v3.7.0 install-ux-overhaul Phase 3: `nexus-hub upgrade` checker + CLI on PATH
 
 **Date**: 2026-06-17
-**Plan**: [`docs/releases/v3/v3.7/plans/install-ux-overhaul.md`](../../plans/install-ux-overhaul.md)
+**Plan**: [`docs/releases/v3/v3.7/plans/install-ux-overhaul.md`](../../../../../releases/v3/v3.7/plans/install-ux-overhaul.md)
 **Phase**: 3 of 5 -- `nexus-hub upgrade` checker (un-defers N4 / DF-v36-1)
 **Branch**: `feat/installer-bootstrap` (off `develop`)
 **Outcome**: complete. All three sub-tasks (3.1 CLI on PATH, 3.2 `upgrade` subcommand, 3.3 un-defer N4 + tests) closed; every locally-runnable Stability Gate item is green and the CLI suite is wired into the existing CI `pytest tests/installer` step (authoritative under WN-v36-1).

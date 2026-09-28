@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 8: Deprecation shims + migration + count reconciliation
 
 **Date**: 2026-06-04
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
 **Phase**: 8 of 10 -- Deprecation shims + migration + count reconciliation
 **Outcome**: complete; all sub-tasks (T036-T039) closed, all applicable quality gates green.
 

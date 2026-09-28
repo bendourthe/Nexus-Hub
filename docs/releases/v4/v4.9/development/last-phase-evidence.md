@@ -4,7 +4,7 @@ This active release record covers the local audit implementation, its whole-plan
 
 **Status**: LOCAL STABILIZATION PASS; INTEGRATION PENDING. The original local gate passed and was published as `4922fd9756b57f70af9c5355e4ba92e76e313092` in PR 190. The first hosted run exposed two test-setup assumptions and Windows golden-fixture line-ending conversion; all were reproduced and corrected, and affected full-file reruns pass. Exact-SHA hosted qualification remains required before integration.
 
-**Plan**: [Local Agentic Application-Security Audit Pipeline](../plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md).
+**Plan**: [Local Agentic Application-Security Audit Pipeline](../../../../archives/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md).
 
 **Review inputs**: user authorization to implement the entire plan; Phase 6 commit `ae630cd50cf1458e6c836a4265ab34eed4920925`; integration base `843c147dead74e20c13dd296a8567753e8948a5d`; current Phase 7 working-tree corrections. The final local commit will identify the exact published tree without embedding its own future SHA in this file.
 

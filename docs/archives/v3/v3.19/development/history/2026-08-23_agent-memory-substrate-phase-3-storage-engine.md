@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-23
 **Branch**: `feat/v3.19.1-agent-memory-substrate`
-**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md`](../../plans/v3.19.1-agent-memory-substrate.md)
+**Plan**: [`docs/releases/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md`](../../../../../releases/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md)
 **Phase**: 3 - Storage engine
 **Environment**: Windows 11, PowerShell, Python 3.12.10, pytest
 **Outcome**: `extensions/nexus-memory/` is an append-only, crash-safe, concurrently-writable fixed-width store with a relocatable user-scoped root. Compression is not implemented yet.

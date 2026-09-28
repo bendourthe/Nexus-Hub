@@ -23,48 +23,45 @@ $disabled = $env:NEXUS_DISABLED_HOOKS
 if ($disabled -and $disabled.Split(',') -contains $hookName) { exit 0 }
 if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
 
-$skillCount = 184
-$commandCount = 33
+# Banner: one line, facts read from real files only (v4.13.3). The version is
+# printed only when VERSION holds one bounded semver line; any other payload
+# (missing, empty, multi-line, over 32 characters) drops the version and never
+# echoes the file. Version and index path come from the same resolved home.
+$userHome = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
+$homeDir = if ($env:NEXUS_HOME) { $env:NEXUS_HOME } else { Join-Path $userHome ".nexus-hub" }
+$version = ""
+$versionFile = Join-Path $homeDir "VERSION"
+if (Test-Path -LiteralPath $versionFile -PathType Leaf) {
+    try {
+        $bytes = [System.IO.File]::ReadAllBytes($versionFile)
+        $raw = [System.Text.Encoding]::UTF8.GetString($bytes, 0, [Math]::Min($bytes.Length, 64))
+        $raw = $raw -replace '(\r?\n)+$', ''
+        $raw = $raw -replace '\r$', ''
+        if (($raw -notmatch "`n") -and ($raw.Length -le 32) -and ($raw -match '^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.]+)?$')) {
+            $version = $raw
+        }
+    } catch { $version = "" }
+}
+$indexPath = "$homeDir/data/SKILL_INDEX.md"
+if ($version) {
+    Write-Output "Nexus-Hub v$version active; full skill index: $indexPath"
+} else {
+    Write-Output "Nexus-Hub active; full skill index: $indexPath"
+}
 
-Write-Output "Nexus-Hub is active (v1.1.5) - $skillCount skills, $commandCount commands."
-Write-Output ""
-Write-Output "Quick navigation:"
-Write-Output "  /search-skills <keyword>   Find the right skill for your task"
-Write-Output "  /commands-cheatsheet       List all available commands"
-Write-Output ""
-Write-Output "Full index: data/SKILL_INDEX.md"
-
-# --- Git context ---
+# Git: one line. The harness already supplies branch and recent commits.
 $inRepo = $false
-try {
+if (Get-Command git -ErrorAction SilentlyContinue) {
     $null = git rev-parse --is-inside-work-tree 2>$null
     if ($LASTEXITCODE -eq 0) { $inRepo = $true }
-} catch { $inRepo = $false }
-
+}
 if ($inRepo) {
     $branch = (git symbolic-ref --short HEAD 2>$null)
-    if (-not $branch) { $branch = (git rev-parse --short HEAD 2>$null) }
-    if (-not $branch) { $branch = "unknown" }
-
-    $staged    = (git diff --cached --name-only 2>$null | Measure-Object -Line).Lines
-    $modified  = (git diff --name-only 2>$null        | Measure-Object -Line).Lines
-    $untracked = (git ls-files --others --exclude-standard 2>$null | Measure-Object -Line).Lines
-
-    if ($staged -eq 0 -and $modified -eq 0 -and $untracked -eq 0) {
-        $statusLine = "clean"
-    } else {
-        $statusLine = "$staged staged, $modified modified, $untracked untracked"
-    }
-
-    Write-Output ""
-    Write-Output "Git context:"
-    Write-Output ("  Branch:  {0}" -f $branch)
-    Write-Output ("  Status:  {0}" -f $statusLine)
-    Write-Output "  Recent commits:"
-    $log = git log --oneline -3 2>$null
-    if ($log) {
-        foreach ($line in $log) { Write-Output ("    {0}" -f $line) }
-    }
+    if (-not $branch) { $branch = "detached" }
+    $changed = @(git status --porcelain 2>$null | Where-Object { $_ -ne "" }).Count
+    Write-Output ("Git: {0}, {1} changed file(s)" -f $branch, $changed)
+} else {
+    Write-Output "Git: unavailable"
 }
 
 # --- Surface the last-session digest ---

@@ -1,7 +1,7 @@
 # Session History -- v3.7.0 install-ux-overhaul Phase 5: cross-platform verification + release readiness
 
 **Date**: 2026-06-17
-**Plan**: [`docs/releases/v3/v3.7/plans/install-ux-overhaul.md`](../../plans/install-ux-overhaul.md)
+**Plan**: [`docs/releases/v3/v3.7/plans/install-ux-overhaul.md`](../../../../../releases/v3/v3.7/plans/install-ux-overhaul.md)
 **Phase**: 5 of 5 -- Cross-platform verification + release readiness
 **Branch**: `feat/installer-bootstrap` (off `develop`)
 **Outcome**: implementation complete. Sub-tasks 5.1 (CI matrix + Mac smoke-test checklist) and 5.2 (known-gaps + open-item resolution) closed; 5.3 (full gate) is green for every locally-runnable validator. The final `/update release` (version bump 3.6.0 -> 3.7.0 + changelog + tag + push) is gated on maintainer confirmation and is the only remaining step.

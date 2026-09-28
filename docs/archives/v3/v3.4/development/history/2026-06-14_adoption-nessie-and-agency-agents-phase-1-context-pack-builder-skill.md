@@ -1,7 +1,7 @@
 # Session History -- v3.4.0 adoption-nessie-and-agency-agents Phase 1: Context-pack distillation skill
 
 **Date**: 2026-06-14
-**Plan**: [`docs/releases/v3/v3.4/plans/adoption-nessie-and-agency-agents.md`](../../plans/adoption-nessie-and-agency-agents.md)
+**Plan**: [`docs/releases/v3/v3.4/plans/adoption-nessie-and-agency-agents.md`](../../../../../releases/v3/v3.4/plans/adoption-nessie-and-agency-agents.md)
 **Phase**: 1 of 5 -- Context-pack distillation skill (A1, skill-native)
 **Branch**: `feat/model-routing` (active integration branch; no version tag cut this phase)
 **Outcome**: complete; all Phase 1 sub-tasks closed and the Phase 1 exit checklist is satisfied.

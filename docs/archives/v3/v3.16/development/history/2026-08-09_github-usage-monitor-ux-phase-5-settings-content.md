@@ -1,7 +1,7 @@
 # Session History - v3.16.3 Phase 5: Settings content and status-bar metric selection
 
 **Date**: 2026-08-09
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.3-github-usage-monitor-ux.md](../../plans/v3.16.3-github-usage-monitor-ux.md)
+**Plan**: [docs/releases/v3/v3.16/plans/v3.16.3-github-usage-monitor-ux.md](../../../../../releases/v3/v3.16/plans/v3.16.3-github-usage-monitor-ux.md)
 **Phase**: 5 of 6 (not the final phase; no release-readiness workflow ran)
 **Branch**: `develop`
 **Outcome**: Complete. Quality gate GO.

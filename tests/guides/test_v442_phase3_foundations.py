@@ -91,28 +91,30 @@ def test_page_opens_with_a_centred_title_in_the_hero_subtitle_style(playwright_m
     assert data["grad"]
 
 
-def test_scene_titles_come_before_their_subtitles(playwright_mod) -> None:
-    """Scene names keep their order and share the Home label/subtitle styling."""
+def test_scene_titles_come_before_their_leads(playwright_mod) -> None:
+    """Scene names precede their subtitle or Models definition lead."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         _ctx, page = _open(browser)
         try:
             rows = page.evaluate(
                 """() => [...document.querySelectorAll('#page-foundations .fx-title')].map(t => {
-                    const sub = t.querySelector('.fx-subtitle'), h2 = t.querySelector('h2.section-title');
-                    const cs = getComputedStyle(sub), hs = getComputedStyle(h2);
+                    const lead = t.querySelector('.fx-subtitle, .ml-definition');
+                    const h2 = t.querySelector('h2.section-title');
+                    const cs = getComputedStyle(lead), hs = getComputedStyle(h2);
                     return {
                       title: h2.textContent.trim(),
-                      subtitle: sub.textContent.trim(),
-                      titleFirstOnScreen: h2.getBoundingClientRect().bottom <= sub.getBoundingClientRect().top + 1,
-                      titleFirstInDom: (h2.compareDocumentPosition(sub) & Node.DOCUMENT_POSITION_FOLLOWING) ? true : false,
+                      lead: lead.textContent.trim(),
+                      leadKind: lead.classList.contains('ml-definition') ? 'definition' : 'subtitle',
+                      titleFirstOnScreen: h2.getBoundingClientRect().bottom <= lead.getBoundingClientRect().top + 1,
+                      titleFirstInDom: (h2.compareDocumentPosition(lead) & Node.DOCUMENT_POSITION_FOLLOWING) ? true : false,
                       labelStyle: ['color','fontWeight','letterSpacing','textTransform','lineHeight'].every(k => hs[k] === getComputedStyle(document.querySelector('#page-home .eyebrow'))[k]),
                       subtitleStyle: ['color','fontWeight','letterSpacing','textTransform'].every(k => cs[k] === getComputedStyle(document.querySelector('#page-home .section-title'))[k]),
                       titleStyle: Object.fromEntries(['color','fontWeight','letterSpacing','textTransform','fontSize'].map(k => [k, hs[k]])),
                       subtitleStyleProps: Object.fromEntries(['color','fontWeight','letterSpacing','textTransform','fontSize'].map(k => [k, cs[k]])),
                       marker: getComputedStyle(h2,'::before').content !== 'none',
                       notALabel: cs.textTransform === 'none',
-                      sameLeft: Math.abs(h2.getBoundingClientRect().left - sub.getBoundingClientRect().left) < 2,
+                      sameLeft: Math.abs(h2.getBoundingClientRect().left - lead.getBoundingClientRect().left) < 2,
                     };
                 })"""
             )
@@ -120,17 +122,24 @@ def test_scene_titles_come_before_their_subtitles(playwright_mod) -> None:
             browser.close()
     assert len(rows) == 6, "v4.4.4 also merged the chatbot comparison into Agentic Platforms"
     for row in rows:
-        assert row["title"] and row["subtitle"], row
+        assert row["title"] and row["lead"], row
         assert row["titleFirstOnScreen"] and row["titleFirstInDom"], row
         assert row["marker"], row
-        assert row["notALabel"], f"the subtitle must not render as an uppercase label: {row}"
+        assert row["notALabel"], f"the lead must not render as an uppercase label: {row}"
         assert row["sameLeft"], row
 
+    definition_rows = [row for row in rows if row["leadKind"] == "definition"]
+    assert [row["title"] for row in definition_rows] == ["Models"]
+
     # v4.19 stopped styling scene titles as Home eyebrows. The surviving rule is
-    # internal consistency: every scene must present its title and subtitle
-    # identically, so one scene cannot drift away from the rest unnoticed.
+    # internal consistency: every scene title and every regular subtitle must
+    # remain alike. Models deliberately uses a body-style definition lead.
     title_styles = {tuple(sorted(r["titleStyle"].items())) for r in rows}
-    subtitle_styles = {tuple(sorted(r["subtitleStyleProps"].items())) for r in rows}
+    subtitle_styles = {
+        tuple(sorted(r["subtitleStyleProps"].items()))
+        for r in rows
+        if r["leadKind"] == "subtitle"
+    }
     assert len(title_styles) == 1, f"scene titles are not styled alike: {title_styles}"
     assert len(subtitle_styles) == 1, f"scene subtitles are not styled alike: {subtitle_styles}"
 
