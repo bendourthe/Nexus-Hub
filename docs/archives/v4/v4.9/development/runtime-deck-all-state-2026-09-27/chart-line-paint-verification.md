@@ -1,6 +1,6 @@
 # v4.9.2 runtime-deck chart-line paint qualification
 
-This bounded follow-up narrows [MT-3](../../../../../releases/v4/v4.9/known-gaps.md) on the preserved LVEDP deck. It checks every settled SVG `path.c-line` in the 14 model-backed slide charts at four viewports. It does not change the deck or establish that every other chart mark paints correctly.
+This bounded follow-up narrows [MT-3](../../known-gaps.md) on the preserved LVEDP deck. It checks every settled SVG `path.c-line` in the 14 model-backed slide charts at four viewports. It does not change the deck or establish that every other chart mark paints correctly.
 
 ## Functional exercise
 

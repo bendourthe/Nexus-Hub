@@ -31,7 +31,7 @@ No refactor was proposed, so no confirmation was required and nothing moved.
 
 ## Known-gaps reconciliation - v4.10.0
 
-Created [`docs/releases/v4/v4.10/known-gaps.md`](../known-gaps.md) with **4 open items** (1 DF, 2 WN, 1 MT) and 3 resolved.
+Created [`docs/archives/v4/v4.10/known-gaps.md`](../../../../archives/v4/v4.10/known-gaps.md) with **4 open items** (1 DF, 2 WN, 1 MT) and 3 resolved.
 
 Open: DF-1 skill registration is documented as three files but four carry counts; WN-1 the residual check scans Markdown only; WN-2 the fast profile does not reach `tests/validators/`; MT-1 the GitHub repository description still says 336.
 
@@ -39,10 +39,10 @@ Other still-open ledgers were enumerated:
 
 ```text
 $ ls docs/releases/*/*/known-gaps.md
-docs/releases/v4/v4.1/known-gaps.md
-docs/releases/v4/v4.10/known-gaps.md
-docs/releases/v4/v4.8/known-gaps.md
-docs/releases/v4/v4.9/known-gaps.md
+docs/archives/v4/v4.1/known-gaps.md
+docs/archives/v4/v4.10/known-gaps.md
+docs/archives/v4/v4.8/known-gaps.md
+docs/archives/v4/v4.9/known-gaps.md
 ```
 
 The v4.9 ledger's WN-2 (vendor over-verification advice versus `verification-before-completion`) was re-checked against this plan's four added assessment steps, as the plan required. **Verdict: the steps do not become that gap's redundant self-check**, because every one of them is required to write an artifact rather than assert a check occurred. That requirement is stated in the skill, in all four consuming surfaces, and in the plan's own execution contract. WN-2's status is unchanged; this plan does not close it.

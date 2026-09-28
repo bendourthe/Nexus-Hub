@@ -1,6 +1,6 @@
 # v4.9.2 runtime-deck all-state text and SVG-box follow-up
 
-This release-scoped record extends [MT-3](../../../../../releases/v4/v4.9/known-gaps.md) on the preserved LVEDP deck. It measures visible text against the rendered stage-height floor and tests SVG element boxes against the viewport at every declared fragment completion. It does not change the deck or qualify semantic build order, internal SVG paths, figure re-layout, or the legacy static-stage checks.
+This release-scoped record extends [MT-3](../../known-gaps.md) on the preserved LVEDP deck. It measures visible text against the rendered stage-height floor and tests SVG element boxes against the viewport at every declared fragment completion. It does not change the deck or qualify semantic build order, internal SVG paths, figure re-layout, or the legacy static-stage checks.
 
 ## Input and method
 

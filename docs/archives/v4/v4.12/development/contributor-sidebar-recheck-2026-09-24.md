@@ -14,7 +14,7 @@ The same-session read-only GitHub API calls disagreed with the sidebar:
 | `GET /repos/bendourthe/Nexus-Hub/stats/contributors` | `bendourthe`: 1,394 non-merge commits; no other returned account |
 | Default-branch metadata | `main` at `224cfb5ff4bee7ce17813f2c93514cff2d30da00`, committed 2026-09-21 16:05:51 UTC |
 
-The Code-page one-contributor acceptance criterion is still **not met**. The API results neither overwrite nor explain the rendered result. No further history rewrite is supported by this evidence. The September 22 observation in [known gaps](../../../../releases/v4/v4.12/known-gaps.md) remains the prior checkpoint; this record is a fresh, separately dated recheck.
+The Code-page one-contributor acceptance criterion is still **not met**. The API results neither overwrite nor explain the rendered result. No further history rewrite is supported by this evidence. The September 22 observation in [known gaps](../known-gaps.md) remains the prior checkpoint; this record is a fresh, separately dated recheck.
 
 ## Reproduction
 

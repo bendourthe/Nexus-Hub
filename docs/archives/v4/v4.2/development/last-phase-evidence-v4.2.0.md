@@ -35,10 +35,10 @@ Glob of `docs/**/known-gaps.md` found 31 unique files (canonical `docs/releases/
 
 File-level Status `in-progress` in this pass:
 
-- `docs/releases/v4/v4.2/known-gaps.md` (this plan)
-- `docs/releases/v4/v4.1/known-gaps.md` (prior minor; open DF/WN/QG items remain on that ledger)
+- `docs/archives/v4/v4.2/known-gaps.md` (this plan)
+- `docs/archives/v4/v4.1/known-gaps.md` (prior minor; open DF/WN/QG items remain on that ledger)
 
-`docs/releases/v4/v4.0/known-gaps.md` is finalized. `docs/releases/v3/v3.20/known-gaps.md` and `docs/releases/v3/v3.21/known-gaps.md` are finalized. Remaining v3 and archive ledgers are historical or complete; none was rewritten. No `## v3.20.0` section was appended to v3.16 or v3.20.
+`docs/archives/v4/v4.0/known-gaps.md` is finalized. `docs/releases/v3/v3.20/known-gaps.md` and `docs/releases/v3/v3.21/known-gaps.md` are finalized. Remaining v3 and archive ledgers are historical or complete; none was rewritten. No `## v3.20.0` section was appended to v3.16 or v3.20.
 
 This plan produced:
 

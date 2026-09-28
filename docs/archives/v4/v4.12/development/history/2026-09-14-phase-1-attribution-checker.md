@@ -39,7 +39,7 @@ The maintainer consumer ran `python scripts/check_commit_attribution.py --all-re
 
 ## 4. Known Issues
 
-No unresolved Phase 1 implementation findings. [Known gaps](../../../../../releases/v4/v4.12/known-gaps.md) has zero open entries. History is intentionally dirty until Phase 2; CI/live enforcement is intentionally absent until Phase 3.
+No unresolved Phase 1 implementation findings. [Known gaps](../../known-gaps.md) has zero open entries. History is intentionally dirty until Phase 2; CI/live enforcement is intentionally absent until Phase 3.
 
 ## 5. Plan Discrepancies
 

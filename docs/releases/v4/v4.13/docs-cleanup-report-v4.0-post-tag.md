@@ -3,7 +3,7 @@
 **Active version:** v4.13.0
 **Mode:** original propose-only audit with a bounded application recorded below
 **Scope:** the four v4.0 paths reported by `audit-docs.py lifespan-contradictions` on `origin/develop` at `434da421`, then rechecked after `d052af9e`; this is not a whole-tree cleanup audit
-**Owner:** [v4.0 WN-2](../v4.0/known-gaps.md)
+**Owner:** [v4.0 WN-2](../../../archives/v4/v4.0/known-gaps.md)
 
 ## Summary
 
@@ -15,7 +15,7 @@
 | Cat 4 (active closure hold) | 2 |
 | **Total** | **4** |
 
-The post-tag scan still exits 1 and names exactly these four v4.0 files. Its repository-wide findings are outside this scoped report. The earlier migration-era count of 243 and the later whole-tree count of 1,419 are not a current v4.0 baseline. The minor-root `known-gaps.md` is intentionally active and is excluded by the [scoped detector correction](../v4.0/known-gaps.md); no date amnesty was applied.
+The post-tag scan still exits 1 and names exactly these four v4.0 files. Its repository-wide findings are outside this scoped report. The earlier migration-era count of 243 and the later whole-tree count of 1,419 are not a current v4.0 baseline. The minor-root `known-gaps.md` is intentionally active and is excluded by the [scoped detector correction](../../../archives/v4/v4.0/known-gaps.md); no date amnesty was applied.
 
 After rebasing this proposal onto `d052af9e`, the detector still returned exactly the four v4.0 paths in the table, with 1,388 findings across all release buckets. The broader count is context only; this proposal classifies the v4.0 subset.
 

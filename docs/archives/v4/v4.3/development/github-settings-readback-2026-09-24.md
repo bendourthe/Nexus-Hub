@@ -1,6 +1,6 @@
 # GitHub settings read-back for v4.3 WN-2
 
-This frozen follow-up records the GitHub repository settings that can be read with the current account credential on 2026-09-24. It supports the [v4.3 known-gaps ledger](../../../../releases/v4/v4.3/known-gaps.md) and does not change any repository setting or close its remaining billing gate.
+This frozen follow-up records the GitHub repository settings that can be read with the current account credential on 2026-09-24. It supports the [v4.3 known-gaps ledger](../known-gaps.md) and does not change any repository setting or close its remaining billing gate.
 
 ## Read-only results
 

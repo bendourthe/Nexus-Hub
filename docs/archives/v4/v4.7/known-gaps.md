@@ -6,7 +6,7 @@
 
 ## v4.7.0 - model-behavior-and-distribution-integrity (with the gpt-6-astra-prompting amendments folded in)
 
-**Plans**: [v4.7.0-adoption-model-behavior-and-distribution-integrity.md](../../../archives/v4/v4.7/plans/v4.7.0-adoption-model-behavior-and-distribution-integrity.md), [v4.7.0-adoption-gpt-6-astra-prompting.md](../../../archives/v4/v4.7/plans/v4.7.0-adoption-gpt-6-astra-prompting.md)
+**Plans**: [v4.7.0-adoption-model-behavior-and-distribution-integrity.md](plans/v4.7.0-adoption-model-behavior-and-distribution-integrity.md), [v4.7.0-adoption-gpt-6-astra-prompting.md](plans/v4.7.0-adoption-gpt-6-astra-prompting.md)
 **Base**: `develop` at `76bcf614` (post v4.5.0 back-merge and the v4.7 to v4.9 plans migration)
 
 ### Summary
@@ -31,7 +31,7 @@
 - **Reason**: `enumerate-models.sh codex` (`codex debug models`) on 2026-09-05 returned six models (`codex-auto-review`, `gpt-5.2`, `gpt-5.3-codex`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.5`) and not `gpt-6-astra`, which the vendor's API catalog lists as generally available. The layer's invariant (the index never claims a model it has no roster entry for) widens the codex entry's roster to include the profiled model, so `check_model_prompting_freshness.py --platform codex <live ids>` reports DRIFTED with `gpt-6-astra` as "recorded but no longer live". The profile itself is correct for the API surface the vendor documents; the drift is between the CLI's picker and the API catalog.
 - **Suggested next step**: Re-run `enumerate-models.sh codex` at the next release; when the CLI lists `gpt-6-astra`, re-stamp the codex entry through the writer and this item closes. If the CLI never lists it, re-home the profile under an API-platform id in a later schema decision.
 
-**2026-09-24 recheck**: The installed Codex CLI picker still lists six models and omits `gpt-6-astra`; the [archived read-only result](../../../archives/v4/v4.7/development/model-map-followup/verification.md) keeps API availability separate from CLI availability. DF-2 remains open and no profile was re-stamped.
+**2026-09-24 recheck**: The installed Codex CLI picker still lists six models and omits `gpt-6-astra`; the [archived read-only result](development/model-map-followup/verification.md) keeps API availability separate from CLI availability. DF-2 remains open and no profile was re-stamped.
 
 ##### DF-4 - Reusable `workflow_call` CI factoring (report item E5) deliberately excluded
 
@@ -61,7 +61,7 @@
 
 - **Source phase**: Post-release hosted verification on 2026-09-24.
 - **Plan reference**: v4.7.0 Phase 6 Distribution Integrity, T022 and T023.
-- **Historical reason (2026-09-24)**: Three scheduled `main` runs failed, most recently run 35599558573 on 2026-09-21. Its report found `setuptools` 79.0.1, affected by `PYSEC-2026-3447`; `main` then lacked the newer `develop` constraint that pinned 84.0.0. A passing manual `develop` run did not prove default-branch schedule health. The [archived verification](../../../archives/v4/v4.7/development/supply-chain-watch-followup/verification.md) retains both outcomes.
+- **Historical reason (2026-09-24)**: Three scheduled `main` runs failed, most recently run 35599558573 on 2026-09-21. Its report found `setuptools` 79.0.1, affected by `PYSEC-2026-3447`; `main` then lacked the newer `develop` constraint that pinned 84.0.0. A passing manual `develop` run did not prove default-branch schedule health. The [archived verification](development/supply-chain-watch-followup/verification.md) retains both outcomes.
 - **2026-09-28 recheck**: Released `main` at `0c2c2997` installs `setuptools==84.0.0`, but [manual run 36409588416](https://github.com/bendourthe/Nexus-Hub/actions/runs/36409588416) and the [bounded retry 36409919680](https://github.com/bendourthe/Nexus-Hub/actions/runs/36409919680) both failed before an advisory verdict. PyPI returned HTTP 503 when pip-audit queried the locally editable `nexus-code-search` and `nexus-context-compressor` projects, respectively. Neither run is a passing audit or evidence that installed third-party dependencies are safe.
 - **Suggested next step**: Integrate the tested `--skip-editable` workflow correction without ignoring advisories or omitting installed third-party dependencies; ship it to `main` through a protected release, then observe a passing `main` dispatch or schedule.
 
@@ -69,9 +69,9 @@
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
-| DF-1 | v4.4.6 guide-plan model-map citation missing | 2026-09-24 follow-up | The map already placed `gpt-6-astra` at frontier; the user later rejected and superseded the v4.4.6 redesign. [Archived evidence](../../../archives/v4/v4.7/development/model-map-followup/verification.md) closes the citation-only task without editing the historical plan. |
-| DF-3 | Four template validators share one roster and one shape | 2026-09-24 validator follow-up | The parity module now owns the lockstep list, dynamic roster, and section-body helper while four named rule modules retain their assertions. Construction Discipline gains `base-pi.md` coverage. [Archived qualification](../../../archives/v4/v4.7/development/template-validator-roster/verification.md) records 152 focused passes; [PR #292](https://github.com/bendourthe/Nexus-Hub/pull/292) passed its hosted gate, merged at `bea7ab9a`, and [post-merge run 36077657119](https://github.com/bendourthe/Nexus-Hub/actions/runs/36077657119) passed smoke and provenance. |
-| MT-1 | Hosted watch and attested release artifact were unobserved | 2026-09-24 follow-up | [Manual `develop` run 36034068237](https://github.com/bendourthe/Nexus-Hub/actions/runs/36034068237) passed, with no required-check context; v4.7.0 tarball and `SHA256SUMS` matched after download, and GitHub verified the repository attestation. See [archived evidence](../../../archives/v4/v4.7/development/supply-chain-watch-followup/verification.md). WN-2 separately tracks the red `main` schedule. |
+| DF-1 | v4.4.6 guide-plan model-map citation missing | 2026-09-24 follow-up | The map already placed `gpt-6-astra` at frontier; the user later rejected and superseded the v4.4.6 redesign. [Archived evidence](development/model-map-followup/verification.md) closes the citation-only task without editing the historical plan. |
+| DF-3 | Four template validators share one roster and one shape | 2026-09-24 validator follow-up | The parity module now owns the lockstep list, dynamic roster, and section-body helper while four named rule modules retain their assertions. Construction Discipline gains `base-pi.md` coverage. [Archived qualification](development/template-validator-roster/verification.md) records 152 focused passes; [PR #292](https://github.com/bendourthe/Nexus-Hub/pull/292) passed its hosted gate, merged at `bea7ab9a`, and [post-merge run 36077657119](https://github.com/bendourthe/Nexus-Hub/actions/runs/36077657119) passed smoke and provenance. |
+| MT-1 | Hosted watch and attested release artifact were unobserved | 2026-09-24 follow-up | [Manual `develop` run 36034068237](https://github.com/bendourthe/Nexus-Hub/actions/runs/36034068237) passed, with no required-check context; v4.7.0 tarball and `SHA256SUMS` matched after download, and GitHub verified the repository attestation. See [archived evidence](development/supply-chain-watch-followup/verification.md). WN-2 separately tracks the red `main` schedule. |
 
 ### Notes (not gaps)
 

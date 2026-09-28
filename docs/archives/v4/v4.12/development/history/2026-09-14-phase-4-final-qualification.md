@@ -40,7 +40,7 @@ The first Windows full profile completed 46 commands successfully but the whole 
 
 ## 4. Known Issues
 
-The [ledger](../../../../../releases/v4/v4.12/known-gaps.md) records existing lint/reporting/settings drift, the read-only PR-ref limitation, pending publication/UI proof and incomplete independent adversarial coverage. The [final evidence](../../../../../archives/v4/v4.12/development/last-phase-evidence.md) separates these from ordinary functional tests. Historical signed objects and original provenance remain in the backup; rewriting does not re-sign or re-attest them. No macOS native execution is claimed on this Windows/Linux workstation.
+The [ledger](../../known-gaps.md) records existing lint/reporting/settings drift, the read-only PR-ref limitation, pending publication/UI proof and incomplete independent adversarial coverage. The [final evidence](../../../../../archives/v4/v4.12/development/last-phase-evidence.md) separates these from ordinary functional tests. Historical signed objects and original provenance remain in the backup; rewriting does not re-sign or re-attest them. No macOS native execution is claimed on this Windows/Linux workstation.
 
 ## 5. Plan Discrepancies
 

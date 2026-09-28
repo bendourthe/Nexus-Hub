@@ -53,7 +53,7 @@ Both cases are labelled synthetic in the reference. The closing section states t
 ## Cross-owner contracts preserved
 
 - **`[[verification-before-completion]]`**: no rule owned by that skill was changed. The reference distinguishes a redundant in-turn self-re-check (category 1, mergeable) from evidence for a claim made to a human (preserved by default), and Case A demonstrates the distinction rather than asserting it.
-- **v4.9 WN-2**: the gap's status is unchanged. The reference explains why the vendor claim and the catalog skill are not the same rule, and states that reconciling them would be a decision record rather than a prompting edit. No edit to `docs/releases/v4/v4.9/known-gaps.md` was made.
+- **v4.9 WN-2**: the gap's status is unchanged. The reference explains why the vendor claim and the catalog skill are not the same rule, and states that reconciling them would be a decision record rather than a prompting edit. No edit to `docs/archives/v4/v4.9/known-gaps.md` was made.
 - **Source screening and prompt-injection defence**: reinforced by Case B rather than restated as a new rule; the owning skills keep the rule.
 - **Hard budgets**: listed in the origin table with the budget owner named as the only party who may remove one.
 

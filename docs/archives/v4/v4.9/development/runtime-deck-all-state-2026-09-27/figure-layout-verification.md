@@ -1,6 +1,6 @@
 # v4.9.2 runtime-deck chart-layout boundary
 
-This release-scoped record narrows [MT-3](../../../../../releases/v4/v4.9/known-gaps.md) on the pinned LVEDP handbook. It checks whether model-backed slide charts are simply scaled SVGs and establishes what cannot be inferred about source-to-slide re-layout. It does not change the historical deck or close MT-3.
+This release-scoped record narrows [MT-3](../../known-gaps.md) on the pinned LVEDP handbook. It checks whether model-backed slide charts are simply scaled SVGs and establishes what cannot be inferred about source-to-slide re-layout. It does not change the historical deck or close MT-3.
 
 ## Input and method
 

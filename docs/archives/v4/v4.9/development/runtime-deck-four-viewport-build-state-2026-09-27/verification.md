@@ -1,6 +1,6 @@
 # v4.9.2 runtime-deck four-viewport build-state follow-up
 
-This release-scoped record extends the [original two-viewport build-state probe](../runtime-deck-build-state-2026-09-27/verification.md) on the same preserved LVEDP deck. It measures authored fragment completions at two additional sizes without editing the source blob, changing the distributed scorer, or closing [MT-3](../../../../../releases/v4/v4.9/known-gaps.md).
+This release-scoped record extends the [original two-viewport build-state probe](../runtime-deck-build-state-2026-09-27/verification.md) on the same preserved LVEDP deck. It measures authored fragment completions at two additional sizes without editing the source blob, changing the distributed scorer, or closing [MT-3](../../known-gaps.md).
 
 ## Input and exercise
 

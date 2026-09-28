@@ -46,8 +46,8 @@ None. DF-1 and QG-1 closed in the v4.2.1 last-phase close-out.
 
 ### Inherited Ledger Review
 
-- v4.1.0 DF-1 / WN-1 / QG-1 and v4.1.1 DF-1 stay on `docs/releases/v4/v4.1/known-gaps.md`. This plan does not absorb them.
-- v4.0 DF-1 stays on `docs/releases/v4/v4.0/known-gaps.md`.
+- v4.1.0 DF-1 / WN-1 / QG-1 and v4.1.1 DF-1 stay on `docs/archives/v4/v4.1/known-gaps.md`. This plan does not absorb them.
+- v4.0 DF-1 stays on `docs/archives/v4/v4.0/known-gaps.md`.
 - No `## v3.20.0` section is appended to v3.16 or v3.20 ledgers.
 
 ## v4.2.1 - guide-visual-education
@@ -132,7 +132,7 @@ v4.2.1's UI was never published. The v4.2.2 plan (`plans/v4.2.2-guide-cinematic-
 - **Source phase**: Phase 1 - Design brief, design system, shell, and render harness
 - **Plan reference**: `docs/archives/v4/v4.2/plans/v4.2.2-guide-cinematic-rebuild.md` T003
 - **Evidence at deferral**: `scripts/validate_unicode_safety.py` excluded `.html`; the rebuilt guide relied on HTML entities and review. The visual HTML detector did not close this text-sanitization gap on 2026-08-31.
-- **Resolution**: Active `.html` files and HTML entities now enter the Unicode safety gate; archived files remain exempt. The [post-release evidence](../../../archives/v4/v4.2/development/unicode-validator-gap-reconciliation.md) records 45 passed, 1 skipped, and a clean 2,842-file strict scan.
+- **Resolution**: Active `.html` files and HTML entities now enter the Unicode safety gate; archived files remain exempt. The [post-release evidence](development/unicode-validator-gap-reconciliation.md) records 45 passed, 1 skipped, and a clean 2,842-file strict scan.
 - **Resolved in**: post-release validator repair on 2026-09-22, pending protected-branch publication.
 
 #### Missing Tests
@@ -184,7 +184,7 @@ DF-2 remains open from v4.2.2. DF-1 is resolved below by the post-release valida
 - **Source phase**: carried from v4.2.2 DF-1; re-confirmed in v4.2.3 Phase 7
 - **Plan reference**: `docs/archives/v4/v4.2/plans/v4.2.3-guide-refinement.md` T026
 - **Evidence at deferral**: `.html` was excluded from the gate, and a stray CJK letter (U+6539) in an English `.md` plan passed the validator until a separate scan found it.
-- **Resolution**: The validator reports non-Latin letters in active English Markdown and HTML without guessing replacements, including encoded HTML references. The [post-release evidence](../../../archives/v4/v4.2/development/unicode-validator-gap-reconciliation.md) records the archive exemption and strict repository scan.
+- **Resolution**: The validator reports non-Latin letters in active English Markdown and HTML without guessing replacements, including encoded HTML references. The [post-release evidence](development/unicode-validator-gap-reconciliation.md) records the archive exemption and strict repository scan.
 - **Resolved in**: post-release validator repair on 2026-09-22, pending protected-branch publication.
 
 #### Missing Tests
