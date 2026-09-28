@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: baseline, measured 2026-08-25
 **Measured against**: [`ci-cd-lifecycle-contract.md`](../../../../policy/ci-cd-lifecycle-contract.md)
-**Plan**: [`docs/releases/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md`](../../../../releases/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md)
+**Plan**: [`docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md`](../plans/v4.0.0-cost-effective-ci-cd.md)
 
 This is the current-state matrix for every harness surface that makes a lifecycle statement. Each row names the authoritative artifact, quotes what it says today, states the conflict with the contract, names the owning artifact for the change, and names the phase and test that closes it.
 

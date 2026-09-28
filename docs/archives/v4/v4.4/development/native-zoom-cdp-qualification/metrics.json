@@ -1,0 +1,626 @@
+[
+  {
+    "route": "home",
+    "scene": "home",
+    "zoom": 2,
+    "theme": "dark",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "dark-home-top.png",
+        "scroll_y": 0,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          37.86,
+          43.84,
+          43.13
+        ]
+      },
+      {
+        "file": "dark-home-end.png",
+        "scroll_y": 10688,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          17.68,
+          20.34,
+          20.37
+        ]
+      }
+    ]
+  },
+  {
+    "route": "foundations",
+    "scene": "tokens",
+    "zoom": 2,
+    "theme": "dark",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "dark-tokens-top.png",
+        "scroll_y": 189,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          29.12,
+          32.78,
+          32.19
+        ]
+      },
+      {
+        "file": "dark-tokens-end.png",
+        "scroll_y": 851,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          44.85,
+          58.73,
+          56.16
+        ]
+      }
+    ]
+  },
+  {
+    "route": "foundations",
+    "scene": "models",
+    "zoom": 2,
+    "theme": "dark",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "dark-models-top.png",
+        "scroll_y": 1131,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          32.09,
+          34.83,
+          31.95
+        ]
+      },
+      {
+        "file": "dark-models-end.png",
+        "scroll_y": 5976,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          25.99,
+          33.16,
+          31.88
+        ]
+      }
+    ]
+  },
+  {
+    "route": "foundations",
+    "scene": "prompt-engineering",
+    "zoom": 2,
+    "theme": "dark",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "dark-prompt-engineering-top.png",
+        "scroll_y": 6256,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          31.02,
+          37.03,
+          35.61
+        ]
+      },
+      {
+        "file": "dark-prompt-engineering-end.png",
+        "scroll_y": 6940.5,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          30.42,
+          38.74,
+          37.33
+        ]
+      }
+    ]
+  },
+  {
+    "route": "foundations",
+    "scene": "context-engineering",
+    "zoom": 2,
+    "theme": "dark",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "dark-context-engineering-top.png",
+        "scroll_y": 7220.5,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          32.67,
+          38.75,
+          37.46
+        ]
+      },
+      {
+        "file": "dark-context-engineering-end.png",
+        "scroll_y": 8559.5,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          25.85,
+          38.64,
+          35.87
+        ]
+      }
+    ]
+  },
+  {
+    "route": "foundations",
+    "scene": "agentic-platforms",
+    "zoom": 2,
+    "theme": "dark",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "dark-agentic-platforms-top.png",
+        "scroll_y": 8839.5,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          34.05,
+          38.91,
+          37.68
+        ]
+      },
+      {
+        "file": "dark-agentic-platforms-end.png",
+        "scroll_y": 13408,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          26.6,
+          30.11,
+          29.21
+        ]
+      }
+    ]
+  },
+  {
+    "route": "foundations",
+    "scene": "harnesses",
+    "zoom": 2,
+    "theme": "dark",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "dark-harnesses-top.png",
+        "scroll_y": 13688,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          38.83,
+          42.35,
+          41.66
+        ]
+      },
+      {
+        "file": "dark-harnesses-end.png",
+        "scroll_y": 15877,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          22.86,
+          25.43,
+          26.75
+        ]
+      }
+    ]
+  },
+  {
+    "route": "training",
+    "scene": "training",
+    "zoom": 2,
+    "theme": "dark",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "dark-training-top.png",
+        "scroll_y": 0,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          35.21,
+          37.92,
+          37.7
+        ]
+      },
+      {
+        "file": "dark-training-end.png",
+        "scroll_y": 2570.5,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          12.72,
+          20.71,
+          19.59
+        ]
+      }
+    ]
+  },
+  {
+    "route": "home",
+    "scene": "home",
+    "zoom": 2,
+    "theme": "light",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "light-home-top.png",
+        "scroll_y": 0,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          51.08,
+          42.48,
+          40.28
+        ]
+      },
+      {
+        "file": "light-home-end.png",
+        "scroll_y": 10688,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          24.35,
+          21.42,
+          20.55
+        ]
+      }
+    ]
+  },
+  {
+    "route": "foundations",
+    "scene": "tokens",
+    "zoom": 2,
+    "theme": "light",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "light-tokens-top.png",
+        "scroll_y": 189,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          35.88,
+          30.67,
+          29.05
+        ]
+      },
+      {
+        "file": "light-tokens-end.png",
+        "scroll_y": 851,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          48.55,
+          30.25,
+          38.11
+        ]
+      }
+    ]
+  },
+  {
+    "route": "foundations",
+    "scene": "models",
+    "zoom": 2,
+    "theme": "light",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "light-models-top.png",
+        "scroll_y": 1131,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          35.77,
+          29.01,
+          29.04
+        ]
+      },
+      {
+        "file": "light-models-end.png",
+        "scroll_y": 5976,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          36.85,
+          29.66,
+          28.31
+        ]
+      }
+    ]
+  },
+  {
+    "route": "foundations",
+    "scene": "prompt-engineering",
+    "zoom": 2,
+    "theme": "light",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "light-prompt-engineering-top.png",
+        "scroll_y": 6256,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          39.79,
+          32.65,
+          31.18
+        ]
+      },
+      {
+        "file": "light-prompt-engineering-end.png",
+        "scroll_y": 6940.5,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          42.32,
+          33.34,
+          32.66
+        ]
+      }
+    ]
+  },
+  {
+    "route": "foundations",
+    "scene": "context-engineering",
+    "zoom": 2,
+    "theme": "light",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "light-context-engineering-top.png",
+        "scroll_y": 7220.5,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          41.66,
+          34.21,
+          32.42
+        ]
+      },
+      {
+        "file": "light-context-engineering-end.png",
+        "scroll_y": 8559.5,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          43.1,
+          31.47,
+          30.62
+        ]
+      }
+    ]
+  },
+  {
+    "route": "foundations",
+    "scene": "agentic-platforms",
+    "zoom": 2,
+    "theme": "light",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "light-agentic-platforms-top.png",
+        "scroll_y": 8839.5,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          41.06,
+          34.5,
+          32.83
+        ]
+      },
+      {
+        "file": "light-agentic-platforms-end.png",
+        "scroll_y": 13408,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          32.81,
+          28.67,
+          27.04
+        ]
+      }
+    ]
+  },
+  {
+    "route": "foundations",
+    "scene": "harnesses",
+    "zoom": 2,
+    "theme": "light",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "light-harnesses-top.png",
+        "scroll_y": 13688,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          44.73,
+          38.66,
+          36.42
+        ]
+      },
+      {
+        "file": "light-harnesses-end.png",
+        "scroll_y": 15877,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          29.9,
+          27.59,
+          24.19
+        ]
+      }
+    ]
+  },
+  {
+    "route": "training",
+    "scene": "training",
+    "zoom": 2,
+    "theme": "light",
+    "dpr": 2,
+    "inner_width": 640,
+    "document_overflow": 0,
+    "target_overflow": 0,
+    "visible": true,
+    "captures": [
+      {
+        "file": "light-training-top.png",
+        "scroll_y": 0,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          40.7,
+          35.96,
+          34.06
+        ]
+      },
+      {
+        "file": "light-training-end.png",
+        "scroll_y": 2570.5,
+        "image_size": [
+          1280,
+          800
+        ],
+        "channel_stddev": [
+          26.3,
+          20.5,
+          20.38
+        ]
+      }
+    ]
+  }
+]

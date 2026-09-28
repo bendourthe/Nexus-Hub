@@ -262,7 +262,7 @@ the counts were recomputed from the merged catalog in this landing and now sum t
 ## Plan retarget, 2026-09-08
 
 The visa-vulnerability harness plan referenced above by its v4.8.0 filename retargeted again, to
-`docs/releases/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md`. v4.8.0 was released on
+`docs/archives/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md`. v4.8.0 was released on
 2026-09-08 carrying only its sibling plan, so this one could not ship under that number for the same reason it
 could not ship as v4.6.0.
 

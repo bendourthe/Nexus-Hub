@@ -139,7 +139,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | competitive-generation | orchestration | "Run parallel agents on the same task and select the best output by scoring rubric" | catalog/skills/orchestration/competitive-generation/SKILL.md |
 | context-compression | orchestration | "Minimize tokens per task while preserving critical information in agent sessions" | catalog/skills/orchestration/context-compression/SKILL.md |
 | context-degradation | orchestration | "Detect and mitigate context quality decay in long AI agent sessions" | catalog/skills/orchestration/context-degradation/SKILL.md |
-| context-manager | orchestration | "Manage context across large codebases with attention budgeting and progressive disclosure" | catalog/skills/orchestration/context-manager/SKILL.md |
+| context-manager | orchestration | "Map file relationships and change impact across large codebases" | catalog/skills/orchestration/context-manager/SKILL.md |
 | cross-model-orchestrator | orchestration | "Orchestrate multiple AI assistants in coordinated workflows with cross-model QA gates" | catalog/skills/orchestration/cross-model-orchestrator/SKILL.md |
 | error-coordinator | orchestration | "Coordinate cross-agent error resolution with failure correlation and recovery" | catalog/skills/orchestration/error-coordinator/SKILL.md |
 | multi-agent-coordinator | orchestration | "Coordinate concurrent subagents with role separation, scoping, and result integration" | catalog/skills/orchestration/multi-agent-coordinator/SKILL.md |
@@ -257,6 +257,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | identity-threat-detection | security-operations | "Detect account-takeover patterns in IdP and SSO sign-in logs from the defender seat" | catalog/skills/security-operations/identity-threat-detection/SKILL.md |
 | malware-triage-analysis | security-operations | "Safely triage a suspicious file, classify maliciousness, and extract IOCs" | catalog/skills/security-operations/malware-triage-analysis/SKILL.md |
 | verification-before-completion | workflow | "Require fresh verification evidence before making any completion or success claim" | catalog/skills/workflow/verification-before-completion/SKILL.md |
+| user-edit-preservation | workflow | "Detect and carry forward user edits before changing any file you read or wrote earlier" | catalog/skills/workflow/user-edit-preservation/SKILL.md |
 | receiving-code-review | code-review | "Act on code review feedback with technical rigor and no performative agreement" | catalog/skills/code-review/receiving-code-review/SKILL.md |
 | review-trapdoors | code-review | "Pre-empt a project's recurring review blockers from a curated trapdoors list before review" | catalog/skills/code-review/review-trapdoors/SKILL.md |
 | using-git-worktrees | workflow | "Set up isolated worktree workspaces safely, preferring the native tool over raw git" | catalog/skills/workflow/using-git-worktrees/SKILL.md |
@@ -342,4 +343,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | setup-wizard-generator | developer-experience | "Generate a resumable human-only setup wizard with bash and PowerShell templates" | catalog/skills/developer-experience/setup-wizard-generator/SKILL.md |
 | decision-questionnaire | business-product | "Write an async Markdown questionnaire for the one stakeholder who can unblock" | catalog/skills/business-product/decision-questionnaire/SKILL.md |
 | functional-verification | testing | "Exercise built artifacts through real boundaries and record observable behavioral evidence" | catalog/skills/testing/functional-verification/SKILL.md |
-**Total: 337 skills across 23 categories**
+**Total: 338 skills across 23 categories**

@@ -4,7 +4,7 @@
 **Branch**: `feat/v4.1.2-ponytail-planning`
 **Phase starting commit**: `4bb4e4ae`
 **Comparison base**: `origin/develop` (planning commit `9081e65d` is already on the open integration pull request)
-**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+**Plan**: `docs/archives/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
 
 ## 1. Architecture refactor
 

@@ -1,6 +1,6 @@
 # Phase 2 evidence - Assessment and ranking skill
 
-Evidence for Phase 2 (T005-T007) of the [v4.10.0 plan-queue continuity plan](../plans/v4.10.0-plan-queue-continuity.md). Records the skill authored as the single owner of the staleness and ranking rules, its registration, and its first application to the real five-plan queue. Read this to confirm D2 and the ranking half of D6 before Phase 3 wires the authoring surfaces.
+Evidence for Phase 2 (T005-T007) of the [v4.10.0 plan-queue continuity plan](../../../../archives/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md). Records the skill authored as the single owner of the staleness and ranking rules, its registration, and its first application to the real five-plan queue. Read this to confirm D2 and the ranking half of D6 before Phase 3 wires the authoring surfaces.
 
 **This is authoring evidence, not a measured outcome.** It demonstrates that the rules produce a defensible ranking on real inputs. It does not demonstrate that following the ranking improves anything, which would need measurement this plan does not perform.
 

@@ -17,38 +17,33 @@ _DISABLED="${NEXUS_DISABLED_HOOKS:-}"
 if [[ ",$_DISABLED," == *",$_HOOK_NAME,"* ]]; then exit 0; fi
 if [[ "${NEXUS_HOOK_PROFILE:-full}" == "minimal" ]]; then exit 0; fi
 
-SKILL_COUNT=184
-COMMAND_COUNT=33
-
-cat <<EOF
-Nexus-Hub is active (v1.1.5) - $SKILL_COUNT skills, $COMMAND_COUNT commands.
-
-Quick navigation:
-  /search-skills <keyword>   Find the right skill for your task
-  /commands-cheatsheet       List all available commands
-
-Full index: data/SKILL_INDEX.md
-EOF
-
-# Git context -- only if inside a git repo
-if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null || echo "unknown")
-  staged=$(git diff --cached --name-only 2>/dev/null | wc -l | tr -d ' ')
-  modified=$(git diff --name-only 2>/dev/null | wc -l | tr -d ' ')
-  untracked=$(git ls-files --others --exclude-standard 2>/dev/null | wc -l | tr -d ' ')
-
-  if [ "$staged" = "0" ] && [ "$modified" = "0" ] && [ "$untracked" = "0" ]; then
-    status_line="clean"
-  else
-    status_line="${staged} staged, ${modified} modified, ${untracked} untracked"
+# Banner: one line, facts read from real files only (v4.13.3). The version is
+# printed only when VERSION holds one bounded semver line; any other payload
+# (missing, empty, multi-line, over 32 characters) drops the version and never
+# echoes the file. Version and index path come from the same resolved home.
+HOME_DIR="${NEXUS_HOME:-$HOME/.nexus-hub}"
+_version=""
+if [ -f "$HOME_DIR/VERSION" ]; then
+  _raw=$(head -c 64 "$HOME_DIR/VERSION" 2>/dev/null || true)
+  _raw="${_raw%$'\r'}"
+  if [[ "$_raw" != *$'\n'* ]] && [ "${#_raw}" -le 32 ] \
+     && [[ "$_raw" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.]+)?$ ]]; then
+    _version="$_raw"
   fi
+fi
+if [ -n "$_version" ]; then
+  echo "Nexus-Hub v$_version active; full skill index: $HOME_DIR/data/SKILL_INDEX.md"
+else
+  echo "Nexus-Hub active; full skill index: $HOME_DIR/data/SKILL_INDEX.md"
+fi
 
-  echo ""
-  echo "Git context:"
-  printf "  Branch:  %s\n" "$branch"
-  printf "  Status:  %s\n" "$status_line"
-  echo "  Recent commits:"
-  git log --oneline -3 2>/dev/null | sed 's/^/    /' || true
+# Git: one line. The harness already supplies branch and recent commits.
+if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  _branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo "detached")
+  _changed=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+  echo "Git: $_branch, $_changed changed file(s)"
+else
+  echo "Git: unavailable"
 fi
 
 # --- Surface the last-session digest (memory-persistence subset) ---

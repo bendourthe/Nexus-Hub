@@ -4,7 +4,7 @@ This frozen record covers the post-release disposition of v4.7 DF-1 and a fresh 
 
 ## DF-1: superseded guide citation
 
-The historical `docs/releases/v4/v4.4/plans/v4.4.6-guide-learning-experience.md` model map already placed `gpt-6-astra` in the OpenAI frontier cell, agreeing with the v4.7 routing decision. Its missing citation was the only remaining action in DF-1. The [v4.4.5 restoration record](../../../../../releases/v4/v4.4/development/guide-learning-experience/restoration/verification.md) states that the user rejected and superseded the v4.4.6 redesign, and that the seven-phase plan must not resume. Editing its model map now would change a rejected historical plan without improving active routing. DF-1 is closed as superseded; the plan is untouched.
+The historical `docs/archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md` model map already placed `gpt-6-astra` in the OpenAI frontier cell, agreeing with the v4.7 routing decision. Its missing citation was the only remaining action in DF-1. The [v4.4.5 restoration record](../../../../../releases/v4/v4.4/development/guide-learning-experience/restoration/verification.md) states that the user rejected and superseded the v4.4.6 redesign, and that the seven-phase plan must not resume. Editing its model map now would change a rejected historical plan without improving active routing. DF-1 is closed as superseded; the plan is untouched.
 
 ## DF-2: current CLI drift remains
 

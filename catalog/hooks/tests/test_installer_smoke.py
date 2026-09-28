@@ -552,6 +552,13 @@ def test_installer_ps1_fallback_literal_matches_template():
 # so a future contributor can tell whether a new script belongs here or in the
 # installer copy blocks.
 DEV_ONLY_SCRIPTS = {
+    # Repo-internal legacy-instruction tooling (v4.13.3): the fingerprint
+    # builder walks git history of the shipped templates, and the measurement
+    # script reports rendered instruction-file size and candidate legacy spans.
+    # Both need a checkout; the user-facing detection ships as the
+    # scripts/lib/installer/ module plus its committed fingerprint set.
+    "build_legacy_fingerprints.py",
+    "measure_rendered_context.py",
     # Maintainer GitHub-attribution hygiene, not a user-facing script.
     "check_commit_attribution.py",
     # Repo-internal co-location guard (v3.17.7): enforces that a /compare

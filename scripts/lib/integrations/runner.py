@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from pathlib import Path, PurePath
 from typing import List, Optional
@@ -53,7 +54,89 @@ _ACTION_PREFIX = {
     "removed": "[-]",
     "not-found": "[!]",
     "kept": "[k]",
+    "detected": "[d]",
+    "backed-up": "[b]",
 }
+
+_CONSENT = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _skill_index_mode() -> str:
+    """Parse NEXUS_HUB_SKILL_INDEX once: `pointer`, or `full` for anything else."""
+    from scripts.lib.integrations.skill_read_paths import index_mode
+
+    return index_mode(os.environ.get("NEXUS_HUB_SKILL_INDEX"))
+
+
+def _legacy_consents(values: Optional[List[str]]) -> frozenset:
+    """Validate repeatable --remove-legacy-instructions values (64 hex chars each)."""
+    hashes = set()
+    for value in values or []:
+        token = value.strip().lower()
+        if not _CONSENT.match(token):
+            raise ValueError(
+                f"--remove-legacy-instructions expects the 64-hex consent token from an install "
+                f"report, got {value!r}"
+            )
+        hashes.add(token)
+    return frozenset(hashes)
+
+
+def _legacy_report(ctx: InstallContext, results: dict) -> dict:
+    """Attach the post-write Legacy Instruction Block report to each owner's result.
+
+    Runs after every integration wrote, so each consent token is computed from
+    the final bytes and stays valid for the next unchanged install.
+    """
+    from scripts.lib.installer.instruction_merge import collect_legacy_report, legacy_run
+    from scripts.lib.integrations.result import FileAction
+
+    candidates, refused = collect_legacy_report(ctx)
+    run = legacy_run(ctx)
+    # `consumed` lets an installer that runs one runner call per platform
+    # report a token as refused only when NO call used it.
+    payload: dict = {
+        "files": list(run.touched) if run else [],
+        "candidates": [],
+        "backups": [],
+        "consumed": sorted(run.consumed) if run else [],
+        "refused": refused,
+    }
+    for owner, path, backup in run.backups if run else []:
+        payload["backups"].append({"platform": owner, "file": path, "backup": backup})
+        if owner in results:
+            results[owner].files.append(FileAction(path=backup, action="backed-up", reason=f"of {path}"))
+    for owner, message in run.notes if run else []:
+        if owner in results:
+            results[owner].note(message)
+    for candidate in candidates:
+        command = f"--remove-legacy-instructions={candidate.consent_sha256}"
+        payload["candidates"].append(
+            {
+                "platform": candidate.owner,
+                "file": candidate.path,
+                "start_line": candidate.start_line,
+                "end_line": candidate.end_line,
+                "line_count": candidate.line_count,
+                "estimated_tokens": candidate.tokens,
+                "consent_sha256": candidate.consent_sha256,
+                "command": command,
+                "diff": candidate.diff_path,
+            }
+        )
+        if candidate.owner in results:
+            results[candidate.owner].files.append(
+                FileAction(
+                    path=candidate.path,
+                    action="detected",
+                    reason=(
+                        f"legacy lines {candidate.start_line}-{candidate.end_line}, "
+                        f"~{candidate.tokens} estimated tokens; remove with {command}"
+                        + (f"; diff: {candidate.diff_path}" if candidate.diff_path else "")
+                    ),
+                )
+            )
+    return payload
 
 
 def _render_write_result(integration_key: str, result: WriteResult, quiet: bool) -> None:
@@ -381,6 +464,11 @@ def cmd_install(args: argparse.Namespace) -> int:
         )
         for warning in payload.get("warnings", []):
             print(f"[selection:warn] {warning}", file=sys.stderr)
+    try:
+        consents = _legacy_consents(getattr(args, "remove_legacy_instructions", None))
+    except ValueError as exc:
+        print(f"[error:consent] {exc}", file=sys.stderr)
+        return 2
     ctx = InstallContext(
         repo_root=REPO_ROOT,
         target_root=target_root,
@@ -394,38 +482,84 @@ def cmd_install(args: argparse.Namespace) -> int:
         instruction_only=args.instruction_only,
         verbose=not args.quiet,
         selection=selection,
+        legacy_removal_hashes=consents,
+        skill_index_mode=_skill_index_mode(),
     )
+    from scripts.lib.installer.instruction_merge import legacy_run
+
+    run = legacy_run(ctx)
     # Recorded before the copy loop so a run that fails partway still leaves the
     # scope it was installing, which is what repair and doctor read.
     if not args.dry_run:
         manifest.set_selection(_selection_payload(selection))
     failures = []
-    summaries: List[dict] = []
+    installed: List[tuple] = []
+    results: dict = {}
     for key in keys:
         try:
             integ = get(key)
             if not args.quiet:
                 print(f"[install:{args.scope}] {integ.display_name}")
+            run.owner = key
             result = integ.install(ctx)
             # v2.3.0 / Phase 4 / T010 -- record the per-file actions for
             # doctor / repair / list-installed. Skipped on dry-run since
             # the manifest is not saved in that case.
             if not args.dry_run:
                 manifest.record_actions(key, result.files)
-            # v3.14.5 Phase 1 -- capture the structured per-surface summary from
-            # the WriteResult directly (not via _render_write_result, which is
-            # print-only and suppressed under --quiet), so the installer can
-            # render its per-platform checklist even when it runs us quietly.
-            summaries.append(_build_platform_summary(key, integ, result))
+            installed.append((key, integ, result))
+            results[key] = result
             _render_write_result(key, result, args.quiet)
         except Exception as exc:  # noqa: BLE001
             print(f"[error:{key}] {exc}", file=sys.stderr)
             failures.append(key)
+    # v4.13.3 Phase 5 -- pointer eligibility depends on skills trees that a
+    # LATER integration in this run may install (Copilot reads a path another
+    # integration writes), so pointer mode re-runs every successful install once
+    # after all of them finished. Installs are idempotent; the second pass only
+    # re-renders what changed. It also runs for a single integration (the
+    # installers call the runner once per platform), because an integration
+    # may render its instruction file before it copies its own skills tree.
+    if ctx.skill_index_mode == "pointer" and installed:
+        for position, (key, integ, _) in enumerate(installed):
+            run.owner = key
+            result = integ.install(ctx)
+            if not args.dry_run:
+                manifest.record_actions(key, result.files)
+            installed[position] = (key, integ, result)
+            results[key] = result
+    # v4.13.3 Phase 4 -- the legacy report is built after every write so each
+    # printed consent token matches the file's final bytes.
+    before = {key: len(result.files) for key, result in results.items()}
+    notes_before = {key: len(result.notes) for key, result in results.items()}
+    legacy = _legacy_report(ctx, results)
+    if not args.quiet:
+        for key, result in results.items():
+            _render_write_result(
+                key,
+                WriteResult(files=result.files[before[key]:], notes=result.notes[notes_before[key]:]),
+                quiet=False,
+            )
+    # A refused token removes nothing and is not an install failure: under the
+    # installers, a token for one platform's file is legitimately unused by every
+    # other platform's runner call, so they aggregate `consumed` and report.
+    for token in [] if args.quiet else legacy["refused"]:
+        print(
+            f"[refused:legacy] --remove-legacy-instructions={token} matches no current candidate "
+            "span (the file changed since that report, or the token belongs to another file); "
+            "nothing was removed for it",
+            file=sys.stderr,
+        )
+    # v3.14.5 Phase 1 -- capture the structured per-surface summary from the
+    # WriteResult directly (not via _render_write_result, which is print-only
+    # and suppressed under --quiet), so the installer can render its
+    # per-platform checklist even when it runs us quietly.
+    summaries: List[dict] = [_build_platform_summary(k, i, r) for k, i, r in installed]
     # Opt-in structured summary channel (v3.14.5 Phase 1). Written regardless of
     # --quiet and of --dry-run (a dry-run summary reflects what WOULD install).
     summary_path = getattr(args, "summary_json", None)
     if summary_path:
-        payload = {"scope": args.scope, "platforms": summaries}
+        payload = {"scope": args.scope, "platforms": summaries, "legacy": legacy}
         # v3.16.1 Phase 6.3 -- the installers read this file to render their
         # per-platform checklist, so the selection has to travel with it or the
         # legacy summary would describe a full install that did not happen.
@@ -460,6 +594,68 @@ def cmd_install(args: argparse.Namespace) -> int:
     if failures:
         print(f"Failed integrations: {failures}", file=sys.stderr)
         return 2
+    return 0
+
+
+def aggregate_legacy_summaries(summaries: List[dict], supplied: List[str]) -> dict:
+    """Combine the `legacy` blocks of several install summaries, oldest first.
+
+    The installers run one runner call per platform, and two platforms can
+    write the same file, so only the LAST call that touched a file describes
+    its final bytes: its candidate list replaces any earlier one for that file.
+    A supplied token is refused only when no call consumed it.
+    """
+    candidates: dict = {}
+    backups: List[dict] = []
+    consumed: set = set()
+    for summary in summaries:
+        legacy = summary.get("legacy") or {}
+        by_file: dict = {}
+        for candidate in legacy.get("candidates", []):
+            by_file.setdefault(candidate["file"], []).append(candidate)
+        for path in legacy.get("files", []):
+            candidates[path] = by_file.get(path, [])
+        backups.extend(legacy.get("backups", []))
+        consumed.update(legacy.get("consumed", []))
+    tokens = sorted({t.strip().lower() for t in supplied if t.strip()})
+    return {
+        "candidates": [c for group in candidates.values() for c in group],
+        "backups": backups,
+        "refused": [t for t in tokens if t not in consumed],
+    }
+
+
+def cmd_legacy_report(args: argparse.Namespace) -> int:
+    """Print the combined Legacy Instruction Block report for an installer run."""
+    summaries = []
+    for path in sorted(Path(args.summaries).glob("*.json")):
+        try:
+            summaries.append(json.loads(path.read_text(encoding="utf-8")))
+        except (OSError, ValueError):
+            continue
+    # Echo back only well-formed tokens: the value is printed to the terminal.
+    tokens = [t for t in args.token or [] if _CONSENT.match(t.strip().lower())]
+    report = aggregate_legacy_summaries(summaries, tokens)
+    flag = "-RemoveLegacyInstructions " if args.form == "ps1" else "--remove-legacy-instructions="
+    if not (report["candidates"] or report["refused"]):
+        return 0
+    print(
+        "Legacy instruction blocks (text outside the managed markers that matches lines an older "
+        "Nexus-Hub install shipped; review each diff, it can include lines you kept on purpose):"
+    )
+    for candidate in report["candidates"]:
+        print(
+            f"  {candidate['file']}: lines {candidate['start_line']}-{candidate['end_line']} "
+            f"(~{candidate['estimated_tokens']} estimated tokens loaded every session)"
+        )
+        if candidate.get("diff"):
+            print(f"    review first: {candidate['diff']}")
+        print(f"    to remove, re-run the installer with: {flag}{candidate['consent_sha256']}")
+    if report["backups"]:
+        print(f"  {len(report['backups'])} verified backup(s) kept under the state backups directory; none are ever deleted.")
+    for token in report["refused"]:
+        print(f"  refused: {flag}{token} matched no current span (the file changed, or it belongs to another file); nothing was removed.")
+    print("  A token binds one file state: copy it from the most recent install report. -y/--yes never removes anything.")
     return 0
 
 
@@ -1112,11 +1308,26 @@ def build_parser() -> argparse.ArgumentParser:
         help="Suppress informational output. The installer uses this so it can print its own per-platform headers; errors still go to stderr.",
     )
     p_install.add_argument(
+        "--remove-legacy-instructions",
+        action="append",
+        metavar="CONSENT_SHA256",
+        help="Remove one candidate legacy instruction span, identified by the consent token a previous install report printed for that exact file state (repeatable). --yes never implies this.",
+    )
+    p_install.add_argument(
         "--summary-json",
         metavar="PATH",
         help="Write a structured per-platform, per-surface install summary (JSON) to PATH. Populated regardless of --quiet; the installer consumes it to render the per-platform checklist and to group undetected platforms.",
     )
     p_install.set_defaults(func=cmd_install)
+
+    p_legacy = sub.add_parser(
+        "legacy-report",
+        help="Combine per-platform install summaries into one legacy instruction block report.",
+    )
+    p_legacy.add_argument("--summaries", required=True, help="Directory of install summary JSON files.")
+    p_legacy.add_argument("--token", action="append", help="A consent token the user supplied (repeatable).")
+    p_legacy.add_argument("--form", choices=("sh", "ps1"), default="sh", help="Installer flag spelling to print.")
+    p_legacy.set_defaults(func=cmd_legacy_report)
 
     p_print = sub.add_parser(
         "print-config",

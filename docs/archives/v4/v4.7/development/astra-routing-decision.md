@@ -22,7 +22,7 @@ The plan allowed moving `gpt-5.6-sol` to `strong` only if the vendor's own descr
 
 - `catalog/skills/ai-development/model-routing/references/last-known-model-map.json`: OpenAI cells updated, `verified_as_of` 2026-09-05, note `refresh_2026_09_05_v470`, and the `deliberately_unmapped` note records the 2026-09-04 exclusion and today's admission. `model-map.py validate` result is quoted in the Phase 1 history.
 - `docs/archives/v4/v4.8/plans/v4.8.0-adoption-agentic-loops-and-coding-agent-practice.md`: its map is merged and historical, so a one-sentence note under the map cites this file rather than editing the cell (amendment sub-task 1.2).
-- `docs/releases/v4/v4.4/plans/v4.4.6-guide-learning-experience.md` places `gpt-6-astra` at frontier; that map now agrees with this decision, and the file lives only on the concurrent guide branch, so it is not edited from this branch (recorded in `known-gaps.md`).
+- `docs/archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md` places `gpt-6-astra` at frontier; that map now agrees with this decision, and the file lives only on the concurrent guide branch, so it is not edited from this branch (recorded in `known-gaps.md`).
 
 ## Human check
 

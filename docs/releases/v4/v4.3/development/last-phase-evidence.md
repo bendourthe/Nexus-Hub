@@ -1,7 +1,7 @@
 # Last-Phase Evidence - v4.3.0 Agentic Verification Discipline
 
 **Date**: 2026-08-30
-**Plan**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md`
+**Plan**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md`
 **Phase**: 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 **Branch**: `feat/v4.2.2-guide-cinematic-rebuild`
 **v4.3 feature base**: `8ace852a8cc9ff8c0ff56ea58fdfaf5d8e9a7f02`
@@ -278,7 +278,7 @@ Reporting limitation stated honestly: both full runs used `--quiet`, which repor
 
 **Branch-name decision (recorded, not deferred)**: the branch stays `feat/v4.2.2-guide-cinematic-rebuild`. The plan required either a proposed rename or a recorded reason; the maintainer chose to keep it. Reason: PR [#146](https://github.com/bendourthe/Nexus-Hub/pull/146) already exists against this ref and is referenced from the plan and this evidence file. Renaming rewrites the remote ref at the final step and risks detaching the existing pull request, which is real risk for a cosmetic gain. The name under-describes the branch contents (it carries v4.2.2, v4.2.3, and v4.3.0); the pull-request title and body carry that description instead.
 
-**Commit scope decision**: the untracked `docs/releases/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` is included in the Phase 5 commit. Sub-task 5.1 explicitly scoped this branch as carrying "a v4.4.0 plan authored but unimplemented" and required the docs tree to be coherent across all four versions; `check_docs_conventions.py` already passes on that tree. Committing it makes the tracked tree match what this evidence file describes.
+**Commit scope decision**: the untracked `docs/archives/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` is included in the Phase 5 commit. Sub-task 5.1 explicitly scoped this branch as carrying "a v4.4.0 plan authored but unimplemented" and required the docs tree to be coherent across all four versions; `check_docs_conventions.py` already passes on that tree. Committing it makes the tracked tree match what this evidence file describes.
 
 **Authorization**: the maintainer authorized ONE push updating PR #146 and the required-check wait. Merge is NOT authorized and requires a separate explicit approval after the checks reach a terminal state.
 

@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 through v4.4.5 published together as the v4.4.5 tag on 2026-09-04 (PRs #154 and #157), after the operator's Home and Foundations review lifted the publication hold
-**Last updated**: 2026-09-02 (v4.4.2 Phase 8)
+**Last updated**: 2026-09-25 (post-release QG-446-1 disposition)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -24,7 +24,7 @@
 ##### DF-1 (resolved in v4.4.1) - Three platform text treatments were replaced by approved marks
 
 - **Source phase**: Phase 1 - Home identity, platforms, installation, and comparison.
-- **Plan reference**: `docs/releases/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` sub-task 1.2 / T002.
+- **Plan reference**: `docs/archives/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` sub-task 1.2 / T002.
 - **Reason**: Current official assets provide a verified Claude icon, Cursor cube, and OpenCode logo. The OpenAI brand pack does not provide a ChatGPT-specific SVG, Gemini product-icon use requires documented partner approval, and current GitHub guidance does not support using the Copilot bot as a standalone hero mark. Phase 1 therefore uses labelled text treatments for ChatGPT, Gemini, and GitHub Copilot instead of inventing or misapplying trademark geometry.
 - **Suggested next step**: Replace an individual text treatment only after its vendor publishes a distributable standalone product mark or grants documented permission, then add the exact asset provenance and rerun both-theme contrast and geometry tests.
 
@@ -110,9 +110,11 @@
 
 > v4.4.1 section closed at its Phase 7 GO (2026-09-02); its open items `HT-1`, `HT-2`, `HT-3`, and the Outline-reflow P3 stay owned as recorded above.
 
+**HT-3 closure follow-up (2026-09-27):** The original 17-branch count remains historical evidence. A fresh `git ls-remote --heads origin` returned only `develop`, `main`, and `docs/v4.15.1-mods-comparison-and-plan`; `gh pr list --state open` identified that third ref as the open, unrelated PR #222. `git branch --merged origin/develop` returned only the protected integration and release branches, and the other v4.13 worktrees retain their own unmerged branches. No reviewed, merged, unprotected branch remains to delete, so HT-3 is closed for the current repository state. This audit does not establish how each of the original 17 refs disappeared, and it does not authorize deletion of PR #222 or another session's worktree.
+
 ## v4.4.2 - guide-production-ready-rebuild
 
-**Plan**: [v4.4.2-guide-production-ready-rebuild.md](plans/v4.4.2-guide-production-ready-rebuild.md)
+**Plan**: [v4.4.2-guide-production-ready-rebuild.md](../../../archives/v4/v4.4/plans/v4.4.2-guide-production-ready-rebuild.md)
 **Contract**: [phase-1-contract.md](development/guide-production-ready-rebuild/phase-1-contract.md) (requirement matrix, superseded-assertion register, byte ledger)
 
 ### Carried in from v4.4.1
@@ -175,7 +177,7 @@
 > Not finalized. v4.4.2 is in progress; this section is appended per phase and reconciled at the plan's final phase.
 ## v4.4.3 - guide-illustration-clarity-rebuild
 
-**Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](plans/v4.4.3-guide-illustration-clarity-rebuild.md)
+**Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](../../../archives/v4/v4.4/plans/v4.4.3-guide-illustration-clarity-rebuild.md)
 **Base**: `develop` at `a376c1ae`
 **Status**: nine phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
@@ -230,7 +232,7 @@
 
 ## v4.4.4 - guide-teaching-clarity-rebuild
 
-**Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](plans/v4.4.4-guide-teaching-clarity-rebuild.md)
+**Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](../../../archives/v4/v4.4/plans/v4.4.4-guide-teaching-clarity-rebuild.md)
 **Base**: the v4.4.3 closeout at `bcfa3413`, on the same branch (v4.4.3 was never published)
 **Status**: nine phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
@@ -279,7 +281,7 @@
 
 ## v4.4.5 - guide-mockup-integration
 
-**Plan**: [v4.4.5-guide-mockup-integration.md](plans/v4.4.5-guide-mockup-integration.md)
+**Plan**: [v4.4.5-guide-mockup-integration.md](../../../archives/v4/v4.4/plans/v4.4.5-guide-mockup-integration.md)
 **Base**: the v4.4.4 closeout at `3ac90bb2`, on the same branch (neither v4.4.3 nor v4.4.4 was published)
 **Status**: eight phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
@@ -377,6 +379,8 @@ WN-446-2 RESOLVED for current `develop` 2026-09-25 (post-release): manual [CodeQ
 QG-446-1 FOLLOW-UP 2026-09-25 (post-release): a new unfiltered Windows full profile completed all 61 commands with zero failures, skips, or advisories in 7,220.4 seconds at `bb3b2b97`; all 13 test partitions returned terminal passes. The process prepended Git Bash to PATH. At the current `0338b11d` integration tip, whose delta is documentation-only, fast 17/17 and docs 8/8 passed with the same prefix. A fresh default-PATH interpreter gate still exits 1 because Windows chooses an unusable Bash shim; the prefixed gate exits 0. The [archived full-run qualification](../../../archives/v4/v4.4/development/full-native-profile-2026-09-25/verification.md) separates these results. Keep QG-446-1 open for the default-host interpreter boundary and protected publication of this record. The original failed run remains unchanged, and the user-superseded v4.4.6 plan's T027 is not retroactively complete.
 
 QG-446-1 LOCAL DEFAULT-HOST CANDIDATE 2026-09-25 (post-release): the current Windows-managed hook commands target 35 PowerShell siblings and six Python scripts, with zero Bash scripts in the installed Claude settings. The interpreter gate now probes the host-selected PowerShell script on Windows and retains Bash on non-Windows. The unmodified Windows host PATH passes the real gate, and the unfiltered native full profile passed 61/61 commands with no skips or advisories in 7,446.3 seconds. The [archived qualification](../../../archives/v4/v4.4/development/windows-interpreter-default-host/verification.md) retains the summary and environment receipt. This local candidate does not close QG-446-1 until protected integration and post-merge checks pass; historical failed evidence remains unchanged.
+
+QG-446-1 RESOLVED ON `develop` 2026-09-25 (post-release): [PR #319](https://github.com/bendourthe/Nexus-Hub/pull/319) merged the default-host interpreter probe at `e8c34ef0` after the required `ci-required`, colocation, shellcheck, validation, and verification checks passed; Linux and Windows tests, guide rendering, CodeQL, and the remaining hosted jobs also passed. [Post-merge run 36188249570](https://github.com/bendourthe/Nexus-Hub/actions/runs/36188249570) passed smoke and provenance against that merge commit. The [archived 61-command default-host receipt](../../../archives/v4/v4.4/development/windows-interpreter-default-host/verification.md) closes this current-host gate. The original failed profile, process-qualified precursor, and superseded v4.4.6 T027 are unchanged; this disposition does not claim a rerun of the full profile on the post-merge commit or cover arbitrary user-authored Bash hooks.
 
 ### Resolved
 

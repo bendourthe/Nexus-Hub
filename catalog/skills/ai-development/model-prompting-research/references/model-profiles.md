@@ -7,8 +7,8 @@ the next write regenerates it.
 human-readable mirror of one model's entry, read on demand as a Tier-3
 reference. This index exists so no mirror is an orphan bundled file.
 
-Every claim in these files is scoped to the model its file names. None of
-them may be copied into a shared catalog body.
+Each file is retrieved by model ID; its Evidence scope column describes
+what the cited source covers. No claim may be copied into a shared catalog body.
 
 16 profiled model(s):
 

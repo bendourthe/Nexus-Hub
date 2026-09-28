@@ -1922,8 +1922,14 @@ def check_slide_fragments(html: str) -> dict[str, Any]:
     two slides both numbering 1..3 is correct, while one slide numbering 1, 3 has
     a gap the runtime's ordered reveal cannot express.
     """
+    sections = slide_sections(html)
+    if not sections:
+        return _finding(
+            "slide-fragments", "unchecked", "structural",
+            "no .slide-stage section exists to inspect for fragment order",
+        )
     problems: list[str] = []
-    for index, inner in enumerate(slide_sections(html), start=1):
+    for index, inner in enumerate(sections, start=1):
         raw = _DATA_FRAGMENT_RE.findall(inner)
         if not raw:
             continue
@@ -2035,8 +2041,14 @@ def check_slide_type_variety(html: str) -> dict[str, Any]:
     one slide without a browser, and the rendered floor itself is a render probe
     (references/responsive-typography.md section 4.1).
     """
+    sections = slide_sections(html)
+    if not sections:
+        return _finding(
+            "slide-type-variety", "unchecked", "structural",
+            "no .slide-stage section exists to inspect for text-size variety",
+        )
     problems: list[str] = []
-    for index, inner in enumerate(slide_sections(html), start=1):
+    for index, inner in enumerate(sections, start=1):
         sizes = {
             f"{float(value):g}{unit.lower()}"
             for value, unit in _FONT_SIZE_RE.findall(inner)
@@ -2069,8 +2081,14 @@ def check_slide_figure_scaled(html: str) -> dict[str, Any]:
     viewBox stretched to width:100%;height:100%, which letterboxes inside
     preserveAspectRatio and leaves the drawing sitting in a band.
     """
+    sections = slide_sections(html)
+    if not sections:
+        return _finding(
+            "slide-figure-scaled", "unchecked", "structural",
+            "no .slide-stage section exists to inspect for scaled figures",
+        )
     problems: list[str] = []
-    for index, inner in enumerate(slide_sections(html), start=1):
+    for index, inner in enumerate(sections, start=1):
         if _TRANSFORM_SCALE_RE.search(inner):
             problems.append(
                 f"slide {index}: a figure wrapper declares a scale transform, "

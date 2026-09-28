@@ -1,7 +1,7 @@
 # Verification Ladder - v4.3.0
 
 **Status**: Accepted for implementation
-**Plan**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md`
+**Plan**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md`
 **Decision date**: 2026-08-29
 
 ## Decision

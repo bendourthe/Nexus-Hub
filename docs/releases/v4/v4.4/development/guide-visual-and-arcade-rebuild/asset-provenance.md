@@ -1,6 +1,6 @@
 # v4.4.1 Asset Provenance Ledger
 
-**Plan**: [v4.4.1-guide-visual-and-arcade-rebuild.md](../../plans/v4.4.1-guide-visual-and-arcade-rebuild.md)
+**Plan**: [v4.4.1-guide-visual-and-arcade-rebuild.md](../../../../../archives/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md)
 **Phase**: 1, sub-task 1.3 (decision task)
 **Acquisition date**: 2026-09-01
 **Status**: APPROVED 2026-09-01. All five platform marks are approved at the exact sanitized SHA-256 values in section 1, so Phase 2 is unblocked.
@@ -161,7 +161,7 @@ Phase 2 must implement this disclosure in the same commit that inlines the marks
 
 ## 5. v4.4.3 reuse in the Foundations Agentic Platforms scene
 
-**Date**: 2026-09-03. **Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](../../plans/v4.4.3-guide-illustration-clarity-rebuild.md), Phase 6.
+**Date**: 2026-09-03. **Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](../../../../../archives/v4/v4.4/plans/v4.4.3-guide-illustration-clarity-rebuild.md), Phase 6.
 
 The v4.4.3 review asked for the Agentic Platforms scene to name four platforms and show each one's
 logo, linking to an icon aggregator for the marks. Four already-approved marks are reused instead,
@@ -197,7 +197,7 @@ staged assets.
 
 ## 6. v4.4.4 retirement of the audio asset
 
-**Date**: 2026-09-03. **Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](../../plans/v4.4.4-guide-teaching-clarity-rebuild.md), Phase 6.
+**Date**: 2026-09-03. **Plan**: [v4.4.4-guide-teaching-clarity-rebuild.md](../../../../../archives/v4/v4.4/plans/v4.4.4-guide-teaching-clarity-rebuild.md), Phase 6.
 
 `assets/model-output-audio.wav` is no longer embedded in the guide. The v4.4.4 review rebuilt the
 Models scene around how a model works and instructed that audio be left out of the teaching, so the
@@ -216,7 +216,7 @@ the multimodal and omni tiers.
 
 ## 7. v4.4.5 second placement of the four platform marks
 
-**Date**: 2026-09-04. **Plan**: [v4.4.5-guide-mockup-integration.md](../../plans/v4.4.5-guide-mockup-integration.md), Phase 1.
+**Date**: 2026-09-04. **Plan**: [v4.4.5-guide-mockup-integration.md](../../../../../archives/v4/v4.4/plans/v4.4.5-guide-mockup-integration.md), Phase 1.
 
 The review asked for a logo on each platform box in the Home portability figure, so the Claude,
 ChatGPT, Cursor, and Gemini marks now appear TWICE in the guide: once in the compatibility rail,

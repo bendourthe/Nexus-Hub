@@ -130,6 +130,22 @@ When loading multiple pieces of information, order them by importance to the cur
 
 Information at the bottom of the context window has less influence on output than information at the top. Put the most decision-critical information first.
 
+## Rule ownership
+
+The six context skills overlap, so each concern below has exactly one owning skill; every other skill hands off to that owner by name and never restates the owned rule.
+
+| Concern | Owner | Other skills' role (handoff only) |
+|---|---|---|
+| Context selection: what is loaded, when, and in what order (context budget, progressive layering, information hierarchy, phase refresh) | `[[context-engineering]]` | `[[context-manager]]` applies it while mapping a codebase; `[[prompt-token-optimization]]` and `[[context-optimization]]` shrink what the plan loads but do not decide it |
+| Compaction decision: whether and when compaction fires (capacity thresholds, fire/suppress rubric) | `[[context-compression]]` | `[[context-degradation]]` supplies the severity signal; `[[context-manager]]` and `[[prompt-token-optimization]]` defer to the rubric |
+| Compression method: summary and handoff contents, preservation contract, post-compression validation probes | `[[context-compression]]` | `[[context-degradation]]` (Bucket 3), `[[context-manager]]` (session handoffs), and `[[prompt-token-optimization]]` (manual compaction) invoke it |
+| Degradation detection: decay patterns, probe questions, severity, choice of mitigation bucket | `[[context-degradation]]` | `[[context-compression]]` reads its severity as a compaction input |
+| Tool-boundary output reduction: the `nexus-context-compressor` engine, quiet flags, output-minimization instructions | `[[context-optimization]]` | `[[context-compression]]` and `[[prompt-token-optimization]]` point to it for setup and engine behavior |
+| Token measurement and cost-reduction technique selection: baseline audit, programmatic tool calling, functions over data, dynamic filtering, tool deferral, subagent isolation sizing | `[[prompt-token-optimization]]` | `[[context-degradation]]` (Bucket 4) hands subtask isolation to it |
+| Large-codebase navigation and cross-file consistency: context maps, file relationships, change-impact tracking | `[[context-manager]]` | None restate it; `[[context-engineering]]` scopes what each step loads from the map |
+
+Tie-break: when a concern spans two skills, the skill that decides when a constraint applies and how severe it is owns that decision, and the skill that measures and remediates owns the procedure.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

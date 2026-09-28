@@ -13,7 +13,7 @@ The index is authoritative because the validator, the staleness checker, the res
 
 Model-specific prompting guidance must never land in a shared catalog body (a `SKILL.md`, a command, a `base-*.md` template). A shared body is distributed verbatim to every platform, so a line naming one model becomes wrong the moment a reader is running a different one, and `scripts/check_base_template_parity.py` fails the build when such a line diverges across the five `base-*.md` templates. This layer is where model-specific guidance lives instead: bundled under the skill, distributed as Tier-3 on-demand reference by the installer's recursive skill-folder copy, and never inlined into a shared body.
 
-## Index schema (version 1.1.0)
+## Index schema (version 1.2.0)
 
 ### Top level
 
@@ -58,6 +58,7 @@ A model listed in `meta.roster` with no entry under `models` is an UNVERIFIED mo
 | `confidence` | string | Yes | One of `high`, `medium`, `low`, `unverified`. `unverified` means the claim has not yet survived the adversarial-verify pass and must not be acted on. |
 | `scope` | string | Yes | One of `model-specific`, `model-agnostic-candidate`. Determines the write target. See the routing rule below. |
 | `note` | string | No | Free text. Use it for a TODO, a caveat, or the reason a claim was scoped the way it was. |
+| `evidence_scope` | string | No | One of `model`, `model-family`, `provider-plan`, `cited-page`. Describes what the cited source establishes, independently of the `scope` write-routing field. Absence means not recorded, never an implied model-specific source. Added in schema 1.2.0. |
 
 ## The scope field is the hard rail
 
@@ -78,6 +79,8 @@ Each `references/models/<model-id>.md` mirrors one `models` entry and carries th
 4. The `last_verified` date.
 
 The seed mirror is `references/models/claude-opus-5.md`. Use it as the template when the research engine writes a new one.
+
+The mirror includes an Evidence scope column. A family or plan fact remains attached to each applicable model for direct lookup, but the column prevents that duplication from reading as a per-model measurement. `cited-page` labels a negative result about the cited page only; it is not evidence that all vendor documentation lacks guidance. This field does not change the `scope` routing rail, roster freshness, claim confidence, or the original per-model `last_verified` date.
 
 ## Validation and freshness
 

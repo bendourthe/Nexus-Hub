@@ -43,7 +43,7 @@ function Read-RenameMap {
 function Get-PrefixMap {
     # Mirrors _derive_prefix_map in link-baseline.py: candidate directory
     # renames, kept only when nearly every mapped file under the prefix agrees.
-    param([hashtable]$FileMap)
+    param([hashtable]$FileMap, [hashtable]$StationarySources)
     $candidates = @{}
     foreach ($old in $FileMap.Keys) {
         $new = $FileMap[$old]
@@ -65,6 +65,8 @@ function Get-PrefixMap {
     foreach ($key in $candidates.Keys) {
         $parts = $key -split "`t"
         $oldPrefix = $parts[0]; $newPrefix = $parts[1]
+        $stationary = @($StationarySources.Keys | Where-Object { $_ -eq $oldPrefix -or $_.StartsWith("$oldPrefix/") })
+        if ($stationary.Count -gt 0) { continue }
         $under = 0; $mismatched = 0
         foreach ($old in $FileMap.Keys) {
             if ($old -eq $oldPrefix -or $old.StartsWith("$oldPrefix/")) {
@@ -207,9 +209,19 @@ try {
     if ([string]::IsNullOrWhiteSpace($AfterPath)) { throw "Missing required option --after" }
     $useRenameMap = -not [string]::IsNullOrWhiteSpace($RenameMap)
     $fileMap = $null; $prefixes = @()
+    $beforeRecords = @(Read-Ndjson $BeforePath)
+    $afterRecords = @(Read-Ndjson $AfterPath)
     if ($useRenameMap) {
         $fileMap = Read-RenameMap $RenameMap
-        $prefixes = Get-PrefixMap $fileMap
+        $afterSources = @{}
+        foreach ($record in $afterRecords) { [void]($afterSources[$record.source] = $true) }
+        $stationarySources = @{}
+        foreach ($record in $beforeRecords) {
+            if ($afterSources.ContainsKey($record.source) -and -not $fileMap.ContainsKey($record.source)) {
+                [void]($stationarySources[$record.source] = $true)
+            }
+        }
+        $prefixes = Get-PrefixMap $fileMap $stationarySources
     }
     # With a rename map the identity drops `link` and projects the before-side
     # into post-move coordinates; a correct repair rewrites the link text, so
@@ -225,11 +237,11 @@ try {
         return (Get-LinkKey $r)
     }
     $beforeMap = @{}
-    foreach ($record in @(Read-Ndjson $BeforePath)) {
+    foreach ($record in $beforeRecords) {
         [void]($beforeMap[(& $keyOf $record $useRenameMap)] = $record)
     }
     $afterMap = @{}
-    foreach ($record in @(Read-Ndjson $AfterPath)) {
+    foreach ($record in $afterRecords) {
         [void]($afterMap[(& $keyOf $record $false)] = $record)
     }
     $newKeys = @($afterMap.Keys | Where-Object { -not $beforeMap.ContainsKey($_) })

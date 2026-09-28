@@ -160,7 +160,9 @@ def batch_generate_decks(
             c if c.isalnum() or c in "-_ " else "" for c in record.get(filename_field, "output")
         ).strip()
         file_path = output / f"{safe_name}.pptx"
+        guard_existing(file_path)  # user-edit-preservation: never overwrite a user-edited file
         prs.save(str(file_path))
+        record_saved(file_path)
         generated_files.append(file_path)
 
     return generated_files

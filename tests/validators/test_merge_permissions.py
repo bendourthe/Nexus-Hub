@@ -149,6 +149,83 @@ def test_sibling_keys_and_user_content_survive(tmp_path: Path, template: Path) -
     assert json.loads(settings.read_text(encoding="utf-8"))["someUserKey"] == "preserve-me"
 
 
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows held handles block replacement")
+def test_wn4_transient_held_settings_handle_does_not_abort_merge(
+    tmp_path: Path, template: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A temporary reader must not abort a settings merge or discard user keys."""
+    import threading
+
+    settings = _settings(tmp_path, ["Read"], someUserKey="preserve-me")
+    handle = settings.open("rb")
+    release: threading.Timer | None = None
+    real_replace = Path.replace
+
+    def replace_while_held(path: Path, target: Path) -> Path:
+        nonlocal release
+        if target == settings and release is None:
+            release = threading.Timer(0.3, handle.close)
+            release.start()
+        return real_replace(path, target)
+
+    monkeypatch.setattr(Path, "replace", replace_while_held)
+    try:
+        mp.merge(template, settings, "permissions.allow")
+    finally:
+        handle.close()
+        if release is not None:
+            release.join()
+
+    assert json.loads(settings.read_text(encoding="utf-8"))["someUserKey"] == "preserve-me"
+
+
+def test_wn4_permanent_replacement_denial_preserves_settings(
+    tmp_path: Path, template: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A persistent denial must surface and leave no staged settings file."""
+    settings = _settings(tmp_path, ["Read"], someUserKey="preserve-me")
+    original = settings.read_bytes()
+    real_replace = Path.replace
+
+    def deny_settings_replace(path: Path, target: Path) -> Path:
+        if target == settings:
+            raise PermissionError(13, "Access is denied", str(path))
+        return real_replace(path, target)
+
+    monkeypatch.setattr(Path, "replace", deny_settings_replace)
+    with pytest.raises(PermissionError):
+        mp.merge(template, settings, "permissions.allow")
+
+    assert settings.read_bytes() == original
+    assert not list(tmp_path.glob("*.tmp"))
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Retry is Windows-only")
+def test_wn4_retry_refuses_a_concurrent_user_edit(
+    tmp_path: Path, template: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A retry must not replace settings that changed after the merge read."""
+    settings = _settings(tmp_path, ["Read"], someUserKey="preserve-me")
+    real_replace = Path.replace
+    observed = {"attempts": 0}
+
+    def edit_then_deny(path: Path, target: Path) -> Path:
+        if target == settings:
+            observed["attempts"] += 1
+            if observed["attempts"] == 1:
+                settings.write_text('{"someUserKey": "changed by user"}', encoding="utf-8")
+                raise PermissionError(13, "Access is denied", str(path))
+        return real_replace(path, target)
+
+    monkeypatch.setattr(Path, "replace", edit_then_deny)
+    with pytest.raises(ValueError, match="changed"):
+        mp.merge(template, settings, "permissions.allow")
+
+    assert observed["attempts"] == 1
+    assert json.loads(settings.read_text(encoding="utf-8"))["someUserKey"] == "changed by user"
+    assert not list(tmp_path.glob("*.tmp"))
+
+
 def test_backup_is_taken_before_any_change(tmp_path: Path, template: Path) -> None:
     settings = _settings(tmp_path, ["Read"])
     original = settings.read_text(encoding="utf-8")
@@ -259,6 +336,29 @@ def test_set_true_creates_an_absent_settings_file(tmp_path: Path) -> None:
 def _cli(*args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run([sys.executable, str(HELPER), *args],
                           capture_output=True, text=True, check=False)
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows held handles block replacement")
+def test_cli_wn4_held_settings_handle_merges_after_release(
+    tmp_path: Path, template: Path
+) -> None:
+    """Exercise the installer-facing CLI while a reader briefly holds settings."""
+    import threading
+
+    settings = _settings(tmp_path, ["Read"], someUserKey="preserve-me")
+    handle = settings.open("rb")
+    release = threading.Timer(0.3, handle.close)
+    release.start()
+    try:
+        proc = _cli("--template", str(template), "--settings", str(settings))
+    finally:
+        handle.close()
+        release.join()
+
+    assert proc.returncode == 0, proc.stderr
+    assert "added: 1" in proc.stdout
+    assert _allow(settings) == ["Bash(ls *)", "Read"]
+    assert json.loads(settings.read_text(encoding="utf-8"))["someUserKey"] == "preserve-me"
 
 
 def test_cli_reports_added_and_removed_on_stdout(tmp_path: Path, template: Path) -> None:

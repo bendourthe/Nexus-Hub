@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released
-**Last updated**: 2026-09-24
+**Last updated**: 2026-09-25
 
 Release-scoped gaps for the sole-contributor-attribution plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -15,7 +15,7 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 3 |
-| Warnings (WN) | 1 | 3 |
+| Warnings (WN) | 0 | 4 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 2 | 2 |
 
@@ -65,11 +65,15 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 **Owner**: Repository maintainer. **Suggested next step**: reconcile the description at the next release settings review. The report-only attribution audit did not mutate GitHub metadata.
 
-#### WN-4: Unexplained Windows file-replacement failure
+#### WN-4: Unexplained Windows file-replacement failure - RESOLVED
 
 **Source phase**: Phase 4. **Plan reference**: T022. **Reason**: the Windows installer/validator command passed 2,069 tests but failed `test_sibling_keys_and_user_content_survive` with `WinError 5` while replacing its temporary settings file. No open-file defect was found in the helper's `read_text` / `write_text` calls, and five isolated reproduction attempts passed. The process holding or denying access at the original failure was not observed, so no cause is asserted.
 
 **Owner**: Windows installer maintainer. **Suggested next step**: retain the original command receipt and five-attempt reproduction record; capture file-handle/permission evidence if it recurs. The complete installer/validator rerun is separate evidence, not a rewrite of the first failed run. No permission policy, atomic-write behavior or retry limit was changed to suppress this failure.
+
+**Local repair candidate, 2026-09-25**: A test-owned Windows reader reproduced the same `WinError 5` class against the original helper, and the [bounded qualification](../../../archives/v4/v4.12/development/wn4-atomic-replace/verification.md) records the failing-first tests and repair. The original denying process remains unknown. WN-4 stays open until protected publication and merged-tree verification pass.
+
+**Resolution, 2026-09-25**: PR #326's corrected head passed 24 hosted checks with one intentional skip and merged to `develop` at `5fd7f985`. [Post-merge run 36217288553](https://github.com/bendourthe/Nexus-Hub/actions/runs/36217288553) passed smoke and provenance on that exact commit. The repair covers the reproduced transient held-handle class, persistent-denial cleanup, and retry-time change detection; it does not identify the process behind the historical failure or guarantee against every concurrent write. The original failed run remains failed evidence. WN-4 is resolved within that bounded contract.
 
 #### QG-1: GitHub retains read-only pull-request refs
 

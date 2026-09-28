@@ -8,13 +8,13 @@ This file mirrors the `models["claude-haiku-4-5"]` entry in `assets/profiles-ind
 
 ## Verified prompting guidance
 
-| Claim | Confidence | Scope | Primary source |
-|---|---|---|---|
-| For coding or reasoning tasks on Haiku 4.5, consider enabling manual extended thinking with thinking: {type: "enabled", budget_tokens: N}; this is conditional, not a universal default. Three independent refutation lenses on 2026-09-25: currency and actionability survived; source support survived after quoting enabled. A complete live Claude roster remains unavailable, so this claim-only write preserves the 2026-09-08 roster metadata. | `medium` | `model-specific` | [source](https://platform.claude.com/docs/en/models/haiku-4-5/migration-guide) |
+| Claim | Confidence | Scope | Evidence scope | Primary source |
+|---|---|---|---|---|
+| For coding or reasoning tasks on Haiku 4.5, consider enabling manual extended thinking with thinking: {type: "enabled", budget_tokens: N}; this is conditional, not a universal default. Three independent refutation lenses on 2026-09-25: currency and actionability survived; source support survived after quoting enabled. A complete live Claude roster remains unavailable, so this claim-only write preserves the 2026-09-08 roster metadata. | `medium` | `model-specific` | not recorded | [source](https://platform.claude.com/docs/en/models/haiku-4-5/migration-guide) |
 
 ## Does not apply to shared bodies
 
-Every claim in this file is scoped to the model named in the H1. It must not be copied into a shared catalog body: a `SKILL.md`, a command file, or any of the five `base-*.md` instruction templates. Those artifacts are distributed verbatim to every supported platform, so a line naming one model is wrong for every reader running a different one, and `scripts/check_base_template_parity.py` fails the build when such a line diverges across the templates.
+This file is retrieved by the model named in the H1. A claim's evidence can cover a model family, a provider plan, or only a cited-page negative result rather than this variant alone. Claims must not be copied into a shared catalog body: a `SKILL.md`, a command file, or any of the five `base-*.md` instruction templates. Those artifacts are distributed verbatim to every supported platform, so a line naming one model is wrong for every reader running a different one.
 
 If a claim here turns out to be true of models generally rather than of this one, re-scope it to `model-agnostic-candidate` in `assets/profiles-index.json` and let the guard-gated auto-apply path propose the shared-body edit, so the change is branch-isolated, guard-checked, and reviewable.
 

@@ -1,6 +1,6 @@
 # v4.4.3 Phase 1 Contract -- Gates, Register, and Byte Ledger
 
-**Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](../../plans/v4.4.3-guide-illustration-clarity-rebuild.md)
+**Plan**: [v4.4.3-guide-illustration-clarity-rebuild.md](../../../../../archives/v4/v4.4/plans/v4.4.3-guide-illustration-clarity-rebuild.md)
 **Base**: `develop` at `a376c1ae`
 **Guide at start**: 345,623 bytes
 **Ceiling**: 500,000 bytes. Allocation for this plan: 60,000.

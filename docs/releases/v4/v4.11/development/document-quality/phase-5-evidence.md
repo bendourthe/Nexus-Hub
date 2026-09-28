@@ -1,7 +1,7 @@
 # Phase 5 Evidence - Attestation Gates for the Unmeasurable
 
 **Project**: Nexus-Hub
-**Plan**: [v4.11.2 document and deck quality](../../plans/v4.11.2-adoption-document-and-deck-quality.md)
+**Plan**: [v4.11.2 document and deck quality](../../../../../archives/v4/v4.11/plans/v4.11.2-adoption-document-and-deck-quality.md)
 **Phase**: 5 of 7
 **Branch**: `feat/v4.11.2-document-deck-quality`
 **Date**: 2026-09-13

@@ -9,7 +9,7 @@ overview_l1: "This skill minimizes tokens per task in long-running agent session
 
 Specialized expertise in compressing conversation context to extend effective session length and maintain quality. Context compression is the primary tool for managing long-running agent sessions without losing critical decisions, file modifications, or task state.
 
-> **Programmatic counterpart -- the `nexus-context-compressor` engine.** This skill is the *methodology* for compressing conversation context with judgment. For automatic, reversible compression of verbose *tool output* before it ever enters the window, Nexus-Hub ships an engine at `extensions/nexus-context-compressor/`: a local-first PreToolUse compressor that routes JSON dumps, code, and logs to deterministic strategies and persists every dropped span behind a `<<ccr:HASH N_rows>>` marker that resolves back on demand. Reach for the engine when the bloat is *mechanical* tool output (the Observation Masking pattern below, automated); apply the approaches in this skill when the bloat is conversation history and decisions that need a human-or-agent summary. See [[context-optimization]] for the one-env-var setup and [[prompt-token-optimization]] for the token-economics view.
+> **Handoff for mechanical tool output.** Automatic reduction of command output at the tool boundary (the `nexus-context-compressor` engine, its behavior, and its setup) is owned by `[[context-optimization]]`, and token measurement is owned by `[[prompt-token-optimization]]`; this skill hands off to them and covers conversation history and decisions that need a judged summary.
 
 ## When to Use This Skill
 
@@ -95,7 +95,7 @@ Waiting for autocompact is the **bad-compact failure mode**: the automatic trigg
 
 #### Retain eliminating evidence
 
-Discard only exploration that has been superseded and no longer constrains the work. Preserve dead-end queries, failed hypotheses, and negative results when they eliminate paths the agent would otherwise retry. As comparison insight S5 records, a trajectory is not summarizable when its value is dispersed across many small inferences, including a list of dead-end queries needed to avoid retries or negative results that constrain the hypothesis space. See the [v4.10.1 comparison](../../../../docs/releases/v4/v4.10/comparisons/v4.10.1-comparison-eval-isolation-and-adaptive-compaction.md#section-4---evidence-and-insights).
+Discard only exploration that has been superseded and no longer constrains the work. Preserve dead-end queries, failed hypotheses, and negative results when they eliminate paths the agent would otherwise retry. As comparison insight S5 records, a trajectory is not summarizable when its value is dispersed across many small inferences, including a list of dead-end queries needed to avoid retries or negative results that constrain the hypothesis space. See the [v4.10.1 comparison](../../../../docs/archives/v4/v4.10/comparisons/v4.10.1-comparison-eval-isolation-and-adaptive-compaction.md#section-4---evidence-and-insights).
 
 **Syntax**: `/compact focus on <current work>, drop <closed threads>`
 

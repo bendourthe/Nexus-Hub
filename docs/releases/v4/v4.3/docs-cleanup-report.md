@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-30
 **Mode**: audit only; no files moved
-**Plan**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md`
+**Plan**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md`
 
 ## Phase 1 - Design the verification ladder
 
@@ -14,7 +14,7 @@ Phase 1 adds the active verification contract, the v4.3 known-gaps ledger, and a
 
 | Path | Category | Disposition |
 |---|---|---|
-| `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` | Active plan | Keep. |
+| `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` | Active plan | Keep. |
 | `docs/releases/v4/v4.3/development/verification-ladder.md` | Active release contract | Keep through implementation and archive with the release development evidence. |
 | `docs/releases/v4/v4.3/known-gaps.md` | Active release gap ledger | Keep in the active release tree for next-plan ingestion. |
 | `docs/releases/v4/v4.3/docs-cleanup-report.md` | Active release audit record | Keep and append each later phase audit. |

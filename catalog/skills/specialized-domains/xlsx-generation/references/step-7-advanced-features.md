@@ -171,7 +171,9 @@ ws["B1"] = 42
 
 # Save as .xlsm to preserve macros
 # IMPORTANT: Saving as .xlsx will strip all VBA code
+guard_existing("updated_with_macros.xlsm")  # user-edit-preservation: never overwrite a user-edited file
 wb.save("updated_with_macros.xlsm")
+record_saved("updated_with_macros.xlsm")
 ```
 
 ```python

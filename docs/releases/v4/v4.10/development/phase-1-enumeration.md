@@ -1,6 +1,6 @@
 # Phase 1 evidence - Queue enumeration and baseline
 
-Evidence for Phase 1 (T001-T004) of the [v4.10.0 plan-queue continuity plan](../plans/v4.10.0-plan-queue-continuity.md). Records the real plan inventory before automation, the part of the existing Step 6.5 rule this script makes deterministic, the reconstructed reference-repair surface from the three 2026-09-10 renumbers, and the enumeration script's behaviour against fixtures and the live tree. Read this to confirm D1 before Phase 2 builds the assessment on top of it.
+Evidence for Phase 1 (T001-T004) of the [v4.10.0 plan-queue continuity plan](../../../../archives/v4/v4.10/plans/v4.10.0-plan-queue-continuity.md). Records the real plan inventory before automation, the part of the existing Step 6.5 rule this script makes deterministic, the reconstructed reference-repair surface from the three 2026-09-10 renumbers, and the enumeration script's behaviour against fixtures and the live tree. Read this to confirm D1 before Phase 2 builds the assessment on top of it.
 
 ## T001 - Baseline
 
@@ -63,7 +63,7 @@ Every class below was observed at least once across the three operations. This l
 
 1. **Intra-tree version strings** - `**Version**:`, `**Filename**:`, and body prose inside the moved plan and comparison.
 2. **Relative plan links** - link text paired with a sibling-relative target such as `../../v4.11/plans/v4.11.0-example.md`.
-3. **Link-reference definitions** - `[N8]: ../../../../../docs/releases/v4/v4.11/plans/....md`, which a link-text-only scan misses entirely.
+3. **Link-reference definitions** - `[N8]: ../../../../../docs/archives/v4/v4.11/plans/....md`, which a link-text-only scan misses entirely.
 4. **Self-referential paths inside a plan's own task lines** - 26 task lines in this plan each name a `docs/releases/v4/v4.10/development/...` output path.
 5. **Tracker dashboard rows** - `| v4.11.0 implementation tasks complete | ... |` in `docs/todos.md`.
 6. **Tracker prose and section headings** - `## Queued work - v4.11.0 ...` plus the body link and its narrative.

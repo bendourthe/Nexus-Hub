@@ -46,16 +46,18 @@ This is not hypothetical. The v3.18.0 Phase 3 ratchet-down moved a block contain
 
 **Closure does retire them, which is state 3b below.** The original exemption was written as permanent, and that produced the outcome it was meant to prevent, one level down: at v4.13.0 every released minor existed in BOTH trees, 39 active directories against 44 archived, including all 22 released v3 minors. Released is not closed, and the difference is the whole rule. The initial closure scan falsely selected v3.18, whose BG-2 remained open, and v3.5, which had no known-gaps register. Neither qualifies. Age is the wrong trigger for a plan; proven completion is the right one.
 
-### 3b. ARCHIVE THE WHOLE MINOR once it is fully closed
+### 3b. ARCHIVE PLANS AND COMPARISONS after proven closure or transfer
 
 Independently of the age rule above, a minor's `plans/` and `comparisons/` move to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/` once that minor is **fully closed**. Both conditions must hold, and both are mechanically checkable:
 
 1. Its `known-gaps.md` explicitly states a finalized or closed Status and `**Open items**: 0`, with no contradictory `OPEN` marker, in-progress or open Status, unchecked box, or gap id in an Open Items section. A missing or ambiguous register holds the minor open.
 2. Every plan under its `plans/` has zero unchecked task lines (`- [ ] T...`).
 
+The v4.0-v4.12 historical closeout has one narrow alternative: **closed by verified transfer**. The v4.13 `known-gaps.md` must link the older minor's active ledger with a matching LF-normalized SHA-256, state that source-open items remain open, and list every plan with retained strict task boxes with its matching hash, exact box count, disposition, and existing evidence. This retires only the older `plans/` and `comparisons/` directories from the active tree. It does not resolve a gap, complete a task, change a plan's historical boxes, or qualify v4.13 and later plans. A missing or stale link, hash, disposition, or evidence blocks the move. `scripts/check_docs_retention.py` checks this exception before reporting an archive candidate.
+
 `known-gaps.md` **stays in the active tree** even for a closed minor. It is the one file the next `/plan` reads to decide what carries forward, and a closed file answering "nothing carries forward" is a cheaper answer than a directory hop into the archive. Archiving it would save one small file and cost a lookup on every plan.
 
-An open item or an unchecked task is a hold, not a delay: it means the minor is still live work regardless of how many releases have shipped since. This is why the trigger is completion rather than age, and why a two-year-old minor with one open gap correctly stays put while last month's fully-closed minor moves.
+Outside the bounded historical transfer, an open item or an unchecked task is a hold, not a delay: it means the minor is still live work regardless of how many releases have shipped since. This is why the trigger is completion rather than age, and why a two-year-old minor with one open gap correctly stays put while last month's fully-closed minor moves.
 
 The move runs through `[[docs-layout-refactor]]`, propose-then-apply, with reference repair. Nothing is deleted.
 
@@ -80,7 +82,7 @@ A decision record does not become less binding because it is old, and that is th
 python scripts/check_docs_retention.py
 ```
 
-It prints one `WARN` line per version directory that is two or more minors old and not yet archived, and one per fully-closed minor whose `plans/` or `comparisons/` still sit in the active tree, naming the exact destination in each case. It never moves or deletes a file.
+It prints one `WARN` line per version directory that is two or more minors old and not yet archived, and one per fully-closed or verified-transferred minor whose `plans/` or `comparisons/` still sit in the active tree, naming the exact destination in each case. It never moves or deletes a file.
 
 Advisory rather than blocking, for two reasons. Archiving is a judgement call that repairs references across the repo, so it belongs in a reviewed `[[docs-layout-refactor]]` pass with a confirmation gate, not in a validator that runs on every commit. And a hard gate here would block an unrelated release the moment a minor version aged out, which is a cost with no matching benefit: nothing breaks when history sits in place a version longer than the rule prefers.
 

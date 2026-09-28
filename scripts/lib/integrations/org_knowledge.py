@@ -755,7 +755,7 @@ def _merge_org_after_nexus(path: Path, body: str, ctx: Any) -> FileAction:
     """Merge the org block and repair any legacy placement before Nexus-Hub."""
 
     from scripts.lib.installer.instruction_merge import (
-        merge_marker_section,
+        merge_instruction,
         remove_marker_section,
     )
 
@@ -776,12 +776,12 @@ def _merge_org_after_nexus(path: Path, body: str, ctx: Any) -> FileAction:
             start_marker=ORG_START_MARKER,
             end_marker=ORG_END_MARKER,
         )
-    return merge_marker_section(
+    return merge_instruction(
         path,
         body,
+        ctx=ctx,
         start_marker=ORG_START_MARKER,
         end_marker=ORG_END_MARKER,
-        dry_run=bool(getattr(ctx, "dry_run", False)),
     )
 
 

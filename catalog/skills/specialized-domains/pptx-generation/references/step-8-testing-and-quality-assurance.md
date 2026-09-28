@@ -281,7 +281,9 @@ def optimize_images_in_presentation(
             shape.image._blob = buffer.getvalue()
             images_optimized += 1
 
+    guard_existing(output_path)  # user-edit-preservation: never overwrite a user-edited file
     prs.save(output_path)
+    record_saved(output_path)
     new_size = Path(output_path).stat().st_size
 
     return {

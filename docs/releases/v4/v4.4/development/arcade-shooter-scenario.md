@@ -2,7 +2,7 @@
 
 > Amended 2026-09-02 by v4.4.2 Phase 5: pointer play, a key guide in place of action buttons on fine-pointer devices, and continuous varied spawning in every fixture behind a dual-stream seed that leaves the teaching beats untouched. Sections marked **(v4.4.2)** carry the amendments; everything else is the v4.4.1 contract unchanged.
 
-**Plan**: [v4.4.1-guide-visual-and-arcade-rebuild.md](../plans/v4.4.1-guide-visual-and-arcade-rebuild.md), Phase 5
+**Plan**: [v4.4.1-guide-visual-and-arcade-rebuild.md](../../../../archives/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md), Phase 5
 **Supersedes**: [`asteroids-scenario.md`](asteroids-scenario.md), which is preserved unchanged as the v4.4.0 historical contract
 **Status**: authoritative for v4.4.1 from Phase 5 onward
 

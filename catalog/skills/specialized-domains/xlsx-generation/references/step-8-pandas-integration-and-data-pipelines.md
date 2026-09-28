@@ -248,7 +248,9 @@ def excel_etl_pipeline(
         if ws.max_row > 1:
             ws.auto_filter.ref = ws.dimensions
 
+    guard_existing(output_path)  # user-edit-preservation: never overwrite a user-edited file
     wb.save(output_path)
+    record_saved(output_path)
     return stats
 
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -39,6 +40,18 @@ def test_module_imports_without_preloading_integration_registry() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
+
+
+def test_state_root_honors_isolated_nexus_home_without_overriding_global_target(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    nexus_home = tmp_path / "nexus-home"
+    monkeypatch.setenv("NEXUS_HUB_HOME", str(nexus_home))
+    assert instruction_merge.state_root(SimpleNamespace(scope="workspace")) == nexus_home / "state"
+    explicit = tmp_path / "global-profile"
+    assert instruction_merge.state_root(SimpleNamespace(scope="global", global_root=explicit)) == (
+        explicit / ".nexus-hub" / "state"
+    )
 
 
 def test_creates_file_when_missing(doc_path: Path) -> None:
