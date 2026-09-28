@@ -1349,8 +1349,11 @@
         },
         {
           "path": "~/.claude/skills",
-          "status": "UNVERIFIED",
-          "note": "The 2026-09-27 VS Code Agent Skills page documents this personal path for Copilot in VS Code, but the Copilot CLI reference omits it from personal locations. The shared Copilot fact remains UNVERIFIED so CLI pointer eligibility fails closed until hosts are separated."
+          "status": "VERIFIED",
+          "host": "vscode",
+          "source": "https://code.visualstudio.com/docs/agent-customization/agent-skills",
+          "verified": "2026-09-27",
+          "note": "VS Code only. The Copilot CLI reference omits this personal path; shared personal instructions remain pointer-ineligible from this path alone."
         }
       ],
       "workspace": [
