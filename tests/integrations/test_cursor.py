@@ -182,7 +182,7 @@ def test_cursor_stop_carries_the_completion_notification(install_ctx: InstallCon
     data = json.loads((cursor_root / "hooks.json").read_text(encoding="utf-8"))
 
     assert "stop" in data["hooks"], "the completion notification must ride Cursor's `stop`"
-    entry = data["hooks"]["stop"][0]
+    entry = next(e for e in data["hooks"]["stop"] if "notify-on-complete" in e["command"])
     expected_suffix = "notify-on-complete.ps1\"" if os.name == "nt" else "notify-on-complete.sh\""
     assert entry["command"].endswith(expected_suffix), entry
     assert (cursor_root / "hooks" / "notify-on-complete.sh").exists()

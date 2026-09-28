@@ -53,6 +53,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ._command_surface import mirror_command_surface
+from ._completion_plugins import install_completion_plugin
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import WriteResult
 
@@ -146,4 +147,6 @@ class PiIntegration(MarkdownIntegration, SkillsIntegration):
         if not ctx.instruction_only:
             result.files.extend(self._mirror_catalog(agent_root, ctx))
             self._install_prompts(agent_root, ctx, result)
+            # v4.13.2: completion-gate extension (auto-loaded from extensions/).
+            install_completion_plugin(self, ctx, "pi", agent_root / "extensions", result)
         return result

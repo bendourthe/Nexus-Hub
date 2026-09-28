@@ -1,0 +1,651 @@
+{
+  "_comment": "Per-platform completion levers for the full /implement run (v4.13.2). One row per integration key registered in scripts/lib/integrations/__init__.py, plus surface rows for surfaces that share an integration (owner names the registering integration). Each lever is VERIFIED (first-party vendor URL fetched on the verified date) or 'none documented'. The completion gate reads continuation.format; run-plan lists rows whose headless lever is VERIFIED but hard-codes its own launch flags and never reads them from here. Validated by tests/validators/test_completion_levers.py. Human companion: completion-levers.md. Re-verify a row before relying on it; vendor pages move.",
+  "schema": 1,
+  "fetched": "2026-09-25",
+  "rows": {
+    "aider": {
+      "owner": "aider",
+      "native_goal": {
+        "status": "none documented",
+        "summary": "Modes are code/ask/architect/help only.",
+        "checked_url": "https://aider.chat/docs/usage/modes.html",
+        "checked": "2026-09-25"
+      },
+      "continuation": {
+        "status": "none documented",
+        "checked_url": "https://aider.chat/docs/config/options.html",
+        "checked": "2026-09-25"
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "aider --message \"<prompt>\" (-m/--msg) or --message-file/-f; process reply then exit",
+        "resume": "--restore-chat-history (default False)",
+        "source_url": "https://aider.chat/docs/config/options.html",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "none documented",
+        "checked_url": "https://aider.chat/docs/config/options.html",
+        "checked": "2026-09-25"
+      },
+      "notes": "No hook system documented in the options reference."
+    },
+    "antigravity": {
+      "owner": "antigravity",
+      "native_goal": {
+        "status": "none documented",
+        "summary": "No page fetched that scopes /goal to Antigravity 1.0."
+      },
+      "continuation": {
+        "status": "none documented"
+      },
+      "headless": {
+        "status": "none documented"
+      },
+      "prompt_submit": {
+        "status": "none documented"
+      },
+      "notes": "https://antigravity.google/docs/hooks/ says hooks work across \"Antigravity 2.0, Antigravity CLI, and Antigravity IDE\"; it is not stated whether \"Antigravity IDE\" means the 1.0 product. Needs a manual check before claiming coverage for 1.0."
+    },
+    "antigravity2": {
+      "owner": "antigravity2",
+      "native_goal": {
+        "status": "VERIFIED",
+        "summary": "/goal instructs the agent to work continuously until the objective is fully achieved (runs builds, diagnoses errors, applies edits without turn-by-turn confirmation). Listed under Reasoning, All plans, across Antigravity 2.0 (Desktop & Web) and Antigravity CLI. No preview gate stated.",
+        "source_url": "https://antigravity.google/docs/slash-commands/",
+        "verified": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "shell-hook",
+        "event": "Stop",
+        "config": ".agents/hooks.json (workspace), ~/.gemini/config/hooks.json (global); CLI also plugin hooks.json",
+        "source_url": "https://antigravity.google/docs/hooks/",
+        "verified": "2026-09-25",
+        "format": "antigravity-continue",
+        "vendor_shape": "JSON {\"decision\": \"continue\", \"reason\": \"...\"} prevents stopping and re-enters the loop"
+      },
+      "headless": {
+        "status": "none documented"
+      },
+      "prompt_submit": {
+        "status": "none documented",
+        "event": "Only five events documented: PreToolUse, PostToolUse, PreInvocation, PostInvocation, Stop. PreInvocation (before model call) is the nearest, but it is not a prompt-submit event.",
+        "checked_url": "https://antigravity.google/docs/hooks/",
+        "checked": "2026-09-25"
+      },
+      "notes": "Desktop app; headless entry lives on the CLI row."
+    },
+    "antigravity2/cli": {
+      "owner": "antigravity2",
+      "native_goal": {
+        "status": "VERIFIED",
+        "summary": "Same /goal as Antigravity 2.0; slash-commands page lists it for Antigravity CLI.",
+        "headless_entry": "Not documented whether agy -p \"/goal ...\" runs the goal loop.",
+        "source_url": "https://antigravity.google/docs/slash-commands/",
+        "verified": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "shell-hook",
+        "event": "Stop",
+        "config": ".agents/hooks.json, ~/.gemini/config/hooks.json, installed plugins' hooks.json",
+        "source_url": "https://antigravity.google/docs/hooks/",
+        "verified": "2026-09-25",
+        "format": "antigravity-continue",
+        "vendor_shape": "{\"decision\": \"continue\", \"reason\": \"...\"}"
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "agy -p \"<prompt>\" (one-shot)",
+        "resume": "agy -c / agy --continue (workspace-scoped most recent), agy --resume <id>; combination with -p not stated",
+        "source_url": "https://antigravity.google/docs/cli/conversations/",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "none documented",
+        "checked_url": "https://antigravity.google/docs/hooks/",
+        "checked": "2026-09-25"
+      },
+      "notes": "-p documented at https://antigravity.google/docs/cli/best-practices/ (agy -p \"...\" --cwd $(pwd))."
+    },
+    "claude": {
+      "owner": "claude",
+      "native_goal": {
+        "status": "VERIFIED",
+        "summary": "/goal <condition> sets a session-scoped completion condition; after each turn a small fast model (Haiku default) judges met / not yet met / impossible and starts another turn if not met. Implemented as a session-scoped prompt-based Stop hook. Unavailable when disableAllHooks is true, allowManagedHooksOnly is set, or the workspace is untrusted. Stops the loop after several no-tool-use turns in a row. Condition up to 4,000 chars.",
+        "headless_entry": "claude -p \"/goal <condition>\" (runs the loop to completion in one invocation; add --output-format stream-json --verbose to see progress). Goal is restored on --continue / --resume.",
+        "source_url": "https://code.claude.com/docs/en/goal",
+        "verified": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "shell-hook",
+        "event": "Stop (also SubagentStop)",
+        "config": "~/.claude/settings.json, .claude/settings.json, .claude/settings.local.json (hooks.Stop)",
+        "cap": "Claude Code overrides a Stop hook after it blocks eight times in a row without progress; raise with CLAUDE_CODE_STOP_HOOK_BLOCK_CAP.",
+        "source_url": "https://code.claude.com/docs/en/hooks-guide",
+        "verified": "2026-09-25",
+        "format": "top-level-block",
+        "vendor_shape": "Top-level JSON on stdout {\"decision\": \"block\", \"reason\": \"...\"}; or exit code 2 (reason from JSON reason if present, else stderr). Input carries stop_hook_active."
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "claude -p \"<prompt>\" (alias --print)",
+        "resume": "claude -p \"<prompt>\" --continue | --resume <session-id|transcript path>",
+        "source_url": "https://code.claude.com/docs/en/headless",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "UserPromptSubmit",
+        "source_url": "https://code.claude.com/docs/en/hooks",
+        "verified": "2026-09-25"
+      },
+      "notes": "A first WebFetch summary of /docs/en/hooks claimed Stop decision is nested in hookSpecificOutput; the hooks guide states verbatim that PostToolUse and Stop use a top-level decision: \"block\". Top-level is the documented form."
+    },
+    "codex": {
+      "owner": "codex",
+      "native_goal": {
+        "status": "VERIFIED",
+        "summary": "/goal keeps Codex working across turns toward a verifiable stopping condition; goal states active / paused / complete / budget-limited. Gated behind feature flag: [features] goals = true in config.toml, or `codex features enable goals`.",
+        "source_url": "https://learn.chatgpt.com/use-cases/follow-goals",
+        "verified": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "shell-hook",
+        "event": "Stop (also SubagentStop)",
+        "config": "~/.codex/hooks.json, ~/.codex/config.toml, <repo>/.codex/hooks.json, <repo>/.codex/config.toml, plugin hooks/hooks.json. Hooks enabled by default ([features] hooks = false disables).",
+        "source_url": "https://learn.chatgpt.com/docs/hooks",
+        "verified": "2026-09-25",
+        "format": "top-level-block",
+        "vendor_shape": "Top-level JSON {\"decision\": \"block\", \"reason\": \"...\"}; Codex continues and uses reason as the new continuation prompt. Or exit code 2 with the reason on stderr. Input carries stop_hook_active."
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "codex exec \"<prompt>\"",
+        "resume": "codex exec resume --last \"<prompt>\" | codex exec resume <SESSION_ID>",
+        "source_url": "https://learn.chatgpt.com/docs/cli/reference",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "UserPromptSubmit",
+        "source_url": "https://learn.chatgpt.com/docs/hooks",
+        "verified": "2026-09-25"
+      },
+      "notes": "developers.openai.com/codex/* now 308-redirects to learn.chatgpt.com. Docs do not say whether /goal works under codex exec; no continuation cap documented."
+    },
+    "copilot": {
+      "owner": "copilot",
+      "native_goal": {
+        "status": "VERIFIED",
+        "summary": "Umbrella row: see copilot/cli (/goal + autopilot) and copilot/vscode (Autopilot agent mode).",
+        "headless_entry": "copilot --autopilot -p \"...\" (CLI surface)",
+        "source_url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference",
+        "verified": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "shell-hook",
+        "event": "agentStop (CLI) / Stop (VS Code)",
+        "config": "surface-specific, see rows",
+        "cap": "CLI: 8 consecutive blocks",
+        "source_url": "https://docs.github.com/en/copilot/reference/hooks-reference",
+        "verified": "2026-09-25",
+        "format": "top-level-block",
+        "vendor_shape": "CLI: top-level decision block; VS Code: nested hookSpecificOutput"
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "copilot -p \"<prompt>\"",
+        "resume": "--continue / --resume",
+        "source_url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "userPromptSubmitted (CLI) / UserPromptSubmit (VS Code)",
+        "source_url": "https://docs.github.com/en/copilot/reference/hooks-reference",
+        "verified": "2026-09-25"
+      },
+      "notes": "Formats differ per surface; never treat the umbrella row as a single contract."
+    },
+    "copilot/cli": {
+      "owner": "copilot",
+      "native_goal": {
+        "status": "VERIFIED",
+        "summary": "/goal starts or refocuses autopilot mode, optionally with an explicit objective (e.g. /goal Refactor the auth module); /goal on and /goal off toggle; --max-ai-credits caps spend. Autopilot works until it determines the task is complete; by default pauses after 5 continuation messages (--max-autopilot-continues adjusts).",
+        "headless_entry": "copilot --autopilot --yolo --max-autopilot-continues 10 -p \"YOUR PROMPT HERE\"",
+        "source_url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference",
+        "verified": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "shell-hook",
+        "event": "agentStop (also subagentStop)",
+        "config": ".github/hooks/*.json, ~/.copilot/hooks/ ($COPILOT_HOME/hooks/), inline hooks in .github/copilot/settings(.local).json or ~/.copilot/settings.json, policy dirs, plugins",
+        "cap": "After 8 consecutive block continuations the system overrides the hook.",
+        "source_url": "https://docs.github.com/en/copilot/reference/hooks-reference",
+        "verified": "2026-09-25",
+        "format": "top-level-block",
+        "vendor_shape": "Top-level JSON {\"decision\": \"block\", \"reason\": \"...\"}; decision forces another agent turn using reason as the prompt. Exit code 2 is only a warning (stderr surfaced, processing continues), NOT a block."
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "copilot -p \"<prompt>\" (--prompt)",
+        "resume": "copilot --continue | --resume (also /resume in session)",
+        "source_url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "userPromptSubmitted (camelCase) or UserPromptSubmit (VS Code-compatible)",
+        "source_url": "https://docs.github.com/en/copilot/reference/hooks-reference",
+        "verified": "2026-09-25"
+      },
+      "notes": "Autopilot page itself does not mention /goal; /goal is documented in the CLI command reference. Autopilot non-interactive example from https://docs.github.com/en/copilot/concepts/agents/copilot-cli/autopilot."
+    },
+    "copilot/vscode": {
+      "owner": "copilot",
+      "native_goal": {
+        "status": "VERIFIED",
+        "summary": "Autopilot is an agent mode (mode picker) that lets the agent work autonomously until it determines the task is complete; auto-approves all tools and retries on errors. Advanced Autopilot (Preview, setting chat.autopilot.advanced.enabled = true) delegates the completion decision to a small fast model after each turn.",
+        "source_url": "https://raw.githubusercontent.com/microsoft/vscode-docs/main/docs/agents/run/approvals.md",
+        "verified": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "shell-hook",
+        "event": "Stop (also SubagentStop)",
+        "config": ".github/hooks/*.json (workspace), ~/.copilot/hooks/*.json (user); .claude/settings(.local).json and ~/.claude/settings.json only with chat.useClaudeHooks (off by default); chat.hookFilesLocations adds/disables locations. Hooks experience is in Preview.",
+        "cap": "none documented (docs only advise checking stop_hook_active)",
+        "source_url": "https://raw.githubusercontent.com/microsoft/vscode-docs/main/docs/agents/reference/hooks-reference.md",
+        "verified": "2026-09-25",
+        "format": "vscode-hook-specific-output",
+        "vendor_shape": "Nested: {\"hookSpecificOutput\": {\"hookEventName\": \"Stop\", \"decision\": \"block\", \"reason\": \"...\"}}; reason required when blocking. Input carries stop_hook_active."
+      },
+      "headless": {
+        "status": "none documented"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "UserPromptSubmit",
+        "source_url": "https://raw.githubusercontent.com/microsoft/vscode-docs/main/docs/agents/reference/hooks-reference.md",
+        "verified": "2026-09-25"
+      },
+      "notes": "code.visualstudio.com returned 404 for every page via WebFetch in this pass; content read from the official microsoft/vscode-docs repository (same source the site renders). Rendered URLs: https://code.visualstudio.com/docs/agents/reference/hooks-reference and https://code.visualstudio.com/docs/agents/run/approvals."
+    },
+    "cursor": {
+      "owner": "cursor",
+      "native_goal": {
+        "status": "VERIFIED",
+        "summary": "/goal tracks a durable goal with an active or paused status line, continues across idle and headless runs, pauses on Ctrl+C. CLI changelog (2026-08-11): \"This is rolling out and gated.\" Also in the 2026-08-19 cloud agents changelog.",
+        "headless_entry": "Changelog says the goal continues across headless runs; exact `agent -p \"/goal ...\"` syntax not documented.",
+        "source_url": "https://cursor.com/docs/cli/changelog",
+        "verified": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "shell-hook",
+        "event": "stop",
+        "config": "~/.cursor/hooks.json, <project>/.cursor/hooks.json, enterprise/MDM system dirs",
+        "cap": "loop_limit, default 5 auto follow-ups per script; null removes the cap",
+        "source_url": "https://cursor.com/docs/agent/hooks",
+        "verified": "2026-09-25",
+        "format": "cursor-followup-message",
+        "vendor_shape": "stop hook output field followup_message (auto-submitted as the next user message)"
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "agent -p \"<prompt>\" (--print) with --output-format text|json",
+        "resume": "agent --resume [thread id] | agent resume | --continue (most recent chat, per CLI changelog)",
+        "source_url": "https://cursor.com/docs/cli/using",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "beforeSubmitPrompt",
+        "source_url": "https://cursor.com/docs/agent/hooks",
+        "verified": "2026-09-25"
+      },
+      "notes": "CLI changelog (Jan 2026) lists \"Stop hooks with follow-up loops (autonomous 'keep going' patterns)\" for the CLI, so the stop hook applies to Cursor CLI too."
+    },
+    "gemini": {
+      "owner": "gemini",
+      "native_goal": {
+        "status": "none documented",
+        "summary": "Not researched separately; this row aliases the Antigravity 1.0 IDE surface. See antigravity row."
+      },
+      "continuation": {
+        "status": "none documented"
+      },
+      "headless": {
+        "status": "none documented"
+      },
+      "prompt_submit": {
+        "status": "none documented"
+      },
+      "notes": "No first-party page fetched that is specific to Antigravity 1.0. Do not infer from antigravity2."
+    },
+    "gemini-cli": {
+      "owner": "gemini-cli",
+      "native_goal": {
+        "status": "none documented",
+        "summary": "Commands reference lists no /goal and no autonomous goal/loop mode (closest is /plan, a read-only planning mode).",
+        "checked_url": "https://geminicli.com/docs/reference/commands/",
+        "checked": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "shell-hook",
+        "event": "AfterAgent",
+        "config": "settings.json \"hooks\" object",
+        "source_url": "https://geminicli.com/docs/hooks/reference/",
+        "verified": "2026-09-25",
+        "format": "gemini-deny",
+        "vendor_shape": "{\"decision\": \"deny\", \"reason\": \"...\"} rejects the response and forces a retry; reason is sent to the agent as a new prompt. Exit code 2 also retries using stderr as the feedback prompt. Optional hookSpecificOutput.clearContext."
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "gemini -p \"<prompt>\" (--prompt)",
+        "resume": "gemini --resume / -r (most recent session)",
+        "source_url": "https://geminicli.com/docs/cli/headless/",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "BeforeAgent",
+        "source_url": "https://geminicli.com/docs/hooks/reference/",
+        "verified": "2026-09-25"
+      },
+      "notes": "A search-result snippet claimed AfterAgent ignores flow control; the fetched reference page contradicts it (only SessionEnd and PreCompress ignore flow control). Product is enterprise-only after 2026-06-18 per repo roster."
+    },
+    "hermes": {
+      "owner": "hermes",
+      "native_goal": {
+        "status": "VERIFIED",
+        "summary": "/goal sets a standing goal; a judge model checks after each turn and Hermes auto-continues until done, paused/cleared, or the turn budget (goals.max_turns, default 20) is hit, then auto-pauses. User messages preempt.",
+        "source_url": "https://hermes-agent.nousresearch.com/docs/user-guide/features/goals",
+        "verified": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "plugin",
+        "event": "pre_verify",
+        "config": "Python plugin via ctx.register_hook(), or shell hook in profile config.yaml hooks: block",
+        "cap": "agent.max_verify_nudges, default 3 consecutive continues per turn (built-in + pre_verify)",
+        "source_url": "https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks",
+        "verified": "2026-09-25",
+        "format": "plugin",
+        "vendor_shape": "Return {\"action\": \"continue\", \"message\": \"...\"}; message appended as a synthetic user turn and the loop runs again. Fires ONLY when the agent edited code this turn and a pre_verify hook is registered."
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "hermes chat -q \"<prompt>\" --oneshot (or -Q, non-TTY stdio) | hermes -z \"<prompt>\"",
+        "resume": "hermes chat -c/--continue [name] | hermes chat --resume <id|title|latest>",
+        "source_url": "https://hermes-agent.nousresearch.com/docs/reference/cli-commands",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "pre_llm_call (once per turn before the tool loop; nearest equivalent)",
+        "source_url": "https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks",
+        "verified": "2026-09-25"
+      },
+      "notes": "Goals docs are silent on one-shot runs: the lead 'not in one-shot' is neither confirmed nor refuted. The pre_verify code-edit gate means it is not a general turn-end continuation hook."
+    },
+    "kimi": {
+      "owner": "kimi",
+      "native_goal": {
+        "status": "VERIFIED",
+        "summary": "/goal starts goal mode: a persistent objective worked toward across automatically continuing turns, with completion checked each cycle. In manual permission mode it may pause for tool approvals.",
+        "headless_entry": "kimi -p \"/goal ...\" (prompt mode supports only goal creation); exit codes 0 = completed, 3 = blocked, 6 = paused",
+        "source_url": "https://www.kimi.com/help/kimi-code/cli-goals",
+        "verified": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "shell-hook",
+        "event": "Stop",
+        "config": "~/.kimi-code/config.toml [[hooks]] array",
+        "source_url": "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html",
+        "verified": "2026-09-25",
+        "format": "exit-2",
+        "vendor_shape": "Exit code 2 blocks; stderr is the reason. For Stop, if blocked a message can be appended to let the model continue the turn. JSON form documented is hookSpecificOutput.permissionDecision \"deny\" (general blocking shape)."
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "kimi -p \"<prompt>\" (--prompt), --output-format text|stream-json",
+        "resume": "kimi --continue / -c (most recent in cwd) | --session / -S <id>; mutually exclusive",
+        "source_url": "https://www.kimi.com/code/docs/en/kimi-code-cli/reference/kimi-command.html",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "UserPromptSubmit (blocking skips the model call)",
+        "source_url": "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html",
+        "verified": "2026-09-25"
+      },
+      "notes": "Whether the JSON deny shape (vs exit 2) continues a Stop was not stated precisely; exit 2 is the safe documented path."
+    },
+    "nexus-ai": {
+      "owner": "nexus-ai",
+      "native_goal": {
+        "status": "none documented",
+        "summary": "README describes \"Auto mode - End-to-end tool-using sessions with verification gates and git checkpoints\"; no condition-until-met goal command is stated.",
+        "checked_url": "https://github.com/bendourthe/Nexus-AI",
+        "checked": "2026-09-25"
+      },
+      "continuation": {
+        "status": "none documented",
+        "checked_url": "https://github.com/bendourthe/Nexus-AI",
+        "checked": "2026-09-25"
+      },
+      "headless": {
+        "status": "none documented",
+        "checked_url": "https://github.com/bendourthe/Nexus-AI",
+        "checked": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "none documented",
+        "checked_url": "https://github.com/bendourthe/Nexus-AI",
+        "checked": "2026-09-25"
+      },
+      "notes": "README only, per scope. It mentions headless and scheduled agent runs with an Ask inbox, but no CLI flags or resume. Auto mode may qualify as a goal lever; the maintainer should confirm from the Nexus-AI source."
+    },
+    "openclaw": {
+      "owner": "openclaw",
+      "native_goal": {
+        "status": "VERIFIED",
+        "summary": "/goal is session state, not a loop: a shared target that moves with the session key and survives restarts, explicitly not a background task/task queue. Model tools get_goal/create_goal/update_goal. Requires the built-in OpenClaw runtime; unavailable for native Codex and external runtimes.",
+        "source_url": "https://docs.openclaw.ai/tools/goal",
+        "verified": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "plugin",
+        "event": "before_agent_finalize",
+        "config": "Plugin register(api) with api.on('before_agent_finalize', handler); TypeScript",
+        "cap": "maxAttempts defaults to one extra pass per key; the embedded runner allows at most three revisions overall; 15 s handler budget",
+        "source_url": "https://docs.openclaw.ai/plugins/hooks/prompt-and-session",
+        "verified": "2026-09-25",
+        "format": "plugin",
+        "vendor_shape": "Return {action: \"revise\", reason} for one more model pass (optional retry {instruction, idempotencyKey?, maxAttempts?}); {action: \"finalize\"} overrides. Not run on user abort."
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "openclaw agent --message \"<text>\" (or --message-file) with a session selector; `agent exec` recommended for CI",
+        "resume": "openclaw agent --session-id <id> (also --session-key, --to, --agent)",
+        "source_url": "https://docs.openclaw.ai/cli/agent",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "message_received (observe inbound); before_prompt_build runs during turn preparation",
+        "source_url": "https://docs.openclaw.ai/plugins/hooks/reference",
+        "verified": "2026-09-25"
+      }
+    },
+    "opencode": {
+      "owner": "opencode",
+      "native_goal": {
+        "status": "none documented",
+        "summary": "No /goal in CLI or plugin docs.",
+        "checked_url": "https://opencode.ai/docs/cli/",
+        "checked": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "plugin",
+        "event": "session.idle (plugin event) + client.session.prompt (SDK)",
+        "config": ".opencode/plugins/ (project), ~/.config/opencode/plugins/ (global); JavaScript or TypeScript",
+        "source_url": "https://opencode.ai/docs/plugins/",
+        "verified": "2026-09-25",
+        "format": "plugin",
+        "vendor_shape": "No return value refuses the stop. A plugin can observe event.type === 'session.idle' and call client.session.prompt({path:{id}, body:{parts:[{type:'text', text:'...'}]}}) to start a new turn. The docs do not show this continuation pattern explicitly; it is composed from two documented primitives."
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "opencode run \"<prompt>\"",
+        "resume": "opencode run -c/--continue | -s/--session <id> (--fork optional)",
+        "source_url": "https://opencode.ai/docs/cli/",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "none documented",
+        "event": "Plugin docs list only message.* events (message.updated etc.); no chat.message/prompt-submit event named.",
+        "checked_url": "https://opencode.ai/docs/plugins/",
+        "checked": "2026-09-25"
+      },
+      "notes": "session.prompt documented at https://opencode.ai/docs/sdk/. Treat continuation as a composed pattern, weaker evidence than a documented refuse-stop contract."
+    },
+    "pi": {
+      "owner": "pi",
+      "native_goal": {
+        "status": "none documented",
+        "summary": "No goal command in CLI or extensions docs.",
+        "checked_url": "https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/docs/cli.md",
+        "checked": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "plugin",
+        "event": "agent_before_settle (also turn_end)",
+        "config": "TypeScript extensions, e.g. ~/.pi/agent/extensions/<name>.ts, registered with pi.on(...)",
+        "source_url": "https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/docs/extensions.md",
+        "verified": "2026-09-25",
+        "format": "plugin",
+        "vendor_shape": "Handler returns continue: true for one next model request (may also chain custom / custom_message / context_edit / compaction entries). Docs warn to guard conditions because unconditional continuation can loop."
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "pi -p \"<prompt>\" (--print)",
+        "resume": "pi --continue / -c (most recent in cwd) | --resume / -r (picker) | --session <path|id>",
+        "source_url": "https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/docs/cli.md",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "before_agent_start (exposes the current prompt; nearest equivalent, not named prompt-submit)",
+        "source_url": "https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/docs/extensions.md",
+        "verified": "2026-09-25"
+      },
+      "notes": "Repo now shows as earendil-works/pi; badlogic/pi-mono URLs still resolve. No documented cap on continuations."
+    },
+    "qwen": {
+      "owner": "qwen",
+      "native_goal": {
+        "status": "VERIFIED",
+        "summary": "/goal is a long-horizon Goal: Qwen Code keeps working until the outcome is met; subcommands set/edit/pause/resume/clear; goal state stored with the session. Requires general.chatRecording enabled (default); no experimental flag.",
+        "headless_entry": "qwen -p \"/goal Finish the release checklist\"; inspect later with qwen --continue -p \"/goal\" or qwen --resume <id> -p \"/goal\"",
+        "source_url": "https://qwenlm.github.io/qwen-code-docs/en/users/features/headless/",
+        "verified": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "shell-hook",
+        "event": "Stop",
+        "config": ".qwen/settings.json and user/system settings files (hooks)",
+        "cap": "stopHookBlockingCap default 8 consecutive blocks per prompt; QWEN_CODE_STOP_HOOK_BLOCK_CAP overrides for one run",
+        "source_url": "https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/",
+        "verified": "2026-09-25",
+        "format": "top-level-block",
+        "vendor_shape": "Top-level {\"decision\": \"block\", \"reason\": \"...\"}; exit code 2 = blocking error (stdout ignored, stderr fed back to the model)"
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "qwen -p \"<prompt>\" (--prompt)",
+        "resume": "qwen --continue -p ... | qwen --resume <sessionId> -p ...",
+        "source_url": "https://qwenlm.github.io/qwen-code-docs/en/users/features/headless/",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "UserPromptSubmit (also runs on headless submissions)",
+        "source_url": "https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/",
+        "verified": "2026-09-25"
+      }
+    },
+    "windsurf": {
+      "owner": "windsurf",
+      "native_goal": {
+        "status": "none documented",
+        "summary": "Cascade hooks page has no goal/autopilot mode.",
+        "checked_url": "https://docs.devin.ai/desktop/cascade/hooks",
+        "checked": "2026-09-25"
+      },
+      "continuation": {
+        "status": "none documented",
+        "event": "post_cascade_response / post_cascade_response_with_transcript are asynchronous, observational only; cannot refuse the stop",
+        "config": "~/.codeium/windsurf/hooks.json (user), .devin/hooks.json (workspace), system hooks.json",
+        "checked_url": "https://docs.devin.ai/desktop/cascade/hooks",
+        "checked": "2026-09-25"
+      },
+      "headless": {
+        "status": "none documented"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "pre_user_prompt (can block via exit code 2)",
+        "source_url": "https://docs.devin.ai/desktop/cascade/hooks",
+        "verified": "2026-09-25"
+      },
+      "notes": "docs.windsurf.com/windsurf/cascade/hooks now redirects to docs.devin.ai/desktop/cascade/hooks."
+    },
+    "windsurf/devin-cli": {
+      "owner": "windsurf",
+      "native_goal": {
+        "status": "none documented",
+        "summary": "Commands reference lists /loop and --permission-mode autonomous but no goal/until-condition command.",
+        "checked_url": "https://docs.devin.ai/cli/reference/commands",
+        "checked": "2026-09-25"
+      },
+      "continuation": {
+        "status": "VERIFIED",
+        "kind": "shell-hook",
+        "event": "Stop",
+        "config": ".devin/hooks.v1.json (whole file is hooks object), .devin/config.json / config.local.json \"hooks\", .claude/settings(.local).json; user ~/.config/devin/config.json (%APPDATA%\\devin\\config.json), ~/.claude.json, ~/.claude/settings(.local).json",
+        "source_url": "https://docs.devin.ai/cli/extensibility/hooks/lifecycle-hooks",
+        "verified": "2026-09-25",
+        "format": "top-level-block",
+        "vendor_shape": "Top-level {\"decision\": \"block\", \"reason\": \"...\"}; exit code 2 also blocks"
+      },
+      "headless": {
+        "status": "VERIFIED",
+        "launch": "devin -p \"<prompt>\" (--print)",
+        "resume": "devin -c / --continue (most recent in cwd)",
+        "source_url": "https://docs.devin.ai/cli/reference/commands",
+        "verified": "2026-09-25"
+      },
+      "prompt_submit": {
+        "status": "VERIFIED",
+        "event": "UserPromptSubmit (accepts additionalContext)",
+        "source_url": "https://docs.devin.ai/cli/extensibility/hooks/lifecycle-hooks",
+        "verified": "2026-09-25"
+      },
+      "notes": "Config locations from https://docs.devin.ai/cli/extensibility/hooks/overview. Docs warn blocking Stop hooks can loop; no cap documented."
+    }
+  }
+}

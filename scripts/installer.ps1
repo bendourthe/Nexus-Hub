@@ -2409,7 +2409,11 @@ function Invoke-RegistryPlatform {
     # Thread the instruction-template placeholders from the detected script
     # globals so the registry renders the same instruction body the legacy
     # Render-Template produced (DF-001).
-    $argsList += @("--project-name", "$($script:ProjectName)")
+    # One `--flag=value` token: Windows PowerShell 5.1 drops an empty-string argument to a
+    # native program, so a separate empty value left `--project-name` bare, argparse exited
+    # 2, and every registry platform was skipped whenever Claude Code (which sets the name)
+    # was not part of the install.
+    $argsList += "--project-name=$($script:ProjectName)"
     $argsList += @("--var", "PRIMARY_LANGUAGE=$($script:PrimaryLanguage)")
     $argsList += @("--var", "PACKAGE_MANAGER=$($script:PackageManager)")
     $argsList += @("--var", "BUILD_TOOL=$($script:BuildTool)")
@@ -2756,9 +2760,36 @@ function Install-Templates {
 
     # Copy report generator script
     $scriptSource = Join-Path $RepoRoot "scripts\generate_report.py"
-    $scriptSource = Join-Path $RepoRoot "scripts\plan_status.py"
     if (Test-Path $scriptSource) {
         Safe-Copy -Source $scriptSource -Destination (Join-Path $scriptsDest "generate_report.py") -Confirm:$true -CustomMessage "✓ Report generator installed at: $scriptsDest\generate_report.py"
+    }
+
+    # Copy the plan progress renderer (per-phase progress table and next-plan hand-off)
+    $scriptSource = Join-Path $RepoRoot "scripts\plan_status.py"
+    if (Test-Path $scriptSource) {
+        Safe-Copy -Source $scriptSource -Destination (Join-Path $scriptsDest "plan_status.py") -Confirm:$true -CustomMessage "✓ Plan progress renderer installed at: $scriptsDest\plan_status.py"
+    }
+
+    # Copy the plan-completion checker (v4.13.2). Decides whether a full
+    # /implement run is complete from repository, hosting, and run-record
+    # state; the completion gate, run-plan runner, and /update release call
+    # it from this installed path, never from a working tree.
+    $completionCheckerSource = Join-Path $RepoRoot "scripts\check_plan_completion.py"
+    if (Test-Path $completionCheckerSource) {
+        Safe-Copy -Source $completionCheckerSource -Destination (Join-Path $scriptsDest "check_plan_completion.py") -Confirm:$true -CustomMessage "✓ Plan-completion checker installed at: $scriptsDest\check_plan_completion.py"
+    }
+
+    # Copy the completion-gate core (v4.13.2). The completion-gate and
+    # approval-capture hooks run it from this installed path only.
+    $completionGateSource = Join-Path $RepoRoot "scripts\completion_gate.py"
+    if (Test-Path $completionGateSource) {
+        Safe-Copy -Source $completionGateSource -Destination (Join-Path $scriptsDest "completion_gate.py") -Confirm:$true -CustomMessage "✓ Completion gate installed at: $scriptsDest\completion_gate.py"
+    }
+
+    # Copy the full-run runner (v4.13.2). `nexus-hub run-plan` forwards to it.
+    $runPlanSource = Join-Path $RepoRoot "scripts\run_plan.py"
+    if (Test-Path $runPlanSource) {
+        Safe-Copy -Source $runPlanSource -Destination (Join-Path $scriptsDest "run_plan.py") -Confirm:$true -CustomMessage "✓ Full-run runner installed at: $scriptsDest\run_plan.py"
     }
 
     # Copy MCP benchmark script (v1.0.0+). Benchmarks the three internal MCPs

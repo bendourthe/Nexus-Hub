@@ -327,6 +327,8 @@ TESTS = Group(
         ),
         _pytest(
             "repo-tests-integrations-install",
+            "tests/integrations/test_completion_gate_registration.py",
+            "tests/integrations/test_completion_plugins.py",
             "tests/integrations/test_hooks_supported_gate.py",
             "tests/integrations/test_install_summary.py",
             "tests/integrations/test_install_workspace.py",
@@ -359,6 +361,7 @@ TESTS = Group(
         _pytest("repo-tests-guides", "tests/guides", timeout=1800),
         _pytest(
             "repo-tests-governance",
+            "tests/e2e",
             "tests/validators",
             "tests/verification",
             "tests/workflows",

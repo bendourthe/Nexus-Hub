@@ -1,0 +1,10 @@
+{
+  "name": "nexus-completion-gate",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Nexus-Hub completion gate: revise the final answer while a full /implement run is incomplete.",
+  "openclaw": {
+    "extensions": ["./index.ts"]
+  }
+}

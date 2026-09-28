@@ -2614,9 +2614,36 @@ install_templates() {
 
     # Copy report generator script
     local script_source="$repo_root/scripts/generate_report.py"
-    local script_source="$repo_root/scripts/plan_status.py"
     if [ -f "$script_source" ]; then
         safe_copy "$script_source" "$scripts_dest/generate_report.py" true "[OK] Report generator installed at: $scripts_dest/generate_report.py"
+    fi
+
+    # Copy the plan progress renderer (per-phase progress table and next-plan hand-off)
+    script_source="$repo_root/scripts/plan_status.py"
+    if [ -f "$script_source" ]; then
+        safe_copy "$script_source" "$scripts_dest/plan_status.py" true "[OK] Plan progress renderer installed at: $scripts_dest/plan_status.py"
+    fi
+
+    # Copy the plan-completion checker (v4.13.2). Decides whether a full
+    # /implement run is complete from repository, hosting, and run-record
+    # state; the completion gate, run-plan runner, and /update release call
+    # it from this installed path, never from a working tree.
+    local completion_checker_source="$repo_root/scripts/check_plan_completion.py"
+    if [ -f "$completion_checker_source" ]; then
+        safe_copy "$completion_checker_source" "$scripts_dest/check_plan_completion.py" true "[OK] Plan-completion checker installed at: $scripts_dest/check_plan_completion.py"
+    fi
+
+    # Copy the completion-gate core (v4.13.2). The completion-gate and
+    # approval-capture hooks run it from this installed path only.
+    local completion_gate_source="$repo_root/scripts/completion_gate.py"
+    if [ -f "$completion_gate_source" ]; then
+        safe_copy "$completion_gate_source" "$scripts_dest/completion_gate.py" true "[OK] Completion gate installed at: $scripts_dest/completion_gate.py"
+    fi
+
+    # Copy the full-run runner (v4.13.2). `nexus-hub run-plan` forwards to it.
+    local run_plan_source="$repo_root/scripts/run_plan.py"
+    if [ -f "$run_plan_source" ]; then
+        safe_copy "$run_plan_source" "$scripts_dest/run_plan.py" true "[OK] Full-run runner installed at: $scripts_dest/run_plan.py"
     fi
 
     # Copy MCP benchmark script (v1.0.0+). Benchmarks the three internal MCPs
@@ -3205,14 +3232,27 @@ install_skill_discovery() {
     # Create venv and install
     local venv_path="$nexus_home/mcp-server-venv"
 
+    # Everything below installs into this venv, so a venv that cannot be built skips
+    # only the local MCP servers. Under `set -e` a bare failure here aborted the whole
+    # install on a stock Debian/Ubuntu host, which ships python3 without python3-venv.
+    local venv_ok=1
     if command -v uv >/dev/null 2>&1; then
         write_item "  Creating venv with uv..." "$RESET"
-        uv venv "$venv_path" >/dev/null 2>&1
-        uv pip install --python "$venv_path/bin/python" -e "$mcp_dest" >/dev/null 2>&1
+        if ! { uv venv "$venv_path" >/dev/null 2>&1 \
+                && uv pip install --python "$venv_path/bin/python" -e "$mcp_dest" >/dev/null 2>&1; }; then
+            venv_ok=0
+        fi
     else
         write_item "  Creating venv with $python_cmd..." "$RESET"
-        "$python_cmd" -m venv "$venv_path" >/dev/null 2>&1
-        "$venv_path/bin/pip" install -q -e "$mcp_dest" >/dev/null 2>&1
+        if ! { "$python_cmd" -m venv "$venv_path" >/dev/null 2>&1 \
+                && "$venv_path/bin/pip" install -q -e "$mcp_dest" >/dev/null 2>&1; }; then
+            venv_ok=0
+        fi
+    fi
+    if [ "$venv_ok" -eq 0 ]; then
+        write_item "  Could not build the MCP server venv; skipping the local MCP servers." "$YELLOW"
+        write_item "  On Debian/Ubuntu: sudo apt install python3-venv, then re-run the installer." "$YELLOW"
+        return 0
     fi
 
     write_item "  MCP server venv created at $venv_path" "$GREEN"

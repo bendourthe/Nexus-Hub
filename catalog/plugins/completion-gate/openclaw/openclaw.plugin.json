@@ -1,0 +1,11 @@
+{
+  "id": "nexus-completion-gate",
+  "name": "Nexus-Hub completion gate",
+  "activation": {
+    "onStartup": true
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false
+  }
+}

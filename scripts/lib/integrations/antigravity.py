@@ -46,6 +46,7 @@ from ._catalog_adapters import (
     flatten_skills,
 )
 from ._hooks_common import command_for, is_windows_host, sourced_modules
+from ._hooks_json_merge import merge_named_set, prune_named_set
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import FileAction, WriteResult
 
@@ -151,13 +152,25 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
                         ],
                     },
                 ],
+                # v4.13.2: the full-run completion gate. The bridge translates a
+                # Claude-shaped block into Antigravity's `decision: "continue"`.
+                "Stop": [
+                    {
+                        "hooks": [
+                            {"command": wrapped_command_for("completion-gate.sh", "Stop")},
+                        ],
+                    },
+                ],
             },
         }
+
+    _HOOK_SET = "nexus-hub-guardrails"
 
     _CURATED_HOOK_SCRIPTS = (
         "secret-scan.sh",
         "large-file-guard.sh",
         "git-guardrails.sh",
+        "completion-gate.sh",
     )
 
     # ----- install entry points -------------------------------------------
@@ -367,27 +380,44 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
 
         windows = is_windows_host()
 
-        def wrapped_command_for(script: str) -> str:
+        def wrapped_command_for(script: str, event: str = "PreToolUse") -> str:
             host_script = f"{Path(script).stem}.ps1" if windows else script
             compat_runner = "python" if windows else "python3"
             compat = f'{compat_runner} "{base}/antigravity-hook-compat.py"'
             child = command_for(host_script, base, windows)
-            return f"{compat} antigravity PreToolUse -- {child}"
+            return f"{compat} antigravity {event} -- {child}"
 
-        content = json.dumps(self._hook_registration(wrapped_command_for), indent=2) + "\n"
+        registration = self._hook_registration(wrapped_command_for)
+        content = json.dumps(registration, indent=2) + "\n"
         content_bytes = content.encode("utf-8")
         dst = parent / "hooks.json"
         if dst.exists():
             if dst.read_bytes() == content_bytes:
-                ctx.manifest.track(self.key, str(dst))
+                ctx.manifest.track_shared(self.key, str(dst))
                 return FileAction(path=str(dst), action="unchanged")
             if not ctx.overwrite:
-                # Preserve user edits to an existing hooks.json.
-                ctx.manifest.log(self.key, f"skip-existing: {dst}")
-                return FileAction(path=str(dst), action="kept")
+                # v4.13.2: replace only our named hook set; every other set the
+                # user defined survives, instead of keeping the whole file.
+                return merge_named_set(
+                    ctx, self.key, dst, self._HOOK_SET, registration[self._HOOK_SET]
+                )
         existed = dst.exists()
         if not ctx.dry_run:
             dst.parent.mkdir(parents=True, exist_ok=True)
             dst.write_bytes(content_bytes)
-        ctx.manifest.track(self.key, str(dst))
+        ctx.manifest.track_shared(self.key, str(dst))
         return FileAction(path=str(dst), action="updated" if existed else "created")
+
+    def teardown(self, ctx: InstallContext) -> WriteResult:
+        """Remove only our named hook set from each shared hooks.json first.
+
+        hooks.json is shared with the user's own hook sets, so it must never reach
+        the base teardown, which strips Markdown markers from shared files.
+        """
+        result = WriteResult()
+        for dst_str in list(ctx.manifest.shared_for(self.key)):
+            if Path(dst_str).name == "hooks.json":
+                result.files.append(prune_named_set(Path(dst_str), self._HOOK_SET, ctx.dry_run))
+                ctx.manifest.untrack_shared(self.key, dst_str)
+        result.extend(super().teardown(ctx))
+        return result

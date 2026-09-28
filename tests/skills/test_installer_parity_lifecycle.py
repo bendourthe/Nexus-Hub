@@ -61,7 +61,7 @@ def test_plan_and_implementation_terminal_contracts_require_the_same_deep_pass_e
     for label, body in (("implementation plan", plan), ("implement phase", implement)):
         assert "[[functional-verification]]" in body, label
         assert "references/deep-pass.md" in body, label
-        assert "<version_dir>/development/last-phase-evidence.md" in body, label
+        assert "<version_dir>/development/<version>-last-phase-evidence.md" in body, label
         assert "`## Tier 3 deep pass`" in body, label
 
 

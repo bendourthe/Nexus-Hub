@@ -1,10 +1,10 @@
 ---
-description: Implement one plan phase end-to-end - discover the plan, review, code, lint, test, troubleshoot, then run the post-phase docs and commit sequence. On a plan's final phase, automatically runs release readiness. Use to "implement phase N", "build the next phase", "do phase 3 of the plan", "execute the plan", "continue implementing". SKIP - creating the plan itself (use /plan), or one-off edits with no plan to track.
+description: Implement a whole plan end-to-end by default - one upfront approval round, then every phase, known gap, green integration, release, and cleanup, stopping only on a completion verdict, a named blocker, or the user's pause. One phase runs with an explicit `phase <N>` token. Use to "implement the plan", "execute the plan", "implement phase N", "build the next phase", "continue implementing", "pause the run". SKIP - creating the plan itself (use /plan), or one-off edits with no plan to track.
 ---
 
 # /implement Command
 
-Implement one phase of a plan end-to-end: discover the right plan and phase, review it against the codebase, write the code, lint, test, troubleshoot failures, augment missing tests, and run the full post-phase documentation and commit sequence when every quality gate passes. When the target phase is the final phase of the plan, `/implement` additionally runs the release-readiness workflow.
+Implement a plan end-to-end. By default `/implement` runs the whole plan: it asks every approval the run needs once, up front, then implements every phase (review, code, lint, test, troubleshoot, post-phase documentation and a local commit), publishes and integrates once, releases, and removes the plan's merged branches and worktree. It stops only when the completion checker reports a terminal verdict, on a named blocker outside the recorded approvals, or when the user pauses. One phase at a time is still available with an explicit token.
 
 This is a thin dispatcher over the retained `implement-phase` skill. The full per-phase workflow (the nine post-phase steps, the troubleshooting loop, the quality gates) lives in that skill; this file resolves the plan and phase, then delegates.
 
@@ -12,18 +12,23 @@ This is a thin dispatcher over the retained `implement-phase` skill. The full pe
 
 `/implement` is argument-driven, not menu-driven - it infers what to do from the positional arguments:
 
-- `/implement` (bare) - discover the plan (one plan = use it; multiple = ask which), then ask which phase, defaulting to the first incomplete phase.
-- `/implement <slug>` - resolve to the plan at `docs/**/plans/<slug>.md`, then select the phase as above.
-- `/implement <path/to/plan.md>` - use the plan at that path directly.
-- `/implement <slug> phase-N` or `/implement <slug> "Phase Name"` - implement that specific phase.
-- `/implement <slug> next` - implement the first phase not yet marked complete.
-- A bare `vX.Y.Z` first argument selects the plan(s) under that version (legacy-compatible).
-- `/implement <slug-or-path> full` (alias `in-full`) - implement every incomplete phase in order. Commit at each successful boundary (commit-only on non-final phases; no push). Run the fail-closed last phase, which publishes and integrates, then hand off to `/update release` with that command's confirmation gates once integration is green.
-- `/implement <slug-or-path> phase-by-phase` - the same loop, but after each non-final phase wait with: (1) commit and continue; (2) commit and pause; (3) other. There is no push option: a non-final phase is commit-only.
+- `/implement <plan>` - run the WHOLE plan (the full driver). `<plan>` is a slug, a plan file path, a plan name, or a `vX.Y.Z` version. Every incomplete phase runs in order with a local commit at each boundary; the fail-closed last phase publishes and integrates once, then the release and cleanup follow under the approvals recorded at the start.
+- `/implement` (bare) - the same full driver on the next plan: the lowest `Status: queued` plan by semantic version whose queued predecessors are merged. The resolved plan is the first line of the upfront round; when two plans qualify or the order is unclear, ask.
+- `/implement <plan> phase <N>` (also `phase-N` or `"Phase Name"`) - run exactly one phase, with the per-phase confirmation and commit prompt.
+- `/implement <plan> next` - run one phase: the first not yet marked complete.
+- `/implement <plan> phase-by-phase` - the full loop, but after each non-final phase wait with: (1) commit and continue; (2) commit and pause; (3) other. There is no push option: a non-final phase is commit-only.
+- `/implement <plan> full` and `in-full` - accepted aliases for the default.
+- `/implement pause` - pause the current run at the next safe point. User-only: the pause must come from the user's own prompt, is always honored, and the run resumes with `/implement <plan>`.
 
-Driver modes are a later positional token, never the first argument. Match whole tokens `full`, `in-full`, and `phase-by-phase` only - a slug that contains "full" as a substring is not a driver mode. An unknown later token prints usage and does not start a phase. Bare `/implement` and the one-phase forms above stay one-phase. Preserve the per-phase model-routing pre-flight; Cursor, OpenCode, and Copilot have no scriptable model switch.
+Mode tokens come after the plan, never first (except `pause`). Match whole tokens only - a slug that contains "full" or "phase" as a substring is not a mode. An unknown later token prints usage and does not start a phase. Preserve the per-phase model-routing pre-flight; Cursor, OpenCode, and Copilot have no scriptable model switch.
 
 Pass every resolved value (plan path, phase identifier, driver mode, remaining args) through to the `implement-phase` skill unchanged. The driver loop lives in that skill; do not inline it here.
+
+## Upfront round and completion (guarantee)
+
+A full run asks once. Before the first phase, `/implement` presents one round (under the active template's `Consequential Decisions` rule) listing every approval the run will need as exact values: the resolved plan, push and merge, the release version with its tag and publication, the release pull requests and back-merge for that version, re-pushes after a locally reproduced fix (up to 3), generated release notes, refactor moves inside plan-touched folders, spend caps, the gap types the user allows to be deferred, and each "Ask first" surface the plan names. The answers are frozen in a run record outside the working tree by `python ~/.nexus-hub/scripts/check_plan_completion.py record create`. No approval recorded there is asked again. Nothing is recorded until that command prints `RECORDED`: where it cannot (a platform with no prompt-submit capture and no terminal), each push, merge, and release asks at its own point. CI workflow, permission, and secret changes are never approvable in advance; they always stop the run as a named blocker.
+
+What "done" means is owned by the completion contract (`implement-phase/references/completion-contract.md`) and decided by the plan-completion checker (`python ~/.nexus-hub/scripts/check_plan_completion.py`, installed with Nexus-Hub); this command does not restate it. On platforms that support it, a turn-end gate and the `nexus-hub run-plan` runner keep the run going until the checker's verdict is terminal. Context pressure is handled by compaction and the runner, not by stopping.
 
 ## Delegation
 
@@ -82,4 +87,4 @@ For a phase that is itself a large fan-out task (the plan's prompt recommends dy
 ## Notes
 
 - This command replaces `/implement-phase` (removed in v3.2.0).
-- Keep this dispatcher thin. The end-to-end phase workflow and the `full` / `phase-by-phase` loop live entirely in the `implement-phase` skill. Never tag or push a release from the driver.
+- Keep this dispatcher thin. The end-to-end phase workflow, the upfront round, and the full / `phase-by-phase` loop live entirely in the `implement-phase` skill. The release itself runs through `/update release`, which consumes the recorded release approvals.

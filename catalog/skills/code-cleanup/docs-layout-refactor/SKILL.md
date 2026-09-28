@@ -55,7 +55,7 @@ Reference this skill by name in the prompt: "Using the docs-layout-refactor skil
 4. **Categorization** - apply eight weighted heuristics to assign Cat 1 / Cat 2 / Cat 3 / Cat 4 to every file.
 5. **Target-layout proposal** - compute the new active tree and the archive tree under `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/<topic>/`.
 6. **Report generation** - write `docs/<next-version>/docs-cleanup-report.md` with the full disposition table.
-7. **Confirmation gate** (propose-only is default) - present the plan and wait for explicit user approval.
+7. **Confirmation gate** (propose-only is default) - present the plan and wait for explicit user approval. Inside a full `/implement` run, the `refactor-moves` approval recorded in the run record satisfies this gate for moves inside the plan's touched folders; any other move asks.
 8. **Execute** (only on approval) - create the archive, move Cat 2, delete Cat 1, leave Cat 3 in place with refresh flags.
 9. **Reference repair** - apply the rename-map algorithm from [`references/link-integrity.md`](references/link-integrity.md), then gate the result with [`scripts/link-baseline.py`](scripts/link-baseline.py) or its native Windows sibling [`scripts/link-baseline.ps1`](scripts/link-baseline.ps1).
 10. **Verify** - run the seven binary checks listed below; loop back up to three times on residual breakage.
