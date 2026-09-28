@@ -54,7 +54,7 @@ Finding: clean. Nothing proposed, nothing applied.
 
 Reconciled via [[known-gaps-tracker]]. Glob over both canonical and legacy layouts found **36 reachable ledgers** (29 under `docs/releases/v*/v*/`, 7 under `docs/archives/v*/v*/`). None was unreachable.
 
-**This version.** `docs/releases/v4/v4.8/known-gaps.md` opened this plan with 3 pre-existing items (`WN-A`, `WN-B` resolved, `WN-C`) and now carries the following, added by this plan:
+**This version.** `docs/archives/v4/v4.8/known-gaps.md` opened this plan with 3 pre-existing items (`WN-A`, `WN-B` resolved, `WN-C`) and now carries the following, added by this plan:
 
 | id | Class | Source phase | Summary |
 |---|---|---|---|

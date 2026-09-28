@@ -14,8 +14,8 @@
 - **What was observed**: `tests/guides/test_nexus_hub_guide.py::test_file_size_budget` asserts the guide is under 500000 bytes. The artifact measures 499799, leaving **201 bytes**, or 0.04 percent. The next content addition of any size breaks the build.
 - **Why it is not just a number to raise**: the budget exists because the guide is a single self-contained offline HTML document that a browser downloads in full. Raising the ceiling to clear a red test would spend the constraint rather than honor it. The v4.4.x guide cycle already fought for bytes (`docs/releases/v4/v4.4/` history), so the compaction levers are documented.
 - **Suggested next step**: decide deliberately, ahead of the next guide edit, between compacting existing content and raising the budget with a recorded rationale. Do not decide it inside a phase that merely needs the test green.
-- **Qualified locally 2026-09-23**: The user chose to preserve the 500,000-byte ceiling. Reusing the exact reviewed Claude, ChatGPT, and Cursor vector geometry in local SVG symbols reduced the current guide from 498,735 to 495,467 normalized bytes, increasing headroom from 1,265 to 4,533 bytes. Gemini remains inline: a proposed symbol reuse made its masked icon disappear in Chromium and was rejected by visual review. Four reduced-motion Home browser renders (dark/light at 420 and 1440 px) had near-zero mean image difference; native-size review found only slight Cursor edge antialiasing, not a shape change. The approved-asset hash test resolves the three local references before comparison. See [verification](../../../archives/v4/v4.8/development/guide-byte-headroom/verification.md). Publication and post-merge verification remain open.
-- **Closed after protected integration, 2026-09-23**: PR #267 passed 21 hosted checks, merged as `dc439012`, and post-merge run 35935340043 passed smoke and provenance. The strict ceiling remains 500,000 bytes; the integrated guide measures 495,467 normalized bytes. The [archived verification](../../../archives/v4/v4.8/development/guide-byte-headroom/verification.md) keeps the browser evidence and the rejected Gemini experiment distinct from hosted CI.
+- **Qualified locally 2026-09-23**: The user chose to preserve the 500,000-byte ceiling. Reusing the exact reviewed Claude, ChatGPT, and Cursor vector geometry in local SVG symbols reduced the current guide from 498,735 to 495,467 normalized bytes, increasing headroom from 1,265 to 4,533 bytes. Gemini remains inline: a proposed symbol reuse made its masked icon disappear in Chromium and was rejected by visual review. Four reduced-motion Home browser renders (dark/light at 420 and 1440 px) had near-zero mean image difference; native-size review found only slight Cursor edge antialiasing, not a shape change. The approved-asset hash test resolves the three local references before comparison. See [verification](development/guide-byte-headroom/verification.md). Publication and post-merge verification remain open.
+- **Closed after protected integration, 2026-09-23**: PR #267 passed 21 hosted checks, merged as `dc439012`, and post-merge run 35935340043 passed smoke and provenance. The strict ceiling remains 500,000 bytes; the integrated guide measures 495,467 normalized bytes. The [archived verification](development/guide-byte-headroom/verification.md) keeps the browser evidence and the rejected Gemini experiment distinct from hosted CI.
 
 #### WN-C - `make test` has an undocumented prerequisite, so three extension suites fail on a fresh clone
 
@@ -68,7 +68,7 @@
 - **Suggested next step**: treat framework-tag re-verification as periodic human work owned by [[platform-contract-verification]], which already re-verifies external contracts before a release, rather than as a gate. The same step covers the related exposure that OWASP will version the framework and can renumber or retitle an entry, making every tag stale at once with no local signal.
 - **Recorded in**: the decision record's `## Consequences` section states this residual gap; this entry is its ledger counterpart so the next plan ingests it.
 
-**Process resolution, 2026-09-23**: The [archived 15-skill audit](../../../archives/v4/v4.8/development/owasp-body-mapping-audit.md) compared all 24 declared ASI mappings with the current OWASP 2026 source, their standards rationales, and concrete body actions; none was unsupported at this snapshot. `security-framework-mapping` now owns a manual per-release re-verification, and `version-upgrade` invokes it before coverage is claimed. The test protects that handoff, not the semantic verdict; edits after this audit can still invalidate a mapping until the next review.
+**Process resolution, 2026-09-23**: The [archived 15-skill audit](development/owasp-body-mapping-audit.md) compared all 24 declared ASI mappings with the current OWASP 2026 source, their standards rationales, and concrete body actions; none was unsupported at this snapshot. `security-framework-mapping` now owns a manual per-release re-verification, and `version-upgrade` invokes it before coverage is claimed. The test protects that handoff, not the semantic verdict; edits after this audit can still invalidate a mapping until the next review.
 
 ### Deferred (DF)
 
@@ -189,7 +189,7 @@ saying so.** Two were spot-verified on 2026-09-06:
   `System32	ar.exe` explicitly, added in commit `69924673` ("fix: close every open v3.18 known
   gap"). The named test was re-run from Git Bash on 2026-09-06 and passed.
 
-`docs/releases/v4/v4.0/known-gaps.md` shows the disagreement structurally: its
+`docs/archives/v4/v4.0/known-gaps.md` shows the disagreement structurally: its
 `docs-lifespan-tree-and-enforcement` summary reports `BG: Open 0, Resolved 5`, and all five of those
 entries sit under `### Open Items` with `RESOLVED` in their headings. The table is right and the
 placement is stale. One entry in the same block, `BG-2`, is genuinely open and still carries a
@@ -246,7 +246,7 @@ the counts were recomputed from the merged catalog in this landing and now sum t
 - **Reason**: `pytest catalog/hooks/tests/test_lint_autofix.py` fails locally because `shutil.which("bash")` resolves to the Windows `system32\bash.EXE` (WSL), which cannot read a Windows-path `.sh` (exit 127). This is the WN-1 environment family from v3.12. The hook's six behaviors were instead verified end-to-end through Git Bash (opt-in gate, fail-open, non-commit no-op, disabled-env opt-out, skip-unstaged, and format + re-stage with ruff on PATH), ShellCheck is clean, the `.ps1` AST parses, and the test collects cleanly (7 tests).
 - **Suggested next step**: None required. CI (ubuntu) is the authoritative gate for the bash hook suites; `pip install pytest ruff` was added to the CI tests job this phase so the ruff-gated formatting cases also run there (ubuntu-latest ships jq).
 
-**Resolution, 2026-09-24**: The same seven tests now pass on the Windows development host with Git Bash selected ahead of the WSL `bash.EXE` and installed Ruff on the process-local `PATH`: seven passed, zero skipped. This closes the host-execution warning without changing the hook or claiming that WSL can execute Windows-path scripts. The original failure and CI's separate authoritative role remain intact. See the [archived Windows qualification](../../../archives/v4/v4.8/development/windows-lint-autofix-qualification.md).
+**Resolution, 2026-09-24**: The same seven tests now pass on the Windows development host with Git Bash selected ahead of the WSL `bash.EXE` and installed Ruff on the process-local `PATH`: seven passed, zero skipped. This closes the host-execution warning without changing the hook or claiming that WSL can execute Windows-path scripts. The original failure and CI's separate authoritative role remain intact. See the [archived Windows qualification](development/windows-lint-autofix-qualification.md).
 
 ### Missing tests / coverage gaps (MT)
 
@@ -272,4 +272,4 @@ it always said v4.9.0. Two consequences for a reader following those references:
 
 - The `T023` ledger-condition measurement above still stands. It measured this repository's open-gap state, which
   did not change because the plan moved; only the task's numbering context did. T023 now sits in the v4.9.0 plan.
-- The v4.9 ledger at `docs/releases/v4/v4.9/known-gaps.md` is where that plan's own findings land.
+- The v4.9 ledger at `docs/archives/v4/v4.9/known-gaps.md` is where that plan's own findings land.

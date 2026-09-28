@@ -1,6 +1,6 @@
 # v4.9.2 runtime-deck build-state probe
 
-This release-scoped evidence tests the preserved LVEDP handbook deck against the authored-fragment budget without changing its source repository. It extends the [runtime render](../runtime-deck-render-2026-09-27/verification.md) and [stage-floor correction](../runtime-deck-stage-floor-correction-2026-09-27/verification.md); it does not replace either record or close [MT-3](../../../../../releases/v4/v4.9/known-gaps.md).
+This release-scoped evidence tests the preserved LVEDP handbook deck against the authored-fragment budget without changing its source repository. It extends the [runtime render](../runtime-deck-render-2026-09-27/verification.md) and [stage-floor correction](../runtime-deck-stage-floor-correction-2026-09-27/verification.md); it does not replace either record or close [MT-3](../../known-gaps.md).
 
 ## Input and method
 

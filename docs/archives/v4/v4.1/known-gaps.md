@@ -63,7 +63,7 @@ Only DF-1 remains open for v4.1.0. All other categories have no open items.
 - v3.20 DF-1 and DF-2 remain on `docs/releases/v3/v3.20/known-gaps.md`; this adoption plan did not absorb or relabel them.
 - v3.21 DF-1 remains on `docs/releases/v3/v3.21/known-gaps.md` because Nexus-Hub still has no authored catalog atlas.
 - v3.21 DF-2 is resolved on its original ledger by the v4.1.0 Phase 1 refresh of `docs/todos.md`.
-- v4.0 DF-1 (report-artifact upload) remains on `docs/releases/v4/v4.0/known-gaps.md`. The v4.1.1 pipeline comparison declined to reopen it.
+- v4.0 DF-1 (report-artifact upload) remains on `docs/archives/v4/v4.0/known-gaps.md`. The v4.1.1 pipeline comparison declined to reopen it.
 
 ## v4.1.1
 

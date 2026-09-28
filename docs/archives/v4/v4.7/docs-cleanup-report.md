@@ -48,4 +48,4 @@ Per-phase record of the documentation cleanup audit (implement-phase step 8.6).
 
 - New files this phase created: `development/last-phase-evidence.md` and the Phase 7 history file. `known-gaps.md` finalized with derived counts. No new scratch docs.
 - `python scripts/check_docs_conventions.py --root docs/releases/v4/v4.7`: OK. `python scripts/check_docs_retention.py`: nothing due for archival. `find . -type d -empty`: nothing.
-- Proposals: none. `docs/todos.md` and `docs/releases/v4/v4.4/known-gaps.md` deliberately not edited from this branch (concurrent session owns both); dispositions recorded in `known-gaps.md`.
+- Proposals: none. `docs/todos.md` and `docs/archives/v4/v4.4/known-gaps.md` deliberately not edited from this branch (concurrent session owns both); dispositions recorded in `known-gaps.md`.

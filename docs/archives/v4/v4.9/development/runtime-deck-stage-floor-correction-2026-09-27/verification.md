@@ -1,6 +1,6 @@
 # v4.9.2 runtime-deck stage-floor correction
 
-This append-only correction to the [runtime render qualification](../runtime-deck-render-2026-09-27/verification.md) uses the same preserved LVEDP deck and the stage-height denominator required by [responsive typography section 4.1](../../../../../../catalog/skills/specialized-domains/document-to-interactive-html/references/responsive-typography.md). It corrects the prior floor verdict only; it does not certify visual quality or close [MT-3](../../../../../releases/v4/v4.9/known-gaps.md).
+This append-only correction to the [runtime render qualification](../runtime-deck-render-2026-09-27/verification.md) uses the same preserved LVEDP deck and the stage-height denominator required by [responsive typography section 4.1](../../../../../../catalog/skills/specialized-domains/document-to-interactive-html/references/responsive-typography.md). It corrects the prior floor verdict only; it does not certify visual quality or close [MT-3](../../known-gaps.md).
 
 ## Evidence
 

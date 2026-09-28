@@ -18,7 +18,7 @@ The [docs cleanup report](../docs-cleanup-report.md) classifies release evidence
 
 The tracked canonical and archived/legacy glob found 40 `known-gaps.md` files, all readable. `phase4-gap-inventory.json` retains every file's status and open sections. Older finalized ledgers remain historical evidence; this release does not restamp their tests or infer closure from a new run. The [reconciliation table](gap-reconciliation.md) gives every ledger a disposition.
 
-Current-version findings are owned in the [v4.12 ledger](../../../../releases/v4/v4.12/known-gaps.md). Prior platform-discovery, native-rendering, model-profile, security-scan and extension gaps retain their original owners because this change adds no distributed capability and preserves historical file trees. The existing reporting-artifact gap in v4.4 WN-446-1 is relevant to terminal CI comparison and is cross-referenced rather than claimed resolved. v4.11 native authoring qualification remains UNMET where its own ledger says so; the separate repository handbook freshness check does not close that gap.
+Current-version findings are owned in the [v4.12 ledger](../known-gaps.md). Prior platform-discovery, native-rendering, model-profile, security-scan and extension gaps retain their original owners because this change adds no distributed capability and preserves historical file trees. The existing reporting-artifact gap in v4.4 WN-446-1 is relevant to terminal CI comparison and is cross-referenced rather than claimed resolved. v4.11 native authoring qualification remains UNMET where its own ledger says so; the separate repository handbook freshness check does not close that gap.
 
 ## Living docs architecture
 

@@ -51,7 +51,7 @@ $ find docs -name "known-gaps.md" | wc -l
 31
 ```
 
-Of the 31, exactly two carry `**Status**: in-progress`: `docs/releases/v4/v4.1/known-gaps.md` and `docs/releases/v4/v4.2/known-gaps.md`. All others are finalized, released, or release-ready.
+Of the 31, exactly two carry `**Status**: in-progress`: `docs/archives/v4/v4.1/known-gaps.md` and `docs/archives/v4/v4.2/known-gaps.md`. All others are finalized, released, or release-ready.
 
 **This version (`v4.2`)**:
 
@@ -308,7 +308,7 @@ Kept: the final full sweep (`renders/v423-phase-6/`, 24 captures) and all six ca
 
 ## Known-gaps reconciliation
 
-Two ledgers carry `Status: in-progress`: `docs/releases/v4/v4.1/known-gaps.md` and `docs/releases/v4/v4.2/known-gaps.md`.
+Two ledgers carry `Status: in-progress`: `docs/archives/v4/v4.1/known-gaps.md` and `docs/archives/v4/v4.2/known-gaps.md`.
 
 - A `## v4.2.3` section carries v4.2.2's three gaps forward honestly rather than closing them by assertion: DF-1 (`.html` outside the unicode-sanitize gate), DF-2 (no five-person workshop cohort exists), MT-1 (render harness is manual-only by design).
 - DF-1 earned a concrete illustration this cycle: writing the v4.2.3 plan introduced a stray CJK character that `validate_unicode_safety.py` scanned and passed, because it flags invisible characters and smart punctuation, not a valid-but-wrong-script glyph. A separate scan caught it. The gap is real and now has evidence.

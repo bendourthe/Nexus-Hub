@@ -55,7 +55,7 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 
 ### WN-1 - The residual-reference check scans Markdown only
 
-**Status**: RESOLVED 2026-09-23 by PR #262, merged at `30ecff7b`; post-merge run 35925138595 passed smoke and provenance. The scanner now checks repository Markdown and JSON under `docs/`, but deliberately excludes generated `data/` inventories and other file types. A sealed JSON record can be exempted only by an explicit, printed `--skip` prefix. Two failing-first tests cover the JSON survivor and the sealed-record exemption; the owning module passed 17 tests. A real-tree scan found 85 historical `v4.10.0` references, including the previously missed `v4.9-layout-public.json` as its sole JSON hit. The [archived qualification](../../../archives/v4/v4.10/development/residual-reference-json/verification.md) preserves the boundary and evidence; it does not claim a repository-wide scan of every file type.
+**Status**: RESOLVED 2026-09-23 by PR #262, merged at `30ecff7b`; post-merge run 35925138595 passed smoke and provenance. The scanner now checks repository Markdown and JSON under `docs/`, but deliberately excludes generated `data/` inventories and other file types. A sealed JSON record can be exempted only by an explicit, printed `--skip` prefix. Two failing-first tests cover the JSON survivor and the sealed-record exemption; the owning module passed 17 tests. A real-tree scan found 85 historical `v4.10.0` references, including the previously missed `v4.9-layout-public.json` as its sole JSON hit. The [archived qualification](development/residual-reference-json/verification.md) preserves the boundary and evidence; it does not claim a repository-wide scan of every file type.
 
 - **Source phase**: Phase 5 (T015, T016).
 - **Plan reference**: v4.10.0 D6, "residual-reference check that fails on a single survivor".
@@ -85,7 +85,7 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 
 ### WN-4 - The scoped weekly bar is display-only and will not warn the user
 
-**Status**: RESOLVED 2026-09-24 by an opt-in `weeklyScoped` threshold selection. The default `highest` still ignores the scoped bar, and status-bar text still shows the session and all-models weekly figures. Missing scoped data raises no threshold alert. The [decision record](../../../decisions/implemented/tooling/2026-09-24-opt-in-scoped-weekly-alerts.md) states the compatibility trade-off, and the [archived verification](../../../archives/v4/v4.10/development/scoped-weekly-alert/verification.md) records the packaged VSIX host run.
+**Status**: RESOLVED 2026-09-24 by an opt-in `weeklyScoped` threshold selection. The default `highest` still ignores the scoped bar, and status-bar text still shows the session and all-models weekly figures. Missing scoped data raises no threshold alert. The [decision record](../../../decisions/implemented/tooling/2026-09-24-opt-in-scoped-weekly-alerts.md) states the compatibility trade-off, and the [archived verification](development/scoped-weekly-alert/verification.md) records the packaged VSIX host run.
 
 - **Source phase**: the Claude Usage Monitor scoped weekly bar, folded into v4.10.0 from the unreleased v4.9.1 slot, which was dropped rather than renumbered.
 - **What was observed**: urgency thresholds, status-bar highlighting, and threshold notifications continue to evaluate the session and all-models weekly metrics only. The model-scoped weekly bar is rendered in the dashboard and the status-bar hover but feeds none of them.
@@ -94,7 +94,7 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 
 ### MT-2 - The two weekly bars were not exercised in a running extension host
 
-**Status**: RESOLVED 2026-09-24 for the host-rendering boundary. The packaged v0.10.0 VSIX painted the all-models and Fable weekly bars in the status-bar hover and dashboard in VS Code 1.139.0. The [archived screenshots and measurements](../../../archives/v4/v4.10/development/weekly-bars-host-render/verification.md) use synthetic stored metrics with account fetching disabled; they do not assert a live account fetch. The prior account-response mapping evidence remains separate.
+**Status**: RESOLVED 2026-09-24 for the host-rendering boundary. The packaged v0.10.0 VSIX painted the all-models and Fable weekly bars in the status-bar hover and dashboard in VS Code 1.139.0. The [archived screenshots and measurements](development/weekly-bars-host-render/verification.md) use synthetic stored metrics with account fetching disabled; they do not assert a live account fetch. The prior account-response mapping evidence remains separate.
 
 - **Source phase**: the same change.
 - **What was observed**: the type check passed, 12 unit tests passed including 6 new mapping cases, and the real account payload was fed through `mapClaudeUsageResponse` and resolved a `Fable`-labelled scoped metric. None of that loads the extension. The tooltip SVG and the dashboard section were not rendered.

@@ -30,11 +30,11 @@ Cluster ownership matches `docs/releases/v4/v4.1/development/v4.1.2-construction
 
 ## 2. Known-gaps reconciliation
 
-Glob of `docs/**/known-gaps.md` found 30 unique files (canonical `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` plus archive copies). File-level Status `in-progress` is only `docs/releases/v4/v4.1/known-gaps.md`. `docs/releases/v4/v4.0/known-gaps.md` is finalized. `docs/releases/v3/v3.20/known-gaps.md` and `docs/releases/v3/v3.21/known-gaps.md` are finalized. Remaining v3 and archive ledgers are historical or complete; none was rewritten.
+Glob of `docs/**/known-gaps.md` found 30 unique files (canonical `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` plus archive copies). File-level Status `in-progress` is only `docs/archives/v4/v4.1/known-gaps.md`. `docs/archives/v4/v4.0/known-gaps.md` is finalized. `docs/releases/v3/v3.20/known-gaps.md` and `docs/releases/v3/v3.21/known-gaps.md` are finalized. Remaining v3 and archive ledgers are historical or complete; none was rewritten.
 
 Evidence:
 
-> `docs/releases/v4/v4.1/known-gaps.md` `## v4.1.2`: Open WN=1, QG=1, NI/DF/BG/MT=0.
+> `docs/archives/v4/v4.1/known-gaps.md` `## v4.1.2`: Open WN=1, QG=1, NI/DF/BG/MT=0.
 
 This plan produced:
 

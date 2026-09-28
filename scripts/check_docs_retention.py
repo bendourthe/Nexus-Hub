@@ -302,8 +302,8 @@ def find_closed_minors(root: Path) -> list[tuple[Path, list[str], str]]:
     because an open item means the minor is still live work. See state 3b in
     docs/policy/docs-retention.md.
 
-    known-gaps.md is never reported: the policy keeps it in the active tree so
-    the next /plan can read it without a directory hop.
+    known-gaps.md is never reported for movement. The reviewed v4.0-v4.12
+    transfer may instead bind an already archived source ledger.
     """
     closed: list[tuple[Path, list[str], str]] = []
     for version_dir in sorted((root / RELEASES_ROOT).glob("v*/v*")):
@@ -317,10 +317,17 @@ def find_closed_minors(root: Path) -> list[tuple[Path, list[str], str]]:
         if not movable:
             continue
 
-        # A missing register cannot prove that no work remains.
+        # The reviewed v4.0-v4.12 transfer may have archived its ledger while
+        # plans or comparisons still await their own archival.
         gaps = version_dir / "known-gaps.md"
         if not gaps.is_file():
-            continue
+            if version_dir.parent.name != "v4" or not _VERSION_DIR.fullmatch(version_dir.name):
+                continue
+            if int(version_dir.name.split(".")[1]) >= 13:
+                continue
+            gaps = root / ARCHIVES_ROOT / "v4" / version_dir.name / "known-gaps.md"
+            if not gaps.is_file() or not legacy_transfer_is_complete(root, version_dir, gaps):
+                continue
 
         transferred = legacy_transfer_is_complete(root, version_dir, gaps)
         if not transferred and not known_gaps_is_closed(gaps.read_text(encoding="utf-8", errors="replace")):
@@ -358,9 +365,12 @@ def _render_closed_minors(root: Path, quiet: bool) -> str:
         rel = version_dir.relative_to(root).as_posix()
         dest = rel.replace(f"{RELEASES_ROOT}/", "docs/archives/", 1)
         names = ", ".join(f"{m}/" for m in movable)
-        buf.write(
-            f"  WARN: {rel} {disposition}; move {names} -> {dest} (known-gaps.md stays)\n"
+        ledger_location = (
+            "known-gaps.md stays"
+            if (version_dir / "known-gaps.md").is_file()
+            else "known-gaps.md already archived"
         )
+        buf.write(f"  WARN: {rel} {disposition}; move {names} -> {dest} ({ledger_location})\n")
     return buf.getvalue()
 
 

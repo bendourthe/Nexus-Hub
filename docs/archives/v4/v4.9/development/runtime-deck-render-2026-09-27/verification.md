@@ -2,7 +2,7 @@
 
 **Correction, 2026-09-27:** The floor comparison below used viewport height where the deck's scaled canvas requires stage height. The [append-only correction](../runtime-deck-stage-floor-correction-2026-09-27/verification.md) shows that all four sampled-state minima pass the correct 2%-of-stage floor. The original observations and method remain below as historical evidence; their viewport-floor failure verdicts must not be used as current stage-floor findings.
 
-This read-only follow-up measures the preserved LVEDP presentation as a runtime deck. It adds rendered evidence to [MT-3](../../../../../releases/v4/v4.9/known-gaps.md) but does not close the gap or certify the deck as visually acceptable.
+This read-only follow-up measures the preserved LVEDP presentation as a runtime deck. It adds rendered evidence to [MT-3](../../known-gaps.md) but does not close the gap or certify the deck as visually acceptable.
 
 ## Artifact and method
 

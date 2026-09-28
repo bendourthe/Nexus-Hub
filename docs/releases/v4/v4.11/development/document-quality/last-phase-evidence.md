@@ -44,7 +44,7 @@ Both new scripts are referenced from `SKILL.md`, so the orphan audit is clean.
 
 ## Known-gaps reconciliation
 
-Recorded in [the v4.11 ledger](../../known-gaps.md) under
+Recorded in [the v4.11 ledger](../../../../../archives/v4/v4.11/known-gaps.md) under
 `v4.11.2 - adoption-document-and-deck-quality`.
 
 - **MT-5 - PARTIALLY closed, and said so.** It was transferred into this plan expecting Phase 5's provenance record to close it. It closes one half: an unsourced series now fails. The other half - a value existing only in an intermediate animation frame - is untouched, because the attestation covers what a series IS, not what a chart displays mid-transition. Next step recorded: sample inside the animation window, which Phase 4's per-slide walk already makes possible.

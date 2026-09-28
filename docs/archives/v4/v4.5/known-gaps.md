@@ -6,7 +6,7 @@
 
 ## v4.5.0 - anti-cliche-and-agent-security
 
-**Plan**: [v4.5.0-anti-cliche-and-agent-security.md](../../../archives/v4/v4.5/plans/v4.5.0-anti-cliche-and-agent-security.md)
+**Plan**: [v4.5.0-anti-cliche-and-agent-security.md](plans/v4.5.0-anti-cliche-and-agent-security.md)
 **Base**: `develop` at `8a426441` (the v4.4.5 back-merge)
 
 ### Summary
@@ -38,7 +38,7 @@
 - **Reason**: The security comparison raised this as an open question about Nexus-Hub itself: any write-capable service reachable from more than one agent session (a package registry, an artifact store, a CI cache) is a channel until proven otherwise, and any allowlisted destination with its own reach is part of the agent's real reachability. The v4.5.0 plan shipped the controls as catalog guidance; it did not apply them to the agents that develop this repository (CI runners, the MCP servers under `extensions/`, the memory store). That application is a design exercise on real infrastructure, not a documentation task.
 - **Suggested next step**: Run human test 4: take step 3 sub-steps 6 to 8 and step 5 sub-steps 5 to 7 of `agent-execution-isolation` and apply them to this repository's CI and local agent surface, producing the two named artifacts (the shared-writable-service enumeration and the transitive-reachability union). If the controls cannot be applied as written, they are too abstract and the skill should be revised.
 
-**Bounded audit, 2026-09-24**: The [shared-writable-service inventory](development/isolation-audit/shared-writable-services.md) and [transitive-reachability assessment](development/isolation-audit/transitive-reachability.md) now name the observed local checkout, user cache, GitHub cache and artifact surfaces, direct GitHub API access, configured web-fetch egress, and CI runner limits. The local shared checkout fails the per-session isolation minimum, and no out-of-process egress allowlist was evidenced in the inspected configuration from which to prove a transitive union. DF-2 remains open; these records are findings and design inputs, not a security pass or an exhaustive host inventory.
+**Bounded audit, 2026-09-24**: The [shared-writable-service inventory](../../../releases/v4/v4.5/development/isolation-audit/shared-writable-services.md) and [transitive-reachability assessment](../../../releases/v4/v4.5/development/isolation-audit/transitive-reachability.md) now name the observed local checkout, user cache, GitHub cache and artifact surfaces, direct GitHub API access, configured web-fetch egress, and CI runner limits. The local shared checkout fails the per-session isolation minimum, and no out-of-process egress allowlist was evidenced in the inspected configuration from which to prove a transitive union. DF-2 remains open; these records are findings and design inputs, not a security pass or an exhaustive host inventory.
 
 #### Warnings
 
@@ -61,7 +61,7 @@
 
 ### Carry-forward from v4.4
 
-Reviewed at phase 7 per sub-task 7.3. The v4.4 ledger (`docs/releases/v4/v4.4/known-gaps.md`) was not edited from this branch because a concurrent v4.4.6 session has it modified in the main checkout; the dispositions below are for that session or the release step to apply.
+Reviewed at phase 7 per sub-task 7.3. The v4.4 ledger (`docs/archives/v4/v4.4/known-gaps.md`) was not edited from this branch because a concurrent v4.4.6 session has it modified in the main checkout; the dispositions below are for that session or the release step to apply.
 
 | v4.4 item | Disposition | Reason |
 |---|---|---|
@@ -77,8 +77,8 @@ Older ledgers: v4.0 `DF-1` (the non-lockstep seven are not byte-locked by the re
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | WN-1 | Pre-existing lint and format drift in the parity guard | Phase 2 | Phase 2 edits `scripts/check_base_template_parity.py` on purpose (promoting `Writing Discipline` into both guard lists), so the two ruff findings (`UP035`, `UP045`) were fixed and the file formatted in that same deliberate edit; the whole diff is 15 insertions and 3 deletions. |
-| DF-3 | Mannered prose and the stranded auxiliary rely on model judgment alone | 2026-09-24 follow-up | The proposed lexical addition required a clean false-positive sweep. Nine repository prose lines matched a narrow subject-plus-auxiliary sentence shape, including factual technical corrections. The shape cannot distinguish the style beat from ordinary prose, so both patterns remain intentionally judgment-only in Edit mode. See [frozen verification](../../../archives/v4/v4.5/development/prose-detector-disposition/verification.md). |
-| WN-3 | The model-prompting profile layer did not match the Claude roster | 2026-09-08 profile refresh, reconciled 2026-09-24 | Commit `5f4c76eb` added a source-backed `claude-fable-5-1` profile and replaced the recorded `claude-fable-5` roster entry. Structural verification and 62 focused tests pass. This closes the named mismatch, not the separate four-model source-availability gap in v4.9 MT-1 or future live-roster checks. See [frozen verification](../../../archives/v4/v4.5/development/prompting-roster-disposition/verification.md). |
+| DF-3 | Mannered prose and the stranded auxiliary rely on model judgment alone | 2026-09-24 follow-up | The proposed lexical addition required a clean false-positive sweep. Nine repository prose lines matched a narrow subject-plus-auxiliary sentence shape, including factual technical corrections. The shape cannot distinguish the style beat from ordinary prose, so both patterns remain intentionally judgment-only in Edit mode. See [frozen verification](development/prose-detector-disposition/verification.md). |
+| WN-3 | The model-prompting profile layer did not match the Claude roster | 2026-09-08 profile refresh, reconciled 2026-09-24 | Commit `5f4c76eb` added a source-backed `claude-fable-5-1` profile and replaced the recorded `claude-fable-5` roster entry. Structural verification and 62 focused tests pass. This closes the named mismatch, not the separate four-model source-availability gap in v4.9 MT-1 or future live-roster checks. See [frozen verification](development/prompting-roster-disposition/verification.md). |
 
 ### Notes (not gaps)
 

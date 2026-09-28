@@ -1,6 +1,6 @@
 # v4.9.2 runtime-deck flow-connector paint qualification
 
-This release-scoped record narrows [MT-3](../../../../../releases/v4/v4.9/known-gaps.md) on the pinned LVEDP deck. It checks settled connector-body paint in the three authored flow slides. It does not change the historical deck or close MT-3.
+This release-scoped record narrows [MT-3](../../known-gaps.md) on the pinned LVEDP deck. It checks settled connector-body paint in the three authored flow slides. It does not change the historical deck or close MT-3.
 
 ## Functional exercise
 
