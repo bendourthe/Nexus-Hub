@@ -34,39 +34,22 @@ def page():
 def test_factory_exposes_named_instances(page):
     pg, errors = page
     ids = pg.evaluate("() => window.NexusShooter.instances()")
-    assert ids == ["buggy"]
+    assert ids == ["buggy", "fixed", "featured"]
     assert pg.evaluate("() => window.NexusShooter.get('buggy').id") == "buggy"
     assert not errors, f"page errors: {errors}"
 
 
-def test_two_game_roots_keep_independent_state(tmp_path):
-    from playwright.sync_api import sync_playwright
-
-    source = GUIDE.read_text(encoding="utf-8")
-    marker = "  var registry = [];"
-    assert source.count(marker) == 1
-    injection = (
-        '  var originalGame = document.querySelector("[data-arcade-game]");\n'
-        "  var secondGame = originalGame.cloneNode(true);\n"
-        '  secondGame.setAttribute("data-arcade-id", "fixed");\n'
-        "  originalGame.parentNode.appendChild(secondGame);\n"
+def test_three_game_roots_keep_independent_state(page):
+    pg, errors = page
+    pg.evaluate(
+        "() => { const first = window.NexusShooter.get('buggy');"
+        " first.start(); first.pause('manual');"
+        " for (let i = 0; i < 5; i++) first.step(); }"
     )
-    guide_copy = tmp_path / "two-games.html"
-    guide_copy.write_text(source.replace(marker, injection + marker, 1), encoding="utf-8")
-
-    with sync_playwright() as pw:
-        browser = pw.chromium.launch()
-        pg = browser.new_page(viewport={"width": 1440, "height": 940})
-        pg.goto(guide_copy.as_uri() + "#training")
-        assert pg.evaluate("() => window.NexusShooter.instances()") == ["buggy", "fixed"]
-        pg.evaluate(
-            "() => { const first = window.NexusShooter.get('buggy');"
-            " first.start(); first.pause('manual');"
-            " for (let i = 0; i < 5; i++) first.step(); }"
-        )
-        assert pg.evaluate("() => window.NexusShooter.get('buggy').snapshot().tick") == 5
-        assert pg.evaluate("() => window.NexusShooter.get('fixed').snapshot().tick") == 0
-        browser.close()
+    assert pg.evaluate("() => window.NexusShooter.get('buggy').snapshot().tick") == 5
+    assert pg.evaluate("() => window.NexusShooter.get('fixed').snapshot().tick") == 0
+    assert pg.evaluate("() => window.NexusShooter.get('featured').snapshot().tick") == 0
+    assert not errors, f"page errors: {errors}"
 
 
 def test_duplicate_game_ids_fail_before_partial_boot(tmp_path):
@@ -100,7 +83,7 @@ def test_dispose_unregisters_instance(page):
         " document.querySelector('[data-arcade-game]').focus();"
         " window.retiredGame.dispose(); }"
     )
-    assert pg.evaluate("() => window.NexusShooter.instances()") == []
+    assert pg.evaluate("() => window.NexusShooter.instances()") == ["fixed", "featured"]
     assert pg.evaluate("() => window.NexusShooter.get('buggy')") is None
     pg.evaluate(
         "() => { const root = document.querySelector('[data-arcade-game]');"

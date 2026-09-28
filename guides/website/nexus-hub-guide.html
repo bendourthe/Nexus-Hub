@@ -839,47 +839,33 @@ to{transform:rotate(360deg);}
 }
 @media (max-width:980px){.fx-scene{grid-template-columns:minmax(0,1fr);gap:var(--sp-4);}
 }
-/* ---------- Training walkthrough ---------- */
-.nht{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);margin-top:var(--sp-4);overflow:hidden;}
-.nht-bar{display:flex;flex-wrap:wrap;gap:var(--sp-3);align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface-2);}
-.nht-where{margin:0;color:var(--ink-dim);}
-.nht-btn{padding:5px 12px;font-size:15px;font-weight:600;font-family:var(--sans);color:var(--ink-dim);background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;}
-.nht-btn:hover:not(:disabled){color:var(--ink);border-color:var(--border-bright);}
-.nht-bar-actions{display:flex;gap:8px;align-items:center;}
-.nht-fullscreen{display:inline-flex;align-items:center;gap:7px;}
-.nht-fs-icon{width:13px;height:13px;flex:none;}
-.nht-btn:disabled{opacity:.4;cursor:default;}
-/* Loop-stage progress: each segment names its command. */
-.nht-loop{display:flex;gap:2px;padding:0;overflow-x:auto;}
-.nht-seg{flex:1 1 0;min-width:88px;padding:6px 4px 7px;background:transparent;border:0;border-top:3px solid var(--border);color:var(--ink-faint);font-family:var(--mono);font-size:15px;cursor:pointer;text-align:center;white-space:nowrap;}
-.nht-seg:hover{color:var(--ink);}
-.nht-seg.is-done{border-top-color:color-mix(in srgb,var(--accent) 45%,var(--border));color:var(--ink-dim);}
-.nht-seg.is-now{border-top-color:var(--accent);color:var(--accent);font-weight:700;background:color-mix(in srgb,var(--accent) 8%,transparent);}
-.nht-seg-k::before{content:"/";}
-/* Controls: bottom-right, icon-first. */
-.nht-controls { display: flex;gap: 8px;justify-content: flex-end;margin-top: var(--sp-4); }
-.nht-ico{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;flex:none;padding:0;color:var(--ink-dim);background:var(--surface);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:color .15s,border-color .15s;}
-.nht-ico:hover:not(:disabled){color:var(--ink);border-color:var(--border-bright);}
-.nht-ico:disabled{opacity:.35;cursor:default;}
-.nht-ico svg{width:18px;height:18px;display:block;}
-.nht-ico--go{background:var(--accent);color:var(--bg-deep);border-color:transparent;}
-html[data-theme="light"] .nht-ico--go{color:#fffdf8;}
-.nht-ico--go:hover:not(:disabled){color:var(--bg-deep);filter:brightness(1.08);}
-html[data-theme="light"] .nht-ico--go:hover:not(:disabled){color:#fffdf8;}
-.nht-slide{padding:var(--sp-5);}
-.nht-head{margin-bottom:var(--sp-4);}
-.nht-num{display:inline-block;font-family:var(--mono);font-weight:700;color:var(--teal-soft);border:1px solid var(--border);border-radius:6px;padding:1px 7px;margin-bottom:var(--sp-2);}
-.nht-head h2{margin-bottom:var(--sp-2);}
-.nht-intent{color:var(--ink-dim);}
-.nht-grid{display:grid;grid-template-columns:minmax(280px,4fr) minmax(320px,6fr);gap:var(--sp-4);align-items:start;}
-.nht-col{min-width:0;}
-/* playable Asteroids */
-.nht-game{border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-1);overflow:hidden;}
+/* Training sections are readable in document order; jump links never hide earlier work. */
+.nht-sections{display:grid;gap:var(--sp-5);margin-top:var(--sp-4);}
+.nht-jumps{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:var(--sp-2);}
+.nht-jumps a{padding:6px 10px;border:1px solid var(--border);border-radius:999px;color:var(--ink-dim);font-size:15px;}
+.nht-jumps a:hover,.nht-jumps a:focus-visible{color:var(--ink);border-color:var(--accent);}
+.nht-section{min-width:0;padding:var(--sp-5);border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);scroll-margin-top:90px;}
+.nht-section > h2{margin:0 0 var(--sp-2);}
+.nht-section > [data-nht="intent"]{color:var(--ink-dim);margin:0 0 var(--sp-4);}
+.nht-section-body{max-width:700px;}
+.nht-section-widgets{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--sp-4);align-items:start;margin-top:var(--sp-4);}
+.nht-section-widgets > [data-nht-action-panel],.nht-section-widgets > .nht-explorer{min-width:0;}
+.nht-section-widgets > .nht-explorer{margin-top:0;}
+.nht-section-widgets > .nht-takeaway{grid-column:1 / -1;margin-top:0;}
+.nht-action-list{display:flex;flex-wrap:wrap;gap:8px;}
+.nht-action-choice{padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);color:var(--ink-dim);font:600 15px var(--sans);cursor:pointer;}
+.nht-action-choice:hover,.nht-action-choice[aria-current="true"]{border-color:var(--accent);color:var(--ink);}
+.nht-phase-list{display:grid;gap:var(--sp-3);margin:var(--sp-4) 0 0;padding-left:var(--sp-5);}
+.nht-phase-list li{padding-left:var(--sp-2);}
+.nht-phase-list strong,.nht-phase-model{display:block;}
+.nht-phase-model{color:var(--teal-soft);font:15px var(--mono);}
+.nht-phase-list p{margin:4px 0 0;color:var(--ink-dim);}
+.nht-game{max-width:700px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-1);overflow:hidden;}
 .nag-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 12px;border-bottom:1px solid var(--border);background:var(--surface-2);}
 .nag-title{font-family:var(--mono);letter-spacing:.1em;color:var(--ink-faint);}
 .nag-tag{font-weight:700;padding:1px 7px;border-radius:999px;border:1px solid var(--red);color:var(--red);}
 .nag-tag.is-fixed{border-color:var(--green);color:var(--green);}
-/* Wide logical world stays fluid inside the current deck until the section rebuild. */
+/* The 8:5 stage keeps the logical world contained at every section width. */
 .nag-stage{position:relative;aspect-ratio:8 / 5;width:100%;margin-inline:auto;min-height:0;background:var(--bg-deep);border-bottom:1px solid var(--border);overflow:hidden;}
 .nag-start{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;background:color-mix(in srgb,var(--bg-deep) 72%,transparent);}
 .nag-start[hidden]{display:none;}
@@ -936,7 +922,6 @@ html[data-theme="light"] .nht-run{color:#fffdf8;}
 .nht-hint{margin:6px 0 0;color:var(--term-dim);}
 .nht-idle{margin:0;padding:var(--sp-5) 0;text-align:center;color:var(--term-dim);border:1px dashed var(--term-border);border-radius:var(--radius-sm);}
 .term--nht.has-run .nht-idle{display:none;}
-.nht.is-present .nht-idle{margin:auto 0;}
 .nht-tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--sp-3);}
 .nht-tool{font-family:var(--mono);color:var(--ink-faint);border:1px solid var(--border);border-radius:6px;padding:2px 8px;}
 .nht-tool b{color:var(--teal-soft);font-weight:700;}
@@ -975,92 +960,13 @@ html[data-theme="light"] .nht-run{color:#fffdf8;}
 .nht-filebody.is-pending{display:grid;place-content:center;min-height:215px;color:var(--ink-faint);text-align:center;}
 .nht-takeaway{margin:var(--sp-4) 0 0;padding-top:var(--sp-3);border-top:1px solid var(--border);color:var(--ink);}
 .nht-takeaway b{color:var(--teal-soft);}
-/* Full-screen slide mode (v4.4.1 Phase 6): bounded regions designed around the portrait shooter. At 100% zoom on desktop sizes every primary region is visible together with no page-level scroll; the terminal output is the ONE bounded secondary scroll surface. */
-.nht.is-present{position:fixed;inset:0;z-index:90;margin:0;border-radius:0;border:0;background:var(--page-bg);display:flex;flex-direction:column;overflow:hidden;}
-.nht.is-present .nht-bar,.nht.is-present .nht-loop{flex:none;}
-/* In present mode the SLIDE is the two-column grid, because the explorer is its sibling rather than a child of .nht-grid. Head/takeaway/controls span both columns; the game column and the evidence column each own their side with no cross-column intersection. */
-/* v4.4.2: THREE panes that fill the window. .nht-grid is display:contents in present mode, so its two columns and the sibling explorer are all direct grid items: game | evidence | explorer. Every pane height is the body row's DEFINITE track (the BG-11 lesson: no fill-sized child inside a content-sized parent). No max-width: a fullscreen 1920 is used, not centred. */
-.nht.is-present .nht-slide{flex: 1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(300px,34fr) minmax(0,33fr) minmax(0,33fr);grid-template-rows:auto minmax(0,1fr) auto auto;column-gap:14px;row-gap:6px;align-content:stretch;width:100%;max-width:none;margin:0;padding:6px 16px 8px;overflow:hidden;}
-.nht.is-present .nht-grid{display:contents;}
-.nht.is-present .nht-col:first-child{grid-column:1;grid-row:2;}
-.nht.is-present .nht-col:last-child{grid-column:2;grid-row:2;}
-.nht.is-present .nht-head{grid-column:1 / -1;}
-.nht.is-present .nht-explorer{grid-column:3;grid-row:2;min-width:0;min-height:0;overflow:hidden;margin-top:0;display:grid;grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);}
-.nht.is-present .nht-tree{border-right:0;border-bottom:1px solid var(--border);min-height:0;overflow:hidden;}
-.nht.is-present .nht-filetree{max-height:30vh;overflow:auto;}
-.nht.is-present .nht-file{min-height:0;display:flex;flex-direction:column;}
-.nht.is-present .nht-filebody{flex: 1 1 auto;min-height:0;max-height:none;overflow:auto;}
-.nht.is-present .nht-takeaway{grid-column:1 / -1;grid-row:3;}
-.nht.is-present .nht-controls{grid-column:1 / -1;grid-row:4;}
-/* Content budgets: title and intent hold two rendered lines each. */
-.nht.is-present .nht-head h2{font-size:clamp(1.2rem,2vw,1.6rem);margin-bottom:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.nht.is-present .nht-intent{font-size:clamp(15px,1.2vw,15.5px);margin:0 0 6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-/* Bounded columns instead of negotiated ones. Every earlier attempt let one panel's content decide another panel's position, which is what produced overlaps that moved between viewport sizes as the free height changed. Here the game takes a fixed share of the column and the evidence stack owns the rest with its own scroll, so neither can push into the other regardless of how the height resolves. */
-.nht.is-present .nht-col{min-width:0;min-height:0;display:flex;flex-direction:column;gap:8px;overflow:hidden;}
-.nht.is-present .nht-col:last-child{overflow:hidden;}
-/* The evidence column scrolls, so its children must keep their intrinsic height. Letting them shrink makes the terminal paint past its own box and into the explorer, which is what produced overlaps that appeared only at the shorter 1366 and 1280 heights. */
-.nht.is-present .nht-col:last-child > *{flex:none;}
-/* The terminal fills what tools and artifacts leave; its output is the one secondary scroll. */
-.nht.is-present .nht-col:last-child > .term--nht{flex: 1 1 auto;min-height:0;display:flex;flex-direction:column;}
-.nht.is-present .term--nht .term-body{flex: 1 1 auto;min-height:0;display:flex;flex-direction:column;}
-/* The file tree is the explorer's own scroller in normal mode; in presentation the column owns scrolling, so the tree must not become a second scroll surface. */
-/* The panel may shrink its STAGE, never its chrome: min-content is the floor below which the bar, HUD, and actions would paint outside the panel box and collide with the terminal beneath. Squeezing past that floor is what produced a 13px overlap at 1440. */
-.nht.is-present .nht-game{flex: 1 1 auto;min-height:0;max-height:100%;display:flex;flex-direction:column;overflow:hidden;}
-/* The 8:5 stage is bound by the presentation column's width so the canvas cannot paint behind the adjacent evidence column. */
-.nht.is-present .nag-stage{flex:none;width:100%;height:auto;min-height:0;margin-inline:auto;}
-.nht.is-present .nag-canvas{width:100%;height:100%;margin-inline:auto;}
-/* Touch controls and the long note are redundant in a presentation: the keyboard is in the operator's hands and the controls stay reachable in normal mode. */
-.nht.is-present .nag-controls,.nht.is-present .nag-guide,.nht.is-present .nag-note{display:none;}
-.nht.is-present .nag-actions{padding:6px 8px 2px;}
-.nht.is-present .nht-head{margin-bottom:0;}
-.nht.is-present .nht-takeaway{margin-top:0;padding-top:6px;}
-.nht.is-present .nht-controls{margin-top:0;}
-/* Outline OVERLAYS the slide in present mode instead of reflowing it (closes the v4.4.1 P3). */
-.nht.is-present .nht-outline{position:absolute;top:52px;left:16px;right:16px;z-index:5;max-height:60vh;overflow:auto;background:var(--surface-2);border:1px solid var(--border-bright);border-radius:var(--radius-sm);box-shadow:var(--shadow);}
-/* The single permitted secondary scroll owner: six visible terminal lines, then scroll. */
-.nht.is-present .nht-out{flex: 1 1 auto;min-height:0;max-height:none;overflow-y: auto;}
-.nht.is-present .nht-after{flex:none;}
-.nht.is-present .nht-artifact p,.nht.is-present .nht-gate p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.nht.is-present .nht-takeaway{flex:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.nht.is-present .nht-controls{flex:none;}
-/* Narrow widths and 200% zoom (which shrinks the CSS viewport below this breakpoint) reflow into ONE intentional vertical scroll surface instead of overlapping. Placed after the rules it overrides: @media adds no specificity, so position is load-bearing. */
-/* Short but wide windows keep the three panes and shed a line of chrome each from the head, the arena title bar, and the takeaway so the stage keeps its 0.45 viewport-height floor. */
-@media (min-width:1024px) and (min-height:640px) and (max-height:768px){.nht.is-present .nht-head h2{-webkit-line-clamp:1;font-size:clamp(1.05rem,1.6vw,1.3rem);}
-.nht.is-present .nht-intent{-webkit-line-clamp:1;margin-bottom:2px;}
-.nht.is-present .nht-takeaway{-webkit-line-clamp:1;}
-.nht.is-present .nag-bar{padding:3px 10px;}
-.nht.is-present .nag-hud .nag-stat{padding:1px 8px;}
-.nht.is-present .nag-actions{padding:3px 8px 0;}
-.nht.is-present .nht-slide{row-gap:4px;padding-top:4px;}
-}
-@media (max-width:1023px),(max-height:639px){/* Also keyed on height (v4.4.2): a short window cannot hold three panes, so it reflows too. */
-.nht.is-present .nht-grid{display:flex;}
-.nht.is-present .nht-outline{position:static;max-height:none;box-shadow:none;}
-/* Reverting to a flex column must also drop the grid PLACEMENT, or the explorer keeps a grid-row it no longer has and lands back on top of the terminal. */
-.nht.is-present .nht-slide{display:flex;flex-direction:column;overflow-y: auto;}
-.nht.is-present .nht-head,.nht.is-present .nht-grid,.nht.is-present .nht-col:first-child,.nht.is-present .nht-col:last-child,.nht.is-present .nht-explorer,.nht.is-present .nht-takeaway,.nht.is-present .nht-controls{grid-column:auto;grid-row:auto;}
-.nht.is-present .nht-explorer{display:grid;grid-template-columns:1fr;grid-template-rows:auto;}
-.nht.is-present .nht-filetree{max-height:none;}
-.nht.is-present .nht-filebody{max-height:260px;}
-.nht.is-present .nht-col:last-child > .term--nht,.nht.is-present .term--nht .term-body{display:block;}
-/* overflow:visible alone is not enough: a flex child that still cannot shrink paints past its parent and lands on the next region. The reflow must also release the height constraints, so each panel takes its intrinsic size in one scrolling column. */
-.nht.is-present .nht-grid,.nht.is-present .nht-col{display:flex;flex-direction:column;gap:10px;}
-.nht.is-present .nht-grid,.nht.is-present .nht-col,/* :first-child is repeated on purpose: desktop rules place the columns with 4-class selectors and a media query adds NO specificity, so a 3-class reset would lose to them. */
-.nht.is-present .nht-col:first-child,.nht.is-present .nht-explorer,.nht.is-present .term--nht{overflow:visible;min-height:auto;flex:none;height:auto;}
-.nht.is-present .nht-game{overflow:visible;flex:none;height:auto;}
-.nht.is-present .nag-stage{flex:none;width:min(100%,330px);height:auto;}
-.nht.is-present .nag-canvas{width:100%;height:100%;}
-.nht.is-present .nag-controls,.nht.is-present .nag-note{display:grid;}
-.nht.is-present .nag-note{display:block;}
-.nht.is-present .nht-out{max-height:none;overflow:visible;}
-}
-@media (max-width:900px){.nht-grid{grid-template-columns:1fr;}
+@media (max-width:900px){.nht-section-widgets{grid-template-columns:1fr;}
 .nht-explorer{grid-template-columns:1fr;}
 .nht-tree{border-right:0;border-bottom:1px solid var(--border);}
 .nht-after{grid-template-columns:1fr;}
-.nht-outline ol{columns:1;}
 }
-@media (max-width:420px){.nag-controls{grid-template-columns:repeat(2,minmax(0,1fr));}
+@media (max-width:420px){.nht-section{padding:var(--sp-3);}
+.nag-controls{grid-template-columns:repeat(2,minmax(0,1fr));}
 .nag-overlay{flex-wrap:wrap;justify-content:center;text-align:center;}
 .nht-cmd{flex-wrap:wrap;align-items:flex-start;}
 .nht-cmd .nht-run{flex:1 1 100%;margin-left:20px;}
@@ -1549,11 +1455,6 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
 [data-ty="td"]{font-size:var(--ty-body-sm);font-weight:400;line-height:1.5;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
 [data-ty="title"]{font-size:var(--ty-h4);font-weight:700;line-height:1.3;letter-spacing:0;text-transform:none;}
 [data-ty="stat"]{font-size:var(--ty-h3);font-weight:700;line-height:1.2;letter-spacing:0;color:var(--ink);text-transform:none;}
-/* Keep the idle terminal compact; completed replies retain their bounded scroll area. */
-.nht.is-present .nht-col:last-child > .term--nht:not(.has-run) { flex: none; }
-.nht.is-present .term--nht:not(.has-run) .term-body { flex: none; }
-.nht.is-present .term--nht:not(.has-run) .nht-out { display: none; }
-.nht.is-present .nht-idle { margin: 0; }
 </style>
 </head>
 <body>
@@ -1885,36 +1786,23 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
       <div class="hero">
         <span data-ty="eyebrow" class="eyebrow">Training</span>
         <h1 data-ty="h1">The command loop on a real bug</h1>
-        <p data-ty="lead" class="lead">This playable arcade shooter starts with one deliberate damage bug: the first enemy shot destroys the ship outright instead of costing one of three lives. Run the eight-command loop, watch its evidence accumulate, fix the damage at <code data-ty="code">/implement</code>, and add vertical movement after <code data-ty="code">/compare</code>. Everything happens here in the browser.</p>
+        <p data-ty="lead" class="lead">Play a shooter with one deliberate damage bug, then follow seven sections from finding to fix. Run each command in place, compare the broken and repaired games, and finish with a short evidence briefing.</p>
       </div>
 
-      <div class="nht" id="nhTraining" data-training-root data-nhg-keys="self">
-        <div class="nht-bar">
-          <p data-ty="code" class="nht-where" data-nht="where"></p>
-          <div class="nht-bar-actions">
-            <button type="button" class="nht-btn nht-fullscreen" id="nhtPresent" data-nht="exit-present" aria-pressed="false">
-              <svg class="nht-fs-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span class="nht-fs-label">Full screen</span>
-            </button>
-            <button type="button" class="nht-btn nht-outline-toggle" data-nht="outline" aria-expanded="false" aria-controls="nhtOutline">Outline</button>
-          </div>
-        </div>
-
-        <div class="nht-outline" id="nhtOutline" role="region" aria-label="Training outline" hidden>
-          <ol data-nht="outline-list"></ol>
-        </div>
-
-        <nav class="nht-loop" data-nht="progress" aria-label="Progress through the loop"></nav>
-
-        <div class="nht-slide">
-          <header class="nht-head">
-            <span class="nht-num" data-nht="step-num"></span>
-            <h2 data-ty="h2" data-nht="title"></h2>
-            <p data-ty="body-sm" class="nht-intent" data-nht="intent"></p>
-          </header>
-
-          <div class="nht-grid">
-            <div class="nht-col">
+      <div class="nht-sections" id="nhTraining" data-training-root>
+        <nav class="nht-jumps" aria-label="Training sections">
+          <a href="#training/game" data-go="training/game">Game</a>
+          <a href="#training/describe-review" data-go="training/describe-review">Describe and review</a>
+          <a href="#training/plan" data-go="training/plan">Plan</a>
+          <a href="#training/implement" data-go="training/implement">Implement</a>
+          <a href="#training/fixed-game" data-go="training/fixed-game">Fixed game</a>
+          <a href="#training/compare" data-go="training/compare">Compare</a>
+          <a href="#training/presentify" data-go="training/presentify">Present</a>
+        </nav>
+        <section class="nht-section" data-nht-section="game" id="training-game">
+          <h2 data-ty="h2">Play Sky Sentinel</h2>
+          <p data-ty="body" data-nht="intent"></p>
+          <div class="nht-section-body">
               <div class="nht-game" data-arcade-game data-arcade-id="buggy" data-seeded-bug="first-hit-destroys" data-added-feature="vertical-movement" data-nhg-keys="self" tabindex="0" aria-label="Playable arcade shooter bug demonstration" aria-describedby="nagInstructions">
                 <div class="nag-bar">
                   <span class="nag-title">SKY//SENTINEL</span>
@@ -1954,69 +1842,102 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
                 </div>
                 <p data-ty="caption" class="nag-note" id="nagInstructions"><strong>Controls:</strong> click the start button or press Enter on it, then use Left and Right arrows or A and D to move and Space or a click inside the arena to fire; Up and Down (or W and S) work after the vertical-movement feature is added, and Escape or moving the pointer out of the arena pauses and releases the keys. On touch devices, labelled buttons mirror every key. <strong>Seeded defect:</strong> the very first enemy shot destroys the ship outright instead of costing one of three lives. Fixed damage counts lives 3, 2, 1, 0; touching an asteroid is always fatal.</p>
               </div>
-            </div>
-
-            <div class="nht-col">
-              <div class="term term--nht" data-nht="terminal">
-                <div class="term-bar">
-                  <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-                  <span data-ty="code" class="label">assistant &middot; simulated</span>
-                </div>
-                <div class="term-body">
-                  <div class="cmd-line nht-cmd">
-                    <span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span>
-                    <code data-ty="code" data-nht="command" data-copy=""></code>
-                    <button type="button" class="nht-run" data-nht="run">Run</button>
-                  </div>
-                  <div class="nht-out" data-nht="output" aria-live="polite"></div>
-                  <p data-ty="caption" class="nht-hint" data-nht="hint">Press Run to send this command.</p>
-                  <p data-ty="caption" class="nht-idle" data-nht="idle">The assistant's reply will appear here.</p>
-                </div>
-              </div>
-
-              <div class="nht-tools" data-nht="tools"></div>
-
-              <div class="nht-after">
-                <div class="nht-artifact" data-nht="artifact">
-                  <span class="na-k">Left on disk</span>
-                  <code data-ty="code" data-nht="artifact-path"></code>
-                  <p data-ty="body" data-nht="artifact-summary"></p>
-                </div>
-                <div class="nht-gate" data-nht="gate">
-                  <span class="ng-k" data-nht="gate-status"></span>
-                  <p data-ty="body"><b data-nht="gate-name"></b><span class="ng-prompt" data-nht="gate-prompt"></span></p>
-                </div>
-              </div>
-
-            </div>
           </div>
+          <div data-nht-widgets></div>
+        </section>
 
-          <section class="nht-explorer" data-nht="explorer" data-nhg-keys="self" aria-label="Files produced by the training loop">
-            <div class="nht-tree">
-              <div class="nht-treebar"><span>Project files</span><span data-nht="file-count"></span></div>
-              <div class="nht-filetree" data-nht="file-tree" role="tree" aria-label="Cumulative project files"></div>
+        <section class="nht-section" data-nht-section="describe-review" id="training-describe-review">
+          <h2 data-ty="h2">Map the bug, then review it</h2>
+          <p data-ty="body" data-nht="intent"></p>
+          <div class="nht-action-list" data-nht-action-list></div>
+          <div data-nht-widgets></div>
+        </section>
+
+        <section class="nht-section" data-nht-section="plan" id="training-plan">
+          <h2 data-ty="h2">Plan the repair</h2>
+          <p data-ty="body" data-nht="intent"></p>
+          <div data-nht-widgets></div>
+          <ol class="nht-phase-list" data-nht-phases></ol>
+        </section>
+
+        <section class="nht-section" data-nht-section="implement" id="training-implement">
+          <h2 data-ty="h2">Implement the whole plan</h2>
+          <p data-ty="body" data-nht="intent"></p>
+          <div data-nht-widgets></div>
+          <ol class="nht-phase-list" data-nht-final-phase></ol>
+        </section>
+
+        <section class="nht-section" data-nht-section="fixed-game" id="training-fixed-game">
+          <h2 data-ty="h2">Play the fixed game</h2>
+          <p data-ty="body" data-nht="intent"></p>
+          <div class="nht-game" data-arcade-game data-arcade-id="fixed" data-nhg-keys="self" tabindex="0" aria-label="Playable fixed arcade shooter" aria-describedby="nagInstructionsFixed">
+            <div class="nag-bar"><span class="nag-title">SKY//SENTINEL</span><span class="nag-tag is-fixed" data-arcade="mode">fixed</span></div>
+            <div class="nag-stage" data-arcade="stage">
+              <canvas class="nag-canvas" data-arcade-canvas width="640" height="400" aria-label="Fixed arcade shooter: enemy hits cost one life, asteroid hits remain fatal.">This browser cannot display the game canvas.</canvas>
+              <div class="nag-fallback" data-arcade-fallback hidden role="status"></div>
+              <div class="nag-start" data-arcade="start-overlay"><button type="button" class="nag-start-btn" data-arcade-start>Click to start</button><span class="nag-start-hint">Move with arrows or A / D; Space fires</span></div>
             </div>
-            <div class="nht-file">
-              <div class="nht-filebar"><code data-ty="code" data-nht="file-path"></code><span data-nht="file-state"></span></div>
-              <pre data-ty="code" class="nht-filebody" data-nht="file-body" tabindex="0" aria-label="Selected file content"></pre>
-            </div>
-          </section>
-
-          <p data-ty="caption" class="nht-takeaway" data-nht="takeaway"></p>
-
-          <div class="nht-controls">
-            <button type="button" class="nht-ico" data-nht="restart" aria-label="Restart this step" title="Restart this step">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
-            </button>
-            <button type="button" class="nht-ico" data-nht="prev" aria-label="Previous" title="Previous">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
-            </button>
-            <button type="button" class="nht-ico nht-ico--go" data-nht="next" aria-label="Next" title="Next">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
-            </button>
+            <div class="visually-hidden" data-arcade-live-status aria-live="polite" aria-atomic="true"></div>
+            <div class="nag-hud" aria-label="Game status"><div class="nag-stat">Score<b data-arcade-score>0</b></div><div class="nag-stat">Lives<b data-arcade-lives>3</b></div><div class="nag-stat">State<b data-arcade="state">idle</b></div></div>
+            <div class="nag-actions"><button type="button" class="nag-action nag-action--primary" data-arcade-action="toggle">Pause game</button><button type="button" class="nag-action" data-arcade-action="reset">Reset demo</button><button type="button" class="nag-action nag-step" data-arcade-action="step" data-arcade-step>Advance one step</button></div>
+            <div class="nag-controls" role="group" aria-label="Fixed game touch controls"><button type="button" class="nag-control" data-arcade-control="left" aria-label="Move left">Left</button><button type="button" class="nag-control" data-arcade-control="right" aria-label="Move right">Right</button><button type="button" class="nag-control" data-arcade-control="up" aria-label="Move up when enabled">Up</button><button type="button" class="nag-control" data-arcade-control="down" aria-label="Move down when enabled">Down</button><button type="button" class="nag-control" data-arcade-control="fire" aria-label="Fire">Fire</button></div>
+            <p data-ty="caption" class="nag-note" id="nagInstructionsFixed">Move with Left and Right or A and D; Space or click fires. The first enemy hit now costs one life and grants a brief invulnerability window. Asteroid contact is still fatal.</p>
           </div>
-        </div>
+          <div data-nht-widgets></div>
+        </section>
+
+        <section class="nht-section" data-nht-section="compare" id="training-compare">
+          <h2 data-ty="h2">Add a feature through comparison</h2>
+          <p data-ty="body" data-nht="intent"></p>
+          <div data-nht-widgets></div>
+          <div class="nht-game" data-arcade-game data-arcade-id="featured" data-nhg-keys="self" tabindex="0" aria-label="Playable featured arcade shooter with vertical movement" aria-describedby="nagInstructionsFeatured">
+            <div class="nag-bar"><span class="nag-title">SKY//SENTINEL</span><span class="nag-tag is-fixed" data-arcade="mode">featured</span></div>
+            <div class="nag-stage" data-arcade="stage">
+              <canvas class="nag-canvas" data-arcade-canvas width="640" height="400" aria-label="Featured arcade shooter: arrow keys or W and S add vertical movement.">This browser cannot display the game canvas.</canvas>
+              <div class="nag-fallback" data-arcade-fallback hidden role="status"></div>
+              <div class="nag-start" data-arcade="start-overlay"><button type="button" class="nag-start-btn" data-arcade-start>Click to start</button><span class="nag-start-hint">Move horizontally and vertically; Space fires</span></div>
+            </div>
+            <div class="visually-hidden" data-arcade-live-status aria-live="polite" aria-atomic="true"></div>
+            <div class="nag-hud" aria-label="Game status"><div class="nag-stat">Score<b data-arcade-score>0</b></div><div class="nag-stat">Lives<b data-arcade-lives>3</b></div><div class="nag-stat">State<b data-arcade="state">idle</b></div></div>
+            <div class="nag-actions"><button type="button" class="nag-action nag-action--primary" data-arcade-action="toggle">Pause game</button><button type="button" class="nag-action" data-arcade-action="reset">Reset demo</button><button type="button" class="nag-action nag-step" data-arcade-action="step" data-arcade-step>Advance one step</button></div>
+            <div class="nag-controls" role="group" aria-label="Featured game touch controls"><button type="button" class="nag-control" data-arcade-control="left" aria-label="Move left">Left</button><button type="button" class="nag-control" data-arcade-control="right" aria-label="Move right">Right</button><button type="button" class="nag-control" data-arcade-control="up" aria-label="Move up">Up</button><button type="button" class="nag-control" data-arcade-control="down" aria-label="Move down">Down</button><button type="button" class="nag-control" data-arcade-control="fire" aria-label="Fire">Fire</button></div>
+            <p data-ty="caption" class="nag-note" id="nagInstructionsFeatured">Move with Left and Right or A and D, then climb or dive with Up and Down or W and S. Space or click fires; enemy hits cost one life, while asteroid contact remains fatal.</p>
+          </div>
+        </section>
+
+        <section class="nht-section" data-nht-section="presentify" id="training-presentify">
+          <h2 data-ty="h2">Present the evidence</h2>
+          <p data-ty="body" data-nht="intent"></p>
+          <div data-nht-widgets></div>
+        </section>
+
       </div>
+
+      <template id="nhtSectionWidgets">
+        <div class="nht-section-widgets">
+          <div data-nht-action-panel>
+            <div class="term term--nht" data-nht="terminal">
+              <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span data-ty="code" class="label">assistant &middot; simulated</span></div>
+              <div class="term-body">
+                <div class="cmd-line nht-cmd"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span><code data-ty="code" data-nht="command" data-copy=""></code><button type="button" class="nht-run" data-nht="run">Run</button></div>
+                <div class="nht-out" data-nht="output" aria-live="polite"></div>
+                <p data-ty="caption" class="nht-hint" data-nht="hint">Press Run to send this command.</p>
+                <p data-ty="caption" class="nht-idle" data-nht="idle">The assistant's reply will appear here.</p>
+              </div>
+            </div>
+            <div class="nht-tools" data-nht="tools"></div>
+            <div class="nht-after">
+              <div class="nht-artifact" data-nht="artifact"><span class="na-k">Left on disk</span><code data-ty="code" data-nht="artifact-path"></code><p data-ty="body" data-nht="artifact-summary"></p></div>
+              <div class="nht-gate" data-nht="gate"><span class="ng-k" data-nht="gate-status"></span><p data-ty="body"><b data-nht="gate-name"></b><span class="ng-prompt" data-nht="gate-prompt"></span></p></div>
+            </div>
+          </div>
+          <div class="nht-explorer" data-nht="explorer" data-nhg-keys="self" aria-label="Files produced by the training loop">
+            <div class="nht-tree"><div class="nht-treebar"><span>Project files</span><span data-nht="file-count"></span></div><div class="nht-filetree" data-nht="file-tree" role="tree" aria-label="Cumulative project files"></div></div>
+            <div class="nht-file"><div class="nht-filebar"><code data-ty="code" data-nht="file-path"></code><span data-nht="file-state"></span></div><pre data-ty="code" class="nht-filebody" data-nht="file-body" tabindex="0" aria-label="Selected file content"></pre></div>
+          </div>
+          <p data-ty="caption" class="nht-takeaway" data-nht="takeaway"></p>
+        </div>
+      </template>
 
       <div class="pagenav" data-pagenav></div>
       <div class="progress-dots" data-progress></div>
@@ -3192,7 +3113,7 @@ host.appendChild(svg);
 </script>
 
 <script type="application/json" id="nh-training-scenes">
-{"initial":{"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"src/damage.js","language":"javascript","content":"export function applyEnemyHit(ship) {\n  // TODO: lives were added to the design, but this handler predates them.\n  return { ...ship, destroyed: true };\n}\n"},{"path":"src/game.js","language":"javascript","content":"import { applyEnemyHit } from \u0027./damage.js\u0027;\n\nexport function resolveEnemyShot(ship, shot) {\n  if (!overlaps(ship, shot)) return ship;\n  return applyEnemyHit(ship);\n}\n\nfunction overlaps(a, b) {\n  const dx = a.x - b.x;\n  const dy = a.y - b.y;\n  return Math.hypot(dx, dy) \u003c= a.radius + b.radius;\n}\n"}]},"scenes":[{"id":"describe","stage":"Understand","title":"Trace the damage","intent":"You ask the assistant to trace what actually happens when an enemy shot reaches the ship, before touching anything.","command":"/describe full","tools":[{"name":"Search","purpose":"find where enemy hits are resolved"},{"name":"Read","purpose":"inspect the two source files"}],"output":["Read src/damage.js and src/game.js.","resolveEnemyShot hands every overlap to applyEnemyHit.","applyEnemyHit sets destroyed: true unconditionally; the lives counter is never consulted.","The HUD reads 3 lives while the very first hit ends the run.","Wrote docs/analysis.md."],"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"docs/analysis.md","action":"create","language":"markdown","content":"# Sky Sentinel code map\n\n`src/game.js` detects the overlap between an enemy shot and the ship, then delegates to `applyEnemyHit` in `src/damage.js`. That handler predates the lives system: it returns `destroyed: true` on every call and never reads `ship.lives`.\n\nObserved in play: the HUD shows 3 lives, yet the first enemy shot ends the run instantly.\n\nRisk: any future damage source that reuses this handler inherits the same instant death.\n"}],"focus_file":"docs/analysis.md","artifact":{"path":"docs/analysis.md","summary":"A code map anchored to the real hit-resolution path."},"gate":{"name":"Understanding","status":"pass","prompt":"The defect is localized before any edit."},"takeaway":"You now have an evidence-backed map of the damage path, not a guess about the symptom."},{"id":"review","stage":"Evaluate","title":"Turn the symptom into a finding","intent":"You ask for a severity-ranked review that proves why instant death is a defect and not a difficulty choice.","command":"/review","tools":[{"name":"Read","purpose":"verify the damage contract against the HUD"},{"name":"Test","purpose":"exercise the seeded first-hit fixture"}],"output":["Reproduced it: in the enemy-hit fixture the first shot destroys the ship at three lives.","P1 correctness: applyEnemyHit ignores ship.lives entirely.","Root cause is an unconditional destroyed: true kept from before lives existed.","Wrote docs/review.md."],"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"docs/review.md","action":"create","language":"markdown","content":"# Damage review\n\n## P1 - The first enemy hit is always fatal\n\n`applyEnemyHit` returns `destroyed: true` unconditionally. The HUD promises three lives; the handler delivers none. The seeded enemy-hit fixture reproduces it deterministically: one falling shot, one dead ship, lives still reading 3.\n\nFix: consume one life per hit, grant a brief invulnerability window, and destroy only when lives reach zero.\n"}],"focus_file":"docs/review.md","artifact":{"path":"docs/review.md","summary":"One prioritized finding with reproduction and root cause."},"gate":{"name":"Review","status":"pass","prompt":"The finding is reproducible and actionable."},"takeaway":"You can tell a real damage defect from hard difficulty, and you can prove the difference."},{"id":"plan","stage":"Decide","title":"Make the repair testable","intent":"You turn the finding into one small phase with an observable in-game exit gate.","command":"/plan feature","tools":[{"name":"Read","purpose":"ground the plan in analysis and review"},{"name":"Write","purpose":"record ordered work and exit gates"}],"output":["Planned one phase: prove the instant death, implement per-hit lives, replay the fixture.","Exit gate: the seeded first hit leaves the ship alive at two lives.","Vertical movement stays out of scope until comparison evidence exists.","Wrote docs/releases/v0.1/plans/fix-damage-handling.md."],"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"docs/releases/v0.1/plans/fix-damage-handling.md","action":"create","language":"markdown","content":"# Fix damage handling\n\n## Phase 1\n\n1. Add a failing test: one hit on a 3-life ship must leave 2 lives, not a destroyed ship.\n2. Rewrite applyEnemyHit to consume one life, grant a 90-tick invulnerability window, and destroy only at zero.\n3. Keep asteroid contact fatal; it never routes through this handler.\n4. Replay the enemy-hit fixture: the run must survive the first shot.\n\nExit: focused tests pass and the in-browser first hit leaves the HUD at 2. Vertical movement is excluded.\n"}],"focus_file":"docs/releases/v0.1/plans/fix-damage-handling.md","artifact":{"path":"docs/releases/v0.1/plans/fix-damage-handling.md","summary":"A one-phase repair plan with a playable exit gate."},"gate":{"name":"Plan","status":"pass","prompt":"Scope is bounded to damage correctness."},"takeaway":"You know exactly what will change, what will not, and how the game will prove it."},{"id":"implement","stage":"Build","title":"Make a hit cost one life","intent":"You run the planned phase and immediately replay the same seeded shot against the repaired handler.","command":"/implement fix-damage-handling phase-1","tools":[{"name":"Edit","purpose":"rewrite the damage handler around lives"},{"name":"Test","purpose":"run first-hit, third-hit, and invulnerability cases"}],"output":["RED: the one-hit-one-life test failed against the unconditional destroy.","GREEN: applyEnemyHit now consumes a life and grants the 90-tick window.","Focused tests: 3 passed.","Playable check: the seeded first hit leaves the HUD at 2 lives.","Wrote the source change, regression tests, diff, and phase history."],"game":{"damageMode":"fixed","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"src/damage.js","action":"modify","language":"javascript","content":"const INVULN_TICKS = 90;\n\nexport function applyEnemyHit(ship) {\n  if (ship.invulnerableTicks \u003e 0) return ship;\n  const lives = ship.lives - 1;\n  return {\n    ...ship,\n    lives,\n    destroyed: lives \u003c= 0,\n    invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0,\n  };\n}\n","diff":"-export function applyEnemyHit(ship) {\n-  // TODO: lives were added to the design, but this handler predates them.\n-  return { ...ship, destroyed: true };\n-}\n+export function applyEnemyHit(ship) {\n+  if (ship.invulnerableTicks \u003e 0) return ship;\n+  const lives = ship.lives - 1;\n+  return { ...ship, lives, destroyed: lives \u003c= 0,\n+           invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0 };\n+}\n"},{"path":"tests/damage.test.js","action":"create","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { applyEnemyHit } from \u0027../src/damage.js\u0027;\n\ntest(\u0027one hit costs exactly one life\u0027, () =\u003e {\n  const ship = applyEnemyHit({ lives: 3, invulnerableTicks: 0 });\n  assert.equal(ship.lives, 2);\n  assert.equal(ship.destroyed, false);\n  assert.equal(ship.invulnerableTicks, 90);\n});\n\ntest(\u0027the third hit destroys the ship\u0027, () =\u003e {\n  const ship = applyEnemyHit({ lives: 1, invulnerableTicks: 0 });\n  assert.equal(ship.lives, 0);\n  assert.equal(ship.destroyed, true);\n});\n\ntest(\u0027an invulnerable ship shrugs the hit off\u0027, () =\u003e {\n  const ship = applyEnemyHit({ lives: 2, invulnerableTicks: 45 });\n  assert.equal(ship.lives, 2);\n});\n"},{"path":"docs/releases/v0.1/evidence/damage.diff","action":"create","language":"diff","content":"-export function applyEnemyHit(ship) {\n-  // TODO: lives were added to the design, but this handler predates them.\n-  return { ...ship, destroyed: true };\n-}\n+export function applyEnemyHit(ship) {\n+  if (ship.invulnerableTicks \u003e 0) return ship;\n+  const lives = ship.lives - 1;\n+  return { ...ship, lives, destroyed: lives \u003c= 0,\n+           invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0 };\n+}\n"},{"path":"docs/releases/v0.1/history/phase-1.md","action":"create","language":"markdown","content":"# Phase 1 history\n\nCompleted: per-hit lives with a 90-tick invulnerability window.\n\nVerified: 3 focused tests passed; the seeded browser hit left 2 lives on the HUD.\n\nOpen: vertical movement is not implemented. No push or remote CI was run.\n"}],"focus_file":"docs/releases/v0.1/evidence/damage.diff","artifact":{"path":"docs/releases/v0.1/history/phase-1.md","summary":"Code, tests, diff, and evidence for the completed repair."},"gate":{"name":"Implementation","status":"pass","prompt":"Take a hit now: the HUD must read 2."},"takeaway":"You can play the same seeded situation before and after the change and watch the fix land."},{"id":"compare","stage":"Extend","title":"Adopt vertical movement without importing a project","intent":"You compare a reference behavior, record the useful pattern, and run its follow-on plan and implementation.","command":"/compare vertical-movement-reference","tools":[{"name":"Compare","purpose":"isolate the reference movement behavior"},{"name":"Edit","purpose":"implement the adopted pattern locally"},{"name":"Test","purpose":"prove gating and band clamping"}],"output":["Adopt: Up and Down move the ship inside a bounded lower play band.","Reject: the reference renderer, input library, and dependency layout.","Follow-on /plan and /implement completed inside this comparison step.","Movement tests: 3 passed.","The playable game now climbs and dives between y 300 and y 380."],"game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"},"files":[{"path":"docs/comparison.md","action":"create","language":"markdown","content":"# Vertical movement comparison\n\nAdopt the behavior contract: while the feature flag is on, Up and Down move the ship at its vertical speed, clamped to the lower play band between y 300 and y 380. While the flag is off, vertical input is read and ignored.\n\nReject the reference renderer, input library, and package structure. Implement through a small pure `applyVerticalInput` seam beside the existing damage seam.\n"},{"path":"docs/releases/v0.1/plans/add-vertical-movement.md","action":"create","language":"markdown","content":"# Add vertical movement\n\nOne follow-on phase: implement `applyVerticalInput` behind the feature flag, clamp to the band, and cover off, top-clamp, and bottom-clamp cases. Exit when the playable ship climbs and dives inside the band and never leaves it.\n"},{"path":"src/movement.js","action":"create","language":"javascript","content":"const BAND = { top: 300, bottom: 380 };\n\nexport function applyVerticalInput(ship, input, enabled) {\n  if (!enabled) return ship;\n  let y = ship.y;\n  if (input.up) y -= ship.speedY;\n  if (input.down) y += ship.speedY;\n  return { ...ship, y: Math.min(BAND.bottom, Math.max(BAND.top, y)) };\n}\n"},{"path":"tests/movement.test.js","action":"create","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { applyVerticalInput } from \u0027../src/movement.js\u0027;\n\nconst ship = { y: 340, speedY: 2 };\n\ntest(\u0027vertical input is ignored while the feature is off\u0027, () =\u003e {\n  assert.equal(applyVerticalInput(ship, { up: true }, false).y, 340);\n});\n\ntest(\u0027upward travel clamps at the top of the play band\u0027, () =\u003e {\n  const high = { ...ship, y: 301 };\n  assert.equal(applyVerticalInput(high, { up: true }, true).y, 300);\n});\n\ntest(\u0027downward travel clamps at the bottom of the play band\u0027, () =\u003e {\n  const low = { ...ship, y: 379 };\n  assert.equal(applyVerticalInput(low, { down: true }, true).y, 380);\n});\n"}],"focus_file":"docs/comparison.md","artifact":{"path":"docs/comparison.md","summary":"An adoption decision plus its completed follow-on change."},"gate":{"name":"Comparison","status":"pass","prompt":"Only the behavior pattern was adopted."},"takeaway":"You can borrow a useful idea without importing another project\u0027s architecture."},{"id":"test","stage":"Prove","title":"Exercise both behavior boundaries","intent":"You run the focused suite and confirm the damage and movement seams cover their boundary cases.","command":"/test unit","tools":[{"name":"Test","purpose":"run damage and movement unit tests"},{"name":"Coverage","purpose":"confirm both seams and their branches execute"}],"output":["Ran damage and movement unit tests.","6 passed: one-hit, third-hit, invulnerability, gated-off, top clamp, bottom clamp.","Both pure seams and every branch executed.","Wrote reports/unit-summary.txt."],"game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"},"files":[{"path":"reports/unit-summary.txt","action":"create","language":"text","content":"damage.test.js    3 passed\nmovement.test.js  3 passed\nTOTAL             6 passed\nBranches: hit, fatal hit, invulnerable, feature off, top clamp, bottom clamp\n"}],"focus_file":"reports/unit-summary.txt","artifact":{"path":"reports/unit-summary.txt","summary":"A focused test result tied to both behaviors."},"gate":{"name":"Tests","status":"pass","prompt":"All six behavior checks pass."},"takeaway":"You have executable proof for the fix and the feature, including their boundary cases."},{"id":"update","stage":"Record","title":"Leave the project history current","intent":"You record what changed and the exact proof a future maintainer can rerun.","command":"/update changelog","tools":[{"name":"Diff","purpose":"derive notes from actual changes"},{"name":"Write","purpose":"update release history"}],"output":["Derived notes from the damage, movement, and test diffs.","Recorded the per-hit lives fix and the vertical-movement feature.","Included the 6-test verification result.","Updated CHANGELOG.md."],"game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"},"files":[{"path":"CHANGELOG.md","action":"create","language":"markdown","content":"# Changelog\n\n## 0.1.0\n\n### Fixed\n\n- An enemy hit now costs one life instead of destroying the ship outright; destruction happens only at zero lives, after a brief invulnerability window per hit.\n\n### Added\n\n- Vertical movement behind a feature flag, clamped to the lower play band.\n\n### Verified\n\n- Six focused damage and movement tests pass.\n"}],"focus_file":"CHANGELOG.md","artifact":{"path":"CHANGELOG.md","summary":"Release notes derived from the implemented diff and tests."},"gate":{"name":"History","status":"pass","prompt":"The durable record matches the code."},"takeaway":"You leave enough evidence for the next person to understand and verify the work."},{"id":"presentify","stage":"Communicate","title":"Turn the evidence into a briefing","intent":"You assemble the analysis, finding, implementation, and proof into an offline walkthrough.","command":"/presentify docs/analysis.md docs/review.md CHANGELOG.md","tools":[{"name":"Read","purpose":"collect the completed evidence trail"},{"name":"Render","purpose":"build one self-contained briefing"}],"output":["Built a four-part briefing: symptom, cause, repair, proof.","Included the surviving-first-hit result and the band-clamped climb.","Wrote shooter-briefing.html; offline: yes."],"game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"},"files":[{"path":"shooter-briefing.html","action":"create","language":"html","content":"\u003c!doctype html\u003e\n\u003chtml lang=\"en\"\u003e\n\u003cmeta charset=\"utf-8\"\u003e\n\u003ctitle\u003eSky Sentinel repair briefing\u003c/title\u003e\n\u003cbody\u003e\n  \u003cmain\u003e\n    \u003ch1\u003eOne damage bug, one playable proof\u003c/h1\u003e\n    \u003cp\u003eBefore: the first enemy shot destroyed the ship at three lives. After: hits cost one life each, and the ship climbs and dives inside its play band.\u003c/p\u003e\n    \u003cp\u003eEvidence: six focused tests pass.\u003c/p\u003e\n  \u003c/main\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n"}],"focus_file":"shooter-briefing.html","artifact":{"path":"shooter-briefing.html","summary":"A self-contained briefing built from the accumulated evidence."},"gate":{"name":"Communication","status":"pass","prompt":"The result is understandable without the implementation session."},"takeaway":"You finish the loop with a concise story backed by the files and behavior you produced."}]}
+{"initial":{"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"src/damage.js","language":"javascript","content":"export function applyEnemyHit(ship) {\n  // TODO: lives were added to the design, but this handler predates them.\n  return { ...ship, destroyed: true };\n}\n"},{"path":"src/game.js","language":"javascript","content":"import { applyEnemyHit } from \u0027./damage.js\u0027;\n\nexport function resolveEnemyShot(ship, shot) {\n  if (!overlaps(ship, shot)) return ship;\n  return applyEnemyHit(ship);\n}\n\nfunction overlaps(a, b) {\n  const dx = a.x - b.x;\n  const dy = a.y - b.y;\n  return Math.hypot(dx, dy) \u003c= a.radius + b.radius;\n}\n"}]},"scenes":[{"id":"game","heading":"Play Sky Sentinel","intent":"Learn the controls and reproduce the first-hit damage bug.","actions":[],"takeaway":"The first enemy hit ends a three-life run.","game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"}},{"id":"describe-review","heading":"Map the bug, then review it","intent":"Trace the damage path before turning its symptom into a finding.","actions":[{"command":"/describe full","output":["Read src/damage.js and src/game.js.","resolveEnemyShot hands every overlap to applyEnemyHit.","applyEnemyHit sets destroyed: true unconditionally; the lives counter is never consulted.","The HUD reads 3 lives while the very first hit ends the run.","Wrote docs/analysis.md."],"tools":[{"name":"Search","purpose":"find where enemy hits are resolved"},{"name":"Read","purpose":"inspect the two source files"}],"artifact":{"path":"docs/analysis.md","summary":"A code map anchored to the real hit-resolution path."},"gate":{"name":"Understanding","status":"pass","prompt":"The defect is localized before any edit."},"files":[{"path":"docs/analysis.md","action":"create","language":"markdown","content":"# Sky Sentinel code map\n\n`src/game.js` detects the overlap between an enemy shot and the ship, then delegates to `applyEnemyHit` in `src/damage.js`. That handler predates the lives system: it returns `destroyed: true` on every call and never reads `ship.lives`.\n\nObserved in play: the HUD shows 3 lives, yet the first enemy shot ends the run instantly.\n\nRisk: any future damage source that reuses this handler inherits the same instant death.\n"}],"focus_file":"docs/analysis.md"},{"command":"/review","output":["Reproduced it: in the enemy-hit fixture the first shot destroys the ship at three lives.","P1 correctness: applyEnemyHit ignores ship.lives entirely.","Root cause is an unconditional destroyed: true kept from before lives existed.","Wrote docs/review.md."],"tools":[{"name":"Read","purpose":"verify the damage contract against the HUD"},{"name":"Test","purpose":"exercise the seeded first-hit fixture"}],"artifact":{"path":"docs/review.md","summary":"One prioritized finding with reproduction and root cause."},"gate":{"name":"Review","status":"pass","prompt":"The finding is reproducible and actionable."},"files":[{"path":"docs/review.md","action":"create","language":"markdown","content":"# Damage review\n\n## P1 - The first enemy hit is always fatal\n\n`applyEnemyHit` returns `destroyed: true` unconditionally. The HUD promises three lives; the handler delivers none. The seeded enemy-hit fixture reproduces it deterministically: one falling shot, one dead ship, lives still reading 3.\n\nFix: consume one life per hit, grant a brief invulnerability window, and destroy only when lives reach zero.\n"}],"focus_file":"docs/review.md"}],"takeaway":"You can tell a real damage defect from hard difficulty, and you can prove the difference."},{"id":"plan","heading":"Plan the repair","intent":"Turn the finding into an ordered repair with a playable exit gate.","actions":[{"command":"/plan feature","output":["Planned one phase: prove the instant death, implement per-hit lives, replay the fixture.","Exit gate: the seeded first hit leaves the ship alive at two lives.","Vertical movement stays out of scope until comparison evidence exists.","Wrote docs/releases/v0.1/plans/fix-damage-handling.md."],"tools":[{"name":"Read","purpose":"ground the plan in analysis and review"},{"name":"Write","purpose":"record ordered work and exit gates"}],"artifact":{"path":"docs/releases/v0.1/plans/fix-damage-handling.md","summary":"A one-phase repair plan with a playable exit gate."},"gate":{"name":"Plan","status":"pass","prompt":"Scope is bounded to damage correctness."},"files":[{"path":"docs/releases/v0.1/plans/fix-damage-handling.md","action":"create","language":"markdown","content":"# Fix damage handling\n\n## Phase 1\n\n1. Add a failing test: one hit on a 3-life ship must leave 2 lives, not a destroyed ship.\n2. Rewrite applyEnemyHit to consume one life, grant a 90-tick invulnerability window, and destroy only at zero.\n3. Keep asteroid contact fatal; it never routes through this handler.\n4. Replay the enemy-hit fixture: the run must survive the first shot.\n\nExit: focused tests pass and the in-browser first hit leaves the HUD at 2. Vertical movement is excluded.\n"}],"focus_file":"docs/releases/v0.1/plans/fix-damage-handling.md"}],"takeaway":"You know exactly what will change, what will not, and how the game will prove it.","phases":[{"name":"Reproduce the defect in a test","tier":"standard","effort":"medium","summary":"Pin the wrong first-hit behavior with a failing test."},{"name":"Repair the damage seam","tier":"strong","effort":"high","summary":"One enemy hit costs one life; zero lives ends the run."},{"name":"Final phase","tier":"frontier","effort":"max","summary":"Review, reconcile known gaps, test to green, then update the release."}]},{"id":"implement","heading":"Implement the whole plan","intent":"Run the approved repair and its final verification from one command.","actions":[{"command":"/implement fix-damage-handling phase-1","output":["RED: the one-hit-one-life test failed against the unconditional destroy.","GREEN: applyEnemyHit now consumes a life and grants the 90-tick window.","Focused tests: 3 passed.","Playable check: the seeded first hit leaves the HUD at 2 lives.","Wrote the source change, regression tests, diff, and phase history."],"tools":[{"name":"Edit","purpose":"rewrite the damage handler around lives"},{"name":"Test","purpose":"run first-hit, third-hit, and invulnerability cases"}],"artifact":{"path":"docs/releases/v0.1/history/phase-1.md","summary":"Code, tests, diff, and evidence for the completed repair."},"gate":{"name":"Implementation","status":"pass","prompt":"Take a hit now: the HUD must read 2."},"files":[{"path":"src/damage.js","action":"modify","language":"javascript","content":"const INVULN_TICKS = 90;\n\nexport function applyEnemyHit(ship) {\n  if (ship.invulnerableTicks \u003e 0) return ship;\n  const lives = ship.lives - 1;\n  return {\n    ...ship,\n    lives,\n    destroyed: lives \u003c= 0,\n    invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0,\n  };\n}\n","diff":"-export function applyEnemyHit(ship) {\n-  // TODO: lives were added to the design, but this handler predates them.\n-  return { ...ship, destroyed: true };\n-}\n+export function applyEnemyHit(ship) {\n+  if (ship.invulnerableTicks \u003e 0) return ship;\n+  const lives = ship.lives - 1;\n+  return { ...ship, lives, destroyed: lives \u003c= 0,\n+           invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0 };\n+}\n"},{"path":"tests/damage.test.js","action":"create","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { applyEnemyHit } from \u0027../src/damage.js\u0027;\n\ntest(\u0027one hit costs exactly one life\u0027, () =\u003e {\n  const ship = applyEnemyHit({ lives: 3, invulnerableTicks: 0 });\n  assert.equal(ship.lives, 2);\n  assert.equal(ship.destroyed, false);\n  assert.equal(ship.invulnerableTicks, 90);\n});\n\ntest(\u0027the third hit destroys the ship\u0027, () =\u003e {\n  const ship = applyEnemyHit({ lives: 1, invulnerableTicks: 0 });\n  assert.equal(ship.lives, 0);\n  assert.equal(ship.destroyed, true);\n});\n\ntest(\u0027an invulnerable ship shrugs the hit off\u0027, () =\u003e {\n  const ship = applyEnemyHit({ lives: 2, invulnerableTicks: 45 });\n  assert.equal(ship.lives, 2);\n});\n"},{"path":"docs/releases/v0.1/evidence/damage.diff","action":"create","language":"diff","content":"-export function applyEnemyHit(ship) {\n-  // TODO: lives were added to the design, but this handler predates them.\n-  return { ...ship, destroyed: true };\n-}\n+export function applyEnemyHit(ship) {\n+  if (ship.invulnerableTicks \u003e 0) return ship;\n+  const lives = ship.lives - 1;\n+  return { ...ship, lives, destroyed: lives \u003c= 0,\n+           invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0 };\n+}\n"},{"path":"docs/releases/v0.1/history/phase-1.md","action":"create","language":"markdown","content":"# Phase 1 history\n\nCompleted: per-hit lives with a 90-tick invulnerability window.\n\nVerified: 3 focused tests passed; the seeded browser hit left 2 lives on the HUD.\n\nOpen: vertical movement is not implemented. No push or remote CI was run.\n"}],"focus_file":"docs/releases/v0.1/evidence/damage.diff"}],"takeaway":"You can play the same seeded situation before and after the change and watch the fix land.","finalPhase":{"beats":[{"name":"Automatic review","summary":"Review the completed diff against the damage finding and planned exit gate."},{"name":"Known-gaps reconciliation","summary":"Record any unfinished behavior without calling the repair complete early."},{"name":"Tests to green","summary":"Build and rerun the damage and movement tests until all six pass."},{"name":"Update release","summary":"Use /update release to reconcile documentation, checks and publication evidence."}],"output":["Ran damage and movement unit tests.","6 passed: one-hit, third-hit, invulnerability, gated-off, top clamp, bottom clamp.","Both pure seams and every branch executed.","Wrote reports/unit-summary.txt.","Derived notes from the damage, movement, and test diffs.","Recorded the per-hit lives fix and the vertical-movement feature.","Included the 6-test verification result.","Updated CHANGELOG.md."],"files":[{"path":"reports/unit-summary.txt","action":"create","language":"text","content":"damage.test.js    3 passed\nmovement.test.js  3 passed\nTOTAL             6 passed\nBranches: hit, fatal hit, invulnerable, feature off, top clamp, bottom clamp\n"},{"path":"CHANGELOG.md","action":"create","language":"markdown","content":"# Changelog\n\n## 0.1.0\n\n### Fixed\n\n- An enemy hit now costs one life instead of destroying the ship outright; destruction happens only at zero lives, after a brief invulnerability window per hit.\n\n### Added\n\n- Vertical movement behind a feature flag, clamped to the lower play band.\n\n### Verified\n\n- Six focused damage and movement tests pass.\n"}]}},{"id":"fixed-game","heading":"Play the fixed game","intent":"The same enemy hit now costs one life and grants a brief invulnerability window.","actions":[],"takeaway":"A surviving first hit is the playable proof.","game":{"damageMode":"fixed","verticalMovementEnabled":false,"fixture":"enemy-hit"}},{"id":"compare","heading":"Add a feature through comparison","intent":"Borrow a vertical-movement behavior without importing the reference project.","actions":[{"command":"/compare vertical-movement-reference","output":["Adopt: Up and Down move the ship inside a bounded lower play band.","Reject: the reference renderer, input library, and dependency layout.","Follow-on /plan and /implement completed inside this comparison step.","Movement tests: 3 passed.","The playable game now climbs and dives between y 300 and y 380."],"tools":[{"name":"Compare","purpose":"isolate the reference movement behavior"},{"name":"Edit","purpose":"implement the adopted pattern locally"},{"name":"Test","purpose":"prove gating and band clamping"}],"artifact":{"path":"docs/comparison.md","summary":"An adoption decision plus its completed follow-on change."},"gate":{"name":"Comparison","status":"pass","prompt":"Only the behavior pattern was adopted."},"files":[{"path":"docs/comparison.md","action":"create","language":"markdown","content":"# Vertical movement comparison\n\nAdopt the behavior contract: while the feature flag is on, Up and Down move the ship at its vertical speed, clamped to the lower play band between y 300 and y 380. While the flag is off, vertical input is read and ignored.\n\nReject the reference renderer, input library, and package structure. Implement through a small pure `applyVerticalInput` seam beside the existing damage seam.\n"},{"path":"docs/releases/v0.1/plans/add-vertical-movement.md","action":"create","language":"markdown","content":"# Add vertical movement\n\nOne follow-on phase: implement `applyVerticalInput` behind the feature flag, clamp to the band, and cover off, top-clamp, and bottom-clamp cases. Exit when the playable ship climbs and dives inside the band and never leaves it.\n"},{"path":"src/movement.js","action":"create","language":"javascript","content":"const BAND = { top: 300, bottom: 380 };\n\nexport function applyVerticalInput(ship, input, enabled) {\n  if (!enabled) return ship;\n  let y = ship.y;\n  if (input.up) y -= ship.speedY;\n  if (input.down) y += ship.speedY;\n  return { ...ship, y: Math.min(BAND.bottom, Math.max(BAND.top, y)) };\n}\n"},{"path":"tests/movement.test.js","action":"create","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { applyVerticalInput } from \u0027../src/movement.js\u0027;\n\nconst ship = { y: 340, speedY: 2 };\n\ntest(\u0027vertical input is ignored while the feature is off\u0027, () =\u003e {\n  assert.equal(applyVerticalInput(ship, { up: true }, false).y, 340);\n});\n\ntest(\u0027upward travel clamps at the top of the play band\u0027, () =\u003e {\n  const high = { ...ship, y: 301 };\n  assert.equal(applyVerticalInput(high, { up: true }, true).y, 300);\n});\n\ntest(\u0027downward travel clamps at the bottom of the play band\u0027, () =\u003e {\n  const low = { ...ship, y: 379 };\n  assert.equal(applyVerticalInput(low, { down: true }, true).y, 380);\n});\n"}],"focus_file":"docs/comparison.md"}],"takeaway":"You can borrow a useful idea without importing another project\u0027s architecture.","game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"}},{"id":"presentify","heading":"Present the evidence","intent":"Turn the analysis, finding, implementation and proof into an offline briefing.","actions":[{"command":"/presentify docs/analysis.md docs/review.md CHANGELOG.md","output":["Built a four-part briefing: symptom, cause, repair, proof.","Included the surviving-first-hit result and the band-clamped climb.","Wrote shooter-briefing.html; offline: yes."],"tools":[{"name":"Read","purpose":"collect the completed evidence trail"},{"name":"Render","purpose":"build one self-contained briefing"}],"artifact":{"path":"shooter-briefing.html","summary":"A self-contained briefing built from the accumulated evidence."},"gate":{"name":"Communication","status":"pass","prompt":"The result is understandable without the implementation session."},"files":[{"path":"shooter-briefing.html","action":"create","language":"html","content":"\u003c!doctype html\u003e\n\u003chtml lang=\"en\"\u003e\n\u003cmeta charset=\"utf-8\"\u003e\n\u003ctitle\u003eSky Sentinel repair briefing\u003c/title\u003e\n\u003cbody\u003e\n  \u003cmain\u003e\n    \u003ch1\u003eOne damage bug, one playable proof\u003c/h1\u003e\n    \u003cp\u003eBefore: the first enemy shot destroyed the ship at three lives. After: hits cost one life each, and the ship climbs and dives inside its play band.\u003c/p\u003e\n    \u003cp\u003eEvidence: six focused tests pass.\u003c/p\u003e\n  \u003c/main\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n"}],"focus_file":"shooter-briefing.html"}],"takeaway":"You finish the loop with a concise story backed by the files and behavior you produced."}]}
 </script>
 
 <script>
@@ -4521,381 +4442,168 @@ host.appendChild(svg);
     return controller;
   }
 
-  function q(name) { return root.querySelector('[data-nht="' + name + '"]'); }
-  var els = {
-    where: q("where"), progress: q("progress"),
-    outline: document.getElementById("nhtOutline"), outlineList: q("outline-list"),
-    stepNum: q("step-num"), title: q("title"), intent: q("intent"),
-    takeaway: q("takeaway")
-  };
+  var sections = Array.prototype.slice.call(root.querySelectorAll("[data-nht-section]"));
+  var template = document.getElementById("nhtSectionWidgets");
+  var controllers = [], currentActions = [], completed = Object.create(null);
+  var activeSection = 0;
+  if (sections.length !== SCENES.length || !template) return;
 
-  var step = 0;
-  var appliedThrough = -1;
-  var sectionController = null;
-
-  /* ---------------------------------------------- cumulative project state */
-  function configureGame(config) {
-    if (!window.NexusShooter) return;
-    var game = sectionController && sectionController.game();
-    if (!game) game = window.NexusShooter.primary();
+  function actionAt(index) {
+    return (SCENES[index].actions || [])[currentActions[index]] || {};
+  }
+  function completedKey(sectionIndex, actionIndex) {
+    return sectionIndex + ":" + actionIndex;
+  }
+  function projectFilesFor(index) {
+    var table = Object.create(null), order = [];
+    function place(file, status) {
+      if (!Object.prototype.hasOwnProperty.call(table, file.path)) order.push(file.path);
+      table[file.path] = { path: file.path, language: file.language || "text", content: file.content || "", status: status };
+    }
+    (INITIAL.files || []).forEach(function (file) { place(file, "existing"); });
+    for (var sectionIndex = 0; sectionIndex <= index; sectionIndex++) {
+      (SCENES[sectionIndex].actions || []).forEach(function (action, actionIndex) {
+        if (!completed[completedKey(sectionIndex, actionIndex)]) return;
+        var status = sectionIndex === index ? null : "existing";
+        (action.files || []).forEach(function (file) {
+          place(file, status || (file.action === "modify" ? "changed" : "new"));
+        });
+      });
+      if (SCENES[sectionIndex].finalPhase && completed[completedKey(sectionIndex, 0)]) {
+        (SCENES[sectionIndex].finalPhase.files || []).forEach(function (file) {
+          place(file, sectionIndex === index ? (file.action === "modify" ? "changed" : "new") : "existing");
+        });
+      }
+    }
+    return order.map(function (path) { return table[path]; });
+  }
+  function refreshExplorers() {
+    controllers.forEach(function (controller, index) {
+      controller.renderExplorer(projectFilesFor(index), actionAt(index).focus_file);
+    });
+  }
+  function configureGame(section, config) {
+    if (!config || !window.NexusShooter) return;
+    var node = section.querySelector("[data-arcade-game]");
+    var game = node && window.NexusShooter.get(node.getAttribute("data-arcade-id"));
     if (!game) return;
     game.reset(config.fixture);
     game.setDamageMode(config.damageMode);
     game.setVerticalMovementEnabled(config.verticalMovementEnabled);
   }
-
-  function gameStateThrough(index) {
-    return index < 0 ? INITIAL.game : SCENES[index].game;
-  }
-
-  function projectStateThrough(index) {
-    var table = Object.create(null);
-    var order = [];
-    function place(file, status) {
-      if (!Object.prototype.hasOwnProperty.call(table, file.path)) order.push(file.path);
-      table[file.path] = {
-        path: file.path,
-        language: file.language || "text",
-        content: file.content || "",
-        status: status
-      };
-    }
-    (INITIAL.files || []).forEach(function (file) { place(file, "existing"); });
-    for (var sceneIndex = 0; sceneIndex <= index; sceneIndex++) {
-      (SCENES[sceneIndex].files || []).forEach(function (file) {
-        var status = sceneIndex === index ? (file.action === "modify" ? "changed" : "new") : "existing";
-        place(file, status);
-      });
-    }
-    return order.map(function (path) { return table[path]; });
-  }
-
-  function applySceneState(includeCurrent) {
-    appliedThrough = includeCurrent ? step : step - 1;
-    configureGame(gameStateThrough(appliedThrough));
-    sectionController.renderExplorer(projectStateThrough(appliedThrough), SCENES[step].focus_file);
-  }
-
-  /* ---------------------------------------------- render a step */
-  function render(resetGame) {
-    var scene = SCENES[step];
-    if (!scene) return;
-    if (els.where) {
-      /* Plain language: name the stage, not internal step/beat counters. */
-      els.where.textContent = (scene.stage || "") + " · " +
-        (step + 1) + " of " + SCENES.length + " · " + (scene.command || "");
-    }
-    if (els.stepNum) els.stepNum.textContent = scene.command || "";
-    if (els.title) els.title.textContent = scene.title || scene.id;
-    if (els.intent) els.intent.textContent = scene.intent || "";
-
-    if (els.progress) {
-      /* Each segment names its command, so the bar says WHERE in the
-         loop you are rather than showing eight anonymous bars. */
-      els.progress.textContent = "";
-      for (var i = 0; i < SCENES.length; i++) {
-        (function (idx) {
-          var seg = document.createElement("button");
-          seg.type = "button";
-          seg.className = "nht-seg" + (idx === step ? " is-now" : (idx < step ? " is-done" : ""));
-          if (idx === step) seg.setAttribute("aria-current", "step");
-          seg.setAttribute("aria-label",
-            (SCENES[idx].stage || "") + ": " + (SCENES[idx].command || SCENES[idx].id));
-          var nm = document.createElement("span");
-          nm.className = "nht-seg-k";
-          nm.textContent = (SCENES[idx].command || "").replace(/^[/]/, "").split(" ")[0];
-          seg.appendChild(nm);
-          seg.addEventListener("click", function () { step = idx; render(true); });
-          els.progress.appendChild(seg);
-        })(i);
+  function renderOrderedList(host, entries, plan) {
+    if (!host) return;
+    host.textContent = "";
+    (entries || []).forEach(function (entry) {
+      var item = document.createElement("li"), title = document.createElement("strong"), detail = document.createElement("p");
+      title.textContent = entry.name || "";
+      detail.textContent = entry.summary || "";
+      item.appendChild(title);
+      if (plan) {
+        var model = document.createElement("span");
+        model.className = "nht-phase-model";
+        model.textContent = "Model tier: " + (entry.tier || "") + " / effort: " + (entry.effort || "");
+        item.appendChild(model);
       }
-    }
-
-    if (els.takeaway) {
-      els.takeaway.textContent = "";
-      var claim = document.createElement("b");
-      claim.textContent = "Takeaway";
-      els.takeaway.appendChild(claim);
-      els.takeaway.appendChild(document.createTextNode("  " + (scene.takeaway || "")));
-    }
-
-    if (resetGame) {
-      if (sectionController) sectionController.dispose();
-      sectionController = mountSection(root, scene, {
-        onComplete: function () { applySceneState(true); },
-        files: function () { return projectStateThrough(appliedThrough); }
-      });
-      applySceneState(false);
-    }
-
-    var prev = root.querySelector('[data-nht="prev"]');
-    var next = root.querySelector('[data-nht="next"]');
-    if (prev) prev.disabled = step === 0;
-    if (next) next.disabled = step === SCENES.length - 1;
-
-    if (els.outlineList) {
-      var items = els.outlineList.querySelectorAll("li");
-      for (var k = 0; k < items.length; k++) { items[k].classList.toggle("on", k === step); }
-    }
-    syncHash();
-  }
-
-  function buildOutline() {
-    if (!els.outlineList) return;
-    els.outlineList.textContent = "";
-    SCENES.forEach(function (scene, idx) {
-      var li = document.createElement("li");
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.textContent = (scene.command || scene.id) + "  :  " + (scene.title || "");
-      btn.addEventListener("click", function () {
-        step = idx; render(true);
-        if (els.outline) els.outline.hidden = true;
-        var t = root.querySelector('[data-nht="outline"]');
-        if (t) t.setAttribute("aria-expanded", "false");
-      });
-      li.appendChild(btn);
-      els.outlineList.appendChild(li);
+      item.appendChild(detail);
+      host.appendChild(item);
     });
   }
-
-  /* ---------------------------------------------- navigation */
-  function goNext() {
-    if (step < SCENES.length - 1) { step++; render(true); }
-  }
-  function goPrev() {
-    if (step > 0) { step--; render(true); }
-  }
-  function syncHash() {
-    var scene = SCENES[step];
-    if (!scene) return;
-    var trainingActive = document.querySelector('.page.active[data-page="training"]');
-    if (!trainingActive && location.hash.indexOf("#training") !== 0) return;
-    var next = "#training/" + scene.id;
-    if (location.hash !== next && history.replaceState) {
-      history.replaceState(null, "", next);
-    }
-  }
-
-  /* ---------------------------------------------- present mode */
-  var presentReturnFocus = null;
-  var presentInerted = [];
-  function inPresent() { return root.classList.contains("is-present"); }
-  function setPresentIsolation(active) {
-    if (!active) {
-      presentInerted.forEach(function (element) { element.inert = false; });
-      presentInerted = [];
-      return;
-    }
-    var branch = root;
-    while (branch && branch.parentElement && branch !== document.body) {
-      Array.prototype.forEach.call(branch.parentElement.children, function (sibling) {
-        if (sibling !== branch && !sibling.inert) {
-          sibling.inert = true;
-          presentInerted.push(sibling);
-        }
-      });
-      branch = branch.parentElement;
-    }
-  }
-  function presentFocusables() {
-    return Array.prototype.filter.call(
-      root.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'),
-      function (element) { return !element.hidden && element.getClientRects().length > 0; }
-    );
-  }
-  function syncPresentControl() {
-    var label = root.querySelector('.nht-fs-label');
-    if (label) label.textContent = inPresent() ? "Exit full screen" : "Full screen";
-    var btn = document.getElementById("nhtPresent");
-    if (btn) btn.setAttribute("aria-pressed", inPresent() ? "true" : "false");
-  }
-  function closeOutline(refocus) {
-    if (!els.outline || els.outline.hidden) return false;
-    els.outline.hidden = true;
-    var trigger = root.querySelector('[data-nht="outline"]');
-    if (trigger) {
-      trigger.setAttribute("aria-expanded", "false");
-      if (refocus) trigger.focus();
-    }
-    return true;
-  }
-  function finishPresent() {
-    /* Idempotent by construction: fullscreenchange and a fallback exit may both land here. */
-    if (!inPresent()) { syncPresentControl(); return; }
-    closeOutline(false);
-    if (window.NexusShooter) window.NexusShooter.pause("manual");
-    root.classList.remove("is-present");
-    root.removeAttribute("role");
-    root.removeAttribute("aria-modal");
-    root.removeAttribute("aria-label");
-    setPresentIsolation(false);
-    syncPresentControl();
-    if (presentReturnFocus && presentReturnFocus.focus) presentReturnFocus.focus();
-    presentReturnFocus = null;
-  }
-  function enterPresent() {
-    presentReturnFocus = document.activeElement;
-    root.classList.add("is-present");
-    root.setAttribute("role", "dialog");
-    root.setAttribute("aria-modal", "true");
-    root.setAttribute("aria-label", "Nexus Hub training presentation");
-    setPresentIsolation(true);
-    syncPresentControl();
-    if (root.requestFullscreen) {
-      var p = root.requestFullscreen();
-      if (p && p.catch) p.catch(function () { /* overlay fallback already applied */ });
-    }
-    root.focus();
-  }
-  function exitPresent() {
-    if (document.fullscreenElement && document.exitFullscreen) {
-      var p = document.exitFullscreen();
-      if (p && p.catch) p.catch(finishPresent);
-      return;
-    }
-    finishPresent();
-  }
-  function togglePresent() { if (inPresent()) { exitPresent(); } else { enterPresent(); } }
-  /* v4.4.2: the Outline overlay must never be stranded across the desktop/narrow layout switch,
-     so a resize that crosses either breakpoint while present closes it and refocuses the trigger. */
-  var layoutModeQuery = window.matchMedia ? window.matchMedia("(max-width: 1023px), (max-height: 639px)") : null;
-  if (layoutModeQuery && layoutModeQuery.addEventListener) {
-    layoutModeQuery.addEventListener("change", function () { if (inPresent()) closeOutline(true); });
-  }
-  document.addEventListener("fullscreenchange", function () {
-    /* The user agent may consume Escape and exit natively; reconcile from the event,
-       exactly once, rather than assuming script initiated the change. */
-    if (!document.fullscreenElement && inPresent()) finishPresent();
-    syncPresentControl();
-  });
-  window.addEventListener("hashchange", function () {
-    if (document.body.getAttribute("data-page") !== "training" && inPresent()) exitPresent();
-  });
-
-  /* ---------------------------------------------- wiring */
-  root.setAttribute("tabindex", "-1");
-  root.addEventListener("click", function (e) {
-    var t = e.target.closest ? e.target.closest("[data-nht]") : null;
-    if (!t) return;
-    var action = t.getAttribute("data-nht");
-    if (action === "next") { goNext(); }
-    else if (action === "prev") { goPrev(); }
-    else if (action === "restart") { render(true); }
-    else if (action === "outline") {
-      if (els.outline && els.outline.hidden) {
-        els.outline.hidden = false;
-        t.setAttribute("aria-expanded", "true");
-      } else {
-        closeOutline(false);
-      }
-    }
-    else if (action === "exit-present") { togglePresent(); }
-  });
-
-  document.addEventListener("pointerdown", function (e) {
-    if (!els.outline || els.outline.hidden) return;
-    var inside = e.target.closest && (e.target.closest("#nhtOutline") || e.target.closest('[data-nht="outline"]'));
-    if (!inside) closeOutline(false);
-  });
-
-  document.addEventListener("keydown", function (e) {
-    if (document.body.getAttribute("data-page") !== "training") return;
-    if (e.altKey || e.ctrlKey || e.metaKey) return;
-    if (e.key === "Escape") {
-      if (closeOutline(true)) { e.preventDefault(); return; }
-      if (inPresent()) {
-        if (e.target.closest && e.target.closest("[data-arcade-game]")) return;
-        e.preventDefault(); exitPresent(); return;
-      }
-    }
-    if (e.key === "Tab" && inPresent()) {
-      var focusables = presentFocusables();
-      if (!focusables.length) { e.preventDefault(); root.focus(); return; }
-      var first = focusables[0];
-      var last = focusables[focusables.length - 1];
-      var active = document.activeElement;
-      if (e.shiftKey && (active === root || active === first || !root.contains(active))) {
-        e.preventDefault(); last.focus(); return;
-      }
-      if (!e.shiftKey && (active === last || !root.contains(active))) {
-        e.preventDefault(); first.focus(); return;
-      }
-    }
-    if (e.target.closest && e.target.closest("[data-arcade-game]")) return;
-    if (e.target.closest && e.target.closest('[data-nht="explorer"]')) return;
-    var tag = (e.target.tagName || "").toLowerCase();
-    if (tag === "input" || tag === "textarea" || tag === "select") return;
-    if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); goNext(); }
-    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); goPrev(); }
-    else if (e.key === "f" || e.key === "F") { togglePresent(); }
-  });
-
-  function goTo(indexOrId) {
-    var idx = typeof indexOrId === "number" && Number.isInteger(indexOrId) ? indexOrId : -1;
-    if (typeof indexOrId === "string") {
-      for (var i = 0; i < SCENES.length; i++) {
-        if (SCENES[i].id === indexOrId) idx = i;
-      }
-    }
-    if (idx < 0 || idx >= SCENES.length) idx = step;
-    step = idx;
-    render(true);
-    return trainingSnapshot();
-  }
-
-  function selectProjectFile(path) {
-    sectionController.renderExplorer(projectStateThrough(appliedThrough), path);
-    return trainingSnapshot();
-  }
-
-  function trainingSnapshot() {
-    var game = gameStateThrough(appliedThrough);
-    return {
-      sceneId: SCENES[step].id,
-      sceneIndex: step,
-      appliedThrough: appliedThrough,
-      selectedPath: sectionController.selectedPath(),
-      filePaths: projectStateThrough(appliedThrough).map(function (file) { return file.path; }),
-      game: {
-        damageMode: game.damageMode,
-        verticalMovementEnabled: game.verticalMovementEnabled,
-        fixture: game.fixture
+  function mountCurrent(index) {
+    var section = sections[index], record = SCENES[index];
+    if (controllers[index]) controllers[index].dispose();
+    controllers[index] = mountSection(section, actionAt(index), {
+      onComplete: function () {
+        completed[completedKey(index, currentActions[index])] = true;
+        refreshExplorers();
       },
-      ran: appliedThrough === step
+      files: function () { return projectFilesFor(index); }
+    });
+    var panel = section.querySelector("[data-nht-action-panel]");
+    if (panel) panel.hidden = !(record.actions || []).length;
+    var buttons = section.querySelectorAll("[data-nht-action-index]");
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].setAttribute("aria-current", i === currentActions[index] ? "true" : "false");
+    }
+    controllers[index].renderExplorer(projectFilesFor(index), actionAt(index).focus_file);
+  }
+  sections.forEach(function (section, index) {
+    var record = SCENES[index], slot = section.querySelector("[data-nht-widgets]");
+    if (section.getAttribute("data-nht-section") !== record.id || !slot) throw new Error("Training section data mismatch");
+    slot.appendChild(template.content.cloneNode(true));
+    var intent = section.querySelector("[data-nht=intent]");
+    if (intent) intent.textContent = record.intent || "";
+    var takeaway = section.querySelector("[data-nht=takeaway]");
+    if (takeaway) takeaway.textContent = record.takeaway || "";
+    var actionList = section.querySelector("[data-nht-action-list]");
+    if (actionList) {
+      (record.actions || []).forEach(function (action, actionIndex) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "nht-action-choice";
+        button.setAttribute("data-nht-action-index", actionIndex);
+        button.textContent = action.command || "";
+        actionList.appendChild(button);
+      });
+      actionList.addEventListener("click", function (event) {
+        var button = event.target.closest && event.target.closest("[data-nht-action-index]");
+        if (!button || !actionList.contains(button)) return;
+        currentActions[index] = Number(button.getAttribute("data-nht-action-index"));
+        activeSection = index;
+        mountCurrent(index);
+      });
+    }
+    renderOrderedList(section.querySelector("[data-nht-phases]"), record.phases, true);
+    renderOrderedList(section.querySelector("[data-nht-final-phase]"), record.finalPhase && record.finalPhase.beats, false);
+    configureGame(section, record.game);
+    currentActions[index] = 0;
+    mountCurrent(index);
+  });
+  refreshExplorers();
+
+  function sectionIndex(id) {
+    var aliases = { describe: "describe-review", review: "describe-review", test: "implement", update: "implement" };
+    var target = aliases[id] || id;
+    for (var i = 0; i < SCENES.length; i++) if (SCENES[i].id === target) return i;
+    return 0;
+  }
+  function goTo(id) {
+    activeSection = sectionIndex(id);
+    if (document.body.getAttribute("data-page") === "training") sections[activeSection].scrollIntoView({ block: "start" });
+    return trainingSnapshot();
+  }
+  function trainingSnapshot() {
+    return {
+      sectionId: SCENES[activeSection].id,
+      sectionIndex: activeSection,
+      actionIndex: currentActions[activeSection],
+      completed: Object.keys(completed).sort(),
+      selectedPath: controllers[activeSection].selectedPath(),
+      filePaths: projectFilesFor(activeSection).map(function (file) { return file.path; })
     };
   }
-
+  root.addEventListener("focusin", function (event) {
+    var section = event.target.closest && event.target.closest("[data-nht-section]");
+    if (section) activeSection = sections.indexOf(section);
+  });
   var trainingApi = Object.freeze({
     go: goTo,
     run: function () {
-      sectionController.finish(false);
+      if ((SCENES[activeSection].actions || []).length) controllers[activeSection].finish(false);
       return trainingSnapshot();
     },
-    mountSection: mountSection,
-    selectFile: selectProjectFile,
-    snapshot: trainingSnapshot,
-    syncFromHash: function (sceneId) {
-      var idx = -1;
-      for (var i = 0; i < SCENES.length; i++) { if (SCENES[i].id === sceneId) idx = i; }
-      if (idx < 0) idx = step;                       /* unknown scene: clamp */
-      step = idx;
-      render(true);
+    selectFile: function (path) {
+      controllers[activeSection].renderExplorer(projectFilesFor(activeSection), path);
       return trainingSnapshot();
-    }
+    },
+    snapshot: trainingSnapshot,
+    mountSection: mountSection,
+    syncFromHash: goTo
   });
   window.NexusTraining = trainingApi;
   window.NHTraining = trainingApi;
-
-  buildOutline();
-  var initialTrainingRoute = location.hash.match(
-    /^#training\/([^?]+)(?:\?beat=([^&]+))?/
-  );
-  if (initialTrainingRoute) {
-    window.NHTraining.syncFromHash(initialTrainingRoute[1], initialTrainingRoute[2]);
-  } else {
-    render(true);
-  }
+  var initialRoute = location.hash.match(/^#training\/([^?]+)/);
+  if (initialRoute) goTo(initialRoute[1]);
 })();
 </script>
 

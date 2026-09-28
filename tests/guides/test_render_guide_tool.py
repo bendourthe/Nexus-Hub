@@ -559,19 +559,14 @@ def test_training_cold_deep_link_accepts_and_discards_legacy_beat(
                     timeout=3000,
                 )
                 page.wait_for_function(
-                    """
-                    () => document.querySelector('[data-nht="title"]')?.textContent
-                      === "Turn the symptom into a finding"
-                    """,
+                    "() => window.NexusTraining && window.NexusTraining.snapshot().sectionId === 'describe-review'",
                     timeout=3000,
                 )
-                assert page.evaluate("location.hash") == "#training/review"
-                assert page.locator('[data-nht="title"]').inner_text() == (
-                    "Turn the symptom into a finding"
-                )
-                assert "tell a real damage defect from hard difficulty" in (
-                    page.locator('[data-nht="takeaway"]').inner_text()
-                )
+                assert page.evaluate("window.NexusTraining.snapshot().actionIndex") == 0
+                section = page.locator('[data-nht-section="describe-review"]')
+                assert section.locator("h2").inner_text() == "Map the bug, then review it"
+                section.locator('[data-nht-action-index="1"]').click()
+                assert section.locator('[data-nht="command"]').inner_text() == "/review"
             finally:
                 context.close()
         finally:

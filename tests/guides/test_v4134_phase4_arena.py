@@ -66,21 +66,21 @@ def test_stage_keeps_eight_to_five_ratio_after_resize(page):
     assert not errors, errors
 
 
-def test_present_stage_and_canvas_stay_inside_the_game_panel(page):
+def test_section_stages_and_canvases_stay_inside_their_game_panels(page):
     pg, errors = page
-    pg.locator("#nhtPresent").click()
-    pg.wait_for_function("document.getElementById('nhTraining').classList.contains('is-present')")
-    result = pg.evaluate(
-        """() => {
-          const rect = selector => document.querySelector(selector).getBoundingClientRect();
-          const game = rect('.nht-game'), stage = rect('.nag-stage'), canvas = rect('.nag-canvas');
-          const inside = (outer, inner) => inner.left >= outer.left - 1 && inner.right <= outer.right + 1
-              && inner.top >= outer.top - 1 && inner.bottom <= outer.bottom + 1;
-          return {stage:inside(game, stage),canvas:inside(stage, canvas),
-                  widths:[game.width,stage.width,canvas.width]};
-        }"""
-    )
-    assert result["stage"] and result["canvas"], result
+    for width in (1440, 420):
+        pg.set_viewport_size({"width": width, "height": 940})
+        results = pg.evaluate(
+            """() => [...document.querySelectorAll('[data-arcade-game]')].map(root => {
+              const game = root.getBoundingClientRect();
+              const stage = root.querySelector('.nag-stage').getBoundingClientRect();
+              const canvas = root.querySelector('.nag-canvas').getBoundingClientRect();
+              const inside = (outer, inner) => inner.left >= outer.left - 1 && inner.right <= outer.right + 1
+                  && inner.top >= outer.top - 1 && inner.bottom <= outer.bottom + 1;
+              return {id: root.dataset.arcadeId, stage: inside(game, stage), canvas: inside(stage, canvas)};
+            })"""
+        )
+        assert len(results) == 3 and all(item["stage"] and item["canvas"] for item in results), (width, results)
     assert not errors, errors
 
 

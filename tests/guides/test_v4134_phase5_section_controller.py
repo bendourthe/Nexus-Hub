@@ -32,19 +32,19 @@ def page():
         browser.close()
 
 
-def test_live_deck_has_one_bound_controller_and_runs_once(page):
+def test_live_section_has_one_bound_controller_and_runs_once(page):
     pg, errors = page
     assert pg.evaluate(
         """() => {
-          try { window.NexusTraining.mountSection(document.getElementById('nhTraining'), {}); }
+          try { window.NexusTraining.mountSection(document.querySelector('[data-nht-section="describe-review"]'), {}); }
           catch (error) { return /already mounted/.test(String(error)); }
           return false;
         }"""
     )
-    pg.locator('#nhTraining [data-nht="run"]').click()
-    output = pg.locator('#nhTraining [data-nht="output"]')
+    pg.locator('[data-nht-section="describe-review"] [data-nht="run"]').click()
+    output = pg.locator('[data-nht-section="describe-review"] [data-nht="output"]')
     assert output.locator("div").count() == 5
-    assert pg.evaluate("window.NexusTraining.snapshot().ran") is True
+    assert "1:0" in pg.evaluate("window.NexusTraining.snapshot().completed")
     assert not errors, errors
 
 

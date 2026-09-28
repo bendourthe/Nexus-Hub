@@ -22,7 +22,7 @@ _ROOT = Path(__file__).resolve().parents[2]
 GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 
-ROUTES = ("describe", "review", "plan", "implement", "compare", "test", "update", "presentify")
+ROUTES = ("game", "describe-review", "plan", "implement", "fixed-game", "compare", "presentify")
 
 
 @pytest.fixture(scope="module")
@@ -297,7 +297,7 @@ def test_idle_holds_the_world_until_click_to_start(page_ctx) -> None:
     page.wait_for_timeout(350)
     snap = page.evaluate("window.NexusShooter.snapshot()")
     assert snap["lifecycle"] == "idle" and snap["tick"] == 0, "idle must not advance"
-    start = page.locator("[data-arcade-start]")
+    start = page.locator('[data-arcade-id="buggy"] [data-arcade-start]')
     assert start.is_visible(), "the start overlay button must be a real visible control"
     assert start.text_content().strip() == "Click to start"
     start.click()
@@ -330,7 +330,7 @@ def test_pause_reasons_compose_without_cross_clearing(page_ctx) -> None:
 
 def test_focused_game_owns_keys_and_escape_releases_them(page_ctx) -> None:
     page, _ = page_ctx
-    page.locator("[data-arcade-start]").click()
+    page.locator('[data-arcade-id="buggy"] [data-arcade-start]').click()
     page.wait_for_timeout(100)
     hash_before = page.evaluate("location.hash")
     x0 = page.evaluate("window.NexusShooter.snapshot().player.x")
@@ -354,7 +354,7 @@ def test_focused_game_owns_keys_and_escape_releases_them(page_ctx) -> None:
 
 def test_modified_shortcuts_are_never_intercepted(page_ctx) -> None:
     page, _ = page_ctx
-    page.locator("[data-arcade-start]").click()
+    page.locator('[data-arcade-id="buggy"] [data-arcade-start]').click()
     page.wait_for_timeout(100)
     intercepted = page.evaluate("""
         () => new Promise(resolve => {
@@ -379,9 +379,10 @@ def test_resize_and_dpr_repaint_without_touching_world_state(page_ctx) -> None:
     page.set_viewport_size({"width": 700, "height": 900})
     page.wait_for_timeout(200)
     after = page.evaluate("window.NexusShooter.snapshot()")
-    assert json.dumps(before, sort_keys=True) == json.dumps(after, sort_keys=True), (
-        "a resize changed world state; it may only repaint"
-    )
+    changed = [key for key in before if key != "pauseReasons" and before[key] != after[key]]
+    assert not changed, f"a resize changed world fields: {changed}"
+    assert set(before["pauseReasons"]) ^ set(after["pauseReasons"]) <= {"offscreen"}
+    assert "manual" in after["pauseReasons"]
 
 
 def test_live_region_announces_changes_not_frames(page_ctx) -> None:
@@ -389,7 +390,7 @@ def test_live_region_announces_changes_not_frames(page_ctx) -> None:
     result = page.evaluate("""
         () => new Promise(resolve => {
             const api = window.NexusShooter;
-            const region = document.querySelector('[data-arcade-live-status]');
+            const region = document.querySelector('[data-arcade-id="buggy"] [data-arcade-live-status]');
             api.reset('enemy-hit'); api.setDamageMode('fixed'); api.start();
             let mutations = 0;
             new MutationObserver(() => { mutations += 1; }).observe(region, {childList: true, characterData: true, subtree: true});
@@ -409,9 +410,9 @@ def test_hud_shows_authoritative_lives_and_mode(page_ctx) -> None:
     page, _ = page_ctx
     run_js(page, "api.reset('enemy-hit'); api.setDamageMode('fixed'); api.start(); let g=0; while (api.snapshot().lives === 3 && g++ < 500) api.step();")
     page.wait_for_timeout(100)
-    lives_text = page.locator("[data-arcade-lives]").text_content()
+    lives_text = page.locator('[data-arcade-id="buggy"] [data-arcade-lives]').text_content()
     assert lives_text == "2", f"the HUD must render the authoritative lives value; saw {lives_text!r}"
-    mode_text = page.locator('[data-arcade="mode"]').text_content()
+    mode_text = page.locator('[data-arcade-id="buggy"] [data-arcade="mode"]').text_content()
     assert mode_text == "damage fixed"
 
 
@@ -445,7 +446,7 @@ def test_reduced_motion_pauses_and_manual_step_advances_one_tick(playwright_mod)
         try:
             page.goto(GUIDE.as_uri() + "#training/describe")
             page.wait_for_function("window.NexusShooter")
-            page.locator("[data-arcade-start]").click()
+            page.locator('[data-arcade-id="buggy"] [data-arcade-start]').click()
             page.wait_for_timeout(200)
             before = page.evaluate("window.NexusShooter.snapshot()")
             assert "reduced-motion" in before["pauseReasons"]
@@ -453,7 +454,7 @@ def test_reduced_motion_pauses_and_manual_step_advances_one_tick(playwright_mod)
             page.wait_for_timeout(250)
             held = page.evaluate("window.NexusShooter.snapshot().tick")
             assert held == before["tick"], "reduced motion must stop autonomous ticks"
-            step = page.locator("[data-arcade-step]")
+            step = page.locator('[data-arcade-id="buggy"] [data-arcade-step]')
             assert step.is_visible() and step.is_enabled()
             step.click()
             stepped = page.evaluate("window.NexusShooter.snapshot()")
@@ -476,7 +477,7 @@ def test_canvas_fallback_states_the_game_state_in_text(page_ctx) -> None:
     assert "This browser cannot draw the game canvas" in guide_text
     assert 'setAttribute("tabindex", "-1")' in guide_text
     assert "lives, seeded damage bug active, vertical movement disabled" in guide_text
-    assert page.locator("[data-arcade-fallback]").count() == 1
+    assert page.locator("[data-arcade-fallback]").count() == 3
 
 
 @pytest.mark.parametrize("route", ROUTES)
@@ -490,15 +491,12 @@ def test_every_training_route_initializes_the_migrated_game(playwright_mod, rout
             page.goto(GUIDE.as_uri() + f"#training/{route}")
             page.wait_for_function("window.NexusShooter && window.NexusTraining")
             snap = page.evaluate("window.NexusTraining.snapshot()")
-            engine = page.evaluate("window.NexusShooter.snapshot()")
+            instances = page.evaluate("window.NexusShooter.instances()")
         finally:
             browser.close()
     assert not errors, f"{route}: {errors}"
-    assert snap["sceneId"] == route
-    assert set(snap["game"]) == {"damageMode", "verticalMovementEnabled", "fixture"}
-    assert engine["damageMode"] == snap["game"]["damageMode"]
-    assert engine["verticalMovementEnabled"] == snap["game"]["verticalMovementEnabled"]
-    assert engine["fixture"] == snap["game"]["fixture"]
+    assert snap["sectionId"] == route
+    assert sorted(instances) == ["buggy", "featured", "fixed"]
 
 
 # ============================================================================ v4.4.2 Phase 5
@@ -559,9 +557,9 @@ def test_teaching_fixtures_spawn_after_the_beat_and_never_touch_a_stationary_pla
 
 def test_click_inside_the_arena_fires_and_leaving_it_pauses(page_ctx) -> None:
     page, _ = page_ctx
-    page.locator("[data-arcade-start]").click()
+    page.locator('[data-arcade-id="buggy"] [data-arcade-start]').click()
     page.wait_for_function("window.NexusShooter.snapshot().lifecycle === 'running'")
-    stage = page.locator('[data-arcade="stage"]')
+    stage = page.locator('[data-arcade-id="buggy"] [data-arcade="stage"]')
     box = stage.bounding_box()
     cx, cy = box["x"] + box["width"] / 2, box["y"] + box["height"] * 0.3
     before = page.evaluate("() => window.NexusShooter.snapshot().playerShots.length")
@@ -580,9 +578,9 @@ def test_click_inside_the_arena_fires_and_leaving_it_pauses(page_ctx) -> None:
     page.wait_for_timeout(150)
     still = page.evaluate("() => window.NexusShooter.snapshot().pauseReasons")
     assert "pointer" in still, "re-entering the arena must not resume by itself"
-    label = page.locator('[data-arcade-action="toggle"]').text_content().strip()
+    label = page.locator('[data-arcade-id="buggy"] [data-arcade-action="toggle"]').text_content().strip()
     assert label == "Resume game"
-    page.locator('[data-arcade-action="toggle"]').click()
+    page.locator('[data-arcade-id="buggy"] [data-arcade-action="toggle"]').click()
     page.wait_for_function("window.NexusShooter.snapshot().lifecycle === 'running'")
     assert page.evaluate("() => window.NexusShooter.snapshot().pauseReasons") == []
 
@@ -620,7 +618,7 @@ def test_fine_pointer_sees_the_key_guide_and_coarse_pointer_sees_touch_controls(
             coarse_state = page.evaluate("""() => ({
                 guide: getComputedStyle(document.querySelector('.nag-guide')).display,
                 touch: getComputedStyle(document.querySelector('.nag-controls')).display,
-                buttons: document.querySelectorAll('.nag-controls [data-arcade-control]').length,
+                buttons: document.querySelectorAll('[data-arcade-id="buggy"] .nag-controls [data-arcade-control]').length,
             })""")
             coarse.close()
         finally:

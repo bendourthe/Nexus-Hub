@@ -197,7 +197,7 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
                 "  wrap: e.getAttribute('data-fit-wrap') }))"
             )
             training_title = page.evaluate(
-                "() => Math.round(parseFloat(getComputedStyle(document.querySelector('[data-nht=\"title\"]')).fontSize))"
+                "() => Math.round(parseFloat(getComputedStyle(document.querySelector('#training-describe-review h2')).fontSize))"
             )
             context.close()
             overflow = {}
@@ -231,7 +231,7 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
         assert row["now"] <= row["base"] + 0.5, row
         assert row["now"] >= 15, row
         assert row["wrap"] in ("nowrap", "normal"), row
-    assert training_title < 40, "the Training slide title is not a section title and must not scale"
+    assert training_title < 40, "the Training section heading must not exceed the shared title scale"
     bad = {k: v for k, v in overflow.items() if v > 1}
     assert not bad, f"horizontal overflow at (width, page): {bad}"
 
