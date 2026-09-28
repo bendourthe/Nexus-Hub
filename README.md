@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.0 -->
+<!-- nexus-hub-version: 4.13.3 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 338 skills, 19 commands, 37 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -34,6 +34,42 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.13.3
+
+**Leftover instruction blocks from old installs can be removed, only with your consent.** Every install now reports each stale span it finds outside the managed block, with its line range, token cost, a diff, and a consent token bound to that exact span and file state, after keeping a verified backup. Nothing is removed unless the next install carries `--remove-legacy-instructions=<token>` (`-RemoveLegacyInstructions` on Windows).
+
+**Smaller instruction files, opt in.** `NEXUS_HUB_SKILL_INDEX=pointer` replaces the embedded skill table, 81 to 84 percent of each rendered instruction file, with a short pointer on platforms that read an installed skills tree. `scripts/measure_rendered_context.py` measures what a model actually receives.
+
+**Session hooks state facts.** `session-start` prints the installed version and the index location read from real files, the session digest is one line, and instruction files keep their line endings.
+
+---
+
+## What's New in v4.13.2
+
+**`/implement <plan>` now runs the whole plan.** It asks every approval the run needs once, up front, freezes them in a run record, then implements every phase through green CI, the merged integration, the release, and cleanup, stopping only on a named blocker or your pause. `phase <N>`, `next`, and `phase-by-phase` keep the stepwise modes.
+
+**A checker decides when a run is done, and the platforms enforce it.** `check_plan_completion.py` reads repository, hosting, and record state and prints `PLAN COMPLETE`, `INCOMPLETE`, `BLOCKED`, or `PAUSED`. A turn-end gate keeps a run going on hook platforms, typed plugins do the same on OpenCode, OpenClaw, Pi, and Hermes, and `nexus-hub run-plan` resumes a session that ended anyway.
+
+**Measured end to end.** In paid runs against a fixture plan, Claude Code finished 3 of 3 runs and Codex 1 of 1 without an unplanned stop. OpenCode cannot record approvals headlessly, and in two runs it proceeded on the prompt's approvals instead of stopping (known gaps WN-4 and WN-7).
+
+**Fixes the runs found.** A Windows install that left out Claude Code skipped every other platform, OpenCode refused to start on the installed agents, a Linux install aborted without `python3-venv`, Codex could not run any command on Linux with the shipped permissions, and the Windows completion hooks did nothing under a UTF-8 console.
+
+**Honest limit.** Approval capture checks that the approval text came from a prompt you typed, not which approval it names (known gap WN-9, high severity).
+
+---
+
+## What's New in v4.13.1
+
+**An agent no longer overwrites a file you changed.** Every installed instruction file now tells the agent to check a file with `edit_guard.py` before changing it, and the new `user-edit-preservation` skill records what the agent last read or wrote. On hook platforms the `user-edit-guard` hook blocks a write onto a file you changed outside a git worktree (and warns inside one), including a generator script's own copy onto your document. In the replay of the incident that prompted it, the user's edit survived every run.
+
+**No AI attribution on any publishing route.** The `attribution-guard` hook blocks agent co-author trailers, generated-with footers, and robot badges in commit and tag messages, pull request, issue, and release bodies, and warns on the same patterns in changelogs and docs.
+
+**Honest limit.** The hooks see only writes made through the agent's own tools, and edits made between sessions can still go unreported (v4.13.1 known gaps WN-1 and WN-2).
+
+Catalog: **338 skills** (one added), **19 commands**, and **23 agents**; two hooks added.
 
 ---
 

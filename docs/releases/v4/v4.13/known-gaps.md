@@ -533,9 +533,9 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 7 | 0 |
+| Deferred (DF) | 6 | 1 |
 | Bugs / regressions (BG) | 1 | 1 |
-| Warnings (WN) | 2 | 2 |
+| Warnings (WN) | 4 | 2 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -565,9 +565,9 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 **Source phase**: Phase 5. **Reason**: the installers run the Python runner once per platform, and the runner's pointer-mode second pass only sees integrations in the same call. A consumer installed before the platform that writes its path would get the full index until the next install (fail closed, never open). **Current state (2026-09-25)**: the only such dependency among VERIFIED paths is Copilot reading Codex's `~/.agents/skills`. Both installers run Codex before Copilot at both scopes, pinned by `test_installers_run_the_shared_path_provider_before_copilot`. A simulation of the installers' exact per-platform global order on a fresh home gave the same eligible set as a single combined run (Claude, Codex, OpenCode, Copilot, Qwen). The second pass now also runs for a single integration, so an integration that renders before copying its own skills is covered. **Residual**: a future VERIFIED shared path whose provider runs later would need a new order pin. **Owner**: v4.16.0 (with DF-1). **Suggested next step**: derive the order check from the facts when a second shared-path dependency appears.
 
-#### DF-7 (v4.13.3): Move the legacy-removal decision record to `implemented`
+#### DF-7 (v4.13.3): Move the legacy-removal decision record to `implemented` - RESOLVED 2026-09-28
 
-**Source phase**: Phase 4. **Reason**: `docs/decisions/proposed/tooling/2026-09-24-legacy-instruction-block-removal.md` describes shipped behavior once v4.13.3 is released. The record format requires a rewrite (Decision in present tense, Consequences) and a move, not a Status edit. **Owner**: `/update release` for v4.13.3. **Suggested next step**: rewrite and move it at release, with the release notes' capability-usage entry.
+**Source phase**: Phase 4. **Reason**: `docs/decisions/implemented/tooling/2026-09-24-legacy-instruction-block-removal.md` describes shipped behavior once v4.13.3 is released. The record format requires a rewrite (Decision in present tense, Consequences) and a move, not a Status edit. **Owner**: `/update release` for v4.13.3. **Status**: resolved at the v4.13.3 release: the record moved to `docs/decisions/implemented/tooling/` with a Decision section and a Consequences section, and the capability-usage entry ships in the release notes.
 
 #### BG-8 (v4.13.3): Historical Windows legacy backups retain inherited read access
 
@@ -588,6 +588,18 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 #### MT-1 (v4.13.3): The full installers were not run end to end on a disposable machine
 
 **Source phase**: Phases 4 and 5. **Reason**: the full PowerShell installer also installs VS Code extensions through the real `code` CLI and writes the real `%APPDATA%` settings, which a redirected HOME does not isolate, so the Phase 4 and 5 verification drove the installer's own engine (per-platform runner calls plus `legacy-report`) instead. The installers' flag parsing, forwarding, and report wiring are unit-tested, and CI runs both installers on their native hosts. **Owner**: release maintainer. **Suggested next step**: the last-phase human testing suggestions include a real install on a machine that carries a legacy block.
+
+#### WN-5 (v4.13.3): Read-path drift found by the release contract pass
+
+**Source phase**: `/update release` platform-contract verification, 2026-09-28. **Reason**: the pass found no broken install path, but four documented changes the adapters do not yet model: Gemini CLI documents a root `GEMINI.md` for the workspace and no rules directory (the contract lists `<project>/.gemini/GEMINI.md` and `.gemini/rules/`); OpenClaw adds a named-profile workspace (`~/.openclaw-<profile>/workspace` under `OPENCLAW_PROFILE`) and a per-agent `agents.entries.*.workspace`, whose precedence against `agents.defaults.workspace` the docs do not fully state; and VS Code prompt files, Copilot's global slash surface, are deprecated for Agent Host sessions while the Local agent still loads them. Windsurf's preferred workspace hooks file is v4.13.2 DF-1. Sources are in `docs/policy/platform-read-contracts.json` `meta.verified_for_version_note`.
+
+**Owner**: catalog maintainer, via `[[platform-contract-verification]]`. **Status**: open. **Suggested next step**: change each adapter and its contract row in lockstep (Gemini CLI workspace file and rules; OpenClaw profile workspace once the precedence is confirmed), and migrate Copilot's global slash surface to skills before the Local agent is removed.
+
+#### WN-6 (v4.13.3): Behavioral-lever drift found by the release contract pass
+
+**Source phase**: `/update release` platform-contract verification, 2026-09-28. **Reason**: advisory lever changes (logged in `docs/policy/platform-defaults-levers.md`): Claude Code ignores a user-scope `effortLevel` on Opus 5.5 and later, so that seed no longer reaches the default model (the seeded `env.CLAUDE_CODE_EFFORT_LEVEL` still does); Codex's documented `model_reasoning_effort` and `approval_policy` value lists changed, and the page no longer names those keys as user-only; and Antigravity's `agentMode` values now describe different behavior. Every seeded value remains valid.
+
+**Owner**: catalog maintainer, via `[[platform-contract-verification]]`. **Status**: open. **Suggested next step**: seed Claude's effort under `modelSettings` for the default model, refresh the Codex and Antigravity lever rows and `configs/platform-defaults.json`, then run `python scripts/sync_platform_defaults.py --check`.
 
 ### Resolved
 

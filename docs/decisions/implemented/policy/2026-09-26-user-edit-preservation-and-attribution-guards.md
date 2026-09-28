@@ -1,12 +1,12 @@
 # Decision: Detect user edits before any overwrite, and block AI attribution on every publishing route
 
-Status: proposed - an always-loaded rule, a procedure skill with a detection helper, document-skill revision sections, and two essential hooks; ships in v4.13.1
+Status: implemented - an always-loaded rule, the user-edit-preservation skill and helper, document-skill revision sections, and two essential hooks shipped in v4.13.1
 
 ## Problem
 
 An agent regenerated a deck from its own script and copied it over the user's synced file, erasing the user's slide edit without a word. The v4.13.1 replay reproduced this on the unmodified tree: 3 of 4 before-fix runs lost the user's edit. Nothing told the agent the file had changed since it last wrote it, and nothing stopped a generator script's own copy. Separately, the attribution rule only covered commit messages, while harness defaults add agent co-author trailers and generated-with footers to pull requests, issues, releases, and changelogs.
 
-## Proposal
+## Decision
 
 1. **Always-loaded rule.** Every substantive instruction template's `## Autonomous Operation` says to run `edit_guard.py check` from `user-edit-preservation` before changing a file the agent read or wrote, never an ad-hoc comparison, and on a change to keep the user's version, suggest separately, and ask first. `## User Attribution` bans any reference to AI contributions on every surface, even when a harness asks for one.
 2. **Procedure skill and helper.** `user-edit-preservation` (in every install profile through `core-developer`) owns the procedure. Its `edit_guard.py` records a per-part fingerprint and an owner-only copy after reads and writes, reports changes (including non-text Office changes), compares with the agent's own copy when there is no record (`diff --against`), and releases a block only through `accept` after a `diff` of the same content.
@@ -21,7 +21,9 @@ An agent regenerated a deck from its own script and copied it over the user's sy
 - **Content-hash the whole file.** Rejected: Office AutoSave and sync rewrite `docProps/*` metadata, which would report false changes; fingerprints cover content parts only.
 - **Attribution checking by text search anywhere in a body.** Rejected: it would block text that describes the patterns (changelogs, this record). Only trailer- and footer-position attribution blocks; a sentence naming a tool as its subject passes.
 
-## Acceptance criteria
+## Consequences
+
+Measured and enforced at the v4.13.1 release:
 
 - The replay's final round preserves the user's edit in every run with and without the hook (met: 18 of 18 Claude, 5 of 5 Codex; see `docs/releases/v4/v4.13/development/v4.13.1-incident-replay.md`).
 - The agent reports the user's edit in every run (not met: edits made between sessions and moved pictures went unreported; v4.13.1 known gaps WN-1 and WN-2).

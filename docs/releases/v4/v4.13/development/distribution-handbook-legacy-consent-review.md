@@ -21,7 +21,7 @@ Each handbook claim was checked against the candidate:
 
 No claim is false, so no visible content change is required.
 
-The handbook does not describe shared instruction-file merging, the consented legacy removal, or the opt-in skill-index pointer. Those behaviors are documented in `docs/decisions/proposed/tooling/2026-09-24-legacy-instruction-block-removal.md`, `docs/policy/platform-read-contracts.md`, and the v4.13.3 capability-usage draft. Adding a section is a coverage choice for the next handbook refresh, not a correctness repair.
+The handbook does not describe shared instruction-file merging, the consented legacy removal, or the opt-in skill-index pointer. Those behaviors are documented in `docs/decisions/implemented/tooling/2026-09-24-legacy-instruction-block-removal.md`, `docs/policy/platform-read-contracts.md`, and the v4.13.3 capability-usage draft. Adding a section is a coverage choice for the next handbook refresh, not a correctness repair.
 
 ## Qualification
 
