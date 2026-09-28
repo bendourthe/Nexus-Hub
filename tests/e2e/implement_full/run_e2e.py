@@ -36,6 +36,10 @@ APPROVAL = (
     "Approve the full run of v0.2.0 for acme/demo, whose git remote origin is its local mirror: "
     "push to origin, merge, release v0.2.0, and clean up."
 )
+STUB_APPROVAL = (
+    "Approve the full run of v0.2.0 for acme/demo at https://github.com/acme/demo.git: "
+    "push to origin, merge, release v0.2.0, and clean up."
+)
 
 PLAN = """# Plan -- Demo calculator
 
@@ -76,7 +80,7 @@ def _git(cwd: Path, *args: str) -> str:
     ).stdout.strip()
 
 
-def build_fixture(root: Path) -> Path:
+def build_fixture(root: Path, *, stub: bool = False) -> Path:
     remote = root / "remote.git"
     work = root / "work"
     _git(root, "init", "--bare", "-q", "-b", "main", str(remote))
@@ -102,6 +106,10 @@ def build_fixture(root: Path) -> Path:
     _git(work, "branch", "develop")
     _git(work, "push", "-q", "origin", "develop")
     _git(work, "checkout", "-q", "-b", "feat/v0.2.0-demo")
+    if stub:
+        # The stub advertises the approved URL; its Git transport is redirected
+        # only for pushes and remote reads, so the checker still sees that origin.
+        _git(work, "remote", "set-url", "origin", "https://github.com/acme/demo.git")
     return work
 
 
@@ -316,7 +324,8 @@ def run_condition(
 ) -> dict:
     root = out / f"{agent}-{time.strftime('%Y%m%d-%H%M%S')}"
     root.mkdir(parents=True)
-    work = build_fixture(root)
+    work = build_fixture(root, stub=agent == "stub")
+    approval = STUB_APPROVAL if agent == "stub" else APPROVAL
     home = root / "home"
     bin_dir = root / "bin"
     runs = home / ".nexus-hub" / "runs"
@@ -328,7 +337,10 @@ def run_condition(
         "codex": "codex",
         "opencode": "opencode",
     }[agent]
+    real_git = shutil.which("git")
+    assert real_git is not None, "git is required by the fixture"
     if agent == "stub":
+        _stub_bin(bin_dir, "git", HERE / "git_e2e.py", sys.executable)
         _stub_bin(bin_dir, "claude", HERE / "stub_agent.py", sys.executable)
     env = dict(os.environ)
     env.update(
@@ -336,7 +348,7 @@ def run_condition(
         GH_E2E_STATE=str(root / "gh-state.json"),
         GH_E2E_LOG=str(root / "gh.log"),
         NEXUS_HUB_RUNS_DIR=str(runs),
-        E2E_APPROVAL=APPROVAL,
+        E2E_APPROVAL=approval,
         E2E_PLAN=PLAN_REL,
         E2E_CHECKER=str(REPO / "scripts" / "check_plan_completion.py"),
         NEXUS_RUNNER_BACKOFF="0",
@@ -368,12 +380,14 @@ def run_condition(
         env["E2E_REAL_BIN"] = shutil.which(cli) or cli
         _stub_bin(bin_dir, cli, HERE / "spend_shim.py", sys.executable)
     if agent == "stub":
+        env["E2E_REAL_GIT"] = real_git
+        env["E2E_STUB_REMOTE_MIRROR"] = str(root / "remote.git")
         # The stub stands in for the approval-capture hook: it records the digest
         # of the scripted first-turn approval exactly as the hook would.
         session = "e2e-stub-session"
         prompts = runs / "prompts"
         prompts.mkdir()
-        digest = hashlib.sha256(" ".join(APPROVAL.split()).encode()).hexdigest()
+        digest = hashlib.sha256(" ".join(approval.split()).encode()).hexdigest()
         (prompts / f"{hashlib.sha256(session.encode()).hexdigest()}.jsonl").write_text(
             json.dumps({"session": session, "digests": [digest]}) + "\n",
             encoding="utf-8",
@@ -386,7 +400,7 @@ def run_condition(
     import run_plan
 
     launch = run_plan.TEMPLATES[platform][0]
-    first = launch(f"/implement {PLAN_REL} -- upfront approvals, verbatim: {APPROVAL}")
+    first = launch(f"/implement {PLAN_REL} -- upfront approvals, verbatim: {approval}")
     first[0] = shutil.which(first[0], path=env["PATH"]) or first[0]
     first_proc = subprocess.run(
         first,
