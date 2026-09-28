@@ -26,7 +26,7 @@ SNAPSHOT = r"""() => {
       const css = getComputedStyle(node);
       if (css.display === 'none' || css.visibility === 'hidden') return false;
       opacity *= Number(css.opacity);
-      if (opacity < 0.5) return false;
+      if (opacity < 0.05) return false;
     }
     return true;
   };
