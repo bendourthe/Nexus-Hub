@@ -375,10 +375,15 @@ def test_workspace_install_does_not_create_or_advise_a_feature_switch(
     assert not any("[features]" in note or "hooks = true" in note for note in result.notes)
 
 
-def test_install_summary_does_not_claim_hooks_are_active(codex, install_ctx):
+@pytest.mark.parametrize("scope", ["workspace", "global"])
+def test_install_summary_does_not_claim_hooks_are_active(codex, install_ctx, scope):
     """Codex hooks need per-hook trust, so the summary must not overpromise."""
-    result = codex.install_workspace(install_ctx)
+    ctx = replace(install_ctx, scope=scope, explicit_target=(scope == "global"))
+    result = codex.install_global(ctx) if scope == "global" else codex.install_workspace(ctx)
     assert any("/hooks" in note and "inert" in note for note in result.notes)
+    guide = ctx.repo_root / "docs" / "permissions-setup.md"
+    assert guide.is_file()
+    assert any(str(guide) in note and "write" in note for note in result.notes)
 
 
 # ---------------------------------------------------------------------------

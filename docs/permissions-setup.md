@@ -141,7 +141,21 @@ Use space before `*` (current syntax). The legacy colon syntax `Bash(cd:*)` is d
 Full parity. All categories (file reads, search, web fetch with domain scoping, git read-only) are supported with granular allowlisting. This is the most capable permission system of the four platforms.
 
 ### OpenAI Codex CLI
-Good parity for filesystem and network scoping. Codex uses path-based read/write permissions and a domain allowlist for network access. However, it does not support per-command Bash allowlisting at the config level. The `approval_policy = "on-request"` setting ensures write operations still require approval.
+
+Nexus-Hub's installed Codex profile is read-only. `approval_policy = "on-request"` does not grant writes, and installed non-managed hooks do not run until the user reviews and trusts them. A full `/implement` run needs both steps below; leave the profile read-only when you only want analysis. Codex does not support per-command Bash allowlisting at the config level. See the [Codex hook trust](https://learn.chatgpt.com/docs/hooks) and [filesystem permissions](https://learn.chatgpt.com/docs/permissions) references.
+
+1. Start Codex in the target project and run `/hooks`. Inspect and trust each Nexus-Hub hook needed for the run, including the approval capture and completion gate. Repeat the review after a hook changes; Codex binds trust to the hook definition. Do not use the hook-trust bypass as a substitute for review.
+2. If you authorize a full implementation, identify the exact project and Git paths before editing the existing `[permissions.default.filesystem]` table in `~/.codex/config.toml` (or `%USERPROFILE%\.codex\config.toml` on Windows). Run the following commands inside the target project:
+
+    ```text
+    git rev-parse --show-toplevel
+    git rev-parse --absolute-git-dir
+    git rev-parse --path-format=absolute --git-common-dir
+    ```
+
+    REPLACE: Add an exact `"<project path>" = "write"` entry and exact `"<Git directory path>" = "write"` entries for the paths those commands return; do not create a second filesystem table. For native Windows paths, use TOML literal-quoted keys such as `'C:\path\to\project' = "write"` so backslashes stay literal. A linked worktree can have a `.git` pointer file plus Git directories outside the project; grant only the paths you inspected, including the pointer and distinct Git directory or common directory needed for commits. Codex otherwise keeps `.git` read-only even inside a writable project. See [protected paths in writable roots](https://learn.chatgpt.com/docs/agent-approvals-security).
+
+Restart Codex, confirm `/hooks` shows the required hooks as trusted, and try a harmless file edit and local commit in a disposable project before an unattended run. If either operation is denied, stop and adjust only the missing exact path grant; do not widen access to a parent or home directory.
 
 ### Google Gemini CLI
 Moderate parity. Supports tool-level and shell command patterns (e.g., `run_shell_command(git log)`) plus domain allowlisting. Known limitation: allowlists do not apply to piped commands (upstream issue #11510). No explicit read-vs-write distinction at the config level.

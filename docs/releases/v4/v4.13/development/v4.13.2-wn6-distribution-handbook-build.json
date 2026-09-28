@@ -1,0 +1,8 @@
+{
+  "status": "pass",
+  "command": "python catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py docs/handbooks/_sources/distribution/model.json --out docs/handbooks/distribution.html --root .",
+  "check_command": "python catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py docs/handbooks/_sources/distribution/model.json --out docs/handbooks/distribution.html --root . --check",
+  "first_sha256": "1e2a099241b81cf7c0bd84480f759956d374e9768b8231aced654c2f2c32262b",
+  "second_sha256": "1e2a099241b81cf7c0bd84480f759956d374e9768b8231aced654c2f2c32262b",
+  "deterministic": true
+}

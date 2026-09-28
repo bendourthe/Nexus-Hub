@@ -2498,11 +2498,19 @@ build_and_install_one_extension() {
 
     write_item "Building ${display_name} extension..." "$RESET"
 
-    pushd "$extension_dir" > /dev/null || return
+    # WN-6: this optional build must not abort the core install under errexit.
+    if ! pushd "$extension_dir" > /dev/null; then
+        write_item "Skipping ${display_name}: could not enter the extension directory." "$YELLOW"
+        return 0
+    fi
 
     # Clean compiled output so deleted source files don't linger as stale JS
     if [ -d "$extension_dir/out" ]; then
-        rm -rf "$extension_dir/out"
+        if ! rm -rf "$extension_dir/out"; then
+            write_item "Skipping ${display_name}: failed to clean compiled output." "$YELLOW"
+            popd > /dev/null || true
+            return 0
+        fi
     fi
 
     # A node_modules tree copied in from another OS (e.g. zipping a Windows
@@ -2510,7 +2518,11 @@ build_and_install_one_extension() {
     # exec, so `tsc` resolves to "command not found" and the build fails with a
     # confusing error. Removing it forces a clean, OS-correct dependency tree.
     if [ -d node_modules ]; then
-        rm -rf node_modules
+        if ! rm -rf node_modules; then
+            write_item "Skipping ${display_name}: failed to clean dependencies." "$YELLOW"
+            popd > /dev/null || true
+            return 0
+        fi
     fi
 
     write_item "  Installing dependencies..." "$GRAY"
@@ -2539,9 +2551,13 @@ build_and_install_one_extension() {
     # belt-and-suspenders: if any future warning reappears it auto-confirms instead
     # of blocking an unattended install (harmless when there is no prompt).
     write_item "Packaging extension as VSIX..." "$RESET"
-    echo "y" | npx vsce package --no-dependencies 2>/dev/null
+    if ! echo "y" | npx vsce package --no-dependencies 2>/dev/null; then
+        write_item "VSIX packaging failed for ${display_name}." "$YELLOW"
+        popd > /dev/null || true
+        return 0
+    fi
     local vsix_file
-    vsix_file=$(ls -t "$extension_dir"/*.vsix 2>/dev/null | head -1)
+    vsix_file=$(ls -t "$extension_dir"/*.vsix 2>/dev/null | head -1 || true)
 
     if [ -z "$vsix_file" ]; then
         write_item "VSIX packaging failed." "$RED"

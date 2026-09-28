@@ -2,11 +2,11 @@
   "snapshot": {
     "entry_sha256": "90b6e519dbbdebc658cdf68459bed2600a07046cadb095ade2509bc7711c1165",
     "inputs": {
-      "docs/handbooks/_sources/distribution/model.json": "62700e9cbfc6be1b6017554af5a616dc4d79bec1bca2d7f65f77a50866cc947a",
-      "docs/handbooks/_sources/distribution/source.md": "ac6a1f8f2f377a4a78fe0c85753d06ed539a43cbf0fa253a7f67358191cfdd2c",
+      "docs/handbooks/_sources/distribution/model.json": "3f3b9e1222a51583962e4de248d9ac74804b03a2b3102605e8e1911c8ea3496d",
+      "docs/handbooks/_sources/distribution/source.md": "495f2edd8b5046d38801c6e675385cc500b552da8231a381ff5e811db62721fa",
       "docs/handbooks/_sources/distribution/design.css": "4d2975128abe327205e8b3c4fd62d351644221e9e03bfbaa539986f3cc1b9a70",
       "scripts/installer.ps1": "8034c22949eec921fe536124f3f217d2eb10ec737f66c03a0b5c3258502674fd",
-      "scripts/installer.sh": "cd350799b44ad2c0b518577224b675c866589a066050ca0b05c612df1a6d7edf",
+      "scripts/installer.sh": "154c8e793594b498cd64b066d5e4a1550039bbd2dfe072260ca0cda45291e40f",
       "scripts/lib/integrations/runner.py": "8a2ee00491a75bc6ce66aedef8f824a092bb2369cb321cb76ddc338e2fec03ed",
       "scripts/lib/integrations/_catalog_adapters.py": "36f4fa103e7126692a32a5c93b56c77f2919cd2d2dad7ee6e318d259f49fa041",
       "scripts/lib/integrations/_owned.py": "1587357664626dc18f299f0abd85d2d31a8fe94a705611a7d52fe734f1465e90",
@@ -26,25 +26,25 @@
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
       "configs/platform-defaults.json": "e8ca8c8f49bd70448e5b7896a20308407dbcac0e442de5c3964e955e9c7ebc23"
     },
-    "output_sha256": "25ffd7b98de194f81f0a33035b4b184546c394214843318bec54573a2d22efb5"
+    "output_sha256": "1e2a099241b81cf7c0bd84480f759956d374e9768b8231aced654c2f2c32262b"
   },
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.13/development/v4.13.2-handbook-claim-review.md",
-      "evidence_sha256": "d6d06610154d68e0b44fe843dccbdb961fd9992601e25775d3049e59fe690a23"
+      "evidence": "docs/releases/v4/v4.13/development/v4.13.2-wn6-distribution-handbook-review.md",
+      "evidence_sha256": "fdc766748ddb040b14e486bc82b321a6bc1875c381ccf19b9de80bd245f358a6"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.12/development/attribution-hook-eol-handbook-build.json",
-      "evidence_sha256": "1f6a83443bd838c8ae7d36b86c2dec68be65134f6f32c89bb4c6c99ec7931777"
+      "evidence": "docs/releases/v4/v4.13/development/v4.13.2-wn6-distribution-handbook-build.json",
+      "evidence_sha256": "072c76240ce023013480fb6609966ae5cdefbf647f0e2b3db30351da820a76a4"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.12/development/attribution-hook-eol-handbook-rendered.json",
-      "evidence_sha256": "7cd5a1cc8bedf9179042ef1829cb06ec6af0df050f66b2ecfd599130772358c1",
+      "evidence": "docs/releases/v4/v4.13/development/v4.13.2-wn6-distribution-handbook-rendered.json",
+      "evidence_sha256": "eef317161ff4a46d7743edf5c723b51aaf943fe7e7d9537e8b88d81a0b02e05e",
       "browser": "Chromium 151.0.7922.34",
-      "output_sha256": "25ffd7b98de194f81f0a33035b4b184546c394214843318bec54573a2d22efb5"
+      "output_sha256": "1e2a099241b81cf7c0bd84480f759956d374e9768b8231aced654c2f2c32262b"
     }
   }
 }
