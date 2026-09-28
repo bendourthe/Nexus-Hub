@@ -532,7 +532,7 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 6 | 1 |
-| Bugs / regressions (BG) | 1 | 1 |
+| Bugs / regressions (BG) | 0 | 2 |
 | Warnings (WN) | 4 | 2 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -566,10 +566,6 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 #### DF-7 (v4.13.3): Move the legacy-removal decision record to `implemented` - RESOLVED 2026-09-28
 
 **Source phase**: Phase 4. **Reason**: `docs/decisions/implemented/tooling/2026-09-24-legacy-instruction-block-removal.md` describes shipped behavior once v4.13.3 is released. The record format requires a rewrite (Decision in present tense, Consequences) and a move, not a Status edit. **Owner**: `/update release` for v4.13.3. **Status**: resolved at the v4.13.3 release: the record moved to `docs/decisions/implemented/tooling/` with a Decision section and a Consequences section, and the capability-usage entry ships in the release notes.
-
-#### BG-8 (v4.13.3): Historical Windows legacy backups retain inherited read access
-
-**Source phase**: Phase 4 post-merge security follow-up, 2026-09-26. **Plan reference**: [`v4.13.3-adoption-agent-practice-and-harness-token-efficiency`](plans/v4.13.3-adoption-agent-practice-and-harness-token-efficiency.md), Phase 4 legacy removal. **Reason**: the original backup writer used `os.chmod`, which did not remove inherited Windows access rules. A read-only ACL audit found the existing backup directory and 21 files unprotected, with one other principal granted read access; no backup content or filename was read. [PR #335](https://github.com/bendourthe/Nexus-Hub/pull/335) now fails closed on backup-permission errors and applies owner-only ACLs to new or subsequently touched backups, but it does not sweep untouched historical files. **Owner**: local profile owner. **Suggested next step**: after explicit approval, save the current ACLs for rollback, restrict only the audited directory and 21 files, and verify each ACL by read-back without reading or deleting backup content.
 
 #### WN-1 (v4.13.3): An uncooperative writer can race the final hash check
 
@@ -605,6 +601,7 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 |---|---|---|---|
 | WN-3 | `context-manager` frontmatter advertised delegated concerns | v4.13.3 metadata follow-up | Description, summary, overview, index, registry, and OpenAI wrapper now advertise file relationships and change-impact mapping; strict registry, whole-catalog routing, and 106 validator tests pass. |
 | WN-4 | Legacy-candidate diff files accumulated across file states | v4.13.3 diff-retention follow-up | A resolved-path hash scopes each diff filename. A successful report retains every current span and prunes only that file's prior states, including after consented removal; a failed write preserves prior reports. Pre-change consent-only filenames have no safe owner mapping and are left untouched. The current local profile had no historical `legacy-candidates` directory. |
+| BG-8 | Historical Windows legacy backups retained inherited read access | 2026-09-28 local ACL read-back | Phase 4 post-merge follow-up to the [v4.13.3 plan](plans/v4.13.3-adoption-agent-practice-and-harness-token-efficiency.md). The 2026-09-26 audit found the directory and 21 files readable by another principal; [PR #335](https://github.com/bendourthe/Nexus-Hub/pull/335) secured new backups but did not sweep historical ones. After the user's approval for a targeted repair, a fresh read-only audit of `~/.nexus-hub/state/backups/` found the directory and all 53 current files owned by the user's account, with no allow rule except `OWNER RIGHTS` (SID `S-1-3-4`); 18 inherited rules were also owner-only. Because the full current set already meets the requested ACL boundary, no ACL was changed, no rollback export was needed, and no backup contents were read. This proves the current host state, not when or how it changed. |
 | BG-9 | Legacy-candidate diffs could inherit Windows read access | v4.13.3 diff-retention follow-up | The diff directory and staged file now require owner-only permissions before atomic publication; ACL failure yields no report. Windows ACL read-back and failure-path tests pass. |
 
 ### Reconciliation across other registers (2026-09-25)
