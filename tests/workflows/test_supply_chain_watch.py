@@ -66,6 +66,18 @@ def test_watch_installs_patched_setuptools_before_audit() -> None:
     assert tuple(map(int, pin.group(1).split("."))) >= (83, 0, 0)
 
 
+def test_watch_skips_editable_projects_without_dropping_installed_dependencies() -> None:
+    steps = _load(WATCH)["jobs"]["audit"]["steps"]
+    install = next(step["run"] for step in steps if step.get("name") == "Install the declared dependency set")
+    audit = next(step["run"] for step in steps if step.get("name") == "Audit against known advisories")
+    assert 'for ext in extensions/*/pyproject.toml' in install
+    assert 'python -m pip install --quiet -e "${dir}[${extras}]"' in install
+    calls = re.findall(r"(?m)^\s*python -m pip_audit ([^\n]+)", audit)
+    assert len(calls) == 2
+    assert all("--skip-editable" in call for call in calls)
+    assert all("--ignore-vuln" not in call for call in calls)
+
+
 def test_release_artifact_job_is_scoped_and_pinned() -> None:
     data = _load(RELEASE)
     job = data["jobs"]["publish-artifact"]

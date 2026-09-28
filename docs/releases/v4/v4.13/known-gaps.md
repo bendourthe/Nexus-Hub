@@ -190,13 +190,13 @@ This table is the single-file working inventory of residual v4.0-v4.12 items as 
 | [v4.5 MT-1, tests 1 and 3](../v4.5/known-gaps.md) | Open manual distribution read-path and prose false-positive exercises, separate from DF-1 and DF-2. | Installation and writing owners: use throwaway installs on three non-Claude platforms and judge samples of the maintainer's own writing; retain observations. |
 | [v4.7 DF-2](../v4.7/known-gaps.md) | Open Codex CLI model-picker mismatch; related to v4.1.0 DF-1 and v4.9 MT-1, not a second profile implementation task. | Prompting-profile owner: recheck the live picker and reconcile the model map with official evidence. |
 | [v4.7 DF-4 / DF-5](../v4.7/known-gaps.md) | Accepted exclusions: reusable CI workflow factoring and per-skill presentation metadata have no authorized implementation in this release. | CI and catalog owners: reconsider only with an actual consumer and a separate scoped decision. |
-| [v4.7 WN-2](../v4.7/known-gaps.md) | Open `main` scheduled supply-chain result; the `develop` repair does not qualify the unreleased default branch. | Release owner: recheck the schedule on `main` after the next authorized release; preserve the failed historical run. |
+| [v4.7 WN-2](../v4.7/known-gaps.md) | Open `main` supply-chain result: the released workflow pins patched setuptools, but two 2026-09-28 dispatches stopped on PyPI lookups for editable Nexus projects before an advisory verdict. | CI/release owner: integrate the `--skip-editable` correction, then observe a passing `main` run after its protected release; preserve every failed run. |
 | [v4.8 WN-F](../v4.8/known-gaps.md) | Manual per-release obligation, not an unimplemented regex: the 24 mappings passed the 2026-09-23 source/body audit. | Framework-mapping owner: repeat the source-to-body review at release time and record drift. |
 | [v4.8 WN-K](../v4.8/known-gaps.md) | Installer staging mode is now owner-only in the current tree; the old release CodeQL baseline and required-context policy are separate decisions. | Security/CI owner: verify the relevant alert on the next `main` scan and decide any CodeQL gate change explicitly. |
 | [v4.9 MT-1](../v4.9/known-gaps.md) | Open live Claude prompting-roster completeness; the account-backed picker offers Opus 5.5, but exposes display names rather than a complete canonical ID roster. | Prompting-profile owner: obtain a complete live model-ID enumeration, then calibrate only available models through the deterministic writer; keep the old roster date until then. |
 | [v4.9 MT-3](../v4.9/known-gaps.md) | Open real-artifact slide-check coverage: the pre-rule LVEDP deck has zero static stages and three `unchecked` checks. A [runtime render](../../../archives/v4/v4.9/development/runtime-deck-render-2026-09-27/verification.md) reached 15 real slides; its viewport-floor failures were invalidated by the [stage-height correction](../../../archives/v4/v4.9/development/runtime-deck-stage-floor-correction-2026-09-27/verification.md). The [four-viewport build-state follow-up](../../../archives/v4/v4.9/development/runtime-deck-four-viewport-build-state-2026-09-27/verification.md) sampled 292 fragment completions and found slides 2 and 6 over the eight-fragment budget. The [all-state text and SVG-box follow-up](../../../archives/v4/v4.9/development/runtime-deck-all-state-2026-09-27/verification.md) ran three times over 352 states, checking 8,527-8,584 text-node instances and 456-461 visible SVG-box instances without floor or outer-box failures, with both mutations rejected in every run. The [semantic flow-order follow-up](../../../archives/v4/v4.9/development/runtime-deck-all-state-2026-09-27/semantic-order-verification.md) checked 14 nodes and 13 connectors on three authored flow slides at four viewports, with both order and geometry mutations rejected. The [chart-layout probe](../../../archives/v4/v4.9/development/runtime-deck-all-state-2026-09-27/figure-layout-verification.md) found no extra SVG scale in 14 model-backed slide charts and rejected a half-scale mutation at four viewports, but the reading page has no corresponding chart instances for a source-aspect comparison. The [flow paint probe](../../../archives/v4/v4.9/development/runtime-deck-all-state-2026-09-27/flow-paint-verification.md) qualified 52 settled connector-body observations and 12 invisible controls. Other build semantics, the known fragment-budget failures, other internal SVG rendering, and true figure re-layout remain unqualified. | Handbook-validation owner: use a preserved `.slide-stage` deck or verify a runtime path for structure, builds, figure scaling, and rendered states with negative controls. |
 | [v4.10 EV-1 / EV-2](../v4.10/known-gaps.md) | Accepted fail-closed eval limits for Gemini CLI and OpenCode: no proven all-configuration isolation. | Eval-pipeline owner: enable either provider only after documented, tested exclusion of every configuration layer. |
-| [v4.11 SEC-1](../v4.11/known-gaps.md) | Open hosted `main` CodeQL transition: eight original alerts 278-285 remain open on `main` as of the 2026-09-27 read-only check. | Security/release owner: run the next authorized `main` analysis and record each alert's state; do not dismiss without a justified finding. |
+| [v4.11 SEC-1](../v4.11/known-gaps.md) | Closed for the eight original alerts: the 2026-09-28 `main` CodeQL run passed and GitHub marked 278-285 `fixed` without dismissal. | Security/release owner: retain the hosted closure record; triage any new alert independently. |
 | [v4.11 QG-2](../v4.11/known-gaps.md) | Closed as unmet: each family passed separately, but three simultaneous bounded passes were not established. | Future qualification owner: improve per-family reliability before proposing a new joint gate; do not restamp the old six rounds. |
 | [v4.12 QG-1](../v4.12/known-gaps.md) | Accepted GitHub boundary: read-only `refs/pull/*` remain outside writable-ref publication. | Repository owner: request a supported GitHub disposition only if erasing those refs becomes a requirement. |
 | [v4.12 QG-2](../v4.12/known-gaps.md) | Open public Code-sidebar discrepancy; the API and Insights evidence do not prove the rendered sidebar is corrected. | Repository owner: use the prepared GitHub Support handoff or obtain a fresh rendered correction; no history rewrite is justified. |
@@ -214,11 +214,11 @@ The v4.9 MT-3 [chart-line paint follow-up](../../../archives/v4/v4.9/development
 | v4.3 | [ledger](../v4.3/known-gaps.md) | `c8d3d2ad11010111ebddefbc02cb351c5981d503d5c78dfadde24e6ef73f81de` |
 | v4.4 | [ledger](../v4.4/known-gaps.md) | `baddda620e53acd1870df1cc341ee84f61404fc5c3b4d31b6813fb46a26ab4e7` |
 | v4.5 | [ledger](../v4.5/known-gaps.md) | `e793ab381025b760eaa6cf35c41e57749bb73ec6c2828b1369bcccad129ea24c` |
-| v4.7 | [ledger](../v4.7/known-gaps.md) | `52c01a05534b203bf8b2901c24a6b69e6aaa85a75c78140d3371469ef26b6e1d` |
+| v4.7 | [ledger](../v4.7/known-gaps.md) | `9266af9042fe59bb494b3ca919e74da577b33993a6ae48d599553a928db549f2` |
 | v4.8 | [ledger](../v4.8/known-gaps.md) | `0dd85eddc8f04c1e85c2d72357674b627288fb23bdd1a3b9f4f039585c95cab2` |
 | v4.9 | [ledger](../v4.9/known-gaps.md) | `992bac8015544c165c1774a7974432b6439d5f0f022cdd8265a966f9ae9c2ef6` |
 | v4.10 | [ledger](../v4.10/known-gaps.md) | `f8e1d71999b90c0d06499fa6e1517169935ddd27b21d521032886e701ab84f94` |
-| v4.11 | [ledger](../v4.11/known-gaps.md) | `e03f73d0327c193527a53ba50501762522b40e999d9bd483abe092ee9735df9b` |
+| v4.11 | [ledger](../v4.11/known-gaps.md) | `54b883f23aba67bd46edd176186d566ba9807dc691e6228ab174901efe799fae` |
 | v4.12 | [ledger](../v4.12/known-gaps.md) | `817f31fc03aa2c029112b999c526739245ee735a8cc50d6ae46a026e04ce7abe` |
 
 v4.6.0 was never cut. Its unimplemented plan was retargeted through v4.8.0 and completed as the [v4.9.0 adoption plan](../../../archives/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md); the [v4.8 ledger](../v4.8/known-gaps.md) preserves the retargeting history. There is no v4.6 ledger or plan directory to archive. The v4.13.0 entries above already live in this file. The v4.13.1 through v4.13.4 plans are excluded from this historical transfer and remain active in their own worktrees.
@@ -331,7 +331,7 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 7 | 0 |
 | Bugs / regressions (BG) | 0 | 9 |
-| Warnings (WN) | 12 | 1 |
+| Warnings (WN) | 11 | 2 |
 | Missing tests / coverage gaps (MT) | 2 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -390,12 +390,6 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 **Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `approval-capture` stores a digest of every submitted prompt line, and `record create` accepts an approval whose text matches any captured line. A short reply such as `ok`, a pasted issue body containing "I approve release", or the agent piping a fabricated payload into `completion_gate.py capture` can therefore back an approval class the user never approved. Severity high: this is the threat the contract names.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: issue a per-round nonce in the upfront question, require the user's answer to carry the class and nonce, match the whole prompt rather than a line, and refuse a capture the agent's own tool call produced.
-
-#### WN-10: Completion plugins start Python by bare name
-
-**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the OpenCode, OpenClaw, and Pi plugins called `spawn("python" | "python3", ...)`, and Node on Windows searches the working directory first, so a `python.exe` planted at the repository root could run at every turn end. Hermes already uses `sys.executable`; the checker and runner already resolve executables from PATH's absolute entries only.
-
-**Owner**: catalog maintainer. **Status**: open, local fix pending protected integration. **Local follow-up**: the three TypeScript plugins now resolve Python candidates from absolute PATH entries, never through an implicit working-directory search. A planted `python.exe` reproduced the failure before the fix in all three host harnesses; afterward all 25 completion-plugin tests and the 17-check fast gate passed. **Suggested next step**: publish the fix through a protected PR, verify the merge result, and then close this gap.
 
 #### WN-11: `run-plan` checks only global settings for an approval bypass
 
@@ -464,6 +458,12 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 **Owner**: catalog maintainer, via `[[platform-contract-verification]]`. **Status**: open. **Suggested next step**: verify both config locations against first-party pages, then either write the enablement through the platform's own CLI when it is detected or seed the config key under the platform-defaults do-not-invent rule.
 
 ### Resolved Items
+
+#### WN-10: Completion plugins start Python by bare name - RESOLVED 2026-09-28
+
+**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: the OpenCode, OpenClaw, and Pi plugins called `spawn("python" | "python3", ...)`, and Node on Windows searched the working directory first, so a planted `python.exe` could run at every turn end. Hermes already used `sys.executable`; the checker and runner already resolved executables from PATH's absolute entries only.
+
+**Owner**: catalog maintainer. **Resolution**: the three TypeScript plugins now pass absolute interpreter paths resolved from absolute PATH entries with `shell: false`. The planted-executable reproduction and all 25 focused plugin tests passed after the fix. [PR #368](https://github.com/bendourthe/Nexus-Hub/pull/368) passed its Linux and Windows test jobs and required checks, merged into `develop` at `ebe2f0d4`, and [post-merge run 36414815780](https://github.com/bendourthe/Nexus-Hub/actions/runs/36414815780) passed smoke and provenance. This closes implicit working-directory search; trust in explicitly configured PATH directories remains a separate environment boundary. The merged worktree and local and remote topic branches were removed.
 
 #### BG-1: Both installers copy `plan_status.py` over the installed `generate_report.py` - RESOLVED 2026-09-27
 
