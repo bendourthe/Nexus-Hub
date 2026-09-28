@@ -39,6 +39,8 @@ if args[:2] == ["record", "path"]:
 if args[:2] == ["record", "block"]:
     sys.exit(3)
 if args[0] == "check":
+    if state.get("terminal"):
+        print(state["terminal"][0]); sys.exit(state["terminal"][1])
     if count >= state.get("complete_at", 99):
         print("PLAN COMPLETE plan head nonce"); sys.exit(0)
     print("INCOMPLETE: task.T002"); sys.exit(1)
@@ -116,7 +118,8 @@ def test_resumes_with_the_documented_flag_until_complete(env: Env) -> None:
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip().startswith("PLAN COMPLETE")
     clis = env.calls("cli")
-    assert clis[0][1:] == ["exec", f"/implement {PLAN_REL}"]
+    # Every cycle resumes the session whose upfront round created the record.
+    assert clis[0][1:4] == ["exec", "resume", "--last"]
     assert clis[1][1:4] == ["exec", "resume", "--last"]
     assert clis[1][4] == f"Continue /implement {PLAN_REL}. The completion checker still reports it incomplete."
 
@@ -129,6 +132,20 @@ def test_no_progress_writes_a_blocker_and_stops(env: Env) -> None:
     blocks = [c for c in env.calls("checker") if c[:2] == ["record", "block"]]
     assert blocks and "no-progress" in blocks[0]
     assert len(env.calls("cli")) == 4
+
+
+@pytest.mark.parametrize(
+    ("verdict", "rc"),
+    [("BLOCKED: platform-unavailable", 3), ("PAUSED: user", 4), ("PLAN COMPLETE plan head nonce", 0)],
+)
+def test_terminal_verdict_before_the_first_cycle_launches_nothing(
+    env: Env, verdict: str, rc: int
+) -> None:
+    env.state["terminal"] = [verdict, rc]
+    result = env.run(PLAN_REL, "--platform", "claude")
+    assert result.returncode == rc, result.stderr
+    assert result.stdout.strip() == verdict
+    assert env.calls("cli") == []
 
 
 def test_first_cycle_sets_a_headless_goal_naming_the_nonce(env: Env) -> None:

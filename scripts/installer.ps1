@@ -2400,7 +2400,11 @@ function Invoke-RegistryPlatform {
     # Thread the instruction-template placeholders from the detected script
     # globals so the registry renders the same instruction body the legacy
     # Render-Template produced (DF-001).
-    $argsList += @("--project-name", "$($script:ProjectName)")
+    # One `--flag=value` token: Windows PowerShell 5.1 drops an empty-string argument to a
+    # native program, so a separate empty value left `--project-name` bare, argparse exited
+    # 2, and every registry platform was skipped whenever Claude Code (which sets the name)
+    # was not part of the install.
+    $argsList += "--project-name=$($script:ProjectName)"
     $argsList += @("--var", "PRIMARY_LANGUAGE=$($script:PrimaryLanguage)")
     $argsList += @("--var", "PACKAGE_MANAGER=$($script:PackageManager)")
     $argsList += @("--var", "BUILD_TOOL=$($script:BuildTool)")
@@ -2740,9 +2744,14 @@ function Install-Templates {
 
     # Copy report generator script
     $scriptSource = Join-Path $RepoRoot "scripts\generate_report.py"
-    $scriptSource = Join-Path $RepoRoot "scripts\plan_status.py"
     if (Test-Path $scriptSource) {
         Safe-Copy -Source $scriptSource -Destination (Join-Path $scriptsDest "generate_report.py") -Confirm:$true -CustomMessage "✓ Report generator installed at: $scriptsDest\generate_report.py"
+    }
+
+    # Copy the plan progress renderer (per-phase progress table and next-plan hand-off)
+    $scriptSource = Join-Path $RepoRoot "scripts\plan_status.py"
+    if (Test-Path $scriptSource) {
+        Safe-Copy -Source $scriptSource -Destination (Join-Path $scriptsDest "plan_status.py") -Confirm:$true -CustomMessage "✓ Plan progress renderer installed at: $scriptsDest\plan_status.py"
     }
 
     # Copy the plan-completion checker (v4.13.2). Decides whether a full

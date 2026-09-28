@@ -13,11 +13,12 @@ Surfaces (re-verified 2026-07-21, v3.15.0 Phase 3, against https://opencode.ai/d
   - **Agents**: ``~/.config/opencode/agents`` (global) and ``.opencode/agents``
     (project) -- Markdown files with YAML frontmatter, the filename being the agent
     id; ``mode`` is OPTIONAL and defaults to ``all``. The catalog's ``agents/*.md``
-    files (``name`` / ``description`` / ``tools`` frontmatter) therefore load as-is:
-    OpenCode uses ``description`` + the filename, defaults ``mode: all`` since it is
-    absent, and ignores the non-native ``name`` / ``tools`` keys (it applies its own
-    ``permission`` model), so the agent PROMPT body is delivered verbatim. This is
-    the same ``.md`` + frontmatter format Cursor consumes. Added v3.15.0 Phase 3.
+    files (``name`` / ``description`` / ``tools`` frontmatter) load with the
+    ``tools`` line removed: OpenCode uses ``description`` + the filename, defaults
+    ``mode: all`` since it is absent, and applies its own ``permission`` model, so
+    the agent PROMPT body is delivered verbatim. Since OpenCode 1.18 the Claude-style
+    ``tools`` string is a configuration error rather than an ignored key (v4.13.2).
+    Added v3.15.0 Phase 3.
   - **Hooks**: NOT delivered (``hooks_supported: False``). OpenCode's hook mechanism
     is a ``plugins/`` directory of JavaScript/TypeScript modules loaded by Bun, each
     exporting plugin functions that subscribe to events (``tool.execute.before``,
@@ -63,6 +64,12 @@ class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
         # `mode` defaulting to `all`, so the catalog personas load as-is (v3.15.0
         # Phase 3; format verified 2026-07-21 against https://opencode.ai/docs/agents/).
         "agents_subdir": "agents",
+        # OpenCode 1.18 no longer ignores the catalog's Claude-style `tools: Read, Glob`
+        # string: its deprecated `tools` field must be an object, and one bad agent file
+        # makes the whole configuration invalid, so OpenCode refuses to start (found by
+        # the v4.13.2 end-to-end run; https://opencode.ai/docs/agents/ fetched 2026-09-27
+        # lists `tools` as deprecated in favor of `permission`, and the filename as the id).
+        "agents_drop_frontmatter": ("tools",),
         "rules_subdir": "rules",
         # Hooks NOT supported: OpenCode's plugins/ mechanism is a JS/TS Bun runtime,
         # not a shell/py hook model, so catalog/hooks/*.{sh,py} cannot run there

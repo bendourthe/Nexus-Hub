@@ -331,6 +331,35 @@ def test_offline_hosting_never_passes(complete: Fixture) -> None:
     assert "integration.merged cannot-verify" in result.stdout
 
 
+@pytest.mark.parametrize(
+    ("missing", "predicates"),
+    [
+        ("pr_state", ("integration.merged", "integration.checks")),
+        ("release_draft", ("release.github",)),
+    ],
+)
+def test_hosting_not_found_is_unmet_work_not_an_unreachable_platform(
+    complete: Fixture, missing: str, predicates: tuple[str, ...]
+) -> None:
+    # GitHub answering "no such pull request / release" means the run's next step is
+    # to create it; reading that as platform-unavailable ended a pilot run early.
+    del complete.state[missing]
+    complete.save_state()
+    result = complete.check()
+    first = result.stdout.splitlines()[0]
+    assert first.startswith("INCOMPLETE: "), result.stdout
+    for predicate in predicates:
+        assert f"{predicate} unmet" in result.stdout
+
+
+def test_not_found_text_inside_another_error_still_cannot_verify(complete: Fixture) -> None:
+    del complete.state["release_draft"]
+    complete.state["not_found_stderr"] = "HTTP 502: release not found upstream (gateway)"
+    complete.save_state()
+    result = complete.check()
+    assert "release.github cannot-verify" in result.stdout
+
+
 def test_gh_inside_the_working_tree_is_refused(complete: Fixture) -> None:
     planted = complete.work / "bin"
     shutil.copytree(GH_STUB, planted)

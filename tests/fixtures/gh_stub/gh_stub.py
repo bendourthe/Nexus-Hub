@@ -4,7 +4,8 @@ Answers the few `gh` calls those tools make from a JSON state file named by
 GH_STUB_STATE. It never touches the network. Every call must carry `--repo`,
 mirroring the rule that hosting calls are pinned to the approved repository;
 a call without it fails, as does any call when the state sets "fail": true
-(standing in for offline or unauthenticated).
+(standing in for offline or unauthenticated). A missing pull request or release
+prints real `gh`'s not-found line, or the state's "not_found_stderr" text when set.
 """
 
 from __future__ import annotations
@@ -25,14 +26,20 @@ def main(argv: list[str]) -> int:
         print("gh stub: unavailable", file=sys.stderr)
         return 1
     head = argv[:2]
+    missing_pr = state.get("not_found_stderr", f'no pull requests found for branch "{argv[2]}"')
     if head == ["pr", "view"]:
         if "pr_state" not in state:
+            print(missing_pr, file=sys.stderr)
             return 1
         print(json.dumps({"state": state["pr_state"]}))
     elif head == ["pr", "checks"]:
+        if "pr_state" not in state:
+            print(missing_pr, file=sys.stderr)
+            return 1
         print(json.dumps(state.get("checks", [])))
     elif head == ["release", "view"]:
         if "release_draft" not in state:
+            print(state.get("not_found_stderr", "release not found"), file=sys.stderr)
             return 1
         print(json.dumps({"isDraft": state["release_draft"]}))
     elif head == ["run", "list"]:

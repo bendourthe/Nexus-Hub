@@ -39,7 +39,7 @@ Every generated plan MUST end with a fail-closed last phase dedicated to archite
 #### N.4 - Git-tree hygiene
 **Objective**: Report branch and repository-settings hygiene without deleting anything.
 **Prompt**:
-> Run `python scripts/check_release_preconditions.py --branches --repo-settings`. Quote the output in the evidence file under `## Git-tree hygiene`. Report only; never delete branches.
+> Run `python ~/.nexus-hub/scripts/check_release_preconditions.py --branches --repo-settings`. Quote the output in the evidence file under `## Git-tree hygiene`. Report only; never delete branches.
 
 #### N.5 - Terminal CI/CD reconciliation
 **Objective**: The repository's pipeline is compared field by field against the canonical contract, and every difference is either applied with approval or recorded as a known gap.

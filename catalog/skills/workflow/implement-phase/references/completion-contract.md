@@ -1,6 +1,6 @@
 # Completion Contract
 
-The single definition of "done" for a full `/implement` run: the predicates a plan must satisfy, the evidence each reads, what happens when evidence cannot be read, the four verdicts, and the run record that binds a run to the approvals the user gave at its start. `scripts/check_plan_completion.py` implements this file; the completion gate, the runner, and `/update release` consume the checker's verdict and never re-derive it. Read this before changing the checker, a gate adapter, the runner, or any approval point in the implement or release flow.
+The single definition of "done" for a full `/implement` run: the predicates a plan must satisfy, the evidence each reads, what happens when evidence cannot be read, the four verdicts, and the run record that binds a run to the approvals the user gave at its start. `scripts/check_plan_completion.py` implements this file. The installer copies it to `~/.nexus-hub/scripts/check_plan_completion.py`, so in any project every `check_plan_completion.py <subcommand>` named here, in the runbook, or in the commands runs as `python ~/.nexus-hub/scripts/check_plan_completion.py <subcommand>`; a missing installed copy is `BLOCKED: platform-unavailable`, never a reason to skip the run record; the completion gate, the runner, and `/update release` consume the checker's verdict and never re-derive it. Read this before changing the checker, a gate adapter, the runner, or any approval point in the implement or release flow.
 
 This file is the only owner of the predicate list. Commands and skills refer to "the completion contract" and to predicate ids; they do not restate a predicate's rule.
 
@@ -43,6 +43,8 @@ Ids are fixed strings. "Cannot verify" always counts as unmet: offline, unauthen
 Post-integration predicates (`release.*`, `cleanup.*`) are derived from repository and hosting state, never from checkboxes, because the tasks that produce them are ticked by the same agent the checker is judging.
 
 Every hosting call is pinned with `--repo <owner/repo>` from the record's frozen approvals, runs with `GH_PROMPT_DISABLED=1` and `GIT_TERMINAL_PROMPT=0`, resolves `git` and `gh` to absolute paths outside the working tree, and shares one 20-second wall-clock budget for the whole check. Local predicates run first so an offline check still reports them.
+
+A hosting answer that the pull request or release does not exist (`gh`'s whole stderr line is `no pull requests found for branch "<branch>"` or `release not found`) is `unmet`, not `cannot-verify`: GitHub was reached and the run's next step is to create it. Only an unreachable, unauthenticated, or over-budget call is `cannot-verify`. The agent probes hosting the same way, always with `--repo <owner/repo>` from the record; an un-pinned `gh` call that fails is not evidence that the platform is unavailable, and never justifies merging, tagging, or releasing through `git` alone.
 
 ### Required evidence sections
 

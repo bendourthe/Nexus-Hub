@@ -111,7 +111,7 @@ This ordering is the release-side half of the plan lifecycle. The plan's final p
 
 A full `/implement` run collects its release approval once, in the upfront round, and freezes it in a run record (`~/.nexus-hub/runs/`, rules in `implement-phase/references/completion-contract.md`). This command is the only place that approval is consumed, and it is consumed action by action, never as a blanket yes:
 
-1. **Find the record.** `python scripts/check_plan_completion.py record path <plan>` prints the record for the plan being released. Use it only when its `session_id` is this session's and the checker does not report `BLOCKED: record-tampered`. A standalone `/update release` with no bound record ignores run records entirely and keeps every gate.
+1. **Find the record.** `python ~/.nexus-hub/scripts/check_plan_completion.py record path <plan>` prints the record for the plan being released. Use it only when its `session_id` is this session's and the checker does not report `BLOCKED: record-tampered`. A standalone `/update release` with no bound record ignores run records entirely and keeps every gate.
 2. **Compare each action to its frozen tuple immediately before acting**: the version, the release pull requests and their target branches, the head SHA at merge, the tag name and the commit it points at, the release title and a digest of the notes, and the back-merge. A match skips that one confirmation; any difference, however small, re-asks. The computed next version is compared too: a record approving `v0.2.0` never covers `v0.2.1`.
 3. **Log the approval used.** Each skipped confirmation prints one line naming the action and the approval class it consumed (`release`, `release-notes`, `push-merge`), so the release transcript shows what ran on a recorded approval and what was asked.
 4. **Never widen it.** Pipeline, permission, and secret changes are never covered, and the pre-tag branch assertion, the integration gate, and the artifact round-trip still run and still stop the release on failure. The record replaces the question, not the check.
@@ -149,7 +149,7 @@ Self-gates: a repository with a single long-lived branch skips step 1 and merges
 Immediately before `git tag`, and after nothing else, run:
 
 ```bash
-python scripts/check_release_preconditions.py --pre-tag [--release-branch main]
+python ~/.nexus-hub/scripts/check_release_preconditions.py --pre-tag [--release-branch main]
 ```
 
 It exits 1 and prints `BLOCKED` unless HEAD is on the expected release branch AND equal to `origin/<release-branch>`. **Abort the release on a non-zero exit. Do not tag.**
@@ -171,7 +171,7 @@ A PR-based release leaves a merge commit on `main` that `develop` does not have.
 ## release scope: branch hygiene and repository settings (advisory, before the commit)
 
 ```bash
-python scripts/check_release_preconditions.py --branches --repo-settings
+python ~/.nexus-hub/scripts/check_release_preconditions.py --branches --repo-settings
 ```
 
 Advisory only, exit 0 regardless. Three reports:
@@ -326,7 +326,7 @@ release by printing the handoff so the next session starts with a command rather
 than an investigation:
 
 ```bash
-python scripts/plan_status.py --next
+python ~/.nexus-hub/scripts/plan_status.py --next
 ```
 
 It reports the next plan with open tasks AT OR ABOVE the released version, the

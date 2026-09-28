@@ -287,7 +287,7 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
     rc, out = _checker_run(["record", "path", str(plan)])
     if rc != 0:
         raise RunnerError(
-            f"no run record for {plan}; run /implement {plan} first to record the upfront approvals"
+            f"no run record for {plan.as_posix()}; run /implement {plan.as_posix()} first to record the upfront approvals"
         )
     record_path = Path(out.strip())
     try:
@@ -303,16 +303,25 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
     binary = resolve_binary(launch("x")[0])
     backoff = float(os.environ.get("NEXUS_RUNNER_BACKOFF", "5"))
     with Lock(record_path):
+        # A run whose verdict is already terminal (the first turn completed it, a
+        # blocker was recorded, or the user paused it) has nothing to resume, and a
+        # resumed session there only spends money restating the stop.
+        rc, out = _checker_run(["check", str(plan)])
+        if rc in (0, 3, 4):
+            print(out.splitlines()[0] if out else "")
+            return rc
+        if rc != 1:
+            raise RunnerError(f"checker exited {rc}")
         best = -1
         stalled = 0
         for cycle in range(1, max_cycles + 1):
-            if cycle == 1:
-                prompt = (
-                    goal_prompt(plan.as_posix(), str(record.get("nonce", "-")))
-                    if headless_goal
-                    else f"/implement {plan.as_posix()}"
-                )
-                argv = launch(prompt)
+            # Every cycle RESUMES: the run record exists only because /implement's
+            # upfront round ran in a session, and a fresh session would carry a
+            # different session id, so the turn-end gate bound to the record would
+            # never fire in it. The first cycle also sets the goal where a platform
+            # documents a headless goal entry point.
+            if cycle == 1 and headless_goal:
+                argv = resume(goal_prompt(plan.as_posix(), str(record.get("nonce", "-"))))
             else:
                 argv = resume(
                     f"Continue /implement {plan.as_posix()}. The completion checker still reports it incomplete."

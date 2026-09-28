@@ -2582,9 +2582,14 @@ install_templates() {
 
     # Copy report generator script
     local script_source="$repo_root/scripts/generate_report.py"
-    local script_source="$repo_root/scripts/plan_status.py"
     if [ -f "$script_source" ]; then
         safe_copy "$script_source" "$scripts_dest/generate_report.py" true "[OK] Report generator installed at: $scripts_dest/generate_report.py"
+    fi
+
+    # Copy the plan progress renderer (per-phase progress table and next-plan hand-off)
+    script_source="$repo_root/scripts/plan_status.py"
+    if [ -f "$script_source" ]; then
+        safe_copy "$script_source" "$scripts_dest/plan_status.py" true "[OK] Plan progress renderer installed at: $scripts_dest/plan_status.py"
     fi
 
     # Copy the plan-completion checker (v4.13.2). Decides whether a full
@@ -3195,14 +3200,27 @@ install_skill_discovery() {
     # Create venv and install
     local venv_path="$nexus_home/mcp-server-venv"
 
+    # Everything below installs into this venv, so a venv that cannot be built skips
+    # only the local MCP servers. Under `set -e` a bare failure here aborted the whole
+    # install on a stock Debian/Ubuntu host, which ships python3 without python3-venv.
+    local venv_ok=1
     if command -v uv >/dev/null 2>&1; then
         write_item "  Creating venv with uv..." "$RESET"
-        uv venv "$venv_path" >/dev/null 2>&1
-        uv pip install --python "$venv_path/bin/python" -e "$mcp_dest" >/dev/null 2>&1
+        if ! { uv venv "$venv_path" >/dev/null 2>&1 \
+                && uv pip install --python "$venv_path/bin/python" -e "$mcp_dest" >/dev/null 2>&1; }; then
+            venv_ok=0
+        fi
     else
         write_item "  Creating venv with $python_cmd..." "$RESET"
-        "$python_cmd" -m venv "$venv_path" >/dev/null 2>&1
-        "$venv_path/bin/pip" install -q -e "$mcp_dest" >/dev/null 2>&1
+        if ! { "$python_cmd" -m venv "$venv_path" >/dev/null 2>&1 \
+                && "$venv_path/bin/pip" install -q -e "$mcp_dest" >/dev/null 2>&1; }; then
+            venv_ok=0
+        fi
+    fi
+    if [ "$venv_ok" -eq 0 ]; then
+        write_item "  Could not build the MCP server venv; skipping the local MCP servers." "$YELLOW"
+        write_item "  On Debian/Ubuntu: sudo apt install python3-venv, then re-run the installer." "$YELLOW"
+        return 0
     fi
 
     write_item "  MCP server venv created at $venv_path" "$GREEN"

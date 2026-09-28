@@ -139,9 +139,17 @@ def _env() -> dict[str, str]:
 
 def _run(argv: list[str], budget: Budget, cwd: Path | None = None) -> tuple[int, str]:
     """Run a command inside the shared budget; (rc, stdout). rc -1 means it did not run."""
+    rc, out, _err = _run_with_stderr(argv, budget, cwd)
+    return rc, out
+
+
+def _run_with_stderr(
+    argv: list[str], budget: Budget, cwd: Path | None = None
+) -> tuple[int, str, str]:
+    """Like `_run`, also returning stderr; (rc, stdout, stderr)."""
     timeout = budget.remaining()
     if timeout <= 0:
-        return -1, ""
+        return -1, "", ""
     try:
         proc = subprocess.run(
             argv,
@@ -155,8 +163,8 @@ def _run(argv: list[str], budget: Budget, cwd: Path | None = None) -> tuple[int,
             timeout=timeout,
         )
     except (OSError, subprocess.TimeoutExpired):
-        return -1, ""
-    return proc.returncode, proc.stdout
+        return -1, "", ""
+    return proc.returncode, proc.stdout, proc.stderr
 
 
 # --------------------------------------------------------------------------- plan
@@ -523,10 +531,24 @@ def _tests_status(ctx: Context, evidence: str | None, start: str | None) -> str:
     return "met" if any(p in section for p in changed) else "unmet"
 
 
+# `gh` exits 1 both when GitHub answers "that does not exist" and when it cannot be
+# asked at all (HTTP 401, network), so only the whole stderr line tells them apart.
+# A not-found answer is definitive evidence that the work is not done yet (unmet), and
+# must never read as an unreachable platform: that verdict is terminal and would stop a
+# run whose next step is simply to open the pull request or publish the release.
+GH_NOT_FOUND = object()
+_GH_NOT_FOUND_LINES = (
+    re.compile(r'no pull requests found for branch ".*"'),
+    re.compile(r"release not found"),
+)
+
+
 def _gh_json(ctx: Context, repo: str, *args: str) -> object | None:
     if not ctx.gh or not repo:
         return None
-    rc, out = _run([ctx.gh, *args, "--repo", repo], ctx.budget, cwd=ctx.root)
+    rc, out, err = _run_with_stderr([ctx.gh, *args, "--repo", repo], ctx.budget, cwd=ctx.root)
+    if rc == 1 and any(p.fullmatch(err.strip()) for p in _GH_NOT_FOUND_LINES):
+        return GH_NOT_FOUND
     if rc != 0:
         return None
     try:
@@ -537,6 +559,8 @@ def _gh_json(ctx: Context, repo: str, *args: str) -> object | None:
 
 def _pr_merged(ctx: Context, repo: str, branch: str) -> str:
     data = _gh_json(ctx, repo, "pr", "view", branch, "--json", "state")
+    if data is GH_NOT_FOUND:
+        return "unmet"
     if not isinstance(data, dict):
         return "cannot-verify"
     return "met" if data.get("state") == "MERGED" else "unmet"
@@ -560,6 +584,8 @@ def _pr_checks(ctx: Context, repo: str, branch: str, target: str) -> str:
     if required is None:
         args.append("--required")
     data = _gh_json(ctx, repo, *args)
+    if data is GH_NOT_FOUND:
+        return "unmet"
     if not isinstance(data, list):
         return "cannot-verify"
     buckets = {str(c.get("name")): c.get("bucket") for c in data if isinstance(c, dict)}
@@ -617,6 +643,8 @@ def _version_sync(ctx: Context) -> str:
 
 def _release_status(ctx: Context, repo: str, tag: str) -> str:
     data = _gh_json(ctx, repo, "release", "view", tag, "--json", "isDraft")
+    if data is GH_NOT_FOUND:
+        return "unmet"
     if not isinstance(data, dict):
         return "cannot-verify"
     return "met" if data.get("isDraft") is False else "unmet"

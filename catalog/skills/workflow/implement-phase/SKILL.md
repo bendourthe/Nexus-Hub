@@ -11,7 +11,7 @@ Implement one phase of a plan end-to-end: discover the right plan and phase, rev
 
 The complete, ordered procedure is in [`references/implement-phase-runbook.md`](references/implement-phase-runbook.md) - read it when actually running a phase. This body is the overview, the gates, and the invariants.
 
-What "done" means for a full run (the predicates, verdicts, run record, blockers, and pause) is owned by [`references/completion-contract.md`](references/completion-contract.md) and decided by `scripts/check_plan_completion.py`; this skill refers to that contract and does not restate its predicates.
+What "done" means for a full run (the predicates, verdicts, run record, blockers, and pause) is owned by [`references/completion-contract.md`](references/completion-contract.md) and decided by the plan-completion checker (`python ~/.nexus-hub/scripts/check_plan_completion.py`, installed with Nexus-Hub); this skill refers to that contract and does not restate its predicates.
 
 ## When to Use This Skill
 
@@ -51,7 +51,7 @@ Three guarantees, stated here because they change what a reader should expect at
 
 ## Mandatory final-phase gate (v3.11.0)
 
-When `is_final_phase` is true, before the release-readiness sub-phases, run the fail-closed last-phase duties - even if the plan predates v3.11.0 and has no explicit "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (detect its absence and run the gate anyway). Each duty writes a section of `<version_dir>/development/<version>-last-phase-evidence.md` quoting the proving command or scan: architecture refactor via `[[project-refactor]]` and `[[docs-layout-refactor]]`; known-gaps reconciliation for this version and every other still-open `docs/**/known-gaps.md`; living docs architecture; git-tree hygiene via `python scripts/check_release_preconditions.py --branches --repo-settings` (report only); CI/CD coverage plus installer parity; the Tier 3 `[[functional-verification]]` deep pass; independent Goal-vs-codebase review of the resulting tree; last-phase-only human testing suggestions; full-suite testing. If the repository ships more than one installer, run the declarative parity checker in the same pass as `[[platform-contract-verification]]`; zero or one installer is a silent no-op. A duty is omitted only by recording a known-gap (`QG` or `DF`) with Source phase, Plan reference, Reason, and Suggested next step. The `/update release` handoff is blocked while the evidence file is missing or a deep-pass or Goal-review finding is unresolved without a recorded gap. Keep the five-signal `is_final_phase` detection; never tag or push automatically.
+When `is_final_phase` is true, before the release-readiness sub-phases, run the fail-closed last-phase duties - even if the plan predates v3.11.0 and has no explicit "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (detect its absence and run the gate anyway). Each duty writes a section of `<version_dir>/development/<version>-last-phase-evidence.md` quoting the proving command or scan: architecture refactor via `[[project-refactor]]` and `[[docs-layout-refactor]]`; known-gaps reconciliation for this version and every other still-open `docs/**/known-gaps.md`; living docs architecture; git-tree hygiene via `python ~/.nexus-hub/scripts/check_release_preconditions.py --branches --repo-settings` (report only); CI/CD coverage plus installer parity; the Tier 3 `[[functional-verification]]` deep pass; independent Goal-vs-codebase review of the resulting tree; last-phase-only human testing suggestions; full-suite testing. If the repository ships more than one installer, run the declarative parity checker in the same pass as `[[platform-contract-verification]]`; zero or one installer is a silent no-op. A duty is omitted only by recording a known-gap (`QG` or `DF`) with Source phase, Plan reference, Reason, and Suggested next step. The `/update release` handoff is blocked while the evidence file is missing or a deep-pass or Goal-review finding is unresolved without a recorded gap. Keep the five-signal `is_final_phase` detection; never tag or push automatically.
 
 ## Close every phase with the progress table
 
@@ -59,7 +59,7 @@ A phase boundary ends with a table, before the closing summary, so a reader can
 see where a multi-session plan actually stands without opening the plan file:
 
 ```bash
-python scripts/plan_status.py --plan <plan-file>
+python ~/.nexus-hub/scripts/plan_status.py --plan <plan-file>
 ```
 
 It prints the plan name, the target version, and every phase with its status and
