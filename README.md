@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.1 -->
+<!-- nexus-hub-version: 4.13.2 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 338 skills, 19 commands, 37 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -34,6 +34,20 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.13.2
+
+**`/implement <plan>` now runs the whole plan.** It asks every approval the run needs once, up front, freezes them in a run record, then implements every phase through green CI, the merged integration, the release, and cleanup, stopping only on a named blocker or your pause. `phase <N>`, `next`, and `phase-by-phase` keep the stepwise modes.
+
+**A checker decides when a run is done, and the platforms enforce it.** `check_plan_completion.py` reads repository, hosting, and record state and prints `PLAN COMPLETE`, `INCOMPLETE`, `BLOCKED`, or `PAUSED`. A turn-end gate keeps a run going on hook platforms, typed plugins do the same on OpenCode, OpenClaw, Pi, and Hermes, and `nexus-hub run-plan` resumes a session that ended anyway.
+
+**Measured end to end.** In paid runs against a fixture plan, Claude Code finished 3 of 3 runs and Codex 1 of 1 without an unplanned stop. OpenCode cannot record approvals headlessly, and in two runs it proceeded on the prompt's approvals instead of stopping (known gaps WN-4 and WN-7).
+
+**Fixes the runs found.** A Windows install that left out Claude Code skipped every other platform, OpenCode refused to start on the installed agents, a Linux install aborted without `python3-venv`, Codex could not run any command on Linux with the shipped permissions, and the Windows completion hooks did nothing under a UTF-8 console.
+
+**Honest limit.** Approval capture checks that the approval text came from a prompt you typed, not which approval it names (known gap WN-9, high severity).
 
 ---
 
