@@ -36,6 +36,9 @@ def main(argv: list[str]) -> int:
         if "pr_state" not in state:
             print(missing_pr, file=sys.stderr)
             return 1
+        if "no_checks_stderr" in state:
+            print(state["no_checks_stderr"], file=sys.stderr)
+            return 1
         print(json.dumps(state.get("checks", [])))
     elif head == ["release", "view"]:
         if "release_draft" not in state:

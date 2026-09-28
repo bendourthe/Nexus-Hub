@@ -432,6 +432,83 @@ def test_stale_record_from_another_session_is_ignored(complete: Fixture) -> None
     assert result.returncode == 1
 
 
+@pytest.mark.parametrize("session", [SESSION, None])
+def test_old_record_expires_even_in_its_original_session(
+    complete: Fixture, session: str | None,
+) -> None:
+    # WN-13: a validly signed record must not retain approval indefinitely.
+    import importlib.util
+
+    path = complete.record_path()
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record["created"] = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=73)).isoformat()
+    spec = importlib.util.spec_from_file_location("cpc_for_expiry", CHECKER)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    record["approvals_hmac"] = module._sign(record, (complete.runs / ".secret").read_bytes())
+    path.write_text(json.dumps(record), encoding="utf-8")
+
+    result = complete.check(session)
+    assert result.returncode == 1
+    assert "stale run record" in result.stderr
+    assert not result.stdout.startswith("PLAN COMPLETE")
+
+
+@pytest.mark.parametrize("session", [SESSION, "different-session"])
+def test_naive_record_timestamp_is_ignored(complete: Fixture, session: str) -> None:
+    import importlib.util
+
+    path = complete.record_path()
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record["created"] = dt.datetime.now(dt.timezone.utc).replace(tzinfo=None).isoformat()
+    spec = importlib.util.spec_from_file_location("cpc_for_naive_time", CHECKER)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    record["approvals_hmac"] = module._sign(record, (complete.runs / ".secret").read_bytes())
+    path.write_text(json.dumps(record), encoding="utf-8")
+
+    result = complete.check(session)
+    assert result.returncode == 1
+    assert "stale run record" in result.stderr
+
+
+def test_inherited_git_dir_does_not_reclassify_private_record(complete: Fixture) -> None:
+    complete.env["GIT_DIR"] = str(complete.work / ".git")
+    result = complete.check()
+    assert result.returncode == 0, result.stderr + result.stdout
+
+
+def test_untracked_record_inside_a_home_git_tree_is_accepted(complete: Fixture) -> None:
+    _git(complete.tmp, "init", "-q")
+    result = complete.check()
+    assert result.returncode == 0, result.stderr + result.stdout
+
+
+def test_tracked_record_inside_a_home_git_tree_is_refused(complete: Fixture) -> None:
+    _git(complete.tmp, "init", "-q")
+    _git(complete.tmp, "add", "--", str(complete.record_path().relative_to(complete.tmp)))
+    result = complete.check()
+    assert result.returncode == 3
+    assert result.stdout.splitlines()[0] == "BLOCKED: record-tampered"
+
+
+@pytest.mark.parametrize(
+    ("stderr", "expected"),
+    [
+        ("no checks reported on the 'feat/v0.2.0-demo' branch", "unmet"),
+        ("no checks reported on the 'feat/v0.2.0-demo' branch\nAPI unavailable", "cannot-verify"),
+    ],
+)
+def test_fresh_pr_without_checks_is_not_an_outage(
+    complete: Fixture, stderr: str, expected: str,
+) -> None:
+    complete.state["no_checks_stderr"] = stderr
+    complete.save_state()
+    result = complete.check()
+    assert result.returncode == 1
+    assert f"integration.checks {expected}" in result.stdout
+
+
 def test_blocker_blocks_and_answer_clears(complete: Fixture) -> None:
     blocked = complete.run(
         "record",
