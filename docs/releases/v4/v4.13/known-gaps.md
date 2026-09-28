@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-09-27
+**Last updated**: 2026-09-28
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -373,11 +373,13 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 **Source phase**: Phase 4. **Reason**: cooperating installers serialize on a per-target lock, and the file is re-hashed immediately before the atomic replacement, but a program that ignores the lock can still write between that check and the rename; no portable primitive closes the window. **Mitigation**: a verified content-addressed backup of the pre-write bytes is always kept under `~/.nexus-hub/state/backups/`, and the report names it. **Owner**: installer maintainer. **Status**: accepted risk, documented in the decision record.
 
-#### WN-2 (v4.13.3): Copilot's shared `~/.claude/skills` fact is not verified for the CLI
+#### WN-2 (v4.13.3): Copilot host-scope mismatch - RESOLVED 2026-09-28 UTC
 
-**Source phase**: Phase 5. **Current evidence (2026-09-27)**: the [VS Code Agent Skills page](https://code.visualstudio.com/docs/agent-customization/agent-skills) documents `~/.claude/skills` for GitHub Copilot in VS Code, but the [Copilot CLI skill-location reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference) omits that personal path. One `copilot` read-path fact currently governs pointer eligibility for both hosts, so it remains UNVERIFIED to prevent a CLI install from replacing its full index based only on VS Code evidence. **Owner**: Copilot integration maintainer. **Suggested next step**: separate host-specific eligibility or obtain first-party CLI evidence before promoting the shared fact; preserve the full index for the unproved case.
+**Source phase**: Phase 5. **Original gap (2026-09-27)**: the [VS Code Agent Skills page](https://code.visualstudio.com/docs/agent-customization/agent-skills) documents `~/.claude/skills` for GitHub Copilot in VS Code, but the [Copilot CLI skill-location reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference) omits that personal path. One `copilot` read-path fact governed pointer eligibility for both hosts, so it remained UNVERIFIED to prevent a CLI install from replacing its full index based only on VS Code evidence. **Owner**: Copilot integration maintainer. **Required resolution**: separate host-specific eligibility or obtain first-party CLI evidence before promoting the shared fact; preserve the full index for the unproved case.
 
-**Local host-scope qualification, 2026-09-27**: The candidate now records `~/.claude/skills` as VERIFIED for VS Code only and excludes host-only facts from the shared Copilot personal instruction's pointer eligibility. A redirected-home runner install with only that tree present retains the full index, while the existing common-path test still permits a pointer. The [archived verification](../../../archives/v4/v4.13/development/copilot-host-scoped-skill-path-2026-09-27/verification.md) records the official-source boundary, red/green controls, 42 focused passes, and the contract check. Keep WN-2 open until protected integration and post-merge verification; Copilot CLI discovery of that path remains unverified.
+**Local host-scope qualification, 2026-09-27**: The candidate recorded `~/.claude/skills` as VERIFIED for VS Code only and excluded host-only facts from the shared Copilot personal instruction's pointer eligibility. A redirected-home runner install with only that tree present retained the full index, while the existing common-path test still permitted a pointer. The [archived verification](../../../archives/v4/v4.13/development/copilot-host-scoped-skill-path-2026-09-27/verification.md) records the official-source boundary, red/green controls, 42 focused passes, and the contract check. WN-2 remained open pending protected integration and post-merge verification; Copilot CLI discovery of that path was not verified.
+
+**Protected closure, 2026-09-28 UTC**: [PR #361](https://github.com/bendourthe/Nexus-Hub/pull/361) passed 24 hosted checks with one expected skip after correcting the historical v4.9 ledger hash exposed by its first full-profile run, merged as `6d9e4c39`, and [post-merge run 36361813686](https://github.com/bendourthe/Nexus-Hub/actions/runs/36361813686) passed smoke and provenance. The VS Code fact is host-scoped; shared and CLI pointer eligibility still excludes that path, so Copilot CLI discovery is not claimed. WN-2 is closed for the host-scope mismatch, not for a CLI discovery claim.
 
 #### MT-1 (v4.13.3): The full installers were not run end to end on a disposable machine
 
