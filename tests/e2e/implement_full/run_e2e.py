@@ -337,9 +337,9 @@ def run_condition(
         "codex": "codex",
         "opencode": "opencode",
     }[agent]
+    real_git = shutil.which("git")
+    assert real_git is not None, "git is required by the fixture"
     if agent == "stub":
-        real_git = shutil.which("git")
-        assert real_git is not None, "git is required by the stub fixture"
         _stub_bin(bin_dir, "git", HERE / "git_e2e.py", sys.executable)
         _stub_bin(bin_dir, "claude", HERE / "stub_agent.py", sys.executable)
     env = dict(os.environ)
