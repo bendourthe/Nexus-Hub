@@ -331,7 +331,7 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 7 | 0 |
 | Bugs / regressions (BG) | 0 | 9 |
-| Warnings (WN) | 12 | 1 |
+| Warnings (WN) | 11 | 2 |
 | Missing tests / coverage gaps (MT) | 2 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -390,12 +390,6 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 **Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `approval-capture` stores a digest of every submitted prompt line, and `record create` accepts an approval whose text matches any captured line. A short reply such as `ok`, a pasted issue body containing "I approve release", or the agent piping a fabricated payload into `completion_gate.py capture` can therefore back an approval class the user never approved. Severity high: this is the threat the contract names.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: issue a per-round nonce in the upfront question, require the user's answer to carry the class and nonce, match the whole prompt rather than a line, and refuse a capture the agent's own tool call produced.
-
-#### WN-10: Completion plugins start Python by bare name
-
-**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the OpenCode, OpenClaw, and Pi plugins called `spawn("python" | "python3", ...)`, and Node on Windows searches the working directory first, so a `python.exe` planted at the repository root could run at every turn end. Hermes already uses `sys.executable`; the checker and runner already resolve executables from PATH's absolute entries only.
-
-**Owner**: catalog maintainer. **Status**: open, local fix pending protected integration. **Local follow-up**: the three TypeScript plugins now resolve Python candidates from absolute PATH entries, never through an implicit working-directory search. A planted `python.exe` reproduced the failure before the fix in all three host harnesses; afterward all 25 completion-plugin tests and the 17-check fast gate passed. **Suggested next step**: publish the fix through a protected PR, verify the merge result, and then close this gap.
 
 #### WN-11: `run-plan` checks only global settings for an approval bypass
 
@@ -464,6 +458,12 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 **Owner**: catalog maintainer, via `[[platform-contract-verification]]`. **Status**: open. **Suggested next step**: verify both config locations against first-party pages, then either write the enablement through the platform's own CLI when it is detected or seed the config key under the platform-defaults do-not-invent rule.
 
 ### Resolved Items
+
+#### WN-10: Completion plugins start Python by bare name - RESOLVED 2026-09-28
+
+**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: the OpenCode, OpenClaw, and Pi plugins called `spawn("python" | "python3", ...)`, and Node on Windows searched the working directory first, so a planted `python.exe` could run at every turn end. Hermes already used `sys.executable`; the checker and runner already resolved executables from PATH's absolute entries only.
+
+**Owner**: catalog maintainer. **Resolution**: the three TypeScript plugins now pass absolute interpreter paths resolved from absolute PATH entries with `shell: false`. The planted-executable reproduction and all 25 focused plugin tests passed after the fix. [PR #368](https://github.com/bendourthe/Nexus-Hub/pull/368) passed its Linux and Windows test jobs and required checks, merged into `develop` at `ebe2f0d4`, and [post-merge run 36414815780](https://github.com/bendourthe/Nexus-Hub/actions/runs/36414815780) passed smoke and provenance. This closes implicit working-directory search; trust in explicitly configured PATH directories remains a separate environment boundary. The merged worktree and local and remote topic branches were removed.
 
 #### BG-1: Both installers copy `plan_status.py` over the installed `generate_report.py` - RESOLVED 2026-09-27
 
