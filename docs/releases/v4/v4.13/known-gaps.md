@@ -328,7 +328,7 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 7 | 0 |
-| Bugs / regressions (BG) | 0 | 8 |
+| Bugs / regressions (BG) | 0 | 9 |
 | Warnings (WN) | 12 | 1 |
 | Missing tests / coverage gaps (MT) | 2 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -516,6 +516,13 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 **Source phase**: Phase 9 (T023), terminal CI/CD reconciliation. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.5](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `tests/integrations/test_completion_gate_registration.py`, `tests/integrations/test_completion_plugins.py`, and `tests/e2e/` were in no `scripts/ci/profiles.py` partition, so CI would never have run them.
 
 **Owner**: catalog maintainer. **Status**: resolved: the two integration files join `repo-tests-integrations-install` and `tests/e2e` joins `repo-tests-governance`; `pytest tests/ci` passes (107) and the three sets pass (42).
+
+#### BG-9: The Windows completion hooks did nothing under a UTF-8 console input encoding - RESOLVED 2026-09-28
+
+**Source phase**: Phase 9 (T028), integration pull request #365, round 2 (`tests-windows`). **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.10](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `completion-gate.ps1` and `approval-capture.ps1` read the payload through `[Console]::In`; with a UTF-8 console input encoding a byte-order mark reached `completion_gate.py`, `json.loads` failed, the payload read as empty, and the hooks exited 0 silently. Reproduced locally by forcing `[Console]::InputEncoding` to UTF-8 with a byte-order mark: the gate printed nothing, where the plain console printed its refusal.
+
+**Owner**: catalog maintainer. **Status**: resolved: the adapters pass raw bytes (with the guard hooks' `[Console]::In` fallback) and close the raw stream, the core strips `\ufeff`, and Python is resolved as the guard hooks do. `test_ps1_hooks_work_under_a_utf8_console_input_encoding` fails on the previous adapters and passes now.
+
 
 ## v4.13.3
 

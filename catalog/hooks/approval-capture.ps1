@@ -28,17 +28,39 @@ if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
 
 $homeDir = if ($env:USERPROFILE) { $env:USERPROFILE } else { $env:HOME }
 $core = Join-Path $homeDir ".nexus-hub\scripts\completion_gate.py"
-$python = Get-Command python -ErrorAction SilentlyContinue
-if (-not $python) { $python = Get-Command python3 -ErrorAction SilentlyContinue }
+$python = $null
+foreach ($candidate in @("python3", "python")) {
+    $command = Get-Command $candidate -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $command) { continue }
+    # Under WindowsApps sits either a Store-installed Python or the alias that only
+    # opens the Store; probe it once so the alias is never mistaken for Python.
+    if ($command.Source -match 'WindowsApps') {
+        & $command.Source -c "import sys" *> $null
+        if ($LASTEXITCODE -ne 0) { continue }
+    }
+    $python = $command.Source
+    break
+}
 
-$payload = ""
+# The payload passes through as raw bytes: decoding it through [Console]::In depends on the
+# console input encoding, which on the hosted Windows runner (UTF-8) left a byte-order mark
+# the core could not parse, so every gate and capture silently did nothing (v4.13.2 PR #365).
+$inputBytes = [byte[]]@()
 if ([Console]::IsInputRedirected) {
-    try { $payload = [Console]::In.ReadToEnd() } catch { $payload = "" }
+    $buffer = New-Object System.IO.MemoryStream
+    try { [Console]::OpenStandardInput().CopyTo($buffer) } catch { }
+    $inputBytes = $buffer.ToArray()
+    if ($inputBytes.Length -eq 0) {
+        # Windows PowerShell 5.1 started without a console buffers stdin through its own reader,
+        # leaving the raw handle drained; [Console]::In still holds the payload there.
+        try { $fallbackText = [Console]::In.ReadToEnd() } catch { $fallbackText = "" }
+        if ($fallbackText) { $inputBytes = (New-Object System.Text.UTF8Encoding($false)).GetBytes($fallbackText) }
+    }
 }
 if (-not $python -or -not (Test-Path -LiteralPath $core)) { exit 0 }
 
 $psi = New-Object System.Diagnostics.ProcessStartInfo
-$psi.FileName = $python.Source
+$psi.FileName = $python
 $psi.Arguments = '"' + $core + '" capture'
 $psi.UseShellExecute = $false
 $psi.RedirectStandardInput = $true
@@ -47,10 +69,16 @@ $psi.RedirectStandardError = $true
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $psi.StandardOutputEncoding = $utf8
 $psi.StandardErrorEncoding = $utf8
+$psi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8"
 $proc = [System.Diagnostics.Process]::Start($psi)
-$writer = New-Object System.IO.StreamWriter($proc.StandardInput.BaseStream, $utf8)
-$writer.Write($payload)
-$writer.Close()
+try {
+    $proc.StandardInput.BaseStream.Write($inputBytes, 0, $inputBytes.Length)
+    # Close the raw stream, not a StreamWriter: closing the writer can append a byte-order mark.
+    $proc.StandardInput.BaseStream.Flush()
+    $proc.StandardInput.BaseStream.Close()
+} catch {
+    # A core that exits before reading stdin is judged by its exit code below.
+}
 $out = $proc.StandardOutput.ReadToEnd()
 $err = $proc.StandardError.ReadToEnd()
 $proc.WaitForExit()

@@ -95,6 +95,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **The completion checker and `run-plan` resist five hostile inputs found by the final review.** On Windows an executable planted in the working directory resolved before the real `git` or platform CLI, because `shutil.which` searches the current directory first; both now resolve from PATH's absolute entries only. A titled version heading (`## v4.3.0 - ...`) or a gap title containing "Unresolved" no longer reads open gaps as met, a quoted run reporting failures is no longer passing test evidence, deleting `start_head` from a run record is reported as tampering, and a long run's lock is refreshed each cycle and removed only by its owner.
 
+- **The completion gate and approval capture work in a Windows console set to UTF-8.** Both `.ps1` adapters read the hook payload through `[Console]::In`, whose decoding follows the console input encoding; with UTF-8 (the hosted Windows runner's setting) a byte-order mark reached the core, which could not parse the payload, so every turn-end gate and every approval capture silently did nothing. The adapters now pass the payload through as raw bytes, as the v4.13.1 guard hooks do, and the core ignores a byte-order mark.
+
 - **CI runs the completion-gate registration, completion-plugin, and end-to-end harness tests.** Three of the full-run test sets were in no `scripts/ci/profiles.py` partition, so CI never ran them.
 
 ---

@@ -238,3 +238,31 @@ def test_plugin_format_answers_continue(run) -> None:
     out = json.loads(run("completion-gate", claude_stop(), NEXUS_GATE_FORMAT="plugin").stdout)
     assert out == {"decision": "continue", "reason": out["reason"]}
     assert "task.T002" in out["reason"]
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows PowerShell console input encoding")
+@pytest.mark.parametrize("hook", ["completion-gate", "approval-capture"])
+def test_ps1_hooks_work_under_a_utf8_console_input_encoding(
+    powershell_bin: str, home: Home, tmp_path: Path, hook: str
+) -> None:
+    """Regression (v4.13.2 PR #365): on the hosted Windows runner the console input encoding
+    is UTF-8, reading the payload through [Console]::In left a byte-order mark the core could
+    not parse, and both hooks silently did nothing."""
+    source = (HOOKS / f"{hook}.ps1").read_text(encoding="utf-8")
+    anchor = "$psi = New-Object System.Diagnostics.ProcessStartInfo"
+    assert source.count(anchor) == 1
+    forced = "[Console]::InputEncoding = New-Object System.Text.UTF8Encoding($true)\n" + anchor
+    copy = tmp_path / f"{hook}.ps1"
+    copy.write_text(source.replace(anchor, forced), encoding="utf-8")
+    payload = claude_stop() if hook == "completion-gate" else {
+        "hook_event_name": "UserPromptSubmit", "session_id": SESSION, "prompt": "Approve the full run."}
+    result = subprocess.run(
+        [powershell_bin, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(copy)],
+        input=json.dumps(payload), text=True, capture_output=True, cwd=str(home.repo),
+        env=home.env(), timeout=120, check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    if hook == "completion-gate":
+        assert json.loads(result.stdout)["decision"] == "block"
+    else:
+        assert list((home.runs / "prompts").glob("*.jsonl")), "no approval digest was captured"

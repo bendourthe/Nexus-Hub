@@ -66,7 +66,8 @@ def _checker() -> Path:
 
 def _read_payload() -> dict:
     try:
-        payload = json.loads(sys.stdin.read() or "{}")
+        # A byte-order mark from a Windows console encoding is not part of the payload.
+        payload = json.loads(sys.stdin.read().replace("\ufeff", "").strip() or "{}")
     except (ValueError, OSError):
         return {}
     return payload if isinstance(payload, dict) else {}
