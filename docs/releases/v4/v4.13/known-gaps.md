@@ -265,7 +265,7 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 
 On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.3, v4.4, v4.5, v4.9, v4.10, and v4.11 moved to `docs/archives/`. Before the move, each open item in the v3.0-v3.21 ledgers was audited against the tree: items with concrete evidence were marked resolved in their source file, items made moot by a removal or a recorded decision were closed there with the reason, and the items below are the ones still genuinely open. Duplicates recorded by several minors are merged into one entry. Each source ledger now states `**Open items**: 0` and ends with an `Archive reconciliation - 2026-09-29` table naming every disposition. The v4.0-v4.11 ledgers were already archived and routed by the historical inventory above; their open items stay there and are not repeated here. v3.5 had no known-gaps register; its only plan has no unchecked boxes and tag `v3.5.0` exists.
 
-**Migrated items**: 57 open (0 resolved), from 137 source rows. Migration transfers tracking only: each entry below stays open until its own evidence closes it.
+**Migrated items**: 58 open (0 resolved): 57 from 137 source rows, plus AR-58 raised by the archive pass itself. Migration transfers tracking only: each entry below stays open until its own evidence closes it.
 
 ### Security-relevant
 
@@ -560,6 +560,12 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 - **Current state**: TypeORM, Drizzle, ActiveRecord, GORM, Vue, and Svelte are still listed as deferred.
 - **Owner and next step**: code-search owner; one detector plus fixture per target, on demand.
 - **Migrated from**: v3.15.1#DF-3 on 2026-09-29 (reason: still open).
+
+#### AR-58: The installers still cite the pre-archive path of the install-selection contract
+
+- **Current state**: comments in `scripts/installer.sh` and `scripts/installer.ps1` (three lines) still name `docs/releases/v3/v3.16/development/install-selection-contract.md`, which now lives at `docs/archives/v3/v3.16/development/install-selection-contract.md`. They were deliberately not repointed: the `distribution` handbook binds the installers' bytes in `docs/handbooks/_sources/distribution/evidence.json`, so any edit makes `check_handbooks.py` report stale evidence until a content, build, and rendered review is re-run.
+- **Owner and next step**: handbook owner; repoint the three comments at the next distribution-handbook refresh and record new evidence.
+- **Migrated from**: raised by the 2026-09-29 archive pass (reason: repointing requires a handbook evidence refresh outside this change).
 
 ### Hooks and notifications
 

@@ -2100,7 +2100,7 @@ resolve_python_executable() {
 # ---------------------------------------------------------------------------
 # Install selection (v3.16.1 Phase 6.1)
 #
-# Contract: docs/archives/v3/v3.16/development/install-selection-contract.md
+# Contract: docs/releases/v3/v3.16/development/install-selection-contract.md
 #
 # Resolution delegates to scripts/lib/installer/selection.py rather than being
 # reimplemented here. The plan originally called for a native implementation so
