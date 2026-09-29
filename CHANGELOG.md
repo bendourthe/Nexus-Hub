@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.4] - 2026-09-28
+
 ### Changed
 
 - **The guide's Training tab is seven headed sections instead of an eight-slide deck (v4.13.4).** A reader now scrolls one command loop in order: play the buggy game, `/describe` then `/review` it, `/plan` the repair, run the whole plan with one `/implement` (whose final phase covers review, known gaps, tests to green, and `/update release`), play the fixed game, add vertical movement with `/compare`, and brief the result with `/presentify`. Each section owns its terminal, tools, artifact, gate, and file explorer, so running one command never changes another section. The maintainer source `guides/website/example/training-scenes.json` and the embedded copy stay byte-identical, and the eight-scene source is preserved as release evidence. Legacy `#training/describe`, `review`, `test`, and `update` links open the section that now holds that command.
@@ -16,6 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - The arcade is a landscape 640x400 arena drawn at the device pixel ratio. Enemies come in four seeded archetypes with distinct silhouettes, movement, and fire (a bolt, a three-way spread, and a beam with a visible charge-up); asteroids drift, spin, fragment, and each has its own outline; the player ship banks and shows thrust. The seeded first-hit bug and its one-life-per-hit repair are unchanged.
     - Agents and browser tests can drive the page through `window.NexusTraining` (`go`, `selectAction`, `run`, `snapshot`) and `window.NexusShooter.get(id)`, documented in `guides/website/README.md`.
     - The guide stays under its 500,000-byte ceiling at 488,675 bytes; a favicon and inline image were re-encoded, with before and after captures, to make room.
+
+- **The v4.0 through v4.12 known-gaps ledgers moved to `docs/archives/v4/<minor>/` (v4.13.4).** Their open items are carried, with source hashes, in the v4.13 ledger's historical inventory, and every incoming link was repaired. The documentation-retention check still reports an archived ledger whose plans are active.
+
+### Fixed
+
+- **Completion approvals are bound to the approved push destination (v4.13.2 WN-1).** The signed run record now freezes the single origin push URL, and `approval.remote` is unmet when that URL is missing, changed, added to, or names another repository, even when push-merge was approved.
+- **Completion records expire and ignore inherited Git settings (v4.13.2 WN-13).** An approval older than 72 hours, or one with a timezone-naive timestamp, no longer counts even in its original session; inherited `GIT_DIR`-style selectors can no longer make an untracked private record look tampered; and GitHub's exact "no checks" reply on a fresh pull request reads as unmet rather than unreachable.
+- **Completion plugins never launch a Python planted in the working directory (v4.13.2 WN-10).** The OpenCode, Pi, and OpenClaw plugins resolve `python` or `py` only from absolute PATH entries before starting the installed completion gate.
+- **Every skill description fits the 1024-character standard (v4.13.2 WN-2).** Twelve over-long descriptions were shortened and the grandfather allowlist removed, so the conformance check has no exemptions.
+- **Codex setup guidance and optional extension builds (v4.13.2 WN-5, WN-6).** The Codex install summary points to the one-time hook-trust step and the project write access Codex needs, and a failing optional extension build now warns instead of aborting the Bash installer.
+- **The scheduled supply-chain watch audits third-party packages only (v4.7 WN-2).** Both `pip-audit` calls skip first-party editable installs while still auditing every third-party dependency. The warning closes once a scheduled `main` run passes with this workflow.
 
 ### Removed
 
