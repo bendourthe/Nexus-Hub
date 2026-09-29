@@ -437,7 +437,9 @@ def create_page(ck: ModuleType, rctx: RepoContext, token: str, spec: dict, membe
         "branches": {"target": spec.get("target_branch") or "develop"},
         "releases": [{"version": m["release_version"], "tag": m["tag"]} for m in members],
         "cleanup": {
-            # Phase 3 fills today's estimate from the cleanup executor's dry run.
+            # Today's estimate from `cleanup_merged.py --dry-run` is shown beside the page, never
+            # hashed into it: the approval covers the rule, not a frozen list, and a hashed live
+            # estimate would refuse the paste whenever one item changed state (Phase 6 renders it).
             "rule": "merged-and-idle" if "cleanup-merged" in names else "run-owned",
             "estimate": {m["version"]: m["approvals"]["cleanup"] for m in members},
         },

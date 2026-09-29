@@ -2670,6 +2670,13 @@ install_templates() {
         safe_copy "$completion_minor_source" "$scripts_dest/completion_minor.py" true "[OK] Minor-scope resolver installed at: $scripts_dest/completion_minor.py"
     fi
 
+    # Copy the merged-and-idle cleanup executor (v4.13.6). The release flow and the
+    # completion checker's `cleanup.merged` predicate run it as a sibling.
+    local cleanup_merged_source="$repo_root/scripts/cleanup_merged.py"
+    if [ -f "$cleanup_merged_source" ]; then
+        safe_copy "$cleanup_merged_source" "$scripts_dest/cleanup_merged.py" true "[OK] Cleanup executor installed at: $scripts_dest/cleanup_merged.py"
+    fi
+
     # Copy the completion-gate core (v4.13.2). The completion-gate and
     # approval-capture hooks run it from this installed path only.
     local completion_gate_source="$repo_root/scripts/completion_gate.py"

@@ -25,7 +25,11 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CHECKER = REPO_ROOT / "scripts" / "check_plan_completion.py"
-GH_STUB = REPO_ROOT / "tests" / "fixtures" / "gh_stub"
+sys.path.insert(0, str(REPO_ROOT / "tests" / "fixtures" / "gh_stub"))
+from launcher import gh_stub_dir, make_stub
+
+# A real executable `gh` stand-in: the resolver never runs a Windows .cmd or .bat.
+GH_STUB = gh_stub_dir()
 PLAN_REL = "docs/releases/v0/v0.2/plans/v0.2.0-demo.md"
 EVIDENCE_REL = "docs/releases/v0/v0.2/development/v0.2.0-last-phase-evidence.md"
 SESSION = "session-one"
@@ -206,10 +210,8 @@ def _ssh_stub(fx: Fixture, hosts: dict[str, str]) -> None:
         "print('hostname ' + hosts.get(alias, alias))\n",
         encoding="utf-8",
     )
-    (stub / "ssh.cmd").write_text('@echo off\r\n"%SSH_STUB_PYTHON%" "%~dp0ssh_stub.py" %*\r\n', encoding="utf-8")
-    posix = stub / "ssh"
-    posix.write_text('#!/usr/bin/env bash\nexec "$SSH_STUB_PYTHON" "$(dirname "$0")/ssh_stub.py" "$@"\n', encoding="utf-8")
-    posix.chmod(0o755)
+    # A real executable (ssh.exe on Windows): the resolver never runs a .cmd or .bat.
+    make_stub(stub, "ssh", stub / "ssh_stub.py")
     fx.env.update(
         PATH=str(stub) + os.pathsep + fx.env["PATH"],
         SSH_STUB_HOSTS=json.dumps(hosts),

@@ -60,16 +60,23 @@ def _is_inside(path: Path, root: Path) -> bool:
         return False
 
 
+# Windows batch files run through cmd.exe, which re-parses every argument: a branch
+# named `feat/x&mkdir,pwned` becomes a second command. Tools must resolve to a real
+# executable, so a `.cmd` or `.bat` on PATH is skipped (the search continues past it).
+BATCH_EXTENSIONS = (".bat", ".cmd")
+
+
 def _which_on_path(name: str) -> str | None:
     """Find `name` on PATH's absolute entries only, never in the current directory.
 
     `shutil.which` on Windows searches the current directory first even when given an
     explicit path, so a `git.bat` planted at a repository root would run before the
-    inside-the-tree refusal could see it.
+    inside-the-tree refusal could see it. Batch files are never returned.
     """
     exts = [""]
     if os.name == "nt":
         exts = [e.lower() for e in os.environ.get("PATHEXT", ".COM;.EXE;.BAT;.CMD").split(";") if e]
+        exts = [e for e in exts if e not in BATCH_EXTENSIONS]
     for entry in os.environ.get("PATH", "").split(os.pathsep):
         base = Path(entry)
         if not entry or not base.is_absolute():

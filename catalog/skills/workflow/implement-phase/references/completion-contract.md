@@ -40,6 +40,7 @@ Ids are fixed strings. "Cannot verify" always counts as unmet: offline, unauthen
 | `release.main` | The release branch (`main`) contains the tag | `git merge-base --is-ancestor v<version> <remote>/main` | Remote ref absent |
 | `cleanup.branches` | Every branch listed in the record's `cleanup.branches` is gone locally and on the remote | `git branch --list`; `git ls-remote --heads` | Remote unreachable |
 | `cleanup.worktree` | Every worktree listed in the record's `cleanup.worktrees` is absent from `git worktree list` | `git worktree list --porcelain` | Never |
+| `cleanup.merged` (only when a schema-1 record carries `cleanup-merged`; for a minor run, the minor verdict) | The sealed final-pass receipt beside the record (see "Cleanup receipt") names the record's nonce and its target branch as `integration_branch`, used an idle window of at least 24 hours, was taken when the integration branch's tip already contained the last merge (the plan's integration pull request; for a minor, the closing pull request), and every item it removed is still gone. Items that became eligible after the receipt never reopen the verdict; they are reported by the next pass | The receipt; `gh pr view <branch> --json state,mergeCommit`; `git merge-base --is-ancestor`; `git for-each-ref`, `git ls-remote --heads`, `git worktree list` | `gh` unavailable, no merge commit reported, or the tip's history is not local. A missing, unsealed, or other-run receipt is `unmet` |
 
 Post-integration predicates (`release.*`, `cleanup.*`) are derived from repository and hosting state, never from checkboxes, because the tasks that produce them are ticked by the same agent the checker is judging.
 
@@ -70,8 +71,14 @@ The evidence file must carry these `##` headings, matching the implement-phase r
 | Green CI with the tests the work needs | `tests.evidence`, `integration.checks` |
 | The merged integration | `approval.remote`, `integration.merged` |
 | The full release | `release.tag`, `release.changelog`, `release.version-sync`, `release.github`, `release.main` |
-| Removal of merged branches and worktrees | `cleanup.branches`, `cleanup.worktree` |
+| Removal of merged branches and worktrees | `cleanup.branches`, `cleanup.worktree`, and `cleanup.merged` under a `cleanup-merged` approval |
 | Last-phase duties recorded | `evidence.file` |
+
+### Cleanup receipt
+
+This subsection owns the `cleanup.merged` evidence. `cleanup_merged.py` (installed beside the checker) is the only code that removes a branch or worktree a run did not list; the seven checks it applies and why are in `docs/decisions/proposed/policy/2026-09-28-verified-merged-and-idle-cleanup.md`, and nothing here restates them. Per-plan runs keep `cleanup.branches` and `cleanup.worktree` for their own items and use the executor only when their record carries `cleanup-merged`, which the approval page offers for a one-plan run as well (its page then shows the cleanup rule `merged-and-idle` instead of `run-owned`).
+
+`cleanup_merged.py --apply --receipt --plan <plan>` (or `--minor vX.Y`) runs the final pass after the last merge and writes `<record key>.cleanup-receipt.json` beside the run record, owner-only. It refuses with `BLOCKED: approval-not-covered` and `reason: no-cleanup-merged-approval` when the record does not carry `cleanup-merged`, and prints the record's forced verdict when it is paused, blocked, or tampered. The receipt holds `kind` (`cleanup-merged-receipt`), `receipt_schema` (`1`), `scope`, `record_nonce`, `created`, `integration_branch`, `integration_tip` (the live remote tip when the pass ran, fetched so its history is local), `idle_hours` (the window the pass used; the executor refuses anything below 24), `removed` (each item as `{kind, name, remote, path}`), `kept` (each item label with its check), and `seal`, an HMAC-SHA256 under the runs secret over the canonical JSON of every other field, in its own domain so no other sealed file verifies as a receipt. The receipt carries no `schema` or `repo_root`, so record lookups by content never mistake it for a run record. No receipt is written when any item was kept for `gh-unavailable`, `remote-unreadable`, or `records-unreadable`: the pass could not see, so it prints `BLOCKED: cannot-verify` and exits 3 instead, and `cleanup.merged` stays `unmet`.
 
 ## Run record
 

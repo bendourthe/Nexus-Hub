@@ -45,7 +45,7 @@ def git(*args: str) -> str:
 
 
 def gh(*args: str) -> None:
-    # shutil.which honors PATHEXT, so the harness's gh.cmd stand-in wins on
+    # shutil.which searches PATH in order, so the harness's gh.exe stand-in wins on
     # Windows; a bare "gh" would let CreateProcess pick the real gh.exe.
     binary = shutil.which("gh")
     if binary is None:

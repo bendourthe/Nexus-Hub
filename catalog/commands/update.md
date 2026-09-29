@@ -130,11 +130,17 @@ Merging the release straight to `main` is the failure this ordering prevents. It
 
 ### 2. Clear what the release consumed, BEFORE tagging
 
-Once the release is on `develop` and its checks are green, retire the branches and worktrees it just integrated. Each check is fail-closed and stops the release rather than forcing past it:
+Once the release is on `develop` and its checks are green, retire the branches and worktrees it just integrated, and every other one that is verifiably merged and idle, with the cleanup executor. Do not delete branches or worktrees by hand here:
 
-1. **Every merged plan branch** is deleted locally and on the remote. Verify with `git branch --merged <integration-branch>`; a branch absent from that list is NOT deleted, and its presence is reported instead. Before any REMOTE deletion, confirm the remote tip equals the merged pull request's `headRefOid` (`gh pr view <branch> --repo <owner/repo> --json headRefOid`), so a commit pushed after the merge is never deleted with the branch; refuse `main`, `develop`, the repository's default branch, and any protected branch outright. A squash-merged branch that `git branch -d` refuses is recorded and left in place, never force-deleted with `-D`.
-2. **Every worktree whose branch merged** is removed via `[[using-git-worktrees]]`, its directory deleted, and `git worktree prune` run. Before removal, `git -C <worktree> status --porcelain` MUST be empty; a dirty tree stops the teardown and is reported, never `--force`d away.
-3. **`git worktree list`** is re-read afterwards and must no longer show the removed paths.
+1. **Dry run first**, and quote its output:
+
+    ```bash
+    python ~/.nexus-hub/scripts/cleanup_merged.py --dry-run --integration-branch develop
+    ```
+
+    Each line is `REMOVE <item>` or `KEEP <item> <check>`. The checks, and why each exists, are in `docs/decisions/proposed/policy/2026-09-28-verified-merged-and-idle-cleanup.md`. The dry run makes network calls (`git ls-remote` and the user's own authenticated `gh`); offline, every item is kept. A branch merged without a pull request is never a candidate, so it stays and is removed by hand if wanted.
+2. **Apply only under an approval.** Under a run record that carries `cleanup-merged`, run `python ~/.nexus-hub/scripts/cleanup_merged.py --apply --receipt --plan <plan>` (or `--minor vX.Y`), which also writes the final-pass receipt the completion contract reads. With no record, show the dry-run output and ask for an explicit confirmation before running `--apply`; a reply that does not confirm removes nothing. Quote the apply output. A `KEEP` line is never overridden by hand: the item stays and is reported, and `-D`, `--force`, and `worktree remove --force` are never used.
+3. **Exit 3** (`BLOCKED: cleanup-running` or `BLOCKED: approval-not-covered`) stops the release cleanup and is reported; exit 1 means at least one `KEEP <item> removal-failed <reason>` line, which is reported with its partial state while the release continues.
 
 Ordering matters here too. Cleaning before the tag means the tagged tree reflects the repository a user will actually clone, and it means stale worktrees never accumulate across releases. Ten shipped releases that each skip this leave ten orphaned checkouts, each pinning objects and each indistinguishable from the real repository at a glance.
 
@@ -142,7 +148,7 @@ Ordering matters here too. Cleaning before the tag means the tagged tree reflect
 
 `main` receives the already-integrated, already-cleaned result. The pre-tag branch assertion below is the last check before `git tag`.
 
-Self-gates: a repository with a single long-lived branch skips step 1 and merges nothing, and a release that consumed no worktree-backed plan skips step 2. Both are silent no-ops, not warnings.
+Self-gates: a repository with a single long-lived branch merges nothing, and a dry run with no `REMOVE` line applies nothing. Both are silent no-ops, not warnings.
 
 ## release scope: pre-tag branch assertion (the LAST check before `git tag`)
 

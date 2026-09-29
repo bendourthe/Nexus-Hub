@@ -148,6 +148,8 @@ def create_page(
 ) -> dict:
     """The canonical data an upfront approval page shows for a one-plan run."""
     cleanup = spec.get("cleanup") or {"branches": [], "worktrees": []}
+    # `cleanup-merged` is offered to a one-plan run too (completion contract, "Cleanup receipt").
+    merged = any(c.get("class") == "cleanup-merged" for c in spec.get("classes", []))
     return {
         "action": "create",
         "scope": {"kind": "plan", "version": version, "plan": rel},
@@ -164,7 +166,7 @@ def create_page(
                 "tag": spec.get("tag") or version,
             }
         ],
-        "cleanup": {"rule": "run-owned", "estimate": cleanup},
+        "cleanup": {"rule": "merged-and-idle" if merged else "run-owned", "estimate": cleanup},
         "migratable_gaps": [],
         "spend_caps": spec.get("spend_caps") or {},
         "classes": [

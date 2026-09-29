@@ -37,7 +37,11 @@ from .test_check_plan_completion import (  # noqa: F401  (autouse fixture re-exp
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = REPO_ROOT / "scripts"
 CHECKER = SCRIPTS / "check_plan_completion.py"
-GH_STUB = REPO_ROOT / "tests" / "fixtures" / "gh_stub"
+sys.path.insert(0, str(REPO_ROOT / "tests" / "fixtures" / "gh_stub"))
+from launcher import gh_stub_dir
+
+# A real executable `gh` stand-in: the resolver never runs a Windows .cmd or .bat.
+GH_STUB = gh_stub_dir()
 sys.path.insert(0, str(SCRIPTS))
 import check_plan_completion as ck  # noqa: E402
 import completion_minor as cm  # noqa: E402

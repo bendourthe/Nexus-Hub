@@ -2800,6 +2800,13 @@ function Install-Templates {
         Safe-Copy -Source $completionMinorSource -Destination (Join-Path $scriptsDest "completion_minor.py") -Confirm:$true -CustomMessage "✓ Minor-scope resolver installed at: $scriptsDest\completion_minor.py"
     }
 
+    # Copy the merged-and-idle cleanup executor (v4.13.6). The release flow and the
+    # completion checker's `cleanup.merged` predicate run it as a sibling.
+    $cleanupMergedSource = Join-Path $RepoRoot "scripts\cleanup_merged.py"
+    if (Test-Path $cleanupMergedSource) {
+        Safe-Copy -Source $cleanupMergedSource -Destination (Join-Path $scriptsDest "cleanup_merged.py") -Confirm:$true -CustomMessage "✓ Cleanup executor installed at: $scriptsDest\cleanup_merged.py"
+    }
+
     # Copy the completion-gate core (v4.13.2). The completion-gate and
     # approval-capture hooks run it from this installed path only.
     $completionGateSource = Join-Path $RepoRoot "scripts\completion_gate.py"

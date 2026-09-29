@@ -44,8 +44,8 @@ from types import ModuleType
 _SCRIPT_DIR = str(Path(__file__).resolve().parent)
 if _SCRIPT_DIR not in sys.path:
     sys.path.insert(0, _SCRIPT_DIR)
-import approval_binding  # noqa: E402  (installed as a sibling in ~/.nexus-hub/scripts/)
-import repo_host  # noqa: E402  (installed as a sibling in ~/.nexus-hub/scripts/)
+import approval_binding
+import repo_host
 
 EXIT_COMPLETE, EXIT_INCOMPLETE, EXIT_MALFORMED, EXIT_BLOCKED, EXIT_PAUSED = (
     0,
@@ -662,6 +662,10 @@ def evaluate(ctx: Context, record: dict | None) -> tuple[list[tuple[str, str]], 
     results.append(
         ("cleanup.worktree", _worktrees_gone(ctx, cleanup.get("worktrees"), branch))
     )
+    classes = {c.get("class") for c in approvals.get("classes") or [] if isinstance(c, dict)}
+    # A minor member's projection never carries it: the minor verdict owns the final pass.
+    if record is not None and record.get("schema") == SCHEMA and "cleanup-merged" in classes:
+        results.append(("cleanup.merged", _cleanup_merged_status(ctx, record, repo, branch)))
     return results, deferred
 
 
@@ -990,6 +994,26 @@ def _worktrees_gone(ctx: Context, worktrees: list[str] | None, branch: str) -> s
             "unmet" if any(str(Path(w).resolve()) in wanted for w in listed) else "met"
         )
     return "unmet" if f"branch refs/heads/{branch}" in out else "met"
+
+
+def _cleanup_merged_status(ctx: Context, record: dict, repo: str, branch: str) -> str:
+    """`cleanup.merged`: the sealed final-pass receipt postdates the plan's merge (contract)."""
+    data = _gh_json(ctx, repo, "pr", "view", branch, "--json", "state,mergeCommit")
+    if data is GH_NOT_FOUND:
+        return "unmet"
+    if not isinstance(data, dict):
+        return "cannot-verify"
+    if data.get("state") != "MERGED":
+        return "unmet"
+    merge = (data.get("mergeCommit") or {}).get("oid") if isinstance(data.get("mergeCommit"), dict) else None
+    try:
+        import cleanup_merged  # a sibling in ~/.nexus-hub/scripts/, imported only when needed
+    except ImportError:
+        return "cannot-verify"
+    target = str((record.get("approvals") or {}).get("target_branch") or "develop")
+    return cleanup_merged.receipt_status(
+        ctx.root, ctx.git, ctx.run, ctx.record_path(), record.get("nonce"), merge, target
+    )
 
 
 # --------------------------------------------------------------------------- verdict
