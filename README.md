@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.4 -->
+<!-- nexus-hub-version: 4.13.5 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 338 skills, 19 commands, 37 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,10 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.13.5
+
+**Full `/implement` runs finish in repositories that use an SSH host alias.** The completion checker now resolves the GitHub repository behind any remote form, including `git@github-work:owner/repo.git`, verifies the real host through `ssh -G`, and reports `cannot-verify` rather than guessing when it cannot confirm the host, so it never checks a same-named repository on the wrong server.
 
 ## What's New in v4.13.4
 
